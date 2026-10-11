@@ -1,0 +1,103 @@
+{
+  "boundary_behavior": "Native/recovery helpers reconcile whole-process actual including failures, refuse next stage if remaining phase reservation no longer fits; no retry.",
+  "budgets": {
+    "G1_recovery": {
+      "accounting_scope": "ONLY this new distinct phase; never project-wide accounting",
+      "accounting_sources": [],
+      "already_spent_external": 0,
+      "counter_definition": "Zero external/reserved counters mean no other process belongs to this fresh phase. They do NOT represent prior project or lost zt3 cost.",
+      "limit_kind": "internal_finite_test_registration",
+      "per_job_reserves": {
+        "recovery": 1
+      },
+      "phase_limit": 4,
+      "project_prior_actual_GPU_hours": null,
+      "registration_status": "CPU_PREPARED; current gates and exact fresh output checks required before dispatch",
+      "reserved_elsewhere": 0,
+      "total_internal_limit": 4,
+      "user_GPU_hours_limit": null,
+      "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+    },
+    "G3_recovery": {
+      "accounting_scope": "ONLY this new distinct phase; never project-wide accounting",
+      "accounting_sources": [],
+      "already_spent_external": 0,
+      "counter_definition": "Zero external/reserved counters mean no other process belongs to this fresh phase. They do NOT represent prior project or lost zt3 cost.",
+      "limit_kind": "internal_finite_test_registration",
+      "per_job_reserves": {
+        "recovery": 1
+      },
+      "phase_limit": 4,
+      "project_prior_actual_GPU_hours": null,
+      "registration_status": "CPU_PREPARED; current gates and exact fresh output checks required before dispatch",
+      "reserved_elsewhere": 0,
+      "total_internal_limit": 4,
+      "user_GPU_hours_limit": null,
+      "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+    },
+    "early": {
+      "accounting_scope": "ONLY this new distinct phase; never project-wide accounting",
+      "accounting_sources": [],
+      "already_spent_external": 0,
+      "counter_definition": "Zero external/reserved counters mean no other process belongs to this fresh phase. They do NOT represent prior project or lost zt3 cost.",
+      "limit_kind": "internal_finite_test_registration",
+      "per_job_reserves": {
+        "early": 0.5
+      },
+      "phase_limit": 3,
+      "project_prior_actual_GPU_hours": null,
+      "registration_status": "CPU_PREPARED; current gates and exact fresh output checks required before dispatch",
+      "reserved_elsewhere": 0,
+      "total_internal_limit": 3,
+      "user_GPU_hours_limit": null,
+      "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+    },
+    "nu": {
+      "accounting_scope": "ONLY this new distinct phase; never project-wide accounting",
+      "accounting_sources": [],
+      "already_spent_external": 0,
+      "counter_definition": "Zero external/reserved counters mean no other process belongs to this fresh phase. They do NOT represent prior project or lost zt3 cost.",
+      "limit_kind": "internal_finite_test_registration",
+      "per_job_reserves": {
+        "compatibility": 1
+      },
+      "phase_limit": 1,
+      "project_prior_actual_GPU_hours": null,
+      "registration_status": "CPU_PREPARED; current gates and exact fresh output checks required before dispatch",
+      "reserved_elsewhere": 0,
+      "total_internal_limit": 1,
+      "user_GPU_hours_limit": null,
+      "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+    }
+  },
+  "claim_scope": "ONLY prospective queued phases; not a whole-project 140/120 or known global ledger assertion",
+  "estimated_max_new_full8_wall_hours": 1.5,
+  "forward_handoff": "Parent already owns RUN_AFTER_PROFILE_V1.py/waiter88497 and its separate24GPUh phase; no forward plan or budget is created here.",
+  "job_counts": {
+    "G1_recovery": 4,
+    "G3_recovery": 4,
+    "early": 6,
+    "nu": 1
+  },
+  "limit_kind": "internal_finite_test_registration",
+  "main24_and_pairedprofile_costs_excluded_from_phase_accounting": true,
+  "no_per_job_timeout_or_worker_termination": true,
+  "prior_project_actual_GPU_hours": null,
+  "reserve_basis": {
+    "early": "0.5GPUh/job=225sec; prior parent qualification150.05876sec, startup/save included, prospective bound not guarantee",
+    "nu": {
+      "old_actual_wall_seconds": 270.90075487084687,
+      "old_execution_mode": "engineering_timevec; cost reference only, not P0 numerical evidence",
+      "old_timevec_PROCESS_EXIT": {
+        "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/PROCESS_EXIT.json",
+        "sha256": "9129e85f0c7e2c0e11a649386b2c46dd02b1b37a24ea8c712e50406b41136715"
+      },
+      "per_job_GPU_hours": 1
+    },
+    "recovery": "1GPUh/stage=450sec;32-update<=103sec at observed3.2sec plus restore/hash/log/save headroom; no new actual recovery measured"
+  },
+  "schema": "queued_zt4_finite_phase_registration_cpu_v1",
+  "sum_of_new_phase_reserves_GPU_hours": 12,
+  "user_GPU_hours_limit": null,
+  "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+}

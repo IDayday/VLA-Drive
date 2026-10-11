@@ -1,0 +1,156 @@
+{
+  "artifact_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "budget": {
+    "accounting_scope": "ONLY this new distinct phase; never project-wide accounting",
+    "accounting_sources": [],
+    "already_spent_external": 0,
+    "counter_definition": "Zero external/reserved counters mean no other process belongs to this fresh phase. They do NOT represent prior project or lost zt3 cost.",
+    "limit_kind": "internal_finite_test_registration",
+    "per_job_reserves": {
+      "compatibility": 1
+    },
+    "phase_limit": 1,
+    "project_prior_actual_GPU_hours": null,
+    "registration_status": "CPU_PREPARED; current gates and exact fresh output checks required before dispatch",
+    "reserved_elsewhere": 0,
+    "total_internal_limit": 1,
+    "user_GPU_hours_limit": null,
+    "zt3_missing_actual_cost": "UNKNOWN_NOT_ZERO"
+  },
+  "dispatch_prerequisites": [
+    "Main24 benchmark actual complete and all owned workers exited",
+    "PairedprofileV2 entire phase actual complete and all owned workers exited",
+    "Parent sequences phases; extra metadata is not a new guard in immutable runners",
+    "Fresh task policy, actual full8 UUID/runtime/qualification, no foreign compute apps, inherited physical lease",
+    "Fresh actual disk admission including other writers and receipt/log bytes; no retry or overwrite"
+  ],
+  "dispatch_ready": false,
+  "driver_binding": {
+    "driver_sha256": "a8e69113a3c1a09a2e892e28b244f3d8953427a9aa13d9067b8e18aa0710c572",
+    "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-driver-v8-frozen-20261011",
+    "source_sha": "02f7a9afe838a86dc906a10ec3c6f602faac7b98"
+  },
+  "driver_binding_current": {
+    "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011",
+    "source_sha": "68f6924bf39e6ab3f98ecfb7f8efc9ec86144318"
+  },
+  "executor": "Existing cold68 native.run_budgeted_job/bench.run_job under physical and storage_io leases; not a native --cases manifest",
+  "formal_NU_identity_investigation": "PENDING Newton; independent of this calibrated compatibility-only command",
+  "gpu_uuids": [
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+  ],
+  "host": "training-vlawm-zt4",
+  "job": {
+    "case": "Nu_G1",
+    "command": [
+      "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc_per_node=8",
+      "--max_restarts=0",
+      "--",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "--config",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml",
+      "--cache",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_official_assets_v1/train_labels",
+      "--output",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/Nu_G1_P0_32",
+      "--scope",
+      "profile",
+      "--debug-updates",
+      "32",
+      "--use-formal-schedule",
+      "--micro-batch",
+      "4",
+      "--geometry",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_official_perception_v1/shared_geometry/shared_geometry.pt",
+      "--geometry-identity",
+      "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+      "--dino-root",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_official_perception_v1/current_C1",
+      "--dino-identity",
+      "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+      "--image-root",
+      "/mnt/project/datasets/nuscenes-v1.0-trainval",
+      "--execution-mode",
+      "engineering_fast",
+      "--save-every",
+      "2147483647"
+    ],
+    "dispatch_ready": false,
+    "gpu_uuids": [
+      "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+      "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+      "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+      "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+      "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+      "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+      "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+      "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+    ],
+    "initialize_from_driving_checkpoint": false,
+    "key": "Nu_G1_P0_real32",
+    "mode": "engineering_fast",
+    "native_bank_count": 2,
+    "native_bank_tags": [
+      "latest_0000000",
+      "milestone_0000032"
+    ],
+    "old_timevec_receipt": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/PROCESS.json",
+      "sha256": "ec6521811d214a8912b6512e9c02a06da209ad740c30128d561c14b5789135d5"
+    },
+    "origin": null,
+    "population": 23230,
+    "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/Nu_G1_P0_32",
+    "schedule_horizon": 17424,
+    "schedule_warmup": 726,
+    "scientific_identity_reference": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/identity.json",
+      "sha256": "8051f47cadffdb04f228bca9e0e648d481c7639d5f1e5341997d57b17212a232"
+    },
+    "scope": "Existing calibrated 1e5/be5 recipe compatibility only. Positive class weights differ from original 0c; no original 0c objective equivalence or formal NU migration claim.",
+    "stage": "compatibility",
+    "steps": 32,
+    "storage_budget": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/LOCAL_STORAGE_BUDGET.json",
+      "sha256": "f4eb6315938862a89863df72d0603d6b3a0bedd7628bcbd90c321fb2c7f4a8d3"
+    },
+    "storage_enforcement": "91GiB OWN cap and both-bank free-space preflight; be5 fresh NU save has its existing100GiB reserve check. No capture flag/per-save OWN-cap claim for this non-origin run.",
+    "trainer": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+    "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad"
+  },
+  "minimum_free_MiB": 68000,
+  "preparation_parent_manifest": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/NU_P0_REAL32_MANIFEST_BUDGET_PENDING.json",
+    "sha256": "940a9e65070e601334011070e6027d6d6fa39687f968209d7eab0bee93bf971d"
+  },
+  "preparation_scope": "CPU only; finite fresh phase, no global actual-cost claim, no formal acceptance",
+  "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+  "qualification": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/HOST_QUALIFICATION.json",
+    "sha256": "01d93ea95304e39ea048608014441b5658b5ce87e1edfff108581cc209e20e19"
+  },
+  "required_gates": [
+    "Main24 benchmark actual complete and all owned workers exited",
+    "PairedprofileV2 entire phase actual complete and all owned workers exited",
+    "Parent sequences phases; extra metadata is not a new guard in immutable runners",
+    "Fresh task policy, actual full8 UUID/runtime/qualification, no foreign compute apps, inherited physical lease",
+    "Fresh actual disk admission including other writers and receipt/log bytes; no retry or overwrite",
+    "Existing calibrated config and asset identities match this binding",
+    "External91GiB OWN cap preflight for init0 and end32; fresh trainer retains existing100GiB save guard"
+  ],
+  "schema": "structured_world_execution_compatibility_job_v1",
+  "scientific_claim": "Existing calibrated 1e5/be5 recipe compatibility only. Positive class weights differ from original 0c; no original 0c objective equivalence or formal NU migration claim.",
+  "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+  "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad"
+}

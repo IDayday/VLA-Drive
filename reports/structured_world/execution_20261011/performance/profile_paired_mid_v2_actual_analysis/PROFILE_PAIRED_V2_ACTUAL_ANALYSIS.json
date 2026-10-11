@@ -1,0 +1,4091 @@
+{
+  "schema": "profile_paired_v2_actual_analysis_v1",
+  "analysis_UTC": "2026-10-11",
+  "scope": "Actual paired 32-update profiles; descriptive CPU/CUDA analysis, not numerical acceptance or stable-throughput qualification",
+  "formal_authorized": false,
+  "acceptance_granted": false,
+  "sources": {
+    "model_git_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "profile_driver_git_sha": "884e3bc0de5941411b7a5e7d597403ab51ba7e79",
+    "profile_adapter_sha256": "bfe52ef604b88d37bd18f106a83b2d1f6e25153b770c8eac4d09e6b2051597a2",
+    "plan": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/profile_paired_mid_v2/PLAN.json",
+      "sha256": "1eab31b887fad05a911d9fac5db152726f6c764166a8fe2d4efd58b5c14b7340",
+      "frozen_UTC": "2026-10-11T13:11:01.536308+00:00"
+    },
+    "qualification_sha256": "09a40febff8a3876040b38159038981e5ba0ab7fe62f5971eb537ecc79a0115e",
+    "early_screen": {
+      "git_sha": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+      "dirty_tree_sha256": "f4f7bb01aed30c43ecb1679fe53d4165da4b5de474cab4e8e56b9a4b5ddee93e",
+      "is_f8": false,
+      "f8_git_sha": "f8b33ef2ac2c048be905227c14fc164382a813ae"
+    }
+  },
+  "controller": {
+    "jobs": 2,
+    "GPU_hours": 1.409784114311111,
+    "formal_authorized": false,
+    "scope": "Paired32update full-model CPU/CUDA trace, not stable-throughput or numeric acceptance"
+  },
+  "controller_ref": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/controller/COMPLETE.json",
+    "bytes": 179,
+    "sha256": "db920c325e75abe97dd4709589c9282a0929334eae8a68410f8d3411e9404ec1"
+  },
+  "paired_equal_contract_keys": [
+    "training_source_sha",
+    "training_source_tree_sha256",
+    "engineering_continue_origin",
+    "config",
+    "cache_identity",
+    "current_and_GT_identity",
+    "DINO_identity",
+    "shared_geometry_identity",
+    "training_seed",
+    "world_size",
+    "effective_global_batch",
+    "FM_repeat",
+    "microbatch",
+    "schedule_horizon",
+    "schedule_warmup"
+  ],
+  "paired_equal_contract_verified": true,
+  "jobs": {
+    "io_preserving_v1": {
+      "identity": {
+        "identity": "ab6cd0d8eda13dc2bcb121df1d0649a4155c89aa8421756a6808e1115b0b04fe",
+        "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+        "training_source_tree_sha256": "3334feb5872ad6f681caf6bfe21eb70b538aed27c0333b16953b7a7e66c88830",
+        "engineering_continue_origin": {
+          "complete_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e",
+          "completed": 25000,
+          "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+          "tag": "milestone_0025000"
+        },
+        "execution_mode": "io_preserving_v1",
+        "precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off",
+        "effective_training_precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off",
+        "world_size": 8,
+        "microbatch": 4,
+        "effective_global_batch": 32,
+        "FM_repeat": 8,
+        "extra_stage_instrumentation": true
+      },
+      "done": {
+        "GPU_hours": 175.9471805911594,
+        "evaluation_complete": false,
+        "exposure": 800968,
+        "identity": "ab6cd0d8eda13dc2bcb121df1d0649a4155c89aa8421756a6808e1115b0b04fe",
+        "updates": 25032
+      },
+      "PROCESS_EXIT": {
+        "returncode": 0,
+        "wall_seconds": 327.927066784,
+        "pid": 1663235,
+        "native_boundary_observed_seconds": 98.73908733,
+        "monitor_error": null
+      },
+      "actual_allocated_GPU_hours": 0.7287268150755555,
+      "resume_boundary": {
+        "completed": 25000,
+        "epoch": 7,
+        "offset": 2775,
+        "exposure": 799944
+      },
+      "receipt_refs": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/identity.json",
+          "bytes": 37874,
+          "sha256": "d54f4b6de5a61016044a7509152d4342900069e326037ab98d9bd8b47225bfdd"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/PROCESS.json",
+          "bytes": 2083,
+          "sha256": "b722e9ea36a0ae911780122f51b9e20df0897749e7b1876cbabea2c739074002"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/PROCESS_EXIT.json",
+          "bytes": 148,
+          "sha256": "660f02db89e3367bc0a9ba03ab47d2bffcc406f5c448df340049d6be49528494"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/TRAINING_COMPLETE.json",
+          "bytes": 193,
+          "sha256": "fc53924b77f66924ec99b9620afdf1ec10cdcec3a0b879af33ae4f35260f8bf5"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/RESUME_BOUNDARY_VERIFIED.json",
+          "bytes": 504,
+          "sha256": "4df9f3d126352e75f0b41a8f8c01dc5780aafa6b79abbe06c918167f9860a9fb"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/metrics.jsonl",
+          "bytes": 414175,
+          "sha256": "cc89324047158fd984874bbe87fd35f193d34b1c6349cebf72f84f886c617502"
+        }
+      ],
+      "actual_adapter_path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-profile-v2-frozen-20261011/tools/structured_world/perf_reference_trace.py",
+      "extended_flag_in_actual_command": true,
+      "stage_summary": {
+        "FGTR": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 15.990495681762695,
+          "post_trace_rankmax_host_median_ms": 61.98657024651766,
+          "active_nominal_updates_rankmax_stream_ms": [
+            18.729087829589844,
+            17.5097599029541,
+            17.338336944580078
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "FM_supervision": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 87.84476470947266,
+          "post_trace_rankmax_host_median_ms": 87.88715302944183,
+          "active_nominal_updates_rankmax_stream_ms": [
+            87.6187515258789,
+            86.32915496826172,
+            88.25526428222656
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "Qwen_current_inclusive": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 813.31005859375,
+          "post_trace_rankmax_host_median_ms": 724.6191911399364,
+          "active_nominal_updates_rankmax_stream_ms": [
+            791.6921997070312,
+            805.3322143554688,
+            788.49755859375
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "Qwen_vision": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 288.22059631347656,
+          "post_trace_rankmax_host_median_ms": 282.9883275553584,
+          "active_nominal_updates_rankmax_stream_ms": [
+            279.44580078125,
+            305.19195556640625,
+            277.9975891113281
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "backward_inclusive": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 1645.2328491210938,
+          "post_trace_rankmax_host_median_ms": 1645.2601505443454,
+          "active_nominal_updates_rankmax_stream_ms": [
+            1797.347412109375,
+            1800.4326171875,
+            1799.9390869140625
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "current_geometry": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 237.04727935791016,
+          "post_trace_rankmax_host_median_ms": 235.81653740257025,
+          "active_nominal_updates_rankmax_stream_ms": [
+            264.53515625,
+            287.8277893066406,
+            240.60812377929688
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "future_space": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 113.24745559692383,
+          "post_trace_rankmax_host_median_ms": 72.52998556941748,
+          "active_nominal_updates_rankmax_stream_ms": [
+            113.9332504272461,
+            113.97334289550781,
+            113.92025756835938
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "optimizer_step": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 97.10173034667969,
+          "post_trace_rankmax_host_median_ms": 97.13310562074184,
+          "active_nominal_updates_rankmax_stream_ms": [
+            103.1960678100586,
+            105.33670043945312,
+            90904.046875
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "proposal_10steps": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 376.2579803466797,
+          "post_trace_rankmax_host_median_ms": 376.30387395620346,
+          "active_nominal_updates_rankmax_stream_ms": [
+            485.5797119140625,
+            499.3637390136719,
+            490.5264587402344
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "scene_heads": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 29.333120346069336,
+          "post_trace_rankmax_host_median_ms": 1.1424561962485313,
+          "active_nominal_updates_rankmax_stream_ms": [
+            29.077983856201172,
+            29.098976135253906,
+            29.10585594177246
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        }
+      },
+      "extended_CPU_summary": {
+        "Qwen_language_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            121.41585163772106,
+            120.74034009128809,
+            121.15029897540808,
+            120.62409054487944,
+            121.13602180033922,
+            120.6691050902009,
+            120.88152300566435,
+            120.79004570841789
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 121.39631807804108,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "Qwen_processor_apply_chat_template_host": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            264.03743401169777,
+            255.10378554463387,
+            247.47634213417768,
+            220.2800838276744,
+            223.6450733616948,
+            221.94427251815796,
+            226.33183375000954,
+            257.22989346832037
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 268.3349661529064,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "Qwen_get_rope_index_host": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            8.91333818435669,
+            8.927658200263977,
+            9.33836679905653,
+            8.889904245734215,
+            8.815258741378784,
+            9.483511559665203,
+            9.467524476349354,
+            9.713388979434967
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 9.449254721403122,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "Qwen_build_batch_including_vision": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            581.407050602138,
+            569.9953213334084,
+            559.5678901299834,
+            530.2733527496457,
+            535.2989938110113,
+            536.0557828098536,
+            539.9615010246634,
+            576.629295013845
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 583.0887462943792,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "sample_queries_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            29.781118035316467,
+            29.844412580132484,
+            29.847152531147003,
+            29.804407618939877,
+            29.833455570042133,
+            29.850095510482788,
+            29.798935167491436,
+            29.951324686408043
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 29.941124841570854,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "structured_aux_losses_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            102.17852611094713,
+            101.20349377393723,
+            102.87002939730883,
+            99.76881369948387,
+            101.97717510163784,
+            102.84340474754572,
+            101.60107165575027,
+            106.65877442806959
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 106.30996152758598,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "final_trajectory_loss_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            0.4823124036192894,
+            0.47955382615327835,
+            0.48390962183475494,
+            0.4799589514732361,
+            0.47241058200597763,
+            0.483587384223938,
+            0.47711189836263657,
+            0.499100424349308
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 0.49698539078235626,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "geometry_depth_loss_inclusive": {
+          "calls_by_rank": [
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128
+          ],
+          "per_rank_all_call_host_median_ms": [
+            0.9112562984228134,
+            0.8990177884697914,
+            0.9133666753768921,
+            0.8908789604902267,
+            0.8985986933112144,
+            0.9030913934111595,
+            0.9005535393953323,
+            0.9473385289311409
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 0.9377738460898399,
+          "threads": {
+            "MainThread": 1024
+          }
+        },
+        "prepared_current_transfer_optimizer_batch": {
+          "calls_by_rank": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_rank_all_call_host_median_ms": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": null,
+          "threads": {}
+        },
+        "execution_log_flush_inclusive": {
+          "calls_by_rank": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_rank_all_call_host_median_ms": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": null,
+          "threads": {}
+        }
+      },
+      "CPU_rows_refs": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank0_extended_cpu.jsonl",
+          "bytes": 129393,
+          "sha256": "c5e8b4c58f9f3fac7421361e55bf1f1740eb2c5d30a8eba789115fbe309ef829"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank1_extended_cpu.jsonl",
+          "bytes": 129403,
+          "sha256": "c2d3f085998e5a14d6f3bbf7934e57981b697a03a1b3aa9b5851f96a673c99a7"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank2_extended_cpu.jsonl",
+          "bytes": 129368,
+          "sha256": "797af7add59cf8f6cc2868d11334548bc9f647545097df5e268add8836777bd7"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank3_extended_cpu.jsonl",
+          "bytes": 129415,
+          "sha256": "869cfb57969ee1aa200cc416dd7b3e48377f2a167e717473f14928a3803a49e2"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank4_extended_cpu.jsonl",
+          "bytes": 129387,
+          "sha256": "8773eeaa5010ac44c22910d5a0035899516a2167f24ea5a74b171c2d6ce20584"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank5_extended_cpu.jsonl",
+          "bytes": 129412,
+          "sha256": "9aa1caf63ecfa3adaedff565b7824d28a5c03c9662e5b9b4b2378ed0f219fab9"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank6_extended_cpu.jsonl",
+          "bytes": 129406,
+          "sha256": "b3b7ebb9bba70b4bf4e8989de5a507fa791a20c360616860853822ab7c44937c"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank7_extended_cpu.jsonl",
+          "bytes": 129396,
+          "sha256": "2eba899768a68185dff6c5c38d53c39c0944084f824ac854b60d810eccef8ba3"
+        }
+      ],
+      "CPU_thread_union_summary": {
+        "0": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 27.160115655511618
+          },
+          "any_thread_wrapped_host_union_seconds": 27.160115655511618,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "1": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 29.325329100713134
+          },
+          "any_thread_wrapped_host_union_seconds": 29.325329100713134,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "2": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 26.68849159218371
+          },
+          "any_thread_wrapped_host_union_seconds": 26.68849159218371,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "3": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 25.90438263118267
+          },
+          "any_thread_wrapped_host_union_seconds": 25.90438263118267,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "4": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 28.742580438032746
+          },
+          "any_thread_wrapped_host_union_seconds": 28.742580438032746,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "5": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 25.783459775149822
+          },
+          "any_thread_wrapped_host_union_seconds": 25.783459775149822,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "6": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 25.898612938821316
+          },
+          "any_thread_wrapped_host_union_seconds": 25.898612938821316,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        },
+        "7": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 27.12029853463173
+          },
+          "any_thread_wrapped_host_union_seconds": 27.12029853463173,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0,
+          "row_count": 352
+        }
+      },
+      "observed_Qwen_vision_precision": [
+        [
+          true,
+          "torch.bfloat16"
+        ]
+      ],
+      "diagnostic_update_timing": {
+        "post_trace_rankmax_update_wall_median_ms": 3452.4677991867065
+      }
+    },
+    "engineering_fast": {
+      "identity": {
+        "identity": "6b2695aa82d380402b06edd335d5d26ac97d00d80210e660be832bb9944d8632",
+        "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+        "training_source_tree_sha256": "3334feb5872ad6f681caf6bfe21eb70b538aed27c0333b16953b7a7e66c88830",
+        "engineering_continue_origin": {
+          "complete_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e",
+          "completed": 25000,
+          "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+          "tag": "milestone_0025000"
+        },
+        "execution_mode": "engineering_fast",
+        "precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off",
+        "effective_training_precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off",
+        "world_size": 8,
+        "microbatch": 4,
+        "effective_global_batch": 32,
+        "FM_repeat": 8,
+        "extra_stage_instrumentation": true
+      },
+      "done": {
+        "GPU_hours": 175.8963754976665,
+        "engineering_pilot_only": true,
+        "evaluation_complete": false,
+        "exposure": 800968,
+        "identity": "6b2695aa82d380402b06edd335d5d26ac97d00d80210e660be832bb9944d8632",
+        "updates": 25032
+      },
+      "PROCESS_EXIT": {
+        "returncode": 0,
+        "wall_seconds": 306.475784656,
+        "pid": 2168841,
+        "native_boundary_observed_seconds": 101.229025943,
+        "monitor_error": null
+      },
+      "actual_allocated_GPU_hours": 0.6810572992355555,
+      "resume_boundary": {
+        "completed": 25000,
+        "epoch": 7,
+        "offset": 2775,
+        "exposure": 799944
+      },
+      "receipt_refs": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/identity.json",
+          "bytes": 38004,
+          "sha256": "63eb8b527e08ce03c5178d1dffb55b523de17c359dc663a6cd8398cb814f6649"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/PROCESS.json",
+          "bytes": 2083,
+          "sha256": "b232b6b10eee4c4b444b32867e06164c0a7d8c6f7285cb1074fc153bff704163"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/PROCESS_EXIT.json",
+          "bytes": 150,
+          "sha256": "081353de9029a1100050835c8fabdab461d2cfc1ff67cd4ea18d4957d1fbcc24"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/TRAINING_COMPLETE.json",
+          "bytes": 227,
+          "sha256": "753a5bfcaf009e11842e15b9320c1ecff2afaa7e0c981ea38247a11a77bdcaae"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/RESUME_BOUNDARY_VERIFIED.json",
+          "bytes": 504,
+          "sha256": "7b8f2a3d2bd061039207b7aefa6812d2ef7b020fc5dffea76e1f29f7435499b6"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/metrics.jsonl",
+          "bytes": 83636,
+          "sha256": "5e1befa78ab8d3864f197f254e524b0f04b89face7c402190c3624bce620b7ed"
+        }
+      ],
+      "actual_adapter_path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-profile-v2-frozen-20261011/tools/structured_world/perf_reference_trace.py",
+      "extended_flag_in_actual_command": true,
+      "stage_summary": {
+        "FGTR": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 16.835808753967285,
+          "post_trace_rankmax_host_median_ms": 17.984075471758842,
+          "active_nominal_updates_rankmax_stream_ms": [
+            20.424768447875977,
+            18.391456604003906,
+            19.279935836791992
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "FM_supervision": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 112.8318862915039,
+          "post_trace_rankmax_host_median_ms": 112.89326287806034,
+          "active_nominal_updates_rankmax_stream_ms": [
+            94.92726135253906,
+            102.48716735839844,
+            109.64240264892578
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "Qwen_current_inclusive": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 508.70233154296875,
+          "post_trace_rankmax_host_median_ms": 419.7595175355673,
+          "active_nominal_updates_rankmax_stream_ms": [
+            490.8716735839844,
+            495.44976806640625,
+            511.97119140625
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "Qwen_vision": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 290.8204345703125,
+          "post_trace_rankmax_host_median_ms": 192.13859643787146,
+          "active_nominal_updates_rankmax_stream_ms": [
+            267.4039001464844,
+            271.8325500488281,
+            290.2513427734375
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "backward_inclusive": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 1620.3446044921875,
+          "post_trace_rankmax_host_median_ms": 1620.3937623649836,
+          "active_nominal_updates_rankmax_stream_ms": [
+            1759.8101806640625,
+            1760.968505859375,
+            1764.79541015625
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "current_geometry": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 185.0478744506836,
+          "post_trace_rankmax_host_median_ms": 183.7693154811859,
+          "active_nominal_updates_rankmax_stream_ms": [
+            251.8449249267578,
+            238.1273956298828,
+            218.11961364746094
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "future_space": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 64.3831672668457,
+          "post_trace_rankmax_host_median_ms": 63.98655381053686,
+          "active_nominal_updates_rankmax_stream_ms": [
+            72.05254364013672,
+            64.84754943847656,
+            64.47277069091797
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "optimizer_step": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 96.76513671875,
+          "post_trace_rankmax_host_median_ms": 96.78926412016153,
+          "active_nominal_updates_rankmax_stream_ms": [
+            104.2957763671875,
+            105.61004638671875,
+            85069.1640625
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "proposal_10steps": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 382.4814910888672,
+          "post_trace_rankmax_host_median_ms": 382.5348820537329,
+          "active_nominal_updates_rankmax_stream_ms": [
+            563.9110717773438,
+            509.5851745605469,
+            503.7127685546875
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        },
+        "scene_heads": {
+          "post_trace_updates_25011_25032_rankmax_stream_median_ms": 29.287919998168945,
+          "post_trace_rankmax_host_median_ms": 1.1492883786559105,
+          "active_nominal_updates_rankmax_stream_ms": [
+            29.081087112426758,
+            29.087936401367188,
+            28.989408493041992
+          ],
+          "calls_per_rank_update": [
+            1
+          ]
+        }
+      },
+      "extended_CPU_summary": {
+        "Qwen_language_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            122.46224377304316,
+            122.72027414292097,
+            122.80720472335815,
+            122.27320112287998,
+            122.24290613085032,
+            121.94516696035862,
+            121.97530642151833,
+            121.88733369112015
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 122.76697531342506,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "Qwen_processor_apply_chat_template_host": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            260.2641452103853,
+            264.19453136622906,
+            264.1180148348212,
+            263.4802423417568,
+            180.47603964805603,
+            176.17994453758,
+            176.7860408872366,
+            268.8031019642949
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 268.8018064945936,
+          "threads": {
+            "ThreadPoolExecutor-1_0": 256
+          }
+        },
+        "Qwen_get_rope_index_host": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            3.823954612016678,
+            3.9519574493169785,
+            3.933863714337349,
+            3.887271508574486,
+            4.3018897995352745,
+            4.401388578116894,
+            4.349054768681526,
+            3.9998283609747887
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 4.420984536409378,
+          "threads": {
+            "ThreadPoolExecutor-1_0": 256
+          }
+        },
+        "Qwen_build_batch_including_vision": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            272.89556339383125,
+            275.72853211313486,
+            269.65058129280806,
+            269.760818220675,
+            271.242649294436,
+            268.63350905478,
+            270.34164499491453,
+            271.3823411613703
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 281.7581072449684,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "sample_queries_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            1.614813692867756,
+            1.5914365649223328,
+            1.599661074578762,
+            1.5800613909959793,
+            1.583038829267025,
+            1.5663830563426018,
+            1.595277339220047,
+            1.5982938930392265
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 1.608971506357193,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "structured_aux_losses_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            57.440606877207756,
+            57.018144987523556,
+            57.32965096831322,
+            57.24237486720085,
+            57.3408305644989,
+            57.22295772284269,
+            57.13175889104605,
+            57.19283502548933
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 57.41455592215061,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "final_trajectory_loss_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            0.47761667519807816,
+            0.4804888740181923,
+            0.47526974231004715,
+            0.477680005133152,
+            0.4736073315143585,
+            0.4768306389451027,
+            0.4710080102086067,
+            0.48028118908405304
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 0.47858431935310364,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "geometry_depth_loss_inclusive": {
+          "calls_by_rank": [
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128
+          ],
+          "per_rank_all_call_host_median_ms": [
+            0.9223995730280876,
+            0.9076185524463654,
+            0.9123049676418304,
+            0.9139692410826683,
+            0.9102858603000641,
+            0.9013302624225616,
+            0.902942381799221,
+            0.9104004129767418
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 0.9105214849114418,
+          "threads": {
+            "MainThread": 1024
+          }
+        },
+        "prepared_current_transfer_optimizer_batch": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            0.9507536888122559,
+            0.9812582284212112,
+            0.9263316169381142,
+            0.9435480460524559,
+            0.953364185988903,
+            0.8928496390581131,
+            0.9662630036473274,
+            0.933636911213398
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 0.9613092988729477,
+          "threads": {
+            "MainThread": 256
+          }
+        },
+        "execution_log_flush_inclusive": {
+          "calls_by_rank": [
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32
+          ],
+          "per_rank_all_call_host_median_ms": [
+            4.093886353075504,
+            2.5522802025079727,
+            3.642764873802662,
+            3.7255138158798218,
+            4.0900446474552155,
+            4.355864599347115,
+            4.4131800532341,
+            3.7091774865984917
+          ],
+          "max_of_rank_nonactive_call_host_medians_ms": 4.421908408403397,
+          "threads": {
+            "MainThread": 256
+          }
+        }
+      },
+      "CPU_rows_refs": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank0_extended_cpu.jsonl",
+          "bytes": 153931,
+          "sha256": "9277661e406502c6f40cdf741dbc21c29f5233cc61b1a420cf1b3c617810b0da"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank1_extended_cpu.jsonl",
+          "bytes": 153970,
+          "sha256": "65863e538246f784753544967fd0a5e32a9824cb75ea880e6a5156d6e9583b4e"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank2_extended_cpu.jsonl",
+          "bytes": 153977,
+          "sha256": "3f9d2a6322dabc478f74128e6bb80c0ed57a634140fb9f70fd0cf8f8411289f4"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank3_extended_cpu.jsonl",
+          "bytes": 153966,
+          "sha256": "c8998d6c4dae382b4a0ebb208d8957eb011e095862a134a102a4daa176a60eb1"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank4_extended_cpu.jsonl",
+          "bytes": 153976,
+          "sha256": "5224a570fcacf0090198c126acce73e5f3b6395b416bcb781c83a8e1d7830913"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank5_extended_cpu.jsonl",
+          "bytes": 153972,
+          "sha256": "a34ca9afa8de3c30a4654cc7ab15a0c681a59e5b0b9ce63b4f4fab5d4e35c592"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank6_extended_cpu.jsonl",
+          "bytes": 153970,
+          "sha256": "587835d8e1f9915f7611aee99ff8e324d1ff286625c7fb752681099d7d1ccb41"
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank7_extended_cpu.jsonl",
+          "bytes": 153973,
+          "sha256": "e2d1ca4599c01384b7befddb640bde43faac98959e5368e2b5eefda6c3651814"
+        }
+      ],
+      "CPU_thread_union_summary": {
+        "0": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 15.543273260816932,
+            "ThreadPoolExecutor-1_0": 8.58660677447915
+          },
+          "any_thread_wrapped_host_union_seconds": 22.64114856161177,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.488731473684311,
+          "row_count": 416
+        },
+        "1": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 18.820277312770486,
+            "ThreadPoolExecutor-1_0": 8.784663276746869
+          },
+          "any_thread_wrapped_host_union_seconds": 26.623882276937366,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0.9810583125799894,
+          "row_count": 416
+        },
+        "2": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 17.97550559975207,
+            "ThreadPoolExecutor-1_0": 8.743964647874236
+          },
+          "any_thread_wrapped_host_union_seconds": 25.823819752782583,
+          "sum_thread_unions_minus_any_thread_union_seconds": 0.8956504948437214,
+          "row_count": 416
+        },
+        "3": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 17.972493048757315,
+            "ThreadPoolExecutor-1_0": 8.76450029015541
+          },
+          "any_thread_wrapped_host_union_seconds": 25.583458436653018,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.1535349022597075,
+          "row_count": 416
+        },
+        "4": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 19.011484023183584,
+            "ThreadPoolExecutor-1_0": 6.121951904147863
+          },
+          "any_thread_wrapped_host_union_seconds": 24.021435547620058,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.1120003797113895,
+          "row_count": 416
+        },
+        "5": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 19.617615222930908,
+            "ThreadPoolExecutor-1_0": 5.728283202275634
+          },
+          "any_thread_wrapped_host_union_seconds": 23.976133540272713,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.3697648849338293,
+          "row_count": 416
+        },
+        "6": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 21.407674975693226,
+            "ThreadPoolExecutor-1_0": 6.121626215055585
+          },
+          "any_thread_wrapped_host_union_seconds": 26.455433417111635,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.0738677736371756,
+          "row_count": 416
+        },
+        "7": {
+          "wrapped_host_union_seconds_by_thread": {
+            "MainThread": 15.510868772864342,
+            "ThreadPoolExecutor-1_0": 8.788087049499154
+          },
+          "any_thread_wrapped_host_union_seconds": 23.156223211437464,
+          "sum_thread_unions_minus_any_thread_union_seconds": 1.142732610926032,
+          "row_count": 416
+        }
+      },
+      "observed_Qwen_vision_precision": [
+        [
+          true,
+          "torch.bfloat16"
+        ]
+      ],
+      "diagnostic_update_timing": {
+        "post_trace_rankmax_update_wall_including_log_flush_median_ms": 3036.9216622784734,
+        "profile_logging_window_updates": [
+          1
+        ]
+      }
+    }
+  },
+  "trace_window_all8_summary": {
+    "io_preserving_v1": {
+      "CPU_marker_window_ms": {
+        "min": 11357.650114013672,
+        "median": 11358.141517944336,
+        "max": 11358.195224975587
+      },
+      "all_GPU_stream_union_ms": {
+        "min": 7144.105520874024,
+        "median": 7630.2552955932615,
+        "max": 7777.885641113281
+      },
+      "trace_visible_GPU_idle_ms": {
+        "min": 3579.7644729003905,
+        "median": 3727.886222351074,
+        "max": 4213.968067993164
+      },
+      "GPU_union_fraction": {
+        "min": 0.6289891912547954,
+        "median": 0.6717873076509132,
+        "max": 0.6848146899257368
+      },
+      "non_NCCL_kernel_union_ms": {
+        "min": 6523.99958203125,
+        "median": 6541.177734375,
+        "max": 6556.947686401367
+      },
+      "NCCL_kernel_union_ms": {
+        "min": 721.6436614990234,
+        "median": 1488.553395385742,
+        "max": 1684.7239035644532
+      },
+      "CUDA_sync_host_union_ms": {
+        "min": 2343.580420288086,
+        "median": 2680.8282127685547,
+        "max": 2793.252049926758
+      }
+    },
+    "engineering_fast": {
+      "CPU_marker_window_ms": {
+        "min": 10107.208528076171,
+        "median": 10107.307284912109,
+        "max": 10107.359506958008
+      },
+      "all_GPU_stream_union_ms": {
+        "min": 7058.352102416992,
+        "median": 7120.973890136718,
+        "max": 7338.67448828125
+      },
+      "trace_visible_GPU_idle_ms": {
+        "min": 2768.6312456054684,
+        "median": 2986.3509368286136,
+        "max": 3049.0074045410156
+      },
+      "GPU_union_fraction": {
+        "min": 0.6983378890953619,
+        "median": 0.7045359765938621,
+        "max": 0.7260762345079668
+      },
+      "non_NCCL_kernel_union_ms": {
+        "min": 6224.507886108398,
+        "median": 6253.124956359863,
+        "max": 6263.488506225586
+      },
+      "NCCL_kernel_union_ms": {
+        "min": 1002.2445147705079,
+        "median": 1137.4613869018553,
+        "max": 1432.9194602050782
+      },
+      "CUDA_sync_host_union_ms": {
+        "min": 2372.6714484863282,
+        "median": 2463.494147766113,
+        "max": 2615.465507080078
+      }
+    }
+  },
+  "trace_analysis": {
+    "io_preserving_v1": [
+      {
+        "mode": "io_preserving_v1",
+        "rank": 0,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank0.json",
+          "bytes": 528080346,
+          "sha256": "d7cf44d4d2c9616703c733b18db05ad06d079a1c0b521156fd0c62b0fa8cac5f"
+        },
+        "events": 1546407,
+        "event_categories": {
+          "cpu_op": 681810,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "kernel": 158460,
+          "ac2g": 407645,
+          "cuda_runtime": 234374,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 9495,
+          "gpu_memset": 1389,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.155084960938,
+          "all_GPU_stream_union_ms": 7519.481376464843,
+          "non_NCCL_kernel_union_ms": 6553.692373413086,
+          "NCCL_kernel_union_ms": 1282.9516721191405,
+          "copy_or_set_union_ms": 193.36684948730468,
+          "compute_NCCL_overlap_ms": 484.8991693115231,
+          "NCCL_without_compute_ms": 798.0525028076172,
+          "trace_visible_GPU_idle_ms": 3838.673708496094,
+          "GPU_union_fraction": 0.6620336947521706,
+          "CUDA_sync_host_union_ms": 2575.885764038086,
+          "largest_trace_visible_GPU_gaps": [
+            {
+              "start_relative_ms": 7602.043958984375,
+              "duration_ms": 257.29544897460937,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_processor_apply_chat_template_host"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.024989990234375
+            },
+            {
+              "start_relative_ms": 3792.380373901367,
+              "duration_ms": 238.03503503417969,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_processor_apply_chat_template_host"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.020260009765625
+            },
+            {
+              "start_relative_ms": 13.9035439453125,
+              "duration_ms": 234.4778330078125,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_processor_apply_chat_template_host"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.01752001953125
+            },
+            {
+              "start_relative_ms": 266.98356188964846,
+              "duration_ms": 8.0177041015625,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_get_rope_index_host"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.0043409423828125
+            },
+            {
+              "start_relative_ms": 4049.0265549316405,
+              "duration_ms": 7.780551025390625,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_get_rope_index_host"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.0043739013671875
+            }
+          ]
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3776.994114013672,
+            "all_GPU_stream_union_ms": 2495.900316650391,
+            "non_NCCL_kernel_union_ms": 2184.6289952392576,
+            "NCCL_kernel_union_ms": 416.43090649414063,
+            "copy_or_set_union_ms": 65.00752526855469,
+            "compute_NCCL_overlap_ms": 161.74332812500006,
+            "NCCL_without_compute_ms": 254.68757836914074,
+            "trace_visible_GPU_idle_ms": 1281.0937973632813,
+            "GPU_union_fraction": 0.660816575644088,
+            "CUDA_sync_host_union_ms": 854.9001203613282,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 13.9035439453125,
+                "duration_ms": 234.4778330078125,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_processor_apply_chat_template_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.01752001953125
+              },
+              {
+                "start_relative_ms": 266.98356188964846,
+                "duration_ms": 8.0177041015625,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_get_rope_index_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0043409423828125
+              },
+              {
+                "start_relative_ms": 306.6972009277344,
+                "duration_ms": 6.04927099609375,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0058909912109375
+              },
+              {
+                "start_relative_ms": 312.89210498046873,
+                "duration_ms": 4.642442016601563,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.007012939453125
+              },
+              {
+                "start_relative_ms": 1360.9336469726563,
+                "duration_ms": 4.127781982421875,
+                "overlapping_CPU_scopes": [],
+                "CUDA_sync_host_overlap_ms": 0
+              }
+            ]
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.839636962891,
+            "all_GPU_stream_union_ms": 2555.4357423095703,
+            "non_NCCL_kernel_union_ms": 2185.606745727539,
+            "NCCL_kernel_union_ms": 483.44026196289065,
+            "copy_or_set_union_ms": 64.19470275878906,
+            "compute_NCCL_overlap_ms": 168.85900842285128,
+            "NCCL_without_compute_ms": 314.58125354003914,
+            "trace_visible_GPU_idle_ms": 1255.4038946533205,
+            "GPU_union_fraction": 0.6705702642334658,
+            "CUDA_sync_host_union_ms": 896.2306447753906,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 15.332383911132812,
+                "duration_ms": 238.03503503417969,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_processor_apply_chat_template_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.020260009765625
+              },
+              {
+                "start_relative_ms": 271.97856494140626,
+                "duration_ms": 7.780551025390625,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_get_rope_index_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0043739013671875
+              },
+              {
+                "start_relative_ms": 307.59956188964844,
+                "duration_ms": 6.094744018554687,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.005863037109375
+              },
+              {
+                "start_relative_ms": 313.82646704101563,
+                "duration_ms": 4.6011939697265625,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0065709228515625
+              },
+              {
+                "start_relative_ms": 4.496349975585938,
+                "duration_ms": 2.357781005859375,
+                "overlapping_CPU_scopes": [],
+                "CUDA_sync_host_overlap_ms": 0.0255120849609375
+              }
+            ]
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.2175169677735,
+            "all_GPU_stream_union_ms": 2468.1453175048828,
+            "non_NCCL_kernel_union_ms": 2183.456632446289,
+            "NCCL_kernel_union_ms": 383.0805036621094,
+            "copy_or_set_union_ms": 64.16462145996094,
+            "compute_NCCL_overlap_ms": 154.29683276367177,
+            "NCCL_without_compute_ms": 228.78367089843778,
+            "trace_visible_GPU_idle_ms": 1302.0721994628907,
+            "GPU_union_fraction": 0.6546426847780146,
+            "CUDA_sync_host_union_ms": 824.7549989013672,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 14.106390991210937,
+                "duration_ms": 257.29544897460937,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_processor_apply_chat_template_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.024989990234375
+              },
+              {
+                "start_relative_ms": 289.935001953125,
+                "duration_ms": 7.6870140380859375,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_get_rope_index_host"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0043629150390625
+              },
+              {
+                "start_relative_ms": 325.60713696289065,
+                "duration_ms": 6.088215942382813,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0058079833984375
+              },
+              {
+                "start_relative_ms": 331.8392899169922,
+                "duration_ms": 4.976398071289062,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0073089599609375
+              },
+              {
+                "start_relative_ms": 4.61606396484375,
+                "duration_ms": 3.329759033203125,
+                "overlapping_CPU_scopes": [],
+                "CUDA_sync_host_overlap_ms": 0.02714404296875
+              }
+            ]
+          }
+        },
+        "runtime_sync_calls": {
+          "cudaStreamSynchronize": 3882,
+          "cudaDeviceSynchronize": 13
+        },
+        "launch_correlated_GPU_events": 169344,
+        "GPU_events": 169344,
+        "top_kernel_cumulative_duration_not_wall_partition": [
+          {
+            "name": "ncclDevKernel_AllReduce_Sum_f32_RING_LL(ncclDevComm*, unsigned long, ncclWork*)",
+            "calls": 357,
+            "cumulative_ms": 895.3262890000002
+          },
+          {
+            "name": "ampere_bf16_s16816gemm_bf16_128x256_ldg8_f2f_stages_64x3_tn",
+            "calls": 1176,
+            "cumulative_ms": 540.2693649999995
+          },
+          {
+            "name": "void cudnn::cnn::wgrad2d_grouped_direct_kernel<false, true, int, float, float, float>(cudnn::cnn::WgradGroupedDirectParams, float const*, float const*, float*, float, float)",
+            "calls": 114,
+            "cumulative_ms": 419.19033399999995
+          },
+          {
+            "name": "void (anonymous namespace)::indexing_backward_kernel_stride_1<float>(long const*, long const*, float const*, float*, long, long, long, long, bool)",
+            "calls": 42,
+            "cumulative_ms": 386.238509
+          },
+          {
+            "name": "ncclDevKernel_AllGather_RING_LL(ncclDevComm*, unsigned long, ncclWork*)",
+            "calls": 465,
+            "cumulative_ms": 385.747575
+          },
+          {
+            "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+            "calls": 10479,
+            "cumulative_ms": 332.54793999999714
+          },
+          {
+            "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "calls": 3618,
+            "cumulative_ms": 284.74938799999956
+          },
+          {
+            "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float>(long, float, float const*, float*, float*)",
+            "calls": 75,
+            "cumulative_ms": 252.01224800000003
+          },
+          {
+            "name": "ampere_sgemm_128x128_nn",
+            "calls": 117,
+            "cumulative_ms": 248.73923299999996
+          },
+          {
+            "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, at::detail::Array<char*, 1> >(int, at::native::FillFunctor<float>, at::detail::Array<char*, 1>)",
+            "calls": 29700,
+            "cumulative_ms": 232.4392110000149
+          },
+          {
+            "name": "ampere_bf16_s16816gemm_bf16_256x128_ldg8_f2f_stages_64x3_nt",
+            "calls": 420,
+            "cumulative_ms": 221.06986599999996
+          },
+          {
+            "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+            "calls": 5121,
+            "cumulative_ms": 199.59894399999783
+          }
+        ],
+        "top_CPU_op_nested_duration_not_wall_partition": [
+          {
+            "name": "autograd::engine::evaluate_function: CheckpointFunctionBackward",
+            "calls": 135,
+            "cumulative_ms": 3208.0872440000007
+          },
+          {
+            "name": "CheckpointFunctionBackward",
+            "calls": 135,
+            "cumulative_ms": 3206.711060000001
+          },
+          {
+            "name": "aten::linear",
+            "calls": 16662,
+            "cumulative_ms": 2831.4485179999974
+          },
+          {
+            "name": "aten::nonzero",
+            "calls": 1449,
+            "cumulative_ms": 1963.2412439999991
+          },
+          {
+            "name": "aten::to",
+            "calls": 21972,
+            "cumulative_ms": 1802.66660899999
+          },
+          {
+            "name": "aten::_to_copy",
+            "calls": 17154,
+            "cumulative_ms": 1776.554576999995
+          },
+          {
+            "name": "SyncBatchNorm",
+            "calls": 438,
+            "cumulative_ms": 1701.4689529999987
+          },
+          {
+            "name": "aten::copy_",
+            "calls": 25353,
+            "cumulative_ms": 1572.3148579999965
+          },
+          {
+            "name": "aten::index",
+            "calls": 1500,
+            "cumulative_ms": 1529.6017439999962
+          },
+          {
+            "name": "aten::addmm",
+            "calls": 7437,
+            "cumulative_ms": 907.0703399999994
+          },
+          {
+            "name": "aten::fill_",
+            "calls": 62610,
+            "cumulative_ms": 826.2390500000101
+          },
+          {
+            "name": "aten::mm",
+            "calls": 5361,
+            "cumulative_ms": 662.8749790000008
+          },
+          {
+            "name": "aten::empty",
+            "calls": 33849,
+            "cumulative_ms": 637.8059260000042
+          },
+          {
+            "name": "aten::scaled_dot_product_attention",
+            "calls": 3804,
+            "cumulative_ms": 593.5719319999994
+          },
+          {
+            "name": "CheckpointFunction",
+            "calls": 135,
+            "cumulative_ms": 567.2825890000003
+          },
+          {
+            "name": "aten::empty_strided",
+            "calls": 22035,
+            "cumulative_ms": 464.72452699999866
+          }
+        ],
+        "extended_CPU_calls": 352,
+        "recorded_GPU_streams": [
+          {
+            "device": 0,
+            "stream": 7,
+            "events": 167088
+          },
+          {
+            "device": 0,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 0,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 0,
+            "stream": 30,
+            "events": 855
+          },
+          {
+            "device": 0,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 0,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 0,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 0,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 0,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "launch_correlation_includes_CUDA_driver": true
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 1,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank1.json",
+          "bytes": 523508585,
+          "sha256": "59ae671e8e1d5c01d3f4ec7e33b5cb4e0942f55d692f621b04538fe94aab2d4f"
+        },
+        "events": 1533928,
+        "event_categories": {
+          "cpu_op": 674469,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "cuda_runtime": 233215,
+          "ac2g": 405076,
+          "kernel": 157440,
+          "gpu_memcpy": 9159,
+          "cuda_driver": 3927,
+          "gpu_memset": 1335,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.151963989258,
+          "all_GPU_stream_union_ms": 7614.317251220703,
+          "non_NCCL_kernel_union_ms": 6538.586108520508,
+          "NCCL_kernel_union_ms": 1476.275396118164,
+          "copy_or_set_union_ms": 194.9680859375,
+          "compute_NCCL_overlap_ms": 568.0728797607426,
+          "NCCL_without_compute_ms": 908.2025163574217,
+          "trace_visible_GPU_idle_ms": 3743.8347127685547,
+          "GPU_union_fraction": 0.670383463380461,
+          "CUDA_sync_host_union_ms": 2657.4882747802735
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3777.0124219970703,
+            "all_GPU_stream_union_ms": 2525.0971829833984,
+            "non_NCCL_kernel_union_ms": 2181.175685546875,
+            "NCCL_kernel_union_ms": 495.1334548339844,
+            "copy_or_set_union_ms": 64.57213696289062,
+            "compute_NCCL_overlap_ms": 206.21308264160143,
+            "NCCL_without_compute_ms": 288.9203721923832,
+            "trace_visible_GPU_idle_ms": 1251.915239013672,
+            "GPU_union_fraction": 0.6685435208731111,
+            "CUDA_sync_host_union_ms": 871.1096405029297
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.853530029297,
+            "all_GPU_stream_union_ms": 2574.3775853271486,
+            "non_NCCL_kernel_union_ms": 2179.6324036865235,
+            "NCCL_kernel_union_ms": 530.512611694336,
+            "copy_or_set_union_ms": 65.58978100585938,
+            "compute_NCCL_overlap_ms": 191.93713012695343,
+            "NCCL_without_compute_ms": 338.57548156738267,
+            "trace_visible_GPU_idle_ms": 1236.4759447021484,
+            "GPU_union_fraction": 0.6755383183953957,
+            "CUDA_sync_host_union_ms": 920.6402429199219
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.1693139648437,
+            "all_GPU_stream_union_ms": 2514.8424829101564,
+            "non_NCCL_kernel_union_ms": 2177.7780192871096,
+            "NCCL_kernel_union_ms": 450.62932958984373,
+            "copy_or_set_union_ms": 64.80616796875,
+            "compute_NCCL_overlap_ms": 169.92266699218771,
+            "NCCL_without_compute_ms": 280.70666259765585,
+            "trace_visible_GPU_idle_ms": 1255.3268310546873,
+            "GPU_union_fraction": 0.6670370143842317,
+            "CUDA_sync_host_union_ms": 865.7383913574218
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 1,
+            "stream": 7,
+            "events": 166008
+          },
+          {
+            "device": 1,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 1,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 1,
+            "stream": 30,
+            "events": 525
+          },
+          {
+            "device": 1,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 1,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 1,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 1,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 1,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 167934
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 2,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank2.json",
+          "bytes": 523506342,
+          "sha256": "d779d6bece78b3fd0f0b2b0fa9af8073c4a8c6356efd88f002887df6831ddf61"
+        },
+        "events": 1532292,
+        "event_categories": {
+          "cpu_op": 675477,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "cuda_runtime": 231674,
+          "ac2g": 403754,
+          "kernel": 157575,
+          "gpu_memcpy": 9222,
+          "cuda_driver": 3927,
+          "gpu_memset": 1356,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.195224975587,
+          "all_GPU_stream_union_ms": 7538.060933105468,
+          "non_NCCL_kernel_union_ms": 6523.99958203125,
+          "NCCL_kernel_union_ms": 1204.6825119628907,
+          "copy_or_set_union_ms": 198.51459606933594,
+          "compute_NCCL_overlap_ms": 364.3503878173833,
+          "NCCL_without_compute_ms": 840.3321241455078,
+          "trace_visible_GPU_idle_ms": 3820.1342918701184,
+          "GPU_union_fraction": 0.6636671393471026,
+          "CUDA_sync_host_union_ms": 2670.6153310546874
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3777.032840942383,
+            "all_GPU_stream_union_ms": 2503.0324990234376,
+            "non_NCCL_kernel_union_ms": 2176.7238122558592,
+            "NCCL_kernel_union_ms": 403.1016270751953,
+            "copy_or_set_union_ms": 66.10452282714844,
+            "compute_NCCL_overlap_ms": 134.63186645507767,
+            "NCCL_without_compute_ms": 268.46976062011754,
+            "trace_visible_GPU_idle_ms": 1274.0003419189452,
+            "GPU_union_fraction": 0.6626981030959006,
+            "CUDA_sync_host_union_ms": 883.0212503662109
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.8567690429686,
+            "all_GPU_stream_union_ms": 2523.870463623047,
+            "non_NCCL_kernel_union_ms": 2174.003864379883,
+            "NCCL_kernel_union_ms": 407.08469482421873,
+            "copy_or_set_union_ms": 65.86370532226563,
+            "compute_NCCL_overlap_ms": 114.64321166992204,
+            "NCCL_without_compute_ms": 292.44148315429675,
+            "trace_visible_GPU_idle_ms": 1286.9863054199218,
+            "GPU_union_fraction": 0.6622842621967326,
+            "CUDA_sync_host_union_ms": 898.318513305664
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.1948869628905,
+            "all_GPU_stream_union_ms": 2511.1579704589844,
+            "non_NCCL_kernel_union_ms": 2173.271905395508,
+            "NCCL_kernel_union_ms": 394.49619006347655,
+            "copy_or_set_union_ms": 66.54636791992188,
+            "compute_NCCL_overlap_ms": 115.07530969238314,
+            "NCCL_without_compute_ms": 279.4208803710935,
+            "trace_visible_GPU_idle_ms": 1259.036916503906,
+            "GPU_union_fraction": 0.666055216175275,
+            "CUDA_sync_host_union_ms": 889.2755673828125
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 2,
+            "stream": 7,
+            "events": 166164
+          },
+          {
+            "device": 2,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 2,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 2,
+            "stream": 30,
+            "events": 588
+          },
+          {
+            "device": 2,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 2,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 2,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 2,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 2,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 168153
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 3,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank3.json",
+          "bytes": 524411467,
+          "sha256": "bd473d3a12efb61c8a53a3f556c9d55e317fa198bcef1daba3034791eabe7c98"
+        },
+        "events": 1536923,
+        "event_categories": {
+          "cpu_op": 675600,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "kernel": 157593,
+          "ac2g": 406008,
+          "cuda_runtime": 233913,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 9219,
+          "gpu_memset": 1356,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.156415039062,
+          "all_GPU_stream_union_ms": 7770.699941772461,
+          "non_NCCL_kernel_union_ms": 6549.217578369141,
+          "NCCL_kernel_union_ms": 1663.2453502197266,
+          "copy_or_set_union_ms": 200.3782586669922,
+          "compute_NCCL_overlap_ms": 613.7678862304692,
+          "NCCL_without_compute_ms": 1049.4774639892576,
+          "trace_visible_GPU_idle_ms": 3587.4564732666013,
+          "GPU_union_fraction": 0.6841515170088223,
+          "CUDA_sync_host_union_ms": 2793.252049926758
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3777.052843017578,
+            "all_GPU_stream_union_ms": 2581.4545872802732,
+            "non_NCCL_kernel_union_ms": 2185.0807827148437,
+            "NCCL_kernel_union_ms": 544.7868289794922,
+            "copy_or_set_union_ms": 67.67824829101562,
+            "compute_NCCL_overlap_ms": 206.5818144531254,
+            "NCCL_without_compute_ms": 338.205014526367,
+            "trace_visible_GPU_idle_ms": 1195.598255737305,
+            "GPU_union_fraction": 0.6834573659864095,
+            "CUDA_sync_host_union_ms": 923.3133854980468
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.851718017578,
+            "all_GPU_stream_union_ms": 2609.22548034668,
+            "non_NCCL_kernel_union_ms": 2184.90831640625,
+            "NCCL_kernel_union_ms": 598.5025333251953,
+            "copy_or_set_union_ms": 65.63694592285157,
+            "compute_NCCL_overlap_ms": 229.60138122558556,
+            "NCCL_without_compute_ms": 368.9011520996096,
+            "trace_visible_GPU_idle_ms": 1201.6262376708983,
+            "GPU_union_fraction": 0.684683024535001,
+            "CUDA_sync_host_union_ms": 940.4502659912109
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.11470703125,
+            "all_GPU_stream_union_ms": 2580.019874145508,
+            "non_NCCL_kernel_union_ms": 2179.228479248047,
+            "NCCL_kernel_union_ms": 519.955987915039,
+            "copy_or_set_union_ms": 67.063064453125,
+            "compute_NCCL_overlap_ms": 177.58469055175783,
+            "NCCL_without_compute_ms": 342.3712973632814,
+            "trace_visible_GPU_idle_ms": 1190.094832885742,
+            "GPU_union_fraction": 0.6843345825350566,
+            "CUDA_sync_host_union_ms": 929.4883984375
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 3,
+            "stream": 7,
+            "events": 166182
+          },
+          {
+            "device": 3,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 3,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 3,
+            "stream": 30,
+            "events": 585
+          },
+          {
+            "device": 3,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 3,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 3,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 3,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 3,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 168168
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 4,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank4.json",
+          "bytes": 526065209,
+          "sha256": "aad9fc371cd54023aec91cf19a961b5b8d22cb75dcafe0970edb834f2150f6c8"
+        },
+        "events": 1541615,
+        "event_categories": {
+          "cpu_op": 678162,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "cuda_runtime": 234495,
+          "ac2g": 407073,
+          "kernel": 157944,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 9324,
+          "gpu_memset": 1383,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.097554077149,
+          "all_GPU_stream_union_ms": 7711.229794677734,
+          "non_NCCL_kernel_union_ms": 6556.947686401367,
+          "NCCL_kernel_union_ms": 1579.5111495361327,
+          "copy_or_set_union_ms": 214.8684091796875,
+          "compute_NCCL_overlap_ms": 597.5524675292963,
+          "NCCL_without_compute_ms": 981.9586820068362,
+          "trace_visible_GPU_idle_ms": 3646.8677593994144,
+          "GPU_union_fraction": 0.6789191374667917,
+          "CUDA_sync_host_union_ms": 2723.076874511719
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3777.039630004883,
+            "all_GPU_stream_union_ms": 2545.007716308594,
+            "non_NCCL_kernel_union_ms": 2184.153563598633,
+            "NCCL_kernel_union_ms": 493.3207802734375,
+            "copy_or_set_union_ms": 71.70784777832031,
+            "compute_NCCL_overlap_ms": 189.62053796386726,
+            "NCCL_without_compute_ms": 303.70024230957006,
+            "trace_visible_GPU_idle_ms": 1232.031913696289,
+            "GPU_union_fraction": 0.6738101702960696,
+            "CUDA_sync_host_union_ms": 897.6422917480469
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.901697998047,
+            "all_GPU_stream_union_ms": 2600.220402832031,
+            "non_NCCL_kernel_union_ms": 2184.9425985107423,
+            "NCCL_kernel_union_ms": 553.0289643554687,
+            "copy_or_set_union_ms": 72.47557287597657,
+            "compute_NCCL_overlap_ms": 196.11311999511736,
+            "NCCL_without_compute_ms": 356.91584436035146,
+            "trace_visible_GPU_idle_ms": 1210.6812951660158,
+            "GPU_union_fraction": 0.6823110667477951,
+            "CUDA_sync_host_union_ms": 934.373658203125
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.014822998047,
+            "all_GPU_stream_union_ms": 2566.0016755371093,
+            "non_NCCL_kernel_union_ms": 2187.851524291992,
+            "NCCL_kernel_union_ms": 533.1614049072266,
+            "copy_or_set_union_ms": 70.68498852539062,
+            "compute_NCCL_overlap_ms": 211.81880957031262,
+            "NCCL_without_compute_ms": 321.3425953369142,
+            "trace_visible_GPU_idle_ms": 1204.0131474609375,
+            "GPU_union_fraction": 0.6806343730756305,
+            "CUDA_sync_host_union_ms": 891.0609245605468
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 4,
+            "stream": 7,
+            "events": 166560
+          },
+          {
+            "device": 4,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 4,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 4,
+            "stream": 30,
+            "events": 690
+          },
+          {
+            "device": 4,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 4,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 4,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 4,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 4,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 168651
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 5,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank5.json",
+          "bytes": 524928965,
+          "sha256": "9f7d90bb7d1a3ef0f46fceaf550bd0a30b4c18fd85e1f57151d0727394957851"
+        },
+        "events": 1538769,
+        "event_categories": {
+          "cpu_op": 676134,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "kernel": 157671,
+          "ac2g": 406664,
+          "cuda_runtime": 234446,
+          "gpu_memcpy": 9240,
+          "cuda_driver": 3927,
+          "gpu_memset": 1380,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11357.650114013672,
+          "all_GPU_stream_union_ms": 7777.885641113281,
+          "non_NCCL_kernel_union_ms": 6543.769360229492,
+          "NCCL_kernel_union_ms": 1684.7239035644532,
+          "copy_or_set_union_ms": 197.74584106445312,
+          "compute_NCCL_overlap_ms": 618.9292895507815,
+          "NCCL_without_compute_ms": 1065.794614013672,
+          "trace_visible_GPU_idle_ms": 3579.7644729003905,
+          "GPU_union_fraction": 0.6848146899257368,
+          "CUDA_sync_host_union_ms": 2791.2923472900393
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3776.607215942383,
+            "all_GPU_stream_union_ms": 2600.8864077148437,
+            "non_NCCL_kernel_union_ms": 2182.050791015625,
+            "NCCL_kernel_union_ms": 565.71479296875,
+            "copy_or_set_union_ms": 66.71220153808594,
+            "compute_NCCL_overlap_ms": 204.08139367675767,
+            "NCCL_without_compute_ms": 361.6333992919922,
+            "trace_visible_GPU_idle_ms": 1175.7208082275392,
+            "GPU_union_fraction": 0.6886833231519525,
+            "CUDA_sync_host_union_ms": 947.33028125
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.8263349609374,
+            "all_GPU_stream_union_ms": 2578.5354298095704,
+            "non_NCCL_kernel_union_ms": 2180.1567039794922,
+            "NCCL_kernel_union_ms": 546.1313807373047,
+            "copy_or_set_union_ms": 64.880060546875,
+            "compute_NCCL_overlap_ms": 202.41150537109388,
+            "NCCL_without_compute_ms": 343.719875366211,
+            "trace_visible_GPU_idle_ms": 1232.290905151367,
+            "GPU_union_fraction": 0.6766342003448975,
+            "CUDA_sync_host_union_ms": 916.62569921875
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.075202026367,
+            "all_GPU_stream_union_ms": 2598.463803588867,
+            "non_NCCL_kernel_union_ms": 2181.561865234375,
+            "NCCL_kernel_union_ms": 572.8777298583984,
+            "copy_or_set_union_ms": 66.15357897949218,
+            "compute_NCCL_overlap_ms": 212.43639050292995,
+            "NCCL_without_compute_ms": 360.4413393554687,
+            "trace_visible_GPU_idle_ms": 1171.6113984375002,
+            "GPU_union_fraction": 0.6892339447744241,
+            "CUDA_sync_host_union_ms": 927.3363668212891
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 5,
+            "stream": 7,
+            "events": 166281
+          },
+          {
+            "device": 5,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 5,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 5,
+            "stream": 30,
+            "events": 609
+          },
+          {
+            "device": 5,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 5,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 5,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 5,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 5,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 168291
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 6,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank6.json",
+          "bytes": 524898027,
+          "sha256": "ce01dc7812cadae818dc47563edd54df7bd66c026b8002970d71f483aabcce33"
+        },
+        "events": 1537763,
+        "event_categories": {
+          "cpu_op": 676656,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "cuda_runtime": 233586,
+          "ac2g": 405900,
+          "kernel": 157740,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 9258,
+          "gpu_memset": 1389,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.131071899414,
+          "all_GPU_stream_union_ms": 7646.19333996582,
+          "non_NCCL_kernel_union_ms": 6530.630785888672,
+          "NCCL_kernel_union_ms": 1500.8313946533203,
+          "copy_or_set_union_ms": 196.80873767089844,
+          "compute_NCCL_overlap_ms": 554.0316663818357,
+          "NCCL_without_compute_ms": 946.7997282714841,
+          "trace_visible_GPU_idle_ms": 3711.9377319335936,
+          "GPU_union_fraction": 0.6731911519213655,
+          "CUDA_sync_host_union_ms": 2691.041094482422
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3777.0459549560546,
+            "all_GPU_stream_union_ms": 2514.6790925292967,
+            "non_NCCL_kernel_union_ms": 2177.58885949707,
+            "NCCL_kernel_union_ms": 460.4110343017578,
+            "copy_or_set_union_ms": 64.96702770996093,
+            "compute_NCCL_overlap_ms": 179.06514648437496,
+            "NCCL_without_compute_ms": 281.34588781738285,
+            "trace_visible_GPU_idle_ms": 1262.366862426758,
+            "GPU_union_fraction": 0.6657793213317031,
+            "CUDA_sync_host_union_ms": 876.8145378417969
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.826140991211,
+            "all_GPU_stream_union_ms": 2627.558559814453,
+            "non_NCCL_kernel_union_ms": 2176.654576660156,
+            "NCCL_kernel_union_ms": 576.4978908691406,
+            "copy_or_set_union_ms": 65.69043469238281,
+            "compute_NCCL_overlap_ms": 181.6567752685546,
+            "NCCL_without_compute_ms": 394.8411156005859,
+            "trace_visible_GPU_idle_ms": 1183.267581176758,
+            "GPU_union_fraction": 0.6894984086392917,
+            "CUDA_sync_host_union_ms": 976.108607055664
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.1276829833982,
+            "all_GPU_stream_union_ms": 2503.9556876220704,
+            "non_NCCL_kernel_union_ms": 2176.3873497314453,
+            "NCCL_kernel_union_ms": 463.9224694824219,
+            "copy_or_set_union_ms": 66.15127526855468,
+            "compute_NCCL_overlap_ms": 193.30974462890617,
+            "NCCL_without_compute_ms": 270.61272485351583,
+            "trace_visible_GPU_idle_ms": 1266.1719953613278,
+            "GPU_union_fraction": 0.6641567337158795,
+            "CUDA_sync_host_union_ms": 838.1179495849609
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 6,
+            "stream": 7,
+            "events": 166362
+          },
+          {
+            "device": 6,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 6,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 6,
+            "stream": 30,
+            "events": 624
+          },
+          {
+            "device": 6,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 6,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 6,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 6,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 6,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 168387
+      },
+      {
+        "mode": "io_preserving_v1",
+        "rank": 7,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/io_preserving_v1/trace/rank7.json",
+          "bytes": 531241204,
+          "sha256": "348e17bd106d65f50683c327c276359dba06696b1de9545348f4613624de8f31"
+        },
+        "events": 1552167,
+        "event_categories": {
+          "cpu_op": 688740,
+          "fwdbwd": 47394,
+          "user_annotation": 915,
+          "kernel": 159414,
+          "ac2g": 407060,
+          "cuda_runtime": 232439,
+          "gpu_memcpy": 9798,
+          "cuda_driver": 3927,
+          "gpu_memset": 1482,
+          "gpu_user_annotation": 919,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 11358.073588867188,
+          "all_GPU_stream_union_ms": 7144.105520874024,
+          "non_NCCL_kernel_union_ms": 6526.827985229492,
+          "NCCL_kernel_union_ms": 721.6436614990234,
+          "copy_or_set_union_ms": 201.1672928466797,
+          "compute_NCCL_overlap_ms": 280.97277868652327,
+          "NCCL_without_compute_ms": 440.67088281250017,
+          "trace_visible_GPU_idle_ms": 4213.968067993164,
+          "GPU_union_fraction": 0.6289891912547954,
+          "CUDA_sync_host_union_ms": 2343.580420288086
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3776.94170300293,
+            "all_GPU_stream_union_ms": 2379.7679868164064,
+            "non_NCCL_kernel_union_ms": 2174.9231604003908,
+            "NCCL_kernel_union_ms": 234.25028527832032,
+            "copy_or_set_union_ms": 71.8362081298828,
+            "compute_NCCL_overlap_ms": 93.0464116210942,
+            "NCCL_without_compute_ms": 141.20387365722627,
+            "trace_visible_GPU_idle_ms": 1397.1737161865235,
+            "GPU_union_fraction": 0.630078029778518,
+            "CUDA_sync_host_union_ms": 773.436798828125
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3810.8823470458983,
+            "all_GPU_stream_union_ms": 2381.2273552246093,
+            "non_NCCL_kernel_union_ms": 2175.239975830078,
+            "NCCL_kernel_union_ms": 243.49862145996093,
+            "copy_or_set_union_ms": 64.44373046875,
+            "compute_NCCL_overlap_ms": 94.20690576171864,
+            "NCCL_without_compute_ms": 149.29171569824211,
+            "trace_visible_GPU_idle_ms": 1429.654991821289,
+            "GPU_union_fraction": 0.6248493494086685,
+            "CUDA_sync_host_union_ms": 779.7180036621094
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3770.0704959716795,
+            "all_GPU_stream_union_ms": 2383.110178833008,
+            "non_NCCL_kernel_union_ms": 2176.6648489990234,
+            "NCCL_kernel_union_ms": 243.8947547607422,
+            "copy_or_set_union_ms": 64.88735424804688,
+            "compute_NCCL_overlap_ms": 93.71946130371089,
+            "NCCL_without_compute_ms": 150.17529345703133,
+            "trace_visible_GPU_idle_ms": 1386.9603171386716,
+            "GPU_union_fraction": 0.6321128958674277,
+            "CUDA_sync_host_union_ms": 790.4256177978516
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 7,
+            "stream": 7,
+            "events": 168129
+          },
+          {
+            "device": 7,
+            "stream": 22,
+            "events": 750
+          },
+          {
+            "device": 7,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 7,
+            "stream": 30,
+            "events": 1164
+          },
+          {
+            "device": 7,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 7,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 7,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 7,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 7,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 170694
+      }
+    ],
+    "engineering_fast": [
+      {
+        "mode": "engineering_fast",
+        "rank": 0,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank0.json",
+          "bytes": 481509896,
+          "sha256": "f2d44a91691d49dda98753395eb9ee7d2918cdb706ac9eb3d13648b47394e7f9"
+        },
+        "events": 1409857,
+        "event_categories": {
+          "cpu_op": 624285,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 141420,
+          "ac2g": 369472,
+          "cuda_runtime": 214213,
+          "gpu_memcpy": 7803,
+          "gpu_memset": 2109,
+          "cuda_driver": 3927,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.23257800293,
+          "all_GPU_stream_union_ms": 7075.806897338867,
+          "non_NCCL_kernel_union_ms": 6260.2112769775395,
+          "NCCL_kernel_union_ms": 1040.308589477539,
+          "copy_or_set_union_ms": 182.64253393554688,
+          "compute_NCCL_overlap_ms": 386.02916784668014,
+          "NCCL_without_compute_ms": 654.2794216308594,
+          "trace_visible_GPU_idle_ms": 3031.4256806640624,
+          "GPU_union_fraction": 0.7000736198292732,
+          "CUDA_sync_host_union_ms": 2372.6714484863282,
+          "largest_trace_visible_GPU_gaps": [
+            {
+              "start_relative_ms": 3450.7985460205077,
+              "duration_ms": 6.451441040039063,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_vision"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.005949951171875
+            },
+            {
+              "start_relative_ms": 47.84417004394531,
+              "duration_ms": 6.27019091796875,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_vision"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.0069669189453125
+            },
+            {
+              "start_relative_ms": 6803.985182983399,
+              "duration_ms": 6.174639038085937,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_vision"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.00593505859375
+            },
+            {
+              "start_relative_ms": 3457.3961950683592,
+              "duration_ms": 5.043621948242188,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_vision"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.0072908935546875
+            },
+            {
+              "start_relative_ms": 54.258330078125,
+              "duration_ms": 4.6389139404296875,
+              "overlapping_CPU_scopes": [
+                "Qwen_build_batch_including_vision",
+                "Qwen_current_inclusive",
+                "Qwen_vision"
+              ],
+              "CUDA_sync_host_overlap_ms": 0.0068009033203125
+            }
+          ]
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.026041015625,
+            "all_GPU_stream_union_ms": 2350.055161254883,
+            "non_NCCL_kernel_union_ms": 2089.4186611328123,
+            "NCCL_kernel_union_ms": 368.3986022949219,
+            "copy_or_set_union_ms": 60.59267761230469,
+            "compute_NCCL_overlap_ms": 160.54401257324207,
+            "NCCL_without_compute_ms": 207.85458972168,
+            "trace_visible_GPU_idle_ms": 1050.9708797607423,
+            "GPU_union_fraction": 0.6909841715158117,
+            "CUDA_sync_host_union_ms": 787.7825483398437,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 47.84417004394531,
+                "duration_ms": 6.27019091796875,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0069669189453125
+              },
+              {
+                "start_relative_ms": 54.258330078125,
+                "duration_ms": 4.6389139404296875,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0068009033203125
+              },
+              {
+                "start_relative_ms": 1.0883370361328124,
+                "duration_ms": 2.622739013671875,
+                "overlapping_CPU_scopes": [],
+                "CUDA_sync_host_overlap_ms": 0
+              },
+              {
+                "start_relative_ms": 626.8134140625,
+                "duration_ms": 2.319760986328125,
+                "overlapping_CPU_scopes": [
+                  "proposal_10steps"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              },
+              {
+                "start_relative_ms": 632.5234079589844,
+                "duration_ms": 2.24145703125,
+                "overlapping_CPU_scopes": [
+                  "proposal_10steps"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              }
+            ]
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.2988759765626,
+            "all_GPU_stream_union_ms": 2385.114507080078,
+            "non_NCCL_kernel_union_ms": 2086.240203979492,
+            "NCCL_kernel_union_ms": 363.3969559326172,
+            "copy_or_set_union_ms": 60.738011962890624,
+            "compute_NCCL_overlap_ms": 118.60387976074207,
+            "NCCL_without_compute_ms": 244.79307617187533,
+            "trace_visible_GPU_idle_ms": 972.1843688964846,
+            "GPU_union_fraction": 0.7104266242564723,
+            "CUDA_sync_host_union_ms": 785.0908104248047,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 49.727360961914066,
+                "duration_ms": 6.451441040039063,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.005949951171875
+              },
+              {
+                "start_relative_ms": 56.32501000976563,
+                "duration_ms": 5.043621948242188,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0072908935546875
+              },
+              {
+                "start_relative_ms": 40.76841394042969,
+                "duration_ms": 3.9650540771484377,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.006426025390625
+              },
+              {
+                "start_relative_ms": 627.5616080322266,
+                "duration_ms": 2.4421939697265627,
+                "overlapping_CPU_scopes": [
+                  "proposal_10steps"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              },
+              {
+                "start_relative_ms": 670.7678840332031,
+                "duration_ms": 2.3289449462890626,
+                "overlapping_CPU_scopes": [
+                  "proposal_10steps"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              }
+            ]
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.7995379638674,
+            "all_GPU_stream_union_ms": 2340.637229003906,
+            "non_NCCL_kernel_union_ms": 2084.5524118652343,
+            "NCCL_kernel_union_ms": 308.51303125,
+            "copy_or_set_union_ms": 61.311844360351564,
+            "compute_NCCL_overlap_ms": 106.88127551269508,
+            "NCCL_without_compute_ms": 201.63175573730496,
+            "trace_visible_GPU_idle_ms": 1008.1623089599611,
+            "GPU_union_fraction": 0.6989481461846645,
+            "CUDA_sync_host_union_ms": 799.7980897216797,
+            "largest_trace_visible_GPU_gaps": [
+              {
+                "start_relative_ms": 45.55214294433594,
+                "duration_ms": 6.174639038085937,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.00593505859375
+              },
+              {
+                "start_relative_ms": 51.862782958984376,
+                "duration_ms": 4.6273310546875,
+                "overlapping_CPU_scopes": [
+                  "Qwen_build_batch_including_vision",
+                  "Qwen_current_inclusive",
+                  "Qwen_vision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0.0068470458984375
+              },
+              {
+                "start_relative_ms": 1.02143798828125,
+                "duration_ms": 3.283032958984375,
+                "overlapping_CPU_scopes": [],
+                "CUDA_sync_host_overlap_ms": 0
+              },
+              {
+                "start_relative_ms": 595.4131080322265,
+                "duration_ms": 2.8060699462890626,
+                "overlapping_CPU_scopes": [
+                  "FM_supervision"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              },
+              {
+                "start_relative_ms": 626.9432349853515,
+                "duration_ms": 2.324241943359375,
+                "overlapping_CPU_scopes": [
+                  "proposal_10steps"
+                ],
+                "CUDA_sync_host_overlap_ms": 0
+              }
+            ]
+          }
+        },
+        "runtime_sync_calls": {
+          "cudaStreamSynchronize": 2316,
+          "cudaDeviceSynchronize": 19
+        },
+        "launch_correlated_GPU_events": 151332,
+        "GPU_events": 151332,
+        "top_kernel_cumulative_duration_not_wall_partition": [
+          {
+            "name": "ncclDevKernel_AllReduce_Sum_f32_RING_LL(ncclDevComm*, unsigned long, ncclWork*)",
+            "calls": 351,
+            "cumulative_ms": 679.7337010000001
+          },
+          {
+            "name": "ampere_bf16_s16816gemm_bf16_128x256_ldg8_f2f_stages_64x3_tn",
+            "calls": 1176,
+            "cumulative_ms": 535.7741650000011
+          },
+          {
+            "name": "void cudnn::cnn::wgrad2d_grouped_direct_kernel<false, true, int, float, float, float>(cudnn::cnn::WgradGroupedDirectParams, float const*, float const*, float*, float, float)",
+            "calls": 114,
+            "cumulative_ms": 419.4658560000001
+          },
+          {
+            "name": "void (anonymous namespace)::indexing_backward_kernel_stride_1<float>(long const*, long const*, float const*, float*, long, long, long, long, bool)",
+            "calls": 111,
+            "cumulative_ms": 387.9529059999999
+          },
+          {
+            "name": "ncclDevKernel_AllGather_RING_LL(ncclDevComm*, unsigned long, ncclWork*)",
+            "calls": 462,
+            "cumulative_ms": 342.4966730000003
+          },
+          {
+            "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+            "calls": 10479,
+            "cumulative_ms": 332.5426810000016
+          },
+          {
+            "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "calls": 3411,
+            "cumulative_ms": 283.69952800000067
+          },
+          {
+            "name": "ampere_sgemm_128x128_nn",
+            "calls": 117,
+            "cumulative_ms": 248.91112600000008
+          },
+          {
+            "name": "ampere_bf16_s16816gemm_bf16_256x128_ldg8_f2f_stages_64x3_nt",
+            "calls": 420,
+            "cumulative_ms": 219.24930999999992
+          },
+          {
+            "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, at::detail::Array<char*, 1> >(int, at::native::FillFunctor<float>, at::detail::Array<char*, 1>)",
+            "calls": 23181,
+            "cumulative_ms": 214.52012000001585
+          },
+          {
+            "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+            "calls": 3753,
+            "cumulative_ms": 193.09741699999978
+          },
+          {
+            "name": "_5x_cudnn_ampere_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+            "calls": 174,
+            "cumulative_ms": 167.18788800000007
+          }
+        ],
+        "top_CPU_op_nested_duration_not_wall_partition": [
+          {
+            "name": "autograd::engine::evaluate_function: CheckpointFunctionBackward",
+            "calls": 135,
+            "cumulative_ms": 3178.281666000002
+          },
+          {
+            "name": "CheckpointFunctionBackward",
+            "calls": 135,
+            "cumulative_ms": 3176.769020000001
+          },
+          {
+            "name": "aten::linear",
+            "calls": 16557,
+            "cumulative_ms": 3036.7178040000063
+          },
+          {
+            "name": "aten::nonzero",
+            "calls": 1416,
+            "cumulative_ms": 1798.1811469999998
+          },
+          {
+            "name": "SyncBatchNorm",
+            "calls": 438,
+            "cumulative_ms": 1637.955507
+          },
+          {
+            "name": "aten::index",
+            "calls": 1617,
+            "cumulative_ms": 1458.5473600000048
+          },
+          {
+            "name": "aten::to",
+            "calls": 21072,
+            "cumulative_ms": 1249.3438960000037
+          },
+          {
+            "name": "aten::_to_copy",
+            "calls": 15969,
+            "cumulative_ms": 1223.5586579999963
+          },
+          {
+            "name": "aten::addmm",
+            "calls": 7353,
+            "cumulative_ms": 944.6361289999992
+          },
+          {
+            "name": "aten::copy_",
+            "calls": 24003,
+            "cumulative_ms": 904.430932999997
+          },
+          {
+            "name": "aten::mm",
+            "calls": 5151,
+            "cumulative_ms": 681.336442000002
+          },
+          {
+            "name": "aten::fill_",
+            "calls": 54045,
+            "cumulative_ms": 643.5981480000077
+          },
+          {
+            "name": "aten::scaled_dot_product_attention",
+            "calls": 3804,
+            "cumulative_ms": 640.1911870000014
+          },
+          {
+            "name": "CheckpointFunction",
+            "calls": 135,
+            "cumulative_ms": 618.0136299999999
+          },
+          {
+            "name": "aten::_index_put_impl_",
+            "calls": 228,
+            "cumulative_ms": 496.65618099999983
+          },
+          {
+            "name": "aten::index_put_",
+            "calls": 186,
+            "cumulative_ms": 484.55228800000026
+          }
+        ],
+        "extended_CPU_calls": 416,
+        "recorded_GPU_streams": [
+          {
+            "device": 0,
+            "stream": 7,
+            "events": 149097
+          },
+          {
+            "device": 0,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 0,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 0,
+            "stream": 30,
+            "events": 855
+          },
+          {
+            "device": 0,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 0,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 0,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 0,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 0,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "launch_correlation_includes_CUDA_driver": true
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 1,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank1.json",
+          "bytes": 476293398,
+          "sha256": "63d9d88c446a5ddc47670868f84cc752ef1ce1693c4c7c657c6ba60230eac554"
+        },
+        "events": 1394143,
+        "event_categories": {
+          "cpu_op": 616809,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140400,
+          "ac2g": 365353,
+          "cuda_runtime": 211519,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 7452,
+          "gpu_memset": 2055,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.35288293457,
+          "all_GPU_stream_union_ms": 7093.044764892578,
+          "non_NCCL_kernel_union_ms": 6224.507886108398,
+          "NCCL_kernel_union_ms": 1002.2445147705079,
+          "copy_or_set_union_ms": 184.21606909179687,
+          "compute_NCCL_overlap_ms": 296.0595649414063,
+          "NCCL_without_compute_ms": 706.1849498291012,
+          "trace_visible_GPU_idle_ms": 3014.308118041992,
+          "GPU_union_fraction": 0.7017707650109454,
+          "CUDA_sync_host_union_ms": 2486.5321752929685
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.146635986328,
+            "all_GPU_stream_union_ms": 2402.961282836914,
+            "non_NCCL_kernel_union_ms": 2074.7181544189452,
+            "NCCL_kernel_union_ms": 369.3394255371094,
+            "copy_or_set_union_ms": 61.28048571777344,
+            "compute_NCCL_overlap_ms": 95.0453123779298,
+            "NCCL_without_compute_ms": 274.2941131591797,
+            "trace_visible_GPU_idle_ms": 998.1853531494139,
+            "GPU_union_fraction": 0.7065150491931256,
+            "CUDA_sync_host_union_ms": 874.0961247558594
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.2806669921874,
+            "all_GPU_stream_union_ms": 2354.862653442383,
+            "non_NCCL_kernel_union_ms": 2075.0161391601564,
+            "NCCL_kernel_union_ms": 331.4868511962891,
+            "copy_or_set_union_ms": 61.406234497070315,
+            "compute_NCCL_overlap_ms": 105.52940112304714,
+            "NCCL_without_compute_ms": 225.95745007324194,
+            "trace_visible_GPU_idle_ms": 1002.4180135498045,
+            "GPU_union_fraction": 0.7014196568653647,
+            "CUDA_sync_host_union_ms": 816.4959443359375
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.803677001953,
+            "all_GPU_stream_union_ms": 2335.2208286132814,
+            "non_NCCL_kernel_union_ms": 2074.773592529297,
+            "NCCL_kernel_union_ms": 301.41823803710935,
+            "copy_or_set_union_ms": 61.52934887695312,
+            "compute_NCCL_overlap_ms": 95.4848514404298,
+            "NCCL_without_compute_ms": 205.9333865966796,
+            "trace_visible_GPU_idle_ms": 1013.5828483886717,
+            "GPU_union_fraction": 0.6973298687679145,
+            "CUDA_sync_host_union_ms": 795.9401062011718
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 1,
+            "stream": 7,
+            "events": 148002
+          },
+          {
+            "device": 1,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 1,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 1,
+            "stream": 30,
+            "events": 525
+          },
+          {
+            "device": 1,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 1,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 1,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 1,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 1,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 149907
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 2,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank2.json",
+          "bytes": 477496141,
+          "sha256": "32fa95ce97914c3db52a10645dc147d5ad82719ea950fa3d48eae23716fd83f5"
+        },
+        "events": 1398897,
+        "event_categories": {
+          "cpu_op": 617817,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140535,
+          "ac2g": 367226,
+          "cuda_runtime": 213173,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 7515,
+          "gpu_memset": 2076,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.359506958008,
+          "all_GPU_stream_union_ms": 7058.352102416992,
+          "non_NCCL_kernel_union_ms": 6243.4349914550785,
+          "NCCL_kernel_union_ms": 1053.4738459472655,
+          "copy_or_set_union_ms": 187.1493524169922,
+          "compute_NCCL_overlap_ms": 399.342573364258,
+          "NCCL_without_compute_ms": 654.1312725830076,
+          "trace_visible_GPU_idle_ms": 3049.0074045410156,
+          "GPU_union_fraction": 0.6983378890953619,
+          "CUDA_sync_host_union_ms": 2388.4715838623047
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.199012939453,
+            "all_GPU_stream_union_ms": 2337.2533809814454,
+            "non_NCCL_kernel_union_ms": 2078.6301658935545,
+            "NCCL_kernel_union_ms": 312.14901928710935,
+            "copy_or_set_union_ms": 62.65072839355469,
+            "compute_NCCL_overlap_ms": 107.9838482666014,
+            "NCCL_without_compute_ms": 204.16517102050784,
+            "trace_visible_GPU_idle_ms": 1063.9456319580077,
+            "GPU_union_fraction": 0.6871851285648519,
+            "CUDA_sync_host_union_ms": 794.1067535400391
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.274670043945,
+            "all_GPU_stream_union_ms": 2368.041050292969,
+            "non_NCCL_kernel_union_ms": 2080.48119140625,
+            "NCCL_kernel_union_ms": 346.82083215332034,
+            "copy_or_set_union_ms": 62.04918994140625,
+            "compute_NCCL_overlap_ms": 113.04273254394548,
+            "NCCL_without_compute_ms": 233.77809960937475,
+            "trace_visible_GPU_idle_ms": 989.2336197509762,
+            "GPU_union_fraction": 0.7053462355708812,
+            "CUDA_sync_host_union_ms": 811.3505345458984
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.7761190185547,
+            "all_GPU_stream_union_ms": 2353.0576711425783,
+            "non_NCCL_kernel_union_ms": 2084.3236341552733,
+            "NCCL_kernel_union_ms": 394.50399450683597,
+            "copy_or_set_union_ms": 62.44943408203125,
+            "compute_NCCL_overlap_ms": 178.3159925537111,
+            "NCCL_without_compute_ms": 216.18800195312497,
+            "trace_visible_GPU_idle_ms": 995.7184478759764,
+            "GPU_union_fraction": 0.7026619838152103,
+            "CUDA_sync_host_union_ms": 783.0142957763671
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 2,
+            "stream": 7,
+            "events": 148158
+          },
+          {
+            "device": 2,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 2,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 2,
+            "stream": 30,
+            "events": 588
+          },
+          {
+            "device": 2,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 2,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 2,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 2,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 2,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 150126
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 3,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank3.json",
+          "bytes": 477789016,
+          "sha256": "7951671fdd65546fb9c7db76b06913748a0c47da47692616e44394622d1bde69"
+        },
+        "events": 1400236,
+        "event_categories": {
+          "cpu_op": 617940,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140553,
+          "ac2g": 367834,
+          "cuda_runtime": 213766,
+          "gpu_memcpy": 7512,
+          "gpu_memset": 2076,
+          "cuda_driver": 3927,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.296770996094,
+          "all_GPU_stream_union_ms": 7148.903015380859,
+          "non_NCCL_kernel_union_ms": 6253.6186104736325,
+          "NCCL_kernel_union_ms": 1212.0283908691406,
+          "copy_or_set_union_ms": 182.45069860839843,
+          "compute_NCCL_overlap_ms": 474.8971522216798,
+          "NCCL_without_compute_ms": 737.131238647461,
+          "trace_visible_GPU_idle_ms": 2958.393755615235,
+          "GPU_union_fraction": 0.707301188176779,
+          "CUDA_sync_host_union_ms": 2440.456120239258
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.0861309814454,
+            "all_GPU_stream_union_ms": 2447.4237205810546,
+            "non_NCCL_kernel_union_ms": 2084.8810646972656,
+            "NCCL_kernel_union_ms": 474.08937170410155,
+            "copy_or_set_union_ms": 60.796609985351566,
+            "compute_NCCL_overlap_ms": 163.84200964355477,
+            "NCCL_without_compute_ms": 310.24736206054695,
+            "trace_visible_GPU_idle_ms": 953.6624104003909,
+            "GPU_union_fraction": 0.7196006294244615,
+            "CUDA_sync_host_union_ms": 871.555798828125
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.3332609863282,
+            "all_GPU_stream_union_ms": 2336.1783942871093,
+            "non_NCCL_kernel_union_ms": 2081.027677001953,
+            "NCCL_kernel_union_ms": 319.94748120117185,
+            "copy_or_set_union_ms": 60.75385888671875,
+            "compute_NCCL_overlap_ms": 118.4705836181638,
+            "NCCL_without_compute_ms": 201.47689758300794,
+            "trace_visible_GPU_idle_ms": 1021.1548666992189,
+            "GPU_union_fraction": 0.6958434604733815,
+            "CUDA_sync_host_union_ms": 777.6946801757813
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.767447998047,
+            "all_GPU_stream_union_ms": 2365.3009005126955,
+            "non_NCCL_kernel_union_ms": 2087.709868774414,
+            "NCCL_kernel_union_ms": 417.9915379638672,
+            "copy_or_set_union_ms": 60.90022973632812,
+            "compute_NCCL_overlap_ms": 192.5845589599612,
+            "NCCL_without_compute_ms": 225.40697900390614,
+            "trace_visible_GPU_idle_ms": 983.4665474853514,
+            "GPU_union_fraction": 0.706319843716444,
+            "CUDA_sync_host_union_ms": 791.2056412353515
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 3,
+            "stream": 7,
+            "events": 148176
+          },
+          {
+            "device": 3,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 3,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 3,
+            "stream": 30,
+            "events": 585
+          },
+          {
+            "device": 3,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 3,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 3,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 3,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 3,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 150141
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 4,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank4.json",
+          "bytes": 479292640,
+          "sha256": "f44434ed7441d3d779149d85bfe2dea72782fb4083890edb1f7c89b80d446170"
+        },
+        "events": 1404184,
+        "event_categories": {
+          "cpu_op": 620502,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140904,
+          "ac2g": 368527,
+          "cuda_runtime": 213976,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 7617,
+          "gpu_memset": 2103,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.208528076171,
+          "all_GPU_stream_union_ms": 7307.074380981446,
+          "non_NCCL_kernel_union_ms": 6263.488506225586,
+          "NCCL_kernel_union_ms": 1358.5393797607421,
+          "copy_or_set_union_ms": 189.58685424804688,
+          "compute_NCCL_overlap_ms": 468.4540629882813,
+          "NCCL_without_compute_ms": 890.0853167724608,
+          "trace_visible_GPU_idle_ms": 2800.1341470947254,
+          "GPU_union_fraction": 0.72295672545823,
+          "CUDA_sync_host_union_ms": 2584.9922568359375
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.065512939453,
+            "all_GPU_stream_union_ms": 2462.165814819336,
+            "non_NCCL_kernel_union_ms": 2088.2795548095705,
+            "NCCL_kernel_union_ms": 479.9049125976563,
+            "copy_or_set_union_ms": 63.56434619140625,
+            "compute_NCCL_overlap_ms": 157.54567260742215,
+            "NCCL_without_compute_ms": 322.3592399902341,
+            "trace_visible_GPU_idle_ms": 938.8996981201171,
+            "GPU_union_fraction": 0.7239395434906956,
+            "CUDA_sync_host_union_ms": 897.7794282226563
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.3169169921875,
+            "all_GPU_stream_union_ms": 2418.595711669922,
+            "non_NCCL_kernel_union_ms": 2085.960805541992,
+            "NCCL_kernel_union_ms": 406.32028393554685,
+            "copy_or_set_union_ms": 61.22944580078125,
+            "compute_NCCL_overlap_ms": 125.12533447265605,
+            "NCCL_without_compute_ms": 281.1949494628907,
+            "trace_visible_GPU_idle_ms": 938.7212053222656,
+            "GPU_union_fraction": 0.7203954143944017,
+            "CUDA_sync_host_union_ms": 861.8676853027343
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.6882600097656,
+            "all_GPU_stream_union_ms": 2426.3128544921874,
+            "non_NCCL_kernel_union_ms": 2089.2481458740235,
+            "NCCL_kernel_union_ms": 472.31418322753905,
+            "copy_or_set_union_ms": 64.79306225585937,
+            "compute_NCCL_overlap_ms": 185.7830559082031,
+            "NCCL_without_compute_ms": 286.53112731933606,
+            "trace_visible_GPU_idle_ms": 922.3754055175782,
+            "GPU_union_fraction": 0.7245562041314385,
+            "CUDA_sync_host_union_ms": 825.3451433105469
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 4,
+            "stream": 7,
+            "events": 148554
+          },
+          {
+            "device": 4,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 4,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 4,
+            "stream": 30,
+            "events": 690
+          },
+          {
+            "device": 4,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 4,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 4,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 4,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 4,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 150624
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 5,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank5.json",
+          "bytes": 478257491,
+          "sha256": "a0604a14d2d3c4aee71be4dee93da5f34f513ea2552b5b69a650a4614f619903"
+        },
+        "events": 1401862,
+        "event_categories": {
+          "cpu_op": 618474,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140631,
+          "ac2g": 368380,
+          "cuda_runtime": 214189,
+          "cuda_driver": 3927,
+          "gpu_memcpy": 7533,
+          "gpu_memset": 2100,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.305733886718,
+          "all_GPU_stream_union_ms": 7338.67448828125,
+          "non_NCCL_kernel_union_ms": 6252.631302246094,
+          "NCCL_kernel_union_ms": 1432.9194602050782,
+          "copy_or_set_union_ms": 179.3587247314453,
+          "compute_NCCL_overlap_ms": 499.11503613281275,
+          "NCCL_without_compute_ms": 933.8044240722656,
+          "trace_visible_GPU_idle_ms": 2768.6312456054684,
+          "GPU_union_fraction": 0.7260762345079668,
+          "CUDA_sync_host_union_ms": 2615.465507080078
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.118764038086,
+            "all_GPU_stream_union_ms": 2449.8110272216795,
+            "non_NCCL_kernel_union_ms": 2081.785542236328,
+            "NCCL_kernel_union_ms": 455.4555395507812,
+            "copy_or_set_union_ms": 59.85383056640625,
+            "compute_NCCL_overlap_ms": 139.2316624755863,
+            "NCCL_without_compute_ms": 316.2238770751951,
+            "trace_visible_GPU_idle_ms": 951.3077368164063,
+            "GPU_union_fraction": 0.7202956430468966,
+            "CUDA_sync_host_union_ms": 888.3136037597657
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.3369510498046,
+            "all_GPU_stream_union_ms": 2444.382758056641,
+            "non_NCCL_kernel_union_ms": 2082.827588256836,
+            "NCCL_kernel_union_ms": 465.58660046386717,
+            "copy_or_set_union_ms": 59.655120849609375,
+            "compute_NCCL_overlap_ms": 154.6811278076175,
+            "NCCL_without_compute_ms": 310.9054726562499,
+            "trace_visible_GPU_idle_ms": 912.9541929931638,
+            "GPU_union_fraction": 0.7280719194099083,
+            "CUDA_sync_host_union_ms": 875.1886668701172
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.7089959716795,
+            "all_GPU_stream_union_ms": 2444.4807030029297,
+            "non_NCCL_kernel_union_ms": 2088.01817175293,
+            "NCCL_kernel_union_ms": 511.8773201904297,
+            "copy_or_set_union_ms": 59.84977331542969,
+            "compute_NCCL_overlap_ms": 205.20224584960943,
+            "NCCL_without_compute_ms": 306.6750743408202,
+            "trace_visible_GPU_idle_ms": 904.2282929687499,
+            "GPU_union_fraction": 0.7299770466599251,
+            "CUDA_sync_host_union_ms": 851.9632364501953
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 5,
+            "stream": 7,
+            "events": 148275
+          },
+          {
+            "device": 5,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 5,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 5,
+            "stream": 30,
+            "events": 609
+          },
+          {
+            "device": 5,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 5,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 5,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 5,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 5,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 150264
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 6,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank6.json",
+          "bytes": 478475139,
+          "sha256": "8272662087ffa4c65d7709bc006ffd68f1e76e970a75b29dd648b06dfa25ea0c"
+        },
+        "events": 1402187,
+        "event_categories": {
+          "cpu_op": 618996,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "kernel": 140700,
+          "ac2g": 368282,
+          "cuda_runtime": 213995,
+          "gpu_memcpy": 7551,
+          "gpu_memset": 2109,
+          "cuda_driver": 3927,
+          "gpu_user_annotation": 924,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.3088359375,
+          "all_GPU_stream_union_ms": 7309.075778564453,
+          "non_NCCL_kernel_union_ms": 6248.9392276611325,
+          "NCCL_kernel_union_ms": 1413.3890971679687,
+          "copy_or_set_union_ms": 177.38032299804686,
+          "compute_NCCL_overlap_ms": 504.1936280517575,
+          "NCCL_without_compute_ms": 909.1954691162109,
+          "trace_visible_GPU_idle_ms": 2798.233057373047,
+          "GPU_union_fraction": 0.7231475655098554,
+          "CUDA_sync_host_union_ms": 2606.235639770508
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.122482055664,
+            "all_GPU_stream_union_ms": 2461.3846911621094,
+            "non_NCCL_kernel_union_ms": 2082.597779296875,
+            "NCCL_kernel_union_ms": 489.4748387451172,
+            "copy_or_set_union_ms": 59.307954833984375,
+            "compute_NCCL_overlap_ms": 161.25428906250045,
+            "NCCL_without_compute_ms": 328.2205496826168,
+            "trace_visible_GPU_idle_ms": 939.7377908935546,
+            "GPU_union_fraction": 0.7236977510067294,
+            "CUDA_sync_host_union_ms": 894.7065164794922
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.382651977539,
+            "all_GPU_stream_union_ms": 2441.4307396240233,
+            "non_NCCL_kernel_union_ms": 2081.460373413086,
+            "NCCL_kernel_union_ms": 474.08114208984375,
+            "copy_or_set_union_ms": 58.93708374023438,
+            "compute_NCCL_overlap_ms": 164.2795954589842,
+            "NCCL_without_compute_ms": 309.8015466308593,
+            "trace_visible_GPU_idle_ms": 915.9519123535156,
+            "GPU_union_fraction": 0.7271827470085935,
+            "CUDA_sync_host_union_ms": 874.3265399169921
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.6888409423827,
+            "all_GPU_stream_union_ms": 2406.2603477783205,
+            "non_NCCL_kernel_union_ms": 2084.8810749511717,
+            "NCCL_kernel_union_ms": 449.8331163330078,
+            "copy_or_set_union_ms": 59.135284423828125,
+            "compute_NCCL_overlap_ms": 178.65974353027332,
+            "NCCL_without_compute_ms": 271.1733728027343,
+            "trace_visible_GPU_idle_ms": 942.4284931640623,
+            "GPU_union_fraction": 0.7185679118222147,
+            "CUDA_sync_host_union_ms": 837.2025833740234
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 6,
+            "stream": 7,
+            "events": 148356
+          },
+          {
+            "device": 6,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 6,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 6,
+            "stream": 30,
+            "events": 624
+          },
+          {
+            "device": 6,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 6,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 6,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 6,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 6,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 150360
+      },
+      {
+        "mode": "engineering_fast",
+        "rank": 7,
+        "trace_ref": {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v2/engineering_fast/trace/rank7.json",
+          "bytes": 485452450,
+          "sha256": "cdd7c41054ad276df02943ee00b71d147e6e9412b899c6d185aff23082216bfa"
+        },
+        "events": 1419994,
+        "event_categories": {
+          "cpu_op": 631080,
+          "fwdbwd": 44706,
+          "user_annotation": 918,
+          "cuda_runtime": 214549,
+          "ac2g": 371143,
+          "kernel": 142374,
+          "cuda_driver": 3927,
+          "gpu_memset": 2202,
+          "gpu_memcpy": 8091,
+          "gpu_user_annotation": 925,
+          "": 78,
+          "Trace": 1
+        },
+        "observed_profiler_steps": [
+          "ProfilerStep#6",
+          "ProfilerStep#7",
+          "ProfilerStep#8"
+        ],
+        "whole_active_window": {
+          "CPU_marker_window_ms": 10107.32097302246,
+          "all_GPU_stream_union_ms": 7085.4868835449215,
+          "non_NCCL_kernel_union_ms": 6253.826758666992,
+          "NCCL_kernel_union_ms": 1062.8943829345703,
+          "copy_or_set_union_ms": 183.41471655273438,
+          "compute_NCCL_overlap_ms": 387.41064404296776,
+          "NCCL_without_compute_ms": 675.4837388916021,
+          "trace_visible_GPU_idle_ms": 3021.8340894775392,
+          "GPU_union_fraction": 0.7010252175088588,
+          "CUDA_sync_host_union_ms": 2430.1778099365233
+        },
+        "per_step": {
+          "ProfilerStep#6": {
+            "CPU_marker_window_ms": 3401.1314620361327,
+            "all_GPU_stream_union_ms": 2393.944883666992,
+            "non_NCCL_kernel_union_ms": 2086.7089365234374,
+            "NCCL_kernel_union_ms": 389.7590969238281,
+            "copy_or_set_union_ms": 61.83318139648438,
+            "compute_NCCL_overlap_ms": 134.66799133300765,
+            "NCCL_without_compute_ms": 255.09110559082046,
+            "trace_visible_GPU_idle_ms": 1007.1865783691405,
+            "GPU_union_fraction": 0.7038672013676958,
+            "CUDA_sync_host_union_ms": 816.597501953125
+          },
+          "ProfilerStep#7": {
+            "CPU_marker_window_ms": 3357.2761240234377,
+            "all_GPU_stream_union_ms": 2334.5263256835938,
+            "non_NCCL_kernel_union_ms": 2079.801643066406,
+            "NCCL_kernel_union_ms": 300.53324011230467,
+            "copy_or_set_union_ms": 60.908041259765625,
+            "compute_NCCL_overlap_ms": 98.3383413085935,
+            "NCCL_without_compute_ms": 202.1948988037111,
+            "trace_visible_GPU_idle_ms": 1022.7497983398439,
+            "GPU_union_fraction": 0.6953632169181971,
+            "CUDA_sync_host_union_ms": 801.7165753173828
+          },
+          "ProfilerStep#8": {
+            "CPU_marker_window_ms": 3348.797057006836,
+            "all_GPU_stream_union_ms": 2357.015674194336,
+            "non_NCCL_kernel_union_ms": 2087.3161790771483,
+            "NCCL_kernel_union_ms": 372.6020458984375,
+            "copy_or_set_union_ms": 60.67349389648437,
+            "compute_NCCL_overlap_ms": 154.40431140136707,
+            "NCCL_without_compute_ms": 218.19773449707054,
+            "trace_visible_GPU_idle_ms": 991.7813828124999,
+            "GPU_union_fraction": 0.7038395083579783,
+            "CUDA_sync_host_union_ms": 811.8637326660156
+          }
+        },
+        "recorded_GPU_streams": [
+          {
+            "device": 7,
+            "stream": 7,
+            "events": 150123
+          },
+          {
+            "device": 7,
+            "stream": 22,
+            "events": 729
+          },
+          {
+            "device": 7,
+            "stream": 26,
+            "events": 126
+          },
+          {
+            "device": 7,
+            "stream": 30,
+            "events": 1164
+          },
+          {
+            "device": 7,
+            "stream": 152,
+            "events": 3
+          },
+          {
+            "device": 7,
+            "stream": 154,
+            "events": 3
+          },
+          {
+            "device": 7,
+            "stream": 168,
+            "events": 273
+          },
+          {
+            "device": 7,
+            "stream": 169,
+            "events": 243
+          },
+          {
+            "device": 7,
+            "stream": 170,
+            "events": 3
+          }
+        ],
+        "GPU_events": 152667
+      }
+    ]
+  },
+  "findings": [
+    {
+      "evidence": "Rank0 three active ProfilerStep markers",
+      "statement": "CPU processor work causes three large GPU-quiet gaps in IO; P0 removes these main-thread gaps by preparing on a CPU worker, not by removing processor computation.",
+      "IO_gap_ms": [
+        234.4778330078125,
+        238.03503503417969,
+        257.29544897460937
+      ],
+      "P0_largest_gap_ms": 6.451441040039063,
+      "IO_processor_same_thread_launch_GPU_union_ms": 0
+    },
+    {
+      "statement": "Main-thread batch construction includes vision; its wall reduction must not be described as pure processor speed or halved GPU vision compute.",
+      "IO_rankmax_nonactive_host_ms": 583.0887462943792,
+      "P0_rankmax_nonactive_host_ms": 281.7581072449684,
+      "stream_event_vision_ms": [
+        288.22059631347656,
+        290.8204345703125
+      ]
+    },
+    {
+      "statement": "Backwards and 10-step proposal remain major bottlenecks; profiler timing does not demonstrate a proposal speedup.",
+      "backward_rankmax_median_ms": [
+        1645.2328491210938,
+        1620.3446044921875
+      ],
+      "proposal_rankmax_median_ms": [
+        376.2579803466797,
+        382.4814910888672
+      ]
+    },
+    {
+      "statement": "NCCL kernel activity, runtime synchronization and nonzero/index/cast operators remain visible; cumulative inclusive operator times are hotspots rather than additive wall partitions."
+    },
+    {
+      "statement": "Final active optimizer stage contains trace-export delay; exclude nominal update25009 from steady-update comparisons.",
+      "optimizer_contaminated_stage_ms": [
+        90904.046875,
+        85069.1640625
+      ]
+    },
+    {
+      "statement": "Process costs from PROCESS_EXIT and controller are 1.409784 GPUh total. TRAINING_COMPLETE GPU_hours includes inherited origin training and must not be attributed to these two profiles."
+    }
+  ],
+  "method": {
+    "raw_trace_location": "training-vlawm-zt4; raw traces remain private and were parsed in place",
+    "raw_trace_copied_bytes": 0,
+    "CPU_analysis_max_concurrent_single_thread_parsers": 2,
+    "events": "Complete traceEvents streaming JSON parse; SHA256 same pass; only public scalar event metadata summarized",
+    "GPU": "Union of all kernel/memcpy/memset intervals on all captured streams clipped to ProfilerStep#6/#7/#8 CPU marker bounds; NCCL/non-NCCL/copy and overlap unions separate",
+    "CPU": "Inclusive host wall scopes and per-Python-thread unions; CPU worker perf_counter rows independent of Kineto timestamps",
+    "launch_association": "CUDA runtime and driver correlations mapped to enclosing same-OS-thread CPU labels. Complete event correlations do not imply complete CPU range ownership: backward workers run on other threads.",
+    "quantiles": "Eight-rank window summaries are descriptive; original stage medians use rank-max per update over25011..25032; extended CPU max-of-rank nonactive medians has different bounds"
+  },
+  "limits": [
+    "All label ranges inclusive; nested labels must not be summed.",
+    "GPU busy is union of captured GPU activities on all recorded streams, not SM occupancy.",
+    "NCCL duration can include waiting; NCCL_without_compute is not pure network overhead.",
+    "Runtime sync wall overlaps kernels/host scopes; do not add it to GPU time.",
+    "CPU rows use perf_counter; do not directly join absolute timestamps to Kineto.",
+    "Python thread IDs in CPU rows differ from OS TIDs in Kineto.",
+    "CPU row step hints are not exact prefetched input/update identities.",
+    "ProfilerStep boundaries differ from native update boundaries; final export can pollute stage timing.",
+    "Same-thread launch correlation is a subset: main-thread backward range does not own autograd-worker launches by thread; never use its correlated subset as total backward GPU cost.",
+    "Only three CUDA-active profiler steps per rank; profiled runs include instrumentation and cannot replace the preregistered benchmark.",
+    "No raw private images, tensors or traces persisted in this report.",
+    "CurrentBatchCollator preprocessing, pinning and other worker operations outside these labels are not fully covered.",
+    "Profiler with_stack=False has no new Python leaf-stack proof.",
+    "No current optimization acceptance, numerical acceptance, throughput claim or source change follows from this report."
+  ]
+}

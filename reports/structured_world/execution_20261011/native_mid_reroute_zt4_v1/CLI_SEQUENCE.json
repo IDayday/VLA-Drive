@@ -1,0 +1,84 @@
+{
+  "CPU_preparation_only": true,
+  "later_exact_CLI": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/queued_zt4_cpu_v1/EXACT_CLI_AND_WORKER_COMMANDS.json",
+    "sha256": "74ae682e0f64bcc62afcd29a8155025ef12be5b31a38ffa8039287f5385ebc96"
+  },
+  "later_phase_budget": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/queued_zt4_cpu_v1/FINITE_PHASE_BUDGETS.json",
+    "sha256": "ad341c1dbdb964041186df4d6f76390e17729b9a142c6af3194f7a074cf414fa"
+  },
+  "new_mid_commands": [
+    {
+      "CPU_plan_argv": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py",
+        "--manifest",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G1_MID_PHASE_MANIFEST.json",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G1",
+        "--cases",
+        "G1_mid"
+      ],
+      "after_success": "All15banks verified relocation/release before next group or old queued phases",
+      "execute_argv": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py",
+        "--manifest",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G1_MID_PHASE_MANIFEST.json",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G1",
+        "--cases",
+        "G1_mid",
+        "--execute"
+      ],
+      "execute_shell": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python -B /mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py --manifest /mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G1_MID_PHASE_MANIFEST.json --output /var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G1 --cases G1_mid --execute",
+      "group": "G1"
+    },
+    {
+      "CPU_plan_argv": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py",
+        "--manifest",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G3_MID_PHASE_MANIFEST.json",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G3",
+        "--cases",
+        "G3_mid"
+      ],
+      "after_success": "All15banks verified relocation/release before next group or old queued phases",
+      "execute_argv": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py",
+        "--manifest",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G3_MID_PHASE_MANIFEST.json",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G3",
+        "--cases",
+        "G3_mid",
+        "--execute"
+      ],
+      "execute_shell": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python -B /mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_continuation.py --manifest /mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_reroute_zt4_v1/G3_MID_PHASE_MANIFEST.json --output /var/tmp/structured-world-fgtr-execution-20261011/native_zt4_mid_reroute_v1/controllers/G3 --cases G3_mid --execute",
+      "group": "G3"
+    }
+  ],
+  "no_GPU_dispatch": true,
+  "ordered_workflow": [
+    "Main24+entire pairedprofileV2 complete",
+    "Parent-owned forward12 complete",
+    "New G1mid A/AA/B500",
+    "Verify/copy G1new15banks to local; atomic relocation ledger; release ONLY new source payloads",
+    "Fresh df and G1 source-release receipt",
+    "New G3mid A/AA/B500",
+    "Same full G3relocation/release",
+    "Existing early6",
+    "Existing G1same-mode recovery",
+    "Existing G3same-mode recovery",
+    "Existing calibrated NU32"
+  ],
+  "schema": "mid_reroute_ordered_cpu_commands_v1"
+}

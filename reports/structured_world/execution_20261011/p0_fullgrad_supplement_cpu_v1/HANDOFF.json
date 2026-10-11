@@ -1,0 +1,63 @@
+{
+  "CPU_preflight": "probe plus --preflight; no model import/GPU job",
+  "CPU_tests": {
+    "CUDA_initialized": false,
+    "passed": true,
+    "receipt": "CPU_RECEIPT.json",
+    "run": 16
+  },
+  "RAM_limit": "At ~2.63B params, new three banks252.48GB/eight ranks plus legacy A84.16GB, plus chunk scratch, legacy largest-tensor scratch and4GiB reserve; actual MemAvailable checked; not peak-RSS guarantee",
+  "actual_registration_created": false,
+  "actual_supplementary_GPU_jobs_started": 0,
+  "actual_supplementary_GPU_proof_complete": false,
+  "assembler_mapping": {
+    "comparison": "P0_FULL_GRADIENT_COMPARISON.json",
+    "forward_observation": "P0_FORWARD_COMPARISON.json",
+    "original_strict": "strict/COMPLETE.json"
+  },
+  "commits_created": 0,
+  "created_UTC": "2026-10-11T14:35:08.533230+00:00",
+  "entrypoint": "tools/structured_world/validate_p0_fullgrad_numerics.py register|probe",
+  "formal_authorized": false,
+  "future_bounded_slots": "Existing4origins x3independent repeats=12; no change to native/dev/recovery/benchmark population",
+  "measurement": "Transient independent all-parameter post-backward CPU FP32 A/AA/B banks with None inventory; exact native optimizer grouping; hash-pinned native comparator CPU FP64 chunks; directly measured AA_B",
+  "model_commit": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "models_and_thresholds": "be5 models/legacy; cold6d16 forward Collector; original strict/thresholds/failure exit retained",
+  "original_forward_commit": "6d16abf207877340afd36ecca58e6f1904d37d02",
+  "original_forward_source_binding_sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799",
+  "outputs": [
+    "strict/COMPLETE.json (original)",
+    "P0_FORWARD_COMPARISON.json (original forward observation shape; own fullgrad flag remains false)",
+    "P0_FULL_GRADIENT_COMPARISON.json (actual new all-pair gradient statistics; passed/formal_authorized/trainer_consumable false)"
+  ],
+  "own_source_sha256": {
+    "tools/structured_world/test_validate_p0_fullgrad_numerics.py": "4651a1bb7baf8b7bc1e04b3f1230d47c1ccab42b36f65e473dfc84b4e4906f58",
+    "tools/structured_world/validate_p0_fullgrad_numerics.README.md": "42ff7ca69f984afb522dbccb44a8f1eafb5d2ccadb168059dbe1b8722b5dea0b",
+    "tools/structured_world/validate_p0_fullgrad_numerics.py": "75f51d573110c775229ca9363daed4a5c7317ed8f24a9ccb3a60f743220b5f55"
+  },
+  "probe_required_arguments": [
+    "--model-source-root BE5_ROOT",
+    "--forward-source-root COLD_6D16_ROOT",
+    "--source-binding NEW_SOURCE_BINDING_JSON",
+    "--source-binding-sha256 NEW_SHA",
+    "--run ACTUAL_ORIGIN",
+    "--tag IMMUTABLE_TAG",
+    "--cache ACTUAL_TRAIN_CACHE",
+    "--dino-root ACTUAL_DINO",
+    "--output NEW_OUTPUT"
+  ],
+  "profile_reports_sha256": {
+    "reports/structured_world/execution_20261011/performance/profile_paired_mid_v2_actual_analysis/PROFILE_PAIRED_V2_ACTUAL_ANALYSIS.ZH.txt": "90569b2a52ffc0bf18566a62a1020651036586471f14265d54e7124adfd0f27b",
+    "reports/structured_world/execution_20261011/performance/profile_paired_mid_v2_actual_analysis/PROFILE_PAIRED_V2_ACTUAL_ANALYSIS.json": "0630158071c0331220dd294d2fdfbdfdaf1f04eeb544dd7cc43b73dd08deab80"
+  },
+  "register_required_arguments": [
+    "--model-source-root BE5_ROOT",
+    "--forward-source-root COLD_6D16_ROOT",
+    "--forward-source-binding ORIGINAL_44C_JSON",
+    "--output NEW_SOURCE_BINDING_JSON"
+  ],
+  "running_sources_modified": false,
+  "schema": "p0_fullgrad_supplement_handoff_v1",
+  "source_binding_requirement": "New clean immutable external producer and prospective new binding before first supplementary A; original819/44c are preserved context, not reused qualification envelopes",
+  "state": "CPU-tested stable new files; ready for parent immutable freeze"
+}

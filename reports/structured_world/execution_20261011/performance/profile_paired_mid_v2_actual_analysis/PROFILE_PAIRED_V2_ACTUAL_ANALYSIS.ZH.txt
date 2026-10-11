@@ -1,0 +1,16 @@
+实际 paired V2 profile（非数值验收、非稳定吞吐基准）
+
+两组均从 G1 milestone_0025000 同一 checkpoint、相同数据与 RNG 边界恢复，8 ranks ×32 updates，实际 exit=0、updates=25032。模型 be5e722；profile adapter 884e3bc，实际启用 extended stages。controller 两组共 1.409784 GPUh。TRAINING_COMPLETE 的 GPU_hours 含原 checkpoint 历史累计，不能当本次成本。
+
+主要证据：
+1. rank0 的三个 CUDA-active profiler steps 中，IO 的 GPU 无活动空档分别为234.48/238.04/257.30 ms；这些空档与主线程 apply_chat_template scope 重叠，对应 CUDA synchronize 重叠只有约0.018–0.025 ms。P0 最大空档降至6.45 ms。processor 本身仍约260 ms/次，在 P0 转移到 ThreadPoolExecutor CPU worker，不能称 processor 计算消失。
+2. 三个 active markers 的 rank0 wall 合计11.358→10.107 s；全部 stream 的 GPU 活动区间并集7.519→7.076 s，活动占比66.2%→70.0%。8-rank 占比中位数67.18%→70.45%。这是3步 trace 观察，不是正式吞吐结论。
+3. trace 后25011–25032各 update 的 rank-max current-stream event 中位数：Qwen current813.31→508.70 ms，vision288.22→290.82 ms；proposal376.26→382.48 ms，backward1645.23→1620.34 ms，optimizer97.10→96.77 ms。视觉 GPU event 基本不变，batch construction 包含 vision，不能把它的 host wall 减少说成视觉计算减半。
+4. 同一 CPUrows 口径（各 rank 非 active 调用中位数取最大）sample_queries29.94→1.61 ms，structured auxiliary losses106.31→57.41 ms；language121.40→122.77 ms，processor268.33→268.80 ms。CPU 准备工作移到 worker、减少主线程阻塞，是主要确定方向；这些范围嵌套且可能同步等待，不能相加。
+5. NCCL 活动和 host synchronize 仍可见。rank0 IO/P0 三步 NCCL 并集1.283/1.040 s，其中与非 NCCL kernel 重叠0.485/0.386 s。不能把 NCCL duration 当纯网络开销，也不能将 sync wall 再加到 kernel 时间。nonzero/index/copy/cast/checkpoint-backward 是累计热点，不是独立墙钟分区。
+6. 最后一个 active optimizer stage（nominal update25009）混入 trace export，IO90.904 s、P085.069 s，必须剔除，不能拿它评估 optimizer 或 steady update。
+
+范围与身份：
+每 rank 仅3个 CUDA-active markers；ProfilerStep 边界与训练 update 边界不完全相同。CPUworker 另有 perf_counter rows，Python thread id 与 Kineto OS tid、时钟不同，不直接拼接。main-thread backward 的同线程 launch correlation 不能覆盖 autograd worker 发射的全部 kernel。with_stack=False，没有新 Python leaf-stack 证据。原始 trace 留在 zt4，未复制到仓库；只保存 public scope/kernel 名、计数、汇总与 SHA。
+early screen 的 dirty tree 为 f4f7bb01...、Git267701f...，不能当 frozen f8b33ef 的证据。本次使用明确的 be5+884 源身份。
+原 strict negatives、数值阈值和验收 guard 未修改；本报告不授予 formal acceptance。

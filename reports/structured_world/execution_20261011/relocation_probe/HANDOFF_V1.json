@@ -1,0 +1,204 @@
+{
+  "schema": "relocate_execution_probe_stable_CPU_handoff_v1",
+  "created_UTC": "2026-10-11T14:34:29.666102+00:00",
+  "status": "READY_FOR_PARENT_COLD_FREEZE_NOT_EXECUTED",
+  "files": {
+    "tool": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/relocate_execution_probe.py",
+      "sha256": "d633d1fdf6fd014a9f016c66fc145ae5fdd0f0c23f93b9b8cb5430ab7a7fdd52"
+    },
+    "tests": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_relocate_execution_probe.py",
+      "sha256": "a0876798e9d273601bc1a9d506f409f5dd79cb1594cf4eedb5f632c0f3b414d3"
+    }
+  },
+  "CPU_tests": {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "tools.structured_world.test_relocate_execution_probe",
+      "-v"
+    ],
+    "actual_exit_code": 0,
+    "tests": 29,
+    "reported_seconds": 3.347,
+    "all_passed": true,
+    "exec_session_id": 96924,
+    "fixture_scope": "Full3roles x5banks x17hash-verified tiny bytes. Synthetic native-like metadata; no torch/tensors/GPU. Actual17-file rule never reduced.",
+    "test_names": [
+      "test_16_file_manifest_not_accepted_as_synthetic_shortcut",
+      "test_499_metrics_not_success_even_when_summary_claims500",
+      "test_G3_same_full17_rule_and_offset",
+      "test_archive_symlink_ancestor_rejected_before_source_contact",
+      "test_atomic_rename_does_not_replace_empty_directory",
+      "test_bad_status_tag_step_identity_each_blocked",
+      "test_changed_file_after_final_hash_is_not_unlinked",
+      "test_cold_code_gate_blocks_mutated_helper_before_transport",
+      "test_copy_default_full_inventory_and_no_source_deletion",
+      "test_copy_hash_error_retains_partial_no_retry_no_source_delete",
+      "test_delayed_explicit_release_reverifies_archive_without_recopy",
+      "test_destination_collision_no_copy_delete_or_overwrite",
+      "test_explicit_release_archives_COMPLETE_and_preserves_verified_destination",
+      "test_failed_process_or_incomplete500_never_copies",
+      "test_insufficient_archive_free_no_copy",
+      "test_missing_fifth_bank_or_missing_AA_never_releases",
+      "test_missing_payload_no_deletion",
+      "test_owned_pool_cap_no_copy_or_delete_and_registered_alias",
+      "test_path_group_and_host_admission_reject_outside",
+      "test_payload_symlink_and_hardlink_rejected_without_outside_mutation",
+      "test_plan_only_does_not_touch_transport",
+      "test_real_remote_entry_host_bound",
+      "test_release_failure_retains_archive_and_truthful_partial_markers",
+      "test_release_only_corrupted_archive_leaves_source",
+      "test_source_mutation_after_copy_blocks_receipt_and_release",
+      "test_source_symlink_ancestor_cannot_reach_unrelated_banks",
+      "test_symlink_metadata_or_directory_rejected",
+      "test_transport_failure_partial_retained",
+      "test_wrong_source_hash_no_copy_or_deletion"
+    ]
+  },
+  "routing_handoff": {
+    "Mencius_direct_message_available": false,
+    "Mencius_new_CPU_handoff_read_and_source_routes_checked": true,
+    "evidence": [
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_recollection_zt4_v2/NEW_PILOT_ARCHIVE_CONTRACT.json",
+        "sha256": "16cd6e04fa3b9bcbf09c143ec6d9ab67bfddccb7ef1365824d60c988e72b3f50"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_recollection_zt4_v2/G1_MID_DISPATCH_MANIFEST.json",
+        "sha256": "65bc794d942854062782054896040d3f18abd2521b8bab3092ff5b586fa593af"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_mid_recollection_zt4_v2/G3_MID_DISPATCH_MANIFEST.json",
+        "sha256": "38e1105424bda6ceb67a75b8a909318f51c1e2ebff73fb6ffe5726b10c4d6d8b"
+      }
+    ],
+    "source_host": "training-vlawm-zt4",
+    "source_group_roots": [
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G1_mid",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G3_mid"
+    ],
+    "only_source_write_delete_roots": [
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G1_mid/A",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G1_mid/AA",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G1_mid/B",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G3_mid/A",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G3_mid/AA",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/G3_mid/B"
+    ],
+    "destination_host": "training-vla-zt-worker-0",
+    "Mencius_contract_archive_root": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1",
+    "default_user_named_archive_root": "/var/tmp/structured-world-fgtr-execution-20261011/native_recollected_archive",
+    "two_explicit_permitted_archive_basenames": [
+      "native_recollected_archive",
+      "native_zt4_recollected_archive_p0_v1"
+    ],
+    "no_parent_or_Mencius_file_edits": true
+  },
+  "cold_CLI": {
+    "note": "Invoke committed frozen helper path; --execute verifies helper bytes equal committed HEAD blob. Commands are preparation only. GroupG1 thenG3; each waits for all3roles actual500 complete.",
+    "plan": [
+      "python",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/relocate_execution_probe.py",
+      "--group",
+      "G1_mid",
+      "--archive-root",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1"
+    ],
+    "copy_only_after_freeze": [
+      "python",
+      "<cold-helper>/tools/structured_world/relocate_execution_probe.py",
+      "--group",
+      "G1_mid",
+      "--archive-root",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1",
+      "--execute"
+    ],
+    "copy_then_explicit_release_after_freeze": [
+      "python",
+      "<cold-helper>/tools/structured_world/relocate_execution_probe.py",
+      "--group",
+      "G1_mid",
+      "--archive-root",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1",
+      "--execute",
+      "--release-source-payloads"
+    ],
+    "later_explicit_release_verified_copy": [
+      "python",
+      "<cold-helper>/tools/structured_world/relocate_execution_probe.py",
+      "--group",
+      "G1_mid",
+      "--archive-root",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1",
+      "--execute",
+      "--release-source-payloads",
+      "--release-only"
+    ],
+    "G3": "Same commands with --group G3_mid; no actual execution here"
+  },
+  "real_gates": [
+    "Exact new source route; be5source/profile/NAVgroup/fullpopulation101592/world8/micro4/global32/FM8/unchanged100k warm5k",
+    "Each role actual PROCESS_EXIT0 matchingPID and continuous500 metric ordinal population; correct completed/latest/origin/RNG restore metadata",
+    "Exactly5 banks atrelative1/32/100/250/500 perrole, RUNNING intermediates/COMPLETE endpoint,17model+optimizer+RNG file hashes perbank",
+    "Sourcefull255payload SHA; copy only manifest files to fresh writing, destinationfullSHA and metadata match; fsync files/directories and atomic Linux renameat2 NOREPLACE",
+    "Private local /var/tmp archive only; physical145GiB reserve plus nextactualbytes; group678GiB/root1380GiB internal owned caps; quota not inferred",
+    "Source copy receipts only inside new3role runs. Explicit release rechecks sourcefullSHA plus inode/size/mtime beforeunlink; originalCOMPLETE archived as COMPLETE.original.json; RELOCATED marks restorable_herefalse",
+    "Wronghash/incomplete/collision => no source deletion. Copy failures retain partial/no retry. Interrupted release keeps verified archive, historicalCOMPLETE and truthful partial markers; no automatic recovery"
+  ],
+  "receipts": {
+    "archive_copy": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1/{G1_mid,G3_mid}/ARCHIVE_VERIFIED.json",
+    "source_copy": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/{G1_mid,G3_mid}/{A,AA,B}/SOURCE_COPY_RECEIPT.json",
+    "source_release_markers": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/{G1_mid,G3_mid}/{A,AA,B}/RELOCATED.json",
+    "bank_release_markers": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/{G1_mid,G3_mid}/{A,AA,B}/checkpoints/milestone_*/RELOCATED.json",
+    "source_complete_archives": "Samebank/COMPLETE.original.json (original bytes retained, not live recovery COMPLETE)",
+    "source_release": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_p0_v1/{G1_mid,G3_mid}/{A,AA,B}/RELEASE_RECEIPT.json",
+    "destination_release": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1/{G1_mid,G3_mid}/RELEASE_RECEIPT.json"
+  },
+  "comparator_handoff": {
+    "native_layout_unchanged": true,
+    "metadata_and_all17original_payload_bytes_preserved": true,
+    "existing_tool": "tools/structured_world/compare_execution_checkpoints.py",
+    "CLI": [
+      "python",
+      "<existing-cold-source>/tools/structured_world/compare_execution_checkpoints.py",
+      "--reference",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1/G1_mid/A/checkpoints/milestone_0025001",
+      "--reference-replay",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1/G1_mid/AA/checkpoints/milestone_0025001",
+      "--candidate",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_recollected_archive_p0_v1/G1_mid/B/checkpoints/milestone_0025001",
+      "--origin",
+      "<unchanged-shared-G1-origin>/checkpoints/milestone_0025000",
+      "--threads",
+      "2",
+      "--chunk-elements",
+      "262144",
+      "--output",
+      "<private-CPU-receipt.json>"
+    ],
+    "actual_CPU_tensor_loader_on_parentTorch2_5_1_qualified_here": false,
+    "strict_failure_exit2_preserved": true,
+    "new_tensor_format_or_scientific_identity_rewrite": false,
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "OMP_NUM_THREADS": "2"
+    }
+  },
+  "limitations": [
+    "Actualproduction source/process/payload readiness not queried or asserted here. No actual SSH/rsync transport qualification or large-data migration executed.",
+    "Nativeinternal tensor optimizer step/model values require existingfullCPU comparator; this tool proves metadata plus byte/hash integrity, not E1/E2 numeric acceptance.",
+    "Largeproductionsourcehash/destinationfsync/IO cost unmeasured; source is rehashed at inspection, source receipt and explicit release."
+  ],
+  "actions": {
+    "GPU_dispatch": 0,
+    "signals": 0,
+    "actual_data_copy_or_release": 0,
+    "source_model_trainer_edits": 0,
+    "old_bindings_or_threshold_edits": 0,
+    "commits": 0,
+    "new_tool_and_test": 2
+  }
+}
