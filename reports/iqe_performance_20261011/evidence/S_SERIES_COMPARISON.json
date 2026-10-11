@@ -1,0 +1,327 @@
+{
+  "source": "/mnt/project/action-video-foresight-artifacts/20261002/students/formal_S0_seed42_full100k_v2",
+  "source_commit": "1493deda247107efe076b9294863a6753391298a",
+  "count": 2000,
+  "update_range": [
+    20001,
+    22000
+  ],
+  "seconds": {
+    "p50": 1.7348684072494507,
+    "mean": 1.7429898142814637,
+    "p95": 1.8250186443328857
+  },
+  "data_p50_s": 0.2572488784790039,
+  "identity": {
+    "attention": "native causal; current\u2192view,row,column W\u2192action; W retained at deployment",
+    "auxiliary_frequency": "ego repeat8, current once, full native clip once, valid MAE once; Qwen once",
+    "candidate": {
+      "grid_hw": [
+        6,
+        8
+      ],
+      "height": 192,
+      "name": "C1",
+      "native_hw": [
+        12,
+        16
+      ],
+      "num_queries": 144,
+      "pool": 2,
+      "tokens_per_view": 48,
+      "width": 256
+    },
+    "data": {
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "current_only": true,
+      "history_images": 0,
+      "identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+      "index_sha256": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "schema": "ddpolicy_current_cameras_v1",
+      "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+      "split": "train",
+      "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+    },
+    "deterministic": false,
+    "device_names": [
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB"
+    ],
+    "dino": {
+      "candidate": {
+        "grid_hw": [
+          6,
+          8
+        ],
+        "height": 192,
+        "name": "C1",
+        "native_hw": [
+          12,
+          16
+        ],
+        "num_queries": 144,
+        "pool": 2,
+        "tokens_per_view": 48,
+        "width": 256
+      },
+      "chunk_size": 96,
+      "dtype": "float16",
+      "grid_hw": [
+        6,
+        8
+      ],
+      "horizons_s": [
+        0.0,
+        1.0,
+        2.0,
+        4.0
+      ],
+      "identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+      "image_count": 608730,
+      "index": "141e49f0306c6ae5c57bdc3f2cf5590ce82b889278b489e9d850cf8ba8cc5dc1",
+      "recipe": {
+        "actual_tensor_chw": [
+          3,
+          192,
+          256
+        ],
+        "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+        "encoder_implementation": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+        "extra_norm": "none",
+        "feature": "last_block_post_norm_dense_patch",
+        "feature_dim": 1024,
+        "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+        "interpolation": "PIL bicubic antialias",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "normalization": "ImageNet RGB once; last post-norm patches; no extra L2",
+        "padding": "none",
+        "patch_size": [
+          16,
+          16
+        ],
+        "precision": "FP32 model/input/output; TF32 disabled; FP16 storage",
+        "prefix_tokens_excluded": 5,
+        "preprocess_implementation": "748898f9695a0cff78ca75522b5de675e8fffa9457ce32b6c1e98ed8aceb768b",
+        "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+        "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+        "rope": "timm default FP32 periods",
+        "schema": "dino_tradeoff_target_recipe_v1",
+        "source_rgb_range": "full original16:9 image resized anisotropically to4:3; no crop",
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+      },
+      "schema": "ddp_full_dino_cache_v1",
+      "writer": "45a4488d56d08b77b1927437a7818b09a4e356ab20aa6585880ca8583c00367b"
+    },
+    "ego": {
+      "identity": "fc19ba6c31232afb376da55e094732161d8ac7b6e5df6cdfb62e67e902d4cd3f",
+      "index_sha256": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "normalization": "original DDP1225 xy absolute ego(t0),sincos yaw",
+      "processed_root": "/mnt/navsim/navsim_dataset/meta/train",
+      "schema": "foresight_ego_labels_v1",
+      "split": "train"
+    },
+    "future": null,
+    "future_clip": {
+      "chunk_size": 16,
+      "clip_index": "eaedb9de564bead84ad7b544e871498de774698ade4d62dd1f299b9bab1aae33",
+      "dtype": "float16",
+      "future_target_type": "dino_sequence",
+      "identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+      "missing_policy": "invalid whole view if any of eight real frames unavailable; identical eligibility for both teachers",
+      "normalization": "raw teacher features; training nonaffine channel LayerNorm",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "recipe": {
+        "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+        "extra_norm": "none",
+        "feature": "last_block_post_norm_dense_patch",
+        "feature_dim": 1024,
+        "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+        "implementation_sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+        "input_width_height": [
+          384,
+          288
+        ],
+        "interpolation": "PIL bicubic antialias",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "native_grid_hw": [
+          18,
+          24
+        ],
+        "original_user_recipe": "UNVERIFIED; explicit fallback",
+        "output_grid_hw": [
+          9,
+          12
+        ],
+        "padding": "right/bottom normalized zero; fully contained patches only",
+        "patch_size": [
+          16,
+          16
+        ],
+        "pool": 2,
+        "pooling": "none",
+        "precision": "FP32, TF32 off",
+        "prefix_tokens_excluded": 5,
+        "preprocess": "full source RGB, PIL bicubic384x288, ImageNet once, no crop",
+        "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+        "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+        "rope": "timm default FP32 periods",
+        "schema": "dinov3_dense_target_recipe_v1",
+        "short_side": 256,
+        "source_rgb_range": "original full16:9 field, same as DDP",
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "temporal_path": "eight independent images; no video attention",
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+      },
+      "scene_count": 101592,
+      "scene_index_hash": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "schema": "action_video_clip_targets_v1",
+      "source": "1937b7d403e1f1f0601deaae61cbf05593cc352a",
+      "split": "train",
+      "target_shape": [
+        3,
+        8,
+        9,
+        12,
+        1024
+      ],
+      "time_intervals_s": [
+        [
+          0.5,
+          0.5
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.5,
+          1.5
+        ],
+        [
+          2.0,
+          2.0
+        ],
+        [
+          2.5,
+          2.5
+        ],
+        [
+          3.0,
+          3.0
+        ],
+        [
+          3.5,
+          3.5
+        ],
+        [
+          4.0,
+          4.0
+        ]
+      ],
+      "times_s": [
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "writer_sha256": "67717d8292cdb918a9fcdaca9639420bcc9faab8e354b6e650bd7eba6599ab0c"
+    },
+    "future_sampling": "one complete eight-real-frame request per scene; whole-view mask on any missing frame",
+    "global_batch": 32,
+    "identity": "8dd7d914f10559b0fbfc9593ee1f480a8bb2da80cccb53cba0d684a468e209cd",
+    "interaction": {
+      "coordinate_frame": "ego_t0",
+      "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+      "ego_mask": "all ego future removed before every encoding; fresh masked encoder forward",
+      "frozen_teacher_identity": "594e5a396b6438aaeb7e573267f13581eb969117aa56f820799870af09584418",
+      "graph": {
+        "corridor_half_width_m": 2.0,
+        "existence_floor": 0.2,
+        "max_context": 0,
+        "max_vehicles": 16,
+        "neighbor_radius_m": 15.0,
+        "radius_m": 50.0,
+        "turn_radius_m": 12.0,
+        "unknown_motion_margin_m": 2.0
+      },
+      "identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+      "index_hash": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "normalization": "raw teacher Z; fixed nonaffine LayerNorm eps1e-5 on BOTH sides at loss",
+      "query_order_s": [
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "schema": "foresight_interaction_latent_v1",
+      "source_sha": "bffeaea2a6c8b4ea0c94809f53b971a7c183b6de",
+      "split": "train",
+      "teacher_checkpoint_sha256": "9730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c",
+      "teacher_completed_updates": 11910,
+      "teacher_identity": "0acfb46f29d96acab8fa000cd685db32a7742c699ce3b79a5fe6fb1ccdd9a02d"
+    },
+    "loader_workers": 2,
+    "local_images": true,
+    "micro_batch": 4,
+    "normalization": "global valid elements per optimizer batch; every scene ego loss",
+    "offload_optimizer": false,
+    "optimizer_max_group_elements": 500000000,
+    "precision": "BF16 model, FP32 AdamW master/moments",
+    "registration_sha256": "a0884a6ec1a4f81f6a1890bb3d43646abf919b2f6011d0c80a3693eaa5ff05d9",
+    "scene_count": 101592,
+    "schedule": {
+      "base": 1e-05,
+      "horizon": 100000,
+      "minimum": 5e-07,
+      "type": "fixed_cosine",
+      "warmup": 5000
+    },
+    "schema": "ddp_action_video_student_v1",
+    "scope": "formal",
+    "selected_index_hash": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+    "source_sha": "1493deda247107efe076b9294863a6753391298a",
+    "updates": 100000,
+    "world_size": 8
+  },
+  "identity_hash": "184ceb918be467eecf601dee96972622cf8f93867e9b453890b855df0a6e4a54"
+}

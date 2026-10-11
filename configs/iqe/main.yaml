@@ -38,6 +38,15 @@ query_base:
   weight_decay: 0.001
   validation_every_steps: 0 # independent evaluate-base; inline validation is explicitly disabled
   grad_clip_norm: 1.0
+base_runtime:
+  prefetch_depth: 0
+  frozen_vision_ahead: false
+  batched_gradient_checks: true
+  qualification: null
+  local_checkpoint_root: null
+  allow_legacy_validation_metadata: false
+  deterministic_backward: false
+  allow_deterministic_backend_migration: false
 model:
   expert_architecture: inherit_s0
   init_from: s0

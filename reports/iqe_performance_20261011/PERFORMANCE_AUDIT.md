@@ -1,0 +1,17 @@
+# Query Base execution audit
+
+Reference: 924b003. Existing training remains in its original worktree. No Base forward, loss, camera, input resolution, objective, repeat count, optimizer formula, LR schedule or precision was reduced.
+
+The user's S-series 1.7s/update report is substantiated: same 8 A800/global32, median1.73487s in updates20001–22000. Its execution used BF16 models with FP32 Adam master states, ZeRO2/fused optimizer and staged data. Current Query uses FP32 model/DDP; the frozen visual call runs outside BF16 autocast. Query decoder forward itself is approximately16ms. It cannot account for the multi-second difference. FM training uses one batched repeat8 call, not ten iterative inference passes.
+
+The current formal Base had no GPU competitor on its host. Its recent compute was about3.91s/update and checkpoint-inclusive wall about4.1s; old `seconds_per_update` is cumulative. New monitoring separates rolling compute, data wait, wall and checkpoint costs.
+
+Changes: cached epoch plans preserve original order/tail padding; bounded CPU loading and frozen visual GPU streams overlap the next batch; CUDA events/record_stream and one-use payload identities preserve ownership. Frozen visual evaluation stays FP32/no_grad, with the original processor/instructions. No feature is approximated or permanently cached across differing inputs. Optimizer consumption alone advances sampler state. Collective success checks use scalar all-reduce; failure messages still reach every rank. Gradient finiteness uses the same elementwise predicate with one host synchronization. Checkpoint staging is a verified byte-for-byte local copy, never an overwrite of the source.
+
+The A/B harness initially exposed two control errors: reused Adam CPU step tensors and an unmatched DDP reducer lifecycle. Those attempts remain failed evidence. Fresh checkpoint objects and fresh models/DDP per arm fix those controls. Repeated original execution still diverged because default FlashAttention backward is nondeterministic. No tolerance was relaxed.
+
+With deterministic backward in BOTH arms, real 21k checkpoint, all8 GPUs, six optimizer updates per arm: **PASS**. Every rank has exact equality of losses, sample IDs, RNG, gradients, parameters, buffers and Adam state. After excluding two warmup updates and the artificial final pipeline drain, median4.10798s→2.75294s (1.49×), p954.22591s→2.80065s. This is a short qualification, not sustained formal throughput or scientific benefit. Precision remains unchanged. It does not establish1.7s performance.
+
+A deterministic-backend transition from the historical job is explicit and narrow. It preserves saved weights, optimizer/scheduler and RNG, but cannot claim bitwise continuation of the old nondeterministic backward. New checkpoints record all relevant backend flags. Default configuration keeps prefetch and this transition disabled; full prefetch execution requires matching real qualification evidence. Switching precision to the historical BF16/ZeRO2 system has not been authorized or performed in this optimization.
+
+No existing Base has been stopped and no optimized full run started by this report. A bounded actual-trainer profile/resume is the next operational acceptance check. The user conditionally permits retiring inefficient training after a demonstrated faster, reliable replacement; preserve all progress and prefer checkpoint continuation over restarting from zero.

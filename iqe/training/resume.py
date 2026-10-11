@@ -5,7 +5,7 @@ from ..contracts import require
 from ..io import atomic_json, digest, file_hash, read_json, ContractError
 
 
-def inspect_checkpoint(path, expected_dependencies=None, expected_config=None):
+def inspect_checkpoint(path, expected_dependencies=None, expected_config=None, dependency_validator=None):
     path = Path(path)
     receipt = read_json(str(path) + '.COMPLETE.json')
     require(path.is_file(), 'checkpoint file missing')
@@ -30,7 +30,10 @@ def inspect_checkpoint(path, expected_dependencies=None, expected_config=None):
         config = state['resolved_config']
         next_ids = None
     if expected_dependencies is not None:
-        require(state['dependencies'] == expected_dependencies, 'run/data/dependency identity mismatch')
+        if dependency_validator:
+            dependency_validator(state['dependencies'], expected_dependencies)
+        else:
+            require(state['dependencies'] == expected_dependencies, 'run/data/dependency identity mismatch')
     if expected_config is not None:
         require(config == expected_config, 'resolved training config mismatch')
     return {'path': str(path.resolve()), 'checksum': checksum, 'optimizer_step': step,
@@ -38,7 +41,7 @@ def inspect_checkpoint(path, expected_dependencies=None, expected_config=None):
             'next_sample_ids': next_ids, 'valid': True}
 
 
-def resolve_resume(folder, requested, *, expected_dependencies=None, expected_config=None, allow_fallback=False):
+def resolve_resume(folder, requested, *, expected_dependencies=None, expected_config=None, allow_fallback=False, dependency_validator=None):
     if requested is None:
         return None
     requested = str(requested)
@@ -54,7 +57,7 @@ def resolve_resume(folder, requested, *, expected_dependencies=None, expected_co
     rows = []
     for path in paths:
         try:
-            row = inspect_checkpoint(path, expected_dependencies, expected_config)
+            row = inspect_checkpoint(path, expected_dependencies, expected_config, dependency_validator)
         except Exception as error:
             try:
                 step = int(path.stem.split('_')[-1])
