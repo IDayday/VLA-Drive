@@ -1,0 +1,30 @@
+{
+  "schema": "native_storage_headroom_examples_v2",
+  "templates_only": true,
+  "actual_dispatch_qualified": false,
+  "checkpoint_upper_GiB": 45,
+  "metadata_log_headroom_GiB_per_run": 1,
+  "reserve_GiB": 100,
+  "one_bank_triplet": {
+    "A_cap_GiB": 46,
+    "AA_cap_GiB": 46,
+    "B_cap_GiB": 46,
+    "pool_cap_GiB": 138
+  },
+  "five_bank_mid_triplet": {
+    "A_cap_GiB": 226,
+    "AA_cap_GiB": 226,
+    "B_cap_GiB": 226,
+    "pool_cap_GiB": 678
+  },
+  "recovery_four_banks_three_runs": {
+    "A_cap_GiB": 46,
+    "AA_cap_GiB": 46,
+    "B_cap_GiB": 91,
+    "pool_cap_GiB": 183
+  },
+  "actual_admission_unchanged": "Every save tests actual OWN bytes+45GiB pending against run cap and actual filesystem free>=145GiB. 1GiB is bounded template headroom, not proof that all future metadata fits.",
+  "quota": "Actual quota readiness recorded if exposed; unexposed is a material risk, not unlimited capacity.",
+  "negative_receipt": "Parent reported zt3 actual all8 restored+1update then strict storage failure for 45GiB cap plus pre-save metadata. No bank and no acceptance claimed; preserve original failed identity/GPU cost. No old artifact rewritten.",
+  "binding": "Parent must bind fresh OWN paths, qualified host, pool cap and real current physical free space before execution; no capacity reserved by this JSON."
+}

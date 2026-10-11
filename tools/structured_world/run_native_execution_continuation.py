@@ -4,12 +4,15 @@ Default is CPU-only planning. --execute runs sequential full8 pilots on the
 qualified host after source/resource/storage admission. No formal deployment,
 checkpoint deletion, archival, automatic retry or numeric acceptance is provided.
 Reuse the benchmark's physical GPU lease and native process monitor.
+--cases selects a dispatch phase from the unchanged four-case V1 manifest;
+unselected cases remain pending and no phase is formal acceptance.
 """
 import argparse
 from contextlib import ExitStack
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 import signal
@@ -112,9 +115,11 @@ def run_budgeted_job(job, locks, budget, jobs, output):
         bench.write(output/(job['key']+'_GPU_COST_AFTER.json'), after)
 
 
-def native_rng_sources(manifest):
+def native_rng_sources(manifest, selected_cases=None):
     sources = []
     for case in manifest['cases']:
+        if selected_cases is not None and case['name'] not in selected_cases:
+            continue
         native = bench.origin(case)
         sources.append({'case': case['name'], 'run': native['run'], 'tag': native['tag'],
             'COMPLETE_sha256': native['complete_sha256'], 'origin_identity': native['contract']['identity'],
@@ -123,7 +128,67 @@ def native_rng_sources(manifest):
     return sources
 
 
-def build_plan(manifest, output):
+def select_cases(manifest, requested=None):
+    """Validate the overall V1 matrix before selecting host-local resources."""
+    cases = manifest['cases']
+    bench.require(len(cases) == 4 and {(c['group'], c['stage']) for c in cases} == REQUIRED,
+                  'Original V1 requires early and mid native triplets for both G1/G3')
+    names = [c['name'] for c in cases]
+    bench.require(all(isinstance(n, str) and re.fullmatch('[A-Za-z0-9_.-]+', n) for n in names) and
+                  len(set(names)) == len(names), 'Unique safe case name required')
+    # Overall metadata must remain a valid full-population matrix, even where
+    # an unselected origin/storage file is local to another qualified host.
+    # Normalize lexically here; do not resolve/stat those host-local resources.
+    outputs = []
+    for case in cases:
+        args = case['train_args']
+        bench.require(len(args) % 2 == 0 and all(isinstance(x, str) for x in args), 'Scientific option/value argv pairs required')
+        values = dict(zip(args[::2], args[1::2]))
+        bench.require(len(values) == len(args)//2 and set(values) == bench.BASE_FLAGS and values['--micro-batch'] in ('1', '2', '4'),
+                      'Exact explicit scientific asset flags; no schedule/subset/stop overrides')
+        bench.require(Path(case['pilot_origin_run']).is_absolute() and Path(case['output_root']).is_absolute(), 'Absolute origin/output roots required')
+        budget = case['storage_budget']
+        bench.require(Path(budget['path']).is_absolute() and re.fullmatch('[0-9a-f]{64}', budget['sha256']), 'Bound frozen storage budget required')
+        outputs.append(Path(os.path.normpath(case['output_root'])))
+    bench.require(len(set(outputs)) == len(outputs) and
+                  all(not a.is_relative_to(b) for a in outputs for b in outputs if a != b),
+                  'Overall four-case output roots must be unique and nonoverlapping')
+    if requested is None:
+        wanted = names
+    else:
+        bench.require(isinstance(requested, str), '--cases must be a comma-separated case-name string')
+        wanted = [n.strip() for n in requested.split(',')]
+        bench.require(all(wanted) and len(set(wanted)) == len(wanted) and set(wanted) <= set(names),
+                      '--cases requires nonempty unique names present in the full V1 manifest')
+    selected = [c for c in cases if c['name'] in wanted]
+    stage_counts = lambda subset: {stage: sum(c['stage'] == stage for c in subset) for stage in ('early', 'mid')}
+    scope = {'overall_cases': names, 'selected_cases': [c['name'] for c in selected],
+        'pending_unselected_cases': [n for n in names if n not in wanted],
+        'overall_case_stage_counts': stage_counts(cases), 'selected_case_stage_counts': stage_counts(selected),
+        'outstanding_case_stage_counts': stage_counts([c for c in cases if c['name'] not in wanted]),
+        'selected_jobs': 3*len(selected), 'outstanding_unselected_jobs': 3*(len(cases)-len(selected)),
+        'unselected_output_validation': 'lexical metadata only; no host-local asset stat/resolve',
+        'dispatch_scope': 'full_matrix' if len(selected) == len(cases) else 'selected_phase',
+        'case_order': 'original manifest order', 'overall_V1_acceptance': 'PENDING',
+        'budget_scope': 'selected jobs only; external spending and reservations remain explicit dispatch inputs',
+        'unselected_receipts_imported': False, 'passed': False, 'formal_authorized': False}
+    return selected, scope
+
+
+def case_capture_progress(plan, results):
+    """Capture receipts cannot certify the undispatched matrix or numeric gates."""
+    scope = plan['case_selection']
+    received = {r['key'] for r in results}
+    complete = [name for name in scope['selected_cases'] if
+                {j['key'] for j in plan['jobs'] if j['case'] == name} <= received]
+    pending = [n for n in scope['overall_cases'] if n not in complete]
+    return {'completed_selected_capture_cases': complete, 'pending_overall_capture_cases': pending,
+        'selected_phase_captures_complete': len(complete) == len(scope['selected_cases']),
+        'overall_capture_matrix_complete': not pending, 'overall_V1_acceptance': 'PENDING',
+        'passed': False, 'formal_authorized': False}
+
+
+def build_plan(manifest, output, selected_cases=None):
     bench.require(manifest['schema'] == 'native_execution_continuation_manifest_v1', 'Native manifest schema required')
     root = Path(manifest['source_root']).resolve()
     candidate = manifest['candidate_mode']
@@ -135,25 +200,15 @@ def build_plan(manifest, output):
     bench.require(manifest['minimum_free_MiB'] > 0, 'Explicit GPU memory reserve required')
     port = manifest.get('master_port', 29590)
     bench.require(type(port) is int and 1024 <= port <= 65535, 'Valid torchrun port required')
-    cases = manifest['cases']
-    bench.require(len(cases) == 4 and {(c['group'], c['stage']) for c in cases} == REQUIRED,
-                  'Original V1 requires early and mid native triplets for both G1/G3')
-    names, runs, jobs = set(), set(), []
+    cases, selection = select_cases(manifest, selected_cases)
+    runs, jobs = set(), []
     if 'original_V1_criteria' in manifest:
         binding = manifest['original_V1_criteria']
         bench.require(bench.digest(binding['path']) == binding['sha256'] and binding['changed'] is False, 'Original V1 registration changed')
     for case in cases:
         name = case['name']
-        bench.require(re.fullmatch('[A-Za-z0-9_.-]+', name) and name not in names, 'Unique safe case name required')
-        names.add(name)
         args = case['train_args']
-        bench.require(len(args) % 2 == 0 and all(isinstance(x, str) for x in args), 'Scientific option/value argv pairs required')
-        values = dict(zip(args[::2], args[1::2]))
-        bench.require(len(values) == len(args)//2 and set(values) == bench.BASE_FLAGS and values['--micro-batch'] in ('1', '2', '4'),
-                      'Exact explicit scientific asset flags; no schedule/subset/stop overrides')
-        bench.require(Path(case['pilot_origin_run']).is_absolute() and Path(case['output_root']).is_absolute(), 'Absolute origin/output roots required')
         budget = case['storage_budget']
-        bench.require(Path(budget['path']).is_absolute() and re.fullmatch('[0-9a-f]{64}', budget['sha256']), 'Bound frozen storage budget required')
         bench.require(bench.digest(budget['path']) == budget['sha256'], 'Storage budget changed')
         native = bench.origin(case)  # metadata/inventory only; no large tensor load
         steps = 1 if case['stage'] == 'early' else 500
@@ -190,7 +245,7 @@ def build_plan(manifest, output):
     paths = [Path(j['run']) for j in jobs]
     bench.require(all(not a.is_relative_to(b) for a in paths for b in paths if a != b), 'Role run trees overlap')
     return {'schema': 'native_execution_continuation_plan_v1', 'passed': False, 'formal_authorized': False,
-        'manifest': manifest, 'driver_sha256': bench.digest(SCRIPT), 'source_root': str(root),
+        'manifest': manifest, 'case_selection': selection, 'driver_sha256': bench.digest(SCRIPT), 'source_root': str(root),
         'source_sha': manifest['source_sha'], 'maximum_total_updates': sum(j['steps'] for j in jobs),
         'expected_full_native_banks': sum(len(j['retained_global_updates']) for j in jobs), 'jobs': jobs,
         'continuous_mid_updates': 500, 'original_V1_capture_points': list(POINTS),
@@ -303,20 +358,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--cases', help='Comma-separated case names from the full V1 manifest; default: all four')
     parser.add_argument('--execute', action='store_true')
     args = parser.parse_args()
     output = args.output.resolve()
     bench.require(not output.exists(), 'Fresh controller directory required; no retry/overwrite')
     manifest = bench.read(args.manifest)
-    plan = build_plan(manifest, output)
+    plan = build_plan(manifest, output, args.cases)
+    plan['manifest_sha256'] = bench.digest(args.manifest)
     bench.immutable_source(plan['source_root'], plan['source_sha'])
     bench.require("'--capture-updates'" in Path(plan['jobs'][0]['trainer']).read_text(), 'Freeze a new trainer with pilot capture support')
     output.mkdir(parents=True, exist_ok=False)
     bench.write(output/'PLAN.json', plan)
     if not args.execute:
         print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'native_banks': plan['expected_full_native_banks'],
-                          'maximum_total_updates': plan['maximum_total_updates'], 'plan': str(output/'PLAN.json')})); return 0
-    results, status, error, stop, discrete = [], 'CAPTURES_COMPLETE_ACCEPTANCE_PENDING', None, [False], []
+                          'maximum_total_updates': plan['maximum_total_updates'], 'case_selection': plan['case_selection'],
+                          'plan': str(output/'PLAN.json')})); return 0
+    complete_status = ('CAPTURES_COMPLETE_ACCEPTANCE_PENDING' if plan['case_selection']['dispatch_scope'] == 'full_matrix'
+                       else 'PHASE_CAPTURES_COMPLETE_OVERALL_V1_PENDING')
+    results, status, error, stop, discrete = [], complete_status, None, [False], []
     def stop_after_current(*unused): stop[0] = True
     for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stop_after_current)
     gpu_budget = None
@@ -324,9 +384,11 @@ def main():
         gpu_budget = validate_gpu_budget(manifest, plan['jobs'])
         initial = gpu_admission(gpu_budget, plan['jobs'], actual_process_charges(plan['jobs']), whole_plan=True)
         bench.write(output/'GPU_BUDGET_REGISTRATION.json', {'budget': gpu_budget, 'admission': initial,
+            'case_selection': plan['case_selection'],
             'manifest_sha256': bench.digest(args.manifest), 'budget_block_sha256': hashlib.sha256(json.dumps(gpu_budget, sort_keys=True).encode()).hexdigest(),
             'external_counters': 'Explicit manifest dispatch snapshot; not inferred from RNG or successful job receipts'})
-        bench.write(output/'NATIVE_RNG_SOURCES.json', {'sources': native_rng_sources(manifest)})
+        bench.write(output/'NATIVE_RNG_SOURCES.json', {'sources': native_rng_sources(manifest, plan['case_selection']['selected_cases']),
+            'case_selection': plan['case_selection']})
         driver_root = SCRIPT.parents[2]
         driver_sha = bench.checked(['git', 'rev-parse', 'HEAD'], driver_root)
         bench.immutable_source(driver_root, driver_sha)
@@ -341,6 +403,7 @@ def main():
         bench.write(output/'REGISTRATION.json', {'driver_source_sha': driver_sha, 'driver_sha256': bench.digest(SCRIPT),
             'training_source_sha': plan['source_sha'], 'manifest_sha256': bench.digest(args.manifest),
             'qualification_sha256': q['sha256'], 'environment': env, 'passed': False,
+            'case_selection': plan['case_selection'],
             'numeric_criteria': 'original V1 unchanged; no new tensor format, no formal acceptance'})
         with ExitStack() as stack:
             root = Path(manifest['artifact_root'])
@@ -366,6 +429,7 @@ def main():
             if len(results) == len(plan['jobs']):
                 discrete = count_triplets(results)
                 bench.write(output/'COUNT_SCENE_HORIZON_TRIPLETS.json', {'discrete_evidence': discrete, 'passed': False,
+                    'case_selection': plan['case_selection'],
                     'numeric_acceptance': 'PENDING; exact data/count evidence alone is insufficient'})
     except BaseException as exc:
         status, error = ('BUDGET_REFUSED_BEFORE_NEXT_JOB' if isinstance(exc, BudgetRefused) else 'FAILED'), repr(exc)
@@ -377,6 +441,7 @@ def main():
         costs = {'actual_phase_GPU_hours': None, 'cost_unknown': True, 'error': repr(exc)}
     bench.write(output/'RESULTS.json', {'status': status, 'passed': False, 'formal_authorized': False,
         'error': error, 'jobs': results, 'planned_jobs': len(plan['jobs']),
+        'case_selection': plan['case_selection'], 'case_capture_progress': case_capture_progress(plan, results),
         'gpu_budget': gpu_budget, 'actual_process_costs_including_failed': costs,
         'final_budget_within_limits': (costs['actual_phase_GPU_hours'] is not None and gpu_budget is not None and
             costs['actual_phase_GPU_hours'] <= gpu_budget['phase_limit'] and

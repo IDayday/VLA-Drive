@@ -1,4 +1,4 @@
-"""CPU tests for dispatch budgets and the fixed32 native recovery commands.
+"""CPU tests for dispatch phases, budgets and fixed32 native recovery commands.
 
 An actual failed CPU subprocess exercises the existing process monitor/ledger;
 no GPU worker or native numerical acceptance is exercised.
@@ -11,6 +11,7 @@ from pathlib import Path
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -128,7 +129,9 @@ class BudgetTests(unittest.TestCase):
         for module in (driver, recovery):
             with tempfile.TemporaryDirectory() as d:
                 root = Path(d); m = root/'m.json'; m.write_text('{}')
-                plan = {'jobs': [{**job(root, 'never_started'), 'trainer': str(ROOT/'tools/structured_world/train_vla.py')}], 'source_root': str(ROOT), 'source_sha': 'a'*40}
+                plan = {'jobs': [{**job(root, 'never_started'), 'case': 'pending', 'trainer': str(ROOT/'tools/structured_world/train_vla.py')}],
+                    'case_selection': {'overall_cases': ['pending'], 'selected_cases': ['pending'], 'dispatch_scope': 'full_matrix'},
+                    'source_root': str(ROOT), 'source_sha': 'a'*40}
                 args = [str(module.SCRIPT), '--manifest', str(m), '--output', str(root/'controller'), '--execute']
                 with patch.object(sys, 'argv', args), patch.object(module, 'build_plan', return_value=plan), \
                      patch.object(driver.bench, 'immutable_source'), patch.object(driver.bench, 'readiness') as readiness, \
@@ -138,7 +141,217 @@ class BudgetTests(unittest.TestCase):
                 self.assertFalse(Path(plan['jobs'][0]['run']).exists())
 
 
+class PhaseSelectionTests(unittest.TestCase):
+    def fixture(self, root):
+        manifest, natives = old_tests.PlanTests().fixture(root)
+        for case in manifest['cases']:
+            path = Path(case['storage_budget']['path']); storage = driver.bench.read(path)
+            for owner in storage['owned_runs']:
+                owner['cap_bytes'] += driver.GiB  # Metadata/logs count against OWN caps too.
+            path.write_text(json.dumps(storage)); case['storage_budget']['sha256'] = driver.bench.digest(path)
+        for name, native in natives.items():
+            native['contract']['identity'] = name+'_origin_identity'
+            native['complete']['file_sha256'] = {'rng_rank'+str(i)+'.pt': 'c'*64 for i in range(8)}
+        return manifest, natives
+
+    def test_default_full_matrix_unchanged_and_explicit_all_equivalent(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, natives = self.fixture(root); original = copy.deepcopy(manifest)
+            with patch.object(driver.bench, 'origin', side_effect=lambda c: natives[c['name']]):
+                default = driver.build_plan(manifest, root/'default')
+                explicit = driver.build_plan(manifest, root/'explicit', ','.join(c['name'] for c in manifest['cases']))
+            self.assertEqual(manifest, original); self.assertEqual(default, explicit)
+            self.assertEqual((len(default['jobs']), default['maximum_total_updates'], default['expected_full_native_banks']), (12, 3006, 36))
+            self.assertEqual(default['case_selection']['dispatch_scope'], 'full_matrix')
+            self.assertEqual(default['case_selection']['pending_unselected_cases'], [])
+            self.assertEqual(default['original_V1_capture_points'], [1, 32, 100, 250, 500])
+
+    def test_selected_mid_resources_only_and_original_manifest_retained(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, natives = self.fixture(root); original = copy.deepcopy(manifest)
+            early_paths = set()
+            for case in manifest['cases']:
+                if case['stage'] == 'early':
+                    path = Path(case['storage_budget']['path']); early_paths.add(str(path)); path.unlink()
+                    (Path(case['output_root'])/'A').mkdir(parents=True)
+            real_digest = driver.bench.digest
+            def selected_origin(case):
+                self.assertEqual(case['stage'], 'mid')
+                return natives[case['name']]
+            def selected_digest(path):
+                self.assertNotIn(str(path), early_paths)
+                return real_digest(path)
+            with patch.object(driver.bench, 'origin', side_effect=selected_origin) as origin, \
+                 patch.object(driver.bench, 'digest', side_effect=selected_digest):
+                plan = driver.build_plan(manifest, root/'controller', ' G3_mid, G1_mid ')
+                rng = driver.native_rng_sources(manifest, plan['case_selection']['selected_cases'])
+            self.assertEqual(manifest, original); self.assertEqual(plan['manifest'], original)
+            self.assertEqual((len(plan['jobs']), plan['maximum_total_updates'], plan['expected_full_native_banks']), (6, 3000, 30))
+            self.assertEqual([s['case'] for s in rng], ['G1_mid', 'G3_mid'])
+            self.assertEqual(origin.call_count, 4)
+            self.assertEqual(plan['case_selection']['selected_cases'], ['G1_mid', 'G3_mid'])
+            self.assertEqual(plan['case_selection']['pending_unselected_cases'], ['G1_early', 'G3_early'])
+            self.assertEqual(plan['case_selection']['overall_case_stage_counts'], {'early': 2, 'mid': 2})
+            self.assertEqual(plan['case_selection']['selected_case_stage_counts'], {'early': 0, 'mid': 2})
+            self.assertEqual(plan['case_selection']['outstanding_case_stage_counts'], {'early': 2, 'mid': 0})
+            self.assertEqual(plan['case_selection']['outstanding_unselected_jobs'], 6)
+            for value in plan['jobs']:
+                storage = driver.bench.read(value['storage_budget']['path'])
+                owner = next(o for o in storage['owned_runs'] if o['path'] == value['run'])
+                self.assertGreaterEqual(owner['cap_bytes'], 5*storage['checkpoint_upper_bytes']+driver.GiB)
+                self.assertEqual(value['steps'], 500)
+                self.assertEqual(value['capture_plan']['relative_updates'], [1, 32, 100, 250])
+                start = natives[value['case']]['complete']['completed']
+                self.assertEqual(value['retained_global_updates'], [start+x for x in (1, 32, 100, 250, 500)])
+                options = dict(zip(value['command'][value['command'].index('--')+2:][::2], value['command'][value['command'].index('--')+2:][1::2]))
+                self.assertEqual(options['--debug-updates'], '500'); self.assertEqual(options['--capture-updates'], '1,32,100,250')
+                self.assertNotIn('--stop-after', options); self.assertNotIn('--benchmark-no-end-save', options)
+                self.assertEqual(options['--execution-mode'], manifest['candidate_mode'] if value['role'] == 'B' else 'io_preserving_v1')
+            for name in ('G1_mid', 'G3_mid'):
+                self.assertEqual([j['role'] for j in plan['jobs'] if j['case'] == name], ['A', 'AA', 'B'])
+
+    def test_single_mid_triplet_and_phase_budget_boundary(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, natives = self.fixture(root)
+            with patch.object(driver.bench, 'origin', side_effect=lambda c: natives[c['name']]):
+                both = driver.build_plan(manifest, root/'both', 'G1_mid,G3_mid')
+                single = driver.build_plan(manifest, root/'single', 'G3_mid')
+            self.assertEqual((len(single['jobs']), single['maximum_total_updates'], single['expected_full_native_banks']), (3, 1500, 15))
+            b = {**budget(), 'phase_limit': 33., 'reserved_elsewhere': 37.}
+            gate = driver.gpu_admission(driver.validate_gpu_budget({'budget': b}, both['jobs']), both['jobs'],
+                {'actual_phase_GPU_hours': 0.}, whole_plan=True)
+            self.assertEqual(gate['projected_phase_GPU_hours'], 33.)
+            self.assertEqual(gate['projected_joint_GPU_hours'], 120.)
+            self.assertEqual(len(gate['remaining_jobs']), 6)
+            with self.assertRaises(driver.BudgetRefused):
+                driver.gpu_admission({**b, 'phase_limit': 32.999}, both['jobs'], {'actual_phase_GPU_hours': 0.}, whole_plan=True)
+            with self.assertRaises(ValueError): driver.validate_gpu_budget({}, single['jobs'])
+
+    def test_single_bank_metadata_needs_headroom_under_unchanged_storage_admission(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, _ = self.fixture(root)
+            case = next(c for c in manifest['cases'] if c['name'] == 'G1_early')
+            path = Path(case['storage_budget']['path']); storage = driver.bench.read(path)
+            storage.update(schema='native_capture_storage_budget_v1', approved_for_pilot=True,
+                reserve_bytes=100*driver.GiB, pool_cap_bytes=138*driver.GiB, filesystem_probe_path=str(root))
+            owner = storage['owned_runs'][0]; output = Path(owner['path']); output.mkdir(parents=True)
+            (output/'identity.json').write_text('{"owned_pilot_metadata":true}\n')
+            capture = old_tests.capture
+            with patch.object(capture.socket, 'gethostname', return_value='qualified-test-worker-0'), \
+                 patch.object(capture.shutil, 'disk_usage', return_value=SimpleNamespace(free=973*driver.GiB)), \
+                 patch.object(capture.shutil, 'which', return_value=None):
+                owner['cap_bytes'] = 45*driver.GiB; path.write_text(json.dumps(storage))
+                with self.assertRaisesRegex(ValueError, 'Owned run checkpoint cap exceeded'):
+                    capture.storage_admission(path, output, expected_digest=capture.digest(path))
+                owner['cap_bytes'] = 46*driver.GiB; path.write_text(json.dumps(storage))
+                result = capture.storage_admission(path, output, expected_digest=capture.digest(path))
+                self.assertTrue(result['ok']); self.assertGreater(result['owned_usage'][0]['allocated_bytes'], 0)
+                self.assertEqual(result['next_checkpoint_upper_bytes'], 45*driver.GiB)
+                self.assertEqual(result['reserve_bytes'], 100*driver.GiB)
+
+    def test_invalid_selection_or_partial_overall_manifest_rejected_before_origin_reads(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, _ = self.fixture(root)
+            with patch.object(driver.bench, 'origin') as origin:
+                for selected in ('', ' ', 'G1_mid,', ',G1_mid', 'G1_mid,G1_mid', 'unknown', ['G1_mid']):
+                    with self.subTest(selected=selected), self.assertRaises(ValueError):
+                        driver.build_plan(manifest, root/'controller', selected)
+                partial = copy.deepcopy(manifest); partial['cases'] = [c for c in partial['cases'] if c['stage'] == 'mid']
+                with self.assertRaises(ValueError): driver.build_plan(partial, root/'controller', 'G1_mid,G3_mid')
+                duplicate = copy.deepcopy(manifest); duplicate['cases'][0]['name'] = 'G1_mid'
+                with self.assertRaises(ValueError): driver.build_plan(duplicate, root/'controller', 'G1_mid')
+                origin.assert_not_called()
+
+    def test_unselected_metadata_population_and_output_overlap_still_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, _ = self.fixture(root)
+            mid_root = next(c['output_root'] for c in manifest['cases'] if c['name'] == 'G1_mid')
+            mutations = [{'output_root': mid_root}, {'output_root': mid_root+'/child'},
+                         {'output_root': mid_root+'/child/..'},
+                         {'train_args': manifest['cases'][0]['train_args']+['--debug-scenes', '32']}]
+            with patch.object(driver.bench, 'origin') as origin:
+                for mutation in mutations:
+                    changed = copy.deepcopy(manifest); changed['cases'][0].update(mutation)
+                    with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                        driver.build_plan(changed, root/'controller', 'G1_mid,G3_mid')
+                origin.assert_not_called()
+
+    def test_phase_receipts_leave_early_pending_and_partial_triplet_pending(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, natives = self.fixture(root)
+            with patch.object(driver.bench, 'origin', side_effect=lambda c: natives[c['name']]):
+                plan = driver.build_plan(manifest, root/'controller', 'G1_mid,G3_mid')
+            receipts = [{'key': j['key'], 'role': j['role']} for j in plan['jobs']]
+            complete = driver.case_capture_progress(plan, receipts)
+            self.assertTrue(complete['selected_phase_captures_complete']); self.assertFalse(complete['overall_capture_matrix_complete'])
+            self.assertEqual(complete['pending_overall_capture_cases'], ['G1_early', 'G3_early'])
+            self.assertEqual(complete['overall_V1_acceptance'], 'PENDING')
+            self.assertFalse(complete['passed']); self.assertFalse(complete['formal_authorized'])
+            partial = driver.case_capture_progress(plan, receipts[:-1])
+            self.assertFalse(partial['selected_phase_captures_complete'])
+            self.assertIn('G3_mid', partial['pending_overall_capture_cases'])
+
+    def test_cli_selected_phase_plan_and_execute_reports_cannot_claim_full_acceptance(self):
+        # Synthetic CPU control flow only: all GPU/storage/receipt producers are
+        # mocked; these files are not native execution or numerical receipts.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); manifest, natives = self.fixture(root)
+            q = root/'qualification.json'
+            q.write_text(json.dumps({'passed': True, 'host': manifest['host'], 'physical_gpu_UUIDs': manifest['gpu_uuids']}))
+            manifest['qualification'] = {'path': str(q), 'sha256': driver.bench.digest(q)}
+            manifest['budget'] = {**budget(), 'phase_limit': 33., 'reserved_elsewhere': 37.}
+            m = root/'overall.json'; m.write_text(json.dumps(manifest)); before = driver.bench.digest(m)
+            for execute in (False, True):
+                output = root/('synthetic_execute' if execute else 'plan')
+                args = [str(driver.SCRIPT), '--manifest', str(m), '--output', str(output), '--cases', 'G1_mid,G3_mid']
+                if execute: args += ['--execute']
+                def fake_receipt(value, *unused): return {'key': value['key'], 'role': value['role']}
+                with patch.object(sys, 'argv', args), patch.object(driver.bench, 'origin', side_effect=lambda c: natives[c['name']]), \
+                     patch.object(driver.bench, 'immutable_source'), patch.object(driver.bench, 'checked', return_value='a'*40), \
+                     patch.object(driver.bench, 'runtime_snapshot', return_value={'packages': {}}), \
+                     patch.object(driver.bench, 'acquire', return_value=None), patch.object(driver.bench, 'readiness', return_value={'CPU_mock': True}), \
+                     patch.object(driver, 'storage_admission', return_value={'CPU_mock': True}), \
+                     patch.object(driver, 'run_budgeted_job', return_value={'wall_seconds': 0.}) as run, \
+                     patch.object(driver, 'capture_receipt', side_effect=fake_receipt), patch.object(driver, 'count_triplets', return_value=[]):
+                    self.assertEqual(driver.main(), 0)
+                plan = driver.bench.read(output/'PLAN.json')
+                self.assertEqual(plan['manifest'], manifest); self.assertEqual(plan['manifest_sha256'], before)
+                self.assertEqual(len(plan['jobs']), 6); self.assertFalse(plan['formal_authorized'])
+                if execute:
+                    self.assertEqual(run.call_count, 6)
+                    result = driver.bench.read(output/'RESULTS.json')
+                    self.assertEqual(result['status'], 'PHASE_CAPTURES_COMPLETE_OVERALL_V1_PENDING')
+                    self.assertEqual(result['case_capture_progress']['pending_overall_capture_cases'], ['G1_early', 'G3_early'])
+                    self.assertFalse(result['passed']); self.assertFalse(result['formal_authorized'])
+                    rng = driver.bench.read(output/'NATIVE_RNG_SOURCES.json')
+                    self.assertEqual([s['case'] for s in rng['sources']], ['G1_mid', 'G3_mid'])
+                    gate = driver.bench.read(output/'GPU_BUDGET_REGISTRATION.json')['admission']
+                    self.assertEqual(gate['projected_phase_GPU_hours'], 33.)
+                else:
+                    run.assert_not_called(); self.assertFalse((output/'RESULTS.json').exists())
+            self.assertEqual(driver.bench.digest(m), before)
+
+
 class RecoveryTests(unittest.TestCase):
+    def test_fresh_recovery_template_headroom_retains_old_budget_and_unknown_execution_budget(self):
+        reports = ROOT/'reports/structured_world/execution_20261011'
+        old = driver.bench.read(reports/'native_driver_budget/RECOVERY_G1_STORAGE_BUDGET_V1.json')
+        path = reports/'native_phase_selection/RECOVERY_G1_STORAGE_BUDGET_V2.json'
+        new = driver.bench.read(path)
+        manifest = driver.bench.read(reports/'native_phase_selection/RECOVERY_G1_MANIFEST_V2_PENDING_BUDGET.json')
+        self.assertEqual([o['cap_bytes']//driver.GiB for o in old['owned_runs']], [45, 45, 90])
+        self.assertEqual([o['cap_bytes']//driver.GiB for o in new['owned_runs']], [46, 46, 91])
+        self.assertEqual(new['pool_cap_bytes'], 183*driver.GiB)
+        self.assertEqual(new['reserve_bytes'], old['reserve_bytes'])
+        self.assertEqual(new['checkpoint_upper_bytes'], old['checkpoint_upper_bytes'])
+        self.assertTrue(set(o['path'] for o in old['owned_runs']).isdisjoint(o['path'] for o in new['owned_runs']))
+        self.assertEqual(manifest['cases'][0]['storage_budget']['sha256'], driver.bench.digest(path))
+        self.assertEqual(manifest['source_sha'], 'be5e72248a46afd43e1bf279c21134c391c5edad')
+        self.assertIsNone(manifest['budget']['already_spent_external'])
+        self.assertIsNone(manifest['budget']['reserved_elsewhere'])
+        self.assertFalse(manifest['acceptance_passed'])
+        with self.assertRaises(ValueError): driver.validate_gpu_budget(manifest, [{'stage': 'recovery'}])
+
     def fixture(self, root):
         m, natives = old_tests.PlanTests().fixture(root)
         case = next(c for c in m['cases'] if c['name'] == 'G1_mid')
@@ -209,7 +422,7 @@ def main():
     report = {'schema': 'native_driver_budget_CPU_receipt_v1', 'CPU_tests_passed': result.wasSuccessful(),
         'tests_run': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors),
         'seconds': time.monotonic()-started, 'GPU_jobs_launched': 0, 'qualification_passed': False,
-        'scope': 'CPU budget boundaries, actual CPU failed process receipt, real torchrun/trainer parser and recovery fixed endpoint; GPU numerical/recovery acceptance PENDING',
+        'scope': 'CPU selected-phase/full-matrix planning, pending acceptance and selected budget/RNG scope; budget boundaries, actual CPU failed process receipt, real torchrun/trainer parser and recovery fixed endpoint; GPU numerical/recovery acceptance PENDING',
         'source_sha256': {str(p.relative_to(ROOT)): driver.bench.digest(p) for p in sources},
         'training_source_sha256': driver.bench.digest(ROOT/'tools/structured_world/train_vla.py')}
     if args.report:

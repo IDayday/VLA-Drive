@@ -1,0 +1,31 @@
+{
+  "schema": "native_capture_storage_budget_v1",
+  "approved_for_pilot": true,
+  "host": "training-vlawm-zt4",
+  "reserve_bytes": 107374182400,
+  "checkpoint_upper_bytes": 48318382080,
+  "pool_cap_bytes": 196494753792,
+  "filesystem_probe_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008",
+  "owned_runs": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_phase_selection_20261011/recovery_G1_v2/A",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 49392123904
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_phase_selection_20261011/recovery_G1_v2/AA",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 49392123904
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_phase_selection_20261011/recovery_G1_v2/B",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 97710505984
+    }
+  ],
+  "exclusive_filesystem_reservation": false,
+  "storage_admission": "183GiB OWN cap accounting: A46/AA46/B91 including 1GiB metadata/log headroom per run. Existing admission remains unchanged: actual free >=100GiB+next45GiB, quota disclosed, actual OWN allocation checked before each save. No exclusive capacity guarantee.",
+  "phase_scope": "Fresh recovery_G1_v2 only; old failed identities/checkpoints/cost records remain untouched. Parent must count this phase in current whole storage and GPU-hour budgets.",
+  "metadata_headroom_bytes_per_run": 1073741824,
+  "template_version": 2
+}

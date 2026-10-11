@@ -1,0 +1,95 @@
+{
+  "schema": "native_execution_phase_selection_handoff_v1",
+  "code_stable_for_parent_freeze": true,
+  "source_sha256": {
+    "tools/structured_world/run_native_execution_continuation.py": "283a607e279d6f3216d68b706f0d1b6f675b2d4cfc12aceab070994ab600e801",
+    "tools/structured_world/test_native_driver_budget.py": "1f493e18f54f4961d819fd8fdea0e9511e5ea5fe70d09cfd0a46bccdece4349b"
+  },
+  "CPU_tests": {
+    "driver_control": 21,
+    "driver_seconds": 1.3331332858651876,
+    "capture_regression": 15,
+    "regression_seconds": 3.5181337017565966,
+    "all_passed": true
+  },
+  "operator_CLI": "<python> <new-frozen-driver>/tools/structured_world/run_native_execution_continuation.py --manifest <fresh qualified-host-bound full four-case V1 manifest> --output <fresh controller> --cases G1_mid,G3_mid [--execute]",
+  "single_case_CLI": "Same full four-case manifest with --cases G1_mid (or G3_mid); no partial manifest accepted.",
+  "cases_default": "All four original cases; frozen30bcbad default jobs/commands/capture controls exact against small metadata fixtures.",
+  "selected_mid_phase": {
+    "jobs": 6,
+    "roles_per_case": [
+      "A",
+      "AA",
+      "B"
+    ],
+    "continuous_updates_per_role": 500,
+    "maximum_total_updates": 3000,
+    "full_native_banks": 30,
+    "retained_relative_updates": [
+      1,
+      32,
+      100,
+      250,
+      500
+    ],
+    "no_forced_restart_at_capture": true
+  },
+  "single_mid_phase": {
+    "jobs": 3,
+    "updates": 1500,
+    "full_native_banks": 15
+  },
+  "manifest_contract": "Overall four-case manifest and bound original V1 criteria remain unchanged in PLAN with source-file hash; only dispatch selection added. Unselected origin/storage/output/RNG files are not read. Manifest order fixes selected job order.",
+  "actual_host_binding": "Execute on the manifest qualified host, not remote forwarding. Parent must bind zt3 UUID/qualification/storage and staged selected mid origins in a fresh full four-case manifest; --cases does not override host or bypass readiness.",
+  "record_fields": {
+    "PLAN_REGISTRATION_GPU_BUDGET_and_RNG": "case_selection overall_cases/selected_cases/pending_unselected_cases and overall_V1_acceptance=PENDING",
+    "RESULTS": "PHASE_CAPTURES_COMPLETE_OVERALL_V1_PENDING; pending_overall_capture_cases and selected_phase_captures_complete. passed=false/formal_authorized=false always.",
+    "unselected_receipts": "No external receipts imported; early cases stay pending in this phase even if another controller later captures them."
+  },
+  "budget": {
+    "scope": "Selected jobs only; whole selected plan before first launch and actual failed/success exits plus all remaining selected reserves before next.",
+    "two_mid_reserve_GPUh_at_5_5_each": 33,
+    "one_mid_reserve_GPUh_at_5_5_each": 16.5,
+    "external_and_elsewhere": "Still mandatory fresh explicit finite snapshots. Parent reserves or accounts for early/other dispatches; omitted cases are neither free nor completed.",
+    "unknown_budget": "Refused before any GPU launch; no default/guessed spending; existing120GPUh joint ceiling unchanged."
+  },
+  "fresh_headroom_templates": {
+    "directory": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_phase_selection",
+    "recovery_storage_budget": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_phase_selection_20261011/RECOVERY_G1_STORAGE_BUDGET_V2.json",
+    "recovery_manifest": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_phase_selection_20261011/RECOVERY_G1_MANIFEST_V2_PENDING_BUDGET.json",
+    "one_bank_caps_GiB": [
+      46,
+      46,
+      46
+    ],
+    "five_bank_caps_GiB": [
+      226,
+      226,
+      226
+    ],
+    "recovery_caps_GiB": [
+      46,
+      46,
+      91
+    ],
+    "recovery_pool_GiB": 183,
+    "checkpoint_upper_GiB": 45,
+    "reserve_GiB": 100,
+    "admission": "Unchanged strict actual OWN usage/physical/quota checks. Templates add1GiB metadata/log headroom per run; not proof of future headroom or exclusive filesystem availability. Fresh paths/binding required; no old artifact overwritten.",
+    "negative_control": "CPU actual metadata file makes45GiB cap fail unchanged storage_admission; fresh46GiB budget passes. Parent-reported zt3 failed GPU attempt/identity/cost preserved, not reclassified."
+  },
+  "protected_sources_unchanged_sha256": {
+    "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+    "tools/structured_world/native_capture.py": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3",
+    "tools/structured_world/run_native_execution_recovery.py": "4da4cc653b68105633bad5f524570d76fbf8044655974768ef74411dd17e1468",
+    "tools/structured_world/compare_execution_checkpoints.py": "9dede8df91b9def8623c608e9581cb5246647c4870c8e52cdca4f6a8c76cb703",
+    "reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "immutable_training_source": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "old_strict_results_and_formal_guard_changed": false,
+  "actual_GPU_jobs_launched": 0,
+  "numerical_acceptance": false,
+  "formal_authorized": false,
+  "CPU_execute_test_scope": "Synthetic producer mocks validate CLI/report scope only; no native GPU execution/acceptance receipt.",
+  "commit_or_push_by_agent": false
+}
