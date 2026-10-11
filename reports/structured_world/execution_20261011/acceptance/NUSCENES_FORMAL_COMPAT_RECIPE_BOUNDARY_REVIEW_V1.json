@@ -1,0 +1,264 @@
+{
+  "schema": "nuscenes_formal_and_compatibility_recipe_boundary_review_v1",
+  "created_UTC": "2026-10-11T13:54:10.218004+00:00",
+  "scope": "CPU-only existing identity/config/recipe metadata and pinned Git YAML hashes; no new matrix, tensor payload comparison or GPU run",
+  "formal_runs": {
+    "G1_FULL_UNIFORM": {
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_formal/G1_FULL_UNIFORM",
+      "training_identity": "7bc94fb37bbfe65be4491a0d9666cb7d1e294cd1c8a2253a362e4bd26bea7a7a",
+      "identity_self_hash_exact": true,
+      "identity_json_sha256": "23a98212126fcf44b718ededcb7525371c161d8fd9c1402483c9112bfcc2977b",
+      "training_source_sha": "41da7c198cf0ac4f799aee2a27a0a8126de30230",
+      "training_source_tree_sha256": "11915ed4b770a1a9060784f31661d15125a256e7f41cf8474fc3fa9ca8d72173",
+      "execution_mode": "io_preserving_v1",
+      "embedded_config_sha256": "d0ff5ccad9d4446dc681af563d801d8d1acff13e599c04a230ac633cc2e4e628",
+      "embedded_config_hash_definition": "derived SHA256(json.dumps(identity.config, sort_keys=True).encode()); not falsely attributed to an absent producer config_hash field",
+      "source_YAML_sha256": {
+        "0c54f1c": "30290b609cad576c76b7ca4c72462f93883decea9d39dd438307c0874ef60d57",
+        "41da7c198": "780da89a82df9ee05d291ceb8e7280279a7112680c94585d4839acd17520894d",
+        "1e5b109": "780da89a82df9ee05d291ceb8e7280279a7112680c94585d4839acd17520894d",
+        "be5e722": "780da89a82df9ee05d291ceb8e7280279a7112680c94585d4839acd17520894d"
+      },
+      "source_YAML_41da_1e5_be5_identical": true,
+      "class_statistics": {
+        "arrival_positive_weight": 7.9690810628974,
+        "current_positive_weight": 3.553073806447493,
+        "future_positive_weight": 3.46425622930606,
+        "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "release_positive_weight": 2.285906796698916,
+        "status": "whole_training_population_derived_sqrt_negative_positive"
+      },
+      "loss_weights": {
+        "future": 0.10546160273575751,
+        "geometry": 0.11612486667757727,
+        "query": 0.3871265716143443,
+        "refine": 1.0
+      },
+      "shared_loss_calibration": {
+        "rule_sha256": "bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4",
+        "selected_recipe_sha256": "1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4"
+      },
+      "formal_recipe_assets": {
+        "current_DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "label_cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79"
+      },
+      "effective_recipe": {
+        "cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "current_and_GT_identity": {
+          "identity": "d7dbbeee6e5384750680a6dd92e08e5ec88e0fdb3554edeb8fda63b9af6f7455",
+          "index_sha256": "459aa95e5550b51977ca78536cdac73b7b051f5458144787ec3cc10f9658f996",
+          "split": "train"
+        },
+        "DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "training_seed": 42,
+        "world_size": 8,
+        "effective_global_batch": 32,
+        "FM_repeat": 8,
+        "microbatch": 4,
+        "dataset": "nuscenes",
+        "scenes_per_epoch": 23230,
+        "updates_per_epoch": 726,
+        "schedule_horizon": 17424,
+        "schedule_warmup": 726,
+        "determinism": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "cudnn_deterministic": true,
+          "native_CUDA_atomic_rounding": "measured with common-prefix recovery",
+          "torch_algorithms": "warn_only"
+        },
+        "precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off"
+      },
+      "initialization_assets_sha256": "9d3fc47abb1ef6d3eeb48722aa1c9ac08a4c0adea50798a8bed798e31542d854",
+      "matched_launch_archived_identity": true
+    },
+    "G3_EVENT_LOCAL": {
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL",
+      "training_identity": "43bf49aca9277c889585dca3e4e805446eb790ea6de0b030c852f46cac34bdec",
+      "identity_self_hash_exact": true,
+      "identity_json_sha256": "d02da60d8b6b0c823502ba47ff85b14d91e0761fa9f868e9f82ced4723bfbf45",
+      "training_source_sha": "41da7c198cf0ac4f799aee2a27a0a8126de30230",
+      "training_source_tree_sha256": "11915ed4b770a1a9060784f31661d15125a256e7f41cf8474fc3fa9ca8d72173",
+      "execution_mode": "io_preserving_v1",
+      "embedded_config_sha256": "10d521bd50d248b8dc2a8957c6c5d708b7837837fa4c097892a9ad589b762181",
+      "embedded_config_hash_definition": "derived SHA256(json.dumps(identity.config, sort_keys=True).encode()); not falsely attributed to an absent producer config_hash field",
+      "source_YAML_sha256": {
+        "0c54f1c": "f7232b8be54430cec2f9f8904547bbed8fe57f5d66401a65f796c7b77ecae20f",
+        "41da7c198": "fd90e15f0abcc33b9b221d6a3a3e20a1f24dc0c31fe69841d21af50234c41d59",
+        "1e5b109": "fd90e15f0abcc33b9b221d6a3a3e20a1f24dc0c31fe69841d21af50234c41d59",
+        "be5e722": "fd90e15f0abcc33b9b221d6a3a3e20a1f24dc0c31fe69841d21af50234c41d59"
+      },
+      "source_YAML_41da_1e5_be5_identical": true,
+      "class_statistics": {
+        "arrival_positive_weight": 7.9690810628974,
+        "current_positive_weight": 3.553073806447493,
+        "future_positive_weight": 3.46425622930606,
+        "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "release_positive_weight": 2.285906796698916,
+        "status": "whole_training_population_derived_sqrt_negative_positive"
+      },
+      "loss_weights": {
+        "future": 0.10546160273575751,
+        "geometry": 0.11612486667757727,
+        "query": 0.3871265716143443,
+        "refine": 1.0
+      },
+      "shared_loss_calibration": {
+        "rule_sha256": "bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4",
+        "selected_recipe_sha256": "1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4"
+      },
+      "formal_recipe_assets": {
+        "current_DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "label_cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79"
+      },
+      "effective_recipe": {
+        "cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "current_and_GT_identity": {
+          "identity": "d7dbbeee6e5384750680a6dd92e08e5ec88e0fdb3554edeb8fda63b9af6f7455",
+          "index_sha256": "459aa95e5550b51977ca78536cdac73b7b051f5458144787ec3cc10f9658f996",
+          "split": "train"
+        },
+        "DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "training_seed": 42,
+        "world_size": 8,
+        "effective_global_batch": 32,
+        "FM_repeat": 8,
+        "microbatch": 4,
+        "dataset": "nuscenes",
+        "scenes_per_epoch": 23230,
+        "updates_per_epoch": 726,
+        "schedule_horizon": 17424,
+        "schedule_warmup": 726,
+        "determinism": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "cudnn_deterministic": true,
+          "native_CUDA_atomic_rounding": "measured with common-prefix recovery",
+          "torch_algorithms": "warn_only"
+        },
+        "precision": "FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off"
+      },
+      "initialization_assets_sha256": "9d3fc47abb1ef6d3eeb48722aa1c9ac08a4c0adea50798a8bed798e31542d854",
+      "matched_launch_archived_identity": true
+    }
+  },
+  "actual_existing_Nu32_receipt": {
+    "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32",
+    "training_identity": "810e04f0556a2519e612e66a819c9c539edead6dc06208173ca927893bfd7ae5",
+    "identity_self_hash_exact": true,
+    "training_source_sha": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+    "execution_mode": "engineering_timevec",
+    "scope": "profile",
+    "embedded_config_sha256": "d0ff5ccad9d4446dc681af563d801d8d1acff13e599c04a230ac633cc2e4e628",
+    "config_exact_formal_G1": true,
+    "recipe_key_comparison_to_formal_G1": {
+      "config": true,
+      "cache_identity": true,
+      "current_and_GT_identity": true,
+      "DINO_identity": true,
+      "shared_geometry_identity": true,
+      "training_seed": true,
+      "world_size": true,
+      "effective_global_batch": true,
+      "FM_repeat": true,
+      "microbatch": true,
+      "dataset": true,
+      "scenes_per_epoch": true,
+      "updates_per_epoch": true,
+      "schedule_horizon": true,
+      "schedule_warmup": true,
+      "determinism": true,
+      "precision": true,
+      "initialization_assets": true
+    },
+    "initialization_assets_exact": true,
+    "not_P0_only": true,
+    "class_statistics": {
+      "arrival_positive_weight": 7.9690810628974,
+      "current_positive_weight": 3.553073806447493,
+      "future_positive_weight": 3.46425622930606,
+      "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+      "release_positive_weight": 2.285906796698916,
+      "status": "whole_training_population_derived_sqrt_negative_positive"
+    },
+    "TRAINING_COMPLETE.json": {
+      "identity": "810e04f0556a2519e612e66a819c9c539edead6dc06208173ca927893bfd7ae5",
+      "updates": 32,
+      "exposure": 1024
+    },
+    "PROCESS_EXIT.json": {
+      "returncode": 0,
+      "wall_seconds": 270.90075487084687
+    },
+    "checkpoints/milestone_0000032/COMPLETE.json": {
+      "identity": "810e04f0556a2519e612e66a819c9c539edead6dc06208173ca927893bfd7ae5",
+      "completed": 32,
+      "status": "COMPLETE",
+      "ranks": 8,
+      "tag": "milestone_0000032"
+    }
+  },
+  "source_boundaries": {
+    "formal_nu_source": "41da7c198cf0ac4f799aee2a27a0a8126de30230",
+    "NAVSIM_formal_scientific_and_eval_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "compat_actual_source": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+    "be5_nu_config_matches_formal": true,
+    "be5_actual_Nu32_receipt_independently_found": false,
+    "existing_shared_task_20261011_compat_identity_inventory": [
+      "compat_nuscenes_v3_G1_32/identity.json"
+    ],
+    "calibrated_config_in_formal_runs": true,
+    "0c_all1_config_is_not_actual_formal_Nu_recipe": true
+  },
+  "conclusions_ZH": [
+    "现有Nu正式G1/G3实际源41da7c198，正式identity已经登记全训练集校准正类权重；对应两组YAML与1e5/be5逐字节一致，不能把正式Nu描述成0c全1权重运行。",
+    "实际现有Nu32 identity.config与正式G1完整相同，数据/初始化/优化器相关recipe字段相同；但identity.execution_mode=engineering_timevec，属于P0+timevec兼容receipt，不能标成单独engineering_fast P0验收。",
+    "仅发现这份1e5 Nu32兼容receipt，未独立发现be5 Nu32实际运行或G3独立Nu32 receipt；be5配置相同只说明可绑定配置，不构成实际数值/运行验收。",
+    "0c debug全1配置到校准配置是科学目标变化；当前NAV主矩阵配置不受此差异影响。不同实际源、运行身份及候选模式仍需分别披露。"
+  ],
+  "evidence": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_formal/G1_FULL_UNIFORM/identity.json",
+      "sha256": "23a98212126fcf44b718ededcb7525371c161d8fd9c1402483c9112bfcc2977b"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/identity.json",
+      "sha256": "d02da60d8b6b0c823502ba47ff85b14d91e0761fa9f868e9f82ced4723bfbf45"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/TRAINING_COMPLETE.json",
+      "sha256": "dfd31eb216f1556f2f336d2e152a97a84d1c173aa76ad862e5f4d2a0c9e5996f"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/PROCESS_EXIT.json",
+      "sha256": "9129e85f0c7e2c0e11a649386b2c46dd02b1b37a24ea8c712e50406b41136715"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/checkpoints/milestone_0000032/COMPLETE.json",
+      "sha256": "b0cbd5f06e2da7bb8517f5b8043d25a7a4158d1549f9b5bc88f8638b61bc974e"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32/identity.json",
+      "sha256": "8051f47cadffdb04f228bca9e0e648d481c7639d5f1e5341997d57b17212a232"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/round1_20261008/NUSCENES_FORMAL_LAUNCH_20261009.json",
+      "sha256": "0a0fe4d4d1d5c3f2b0651605af63e3efe5d95f8a5609bd7776c9bc116dd5d598"
+    }
+  ],
+  "acceptance": {
+    "recipe_metadata_review_complete": true,
+    "payload_or_cross_source_numerical_equality_claimed": false,
+    "formal_candidate_acceptance": false,
+    "old_guards_or_thresholds_changed": false
+  },
+  "actions": {
+    "GPU_dispatch": 0,
+    "signals": 0,
+    "model_construction": 0,
+    "source_or_existing_report_edits": 0,
+    "commits": 0
+  }
+}
