@@ -1,0 +1,92 @@
+{
+  "CUDA_initialized": false,
+  "FusedAdam_CPU_restore": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT3_FUSED_ADAM_CPU_RESTORE_RECEIPT.json",
+    "sha256": "d4df7dae3dcd39db36623644d458c83bb6840991c1eb21fefb691089194f4fed"
+  },
+  "GPU_jobs_started": 0,
+  "actual_frozen_writer_CPU_trace": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/INDEPENDENT_FULLGRAD_FIXED_V2_CPU_RECEIPT_REAL_PRODUCER_TRACE.json",
+    "sha256": "4b85f5ea3f40b564b2917e1df4eb599c0f45e94d6c715686fc868f5cab65fdef"
+  },
+  "cleanup_review": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/NEXT_OBSOLETE_PROFILE_RECOVERY_REVIEW_V1.json",
+    "sha256": "d8ac3a2bd1748cc6f177af589bb2e7b4c46452901d279ccf3daf0e0a63b19b7b"
+  },
+  "coordinator_edits_by_reviewer": false,
+  "dispatch_conclusion": "This provenance blocker is removed. Parent may freeze the new coordinator and continue already-authorized GPU verification under existing resource/runtime/lock/preflight gates. No GPU availability or formal acceptance is asserted by this CPU review.",
+  "formal_acceptance_granted": false,
+  "independent_findings": [
+    "New classify_forward_context validates actual869 invocation, separately retaining old44 context. Old cold68 classifier still rejects actual new-context emission; no old validator edits or test threshold relaxation.",
+    "Actual frozen746/6d16 writers, be5 Collector and fullgrad reducers were executed with tiny owned CPU tensors and simulated rank gather. Output AA_B is directly measured from AA and B CPU banks, not inferred from A pairs.",
+    "All eight ranks, native optimizer groups, FP32 trainable/None inventories, three direct tensor-pair statistics, source/strict byte hashes and recomputed aggregate statistics are required by classify.",
+    "Binding and PROBE timestamps must precede first A. Entrypoint/model/origin/output/microbatch/full8/no-restart argv checks retained.",
+    "Original strict false/exit1 is a completed scientific observation with no retry only after complete forward/fullgrad checks; passed/formal_authorized/trainer_consumable remain false.",
+    "Producer RAM guard includes three FP32 banks plus original legacy A and chunk/largest-tensor scratch. Full snapshots are detached CPU copies; banks clear after all three captures and original collector/combine hooks restore in finally."
+  ],
+  "independently_run_CPU_tests": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/INDEPENDENT_FULLGRAD_FIXED_V2_CPU_RECEIPT.json",
+    "sha256": "85cd1b4effa5b239c81ae5d416da6d88d31ceed7842396c79e512317967f0dc8"
+  },
+  "model_or_frozen_source_edits": false,
+  "observed_UTC": "2026-10-11T15:48:16.152331+00:00",
+  "old_bad_cold_driver_preserved": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-fullgrad-driver-v1-frozen-20261011/tools/structured_world/run_p0_fullgrad_probes.py",
+    "sha256": "f370dcf4e8a5db560e90e5417a833335a93c21ab76f35b39e67ad91ec64361a0"
+  },
+  "parent_handoff": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_fix_v2/HANDOFF.json",
+    "sha256": "9b21f8b676ea69632c662e5f9f6e5a0868fd56a04ba7b35969c39ad570ed718f"
+  },
+  "provenance_contract": {
+    "actual_delegated_forward_invocation_binding": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+    },
+    "actual_fullgrad_invocation_binding": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+    },
+    "delegated_forward_producer": "6d16 tool9c03229e16e4c055724e569c0d76b3138dfad6a99c1e10a08139a2de4ba99919",
+    "fullgrad_producer": "746 tool75f51d573110c775229ca9363daed4a5c7317ed8f24a9ccb3a60f743220b5f55",
+    "old_native_acceptance_binding": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/P0_V1_PROSPECTIVE_BINDINGS/BINDINGS.json",
+      "sha256": "819d5c268eb2bc14c9f47043fd46abe1f7c2e8f1cd700867d884b7745fc4819e"
+    },
+    "raw_forward_bytes_relabelled_or_rewritten": false,
+    "separate_historical_forward_context": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_forward_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799"
+    }
+  },
+  "remaining_scientific_evidence": "Actual12 fullgrad observations and independent unchanged V1 gradient acceptance review are still required; owned CPU fixtures are not scientific GPU evidence.",
+  "runtime_seconds": 3.662,
+  "schema": "independent_fullgrad_provenance_fix_review_v3",
+  "status": "PROVENANCE_BLOCKER_RESOLVED_FOR_PINNED_NEW_COORDINATOR",
+  "test_count": 18,
+  "tested_stable_source_files": [
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_p0_fullgrad_probes.py",
+      "sha256": "0e0d786fa7f2d380b77f24e880e02fe98311b4b95c044209f48addab0643f886"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_run_p0_fullgrad_probes.py",
+      "sha256": "b994175d57e7e228a65777ef667b356fc08a3b1a87968a8917e7e9355377f759"
+    }
+  ],
+  "verified_unchanged_bindings": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_forward_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/P0_V1_PROSPECTIVE_BINDINGS/BINDINGS.json",
+      "sha256": "819d5c268eb2bc14c9f47043fd46abe1f7c2e8f1cd700867d884b7745fc4819e"
+    }
+  ],
+  "weight_deletions": 0
+}

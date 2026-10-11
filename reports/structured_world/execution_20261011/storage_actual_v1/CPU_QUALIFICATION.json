@@ -1,0 +1,248 @@
+{
+  "ABI": {
+    "CPU_operation_finite": true,
+    "CUDA_initialized": false,
+    "CXX11_ABI": false,
+    "NCCL_version": [
+      2,
+      21,
+      5
+    ],
+    "PYBIND11_BUILD_ABI": "_cxxabi1011",
+    "cudnn_version": 90100,
+    "torch_C": {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/_C.cpython-310-x86_64-linux-gnu.so",
+      "sha256": "9bff1e657687df0e8c79c45700cc355186860df8a5e1f69d3b4601211ff3c18b"
+    },
+    "torch_cuda_runtime": "12.4"
+  },
+  "CPU_imports_and_module_sources_exact_to_zt4": true,
+  "CUDA_initialized": false,
+  "GPU_jobs_started": 0,
+  "all_entries_including_symlinks_and_modes": 95955,
+  "availability_observation_only": {
+    "compute_apps": {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=gpu_uuid,pid,process_name",
+        "--format=csv,noheader,nounits"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "GPU-71d273a4-6963-571e-5622-b14c7741f843, 1139, /root/miniconda3/envs/ddp/bin/python\nGPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e, 1140, /root/miniconda3/envs/ddp/bin/python\nGPU-25bfdc05-c7ed-a2bf-7258-b75683cae239, 1141, /root/miniconda3/envs/ddp/bin/python\nGPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0, 1142, /root/miniconda3/envs/ddp/bin/python\nGPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee, 1143, /root/miniconda3/envs/ddp/bin/python\nGPU-fb40c365-cb97-457b-4112-53d4b5cd0d17, 1144, /root/miniconda3/envs/ddp/bin/python\nGPU-16ace1a1-9394-a10d-b928-a976ad91af56, 1145, /root/miniconda3/envs/ddp/bin/python\nGPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5, 1146, /root/miniconda3/envs/ddp/bin/python"
+    },
+    "gpus": {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=index,uuid,name,driver_version,memory.used,memory.free,utilization.gpu",
+        "--format=csv,noheader,nounits"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "0, GPU-71d273a4-6963-571e-5622-b14c7741f843, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 52\n1, GPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 97\n2, GPU-25bfdc05-c7ed-a2bf-7258-b75683cae239, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 96\n3, GPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 61\n4, GPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 37\n5, GPU-fb40c365-cb97-457b-4112-53d4b5cd0d17, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 24\n6, GPU-16ace1a1-9394-a10d-b928-a976ad91af56, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 74\n7, GPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5, NVIDIA A800-SXM4-80GB, 595.71.05, 9285, 71868, 96"
+    }
+  },
+  "bytes_hashed_per_host": 9060528180,
+  "canonical_entries_sha256": "2a3193a6fa5c9716d8d1876633a236456dde94e09cb3aef373cbff7d3831905c",
+  "current_GPU_admission_passed": false,
+  "data_and_origin_copies_assumed_complete": false,
+  "driver": {
+    "bench_sha256": "d358f6969dd78828e705c19f5307c9d26f76b15f37aaadb35930b8cbeb66edee",
+    "git": {
+      "argv": [
+        "git",
+        "-C",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "68f6924bf39e6ab3f98ecfb7f8efc9ec86144318"
+    },
+    "native_capture_sha256": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3",
+    "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011",
+    "status": {
+      "argv": [
+        "git",
+        "-C",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011",
+        "status",
+        "--porcelain"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  },
+  "extension_cache_gap": {
+    "CPU_import_verified_by_this_task": false,
+    "destination_present_at_observation": false,
+    "qualified_source_extensions": [
+      {
+        "bytes": 9864952,
+        "linker": {
+          "argv": [
+            "ldd",
+            "/root/.cache/torch_extensions/py310_cu124/fused_adam/fused_adam.so"
+          ],
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "linux-vdso.so.1 (0x00007ffc0dffe000)\n\tlibc10.so => not found\n\tlibc10_cuda.so => not found\n\tlibtorch_cpu.so => not found\n\tlibtorch_python.so => not found\n\tlibcudart.so.12 => /usr/local/cuda/targets/x86_64-linux/lib/libcudart.so.12 (0x00007f0352400000)\n\tlibstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f03521d4000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x00007f03520ed000)\n\tlibgcc_s.so.1 => /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f035274c000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007f0351ec4000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f03527e8000)\n\tlibdl.so.2 => /usr/lib/x86_64-linux-gnu/libdl.so.2 (0x00007f0352747000)\n\tlibpthread.so.0 => /usr/lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f0352740000)\n\tlibrt.so.1 => /usr/lib/x86_64-linux-gnu/librt.so.1 (0x00007f035273b000)"
+        },
+        "path": "/root/.cache/torch_extensions/py310_cu124/fused_adam/fused_adam.so",
+        "sha256": "da0ad320cd95aca3237d034d44f946494c72c268b3c0eb9cf07e447894911d11"
+      }
+    ],
+    "restored_by_this_task": false
+  },
+  "formal_authorized": false,
+  "full_file_manifests": {
+    "destination": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT3_RUNTIME_FULL_FILE_MANIFEST.json",
+      "sha256": "44b0e65a14f2dedb00aead5261508d75fc9171c77255ea6378abda423b5c0d76"
+    },
+    "source": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT4_RUNTIME_FULL_FILE_MANIFEST.json",
+      "sha256": "78d32eeeeaeb4e613abb3571077a72a7b777afeb4fcad71355a91f42f0dc64f2"
+    }
+  },
+  "full_runtime_tree_exact_to_zt4": true,
+  "full_tree_exclusions": [],
+  "historical_v1_negative": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3/QUALIFICATION_V1_NEGATIVE.json",
+    "sha256": "04547c208e0516920fa0420e770a3ca72b4422ab0bff4bddb5f8cd46948fecd3"
+  },
+  "historical_v1_negative_passed": false,
+  "host": "training-vlawm-zt3",
+  "known_original_v1_negative_GPU_hours": 0.28780906995555555,
+  "limitations": [
+    "CPU imports/ABI do not prove CUDA kernels, NCCL, native boundary/update/save.",
+    "Full exactness covers base+overlay only; external torch_extensions cache is separately observed and absent on zt3 at observation.",
+    "ldd lacks Python torch-loaded library resolution; actual CPU imports of flash_attn/mmcv extensions succeeded.",
+    "nvcc outside PATH on both hosts; /usr/local/cuda-12.8/bin/nvcc binary hash matches. No JIT build.",
+    "No image/model/geometry/native weight payload loaded or copied in attestation.",
+    "Manifest excludes timestamps, owner/ACL and external symlink-target bytes.",
+    "Latest observed zt3 GPU apps are occupied; this CPU receipt is not dispatch admission."
+  ],
+  "local_runtime_rebuildable": true,
+  "lost_local_banks_reused": false,
+  "native_qualification": "PENDING_NEW_CONTAINER_NATIVE_LOAD_UPDATE_SAVE",
+  "observed_UTC": "2026-10-11T15:17:20.582225+00:00",
+  "old_unrecorded_cost": "UNKNOWN_NOT_ZERO",
+  "packages": {
+    "Pillow": "10.1.0",
+    "accelerate": "1.5.2",
+    "deepspeed": "0.16.9",
+    "diffusers": "0.35.2",
+    "flash_attn": "2.7.4.post1",
+    "mmcv": "2.2.0",
+    "mmengine": "0.10.7",
+    "numpy": "1.26.4",
+    "omegaconf": "2.3.0",
+    "safetensors": "0.6.2",
+    "scipy": "1.11.4",
+    "timm": "1.0.20",
+    "tokenizers": "0.22.1",
+    "torch": "2.5.1+cu124",
+    "torchvision": "0.20.1+cu124",
+    "transformers": "4.57.0"
+  },
+  "passed_CPU_runtime": true,
+  "passed_GPU_native": false,
+  "persistent_records_root": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1",
+  "physical_GPU_UUIDs": [
+    "GPU-71d273a4-6963-571e-5622-b14c7741f843",
+    "GPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e",
+    "GPU-25bfdc05-c7ed-a2bf-7258-b75683cae239",
+    "GPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0",
+    "GPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee",
+    "GPU-fb40c365-cb97-457b-4112-53d4b5cd0d17",
+    "GPU-16ace1a1-9394-a10d-b928-a976ad91af56",
+    "GPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5"
+  ],
+  "physical_GPU_UUIDs_exact_to_historical_ZT3": true,
+  "python": "3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0]",
+  "qualified_zt4_runtime_reference": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt4_runtime_qualification_extension_v1/QUALIFICATION.json",
+    "sha256": "09a40febff8a3876040b38159038981e5ba0ab7fe62f5971eb537ecc79a0115e"
+  },
+  "regular_files_hashed_per_host": 84661,
+  "runtime_receipts": {
+    "destination": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT3_CPU_RUNTIME_PROBE.json",
+      "sha256": "127a9e541c63ad2a235bb1445ec65468c4ef9b1043bacea8b5fc933a84dc99a9"
+    },
+    "source": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT4_CPU_RUNTIME_PROBE.json",
+      "sha256": "706ffcc4441bee73e12a7155c25bcd2a64d50985f007fb1b4116864cf0ada2c7"
+    }
+  },
+  "schema": "zt3_restored_CPU_runtime_qualification_v1",
+  "source_build_receipts": {
+    "destination": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT3_CPU_SOURCE_BUILD_PROBE.json",
+      "sha256": "d8df17e9ba13cc10b6a1c1108b5322b6c5d547f5e1e3c6a2c50c8cb75a51c560"
+    },
+    "source": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt3_recovery_1459_v1/ZT4_CPU_SOURCE_BUILD_PROBE.json",
+      "sha256": "e687b1c969659809a5d1ec8c48357d1697dbf0f04741bb5e2a149ee2d518994e"
+    }
+  },
+  "training_source": {
+    "git": {
+      "argv": [
+        "git",
+        "-C",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "be5e72248a46afd43e1bf279c21134c391c5edad"
+    },
+    "import_errors": {},
+    "modules": {
+      "mmcv.cnn": {
+        "path": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/lib/python3.10/site-packages/mmcv/cnn/__init__.py",
+        "sha256": "6c8d408c8bb8f1e1dbadc5fcfefc87c5c351f337bc2e80cd896f0d6ca7f7c8a8",
+        "suppressed_import_log_characters": 0
+      },
+      "mmcv.ops": {
+        "path": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/lib/python3.10/site-packages/mmcv/ops/__init__.py",
+        "sha256": "5862e1fb29c68d9aefb40c7808483f50f2f1dcaa04cc146827b9c425674f4a2d",
+        "suppressed_import_log_characters": 0
+      },
+      "starVLA.dataloader.structured_world.dataset": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/starVLA/dataloader/structured_world/dataset.py",
+        "sha256": "0cd837a1eb860b9ba713683f6e58603e6e07602cfd145c99bd777a2b51b33496",
+        "suppressed_import_log_characters": 0
+      },
+      "starVLA.model.framework.vla_structured_fgtr": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/starVLA/model/framework/vla_structured_fgtr.py",
+        "sha256": "90538ddd1f68ea0ee429c8cc33e720298672080b09b4c4cf7749df4278f063dc",
+        "suppressed_import_log_characters": 0
+      },
+      "tools.structured_world.train_vla": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "sha256": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+        "suppressed_import_log_characters": 927
+      }
+    },
+    "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+    "status": {
+      "argv": [
+        "git",
+        "-C",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+        "status",
+        "--porcelain"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    "training_source_tree_sha256": "3334feb5872ad6f681caf6bfe21eb70b538aed27c0333b16953b7a7e66c88830"
+  }
+}
