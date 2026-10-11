@@ -3,7 +3,7 @@ import argparse
 from contextlib import nullcontext
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-import copy,fcntl,hashlib,inspect,json,os,random,signal,time
+import copy,fcntl,hashlib,inspect,json,os,platform,random,signal,time
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -101,9 +101,15 @@ def main():
     require(declared==inherited,'performance cannot silently override optimization recipe')
     require(cfg['global_batch_size']==32 and cfg['micro_batch_size']==4 and cfg['max_optimizer_steps']==100000,'fixed batch and original100k schedule required')
     require(state['optimizer_step']+a.updates<=cfg['max_optimizer_steps'],'update budget exceeds schedule')
-    identity={'options':opts.identity(),'backend_flags':backend_flags(),'framework_contract_hash':contract['framework_contract_hash'],
+    import transformers
+    execution_environment={'python':platform.python_version(),'host':platform.node(),'torch':torch.__version__,
+        'cuda':torch.version.cuda,'nccl':list(torch.cuda.nccl.version()),'transformers':transformers.__version__,
+        'device_name':torch.cuda.get_device_name(device),'device_capability':list(torch.cuda.get_device_capability(device)),
+        'qwen_implementation_hash':file_hash(Path(transformers.__file__).parent/'models/qwen3_vl/modeling_qwen3_vl.py')}
+    identity={'execution_environment':execution_environment,'options':opts.identity(),'backend_flags':backend_flags(),'framework_contract_hash':contract['framework_contract_hash'],
         'optimizer_config':cfg,'execution_code_hashes':implementation_hashes,'original_dependencies_hash':digest(original_dependencies),'fit_hash':digest(state['fit_scene_ids']),'world_size':world,'torch':torch.__version__}
     if a.mode=='continuation':
+        require(certificate['execution_environment']==execution_environment,'qualified execution environment changed; explicit new qualification required')
         require(certificate['framework_contract_hash']==identity['framework_contract_hash'] and certificate['fit_hash']==identity['fit_hash'],'qualification Base/data framework mismatch')
     if state.get('performance_identity'):
         require(state['performance_identity']==identity,'performance resume execution identity changed')
