@@ -87,9 +87,13 @@ def execute(a):
         from .preflight import audit
         contract = audit(config, a.repo)
         from .config import resolve
-        resolve(config,contract,Path(config["output_root"])/"preflight_resolved_config.json")
+        # The historical framework contract intentionally stays untrained. Do
+        # not erase an explicit experiment checkpoint from the launch config.
+        configured_checkpoint = config['s0']['query_checkpoint'] or contract.get('query_checkpoint')
+        resolve(config,contract | {'query_checkpoint':configured_checkpoint},Path(config["output_root"])/"preflight_resolved_config.json")
         return {"status": contract["binding_status"], "framework_contract_hash": contract["framework_contract_hash"],
-                "learned_driving_weights_loaded": False, "query_checkpoint": contract["query_checkpoint"]}
+                "learned_driving_weights_loaded": False, "query_checkpoint": configured_checkpoint,
+                "scope":"historical_framework_contract; experiment Base qualification/lock is checked by freeze-base"}
     from .pipeline import Pipeline
     pipeline = Pipeline(config, mode=a.mode, max_samples=maximum, device=a.device)
     if a.command == "capacity-plan":

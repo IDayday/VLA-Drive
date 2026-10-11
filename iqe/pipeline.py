@@ -242,6 +242,9 @@ class Pipeline:
     def use_locked_base(self):
         require((self.root / "LOCKED_S0.json").exists(), "Query base not locked: run train-base then freeze-base")
         self.contract = read_json(self.root / "LOCKED_S0.json")
+        requested = self.raw_config['s0']['query_checkpoint']
+        require(not requested or Path(requested).resolve() == Path(self.contract['query_checkpoint']).resolve(),
+                'LOCKED_BASE_IMMUTABLE: explicit configured checkpoint differs; use a new experiment output namespace')
         require(self.mode != "full" or self.contract.get("base_mode") == "full", "formal runs cannot use a smoke/profile-trained Query base")
         if self.mode == "full":
             from .base_qualification import require_qualification

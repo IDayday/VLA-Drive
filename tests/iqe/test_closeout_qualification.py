@@ -103,6 +103,27 @@ def test_freeze_revalidates_input_bytes_with_legacy_evaluation(tmp_path, monkeyp
         qualify_base(p, ck, evaluation)
 
 
+def test_locked_base_rejects_conflicting_explicit_config(tmp_path, monkeypatch):
+    p = pipeline_fixture(tmp_path, monkeypatch)
+    atomic_json(p.root/'LOCKED_S0.json', p.contract | {'query_checkpoint':str(tmp_path/'locked.pt')})
+    p.raw_config['s0']['query_checkpoint'] = str(tmp_path/'different.pt')
+    with pytest.raises(ValueError, match='LOCKED_BASE_IMMUTABLE'):
+        p.use_locked_base()
+
+
+def test_preflight_preserves_explicit_experiment_checkpoint(tmp_path, monkeypatch):
+    from iqe.cli import parser, execute
+    p = pipeline_fixture(tmp_path, monkeypatch)
+    config = deepcopy(p.raw_config)
+    config['s0']['query_checkpoint'] = str(tmp_path/'chosen.pt')
+    monkeypatch.setattr('iqe.cli.load_config', lambda _:config)
+    monkeypatch.setattr('iqe.resources.qualify_distributed', lambda _: {'device':'cpu'})
+    monkeypatch.setattr('iqe.preflight.audit', lambda *args:p.contract | {'query_checkpoint':None,'binding_status':'FRAMEWORK_BOUND_QUERY_UNTRAINED'})
+    result = execute(parser().parse_args(['preflight','--config','fixture.yaml','--device','cpu']))
+    assert result['query_checkpoint'] == config['s0']['query_checkpoint']
+    assert read_json(p.root/'preflight_resolved_config.json')['s0']['query_checkpoint'] == config['s0']['query_checkpoint']
+
+
 def test_timeout_retries_only_failed_score_without_model_load(tmp_path,monkeypatch):
     p,ck,manifest,adapter,calls=evaluation_fixture(tmp_path,monkeypatch)
     original=p.backend().score
