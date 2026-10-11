@@ -253,7 +253,16 @@ def main():
     rng=capture_rng();rngs=[None]*world;dist.all_gather_object(rngs,rng)
     if a.save and last_saved_step!=step:save_boundary()
     save_seconds=checkpoint_seconds
-    report={'rank':rank,'rows':rows,'loop_wall_seconds':loop_wall,'checkpoint_seconds':save_seconds,'fingerprint':identities,
+    from collections import Counter
+    actual_dtypes=Counter()
+    for n,p in model.named_parameters():
+        actual_dtypes[f"{'trainable' if p.requires_grad else 'frozen'}_parameter/{p.dtype}"]+=p.numel()
+        if p.grad is not None:actual_dtypes[f'gradient/{p.grad.dtype}']+=p.grad.numel()
+    for m in getattr(optimizer,'masters',[]):actual_dtypes[f'master/{m.dtype}']+=m.numel()
+    for values in optimizer.state.values():
+        for n,v in values.items():
+            if torch.is_tensor(v):actual_dtypes[f'adam/{n}/{v.dtype}']+=v.numel()
+    report={'rank':rank,'actual_dtype_elements':dict(actual_dtypes),'rows':rows,'loop_wall_seconds':loop_wall,'checkpoint_seconds':save_seconds,'fingerprint':identities,
         'rng_python_hash':hashlib.sha256(repr(rng['python']).encode()).hexdigest(),'rng_numpy_hash':hashlib.sha256(repr(rng['numpy']).encode()).hexdigest(),
         'scheduler_state':scheduler.state_dict(),'data_cursor':{'epoch':epoch,'offset':offset},'rng_cpu_hash':tensor_hash(rng['cpu']),'rng_cuda_hashes':[tensor_hash(t) for t in rng['cuda']],
         'cache_timings':cache.timings if cache else None,'DDP':wrapped._get_ddp_logging_data(),'peak_allocated_bytes':torch.cuda.max_memory_allocated(),'peak_reserved_bytes':torch.cuda.max_memory_reserved()}
