@@ -143,7 +143,7 @@ def main():
         bench.require(bench.digest(qualification['path']) == qualification['sha256'], 'Qualified environment record changed')
         q = bench.read(qualification['path'])
         bench.require(q['passed'] and q['host'] == manifest['host'] and set(q['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Full8 qualification mismatch')
-        env = bench.runtime_snapshot(manifest['python'])
+        env = native.qualified_runtime_snapshot(manifest['python'], q.get('environment', {}).get('packages', {}))
         bench.require(all(env['packages'].get(k) == v for k, v in q.get('environment', {}).get('packages', {}).items()), 'Runtime differs from qualification')
         bench.write(output/'REGISTRATION.json', {'driver_source_sha': driver_sha, 'driver_sha256': bench.digest(SCRIPT),
             'budget_driver_sha256': bench.digest(native.SCRIPT), 'training_source_sha': plan['source_sha'], 'environment': env,

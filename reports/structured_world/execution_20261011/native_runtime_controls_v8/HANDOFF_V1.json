@@ -1,0 +1,63 @@
+{
+  "schema": "qualified_runtime_metadata_controls_v8_handoff_v1",
+  "test_code_stable_for_parent_freeze": true,
+  "edited_source_only": "tools/structured_world/test_native_driver_budget.py",
+  "test_sha256": "d17f6c198f6803d10a9ca830d594f2a05f8ec0b8e4537049b759fa299bf6a517",
+  "parent_driver_recovery_not_edited_by_this_agent": true,
+  "observed_parent_source_sha256": {
+    "tools/structured_world/run_native_execution_continuation.py": "a8e69113a3c1a09a2e892e28b244f3d8953427a9aa13d9067b8e18aa0710c572",
+    "tools/structured_world/run_native_execution_recovery.py": "6edd56947675f56892224d12bf2f03cbcaec7e405c1bda22ee90997965c005ee",
+    "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87"
+  },
+  "CPU_tests_run": 29,
+  "all_passed": true,
+  "seconds": 1.5793791450560093,
+  "controls": [
+    "Bound flash_attn included with all defaults, duplicate names queried once",
+    "Empty expected set still queries every benchmark default",
+    "Invalid package names blocked before subprocess query",
+    "Actual CPU missing-distribution query raises PackageNotFoundError/subprocess failure rather than partial snapshot",
+    "Actual zt3 CPU metadata query checks all qualification pins exactly with CUDA_VISIBLE_DEVICES empty"
+  ],
+  "actual_zt3_CPU_query": {
+    "host": "training-vlawm-zt3",
+    "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+    "manifest_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt3_p0_mid_binding_20261011T093714Z/dispatch_v7/CONTINUATION_MANIFEST_V7B.json",
+    "manifest_sha256": "709e2e6da8c9784603140235eeaaf5ff1384b3b70d98928f76c9b84c505c08dc",
+    "qualification": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_resource_scout_20261011T090200Z/zt3_qualification_v2_20261011T093714Z/records_v1/HOST_QUALIFICATION_V2B.json",
+      "sha256": "ed946954e55f1aa7166600b058fd38834e62f99d6afd3dbdf497119afc70fdda"
+    },
+    "actual": {
+      "python": "3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0]",
+      "executable": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "prefix": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1",
+      "packages": {
+        "deepspeed": "0.16.9",
+        "flash_attn": "2.7.4.post1",
+        "mmcv": "2.2.0",
+        "mmengine": "0.10.7",
+        "numpy": "1.26.4",
+        "omegaconf": "2.3.0",
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0"
+      }
+    },
+    "all_pinned_versions_exact": true,
+    "CUDA_VISIBLE_DEVICES": "",
+    "query_seconds": 0.18667959794402122,
+    "GPU_probe_or_model_import": false,
+    "qualification_passed_here": false
+  },
+  "receipt": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_runtime_controls_v8/CPU_RECEIPT_V1.json",
+  "existing_test_mock_update": "Synthetic selected-phase controller now mocks qualified_runtime_snapshot rather than obsolete benchmark runtime_snapshot; no production omission of any package check.",
+  "failed_controller_preserved": "Parent-reported native_zt3_v7_mids completed0/no runs before GPU dispatch; prior FAILURE remains untouched.",
+  "training_source_kept": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "GPU_jobs_launched": 0,
+  "environment_versions_changed": false,
+  "numeric_thresholds_changed": false,
+  "scientific_acceptance": false,
+  "formal_authorized": false,
+  "commit_or_push_by_agent": false
+}

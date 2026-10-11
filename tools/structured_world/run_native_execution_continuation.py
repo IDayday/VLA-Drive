@@ -32,6 +32,19 @@ class BudgetRefused(ValueError):
     """Boundary refusal only; never terminate a running job."""
 
 
+def qualified_runtime_snapshot(python, expected_packages):
+    """Query every pinned package, including extras absent from benchmark defaults."""
+    packages = tuple(sorted(set(bench.PACKAGES) | set(expected_packages)))
+    bench.require(all(isinstance(name, str) and re.fullmatch(r'[A-Za-z0-9_.-]+', name)
+                      for name in packages), 'Invalid qualified package name')
+    code = ('import sys,json,importlib.metadata as m;print(json.dumps({"python":sys.version,'
+            '"executable":sys.executable,"prefix":sys.prefix,"packages":'
+            '{n:m.version(n) for n in '+repr(packages)+'}}))')
+    env = os.environ.copy()
+    env['CUDA_VISIBLE_DEVICES'] = ''
+    return json.loads(bench.checked([python, '-B', '-c', code], env=env))
+
+
 def validate_gpu_budget(manifest, jobs):
     """Explicit dispatch snapshot; no guessed external spending or defaults."""
     budget = manifest.get('budget')
@@ -406,7 +419,7 @@ def main():
         qualification = bench.read(q['path'])
         bench.require(qualification['passed'] and qualification['host'] == manifest['host'] and
                       set(qualification['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Full8 qualification mismatch')
-        env = bench.runtime_snapshot(manifest['python'])
+        env = qualified_runtime_snapshot(manifest['python'], qualification.get('environment', {}).get('packages', {}))
         for name, value in qualification.get('environment', {}).get('packages', {}).items():
             bench.require(env['packages'].get(name) == value, 'Qualified private environment changed: '+name)
         bench.write(output/'REGISTRATION.json', {'driver_source_sha': driver_sha, 'driver_sha256': bench.digest(SCRIPT),

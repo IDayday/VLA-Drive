@@ -1,0 +1,144 @@
+{
+  "schema": "zt3_real_native_qualification_negative_v1",
+  "passed": false,
+  "GPU_boundary_and_update_executed": true,
+  "native_checkpoint_save_qualified": false,
+  "boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 25000,
+    "epoch": 7,
+    "exposure": 799944,
+    "identity": "91b5967889ae144e850e912ca6d90a3eda03ee38202d1e12426ead3a8e283e94",
+    "offset": 2775,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "last_update": {
+    "updates": 25001,
+    "epoch": 7,
+    "offset": 2776,
+    "scene_exposure": 799976,
+    "fractional_epochs": 7.874399559020396,
+    "weighted_losses": {
+      "current_DINO": 0.01744261384010315,
+      "current_geometry": 0.20965886116027832,
+      "future_semantics": 0.02676207572221756,
+      "local_relations": 0.025050509721040726,
+      "original_FM": 0.01757769286632538,
+      "refine": 0.0016181219834834337
+    },
+    "rank0_raw_losses": {
+      "original_FM": 0.020529817789793015,
+      "current_DINO": 0.016607310622930527,
+      "road": 0.0030875878874212503,
+      "current_occupancy": 0.2589249014854431,
+      "future_semantics": 0.3517652750015259,
+      "query_relations": 0.08313185721635818,
+      "depth": 1.5371782779693604,
+      "refine": 0.0014173879753798246
+    },
+    "rank0_effective_auxiliary_counts": {
+      "road": 3375.0,
+      "current_occupancy": 3375.0,
+      "future_semantics": 3375.0,
+      "body_road": 1743.0,
+      "body_occupancy": 1964.0
+    },
+    "rank0_query_strata": [
+      {
+        "global_valid_cells": 107614,
+        "fallback": 0,
+        "invalid_scene": false,
+        "registered_pose_strata": {
+          "proposal_body_neighborhood": 0,
+          "road_occupancy_event_boundary": 0,
+          "global_uniform": 1024
+        },
+        "neighbor_time_queries": 0
+      },
+      {
+        "global_valid_cells": 105822,
+        "fallback": 0,
+        "invalid_scene": false,
+        "registered_pose_strata": {
+          "proposal_body_neighborhood": 0,
+          "road_occupancy_event_boundary": 0,
+          "global_uniform": 1024
+        },
+        "neighbor_time_queries": 0
+      },
+      {
+        "global_valid_cells": 61487,
+        "fallback": 0,
+        "invalid_scene": false,
+        "registered_pose_strata": {
+          "proposal_body_neighborhood": 0,
+          "road_occupancy_event_boundary": 0,
+          "global_uniform": 1024
+        },
+        "neighbor_time_queries": 0
+      },
+      {
+        "global_valid_cells": 137293,
+        "fallback": 0,
+        "invalid_scene": false,
+        "registered_pose_strata": {
+          "proposal_body_neighborhood": 0,
+          "road_occupancy_event_boundary": 0,
+          "global_uniform": 1024
+        },
+        "neighbor_time_queries": 0
+      }
+    ],
+    "rank0_activation_gradient_norms_per_microbatch": [
+      {
+        "B0": 0.001383669557981193,
+        "Bt": 0.0007891806308180094,
+        "H_A": 0.0016391209792345762
+      }
+    ],
+    "rank0_proposal_out_of_range_steps": 0,
+    "actual_parameter_group_lrs": [
+      8.998417419632872e-06,
+      8.998417419632872e-06,
+      8.998417419632872e-06,
+      8.998417419632872e-06,
+      8.998417419632872e-06,
+      8.998417419632872e-06,
+      8.99841741963287e-05
+    ],
+    "global_gradient_norm": 0.5493791699409485,
+    "gradient_clipped": false,
+    "gradient_clip_scale": 1.0,
+    "peak_GPU_allocated_bytes_rank0": 34219549696,
+    "GPU_hours": 175.49392773363326,
+    "seconds": 4.939950942993164,
+    "sampled_changed_elements": 25955,
+    "maximum_sampled_change": 6.045028567314148e-05,
+    "fp32_master_update_verified": true,
+    "global_counts": {
+      "current_dino": 4718592.0,
+      "ego_scenes": 32.0
+    }
+  },
+  "process_exit": {
+    "returncode": 1,
+    "wall_seconds": 129.51408148,
+    "pid": 2494691,
+    "native_boundary_observed_seconds": 120.822257428,
+    "monitor_error": null
+  },
+  "actual_GPU_hours": 0.28780906995555555,
+  "root_cause": "45GiB run cap equals45GiB pending bank; owned logs/identity make prospective allocated > cap; add explicit1GiB metadata headroom to fresh plan; original retained",
+  "artifact_sha256": {
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z/RESUME_BOUNDARY_VERIFIED.json": "5b7d8ef10ae5eb58d126ed4712266edddf4fd68cc1db9a9162d7addb195e4b9e",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z/metrics.jsonl": "2eb971f11075b07ca7c8fa6d3cf3abdaf7a2f6ae60e574e86a5dc31bac41b6c2",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z/PROCESS_EXIT.json": "55f3f3bd9fe18533297ec260e4137196ab54d065862d125b3807fca23b5d1b01",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z/stdout.log": "c6cd0df66492c1f490f8bb3516b65440c80cdd074c19989700c8154b794f62e3",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z/identity.json": "c16bbe2af34187c3e65df71bfe34028dabc52dd72eb156036ec88af0a09594a2"
+  }
+}

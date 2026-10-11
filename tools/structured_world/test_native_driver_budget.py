@@ -6,9 +6,13 @@ no GPU worker or native numerical acceptance is exercised.
 import argparse
 import ast
 import copy
+from contextlib import redirect_stdout
+import io
 import json
 from pathlib import Path
 import sys
+import shlex
+import subprocess
 import tempfile
 import time
 from types import SimpleNamespace
@@ -38,6 +42,95 @@ def job(root, key, stage='early', process=None):
 def exit_receipt(value, hours, returncode=0):
     root = Path(value.get('process_run', value['run'])); root.mkdir(parents=True)
     (root/'PROCESS_EXIT.json').write_text(json.dumps({'wall_seconds': hours*3600/8, 'returncode': returncode}))
+
+
+class QualifiedRuntimeTests(unittest.TestCase):
+    runtime_manifest = None
+    real_runtime_receipt = None
+
+    def metadata_query(self, expected):
+        names = []
+        def version(name):
+            names.append(name)
+            return '2.7.4.post1' if name == 'flash_attn' else 'CPU_control_version'
+        def checked(command, *, env):
+            self.assertEqual(command[:3], [sys.executable, '-B', '-c'])
+            self.assertEqual(env['CUDA_VISIBLE_DEVICES'], '')
+            output = io.StringIO()
+            with redirect_stdout(output), patch('importlib.metadata.version', side_effect=version):
+                exec(compile(command[3], '<actual qualified metadata query>', 'exec'), {})
+            return output.getvalue().strip()
+        with patch.object(driver.bench, 'checked', side_effect=checked):
+            result = driver.qualified_runtime_snapshot(sys.executable, expected)
+        return result, names
+
+    def test_extra_flash_attn_queried_with_every_default(self):
+        expected = {'flash_attn': '2.7.4.post1', 'numpy': 'CPU_control_version'}
+        before = copy.deepcopy(expected)
+        result, names = self.metadata_query(expected)
+        self.assertEqual(set(names), set(driver.bench.PACKAGES) | {'flash_attn'})
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(result['packages']['flash_attn'], '2.7.4.post1')
+        self.assertEqual(expected, before)
+
+    def test_empty_qualification_still_queries_all_defaults(self):
+        result, names = self.metadata_query({})
+        self.assertEqual(set(names), set(driver.bench.PACKAGES))
+        self.assertEqual(set(result['packages']), set(driver.bench.PACKAGES))
+
+    def test_invalid_package_name_blocks_query(self):
+        with patch.object(driver.bench, 'checked') as query:
+            for name in ('', 'flash_attn;echo bad', 'flash attn', '../flash_attn', 'flash_attn\n', "flash_attn'bad"):
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    driver.qualified_runtime_snapshot(sys.executable, {name: 'version'})
+            query.assert_not_called()
+
+    def test_missing_metadata_actual_CPU_query_raises_without_partial_snapshot(self):
+        missing = 'structured_world_control_missing_metadata_20261011'
+        def checked(command, *, env):
+            self.assertEqual(env['CUDA_VISIBLE_DEVICES'], '')
+            return subprocess.check_output(command, env=env, text=True, stderr=subprocess.PIPE, timeout=10).strip()
+        # Isolate the deliberately missing distribution from local defaults;
+        # run the real generated query in a CPU-only subprocess.
+        with patch.object(driver.bench, 'PACKAGES', ()), patch.object(driver.bench, 'checked', side_effect=checked):
+            with self.assertRaises(subprocess.CalledProcessError) as error:
+                driver.qualified_runtime_snapshot(sys.executable, {missing: 'unavailable'})
+        self.assertIn('PackageNotFoundError', error.exception.stderr)
+        self.assertIn(missing, error.exception.stderr)
+
+    def test_real_zt3_CPU_metadata_matches_bound_qualification(self):
+        if self.runtime_manifest is None:
+            self.skipTest('Actual remote CPU query requires explicit --runtime-manifest')
+        manifest_path = self.runtime_manifest
+        manifest = driver.bench.read(manifest_path)
+        self.assertEqual(manifest['host'], 'training-vlawm-zt3')
+        self.assertTrue(Path(manifest['python']).is_absolute())
+        binding = manifest['qualification']
+        self.assertEqual(driver.bench.digest(binding['path']), binding['sha256'])
+        qualification = driver.bench.read(binding['path'])
+        self.assertEqual(qualification['host'], manifest['host'])
+        expected = qualification['environment']['packages']
+        self.assertEqual(expected['flash_attn'], '2.7.4.post1')
+        def remote_checked(command, *, env):
+            self.assertEqual(command[:3], [manifest['python'], '-B', '-c'])
+            self.assertEqual(env['CUDA_VISIBLE_DEVICES'], '')
+            code = "assert __import__('os').environ.get('CUDA_VISIBLE_DEVICES') == '';"+command[3]
+            remote = shlex.join(['env', 'CUDA_VISIBLE_DEVICES=', command[0], '-B', '-c', code])
+            return subprocess.check_output(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
+                manifest['host'], remote], text=True, stderr=subprocess.PIPE, timeout=25).strip()
+        started = time.monotonic()
+        with patch.object(driver.bench, 'checked', side_effect=remote_checked):
+            actual = driver.qualified_runtime_snapshot(manifest['python'], expected)
+        self.assertEqual(set(actual['packages']), set(driver.bench.PACKAGES) | set(expected))
+        for name, version in expected.items():
+            self.assertEqual(actual['packages'][name], version, name)
+        self.assertEqual(actual['packages']['flash_attn'], '2.7.4.post1')
+        self.assertEqual(driver.bench.digest(binding['path']), binding['sha256'])
+        type(self).real_runtime_receipt = {'host': manifest['host'], 'python': manifest['python'],
+            'manifest_path': str(manifest_path), 'manifest_sha256': driver.bench.digest(manifest_path),
+            'qualification': binding, 'actual': actual, 'all_pinned_versions_exact': True,
+            'CUDA_VISIBLE_DEVICES': '', 'query_seconds': time.monotonic()-started,
+            'GPU_probe_or_model_import': False, 'qualification_passed_here': False}
 
 
 class BudgetTests(unittest.TestCase):
@@ -343,7 +436,7 @@ class PhaseSelectionTests(unittest.TestCase):
                 def fake_receipt(value, *unused): return {'key': value['key'], 'role': value['role']}
                 with patch.object(sys, 'argv', args), patch.object(driver.bench, 'origin', side_effect=lambda c: natives[c['name']]), \
                      patch.object(driver.bench, 'immutable_source'), patch.object(driver.bench, 'checked', return_value='a'*40), \
-                     patch.object(driver.bench, 'runtime_snapshot', return_value={'packages': {}}), \
+                     patch.object(driver, 'qualified_runtime_snapshot', return_value={'packages': {}}), \
                      patch.object(driver.bench, 'acquire', return_value=None), patch.object(driver.bench, 'readiness', return_value={'CPU_mock': True}), \
                      patch.object(driver, 'storage_admission', return_value={'CPU_mock': True}), \
                      patch.object(driver, 'run_budgeted_job', return_value={'wall_seconds': 0.}) as run, \
@@ -449,7 +542,10 @@ class RecoveryTests(unittest.TestCase):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--report', type=Path)
+    parser.add_argument('--runtime-manifest', type=Path,
+                        help='Explicit bound zt3 manifest for one read-only CPU package metadata query')
     args = parser.parse_args()
+    QualifiedRuntimeTests.runtime_manifest = args.runtime_manifest
     started = time.monotonic()
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
@@ -457,7 +553,8 @@ def main():
     report = {'schema': 'native_driver_budget_CPU_receipt_v1', 'CPU_tests_passed': result.wasSuccessful(),
         'tests_run': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors),
         'seconds': time.monotonic()-started, 'GPU_jobs_launched': 0, 'qualification_passed': False,
-        'scope': 'CPU selected-phase/full-matrix planning, pending acceptance and selected budget/RNG scope; budget boundaries, actual CPU failed process receipt, real torchrun/trainer parser and recovery fixed endpoint; GPU numerical/recovery acceptance PENDING',
+        'scope': 'CPU qualified package union/default coverage, invalid-name and actual missing-metadata controls; optional explicit real zt3 CPU metadata receipt. Selected-phase/budget/recovery controls retained; GPU numerical/recovery acceptance PENDING',
+        'actual_CPU_runtime_query': QualifiedRuntimeTests.real_runtime_receipt,
         'source_sha256': {str(p.relative_to(ROOT)): driver.bench.digest(p) for p in sources},
         'training_source_sha256': driver.bench.digest(ROOT/'tools/structured_world/train_vla.py')}
     if args.report:

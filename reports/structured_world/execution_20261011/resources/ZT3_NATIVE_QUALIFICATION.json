@@ -1,0 +1,163 @@
+{
+  "schema": "full8_native_host_qualification_v2",
+  "passed": true,
+  "host": "training-vlawm-zt3",
+  "physical_gpu_UUIDs": [
+    "GPU-71d273a4-6963-571e-5622-b14c7741f843",
+    "GPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e",
+    "GPU-25bfdc05-c7ed-a2bf-7258-b75683cae239",
+    "GPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0",
+    "GPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee",
+    "GPU-fb40c365-cb97-457b-4112-53d4b5cd0d17",
+    "GPU-16ace1a1-9394-a10d-b928-a976ad91af56",
+    "GPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5"
+  ],
+  "environment": {
+    "packages": {
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0",
+      "deepspeed": "0.16.9",
+      "mmcv": "2.2.0",
+      "mmengine": "0.10.7",
+      "timm": "1.0.20",
+      "numpy": "1.26.4",
+      "flash_attn": "2.7.4.post1",
+      "omegaconf": "2.3.0"
+    },
+    "torch_cuda_runtime": "12.4",
+    "cudnn_version": 90100,
+    "NCCL_version": [
+      2,
+      21,
+      5
+    ]
+  },
+  "source": {
+    "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+    "git_SHA": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "clean": true,
+    "training_source_tree_sha256": "3334feb5872ad6f681caf6bfe21eb70b538aed27c0333b16953b7a7e66c88830",
+    "import_files": {
+      "tools.structured_world.train_vla": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "sha256": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87"
+      },
+      "starVLA.model.framework.vla_structured_fgtr": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/starVLA/model/framework/vla_structured_fgtr.py",
+        "sha256": "90538ddd1f68ea0ee429c8cc33e720298672080b09b4c4cf7749df4278f063dc"
+      },
+      "starVLA.dataloader.structured_world.dataset": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/starVLA/dataloader/structured_world/dataset.py",
+        "sha256": "0cd837a1eb860b9ba713683f6e58603e6e07602cfd145c99bd777a2b51b33496"
+      },
+      "starVLA.dataloader.structured_world.current_inputs": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/starVLA/dataloader/structured_world/current_inputs.py",
+        "sha256": "ca8980fa3bc7b36ae984bd50dd8ecb5a551db2d4281f39cda8e35b7143122c53"
+      },
+      "mmcv.cnn": {
+        "path": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/lib/python3.10/site-packages/mmcv/cnn/__init__.py",
+        "sha256": "6c8d408c8bb8f1e1dbadc5fcfefc87c5c351f337bc2e80cd896f0d6ca7f7c8a8"
+      },
+      "mmcv.ops": {
+        "path": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/lib/python3.10/site-packages/mmcv/ops/__init__.py",
+        "sha256": "5862e1fb29c68d9aefb40c7808483f50f2f1dcaa04cc146827b9c425674f4a2d"
+      },
+      "mmengine": {
+        "path": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/lib/python3.10/site-packages/mmengine/__init__.py",
+        "sha256": "a3f87418ee8b1836c8853e3cc2da9ca9e2cbd035c3ce3466ae8b8799a1dbe02d"
+      },
+      "timm": {
+        "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/timm/__init__.py",
+        "sha256": "9668df8ff48b33f846428cd7607399cf14b4f0feef157930eabf6defe932b1d3"
+      },
+      "deepspeed": {
+        "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/__init__.py",
+        "sha256": "b5c4b7797c761ef30baf7f3fa1f83ed910bd97d935b3702c617f93c89101ac95"
+      },
+      "transformers": {
+        "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/__init__.py",
+        "sha256": "ce74bbc573ec6060d601a86bf0914de819c3777213e0ba4527bc1cd53effe9a5"
+      },
+      "flash_attn": {
+        "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/flash_attn/__init__.py",
+        "sha256": "19de6aae2ed6ace6bd29a0fa45c1872da7302b308bc2461144d3152f1a287ab8"
+      }
+    },
+    "config": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+      "sha256": "ad2979f69d04e7c2e43fd115e3e4b7cff6dd645b3f9677521a334eeb84ae0c8b"
+    },
+    "old_scientific_native_training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  "CPU_record": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_resource_scout_20261011T090200Z/zt3_cpu_qualification_20261011T092540Z/records_v1/CPU_QUALIFICATION.json",
+    "sha256": "e283e48602583a23dbd26863c4da2d1c5f4b23cab275f7677dce7d5730389e42"
+  },
+  "actual_run": "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z",
+  "native_boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 25000,
+    "epoch": 7,
+    "exposure": 799944,
+    "identity": "4b9494355805d3404e818a359a44d8467782a0b4a99ee93cc7ffc32a04bc294b",
+    "offset": 2775,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "checkpoint_complete": {
+    "checkpoint_GPU_hours": 0.06945202297634549,
+    "completed": 25001,
+    "file_sha256": {
+      "mp_rank_00_model_states.pt": "05074d5a41a471b710f27053bba226b02cd562b73d8b23cbf1af3339908272d1",
+      "rng_rank0.pt": "f5f02e160f38de5d623f8882f7e1b3105947096b7fa7abe5079bd1de147e39fb",
+      "rng_rank1.pt": "2ac7884c53699cbc297c92a01bdaecf8cb4ffbb9ecc7bd1b25907fc2c6801689",
+      "rng_rank2.pt": "4fa3311b5834e40c4615a1418b85f6382a9108b019c6e5b9d695f62deae5dc28",
+      "rng_rank3.pt": "54e3fb36f129343d2d257ae87410497c801919592d6c079e68366abe7d0b096e",
+      "rng_rank4.pt": "f6ca3410b46080561bd31d58eb1754d1fdc0029ef7f74354653bb3c97ce46c2c",
+      "rng_rank5.pt": "35f82189de3a4e0b266bdbb3dd33b6ce3507bf5e8836951ce2223e47dd5cb773",
+      "rng_rank6.pt": "abbbf8721a6d35a6470b87af5dc4d0b8305b93017aefb53dfbb54713622bf5f6",
+      "rng_rank7.pt": "86b96e55d95fe2d0560eee591e73ebd53c8498f9f0573a455503fec2a177bbfe",
+      "zero_pp_rank_0_mp_rank_00_optim_states.pt": "14471d50a18a8cf48f75bffa7be7ddfe98e11dbb0c6aebfb8c1632ba1adf99a9",
+      "zero_pp_rank_1_mp_rank_00_optim_states.pt": "d687bff567065132a86a2d80e43d949095dae083c31a9a90a2d22d479a9f6bad",
+      "zero_pp_rank_2_mp_rank_00_optim_states.pt": "5463ad9fe5d563482a9a8bb975bd7969542a3b2d805fbe6c3f7f379363f18962",
+      "zero_pp_rank_3_mp_rank_00_optim_states.pt": "9a1c30f0f74db4ed464b7773de102cb77efec288490f7bf47d09c37821277751",
+      "zero_pp_rank_4_mp_rank_00_optim_states.pt": "fa1277e8e340b1ae746ca9adff2111171ac8c2aa76d4a0cc04eec14b9f6f726e",
+      "zero_pp_rank_5_mp_rank_00_optim_states.pt": "7d34e8c9fde0d31b5aed68cdd3f2978fc2f3a4c4c561367d171ead6b474d1647",
+      "zero_pp_rank_6_mp_rank_00_optim_states.pt": "a37dd446e7133939d2f488d6d1e2aada79e60029deb9641e17045edeea9da39c",
+      "zero_pp_rank_7_mp_rank_00_optim_states.pt": "145aebaa547f050789707aac46b504222a5c74e693f483a98a56aa524d7b4ddd"
+    },
+    "identity": "4b9494355805d3404e818a359a44d8467782a0b4a99ee93cc7ffc32a04bc294b",
+    "ranks": 8,
+    "save_seconds": 31.25341033935547,
+    "status": "COMPLETE",
+    "tag": "milestone_0025001"
+  },
+  "process_exit": {
+    "returncode": 0,
+    "wall_seconds": 150.058760039,
+    "pid": 3130171,
+    "native_boundary_observed_seconds": 110.804327875,
+    "monitor_error": null
+  },
+  "actual_GPU_hours": 0.33346391119777774,
+  "FP32_master_update_verified": true,
+  "completed": 25001,
+  "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "scientific_recipe": "full101592/global32/micro4/FM8/10step/native100k/warm5000",
+  "numerical_candidate_accepted": false,
+  "qualification_scope": "real all8 original IO native restore+optimizer update+17file native save; not optimized candidate numerical acceptance",
+  "previous_failed_run_preserved": "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_20261011T092540Z",
+  "verified_small_metadata_hashes": {
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/identity.json": "4dfa05a92156e58b57b82a54693ff278d14d14690ff2b3203401b9a24127d226",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/RESUME_BOUNDARY_VERIFIED.json": "96254f04f1616268dac1dff2e01279ff116fa59e585d1250c1d839c6b4f0dc81",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/PROCESS_EXIT.json": "5927891419e492a0175cf28705a7d7aa5f3a3dc648af62b178245979ecba2370",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/TRAINING_COMPLETE.json": "e4d00dea8cd276589739b4096fe6a2faf7d8f9fcefb4f35d0eeb4f2d9a9746a6",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/metrics.jsonl": "067e6fa1b1c33824b0f0762848833d259d4d94ea72d8a31baf6e69166044d13c",
+    "/var/tmp/structured-world-fgtr-execution-20261011/zt3_G1_mid_io_qualification_1update_v2_20261011T093714Z/checkpoints/milestone_0025001/COMPLETE.json": "4415496b6fac680eda8c3f6d9e60e553e86135d0c2421f9742cce6032fd018cc"
+  },
+  "metadata_correction": "Correct actual CPU receipt path; original GPU facts/payloads unchanged; first hostqualification metadata kept"
+}
