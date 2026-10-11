@@ -6,6 +6,11 @@
 [结果快照](snapshot_20261010_v1/MANIFEST.json)提供学习曲线、规划CSV、完整辅助指标
 和成对log聚类区间；运行资源与恢复状态单独登记。
 
+[2026-10-11部署记录](NAVSIM_RESOURCE_DEPLOYMENT_20261011.json)记录真实G0完整8卡
+准备、16步profile、8→16步native恢复和正式启动；
+[进程核验](G0_EIGHT_RANK_PROBE_20261011.json)确认正式训练的8个rank。
+[50k失败分解](NAVSIM_50K_FAILURE_BREAKDOWN_20261011.json)单列道路、碰撞和分项转移。
+
 This branch contains executable code and real data/training/deployment checks.
 **The results snapshot captured on 2026-10-10 contains NAVSIM G3's complete 50k
 development observation while training continues toward the registered 100k endpoint.

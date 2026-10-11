@@ -162,6 +162,15 @@ G3−V_QUERY为−1.1697点，区间[−2.7545,0.4058]。
 相对S0修复16个零分，却新增30个零分。当前均值落后，区间宽且跨0，
 既不能宣称超越，也不能把“不显著”理解为已经证明等效。
 
+对实际canonical逐场景分项进一步检查：G3最终62个零分中，48个为
+道路合规乘法项归零、13个为责任碰撞项归零、1个同时碰撞与方向项归零。
+相对q0修复的26个零分中25个来自道路；但新增4个道路零分和2个碰撞零分。
+相对S0新增的30个零分中26个来自道路、4个含碰撞，而修复的16个中
+只有12个道路失败。这说明目前主要缺口仍是道路失败覆盖，修正的平均道路收益
+没有达到历史S0的稳定性。TTC有6个改善、8个退化，也需要单独检查。
+这些是评价器结果分解，尚不是“辅助标签导致失败”的因果解释。
+[逐分项失败转移数据](NAVSIM_50K_FAILURE_BREAKDOWN_20261011.json)保留全部计数。
+
 G3 25k→50k：PDMS90.0320→90.1987，道路MAE0.8799→0.7873m，
 固定车身道路余量MAE0.3023→0.2614m，占用剖面MAE0.1330→0.1215，
 enter recall0.2066→0.2234。空间表示仍在学习，但辅助误差下降没有同时带来
@@ -206,4 +215,13 @@ bash tools/structured_world/export_round1_snapshot_20261010.sh /mnt/project/roun
 
 该命令读取当前已保存的native边界，重新运行时可能捕获更晚训练状态；
 本次提交的snapshot及其hash保持不变。
+
+仅根据已有canonical结果重算上述失败分解：
+
+```bash
+python tools/structured_world/analyze_navsim_failure_transfer.py \
+  --snapshot-manifest reports/structured_world/round1_20261008/snapshot_20261010_v1/MANIFEST.json \
+  --output /mnt/project/navsim-50k-failure-breakdown-new.json
+```
+
 [归档与新增工具验证记录](ARCHIVE_VALIDATION_20261011.json)保留执行过的检查及范围。
