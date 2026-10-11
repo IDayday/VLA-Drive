@@ -1,0 +1,94 @@
+{
+  "schema": "zt3_readonly_CPU_comparison_health_snapshot_v1",
+  "UTC": "2026-10-11T11:47:54.879626+00:00",
+  "comparison_state": "NOT_LAUNCHED",
+  "completed_native_comparisons": 0,
+  "planned_comparisons": 5,
+  "comparator_PID": null,
+  "comparison_outputs": [],
+  "LAUNCH_record_exists": false,
+  "PLAN_execution_record_exists": false,
+  "coordinator_exec_session": 84005,
+  "coordinator_exit": 1,
+  "coordinator_failure": {
+    "error": "AssertionError('Origin transport failed; no comparator launched')",
+    "UTC": "2026-10-11T11:42:25.122181+00:00",
+    "sources_banks_preserved": true,
+    "GPU_jobs_launched": 0
+  },
+  "currently_matching_local_coordinator_or_transfer_processes": 0,
+  "remote_tar_process_exit_unverified": "SSH unavailable; do not infer remote process exit from local transport failure. Comparator setup never executed.",
+  "origin_transfer_attempt": {
+    "began_UTC": "2026-10-11T11:40:31.004240+00:00",
+    "failed_UTC": "2026-10-11T11:42:25.122181+00:00",
+    "source": "zt4 local /var/tmp immutable origin25000",
+    "target": "zt3 OWN new local origin_G1 artifact",
+    "planned_bytes": 45396049056,
+    "actual_bytes_transferred": "UNKNOWN",
+    "target_stderr": "client_loop: send disconnect: Broken pipe",
+    "large_shared_NFS_payload_IO": false,
+    "copied_payloads_integrity_qualified": false,
+    "partial_copy_preserved": true
+  },
+  "captured_readiness_before_failure": {
+    "all_three_endpoints": 25500,
+    "capture_offsets": [
+      1,
+      32,
+      100,
+      250,
+      500
+    ],
+    "banks": 15,
+    "payload_files_each": 17,
+    "file_inventory_and_COMPLETE_present": true,
+    "full_tensor_comparison": false
+  },
+  "RAM": {
+    "last_verified_UTC": "2026-10-11T11:29:01Z",
+    "MemTotal_KiB": 1055924788,
+    "MemAvailable_KiB": 905689016,
+    "MemAvailable_GiB": 863.7323532104492,
+    "at_disconnect_or_current": "UNKNOWN; SSH refused",
+    "comparator_tensor_mmap_or_load_started": false,
+    "file_transfer_page_cache_peak": "NOT_MEASURED",
+    "cause": "No supported restart/OOM/causal conclusion from available evidence"
+  },
+  "local_disk_before_copy": {
+    "free_bytes": 460357222400,
+    "free_GiB": 428.74107360839844,
+    "not_RAM": true
+  },
+  "SSH": "Connection refused in repeated read-only checks through current snapshot",
+  "restart_audit": "Existing service-account GET service/endpoints both HTTP403; restart/boot/OOM/G3 active PID cannot be established. No permission bypass attempted.",
+  "planned_first_comparison_argv": [
+    "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+    "-B",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/compare_execution_checkpoints.py",
+    "--reference",
+    "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/A/checkpoints/milestone_0025001",
+    "--reference-replay",
+    "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/AA/checkpoints/milestone_0025001",
+    "--candidate",
+    "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/B/checkpoints/milestone_0025001",
+    "--origin",
+    "/var/tmp/structured-world-fgtr-execution-20261011/cpu_native_G1_comparison_20261011T1135Z/origin_G1/checkpoints/milestone_0025000",
+    "--threads",
+    "2",
+    "--chunk-elements",
+    "262144",
+    "--output",
+    "/var/tmp/structured-world-fgtr-execution-20261011/cpu_native_G1_comparison_20261011T1135Z/comparison_1.json"
+  ],
+  "planned_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2"
+  },
+  "next_action": "No heavy IO/CPU or GPU dispatch until host health established and parent steering; no automatic retry of this transport or any comparison.",
+  "actual_GPU_jobs_launched_here": 0,
+  "training_or_bank_mutations": false,
+  "signals_sent": false,
+  "sources_and_old_banks_preserved": true
+}

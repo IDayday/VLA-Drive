@@ -1,0 +1,56 @@
+{
+  "schema": "E3_endpoint500_CPU_prep_summary_v1",
+  "state": "FROZEN_PROSPECTIVE_DIAGNOSTIC_PENDING_ADMISSION",
+  "binding": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_E3_endpoint_prep_20261011T1140Z/PROSPECTIVE_BINDING_PREPARED_V1.json",
+    "sha256": "1e3f0ddda2578ce748663bc2cc13b1525178e343248ce3e22f3456135c96d497"
+  },
+  "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "trainer_sha256": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+  "groups": [
+    "G1",
+    "G3"
+  ],
+  "candidate": "precision_fast",
+  "origin_global_updates": [
+    25000,
+    50000
+  ],
+  "continuous_updates_each": 500,
+  "controls": "Actual same-origin/source/science A/AA500; G1 complete, G3 pending before dispatch. All500/all8 count/horizon/scene equivalence still requires receipts.",
+  "captures_relative": [
+    500
+  ],
+  "planned_new_banks": 2,
+  "storage_owned_cap_GiB": 92,
+  "metadata_headroom_per_run_GiB": 1,
+  "reserve_GiB": 100,
+  "physical_free_before_each_save_min_GiB": 145,
+  "missing_original_captures": [
+    1,
+    32,
+    100,
+    250
+  ],
+  "formal_acceptance_limitation": "Only endpoint comparison eligible. Original five-point native/OLS/drift, recovery, other required cases and paired full canonical dev gates stay missing/PENDING. This pilot cannot confer formal E3 acceptance or satisfy every-boundary ceilings. No old strict failure reclassified.",
+  "precision_declaration": {
+    "base_precision": "Locked origin scientific comparison contract, not actual E3 compute",
+    "actual_compute": "FP32 parameters/master/optimizer/gradient communication; BF16 Qwen vision/language+original action compute and Geo R50/FPN/BEV backbone+neck convolutions; FP32 DepthNet/view/projection/grid_sample/loss/refiner; TF32 off; canonical FP32 bypass",
+    "SyncBN": "Same module dtype/population/counter required; floating statistics may differ under E3, no E2 exact claim"
+  },
+  "original_preregistration_hash": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+  "parser_and_native_capture_CPU_validation": {
+    "passed": true,
+    "real_be5_argparse": true,
+    "torchrun8": true,
+    "captures_only_500": true,
+    "GPU_jobs_launched": 0
+  },
+  "actual_GPU_jobs_launched": 0,
+  "thresholds_or_P0_guard_changed": false,
+  "passed": false,
+  "formal_authorized": false,
+  "trainer_consumable": false,
+  "no_original_banks_deleted": true,
+  "budget_actual_binding": "PENDING parent prospective finite phase/actual/reserved snapshot; user cap null, internal total140 not driver default; no automatic dispatch."
+}

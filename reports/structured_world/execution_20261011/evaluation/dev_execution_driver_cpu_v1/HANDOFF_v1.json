@@ -1,0 +1,187 @@
+{
+  "schema": "execution_dev_CPU_handoff_v1",
+  "created_UTC": "2026-10-11T11:52:37.259834+00:00",
+  "source_stable": true,
+  "author_stopped_editing": true,
+  "files": [
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_execution_dev.py",
+      "sha256": "d272cfeffa893a6faf2f9baa04d0bde5936552c5b88ae9b74a277a36cc1e3117"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_run_execution_dev.py",
+      "sha256": "d1f79ad4ab0f61503387e070538dc8b94c99e301778406a432655c71115ddacf"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_execution_dev.README.md",
+      "sha256": "4f5c8e8c2f15c8a422842f3537d11daae2eda98d5fdd2b21fd1901945c03ab6d"
+    }
+  ],
+  "CPU_receipt": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/CPU_TEST_v3.json",
+    "sha256": "c5115baf5ca129d4c84b658ca7dc9e0ad2a51074e39f75dfaa761500a6fd618a"
+  },
+  "CPU_tests": {
+    "schema": "execution_dev_CPU_contract_v1",
+    "passed": true,
+    "tests_run": 14,
+    "failures": 0,
+    "errors": 0,
+    "wall_seconds": 1.7869085390120745,
+    "torch_imported": false,
+    "GPU_jobs_started": 0,
+    "scoring_jobs_started": 0,
+    "owned_CPU_child_processes_only": true,
+    "fixture_outputs_are_scientific_evidence": false,
+    "source_files": [
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_execution_dev.py",
+        "sha256": "d272cfeffa893a6faf2f9baa04d0bde5936552c5b88ae9b74a277a36cc1e3117"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_run_execution_dev.py",
+        "sha256": "d1f79ad4ab0f61503387e070538dc8b94c99e301778406a432655c71115ddacf"
+      }
+    ],
+    "canonical_source_git_SHA": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  "actual_data_binding": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/DATA_BINDING_v1.json",
+    "sha256": "1e3a58cb9184b57de0e30190bcd0dd6d3cb302af69d809f25666d7bc76bcf853"
+  },
+  "manifest": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/MANIFEST_P0_v1.json",
+    "sha256": "98173561c87db00d8be12bc36db8ac0c6bb850608cc2507cdd18ea1384cd8b66"
+  },
+  "CLI_plan": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/CLI_PLAN_v1/PLAN.json",
+    "sha256": "411d5351e8bf6f26e72c09b0519f8b83578c0a1c0615d0625048b7ade2db1feb"
+  },
+  "canonical_model_infer_scorer_source_git_SHA": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "native_training_source_git_SHA": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "benchmark_helper_sha256": "d358f6969dd78828e705c19f5307c9d26f76b15f37aaadb35930b8cbeb66edee",
+  "CLI": {
+    "plan": "CUDA_VISIBLE_DEVICES= /usr/bin/python3 -B FROZEN_DRIVER_ROOT/tools/structured_world/run_execution_dev.py --manifest /mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/MANIFEST_P0_v1.json --output NEW_OUTPUT",
+    "later_inference": "After actual parent admission: same CLI plus --execute --phase infer --groups G1 --populations dev128 --gpu-uuids SELECTED_FULL_UUID_MASK on the actual native host",
+    "later_cpu_scoring": "Same CLI --execute --phase score --inference-results-root EARLIER_INFER_OUTPUT/results --groups G1 --populations dev128 on the registered score host, NEW output",
+    "tests": "CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 /tmp/structured-world-round1/envs/qwen/bin/python -B tools/structured_world/test_run_execution_dev.py --receipt NEW_CPU_RECEIPT"
+  },
+  "prepared_routes": [
+    {
+      "group": "G1",
+      "role": "A",
+      "completed": 25500,
+      "tag": "milestone_0025500",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/A",
+      "mode": "io_preserving_v1",
+      "native_host": "training-vlawm-zt3"
+    },
+    {
+      "group": "G1",
+      "role": "AA",
+      "completed": 25500,
+      "tag": "milestone_0025500",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/AA",
+      "mode": "io_preserving_v1",
+      "native_host": "training-vlawm-zt3"
+    },
+    {
+      "group": "G1",
+      "role": "B",
+      "completed": 25500,
+      "tag": "milestone_0025500",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt3_v1/G1_mid/B",
+      "mode": "engineering_fast",
+      "native_host": "training-vlawm-zt3"
+    },
+    {
+      "group": "G3",
+      "role": "A",
+      "completed": 50500,
+      "tag": "milestone_0050500",
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/native_zt3_v1/G3_mid/A",
+      "mode": "io_preserving_v1",
+      "native_host": "training-vlawm-zt3"
+    },
+    {
+      "group": "G3",
+      "role": "AA",
+      "completed": 50500,
+      "tag": "milestone_0050500",
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/native_zt3_v1/G3_mid/AA",
+      "mode": "io_preserving_v1",
+      "native_host": "training-vlawm-zt3"
+    },
+    {
+      "group": "G3",
+      "role": "B",
+      "completed": 50500,
+      "tag": "milestone_0050500",
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/native_zt3_v1/G3_mid/B",
+      "mode": "engineering_fast",
+      "native_host": "training-vlawm-zt3"
+    }
+  ],
+  "qualified_pool_not_current_admission": [
+    "GPU-71d273a4-6963-571e-5622-b14c7741f843",
+    "GPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e",
+    "GPU-25bfdc05-c7ed-a2bf-7258-b75683cae239",
+    "GPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0",
+    "GPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee",
+    "GPU-fb40c365-cb97-457b-4112-53d4b5cd0d17",
+    "GPU-16ace1a1-9394-a10d-b928-a976ad91af56",
+    "GPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5"
+  ],
+  "full1696_receipt_mapping": {
+    "variants": [
+      "q0",
+      "q_final"
+    ],
+    "index": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+      "sha256": "ae54da4e46ee2b2c62d633b57da95d62b8fcc2921c1d1f15c17d0754e9b12069"
+    },
+    "protocol": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/P0_V1_DEV_PROTOCOL.json",
+      "sha256": "4ea76c7dc6a4bab5338c61d2fa63701ed511d0f11347dfc3bbf6ad2a66c38841"
+    },
+    "banks": "Actual DEV_RECEIPT.scores.banks CSV/summary refs per A/AA/B; original V1 requires actual +500 native comparator checkpoint ancestry, not manifest facts",
+    "canonical_dev_producer_SHA256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+    "wrapper_hash": "Separate execution-sidecar provenance, not replacement of existing819 native/forward/dev bindings"
+  },
+  "P0_observer_unchanged_files": [
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_p0_execution_numerics.py",
+      "sha256": "9c03229e16e4c055724e569c0d76b3138dfad6a99c1e10a08139a2de4ba99919"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_validate_p0_execution_numerics.py",
+      "sha256": "3dbd23a8553c651198144c06312e51e855ab6bd05ebdbb3ea4515dc0e3673c80"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_p0_execution_numerics.README.md",
+      "sha256": "a8d955395e15a5e98ca5268de023441acf90843257c3af636da04a8715ee2e2b"
+    }
+  ],
+  "P0_observer_parent_frozen_commit": "6d16abf207877340afd36ecca58e6f1904d37d02",
+  "P0_observer_parent_binding_sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799",
+  "GPU_jobs_started": 0,
+  "canonical_scoring_jobs_started": 0,
+  "owned_CPU_synthetic_fixture_children": 4,
+  "weights_loaded_or_copied": false,
+  "new_checkpoint_completion_claims": false,
+  "automatic_acceptance": false,
+  "limits": [
+    "14 tests are CPU contract/owned-fixture verification, not GPU parity/performance/scientific scoring evidence",
+    "Initial CPU v1 fixture failed because synthetic CSV contained cache_path not in columns; fixed fixture only, failed receipt retained",
+    "Parent reported zt3 SSH interruption 11:42; no remote query, GPU dispatch, signal or retry by this helper author",
+    "Freeze new driver commit/root before later --execute; actual resource/CPU/runtime/endpoint checks precede each child",
+    "Repeated selected-GPU admission rejects compute apps and insufficient explicit free memory; no process classification or preemption",
+    "Pool lock is backward compatible but conservatively serializes cooperating dev subsets; full idle8 is not a device admission condition",
+    "Whole PROCESS wall cost uses actual selected device count and includes startup/native restore/hash/exit; failed child costs retained",
+    "Canonical original scorer starts only after complete prediction bank; no new streaming platform or weight exporter",
+    "Host RAM/GPU peak/CPU spare capacity and cross-host file visibility need actual parent admission; manifest40000MiB/12workers are explicit planning guards",
+    "E3 reuse requires actual bound complete IO A/AA DEV_RECEIPTs and actual B500 path; no references invented",
+    "No model/trainer/reviewer/source math edits, no old strict/threshold/failure changes, no commit, no private environment report"
+  ]
+}
