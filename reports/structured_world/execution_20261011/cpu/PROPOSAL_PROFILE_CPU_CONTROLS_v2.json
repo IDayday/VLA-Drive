@@ -1,0 +1,22 @@
+{
+  "schema": "proposal_standalone_profile_CPU_controls_v1",
+  "created_UTC": "2026-10-11T07:45:01.328857+00:00",
+  "passed": true,
+  "tests_run": 4,
+  "test_seconds": 1.533,
+  "CUDA_initialized": false,
+  "GPU_launched": false,
+  "source_sha256": {
+    "tools/structured_world/profile_proposal_execution.py": "a8caed3c6ff8b87237b927858b7bc17ea22d8cb469c18b6a554ecdc450c0c997",
+    "tools/structured_world/test_profile_proposal_execution.py": "3b2a5c0fa7ebee38934a64c0861a7881c258c6e50774fe32847390134af33a78"
+  },
+  "checks": [
+    "default balanced 60 warm and 150 timed calls per mode; IO/KV order alternates in three windows",
+    "four medians and >=20ms gate must pass every window",
+    "head digest binds tensor names, shape, dtype and exact bytes including signed zero",
+    "actual tiny native ten-step head opt-in cache preserves q0, inventory and head bytes"
+  ],
+  "self_test_no_model_import": "passed",
+  "limit": "CPU controls only; trained checkpoint construction, CUDA events and standalone real GPU timing are not executed; GPU admission belongs to parent",
+  "rerun_after_single_visible_GPU_guard": true
+}
