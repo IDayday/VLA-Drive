@@ -1,0 +1,524 @@
+{
+  "schema": "execution_acceptance_CPU_validation_v1",
+  "passed": true,
+  "tests_run": 22,
+  "controls": [
+    {
+      "test": "test_E3_declares_float_BN_difference_and_cannot_be_E2",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_E3_declares_float_BN_difference_and_cannot_be_E2",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: receipt tier"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_E3_declares_float_BN_difference_and_cannot_be_E2",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: BF16 bypass does not qualify E3"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_P0_does_not_inherit_timevec_forward_allowance",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Mode-specific exact forward checks failed"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_P0_exact_claim_cannot_hide_original_trajectory_strict_failure",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: P0 exact checks contradict original q0/q_final bitwise failure"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_absent_evidence_and_template_stay_pending",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 1
+    },
+    {
+      "test": "test_bn_has_no_optimizer_group_and_inventory_omission_rejects",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_bn_has_no_optimizer_group_and_inventory_omission_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Incomplete native tensor categories"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_candidate_started_before_freeze_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Retrospective receipt is not an eligible trial"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_complete_synthetic_chain_only_qualifies_for_review_never_trainer",
+      "decision": "evidence_complete_for_review",
+      "failures": [],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_complete_synthetic_chain_only_qualifies_for_review_never_trainer",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Dev lacks actual matching +500 native comparison"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_every_actual_receipt_required_even_if_one_step_passes",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_fresh_AA_envelope_and_absolute_ceilings",
+      "decision": "not_supported",
+      "failures": [
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope"
+      ],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_fresh_AA_envelope_and_absolute_ceilings",
+      "decision": "not_supported",
+      "failures": [
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/all/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/all/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/all/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): BN_float/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/all/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): master_FP32/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/all/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/relative_L2: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "('native', 'G1', 'mid', 0, 1): model_FP32/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope"
+      ],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_modified_payload_hash_and_unverified_native_reject",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Evidence hash mismatch: /tmp/tmp2w0jyf6c/native_G1_mid_0_1_comparison.json"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_modified_payload_hash_and_unverified_native_reject",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Unverified/partial native comparison"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_native_metadata_recheck_catches_false_header_source_claim",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: native complete source-file inventory hash"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_no_recompute_always_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: No-recompute remains rejected"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_old_strict_failures_stay_false_with_new_numeric_candidate",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_phase_receipts_cannot_switch_native_chain_identity",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: native run identity"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_recovery_boundary_must_be_bitwise",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_recovery_boundary_must_be_bitwise",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Native restore boundary must be bitwise exact"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_timevec_cannot_raise_old_module_tolerance",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Fixed module atol"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_timevec_normalized_L2_is_independent_of_elementwise_gate",
+      "decision": "not_supported",
+      "failures": [
+        "('forward', 'G1', 'mid', 0, 0): Bt/A_B: registered module FP32 tolerance"
+      ],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_timevec_uses_fixed_tolerance_keeps_original_bitwise_failure",
+      "decision": "pending",
+      "failures": [],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_timevec_uses_fixed_tolerance_keeps_original_bitwise_failure",
+      "decision": "not_supported",
+      "failures": [
+        "('forward', 'G1', 'mid', 0, 0): A_B: physical q_final position error above 1e-4m"
+      ],
+      "missing_or_inconclusive": 27
+    },
+    {
+      "test": "test_wrong_environment_source_data_or_ancestry_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: all role source/environment/science/ancestry facts"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_wrong_environment_source_data_or_ancestry_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: all role source/environment/science/ancestry facts"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_wrong_environment_source_data_or_ancestry_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: all role source/environment/science/ancestry facts"
+      ],
+      "missing_or_inconclusive": 0
+    },
+    {
+      "test": "test_wrong_environment_source_data_or_ancestry_rejects",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: all role source/environment/science/ancestry facts"
+      ],
+      "missing_or_inconclusive": 0
+    }
+  ],
+  "wall_seconds": 1.8107867073267698,
+  "source_sha256": {
+    "script": "a4effc9b1e56ea6787de9e37bb57cffb2c83b87f7543e78c04569e01b2e34c55",
+    "tests": "5f61bc1226392e4a95eafedec612c7f284ea8eca2695178763276bba46803572",
+    "registration": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "scope": "CPU synthetic receipt validation only. No actual model/native/dev acceptance; no GPU jobs or trainer/guard edits.",
+  "GPU_jobs_started": 0,
+  "actual_candidate_qualified": false,
+  "errors": [],
+  "failures": []
+}

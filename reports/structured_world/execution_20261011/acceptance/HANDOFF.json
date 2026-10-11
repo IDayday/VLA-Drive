@@ -1,0 +1,112 @@
+{
+  "created_utc": "2026-10-11T07:57:01.364146+00:00",
+  "worktree": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011",
+  "state": "STABLE_SOURCE_HANDOFF; proposed pilot criteria, actual acceptance PENDING",
+  "source_files_sha256": {
+    "reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+    "tools/structured_world/evaluate_execution_acceptance.py": "a4effc9b1e56ea6787de9e37bb57cffb2c83b87f7543e78c04569e01b2e34c55",
+    "tools/structured_world/test_execution_acceptance.py": "5f61bc1226392e4a95eafedec612c7f284ea8eca2695178763276bba46803572"
+  },
+  "CPU_tests": {
+    "passed": true,
+    "tests_run": 22,
+    "recorded_controls": 30,
+    "wall_seconds": 1.8107867073267698,
+    "receipt": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/CPU_QUALIFICATION.json",
+    "receipt_sha256": "47d8d524aaa344670a15293906c280f1c73c8ea0c7b098aa9703b2726e082df0",
+    "synthetic_only": true
+  },
+  "criteria_frozen_before_v3_AB_message": {
+    "registration_sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+    "last_criteria_update_utc": "2026-10-11T07:49:14.949820+00:00",
+    "numeric_values_unchanged_since_reported_v3_AB": true,
+    "not_a_claim_of_external_signed_timestamp": true
+  },
+  "prospective_scope": "Future native optimizer update/500-step continuation/recovery/full canonical dev acceptance. The already observed v3 same-input probe is not retroactively qualified; its old strict=False remains. Any existing forward probes are background only unless their actual candidate execution postdates a prospectively frozen applicable binding.",
+  "protected_original_files_match": {
+    "tools/structured_world/train_vla.py": true,
+    "tools/structured_world/compare_execution_checkpoints.py": true,
+    "tools/structured_world/validate_execution_equivalence.py": true
+  },
+  "no_recompute": "loss_preserving_v1/no_recompute always reject; old formal guards unchanged",
+  "P0": "same-input q0/Bt/q_final/loss/RNG/BN exact; old native strict stays false when it fails",
+  "timevec": "q0/RNG/same-input BN exact; complete FP32 module atol1e-6+rtol1e-4, normalized relL2<=1e-4 and physical q_final max Euclidean position difference <=1e-4m. No post-result threshold widening.",
+  "E2": "Every full numeric scope/category at every boundary must meet BOTH a fresh AA 1.25 envelope plus registered fixed floors and tier absolute ceilings. Update norm/direction and normalized excess slope are separate guards. AA controls must themselves meet ceilings.",
+  "E3": "BF16 activation/float BN may differ, declared explicitly; separate approximate-pilot ceilings, actual native BF16 exercised and canonical FP32 bypass required. Never E2 bitwise BN claim.",
+  "dev": {
+    "population": "dev",
+    "scenes": 1696,
+    "logs": 16,
+    "precision": "FP32",
+    "sampling_seed": 42,
+    "candidate_count": 1,
+    "proposal_steps": 10,
+    "variants": [
+      "q0",
+      "q_final"
+    ],
+    "roles": [
+      "A",
+      "AA",
+      "B"
+    ],
+    "canonical_inference_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "protocol_bindings": [
+      "input_identity",
+      "calibration_axis_sha256",
+      "metric_index_sha256",
+      "scoring_version",
+      "backend_source_sha256",
+      "backend_environment_sha256"
+    ],
+    "metrics": {
+      "PDMS": "score",
+      "NC": "no_at_fault_collisions",
+      "DAC": "drivable_area_compliance",
+      "TTC": "time_to_collision_within_bound",
+      "EP": "ego_progress",
+      "comfort": "comfort",
+      "DDC": "driving_direction_compliance"
+    },
+    "noninferiority_margins_points": {
+      "PDMS": 0.1,
+      "NC": 0.1,
+      "TTC": 0.1
+    },
+    "mean_guard_metrics": [
+      "PDMS",
+      "NC",
+      "TTC"
+    ],
+    "bootstrap": {
+      "unit": "log",
+      "replicates": 20000,
+      "seed": 42,
+      "weighting": "Pooled sampled log sums divided by sampled scene counts",
+      "one_sided_family_alpha": 0.05,
+      "simultaneous_endpoints": 48,
+      "lower_quantile": 0.0010416666666666667,
+      "family": "2 groups x 2 variants x 2 references x 3 guard metrics x max 2 prospectively registered candidates"
+    },
+    "rule": "At +500 BOTH q0 and q_final B-A and B-AA mean deltas AND simultaneous one-sided log-bootstrap lower bounds must be >= -margin for PDMS/NC/TTC. ALL rows must be finite/ok and independently match exact 1696 token/log index; summaries must match CSV means. q_final-q0 gain is diagnostic, cannot hide either variant regression.",
+    "inconclusive": "A mean within margin but CI below margin remains pending; a mean below margin rejects. No widening margins after seeing receipts. Only 16 logs, one training seed; no long-run or Navtest claim.",
+    "full_canonical_gate": "No sampled dev proxy can satisfy completion; all 1696 rows, all 16 logs and both variants mandatory."
+  },
+  "CLI": {
+    "template": "CUDA_VISIBLE_DEVICES='' python -B tools/structured_world/evaluate_execution_acceptance.py --write-binding-template /NEW/BINDINGS.json",
+    "review": "CUDA_VISIBLE_DEVICES='' python -B tools/structured_world/evaluate_execution_acceptance.py --bindings /FROZEN/BINDINGS.json --receipt /ACTUAL/receipt1.json --receipt /ACTUAL/receipt2.json --output /NEW/advisory.json",
+    "CPU_tests": "CUDA_VISIBLE_DEVICES='' python -B tools/structured_world/test_execution_acceptance.py --output /NEW/CPU.json"
+  },
+  "binding_hash_semantics": "Sources.files_sha256 is the full native source_hashes() Python-file inventory, hashed with json.dumps(sort_keys=True). science.config_sha256 uses the same canonical JSON serialization of native identity.config. E1 verifies small hash-bound identity/COMPLETE/groups metadata independently of outer receipt claims; large model/master/Adam payload reductions remain solely in the frozen comparator.",
+  "producer_integration": "This sidecar adds no GPU receipt producer or trainer hookup. Parent must supply actual hash-bound forward/native/recovery/dev receipts; missing evidence remains pending. Native receipt source/tool hash is pinned to the frozen comparator. Fresh complete gradient norm stats are required, so old ratio-only summaries cannot satisfy it.",
+  "all_synthetic_pass_outputs_still": {
+    "passed": false,
+    "accepted_mode": null,
+    "formal_authorized": false,
+    "trainer_consumable": false
+  },
+  "GPU_jobs_started": 0,
+  "modified_existing_model_trainer_or_validator": false,
+  "committed": false,
+  "pushed": false
+}
