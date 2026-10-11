@@ -95,8 +95,11 @@ def build_plan(manifest, output):
             '--nnodes=1', '--nproc_per_node=8', '--max_restarts=0', '--', str(PRODUCER/REL)]+args
         job['CPU_preflight_command'] = [manifest['python'], '-B', str(PRODUCER/REL)]+args+['--preflight']
         jobs.append(job)
+    prefix = observed_prefix(manifest, jobs, output) if 'observed_prefix' in manifest else None
+    if prefix: jobs[0] = prefix['job']
     budget = phase_budget(manifest, jobs)
     return {'schema': 'p0_fullgradient_coordinator_plan_v1', 'jobs': jobs, 'forward_slots': 12,
+        'observed_prefix': prefix, 'new_GPU_jobs': 11 if prefix else 12,
         'fullgradient_source_binding': new_ref, 'original_forward_source_binding': ref(manifest['source_binding']),
         'producer_git_SHA': PRODUCER_GIT, 'producer_sha256': PRODUCER_SHA, 'native_budget': budget,
         'driver_sha256': bench.digest(__file__), 'GPU_jobs_started': 0, 'passed': False, 'formal_authorized': False,
@@ -183,6 +186,24 @@ def classify_forward_context(job, b, binding):
         'forward_exact_observed': True, 'passed': False, 'formal_authorized': False}
 
 
+def combine_in_inventory_order(records, expected_hash):
+    """Restore producer insertion order after sort_keys JSON; never edit raw rows.
+
+    746 builds tensors in optimizer-group order (expected_trainable_inventory).
+    Its stable worst_tensors sort preserves that order for ties, including zero
+    gradients. Numeric statistics and the final comparison remain exact.
+    """
+    ordered = []
+    for record in records:
+        value = record['fullgrad']; expected = value['expected_trainable_inventory']
+        names = [row[0] for row in expected]
+        require(full.metadata_hash(expected) == expected_hash
+                and names == [n for g in value['optimizer_groups'] for n in g['names']]
+                and len(names) == len(set(names)) and set(names) == set(value['tensors']), 'Producer tensor order/inventory differs')
+        ordered.append({**record, 'fullgrad': {**value, 'tensors': {n: value['tensors'][n] for n in names}}})
+    return full.combine_gradients(ordered, expected_hash)
+
+
 def classify(job):
     b, binding = checked_binding(job['fullgradient_source_binding'], job['source_binding'])
     observed = classify_forward_context(job, b, binding)
@@ -235,7 +256,7 @@ def classify(job):
                         and all(row[k] >= 0 for k in ('reference_square', 'candidate_square', 'difference_square', 'max_absolute'))
                         and all(type(row[k]) is int and 0 <= row[k] <= count for k in ('bit_different_elements', 'fixed_numeric_violations')), 'Nonfinite/incomplete raw gradient statistics')
         require(all(sum(math.prod(shapes[n]) for n in g['names']) == g['elements'] for g in groups), 'Optimizer group elements drift')
-    recomputed = full.combine_gradients(records, case['gradient_inventory_sha256'])
+    recomputed = combine_in_inventory_order(records, case['gradient_inventory_sha256'])
     require(report['comparisons'] == recomputed['comparisons'] and set(report['comparisons']) == forward.PAIRS, 'Aggregate full-gradient statistics differ')
     frozen = datetime.fromisoformat(b['frozen_UTC'].replace('Z', '+00:00'))
     prepared = datetime.fromisoformat(proto['created_UTC'].replace('Z', '+00:00'))
@@ -245,6 +266,81 @@ def classify(job):
         'P0_FULL_GRADIENT_COMPARISON': ref(path), 'fullgradient_source_binding': binding,
         'full_parameter_AA_B_gradients_captured': True, 'gradient_numeric_acceptance': 'PENDING independent unchanged V1 review',
         'old_bindings_reinterpreted': False, 'passed': False, 'formal_authorized': False}
+
+
+def observed_prefix(manifest, jobs, output):
+    """Explicit reuse of just the first actual869 slot; no worker retry or launch.
+
+    All raw receipts, old failure/source and runtime qualification are pinned.
+    The old full phase must contain no second started/partial slot. Reclassify
+    the complete direct three-pair report on CPU and retain its actual charge.
+    """
+    request = manifest['observed_prefix']; root = Path(request['output']).resolve()
+    require(root != Path(output).resolve() and not root.is_relative_to(Path(output).resolve())
+            and not Path(output).resolve().is_relative_to(root), 'Prefix requires separate NEW output')
+    files = request['files']
+    first = 'G1_initial_repeat0/'
+    paths = {'plan': 'PLAN.json', 'manifest_binding': 'MANIFEST_BINDING.json', 'registration': 'REGISTRATION.json',
+        'failure': 'FAILURE.json', 'probe': first+'PROBE.json', 'incomplete': first+'INCOMPLETE.json',
+        'process': first+'process/PROCESS.json', 'process_exit': first+'process/PROCESS_EXIT.json',
+        'cpu_preflight': first+'CPU_PREFLIGHT.json', 'resource_gate': first+'RESOURCE_GATE.json',
+        'fullgradient': first+'observed/P0_FULL_GRADIENT_COMPARISON.json',
+        'forward': first+'observed/P0_FORWARD_COMPARISON.json', 'strict': first+'observed/strict/COMPLETE.json'}
+    require(set(files) == set(paths) | {'manifest', 'old_coordinator'}, 'Explicit complete prefix receipt hashes required')
+    for name, relative in paths.items():
+        require(files[name] == ref(root/relative), 'Preserved prefix receipt changed: '+name)
+    original_ref = load(files['manifest_binding']['path'])
+    require(files['manifest'] == original_ref == ref(original_ref['path']), 'Original manifest changed')
+    old_manifest, old_plan, registration = (load(files[n]['path']) for n in ('manifest', 'plan', 'registration'))
+    fields = ('host', 'python', 'cache', 'dino_root', 'artifact_root', 'gpu_uuids', 'qualification', 'origins',
+        'source_binding', 'fullgradient_source_binding', 'native_budget', 'previous_forward_completion', 'minimum_free_MiB')
+    require(all(manifest[k] == old_manifest[k] for k in fields), 'Prefix source/environment/data/budget routing changed')
+    old_jobs = old_plan['jobs']
+    require(len(old_jobs) == len(jobs) == 12 and old_jobs[0]['key'] == jobs[0]['key'] == 'G1_initial_repeat0'
+            and old_plan['manifest_sha256'] == original_ref['sha256'], 'Only exact first-slot prefix is supported')
+    def science(job):
+        value = {k: v for k, v in job.items() if k not in ('folder', 'run', 'observed')}
+        for key in ('command', 'CPU_preflight_command'):
+            argv = list(value[key]); require(argv.count('--output') == 1, 'Ambiguous prefix output argv')
+            argv[argv.index('--output')+1] = '<owned-observation-output>'; value[key] = argv
+        return value
+    require(all(science(a) == science(b) for a, b in zip(old_jobs, jobs)), 'Prefix scientific job argv/order changed')
+    require(all(not Path(j['folder']).exists() for j in old_jobs[1:])
+            and not (root/'COMPLETE.json').exists(), 'Prefix contains another completed/unfinished slot')
+    proto = load(files['probe']['path']); job = old_jobs[0]
+    require(proto['job'] == job and Path(job['folder']).resolve() == root/'G1_initial_repeat0'
+            and Path(job['observed']).resolve() == root/'G1_initial_repeat0/observed'
+            and Path(job['run']).resolve() == root/'G1_initial_repeat0/process', 'Actual first-slot paths/job differ')
+    driver = files['old_coordinator']
+    require(driver == ref(driver['path']) == registration['driver'] == proto['coordinator']
+            and old_plan['driver_sha256'] == driver['sha256'], 'Original coordinator identity changed')
+    bench.immutable_source(Path(driver['path']).resolve().parents[2], registration['driver_git'])
+    qref = manifest['qualification']; q = load(qref['path'])
+    require(qref == ref(qref['path']) == registration['qualification'] and qref['sha256'] == QUALIFICATION_SHA
+            and q['passed'] is True and q['host'] == manifest['host']
+            and set(q['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Prefix qualification/environment/UUID differs')
+    require(registration['native_budget'] == manifest['native_budget']
+            and registration['fullgradient_binding'] == job['fullgradient_source_binding']
+            and registration['original_forward_binding'] == job['source_binding'], 'Prefix original E1/E2/budget context differs')
+    preflight, gate = (load(files[n]['path']) for n in ('cpu_preflight', 'resource_gate'))
+    require(preflight['preflight_passed'] is True and preflight['case'] == job['case']
+            and preflight['source_binding_sha256'] == BINDING_SHA
+            and preflight['model_source_sha'] == forward.MODEL_GIT
+            and preflight['forward_source_sha'] == full.FORWARD_COMMIT, 'Prefix actual CPU source preflight differs')
+    require(gate['decision'] == 'ready' and gate['compute_apps'] == []
+            and {r['uuid'] for r in gate['gpus']} == set(job['gpu_uuids']), 'Prefix physical qualification gate differs')
+    process = load(files['process']['path'])
+    require(process['command'] == job['command'], 'Actual prefix process argv differs')
+    failure, incomplete = (load(files[n]['path']) for n in ('failure', 'incomplete'))
+    require(failure['error'] == incomplete['error'] == "ValueError('Aggregate full-gradient statistics differ')"
+            and incomplete['PROCESS_EXIT'] == files['process_exit'], 'Only preserved aggregate-classification failure may be reused')
+    observation = classify(job)  # Full inventory, exact aggregates, all8/three pairs and original forward/strict.
+    charges = native.actual_process_charges([job])
+    require(charges == failure['costs'] and observation['GPU_hours'] == charges['actual_phase_GPU_hours'], 'Prefix actual cost differs')
+    for name, reference in files.items(): require(ref(reference['path']) == reference, 'Prefix receipt changed during classification: '+name)
+    return {'schema': 'p0_fullgradient_first_observed_prefix_v1', 'job': job, 'observation': observation,
+        'preserved_files': files, 'actual_process_costs': charges, 'CPU_reclassified_only': True,
+        'original_failure_preserved': True, 'GPU_jobs_started': 0, 'passed': False, 'formal_authorized': False}
 
 
 def run_attempt(job, locks):
@@ -287,17 +383,26 @@ def execute(manifest, plan, output):
     code = 'import json,importlib.metadata as m;print(json.dumps({n:m.version(n)for n in '+repr(sorted(versions))+'}))'
     require(json.loads(bench.checked([manifest['python'], '-B', '-c', code], env=env, timeout=30)) == versions, 'Private runtime differs from extension')
     budget, jobs = plan['native_budget'], plan['jobs']
+    prefix = observed_prefix(manifest, jobs, output) if 'observed_prefix' in manifest else None
+    require(prefix == plan['observed_prefix'], 'Observed prefix changed after CPU planning')
+    if prefix: write(Path(output)/'REUSED_PREFIX.json', prefix)
     admission = native.gpu_admission(budget, jobs, native.actual_process_charges(jobs), whole_plan=True)
     write(Path(output)/'REGISTRATION.json', {'driver_git': git_sha, 'driver': ref(__file__), 'native_budget': budget,
-        'phase_scope': 'ONLY these new12slots; prior/zt3 cost UNKNOWN_NOT_ZERO', 'admission': admission,
+        'phase_scope': 'ONLY this fullgradient12 phase including explicit first-slot reuse; prior/zt3 cost UNKNOWN_NOT_ZERO',
+        'admission': admission, 'prospective_plan': ref(Path(output)/'PLAN.json'),
+        'reused_prefix': ref(Path(output)/'REUSED_PREFIX.json') if prefix else None,
+        'new_GPU_jobs': plan['new_GPU_jobs'],
         'previous_forward_completion': ref(previous), 'qualification': qref, 'fullgradient_binding': plan['fullgradient_source_binding'],
         'original_forward_binding': plan['original_forward_source_binding'], 'passed': False, 'formal_authorized': False})
-    stop = [False]; observations = []
+    stop = [False]; observations = [prefix['observation']] if prefix else []
     for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, lambda *_: stop.__setitem__(0, True))
-    for job in jobs:
+    for job in jobs[1:] if prefix else jobs:
         if stop[0] or (Path(output)/'STOP_BEFORE_NEXT_JOB').exists(): break
         _, binding = sources(manifest)
         require(binding == plan['fullgradient_source_binding'] and bench.digest(__file__) == plan['driver_sha256'], 'Bound source changed')
+        if prefix:
+            for reference in prefix['preserved_files'].values():
+                require(ref(reference['path']) == reference, 'Observed prefix evidence changed before next job')
         folder = Path(job['folder']); folder.mkdir(mode=0o700)
         gate = native.gpu_admission(budget, jobs, native.actual_process_charges(jobs), next_job=job)
         write(folder/'GPU_BUDGET_BEFORE.json', gate)
@@ -329,7 +434,8 @@ def main():
     args.output.mkdir(parents=True, mode=0o700)
     write(args.output/'PLAN.json', plan); write(args.output/'MANIFEST_BINDING.json', ref(args.manifest))
     if not args.execute:
-        print(json.dumps({'status': 'CPU_PLANNED_ONLY', 'fullgradient_slots': 12, 'GPU_jobs_started': 0})); return
+        print(json.dumps({'status': 'CPU_PLANNED_ONLY', 'fullgradient_slots': 12,
+            'new_GPU_jobs': plan['new_GPU_jobs'], 'reused_slots': 1 if plan['observed_prefix'] else 0, 'GPU_jobs_started': 0})); return
     try: execute(manifest, plan, args.output)
     except BaseException as exc:
         write(args.output/'FAILURE.json', {'error': repr(exc), 'costs': cost_record(plan['jobs']),

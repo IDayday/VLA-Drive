@@ -41,9 +41,11 @@ def fixture_command(job, binding, bref):
 
 def new_binding(root):
     original = coord.load(oldtests.BINDING)
-    groups = [{'names': ['encoder.weight'], 'elements': 2}, {'names': ['head.bias'], 'elements': 1}]
+    # Producer order differs from JSON's alphabetic order; zero-error ties must
+    # retain the original group/parameter order after a sorted JSON round trip.
+    groups = [{'names': ['head.bias'], 'elements': 1}, {'names': ['encoder.weight'], 'elements': 2}]
     gp = root/'OWNED_origin/optimizer_groups.json'; put(gp, groups)
-    inv = [['encoder.weight', [2], 'torch.float32'], ['head.bias', [1], 'torch.float32']]
+    inv = [['head.bias', [1], 'torch.float32'], ['encoder.weight', [2], 'torch.float32']]
     cases = copy.deepcopy(original['cases'])
     for case in cases.values():
         case['gradient_inventory_sha256'] = coord.full.metadata_hash(inv)
@@ -62,12 +64,14 @@ def new_binding(root):
 def fixture(root):
     job, fwd = oldtests.fixture(root)
     binding, bref, inv, groups = new_binding(root)
-    job.update(fullgradient_source_binding=bref, stage='fullgradient')
+    job.update(fullgradient_source_binding=bref, stage='fullgradient', trainer=str(coord.PRODUCER/coord.REL))
     # Origin path is an owned fixture; keep original optimizer-group bytes there.
     put(Path(job['origin']['run'])/'optimizer_groups.json', groups)
     binding['cases'][job['case']]['optimizer_groups_sha256'] = coord.bench.digest(Path(job['origin']['run'])/'optimizer_groups.json')
     put(bref['path'], binding); bref = coord.ref(bref['path']); job['fullgradient_source_binding'] = bref
     job['command'] = fixture_command(job, binding, bref)
+    script = job['command'].index(str(coord.PRODUCER/coord.REL))
+    job['CPU_preflight_command'] = [job['command'][0], '-B']+job['command'][script:]+['--preflight']
     # Real746 delegates6d16.run_observed with args.source_binding=new869, so its
     # original forward emission also binds the new context, not historical44.
     fwd['producer_source_binding'] = bref
@@ -85,7 +89,7 @@ def fixture(root):
                 pairs[pair] = {'elements': n, 'reference_square': n*a*a, 'candidate_square': n*b*b,
                     'difference_square': n*(a-b)**2, 'dot': n*a*b, 'max_absolute': abs(a-b),
                     'nonfinite_elements': 0, 'bit_different_elements': n, 'fixed_numeric_violations': n}
-            tensors[name] = {'component': name.split('.')[0], 'optimizer_group': '0' if name.startswith('encoder') else '1', 'pairs': pairs}
+            tensors[name] = {'component': name.split('.')[0], 'optimizer_group': '1' if name.startswith('encoder') else '0', 'pairs': pairs}
         inventory = [[n, shape, dtype, True, [shape, dtype]] for n, shape, dtype in inv]
         value = {'inventory': {r: copy.deepcopy(inventory) for r in ('A', 'AA', 'B')}, 'expected_trainable_inventory': inv,
             'gradient_inventory_sha256': coord.full.metadata_hash(inv), 'trainable_parameter_count': 2, 'trainable_elements': 3,
@@ -99,6 +103,53 @@ def fixture(root):
         original_strict=fwd['original_strict'], forward_observation=coord.ref(Path(job['observed'])/'P0_FORWARD_COMPARISON.json'))
     put(Path(job['observed'])/'P0_FULL_GRADIENT_COMPARISON.json', report)
     return job, report, binding, bref
+
+
+def prefix_fixture(root):
+    job, _, b, bref = fixture(root)
+    oldroot = Path(job['folder']).parent
+    m = {**oldtests.manifest(root), 'schema': 'p0_fullgradient_coordinator_manifest_v1',
+        'python': job['command'][0], 'cache': '/OWNED_CPU_cache', 'dino_root': '/OWNED_CPU_dino',
+        'fullgradient_source_binding': bref, 'native_budget': budget(), 'minimum_free_MiB': 100,
+        'previous_forward_completion': str(root/'OWNED_previous_forward_COMPLETE.json')}
+    qp = root/'OWNED_QUALIFICATION.json'
+    put(qp, {'passed': True, 'host': m['host'], 'physical_gpu_UUIDs': m['gpu_uuids'],
+        'environment': {'packages': {n: 'OWNED_CPU_fixture' for n in (*coord.bench.PACKAGES, 'flash_attn')}}})
+    m['qualification'] = coord.ref(qp)
+    mp = root/'OWNED_OLD_MANIFEST.json'; put(mp, m)
+    with patch.object(coord, 'sources', return_value=(b, bref)):
+        plan = coord.build_plan(m, oldroot)
+    assert plan['jobs'][0] == job
+    plan['manifest_sha256'] = coord.bench.digest(mp); put(oldroot/'PLAN.json', plan)
+    put(oldroot/'MANIFEST_BINDING.json', coord.ref(mp))
+    put(m['previous_forward_completion'], {'completed_forward_slots': 12, 'original_strict_relabelled': False,
+        'observations': [{'case': j['case'], 'repeat': j['repeat']} for j in plan['jobs']]})
+    driver = coord.ref('/mnt/project/VLA-Drive-structured-world-fgtr-perf-fullgrad-driver-v2-frozen-20261011/tools/structured_world/run_p0_fullgrad_probes.py')
+    plan['driver_sha256'] = driver['sha256']; put(oldroot/'PLAN.json', plan)
+    proto = coord.load(Path(job['folder'])/'PROBE.json'); proto['coordinator'] = driver
+    put(Path(job['folder'])/'PROBE.json', proto)
+    put(oldroot/'REGISTRATION.json', {'driver': driver, 'driver_git': 'ccbda534adc63e71425143c61a98af9381b31416',
+        'qualification': m['qualification'], 'native_budget': m['native_budget'],
+        'fullgradient_binding': bref, 'original_forward_binding': job['source_binding']})
+    put(Path(job['run'])/'PROCESS.json', {'command': job['command'], 'OWNED_SYNTHETIC_CPU': True})
+    put(Path(job['folder'])/'CPU_PREFLIGHT.json', {'preflight_passed': True, 'case': job['case'],
+        'source_binding_sha256': coord.BINDING_SHA, 'model_source_sha': coord.forward.MODEL_GIT,
+        'forward_source_sha': coord.full.FORWARD_COMMIT})
+    put(Path(job['folder'])/'RESOURCE_GATE.json', {'decision': 'ready', 'compute_apps': [],
+        'gpus': [{'uuid': u} for u in m['gpu_uuids']]})
+    error = "ValueError('Aggregate full-gradient statistics differ')"
+    put(Path(job['folder'])/'INCOMPLETE.json', {'error': error, 'PROCESS_EXIT': coord.ref(Path(job['run'])/'PROCESS_EXIT.json')})
+    put(oldroot/'FAILURE.json', {'error': error, 'costs': coord.native.actual_process_charges([job])})
+    rel = {'plan': 'PLAN.json', 'manifest_binding': 'MANIFEST_BINDING.json', 'registration': 'REGISTRATION.json',
+        'failure': 'FAILURE.json', 'probe': job['key']+'/PROBE.json', 'incomplete': job['key']+'/INCOMPLETE.json',
+        'process': job['key']+'/process/PROCESS.json', 'process_exit': job['key']+'/process/PROCESS_EXIT.json',
+        'cpu_preflight': job['key']+'/CPU_PREFLIGHT.json', 'resource_gate': job['key']+'/RESOURCE_GATE.json',
+        'fullgradient': job['key']+'/observed/P0_FULL_GRADIENT_COMPARISON.json',
+        'forward': job['key']+'/observed/P0_FORWARD_COMPARISON.json', 'strict': job['key']+'/observed/strict/COMPLETE.json'}
+    files = {k: coord.ref(oldroot/v) for k, v in rel.items()}
+    files.update(manifest=coord.ref(mp), old_coordinator=driver)
+    new = {**m, 'observed_prefix': {'output': str(oldroot), 'files': files}}
+    return new, plan, b, bref
 
 
 class Tests(unittest.TestCase):
@@ -151,6 +202,119 @@ class Tests(unittest.TestCase):
         self.assertEqual(result['status'], 'completed_scientific_observation_no_retry')
         self.assertEqual(result['actual_returncode'], 1); self.assertFalse(result['original_strict_passed'])
         self.assertTrue(result['full_parameter_AA_B_gradients_captured']); self.assertFalse(result['passed'])
+
+    def test_sorted_JSON_producer_ties_restore_exact_aggregate_without_mutation(self):
+        job, report, b, bref = fixture(self.root)
+        p = Path(job['observed'])/'P0_FULL_GRADIENT_COMPARISON.json'
+        p.write_text(json.dumps(report, sort_keys=True)); before = p.read_bytes(); loaded = coord.load(p)
+        self.assertNotEqual(coord.full.combine_gradients(loaded['per_rank'], loaded['gradient_inventory_sha256'])['comparisons'], report['comparisons'])
+        self.assertEqual(coord.combine_in_inventory_order(loaded['per_rank'], loaded['gradient_inventory_sha256'])['comparisons'], report['comparisons'])
+        with patch.object(coord, 'checked_binding', return_value=(b, bref)):
+            self.assertFalse(coord.classify(job)['passed'])
+        self.assertEqual(p.read_bytes(), before)
+
+    def test_inventory_order_hash_and_group_order_cannot_be_changed(self):
+        _, report, _, _ = fixture(self.root)
+        for mutation in ('inventory', 'groups', 'missing'):
+            bad = copy.deepcopy(report['per_rank'])
+            if mutation == 'inventory': bad[0]['fullgrad']['expected_trainable_inventory'].reverse()
+            if mutation == 'groups': bad[0]['fullgrad']['optimizer_groups'].reverse()
+            if mutation == 'missing': bad[0]['fullgrad']['tensors'].pop('head.bias')
+            with self.assertRaisesRegex(ValueError, 'order/inventory'):
+                coord.combine_in_inventory_order(bad, report['gradient_inventory_sha256'])
+
+    def test_first_observed_prefix_plans_eleven_and_charges_original_failed_exit(self):
+        m, old, b, bref = prefix_fixture(self.root)
+        before = {r['path']: Path(r['path']).read_bytes() for r in m['observed_prefix']['files'].values()}
+        with patch.object(coord, 'sources', return_value=(b, bref)), \
+                patch.object(coord, 'checked_binding', return_value=(b, bref)), \
+                patch.object(coord, 'QUALIFICATION_SHA', m['qualification']['sha256']), patch.object(coord.bench, 'run_job') as worker:
+            plan = coord.build_plan(m, self.root/'FRESH_v3')
+        worker.assert_not_called(); self.assertEqual(plan['new_GPU_jobs'], 11)
+        self.assertEqual(plan['jobs'][0], old['jobs'][0]); self.assertFalse(plan['observed_prefix']['observation']['passed'])
+        charges = coord.native.actual_process_charges(plan['jobs'])
+        self.assertEqual(charges['actual_phase_GPU_hours'], 12*8/3600)
+        admission = coord.native.gpu_admission(plan['native_budget'], plan['jobs'], charges, whole_plan=True)
+        self.assertEqual(len(admission['remaining_jobs']), 11)
+        self.assertAlmostEqual(admission['projected_phase_GPU_hours'], 27.5+12*8/3600)
+        self.assertEqual(before, {p: Path(p).read_bytes() for p in before})
+
+    def test_prefix_changed_environment_source_data_budget_rejected(self):
+        for field, value in [('python', '/foreign_python'), ('cache', '/foreign_cache'), ('gpu_uuids', ['foreign']*8),
+                ('qualification', {}), ('fullgradient_source_binding', {}), ('native_budget', {})]:
+            m, old, b, bref = prefix_fixture(self.root/field)
+            m[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'source/environment/data/budget'):
+                coord.observed_prefix(m, old['jobs'], self.root/'fresh')
+
+    def test_prefix_second_partial_or_old_output_refused(self):
+        m, old, b, bref = prefix_fixture(self.root)
+        with self.assertRaisesRegex(ValueError, 'separate NEW output'):
+            coord.observed_prefix(m, old['jobs'], m['observed_prefix']['output'])
+        Path(old['jobs'][1]['folder']).mkdir()
+        with self.assertRaisesRegex(ValueError, 'another completed/unfinished'):
+            coord.observed_prefix(m, old['jobs'], self.root/'fresh')
+
+    def test_prefix_missing_receipt_or_tampered_hash_refused(self):
+        m, old, _, _ = prefix_fixture(self.root)
+        p = Path(m['observed_prefix']['files']['fullgradient']['path']); p.unlink()
+        with self.assertRaises(FileNotFoundError): coord.observed_prefix(m, old['jobs'], self.root/'fresh')
+        put(p, {})
+        with self.assertRaisesRegex(ValueError, 'receipt changed'):
+            coord.observed_prefix(m, old['jobs'], self.root/'fresh')
+
+    def test_prefix_complete_looking_missing_pair_or_rank_refused(self):
+        for missing in ('rank', 'pair'):
+            m, old, b, bref = prefix_fixture(self.root/missing)
+            p = Path(m['observed_prefix']['files']['fullgradient']['path']); r = coord.load(p)
+            if missing == 'rank': r['per_rank'].pop()
+            else: r['per_rank'][0]['fullgrad']['tensors']['head.bias']['pairs'].pop('AA_B')
+            put(p, r); m['observed_prefix']['files']['fullgradient'] = coord.ref(p)
+            with patch.object(coord, 'checked_binding', return_value=(b, bref)), \
+                    patch.object(coord, 'QUALIFICATION_SHA', m['qualification']['sha256']), self.assertRaises(ValueError):
+                coord.observed_prefix(m, old['jobs'], self.root/'fresh')
+
+    def test_prefix_scientific_worker_argv_change_is_refused(self):
+        m, old, _, _ = prefix_fixture(self.root)
+        jobs = copy.deepcopy(old['jobs']); jobs[1]['command'].append('--foreign-scientific-flag')
+        with self.assertRaisesRegex(ValueError, 'scientific job argv/order'):
+            coord.observed_prefix(m, jobs, self.root/'fresh')
+
+    def test_execution_routes_only_eleven_NEW_slots_and_keeps_first_charge(self):
+        m, _, b, bref = prefix_fixture(self.root)
+        output = self.root/'FRESH_v3'
+        with patch.object(coord, 'sources', return_value=(b, bref)), \
+                patch.object(coord, 'checked_binding', return_value=(b, bref)), \
+                patch.object(coord, 'QUALIFICATION_SHA', m['qualification']['sha256']):
+            plan = coord.build_plan(m, output); output.mkdir(); coord.write(output/'PLAN.json', plan)
+            versions = coord.load(m['qualification']['path'])['environment']['packages']
+            def operator_read(argv, *a, **k):
+                if argv[:3] == ['git', 'rev-parse', 'HEAD']: return 'OWNED_CPU_operator_commit'
+                if argv[:2] == ['git', 'ls-files']: return 'tools/structured_world/run_p0_fullgrad_probes.py'
+                if '-c' in argv: return json.dumps(versions)
+                job = next(j for j in plan['jobs'] if j['CPU_preflight_command'] == argv)
+                return json.dumps({'preflight_passed': True, 'case': job['case'], 'source_binding_sha256': bref['sha256']})
+            def owned_worker(job, locks):
+                # Synthetic runner only: prove registration precedes each NEW
+                # worker and never route the old first job back to run_attempt.
+                self.assertTrue((output/'REGISTRATION.json').is_file())
+                self.assertEqual(coord.load(Path(job['folder'])/'PROBE.json')['job'], job)
+                put(Path(job['run'])/'PROCESS_EXIT.json', {'returncode': 1, 'monitor_error': None, 'wall_seconds': 1.})
+                return {'case': job['case'], 'repeat': job['repeat'], 'passed': False, 'OWNED_CPU_fixture': True}
+            with patch.object(coord.bench, 'checked', side_effect=operator_read), \
+                    patch.object(coord.bench, 'immutable_source'), patch.object(coord.bench, 'acquire', return_value=None), \
+                    patch.object(coord.bench, 'readiness', return_value={'OWNED_CPU_fixture': True}), \
+                    patch.object(coord, 'run_attempt', side_effect=owned_worker) as worker, \
+                    patch.object(coord.signal, 'signal'):
+                coord.execute(m, plan, output)
+            self.assertEqual(worker.call_count, 11)
+            self.assertEqual([call.args[0]['key'] for call in worker.call_args_list], [j['key'] for j in plan['jobs'][1:]])
+            self.assertFalse((output/'G1_initial_repeat0').exists())
+            done = coord.load(output/'COMPLETE.json')
+            self.assertEqual(done['completed_fullgradient_slots'], 12); self.assertTrue(done['all12_observed'])
+            self.assertFalse(done['passed'])
+            self.assertEqual(done['actual_process_costs']['entries'][0]['path'], str(Path(plan['jobs'][0]['run'])/'PROCESS_EXIT.json'))
+            self.assertAlmostEqual(done['actual_process_costs']['actual_phase_GPU_hours'], (12+11)*8/3600)
 
     def test_actual_delegated_context_rejected_by_old_classifier_preserved_by_new(self):
         job, _, b, bref = fixture(self.root)
@@ -248,6 +412,53 @@ class Tests(unittest.TestCase):
                 patch.object(coord.bench, 'run_job') as run, self.assertRaisesRegex(ValueError, 'compute app'):
             coord.bench.readiness(m)
         run.assert_not_called()
+
+
+def different_leaves(a, b, path=''):
+    if isinstance(a, dict) and isinstance(b, dict):
+        for key in sorted(a.keys() | b.keys()):
+            if key not in a or key not in b: yield [path+'/'+key, a.get(key), b.get(key)]
+            else: yield from different_leaves(a[key], b[key], path+'/'+key)
+    elif isinstance(a, list) and isinstance(b, list):
+        if len(a) != len(b): yield [path+'/length', len(a), len(b)]
+        for i, (x, y) in enumerate(zip(a, b)): yield from different_leaves(x, y, path+'/'+str(i))
+    elif a != b: yield [path, a, b]
+
+
+class ActualReportTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.report = coord.load(cls.path)
+        cls.before = coord.bench.digest(cls.path)
+
+    def test_real_sorted_report_original_failure_is_only_tie_names_exact_numeric(self):
+        r = self.report
+        original = coord.full.combine_gradients(r['per_rank'], r['gradient_inventory_sha256'])['comparisons']
+        diff = list(different_leaves(r['comparisons'], original))
+        self.assertTrue(diff)
+        self.assertTrue(all('/worst_tensors/' in p and p.endswith('/name') for p, a, b in diff))
+        numeric = [x for x in diff if type(x[1]) in (int, float) and type(x[2]) in (int, float)]
+        self.assertEqual(numeric, [])
+        corrected = coord.combine_in_inventory_order(r['per_rank'], r['gradient_inventory_sha256'])
+        self.assertEqual(r['comparisons'], corrected['comparisons'])
+        self.assertEqual(coord.bench.digest(self.path), self.before)
+        self.__class__.evidence = {'raw_report': coord.ref(self.path), 'different_leaf_count': len(diff),
+            'numeric_difference_count': 0, 'max_numeric_difference': 0, 'all_differences': diff,
+            'inventory_order_strict_comparisons_equal': True, 'raw_report_bytes_rewritten': False,
+            'thresholds_changed': False, 'GPU_jobs_started': 0}
+
+    def test_real_report_inventory_reordering_is_not_hash_forged(self):
+        records = copy.deepcopy(self.report['per_rank'])
+        records[0]['fullgrad']['expected_trainable_inventory'].reverse()
+        with self.assertRaisesRegex(ValueError, 'order/inventory'):
+            coord.combine_in_inventory_order(records, self.report['gradient_inventory_sha256'])
+
+    def test_real_numeric_statistic_change_remains_strictly_different(self):
+        records = copy.deepcopy(self.report['per_rank'])
+        tensor = next(iter(records[0]['fullgrad']['tensors'].values()))
+        tensor['pairs']['AA_B']['difference_square'] += 1.
+        changed = coord.combine_in_inventory_order(records, self.report['gradient_inventory_sha256'])
+        self.assertNotEqual(changed['comparisons'], self.report['comparisons'])
 
 
 class ProducerIntegrationTests(unittest.TestCase):
@@ -361,11 +572,15 @@ class ProducerIntegrationTests(unittest.TestCase):
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--receipt', type=Path, required=True)
     p.add_argument('--producer-integration', action='store_true', help='Also exercise frozen746->6d16 writers with tiny CPU tensors; requires private torch runtime')
+    p.add_argument('--actual-report', type=Path, help='Read saved real fullgradient report; test exact order restoration and reject numeric/inventory changes; no dispatch')
     args = p.parse_args()
     require_cpu = os.environ.get('CUDA_VISIBLE_DEVICES') == ''
     if not require_cpu: raise ValueError('CPU-only tests require empty CUDA_VISIBLE_DEVICES')
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(Tests)
     if args.producer_integration: suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(ProducerIntegrationTests))
+    if args.actual_report:
+        ActualReportTests.path = args.actual_report
+        suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(ActualReportTests))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     no_torch = 'torch' not in sys.modules
     cpu_safe = no_torch or (args.producer_integration and not sys.modules['torch'].cuda.is_initialized())
@@ -374,10 +589,15 @@ def main():
         trace = args.receipt.with_name(args.receipt.stem+'_REAL_PRODUCER_TRACE.json')
         coord.write(trace, integration_evidence)
         integration_evidence = coord.ref(trace)
+    actual_evidence = getattr(ActualReportTests, 'evidence', None)
+    if actual_evidence is not None:
+        trace = args.receipt.with_name(args.receipt.stem+'_ACTUAL_REPORT_ORDER_DIAGNOSIS.json')
+        coord.write(trace, actual_evidence); actual_evidence = coord.ref(trace)
     coord.write(args.receipt, {'schema': 'p0_fullgradient_coordinator_CPU_tests_v1', 'tests_run': result.testsRun,
         'passed': result.wasSuccessful() and cpu_safe, 'torch_imported': not no_torch, 'GPU_jobs_started': 0,
         'actual_frozen_producer_entrypaths_exercised': args.producer_integration, 'CUDA_initialized': False if cpu_safe else None,
         'real_producer_integration_evidence': integration_evidence,
+        'actual_report_order_regression_evidence': actual_evidence,
         'synthetic_fixture_receipts_are_scientific_evidence': False, 'new_BINDING_is_owned_mock_only': True,
         'source_files': [coord.ref(coord.__file__), coord.ref(__file__)]})
     raise SystemExit(0 if result.wasSuccessful() and cpu_safe else 1)

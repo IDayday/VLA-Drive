@@ -1,0 +1,2543 @@
+{
+  "schema": "actual_first_fullgrad_unchanged_numeric_component_review_v1",
+  "registration": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+    "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "original_checker": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/evaluate_execution_acceptance.py",
+    "sha256": "a4effc9b1e56ea6787de9e37bb57cffb2c83b87f7543e78c04569e01b2e34c55"
+  },
+  "raw_report": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v2_zt4_actual/G1_initial_repeat0/observed/P0_FULL_GRADIENT_COMPARISON.json",
+    "sha256": "47bd27dfc458d75d0927c4a4d000abff5d822485d6ef9076f3e116ac1ee3d443"
+  },
+  "failures": [
+    "gradient/by_optimizer_group/1/AA_B/norm_relative: fresh AA envelope"
+  ],
+  "scope_stats": {
+    "gradient/all": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.002715612056987765,
+          "norm_relative": 1.9404497953234845e-05,
+          "cosine_error": 3.687157702159105e-06
+        },
+        "A_B": {
+          "relative_L2": 0.0027492848601731496,
+          "norm_relative": 1.6300494861565262e-05,
+          "cosine_error": 3.779212370935703e-06
+        },
+        "AA_B": {
+          "relative_L2": 0.002731993007102246,
+          "norm_relative": 3.104063324377293e-06,
+          "cosine_error": 3.7318764938287785e-06
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.0120270404827743,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.006718888878822327,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 4.656612873077393e-10,
+            "p90": 6.103515625e-05,
+            "p99": 0.00037464609369635397
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.006718888878822327,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.006494507193565369,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.006103426218032837,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.005012869834899902,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004462718963623047,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.00439220666885376,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004242897033691406,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.00611424446105957,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 6.984919309616089e-10,
+            "p90": 6.103515625e-05,
+            "p99": 0.0003662109375
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00611424446105957,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005575954914093018,
+              "name": "rank5/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005375847220420837,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005316317081451416,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005315124988555908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005270421504974365,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004961442202329636,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004803061485290527,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0064866989850997925,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 6.984919309616089e-10,
+            "p90": 6.103515625e-05,
+            "p99": 0.00043464429676532584
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0064866989850997925,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005941450595855713,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00491642951965332,
+              "name": "rank0/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004638895392417908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            },
+            {
+              "max_absolute": 0.003875972703099251,
+              "name": "rank2/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0038359910249710083,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.0038327276706695557,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/action_input_model": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.008741359262353546,
+          "norm_relative": 0.0001240592568215737,
+          "cosine_error": 3.820272492893739e-05
+        },
+        "A_B": {
+          "relative_L2": 0.00745511509876984,
+          "norm_relative": 0.000142855344532955,
+          "cosine_error": 2.7783135712611262e-05
+        },
+        "AA_B": {
+          "relative_L2": 0.007637189065706457,
+          "norm_relative": 1.879841982932451e-05,
+          "cosine_error": 2.916369995398238e-05
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.852757805421375,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0001068115234375,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.049041748046875e-05,
+            "p90": 7.004737854003908e-05,
+            "p99": 9.735107421875004e-05
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0001068115234375,
+              "name": "rank6/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 7.62939453125e-05,
+              "name": "rank6/action_input_model.layer2.bias"
+            },
+            {
+              "max_absolute": 7.200241088867188e-05,
+              "name": "rank1/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 7.104873657226562e-05,
+              "name": "rank0/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank4/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank5/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank7/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 5.7220458984375e-05,
+              "name": "rank1/action_input_model.layer2.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 7.62939453125e-05,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.049041748046875e-05,
+            "p90": 4.520416259765626e-05,
+            "p99": 7.156372070312502e-05
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 7.62939453125e-05,
+              "name": "rank6/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank3/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank4/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 4.57763671875e-05,
+              "name": "rank6/action_input_model.layer2.bias"
+            },
+            {
+              "max_absolute": 4.00543212890625e-05,
+              "name": "rank0/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 3.0517578125e-05,
+              "name": "rank1/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 3.0517578125e-05,
+              "name": "rank3/action_input_model.layer2.bias"
+            },
+            {
+              "max_absolute": 3.0517578125e-05,
+              "name": "rank4/action_input_model.layer2.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 6.723403930664062e-05,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 7.152557373046875e-06,
+            "p90": 5.092620849609376e-05,
+            "p99": 6.531238555908204e-05
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 6.723403930664062e-05,
+              "name": "rank1/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank3/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 6.103515625e-05,
+              "name": "rank7/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 5.14984130859375e-05,
+              "name": "rank1/action_input_model.layer2.bias"
+            },
+            {
+              "max_absolute": 4.57763671875e-05,
+              "name": "rank0/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 4.57763671875e-05,
+              "name": "rank5/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 4.57763671875e-05,
+              "name": "rank6/action_input_model.layer2.weight"
+            },
+            {
+              "max_absolute": 3.0517578125e-05,
+              "name": "rank0/action_input_model.layer2.bias"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/action_model": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "A_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "AA_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_1.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.timestep_encoder.timestep_embedder.linear_2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.0.attn1.to_q.bias"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/dino_head": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 1.1102230246251565e-16
+        },
+        "A_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 1.1102230246251565e-16
+        },
+        "AA_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 1.1102230246251565e-16
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.view.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.spatial.0.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.view.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.spatial.0.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.project.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.0.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.time.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.view.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/dino_head.spatial.0.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/foresight_queries": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.009814772022816021,
+          "norm_relative": 0.00020391012703391276,
+          "cosine_error": 4.8153904328773756e-05
+        },
+        "A_B": {
+          "relative_L2": 0.009849226373816961,
+          "norm_relative": 2.778101325995319e-05,
+          "cosine_error": 4.8504591695586186e-05
+        },
+        "AA_B": {
+          "relative_L2": 0.009514669620674926,
+          "norm_relative": 0.00017616503560891061,
+          "cosine_error": 4.524098205616056e-05
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.0034082241237041,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.006718888878822327,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0036405790597200394,
+            "p90": 0.00513956993818283,
+            "p99": 0.006560956984758377
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.006718888878822327,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004462718963623047,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004242897033691406,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.003880847245454788,
+              "name": "rank2/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0034003108739852905,
+              "name": "rank4/foresight_queries"
+            },
+            {
+              "max_absolute": 0.003362894058227539,
+              "name": "rank5/foresight_queries"
+            },
+            {
+              "max_absolute": 0.002823859453201294,
+              "name": "rank0/foresight_queries"
+            },
+            {
+              "max_absolute": 0.002727106213569641,
+              "name": "rank6/foresight_queries"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.00611424446105957,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.004400363191962242,
+            "p90": 0.005737441778182984,
+            "p99": 0.006076564192771912
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00611424446105957,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005575954914093018,
+              "name": "rank5/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005316317081451416,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004961442202329636,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0038392841815948486,
+              "name": "rank0/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0029406845569610596,
+              "name": "rank6/foresight_queries"
+            },
+            {
+              "max_absolute": 0.002691596746444702,
+              "name": "rank4/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0023656226694583893,
+              "name": "rank2/foresight_queries"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.00491642951965332,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0028864778578281403,
+            "p90": 0.004188109748065471,
+            "p99": 0.004843597542494535
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00491642951965332,
+              "name": "rank0/foresight_queries"
+            },
+            {
+              "max_absolute": 0.003875972703099251,
+              "name": "rank2/foresight_queries"
+            },
+            {
+              "max_absolute": 0.003478698432445526,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.003067590296268463,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0027053654193878174,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.002653215080499649,
+              "name": "rank4/foresight_queries"
+            },
+            {
+              "max_absolute": 0.002316519618034363,
+              "name": "rank5/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0022812429815530777,
+              "name": "rank6/foresight_queries"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/future_space": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 7.579175959292498e-08,
+          "norm_relative": 2.508956487012881e-09,
+          "cosine_error": 2.7755575615628914e-15
+        },
+        "A_B": {
+          "relative_L2": 9.91158204966656e-08,
+          "norm_relative": 2.107650498572866e-09,
+          "cosine_error": 4.773959005888173e-15
+        },
+        "AA_B": {
+          "relative_L2": 9.683157632995192e-08,
+          "norm_relative": 4.0130609946231743e-10,
+          "cosine_error": 4.6629367034256575e-15
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.09213290547435556,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 4.470348358154297e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 8.149072527885437e-10,
+            "p90": 1.862645149230957e-09,
+            "p99": 1.4901161193847656e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank6/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 1.4901161193847656e-08,
+              "name": "rank1/future_space.semantic.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 7.450580596923828e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 9.313225746154785e-10,
+            "p90": 2.7939677238464355e-09,
+            "p99": 1.1399388313293254e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 7.450580596923828e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank1/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank6/future_space.semantic.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 5.960464477539063e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 9.313225746154785e-10,
+            "p90": 2.7939677238464355e-09,
+            "p99": 1.4901161193847656e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 5.960464477539063e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank1/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank6/future_space.semantic.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/geometry": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 6.31527875213892e-07,
+          "norm_relative": 8.127290396231501e-09,
+          "cosine_error": 1.9917401061775308e-13
+        },
+        "A_B": {
+          "relative_L2": 6.632332299053296e-07,
+          "norm_relative": 1.2953104588930842e-08,
+          "cosine_error": 2.199351811782435e-13
+        },
+        "AA_B": {
+          "relative_L2": 6.750283639868493e-07,
+          "norm_relative": 4.82581419269934e-09,
+          "cosine_error": 2.278177646530821e-13
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.4065105107801975,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 2.3283064365386963e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.7462298274040222e-09,
+            "p90": 4.484900273382668e-09,
+            "p99": 1.360662281513226e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 2.3283064365386963e-08,
+              "name": "rank0/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.3283064365386963e-08,
+              "name": "rank6/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank0/geometry.backbone.layer1.0.conv1.weight"
+            },
+            {
+              "max_absolute": 2.1886080503463745e-08,
+              "name": "rank1/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.0489096641540527e-08,
+              "name": "rank0/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.0489096641540527e-08,
+              "name": "rank1/geometry.backbone.layer1.0.conv1.weight"
+            },
+            {
+              "max_absolute": 1.955777406692505e-08,
+              "name": "rank3/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 1.862645149230957e-08,
+              "name": "rank4/geometry.backbone.layer1.0.conv1.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 2.60770320892334e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.7462298274040222e-09,
+            "p90": 4.6566128730773926e-09,
+            "p99": 1.4901161193847656e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 2.60770320892334e-08,
+              "name": "rank0/geometry.backbone.layer1.0.conv1.weight"
+            },
+            {
+              "max_absolute": 2.421438694000244e-08,
+              "name": "rank0/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.421438694000244e-08,
+              "name": "rank0/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.3283064365386963e-08,
+              "name": "rank5/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank2/geometry.backbone.conv1.weight"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank2/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.0489096641540527e-08,
+              "name": "rank0/geometry.backbone.conv1.weight"
+            },
+            {
+              "max_absolute": 1.955777406692505e-08,
+              "name": "rank7/geometry.backbone.bn1.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 4.0978193283081055e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.8080754671245813e-09,
+            "p90": 4.6566128730773926e-09,
+            "p99": 1.4901161193847656e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 4.0978193283081055e-08,
+              "name": "rank0/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.7939677238464355e-08,
+              "name": "rank0/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.60770320892334e-08,
+              "name": "rank3/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank2/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.2351741790771484e-08,
+              "name": "rank6/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.0954757928848267e-08,
+              "name": "rank2/geometry.backbone.conv1.weight"
+            },
+            {
+              "max_absolute": 2.0489096641540527e-08,
+              "name": "rank2/geometry.backbone.bn1.bias"
+            },
+            {
+              "max_absolute": 2.0489096641540527e-08,
+              "name": "rank2/geometry.backbone.layer1.0.conv1.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/qwen_vl_interface": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0052885092438589845,
+          "norm_relative": 8.007594749381841e-05,
+          "cosine_error": 1.3982078560625943e-05
+        },
+        "A_B": {
+          "relative_L2": 0.005376931250859156,
+          "norm_relative": 8.577310250001968e-05,
+          "cosine_error": 1.4453256026336625e-05
+        },
+        "AA_B": {
+          "relative_L2": 0.005406785121952539,
+          "norm_relative": 5.697611247801326e-06,
+          "cosine_error": 1.4616729726690814e-05
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.016527432502678,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.006494507193565369,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.0517578125e-05,
+            "p90": 0.000244140625,
+            "p99": 0.0010300099849701021
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.006494507193565369,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.006103426218032837,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.005012869834899902,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00439220666885376,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            },
+            {
+              "max_absolute": 0.003513321280479431,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.003181084990501404,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.00316736102104187,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.005375847220420837,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.452179953455925e-05,
+            "p90": 0.000244140625,
+            "p99": 0.0009765625
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.005375847220420837,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005315124988555908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005270421504974365,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004803061485290527,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004296066239476204,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.003691554069519043,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.002935156226158142,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.0029247701168060303,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0064866989850997925,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.144890069961548e-05,
+            "p90": 0.000244140625,
+            "p99": 0.0009254606068134332
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0064866989850997925,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005941450595855713,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004638895392417908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            },
+            {
+              "max_absolute": 0.0038359910249710083,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.0038327276706695557,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.003348119556903839,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.0030135512351989746,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/refiner": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "A_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "AA_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.action_projection.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.in_proj_bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.attentions.0.attn.out_proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/refiner.way_decoder.layers.0.ffns.0.layers.0.0.bias"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_component/scene_semantics": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 5.523981977626513e-09,
+          "norm_relative": 1.265024751617716e-10,
+          "cosine_error": 0.0
+        },
+        "A_B": {
+          "relative_L2": 6.992783963278365e-09,
+          "norm_relative": 2.1716628495482837e-11,
+          "cosine_error": 0.0
+        },
+        "AA_B": {
+          "relative_L2": 6.610834797443455e-09,
+          "norm_relative": 1.482192146795569e-10,
+          "cosine_error": 0.0
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0069543681589028065,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 3.725290298461914e-09,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.4551915228366852e-11,
+            "p90": 1.862645149230957e-09,
+            "p99": 3.725290298461914e-09
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank0/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank3/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank4/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank5/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank7/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank7/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 1.862645149230957e-09,
+              "name": "rank0/scene_semantics.current.2.weight"
+            },
+            {
+              "max_absolute": 1.862645149230957e-09,
+              "name": "rank0/scene_semantics.future.2.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 1.4901161193847656e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.4551915228366852e-11,
+            "p90": 3.725290298461914e-09,
+            "p99": 1.0207295417785625e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 1.4901161193847656e-08,
+              "name": "rank0/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank1/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank7/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank7/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank0/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank3/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank4/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank5/scene_semantics.future.0.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 1.4901161193847656e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.4551915228366852e-11,
+            "p90": 3.725290298461914e-09,
+            "p99": 1.0207295417785625e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 1.4901161193847656e-08,
+              "name": "rank0/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank1/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank7/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 7.450580596923828e-09,
+              "name": "rank7/scene_semantics.future.2.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank0/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank3/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank4/scene_semantics.future.0.weight"
+            },
+            {
+              "max_absolute": 3.725290298461914e-09,
+              "name": "rank5/scene_semantics.future.0.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/0": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.006907698452657796,
+          "norm_relative": 0.00014497392908507933,
+          "cosine_error": 2.3851098023830453e-05
+        },
+        "A_B": {
+          "relative_L2": 0.006984896411556815,
+          "norm_relative": 0.00011156499646003404,
+          "cosine_error": 2.4390886735115025e-05
+        },
+        "AA_B": {
+          "relative_L2": 0.006935818483850913,
+          "norm_relative": 3.341377675147861e-05,
+          "cosine_error": 2.4051427131133174e-05
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.0110292784409638,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.006718888878822327,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0001220703125,
+            "p90": 0.0008835885673761368,
+            "p99": 0.004820317029952991
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.006718888878822327,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.006494507193565369,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.006103426218032837,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.005012869834899902,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004462718963623047,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.00439220666885376,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004242897033691406,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.00611424446105957,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.000124356709420681,
+            "p90": 0.0007474659942090511,
+            "p99": 0.005315899848937988
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00611424446105957,
+              "name": "rank3/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005575954914093018,
+              "name": "rank5/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005375847220420837,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005316317081451416,
+              "name": "rank1/foresight_queries"
+            },
+            {
+              "max_absolute": 0.005315124988555908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005270421504974365,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.004961442202329636,
+              "name": "rank7/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004803061485290527,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0064866989850997925,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0001373291015625,
+            "p90": 0.0007705874741077423,
+            "p99": 0.004382469505071623
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0064866989850997925,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.005941450595855713,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00491642951965332,
+              "name": "rank0/foresight_queries"
+            },
+            {
+              "max_absolute": 0.004638895392417908,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.00390625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.2.mlp.down_proj.weight"
+            },
+            {
+              "max_absolute": 0.003875972703099251,
+              "name": "rank2/foresight_queries"
+            },
+            {
+              "max_absolute": 0.0038359910249710083,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.embed_tokens.weight"
+            },
+            {
+              "max_absolute": 0.0038327276706695557,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_norm.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/1": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0041737558951085146,
+          "norm_relative": 2.743594626908319e-05,
+          "cosine_error": 8.709503816928255e-06
+        },
+        "A_B": {
+          "relative_L2": 0.004245481017332003,
+          "norm_relative": 1.955304187750695e-05,
+          "cosine_error": 9.01203958636465e-06
+        },
+        "AA_B": {
+          "relative_L2": 0.004267506387852291,
+          "norm_relative": 4.698769899447175e-05,
+          "cosine_error": 9.105129292197311e-06
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.0169411395541366,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0009765625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 6.103515625e-05,
+            "p90": 0.000244140625,
+            "p99": 0.00048828125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.9.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000732421875,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0006024464964866638,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.3.input_layernorm.weight"
+            },
+            {
+              "max_absolute": 0.0005953535437583923,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.5.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.11.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.13.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.7.self_attn.k_proj.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0009765625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 6.103515625e-05,
+            "p90": 0.000244140625,
+            "p99": 0.00048828125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.7.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0008544921875,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0005441270768642426,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.5.self_attn.q_norm.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.11.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.6.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.7.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.11.self_attn.q_proj.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0009765625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 6.103515625e-05,
+            "p90": 0.000244140625,
+            "p99": 0.00048828125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.7.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0009765625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.9.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000732421875,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0005101975984871387,
+              "name": "rank4/qwen_vl_interface.model.model.language_model.layers.3.input_layernorm.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.4.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.9.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.9.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.11.self_attn.q_proj.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/2": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0024952210098761764,
+          "norm_relative": 2.0817523468830146e-05,
+          "cosine_error": 3.11278245912483e-06
+        },
+        "A_B": {
+          "relative_L2": 0.0026264733834297973,
+          "norm_relative": 2.392406697304672e-06,
+          "cosine_error": 3.4491866068853128e-06
+        },
+        "AA_B": {
+          "relative_L2": 0.0026202152888547114,
+          "norm_relative": 2.3209447002958683e-05,
+          "cosine_error": 3.4325744088237187e-06
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 1.052179824237631,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.00048828125,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.0517578125e-05,
+            "p90": 0.0001220703125,
+            "p99": 0.000244140625
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.23.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.16.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.16.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.14.self_attn.v_proj.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.00048828125,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.0517578125e-05,
+            "p90": 0.0001220703125,
+            "p99": 0.0002647399902343771
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank2/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank4/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.16.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.18.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.0003662109375,
+              "name": "rank2/qwen_vl_interface.model.model.language_model.layers.15.self_attn.k_proj.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.00048828125,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 3.0517578125e-05,
+            "p90": 0.0001220703125,
+            "p99": 0.00048828125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank2/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.17.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank4/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank5/qwen_vl_interface.model.model.language_model.layers.16.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.20.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.00048828125,
+              "name": "rank6/qwen_vl_interface.model.model.language_model.layers.20.self_attn.k_proj.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/3": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.00036848433851999977,
+          "norm_relative": 1.202668711286492e-07,
+          "cosine_error": 6.789033846210657e-08
+        },
+        "A_B": {
+          "relative_L2": 0.00036626999444351214,
+          "norm_relative": 3.3103206620310743e-07,
+          "cosine_error": 6.707677757677999e-08
+        },
+        "AA_B": {
+          "relative_L2": 0.00037081168168548505,
+          "norm_relative": 2.1076516976137327e-07,
+          "cosine_error": 6.875061497879642e-08
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.9913004592038651,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.000244140625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 3.0517578125e-05,
+            "p99": 0.0001220703125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.26.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.24.self_attn.q_proj.weight"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.000244140625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 3.0517578125e-05,
+            "p99": 0.0001220703125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank3/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.24.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.26.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.000244140625,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 3.0517578125e-05,
+            "p99": 0.0001220703125
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.000244140625,
+              "name": "rank7/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.24.self_attn.q_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.25.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank0/qwen_vl_interface.model.model.language_model.layers.26.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.24.self_attn.v_proj.weight"
+            },
+            {
+              "max_absolute": 0.0001220703125,
+              "name": "rank1/qwen_vl_interface.model.model.language_model.layers.25.self_attn.q_proj.weight"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/4": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "A_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "AA_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.7.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.8.attn1.to_q.bias"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/5": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "A_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        },
+        "AA_B": {
+          "relative_L2": 0.0,
+          "norm_relative": 0.0,
+          "cosine_error": 0.0
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.0,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.bias"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 0.0,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 0.0,
+            "p90": 0.0,
+            "p99": 0.0
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.0.proj.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.22.ff.net.2.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.norm1.linear.bias"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.weight"
+            },
+            {
+              "max_absolute": 0.0,
+              "name": "rank0/action_model.model.transformer_blocks.23.attn1.to_q.bias"
+            }
+          ]
+        }
+      }
+    },
+    "gradient/by_optimizer_group/6": {
+      "measures": {
+        "A_A": {
+          "relative_L2": 1.5857870506352265e-07,
+          "norm_relative": 5.160417648752968e-10,
+          "cosine_error": 1.2656542480726785e-14
+        },
+        "A_B": {
+          "relative_L2": 1.7033173617029827e-07,
+          "norm_relative": 5.559996907322784e-12,
+          "cosine_error": 1.4654943925052066e-14
+        },
+        "AA_B": {
+          "relative_L2": 1.725080936373287e-07,
+          "norm_relative": 5.104816569456716e-10,
+          "cosine_error": 1.4876988529977098e-14
+        }
+      },
+      "AB_over_AA_relL2_plus_floor": 0.1470178378265284,
+      "raw_max_absolute_and_quantiles": {
+        "A_A": {
+          "max_absolute": 4.470348358154297e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 9.313225746154785e-10,
+            "p90": 3.725290298461914e-09,
+            "p99": 1.30385160446167e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank6/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.3283064365386963e-08,
+              "name": "rank0/geometry.backbone.bn1.bias"
+            }
+          ]
+        },
+        "A_B": {
+          "max_absolute": 7.450580596923828e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.1641532182693481e-09,
+            "p90": 4.0745362639427185e-09,
+            "p99": 1.46823003888129e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 7.450580596923828e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank1/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.60770320892334e-08,
+              "name": "rank0/geometry.backbone.layer1.0.conv1.weight"
+            }
+          ]
+        },
+        "AA_B": {
+          "max_absolute": 5.960464477539063e-08,
+          "logical_tensor_max_error_quantiles": {
+            "p50": 1.1350493878126144e-09,
+            "p90": 4.190951585769653e-09,
+            "p99": 1.4901161193847656e-08
+          },
+          "worst_tensors": [
+            {
+              "max_absolute": 5.960464477539063e-08,
+              "name": "rank7/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank2/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.470348358154297e-08,
+              "name": "rank5/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 4.0978193283081055e-08,
+              "name": "rank0/geometry.bev_backbone.layers.0.0.bn1.bias"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank0/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank1/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank3/future_space.semantic.weight"
+            },
+            {
+              "max_absolute": 2.9802322387695312e-08,
+              "name": "rank4/future_space.semantic.weight"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "numeric_thresholds_changed": false,
+  "numeric_component_checks_passed": false,
+  "observation_classifier_order_fix_pending": true,
+  "full_12slot_matrix_completed": false,
+  "native500_recovery_dev_complete": false,
+  "formal_authorized": false,
+  "passed": false
+}
