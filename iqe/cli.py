@@ -44,6 +44,9 @@ def parser():
         c.add_argument("--resume", nargs="?", const="auto")
         c.add_argument("--non-exact-finetune", action="store_true")
         c.add_argument("--checkpoint")
+        if command == 'freeze-base':
+            c.add_argument('--diagnostic-checkpoint', action='store_true',
+                           help='explicit smoke-only binding of a bounded continuation; cannot qualify or activate formal S0')
         c.add_argument("--evaluation")
         if command == "qualify-base":
             c.add_argument("--select", action="store_true", help="explicitly select this qualified version before immutable Base locking")
@@ -136,7 +139,7 @@ def execute(a):
     if a.command == "freeze-base":
         checkpoint = a.checkpoint or config["s0"]["query_checkpoint"]
         require(checkpoint is not None, "freeze-base requires the actually trained Query checkpoint")
-        return pipeline.freeze_base(checkpoint)
+        return pipeline.freeze_base(checkpoint, diagnostic_checkpoint=a.diagnostic_checkpoint)
     if a.command in {"rollback", "load-bundle", "final-test"}:
         from .export import load_bundle, rollback
         if a.command == "rollback":

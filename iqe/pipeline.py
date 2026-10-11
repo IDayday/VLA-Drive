@@ -195,8 +195,9 @@ class Pipeline:
         atomic_json(self.root / "split_audit.json", audit, immutable=True)
         return audit
 
-    def freeze_base(self, checkpoint):
+    def freeze_base(self, checkpoint, *, diagnostic_checkpoint=False):
         require(self.mode != "dry-run", "dry-run cannot lock S0")
+        require(not diagnostic_checkpoint or self.mode == 'smoke', 'diagnostic binding cannot lock a formal Base')
         qualification = None
         lock_path = self.root / 'LOCKED_S0.json'
         if lock_path.exists() and read_json(lock_path).get('base_mode') == 'full':
@@ -211,7 +212,12 @@ class Pipeline:
         require(not state["learned_driving_weights_loaded"], "learned DiT weights unexpectedly loaded")
         require(state.get("fit_scene_ids") and digest(state["fit_scene_ids"]) == state["dependencies"]["fit_manifest"], "base exposure records unavailable/inconsistent")
         state_mode = state.get("mode") or read_json(Path(checkpoint).parent / "result.json")["mode"]
-        require(self.mode == state_mode, "cannot relabel a smoke/profile base checkpoint as formal training")
+        diagnostic = {}
+        if diagnostic_checkpoint:
+            from .vision_cache.binding import diagnostic_binding
+            diagnostic = diagnostic_binding(state, self.mode, self.config)
+        else:
+            require(self.mode == state_mode, "cannot relabel a smoke/profile base checkpoint as formal training")
         from .query_base import bind_source
         bind_source(self.contract["source_root"], self.contract["source_commit"])
         from tools.ddpolicy_vehicle.training_state import epoch_batches
@@ -226,7 +232,7 @@ class Pipeline:
             "checkpoint_hash": file_hash(checkpoint), "seen_observations":len(seen)}, immutable=True)
         c = dict(self.contract) | {"binding_status": "LOCKED_QUERY_S0", "query_checkpoint": str(Path(checkpoint).resolve()),
                                   "query_checkpoint_hash": file_hash(checkpoint), "base_optimizer_steps": state["optimizer_step"],
-                                  "base_mode": self.mode, "base_split_manifest_hash": state["dependencies"]["fit_manifest"]}
+                                  "base_mode": self.mode, "base_split_manifest_hash": state["dependencies"]["fit_manifest"], **diagnostic}
         if qualification:
             c["base_qualification"] = qualification
         # Contract evolution is a separate immutable lock artifact; framework contract stays immutable.

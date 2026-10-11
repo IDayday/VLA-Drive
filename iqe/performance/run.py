@@ -40,7 +40,7 @@ def state_hash(model,optimizer):
     return {'model':weights,'optimizer_tensors':h.hexdigest()}
 
 
-def main():
+def main(argv=None, *, production=None):
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--config',required=True);p.add_argument('--runtime',required=True)
     p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True)
@@ -53,14 +53,16 @@ def main():
     p.add_argument('--build-vision-cache',action='store_true')
     p.add_argument('--mask-probe',action='store_true',help='two-update real-input missing-label/tail diagnostic, never a throughput or training checkpoint')
     p.add_argument('--local-checkpoint-root',default='/var/tmp/iqe-perf-v2/checkpoints')
-    a=p.parse_args();require(1<=a.updates<=(200 if a.mode=='bounded' else 100000),'explicit update budget, independent of LR schedule')
+    a=p.parse_args(argv);require(1<=a.updates<=(200 if a.mode=='bounded' else 100000),'explicit update budget, independent of LR schedule')
     require(a.checkpoint_every>0,'checkpoint interval must be positive')
     require(a.mode=='bounded' or (a.qualification and not any((a.trace,a.probe,a.mask_probe,a.build_vision_cache,a.fingerprint))), 'continuation requires qualification and excludes diagnostic modes')
     require(not a.mask_probe or (a.updates==2 and not a.save and not a.build_vision_cache),'mask probe is a two-step unsaved diagnostic')
     require(0<=a.warmup<a.updates,'invalid warmup');require(not a.trace or a.updates<=8,'profiler at most8 updates')
     opts=PerformanceOptions.load(a.runtime)
     implementation_hashes={str(p):file_hash(p) for p in sorted(Path(__file__).parent.glob('*.py'))}
-    if a.mode=='continuation':
+    if production is not None:
+        production.validate_options(opts, a)
+    if a.mode=='continuation' and production is None:
         from .qualification import validate_continuation
         certificate=validate_continuation(a.qualification,opts,implementation_hashes)
         require(opts.vision_cache is None,'pilot cache is not qualified for full continuation')
@@ -70,6 +72,7 @@ def main():
     resources=qualify_distributed('cuda');rank,world=init_distributed('cuda')
     require(world==8,'performance comparisons require eight ranks, global32/micro4')
     device=f'cuda:{os.environ["LOCAL_RANK"]}';torch.cuda.set_device(device)
+    if production is not None: production.resolve_checkpoint(a, rank, device)
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=True
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
     lock=None
@@ -77,7 +80,9 @@ def main():
     if rank==0:
         try:
             lock=(root/'run.lock').open('a+');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-            require(not (root/'LAUNCH.json').exists(),'output identity already exists: choose a new attempt output')
+            require(not (root/'LAUNCH.json').exists() or (production is not None and production.resume_from_run),
+                    'output identity already exists: use explicit resume-from-run')
+            if production is not None: production.lock_lineage(a)
         except Exception as ex:error=repr(ex)
     collective_check(error,device=device)
     config=load_config(a.config);contract=read_json(config['s0']['contract'])
@@ -108,15 +113,20 @@ def main():
         'qwen_implementation_hash':file_hash(Path(transformers.__file__).parent/'models/qwen3_vl/modeling_qwen3_vl.py')}
     identity={'execution_environment':execution_environment,'options':opts.identity(),'backend_flags':backend_flags(),'framework_contract_hash':contract['framework_contract_hash'],
         'optimizer_config':cfg,'execution_code_hashes':implementation_hashes,'original_dependencies_hash':digest(original_dependencies),'fit_hash':digest(state['fit_scene_ids']),'world_size':world,'torch':torch.__version__}
-    if a.mode=='continuation':
+    if a.mode=='continuation' and production is None:
         require(certificate['execution_environment']==execution_environment,'qualified execution environment changed; explicit new qualification required')
         require(certificate['framework_contract_hash']==identity['framework_contract_hash'] and certificate['fit_hash']==identity['fit_hash'],'qualification Base/data framework mismatch')
+    if production is not None:
+        identity['production_cache_runtime'] = production.identity()
+        production.validate_state(state, identity, a)
     if state.get('performance_identity'):
         require(state['performance_identity']==identity,'performance resume execution identity changed')
     if rank==0:
-        atomic_json(root/'LAUNCH.json',{'checkpoint':a.checkpoint,'checkpoint_hash':receipt['checksum'],'identity':identity,
+        launch={'checkpoint':a.checkpoint,'checkpoint_hash':receipt['checksum'],'identity':identity,
             'resources':resources,'updates':a.updates,'trace':a.trace,'probe':a.probe,'mask_probe':a.mask_probe,'original_base_modified':False,'config':config,
-            'mode':a.mode,'implementation_hashes':implementation_hashes})
+            'mode':a.mode,'implementation_hashes':implementation_hashes}
+        if not (root/'LAUNCH.json').exists(): atomic_json(root/'LAUNCH.json',launch,immutable=True)
+        elif production is not None: atomic_json(root/f'RESUME_{receipt["optimizer_step"]:06d}.json',launch,immutable=True)
     bind_source(contract['source_root'],contract['source_commit'])
     for name,expected in contract['query_model_code_hashes'].items():require(file_hash(name)==expected,'protected Query source changed: '+name)
     random.seed(config['seed']+rank);np.random.seed(config['seed']+rank);torch.manual_seed(config['seed'])
@@ -133,14 +143,21 @@ def main():
     dataset=original_dataset(config,contract,allow_partial=False)
     by_id={x['token']:i for i,x in enumerate(dataset.index)};fit=state['fit_scene_ids']
     require(all(t in by_id for t in fit),'fit manifest/source mismatch')
+    if production is not None:
+        error=None
+        try: dataset=production.attach_dataset(dataset, model, contract, fit)
+        except Exception as ex: error=repr(ex)
+        collective_check(error,device=device)
     from tools.ddpolicy_vehicle.training_state import epoch_batches
     from tools.foresight.student_state import optimizer_batch_counts
     from starVLA.dataloader.foresight_dataset import collate_training
     step=state['optimizer_step'];initial_step=step;epoch,offset=state['epoch'],state['offset']
+    # Preserve provenance from the real parent; absence is unknown, never False.
+    provenance={k:copy.deepcopy(state[k]) for k in ('learned_driving_weights_loaded','initialization_provenance','origin','base_provenance') if k in state}
+    if production is not None: provenance.update(production.checkpoint_metadata(state, a.checkpoint, receipt['checksum']))
     restore_rng(state['rng_by_rank'][rank]);del state
     instrument=Instrumentation(a.trace,device);instrument.attach(model)
     from .numerics import NumericalProbe
-    probe=NumericalProbe(model,a.probe,root,rank)
     checkpoint_seconds=0.;last_saved_step=None
     def save_boundary():
         nonlocal checkpoint_seconds,last_saved_step
@@ -150,7 +167,7 @@ def main():
             try:
                 path=root/f'step_{step:06d}.pt'
                 require(not path.exists(),'refusing checkpoint overwrite')
-                atomic_torch(path,{'kind':'iqe_query_base','framework_contract_hash':contract['framework_contract_hash'],
+                atomic_torch(path,{**provenance,'kind':'iqe_query_base','framework_contract_hash':contract['framework_contract_hash'],
                     'model':model.state_dict(),'optimizer':optimizer.state_dict(),'scheduler':scheduler.state_dict(),
                     'optimizer_step':step,'epoch':epoch,'offset':offset,'dependencies':original_dependencies,
                     'rng_by_rank':rngs,'resume_boundary':'optimizer_step','fit_scene_ids':fit,'seed':config['seed'],
@@ -178,7 +195,9 @@ def main():
             'visual_source_hash':file_hash(inspect.getfile(type(model.qwen_vl_interface.model.model.visual))),
             'deepstack_count':3}
         cache=FrozenVisionCache(model,opts.vision_cache,cache_identity,rank,build=a.build_vision_cache,max_scenes=8)
-    vision=FrozenVisionAhead(model);rows=[];stop=[False]
+    vision=production.vision(model) if production is not None else FrozenVisionAhead(model)
+    probe=NumericalProbe(model,a.probe,root,rank)
+    rows=[];stop=[False]
     previous=signal.signal(signal.SIGTERM,lambda *_:stop.__setitem__(0,True))
     profiler=torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,torch.profiler.ProfilerActivity.CUDA],record_shapes=True,with_stack=False,profile_memory=False) if a.trace else nullcontext()
     dist.barrier();torch.cuda.synchronize();torch.cuda.reset_peak_memory_stats();begin=time.perf_counter()
@@ -227,6 +246,8 @@ def main():
                     collective_check(None if finite_gradients(params) else 'nonfinite gradient',device=device)
                     norm=torch.nn.utils.clip_grad_norm_(params,cfg['grad_clip_norm'])
                 probe.before_step(optimizer,result)
+                if production is not None and a.fingerprint and not rows:
+                    production.capture_gradient(model)
                 with instrument.region('optimizer_step'):optimizer.step()
                 probe.after_step(optimizer)
                 with instrument.region('scheduler_logging'):
@@ -273,6 +294,7 @@ def main():
         'rng_python_hash':hashlib.sha256(repr(rng['python']).encode()).hexdigest(),'rng_numpy_hash':hashlib.sha256(repr(rng['numpy']).encode()).hexdigest(),
         'scheduler_state':scheduler.state_dict(),'data_cursor':{'epoch':epoch,'offset':offset},'rng_cpu_hash':tensor_hash(rng['cpu']),'rng_cuda_hashes':[tensor_hash(t) for t in rng['cuda']],
         'cache_timings':cache.timings if cache else None,'DDP':wrapped._get_ddp_logging_data(),'peak_allocated_bytes':torch.cuda.max_memory_allocated(),'peak_reserved_bytes':torch.cuda.max_memory_reserved()}
+    if production is not None: report['production_cache'] = production.report(vision)
     atomic_json(root/f'rank_{rank}.json',report)
     dist.barrier()
     if rank==0:

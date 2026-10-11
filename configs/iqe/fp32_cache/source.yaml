@@ -1,0 +1,11 @@
+extends: ../main.yaml
+output_root: /mnt/project/iqe-fp32-cache-production-runtime-3931fed/unlaunched_pipeline
+s0:
+  contract: /mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/reports/iqe/S0_CONTRACT.json
+base_runtime:
+  prefetch_depth: 1
+  frozen_vision_ahead: true
+  batched_gradient_checks: true
+  allow_legacy_validation_metadata: true
+  deterministic_backward: true
+  allow_deterministic_backend_migration: true

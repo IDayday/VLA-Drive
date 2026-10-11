@@ -1,0 +1,30 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+loaded name_or_path: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct
+vocab/emb size: 151936 151678
+image_token_id: 151655
+loaded name_or_path: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct
+vocab/emb size: 151936 151678
+image_token_id: 151655
+Traceback (most recent call last):
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/scripts/iqe/fp32_cache/checkpoint_lifecycle.py", line 120, in <module>
+    if __name__=='__main__':main()
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/scripts/iqe/fp32_cache/checkpoint_lifecycle.py", line 57, in main
+    features=model.adapter.encode_scene([obs]);pred=model.adapter.predict_s0(features)
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/iqe/s0_adapter.py", line 50, in encode_scene
+    encoded = self.framework.encode_current(batch)
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/iqe/query_base.py", line 98, in encode_current
+    encoded = super().encode_current(observations)
+  File "/mnt/project/VLA-Drive-action-video-source-1493ded/starVLA/model/framework/DDPForesight.py", line 101, in encode_current
+    hidden=self._qwen_language_forward(ids,embeddings,attention,positions,visual,deepstack)
+  File "/mnt/project/VLA-Drive-action-video-source-1493ded/starVLA/model/framework/QwenOFT.py", line 403, in _qwen_language_forward
+    outputs = self.qwen_vl_interface.model.model.language_model(
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in inner
+    args_result = hook(self, args)
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/iqe/vision_cache/builder.py", line 44, in forbidden
+    def forbidden(*args): raise RuntimeError('cache builder must never execute trainable LLM')
+RuntimeError: cache builder must never execute trainable LLM

@@ -1,0 +1,10 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Traceback (most recent call last):
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/scripts/iqe/fp32_cache/build_full.py", line 50, in <module>
+    if __name__=='__main__':main()
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/scripts/iqe/fp32_cache/build_full.py", line 29, in main
+    require(capacity['sufficient'],'BLOCKED_SHARED_CAPACITY: preserve Base checkpoints/22k/safety reserve')
+  File "/mnt/project/DriveVLA-M0-iqe-fp32-cache-3931fed/iqe/contracts.py", line 17, in require
+    raise ContractError(message)
+iqe.io.ContractError: BLOCKED_SHARED_CAPACITY: preserve Base checkpoints/22k/safety reserve
