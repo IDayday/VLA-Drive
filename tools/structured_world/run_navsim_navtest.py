@@ -989,25 +989,37 @@ def serve(args):
         observer = navtest_cadence.Observer(cadence, args.output, request, valid_score_completion) if cadence else None
         if observer:
             cleanup.callback(observer.close)
+        first_request = args.request_key
         while True:
             authorized()
             if observer and observer.error:
                 raise RuntimeError('Cadence capture failed; evidence retained') from observer.error
-            paths = list((args.output / 'requests').glob('*.json'))
+            if first_request:
+                if not re.fullmatch(r'[A-Za-z0-9_]+', first_request):
+                    raise ValueError('Invalid explicit initial request key')
+                paths = [args.output / 'requests' / (first_request + '.json')]
+            else:
+                paths = list((args.output / 'requests').glob('*.json'))
             reqs = sorted((json.loads(p.read_text()) for p in paths), key=lambda r: (r['priority'], r['key']))
+            if first_request and (reqs[0]['key'] != first_request or
+                    (cadence and not navtest_cadence.eligible(cadence, reqs[0]))):
+                raise ValueError('Explicit initial request is foreign or outside registered cadence')
             todo = []
             for r in reqs:
                 marker = args.output / 'completed' / (r['key'] + '.json')
                 if marker.exists():
                     if json.loads(marker.read_text()).get('valid') is not True or not valid_score_completion(args.output/'jobs'/r['key'], r):
                         raise ValueError('Queue success marker does not certify a valid full bank')
+                    if first_request: first_request = None
                 elif not cadence or navtest_cadence.eligible(cadence, r): todo.append(r)
             if not todo:
                 atomic(args.output / 'STATE.json', {'status': 'IDLE_AWAITING_REQUESTS', 'observed_utc': now()})
                 if args.exit_when_idle: return
                 time.sleep(10); continue
             req = todo[0]
-            try: execute(args, req)
+            try:
+                execute(args, req)
+                first_request = None
             except ResourcesUnavailable as error:
                 atomic(args.output / 'STATE.json', {'status': 'WAITING_FOR_AVAILABLE_RESOURCES',
                     'request': req, 'reason': str(error), 'observed_utc': now()})
