@@ -1,0 +1,41 @@
+{
+  "host": "training-vlawm-tsinghua-zt",
+  "started_utc": "2026-10-12T07:16:41.218449+00:00",
+  "formal_training_started": false,
+  "existing_environment_modified": false,
+  "GPU_inventory_before": "0, NVIDIA A800-SXM4-80GB, GPU-f0cd16db-c7f6-2226-c901-d1809277060e, 81920, 0, 0\n1, NVIDIA A800-SXM4-80GB, GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056, 81920, 0, 0\n2, NVIDIA A800-SXM4-80GB, GPU-51b3887b-3158-ece3-aa70-a52adb25160b, 81920, 0, 0\n3, NVIDIA A800-SXM4-80GB, GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc, 81920, 0, 0\n4, NVIDIA A800-SXM4-80GB, GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f, 81920, 0, 0\n5, NVIDIA A800-SXM4-80GB, GPU-76726c77-ffe3-6f10-fb08-7782dac5d840, 81920, 0, 0\n6, NVIDIA A800-SXM4-80GB, GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542, 81920, 0, 0\n7, NVIDIA A800-SXM4-80GB, GPU-91fd88e4-a388-6b59-e684-13a463606f9e, 81920, 0, 0\n",
+  "topology": "\t\u001b[4mGPU0\tGPU1\tGPU2\tGPU3\tGPU4\tGPU5\tGPU6\tGPU7\tNIC0\tNIC1\tNIC2\tNIC3\tNIC4\tNIC5\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\tPXB\tNODE\tSYS\tSYS\tNODE\tSYS\t0-31,64-95\t0\t\tN/A\nGPU1\tNV8\t X \tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\tPXB\tNODE\tSYS\tSYS\tNODE\tSYS\t0-31,64-95\t0\t\tN/A\nGPU2\tNV8\tNV8\t X \tNV8\tNV8\tNV8\tNV8\tNV8\tNODE\tPXB\tSYS\tSYS\tPXB\tSYS\t0-31,64-95\t0\t\tN/A\nGPU3\tNV8\tNV8\tNV8\t X \tNV8\tNV8\tNV8\tNV8\tNODE\tPXB\tSYS\tSYS\tPXB\tSYS\t0-31,64-95\t0\t\tN/A\nGPU4\tNV8\tNV8\tNV8\tNV8\t X \tNV8\tNV8\tNV8\tSYS\tSYS\tPXB\tNODE\tSYS\tPXB\t32-63,96-127\t1\t\tN/A\nGPU5\tNV8\tNV8\tNV8\tNV8\tNV8\t X \tNV8\tNV8\tSYS\tSYS\tPXB\tNODE\tSYS\tPXB\t32-63,96-127\t1\t\tN/A\nGPU6\tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\t X \tNV8\tSYS\tSYS\tNODE\tPXB\tSYS\tNODE\t32-63,96-127\t1\t\tN/A\nGPU7\tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\tNV8\t X \tSYS\tSYS\tNODE\tPXB\tSYS\tNODE\t32-63,96-127\t1\t\tN/A\nNIC0\tPXB\tPXB\tNODE\tNODE\tSYS\tSYS\tSYS\tSYS\t X \tNODE\tSYS\tSYS\tNODE\tSYS\t\t\t\t\nNIC1\tNODE\tNODE\tPXB\tPXB\tSYS\tSYS\tSYS\tSYS\tNODE\t X \tSYS\tSYS\tPIX\tSYS\t\t\t\t\nNIC2\tSYS\tSYS\tSYS\tSYS\tPXB\tPXB\tNODE\tNODE\tSYS\tSYS\t X \tNODE\tSYS\tPIX\t\t\t\t\nNIC3\tSYS\tSYS\tSYS\tSYS\tNODE\tNODE\tPXB\tPXB\tSYS\tSYS\tNODE\t X \tSYS\tNODE\t\t\t\t\nNIC4\tNODE\tNODE\tPXB\tPXB\tSYS\tSYS\tSYS\tSYS\tNODE\tPIX\tSYS\tSYS\t X \tSYS\t\t\t\t\nNIC5\tSYS\tSYS\tSYS\tSYS\tPXB\tPXB\tNODE\tNODE\tSYS\tSYS\tPIX\tNODE\tSYS\t X \t\t\t\t\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n\nNIC Legend:\n\n  NIC0: mlx5_ib0\n  NIC1: mlx5_ib1\n  NIC2: mlx5_ib2\n  NIC3: mlx5_ib3\n  NIC4: mlx5_bond_0\n  NIC5: mlx5_bond_1\n\n",
+  "packages": {
+    "torch": "2.5.1+cu124",
+    "torchvision": "0.20.1+cu124",
+    "transformers": "4.57.0",
+    "deepspeed": "0.16.9",
+    "mmcv": "2.2.0",
+    "mmengine": "0.10.7",
+    "diffusers": "0.35.2",
+    "flash_attn": "2.7.4.post1",
+    "numpy": "1.26.4",
+    "accelerate": "1.5.2",
+    "tokenizers": "0.22.1",
+    "safetensors": "0.6.2"
+  },
+  "data_alias": {
+    "path": "/var/tmp/ddp-full-foresight-20260929",
+    "shared": "/mnt/project/structured-world-fgtr-execution-assets/20261011/navsim_current_train_v1",
+    "copied_payload_bytes": 0
+  },
+  "current_image_sample_hashes_checked": 8,
+  "MSDeformAttn_cuda_forward_backward": true,
+  "FusedAdam_cuda_update": true,
+  "GPU_peak_allocated_bytes": 9216,
+  "cuda_runtime": "12.4",
+  "cudnn": 90100,
+  "nccl": [
+    2,
+    21,
+    5
+  ],
+  "status": "ENVIRONMENT_AND_OPERATOR_QUALIFIED_NOT_MODEL_ACCEPTANCE",
+  "seconds": 30.206266056746244,
+  "ended_utc": "2026-10-12T07:17:11.424723+00:00"
+}

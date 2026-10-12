@@ -1,0 +1,25 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/mnt/project/structured-world-fgtr-execution-assets/20261012/qwen_runtime_tsinghua_v1/lib/python3.10/site-packages/mmengine/optim/optimizer/zero_optimizer.py:11: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  from torch.distributed.optim import \
+[2026-10-12 08:08:43,264] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2026-10-12 08:08:43,271] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/third_party/resworld/ported/rcsample.py:386: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @autocast(False)
+test_actual_Qwen_adapter_forward_gradients_and_RNG (__main__.HostExecutionTests) ... ok
+test_actual_future_reference_forward_all_gradients_and_RNG (__main__.HostExecutionTests) ... ok
+test_configuration_preserves_state_and_RNG (__main__.HostExecutionTests) ... ok
+test_mode_split_and_switching_from_every_old_mode (__main__.HostExecutionTests) ... ok
+test_numerical_probe_actual_parser_and_prepared_route (__main__.HostExecutionTests) ... ok
+test_trainer_actual_parser_defaults_and_formal_rejection (__main__.HostExecutionTests) ... ok
+test_wrapper_query_loss_calls_ignore_prepared_candidates_and_keep_all_gradients (__main__.HostExecutionTests) ... ok
+test_actual_collator_transfer_Qwen_route_validation_and_legacy_fallback (__main__.PreparedHostRouteTests) ... ok
+test_geometry_prepared_route_matches_native_values_and_all_gradients (__main__.PreparedHostRouteTests) ... ok
+test_host_collator_skips_unused_label_index_work_without_changing_inputs (__main__.PreparedHostRouteTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.235s
+
+OK

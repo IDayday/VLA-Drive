@@ -1,0 +1,195 @@
+{
+  "schema": "structured_world_scaling_windows_v1",
+  "status": "PREPARED_NOT_EXECUTED_RESOURCE_WINDOW_PENDING",
+  "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-host-v4-frozen-20261012",
+  "source_sha": "30f70d63556342382367aaff25ddce4342ff256c",
+  "python": "/mnt/project/structured-world-fgtr-execution-assets/20261012/qwen_runtime_tsinghua_v1/bin/python",
+  "hosts": [
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "address": "172.16.144.229",
+      "gpu_uuids": [
+        "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+        "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+        "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+        "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+        "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+        "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+        "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+        "GPU-91fd88e4-a388-6b59-e684-13a463606f9e"
+      ],
+      "qualification": {
+        "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/training-vlawm-tsinghua-zt/QUALIFICATION.json",
+        "sha256": "7be49b5bc4dfd5c549ad2c053557425855de74bc744ec95564672abc1bc59e59"
+      },
+      "torch_extensions": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/training-vlawm-tsinghua-zt/torch_extensions"
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "address": "172.16.0.34",
+      "gpu_uuids": [
+        "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+        "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+        "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+        "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+        "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+        "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+        "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+        "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+      ],
+      "qualification": {
+        "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/training-vlawm-tsinghua-zt2/QUALIFICATION.json",
+        "sha256": "dbcbb8ae4fc8c500fc022817e7faa76395e512541a3a293fc668748b31fb6627"
+      },
+      "torch_extensions": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/training-vlawm-tsinghua-zt2/torch_extensions"
+    }
+  ],
+  "assets": {
+    "cache": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+    "geometry": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+    "geometry-identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+    "dino-root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+    "dino-identity": "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+    "image-root": "/var/tmp/ddp-full-foresight-20260929/images"
+  },
+  "configs": {
+    "G1": "navsim_G1_FULL_UNIFORM_seed42.yaml",
+    "G3": "navsim_G3_EVENT_LOCAL_seed42.yaml"
+  },
+  "physical_locks": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/physical_gpu_locks",
+  "jobs": {
+    "G1_w8_r1": {
+      "group": "G1",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29700,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w8_r1",
+      "repetition": 1
+    },
+    "G1_w16_r1": {
+      "group": "G1",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29701,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w16_r1",
+      "repetition": 1
+    },
+    "G1_w8_r2": {
+      "group": "G1",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29702,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w8_r2",
+      "repetition": 2
+    },
+    "G1_w16_r2": {
+      "group": "G1",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29703,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w16_r2",
+      "repetition": 2
+    },
+    "G1_w8_r3": {
+      "group": "G1",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29704,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w8_r3",
+      "repetition": 3
+    },
+    "G1_w16_r3": {
+      "group": "G1",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29705,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G1_w16_r3",
+      "repetition": 3
+    },
+    "G3_w8_r1": {
+      "group": "G3",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29706,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w8_r1",
+      "repetition": 1
+    },
+    "G3_w16_r1": {
+      "group": "G3",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29707,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w16_r1",
+      "repetition": 1
+    },
+    "G3_w8_r2": {
+      "group": "G3",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29708,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w8_r2",
+      "repetition": 2
+    },
+    "G3_w16_r2": {
+      "group": "G3",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29709,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w16_r2",
+      "repetition": 2
+    },
+    "G3_w8_r3": {
+      "group": "G3",
+      "world_size": 8,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29710,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w8_r3",
+      "repetition": 3
+    },
+    "G3_w16_r3": {
+      "group": "G3",
+      "world_size": 16,
+      "mode": "io_preserving_v1",
+      "updates": 220,
+      "port": 29711,
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261012/tsinghua_fast_validation/world_scaling_windows_v2/G3_w16_r3",
+      "repetition": 3
+    }
+  },
+  "finite_work": {
+    "profiles": 12,
+    "optimizer_updates": 2640,
+    "warmup_per_profile": 20,
+    "stable_per_profile": 200,
+    "checkpoints_generated": 0,
+    "stable_exposure_per_profile": 6400,
+    "numerical_level": "E3_distributed_execution",
+    "scheduler_horizon": 100000,
+    "warmup": 5000,
+    "cost_note": "16-GPU throughput is unmeasured. At 3.2s/update on both worlds, 12 full profiles cost 28.16GPUh before startup; this is an estimate, not a measured budget."
+  },
+  "adoption_authorized": false,
+  "requires_before_execute": [
+    "coordinated idle window on both hosts, active competing reservation resolved",
+    "fresh NCCL preflight completion on both nodes",
+    "current eight-GPU readiness on every launch; no unrelated jobs stopped"
+  ],
+  "analysis": {
+    "primary": "max of all world-size stable_200_local_wall_seconds divided by200; all worker ranks must report identical stable_200_max_rank_wall_seconds",
+    "scene_throughput": "6400 / stable200 wall seconds",
+    "GPU_cost": "stable200 wall seconds * actual world_size /3600",
+    "do_not_reuse": "old analyze_job assumes eight ranks/native checkpoint; this fresh world test does not prove native eight-to-sixteen resumption"
+  },
+  "routing_revision": "v2: source adds runtime-version requalification and skips unused candidates only for host-fast; IO scaling recipe unchanged"
+}

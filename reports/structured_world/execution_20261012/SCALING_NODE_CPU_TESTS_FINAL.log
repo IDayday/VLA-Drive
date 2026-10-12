@@ -1,0 +1,9 @@
+test_one_and_two_node_commands_use_same_trainer_and_global32 (__main__.NodeTests) ... ok
+test_plan_never_queries_GPU_or_launches (__main__.NodeTests) ... ok
+test_reservation_rejects_before_readiness_or_child (__main__.NodeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK
+{"status": "PLANNED_ONLY", "command": ["/qualified/python", "-B", "-m", "torch.distributed.run", "--nnodes=2", "--nproc-per-node=8", "--node-rank=1", "--master-addr=10.0.0.1", "--master-port=29661", "--rdzv-conf=timeout=120", "--max-restarts=0", "--", "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/benchmark_engineering_execution.py", "--worker", "--trainer", "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/train_vla.py", "--run", "/probe/G1_16_1", "--", "--config", "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml", "--scope", "profile", "--world-scaling-profile", "--use-formal-schedule", "--debug-updates", "220", "--benchmark-no-end-save", "--micro-batch", "2", "--execution-mode", "io_preserving_v1", "--output", "/probe/G1_16_1", "--cache", "/asset/cache", "--geometry", "/asset/geometry", "--geometry-identity", "/asset/geometry-identity", "--dino-root", "/asset/dino-root", "--dino-identity", "/asset/dino-identity", "--image-root", "/asset/image-root"], "GPU_work_started": false}

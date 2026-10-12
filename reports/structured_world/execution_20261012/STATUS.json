@@ -1,0 +1,51 @@
+{
+  "schema": "G_execution_no_regression_status_20261012_v1",
+  "formal_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "formal_mode": "io_preserving_v1",
+  "formal_changed_this_work": false,
+  "latest_implementation_source_sha": "30f70d63556342382367aaff25ddce4342ff256c",
+  "candidate": "engineering_host_fast",
+  "candidate_accepted": false,
+  "completed": {
+    "host_only_CPU_tests": 10,
+    "scaling_and_resource_CPU_tests": 7,
+    "node_launcher_CPU_tests": 3,
+    "benchmark_CPU_tests": 49,
+    "canonical_bridge_CPU_tests": 11,
+    "canonical_bridge_comparisons": 72,
+    "real_visual_GPU_probes": 2,
+    "visual_probe_unique_training_scenes": 8
+  },
+  "old_P0": {
+    "forward_exact_full_gradient_slots": 12,
+    "unchanged_E2_failed_slots": 12,
+    "G1_native_500_update_fivepoint_comparisons_complete": true,
+    "group6_Adam_second_moment_AB_to_AA_difference_norm_at_500": 4.601859,
+    "formal_accepted": false
+  },
+  "cache_probe": {
+    "single_vs_mb4_equivalent": false,
+    "mb4_regrouped_bitwise_checks": 32,
+    "mb4_regrouped_all_pass": true,
+    "all_DeepStack_retained": true,
+    "payload_bytes_per_scene": 28311552,
+    "full_dataset_payload_bytes_estimate": 2876227190784,
+    "permanent_cache_built": false,
+    "training_cache_enabled": false
+  },
+  "pending": [
+    "uncontended full-model host-only numerical and optimizer tests at early/mid G1/G3",
+    "same-mode checkpoint/resume and finite paired continuation",
+    "canonical dev planning acceptance",
+    "real 8/16-card NCCL and full-model throughput windows",
+    "full six-camera nuScenes compatibility with its actual registered recipe"
+  ],
+  "resource_block": "both new full8 hosts reserved and occupied by genuine IQE producers; priority window clarification pending; no unrelated process stopped",
+  "not_claimed": [
+    "lossless faster training adopted",
+    "16-GPU speedup measured",
+    "8-to-16 native optimizer/RNG recovery implemented",
+    "planning quality preserved by CPU tests alone"
+  ],
+  "evidence_index_sha256": "3c06d9bda14d554b1dcfbb9458fd610d406c0e2f3456a149a31e1b3f170b4da3"
+}

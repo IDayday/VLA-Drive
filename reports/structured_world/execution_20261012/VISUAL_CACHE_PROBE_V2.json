@@ -1,0 +1,543 @@
+{
+  "schema": "frozen_visual_cache_feasibility_v1",
+  "source_sha": "1ab59deeb6e4469a420d609a85b0b017cd1a94e1",
+  "host": "training-vla-zt3",
+  "gpu_uuid": "GPU-12938c11-0c31-8107-84f7-af3cf3ae8bac",
+  "policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "584e84dc50548a12be1790a1afdb98e6e527c201e65a9d861064e7e5703c979f",
+    "task_authorization": {
+      "allowed_hosts": [
+        "training-vla-zt",
+        "training-vla-zt2",
+        "training-vla-zt3",
+        "training-vla-zt-recovery",
+        "training-rl-zt2",
+        "training-rl-zt3",
+        "training-rl-zt4",
+        "training-vlawm-zt2",
+        "training-vlawm-zt3",
+        "training-vlawm-zt4",
+        "training-vlawm-zt5",
+        "training-vlawm-tsinghua-zt",
+        "training-vlawm-tsinghua-zt2"
+      ],
+      "authorization_history": [
+        {
+          "host": "training-vlawm-zt4",
+          "scope": "Existing G2_EVENT_UNIFORM checkpoint-safe relocation from forbidden exact vlawm-zt, concurrently with already running IQE FP32 cache part1; no cache pause or change to model, batch or original training budget",
+          "shared_GPU_deployment_authorized": true,
+          "user_instruction": "\u76f4\u63a5\u8fc1\u79fb\uff0c\u7f13\u5b58\u4e5f\u4e0d\u505c\uff0c\u53ef\u4ee5\u5171\u4eab\u8d44\u6e90",
+          "utc": "2026-10-12T02:12:43.435213+00:00"
+        },
+        {
+          "utc": "2026-10-12T07:15:30.642308+00:00",
+          "hosts": [
+            "training-vlawm-tsinghua-zt",
+            "training-vlawm-tsinghua-zt2"
+          ],
+          "user_instruction": "training-vlawm-tsinghua-zt/zt2\u4e24\u4e2a\u670d\u52a1\u5668\u7684\u8d44\u6e90\u4e5f\u53ef\u4f7f\u7528\uff0c\u5e2e\u52a9\u6211\u4eec\u5feb\u901f\u9a8c\u8bc1\u548c\u8bad\u7ec3\u6062\u590d",
+          "scope": "G-series execution validation and checkpoint-safe training resumption; original scientific and numerical acceptance requirements retained",
+          "full_8_GPU_authorized": true
+        }
+      ],
+      "effective_utc": "2026-10-08T16:36:13.015086+00:00",
+      "explicit_deployment_hosts": [
+        "training-vla-zt3",
+        "training-vlawm-zt4"
+      ],
+      "explicit_deployment_instruction": "vla-zt3/vlawm-zt \u53ef\u4ee5\u90e8\u7f72",
+      "explicit_deployment_instruction_utc": "2026-10-09T14:58:52.100594+00:00",
+      "gpu_hours_cap": null,
+      "gpu_placeholder_and_pressure_script_termination_authorized": true,
+      "latest_explicit_resource_hosts": [
+        "training-vla-zt",
+        "training-vla-zt2",
+        "training-rl-zt2",
+        "training-vlawm-zt2",
+        "training-vlawm-zt4"
+      ],
+      "latest_resource_instruction": "vla-zt/vla-zt2/rl-zt2/vlawm-zt/vlawm-zt2 \u8fd9\u4e9b\u5bb9\u5668\u53ef\u4ee5\u4f7f\u7528\uff1b\u9047\u5230\u5360\u5361\u811a\u672c\u548c\u538b\u529b\u811a\u672c\u53ef\u4ee5kill",
+      "latest_resource_instruction_scope": "structured_world_fgtr_round1; confirmed placeholder/stress processes only; unrelated scientific work preserved",
+      "latest_resource_instruction_utc": "2026-10-10T17:14:23.354362+00:00",
+      "old_objective_resumption_allowed": false,
+      "routing_override_history": [
+        {
+          "aliases": [
+            "training-vlawm-zt",
+            "training-vlawm-zt-worker-0",
+            "vlawm-zt",
+            "vlawm-zt-worker-0"
+          ],
+          "existing_tasks": "Checkpoint-safe migration preserving complete training state; no blind termination, no from-scratch restart.",
+          "host": "training-vlawm-zt",
+          "new_task_dispatch_allowed": false,
+          "scope": "all new tasks, queues, retries; administrative inspection and safe migration control permitted",
+          "user_instruction": "\u4e0d\u518d\u5411vlawm-zt\u8fd9\u4e2a\u5bb9\u5668\u6d3e\u53d1\u4efb\u52a1\uff0c\u5982\u679c\u6709\u6b8b\u7559\u4efb\u52a1\u4e5f\u8fc1\u79fb\u5230\u522b\u7684\u670d\u52a1\u5668",
+          "utc": "2026-10-12T02:01:40.357475+00:00"
+        },
+        {
+          "kind": "align_active_routing_fields_to_explicit_migration",
+          "new_host": "training-vlawm-zt4",
+          "previous_active_resource_fields": {
+            "explicit_deployment_hosts": [
+              "training-vla-zt3",
+              "training-vlawm-zt"
+            ],
+            "latest_explicit_resource_hosts": [
+              "training-vla-zt",
+              "training-vla-zt2",
+              "training-rl-zt2",
+              "training-vlawm-zt",
+              "training-vlawm-zt2"
+            ]
+          },
+          "scope": "Existing G2 relocation with cache sharing; current user authorization, no new experiment",
+          "utc": "2026-10-12T02:24:28.441490+00:00",
+          "withdrawn_host": "training-vlawm-zt"
+        }
+      ],
+      "scope": "structured-world-fgtr-round1 only, complete 8-GPU qualified hosts",
+      "shared_GPU_conditions": "Latest user permits full-eight-GPU training alongside existing low-utilization GPU workloads when memory and measured load fit; unrelated scientific workloads must remain running.",
+      "shared_GPU_deployment_authorized": true,
+      "source": "Latest user: \u53ef\u8bbf\u95ee\u7684\u540d\u5b57\u5e26zt\u7684\u670d\u52a1\u5668\uff0c\u770b\u7740\u5408\u9002\u7684\u8d44\u6e90\u4e5f\u53ef\u4ee5\u5b8c\u65748\u5361\u90e8\u7f72\uff0c\u5982\u679c\u6709\u670d\u52a1\u5668\u6709\u5360\u5361\u6216\u8005\u538b\u529b\u6d4b\u8bd5\u811a\u672c\uff0c\u53ef\u4ee5kill",
+      "time_limit": null
+    },
+    "host_reservation": {}
+  },
+  "admission": {
+    "gpu": "GPU-12938c11-0c31-8107-84f7-af3cf3ae8bac, 0, 81153, 0",
+    "compute_apps": ""
+  },
+  "Qwen_source_identity": {
+    "repository": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "files": {
+      ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+      "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+      "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+      "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+      "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+      "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+      "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+      "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+      "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+      "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+      "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "generic_pretraining_data_fully_auditable": false
+  },
+  "current_identity": {
+    "cameras": [
+      "CAM_F0",
+      "CAM_L0",
+      "CAM_R0"
+    ],
+    "current_only": true,
+    "history_images": 0,
+    "identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+    "index_sha256": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+    "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+    "schema": "ddpolicy_current_cameras_v1",
+    "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+    "split": "train",
+    "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+  },
+  "samples": 8,
+  "cameras_per_sample": 3,
+  "population": 101592,
+  "sample_tokens": [
+    "cf6df734e86157fa",
+    "5d76542a4bac5ffa",
+    "574b3e0a3c425dc1",
+    "6a294e9b3261546a",
+    "a2e2872429645811",
+    "1af630dfb6d25b9b",
+    "403cd48e61485877",
+    "ce051c7ff55a5f83"
+  ],
+  "parameters": "FP32 frozen/eval visual only",
+  "compute": "BF16 autocast; original SDPA; TF32 off",
+  "DeepStack_outputs_retained": 3,
+  "output_dtypes": {
+    "visual": "torch.bfloat16",
+    "deepstack_0": "torch.bfloat16",
+    "deepstack_1": "torch.bfloat16",
+    "deepstack_2": "torch.bfloat16"
+  },
+  "model_verification_load_seconds": 7.123041074723005,
+  "input_preprocessing_seconds_eight_scenes_both_batchings": 0.9181896578520536,
+  "online_four_scene_forward_and_H2D": {
+    "count": 10,
+    "median_seconds": 0.26643693912774324,
+    "samples_seconds": [
+      0.2664167992770672,
+      0.2663207519799471,
+      0.2672430984675884,
+      0.2669092919677496,
+      0.2663679588586092,
+      0.2657490633428097,
+      0.26593603752553463,
+      0.26671951450407505,
+      0.2668105810880661,
+      0.2664570789784193
+    ]
+  },
+  "single_scene_encoding_D2H_seconds_eight_scenes": 0.7503464091569185,
+  "four_scene_encoding_D2H_seconds_eight_scenes": 0.621376084163785,
+  "single_vs_four_scene_comparisons": [
+    {
+      "batch": 0,
+      "output": "visual",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.0625,
+      "relative_L2": 0.0020305251378375175
+    },
+    {
+      "batch": 0,
+      "output": "deepstack_0",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.125,
+      "relative_L2": 0.001998571923113173
+    },
+    {
+      "batch": 0,
+      "output": "deepstack_1",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.0625,
+      "relative_L2": 0.0020744026565522743
+    },
+    {
+      "batch": 0,
+      "output": "deepstack_2",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.125,
+      "relative_L2": 0.00206415982929543
+    },
+    {
+      "batch": 1,
+      "output": "visual",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.0625,
+      "relative_L2": 0.002025176586023406
+    },
+    {
+      "batch": 1,
+      "output": "deepstack_0",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.125,
+      "relative_L2": 0.0019959916871960027
+    },
+    {
+      "batch": 1,
+      "output": "deepstack_1",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.0625,
+      "relative_L2": 0.0020654315517152745
+    },
+    {
+      "batch": 1,
+      "output": "deepstack_2",
+      "shape": [
+        6912,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bitwise": false,
+      "max_abs": 0.125,
+      "relative_L2": 0.00204833635502936
+    }
+  ],
+  "same_shape_rebatched_comparisons": [
+    {
+      "scene_index": 0,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 4,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 2,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 6,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 0,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 4,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 2,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 6,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 0,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 4,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 2,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 6,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 0,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 4,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 2,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 6,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 1,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 5,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 3,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 7,
+      "output": "visual",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 1,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 5,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 3,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 7,
+      "output": "deepstack_0",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 1,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 5,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 3,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 7,
+      "output": "deepstack_1",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 1,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 5,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 3,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    },
+    {
+      "scene_index": 7,
+      "output": "deepstack_2",
+      "bitwise": true,
+      "max_abs": 0.0,
+      "relative_L2": 0.0
+    }
+  ],
+  "stored_payload_from_original_microbatch": 4,
+  "cache_bank_bytes_eight_scenes": 226500918,
+  "tensor_payload_bytes": 226492416,
+  "estimated_full_train_payload_bytes": 2876227190784.0,
+  "write_fsync_seconds": 0.20331303216516972,
+  "warm_read_pin_H2D_eight_scenes": {
+    "count": 6,
+    "median_seconds": 0.0704654436558485,
+    "samples_seconds": [
+      0.16924895532429218,
+      0.07471316121518612,
+      0.07041990756988525,
+      0.06839754804968834,
+      0.07051097974181175,
+      0.06772353500127792
+    ]
+  },
+  "peak_GPU_allocated_bytes": 3131094528,
+  "peak_GPU_reserved_bytes": 3447717888,
+  "temporary_cache_removed": true,
+  "full_cache_built": false,
+  "training_interface_changed": false,
+  "formal_authorized": false,
+  "limits": [
+    "Eight real training scenes only; not end-to-end training performance.",
+    "Page-cache-warm shared storage; cold and concurrent IO not measured.",
+    "Per-scene versus original microbatch output differences prohibit a claim of bitwise equivalence.",
+    "Same-shape rebatched checks cover only eight scenes; other grids, tail microbatch3 and world16 microbatch2 are unqualified.",
+    "No H_A/language/FM/BEV/backward, optimizer or planning acceptance."
+  ]
+}

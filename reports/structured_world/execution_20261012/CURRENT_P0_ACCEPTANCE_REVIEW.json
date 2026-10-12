@@ -1,0 +1,140 @@
+{
+  "schema": "current_p0_readonly_acceptance_review_v1",
+  "created_UTC": "2026-10-12T07:20:28.382056+00:00",
+  "mode": "engineering_fast (P0)",
+  "conclusion": "现有未改阈值E2数值证据失败，不能接受为无损。Recovery/dev还缺实际结果；补齐这些缺口也不能覆盖已有full-gradient失败。",
+  "formal_authorized": false,
+  "trainer_consumable": false,
+  "evidence_report_not_acceptance_receipt": true,
+  "sources": {
+    "matrix_complete": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v3_zt4_actual/COMPLETE.json",
+      "sha256": "e6902be25431bb3dabe91b5b515f50ea5600ad8611f456577c3c96049ea82b33"
+    },
+    "unchanged_E2_summary": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/new20261012_status/P0_FULLGRAD_E2_MATRIX_SUMMARY_0008_V1.json",
+    "registration": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+      "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+    },
+    "checker": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/evaluate_execution_acceptance.py",
+      "sha256": "a4effc9b1e56ea6787de9e37bb57cffb2c83b87f7543e78c04569e01b2e34c55"
+    },
+    "fullgrad_binding": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+      "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+    },
+    "recovery_V2": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/recovery_only_v2_20261011/frozen_v1/CLARIFICATION.json",
+    "recovery_commands": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/queued_zt4_cpu_v1/EXACT_CLI_AND_WORKER_COMMANDS.json",
+    "recovery_control_receipt": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/EXACT_EIGHT_COMMANDS.json",
+    "dev_handoff": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/evaluation/dev_execution_driver_cpu_v1/HANDOFF_v1.json",
+    "dev_manifest": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/MANIFEST_P0_v1.json",
+    "dev_CPU_plan": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_execution_dev_20261011/CLI_PLAN_v1/PLAN.json",
+    "native_G1_current": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/native_zt3_recollected_p0_v3/G1_mid",
+    "native_G3_old": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/native_zt3_v1/G3_mid"
+  },
+  "measured_fullgradient": {
+    "model_source_git_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "cases": [
+      "G1/initial",
+      "G1/mid",
+      "G3/initial",
+      "G3/mid"
+    ],
+    "repeats_per_case": 3,
+    "complete_slots": 12,
+    "forward_exact_slots": 12,
+    "ranks": 8,
+    "global_batch": 32,
+    "forward": "H_A/B0/Bt/q0/q_final、全部返回/原始/加权loss、query/count、BN/RNG已精确；只是同输入诊断，不是optimizer更新或长续训证明。",
+    "full_gradient": "A_A/A_B/AA_B均直接测量全参数；每rank 1146个trainable参数、2633678885个元素，17个命名scope。AA_B已补齐，不能继续按旧forward文件的capture=false判未执行。",
+    "original_strict": {
+      "status": "MEASURED_FAIL",
+      "failed_slots": 12,
+      "process_exit": 1,
+      "gradient_atol": 1e-06,
+      "gradient_rtol": 0.0001,
+      "note": "原严格失败原样保留；A_A本身有梯度漂移也不构成重新标pass的理由。"
+    },
+    "unchanged_E2_AA_relative": {
+      "status": "MEASURED_FAIL",
+      "failed_slots": 12,
+      "failure_occurrences": 85,
+      "norm_relative_failures": 83,
+      "cosine_error_failures": 2,
+      "rule": "A_B及AA_B每个命名scope/metric必须同时满足绝对上限和1.25*A_A + 固定floor；norm_relative floor=1e-6。",
+      "absolute_ceiling_failures_reported": 0,
+      "example": {
+        "case": "G3/initial",
+        "repeat": 1,
+        "scope": "gradient/by_optimizer_group/0/A_B/norm_relative",
+        "observed": 0.00019517302068083886,
+        "unchanged_limit": 3.6747461639997636e-06,
+        "observed_over_limit": 53.111973445372215
+      },
+      "aggregate_AB_over_AA_relative_L2_range": [
+        0.9938455962336386,
+        1.0577565192485028
+      ],
+      "warning": "整体relative_L2接近AA不能掩盖分组norm_relative或cosine_error超界。"
+    },
+    "sample_actual_raw_report": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v3_zt4_actual/G3_initial_repeat1/observed/P0_FULL_GRADIENT_COMPARISON.json",
+      "sha256": "77d0aced2aef71c331bd236536c6e7a8994835599e9a7ce138e96fa238549a97"
+    },
+    "accounting": "12个完成槽含1个保留的v2前缀+11个后续槽；实际phase GPU-hours=16.23240038922。COMPLETE是观察完成，不是通过；旧前缀负例仍保留。"
+  },
+  "remaining_evidence": [
+    {
+      "check": "G1 mid native +500五点",
+      "status": "TRAINING_COMPLETE_METADATA; NUMERIC_ACCEPTANCE_PENDING_NEWTON",
+      "observed": "共享v3 A/AA/B都有25500 TRAINING_COMPLETE与25000恢复边界记录；不把这些元数据当五点数值通过。",
+      "required": "Newton负责既有1/32/100/250/500三对全量model/master/Adam/BN等比较、更新norm/direction/excess-slope、scene/RNG/ancestry合同。本review没有加载或比较权重。"
+    },
+    {
+      "check": "G3 mid native +500",
+      "status": "INCOMPLETE_AT_KNOWN_SHARED_RUN",
+      "observed": "旧共享G3 A仅有50000 RESUME_BOUNDARY_VERIFIED和identity，没有50500完成bank；未见该root的AA/B +500完成证据。",
+      "required": "缺少可供全量CPU比较和dev使用的真实A/AA/B +500 triplet；不能拿正式G3后续训练或Navtest代替。"
+    },
+    {
+      "check": "P0 split/resume recovery",
+      "status": "NOT_EXECUTED_OR_NOT_EVIDENCED_AT_REGISTERED_OUTPUTS",
+      "observed": "冻结V2及CPU计划均为pending；只读SSH核对zt4的native_zt4_same_mode_p0_v1/controllers/G1、G3及其A/AA/B run均不存在，未找到实际recovery比较收据。不是一次数值失败。",
+      "required": "每组A32/AA32连续P0，B16保存后同P0恢复到32；bitwise load16合同与真实post-resume三对比较各自成立。旧V1 load32/IO-controls schema不适用此V2，负例保留。"
+    },
+    {
+      "check": "canonical dev",
+      "status": "CPU_READY_ONLY; ACTUAL_INFER_SCORE_RECEIPTS_MISSING",
+      "observed": "旧manifest planning_only=true，CPU14tests和24-job计划不是科学结果；登记results目录不存在，未发现实际DEV_RECEIPT。",
+      "required": "真实G1/G3各A/AA/B +500，canonical 0c FP32/TF32off/10step/seed42推理及CPU评分，1696场景/16logs，q0/q_final均有限且0failed。dev128只能debug，不能满足验收。"
+    }
+  ],
+  "reuse_and_minimum_tasks": {
+    "routing_only_refresh": "旧host/UUID/private-env路径、失效的zt3-local G1端点、budget与输出不能直接移植到两台新主机。主agent先完成实际runtime/ABI/资源资格并在执行前固定新host/UUID、共享实际bank路径、源码/manifest/budget绑定；科学来源与旧记录不重写。",
+    "recovery_driver": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/run_native_execution_recovery.py",
+      "sha256": "cdc9eadba4e3698d03c52920e378990bffe39277c4e8a0332f8c9aa22f103015",
+      "template_not_executed": "PYTHON -B DRIVER --manifest NEW_GROUP_MANIFEST --output NEW_SHARED_OUTPUT --execute",
+      "minimum": "G1/G3各4个8-rank阶段：A32、AA32、B16、B_resume32；每组96 optimizer updates，总192。显式control_mode=engineering_fast和candidate_mode=engineering_fast。",
+      "CPU_after": "用原recovery_boundary实际收据检查8个master/Adam/RNG分区及rank0共享model/BN，保留LR/counters/data游标；原comparator测A_A/A_B/AA_B，evaluate_recovery_clarification_v2按冻结V2与原E2规则审查。CAPTURES_COMPLETE不等于数值通过。"
+    },
+    "dev_driver": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-dev-v1-frozen-20261011/tools/structured_world/run_execution_dev.py",
+      "sha256": "d272cfeffa893a6faf2f9baa04d0bde5936552c5b88ae9b74a277a36cc1e3117",
+      "minimum": "直接完整dev1696可省略可选dev128；最多6个native checkpoint推理bank及各自canonical CPU评分，形成12个variant CSV bank。只复用已实际完成且hash-bound的A/AA参考。",
+      "infer_template_not_executed": "PYTHON -B DRIVER --manifest NEW_DEV_MANIFEST --output NEW_INFER --execute --phase infer --groups G1 --populations dev1696 --gpu-uuids SELECTED_FULL_UUIDS",
+      "score_template_not_executed": "PYTHON -B DRIVER --manifest NEW_DEV_MANIFEST --output NEW_SCORE --execute --phase score --groups G1 --populations dev1696 --inference-results-root NEW_INFER/results",
+      "CPU_acceptance": "两variant B-A与B-AA的PDMS/NC/TTC均值和预注册同时单侧log-bootstrap下界都须>=-0.1分；均值越界=失败，均值过线但区间越界=未定。保持20000次/seed42与原family校正，不调margin。G3用同接口另选group。"
+    },
+    "priority": "先读取Newton现有G1 CPU结果；现有full-gradient失败已足以阻止CURRENT P0 E2接受，不需要为了补表重跑整套12槽。Recovery/dev若由主agent决定执行，是有限补缺/诊断，不能抵消失败。新主机上的数值重测只能作为事前绑定的新观察，不能撤销旧失败或事后放宽阈值。"
+  },
+  "review_actions": {
+    "GPU_jobs_started": 0,
+    "training_or_process_signals": 0,
+    "model_or_source_or_threshold_edits": false,
+    "native_weight_comparisons_run": 0,
+    "only_new_output": "this evidence report",
+    "limits": "核对既有JSON、指定输出目录和两份既有driver；未做全面源码审计、未重复Newton CPU比较。未见收据不宣称全局历史任务绝未运行；如另有真实收据应先补入再决定重跑。"
+  }
+}
