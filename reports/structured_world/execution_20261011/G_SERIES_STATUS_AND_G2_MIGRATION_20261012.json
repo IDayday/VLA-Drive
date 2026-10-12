@@ -1,0 +1,411 @@
+{
+  "observed_utc": "2026-10-12T02:39:24.406717+00:00",
+  "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "execution_mode": "io_preserving_v1",
+  "navsim": [
+    {
+      "group": "G0_NO_FUTURE_LABEL",
+      "training_identity": "6b30c6300151400cc1a36a56abedbc58d48a889061b123ea9f7e6e024ad1db4a",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g0_rlzt2_deploy_20261010T2355/formal/G0_NO_FUTURE_LABEL",
+      "updates": 29684,
+      "training_horizon": 100000,
+      "scene_exposure": 949816,
+      "metric_mtime_utc": "2026-10-12T02:39:21+00:00",
+      "median_seconds_last50": 3.1673810482025146,
+      "timing_window": [
+        29635,
+        29684
+      ],
+      "latest_checkpoint": "milestone_0025000",
+      "FP32_master_update_verified": true
+    },
+    {
+      "group": "G1_FULL_UNIFORM",
+      "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+      "updates": 54206,
+      "training_horizon": 100000,
+      "scene_exposure": 1734456,
+      "metric_mtime_utc": "2026-10-12T02:39:23+00:00",
+      "median_seconds_last50": 3.1866472959518433,
+      "timing_window": [
+        54157,
+        54206
+      ],
+      "latest_checkpoint": "milestone_0050000",
+      "FP32_master_update_verified": true
+    },
+    {
+      "group": "G2_EVENT_UNIFORM",
+      "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+      "updates": 23404,
+      "training_horizon": 100000,
+      "scene_exposure": 748872,
+      "metric_mtime_utc": "2026-10-12T02:39:18+00:00",
+      "median_seconds_last50": 8.613787174224854,
+      "timing_window": [
+        23355,
+        23404
+      ],
+      "latest_checkpoint": "latest_0023269",
+      "FP32_master_update_verified": true
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "training_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+      "updates": 81878,
+      "training_horizon": 100000,
+      "scene_exposure": 2619896,
+      "metric_mtime_utc": "2026-10-12T02:39:23+00:00",
+      "median_seconds_last50": 3.151201367378235,
+      "timing_window": [
+        81829,
+        81878
+      ],
+      "latest_checkpoint": "latest_0080000",
+      "FP32_master_update_verified": true
+    }
+  ],
+  "Navtest": [
+    {
+      "key": "G0_NO_FUTURE_LABEL_0025000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G0_NO_FUTURE_LABEL_0025000/scores/COMPLETE.json",
+      "source_sha256": "5a0bb7e232f519c5e5234028a12a4d00f4cf3d86ddea20977576f4d6edb5d391",
+      "q0": {
+        "identity": "f911638b502d5d1f057aadde229cfbfcb8f4d769515328b51e9ddd097fbc9317",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "1f57cf0cdf1cc8536042d3cce4877a81b6de82846ee422a2e15965263653c43d",
+        "metrics": {
+          "score": 0.8446544616797038,
+          "no_at_fault_collisions": 0.976411987485592,
+          "drivable_area_compliance": 0.9361929853449695,
+          "ego_progress": 0.7871071642162984,
+          "time_to_collision_within_bound": 0.9338876996542071,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9808990614193973
+        },
+        "zero_fraction": 0.08587189198089906,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "f911638b502d5d1f057aadde229cfbfcb8f4d769515328b51e9ddd097fbc9317",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "36eb1a935e3463f77a2f806477df44f9961b0d1e4ab707f36b6215aab6c423f1",
+        "metrics": {
+          "score": 0.8744274158194135,
+          "no_at_fault_collisions": 0.9818047093693397,
+          "drivable_area_compliance": 0.9591635106207805,
+          "ego_progress": 0.8113816953213314,
+          "time_to_collision_within_bound": 0.9483780668532851,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9829161863988144
+        },
+        "zero_fraction": 0.05812613205993743,
+        "main_result": true
+      }
+    },
+    {
+      "key": "G1_FULL_UNIFORM_0025000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G1_FULL_UNIFORM_0025000/scores/COMPLETE.json",
+      "source_sha256": "44f0359cfeeecfc0483534d61b754c841d7ea23c84efdc2f5af70fe08e7960d9",
+      "q0": {
+        "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "c76de6f68a3203b689c0dd31c4b21cbbe1de7968e1c70413884528c7c176767e",
+        "metrics": {
+          "score": 0.8353266384616125,
+          "no_at_fault_collisions": 0.974147867610736,
+          "drivable_area_compliance": 0.9272188374773588,
+          "ego_progress": 0.7768858318321564,
+          "time_to_collision_within_bound": 0.9338876996542071,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9785937757286349
+        },
+        "zero_fraction": 0.09608101432570394,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "39b7083e3fd859f7f7f354a92a2ddf131a3d4a21848a777912b48b8d450d788d",
+        "metrics": {
+          "score": 0.8631889233052286,
+          "no_at_fault_collisions": 0.9797464185740161,
+          "drivable_area_compliance": 0.9496953729622921,
+          "ego_progress": 0.8008206439093737,
+          "time_to_collision_within_bound": 0.9468960974806521,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9832043471101597
+        },
+        "zero_fraction": 0.06957022888193644,
+        "main_result": true
+      }
+    },
+    {
+      "key": "G1_FULL_UNIFORM_0050000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G1_FULL_UNIFORM_0050000/scores/COMPLETE.json",
+      "source_sha256": "b25d15874224c7d8ce5d6788113d2395314a6fb94bd64197cee43b1c941eea90",
+      "q0": {
+        "identity": "79f263fb41d908d2fab2169ec246c96362eb6275ecb0de76c2f4c9c1619b0a45",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "7435b65aab5eb298b5f2be444169bc9305de5ce6989f4a928a129ce59a357c3b",
+        "metrics": {
+          "score": 0.874396784907905,
+          "no_at_fault_collisions": 0.9764531533014984,
+          "drivable_area_compliance": 0.9608924748888523,
+          "ego_progress": 0.8167508802578102,
+          "time_to_collision_within_bound": 0.9415445414128109,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9829985180306273
+        },
+        "zero_fraction": 0.06092540754157747,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "79f263fb41d908d2fab2169ec246c96362eb6275ecb0de76c2f4c9c1619b0a45",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "3d1078ee4ef1f9d87d4cb1e48ff59370be17d0b679531c5b846dee4ae660f322",
+        "metrics": {
+          "score": 0.8894093670507724,
+          "no_at_fault_collisions": 0.979993413469455,
+          "drivable_area_compliance": 0.9724189033426642,
+          "ego_progress": 0.8309986554730975,
+          "time_to_collision_within_bound": 0.9477194137987814,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9850156430100444
+        },
+        "zero_fraction": 0.046682035237938416,
+        "main_result": true
+      }
+    },
+    {
+      "key": "G3_EVENT_LOCAL_0025000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0025000/scores/COMPLETE.json",
+      "source_sha256": "a038f3a2eebce466614ec5806ca3d2f68574b4d41d07e810ec65f6e0bcc7b845",
+      "q0": {
+        "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "49c96669baedbfab1d4e9f11975f81a7b1b19e9309d6b6aef105c0abbb8c5e0d",
+        "metrics": {
+          "score": 0.8400827527734118,
+          "no_at_fault_collisions": 0.9734892145562325,
+          "drivable_area_compliance": 0.9336407047587684,
+          "ego_progress": 0.7826899174614227,
+          "time_to_collision_within_bound": 0.9306767660135024,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.982092870080685
+        },
+        "zero_fraction": 0.09031780009879796,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "6721fff174b3825454192a09c55c996a04d6e1bcbbfa15547e0ea7d3b99e76d2",
+        "metrics": {
+          "score": 0.8678970658910203,
+          "no_at_fault_collisions": 0.981310719578462,
+          "drivable_area_compliance": 0.9547176025028816,
+          "ego_progress": 0.805834191936418,
+          "time_to_collision_within_bound": 0.9451671332125803,
+          "comfort": 0.9999176683681871,
+          "driving_direction_compliance": 0.9850979746418574
+        },
+        "zero_fraction": 0.06265437180964926,
+        "main_result": true
+      }
+    },
+    {
+      "key": "G3_EVENT_LOCAL_0050000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores/COMPLETE.json",
+      "source_sha256": "c51381ccbe5754506ae9cc347c93db555bdc885d41cc26555d2bffe5a1d9fd81",
+      "q0": {
+        "identity": "938376a4027ed25b42829d3cbdd7cb12f8f7f518cf4c30e5ab191fdb96cac241",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "be5510abd6a989ac9f4c29d5e2f6413a2a705426f083870a256ade05f95860cf",
+        "metrics": {
+          "score": 0.8668422888079593,
+          "no_at_fault_collisions": 0.979828750205829,
+          "drivable_area_compliance": 0.9515890004939898,
+          "ego_progress": 0.8088841863757854,
+          "time_to_collision_within_bound": 0.9432735056808826,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9832866787419726
+        },
+        "zero_fraction": 0.0671826115593611,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "938376a4027ed25b42829d3cbdd7cb12f8f7f518cf4c30e5ab191fdb96cac241",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "67f574c01bf3b9c9b5b3c89cfa57cf585090af523e429dd0375aee7b74bc36a0",
+        "metrics": {
+          "score": 0.8851954751927024,
+          "no_at_fault_collisions": 0.9817635435534332,
+          "drivable_area_compliance": 0.9658323727976289,
+          "ego_progress": 0.827790906151911,
+          "time_to_collision_within_bound": 0.9489543882759757,
+          "comfort": 0.9999176683681871,
+          "driving_direction_compliance": 0.9843981557714474
+        },
+        "zero_fraction": 0.05145726988308908,
+        "main_result": true
+      }
+    },
+    {
+      "key": "G3_EVENT_LOCAL_0075000",
+      "valid": true,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0075000/scores/COMPLETE.json",
+      "source_sha256": "c43a17ace5ed880036106c49acbe028de259be8c6e57fcac932c634216dbefc3",
+      "q0": {
+        "identity": "dd9c5f06579e451d8928f76f2f3174be7de9ff2a52c5a48d27fafbbdce8e6660",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "6747f7144787524fc5627d85b4156973f41f7fe99ef235926fc524d7221f3f63",
+        "metrics": {
+          "score": 0.884712490840012,
+          "no_at_fault_collisions": 0.9806520665239585,
+          "drivable_area_compliance": 0.967067347274823,
+          "ego_progress": 0.826327325650962,
+          "time_to_collision_within_bound": 0.9470607607442779,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.982875020582908
+        },
+        "zero_fraction": 0.05104561172402437,
+        "main_result": false
+      },
+      "q_final": {
+        "identity": "dd9c5f06579e451d8928f76f2f3174be7de9ff2a52c5a48d27fafbbdce8e6660",
+        "scenes": 12146,
+        "failed": 0,
+        "valid": true,
+        "scene_csv_sha256": "210e18cd06c3afd4c7eb2e4eebabe7a31f188afd1a9804b829394f0e6402b996",
+        "metrics": {
+          "score": 0.8891671435874591,
+          "no_at_fault_collisions": 0.9815988802898074,
+          "drivable_area_compliance": 0.9701136176519018,
+          "ego_progress": 0.83041512851281,
+          "time_to_collision_within_bound": 0.9496953729622921,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.9839453317964763
+        },
+        "zero_fraction": 0.04709369339700313,
+        "main_result": true
+      }
+    }
+  ],
+  "dispatch_status": {
+    "status": "FAILED",
+    "request_key": "G3_EVENT_LOCAL_0070000",
+    "error": "RuntimeError('Inference shard failed; outputs retained; exit codes [255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]')",
+    "observed_utc": "2026-10-12T01:32:16.467747+00:00"
+  },
+  "migration": {
+    "status": "PASS_MIGRATED_AND_UPDATING",
+    "utc": "2026-10-12T02:27:10.981391+00:00",
+    "host": "training-vlawm-zt4",
+    "launcher_pid": 1820273,
+    "restored_at": 23269,
+    "first_post_resume_update": 23270,
+    "latest_update": 23304,
+    "post_resume_updates": 35,
+    "consecutive_updates": true,
+    "exposure_cursor_consistent": true,
+    "losses_and_gradients_finite": true,
+    "FP32_master_updates_verified": true,
+    "resume_boundary": {
+      "Adam_moments_steps_and_LR": "bitwise all ranks",
+      "FP32_masters": "bitwise all ranks, actual parameters",
+      "FP32_model_and_buffers": "bitwise",
+      "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+      "all_task_RNG": "exact all ranks",
+      "completed": 23269,
+      "epoch": 7,
+      "exposure": 744552,
+      "identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+      "offset": 1044,
+      "passed": true,
+      "timing": "before next forward/backward/update"
+    },
+    "gpus": "0, 53671, 81920, 100\n1, 53979, 81920, 100\n2, 53961, 81920, 98\n3, 53915, 81920, 100\n4, 54377, 81920, 98\n5, 54153, 81920, 98\n6, 53463, 81920, 95\n7, 53109, 81920, 96\n",
+    "cache_status": "BUILDING",
+    "cache_workers_alive": [
+      3406500,
+      3406503,
+      3406506,
+      3406509,
+      3406511,
+      3406515,
+      3406518,
+      3406527
+    ],
+    "cache_new_committed_shards": 479,
+    "cache_new_committed_bytes": 651674280816,
+    "timing_mean_including_initialization_first_update": 5.626660864693778,
+    "last_update_seconds": 8.060483932495117,
+    "timing_scope": "short shared-resource startup observation, not a steady-state benchmark",
+    "last_gradient_norm": 0.7192533016204834
+  },
+  "migration_evidence_directory": "/mnt/project/iqe-runtime-audit-20261009/migrations/20261012_vlawm_zt_offline",
+  "routing_validation": {
+    "GPU_job_started": false,
+    "apply_audit_sha256": "d1726ed4fd3bbe27f93533ae34f311dfe95e8327cb919638bdd3830fee8abb2d",
+    "checks": {
+      "G3_G0_G1_and_G2_destination_training_authorization_passes": true,
+      "base_bytes_not_modified_by_this_action": true,
+      "base_scientific_definition_exactly_equal": true,
+      "existing_four_group_base_evaluation_guard_passes": true,
+      "frozen_cadence_base_hash_guard_passes": true,
+      "modified_policies_and_exact_snapshots_match": true,
+      "old_host_permanent_quarantine_and_destination_G2_reservation_present": true,
+      "other_operator_server_update_preserved_byte_for_byte": true,
+      "retired_host_training_authorization_rejected": true
+    },
+    "controller_started": false,
+    "guard_sources_sha256": {
+      "/mnt/project/VLA-Drive-structured-world-fgtr-navtest-cadence-frozen-20261012/tools/structured_world/navtest_cadence.py": "d3885dc109615f2c2e4a99a2d59cf05c4117fbf7735ec6fba69fed1211e97ddc",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/adopt_navsim_evaluation_policy.py": "2a63529c4c1825994b284b30bc64734628c8d13bb88524cc03303a63515e9118"
+    },
+    "new_runtime_qualification_claimed": false,
+    "observer_started": false,
+    "schema": "g2_zt4_policy_validation_v1",
+    "status": "PASS",
+    "utc": "2026-10-12T02:28:01.100995+00:00",
+    "validation_script_sha256": "0c008e130731021e1fafefa17e29af7ed152808b05abbe959675af79ebd99b64"
+  },
+  "scientific_changes": false,
+  "interpretation": [
+    "G2 recovered exact native state at23269 onzt4 and continues; IQE cache continues onshared8GPUs.",
+    "Shared GPU timing differs from isolated original; no execution acceleration or algorithm change claimed.",
+    "At25k G0 exceeds G1 and G3; at50k G1 exceeds G3. Future-supervision causal benefit remains unestablished; G2 and common100k endpoints pending.",
+    "No new complete70k/80k Navtest result; failed SSH shard dispatch is preserved."
+  ]
+}
