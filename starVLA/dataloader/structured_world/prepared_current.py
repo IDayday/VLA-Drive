@@ -61,16 +61,18 @@ def pin(value):
 
 class CurrentBatchCollator:
     """Called by the existing single ordered CPU prefetch coordinator."""
-    def __init__(self, model, microbatch, collate):
+    def __init__(self, model, microbatch, collate, *, prepare_candidates=True):
         self.model, self.microbatch, self.collate = model, microbatch, collate
+        self.prepare_candidates = prepare_candidates
         self.identity = processor_identity(model)
 
     def __call__(self, rows):
         from starVLA.model.framework.DDPForesight import ROBOT_HISTORY_TOKEN
         observations, targets = self.collate(rows)
-        from starVLA.model.modules.structured_world.queries import prepare_query_candidates
-        targets['query_candidates'] = [item.pin_memory() for item in
-            prepare_query_candidates(targets, grid=self.model.grid)]
+        if self.prepare_candidates:
+            from starVLA.model.modules.structured_world.queries import prepare_query_candidates
+            targets['query_candidates'] = [item.pin_memory() for item in
+                prepare_query_candidates(targets, grid=self.model.grid)]
         if not torch.isfinite(targets['ego']).all() or not targets['future_valid'].all():
             raise ValueError('Invalid native ego targets in CPU collator')
         for at in range(0, len(observations), self.microbatch):

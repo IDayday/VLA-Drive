@@ -408,7 +408,8 @@ def main():
     optimized_execution = args.execution_mode != 'reference'
     from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
     from tools.structured_world.execution_log import ExecutionLogWindow
-    collator = CurrentBatchCollator(model, args.micro_batch, collate_structured) if fast else collate_structured
+    collator = CurrentBatchCollator(model, args.micro_batch, collate_structured,
+        prepare_candidates=model.execution_fast) if fast else collate_structured
     if fast:
         model.current_processor_identity = collator.identity
     log_window = ExecutionLogWindow(args.output, world, 1 if args.profile_stages else args.logging_every) if fast else None

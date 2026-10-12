@@ -114,7 +114,8 @@ def main():
     reference_activation = None
     checks = []
     from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
-    collator = CurrentBatchCollator(model, args.microbatch, collate_structured)
+    collator = CurrentBatchCollator(model, args.microbatch, collate_structured,
+        prepare_candidates=args.optimized_mode != 'engineering_host_fast')
     model.current_processor_identity = collator.identity
     with ThreadPoolExecutor(max_workers=2) as pool:
         prepared_observations, prepared_targets = collator(list(pool.map(data.__getitem__, indices)))

@@ -232,6 +232,25 @@ class PreparedHostRouteTests(unittest.TestCase):
 
     def tearDown(self): self.assertFalse(torch.cuda.is_initialized())
 
+    def test_host_collator_skips_unused_label_index_work_without_changing_inputs(self):
+        from starVLA.dataloader.structured_world import prepared_current
+        rows = self.fixture.rows(3, 2)
+        _, expected, expected_targets = self.fixture.prepare(rows, 2)
+        collator = prepared_current.CurrentBatchCollator(self.fixture.controller, 2,
+            current.collate, prepare_candidates=False)
+        with patch.object(prepared_current, 'pin', lambda value: value), \
+             patch('starVLA.model.modules.structured_world.queries.prepare_query_candidates',
+                   side_effect=AssertionError('Unused label candidates were computed')):
+            actual, targets = collator(rows)
+        self.assertNotIn('query_candidates', targets)
+        for key in targets:
+            if torch.is_tensor(targets[key]): self.assertTrue(torch.equal(targets[key], expected_targets[key]))
+            else: self.assertEqual(targets[key], expected_targets[key])
+        old, new = expected[0]['_prepared_current'], actual[0]['_prepared_current']
+        for key in old.inputs: self.assertTrue(torch.equal(old.inputs[key], new.inputs[key]))
+        self.assertTrue(torch.equal(old.position_ids, new.position_ids))
+        self.assertTrue(torch.equal(old.geometry_images, new.geometry_images))
+
     def test_actual_collator_transfer_Qwen_route_validation_and_legacy_fallback(self):
         rows = self.fixture.rows(3, 3)
         collator, observations, targets = self.fixture.prepare(rows, 2)
