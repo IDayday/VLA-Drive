@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-12T03:52:02.973468+00:00",
+  "status": "RETAINED_BEST_OBSERVED_G3_INFERENCE_STATE",
+  "key": "G3_EVENT_LOCAL_0080000",
+  "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G3_EVENT_LOCAL_0080000/model_fp32.pt",
+  "target": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/retained_inference_candidates/G3_EVENT_LOCAL_0080000/model_fp32.pt",
+  "device": 3789794614,
+  "inode": 144115915821270150,
+  "bytes": 13408082166,
+  "sha256": "3d578a9a02fd75328b069843e66015d7cec9802f0d045fa518350a2cda5c08a7",
+  "additional_payload_bytes_copied": 0,
+  "source_modified": false,
+  "kind": "Verified native-master FP32 inference state, not optimizer/resume checkpoint",
+  "retention_rule": "After valid full80k evaluation, retain this single FP32 inference asset if q_final exceeds prior complete G3 checkpoints. Otherwise unlink only this owned hardlink. Existing cadence continues to release its native pins/export.",
+  "reason": "Prevent deletion of the only deployable80k state before determining whether it is the best observed G3 checkpoint; no weight duplication or training changes.",
+  "decided_utc": "2026-10-12T04:49:10.559837+00:00",
+  "full_q_final_PDMS": 88.97058400527548,
+  "previous_best": {
+    "key": "G3_EVENT_LOCAL_0075000",
+    "q_final_PDMS": 88.9167143587459
+  },
+  "contains_optimizer_state": false,
+  "selection_note": "Highest observed G3 q_final at proposal seed42; not a claim of significant gain or a replacement for common100k comparison. Single FP32 state retained, no payload copy. Training resumes from its own latest native checkpoint.",
+  "metadata_run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/retained_inference_candidates/G3_EVENT_LOCAL_0080000",
+  "metadata_tag": "latest_0080000"
+}

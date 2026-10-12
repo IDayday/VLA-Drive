@@ -1,0 +1,15 @@
+{
+  "registered_utc": "2026-10-12T03:49:32.610276+00:00",
+  "key": "G3_EVENT_LOCAL_0080000",
+  "scope": "Scheduling completed-scene idle intervals only",
+  "conditions": [
+    "All idle-GPU workers have completed",
+    "All12146 scenes are assigned through existing leases",
+    "Remaining unpredicted scenes <=512",
+    "No inference or scoring failure"
+  ],
+  "action_if_needed": "May raise remaining owned-training host duty up to0.2 for the bounded tail; current training slowdown monitor remains active and may reduce it. No new workers, training signals, sampling, source or metric changes.",
+  "reason": "32-scene leases on5percent duty workers can otherwise leave a long tail after idle GPUs finish; shorten total period of cohosting rather than maintain many mostly sleeping workers.",
+  "not_an_algorithm_or_precision_change": true,
+  "current_action": "Registered only; no policy changed"
+}

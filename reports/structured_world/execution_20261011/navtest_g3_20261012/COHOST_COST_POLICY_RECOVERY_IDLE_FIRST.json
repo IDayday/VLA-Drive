@@ -1,0 +1,28 @@
+{
+  "G2_reservation_controller_pid": 1325525,
+  "G2_reservation_recorded_utc": "2026-10-11T05:49:41.786135+00:00",
+  "GPU_or_shard_count_fixed": false,
+  "baseline_median_update_seconds": 3.18,
+  "current_GPU_workers_not_signalled": true,
+  "exclude_high_utilization_training": true,
+  "instruction": "G3 80k infrastructure recovery: prefer currently idle GPUs; actual4 idle A800s now available, avoid high-utilization training cohosts to finish remaining records with lower training interference.",
+  "observed_G1_median_update_seconds": 9.12,
+  "observed_G3_median_update_seconds": 9.35,
+  "quarantined_hosts": {
+    "training-vlawm-zt": "Permanently retired by explicit user instruction 2026-10-12: no new training, Navtest, evaluation or retries on this exact host or its aliases; G2 migration does not release this prohibition.",
+    "training-vlawm-zt4": "Reserved for migrated G2_EVENT_UNIFORM native training from checkpoint latest_0023269 (TARGET_LAUNCH.json 2026-10-12T02:19:26Z); exclude new Navtest dispatch until this destination reservation is explicitly released. Existing IQE cache workers remain running.",
+    "training-vlawm-zt5": "observed SSH timeout/stdout BrokenPipe; exclude until separate infrastructure readiness requalification"
+  },
+  "recorded_utc": "2026-10-11T03:05:07.563168+00:00",
+  "utilization_threshold_percent": 20,
+  "owned_training_inference_duty_cycle": 0.2,
+  "owned_training_duty_by_host": {
+    "training-vla-zt": 0.05,
+    "training-vlawm-zt2": 0.05
+  },
+  "latest_instruction": "G3\u7684\u8bc4\u4f30\u7acb\u5373\u542f\u52a8\uff0c\u53ef\u4ee5\u548c\u8bad\u7ec3\u5171\u4eab\u8d44\u6e90\uff0c\u5c3d\u5feb\u8bc4\u4f30\u5b8c\uff0c\u5bf9\u8bad\u7ec3\u4efb\u52a1\u5f71\u54cd\u66f4\u5c0f",
+  "latest_instruction_utc": "2026-10-12T02:52:11.164815+00:00",
+  "pacing_semantics": "Independent scene inference unchanged; initial20percent completed-scene wall-time duty on registered own training only. Idle GPUs unrestricted. Monitor training update cost and reduce pacing if needed.",
+  "last_pacing_adjustment_utc": "2026-10-12T03:17:55.342195+00:00",
+  "resource_revision_utc": "2026-10-12T04:13:15.822035+00:00"
+}
