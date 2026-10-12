@@ -1,0 +1,71 @@
+{
+  "pid": 1923234,
+  "start_ticks": "1325163386",
+  "argv": [
+    "/tmp/structured-world-round1/envs/qwen/bin/python",
+    "-B",
+    "-u",
+    "/mnt/project/VLA-Drive-structured-world-navtest-oom-recovery-frozen-20261012/tools/structured_world/run_navsim_navtest.py",
+    "--serve",
+    "--output",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+    "--inputs",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_current_v1_0c54",
+    "--routes",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/ROUTES.json",
+    "--cadence-policy",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+    "--score-workers",
+    "16",
+    "--canonical-python",
+    "/root/miniconda3/envs/navsim/bin/python",
+    ""
+  ],
+  "state_before": {
+    "status": "WAITING_FOR_AVAILABLE_RESOURCES",
+    "request": {
+      "key": "G3_EVENT_LOCAL_0090000",
+      "group": "G3_EVENT_LOCAL",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_cadence_20261012/native_pins/G3_EVENT_LOCAL_0090000/native_run",
+      "tag": "latest_0090000",
+      "updates": 90000,
+      "training_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+      "population": "navtest",
+      "scenes": 12146,
+      "logs": 136,
+      "seed": 42,
+      "precision": "FP32 / TF32 disabled",
+      "variants": [
+        "q0",
+        "q_final"
+      ],
+      "checkpoint_files_sha256": {
+        "mp_rank_00_model_states.pt": "287eb903fbaddccb37ae4c2f2f86c9ca18fa559bcdac6d4c08b9c33d95895d43",
+        "rng_rank0.pt": "7cdecbaf679d09498ccc9ebf4e67d94e83433b661fbb7f7a25a2eddff19cc00c",
+        "rng_rank1.pt": "8a49eef1463a92ffc5ebbb3fbb259d240db8db6d96d9032f13f08586344fe74d",
+        "rng_rank2.pt": "632b2ac7062ed2d6c14691482231fa8e968968dad28355c1200a5673f0108e4d",
+        "rng_rank3.pt": "5e43b25aa554c1042538c687a5847eada524f49e2f173ae901afcfd69eef8e8a",
+        "rng_rank4.pt": "7981e6682f9c7242281906903c14eb978156b0be63626cf8a777f91781fdb13e",
+        "rng_rank5.pt": "ac76c2c79a07798ac8fd22d2da4a5c9fb8ef1712f9c46d39393ff43a67305a3a",
+        "rng_rank6.pt": "00cd6dac0c43bf4a88dd12fa9692e107a562008414b08a7c4b00eecc1458c957",
+        "rng_rank7.pt": "95f509f28dd8e5aa80c558cbf72cc9a9555ec5997c28f260533350827ea99532",
+        "zero_pp_rank_0_mp_rank_00_optim_states.pt": "d52da89b682045da7678783a34e9a9d06d19c873c588fdfe9925941d3e5b9e20",
+        "zero_pp_rank_1_mp_rank_00_optim_states.pt": "43e5e608ed47037eb19b943f19a53e1e345aba34f6455cdd6b146fd4f8708dd6",
+        "zero_pp_rank_2_mp_rank_00_optim_states.pt": "40c62876f60dc9ced0df3f842afb9bbd11c4ba04bede2312e1da5c8e4d5b1bd9",
+        "zero_pp_rank_3_mp_rank_00_optim_states.pt": "6cb26cb28ff308e8459937142e00cde0ecceb63d2125c5dfb3193468052a380d",
+        "zero_pp_rank_4_mp_rank_00_optim_states.pt": "8451e4253f11c97760351f43042cd9afaaf5bdefaca493add4a5ffd96a8b8819",
+        "zero_pp_rank_5_mp_rank_00_optim_states.pt": "9eb723c9b461ab99c75e126147689e43c6436f86da525bffc49290f6bd233682",
+        "zero_pp_rank_6_mp_rank_00_optim_states.pt": "144bf2fa36ef9c45268c0273ea80b9d01a30cf01150f361a7a76502650f390c0",
+        "zero_pp_rank_7_mp_rank_00_optim_states.pt": "73dbd13cdfb6382914dd37963d7c6cbb61dcfb5aaaf25cfd3d60226d891d2a44"
+      },
+      "priority": 100
+    },
+    "reason": "No currently qualified candidate GPUs",
+    "observed_utc": "2026-10-12T15:04:31.621274+00:00"
+  },
+  "live_child_processes": [],
+  "frozen_reference_complete": true,
+  "G3_full_workers_started": false,
+  "action": "Stop quiescent owned evaluation controller for deadline-aware routing handoff; no GPU/training worker signal",
+  "utc": "2026-10-12T15:08:00.180886+00:00"
+}

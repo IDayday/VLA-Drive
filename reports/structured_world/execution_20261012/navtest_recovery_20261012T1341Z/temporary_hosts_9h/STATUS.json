@@ -1,10 +1,35 @@
 {
-  "utc": "2026-10-12T14:34:04.082646+00:00",
-  "state": "WAITING_OWNER_IDENTIFICATION",
-  "new_gpu_workers": 0,
-  "displaced_pressure_processes": 0,
-  "restoration_required": false,
-  "original_occupancy_untouched": true,
-  "shared_registry_other_task_observed": "iqe-navtest-temporary-hosts-20261012T142543Z",
-  "gpu_process_visibility": "Both hosts show physical allocation but no visible compute apps or pressure process; only nvitop holds NVIDIA descriptors in accessible proc namespaces."
+  "utc": "2026-10-12T15:16:55.981483+00:00",
+  "state": "EXTERNALLY_CLEARED_FULL_EVALUATION_RUNNING",
+  "request": "G3_EVENT_LOCAL_0090000",
+  "hosts": [
+    "training-vlawm-zt",
+    "training-vla-zt3"
+  ],
+  "unique_GPU_workers": 16,
+  "displaced_pressure_processes_by_assistant": 0,
+  "pressure_restoration_owner": "user external monitor",
+  "expires_utc": "2026-10-12T23:25:43.361883+00:00",
+  "routing_source_sha": "6fed371d77f3ddc6bcd574c7cca0fa98e61ad546",
+  "model_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "qualification": {
+    "real_scenes": 4,
+    "q0_qfinal_out_of_range": "bitwise equal to native frozen reference",
+    "peak_reserved_GiB_per_worker": 13.078125
+  },
+  "deadline_enforcement": "absolute worker-host time, terminate60seconds before expiry, force exit after10seconds if needed",
+  "unrelated_training_stopped": false,
+  "status": "RUNNING_AFTER_EXTERNAL_PRIORITY_PAUSE",
+  "updated_utc": "2026-10-12T15:50:51.294410+00:00",
+  "progress": {
+    "predictions": 9123,
+    "scored": 9123,
+    "total": 12146
+  },
+  "live_gpu_inference_workers": 8,
+  "paused_GPU_workers": 0,
+  "disconnected_exited_GPU_workers": 8,
+  "external_priority_pause": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_recovery_20261012T1341Z/EXTERNAL_EVALUATION_PAUSE_OBSERVED.json",
+  "pressure_restore_by": "user external monitor",
+  "restoration_receipt": "EXTERNAL_EVALUATION_RESUMED.json"
 }
