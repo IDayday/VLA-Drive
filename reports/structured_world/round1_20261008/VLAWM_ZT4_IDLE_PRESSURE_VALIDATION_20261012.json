@@ -1,0 +1,59 @@
+{
+  "schema": "navtest_idle_pressure_validation_v1",
+  "observed_utc": "2026-10-12T01:13:30.095080+00:00",
+  "policy_identity": "94686e608e77e959cf96c25e03a56432764073156375282816d8fc04549a94b1",
+  "continuous_idle_seconds": 600,
+  "resource_poll_seconds": 5,
+  "tests": {
+    "command": "/usr/bin/python3 -B -m unittest discover -s tools/structured_world -p test_navtest_idle_pressure.py -q",
+    "passed": 30,
+    "failed": 0,
+    "wall_seconds": 20.814,
+    "uses_actual_gpu": false,
+    "signals_only_owned_temporary_cpu_fixtures": true
+  },
+  "covered": [
+    "599 seconds does not restore; 600 seconds does",
+    "pending queue prevents restore",
+    "real GPU or pre-CUDA task resets full idle interval",
+    "unaccounted GPU utilization/memory resets timer",
+    "original pressure argv/environment/UID/limits preserved",
+    "actual worker liveness overrides completion receipt",
+    "controlled partial restore cancellation when work arrives",
+    "failure status does not claim still-live original pressure exited",
+    "G3 historical 75k cadence suppression",
+    "new request arriving at restore boundary blocks spawn"
+  ],
+  "earlier_failure": {
+    "candidate": "uncommitted same sidecar before pressure_alive reporting fix",
+    "tests_passed": 29,
+    "tests_failed": 1,
+    "assertion": "test_deferred_acquire_must_not_claim_gpu_available: pressure_alive False despite original ignore-SIGTERM fixture still alive",
+    "fix": "Count original_alive OR replacement_alive; keep deferred lease, never claim resources released"
+  },
+  "source_files_sha256": {
+    "tools/structured_world/navtest_idle_pressure.py": "a61e14869390ddfbca8f4de429835871aa9f769a536bef72240bdb84dd99e54f",
+    "tools/structured_world/test_navtest_idle_pressure.py": "91a79eb9241d8f95245e14302c2d36d4f0ab55bcde1e23159f650276328df321",
+    "tools/structured_world/navtest_pressure_lease.py": "7d9930e98d59d9435e5420de3aceea122d58cd18c164784cab9ef5b9ea7213a0",
+    "tools/structured_world/perf_pressure_lease.py": "234b99db128e07feb41c1a3ddda42bf852b3f03565b14342acb1e1c8cf01aec8"
+  },
+  "real_once_check": {
+    "host": "training-vlawm-zt4-worker-0",
+    "status": "AVAILABLE_FOR_NAVTEST",
+    "pressure_started": false,
+    "initial_lease": "execution-perf-20261011-zt4",
+    "pending_keys": [
+      "G3_EVENT_LOCAL_0070000",
+      "G3_EVENT_LOCAL_0080000"
+    ]
+  },
+  "frozen_training_and_evaluation_source_unchanged": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "dispatcher_source_unchanged": "95339edd51d3c61fafa91dc488812c1cdba800b0",
+  "scientific_or_training_changes": false,
+  "storage": {
+    "code_public_state": "/mnt/project",
+    "private_original_lease": "/var/tmp/structured-world-fgtr-execution-private-20261011",
+    "reason": "Original credential-bearing lease remains outside Git: /mnt/project/.git exists on target host; code and public state use shared project storage."
+  },
+  "diagnostic_hardening": "Equality failures report field names only, never inherited private environment contents; restore/reacquire integration rerun passed."
+}

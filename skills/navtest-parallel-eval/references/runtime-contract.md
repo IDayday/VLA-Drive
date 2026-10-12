@@ -115,6 +115,25 @@ Keep the default private journal outside Git. This helper restores only scripts
 actually released by that lease; it does not fill idle GPUs or terminate genuine
 training. See [the lifecycle details](scheduling.md#pressure-restoration).
 
+For the 2026-10-12 explicit vlawm-zt4 idle-pressure instruction, the host-local
+`tools/structured_world/navtest_idle_pressure.py` companion watches the same
+queue and cadence. Its public policy/status are under
+`/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_idle_pressure_20261012/training-vlawm-zt4/`.
+It leaves this host available while eligible requests or real GPU workers exist,
+then restores the captured pressure process after 600 seconds of confirmed idle.
+Any queued evaluation, real GPU occupant, pre-CUDA Python task/launcher, or
+unaccounted GPU memory/activity resets the timer. Poll every five seconds; never
+interpret the pressure script's own GPU load as a genuine workload.
+It does not create a second evaluation controller or fix inference shard count.
+This host's original filler is the separately inspected
+`/var/tmp/zt-gpu-pressure/zt_gpu_pressure.py`, using the hash-locked
+`perf_pressure_lease.py` adapter; the generic helper's trusted script is unchanged.
+Its credential-bearing original private capture remains in the existing local
+private directory because `/mnt/project/.git` makes that shared tree ineligible
+for the helper's outside-Git private-journal contract. Code and public records
+remain on shared storage. Never call the generic helper's restore action on
+this different-script capture, or signal genuine workloads to restore a filler.
+
 The qualified canonical implementation uses eight 0.5-second trajectory poses
 and forty 0.1-second simulator poses. Verify these exact source/runtime locks:
 

@@ -1,0 +1,37 @@
+{
+  "authorization_utc": "2026-10-12T01:04:38.076635+00:00",
+  "cadence_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+  "dispatch_output": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+  "gpu_uuids": [
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e"
+  ],
+  "host": "training-vlawm-zt4-worker-0",
+  "identity": "94686e608e77e959cf96c25e03a56432764073156375282816d8fc04549a94b1",
+  "idle_grace_seconds": 600,
+  "initial_lease_id": "execution-perf-20261011-zt4",
+  "poll_seconds": 5,
+  "pressure_limits": "Replay original capture: 4096 MiB ballast and 4096 matrix, all original GPU bindings/UID/environment/limits.",
+  "pressure_script": "/var/tmp/zt-gpu-pressure/zt_gpu_pressure.py",
+  "pressure_script_sha256": "e9d14e8245d6a284720e07fb00f5c4626615c59d1d1502355251625c6759a555",
+  "private_state_root": "/var/tmp/structured-world-fgtr-execution-private-20261011",
+  "private_storage_reason": "Original credential-bearing lease remains outside Git: /mnt/project/.git exists on target host; code and public state use shared project storage.",
+  "resource_monitor": "Every five seconds: eligible Navtest queue, actual workers, pre-CUDA Python script/launcher work, GPU compute apps, memory and utilization. Any useful work resets a continuous 600-second idle timer. Pressure yields to real work.",
+  "schema": "navtest_idle_pressure_policy_v1",
+  "scope": "Only this host idle pressure lifecycle; sole Navtest dispatcher retains dynamic GPU/shard allocation.",
+  "status_output": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_idle_pressure_20261012/training-vlawm-zt4/STATUS.json",
+  "supersedes_policy_identity": "1caad988e22f9344a9b37b4c344869569678b95a665ba4dca6a24860318afb2b",
+  "training_and_model_changes": false,
+  "user_instruction": "\u5360\u5361\u811a\u672c\u8981\u76d1\u63a7\u670d\u52a1\u5668\u8d44\u6e90\uff0c\u5982\u679c10\u5206\u949f\u6ca1\u6709\u4efb\u52a1\uff0c\u518d\u6302\u4e0a\u538b\u529b\u811a\u672c\uff0c\u5982\u679c\u6709\u4efb\u52a1\u5c31\u4e0d\u8981\u5360\u7528",
+  "worker_scripts": [
+    "/mnt/project/VLA-Drive-structured-world-fgtr-navtest-cadence-frozen-20261012/tools/structured_world/run_navsim_navtest.py",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/infer_checkpoint.py"
+  ]
+}
