@@ -15,6 +15,23 @@ spec.loader.exec_module(d)
 
 
 class TemporaryHostTests(unittest.TestCase):
+    def test_frozen_reference_excludes_temporary_grant_and_legacy_unknown_host(self):
+        temporary = dict(host='temporary', index=0, temporary_authorization={'lease_id': 'test'})
+        legacy_unknown = dict(host='unknown', index=0)
+        permanent = dict(host='permanent', index=3)
+        self.assertIs(d.frozen_reference_route([temporary, legacy_unknown, permanent],
+                      ['permanent', 'temporary']), permanent)
+
+    def test_frozen_reference_prefers_qualified_idle_route(self):
+        training = dict(host='a', index=0, cohost_duty_cycle=.2)
+        idle = dict(host='b', index=2, cohost_duty_cycle=1.)
+        self.assertIs(d.frozen_reference_route([training, idle], ['a', 'b']), idle)
+
+    def test_frozen_reference_cannot_fall_back_to_temporary_only_route(self):
+        route = dict(host='temporary', index=0, temporary_authorization={'lease_id': 'test'})
+        with self.assertRaises(d.ResourcesUnavailable):
+            d.frozen_reference_route([route], ['temporary'])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

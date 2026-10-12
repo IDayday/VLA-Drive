@@ -788,6 +788,19 @@ def launch_worker(args, request, destination, route, shard, count, inputs, attem
     return proc
 
 
+def frozen_reference_route(routes, permanent_hosts):
+    """The unchanged reference CLI does not understand temporary host grants.
+
+    Select from already qualified routes accepted by its original host guard.
+    Current authorization is still rechecked by routed(); never broaden policy.
+    """
+    candidates = [r for r in routes if r['host'] in permanent_hosts
+                  and not r.get('temporary_authorization')]
+    if not candidates:
+        raise ResourcesUnavailable('Frozen parity reference needs a qualified permanent host')
+    return min(candidates, key=lambda r: (-r.get('cohost_duty_cycle', 1.), r['host'], r['index']))
+
+
 def qualify(args, request, routes):
     qualified = []; hosts = sorted({r['host'] for r in routes})
     export_path = args.output / 'FP32_exports' / request['key'] / 'model_fp32.pt'
@@ -835,7 +848,10 @@ def qualify(args, request, routes):
     if remaining:
         with ThreadPoolExecutor(max_workers=len(remaining)) as pool:
             for subset in pool.map(qualify_host, remaining): qualified += subset
-    first_route = next(r for r in qualified if r['host'] == first_host)
+    dispatch_policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+    first_route = frozen_reference_route(qualified,
+        dispatch_policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts'])
+    reference_host = first_route['host']
     reference = args.output / 'qualification' / request['key'] / 'FROZEN_REFERENCE'
     debug = args.inputs.parent / (args.inputs.name + '_memory4')
     command = [first_route['python'], '-B', '-u', str(FROZEN / 'tools/structured_world/infer_checkpoint.py'),
@@ -843,7 +859,7 @@ def qualify(args, request, routes):
     reference.mkdir(parents=True, exist_ok=True)
     if not (reference / 'COMPLETE.json').exists():
         with (reference / 'inference.log').open('a') as stream:
-            result = subprocess.run(routed(first_host, command, {'CUDA_VISIBLE_DEVICES': first_route['uuid']}),
+            result = subprocess.run(routed(reference_host, command, {'CUDA_VISIBLE_DEVICES': first_route['uuid']}),
                 cwd=FROZEN, stdout=stream, stderr=subprocess.STDOUT)
         if result.returncode: raise RuntimeError('Unmodified frozen inference parity reference failed')
     import numpy as np
@@ -859,7 +875,7 @@ def qualify(args, request, routes):
         {'passed': True, 'scenes': 4, 'hosts': hosts, 'variants': ['q0', 'q_final', 'out_of_range'],
          'comparison': 'bitwise against unmodified frozen infer_checkpoint.py native FP32 master restore',
          'shared_prediction_identity': json.loads((reference / 'identity.json').read_text())['identity'],
-         'reference_command': command, 'observed_utc': now()})
+         'reference_host': reference_host, 'reference_command': command, 'observed_utc': now()})
     return qualified
 
 
