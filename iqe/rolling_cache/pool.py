@@ -12,7 +12,6 @@ import math
 import os
 import time
 import uuid
-import threading
 from ..contracts import require
 from ..io import atomic_json, digest, file_hash, lock, read_json
 from ..vision_cache.storage import CacheReader
@@ -81,7 +80,7 @@ class Pool:
 
     def ready(self, number):
         path = self.folder(number) / 'READY.json'
-        if not path.exists(): return None
+        if (path.parent / 'EVICTING.json').exists() or not path.exists(): return None
         value = checked(path)
         require(value['session_hash'] == self.session['content_hash'] and value['number'] == number,
                 'foreign window readiness')
@@ -142,16 +141,22 @@ class Pool:
             keep = set(range(max(0, first - self.session['retained_previous_windows']),
                              min(first + self.session['lookahead'], math.ceil((self.session['max_optimizer_steps']-
                                  self.session['parent_step'])/self.session['window_updates']))))
-            require(number not in keep, 'cannot evict current/lookahead/retained window')
             # Rename readiness first. A crash during removal resumes from the
             # durable eviction intent. Readers never see a partial ready window.
             ready_path = folder / 'READY.json'
             intent_path = folder / 'EVICTING.json'
-            if ready_path.exists():
+            # An existing durable intent must finish even if a resumed consumer
+            # has rewound. Such a window is unavailable until freshly rebuilt.
+            if intent_path.exists():
+                value = checked(intent_path)['ready']
+                if ready_path.exists():
+                    require(checked(ready_path) == value, 'eviction intent/readiness conflict')
+                    ready_path.unlink()
+            elif ready_path.exists():
+                require(number not in keep, 'cannot evict current/lookahead/retained window')
                 value = checked(ready_path)
                 atomic_json(intent_path, seal({'ready': value, 'request_hash': request['content_hash']}))
                 ready_path.unlink()
-            elif intent_path.exists(): value = checked(intent_path)['ready']
             else: return {'status': 'NOT_RESIDENT', 'number': number}
             removed = 0
             if value['owned_root']:
@@ -181,6 +186,45 @@ class Pool:
         return sum(p.stat().st_size for p in (self.root / 'windows').glob('*/data/*/*')
                    if p.is_file() and (p.suffix in {'.bin', '.partial'}))
 
+    def discard_stale_partial(self, number):
+        """Journal owned incomplete bytes when an old attempt is superseded."""
+        folder = self.folder(number)
+        with lease(folder / 'BUILD.lock', exclusive=True, nonblocking=True), \
+             lease(folder / 'READ.lock', exclusive=True, nonblocking=True):
+            intent = folder / 'ABANDONING.json'
+            staging = folder / 'BUILDING.json'
+            if intent.exists(): value = checked(intent)
+            else:
+                if not staging.exists(): return {'status':'NOT_PARTIAL'}
+                require(not (folder/'READY.json').exists(), 'ready window is not a partial generation')
+                desired, request = self.desired()
+                first = desired[0] if desired else floor_window(self.session,self.session['max_optimizer_steps'])
+                require(number < max(0,first-self.session['retained_previous_windows']) or
+                        number >= first+self.session['lookahead'], 'partial window still requested')
+                generation = checked(staging)
+                root = Path(generation['root'])
+                require(root.resolve().parent == (folder/'data').resolve() and not root.is_symlink(),
+                        'foreign partial generation')
+                files = {p.name:p.stat().st_size for p in root.iterdir()
+                         if p.is_file() and p.suffix in {'.bin','.partial'}}
+                value = seal({'generation':generation,'files':files,'request_hash':request['content_hash']})
+                atomic_json(intent,value,immutable=True)
+            root = Path(value['generation']['root'])
+            require(root.resolve().parent == (folder/'data').resolve() and not root.is_symlink(),
+                    'foreign abandonment intent')
+            for name,size in value['files'].items():
+                require(Path(name).name == name and Path(name).suffix in {'.bin','.partial'}, 'foreign partial file')
+                path = root/name
+                if path.exists():
+                    require(not path.is_symlink() and path.stat().st_size == size, 'partial changed under lease')
+                    path.unlink()
+            if staging.exists():
+                require(checked(staging) == value['generation'], 'partial generation changed')
+                staging.unlink()
+            atomic_json(folder/('ABANDONED_'+value['content_hash']+'.json'),value,immutable=True)
+            intent.unlink()
+            return {'status':'PARTIAL_EVICTED','recorded_bytes':sum(value['files'].values())}
+
     def close(self):
         for r in self.sources.values(): r.close()
 
@@ -190,10 +234,12 @@ def build_window(pool, number, *, model_loader, rate_mib_s, reserve_gib, max_gib
     """Run on a remote producer, not a Base rank. No optimizer or target IO."""
     from .placement import producer_placement
     from ..vision_cache.plan import capacity_check
-    from ..vision_cache.builder import build_cache
+    from .producer import build_window_shards
     from ..vision_cache.cli import hold_check
     producer_placement(); hold_check(hold_file)
     folder = pool.folder(number)
+    if (folder / 'EVICTING.json').exists(): pool.evict(number)
+    if (folder / 'ABANDONING.json').exists(): pool.discard_stale_partial(number)
     require(0 <= worker < workers <= 8, 'invalid bounded producer partition')
     # Multiple frozen producers may fill disjoint native shards of one window.
     # GC needs an exclusive lease, so it cannot remove any in-progress window.
@@ -229,23 +275,17 @@ def build_window(pool, number, *, model_loader, rate_mib_s, reserve_gib, max_gib
             require(checked(partial)['plan_hash'] == plan['content_hash'], 'stale window generation')
         native = {k:v for k,v in pool.full.items() if k not in {'plan_hash','rows'}}
         native.update(rows=missing, requested_scenes=len(missing), rolling_window_hash=plan['content_hash'])
+        # Window-scale scheduling: three original microbatches per shard. This
+        # keeps the exact batch-of-four visual execution but reduces idle tails.
+        native['records_per_shard'] = 12
         native['plan_hash'] = digest(native)
         native_path = Path(generation) / 'PLAN.json'
         atomic_json(native_path, native, immutable=True)
         model, contract = model_loader(native)
         if deadline is not None and time.monotonic() >= deadline: return {'status':'OPERATOR_PAUSED','reason':'time budget before build'}
-        control = Path(generation) / 'CONTROL.json'
-        atomic_json(control, {'pause':False,'rate_mib_s_per_worker':rate_mib_s})
-        timer = threading.Timer(max(.001, deadline-time.monotonic()),
-            lambda: atomic_json(control, {'pause':True,'reason':'rolling producer time budget'})) if deadline else None
-        if timer: timer.start()
-        try:
-            result = build_cache(model, contract, native_path, generation, worker=worker, workers=workers,
-                max_shards=math.ceil(math.ceil(len(missing)/native['records_per_shard'])/workers), max_gib=max_gib,
-                reserve_gib=reserve / 1024**3, rate_mib_s=rate_mib_s,
-                qualification=pool.session['qualification'], hold_file=hold_file)
-        finally:
-            if timer: timer.cancel(); timer.join()
+        result = build_window_shards(model, contract, native_path, generation, worker=worker, workers=workers,
+            max_gib=max_gib, reserve_gib=reserve / 1024**3, rate_mib_s=rate_mib_s,
+            deadline=deadline, hold_file=hold_file)
         if result['status'] != 'COMPLETE': return result
         refs.update({r['scene_id']: generation for r in missing})
         value = pool.publish(plan, refs, generation)

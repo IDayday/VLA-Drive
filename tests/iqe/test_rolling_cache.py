@@ -211,3 +211,72 @@ def test_one_rank_cache_miss_exits_entire_gloo_group(tmp_path):
     ready=set(pool.ready(0)['refs']);bad=next(str(i) for i in range(10) if str(i) not in ready)
     mp.spawn(_rank_failure,args=(str(tmp_path/'rendezvous'),str(pool.root),pool.session,pool.full,request,identity,bad,next(iter(ready))),nprocs=2,join=True)
     assert all(read_json(pool.root/f'rank_failure_{rank}.json')['status']=='GROUP_FAILED_WITHOUT_FALLBACK' for rank in range(2))
+
+
+def test_interrupted_eviction_then_checkpoint_rewind(tmp_path):
+    pool,request,identity=setup(tmp_path);root=publish(pool,0,identity)
+    for rank in range(2):pool.progress(request,rank,16)
+    original=Path.unlink
+    def fail(path,*args,**kwargs):
+        if path.name=='READY.json':raise OSError('after intent before readiness unlink')
+        return original(path,*args,**kwargs)
+    with patch.object(Path,'unlink',fail):
+        with pytest.raises(OSError):pool.evict(0)
+    assert pool.ready(0) is None
+    pool.start_attempt(10,attempt='rewind')
+    assert pool.evict(0)['status']=='EVICTED'
+    assert not (root/'shard.bin').exists()
+    assert not (pool.folder(0)/'EVICTING.json').exists()
+
+
+def test_stale_partial_reclaimed_with_interrupted_intent(tmp_path):
+    pool,request,_=setup(tmp_path)
+    folder=pool.folder(5);root=folder/'data'/'orphan';root.mkdir(parents=True)
+    atomic_json(folder/'BUILDING.json',seal({'root':str(root),'plan_hash':'old'}))
+    (root/'.test.partial').write_bytes(b'payload')
+    original=Path.unlink
+    def fail(path,*args,**kwargs):
+        if path.suffix=='.partial':raise OSError('interrupted partial cleanup')
+        return original(path,*args,**kwargs)
+    with patch.object(Path,'unlink',fail):
+        with pytest.raises(OSError):pool.discard_stale_partial(5)
+    for rank in range(2):pool.progress(request,rank,20)
+    assert pool.discard_stale_partial(5)['status']=='PARTIAL_EVICTED'
+    assert not (root/'.test.partial').exists() and list(folder.glob('ABANDONED_*'))
+
+
+def test_rolling_read_leaves_no_deleted_open_descriptor(tmp_path):
+    pool,request,identity=setup(tmp_path);root=publish(pool,0,identity)
+    reader=RollingReader(pool,request,rank=0,epoch=2,offset=1,step=10,identity=identity)
+    reader.read(pool.plan(0)['rows'][0]['scene_id'])
+    assert not reader.readers[str(root)].handles
+    reader.close()
+
+
+def test_streaming_window_commit_reuses_receipts_not_full_shard_reads(tmp_path):
+    from iqe.rolling_cache.producer import commit_window_cache
+    from iqe.vision_cache.storage import CacheReader
+    identity={'test':'fp32'};root=tmp_path/'stream';w=ShardWriter(root,'shard',digest(identity))
+    w.add('key',payload());w.commit()
+    access={'s':{'key':'key'}}
+    original=file_hash
+    def forbid_bin(path):
+        assert Path(path).suffix!='.bin'
+        return original(path)
+    with patch('iqe.rolling_cache.producer.file_hash',forbid_bin):
+        first=commit_window_cache(root,identity,access,['shard'],'plan')
+        assert first==commit_window_cache(root,identity,access,['shard'],'plan')
+    r=CacheReader(root);assert encode_record(r.read('s'))==encode_record(payload());r.close()
+    with (root/'shard.bin').open('r+b') as f:f.write(b'X')
+    r=CacheReader(root)
+    with pytest.raises(ContractError,match='corrupt'):r.read('s')
+    r.close()
+
+
+def test_streaming_window_partial_commit_requires_full_hash_recovery(tmp_path):
+    from iqe.rolling_cache.producer import committed_shard
+    root=tmp_path/'recovery';identity={'test':'fp32'};w=ShardWriter(root,'shard',digest(identity))
+    w.add('key',payload());w.commit();(root/'shard.bin.COMPLETE.json').unlink()
+    with (root/'shard.bin').open('r+b') as f:f.write(b'X')
+    with pytest.raises(ContractError,match='checksum'):committed_shard(root,'shard',digest(identity))
+    assert not (root/'shard.bin.COMPLETE.json').exists()

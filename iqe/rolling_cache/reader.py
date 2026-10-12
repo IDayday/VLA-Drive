@@ -68,6 +68,10 @@ class RollingReader:
                         else: value = row
                     finally:
                         with self.mutex:
+                            # Never retain descriptors to rolling shards after
+                            # releasing their read lease: unlink must actually
+                            # release capacity. Permanent sources keep their LRU.
+                            if path == ready['owned_root']: reader.close()
                             self.users[path] -= 1; self.condition.notify_all()
                     with self.mutex:
                         if waited: self.stats['wait_seconds'] += time.monotonic() - started

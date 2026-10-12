@@ -112,6 +112,9 @@ def run_producer(args, pool):
             atomic_json(pool.root/f'PRODUCER_{os.getpid()}_ADMISSION.json', admission, immutable=True)
             holder.append(load_front(config, native, args.device, frozen_only=True))
         return holder[0]
+    # Load once before waiting for the consumer, so the next window does not
+    # incur cold model loading on the training critical path.
+    load(pool.full)
     while completed < args.max_windows and time.monotonic() - began < args.max_seconds:
         producer_placement(); hold_check(args.hold_file)
         desired, request = pool.desired()
@@ -122,8 +125,15 @@ def run_producer(args, pool):
         paths = {p.parent:p for name in ('READY.json','EVICTING.json') for p in (pool.root/'windows').glob('*/'+name)}
         for path in paths.values():
             number = int(path.parent.name)
-            if number not in keep:
+            if number not in keep or (path.parent / 'EVICTING.json').exists():
                 try: pool.evict(number)
+                except BlockingIOError: continue
+        partials = {p.parent for name in ('BUILDING.json','ABANDONING.json')
+                    for p in (pool.root/'windows').glob('*/'+name)}
+        for folder in partials:
+            if (folder/'READY.json').exists(): continue
+            if int(folder.name) not in keep or (folder/'ABANDONING.json').exists():
+                try: pool.discard_stale_partial(int(folder.name))
                 except BlockingIOError: continue
         pending = [n for n in desired if pool.ready(n) is None]
         progressed = False
