@@ -1,0 +1,162 @@
+{
+  "time": 1791790188.641986,
+  "pid": 1760814,
+  "start_ticks": "1320749728",
+  "cmdline": "/root/miniconda3/envs/ddp/bin/python -u scripts/iqe/fp32_cache/queue_phase.py --manifest /mnt/project/iqe-fp32-cache-production-runtime-3931fed/phase_4p7tb_20261012/COHORT.json --poll-seconds 60 --max-seconds 43200 ",
+  "pre_stop_status": {
+    "capacity": {
+      "aggregate_requested_scenes": 82888,
+      "completed_new_bytes": 2167259142672,
+      "free_bytes": 4211644272640,
+      "mount": {
+        "fstype": "lustre",
+        "options": "rw,checksum,flock,nouser_xattr,lruresize,lazystatfs,nouser_fid2path,verbose,encrypt",
+        "source": "100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2[/mnt/project]",
+        "target": "/mnt/project"
+      },
+      "observed_unix": 1791790149.889674,
+      "path": "/mnt/project/iqe-fp32-cache-production-runtime-3931fed/phase_4p7tb_20261012",
+      "quota": "NOT_VERIFIED",
+      "required_bytes": 2403553425219,
+      "reserve_bytes": 1777001877380,
+      "reused_physical_bytes": 362797094400,
+      "sufficient": false,
+      "temporary_bytes": 34359738368,
+      "total_bytes": 432814591836160,
+      "used_bytes": 428602947563520
+    },
+    "elapsed_seconds": 21261.07510540262,
+    "full_scenes": 90892,
+    "jobs": [
+      {
+        "host": "training-vlawm-zt3",
+        "root": "/mnt/project/iqe-fp32-cache-production-runtime-3931fed/phase_4p7tb_20261012/cache_part0",
+        "snapshot": {
+          "controller_active": null,
+          "gpus": [
+            {
+              "index": 0,
+              "memory_mib": 76536,
+              "utilization": 100
+            },
+            {
+              "index": 1,
+              "memory_mib": 58816,
+              "utilization": 100
+            },
+            {
+              "index": 2,
+              "memory_mib": 55228,
+              "utilization": 100
+            },
+            {
+              "index": 3,
+              "memory_mib": 80116,
+              "utilization": 100
+            },
+            {
+              "index": 4,
+              "memory_mib": 52098,
+              "utilization": 100
+            },
+            {
+              "index": 5,
+              "memory_mib": 55088,
+              "utilization": 100
+            },
+            {
+              "index": 6,
+              "memory_mib": 56922,
+              "utilization": 100
+            },
+            {
+              "index": 7,
+              "memory_mib": 73632,
+              "utilization": 100
+            }
+          ],
+          "host": "training-vlawm-zt3-worker-0",
+          "mount": {
+            "fstype": "lustre",
+            "source": "100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2[/mnt/project]"
+          },
+          "owners": []
+        },
+        "status": "WAITING_STORAGE_RESERVE"
+      },
+      {
+        "host": "training-vlawm-zt4",
+        "root": "/mnt/project/iqe-fp32-cache-production-runtime-3931fed/phase_4p7tb_20261012/cache_part1",
+        "snapshot": {
+          "controller_active": false,
+          "gpus": [
+            {
+              "index": 0,
+              "memory_mib": 42928,
+              "utilization": 97
+            },
+            {
+              "index": 1,
+              "memory_mib": 43236,
+              "utilization": 97
+            },
+            {
+              "index": 2,
+              "memory_mib": 43228,
+              "utilization": 82
+            },
+            {
+              "index": 3,
+              "memory_mib": 43182,
+              "utilization": 95
+            },
+            {
+              "index": 4,
+              "memory_mib": 43256,
+              "utilization": 89
+            },
+            {
+              "index": 5,
+              "memory_mib": 43420,
+              "utilization": 97
+            },
+            {
+              "index": 6,
+              "memory_mib": 42342,
+              "utilization": 97
+            },
+            {
+              "index": 7,
+              "memory_mib": 41988,
+              "utilization": 97
+            }
+          ],
+          "host": "training-vlawm-zt4-worker-0",
+          "mount": {
+            "fstype": "lustre",
+            "source": "100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2[/mnt/project]"
+          },
+          "owners": [
+            "783910, GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+            "783912, GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+            "783914, GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+            "783915, GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+            "783917, GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+            "783919, GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+            "783920, GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+            "783922, GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+          ]
+        },
+        "status": "PHASE_COMPLETE_FULL_POPULATION_PENDING"
+      }
+    ],
+    "no_training_or_migration": true,
+    "phase_scenes": 82888,
+    "status": "ACTIVE",
+    "updated_unix": 1791790150.8729851
+  },
+  "action": "SIGTERM idle dispatch controller only",
+  "reason": "latest user selected bounded dynamic pool; preserve original checkpoint space",
+  "committed_cache_preserved": true,
+  "active_gpu_workers_stopped": false
+}

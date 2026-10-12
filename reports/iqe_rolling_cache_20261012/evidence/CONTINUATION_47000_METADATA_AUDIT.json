@@ -1,0 +1,93 @@
+{
+  "audit": "read_only_complete_checkpoint_metadata_no_full_payload_rehash_during_training",
+  "timestamp_unix": 1791791811.8133628,
+  "path": "/mnt/project/iqe-remote-rolling-cache-20261012/continuation/step_047000.pt",
+  "receipt": {
+    "checksum": "f314c28815dbee90834a8e171764df17c6249da92482d64f48199d16c5966ef2",
+    "dependencies": {
+      "config": {
+        "compressor_heads": 8,
+        "compressor_layers": 4,
+        "drop_path": 0.2,
+        "dropout": 0.1,
+        "dt": 0.5,
+        "ffn": 1024,
+        "global_batch_size": 32,
+        "grad_clip_norm": 1.0,
+        "heads": 1,
+        "layers": 4,
+        "lr": 1e-05,
+        "lr_min_ratio": 0.05,
+        "max_optimizer_steps": 100000,
+        "micro_batch_size": 4,
+        "prev_weight": 0.0,
+        "scene_tokens": 16,
+        "validation_every_steps": 200,
+        "warmup_steps": 5000,
+        "weight_decay": 0.001,
+        "width": 256
+      },
+      "environment": {
+        "cuda": "12.4",
+        "deterministic": false,
+        "python": "3.10.20",
+        "tf32": false,
+        "torch": "2.5.1+cu124"
+      },
+      "fit_manifest": "c8bbb9b0914efb1ea1bdbdcf234b9a624375786f090bb5481cc6d3daae9e7c7b",
+      "framework_contract_hash": "a9d3bbd8a03f82137782dc016fb550dd8cceb2d7da703e5720975a55519d11ab",
+      "original_targets": {
+        "clip_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+        "clip_root": "/mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1",
+        "dev_metric_metadata": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+        "dev_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "dino_identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+        "dino_index": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1",
+        "dino_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1",
+        "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+        "interaction_root": "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+        "map_root": "/mnt/navsim/maps",
+        "new_scene_manifest": null,
+        "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+        "scene_manifest": null,
+        "train_metric_metadata": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv",
+        "train_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+      },
+      "world_size": 8
+    },
+    "optimizer_step": 47000
+  },
+  "file_bytes": 22816347471,
+  "kind": "iqe_query_base",
+  "mode": "full",
+  "optimizer_step": 47000,
+  "epoch": 16,
+  "offset": 1544,
+  "scheduler_last_epoch": 47000,
+  "optimizer_state_count": 643,
+  "adam_steps": [
+    47000.0
+  ],
+  "adam_dtypes": [
+    "torch.float32"
+  ],
+  "rng_ranks": 8,
+  "fit_scenes": 90892,
+  "learned_driving_weights_loaded": false,
+  "model_tensor_dtypes": [
+    "torch.float32",
+    "torch.int64"
+  ],
+  "provenance_fields": {
+    "initialization_source": null,
+    "parent_checkpoint": "/mnt/project/iqe-remote-rolling-cache-20261012/rolling200/step_046734.pt",
+    "parent_checkpoint_sha256": null,
+    "training_visual_source": "remote_rolling_fp32",
+    "inference_visual_source": "online_fp32",
+    "visual_numeric_contract": "legacy_fp32",
+    "terminal": false
+  },
+  "max_optimizer_steps": 100000,
+  "world_size": 8,
+  "status": "PASS"
+}

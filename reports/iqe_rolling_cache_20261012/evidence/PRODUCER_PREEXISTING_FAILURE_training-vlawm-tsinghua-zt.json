@@ -1,0 +1,44 @@
+{
+  "host": "training-vlawm-tsinghua-zt-worker-0",
+  "children": [
+    {
+      "pid": 7338,
+      "ticks": "1322938742",
+      "gpu": 0,
+      "worker": 0,
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "iqe.rolling_cache.cli",
+        "produce",
+        "--root",
+        "/mnt/project/iqe-remote-rolling-cache-20261012/pool46534",
+        "--config",
+        "configs/iqe/fp32_cache/source.yaml",
+        "--device",
+        "cuda:0",
+        "--hold-file",
+        "/mnt/project/iqe-fp32-cache-production-task-20261011/CACHE_BUILD_HOLD.json",
+        "--max-windows",
+        "10000",
+        "--max-seconds",
+        "85243",
+        "--max-gib-per-window",
+        "32",
+        "--rate-mib-s",
+        "96",
+        "--worker",
+        "0",
+        "--workers",
+        "16",
+        "--minimum-free-mib",
+        "30000"
+      ]
+    }
+  ],
+  "logs": [
+    "/mnt/project/iqe-remote-rolling-cache-20261012/producer_rate96_0.log"
+  ],
+  "timestamp_unix": 1791792685.4708543
+}
