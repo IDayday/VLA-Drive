@@ -1,4 +1,4 @@
-"""CPU-only closure of the exact G3 70k SSH-255 attempt with a complete bank.
+"""CPU-only closure of individually registered SSH-255 attempts with a complete bank.
 
 Never launches inference, changes the evaluator, repairs rows, or signals a PID.
 Use the canonical navsim Python. Original negative evidence remains archived.
@@ -24,6 +24,16 @@ TOOL_SHA = '91721cc10790b4890e5f9ce2aaf6016ba58df560def474745a23305698a099e5'
 FAILURE_SHA = '0d3b25b1280d58d56a76bed6ccff0943f9b3b027ba042d8a4a68bbfc3a666f2f'
 KEY = 'G3_EVENT_LOCAL_0070000'
 ATTEMPT = '20261012T010941_4a8a639482f4'
+CASES = {
+    'g3_70k': dict(cold=COLD, tool_sha=TOOL_SHA, failure_sha=FAILURE_SHA,
+        key=KEY, attempt=ATTEMPT, updates=70000, exit_codes=[255]*8+[0]*16),
+    'g3_90k': dict(cold=Path('/mnt/project/VLA-Drive-structured-world-navtest-window-v2-frozen-20261012'),
+        tool_sha='2d8bbe3a182f50da5eb09d8eabf6083d207eddcbe0e296e63dfcf4c1e52a6a44',
+        failure_sha='7e3ec434dc4d286221c01618d17c8d6effda6f3a937dc4da73633903e5290828',
+        key='G3_EVENT_LOCAL_0090000',
+        attempt='20261012T151338_03c468953475', updates=90000,
+        exit_codes=[0]*8+[255]*8, closed_by_remote_host=True),
+}
 
 
 def require(value, message):
@@ -40,16 +50,30 @@ def digest(path):
     return sha.hexdigest()
 
 
-def load_guard():
-    require(digest(TOOL) == TOOL_SHA, 'Frozen dispatcher source changed')
-    spec = importlib.util.spec_from_file_location('transport_original_dispatcher', TOOL)
+def load_guard(case=None):
+    case = CASES['g3_70k'] if case is None else case
+    tool = case['cold']/'tools/structured_world/run_navsim_navtest.py'
+    require(digest(tool) == case['tool_sha'], 'Frozen dispatcher source changed')
+    spec = importlib.util.spec_from_file_location('transport_original_dispatcher', tool)
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
     return module
 
 
-def failure_contract(value):
-    require(value['classification'] == 'unclassified' and value['exit_codes'] == [255]*8+[0]*16,
+def failure_contract(value, case=None):
+    case = CASES['g3_70k'] if case is None else case
+    require(value['classification'] == 'unclassified' and value['exit_codes'] == case['exit_codes'],
             'Only the registered SSH-255 failure is recoverable by this operator')
+
+
+def report_contract(report, launch, i, prediction_identity, case):
+    require(report['shard'] == launch['shard'] == i and report['attempt'] == case['attempt']
+            and report['shards'] == launch['shards'] == len(case['exit_codes'])
+            and report['prediction_identity'] == prediction_identity
+            and report['routing_tool_sha256'] == case['tool_sha'] and launch['command'][0] == 'ssh',
+            'Foreign worker/launcher evidence')
+    require(report['status'] == ('INFERENCE' if case['exit_codes'][i] == 255 else 'COMPLETE')
+            and not report.get('error') and report['scenes_done'] > 0,
+            'Unsupported worker/scientific failure')
 
 
 def score_row(row, token, log, variant, metrics):
@@ -102,26 +126,32 @@ def validate_scene(destination, entry, prediction, metric_names):
     return token, hashes
 
 
-def execute(output):
-    guard = load_guard(); guard.authorized()
+def execute(output, case_name='g3_70k'):
+    case = CASES[case_name]
+    COLD, TOOL_SHA, FAILURE_SHA = case['cold'], case['tool_sha'], case['failure_sha']
+    KEY, ATTEMPT, updates = case['key'], case['attempt'], case['updates']
+    shards = len(case['exit_codes'])
+    require(isinstance(FAILURE_SHA, str) and len(FAILURE_SHA) == 64,
+            'Exact original failure hash must be reviewed and registered before execution')
+    guard = load_guard(case); guard.authorized()
     require(socket.gethostname() == 'training-vla-zt-worker-0', 'Recover on the original controller/scorer host')
     destination = output/'jobs'/KEY; failure = destination/'INFERENCE_FAILED.json'
     with (output/'controller.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         require(digest(failure) == FAILURE_SHA, 'Failure changed; do not reinterpret another attempt')
-        failure_value = read(failure); failure_contract(failure_value)
+        failure_value = read(failure); failure_contract(failure_value, case)
         require(not (destination/'scores/INVALID.json').exists(), 'Scientific scoring failure retained')
         require(not (destination/'COMPLETE.json').exists() and not (output/'completed'/(KEY+'.json')).exists(), 'Already finalized or conflicting completion')
         request = read(output/'requests'/(KEY+'.json')); prediction = read(destination/'identity.json')
         require(request['key'] == KEY and request['population'] == 'navtest' and request['scenes'] == 12146
                 and request['logs'] == 136 and request['seed'] == 42 and request['variants'] == ['q0', 'q_final'], 'Request protocol changed')
         require(prediction['training_identity'] == request['training_identity'] and prediction['checkpoint'] == request['tag']
-                and prediction['updates'] == request['updates'] == 70000 and prediction['checkpoint_files_sha256'] == request['checkpoint_files_sha256']
+                and prediction['updates'] == request['updates'] == updates and prediction['checkpoint_files_sha256'] == request['checkpoint_files_sha256']
                 and prediction['evaluation_source_sha'] == guard.SHA and prediction['sampling_seed'] == 42, 'Prediction contract differs')
         contract = {k: v for k, v in prediction.items() if k != 'identity'}
         require(hashlib.sha256(json.dumps(contract, sort_keys=True).encode()).hexdigest() == prediction['identity'], 'Prediction identity hash changed')
         native = read(Path(request['run'])/'checkpoints'/request['tag']/'COMPLETE.json')
-        require(native['identity'] == request['training_identity'] and native['completed'] == 70000
+        require(native['identity'] == request['training_identity'] and native['completed'] == updates
                 and native['file_sha256'] == request['checkpoint_files_sha256'], 'Pinned checkpoint metadata differs')
         registration = read(destination/'REGISTRATION.json'); inputs = Path(registration['inputs'])
         index = read(guard.INDEX); expected = {r['token'] for r in index}
@@ -132,14 +162,14 @@ def execute(output):
             require({p.stem for p in (destination/folder).glob('*'+suffix)} == expected, 'Missing/extra scene records: '+folder)
         root = destination/'attempts'/ATTEMPT
         require(read(root/'ATTEMPT.json')['routing_tool_sha256'] == TOOL_SHA, 'Attempt source changed')
-        reports = [read(root/'shards'/f'shard_{i:03d}.json') for i in range(24)]
-        launches = [read(root/'launches'/f'shard_{i:03d}.json') for i in range(24)]
+        reports = [read(root/'shards'/f'shard_{i:03d}.json') for i in range(shards)]
+        launches = [read(root/'launches'/f'shard_{i:03d}.json') for i in range(shards)]
         for i, (report, launch) in enumerate(zip(reports, launches)):
-            require(report['shard'] == launch['shard'] == i and report['attempt'] == ATTEMPT
-                    and report['shards'] == launch['shards'] == 24 and report['prediction_identity'] == prediction['identity']
-                    and report['routing_tool_sha256'] == TOOL_SHA and launch['command'][0] == 'ssh', 'Foreign worker/launcher evidence')
-            require(report['status'] == ('INFERENCE' if i < 8 else 'COMPLETE') and not report.get('error')
-                    and report['scenes_done'] > 0, 'Unsupported worker/scientific failure')
+            report_contract(report, launch, i, prediction['identity'], case)
+            if case.get('closed_by_remote_host') and case['exit_codes'][i] == 255:
+                text = (root/f'shard_{i:03d}.log').read_text()
+                require('closed by remote host.' in text and 'Traceback (most recent call last)' not in text,
+                        'Original transport log differs or includes an unreviewed exception')
         scorer = read(destination/'SCORER_LAUNCH.json')
         local_proofs = [absent_local(l['pid']) for l in launches]+[absent_local(scorer['pid']), absent_local(launches[0]['controller_pid'])]
         remote_proofs = worker_exit_proofs(reports)
@@ -149,7 +179,8 @@ def execute(output):
         recovery.mkdir(parents=True, exist_ok=False)
         evidence = {'request_key': KEY, 'original_classification': failure_value['classification'], 'failure_sha256': FAILURE_SHA,
             'reviewed_classification': 'SSH-255 transport interruption with globally complete original outputs',
-            'specific_network_root_cause': 'UNKNOWN: original SSH exception/traceback not recorded',
+            'specific_network_root_cause': ('UNKNOWN: logs show remote-host transport closure; host-internal cause not established'
+                if case.get('closed_by_remote_host') else 'UNKNOWN: original SSH exception/traceback not recorded'),
             'original_worker_reports_rewritten': False, 'original_launcher_exit_codes': failure_value['exit_codes'],
             'local_exit_proofs': local_proofs, 'remote_worker_exit_proofs': remote_proofs,
             'canonical_original_log_sha256': digest(score_log), 'producer_sha256': digest(__file__),
@@ -173,7 +204,7 @@ def execute(output):
             failure.replace(recovery/'INFERENCE_FAILED.json'); moved = True
             guard.atomic(destination/'COMPLETE.json', {'identity': prediction['identity'], 'scenes': 12146, 'full_population': True,
                 'coverage_basis': 'actual exact global membership, all payload hashes and original full canonical score input bindings',
-                'recovery_evidence': str(recovery/'VALIDATION.json'), 'attempt_reports': 24, 'final_attempt': ATTEMPT,
+                'recovery_evidence': str(recovery/'VALIDATION.json'), 'attempt_reports': shards, 'final_attempt': ATTEMPT,
                 'GPU_hours': None, 'GPU_hours_lower_bound': sum(r.get('inference_seconds', 0) for r in reports)/3600,
                 'GPU_cost_status': 'partial worker timing snapshots; complete original GPU cost UNKNOWN', 'completed_utc': guard.now()})
             command = list(scorer['command']); command[command.index('--workers')+1] = '2'
@@ -207,7 +238,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225'))
     parser.add_argument('--execute', action='store_true', required=True)
-    args = parser.parse_args(); execute(args.output)
+    parser.add_argument('--case', choices=sorted(CASES), default='g3_70k')
+    args = parser.parse_args(); execute(args.output, args.case)
 
 
 if __name__ == '__main__': main()
