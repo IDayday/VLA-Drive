@@ -1,0 +1,103 @@
+{
+  "training_and_model_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "run_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+  "checkpoint": "latest_0070000",
+  "updates": 70000,
+  "valid": true,
+  "scores": {
+    "identity": "3d9560755e879b240ea6e7ff4c81800e9fb56dec5556c4c89f539664e3ed4dd4",
+    "seconds": 357.9445025920868,
+    "q0": {
+      "identity": "3d9560755e879b240ea6e7ff4c81800e9fb56dec5556c4c89f539664e3ed4dd4",
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "scene_csv_sha256": "6caa37ae739ca05f8cf72c869667d77051ad35c466bfa2e127e0696ee55cf223",
+      "metrics": {
+        "score": 0.8823828386722773,
+        "no_at_fault_collisions": 0.9787996048081673,
+        "drivable_area_compliance": 0.9657500411658159,
+        "ego_progress": 0.8262561877350028,
+        "time_to_collision_within_bound": 0.9442614852626379,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.9835336736374115
+      },
+      "zero_fraction": 0.05433887699654207,
+      "main_result": false
+    },
+    "q_final": {
+      "identity": "3d9560755e879b240ea6e7ff4c81800e9fb56dec5556c4c89f539664e3ed4dd4",
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "scene_csv_sha256": "7e012346bef979ece6961f630e24a4fe8a1e54c42559aece8bba0dbe73a9b25f",
+      "metrics": {
+        "score": 0.8887012585362994,
+        "no_at_fault_collisions": 0.9805697348921456,
+        "drivable_area_compliance": 0.9706076074427795,
+        "ego_progress": 0.8304854122401821,
+        "time_to_collision_within_bound": 0.9481310719578462,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.9842334925078216
+      },
+      "zero_fraction": 0.047834678083319614,
+      "main_result": true
+    }
+  },
+  "recovery_validation": {
+    "passed": true,
+    "predictions": 12146,
+    "q0_scores": 12146,
+    "q_final_scores": 12146,
+    "failed_scores": 0,
+    "membership_identity_payload_proposal_metric_cache_hashes_verified": true,
+    "ordered_original_record_hashes_sha256": "0862fe502eece9bb16628fad8fec0ba0a0a3007ba16a36d145a896da3b094c2a",
+    "completed_utc": "2026-10-12T02:58:10.151520+00:00"
+  },
+  "recovery_complete": {
+    "valid": true,
+    "score_complete": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0070000/scores/COMPLETE.json",
+    "new_GPU_workers": 0,
+    "original_failure_sha256": "0d3b25b1280d58d56a76bed6ccff0943f9b3b027ba042d8a4a68bbfc3a666f2f",
+    "completed_utc": "2026-10-12T03:04:48.296143+00:00"
+  },
+  "original_failure": {
+    "classification": "unclassified",
+    "exit_codes": [
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "observed_utc": "2026-10-12T01:32:16.047676+00:00"
+  },
+  "recovery_operator_sha256": "fde4417368a8f9c824d87e4ff686421eab2be69b1b02d62f7de242a069a65edc",
+  "evidence_directory": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0070000/recoveries/completed_transport_20261012T025550Z",
+  "recovery_GPU_workers": 0,
+  "existing_score_rows_recomputed": false,
+  "root_cause_limit": "SSH launchers returned255; exact network exception was not recorded. Original reports/failure remain archived. All24workers and original local launchers/scorer verified exited.",
+  "tests": {
+    "invocation": "python3 -B tools/structured_world/test_recover_completed_navtest_transport.py -v",
+    "passed": 3
+  }
+}
