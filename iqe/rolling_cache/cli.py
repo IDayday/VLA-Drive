@@ -146,6 +146,7 @@ def run_producer(args, pool):
                     deadline=began+args.max_seconds,worker=args.worker,workers=args.workers)
             except BlockingIOError: continue
             print(json.dumps({'event':'window','number':number,'status':result['status']}), flush=True)
+            if result.get('stop_requested'): return {**result,'status':'OPERATOR_PAUSED'}
             if result['status'] == 'PARTIAL': continue
             if result['status'] != 'WINDOW_COMPLETE': return result
             completed += 1; progressed = True

@@ -290,4 +290,4 @@ def build_window(pool, number, *, model_loader, rate_mib_s, reserve_gib, max_gib
         refs.update({r['scene_id']: generation for r in missing})
         value = pool.publish(plan, refs, generation)
         partial.unlink(missing_ok=True)
-        return value
+        return {**value, 'stop_requested':result.get('stop_requested',False)}

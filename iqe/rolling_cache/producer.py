@@ -150,4 +150,4 @@ def build_window_shards(model, contract, plan_path, root, *, worker, workers, ma
     atomic_json(root/f'FAST_RESULT_{worker}.json',{'status':result['status'],'worker':worker,
         'completed_shards':completed,'bytes_written':written,'seconds':time.monotonic()-began,
         'timings_inclusive_not_additive':timings,'visual_calls':front.calls,'updated_unix':time.time()})
-    return result
+    return {**result, 'stop_requested':stop[0]}
