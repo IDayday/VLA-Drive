@@ -1,0 +1,551 @@
+{
+  "schema": "structured_world_complete_navtest_analysis_v1",
+  "population": "navtest",
+  "scenes": 12146,
+  "logs": 136,
+  "canonical_identity": "c1c976fa62f85fb1c286e9bb002a4ed99e62d8a523befa575697234cffaee5c2",
+  "canonical_complete_sha256": "606950fd70245614130f48c13cd86a17ab47e1547b6cfddeb8a9e032f5d450b7",
+  "analyzer_sha256": "ba288ea8fa8f897eab96ffb2f44174363cc31d02b07d12a8b249d22edf5c409e",
+  "scene_csv_sha256": {
+    "q_final": "5eb3fb0e857050ebe8783f49f9f82585ec52efdbe14b7adb85f697786453f760",
+    "same_model_q0": "ae505812d032570ea081557b4dfb12047a5365fc5b95e874009f59244bbb7cba",
+    "G0_25000": "36eb1a935e3463f77a2f806477df44f9961b0d1e4ab707f36b6215aab6c423f1",
+    "G1_25000": "39b7083e3fd859f7f7f354a92a2ddf131a3d4a21848a777912b48b8d450d788d",
+    "G3_25000": "6721fff174b3825454192a09c55c996a04d6e1bcbbfa15547e0ea7d3b99e76d2"
+  },
+  "planning": {
+    "q0": {
+      "identity": "c1c976fa62f85fb1c286e9bb002a4ed99e62d8a523befa575697234cffaee5c2",
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "scene_csv_sha256": "ae505812d032570ea081557b4dfb12047a5365fc5b95e874009f59244bbb7cba",
+      "metrics": {
+        "score": 0.8505240069749401,
+        "no_at_fault_collisions": 0.9761238267742467,
+        "drivable_area_compliance": 0.9405565618310555,
+        "ego_progress": 0.7948744627857454,
+        "time_to_collision_within_bound": 0.9337230363905813,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.981310719578462
+      },
+      "zero_fraction": 0.0815083154948131,
+      "main_result": false
+    },
+    "q_final": {
+      "identity": "c1c976fa62f85fb1c286e9bb002a4ed99e62d8a523befa575697234cffaee5c2",
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "scene_csv_sha256": "5eb3fb0e857050ebe8783f49f9f82585ec52efdbe14b7adb85f697786453f760",
+      "metrics": {
+        "score": 0.8822725964796035,
+        "no_at_fault_collisions": 0.9845628190350733,
+        "drivable_area_compliance": 0.9669850156430101,
+        "ego_progress": 0.8157507879721687,
+        "time_to_collision_within_bound": 0.9520829902848674,
+        "comfort": 0.9999176683681871,
+        "driving_direction_compliance": 0.9839864976123827
+      },
+      "zero_fraction": 0.047587683187880786,
+      "main_result": true
+    }
+  },
+  "q_final_zero_scenes": 578,
+  "q_final_zero_component_patterns": {
+    "drivable_area_compliance": 388,
+    "drivable_area_compliance+driving_direction_compliance": 5,
+    "no_at_fault_collisions": 174,
+    "no_at_fault_collisions+drivable_area_compliance": 8,
+    "no_at_fault_collisions+driving_direction_compliance": 3
+  },
+  "comparisons": [
+    {
+      "name": "same_model_q0",
+      "paired": {
+        "comparison": "same_model_q0",
+        "scenes": 12146,
+        "logs": 136,
+        "metrics": {
+          "PDMS": {
+            "delta_points": 3.1748589504663407,
+            "paired_log_95CI": [
+              2.6102016618472743,
+              3.801726163430321
+            ]
+          },
+          "NC": {
+            "delta_points": 0.843899226082661,
+            "paired_log_95CI": [
+              0.5524802371284913,
+              1.16999052741142
+            ]
+          },
+          "DAC": {
+            "delta_points": 2.6428453811954555,
+            "paired_log_95CI": [
+              2.1354962532925543,
+              3.1807808097150847
+            ]
+          },
+          "TTC": {
+            "delta_points": 1.8359953894286185,
+            "paired_log_95CI": [
+              1.4050190855193698,
+              2.2997740086097953
+            ]
+          },
+          "EP": {
+            "delta_points": 2.0876325186423292,
+            "paired_log_95CI": [
+              1.5302827994536528,
+              2.7013537413651263
+            ]
+          },
+          "comfort": {
+            "delta_points": -0.008233163181294254,
+            "paired_log_95CI": [
+              -0.02782931354359926,
+              0.0
+            ]
+          }
+        },
+        "zero_failure_transfers": {
+          "fixed_baseline_zero_scenes": 492,
+          "introduced_zero_scenes": 80,
+          "both_zero": 498
+        },
+        "interpretation": "Same-model or overall-recipe diagnostic; not isolated auxiliary-supervision causality"
+      },
+      "failure_transfer": {
+        "baseline": "same_model_q0",
+        "introduced_zero_scenes": 80,
+        "introduced_zero_component_patterns": {
+          "drivable_area_compliance": 56,
+          "no_at_fault_collisions": 23,
+          "no_at_fault_collisions+driving_direction_compliance": 1
+        },
+        "fixed_baseline_zero_scenes": 492,
+        "fixed_baseline_zero_component_patterns": {
+          "drivable_area_compliance": 366,
+          "drivable_area_compliance+driving_direction_compliance": 7,
+          "no_at_fault_collisions": 117,
+          "no_at_fault_collisions+drivable_area_compliance": 2
+        },
+        "metric_transfers": {
+          "PDMS": {
+            "improved_scenes": 3356,
+            "worsened_scenes": 5129,
+            "unchanged_scenes": 3661,
+            "mean_delta_points": 3.174858950466354
+          },
+          "NC": {
+            "improved_scenes": 132,
+            "worsened_scenes": 25,
+            "unchanged_scenes": 11989,
+            "mean_delta_points": 0.843899226082661
+          },
+          "DAC": {
+            "improved_scenes": 378,
+            "worsened_scenes": 57,
+            "unchanged_scenes": 11711,
+            "mean_delta_points": 2.6428453811954555
+          },
+          "TTC": {
+            "improved_scenes": 298,
+            "worsened_scenes": 75,
+            "unchanged_scenes": 11773,
+            "mean_delta_points": 1.8359953894286185
+          },
+          "EP": {
+            "improved_scenes": 3176,
+            "worsened_scenes": 5172,
+            "unchanged_scenes": 3798,
+            "mean_delta_points": 2.087632518642327
+          },
+          "comfort": {
+            "improved_scenes": 0,
+            "worsened_scenes": 1,
+            "unchanged_scenes": 12145,
+            "mean_delta_points": -0.008233163181294254
+          },
+          "DDC": {
+            "improved_scenes": 89,
+            "worsened_scenes": 33,
+            "unchanged_scenes": 12024,
+            "mean_delta_points": 0.2675778033920632
+          }
+        }
+      }
+    },
+    {
+      "name": "G0_25000",
+      "paired": {
+        "comparison": "G0_25000",
+        "scenes": 12146,
+        "logs": 136,
+        "metrics": {
+          "PDMS": {
+            "delta_points": 0.7845180660190089,
+            "paired_log_95CI": [
+              0.17234374905948585,
+              1.4118691372176277
+            ]
+          },
+          "NC": {
+            "delta_points": 0.2758109665733575,
+            "paired_log_95CI": [
+              0.04059762607432044,
+              0.4849560019663781
+            ]
+          },
+          "DAC": {
+            "delta_points": 0.782150502222954,
+            "paired_log_95CI": [
+              0.13667191517890134,
+              1.4762664335165394
+            ]
+          },
+          "TTC": {
+            "delta_points": 0.3704923431582414,
+            "paired_log_95CI": [
+              -0.05008285523253955,
+              0.7782562360997238
+            ]
+          },
+          "EP": {
+            "delta_points": 0.43690926508372563,
+            "paired_log_95CI": [
+              -0.08290007397033988,
+              0.9596968922831264
+            ]
+          },
+          "comfort": {
+            "delta_points": -0.008233163181294254,
+            "paired_log_95CI": [
+              -0.02813526546455807,
+              0.0
+            ]
+          }
+        },
+        "zero_failure_transfers": {
+          "fixed_baseline_zero_scenes": 331,
+          "introduced_zero_scenes": 203,
+          "both_zero": 375
+        },
+        "interpretation": "Same-model or overall-recipe diagnostic; not isolated auxiliary-supervision causality"
+      },
+      "failure_transfer": {
+        "baseline": "G0_25000",
+        "introduced_zero_scenes": 203,
+        "introduced_zero_component_patterns": {
+          "drivable_area_compliance": 156,
+          "drivable_area_compliance+driving_direction_compliance": 1,
+          "no_at_fault_collisions": 45,
+          "no_at_fault_collisions+driving_direction_compliance": 1
+        },
+        "fixed_baseline_zero_scenes": 331,
+        "fixed_baseline_zero_component_patterns": {
+          "drivable_area_compliance": 253,
+          "no_at_fault_collisions": 77,
+          "no_at_fault_collisions+driving_direction_compliance": 1
+        },
+        "metric_transfers": {
+          "PDMS": {
+            "improved_scenes": 3684,
+            "worsened_scenes": 4914,
+            "unchanged_scenes": 3548,
+            "mean_delta_points": 0.7845180660190019
+          },
+          "NC": {
+            "improved_scenes": 86,
+            "worsened_scenes": 51,
+            "unchanged_scenes": 12009,
+            "mean_delta_points": 0.2758109665733575
+          },
+          "DAC": {
+            "improved_scenes": 254,
+            "worsened_scenes": 159,
+            "unchanged_scenes": 11733,
+            "mean_delta_points": 0.782150502222954
+          },
+          "TTC": {
+            "improved_scenes": 190,
+            "worsened_scenes": 145,
+            "unchanged_scenes": 11811,
+            "mean_delta_points": 0.3704923431582414
+          },
+          "EP": {
+            "improved_scenes": 3594,
+            "worsened_scenes": 4895,
+            "unchanged_scenes": 3657,
+            "mean_delta_points": 0.4369092650837278
+          },
+          "comfort": {
+            "improved_scenes": 0,
+            "worsened_scenes": 1,
+            "unchanged_scenes": 12145,
+            "mean_delta_points": -0.008233163181294254
+          },
+          "DDC": {
+            "improved_scenes": 85,
+            "worsened_scenes": 61,
+            "unchanged_scenes": 12000,
+            "mean_delta_points": 0.1070311213568253
+          }
+        }
+      }
+    },
+    {
+      "name": "G1_25000",
+      "paired": {
+        "comparison": "G1_25000",
+        "scenes": 12146,
+        "logs": 136,
+        "metrics": {
+          "PDMS": {
+            "delta_points": 1.9083673174374927,
+            "paired_log_95CI": [
+              1.3030573163081416,
+              2.5838795439441653
+            ]
+          },
+          "NC": {
+            "delta_points": 0.4816400461057138,
+            "paired_log_95CI": [
+              0.24791971547415093,
+              0.7193088984372216
+            ]
+          },
+          "DAC": {
+            "delta_points": 1.7289642680717932,
+            "paired_log_95CI": [
+              1.1241509657011335,
+              2.4127042504600573
+            ]
+          },
+          "TTC": {
+            "delta_points": 0.518689280421538,
+            "paired_log_95CI": [
+              0.1514354211888413,
+              0.9282670151412339
+            ]
+          },
+          "EP": {
+            "delta_points": 1.4930144062795032,
+            "paired_log_95CI": [
+              0.9272329466000833,
+              2.11481828340853
+            ]
+          },
+          "comfort": {
+            "delta_points": -0.008233163181294254,
+            "paired_log_95CI": [
+              -0.027513091736388297,
+              0.0
+            ]
+          }
+        },
+        "zero_failure_transfers": {
+          "fixed_baseline_zero_scenes": 420,
+          "introduced_zero_scenes": 153,
+          "both_zero": 425
+        },
+        "interpretation": "Same-model or overall-recipe diagnostic; not isolated auxiliary-supervision causality"
+      },
+      "failure_transfer": {
+        "baseline": "G1_25000",
+        "introduced_zero_scenes": 153,
+        "introduced_zero_component_patterns": {
+          "drivable_area_compliance": 112,
+          "drivable_area_compliance+driving_direction_compliance": 2,
+          "no_at_fault_collisions": 36,
+          "no_at_fault_collisions+drivable_area_compliance": 3
+        },
+        "fixed_baseline_zero_scenes": 420,
+        "fixed_baseline_zero_component_patterns": {
+          "drivable_area_compliance": 322,
+          "no_at_fault_collisions": 96,
+          "no_at_fault_collisions+drivable_area_compliance": 2
+        },
+        "metric_transfers": {
+          "PDMS": {
+            "improved_scenes": 3688,
+            "worsened_scenes": 4907,
+            "unchanged_scenes": 3551,
+            "mean_delta_points": 1.9083673174374969
+          },
+          "NC": {
+            "improved_scenes": 104,
+            "worsened_scenes": 44,
+            "unchanged_scenes": 11998,
+            "mean_delta_points": 0.4816400461057138
+          },
+          "DAC": {
+            "improved_scenes": 328,
+            "worsened_scenes": 118,
+            "unchanged_scenes": 11700,
+            "mean_delta_points": 1.7289642680717932
+          },
+          "TTC": {
+            "improved_scenes": 215,
+            "worsened_scenes": 152,
+            "unchanged_scenes": 11779,
+            "mean_delta_points": 0.518689280421538
+          },
+          "EP": {
+            "improved_scenes": 3591,
+            "worsened_scenes": 4871,
+            "unchanged_scenes": 3684,
+            "mean_delta_points": 1.4930144062795012
+          },
+          "comfort": {
+            "improved_scenes": 0,
+            "worsened_scenes": 1,
+            "unchanged_scenes": 12145,
+            "mean_delta_points": -0.008233163181294254
+          },
+          "DDC": {
+            "improved_scenes": 80,
+            "worsened_scenes": 63,
+            "unchanged_scenes": 12003,
+            "mean_delta_points": 0.07821505022229541
+          }
+        }
+      }
+    },
+    {
+      "name": "G3_25000",
+      "paired": {
+        "comparison": "G3_25000",
+        "scenes": 12146,
+        "logs": 136,
+        "metrics": {
+          "PDMS": {
+            "delta_points": 1.437553058858299,
+            "paired_log_95CI": [
+              0.9164498340420393,
+              2.005832452192894
+            ]
+          },
+          "NC": {
+            "delta_points": 0.32520994566112305,
+            "paired_log_95CI": [
+              0.10209613599436367,
+              0.5500803859267693
+            ]
+          },
+          "DAC": {
+            "delta_points": 1.2267413140128438,
+            "paired_log_95CI": [
+              0.7246349748639275,
+              1.7836923206902815
+            ]
+          },
+          "TTC": {
+            "delta_points": 0.6915857072287173,
+            "paired_log_95CI": [
+              0.28384780651558733,
+              1.0993779261556444
+            ]
+          },
+          "EP": {
+            "delta_points": 0.9916596035750551,
+            "paired_log_95CI": [
+              0.5260715772824249,
+              1.4866310170530121
+            ]
+          },
+          "comfort": {
+            "delta_points": 0.0,
+            "paired_log_95CI": [
+              -0.024458000553364775,
+              0.024497895238432127
+            ]
+          }
+        },
+        "zero_failure_transfers": {
+          "fixed_baseline_zero_scenes": 340,
+          "introduced_zero_scenes": 157,
+          "both_zero": 421
+        },
+        "interpretation": "Same-model or overall-recipe diagnostic; not isolated auxiliary-supervision causality"
+      },
+      "failure_transfer": {
+        "baseline": "G3_25000",
+        "introduced_zero_scenes": 157,
+        "introduced_zero_component_patterns": {
+          "drivable_area_compliance": 112,
+          "drivable_area_compliance+driving_direction_compliance": 3,
+          "no_at_fault_collisions": 36,
+          "no_at_fault_collisions+drivable_area_compliance": 3,
+          "no_at_fault_collisions+driving_direction_compliance": 3
+        },
+        "fixed_baseline_zero_scenes": 340,
+        "fixed_baseline_zero_component_patterns": {
+          "drivable_area_compliance": 261,
+          "drivable_area_compliance+driving_direction_compliance": 2,
+          "no_at_fault_collisions": 74,
+          "no_at_fault_collisions+drivable_area_compliance": 3
+        },
+        "metric_transfers": {
+          "PDMS": {
+            "improved_scenes": 3689,
+            "worsened_scenes": 4909,
+            "unchanged_scenes": 3548,
+            "mean_delta_points": 1.4375530588582968
+          },
+          "NC": {
+            "improved_scenes": 87,
+            "worsened_scenes": 45,
+            "unchanged_scenes": 12014,
+            "mean_delta_points": 0.32520994566112305
+          },
+          "DAC": {
+            "improved_scenes": 268,
+            "worsened_scenes": 119,
+            "unchanged_scenes": 11759,
+            "mean_delta_points": 1.2267413140128438
+          },
+          "TTC": {
+            "improved_scenes": 218,
+            "worsened_scenes": 134,
+            "unchanged_scenes": 11794,
+            "mean_delta_points": 0.6915857072287173
+          },
+          "EP": {
+            "improved_scenes": 3563,
+            "worsened_scenes": 4909,
+            "unchanged_scenes": 3674,
+            "mean_delta_points": 0.9916596035750544
+          },
+          "comfort": {
+            "improved_scenes": 1,
+            "worsened_scenes": 1,
+            "unchanged_scenes": 12144,
+            "mean_delta_points": 0.0
+          },
+          "DDC": {
+            "improved_scenes": 45,
+            "worsened_scenes": 67,
+            "unchanged_scenes": 12034,
+            "mean_delta_points": -0.11114770294747241
+          }
+        }
+      }
+    }
+  ],
+  "bootstrap": {
+    "unit": "log",
+    "scene_weighting": "pooled sampled log sums / sampled scene counts",
+    "replicates": 20000,
+    "seed": 42
+  },
+  "limits": [
+    "One training seed; inference seed and log bootstrap are not training replicates",
+    "Same-model q0 is not independently trained original-DDP baseline",
+    "Historical architecture and compute differ; matched updates do not isolate supervision",
+    "The user explicitly requested Navtest at intermediate observations; it is not an untouched final holdout",
+    "No raw scene identifiers, images or model weights are exported"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "classification": "infrastructure",
+  "request_key": "G1_FULL_UNIFORM_0060000",
+  "failure_sha256": "d2f5f5ed76964918e0d5f27a8a9a79fa004051f14051a7f20f146ad2bbe3870f",
+  "reviewed_failure_kind": "CUDA_load_oom_after_qualification",
+  "reason": "All eight shards stopped before the first scene. Original stacks show CUDA physical free memory 12.25-12.31 MiB while the process held only 8.01 GiB under its26GiB cap. Failure is in model.to(cuda), after initial GPU snapshot showed425MiB used on every physical GPU. Current vla-zt3 occupants are outside the visible namespace and must not be killed; route away and requalify known owned training cohosts. No model, precision, noise, trajectory or score change.",
+  "attempt_files_sha256": {
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_000.json": "8c4ec623f39c96ad8b01db69076e9d6b9fd0c58147adc5870759cc6987dfdfeb",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_001.json": "80ab63eb08a26074f78e6262b128e0fa716c2b46bd453ccaa52f121e569edecc",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_002.json": "293c0618fc98c27bab160de64063ea85ba98ca804de0a93dddc9ae85fe5f9d75",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_003.json": "3ce3cc74e226f6cacfda7cade1239112932f09af1e0c87f6dfb0545ca930407f",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_004.json": "226787b65ea725561df3995cd150a05021ca7b02f82fcb0536abba0b30047687",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_005.json": "693e1a34ee5497d1cb55dc1e74d84b1af7c580ac4f9a6d386c43dd4e83eacb39",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_006.json": "b074773b85bf17187726d826af1044fe69c6c3515bbe7ac967e43eb63cbc511a",
+    "attempts/20261012T082521_f5adf2b77c42/shards/shard_007.json": "5c078f5850352cfa38bab0c8f10b7f947fd2a98acb2f9fcac3e9b04cca426444",
+    "attempts/20261012T082521_f5adf2b77c42/shard_000.log": "4403e273698dfa71f30b571a6cf7389f7f80c7324836db77cecf7eb78c043c82",
+    "attempts/20261012T082521_f5adf2b77c42/shard_001.log": "e28c122e4d4437ac76c87ba5ae33e5c631f9472521ecf78f427a4ef28b03a045",
+    "attempts/20261012T082521_f5adf2b77c42/shard_002.log": "58613420c23719b6b5e47bf6bf0217543015077c4eff9d20b7998b2af1af2208",
+    "attempts/20261012T082521_f5adf2b77c42/shard_003.log": "0b643b7a15a5184c121cd483a5aa7dfd16bf5c85925071ccd95e9b1c66182635",
+    "attempts/20261012T082521_f5adf2b77c42/shard_004.log": "6a2d091c586ba38522275d7ea739051610619b04c05282fcb4dc50a26e76a1c0",
+    "attempts/20261012T082521_f5adf2b77c42/shard_005.log": "debc58c9e622212b8280b88748e1849056c248622f8e626c81c953ec505457a6",
+    "attempts/20261012T082521_f5adf2b77c42/shard_006.log": "f9ffd9c977f7161828be7014156138f8e02d9da128a91743abd400c0b73985d2",
+    "attempts/20261012T082521_f5adf2b77c42/shard_007.log": "d3b1223306a45d7a0be68e271d6e644980fd1c850682e317694098a4b6de405f"
+  },
+  "old_host_excluded_until_requalification": "training-vla-zt3"
+}

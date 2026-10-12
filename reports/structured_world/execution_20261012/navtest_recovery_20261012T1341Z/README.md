@@ -1,0 +1,22 @@
+# G1 60k / G3 90k Navtest recovery (2026-10-12)
+
+As of 14:52 UTC, G1 60k is complete: q_final PDMS89.28227234, q0 PDMS88.42849940, all12146 scenes and136 logs valid, zero failed scenes. It ran on11 qualified physical A800 GPUs: eight on training-vla-zt and three on training-vlawm-zt2. See the [Chinese result and paired analysis](G1_60K_RESULTS_ZH.md). G3 90k is pinned and queued; incomplete predictions are not a benchmark result. The two newly authorized nine-hour hosts remain unmodified while their GPU process owners cannot be identified; see the [bounded authorization record](temporary_hosts_9h/README.md).
+
+The original G1 60k attempt stopped before any scene completed. Four workers reported CUDA OOM in model.to(cuda), while their process memory was only8.01GiB under a26GiB cap and physical free memory had fallen to12.25–12.31MiB. Other workers stopped on the peer failure. The initial snapshot had reported425MiB used per device. The exact original exception, classifications, logs, checkpoint identity and all attempt records are preserved. The reviewed recovery binds all shard/log hashes, rejects any executed scene or scientific exception, verifies old worker identities have exited and fences abandoned leases. It does not change a failure marker to pretend the attempt succeeded.
+
+Routing code17aa32eeccc709914762ecb65354a917fd1c62bf adds a physical CUDA UUID check, driver-reported free-memory accounting, a second check immediately before CUDA model allocation, and current reservation enforcement. Unknown namespace-hidden occupants are excluded. No pressure process, training process or IQE cache producer was stopped. Both hosts passed bitwise parity on four real scenes (q0, q_final and out_of_range) against unchanged native evaluation. Full-population evaluation remains12146 scenes/136 logs, FP32 native masters, TF32 off, original10-step single proposal and scene-bound seed42. Model/scorer semantics are unchanged; model source is0c54f1c49e7ed2a76b22826b654d6c72625f5b6d.
+
+The initial independent20percent scene pacing still slowed G1/G3 and gave poor inference throughput. Two bounded240-second windows compared completing the same registered evaluation work under50percent versus unrestricted scene pacing. These are short resource observations, not a general performance benchmark.
+
+| Pacing | Completed scenes | Scenes/s | G1 updates | G3 updates | Combined baseline-equivalent lost updates per scene |
+|---|---:|---:|---:|---:|---:|
+| 50% | 541 | 2.2535 | 56 | 35 | 0.112255 |
+| 100% | 1036 | 4.3145 | 32 | 31 | 0.085677 |
+
+100percent pacing was selected for these two backlogged jobs:1.915x measured throughput and23.7percent lower combined lost-update cost per completed scene. G1's individual cost increased, while G3's decreased. Native training continues with slower individual updates during sharing; this is not a training execution acceleration. No loss, RNG, optimizer, precision, input, trajectory sampling or checkpoint changes were made. A restoration watcher restores the prior conservative duty after the two full valid completions, dispatcher failure or a four-hour watchdog; it never signals model/training processes. All restored pins are same-filesystem hardlinks (zero payload bytes copied). Their temporary exports/pins are released by the existing cadence only after full scoring and worker-exit proof.
+
+CPU tests:5 load-OOM review tests,6 routing/population/lease tests and13 resume-lifecycle tests passed. The resume fixture initially rejected the old hardcoded dispatcher hash; it now checks this version's exact companion dispatcher hash. The guard remains strict. Source was pushed only to perf/structured-world-fgtr-execution-20261011 and remote SHA17aa32e was verified.
+
+Execution commands, the recovery review, original baseline, probe windows and selection are saved alongside this report. Private images, model weights, caches and per-scene data remain in controlled storage.
+
+The newly completed G2 25k full Navtest score is88.22725965 (q0=85.05240070); its separately saved cluster-bootstrap comparisons use136 logs and20000 draws. It exceeds same-update G1 by1.9084 points with log-bootstrap95percent interval[1.3031,2.5839]. This is one training seed; that interval does not measure training-seed variation. G1 60k exceeds its50k result by0.3413 points, with log-bootstrap95percent interval[-0.1076,0.8111]; this modest point-estimate rise is not a demonstrated stable improvement. G3 90k will be added only after full valid completion.
