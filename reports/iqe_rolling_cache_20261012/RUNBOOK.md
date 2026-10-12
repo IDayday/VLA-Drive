@@ -2,10 +2,11 @@
 
 Consumer worktree: `/mnt/project/DriveVLA-M0-iqe-rolling-cache-20261012`.
 Branch: `perf/iqe-remote-rolling-cache-20261012`.
-Producer worktree: `/mnt/project/DriveVLA-M0-iqe-rolling-producer-20261012`, branch
-`perf/iqe-rolling-producer-index-8fe9f61`, commit
-`319543e` (descends from accounting fix27f3b5e). It adds an explicitly versioned
-producer storage budget and preserves the frozen frontend, codec, sampler and shard format. The active
+Producer worktree: `/mnt/project/DriveVLA-M0-iqe-rolling-shards-20261012`, branch
+`perf/iqe-rolling-shards-20261012`, runtime commit9368f8d. It inherits319543e
+producer storage expansion and fixes generation-publication locking. The finer
+4-record shard test was slower; production retains12 records. It preserves the
+frozen frontend, codec, sampler and shard format. The active
 consumer's protected source hashes stay at8fe9f61. Do not switch its worktree.
 Runtime root: `/mnt/project/iqe-remote-rolling-cache-20261012`.
 All commands below assume that worktree as cwd. No push was requested for this
@@ -24,7 +25,7 @@ The source46534 checkpoint and locked22k checkpoint are preserved.
 Consumer: training-vla-zt2; launch identity is `CONTINUATION_LAUNCH.json` in the
 runtime root. Producer hosts: training-vlawm-tsinghua-zt and
 training-vlawm-tsinghua-zt2. Actual per-process IDs/start ticks/commands are in
-`PRODUCERS_training-vlawm-tsinghua-zt_EXPAND_LAUNCH.json` and its zt2 counterpart.
+`PRODUCERS_training-vlawm-tsinghua-zt_GENERATION_FIX_LAUNCH.json` and its zt2 counterpart.
 Their `previous_receipt` fields preserve the prior INDEX/RATE96 processes and history.
 Read current live state; historical RUNNING snapshots are not evidence.
 
@@ -50,7 +51,7 @@ PY
 
 The existing observer samples every30s. Its current pointer is
 `/mnt/project/iqe-remote-rolling-cache-20261012/MONITOR_CURRENT.json`, which binds
-`MONITOR_EXPANDED_LAUNCH.json` by checksum; previous monitor receipts are preserved
+`MONITOR_GENERATION_FIX_LAUNCH.json` by checksum; previous monitor receipts are preserved
 history. After verifying that no observer owns the
 same output lock, the actual read-only recipe is:
 
@@ -62,8 +63,8 @@ PYTHONUTF8=1 /root/miniconda3/envs/ddp/bin/python -u \
   --consumer-log /mnt/project/iqe-remote-rolling-cache-20261012/continuation.log \
   --consumer-launch /mnt/project/iqe-remote-rolling-cache-20261012/continuation/LAUNCH.json \
   --consumer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/CONTINUATION_LAUNCH.json \
-  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt_EXPAND_LAUNCH.json \
-  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt2_EXPAND_LAUNCH.json \
+  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt_GENERATION_FIX_LAUNCH.json \
+  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt2_GENERATION_FIX_LAUNCH.json \
   --interval 30 --max-seconds 86400 --history-updates 100 --stall-seconds 180
 ```
 
@@ -84,7 +85,7 @@ worker0. Budget is at most24h from the original launch, shared IO<=1.5GiB/s.
 The CLI checks placement, ownership/headroom, content identities and disk reserve.
 
 ```bash
-cd /mnt/project/DriveVLA-M0-iqe-rolling-producer-20261012
+cd /mnt/project/DriveVLA-M0-iqe-rolling-shards-20261012
 CUDA_VISIBLE_DEVICES=0 PYTHONUTF8=1 LANG=C.UTF-8 LC_ALL=C.UTF-8 \
   OMP_NUM_THREADS=2 TOKENIZERS_PARALLELISM=false \
   /root/miniconda3/envs/ddp/bin/python -u -m iqe.rolling_cache.cli produce \
@@ -108,7 +109,7 @@ its original3-window reading horizon; use the monitor for the8-window producer
 buffer. Checkpoint/free-space reserve remains1,825,361,100,800 bytes.
 
 For a replacement producer, retain its original absolute deadline from the
-EXPAND receipt: set `--max-seconds` to the remaining seconds, not a fresh24h.
+GENERATION_FIX receipt: set `--max-seconds` to the remaining seconds, not a fresh24h.
 Do not run legacy producers concurrently: their old GC horizon would conflict
 with extended lookahead. The two-host replacement checked full argv, cwd and
 PID/start ticks, retired all old producers before activation, and sent no Base
@@ -205,3 +206,11 @@ PYTHONUTF8=1 /root/miniconda3/envs/ddp/bin/python -u \
 WAITING_FOR_CHECKPOINT state at50k and lack of duplicate observers. This preserves
 the existing user-authorized monitoring plan; it does not create an additional
 Navtest experiment or change the locked22k identity.
+
+The bounded8 GPU shard comparison and observed restoration race are recorded in
+`/mnt/project/DriveVLA-M0-iqe-rolling-shards-20261012/reports/iqe_rolling_shards_20261012/`.
+Both complete FP32 layouts matched522 records;4-record shards took longer in both
+cases. The generation-lock correction, not finer sharding, is deployed. Five
+failed restoration workers were accounted for and all producer processes were
+replaced; use current GENERATION_FIX receipts, not the historical POST_SHARD_BENCH
+receipt. Base source and SESSION are unchanged.
