@@ -12,6 +12,8 @@ import tempfile
 import time
 import unittest
 import shutil
+from types import SimpleNamespace
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name('run_navsim_navtest.py')
 spec = importlib.util.spec_from_file_location('navtest_routing_under_test', SCRIPT)
@@ -24,6 +26,26 @@ class RecoveryTests(unittest.TestCase):
         self.root = Path(self.temp.name)
 
     def tearDown(self): self.temp.cleanup()
+
+    def test_scene_pacing_is_only_completed_scene_wall_time(self):
+        self.assertEqual(module.inference_idle_seconds(2., 1.), 0.)
+        self.assertEqual(module.inference_idle_seconds(2., .2), 8.)
+        self.assertEqual(module.inference_idle_seconds(0., .2), 0.)
+        for duty in (0, -.1, 1.1, .01, float('nan'), float('inf')):
+            with self.assertRaises(ValueError): module.inference_idle_seconds(2., duty)
+        for elapsed in (-1., float('nan'), float('inf')):
+            with self.assertRaises(ValueError): module.inference_idle_seconds(elapsed, .2)
+
+    def test_live_pacing_override_and_idle_default(self):
+        policy = self.root/'scheduling.json'
+        module.atomic(policy, {'owned_training_inference_duty_cycle': .2,
+                              'owned_training_duty_by_host': {'host-a': .1}})
+        args = SimpleNamespace(cohost_duty_cycle=.2, scheduling_policy=policy)
+        with patch.object(module.socket, 'gethostname', return_value='host-a-worker-0'):
+            self.assertEqual(module.scheduling_duty_cycle(args), .1)
+            module.atomic(policy, {'owned_training_inference_duty_cycle': .05})
+            self.assertEqual(module.scheduling_duty_cycle(args), .05)
+        self.assertEqual(module.scheduling_duty_cycle(SimpleNamespace()), 1.)
 
     def record(self, root, token, identity='fixture', lease=None, owner=None):
         target = root/'predictions'/(token+'.npz'); target.parent.mkdir(parents=True,exist_ok=True)

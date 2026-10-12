@@ -411,6 +411,27 @@ def publish_owned(path, temp, record, value, lease, owner):
         temp.replace(path); atomic(record, value)
 
 
+def inference_idle_seconds(scene_seconds, duty_cycle):
+    """Yield only between completed scenes; never change tensors, RNG or sampling."""
+    if not math.isfinite(duty_cycle) or not .05 <= duty_cycle <= 1:
+        raise ValueError('Inference duty cycle must be finite and in [0.05, 1]')
+    if not math.isfinite(scene_seconds) or scene_seconds < 0:
+        raise ValueError('Invalid completed-scene wall time')
+    return scene_seconds * (1. / duty_cycle - 1.)
+
+
+def scheduling_duty_cycle(args):
+    duty = getattr(args, 'cohost_duty_cycle', 1.)
+    policy_path = getattr(args, 'scheduling_policy', None)
+    if policy_path:
+        policy = json.loads(policy_path.read_text())
+        host = socket.gethostname().removesuffix('-worker-0')
+        duty = policy.get('owned_training_duty_by_host', {}).get(
+            host, policy.get('owned_training_inference_duty_cycle', duty))
+    inference_idle_seconds(0., duty)  # Validate even when a scene is already cached.
+    return duty
+
+
 def worker(args):
     authorized()
     import numpy as np
@@ -475,11 +496,15 @@ def worker(args):
     for name in ('predictions', 'records'): (args.output / name).mkdir(parents=True, exist_ok=True)
     report['status'] = 'INFERENCE'; report['prediction_identity'] = identity
     report['loaded_utc'] = now(); report['load_peak_reserved_bytes'] = torch.cuda.max_memory_reserved()
+    report['scheduling_idle_seconds'] = 0.
+    report['scheduling_policy'] = str(args.scheduling_policy) if args.scheduling_policy else None
+    report['cohost_duty_cycle'] = scheduling_duty_cycle(args)
     atomic(report_path, report); start = time.monotonic(); costs = []
     work = leased_indices(args.output, data, report) if len(data) == 12146 else (
         (i, None, None) for i in range(args.shard, len(data), args.shards))
     for i, lease, owner in work:
         if (args.output / 'INFERENCE_FAILED.json').exists(): raise RuntimeError('Peer inference failure; stop owned worker at scene boundary')
+        scene_seconds = 0.
         token = data.index[i]['token']; record = args.output / 'records' / (token + '.json')
         path = args.output / 'predictions' / (token + '.npz')
         if record.exists():
@@ -497,7 +522,16 @@ def worker(args):
             with temp.open('wb') as stream: np.savez_compressed(stream, **values)
             # The checksum binds temporary payload bytes before atomic publish.
             publish_owned(path, temp, record, {'token': token, 'identity': identity, 'sha256': digest(temp)}, lease, owner)
-            costs.append(time.monotonic() - before)
+            scene_seconds = time.monotonic() - before
+            costs.append(scene_seconds)
+        duty = scheduling_duty_cycle(args)
+        idle_seconds = inference_idle_seconds(scene_seconds, duty)
+        if idle_seconds:
+            # q0/q_final/out_of_range have already been copied to CPU and published.
+            # No CUDA work is pending here; other useful work may use the device.
+            time.sleep(idle_seconds)
+            report['scheduling_idle_seconds'] += idle_seconds
+        report['cohost_duty_cycle'] = duty
         report['scenes_done'] += 1
         if report['scenes_done'] <= 4 or report['scenes_done'] % 16 == 0:
             report.update(observed_utc=now(), inference_seconds=time.monotonic()-start,
@@ -599,6 +633,9 @@ def refresh_routes(args, request):
                 'memory_cap_gib': min(26, int(free / 1024) - 6), 'cohosting_verified_own_training_or_idle': True,
                 'ownership': 'registered owned structured-world training' if owned else 'repeatedly physically empty GPU',
                 'owner_evidence':owned,
+                'cohost_duty_cycle': cost_policy.get('owned_training_duty_by_host', {}).get(host,
+                    cost_policy.get('owned_training_inference_duty_cycle', 1.)) if owned else 1.,
+                'scheduling_policy': str(cost_path) if owned else None,
                 'minimum_reserve_GiB': 5})
     atomic(args.output / 'resource_snapshots' / (request['key'] + '.json'), {'observed_utc': now(), 'inspected': inspected,
         'selected_routes': routes, 'excluded': skipped,'cohost_cost_policy':cost_policy,
@@ -612,6 +649,11 @@ def launch_worker(args, request, destination, route, shard, count, inputs, attem
         '--tag', request['tag'], '--inputs', str(inputs), '--output', str(destination),
         '--shard', str(shard), '--shards', str(count), '--memory-cap-gib', str(route['memory_cap_gib'])]
     if route.get('fp32_export'): command += ['--fp32-export', route['fp32_export']]
+    duty = route.get('cohost_duty_cycle', 1.)
+    inference_idle_seconds(0., duty)
+    command += ['--cohost-duty-cycle', str(duty)]
+    if route.get('scheduling_policy'):
+        command += ['--scheduling-policy', str(route['scheduling_policy'])]
     if attempt: command += ['--attempt', attempt]
     root = attempt_root(destination, attempt)
     log = root / ('shard_' + str(shard).zfill(3) + '.log'); log.parent.mkdir(parents=True, exist_ok=True)
@@ -864,6 +906,10 @@ def main():
     parser.add_argument('--priority', type=int, default=100)
     parser.add_argument('--shard', type=int, default=0); parser.add_argument('--shards', type=int, default=1)
     parser.add_argument('--memory-cap-gib', type=float, default=26)
+    parser.add_argument('--cohost-duty-cycle', type=float, default=1.,
+                        help='Wall-time pacing between complete scenes only; no numerical change')
+    parser.add_argument('--scheduling-policy', type=Path,
+                        help='Optional live routing-only pacing policy for authorized training cohosts')
     parser.add_argument('--fp32-export', type=Path)
     parser.add_argument('--attempt')
     parser.add_argument('--request-key')
