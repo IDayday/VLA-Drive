@@ -240,12 +240,12 @@ def build_window(pool, number, *, model_loader, rate_mib_s, reserve_gib, max_gib
     folder = pool.folder(number)
     if (folder / 'EVICTING.json').exists(): pool.evict(number)
     if (folder / 'ABANDONING.json').exists(): pool.discard_stale_partial(number)
-    require(0 <= worker < workers <= 8, 'invalid bounded producer partition')
+    require(0 <= worker < workers <= 16, 'invalid bounded producer partition')
     # Multiple frozen producers may fill disjoint native shards of one window.
     # GC needs an exclusive lease, so it cannot remove any in-progress window.
     with lease(folder / 'BUILD.lock', exclusive=False, nonblocking=True):
         wanted, _ = pool.desired()
-        require(number in wanted, 'producer may only build requested upcoming windows')
+        if number not in wanted: return {'status':'SKIPPED_REPLAN','number':number}
         old = pool.ready(number)
         if old is not None:
             partial = folder / 'BUILDING.json'

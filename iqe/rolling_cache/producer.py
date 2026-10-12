@@ -116,11 +116,13 @@ def build_window_shards(model, contract, plan_path, root, *, worker, workers, ma
                         if committed_shard(root,sid,digest(identity)) is not None:continue
                         # Reserve before writing; no speculative overcommit or
                         # deletion of permanent data/checkpoints.
-                        require(written+2*1024**3 <= max_gib*1024**3,'producer write budget exhausted')
+                        require(written+1024**3 <= max_gib*1024**3,'producer write budget exhausted')
                         require(capacity_check(root,0,reserve_bytes=int(reserve_gib*1024**3),
-                            temporary_bytes=2*1024**3)['sufficient'],'shared reserve unavailable')
+                            temporary_bytes=1024**3)['sufficient'],'shared reserve unavailable')
                         chunks=[groups[index][i:i+4] for i in range(0,len(groups[index]),4)]
-                        writer=ShardWriter(root,sid,digest(identity))
+                        # At most sixteen producers, each with <=1GiB temporary
+                        # shard: fits the session's original 16GiB write reserve.
+                        writer=ShardWriter(root,sid,digest(identity),max_bytes=1024**3)
                         try:
                             with OrderedPrefetch(chunks,lambda chunk:list(io.map(read_observation,chunk)),depth=1) as ahead:
                                 for _ in chunks:

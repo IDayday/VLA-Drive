@@ -280,3 +280,13 @@ def test_streaming_window_partial_commit_requires_full_hash_recovery(tmp_path):
     with (root/'shard.bin').open('r+b') as f:f.write(b'X')
     with pytest.raises(ContractError,match='checksum'):committed_shard(root,'shard',digest(identity))
     assert not (root/'shard.bin.COMPLETE.json').exists()
+
+
+def test_obsolete_producer_request_replans_without_error(tmp_path):
+    from iqe.rolling_cache.pool import build_window
+    pool,request,_=setup(tmp_path)
+    for rank in range(2):pool.progress(request,rank,16)
+    with patch('iqe.rolling_cache.placement.producer_placement'),patch('iqe.vision_cache.cli.hold_check'):
+        result=build_window(pool,0,model_loader=lambda _:pytest.fail('must not load'),
+            rate_mib_s=1,reserve_gib=1,max_gib=1,hold_file='unused',worker=15,workers=16)
+    assert result['status']=='SKIPPED_REPLAN'
