@@ -1,0 +1,35 @@
+{
+  "pid": 2020938,
+  "host": "training-vla-zt-worker-0",
+  "started_utc": "2026-10-12T23:10:03.793456+00:00",
+  "command": [
+    "/root/miniconda3/envs/navsim/bin/python",
+    "-B",
+    "-u",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/research_status_20261012T2309Z/frozen_dispatcher/run_navsim_navtest.py",
+    "--serve",
+    "--request-key",
+    "G3_EVENT_LOCAL_0100000",
+    "--output",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+    "--inputs",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_current_v1_0c54",
+    "--routes",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/ROUTES.json",
+    "--cadence-policy",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+    "--score-workers",
+    "12",
+    "--canonical-python",
+    "/root/miniconda3/envs/navsim/bin/python"
+  ],
+  "source_sha": "bb9af9da20759d3d68b9166dd8553bd850fcb8e5",
+  "source_files_sha256": {
+    "run_navsim_navtest.py": "89d7a277c6262962f51be9c68627e952ef0039612bcf90fb06947bdecbd3b096",
+    "navtest_cadence.py": "d3885dc109615f2c2e4a99a2d59cf05c4117fbf7735ec6fba69fed1211e97ddc",
+    "stream_navsim_navtest_pdms.py": "c0dd547d8ee8a3ee3e732164236d8dba25fda247d0f06e55f57d4e98816f2eeb"
+  },
+  "reason": "G3 reached100k; complete its registered endpoint, then resume existing eligible queue. Pre-inference G1 failure and original logs preserved.",
+  "no_training_process_signals": true,
+  "temporary_hosts_excluded": true
+}

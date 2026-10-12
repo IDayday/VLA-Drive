@@ -1,0 +1,29 @@
+{
+  "G2_reservation_controller_pid": 1325525,
+  "G2_reservation_recorded_utc": "2026-10-11T05:49:41.786135+00:00",
+  "GPU_or_shard_count_fixed": false,
+  "baseline_median_update_seconds": 3.18,
+  "current_GPU_workers_not_signalled": true,
+  "exclude_high_utilization_training": false,
+  "instruction": "Recover G1 60k and evaluate pinned G3 90k. Dynamic admission of verified own training cohosts with measured memory headroom; start at20percent completed-scene wall-time duty and monitor actual training interference. No fixed GPU/shard count.",
+  "observed_G1_median_update_seconds": 9.12,
+  "observed_G3_median_update_seconds": 9.35,
+  "quarantined_hosts": {
+    "training-vlawm-zt4": "Reserved for migrated G2_EVENT_UNIFORM native training from checkpoint latest_0023269 (TARGET_LAUNCH.json 2026-10-12T02:19:26Z); exclude new Navtest dispatch until this destination reservation is explicitly released. Existing IQE cache workers remain running.",
+    "training-vlawm-zt5": "observed SSH timeout/stdout BrokenPipe; exclude until separate infrastructure readiness requalification"
+  },
+  "recorded_utc": "2026-10-11T03:05:07.563168+00:00",
+  "utilization_threshold_percent": 20,
+  "owned_training_inference_duty_cycle": 0.2,
+  "owned_training_duty_by_host": {
+    "training-vla-zt": 0.2,
+    "training-vlawm-zt2": 0.2,
+    "training-rl-zt2": 0.2
+  },
+  "latest_instruction": "\u627e\u5408\u9002\u7684\u8d44\u6e90\u5b8c\u6210\u8bc4\u6d4b\uff1b\u6cbf\u7528\u6b64\u524d\u5141\u8bb8G3\u8bc4\u4f30\u548c\u81ea\u6709\u8bad\u7ec3\u5171\u4eab\u8d44\u6e90\u3001\u964d\u4f4e\u8bad\u7ec3\u5f71\u54cd\u7684\u6388\u6743\u3002\u672a\u77e5\u5360\u7528\u548c\u5176\u4ed6\u4efb\u52a1\u9884\u7559\u4ecd\u6392\u9664\u3002",
+  "latest_instruction_utc": "2026-10-12T02:52:11.164815+00:00",
+  "pacing_semantics": "Independent scene inference unchanged; initial20percent completed-scene wall-time duty on registered own training only. Idle GPUs unrestricted. Monitor training update cost and reduce pacing if needed.",
+  "last_pacing_adjustment_utc": "2026-10-12T13:59:33.605334+00:00",
+  "resource_revision_utc": "2026-10-12T13:49:56.281446+00:00",
+  "recovery_source_sha": "17aa32e"
+}
