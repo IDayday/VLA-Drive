@@ -15,6 +15,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import shlex
 import socket
 import statistics
@@ -172,6 +173,40 @@ def reconcile_infrastructure_leases(destination, index):
     return dict(verified_prior_scenes=len(verified), fenced_leases=expired)
 
 
+def review_load_oom(destination, failure, evidence):
+    """Review only a hash-bound CUDA allocation failure before any scene ran.
+
+    This is an explicit operator recovery, never an automatic scientific-error
+    retry. Preserve the original exception/classification and every attempt log.
+    """
+    if evidence.get('reviewed_failure_kind') != 'CUDA_load_oom_after_qualification':
+        raise ValueError('Unsupported load OOM review')
+    stack = failure.get('error_traceback', '')
+    if not failure.get('error', '').startswith('OutOfMemoryError(') or "model.to('cuda').eval()" not in stack:
+        raise ValueError('Review requires the original model-loading CUDA OOM stack')
+    if 'plan_from_current' in stack or 'scene_noise(' in stack:
+        raise ValueError('Inference/model-computation errors cannot use load OOM review')
+    free = re.search(r'of which ([0-9.]+) MiB is free', stack)
+    if not free or float(free.group(1)) >= 512:
+        raise ValueError('No evidence of exhausted physical GPU memory')
+    root = destination / 'attempts' / failure['attempt']
+    reports = sorted((root / 'shards').glob('*.json'))
+    bound = evidence.get('attempt_files_sha256', {})
+    if not reports or len(reports) != json.loads(reports[0].read_text())['shards']:
+        raise ValueError('Load OOM review needs every original shard report')
+    for path in reports:
+        report = json.loads(path.read_text()); log = root / (path.stem + '.log')
+        if any(bound.get(str(p.relative_to(destination))) != digest(p) for p in (path, log)):
+            raise ValueError('Load OOM attempt evidence hash differs')
+        error = report.get('error', '')
+        peer = "RuntimeError('Peer inference failure; stop owned worker at scene boundary')"
+        if report.get('scenes_done') != 0 or report.get('status') != 'FAILED' or not (
+                error.startswith('OutOfMemoryError(') or error == peer):
+            raise ValueError('Load OOM review cannot clear an executed scene or another error')
+    if any((destination / 'records').glob('*.json')) or any((destination / 'predictions').glob('*.npz')):
+        raise ValueError('Load-only recovery must not contain scene outputs')
+
+
 def recover_infrastructure(args):
     """Explicit recovery; no process signals and no clearing scientific failures."""
     authorized()
@@ -181,7 +216,10 @@ def recover_infrastructure(args):
     evidence = json.loads(args.recovery_evidence.read_text())
     if evidence.get('classification') != 'infrastructure' or evidence.get('failure_sha256') != digest(failure_path) or evidence.get('request_key') != args.request_key or not evidence.get('reason'):
         raise ValueError('Recovery evidence must bind exact failure hash/request and reason')
-    if failure.get('classification') != 'infrastructure':
+    if (failure.get('classification') != 'infrastructure'
+            and evidence.get('reviewed_failure_kind') == 'CUDA_load_oom_after_qualification'):
+        review_load_oom(destination, failure, evidence)
+    elif failure.get('classification') != 'infrastructure':
         # Old wrappers did not record exception stacks. A narrow, explicit
         # transport review may recover this known SSH/stdout failure; preserve
         # the original marker verbatim, including its original classification.
@@ -234,6 +272,12 @@ def authorized(host=None):
     if evaluation.exists(): hosts = json.loads(evaluation.read_text()).get('inference_allowed_hosts', hosts)
     local = socket.gethostname().removesuffix('-worker-0')
     if (host or local) not in hosts: raise ValueError('Host outside latest five-host authorization')
+    selected = host or local
+    if selected in policy.get('global_dispatch_prohibitions', {}):
+        raise ValueError('Host has a current global deployment prohibition')
+    reservation = policy.get('host_reservations', {}).get(selected, {})
+    if reservation.get('exclude_new_other_workloads') and reservation.get('task') != 'structured_world_fgtr_round1':
+        raise ValueError('Host reserved for another active task')
     if subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=FROZEN, text=True).strip() != SHA:
         raise ValueError('Wrong frozen evaluation source')
     if subprocess.check_output(['git', 'status', '--porcelain'], cwd=FROZEN, text=True).strip():
@@ -241,13 +285,13 @@ def authorized(host=None):
 
 
 def gpu_rows():
-    text = subprocess.check_output(['nvidia-smi', '--query-gpu=index,uuid,memory.total,memory.used,utilization.gpu',
+    text = subprocess.check_output(['nvidia-smi', '--query-gpu=index,uuid,memory.total,memory.used,memory.free,utilization.gpu',
         '--format=csv,noheader,nounits'], text=True)
     result = []
     for row in text.strip().splitlines():
-        index, uuid, total, used, util = [v.strip() for v in row.split(',')]
+        index, uuid, total, used, free, util = [v.strip() for v in row.split(',')]
         result.append({'index': int(index), 'uuid': uuid, 'total_MiB': int(total),
-            'used_MiB': int(used), 'free_MiB': int(total)-int(used), 'utilization_percent': int(util)})
+            'used_MiB': int(used), 'free_MiB': int(free), 'utilization_percent': int(util)})
     return result
 
 
@@ -286,7 +330,7 @@ def inventory():
             source = json.loads((run/'identity.json').read_text())
             if source['scope'] != 'formal' or source['dataset'] != 'navsim' or source['training_source_sha'] != SHA:
                 continue
-            if source['config']['structured_world']['group'] not in ('G0_NO_FUTURE_LABEL','G1_FULL_UNIFORM','G2_EVENT_GLOBAL','G3_EVENT_LOCAL'): continue
+            if source['config']['structured_world']['group'] not in ('G0_NO_FUTURE_LABEL','G1_FULL_UNIFORM','G2_EVENT_UNIFORM','G3_EVENT_LOCAL'): continue
             local = int(env['LOCAL_RANK']); mask = env.get('CUDA_VISIBLE_DEVICES')
             visible = mask.split(',') if mask else [str(r['index']) for r in devices]
             binding = visible[local]
@@ -295,13 +339,18 @@ def inventory():
                 GPU_uuid=row['uuid'],local_rank=local,visible_GPU_mask=mask,run=str(run),training_identity=source['identity'],
                 group=source['config']['structured_world']['group'],source=SHA,
                 binding_basis='exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)')
+            # NVML may report the host PID while /proc is a container namespace.
+            namespace = next((line.split()[1:] for line in (path/'status').read_text().splitlines()
+                              if line.startswith('NSpid:')), [])
+            evidence['pid_namespace_aliases'] = [int(value) for value in namespace]
             owned.setdefault(row['uuid'],[]).append(evidence); process_evidence.append(evidence)
         except (OSError,ValueError,KeyError,IndexError,StopIteration,UnicodeError): continue
     apps = []; query_error = None
     try:
-        text = subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid','--format=csv,noheader,nounits'],text=True,stderr=subprocess.STDOUT)
+        text = subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid,used_memory','--format=csv,noheader,nounits'],text=True,stderr=subprocess.STDOUT)
         for line in text.strip().splitlines():
-            pid,gpu = [v.strip() for v in line.split(',')]; apps.append(dict(pid=int(pid),GPU_uuid=gpu))
+            pid,gpu,memory = [v.strip() for v in line.split(',')]
+            apps.append(dict(pid=int(pid),GPU_uuid=gpu,used_MiB=int(memory)))
     except (subprocess.SubprocessError,ValueError) as error: query_error=repr(error)
     return dict(host=socket.gethostname(),python=next((p for p in candidates if Path(p).is_file()),None),samples=samples,
         registered_training_by_GPU=owned,process_evidence=process_evidence,compute_apps=apps,compute_apps_error=query_error,
@@ -440,6 +489,9 @@ def worker(args):
     from tools.structured_world.infer_checkpoint import load_model, scene_noise
     from starVLA.dataloader.structured_world.current_inputs import CurrentInputs
     torch.cuda.set_device(0); torch.set_num_threads(2)
+    physical_uuid = 'GPU-' + str(torch.cuda.get_device_properties(0).uuid).removeprefix('GPU-')
+    if os.environ.get('CUDA_VISIBLE_DEVICES') != physical_uuid:
+        raise InfrastructureError('Actual CUDA device UUID differs from the routed physical GPU')
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     total = torch.cuda.get_device_properties(0).total_memory
     torch.cuda.set_per_process_memory_fraction(args.memory_cap_gib * (1 << 30) / total, 0)
@@ -447,6 +499,7 @@ def worker(args):
     state_root = attempt_root(args.output, args.attempt) / 'shards'; state_root.mkdir(parents=True, exist_ok=True)
     report_path = state_root / ('shard_' + str(args.shard).zfill(3) + '.json')
     report = {'status': 'LOADING', 'pid': os.getpid(), 'host': socket.gethostname(), 'visible_gpu': os.environ.get('CUDA_VISIBLE_DEVICES'),
+        'actual_CUDA_UUID': physical_uuid,
         'shard': args.shard, 'shards': args.shards, 'attempt': args.attempt, 'started_utc': now(), 'memory_cap_GiB': args.memory_cap_gib,
         'proc_start_ticks': Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19],
         'routing_tool_sha256': EXECUTED_TOOL_SHA256, 'scenes_done': 0, 'scenes_total': len(range(args.shard, len(data), args.shards)),
@@ -470,6 +523,14 @@ def worker(args):
         model = VLAStructuredFGTR(OmegaConf.create(source['config'])).float()
         state = torch.load(args.fp32_export, map_location='cpu', weights_only=False)
         model.load_state_dict(state, strict=True); del state
+        # CPU construction/hash verification can take long enough for another
+        # task to acquire the GPU. Recheck immediately before CUDA allocation.
+        before_cuda = next(r for r in gpu_rows() if r['uuid'] == report['visible_gpu'])
+        needed = qualified['peak_reserved_bytes'] if len(data) == 12146 else args.memory_cap_gib * (1 << 30)
+        report['GPU_before_model_to_cuda'] = before_cuda
+        atomic(report_path, report)
+        if before_cuda['free_MiB'] * (1 << 20) < needed + 5 * (1 << 30):
+            raise InfrastructureError('Resource changed during CPU model loading; no CUDA model allocation attempted')
         model.to('cuda').eval(); model.inference_fp32 = True
         model.shared_geometry_identity = source['shared_geometry_identity']
         report['FP32_export'] = str(args.fp32_export); report['FP32_export_sha256'] = export['sha256']
@@ -578,7 +639,8 @@ def refresh_routes(args, request):
     cost_path=args.output/'COHOST_COST_POLICY.json'
     cost_policy=json.loads(cost_path.read_text()) if cost_path.exists() else {}
     def scan(host):
-        authorized(host)
+        try: authorized(host)
+        except ValueError as error: return host, {'error': str(error)}
         argv = ['python','-B',str(SCRIPT),'--inventory']
         if host != socket.gethostname().removesuffix('-worker-0'):
             argv = ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=6', host, shlex.join(argv)]
@@ -601,8 +663,13 @@ def refresh_routes(args, request):
             if row['uuid'] in seen: continue
             if free < 20 * 1024: continue
             owned = info['registered_training_by_GPU'].get(row['uuid'],[])
-            extra = [r for r in info['compute_apps'] if r['GPU_uuid']==row['uuid'] and r['pid'] not in {v['pid'] for v in owned}]
+            aliases = {pid for v in owned for pid in [v['pid'], *v.get('pid_namespace_aliases', [])]}
+            device_apps = [r for r in info['compute_apps'] if r['GPU_uuid']==row['uuid']]
+            extra = [r for r in device_apps if r['pid'] not in aliases]
             if max(r['used_MiB'] for r in samples) > 128 and (not owned or extra): continue
+            # Hidden namespace occupants cannot be inferred to be our training.
+            if owned and row['used_MiB'] - sum(r.get('used_MiB',0) for r in device_apps) > 512:
+                continue
             if owned and cost_policy.get('exclude_high_utilization_training') and max(r['utilization_percent'] for r in samples)>20:
                 continue
             if not owned and max(r['utilization_percent'] for r in samples)>20:continue

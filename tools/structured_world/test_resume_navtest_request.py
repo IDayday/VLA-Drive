@@ -163,8 +163,9 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(len(list((self.args.output / 'resume_requests').glob('*/*/COMPLETE.json'))), 1)
 
     def test_actual_frozen_import_and_namespace_defaults_cpu_only(self):
-        path = Path('/mnt/project/VLA-Drive-structured-world-navtest-cohost-frozen-20261012/tools/structured_world/run_navsim_navtest.py')
-        if not path.exists(): self.skipTest('Frozen dispatcher unavailable')
+        # The wrapper pins its exact companion dispatcher hash, including after
+        # an explicitly versioned infrastructure-only recovery patch.
+        path = Path(wrapper.__file__).with_name('run_navsim_navtest.py')
         dispatcher, cadence = wrapper.load_modules(path)
         self.assertEqual(dispatcher.SHA, wrapper.MODEL_SOURCE)
         self.assertEqual(cadence.SOURCE, wrapper.MODEL_SOURCE)
