@@ -2,6 +2,7 @@
 from copy import deepcopy
 from pathlib import Path
 import io
+import os
 import numpy as np
 import torch
 from iqe.contracts import require
@@ -19,6 +20,16 @@ from .bank import expert_candidates, cache_candidates, score_candidates, COMPONE
 from .evaluation import selection_metrics, bank_statistics, argmax_base_tie
 
 
+def training_device(requested):
+    if str(requested).startswith("cuda"):
+        index = int(os.environ.get("LOCAL_RANK", 0)) if int(os.environ.get("WORLD_SIZE", 1)) > 1 else (torch.device(requested).index or 0)
+        os.environ["LOCAL_RANK"] = str(index)
+        torch.cuda.set_device(index)
+        return f"cuda:{index}"
+    require(str(requested) == "cpu", "unsupported training device")
+    return "cpu"
+
+
 def training_config(config, kind):
     return {"lr": 1e-4, "weight_decay": .01, "global_batch_size": 128,
             "micro_batch_size": config.expert_micro_batch if kind == "expert" else config.scorer_micro_batch,
@@ -29,6 +40,7 @@ def training_config(config, kind):
 
 
 def train_expert(config, device="cuda:0", resume=None, stop_after=None):
+    device = training_device(device)
     scenes = load_scenes(config.root/"scenes.json")
     lookup = {s.scene_id: s for s in scenes}
     manifest = read_json(config.root/"EXPERT_MANIFEST.json")
@@ -173,6 +185,7 @@ def predict_scores(config, module, scenes, trajectories, device):
 
 
 def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
+    device = training_device(device)
     manifest, data = load_bank(config)
     scenes = load_scenes(config.root/"scenes.json")
     lookup = {s.scene_id: s for s in scenes}

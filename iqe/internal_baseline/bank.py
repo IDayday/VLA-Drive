@@ -74,10 +74,15 @@ def save_candidate(config, scene, expert_id, checkpoint_hash, physical):
 
 def cache_candidates(config, scenes, kind):
     require(kind in {"base", "gt"}, "only Base/GT can be exported from frozen cache")
-    cache = JointCache(config)
     b = read_json(config.root / "BASE_BINDING.json")
-    return [save_candidate(config, s, "expert_0" if kind == "base" else "audit_gt", b["checkpoint_hash"] if kind == "base" else s.target_id,
-                           cache.read(s)["base_physical" if kind == "base" else "target_physical"].numpy()) for s in scenes]
+    def one(s):
+        # Bounded independent I/O, ordered results. No sampler or GPU ordering is
+        # changed, and no mutable LRU is shared between reader threads.
+        cache = JointCache(config, capacity=0)
+        return save_candidate(config, s, "expert_0" if kind == "base" else "audit_gt", b["checkpoint_hash"] if kind == "base" else s.target_id,
+                              cache.read(s)["base_physical" if kind == "base" else "target_physical"].numpy())
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        return list(pool.map(one, scenes))
 
 
 @torch.no_grad()
@@ -85,11 +90,15 @@ def expert_candidates(config, module, scenes, weight_hash, device, batch_size=64
     cache = JointCache(config)
     module.eval()
     rows = []
-    for at in range(0, len(scenes), batch_size):
-        subset = scenes[at:at+batch_size]
-        values = cache.batch(subset, device)
-        pred = module(planner_bundle(config, values, [s.scene_id for s in subset]))
-        rows.extend(save_candidate(config, s, "expert_1", weight_hash, p) for s, p in zip(subset, pred.physical.cpu().numpy()))
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for at in range(0, len(scenes), batch_size):
+            subset = scenes[at:at+batch_size]
+            values = cache.batch(subset, device)
+            pred = module(planner_bundle(config, values, [s.scene_id for s in subset]))
+            def one(item):
+                s, p = item
+                return save_candidate(config, s, "expert_1", weight_hash, p)
+            rows.extend(pool.map(one, zip(subset, pred.physical.cpu().numpy())))
     return rows
 
 
