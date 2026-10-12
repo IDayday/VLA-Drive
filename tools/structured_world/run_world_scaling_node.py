@@ -66,6 +66,10 @@ def main():
     bench.require(proof['status'] == 'ENVIRONMENT_AND_OPERATOR_QUALIFIED_NOT_MODEL_ACCEPTANCE', 'Unqualified environment')
     # Check policy BEFORE importing the trainer/model, which can initialize NCCL.
     bench.authorize(host['host'])
+    environment = bench.runtime_snapshot(manifest['python'])
+    for name in ('torch', 'transformers', 'deepspeed', 'mmcv', 'mmengine', 'numpy'):
+        bench.require(environment['packages'][name] == proof['packages'][name],
+                      'Runtime changed since host qualification: '+name)
     os.environ.update(NCCL_SOCKET_IFNAME='eth0', TORCH_NCCL_ASYNC_ERROR_HANDLING='1',
         TORCH_EXTENSIONS_DIR=host['torch_extensions'], MAX_JOBS='4')
     pool = hashlib.sha256(json.dumps(sorted(host['gpu_uuids'])).encode()).hexdigest()
@@ -76,7 +80,8 @@ def main():
         process = bench.run_job({'run': str(node_run), 'trainer': str(ROOT/'tools/structured_world/train_vla.py'),
             'gpu_uuids': host['gpu_uuids'], 'command': argv}, [lock])
         bench.write(node_run/'PROFILE_NODE_RECEIPT.json', {'manifest_sha256': bench.digest(args.manifest),
-            'readiness': ready, 'process': process, 'world': job['world_size'], 'node_rank': args.node_rank,
+            'readiness': ready, 'environment': environment, 'process': process,
+            'world': job['world_size'], 'node_rank': args.node_rank,
             'node_process_GPU_hours': process['wall_seconds']*8/3600, 'formal_authorized': False})
         bench.require(process['returncode'] == 0, 'Owned profile node failed; preserve original logs')
 
