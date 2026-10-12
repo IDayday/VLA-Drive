@@ -1,0 +1,62 @@
+{
+  "operator_source_sha": "0905519dedea2437bcc1ec8eee7e397d66939409",
+  "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "launch": {
+    "utc": "2026-10-12T02:41:50.267636+00:00",
+    "pid": 3674350,
+    "start_ticks": 1321158007,
+    "host": "training-vlawm-zt4",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-u",
+      "/mnt/project/VLA-Drive-structured-world-g2-zt4-continuation-frozen-20261012/tools/structured_world/continue_migrated_navsim_group.py",
+      "--execute",
+      "--output",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/g2_zt4_migration_20261012/continuation_v1"
+    ],
+    "operator_sha256": "840ab99ead86075f61544fc50cdfd1553c62da2806bfafb671807fbef5d94c10",
+    "source_sha": "0905519dedea2437bcc1ec8eee7e397d66939409",
+    "status_at_submission": "PREPARED",
+    "initial_training_launcher_unmodified": 1820273,
+    "current_stage_target": 25000,
+    "planned_horizon": 100000
+  },
+  "verified": {
+    "utc": "2026-10-12T02:42:11.807846+00:00",
+    "status": "PASS_CONTINUATION_WAITING_CURRENT_25K",
+    "controller_alive": true,
+    "pid": 3674350,
+    "state": {
+      "pid": 1820273,
+      "status": "WAITING_CURRENT_25K",
+      "unix": 1791772931.5274699
+    },
+    "locks": [
+      {
+        "file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/physical_gpu_locks/queue_3968cd97879d015d9398eba87cd4060687e1f02f55c973fa40d088dc3c36c1b1.lock",
+        "held": true
+      },
+      {
+        "file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/physical_gpu_locks/6383cee48d2578e1b528f931aec72786f1c8eae79fa768375d02af2ac26f1edf.lock",
+        "held": true
+      },
+      {
+        "file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM/HOST_MIGRATION_RUNTIME.lock",
+        "held": false
+      }
+    ],
+    "current_launcher_alive": true,
+    "no_training_process_signals": true,
+    "no_duplicate_GPU_launch": true
+  },
+  "registration_file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/g2_zt4_migration_20261012/continuation_v1/REGISTRATION.json",
+  "registration_sha256": "32d2a69a5929e0e340d7841ada3fc8c3f2e1b8f1091b8224436f6434c2ecdac4",
+  "private_environment_uploaded": false,
+  "tests": {
+    "invocation": "python3 -B tools/structured_world/test_continue_migrated_navsim_group.py -v",
+    "passed": 15,
+    "failed": 0
+  },
+  "limitation": "Controller observed holding queue/physical locks while original25k stage continues; future50k/75k/100k execution has not yet occurred."
+}
