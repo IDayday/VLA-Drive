@@ -159,3 +159,32 @@ Do not run large state checksum comparisons concurrently with timing windows.
 Deployment inference continues using online FP32 vision; caching is a training
 storage dependency. No Base replacement, new navtest, locked22k mutation,
 checkpoint cleanup or deployment ACTIVE update is part of these commands.
+
+## Existing Navtest watch after checkpoint-directory migration
+
+The existing20k/50k/100k plan keeps the same evaluation code, input population,
+hosts, protocol, output directories and original absolute watch deadline.
+Its checkpoint root has been reconnected to the new continuation directory via
+`/mnt/project/iqe-review-runtime-1e876da/navtest/SCHEDULE_PLAN_CONTINUATION_46534.json`.
+The original plan is preserved. The idle original observer cooperatively exited
+through its existing STOP_SCHEDULING mechanism, then one replacement observer
+started. No model, active evaluation or Base process was stopped, no evaluation
+point was added, and no evaluation worker was started by this handover.
+
+The49k complete receipt has the exact training run identity required by the
+existing plan. The original native checker will still validate the full checksum
+and state when50k/100k become available. Current status:
+`/mnt/project/iqe-review-runtime-1e876da/navtest/SCHEDULE_STATUS.json`.
+The actual observer command below is already running; do not duplicate it:
+
+```bash
+cd /mnt/project/DriveVLA-M0-iqe-review-1e876da
+PYTHONUTF8=1 /root/miniconda3/envs/ddp/bin/python -u \
+  scripts/iqe/navtest_schedule.py \
+  --plan /mnt/project/iqe-review-runtime-1e876da/navtest/SCHEDULE_PLAN_CONTINUATION_46534.json
+```
+
+`NAVTEST_WATCH_HANDOVER_AUDIT.json` records the live PID/start ticks, successful
+WAITING_FOR_CHECKPOINT state at50k and lack of duplicate observers. This preserves
+the existing user-authorized monitoring plan; it does not create an additional
+Navtest experiment or change the locked22k identity.

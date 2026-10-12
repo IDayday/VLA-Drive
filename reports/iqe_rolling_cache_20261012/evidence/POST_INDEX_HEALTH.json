@@ -1,0 +1,990 @@
+{
+  "actions": {
+    "code_modified": false,
+    "gpu_compute": false,
+    "job_launch": false,
+    "large_weight_rehash": false,
+    "process_signals": false,
+    "report_only_write": true
+  },
+  "all_four_losses_and_gradient_finite_in_last_200": true,
+  "checkpoint_49000_receipt_present": true,
+  "checkpoint_limitation": "Complete receipt metadata, payload presence and size were checked. Receipt-declared payload hash was not independently recomputed to avoid 22.8 GB read IO.",
+  "checkpoint_payload_hash_recomputed": false,
+  "completed_target_step": 49100,
+  "deleted_open_files": 0,
+  "important_boundary": "Some snapshots had SUPPLY_BELOW_ESTIMATED_DEMAND or LOW_CONTIGUOUS_BUFFER; those are soft observations, not job failure. Final snapshot had no alerts. This short observation does not establish indefinite balanced supply.",
+  "latest_navtest": {
+    "logs": 136,
+    "next_existing_schedule_step": 50000,
+    "no_new_evaluation_started": true,
+    "pdms_0_100": 88.373512,
+    "report": "/mnt/project/iqe-review-runtime-1e876da/navtest/step_041000/EVALUATION_SUMMARY.md",
+    "schedule_root_followup": "Parent notified that existing schedule plan still references original query_base root; no scheduler edits or task launches by this observer.",
+    "step": 41000,
+    "total_scenes": 12146,
+    "valid_scenes": 12146
+  },
+  "new_failed_producer_events": 0,
+  "observations": [
+    {
+      "alerts": [
+        "SUPPLY_BELOW_ESTIMATED_DEMAND"
+      ],
+      "buffer": {
+        "continuous_ready_updates": 22,
+        "estimated_seconds_at_nonwait_p50": 24.920426482334733,
+        "high_watermark_reached": false,
+        "windows": [
+          {
+            "number": 156,
+            "ready": true,
+            "reason": "CHECKED_COMPLETE_METADATA"
+          },
+          {
+            "number": 157,
+            "ready": true,
+            "reason": "CHECKED_COMPLETE_METADATA"
+          },
+          {
+            "number": 158,
+            "ready": false,
+            "reason": "INCOMPLETE_WINDOW"
+          }
+        ]
+      },
+      "checkpoint_49000": {
+        "complete_receipt_exists": true,
+        "exists": true,
+        "path": "/mnt/project/iqe-remote-rolling-cache-20261012/continuation/step_049000.pt",
+        "payload_hash_recomputed": false,
+        "receipt": {
+          "checksum": "f9e14f541e5c2922cbbb5960523df9159531e780f78a6ba1af7a6c89a25575bf",
+          "dependencies": {
+            "config": {
+              "compressor_heads": 8,
+              "compressor_layers": 4,
+              "drop_path": 0.2,
+              "dropout": 0.1,
+              "dt": 0.5,
+              "ffn": 1024,
+              "global_batch_size": 32,
+              "grad_clip_norm": 1,
+              "heads": 1,
+              "layers": 4,
+              "lr": 1e-05,
+              "lr_min_ratio": 0.05,
+              "max_optimizer_steps": 100000,
+              "micro_batch_size": 4,
+              "prev_weight": 0,
+              "scene_tokens": 16,
+              "validation_every_steps": 200,
+              "warmup_steps": 5000,
+              "weight_decay": 0.001,
+              "width": 256
+            },
+            "environment": {
+              "cuda": "12.4",
+              "deterministic": false,
+              "python": "3.10.20",
+              "tf32": false,
+              "torch": "2.5.1+cu124"
+            },
+            "fit_manifest": "c8bbb9b0914efb1ea1bdbdcf234b9a624375786f090bb5481cc6d3daae9e7c7b",
+            "framework_contract_hash": "a9d3bbd8a03f82137782dc016fb550dd8cceb2d7da703e5720975a55519d11ab",
+            "original_targets": {
+              "clip_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+              "clip_root": "/mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1",
+              "dev_metric_metadata": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+              "dev_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+              "dino_identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+              "dino_index": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1",
+              "dino_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1",
+              "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+              "interaction_root": "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+              "map_root": "/mnt/navsim/maps",
+              "new_scene_manifest": null,
+              "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+              "scene_manifest": null,
+              "train_metric_metadata": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv",
+              "train_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+            },
+            "world_size": 8
+          },
+          "optimizer_step": 49000
+        },
+        "receipt_sha256": "64cdcfb033be3fef856e0d0f81c01782403170cee720a73a374d5099324cfcd2",
+        "size": 22816347471
+      },
+      "demand": {
+        "bytes_per_second_upper_bound": 842844416.0960685,
+        "known_new_record_updates": 38,
+        "new_payload_records": 640,
+        "new_unique_scenes": 640,
+        "planned_scene_exposures": 1216,
+        "planned_updates": 38,
+        "record_count_is_upper_bound": true,
+        "records_per_second_at_nonwait_p50": 14.868377796508721
+      },
+      "latest_step": 49048,
+      "monitor_content_hash": "fde9d43830ebe522e17fee04bec9428985790475670508efbd920291fbf5d2d0",
+      "monitor_file_sha256": "c7d0a96d13da39c2a2c8f990ddbcad8bb49439c20fbfbac3bb49105d344b2697",
+      "monitor_timestamp": 1791793517.5543153,
+      "observed_unix": 1791793526.4145098,
+      "observed_utc": "2026-10-12T08:25:26Z",
+      "processes": [
+        {
+          "host": "training-vlawm-tsinghua-zt-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18575,
+              "start_ticks": "1323157877",
+              "worker": 0
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18576,
+              "start_ticks": "1323157877",
+              "worker": 1
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18577,
+              "start_ticks": "1323157877",
+              "worker": 2
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18578,
+              "start_ticks": "1323157877",
+              "worker": 3
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18579,
+              "start_ticks": "1323157878",
+              "worker": 4
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18580,
+              "start_ticks": "1323157878",
+              "worker": 5
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18581,
+              "start_ticks": "1323157878",
+              "worker": 6
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18582,
+              "start_ticks": "1323157878",
+              "worker": 7
+            }
+          ],
+          "role": "producer",
+          "status": "INSPECTED"
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19545,
+              "start_ticks": "1323176123",
+              "worker": 8
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19546,
+              "start_ticks": "1323176123",
+              "worker": 9
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19547,
+              "start_ticks": "1323176124",
+              "worker": 10
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19548,
+              "start_ticks": "1323176124",
+              "worker": 11
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19549,
+              "start_ticks": "1323176124",
+              "worker": 12
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19550,
+              "start_ticks": "1323176125",
+              "worker": 13
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19551,
+              "start_ticks": "1323176125",
+              "worker": 14
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19552,
+              "start_ticks": "1323176125",
+              "worker": 15
+            }
+          ],
+          "role": "producer",
+          "status": "INSPECTED"
+        },
+        {
+          "host": "training-vla-zt2-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 2495728,
+              "start_ticks": "1322892327",
+              "worker": null
+            }
+          ],
+          "role": "consumer",
+          "status": "INSPECTED"
+        }
+      ],
+      "producer_logs": [
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_0.log",
+          "size": 2651,
+          "worker": 0
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_1.log",
+          "size": 2747,
+          "worker": 1
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_2.log",
+          "size": 2899,
+          "worker": 2
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_3.log",
+          "size": 2635,
+          "worker": 3
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_4.log",
+          "size": 2555,
+          "worker": 4
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_5.log",
+          "size": 3243,
+          "worker": 5
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_6.log",
+          "size": 3251,
+          "worker": 6
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_7.log",
+          "size": 3059,
+          "worker": 7
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_8.log",
+          "size": 2867,
+          "worker": 8
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_9.log",
+          "size": 2819,
+          "worker": 9
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_10.log",
+          "size": 2347,
+          "worker": 10
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_11.log",
+          "size": 2555,
+          "worker": 11
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_12.log",
+          "size": 2723,
+          "worker": 12
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_13.log",
+          "size": 2699,
+          "worker": 13
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_14.log",
+          "size": 2387,
+          "worker": 14
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 157,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_15.log",
+          "size": 2603,
+          "worker": 15
+        }
+      ],
+      "storage": {
+        "allocated_payload_blocks_bytes": 61279318016,
+        "deleted_open_bytes": 0,
+        "deleted_open_files": {},
+        "pool_capacity_bytes": 171798691840,
+        "protected_reserve_bytes": 1825361100800,
+        "resident_payload_bytes": 61278696726,
+        "shared_available_bytes": 3989673955328
+      },
+      "supply": {
+        "bytes": 15872372880,
+        "bytes_per_second": 528569384.02666825,
+        "interval_seconds": 30.028929710388184,
+        "records": 280,
+        "records_per_second": 9.324341649883612
+      },
+      "training": {
+        "last200_finite": true,
+        "last200_range": [
+          48849,
+          49048
+        ],
+        "latest": {
+          "event": "update",
+          "global_batch": 32,
+          "gradient_norm": 4.033340930938721,
+          "loader_seconds": 0.7820308711379766,
+          "losses": {
+            "current_dino": 0.01598750241100788,
+            "ego_il": 0.04885275289416313,
+            "future_clip": 0.32484421133995056,
+            "interaction": 0.012173355557024479
+          },
+          "lr": [
+            5.791061962254069e-06
+          ],
+          "optimizer_step": 49048,
+          "peak_allocated_bytes": 62985607168,
+          "peak_reserved_bytes": 66603450368,
+          "seconds": 1.0988919660449028,
+          "used_parameter_names_hash": "fe23b55450a9fb9539d0a7857c9c52648b06e1a1647c5f501eb9d5c4aaa3c533",
+          "valid_denominators": {
+            "current_dino": 4718592,
+            "ego_scenes": 32,
+            "future_clip": 32,
+            "interaction": 77824
+          },
+          "wait_seconds": 0.0010572262108325958
+        },
+        "latest_step": 49048,
+        "mean_seconds": 1.3185044407472015
+      }
+    },
+    {
+      "alerts": [],
+      "buffer": {
+        "continuous_ready_updates": 19,
+        "estimated_seconds_at_nonwait_p50": 21.329464470036328,
+        "high_watermark_reached": false,
+        "windows": [
+          {
+            "number": 160,
+            "ready": true,
+            "reason": "CHECKED_COMPLETE_METADATA"
+          },
+          {
+            "number": 161,
+            "ready": true,
+            "reason": "CHECKED_COMPLETE_METADATA"
+          },
+          {
+            "number": 162,
+            "ready": false,
+            "reason": "INCOMPLETE_WINDOW"
+          }
+        ]
+      },
+      "checkpoint_49000": {
+        "complete_receipt_exists": true,
+        "exists": true,
+        "path": "/mnt/project/iqe-remote-rolling-cache-20261012/continuation/step_049000.pt",
+        "payload_hash_recomputed": false,
+        "receipt": {
+          "checksum": "f9e14f541e5c2922cbbb5960523df9159531e780f78a6ba1af7a6c89a25575bf",
+          "dependencies": {
+            "config": {
+              "compressor_heads": 8,
+              "compressor_layers": 4,
+              "drop_path": 0.2,
+              "dropout": 0.1,
+              "dt": 0.5,
+              "ffn": 1024,
+              "global_batch_size": 32,
+              "grad_clip_norm": 1,
+              "heads": 1,
+              "layers": 4,
+              "lr": 1e-05,
+              "lr_min_ratio": 0.05,
+              "max_optimizer_steps": 100000,
+              "micro_batch_size": 4,
+              "prev_weight": 0,
+              "scene_tokens": 16,
+              "validation_every_steps": 200,
+              "warmup_steps": 5000,
+              "weight_decay": 0.001,
+              "width": 256
+            },
+            "environment": {
+              "cuda": "12.4",
+              "deterministic": false,
+              "python": "3.10.20",
+              "tf32": false,
+              "torch": "2.5.1+cu124"
+            },
+            "fit_manifest": "c8bbb9b0914efb1ea1bdbdcf234b9a624375786f090bb5481cc6d3daae9e7c7b",
+            "framework_contract_hash": "a9d3bbd8a03f82137782dc016fb550dd8cceb2d7da703e5720975a55519d11ab",
+            "original_targets": {
+              "clip_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+              "clip_root": "/mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1",
+              "dev_metric_metadata": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+              "dev_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+              "dino_identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+              "dino_index": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1",
+              "dino_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1",
+              "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+              "interaction_root": "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+              "map_root": "/mnt/navsim/maps",
+              "new_scene_manifest": null,
+              "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+              "scene_manifest": null,
+              "train_metric_metadata": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv",
+              "train_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+            },
+            "world_size": 8
+          },
+          "optimizer_step": 49000
+        },
+        "receipt_sha256": "64cdcfb033be3fef856e0d0f81c01782403170cee720a73a374d5099324cfcd2",
+        "size": 22816347471
+      },
+      "demand": {
+        "bytes_per_second_upper_bound": 789181248.5904341,
+        "known_new_record_updates": 35,
+        "new_payload_records": 547,
+        "new_unique_scenes": 547,
+        "planned_scene_exposures": 1120,
+        "planned_updates": 35,
+        "record_count_is_upper_bound": true,
+        "records_per_second_at_nonwait_p50": 13.921721174012738
+      },
+      "latest_step": 49120,
+      "monitor_content_hash": "42863253ec5204b1243a0017d0d3073b9adcf0e5a8bbf0aaa83a4f2c072d7f72",
+      "monitor_file_sha256": "5a39cec25b8201979cead781110725be4e0f952c4b81dd983e65a36b868e1949",
+      "monitor_timestamp": 1791793607.624249,
+      "observed_unix": 1791793622.5791922,
+      "observed_utc": "2026-10-12T08:27:02Z",
+      "processes": [
+        {
+          "host": "training-vlawm-tsinghua-zt-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18575,
+              "start_ticks": "1323157877",
+              "worker": 0
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18576,
+              "start_ticks": "1323157877",
+              "worker": 1
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18577,
+              "start_ticks": "1323157877",
+              "worker": 2
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18578,
+              "start_ticks": "1323157877",
+              "worker": 3
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18579,
+              "start_ticks": "1323157878",
+              "worker": 4
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18580,
+              "start_ticks": "1323157878",
+              "worker": 5
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18581,
+              "start_ticks": "1323157878",
+              "worker": 6
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 18582,
+              "start_ticks": "1323157878",
+              "worker": 7
+            }
+          ],
+          "role": "producer",
+          "status": "INSPECTED"
+        },
+        {
+          "host": "training-vlawm-tsinghua-zt2-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19545,
+              "start_ticks": "1323176123",
+              "worker": 8
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19546,
+              "start_ticks": "1323176123",
+              "worker": 9
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19547,
+              "start_ticks": "1323176124",
+              "worker": 10
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19548,
+              "start_ticks": "1323176124",
+              "worker": 11
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19549,
+              "start_ticks": "1323176124",
+              "worker": 12
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19550,
+              "start_ticks": "1323176125",
+              "worker": 13
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19551,
+              "start_ticks": "1323176125",
+              "worker": 14
+            },
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 19552,
+              "start_ticks": "1323176125",
+              "worker": 15
+            }
+          ],
+          "role": "producer",
+          "status": "INSPECTED"
+        },
+        {
+          "host": "training-vla-zt2-worker-0",
+          "processes": [
+            {
+              "alive": true,
+              "identity_match": true,
+              "pid": 2495728,
+              "start_ticks": "1322892327",
+              "worker": null
+            }
+          ],
+          "role": "consumer",
+          "status": "INSPECTED"
+        }
+      ],
+      "producer_logs": [
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_0.log",
+          "size": 2891,
+          "worker": 0
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_1.log",
+          "size": 3051,
+          "worker": 1
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_2.log",
+          "size": 3251,
+          "worker": 2
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_3.log",
+          "size": 2883,
+          "worker": 3
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_4.log",
+          "size": 2859,
+          "worker": 4
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_5.log",
+          "size": 3715,
+          "worker": 5
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_6.log",
+          "size": 3603,
+          "worker": 6
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_7.log",
+          "size": 3467,
+          "worker": 7
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_8.log",
+          "size": 3219,
+          "worker": 8
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_9.log",
+          "size": 3219,
+          "worker": 9
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_10.log",
+          "size": 2747,
+          "worker": 10
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_11.log",
+          "size": 2915,
+          "worker": 11
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_12.log",
+          "size": 3115,
+          "worker": 12
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "PARTIAL"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_13.log",
+          "size": 3099,
+          "worker": 13
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_14.log",
+          "size": 2803,
+          "worker": 14
+        },
+        {
+          "failed_events": [],
+          "last_event": {
+            "event": "window",
+            "number": 161,
+            "status": "WINDOW_COMPLETE"
+          },
+          "log": "/mnt/project/iqe-remote-rolling-cache-20261012/producer_index_15.log",
+          "size": 2955,
+          "worker": 15
+        }
+      ],
+      "storage": {
+        "allocated_payload_blocks_bytes": 43819532288,
+        "deleted_open_bytes": 0,
+        "deleted_open_files": {},
+        "pool_capacity_bytes": 171798691840,
+        "protected_reserve_bytes": 1825361100800,
+        "resident_payload_bytes": 43819086558,
+        "shared_available_bytes": 3987488251904
+      },
+      "supply": {
+        "bytes": 28797019368,
+        "bytes_per_second": 959485722.122163,
+        "interval_seconds": 30.012973308563232,
+        "records": 508,
+        "records_per_second": 16.926013786679995
+      },
+      "training": {
+        "last200_finite": true,
+        "last200_range": [
+          48921,
+          49120
+        ],
+        "latest": {
+          "event": "update",
+          "global_batch": 32,
+          "gradient_norm": 3.7164204120635986,
+          "loader_seconds": 0.8417178858071566,
+          "losses": {
+            "current_dino": 0.014442579820752144,
+            "ego_il": 0.05122882127761841,
+            "future_clip": 0.25840193033218384,
+            "interaction": 0.0077085006050765514
+          },
+          "lr": [
+            5.7798243169938354e-06
+          ],
+          "optimizer_step": 49120,
+          "peak_allocated_bytes": 62985607168,
+          "peak_reserved_bytes": 66603450368,
+          "seconds": 1.2795350700616837,
+          "used_parameter_names_hash": "fe23b55450a9fb9539d0a7857c9c52648b06e1a1647c5f501eb9d5c4aaa3c533",
+          "valid_denominators": {
+            "current_dino": 4718592,
+            "ego_scenes": 32,
+            "future_clip": 32,
+            "interaction": 90112
+          },
+          "wait_seconds": 0.001323586329817772
+        },
+        "latest_step": 49120,
+        "mean_seconds": 1.3113348153047264
+      }
+    }
+  ],
+  "producer_workers_alive_identity_matched": 16,
+  "schema": "iqe_post_index_health_v1",
+  "scope": "Read-only live job/monitor/log/receipt verification after remote producer inventory change; no CUDA work, no code/process changes and no full checkpoint rehash",
+  "status": "PASS_BOUNDED_OBSERVATION",
+  "terminal_observed_step": 49120
+}

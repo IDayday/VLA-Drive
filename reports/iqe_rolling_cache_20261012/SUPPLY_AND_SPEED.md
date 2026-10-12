@@ -99,3 +99,15 @@ utilization should be reported separately from reserved hardware cost.
 
 Scientific gain remainsUNTESTED. No new navtest or deployment ACTIVE change was
 made for this supply-control qualification.
+
+## Subsequent observation after the accounting fix
+
+Read-only monitoring from08:25:26–08:27:02 UTC observed steps49048–49120 and a
+complete49k checkpoint. All16 producers remained alive with verified identities,
+zero new FAILED events and zero deleted-open files. The final snapshot had19
+contiguous ready updates,16.926 fresh records/s versus estimated13.922 demand,
+and no alerts. Intermediate low-water/supply alerts are retained. The most recent
+200-update monitoring mean was1.3113s; this is an operational rolling observation,
+not a replacement for the fixed primary timing window above. Neither one final
+healthy snapshot nor200 finite updates proves indefinitely balanced supply.
+Evidence: `evidence/POST_INDEX_HEALTH.json`.
