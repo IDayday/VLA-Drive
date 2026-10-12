@@ -265,15 +265,63 @@ def recover_infrastructure(args):
     print(json.dumps(dict(recovered=args.request_key,evidence=str(recovery/'RECOVERY.json'),**reconciled)),flush=True)
 
 
+def temporary_authorization(host, policy, unix=None):
+    """A hash-bound task exception expires even if an older allowlist includes it."""
+    unix = time.time() if unix is None else unix
+    entries = [(key, value) for key, value in policy.get('temporary_task_authorizations', {}).items()
+               if value.get('task') == 'structured_world_fgtr_round1' and host in value.get('hosts', [])]
+    if not entries: return None
+    key, entry = max(entries, key=lambda item: item[1]['starts_unix'])
+    path = Path(entry['authorization_path'])
+    if digest(path) != entry['authorization_sha256']:
+        raise ValueError('Temporary host authorization hash differs')
+    grant = json.loads(path.read_text())
+    if (grant.get('schema') != 'structured_world_temporary_host_authorization_v1' or
+        grant.get('lease_id') != key or
+        any(grant.get(field) != entry[field] for field in ('task', 'hosts', 'starts_unix', 'expires_unix')) or
+        not 0 < grant['expires_unix'] - grant['starts_unix'] <= 9 * 3600):
+        raise ValueError('Temporary host authorization identity/window differs')
+    # Reserve a minute for TERM and the timeout supervisor's ten-second KILL.
+    if not grant['starts_unix'] <= unix < grant['expires_unix'] - 60:
+        raise ValueError('Temporary host authorization is not active')
+    return dict(grant, authorization_path=str(path), authorization_sha256=entry['authorization_sha256'])
+
+
+def evaluation_hosts(policy, hosts):
+    selected = list(hosts)
+    for entry in policy.get('temporary_task_authorizations', {}).values():
+        if entry.get('task') != 'structured_world_fgtr_round1': continue
+        for host in entry.get('hosts', []):
+            try: active = temporary_authorization(host, policy)
+            except ValueError: continue  # authorized() still rejects expired baseline entries.
+            if active and host not in selected: selected.append(host)
+    return selected
+
+
+def deadline_command(command, grant, unix=None):
+    """GNU timeout supervises only this new command and its own process group."""
+    if grant is None: return command
+    remaining = grant['expires_unix'] - (time.time() if unix is None else unix) - 60
+    if remaining <= 0: raise ValueError('Temporary host deadline reached before command launch')
+    # Compute again on the actual worker host; SSH/startup delay must not extend
+    # the absolute window. The gate imports no training or GPU code.
+    gate = ("import os,sys,time; remaining=float(sys.argv[1])-time.time()-60; "
+            "remaining>0 or sys.exit(124); "
+            "os.execv('/usr/bin/timeout',['/usr/bin/timeout','--signal=TERM',"
+            "'--kill-after=10s',f'{remaining:.3f}s',*sys.argv[2:]])")
+    return ['/usr/bin/python3', '-c', gate, str(grant['expires_unix']), *command]
+
+
 def authorized(host=None):
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     hosts = policy['task_authorizations']['structured_world_fgtr_round1']['latest_explicit_resource_hosts']
     evaluation = ART / 'NAVSIM_EVALUATION_POLICY_20261011.json'
     if evaluation.exists(): hosts = json.loads(evaluation.read_text()).get('inference_allowed_hosts', hosts)
     local = socket.gethostname().removesuffix('-worker-0')
-    if (host or local) not in hosts: raise ValueError('Host outside latest five-host authorization')
     selected = host or local
-    if selected in policy.get('global_dispatch_prohibitions', {}):
+    temporary = temporary_authorization(selected, policy)
+    if selected not in hosts and not temporary: raise ValueError('Host outside current task authorization')
+    if selected in policy.get('global_dispatch_prohibitions', {}) and not temporary:
         raise ValueError('Host has a current global deployment prohibition')
     reservation = policy.get('host_reservations', {}).get(selected, {})
     if reservation.get('exclude_new_other_workloads') and reservation.get('task') != 'structured_world_fgtr_round1':
@@ -613,6 +661,9 @@ def worker(args):
 
 def routed(host, command, environment, stdout_path=None):
     authorized(host)
+    if environment.get('CUDA_VISIBLE_DEVICES'):
+        policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+        command = deadline_command(command, temporary_authorization(host, policy))
     env = dict(OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='1',
         TOKENIZERS_PARALLELISM='false', PYTHONDONTWRITEBYTECODE='1', **environment)
     argv = ['env'] + [k + '=' + str(v) for k, v in env.items()] + command
@@ -632,8 +683,9 @@ def inspect_route(route):
 def refresh_routes(args, request):
     """Choose today's safe unique GPUs; a prior route list is never a fixed quota."""
     policy = json.loads((ART / 'NAVSIM_EVALUATION_POLICY_20261011.json').read_text())
-    fallback = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())['task_authorizations']['structured_world_fgtr_round1']['latest_explicit_resource_hosts']
-    hosts = policy.get('inference_allowed_hosts', fallback)
+    dispatch_policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+    fallback = dispatch_policy['task_authorizations']['structured_world_fgtr_round1']['latest_explicit_resource_hosts']
+    hosts = evaluation_hosts(dispatch_policy, policy.get('inference_allowed_hosts', fallback))
     old = json.loads(args.routes.read_text()).get('routes', []) if args.routes.exists() else []
     prior = {r['host']: r for r in old}
     cost_path=args.output/'COHOST_COST_POLICY.json'
@@ -704,6 +756,9 @@ def refresh_routes(args, request):
                     cost_policy.get('owned_training_inference_duty_cycle', 1.)) if owned else 1.,
                 'scheduling_policy': str(cost_path) if owned else None,
                 'minimum_reserve_GiB': 5})
+            temporary = temporary_authorization(host, dispatch_policy)
+            if temporary:
+                routes[-1]['temporary_authorization'] = temporary
     atomic(args.output / 'resource_snapshots' / (request['key'] + '.json'), {'observed_utc': now(), 'inspected': inspected,
         'selected_routes': routes, 'excluded': skipped,'cohost_cost_policy':cost_policy,
         'selection': 'current safe unique GPU subset, no fixed host/GPU/shard count'})
