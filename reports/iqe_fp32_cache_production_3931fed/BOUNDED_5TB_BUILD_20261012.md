@@ -1,5 +1,36 @@
 # Bounded FP32 cache continuation, 2026-10-12
 
+**Update at 01:35 UTC:** the unlaunched 4.8 TB proposal below was superseded by
+an immutable **4.7 TB** phase after shared free space decreased. Its evidence
+remains intact. The exact owned CPU queue was stopped after verifying PID/start
+ticks/cmdline and confirming that it had launched zero GPU workers. This
+namespace now rejects dispatch; it cannot duplicate the successor's writes.
+
+The active root is
+`/mnt/project/iqe-fp32-cache-production-runtime-3931fed/phase_4p7tb_20261012/`.
+It requests **82,888 scenes**, estimated **4,698,675,868,848 bytes** including the
+same 6,400 reused observations. The original 90,892-scene full plan remains
+unchanged; **8,004 scenes** remain beyond this storage phase. All checkpoint,
+other-work, temporary-file and numerical checks are unchanged.
+
+Current host assignments are 44,656 scenes on zt3 (38,256 new) and 38,232 on
+zt4 (all new). The new joint admission requires 6,382,174,183,639 bytes including
+reserves; at admission 6,499,474,046,976 bytes were available. This changes the
+amount built in this storage phase, not any training data or sampler.
+
+The replacement queue PID1760814 started at 01:34:44 UTC. On zt3, controller
+PID54043 launched eight native cache workers, PIDs54063–54070, at 01:34:56.
+The worker launch binds code **bf6a08a06c9b6b63b6200f3540595a6af26919d7**.
+The initial state is BUILDING/loading and source validation; new shards had not
+yet committed at this snapshot. zt4 remains WAITING_IDLE_GPUS: after G3 exited,
+physical GPUs still showed about39,403MiB/100% from an unverified owner. No
+unknown process or pressure guard was stopped.
+
+Use the active `phase_4p7tb_20261012/COHORT_STATUS.json` for current progress and
+the **same queue command below with `phase_4p7tb_20261012/COHORT.json`** for
+control-process recovery after checking the existing process. The older
+`phase_5tb_20261012` values below are retained as historical planning evidence.
+
 The user requested approximately 5 TB first and explicitly authorized
 `training-vlawm-zt3` and `training-vlawm-zt4`. This is cache construction only.
 No Base process is stopped, no training is started or migrated, and the locked

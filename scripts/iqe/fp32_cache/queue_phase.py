@@ -111,6 +111,8 @@ def main():
     require(0 < spec['rate_mib_s_per_worker'] <= 64 and 0 < spec['builder_max_seconds'] <= 43200, 'bounded IO and time required')
     require([j['host'] for j in spec['jobs']] == ['training-vlawm-zt3', 'training-vlawm-zt4'], 'undeclared routing')
     root = Path(args.manifest).resolve().parent
+    require(not (root/'SUPERSEDED_WITHOUT_GPU_WORK.json').exists(),
+            'storage phase superseded before launch; use its declared successor, do not duplicate population writes')
     require(file_hash(Path(spec['repo'])/'scripts/iqe/fp32_cache/build_phase.py') == spec['builder_script_sha256'], 'builder source changed')
     aggregate = load_plan(spec['aggregate_plan'])
     require(aggregate['plan_hash'] == spec['aggregate_plan_hash'], 'aggregate plan changed')
