@@ -494,6 +494,23 @@ class Monitor:
         require(session["schema"] == "iqe_remote_rolling_session_v1", "FOREIGN_POOL_SESSION")
         require(self.session_hash in (None, session["content_hash"]), "POOL_SESSION_CHANGED")
         self.session_hash = session["content_hash"]
+        # This is a producer scheduling budget, not a change to the immutable
+        # training SESSION, payload identity, consumed cursor or window size.
+        metrics_session = session
+        resource_policy = None
+        policy_pointer = root / "PRODUCER_RESOURCE_POLICY.json"
+        if policy_pointer.exists():
+            pointer = m.read(policy_pointer, sealed=True)
+            resource_policy = m.read(pointer["policy_path"], sealed=True)
+            require(pointer["session_hash"] == resource_policy["session_hash"] == session["content_hash"] and
+                    pointer["policy_hash"] == resource_policy["content_hash"], "PRODUCER_RESOURCE_POLICY_MISMATCH")
+            require(resource_policy["schema"] == "iqe_rolling_producer_resource_policy_v1" and
+                    type(resource_policy["lookahead"]) is int and
+                    session["lookahead"] <= resource_policy["lookahead"] <= 8 and
+                    session["capacity_bytes"] <= resource_policy["capacity_bytes"] <= 1024**4 and
+                    resource_policy["reserve_bytes"] == session["reserve_bytes"], "INVALID_PRODUCER_STORAGE_BUDGET")
+            metrics_session = {**session, "lookahead": resource_policy["lookahead"],
+                               "capacity_bytes": resource_policy["capacity_bytes"]}
         request = m.read(root / "REQUEST.json", sealed=True)
         require(request["session_hash"] == session["content_hash"], "FOREIGN_CONSUMER_REQUEST")
         qualification = m.read(session["qualification"], sha256=session["qualification_sha256"])
@@ -513,7 +530,7 @@ class Monitor:
                 "production_rate": None, "storage_totals": None}
         total = math.ceil((session["max_optimizer_steps"] - session["parent_step"]) / session["window_updates"])
         windows = [window_state(root, n, session, m, inventory)
-                   for n in range(first, min(total, first + session["lookahead"]))]
+                   for n in range(first, min(total, first + metrics_session["lookahead"]))]
         receipts = [("producer", m.read(p)) for p in a.producer_receipt]
         if a.consumer_receipt:
             c = m.read(a.consumer_receipt)
@@ -533,11 +550,13 @@ class Monitor:
                          and result_path.stat().st_mtime >= (root / "REQUEST.json").stat().st_mtime)
         require(m.read(root / "REQUEST.json", sealed=True) == request, "CONSUMER_ATTEMPT_CHANGED_RETRY")
         fs = os.statvfs(root)
-        snapshot = summarize(session, request, updates, log_info, windows, inventory, now=now,
+        snapshot = summarize(metrics_session, request, updates, log_info, windows, inventory, now=now,
             previous=self.previous, disk_free=fs.f_bavail * fs.f_frsize, inspections=inspections,
             completed=completed, low_watermark=a.low_watermark_seconds, stall_seconds=a.stall_seconds)
         snapshot["metadata_read_bytes"] = m.bytes_read
         snapshot["metadata_entries"] = m.entries
+        snapshot["producer_resource_policy"] = resource_policy
+        snapshot["storage"]["original_session_capacity_bytes"] = session["capacity_bytes"]
         snapshot["inventory_ledger"] = {k: inventory[k] for k in
             ("generations", "archived_generations", "pinned_receipts", "scan_complete")}
         snapshot["fast_timings"] = sorted(inventory["fast"], key=lambda r: r.get("updated_unix", 0))[-16:]

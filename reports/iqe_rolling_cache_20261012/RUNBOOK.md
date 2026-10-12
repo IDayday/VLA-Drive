@@ -4,8 +4,8 @@ Consumer worktree: `/mnt/project/DriveVLA-M0-iqe-rolling-cache-20261012`.
 Branch: `perf/iqe-remote-rolling-cache-20261012`.
 Producer worktree: `/mnt/project/DriveVLA-M0-iqe-rolling-producer-20261012`, branch
 `perf/iqe-rolling-producer-index-8fe9f61`, commit
-`27f3b5e6a1d3896c67e1ac1a8419113d893e077b`. This only changes live-byte accounting;
-it preserves the frozen frontend, codec, sampler and shard format. The active
+`319543e` (descends from accounting fix27f3b5e). It adds an explicitly versioned
+producer storage budget and preserves the frozen frontend, codec, sampler and shard format. The active
 consumer's protected source hashes stay at8fe9f61. Do not switch its worktree.
 Runtime root: `/mnt/project/iqe-remote-rolling-cache-20261012`.
 All commands below assume that worktree as cwd. No push was requested for this
@@ -24,8 +24,8 @@ The source46534 checkpoint and locked22k checkpoint are preserved.
 Consumer: training-vla-zt2; launch identity is `CONTINUATION_LAUNCH.json` in the
 runtime root. Producer hosts: training-vlawm-tsinghua-zt and
 training-vlawm-tsinghua-zt2. Actual per-process IDs/start ticks/commands are in
-`PRODUCERS_training-vlawm-tsinghua-zt_INDEX_LAUNCH.json` and its zt2 counterpart.
-Their `previous_receipt` fields preserve the prior RATE96 processes and history.
+`PRODUCERS_training-vlawm-tsinghua-zt_EXPAND_LAUNCH.json` and its zt2 counterpart.
+Their `previous_receipt` fields preserve the prior INDEX/RATE96 processes and history.
 Read current live state; historical RUNNING snapshots are not evidence.
 
 ## Inspect the bounded cache
@@ -50,7 +50,7 @@ PY
 
 The existing observer samples every30s. Its current pointer is
 `/mnt/project/iqe-remote-rolling-cache-20261012/MONITOR_CURRENT.json`, which binds
-`MONITOR_INCREMENTAL_LAUNCH.json` by checksum; `MONITOR_LAUNCH.json` is preserved
+`MONITOR_EXPANDED_LAUNCH.json` by checksum; previous monitor receipts are preserved
 history. After verifying that no observer owns the
 same output lock, the actual read-only recipe is:
 
@@ -62,8 +62,8 @@ PYTHONUTF8=1 /root/miniconda3/envs/ddp/bin/python -u \
   --consumer-log /mnt/project/iqe-remote-rolling-cache-20261012/continuation.log \
   --consumer-launch /mnt/project/iqe-remote-rolling-cache-20261012/continuation/LAUNCH.json \
   --consumer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/CONTINUATION_LAUNCH.json \
-  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt_INDEX_LAUNCH.json \
-  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt2_INDEX_LAUNCH.json \
+  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt_EXPAND_LAUNCH.json \
+  --producer-receipt /mnt/project/iqe-remote-rolling-cache-20261012/PRODUCERS_training-vlawm-tsinghua-zt2_EXPAND_LAUNCH.json \
   --interval 30 --max-seconds 86400 --history-updates 100 --stall-seconds 180
 ```
 
@@ -92,11 +92,28 @@ CUDA_VISIBLE_DEVICES=0 PYTHONUTF8=1 LANG=C.UTF-8 LC_ALL=C.UTF-8 \
   --config configs/iqe/fp32_cache/source.yaml --device cuda:0 \
   --hold-file /mnt/project/iqe-fp32-cache-production-task-20261011/CACHE_BUILD_HOLD.json \
   --max-windows 10000 --max-seconds 86400 --max-gib-per-window 32 \
-  --rate-mib-s 96 --worker 0 --workers 16 --minimum-free-mib 30000
+  --rate-mib-s 96 --worker 0 --workers 16 --minimum-free-mib 30000 \
+  --resource-policy /mnt/project/iqe-remote-rolling-cache-20261012/pool46534/producer_resource_policies/f3fbeb72838ef80d0175eeb325917cc4734531faec843fb29415cfb3b025572c/POLICY.json
 ```
 
 The launch forces UTF-8 independently of any process LC_CTYPE changes. It does
 not alter torch precision, RNG, payload bytes or model execution.
+
+The live expanded pool allows384GiB and8 windows of16 updates, replacing the
+original160GiB/3 producer budget. The original `SESSION.json` remains byte-for-byte
+unchanged for consumer exact resume. `PRODUCER_RESOURCE_POLICY.json` binds the
+separate immutable budget version. The monitor reports both the original and
+effective capacities. The consumer-side `status` command above still describes
+its original3-window reading horizon; use the monitor for the8-window producer
+buffer. Checkpoint/free-space reserve remains1,825,361,100,800 bytes.
+
+For a replacement producer, retain its original absolute deadline from the
+EXPAND receipt: set `--max-seconds` to the remaining seconds, not a fresh24h.
+Do not run legacy producers concurrently: their old GC horizon would conflict
+with extended lookahead. The two-host replacement checked full argv, cwd and
+PID/start ticks, retired all old producers before activation, and sent no Base
+signals. This changes storage scheduling only and does not require a new Base
+checkpoint, data cursor, qualification, numerical identity or22k identity.
 
 ## Original formal-continuation launch (already running, do not duplicate)
 

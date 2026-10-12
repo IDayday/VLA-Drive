@@ -91,6 +91,26 @@ def test_prepared_is_not_consumed_and_no_pool_mutation(tmp_path):
     assert before == {str(p): hash_file(p) for p in root.rglob("*") if p.is_file()}
 
 
+def test_producer_resource_budget_is_separate_from_training_identity(tmp_path):
+    obj, root, _, session, _ = fixture(tmp_path)
+    before = (root/"SESSION.json").read_bytes()
+    path = root/"producer_resource_policies/policy.json"
+    policy = write(path, {"schema":"iqe_rolling_producer_resource_policy_v1",
+        "session_hash":session["content_hash"], "lookahead":4, "capacity_bytes":2000,
+        "reserve_bytes":session["reserve_bytes"]}, sealed=True)
+    write(root/"PRODUCER_RESOURCE_POLICY.json", {"session_hash":session["content_hash"],
+        "policy_hash":policy["content_hash"],"policy_path":str(path)}, sealed=True)
+    result = obj.snapshot()
+    assert result["session_hash"] == session["content_hash"]
+    assert result["storage"]["pool_capacity_bytes"] == 2000
+    assert result["storage"]["original_session_capacity_bytes"] == 1000
+    assert len(result["buffer"]["windows"]) == 4
+    assert result["buffer"]["continuous_ready_updates"] == 4  # Not-yet-built future windows do not count.
+    assert (root/"SESSION.json").read_bytes() == before
+    write(path,{**{k:v for k,v in policy.items() if k != "content_hash"},"reserve_bytes":0},sealed=True)
+    with pytest.raises(ValueError,match="POLICY_MISMATCH"):obj.snapshot()
+
+
 def test_real_consumption_fresh_demand_excludes_permanent_reuse(tmp_path):
     obj, _, log, _, _ = fixture(tmp_path)
     log.write_text(json.dumps(event(11, 11., 10.)) + "\n", encoding="utf-8")

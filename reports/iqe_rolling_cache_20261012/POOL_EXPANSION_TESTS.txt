@@ -1,0 +1,23 @@
+2026-10-12 targeted storage/scheduling regression.
+
+CWD /mnt/project/DriveVLA-M0-iqe-rolling-producer-20261012
+/root/miniconda3/envs/ddp/bin/python -m pytest -q tests/iqe/test_rolling_cache.py tests/iqe/test_rolling_producer_inventory.py tests/iqe/test_rolling_resource_policy.py
+44 passed, 1 warning in 2.21s
+
+CWD /mnt/project/DriveVLA-M0-iqe-rolling-cache-20261012
+/root/miniconda3/envs/ddp/bin/python -m pytest -q tests/iqe/test_rolling_cache_monitor.py
+21 passed, 1 warning in 2.31s
+
+Warning: existing torch/pynvml deprecation. No tests failed/skipped in these
+successful runs. An earlier invocation named a nonexistent inventory test file
+and exited4 before collecting any tests; the corrected filename is above.
+
+New behavior tests: producer-only policy identity, unchanged window plans and
+RNG, current/expanded future/previous GC protection, consumer rewind, max-step
+boundary, strict session/reserve/capacity/global-batch/unknown-field validation,
+activation and stale policy rejection. Monitor reads effective storage limits
+while preserving the original sealed consumer session.
+
+The tests use small CPU fixtures. The running real FP32 consumer and16 remote
+producers are inspected separately; these fixture tests are not substituted for
+real training evidence. No new mathematical-model change or whole-IQE retest.
