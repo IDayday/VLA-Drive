@@ -1,0 +1,94 @@
+{
+  "adoption_evidence": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_cadence_20261012/control/ADOPTION.json",
+    "sha256": "ba1d97474414f67207590e3409f9bd03c265bd28113d2c3a38038766d83cc05d"
+  },
+  "base_policy_unchanged": true,
+  "cadence_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+  "cadence_policy_sha256": "c21cee9f89256f952f197fa6cc74168fcb513138dac19f528f5dc7969e993f6e",
+  "controller": {
+    "cadence_sha256": "c21cee9f89256f952f197fa6cc74168fcb513138dac19f528f5dc7969e993f6e",
+    "command": [
+      "/tmp/structured-world-round1/envs/qwen/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-navtest-cadence-frozen-20261012/tools/structured_world/run_navsim_navtest.py",
+      "--serve",
+      "--score-workers",
+      "16",
+      "--cadence-policy",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json"
+    ],
+    "pid": 1735081,
+    "source_sha": "95339edd51d3c61fafa91dc488812c1cdba800b0",
+    "start_ticks": 1320453390,
+    "tool_sha256": "91721cc10790b4890e5f9ce2aaf6016ba58df560def474745a23305698a099e5"
+  },
+  "first_extra_request": {
+    "key": "G3_EVENT_LOCAL_0070000",
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/requests/G3_EVENT_LOCAL_0070000.json",
+    "sha256": "508a573816d0be1ba8f06bb61f8e826ab0f270b9c4a1a97b056ce8e6a2908cfd",
+    "status": "queued; full GPU inference/score completion not yet claimed",
+    "updates": 70000
+  },
+  "missing_historical_observation": [
+    {
+      "group": "G3_EVENT_LOCAL",
+      "reason": "No exact native60k checkpoint or FP32 export remains in the known run/export banks; no restart/retraining or replacement by another update",
+      "status": "PAST_CHECKPOINT_UNAVAILABLE",
+      "updates": 60000
+    }
+  ],
+  "observations": [
+    25000,
+    50000,
+    60000,
+    70000,
+    80000,
+    90000,
+    100000
+  ],
+  "observed_utc": "2026-10-12T00:47:53.645087+00:00",
+  "operation_source_sha": "95339edd51d3c61fafa91dc488812c1cdba800b0",
+  "owned_remote_workers_absent_before_replacement": [
+    {
+      "host": "training-vlawm-zt",
+      "owned_evaluation_processes": []
+    },
+    {
+      "host": "training-vlawm-zt2",
+      "owned_evaluation_processes": []
+    },
+    {
+      "host": "training-vlawm-zt3",
+      "owned_evaluation_processes": []
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "owned_evaluation_processes": []
+    }
+  ],
+  "pin_evidence": {
+    "additional_payload_bytes_copied": 0,
+    "original_identity_and_tag_preserved": true,
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_cadence_20261012/native_pins/G3_EVENT_LOCAL_0070000/PIN.json",
+    "sha256": "7219d87018bd46587077aa9c38b1330322e0ca564a464e11ed159d1b7b938847",
+    "verified_native_payloads": 17
+  },
+  "queue_ownership": "One flocked GPU/CPU dispatcher with one serial checkpoint capture thread; resources refreshed at dispatch",
+  "review": "All preactivation findings fixed, CPU9cadence+4routing tests passed; scientific model unchanged",
+  "rollback_command_without_cadence": [
+    "/tmp/structured-world-round1/envs/qwen/bin/python",
+    "-B",
+    "-u",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+    "--serve",
+    "--score-workers",
+    "16"
+  ],
+  "rollback_precondition": "Owned dispatcher idle with no workers; preserve pending request/pins and historical outputs; no training signals",
+  "schema": "navtest_cadence_live_deployment_v1",
+  "storage_cleanup": "Only cadence-owned native hardlinks and corresponding temporary FP32 export; after complete12146-scene q0/q_final scores and explicit successful GPU/SSH/scorer exit proof; original checkpoints/results untouched",
+  "training_and_evaluation_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "training_workers_signaled": 0
+}
