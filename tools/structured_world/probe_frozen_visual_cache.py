@@ -118,7 +118,27 @@ def main():
         for _ in range(3): forward(batches[0])
         torch.cuda.synchronize()
         online = timed(lambda: forward(batches[0]))
+        torch.cuda.synchronize(); start = time.monotonic()
         multi = [cpu(forward(batch)) for batch in batches]
+        torch.cuda.synchronize(); batched_encoding_seconds = time.monotonic() - start
+        lengths = [int(scene['image_grid_thw'].prod(-1).sum()) // vision.spatial_merge_size**2
+                   for scene in scenes]
+        batch_encoded_scenes = []
+        for number, values in enumerate(multi):
+            parts = {key: tensor.split(lengths[number*4:(number+1)*4]) for key, tensor in values.items()}
+            batch_encoded_scenes.extend({key: tensors[i].clone() for key, tensors in parts.items()} for i in range(4))
+        # Same microbatch/grid shape, different scene companions/order. A cache
+        # cannot assume this is equivalent just because the visual is frozen.
+        regrouped_comparisons = []
+        for indices in ((0, 4, 2, 6), (1, 5, 3, 7)):
+            values = cpu(forward(preprocess([observations[i] for i in indices])))
+            for key, tensor in values.items():
+                for index, right in zip(indices, tensor.split([lengths[i] for i in indices])):
+                    left = batch_encoded_scenes[index][key]
+                    delta = (right.float()-left.float()).double()
+                    regrouped_comparisons.append({'scene_index': index, 'output': key,
+                        'bitwise': torch.equal(left, right), 'max_abs': delta.abs().max().item(),
+                        'relative_L2': (delta.norm()/left.double().norm().clamp_min(1e-30)).item()})
         torch.cuda.synchronize(); start = time.monotonic()
         single = [cpu(forward(scene)) for scene in scenes]
         torch.cuda.synchronize(); encoding_seconds = time.monotonic() - start
@@ -137,12 +157,12 @@ def main():
             bank = Path(temp)/'eight_current_scenes.pt'
             start = time.monotonic()
             with bank.open('wb') as stream:
-                torch.save(single, stream); stream.flush(); os.fsync(stream.fileno())
+                torch.save(batch_encoded_scenes, stream); stream.flush(); os.fsync(stream.fileno())
             write_seconds = time.monotonic() - start
             stored_bytes = bank.stat().st_size
             # First read after writing is already cache-warm. Do not claim cold/NFS throughput.
             loaded = torch.load(bank, map_location='cpu', weights_only=True)
-            bench.require(all(torch.equal(a[k], b[k]) for a, b in zip(single, loaded) for k in a),
+            bench.require(all(torch.equal(a[k], b[k]) for a, b in zip(batch_encoded_scenes, loaded) for k in a),
                           'Lossless storage roundtrip failed')
             def read_transfer():
                 loaded = torch.load(bank, map_location='cpu', weights_only=True)
@@ -160,7 +180,10 @@ def main():
             'input_preprocessing_seconds_eight_scenes_both_batchings': preprocessing_seconds,
             'online_four_scene_forward_and_H2D': online,
             'single_scene_encoding_D2H_seconds_eight_scenes': encoding_seconds,
+            'four_scene_encoding_D2H_seconds_eight_scenes': batched_encoding_seconds,
             'single_vs_four_scene_comparisons': comparisons,
+            'same_shape_rebatched_comparisons': regrouped_comparisons,
+            'stored_payload_from_original_microbatch': 4,
             'cache_bank_bytes_eight_scenes': stored_bytes, 'tensor_payload_bytes': payload_bytes,
             'estimated_full_train_payload_bytes': payload_bytes*len(data)/8,
             'write_fsync_seconds': write_seconds, 'warm_read_pin_H2D_eight_scenes': read,
@@ -171,10 +194,12 @@ def main():
             'limits': ['Eight real training scenes only; not end-to-end training performance.',
                        'Page-cache-warm shared storage; cold and concurrent IO not measured.',
                        'Per-scene versus original microbatch output differences prohibit a claim of bitwise equivalence.',
+                       'Same-shape rebatched checks cover only eight scenes; other grids, tail microbatch3 and world16 microbatch2 are unqualified.',
                        'No H_A/language/FM/BEV/backward, optimizer or planning acceptance.']}
         bench.write(args.output/'RESULT.json', record)
         print(json.dumps({'status': 'MEASURED_COMPONENT_ONLY', 'result': str(args.output/'RESULT.json'),
             'batching_bitwise': all(row['bitwise'] for row in comparisons),
+            'same_shape_rebatching_bitwise': all(row['bitwise'] for row in regrouped_comparisons),
             'cache_bytes_per_scene': payload_bytes/8, 'formal_authorized': False}), flush=True)
 
 

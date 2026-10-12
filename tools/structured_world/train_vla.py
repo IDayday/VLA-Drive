@@ -130,6 +130,9 @@ def main():
     canonical = socket.gethostname().removesuffix('-worker-0')
     if canonical not in hosts:
         raise ValueError('Host is not authorized for this task')
+    if args.world_scaling_profile:
+        from tools.structured_world.benchmark_engineering_execution import authorize
+        authorize(canonical)  # Never bypass another task's active reservation.
     rank, world, local = int(os.environ['RANK']), int(os.environ['WORLD_SIZE']), int(os.environ['LOCAL_RANK'])
     validate_scaling_ranks(args, rank=rank, world=world, local=local,
                           local_world=int(os.environ.get('LOCAL_WORLD_SIZE', '8')))
