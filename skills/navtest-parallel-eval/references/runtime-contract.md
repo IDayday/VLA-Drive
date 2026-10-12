@@ -34,6 +34,17 @@ authorization to resume old experiments.
   Its `inference_allowed_hosts` is the candidate pool for evaluation only;
   `resource_selection` requires current availability checks. Training host
   permissions remain separately registered.
+- The evaluation cadence override requested on 2026-10-12 is
+  `/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json`.
+  It observes 25k/50k, then 60k/70k/80k/90k/100k for all four NAVSIM G runs.
+  Completed 75k results remain historical evidence; new 75k requests are skipped.
+  Keep the older base policy unchanged because live training supervisors validate
+  its original observation list. The sole Navtest dispatcher accepts
+  `--cadence-policy` and owns a serial CPU checkpoint-capture thread while GPUs
+  evaluate. It pins native rolling checkpoints with verified same-filesystem
+  hardlinks, preserves exact training identity/tag, and releases only its own
+  pins and temporary FP32 export after full valid scores and worker-exit proof.
+  It never restarts training to manufacture a missing historical observation.
 
 ## Executable pipeline
 

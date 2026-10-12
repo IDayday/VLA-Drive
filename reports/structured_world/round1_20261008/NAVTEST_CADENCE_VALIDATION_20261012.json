@@ -1,0 +1,65 @@
+{
+  "GPU_tests_started": 0,
+  "executed_CPU_tests": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/structured_world/test_navtest_cadence.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "tests": 9
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/structured_world/test_navsim_navtest_routing.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "tests": 4
+    }
+  ],
+  "files_sha256": {
+    "tools/structured_world/navtest_cadence.py": "d3885dc109615f2c2e4a99a2d59cf05c4117fbf7735ec6fba69fed1211e97ddc",
+    "tools/structured_world/run_navsim_navtest.py": "91721cc10790b4890e5f9ce2aaf6016ba58df560def474745a23305698a099e5",
+    "tools/structured_world/test_navsim_navtest_routing.py": "e880f277b60ceec6eb5794676ccd82d412039889d5abc26d107be45026439bfa",
+    "tools/structured_world/test_navtest_cadence.py": "44a5347b7321d916961b35e3d41e3a19b12868f8366ddfc1985251d8d103cbf6"
+  },
+  "limitations": [
+    "G3 exact60k native/export unavailable; never substitute65k/70k or claim completed",
+    "This validation does not claim GPU deployment or finished new Navtest"
+  ],
+  "observed_utc": "2026-10-12T00:43:53.826543+00:00",
+  "original_native_identity_bytes_preserved": true,
+  "policy_load_passed": true,
+  "policy_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+  "policy_sha256": "c21cee9f89256f952f197fa6cc74168fcb513138dac19f528f5dc7969e993f6e",
+  "registered_observations": [
+    25000,
+    50000,
+    60000,
+    70000,
+    80000,
+    90000,
+    100000
+  ],
+  "reviewed_before_activation": {
+    "issues_fixed": [
+      "Capture continues in a single serial CPU thread while GPU/scoring execute",
+      "Survives native pruning after all hardlinks; partial pruning recorded without stopping unrelated observations",
+      "All17 linked payload SHA256 verified by bounded streaming before enqueue",
+      "Cleanup requires successful GPU/SSH launcher and scorer exit receipt plus valid full scores",
+      "Observer stopped and joined before dispatch flock release; cadence+exit-when-idle rejected"
+    ],
+    "scientific_failures_relabelled": false
+  },
+  "same_filesystem_hardlinks_verified": true,
+  "schema": "navtest_cadence_execution_validation_v1",
+  "scope": "CPU filesystem/queue tests; no training process or evaluation operator changes; deployment state separately recorded",
+  "training_workers_signaled": 0
+}

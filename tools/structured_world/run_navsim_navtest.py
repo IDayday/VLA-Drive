@@ -7,6 +7,7 @@ No training process, checkpoint, historical asset or existing controller is chan
 import argparse
 import csv
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from datetime import datetime, timezone
 import fcntl
 import hashlib
@@ -37,6 +38,10 @@ METRICS = ('score','no_at_fault_collisions','drivable_area_compliance','ego_prog
 
 
 class InfrastructureError(RuntimeError):
+    pass
+
+
+class ResourcesUnavailable(RuntimeError):
     pass
 
 
@@ -598,7 +603,7 @@ def refresh_routes(args, request):
     atomic(args.output / 'resource_snapshots' / (request['key'] + '.json'), {'observed_utc': now(), 'inspected': inspected,
         'selected_routes': routes, 'excluded': skipped,'cohost_cost_policy':cost_policy,
         'selection': 'current safe unique GPU subset, no fixed host/GPU/shard count'})
-    if not routes: raise ValueError('No currently qualified candidate GPUs')
+    if not routes: raise ResourcesUnavailable('No currently qualified candidate GPUs')
     return routes
 
 
@@ -790,18 +795,40 @@ def execute(args, req):
           try: scorer.wait(timeout=30)
           except subprocess.TimeoutExpired: scorer.terminate(); scorer.wait(timeout=30)
       raise
+    if processes and all(process.returncode == 0 for process in processes) and scorer.returncode == 0:
+        atomic(destination / 'OWNED_WORKERS_EXITED.json', {
+            'key': req['key'], 'training_identity': req['training_identity'],
+            'checkpoint_files_sha256': req['checkpoint_files_sha256'],
+            'all_gpu_launchers_exited': True, 'scorer_exited': True,
+            'launchers': [{'pid': process.pid, 'returncode': process.returncode} for process in processes],
+            'scorer_pid': scorer.pid, 'scorer_returncode': scorer.returncode,
+            'evidence': 'Synchronous local/SSH launchers and canonical scorer all waited to successful exit',
+            'observed_utc': now(), 'routing_tool_sha256': EXECUTED_TOOL_SHA256})
     atomic(args.output / 'completed' / (req['key'] + '.json'), {'request': req,
         'score_complete': str(destination / 'scores/COMPLETE.json'), 'valid': True, 'completed_utc': now(), 'training': train_snapshot()})
 
 
 def serve(args):
     authorized(); args.output.mkdir(parents=True, exist_ok=True)
-    with (args.output / 'controller.lock').open('a') as lock:
+    if args.cadence_policy and args.exit_when_idle:
+        raise ValueError('Cadence capture requires a persistent dispatcher, not --exit-when-idle')
+    cadence = None
+    if args.cadence_policy:
+        import navtest_cadence
+        cadence = navtest_cadence.load_policy(args.cadence_policy)
+    with (args.output / 'controller.lock').open('a') as lock, ExitStack() as cleanup:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         atomic(args.output / 'CONTROLLER.json', {'pid': os.getpid(), 'host': socket.gethostname(),
-            'started_utc': now(), 'routes_file': str(args.routes), 'tool': str(SCRIPT), 'tool_sha256': EXECUTED_TOOL_SHA256})
+            'started_utc': now(), 'routes_file': str(args.routes), 'tool': str(SCRIPT), 'tool_sha256': EXECUTED_TOOL_SHA256,
+            'cadence_policy': str(args.cadence_policy) if cadence else None,
+            'cadence_policy_sha256': digest(args.cadence_policy) if cadence else None})
+        observer = navtest_cadence.Observer(cadence, args.output, request, valid_score_completion) if cadence else None
+        if observer:
+            cleanup.callback(observer.close)
         while True:
             authorized()
+            if observer and observer.error:
+                raise RuntimeError('Cadence capture failed; evidence retained') from observer.error
             paths = list((args.output / 'requests').glob('*.json'))
             reqs = sorted((json.loads(p.read_text()) for p in paths), key=lambda r: (r['priority'], r['key']))
             todo = []
@@ -810,13 +837,17 @@ def serve(args):
                 if marker.exists():
                     if json.loads(marker.read_text()).get('valid') is not True or not valid_score_completion(args.output/'jobs'/r['key'], r):
                         raise ValueError('Queue success marker does not certify a valid full bank')
-                else: todo.append(r)
+                elif not cadence or navtest_cadence.eligible(cadence, r): todo.append(r)
             if not todo:
                 atomic(args.output / 'STATE.json', {'status': 'IDLE_AWAITING_REQUESTS', 'observed_utc': now()})
                 if args.exit_when_idle: return
                 time.sleep(10); continue
             req = todo[0]
             try: execute(args, req)
+            except ResourcesUnavailable as error:
+                atomic(args.output / 'STATE.json', {'status': 'WAITING_FOR_AVAILABLE_RESOURCES',
+                    'request': req, 'reason': str(error), 'observed_utc': now()})
+                time.sleep(30)
             except Exception as error:
                 atomic(args.output / 'STATE.json', {'status': 'FAILED', 'request': req, 'error': repr(error), 'observed_utc': now()})
                 raise
@@ -840,6 +871,8 @@ def main():
     parser.add_argument('--canonical-python', default='/root/miniconda3/envs/navsim/bin/python')
     parser.add_argument('--score-workers', type=int, default=12)
     parser.add_argument('--exit-when-idle', action='store_true')
+    parser.add_argument('--cadence-policy', type=Path,
+                        help='Explicit evaluation-only cadence override; frozen training is unchanged')
     args = parser.parse_args()
     if args.enqueue: request(args)
     elif args.inventory: print(json.dumps(inventory()))
