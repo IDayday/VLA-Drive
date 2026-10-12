@@ -9,7 +9,7 @@ Manifest: source_root, source_sha (full frozen commit), python, host,
 gpu_uuids (eight, rank order), qualification {path, sha256}, artifact_root,
 minimum_free_MiB, budget {GPU_hours_limit<=120, already_spent, reserved_elsewhere,
 per_job_reserve_GPU_hours}, candidate_mode (optional: engineering_fast default,
-engineering_timevec or precision_fast; one candidate only), and cases (1..4). Each case contains name,
+engineering_timevec, precision_fast or engineering_host_fast; one candidate only), and cases (1..4). Each case contains name,
 pilot_origin_run, pilot_origin_tag, origin_identity, origin_complete_sha256,
 train_args: an argv list of --config/--cache/--geometry/--geometry-identity/
 --dino-root/--dino-identity/--image-root/--micro-batch pairs. All six repetitions
@@ -42,7 +42,7 @@ import time
 TASK = 'structured_world_fgtr_round1'
 POLICY = Path('/mnt/project/server_dispatch_policy.json')
 MODES = ('io_preserving_v1', 'engineering_fast')
-CANDIDATES = ('engineering_fast', 'engineering_timevec', 'precision_fast')
+CANDIDATES = ('engineering_fast', 'engineering_timevec', 'precision_fast', 'engineering_host_fast')
 BASE_FLAGS = {'--config', '--cache', '--geometry', '--geometry-identity',
               '--dino-root', '--dino-identity', '--image-root', '--micro-batch'}
 PACKAGES = ('torch', 'transformers', 'deepspeed', 'mmcv', 'mmengine', 'timm', 'omegaconf', 'numpy')
@@ -80,7 +80,12 @@ def immutable_source(root, sha):
 def authorize(host):
     policy = read(POLICY)
     require(host in policy['task_authorizations'][TASK]['allowed_hosts'], 'Current task policy rejects host')
-    return {'path': str(POLICY), 'sha256': digest(POLICY), 'task_authorization': policy['task_authorizations'][TASK]}
+    require(host not in policy.get('global_dispatch_prohibitions', {}), 'Host withdrawn for all new work')
+    reservation = policy.get('host_reservations', {}).get(host, {})
+    require(not (reservation.get('exclude_new_other_workloads') and reservation.get('task') != TASK),
+            'Host reserved for another active task; a benchmark needs a coordinated idle window')
+    return {'path': str(POLICY), 'sha256': digest(POLICY),
+            'task_authorization': policy['task_authorizations'][TASK], 'host_reservation': reservation}
 
 
 def origin(case):

@@ -88,7 +88,8 @@ class VLAStructuredFGTR(DDPForesight):
         # Typed execution payload is derived only from current images/prompt;
         # the historical teacher-cache whitelist is not weakened.
         from starVLA.dataloader.structured_world.prepared_current import PreparedCurrent
-        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
+        prepared = observations[0].get('_prepared_current') if getattr(
+            self, 'execution_prepare_current', getattr(self, 'execution_fast', False)) else None
         if prepared is not None and (not isinstance(prepared, PreparedCurrent) or
                 any(row.get('_prepared_current') is not prepared for row in observations)):
             raise ValueError('Mixed/untrusted current preprocessing payload')
@@ -113,7 +114,8 @@ class VLAStructuredFGTR(DDPForesight):
 
     def geometric_current(self, observations):
         device = next(self.geometry.parameters()).device
-        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
+        prepared = observations[0].get('_prepared_current') if getattr(
+            self, 'execution_prepare_current', getattr(self, 'execution_fast', False)) else None
         if prepared is not None:
             if any(row.get('_prepared_current') is not prepared for row in observations):
                 raise ValueError('Geometry microbatch identity mismatch')

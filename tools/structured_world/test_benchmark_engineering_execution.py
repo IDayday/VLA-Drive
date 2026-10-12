@@ -188,6 +188,7 @@ check('IO_exact_rank_wall_plus_reference_stdout_200_population',lambda:analyze(b
 check('fast_true_log_window_wall_and_rank_boundary_wall_200_population',lambda:analyze(b.MODES[1]))
 check('timevec_same_primary_rank_wall_secondary_trainer_window',lambda:analyze('engineering_timevec'))
 check('precision_same_primary_rank_wall_secondary_trainer_window',lambda:analyze('precision_fast'))
+check('host_fast_same_primary_rank_wall_secondary_trainer_window',lambda:analyze('engineering_host_fast'))
 
 def dynamic_aggregate():
     for mode in b.CANDIDATES:

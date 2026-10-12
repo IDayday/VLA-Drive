@@ -42,7 +42,7 @@ def main():
                         help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
     parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
     parser.add_argument('--tag', required=True, help='Explicit immutable complete checkpoint, never a moving latest')
-    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast'), default='engineering_fast')
+    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast', 'engineering_host_fast'), default='engineering_fast')
     parser.add_argument('--precision-diagnostic', choices=('native', 'fp32'), default='native',
                         help='FP32 is a separate controlled numerical diagnostic, never a formal precision change')
     args = parser.parse_args()
@@ -131,7 +131,7 @@ def main():
         from torch.nn.attention import sdpa_kernel, SDPBackend
         attention = sdpa_kernel(SDPBackend.MATH) if args.attention_diagnostic == 'math' else nullcontext()
         with attention:
-            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast') else (observations, targets)
+            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast','engineering_host_fast') else (observations, targets)
             result = model(obs, tgt, completed_updates=complete['completed'],
                 noise_generator=generators['noise'], time_generator=generators['time'],
                 proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)

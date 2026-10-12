@@ -33,6 +33,9 @@ from starVLA.model.modules.structured_world.execution import configure_execution
 from tools.structured_world.prefetch import OrderedScenePrefetch
 from tools.structured_world.resume_origin import read_origin, verify_scientific_contract
 from tools.structured_world.native_capture import validate_args as validate_capture_args, observation_plan, storage_admission
+from tools.structured_world.world_scaling_profile import (
+    validate_args as validate_scaling_args, validate_ranks as validate_scaling_ranks,
+    contract as scaling_contract)
 
 
 def atomic_json(path, value):
@@ -54,6 +57,7 @@ def source_hashes():
     paths.append(ROOT/'tools/structured_world/resume_origin.py')
     paths.append(ROOT/'tools/structured_world/execution_log.py')
     paths.append(ROOT/'tools/structured_world/native_capture.py')
+    paths.append(ROOT/'tools/structured_world/world_scaling_profile.py')
     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
@@ -78,13 +82,15 @@ def main():
     parser.add_argument('--image-root', type=Path)
     parser.add_argument('--profile-stages', action='store_true',
                         help='Only profile scope: measure the real model and optimizer stages')
-    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'), default='reference')
+    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec', 'engineering_host_fast'), default='reference')
     parser.add_argument('--logging-every', type=int, default=20)
     parser.add_argument('--evidence-every', type=int, default=100)
     parser.add_argument('--pilot-origin-run', type=Path, help='Read-only engineering continuation; never changes parent latest')
     parser.add_argument('--pilot-origin-tag', help='Required immutable complete tag for a pilot origin')
     parser.add_argument('--use-formal-schedule', action='store_true', help='Finite engineering run, original dataset schedule from update zero')
-    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Only read-only-origin performance windows; numerical/recovery pilots still save')
+    parser.add_argument('--world-scaling-profile', action='store_true',
+                        help='Finite fresh 8x4/16x2 throughput probe only; never load native eight-rank state on sixteen ranks')
+    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Read-only-origin or explicit fresh world-scaling performance windows; numerical/recovery pilots still save')
     parser.add_argument('--execution-acceptance', type=Path,
                         help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
     parser.add_argument('--resume-origin-run', type=Path,
@@ -93,7 +99,8 @@ def main():
     parser.add_argument('--capture-storage-budget', type=Path, help='Explicit owned storage/free-space admission, checked before every pilot save; quota visibility recorded')
     args = parser.parse_args()
     validate_capture_args(args)
-    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
+    validate_scaling_args(args)
+    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec', 'engineering_host_fast')
     if min(args.logging_every, args.evidence_every) < 1:
         raise ValueError('Positive metric/evidence intervals required')
     if args.scope == 'formal' and fast:
@@ -102,7 +109,8 @@ def main():
         raise ValueError('Pilot origins require profile scope, immutable tag and unchanged full population')
     if args.use_formal_schedule and (args.scope == 'formal' or args.pilot_origin_run):
         raise ValueError('Explicit common schedule is only for an engineering run without an origin')
-    if args.benchmark_no_end_save and (args.scope != 'profile' or not args.pilot_origin_run or args.resume):
+    if args.benchmark_no_end_save and (args.scope != 'profile' or
+            not (args.pilot_origin_run or args.world_scaling_profile) or args.resume):
         raise ValueError('Benchmark windows must retain their immutable origin and cannot be resumed in place')
     if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
         raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
@@ -123,8 +131,8 @@ def main():
     if canonical not in hosts:
         raise ValueError('Host is not authorized for this task')
     rank, world, local = int(os.environ['RANK']), int(os.environ['WORLD_SIZE']), int(os.environ['LOCAL_RANK'])
-    if world != 8 or args.micro_batch not in (1, 2, 4):
-        raise ValueError('One complete eight-GPU host and registered microbatch required')
+    validate_scaling_ranks(args, rank=rank, world=world, local=local,
+                          local_world=int(os.environ.get('LOCAL_WORLD_SIZE', '8')))
     torch.cuda.set_device(local)
     # The existing framework's distributed state can initialize NCCL on import.
     if not dist.is_initialized():
@@ -222,6 +230,8 @@ def main():
         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
         'extra_stage_instrumentation': args.profile_stages}
     contract['execution_mode'] = args.execution_mode
+    if args.world_scaling_profile:
+        contract['world_scaling_profile'] = scaling_contract(args, world)
     # Keep the scientific base precision equal to the immutable origin. Actual
     # candidate compute is separately declared; these are metadata only.
     contract['base_precision'] = contract['precision']
