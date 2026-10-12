@@ -48,19 +48,26 @@ for request_path in sorted((QUEUE / 'requests').glob('*.json')):
             datetime.fromisoformat(r['started_utc'])).total_seconds() for r in completed)
         process_s = sum((datetime.fromisoformat(r['completed_utc']) -
             datetime.fromisoformat(r['started_utc'])).total_seconds() for r in completed)
+        partial = [r for r in reports if r['status'] != 'COMPLETE']
         costs[req['key']] = dict(
-            hosts=sorted({r['host'] for r in completed}),
-            unique_physical_gpus=len({r['visible_gpu'] for r in completed}),
+            hosts=sorted({r['host'] for r in reports}),
+            unique_physical_gpus=len({r['visible_gpu'] for r in reports}),
             completed_worker_count=len(completed),
             preserved_failed_worker_reports=sum(r['status'] == 'FAILED' for r in reports),
+            preserved_incomplete_worker_reports=len(partial),
+            incomplete_statuses={s: sum(r['status'] == s for r in partial) for s in {r['status'] for r in partial}},
             successful_worker_resident_hours=process_s / 3600,
             successful_worker_load_hours=load_s / 3600,
             successful_inference_process_hours=sum(r['inference_seconds'] for r in completed) / 3600,
+            incomplete_scene_loop_process_hours_lower_bound=sum(r.get('inference_seconds', 0) for r in partial) / 3600,
+            all_reported_scene_loop_process_hours_lower_bound=sum(r.get('inference_seconds', 0) for r in reports) / 3600,
+            exact_total_gpu_hours=None,
             deliberate_between_scene_idle_process_hours=sum(r.get('scheduling_idle_seconds', 0) for r in completed) / 3600,
             peak_reserved_GiB=max(r['peak_reserved_bytes'] for r in completed) / 2**30,
             peak_allocated_GiB=max(r['peak_allocated_bytes'] for r in completed) / 2**30,
             coverage=read(job / 'COMPLETE.json'),
-            accounting_limits='Process wall-hours on shared GPUs, not exclusive GPU-hours or kernel-active time. Failed pre-load attempt, qualification and CPU scoring costs are separate; successful inference includes host gaps and pacing.')
+            external_pause=(read(OUT / 'EXTERNAL_EVALUATION_PAUSE_OBSERVED.json') if req['key'].startswith('G3') else None),
+            accounting_limits='Process wall-hours, not exclusive GPU-hours or kernel-active time. Includes host gaps, pacing and externally imposed SIGSTOP residence when present. Incomplete worker timings are only lower bounds. Failed pre-load attempts, qualification, export and CPU scoring are separate; unavailable time is not fabricated.')
 
 with (OUT / 'LEARNING_CURVES.csv').open('x', newline='') as stream:
     writer = csv.DictWriter(stream, fieldnames=list(curves[0]))
