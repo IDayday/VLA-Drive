@@ -1,0 +1,81 @@
+{
+  "additional_observation_scope": "Only explicit G2 45000 request; all registered regular observations and prior results retained",
+  "additional_observations": [
+    {
+      "group": "G2_EVENT_UNIFORM",
+      "requested_utc": "2026-10-13T01:58:13.686242+00:00",
+      "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+      "updates": 45000,
+      "user_instruction": "G2的最新权重也评测一下"
+    }
+  ],
+  "base_policy_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_EVALUATION_POLICY_20261011.json",
+  "base_policy_sha256": "15f1674751f8e7829161c9e3a009b15694d53843bbbbbde3ee00bad9338e9c52",
+  "checkpoint_storage": "Same-filesystem hardlinks only, no checkpoint payload copies; preserve exact origin identity and tag; release evaluation pins and their temporary FP32 export only after validated full scores and worker exit",
+  "dispatch_output": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+  "effective_utc": "2026-10-12T00:35:10.419410+00:00",
+  "expected_scenes": 12146,
+  "historical_results_preserved": true,
+  "include_trajectories": [
+    "q0",
+    "q_final"
+  ],
+  "known_unavailable_at_registration": [
+    {
+      "group": "G3_EVENT_LOCAL",
+      "reason": "No exact native60k checkpoint or FP32 export remains in the known run/export banks; no restart/retraining or replacement by another update",
+      "status": "PAST_CHECKPOINT_UNAVAILABLE",
+      "updates": 60000
+    }
+  ],
+  "observation_updates": [
+    25000,
+    50000,
+    60000,
+    70000,
+    80000,
+    90000,
+    100000
+  ],
+  "off_cadence_policy": "Preserve completed75k results and old requests; do not dispatch new75k jobs for these registered identities",
+  "ownership": "Original training supervisors retain25k/50k/100k enqueue ownership; sole Navtest dispatcher owns a serial CPU capture thread for60k/70k/80k/90k; GPU/scorer dispatch remains single-owner; no training process control",
+  "pins_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_cadence_20261012/native_pins",
+  "population": "navtest",
+  "precision": "FP32 native master restore and inference; TF32 off",
+  "previous_cadence_policy_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/NAVSIM_NAVTEST_CADENCE_20261012.json",
+  "previous_cadence_policy_sha256": "60627e769ecc8ea741ab0478c1b0525e6606e10b4a81c5c681916f62bb78c361",
+  "resource_policy": "Reuse current per-dispatch authorized GPU inventory, CPU overlap and pressure restoration; no fixed GPU/shard count; preserve genuine training",
+  "runs": [
+    {
+      "group": "G0_NO_FUTURE_LABEL",
+      "identity_sha256": "5b3a2a1f97adbb4284842a248ff55838eed83c414803d2d76cd96358922a0197",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g0_rlzt2_deploy_20261010T2355/formal/G0_NO_FUTURE_LABEL",
+      "training_identity": "6b30c6300151400cc1a36a56abedbc58d48a889061b123ea9f7e6e024ad1db4a"
+    },
+    {
+      "group": "G1_FULL_UNIFORM",
+      "identity_sha256": "c5bbd0e2ef86181d5bb349ff85c2772635e5a933a59618a6e411c5587b8b43df",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+      "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5"
+    },
+    {
+      "group": "G2_EVENT_UNIFORM",
+      "identity_sha256": "08533e0e6613d796ab3a1f89cd3a85060022a40015c705d11db894f3848be8e6",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+      "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589"
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "identity_sha256": "18e5bbcfe78bc5f5c4b3da24498c4ba443eefe7c192b2de305182e75fad130bd",
+      "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+      "training_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e"
+    }
+  ],
+  "sampling": "original ten-step FM; one scene-bound proposal and one correction",
+  "sampling_seed": 42,
+  "schema": "structured_world_navsim_navtest_cadence_v1",
+  "source": "explicit current user instruction",
+  "training_endpoint": 100000,
+  "training_recipe_change": false,
+  "user_instruction": "50k之后每10k都评测一次navtest"
+}

@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-13T02:59:56.967980+00:00",
+  "new_gate_tests": {
+    "command": "PYTHONPATH=tools/structured_world python -B -m unittest tools.structured_world.test_navtest_expand_active",
+    "tests": 2,
+    "passed": true,
+    "coverage": [
+      "exact PID/start/tool/output guard",
+      "stale PID does not receive SIGCONT",
+      "deadline watchdog resumes CPU-only probe and records failure",
+      "clean release avoids erroneous failure"
+    ]
+  },
+  "previous_cadence_and_resource_tests": {
+    "tests": 79,
+    "passed": true,
+    "seconds": 9.145
+  },
+  "runtime_helper_sha256": "7d3d9fd5f015239c35f3a677665297179309a520aea2f7bb4e31a9de3abdf669",
+  "frozen_model_training_evaluation_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "changes": "routing/cadence only; no training or inference numerical modifications"
+}
