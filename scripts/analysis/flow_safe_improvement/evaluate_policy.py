@@ -14,16 +14,20 @@ import torch
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.safe_flow_improvement.contracts import SFT_SHA256, SAFETY_METRICS, file_sha, fingerprint
 from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
+from starVLA.rl.safe_flow_improvement.evaluation_override import evaluation_seeds
 
 
-def load_scores(root, population, role):
+def load_scores(root, population, role, selected_seeds=None):
     root = Path(root)
     manifest = json.loads((root/'manifest.json').read_text())
     sample = manifest['sample_manifest']
     if sample['mode'] != 'ode' or sample['role'] != role or sample['population_identity'] != population['identity_sha256']:
         raise ValueError('Require original ODE, matching population, and separated reference/evaluation roles')
-    seeds = population['evaluation_seeds' if role == 'evaluation' else 'reference_seeds']
-    if sample['seeds'] != seeds or sample['root_precision'] != 'original_bfloat16':
+    seeds = selected_seeds if role == 'evaluation' and selected_seeds is not None else population['evaluation_seeds' if role == 'evaluation' else 'reference_seeds']
+    available = sample['seeds']
+    valid_seed_contract = (available == seeds if selected_seeds is None or role == 'reference'
+                           else set(seeds) <= set(available) <= set(population['evaluation_seeds']))
+    if not valid_seed_contract or sample['root_precision'] != 'original_bfloat16':
         raise ValueError('Deployment seeds or root precision changed')
     tokens = sample['explicit_tokens'] if sample['cohort'] == 'diagnostic_tokens' else population[sample['cohort']]
     if sample['cohort'] == 'diagnostic_tokens' and (len(tokens) != 512 or not set(tokens) <= set(population['train_tokens']) or not sample['cohort_identity']):
@@ -38,8 +42,9 @@ def load_scores(root, population, role):
             raise ValueError('Incomplete or changed evaluation; missing scenes stay in denominator')
         row = torch.load(path, weights_only=True, map_location='cpu')
         feedback = row['feedback']
-        if len(feedback) != len(seeds) or any(f['status'] != 'OK' for f in feedback):
+        if len(feedback) != len(available) or any(f['status'] != 'OK' for f in feedback):
             raise ValueError('Failed scoring cannot be dropped or imputed zero')
+        feedback = [feedback[available.index(seed)] for seed in seeds]
         rows[token] = {k: np.array([f['metrics'][k] for f in feedback], dtype=np.float64) for k in feedback[0]['metrics']}
         digests[token] = seal['payload_sha256']
     return manifest, rows, fingerprint(digests)
@@ -52,10 +57,13 @@ def main():
     p.add_argument('--reference-scores', required=True)
     p.add_argument('--population', required=True)
     p.add_argument('--output', required=True)
+    p.add_argument('--evaluation-override')
     a = p.parse_args()
     population = json.loads(Path(a.population).read_text())
-    manifest, policy, policy_sha = load_scores(a.scores, population, 'evaluation')
-    baseline_manifest, baseline, baseline_sha = load_scores(a.baseline_scores, population, 'evaluation')
+    seeds, override = evaluation_seeds(population, a.evaluation_override)
+    selected = seeds if override else None
+    manifest, policy, policy_sha = load_scores(a.scores, population, 'evaluation', selected)
+    baseline_manifest, baseline, baseline_sha = load_scores(a.baseline_scores, population, 'evaluation', selected)
     reference_manifest, reference, reference_sha = load_scores(a.reference_scores, population, 'reference')
     if baseline_manifest['sample_manifest']['behavior_sha256'] != SFT_SHA256 or reference_manifest['sample_manifest']['behavior_sha256'] != SFT_SHA256:
         raise ValueError('Reference and baseline must both be the permanent original SFT')
@@ -87,7 +95,7 @@ def main():
     zeros = {}
     for label, test in [('any_seed_zero', lambda x: bool(np.any(x == 0))),
                         ('all_fixed_seeds_zero', lambda x: bool(np.all(x == 0))),
-                        ('five_seed_scene_mean_zero', lambda x: bool(x.mean() == 0))]:
+                        ('five_seed_scene_mean_zero' if len(seeds) == 5 else 'single_seed_scene_score_zero', lambda x: bool(x.mean() == 0))]:
         old = np.array([test(baseline[t]['score']) for t in tokens])
         new = np.array([test(policy[t]['score']) for t in tokens])
         zeros[label] = dict(SFT=int(old.sum()), policy=int(new.sum()), new_failures=int((~old & new).sum()), recovered=int((old & ~new).sum()))
@@ -101,17 +109,18 @@ def main():
             feasible = np.logical_and.reduce([source[token][k] == 1 for k in SAFETY_METRICS])
             if feasible.any():
                 best.append(float(source[token]['score'][feasible].max()))
-        opportunities[label] = dict(candidates_per_scene=len(population['evaluation_seeds']),
+        opportunities[label] = dict(candidates_per_scene=len(seeds),
                                     feasible_scenes=len(best), F_feasible=len(best)/len(tokens),
                                     safe_best_mean_on_feasible=float(np.mean(best)) if best else None,
                                     candidate_opportunity_only_not_deployed_policy_score=True)
     report = dict(schema='flow_safe_single_candidate_deployment_v1', status='COMPLETE_MATCHED_EVALUATION',
                   policy_identity=manifest['sha256'], baseline_identity=baseline_manifest['sha256'], reference_identity=reference_manifest['sha256'],
                   payload_hashes=dict(policy=policy_sha, baseline=baseline_sha, reference=reference_sha),
-                  scenes=len(tokens), inference_seeds=population['evaluation_seeds'], training_seed_repetitions=1,
+                  scenes=len(tokens), inference_seeds=seeds, training_seed_repetitions=1,
                   cohort=manifest['sample_manifest']['cohort'],
                   targeted_TRAIN_diagnostic_is_not_unbiased_population_estimate=manifest['sample_manifest']['cohort'] == 'diagnostic_tokens',
-                  primary='mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection',
+                  primary=('one_fixed_scene_bound_seed_original_10_step_ODE_no_selection' if len(seeds) == 1 else
+                           'mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection'),
                   units='raw_0_to_1', means=means, paired_changes=changes, safety=safety, zero_transitions=zeros,
                   separate_finite_candidate_opportunities=opportunities,
                   high_score_decline=dict(SFT_scene_mean_threshold=.9, scenes=int(high.sum()),
@@ -120,6 +129,10 @@ def main():
                                           decline_at_least_005=int((high & (delta <= -.005)).sum())),
                   no_best_of_N=True, no_search_GT_selection_or_online_scorer_in_actor=True,
                   SFT_may_have_seen_DEV=True, old_RL_saw_DEV=True)
+    if override:
+        report.update(evaluation_override=override, multi_seed_experiments_cancelled_by_user=True,
+                      source_inference_seeds=dict(policy=manifest['sample_manifest']['seeds'], baseline=baseline_manifest['sample_manifest']['seeds']),
+                      selected_seed_is_fixed_in_advance_not_chosen_by_score=True)
     report['sha256'] = fingerprint(report)
     out = Path(a.output)
     if out.exists():

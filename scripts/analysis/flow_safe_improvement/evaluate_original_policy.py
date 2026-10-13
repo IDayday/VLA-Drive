@@ -13,6 +13,7 @@ def main():
     p = argparse.ArgumentParser(__doc__)
     for name in ('scores', 'baseline-scores', 'reference-scores', 'population', 'output'):
         p.add_argument('--'+name, required=True)
+    p.add_argument('--evaluation-override')
     a = p.parse_args()
     samples = [json.loads((Path(root)/'manifest.json').read_text())['sample_manifest']
                for root in (a.scores, a.baseline_scores, a.reference_scores)]

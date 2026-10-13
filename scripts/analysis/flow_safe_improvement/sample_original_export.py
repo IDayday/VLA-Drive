@@ -25,6 +25,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.safe_flow_improvement.contracts import SFT_SHA256, file_sha, fingerprint, seed_for
 from starVLA.rl.safe_flow_improvement.iteration import require_dispatch
 from starVLA.rl.safe_flow_improvement.policy_adapter import sample_ode, decode_request
+from starVLA.rl.safe_flow_improvement.evaluation_override import evaluation_seeds
 
 
 PROFILE = 'original_VLAAgent_default_module_dtypes_uncached_v1'
@@ -38,6 +39,8 @@ def main():
     p.add_argument('--cohorts')
     p.add_argument('--role', choices=['reference', 'evaluation'], default='evaluation')
     p.add_argument('--resume', action='store_true')
+    p.add_argument('--evaluation-override')
+    p.add_argument('--reuse-samples', help='Read-only sealed original-export samples; only matching seed outputs may be reused')
     a = p.parse_args()
     host = require_dispatch(); configure_numerics()
     rank, world = int(os.environ.get('RANK', 0)), int(os.environ.get('WORLD_SIZE', 1))
@@ -55,7 +58,9 @@ def main():
         raise ValueError('Fixed TRAIN diagnostic identity changed')
     if set(tokens) & set(pop['navtest_tokens']):
         raise ValueError('This entrypoint cannot access Navtest before final lock')
-    seeds = pop['evaluation_seeds' if a.role == 'evaluation' else 'reference_seeds']
+    seeds, override = evaluation_seeds(pop, a.evaluation_override) if a.role == 'evaluation' else (pop['reference_seeds'], None)
+    if a.evaluation_override and a.role != 'evaluation':
+        raise ValueError('User seed override does not redefine the fixed reference distribution')
     cfg = OmegaConf.load(export/'config.yaml')
     os.environ['BASE_VLM'] = '/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction'
     os.environ['VLM_ATTN_IMPLEMENTATION'] = cfg.framework.qwenvl.attn_implementation
@@ -79,6 +84,17 @@ def main():
                     feature_identity='NO_FEATURE_CACHE_RAW_OBSERVATIONS', seeds=seeds, mode='ode', role=a.role,
                     root_precision='original_bfloat16', execution_profile=profile,
                     source_files={Path(__file__).name: file_sha(__file__)})
+    if override:
+        identity['evaluation_override'] = override
+    reuse = None
+    if a.reuse_samples:
+        reuse = json.loads((Path(a.reuse_samples)/'manifest.json').read_text())
+        for key in ('population_identity', 'tokens_sha256', 'behavior_sha256', 'execution_profile', 'mode', 'role', 'root_precision'):
+            if reuse[key] != identity[key]:
+                raise ValueError('Reuse changed original actor, population, sampler or precision: '+key)
+        if not set(seeds) <= set(reuse['seeds']):
+            raise ValueError('Requested seed is absent from sealed reusable outputs')
+        identity['read_only_sample_reuse'] = dict(root=str(a.reuse_samples), identity_sha256=reuse['sha256'])
     if a.cohort == 'diagnostic_tokens':
         identity.update(explicit_tokens=tokens, cohort_identity=cohorts['sha256'], cohort_manifest_sha256=file_sha(a.cohorts))
     identity['sha256'] = fingerprint(identity)
@@ -99,7 +115,8 @@ def main():
     dataset = KeyedDataset(data_cfg)
     status = dict(status='RUNNING', rank=rank, world_size=world, host=host, pid=os.getpid(), identity_sha256=identity['sha256'],
                   new_scenes=0, reused_scenes=0, new_candidates=0, velocity_forward_calls=0,
-                  raw_observation_encoder_calls=0, original_direct_predict_checks=0, GPU_generation_seconds=0., wall_seconds=0.)
+                  raw_observation_encoder_calls=0, original_direct_predict_checks=0, GPU_generation_seconds=0., wall_seconds=0.,
+                  reused_from_previous_evaluation_scenes=0)
     started = time.monotonic()
     for token in tokens[rank::world]:
         path = out/'scenes'/token[:2]/(token+'.pt')
@@ -110,6 +127,23 @@ def main():
             status['reused_scenes'] += 1
             continue
         t0 = time.monotonic()
+        if reuse:
+            source = Path(a.reuse_samples)/'scenes'/token[:2]/(token+'.pt')
+            if source.with_suffix('.json').exists():
+                seal = json.loads(source.with_suffix('.json').read_text())
+                if seal['identity_sha256'] != reuse['sha256'] or seal['payload_sha256'] != file_sha(source):
+                    raise ValueError('Sealed reusable output changed')
+                value = torch.load(source, weights_only=True, map_location='cpu')
+                indices = [reuse['seeds'].index(seed) for seed in seeds]
+                for key in ('normalized_actions', 'requested_trajectories', 'initial_noise'):
+                    value[key] = value[key][indices]
+                value['noise_keys'] = [value['noise_keys'][i] for i in indices]
+                value.update(identity_sha256=identity['sha256'], generation_seconds=0.,
+                             reused_from=dict(payload_sha256=seal['payload_sha256'], manifest_sha256=reuse['sha256'],
+                                              source=str(source), selected_seeds=seeds))
+                publish_scene(path, value, identity['sha256'])
+                status['reused_from_previous_evaluation_scenes'] += 1
+                continue
         example = dataset[(token, seed_for('original_ode_initial', seeds[0], token))]
         observation = prepare_policy_observation([example]); del example
         with torch.no_grad(), torch.autocast('cuda', dtype=torch.bfloat16):

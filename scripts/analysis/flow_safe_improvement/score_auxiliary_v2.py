@@ -21,6 +21,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.flow_grpo.reward import build_cache_index, reward_metadata
 from starVLA.rl.safe_flow_improvement.contracts import file_sha, fingerprint
 from starVLA.rl.safe_flow_improvement.iteration import require_dispatch
+from starVLA.rl.safe_flow_improvement.evaluation_override import evaluation_seeds
 
 
 def initialize(devkit):
@@ -55,16 +56,18 @@ def main():
         p.add_argument('--'+name, required=True)
     p.add_argument('--workers', type=int, default=8)
     p.add_argument('--resume', action='store_true')
+    p.add_argument('--evaluation-override')
     a = p.parse_args()
     require_dispatch()
     if not 1 <= a.workers <= 16:
         raise ValueError('Bounded explicit v2 CPU resources required')
     root, out = Path(a.samples), Path(a.output)
     sample, population = json.loads((root/'manifest.json').read_text()), json.loads(Path(a.population).read_text())
+    seeds, override = evaluation_seeds(population, a.evaluation_override)
     if (sample['cohort'] != 'dev_tokens' or sample['mode'] != 'ode' or sample['role'] != 'evaluation'
-            or sample['population_identity'] != population['identity_sha256'] or sample['seeds'] != population['evaluation_seeds']):
+            or sample['population_identity'] != population['identity_sha256'] or not set(seeds) <= set(sample['seeds']) <= set(population['evaluation_seeds'])):
         raise ValueError('Auxiliary v2 requires the same complete fresh DEV ODE population')
-    tokens, seeds = population['dev_tokens'], sample['seeds']
+    tokens = population['dev_tokens']
     if sample['tokens_sha256'] != fingerprint(tokens):
         raise ValueError('Sample population changed')
     repo = Path(__file__).resolve().parents[3]; devkit = repo/'navsim'
@@ -73,6 +76,8 @@ def main():
     protocol.update(version='navsim_v2_official_one_stage', aggregation_source_sha256=file_sha(evaluation.__file__),
                     missing_two_frame='official_unavailable_value_and_removed_denominator_weight_not_zero_imputation')
     identity = dict(sample_manifest=sample, protocol=protocol, script_sha256=file_sha(__file__))
+    if override:
+        identity.update(evaluation_override=override, selected_seeds=seeds)
     identity['sha256'] = fingerprint(identity)
     out.mkdir(parents=True, exist_ok=a.resume)
     if (out/'manifest.json').exists() and json.loads((out/'manifest.json').read_text()) != identity:
@@ -89,8 +94,9 @@ def main():
             raise ValueError('Incomplete or changed ODE samples')
         row = torch.load(path, map_location='cpu', weights_only=True)
         requests[token] = row['requested_trajectories'].numpy()
-        if requests[token].shape != (5, 8, 3):
-            raise ValueError('All five independent single-candidate seeds are required')
+        if requests[token].shape != (len(sample['seeds']), 8, 3):
+            raise ValueError('Requested outputs must match the declared inference seeds')
+        requests[token] = requests[token][[sample['seeds'].index(seed) for seed in seeds]]
         sample_hashes[token] = seal['payload_sha256']
         cache_hashes[token] = file_sha(cache_index[token])
         groups[population['token_logs'][token]].append(token)

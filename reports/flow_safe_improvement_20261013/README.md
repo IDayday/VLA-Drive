@@ -2,7 +2,7 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 09:20 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 已到第4个 epoch，P2 正在推进第4个 epoch；四条在线路线均进入首轮真实完整动作头更新。原始部署精度重评正在逐检查点完成。共同8-epoch终点、三轮在线终点、NFT匹配窗口、第二训练 seed 和最终 Navtest 尚未完成。下文带时间的段落保留阶段历史，不能将资格测试、候选成绩或中途最高点作为最终结果。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 09:55 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 正在共同第8-epoch窗口内继续训练，P2 已完成第4个 epoch；四条在线路线均已完成首轮512次全动作头更新。共同8-epoch终点、三轮在线终点和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
 
 2026-10-13 后续进度：已完成 8,192 个 RL_TRAIN 场景的四 seed SFT 参考采样、32,768 次真实 v1.1 评分和逐时刻车身几何审计；随后锁定 512 场景诊断集及 4,096 场景学习集。D1 SFT 的原 ODE/旧 SDE 配对运行已启动。完整动作头的正权重 FM、公共保持和 NFT 训练入口已接入原 ZeRO-2/检查点基础，但此处尚没有更新后策略的重新采样成绩。[执行成本](evidence/reference_screen_execution.json)、[清单身份与安全集合计数](evidence/locked_cohorts.json)。
 
@@ -154,3 +154,12 @@ P2−P1首epoch的匹配差为+0.2412分，95%CI [+0.1437,+0.3044]；这是候�
 资源最新变更：用户撤回 `vlawm-zt/zt2/zt3/zt5`，共享调度规则已禁止新任务、重试与评价；本任务只使用名字不同且仍获授权的四台 `vlawm-tsinghua-zt/zt2/zt3/zt4`。[撤回记录](evidence/exact_host_withdrawal.json)。未停止Base/G/IQE真实工作。后续在线评分队列仅把同机文件传输从共享盘改到各训练主机本地盘，模型/候选/评分代码、预算、RNG与命令保持不变；完成后归档全部请求和失败记录。128次重复评分的[存储传输profile](evidence/scoring_transport_storage_profile.json)结果完全一致，中位往返0.421→0.304秒；这不是端到端训练加速结论。
 
 新增入口均已实际执行：`summarize_target_banks`、`diagnose_policy_projection`、`diagnose_context_alignment`、`compare_policy_evaluations`、`profile_scoring_transport`；[有限原导出评价队列](evidence/original_export_finite_queue.json)由 `run_original_evaluation_queue` 执行，仅追踪已登记的剩余19个DEV模型窗口，对完整导出与配置均相同的P0/P1保留显式复用receipt。原始场景/权重/缓存及完整运行身份继续只留在运行目录，不上传Git。
+
+
+09:55 UTC 用户缩减重复预算：执行“**不用做多seed实验**”。[覆盖登记](evidence/single_seed_override.json)保持原 population、候选 quota、SFT reference、奖励、动作头训练、优化器/RNG/数据进度不变；只将后续策略评价固定为2101，取消第二训练seed和最终五seed复测。旧五seed样本与分数保留；从完整旧结果按seed身份提取2101，未完成部分只补同一个seed，不按分数选seed。所有旧多seed派发父进程已退出，部分评价中断明确记为用户取消并保留封存场景，不写成失败轨迹或reward0。七个新单seed控制器已接续实际任务；此前已进入第二轮的NFT/探索候选生成保留原behavior、RNG和评分身份继续执行。
+
+[训练源码不变审计](evidence/single_seed_training_source_audit.json)核对正式训练保存的源码快照与当前文件逐字节一致。新增5项针对性测试通过，覆盖seed身份选择、reference不重划、异常和缺场景不能从分母消失；6个入口完成CLI smoke，单seed原导出评价及控制器正在实际执行。单seed结果不提供推理seed或训练seed稳定性证据，后续表格与旧五seed均值分开，不混减。
+
+取消前已完成的后续原导出五seed结果保留：[P0/P1 epoch4](evidence/original_export_P0_epoch4_DEV.json) PDMS93.6524，相对匹配SFT +0.0821分，95%CI [−0.0027,+0.1893]；[P2 epoch2](evidence/original_export_P2_epoch2_DEV.json) 93.8858，+0.3155分，[+0.1843,+0.4958]；[在线探索首轮](evidence/original_export_EXPLORE_SAFE_FM_round1_DEV.json) 93.7921，+0.2218分，[+0.1188,+0.3673]。这些仍是中途检查点，须结合逐项安全与固定预算终点，不能据均分宣布最终成功。
+
+新恢复入口为 `run_learning_window_single_seed` 与 `run_online_iteration_single_seed`：参数沿用各运行 `single_seed_launch.json` 中完整命令，首次接管用 `--adopt-existing`，之后恢复改用 `--resume`，必传 `--evaluation-override /mnt/project/flow-safe-improvement-20261013/resources/single_seed_override/REGISTRATION.json`。控制身份写入独立 `single_seed_*` 文件，旧控制身份不覆盖；训练恢复仍读取原 `train/latest_checkpoint.json` 和同主机的完整optimizer/RNG分片。原样重新执行启动命令前先确认没有相同输出的活跃控制器。
