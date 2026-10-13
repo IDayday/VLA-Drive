@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Queue-aware idle pressure for the explicitly authorized vlawm-zt4 host.
+"""Queue-aware restoration of explicitly authorized, captured pressure fillers.
 
 This is a companion to the sole Navtest dispatcher, not another dispatcher. It
 only releases/restores the already captured, hash-locked synthetic pressure
@@ -81,7 +81,7 @@ def saved_workers(output, keys, host):
     return sorted(result)
 
 
-def resource_activity(helper, inspection, selected):
+def resource_activity(helper, inspection, selected, coordinator_scripts=()):
     """Conservative readiness check, including work that has not allocated CUDA.
 
     A script process is only a reason to yield; this classifier never authorizes
@@ -101,6 +101,7 @@ def resource_activity(helper, inspection, selected):
         name = Path(argv[0]).name
         launcher = name in ('torchrun', 'deepspeed', 'accelerate')
         script = None
+        entrypoint = None
         if name.startswith('python'):
             index = 1
             while index < len(argv):
@@ -117,14 +118,26 @@ def resource_activity(helper, inspection, selected):
                 if token == '--':
                     index += 1
                     if index < len(argv):
+                        entrypoint = argv[index]
                         script = Path(argv[index]).name
                     break
                 if not token.startswith('-'):
+                    entrypoint = token
                     script = Path(token).name
                     break
                 index += 1
         elif name.endswith('.py'):
+            entrypoint = argv[0]
             script = name
+        # The queue coordinator remains alive when the GPUs have no work. Only
+        # its explicitly registered --serve entrypoint is exempt; its --worker
+        # children and the separate CPU scorer still count as real work.
+        if entrypoint and '--serve' in argv and '--worker' not in argv:
+            path = Path(entrypoint)
+            if not path.is_absolute():
+                path = Path(process['cwd']) / path
+            if str(path.resolve()) in coordinator_scripts:
+                continue
         if launcher or (script is not None and script not in monitors):
             workers.append(f"{pid}:{process['start_ticks']}")
     rows = helper.backend.query('uuid,memory.used,utilization.gpu', 'gpu')
@@ -183,7 +196,8 @@ def interrupt_owned_restoration(helper, lease_id):
 class IdlePressure:
     def __init__(self, policy, helper, clock=time.monotonic, activity=resource_activity):
         self.policy, self.helper, self.clock = policy, helper, clock
-        self.activity = activity
+        self.activity = (lambda *args: resource_activity(*args, policy.get('coordinator_scripts', ()))) \
+            if activity is resource_activity else activity
         self.output = Path(policy['dispatch_output']).resolve()
         self.idle_since = None
         with helper.locked():
@@ -235,7 +249,7 @@ class IdlePressure:
                 action = interrupt_owned_restoration(self.helper, self.state['lease_id'])
                 journal = self.journal()
             if journal and journal['state'] == 'RESTORED':
-                self.state['lease_id'] = 'navtest-idle-zt4-' + uuid.uuid4().hex
+                self.state['lease_id'] = 'navtest-idle-' + uuid.uuid4().hex
                 self.save()  # Persist the new intent before any process signal.
                 journal = None
             recorded = {f"{w['pid']}:{w['start_ticks']}" for w in journal['workers']} if journal else set()
@@ -295,6 +309,33 @@ class IdlePressure:
         return result
 
 
+def pressure_settings(policy):
+    """Retain the legacy binding; additional hosts need a hash-bound receipt."""
+    if policy['host'] != socket.gethostname():
+        raise ValueError('Pressure policy must name the actual local host')
+    kind = policy.get('pressure_kind', 'legacy_zt4')
+    if kind == 'legacy_zt4':
+        if policy['host'] != 'training-vlawm-zt4-worker-0':
+            raise ValueError('Explicitly authorized vlawm-zt4 local host required')
+        if policy['private_state_root'] != '/var/tmp/structured-world-fgtr-execution-private-20261011':
+            raise ValueError('Use the existing private pressure journal, outside Git')
+        return pressure.SCRIPT, pressure.SHA256
+    if kind != 'captured_project_pressure':
+        raise ValueError('Unknown pressure adapter')
+    path = Path(policy['authorization_path'])
+    if lease.digest(path) != policy['authorization_sha256']:
+        raise ValueError('Pressure authorization identity differs')
+    authorization = cadence.read(path)
+    if (authorization.get('schema') != 'navtest_captured_pressure_authorization_v1'
+            or policy['host'].removesuffix('-worker-0') not in authorization['hosts']
+            or authorization.get('pressure_restore_after_use') is not True
+            or authorization['pressure_script'] != str(lease.TRUSTED_SCRIPT)
+            or authorization['private_state_root'] != policy['private_state_root']
+            or authorization['idle_grace_seconds'] != 600):
+        raise ValueError('Captured pressure authorization does not cover this policy')
+    return lease.TRUSTED_SCRIPT, authorization['pressure_script_sha256']
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--policy', type=Path, required=True)
@@ -305,16 +346,13 @@ def main():
         sort_keys=True, separators=(',', ':')).encode()).hexdigest()
     if policy.get('schema') != 'navtest_idle_pressure_policy_v1' or policy.get('identity') != identity:
         raise ValueError('Idle pressure policy identity differs')
-    if policy['host'] != socket.gethostname() or policy['host'] != 'training-vlawm-zt4-worker-0':
-        raise ValueError('Explicitly authorized vlawm-zt4 local host required')
-    if lease.digest(pressure.SCRIPT) != pressure.SHA256:
+    pressure_script, pressure_sha256 = pressure_settings(policy)
+    if lease.digest(pressure_script) != pressure_sha256:
         raise ValueError('Inspected pressure script changed')
-    if policy['private_state_root'] != '/var/tmp/structured-world-fgtr-execution-private-20261011':
-        raise ValueError('Use the existing private pressure journal, outside Git')
     if not 5 <= policy['poll_seconds'] <= 60 or policy['idle_grace_seconds'] != 600:
         raise ValueError('Invalid polling/idle grace')
     helper = lease.PressureLease(policy['private_state_root'],
-        lease.LocalHost(pressure.SCRIPT), timeout=15)
+        lease.LocalHost(pressure_script), timeout=15)
     lock_path = Path(policy['status_output']).with_name('idle-controller.lock')
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     stop = False
@@ -329,10 +367,25 @@ def main():
         previous = None
         while not stop:
             try:
-                if lease.digest(pressure.SCRIPT) != pressure.SHA256:
+                if lease.digest(pressure_script) != pressure_sha256:
                     raise ValueError('Inspected pressure script changed')
                 result = controller.step()
             except Exception as error:
+                # The known filler starts short-lived nvidia-smi children. A
+                # changing descendant snapshot is not permission to weaken the
+                # lease guards. Retry a fresh guarded acquire on the next poll.
+                if isinstance(error, lease.LeaseError) and str(error) in {
+                        'process_changed_before_capture', 'process_changed_during_capture',
+                        'pressure_tree_changed_before_stop_retry_capture_required'}:
+                    cadence.atomic(Path(policy['status_output']), {
+                        'status': 'RETRYING_PRESSURE_CAPTURE', 'host': policy['host'],
+                        'controller_pid': os.getpid(), 'reason': str(error),
+                        'observed_utc': datetime.now(timezone.utc).isoformat(),
+                        'private_restoration_obligation_preserved': True})
+                    if args.once:
+                        raise
+                    time.sleep(policy['poll_seconds'])
+                    continue
                 cadence.atomic(Path(policy['status_output']), {
                     'status': 'STOPPED_FOR_REVIEW', 'host': policy['host'],
                     'controller_pid': os.getpid(),

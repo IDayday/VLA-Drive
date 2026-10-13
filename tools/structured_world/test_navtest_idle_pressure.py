@@ -433,6 +433,58 @@ class IdlePressureTests(unittest.TestCase):
         self.assertIsNone(real_work.poll())
         self.assertEqual(self.host.spawn_count, 0)
 
+    def test_registered_coordinator_does_not_mask_workers_or_foreign_scripts(self):
+        self.start()
+        inspection = self.helper.inspect(self.policy['gpu_uuids'])
+        script = str(self.directory / 'run_navsim_navtest.py')
+        def process(argv):
+            return {'argv': argv, 'cwd': str(self.directory), 'start_ticks': 17}
+        processes = {
+            910001: process(['python3', '-B', '-u', script, '--serve']),
+            910002: process(['python3', script, '--worker']),
+            910003: process(['python3', script, '--serve', '--worker']),
+            910004: process(['python3', '/unregistered/run_navsim_navtest.py', '--serve']),
+            910005: process(['python3', '/owned/canonical_stream.py']),
+        }
+        with patch.object(self.host, 'processes', return_value=processes), \
+                patch.object(self.host, 'query', return_value=[['GPU-a', '0', '0'], ['GPU-c', '0', '0']]):
+            value = idle.resource_activity(self.helper, inspection, self.policy['gpu_uuids'], [script])
+        self.assertEqual(value['workers'], [f'{pid}:17' for pid in range(910002, 910006)])
+
+    def test_project_pressure_requires_bound_authorization_and_host(self):
+        authorization = {
+            'schema': 'navtest_captured_pressure_authorization_v1',
+            'hosts': [socket.gethostname().removesuffix('-worker-0')],
+            'pressure_restore_after_use': True,
+            'pressure_script': str(lease.TRUSTED_SCRIPT),
+            'pressure_script_sha256': 'owned-fixture-no-production-file-read',
+            'private_state_root': str(self.directory / 'private'),
+            'idle_grace_seconds': 600,
+        }
+        path = self.directory / 'authorization.json'
+        cadence.atomic(path, authorization)
+        policy = self.policy | {'pressure_kind': 'captured_project_pressure',
+            'authorization_path': str(path), 'authorization_sha256': cadence.sha(path),
+            'private_state_root': authorization['private_state_root']}
+        self.assertEqual(idle.pressure_settings(policy),
+                         (lease.TRUSTED_SCRIPT, authorization['pressure_script_sha256']))
+        with self.assertRaisesRegex(ValueError, 'actual local host'):
+            idle.pressure_settings(policy | {'host': 'not-authorized-worker-0'})
+        authorization['hosts'] = []
+        cadence.atomic(path, authorization)
+        with self.assertRaisesRegex(ValueError, 'identity differs'):
+            idle.pressure_settings(policy)
+        with self.assertRaisesRegex(ValueError, 'does not cover'):
+            idle.pressure_settings(policy | {'authorization_sha256': cadence.sha(path)})
+
+    def test_legacy_pressure_host_binding_is_preserved(self):
+        with patch.object(idle.socket, 'gethostname', return_value='training-vlawm-zt4-worker-0'):
+            policy = self.policy | {'host': 'training-vlawm-zt4-worker-0',
+                'private_state_root': '/var/tmp/structured-world-fgtr-execution-private-20261011'}
+            self.assertEqual(idle.pressure_settings(policy), (idle.pressure.SCRIPT, idle.pressure.SHA256))
+        with self.assertRaises(ValueError):
+            idle.pressure_settings(self.policy | {'private_state_root': '/var/tmp/unrelated'})
+
     def test_real_resource_scanner_excludes_only_identified_pressure(self):
         controller, _ = self.start()
         self.restore_after_grace(controller)
