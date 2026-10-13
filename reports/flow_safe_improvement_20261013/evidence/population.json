@@ -1,0 +1,73 @@
+{
+  "schema": "flow_safe_population_v1",
+  "source_sha256": "1eef553afcf0896674c109b40853e81c2c2acb04e4dee48973c57952e717b46d",
+  "navtest_csv_sha256": "90553a063dc2ca3a0edb779a28164689803c51dcf5a7812aae66e7c5f913bcbc",
+  "identity_sha256": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "selection": "Existing legal log holdout reused. Hash-ordered uniform screening and random cohorts; targeted cohorts registered separately before search.",
+  "reference_seeds": [
+    1101,
+    1102,
+    1103,
+    1104
+  ],
+  "evaluation_seeds": [
+    2101,
+    2102,
+    2103,
+    2104,
+    2105
+  ],
+  "diagnostic_root_seeds": [
+    3101,
+    3102,
+    3103,
+    3104,
+    3105,
+    3106,
+    3107,
+    3108,
+    3109,
+    3110,
+    3111,
+    3112,
+    3113,
+    3114,
+    3115,
+    3116
+  ],
+  "train_seeds": [
+    42,
+    43
+  ],
+  "sft_unseen": false,
+  "old_full_navtrain_rl_unseen": false,
+  "new_rl_updates_unseen_dev": true,
+  "navtest_historically_observed": true,
+  "targeted_cohorts_status": "PENDING_FIXED_SFT_REFERENCE_FEEDBACK",
+  "populations": {
+    "RL_TRAIN": {
+      "scenes": 101592,
+      "logs": 1176,
+      "token_list_sha256": "9cd301e72bf2a9e46f5f9199dc0322c9fa7db92071e3aea4bed1558c77b89c3a"
+    },
+    "RL_DEV": {
+      "scenes": 1696,
+      "logs": 16,
+      "token_list_sha256": "f5daa55cc9c3d54ed0c2a60a5356857c24920e40e911d2b03449366729eedc65"
+    },
+    "NAVTEST": {
+      "scenes": 12146,
+      "logs": 136,
+      "token_list_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b"
+    }
+  },
+  "cohort_counts": {
+    "reference_screen_tokens": 8192,
+    "learning_random_tokens": 2048,
+    "diagnostic_random_tokens": 256,
+    "calibration_tokens": 256,
+    "dev_audit_tokens": 512
+  },
+  "dev_log_fraction": 0.013422818791946308,
+  "limited_dev_logs_caveat": "16 whole logs retained by the existing legal split; uncertainty is clustered by log. This is not a newly drawn 10-15% holdout."
+}

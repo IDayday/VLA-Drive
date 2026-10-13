@@ -1,0 +1,119 @@
+schema: flow_safe_research_registration_v1
+source_commit: 25f9148eb75ddf171313720e758a280b82c24f7f
+status: CONTRACTS_QUALIFIED_RESEARCH_IN_PROGRESS
+sft_sha256: 9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4
+population_identity: f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb
+trainable: complete_action_model_including_qwen_proj
+lora: false
+upstream_encoders: frozen
+feature_boundary: normalized_action_token_states_before_qwen_proj
+deployment: original_single_candidate_10_step_ode
+reward: navsim_v1.1_independent_reference_candidate
+auxiliary_evaluation: canonical_v2_separate_no_cross_version_reward_average
+seeds:
+  reference: [1101, 1102, 1103, 1104]
+  evaluation: [2101, 2102, 2103, 2104, 2105]
+  diagnostic_roots: [3101, 3102, 3103, 3104, 3105, 3106, 3107, 3108, 3109, 3110, 3111, 3112, 3113, 3114, 3115, 3116]
+  training: [42, 43]
+cohorts:
+  reference_screen: 8192
+  diagnostic_random: 256
+  diagnostic_targeted: 256
+  learning_random: 2048
+  learning_targeted: 2048
+  eta_calibration: 256
+  dev_full: 1696
+  dev_expensive_audit: 512
+  holdout: reuse_existing_16_complete_logs_1176_training_logs
+  directed_selection: pending_fixed_SFT_reference_feedback_before_search
+  dev_and_navtest_may_fit_parameters_or_search: false
+  fixed_reference_safe: all_four_seeds_metric_equals_one_componentwise_and_joint
+  feasible_candidate: NC_equals_1_and_DAC_equals_1_and_TTC_equals_1
+  useful_gain_thresholds_raw: [0.001, 0.005]
+exploration:
+  logical_scores_per_scene: 64
+  shared_reference_draws: 4
+  new_draws: 60
+  adaptive_rounds: 4
+  draws_per_adaptive_round: 15
+  methods: [ODE, LEGACY_SDE, LATENT_CEM, BEHAVIOR_CEM]
+  search_parameters: MUST_LOCK_BEFORE_SEARCH_AFTER_PROFILE_ONLY
+fixed_banks:
+  scenes: 4096
+  candidates: 32
+  reference_draws: 4
+  ODE_new_draws: 28
+  EXPLORE_new_draws: 28
+  adaptive_rounds: 4
+  draws_per_adaptive_round: 7
+  preserve_all_scenes_and_candidates: true
+  exact_request_deduplication: merge_empirical_and_reference_masses
+extraction:
+  prior: 0.5_q_ref_plus_0.5_all_logical_candidate_empirical
+  reward_floor: E_q_ref_R
+  safety_costs: [1_minus_NC, 1_minus_DAC, 1_minus_TTC]
+  safety_budgets: permanent_SFT_q_ref_component_means
+  eta_candidates_raw: [0.005, 0.02, 0.05]
+  eta_selection: train_only_closest_median_excess_KL_to_0.1_subject_to_primal_tolerance_then_highest_ESS
+  excess_KL_definition: KL_w_to_original_u_plus_log_of_allowed_support_u_mass_for_calibration_only
+  eta_status: CALIBRATION_PENDING
+  fp64_primal_tolerance: 1.0e-9
+  solver: L_BFGS_B_dual_with_independent_Clarabel_exponential_cone_oracle
+  alpha_max: 0.5
+  delta_useful_raw: 0.005
+  alpha: alpha_max_times_clip_gain_over_delta_useful_0_1
+  gain: weighted_true_reward_minus_q_ref_true_reward
+  negative_FM_weights: prohibited
+fixed_bank_learning:
+  variants: [P0_REWARD_FM, P1_SAFE_FM, P2_SEARCH_SAFE_FM]
+  initialization: identical_SFT
+  global_scene_batch: 16
+  scene_microbatch: 1
+  nominal_world_size: 8
+  accumulation: 2
+  epochs: 8
+  updates: 2048
+  checkpoint_epochs: [1, 2, 4, 8]
+  extension: all_three_to_16_only_if_all_three_fail_target_absorption
+  lr: 1.0e-6
+  warmup_fraction: 0.03
+  min_lr_ratio: 0.1
+  target_draws_per_scene: 1
+  FM_repeat: inherited_original_SFT_8
+  FM_time: original_head_sample_time_including_small_negative_tail
+  FM_noise: independent_from_rollout_root
+  GT_replay_coefficient: 0.1
+  reference_retention: fixed_SFT_safe_sample_path_velocity_distillation
+  reference_retention_coefficient: TRAIN_GRADIENT_CALIBRATION_PENDING_COMMON_TO_ALL_P
+online:
+  rounds: 3
+  scenes_per_round: 4096
+  logical_scores_per_scene: 32
+  epochs_per_round: 2
+  updates_per_round: 512
+  mandatory_variants: [ODE_SAFE_FM, EXPLORE_SAFE_FM, ODE_REWARD_FM, ODE_NFT]
+  all_safety_budgets: permanent_SFT
+  current_behavior_refresh: only_at_saved_outer_round_boundary
+  NFT_external_samples: prohibited
+  matched_budget_definition: report_scenes_new_scores_velocity_calls_CPU_GPU_hours_separately
+evaluation:
+  inference: single_candidate_original_ODE_no_search_GT_or_scorer
+  scene_seeds: fixed_scene_bound_new_noise
+  uncertainty: log_cluster_bootstrap_after_scene_aggregation_over_inference_seeds
+  primary_comparisons: [P1_minus_P0, P2_minus_P1, online_search_safe_minus_online_ODE_safe, NFT_minus_online_ODE_reward_FM]
+  final: two_training_seeds_full_DEV_then_locked_NAVTEST_five_inference_seeds
+  historical_navtest_exposure: repeatedly_observed_not_blind
+  selection: fixed_budget_endpoint_and_safety_qualified_DEV_selection_reported_separately
+safety_pause:
+  cost_definition: 1_minus_each_official_NC_DAC_TTC
+  immediate: any_DEV_mean_cost_increase_over_fixed_SFT_at_least_0.02_raw
+  sustained: same_cost_increase_at_least_0.005_raw_and_log_bootstrap_lower_CI_above_zero_at_two_consecutive_checkpoints
+  response: preserve_checkpoint_and_evidence_pause_only_affected_variant_other_variants_continue
+execution:
+  RL_host: training-vlawm-tsinghua-zt
+  RL_GPUs: [0, 1, 2, 3, 4, 5, 6, 7]
+  cache_and_CPU_host: training-vlawm-tsinghua-zt2
+  cache_CPU_workers_initial: 16
+  preserve_IQE_GPU0_and_all_G_tasks: true
+  budget_cost_status: FULL_OPTIMIZER_AND_SEARCH_PROFILES_PENDING_BEFORE_FORMAL_LEARNING
+  automatic_budget_expansion: prohibited
