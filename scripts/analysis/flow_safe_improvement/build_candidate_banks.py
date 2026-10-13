@@ -93,7 +93,9 @@ def main():
                 'behavior_sha256': behavior, 'iteration': a.iteration, 'seed': a.seed, 'feature_identity': store.identity_sha,
                 'protocol_sha256': queue['protocol_sha256'], 'logical_budget_per_scene': budget, 'reference_draws': 4,
                 'new_draws': budget-4, 'ODE_candidate_chunk': chunk, 'legacy_SDE_candidate_chunk': 1,
-                'search_spec': asdict(CEMSpec()), 'search_order': 'joint_NC_DAC_TTC_pass_then_max_cost_then_sum_cost_then_true_PDMS',
+                # JSON serializes tuple bounds as lists. Normalize before
+                # comparing another rank's manifest or an explicit resume.
+                'search_spec': json.loads(json.dumps(asdict(CEMSpec()))), 'search_order': 'joint_NC_DAC_TTC_pass_then_max_cost_then_sum_cost_then_true_PDMS',
                 'reference_scores_manifest_sha256': file_sha(Path(a.reference_scores)/'manifest.json'),
                 'batch_qualification_sha256': file_sha(a.batch_qualification) if a.batch_qualification else None,
                 'source_files': {Path(x).name: file_sha(x) for x in (__file__, candidate_search.__file__, sampling.__file__, policy_adapter.__file__, scoring_queue.__file__, qualify_rollout_batch.__file__)}}

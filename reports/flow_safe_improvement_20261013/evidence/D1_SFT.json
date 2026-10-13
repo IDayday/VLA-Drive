@@ -1,0 +1,163 @@
+{
+  "schema": "flow_safe_D1_summary_v1",
+  "status": "COMPLETE_FOR_LISTED_CHECKPOINTS",
+  "run_identities": {
+    "D1_SFT_attempt2": "f5763115ff065ea9358876f780700b5d6ef7d58ba3d5688c89751f006241dd73"
+  },
+  "summaries": {
+    "D1_SFT_attempt2": {
+      "random": {
+        "samplers": {
+          "ode": {
+            "score": 0.9334101090011713,
+            "no_at_fault_collisions": 1.0,
+            "drivable_area_compliance": 0.98974609375,
+            "time_to_collision_within_bound": 0.997314453125,
+            "ego_progress": 0.8587877772278112,
+            "comfort": 0.99609375,
+            "driving_direction_compliance": 0.9920654296875,
+            "joint_safe_fraction": 0.987060546875,
+            "feasible_scenes": 254,
+            "scenes": 256,
+            "finite_safe_best_mean_on_feasible": 0.9462397024606933,
+            "safe_opportunity_gain_on_feasible": 0.004636592889837712,
+            "net_mean_against_fixed_SFT_deployment": -0.0008367262761619307
+          },
+          "legacy_sde": {
+            "score": 0.9274749458294903,
+            "no_at_fault_collisions": 0.999755859375,
+            "drivable_area_compliance": 0.98388671875,
+            "time_to_collision_within_bound": 0.997314453125,
+            "ego_progress": 0.8528441668657767,
+            "comfort": 0.99609375,
+            "driving_direction_compliance": 0.9918212890625,
+            "joint_safe_fraction": 0.981201171875,
+            "feasible_scenes": 256,
+            "scenes": 256,
+            "finite_safe_best_mean_on_feasible": 0.9481930385339092,
+            "safe_opportunity_gain_on_feasible": 0.013946203256575897,
+            "net_mean_against_fixed_SFT_deployment": -0.006771889447842987
+          }
+        },
+        "SDE_mean_minus_ODE_mean": {
+          "mean": -0.005935163171681056,
+          "CI95": [
+            -0.013380827517681985,
+            0.0013998861427284215
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "SDE_safe_best_minus_ODE_safe_best_on_jointly_feasible": 0.001730487879162667,
+        "jointly_feasible_scenes": 254
+      },
+      "targeted": {
+        "samplers": {
+          "ode": {
+            "score": 0.6780668796113181,
+            "no_at_fault_collisions": 0.9993896484375,
+            "drivable_area_compliance": 0.789306640625,
+            "time_to_collision_within_bound": 0.91748046875,
+            "ego_progress": 0.5981897955432615,
+            "comfort": 1.0,
+            "driving_direction_compliance": 0.9879150390625,
+            "joint_safe_fraction": 0.714111328125,
+            "feasible_scenes": 227,
+            "scenes": 256,
+            "finite_safe_best_mean_on_feasible": 0.9078995947748407,
+            "safe_opportunity_gain_on_feasible": 0.16624181583632144,
+            "net_mean_against_fixed_SFT_deployment": 0.0060474493055115
+          },
+          "legacy_sde": {
+            "score": 0.6539308265319681,
+            "no_at_fault_collisions": 0.998046875,
+            "drivable_area_compliance": 0.76123046875,
+            "time_to_collision_within_bound": 0.9248046875,
+            "ego_progress": 0.5741171109859271,
+            "comfort": 1.0,
+            "driving_direction_compliance": 0.98779296875,
+            "joint_safe_fraction": 0.692626953125,
+            "feasible_scenes": 250,
+            "scenes": 256,
+            "finite_safe_best_mean_on_feasible": 0.9165215424383987,
+            "safe_opportunity_gain_on_feasible": 0.2307069791385862,
+            "net_mean_against_fixed_SFT_deployment": -0.018088603773838453
+          }
+        },
+        "SDE_mean_minus_ODE_mean": {
+          "mean": -0.024136053079349958,
+          "CI95": [
+            -0.04491200164368972,
+            -0.0025611319922763487
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "SDE_safe_best_minus_ODE_safe_best_on_jointly_feasible": 0.002080269254700338,
+        "jointly_feasible_scenes": 227
+      },
+      "combined_descriptive": {
+        "samplers": {
+          "ode": {
+            "score": 0.8057384943062447,
+            "no_at_fault_collisions": 0.99969482421875,
+            "drivable_area_compliance": 0.8895263671875,
+            "time_to_collision_within_bound": 0.9573974609375,
+            "ego_progress": 0.7284887863855363,
+            "comfort": 0.998046875,
+            "driving_direction_compliance": 0.989990234375,
+            "joint_safe_fraction": 0.8505859375,
+            "feasible_scenes": 481,
+            "scenes": 512,
+            "finite_safe_best_mean_on_feasible": 0.9281457223262057,
+            "safe_opportunity_gain_on_feasible": 0.08090350683755457,
+            "net_mean_against_fixed_SFT_deployment": 0.0026053615146747846
+          },
+          "legacy_sde": {
+            "score": 0.7907028861807293,
+            "no_at_fault_collisions": 0.9989013671875,
+            "drivable_area_compliance": 0.87255859375,
+            "time_to_collision_within_bound": 0.9610595703125,
+            "ego_progress": 0.7134806389258519,
+            "comfort": 0.998046875,
+            "driving_direction_compliance": 0.98980712890625,
+            "joint_safe_fraction": 0.8369140625,
+            "feasible_scenes": 506,
+            "scenes": 512,
+            "finite_safe_best_mean_on_feasible": 0.9325450661547044,
+            "safe_opportunity_gain_on_feasible": 0.12104144825756913,
+            "net_mean_against_fixed_SFT_deployment": -0.01243024661084072
+          }
+        },
+        "SDE_mean_minus_ODE_mean": {
+          "mean": -0.015035608125515507,
+          "CI95": [
+            -0.02654633578720997,
+            -0.0034718732138542575
+          ],
+          "scenes": 512,
+          "logs": 343,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "SDE_safe_best_minus_ODE_safe_best_on_jointly_feasible": 0.0018955614181378258,
+        "jointly_feasible_scenes": 481
+      }
+    }
+  },
+  "RL_minus_matched_SFT": {},
+  "score_units": "raw_0_to_1",
+  "caveats": [
+    "FP32 common roots isolate samplers; deployment uses original BF16 roots",
+    "Targeted and combined sets are not population-unbiased estimates",
+    "Finite safe best is candidate opportunity, not deployable policy performance"
+  ],
+  "sha256": "e6038bca5a5f257023d3fcaad71bebd2513f38c4d42978b9ad74e0b8ac6844ec"
+}
