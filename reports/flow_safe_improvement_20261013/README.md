@@ -102,3 +102,5 @@ P2 采用同边界行为搜索。物理非法提案保留原动作、轨迹与�
 [实际完整动作头梯度诊断](evidence/D2_SFT_gradient_summary.json)测得 group 与 global-batch 归一化梯度 cosine 0.8571，group 与固定尺度为 0.8668；group 与 GT replay 为 0.1198，global-batch 与 replay 为 −0.0935。这是固定 16 场景 SFT behavior 的 native 梯度观察，不是 ZeRO FP32 累加验证，SFT 与其自身 reference 的 KL 梯度为零是预期结果。旧 RL 非零 reference 梯度窗口另行实际执行。
 
 [有限预算及实测 profile](evidence/formal_budget_profile.json)在正式训练前锁定。共享盘约余 1.1 TB，新优化器/RNG 完整恢复点存放在已授权训练主机的本地盘，导出权重与报告存共享目录；每个 run 的 storage_identity.json 记录主机和实际路径，不删除任何旧资产。普通 FM 与 NFT 的实测时间含不同资源竞争，只作排期依据，不声称相对加速倍数。
+
+在线阶段的候选和恢复合同已完成真实动作头短验证：3 个场景均为 4 条永久 SFT 参考、12 条当前已更新模型的 ODE 样本、16 条行为搜索候选；搜索中心来自当前 12 条 ODE 中的安全优先选取。外部候选无法通过 NFT on-policy 身份检查，安全权重求解通过。[实际验证](evidence/online_current_behavior_qualification.json)。[三轮登记](evidence/online_registration.json)明确每轮继承前轮完整动作头、重新采样评分并更新两 epoch；四个变体统一在外层刷新边界新建 AdamW 和两 epoch scheduler，轮内恢复保留完整优化器/RNG/数据进度。这不是携带 Adam moments 的连续优化轨迹，该共同选择须作为最终结果的实现限制记录。

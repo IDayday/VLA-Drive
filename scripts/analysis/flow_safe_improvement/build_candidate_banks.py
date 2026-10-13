@@ -50,13 +50,14 @@ def main():
     p = argparse.ArgumentParser(__doc__)
     p.add_argument('--population', required=True)
     p.add_argument('--cohorts', required=True)
-    p.add_argument('--stage', choices=['D3', 'BANK', 'CALIBRATION'], required=True)
+    p.add_argument('--stage', choices=['D3', 'BANK', 'CALIBRATION', 'ONLINE'], required=True)
     p.add_argument('--method', choices=['ODE', 'SDE', 'LATENT', 'BEHAVIOR'], required=True)
     p.add_argument('--reference-scores', required=True)
     p.add_argument('--queue', required=True)
     p.add_argument('--output', required=True)
     p.add_argument('--batch-qualification')
-    p.add_argument('--physical-fallback-registration', help='Explicit BANK-only fixed-reference fallback for rejected behavior proposals')
+    p.add_argument('--physical-fallback-registration', help='Explicit 32-slot bank fallback for rejected behavior proposals')
+    p.add_argument('--online-registration', help='Required fixed current-ODE/search quota and refresh contract for ONLINE')
     p.add_argument('--behavior')
     p.add_argument('--behavior-sha256')
     p.add_argument('--iteration', type=int, default=0)
@@ -69,8 +70,20 @@ def main():
     fallback_spec = None
     if a.physical_fallback_registration:
         fallback_spec = json.loads(Path(a.physical_fallback_registration).read_text())
-        if a.method != 'BEHAVIOR' or a.stage != 'BANK' or fallback_spec['physical_failure_policy'] != 'uniform_fixed_reference_fallback':
+        if a.method != 'BEHAVIOR' or a.stage not in ('BANK', 'ONLINE') or fallback_spec['physical_failure_policy'] != 'uniform_fixed_reference_fallback':
             raise ValueError('Fallback is an explicitly registered behavior bank policy; D3 remains unchanged')
+    online_spec = None
+    if a.stage == 'ONLINE':
+        online_spec = json.loads(Path(a.online_registration).read_text())
+        if (a.iteration not in (1, 2, 3) or a.method not in ('ODE', 'BEHAVIOR')
+                or online_spec['search_quota'] != dict(reference=4, current_ODE=12, behavior_search=16, search_rounds=4)
+                or online_spec['ordinary_quota'] != dict(reference=4, current_ODE=28)
+                or online_spec['behavior_center'] != 'safety_order_best_of_12_current_ODE'):
+            raise ValueError('Online iteration must use the fixed current-policy sampling contract')
+        if a.method == 'BEHAVIOR' and fallback_spec is None:
+            raise ValueError('Online physical failures require the registered reference fallback')
+    elif a.online_registration:
+        raise ValueError('Online quota cannot silently change D3/P banks')
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK', 0)))
     configure_numerics()
     rank, world = int(os.environ.get('RANK', 0)), int(os.environ.get('WORLD_SIZE', 1))
@@ -82,6 +95,9 @@ def main():
     contract = PopulationContract(*[frozenset(population[k]) for k in ('train_tokens', 'dev_tokens', 'navtest_tokens')], population['token_logs'])
     contract.require_training(tokens, 'search/bank generation')
     budget, draws = (64, 15) if a.stage == 'D3' else (32, 7)
+    mixed_online = online_spec is not None and a.method == 'BEHAVIOR'
+    if mixed_online:
+        draws = 4
     chunk = 1
     if a.batch_qualification:
         qualification = json.loads(Path(a.batch_qualification).read_text())
@@ -108,6 +124,10 @@ def main():
     if fallback_spec:
         identity.update(physical_failure_policy='uniform_fixed_reference_fallback',
                         physical_fallback_registration_sha256=file_sha(a.physical_fallback_registration))
+    if online_spec:
+        identity.update(online_registration_sha256=file_sha(a.online_registration),
+                        quota=online_spec['search_quota' if mixed_online else 'ordinary_quota'],
+                        search_center=online_spec['behavior_center'] if mixed_online else None)
     identity['sha256'] = fingerprint(identity)
     out = Path(a.output); out.mkdir(parents=True, exist_ok=True)
     with (out/'manifest.lock').open('a') as lock:
@@ -161,17 +181,42 @@ def main():
                 candidates.append(record); cached[request_key(record['requested_trajectory'])] = (len(candidates)-1, f)
             raw = store.get(token)['raw'].cuda()
             condition = encode_condition(policy, raw)
+            diagnostics = []
+            if mixed_online:
+                # Genuine fresh current-behavior samples precede repair. Their
+                # keys match the first three draws in each ordinary ODE round.
+                t0 = time.monotonic()
+                root_keys = [seed_for('bank_initial', a.seed, token, a.iteration, r, i) for r in range(4) for i in range(3)]
+                roots = torch.cat([torch.randn((1, 8, 4), device='cuda', dtype=raw.dtype,
+                                               generator=torch.Generator(device='cuda').manual_seed(k)) for k in root_keys])
+                seed_actions = grouped(policy, condition, roots, chunk).float().cpu()
+                seed_requests = decode_request(seed_actions.numpy(), act_norm=int(sft.datasets.vla_data.act_norm))
+                torch.cuda.synchronize()
+                status['GPU_generation_seconds'] += time.monotonic()-t0
+                status['velocity_forward_calls'] += 10*((12+chunk-1)//chunk)
+                seed_feedback, receipt = scorer.score(token, log, seed_requests, caller_identity=identity['sha256'], request_key=f'{token}_current_ODE12')
+                diagnostics.append({'current_behavior_ODE_scoring': receipt})
+                for i, f in enumerate(seed_feedback):
+                    key = request_key(seed_requests[i])
+                    duplicate = cached.get(key)
+                    if duplicate is not None:
+                        status['duplicate_proposals'] += 1
+                    record = dict(source='ode', is_reference=False, behavior_sha256=behavior,
+                                  normalized_action=seed_actions[i], requested_trajectory=torch.as_tensor(seed_requests[i]),
+                                  feedback=f, noise_keys={'root_key': root_keys[i], 'initial_noise': roots[i].cpu()},
+                                  source_parameters={'online_center_pool': True}, on_policy_for_NFT=True,
+                                  duplicate_of=duplicate[0] if duplicate is not None else None)
+                    candidates.append(record); cached[key] = (len(candidates)-1, f)
             search = None
             if a.method in ('LATENT', 'BEHAVIOR'):
                 search = BoundedCEM('latent_search' if a.method == 'LATENT' else 'behavior_search', np.random.default_rng(seed_for('search', a.seed, token, a.method, a.iteration)))
-            base_index = min(range(4), key=lambda i: safety_order(feedback[i]['metrics']))
-            base_request = np.asarray(rs['requested_trajectories'][base_index])
-            state = np.asarray(feedback[base_index]['simulated_states'])[0]
+            base_index = min(range(4, 16) if mixed_online else range(4), key=lambda i: safety_order(candidates[i]['feedback']['metrics']))
+            base_request = np.asarray(candidates[base_index]['requested_trajectory'])
+            state = np.asarray(candidates[base_index]['feedback']['simulated_states'])[0]
             # NAVSIM's bicycle state stores body-frame longitudinal/lateral
             # velocity although positions are global. See its X_dot=v_x*cos
             # heading, Y_dot=v_x*sin heading. Do not rotate velocity again.
             initial_velocity = state[3:5].copy()
-            diagnostics = []
             for round_index in range(4):
                 t0 = time.monotonic()
                 physical = []
@@ -259,7 +304,8 @@ def main():
                                   normalized_action=actions[i], requested_trajectory=torch.as_tensor(requests[i]),
                                   feedback=f, noise_keys=keys[i], on_policy_for_NFT=(source == 'ode'),
                                   source_parameters={'round': round_index, 'parameters': parameters[i].tolist() if parameters is not None else None,
-                                                     'physical': physical[i] if physical else None},
+                                                     'physical': physical[i] if physical else None,
+                                                     **({'center_candidate_index': base_index, 'center_behavior_sha256': behavior} if mixed_online else {})},
                                   duplicate_of=duplicate_of[i][0] if i in duplicate_of else None)
                     candidates.append(record)
                     cached[request_key(requests[i])] = (len(candidates)-1, f)

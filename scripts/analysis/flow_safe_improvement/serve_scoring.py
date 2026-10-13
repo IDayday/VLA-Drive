@@ -34,6 +34,7 @@ def main():
     p.add_argument('--max-hours', type=float, required=True)
     p.add_argument('--resume', action='store_true')
     p.add_argument('--stop-after-jobs', type=int)
+    p.add_argument('--stop-file', help='Owned window completion marker; finish committed jobs and close workers')
     a = p.parse_args()
     if not 1 <= a.workers <= 32 or not 0 < a.max_hours <= 48 or a.max_new_scores <= 0:
         raise ValueError('Explicit bounded scoring resources required')
@@ -63,6 +64,9 @@ def main():
     try:
         with V1RewardService(spec, a.workers) as service:
             while time.monotonic()-started < 3600*a.max_hours:
+                if a.stop_file and Path(a.stop_file).exists():
+                    status['status'] = 'STOPPED_COMPLETED_REGISTERED_WINDOW'
+                    break
                 paths = sorted((out / 'requests').glob('*.json'))
                 todo = [path for path in paths if path.stem not in seen][:a.workers]
                 if not todo:

@@ -1,0 +1,40 @@
+{
+  "schema": "flow_safe_online_fixed_three_rounds_v1",
+  "utc": "2026-10-13T07:36:46.987336+00:00",
+  "rounds": 3,
+  "scenes_per_round": 4096,
+  "logical_candidates": 32,
+  "initialization_all_variants": "permanent_SFT",
+  "ordinary_quota": {
+    "reference": 4,
+    "current_ODE": 28
+  },
+  "search_quota": {
+    "reference": 4,
+    "current_ODE": 12,
+    "behavior_search": 16,
+    "search_rounds": 4
+  },
+  "behavior_center": "safety_order_best_of_12_current_ODE",
+  "physical_failure_policy": "same_registered_uniform_fixed_reference_fallback",
+  "permanent_reference": "unchanged_SFT_four_seed_candidates_and_cost_budgets",
+  "behavior_refresh": "previous_round_final_export_not_SFT_restart",
+  "bank_refresh": "new_current_behavior_roots_iteration_key_1_2_3_and_actual_canonical_scores",
+  "optimizer_between_rounds": "new_AdamW_common_to_all_four_variants_at_saved_outer_boundary",
+  "scheduler": "same_two_epoch_512_update_warmup_cosine_each_round",
+  "optimizer_within_round_resume": "full_exact_state_RNG_cursor_and_fixed_behavior_targets",
+  "rationale": "Finite common policy-extraction windows; optimizer moments are not carried across a changed target bank. This is declared for all variants, not an optimizer-speed or convergence claim.",
+  "NFT": "only_actual_current_ODE_samples_no_external_search_or_reference_labels",
+  "evaluation": "all_1696_DEV_five_fresh_single_candidate_original_ODE_seeds_after_every_round",
+  "variants": [
+    "ODE_SAFE_FM",
+    "EXPLORE_SAFE_FM",
+    "ODE_REWARD_FM",
+    "ODE_NFT"
+  ],
+  "eta": 0.005,
+  "alpha_max": 0.5,
+  "delta_useful": 0.005,
+  "GT_replay": 0.1,
+  "reference_velocity_retention": 1.0
+}
