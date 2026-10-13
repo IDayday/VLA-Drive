@@ -5,7 +5,55 @@ import unittest
 from unittest.mock import patch
 
 import run_navsim_navtest as worker
-from navtest_parallel_controller import accepted_receipt
+from navtest_parallel_controller import accepted_receipt, PreparationReservations
+
+
+class PreparationTest(unittest.TestCase):
+    def test_cpu_budget_accounts_for_other_active_banks(self):
+        reservations = PreparationReservations()
+        probe = lambda: dict(workers=32, effective_capacity_CPUs=64, reserved_host_CPUs=16)
+        self.assertEqual(reservations.score_budget('A', probe, RuntimeError)['workers'], 32)
+        self.assertEqual(reservations.score_budget('B', probe, RuntimeError)['workers'], 16)
+        with self.assertRaises(RuntimeError):
+            reservations.score_budget('C', probe, RuntimeError)
+        reservations.release('A')
+        self.assertEqual(reservations.score_budget('C', probe, RuntimeError)['workers'], 32)
+
+    def test_preparing_banks_cannot_admit_same_gpu(self):
+        reservations = PreparationReservations()
+        routes = [dict(uuid='GPU-a'), dict(uuid='GPU-b')]
+        self.assertEqual(reservations.select('A', lambda: routes[:1], RuntimeError), routes[:1])
+        self.assertEqual(reservations.select('B', lambda: routes, RuntimeError), routes[1:])
+        with self.assertRaises(RuntimeError):
+            reservations.select('C', lambda: routes, RuntimeError)
+        reservations.release('A')
+        self.assertEqual(reservations.select('C', lambda: routes, RuntimeError), routes[:1])
+
+    def test_all_current_attempt_workers_must_allocate_before_sharing(self):
+        reservations = PreparationReservations()
+        routes = [dict(uuid='GPU-a'), dict(uuid='GPU-b')]
+        reservations.select('A', lambda: routes, RuntimeError)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shards = root/'jobs/A/attempts/current/shards'
+            shards.mkdir(parents=True)
+            def report(index, status, done):
+                (shards/f'shard_{index:03d}.json').write_text(json.dumps(dict(
+                    actual_CUDA_UUID=routes[index]['uuid'], status=status, scenes_done=done)))
+            # Even complete historical reports cannot release an unlaunched bank.
+            report(0, 'COMPLETE', 4); report(1, 'COMPLETE', 4)
+            reservations.release_ready(root)
+            self.assertIn('A', reservations.pending)
+            reservations.launched('A', 'current')
+            report(1, 'LOADING', 0)
+            reservations.release_ready(root)
+            self.assertIn('A', reservations.pending)
+            report(1, 'INFERENCE', 0)
+            reservations.release_ready(root)
+            self.assertIn('A', reservations.pending)
+            report(1, 'INFERENCE', 1)
+            reservations.release_ready(root)
+            self.assertNotIn('A', reservations.pending)
 
 
 class OwnershipTest(unittest.TestCase):

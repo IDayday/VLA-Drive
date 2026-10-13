@@ -15,6 +15,67 @@ import threading
 import time
 
 
+class PreparationReservations:
+    """Reserve GPUs during CPU loading, before NVML can observe the model.
+
+    Once all workers have completed one scene, measured CUDA occupancy takes
+    over admission. This does not serialize the independent inference banks.
+    """
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.pending = {}
+        self.scorers = {}
+
+    def select(self, key, scan, unavailable):
+        with self.lock:
+            # Scan under the same lock as release: a snapshot taken before a
+            # peer allocated CUDA memory must not be admitted after its release.
+            routes = scan()
+            occupied = {uuid for other, value in self.pending.items() if other != key
+                        for uuid in value['uuids']}
+            routes = [route for route in routes if route['uuid'] not in occupied]
+            if not routes:
+                raise unavailable('Eligible GPUs are currently preparing another evaluation')
+            self.pending[key] = dict(uuids={route['uuid'] for route in routes}, attempt=None)
+            return routes
+
+    def launched(self, key, attempt):
+        with self.lock:
+            if key in self.pending:
+                self.pending[key]['attempt'] = attempt
+
+    def release_ready(self, output):
+        with self.lock:
+            for key, value in list(self.pending.items()):
+                if not value['attempt']:
+                    continue
+                root = output/'jobs'/key/'attempts'/value['attempt']/'shards'
+                reports = [json.loads(path.read_text()) for path in root.glob('*.json')]
+                if (len(reports) == len(value['uuids'])
+                        and {r.get('actual_CUDA_UUID') for r in reports} == value['uuids']
+                        and all(r.get('status') == 'COMPLETE' or
+                                (r.get('status') == 'INFERENCE' and r.get('scenes_done', 0) >= 1)
+                                for r in reports)):
+                    del self.pending[key]
+
+    def release(self, key):
+        with self.lock:
+            self.pending.pop(key, None)
+            self.scorers.pop(key, None)
+
+    def score_budget(self, key, probe, unavailable):
+        with self.lock:
+            budget = probe()
+            peers = sum(count for other, count in self.scorers.items() if other != key)
+            available = int(budget['effective_capacity_CPUs']-budget['reserved_host_CPUs']-peers)
+            if available < 1:
+                raise unavailable('Active canonical scorer pools fill the current CPU budget')
+            budget['other_active_score_workers'] = peers
+            budget['workers'] = min(budget['workers'], available)
+            self.scorers[key] = budget['workers']
+            return budget
+
+
 def process_present(pid, start):
     try:
         fields = Path('/proc', str(pid), 'stat').read_text().rsplit(')', 1)[1].split()
@@ -77,10 +138,23 @@ def serve_parallel(args, m):
     import navtest_cadence as cadence
     m.authorized(); policy = cadence.load_policy(args.cadence_policy)
     local = threading.local(); original_atomic = m.atomic
+    reservations = PreparationReservations()
+    original_refresh = m.refresh_routes
+    def reserved_refresh(options, request):
+        return reservations.select(request['key'], lambda: original_refresh(options, request),
+                                   m.ResourcesUnavailable)
+    m.refresh_routes = reserved_refresh
+    original_budget = m.cpu_budget
+    def combined_budget(requested):
+        return reservations.score_budget(local.key, lambda: original_budget(requested),
+                                         m.ResourcesUnavailable)
+    m.cpu_budget = combined_budget
     def routed_atomic(path, value):
         key = getattr(local, 'key', None)
         if key and Path(path) == args.output/'STATE.json':
             path = args.output/'job_states'/(key+'.json')
+            if value.get('status') == 'INFERENCE_RUNNING':
+                reservations.launched(key, value['attempt'])
         original_atomic(path,value)
     m.atomic = routed_atomic
     with (args.output/'controller.lock').open('a') as lock, ExitStack() as cleanup:
@@ -112,6 +186,7 @@ def serve_parallel(args, m):
                 else: m.execute(args,req)
                 return 'COMPLETE'
             finally:
+                reservations.release(req['key'])
                 local.key = None
         if args.adopt_running:
             record = json.loads(args.adopt_running.read_text())
@@ -119,9 +194,12 @@ def serve_parallel(args, m):
             preparations.update(record.get('preparations',{}))
             req = record['request']
             if not accepted_receipt(args.output,req):
+                budget = json.loads((args.output/'jobs'/req['key']/'CPU_BUDGET.json').read_text())
+                reservations.scorers[req['key']] = budget['workers']
                 active[req['key']] = pool.submit(run,req,record)
         while True:
             m.authorized()
+            reservations.release_ready(args.output)
             if observer.error:
                 raise RuntimeError('Cadence capture failed') from observer.error
             for key, future in list(active.items()):

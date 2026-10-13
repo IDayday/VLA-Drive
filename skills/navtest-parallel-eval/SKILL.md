@@ -63,6 +63,14 @@ Memory headroom, real process ownership and current host permissions still
 determine admission. Preserve valid outputs and genuine training; adapt this
 priority if the user gives a different time or resource constraint.
 
+Independent checkpoints may prepare and evaluate concurrently when capacity is
+available; do not wait for another checkpoint's complete score bank. Keep one
+queue owner and separate prediction/score identities for each checkpoint.
+Reserve capacity during CPU model loading, before CUDA allocations are visible,
+and budget the combined CPU scorer pools. See the scheduling reference for
+controller handoff and admission details. Count physical GPUs separately from
+model processes when checkpoints share devices.
+
 When the user authorizes pressure-script preemption and restoration, capture
 the exact script, argv, working directory, user, process start time, descendants
 and GPU binding before stopping the confirmed filler. Keep any required private

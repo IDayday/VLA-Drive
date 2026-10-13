@@ -55,6 +55,31 @@ token/variant partitions or a shared claim mechanism, plus one final merge
 owner and matching numerical runtime. A local pool may already be sufficient:
 concurrent CPU scoring does not require a separate pool on every GPU host.
 
+## Concurrent checkpoints
+
+The native router supports `--serve --parallel-evaluations` with one shared
+controller lock. Give each checkpoint its own job identity, attempt, prediction
+bank and scorer. Independent preparation and scoring can overlap; this flag does
+not change the model, scene seeds or canonical evaluator.
+
+Reserve physical UUIDs while a new bank is profiling or loading on CPU. Release
+that reservation for capacity-based sharing only after every worker of the
+current attempt has allocated CUDA memory and completed a scene. Otherwise two
+CPU loaders can both mistake the same currently free memory for available
+capacity. Recheck measured free memory and exact registered occupants for each
+additional bank. Repeatedly observed free memory alone does not identify an
+existing worker: bind PID/start, request, native checkpoint, source hash, attempt,
+shard, host and physical UUID. Include active banks in the combined CPU budget.
+
+To replace only the CPU queue owner, first capture exact launcher, remote worker
+and scorer identities and verify sole lock ownership. Preserve native GPU workers
+and their scorer; use `--adopt-running` with the verified handoff record. An
+adopter cannot recover its former parent's process exit codes: record that
+limitation and require COMPLETE worker reports, exact PID/start exit proofs and
+full prediction/score validation. Do not edit the frozen source of live workers.
+If no bank is active, restart the sole controller without an adoption record.
+Never use a second queue owner as a shortcut to concurrent evaluation.
+
 ## Pressure restoration
 
 Keep a private journal of the original PID/start time, resolved interpreter and
