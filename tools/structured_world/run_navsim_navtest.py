@@ -235,6 +235,51 @@ def review_scoring_startup_authorization(destination, failure, evidence):
             raise ValueError('Prediction/scientific failures cannot use scoring startup review')
 
 
+def review_completed_ssh_launcher_exit(destination, failure, evidence):
+    """Review SSH timeout exits only when every original GPU worker completed.
+
+    SSH's status is not the remote model's status. This narrow operator path
+    still requires the entire original prediction bank and the existing remote
+    PID/start-time exit checks before any failure marker can be archived.
+    """
+    codes = failure.get('exit_codes', [])
+    if (failure.get('error') or not codes or 255 not in codes
+            or any(type(code) is not int or code not in (0, 255) for code in codes)):
+        raise ValueError('Review requires only successful/SSH-255 launcher exits')
+    attempt = evidence.get('attempt', '')
+    if not re.fullmatch(r'[A-Za-z0-9_]+', attempt):
+        raise ValueError('Exact completed attempt required')
+    root = destination / 'attempts' / attempt
+    reports = sorted((root / 'shards').glob('*.json'))
+    if len(reports) != len(codes):
+        raise ValueError('Every original completed shard is required')
+    identity = json.loads((destination / 'identity.json').read_text())['identity']
+    bound = evidence.get('attempt_files_sha256', {})
+    for i, path in enumerate(reports):
+        report = json.loads(path.read_text())
+        log = root / (path.stem + '.log')
+        launch = root / 'launches' / path.name
+        if any(bound.get(str(p.relative_to(destination))) != digest(p) for p in (path, log, launch)):
+            raise ValueError('Original SSH/report/log evidence hash differs')
+        record = json.loads(launch.read_text())
+        if (path.name != f'shard_{i:03d}.json' or report.get('shard') != i
+                or report.get('shards') != len(codes) or report.get('attempt') != attempt
+                or report.get('status') != 'COMPLETE' or report.get('error')
+                or report.get('prediction_identity') != identity
+                or record.get('shard') != i or record.get('shards') != len(codes)
+                or record.get('host') != report.get('host', '').removesuffix('-worker-0')):
+            raise ValueError('Incomplete/foreign/scientific shard cannot use SSH completion review')
+        if codes[i] == 255 and (
+                not record.get('command') or record['command'][0] != 'ssh'
+                or 'Timeout, server ' not in log.read_text()):
+            raise ValueError('Failed launcher lacks bound SSH timeout evidence')
+    index = json.loads(INDEX.read_text())
+    expected = {r['token'] for r in index}
+    if len(index) != 12146 or len(expected) != 12146 or len({r['log'] for r in index}) != 136:
+        raise ValueError('Complete canonical population required')
+    validate_record_union(destination, expected, identity)
+
+
 def recover_infrastructure(args):
     """Explicit recovery; no process signals and no clearing scientific failures."""
     authorized()
@@ -250,6 +295,9 @@ def recover_infrastructure(args):
     elif (failure.get('classification') != 'infrastructure'
             and evidence.get('reviewed_failure_kind') == 'canonical_scorer_legacy_host_guard'):
         review_scoring_startup_authorization(destination, failure, evidence)
+    elif (failure.get('classification') != 'infrastructure'
+            and evidence.get('reviewed_failure_kind') == 'completed_workers_SSH_timeout_exit_255'):
+        review_completed_ssh_launcher_exit(destination, failure, evidence)
     elif failure.get('classification') != 'infrastructure':
         # Old wrappers did not record exception stacks. A narrow, explicit
         # transport review may recover this known SSH/stdout failure; preserve
