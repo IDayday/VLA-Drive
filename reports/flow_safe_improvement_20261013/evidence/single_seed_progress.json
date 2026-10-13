@@ -1,6 +1,6 @@
 {
   "schema": "flow_safe_observed_direction_status_v1",
-  "utc": "2026-10-13T12:30:26.910490+00:00",
+  "utc": "2026-10-13T12:43:43.370734+00:00",
   "status": "RESEARCH_IN_PROGRESS",
   "all_registered_DEV_windows_complete": false,
   "fixed_budget_DEV_endpoints_complete": false,
@@ -3427,8 +3427,165 @@
     },
     {
       "name": "ODE_NFT_round3",
-      "status": "NOT_YET_COMPLETE",
-      "fixed_budget_endpoint": true
+      "status": "COMPLETE_MATCHED_EVALUATION",
+      "fixed_budget_endpoint": true,
+      "report": "/mnt/project/flow-safe-improvement-20261013/online/ODE_NFT_seed42/round3/learning/DEV_seed2101_original_epoch2/summary/report.json",
+      "report_sha256": "0589ec96fe01ec3103dd5abaefa602cf73cac12d1fd27eb303ca3108c95847d3",
+      "PDMS": 0.936492415068132,
+      "SFT_PDMS": 0.9361923657625044,
+      "paired_changes": {
+        "comfort": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "drivable_area_compliance": {
+          "mean": 0.0005896226415094339,
+          "CI95": [
+            0.0,
+            0.0012121334607187477
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "driving_direction_compliance": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "ego_progress": {
+          "mean": 0.0004842692769028455,
+          "CI95": [
+            -8.463021927260082e-06,
+            0.0009968575657328413
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "no_at_fault_collisions": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "score": {
+          "mean": 0.00030004930562775735,
+          "CI95": [
+            -0.0008421532213209716,
+            0.00108137253868993
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "time_to_collision_within_bound": {
+          "mean": -0.0005896226415094339,
+          "CI95": [
+            -0.002047205423789568,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "safety": {
+        "no_at_fault_collisions": {
+          "fixed_reference_stable_safe_scenes": 1696,
+          "current_any_seed_violation_in_fixed_safe": 0,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 0,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 1.0
+        },
+        "drivable_area_compliance": {
+          "fixed_reference_stable_safe_scenes": 1682,
+          "current_any_seed_violation_in_fixed_safe": 1,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 0,
+          "recovered_all_eval_seeds": 1,
+          "current_pass_rate": 0.9929245283018868
+        },
+        "time_to_collision_within_bound": {
+          "fixed_reference_stable_safe_scenes": 1693,
+          "current_any_seed_violation_in_fixed_safe": 0,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 1,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 0.9988207547169812
+        },
+        "joint": {
+          "fixed_reference_stable_safe_scenes": 1680,
+          "current_any_seed_violation_in_fixed_safe": 1,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 1,
+          "recovered_all_eval_seeds": 1,
+          "current_pass_rate": 0.9923349056603774
+        }
+      },
+      "zero_transitions": {
+        "any_seed_zero": {
+          "SFT": 13,
+          "policy": 12,
+          "new_failures": 0,
+          "recovered": 1
+        },
+        "all_fixed_seeds_zero": {
+          "SFT": 13,
+          "policy": 12,
+          "new_failures": 0,
+          "recovered": 1
+        },
+        "single_seed_scene_score_zero": {
+          "SFT": 13,
+          "policy": 12,
+          "new_failures": 0,
+          "recovered": 1
+        }
+      },
+      "high_score_decline": {
+        "SFT_scene_mean_threshold": 0.9,
+        "scenes": 1263,
+        "any_negative": 266,
+        "decline_at_least_001": 1,
+        "decline_at_least_005": 1
+      },
+      "finite_DEV_selection_eligible": false,
+      "eligibility_is_not_policy_safety_guarantee": true,
+      "inference_seeds": [
+        2101
+      ],
+      "training_seed_repetitions": 1
     }
   ],
   "learning_costs": {
@@ -3508,19 +3665,19 @@
       "log_sha256": "4e38395477d08d2832d464dc64ded62082ec41e64200ff2d539c4368555a450c"
     },
     "ODE_REWARD_FM_round3": {
-      "updates": 11,
-      "observed_optimizer_updates": 11,
-      "scene_exposures": 176,
+      "updates": 347,
+      "observed_optimizer_updates": 347,
+      "scene_exposures": 5552,
       "unique_scene_population": 4096,
       "training_seed": 42,
-      "velocity_forward_scene_calls": 704,
-      "velocity_backward_scene_calls": 528,
+      "velocity_forward_scene_calls": 22208,
+      "velocity_backward_scene_calls": 16656,
       "FM_noise_repeats": 8,
-      "rank0_optimizer_loop_seconds": 26.407215002924204,
-      "allocated_rank_hours_optimizer_loop_only": 0.05868270000649823,
+      "rank0_optimizer_loop_seconds": 758.5037999842316,
+      "allocated_rank_hours_optimizer_loop_only": 1.685563999964959,
       "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
-      "peak_gpu_allocated_GiB": 22.336063385009766,
-      "log_sha256": "c636631455e18c9a939dfba9b1f123d2f933f83843ba500f92b93873bd9526ed"
+      "peak_gpu_allocated_GiB": 22.336063861846924,
+      "log_sha256": "58bdcb43729bc33c60d3d93f803f10a1c99e0948b264e2ad4b3e6207b44f4eb3"
     },
     "ODE_SAFE_FM_round1": {
       "updates": 512,
@@ -3553,8 +3710,19 @@
       "log_sha256": "74ac327b499c262002020ec0823b337c81f22ef1227562ff658d9b50b1120fb3"
     },
     "ODE_SAFE_FM_round3": {
-      "updates": 0,
-      "status": "NOT_STARTED"
+      "updates": 330,
+      "observed_optimizer_updates": 330,
+      "scene_exposures": 5280,
+      "unique_scene_population": 4096,
+      "training_seed": 42,
+      "velocity_forward_scene_calls": 21120,
+      "velocity_backward_scene_calls": 15840,
+      "FM_noise_repeats": 8,
+      "rank0_optimizer_loop_seconds": 717.5517343971878,
+      "allocated_rank_hours_optimizer_loop_only": 1.5945594097715285,
+      "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
+      "peak_gpu_allocated_GiB": 22.336063861846924,
+      "log_sha256": "8387085de2cf01a7977d65d9235435927db281276d6500b7f5b7f4673bd3ac73"
     },
     "EXPLORE_SAFE_FM_round1": {
       "updates": 512,
@@ -3632,19 +3800,19 @@
       "log_sha256": "d04b468a6155dc5efec2226bbf6e7efd7a41e510e17fce3fab55d8d158f7ae5c"
     },
     "ODE_NFT_round3": {
-      "updates": 476,
-      "observed_optimizer_updates": 476,
-      "scene_exposures": 7616,
+      "updates": 512,
+      "observed_optimizer_updates": 512,
+      "scene_exposures": 8192,
       "unique_scene_population": 4096,
       "training_seed": 42,
-      "velocity_forward_scene_calls": 38080,
-      "velocity_backward_scene_calls": 22848,
+      "velocity_forward_scene_calls": 40960,
+      "velocity_backward_scene_calls": 24576,
       "FM_noise_repeats": 8,
-      "rank0_optimizer_loop_seconds": 1182.3254441972822,
-      "allocated_rank_hours_optimizer_loop_only": 2.6273898759939605,
+      "rank0_optimizer_loop_seconds": 1269.5445260629058,
+      "allocated_rank_hours_optimizer_loop_only": 2.8212100579175683,
       "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
       "peak_gpu_allocated_GiB": 27.84003496170044,
-      "log_sha256": "ee5fc3165caff6a48e3c0e5ebed3adfc8053434f13d91dda9de3d155e36ccd49"
+      "log_sha256": "6add31e9d93b48a4a5e6c58ea31f3414d6a735c16a983062df1bc0b85f539ea2"
     }
   },
   "online_candidate_banks": {
@@ -3919,12 +4087,17 @@
       "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
       "supported_case": "CASE_C_projection_or_retention_candidate",
       "report_sha256": "57e794b15ca0a9b666eaec97e76af14e76e3e9c9f7f8143fb5f453dbd7b16a4e"
+    },
+    {
+      "name": "ODE_NFT_round3",
+      "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
+      "supported_case": "CASE_C_projection_or_retention_candidate",
+      "report_sha256": "0589ec96fe01ec3103dd5abaefa602cf73cac12d1fd27eb303ca3108c95847d3"
     }
   ],
   "missing": [
     "ODE_REWARD_FM_round3",
-    "ODE_SAFE_FM_round3",
-    "ODE_NFT_round3"
+    "ODE_SAFE_FM_round3"
   ],
   "no_Navtest_read_or_selection": true,
   "limitations": [
@@ -3933,5 +4106,5 @@
     "Candidates, targets, training rewards and DEV policy scores have separate meanings.",
     "CASE labels here are diagnostic evidence, not a final method ranking."
   ],
-  "sha256": "fba07727bbe6c0ccaf236f67863968b960d8088c2d48ea038a0d75fe14872d64"
+  "sha256": "8df0c6031fe242b423d1ff3e304219bde4fc4524aad3b18ca93e7b8c4f57ce69"
 }

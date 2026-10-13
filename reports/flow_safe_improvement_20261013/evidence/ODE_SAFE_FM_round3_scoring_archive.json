@@ -1,0 +1,48 @@
+{
+  "status": "COMPLETE_ARCHIVE_BYTE_COMPARISON_PASS_SOURCE_RETAINED",
+  "host": "training-vlawm-tsinghua-zt",
+  "source": "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_SAFE_FM_seed42/round3",
+  "source_manifest_sha256": "6b9b833ca4a0de51e82fb149006511e4078ef1d133c07479dff1d8e509da1471",
+  "source_status": {
+    "status": "STOPPED_COMPLETED_REGISTERED_WINDOW",
+    "identity_sha256": "6b9b833ca4a0de51e82fb149006511e4078ef1d133c07479dff1d8e509da1471",
+    "new_jobs": 16384,
+    "new_scores": 114688,
+    "CPU_scoring_seconds_sum": 4746.710755124688,
+    "workers": 16,
+    "wall_seconds": 3301.859594097361
+  },
+  "source_inventory_sha256": "1f23c432ca6be9b838c66e55d80f6b7179b2659a187c96ef81778c1c1bd4b28f",
+  "source_files": 38152,
+  "source_logical_bytes": 4096224037,
+  "archive": "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_SAFE_FM_seed42/round3/queue.tar.gz",
+  "archive_bytes": 1131016632,
+  "archive_sha256": "c5a4fd892bcf114d9289d838f8e2c2ebba1248daca9da411c32c54d51e572a6a",
+  "source_deleted": false,
+  "commands": [
+    [
+      "tar",
+      "--sort=name",
+      "-I",
+      "gzip -1",
+      "-cf",
+      "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_SAFE_FM_seed42/round3/queue.tar.gz.incomplete",
+      "-C",
+      "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_SAFE_FM_seed42/round3",
+      "."
+    ],
+    [
+      "tar",
+      "-I",
+      "gzip -1",
+      "-df",
+      "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_SAFE_FM_seed42/round3/queue.tar.gz.incomplete",
+      "-C",
+      "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_SAFE_FM_seed42/round3"
+    ]
+  ],
+  "wall_seconds": 80.33910973370075,
+  "no_score_or_model_contract_change": true,
+  "source_sha256": "8fdb5eed7cd4078a9d99e85d12d94fe1b21414615986dfafa520790e993ce503",
+  "sha256": "a9cf80af697d7bd1cef879176be65da1abcd04ed67a4e7a5746bd9d6afce0059"
+}

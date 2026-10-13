@@ -2,7 +2,7 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 12:30 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；**P0/P1/P2 均已完成共同8-epoch终点、完整DEV原ODE评价和终点TRAIN诊断**。四条在线路线均已完成第三轮候选库；搜索路线完成三轮终点训练、完整DEV v1/v2及TRAIN诊断，NFT正在最后一轮训练，两条ODE路线刚进入最后一轮训练。其余三条在线终点评价和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 12:43 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；**P0/P1/P2 均已完成共同8-epoch终点、完整DEV原ODE评价和终点TRAIN诊断**。四条在线路线均已完成第三轮候选库；搜索路线完成三轮终点训练、完整DEV v1/v2及TRAIN诊断，NFT完成三轮训练和DEV v1、正在补TRAIN/v2，两条ODE路线的最后一轮训练已过半。其余两条在线终点评价和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
 
 当前固定库终点比较如下，均为完整1696场景、无搜索/GT筛选的原始单候选10步ODE；每组2048次全动作头更新。单位为0—100分，区间按log聚类计算，不包含训练/推理seed不确定性。
 
@@ -232,6 +232,8 @@ P2原始ODE的[终点TRAIN分层评价](evidence/P2_epoch8_TRAIN_stratified_seed
 固定P2终点也在实际学习的困难256场景中新增2个NC违规，NC参考安全集全部256场景的候选预算均为零；联合固定安全集则为2→5。[固定P2分层证据](evidence/P2_epoch8_TRAIN_stratified_seed2101.json)。这支持候选约束不能自动穿过FM拟合、公共保持和部署过程，而不是纯粹“训练未见场景才出错”。原缓存与原导出前缀计算精度不一致、GT replay/保持梯度竞争仍是未排除因素，不能把问题唯一归因于FM或泛化。
 
 固定库终点的完整DEV同root请求漂移，P0平均ADE/FDE为1.89/2.27厘米，P2为5.11/13.19厘米；P2平均终点前进距离增加10.38厘米。[P0几何](evidence/P0_epoch8_DEV_geometry.json)、[P2几何](evidence/P2_epoch8_DEV_geometry.json)。这是现有单seed输出的几何变化，不是新增多seed实验，也不能据此量化模式坍缩或完整策略分布距离。
+
+12:43 UTC NFT 完成三轮共1536次全动作头更新和完整原ODE DEV终点评价：PDMS=**93.64924**，相对SFT **+0.03000分**，CI [−0.08422,+0.10814]，尚无明确均分收益证据。NC不变、DAC+0.05896分、TTC−0.05896分；全人口仍有1个新增TTC违规，位于固定参考TTC安全集之外。零分13→12，恢复1、无新增。它不满足既定安全合格规则；最终与普通ODE加权FM的匹配比较须等待后者第三轮完成，不能沿用第二轮差值充当终点结论。[NFT终点](evidence/ODE_NFT_round3_DEV_seed2101.json)。所有四条路线第三轮的本地评分队列均已完成归档、逐字节比较并保留原目录，没有删除失败或模拟反馈。
 
 四条在线路线的第二轮本地评分队列已全部原样归档到共享运行目录，并通过解压字节比较；原队列仍保留。[NFT](evidence/NFT_round2_scoring_archive.json)、[ODE安全FM](evidence/ODE_SAFE_FM_round2_scoring_archive.json)、[普通ODE FM](evidence/ODE_REWARD_FM_round2_scoring_archive.json)、[探索安全FM](evidence/EXPLORE_round2_scoring_archive.json)。以下分析命令对应本轮真实执行入口；新的输出目录可避免覆盖既有证据。模型/评分分析在当前获授权Tsinghua主机运行，纯汇总和绘图可在控制工作区执行。
 
