@@ -1,0 +1,25 @@
+[
+  {
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "scripts.analysis.flow_safe_improvement.lock_final_evaluation",
+      "--help"
+    ],
+    "returncode": 0,
+    "stdout": "usage: Lock a finite final confirmation only after every registered DEV window.\n\nThis reads DEV evidence and immutable export identities. It never reads Navtest\npredictions or scores, and cannot expand the declared model or seed budget.\n\n       [-h] --run-root RUN_ROOT --summary SUMMARY --registration REGISTRATION\n       --output OUTPUT\n\noptions:\n  -h, --help            show this help message and exit\n  --run-root RUN_ROOT\n  --summary SUMMARY\n  --registration REGISTRATION\n  --output OUTPUT\n",
+    "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+  },
+  {
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/safe_flow_improvement/test_final_evaluation_lock.py"
+    ],
+    "returncode": 0,
+    "stdout": "....                                                                     [100%]\n=============================== warnings summary ===============================\n../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61\n  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n    import pynvml  # type: ignore[import]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n4 passed, 1 warning in 2.60s\n",
+    "stderr": ""
+  }
+]

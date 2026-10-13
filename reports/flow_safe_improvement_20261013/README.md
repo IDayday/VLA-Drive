@@ -219,6 +219,10 @@ P2原始ODE的[终点TRAIN分层评价](evidence/P2_epoch8_TRAIN_stratified_seed
 
 新增 `plot_research_results` 已使用封存汇总实际执行，生成[SVG](evidence/policy_learning_curves.svg)和PNG，只画完整原ODE结果，保留尚未完成窗口及log区间。[绘图输入身份](evidence/policy_learning_curves_source.json)。已完成的辅助v2结果继续单列：[SFT seed2101](evidence/SFT_DEV_seed2101_v2.json)、[P0/P1 epoch8](evidence/P0_epoch8_DEV_seed2101_v2.json)、[P2 epoch2](evidence/P2_epoch2_DEV_seed2101_v2.json)、[P2 epoch4](evidence/P2_epoch4_DEV_seed2101_v2.json)。训练入口、学习窗口和所有已登记目标均未改变。
 
+11:56 UTC 后续执行边界：新增 `run_endpoint_diagnostics` 仅串接已有原始观测推理、官方评分及 TRAIN 分层/几何分析。四台获授权 Tsinghua 主机上的[有限操作进程](evidence/endpoint_diagnostic_launches.json)已完成 CLI smoke 并等待各自第三轮正式控制器完成，随后各补固定512场景的同一个2101输出与DEV v2评价；不训练、不改候选预算。NFT不套用普通FM目标分布距离或场景目标方向结论。搜索第三轮的本地评分请求及响应已[完整归档并逐字节核对](evidence/EXPLORE_SAFE_FM_round3_scoring_archive.json)，原文件保留。
+
+最终确认范围在第三轮DEV结果之前作了[有限登记](../../configs/flow_safe_improvement/final_confirmation_v1.json)：SFT、四条在线第三轮固定预算终点，以及按已有DEV安全规则选择的一个检查点，最多六个不同完整导出；完全相同权重和配置显式复用。三组固定库的所有DEV终点仍完整报告，但不将每个中途检查点扩展成Navtest矩阵。`lock_final_evaluation` 的 CLI smoke 和4项最终入口测试已通过，[验证输出](evidence/final_selection_gate_tests.json)；有任一已登记DEV窗口未完成便拒绝最终选择。此时**尚未创建最终权重锁，也未启动本轮Navtest**。后续不会按Navtest成绩改选方法或seed。
+
 四条在线路线的第二轮本地评分队列已全部原样归档到共享运行目录，并通过解压字节比较；原队列仍保留。[NFT](evidence/NFT_round2_scoring_archive.json)、[ODE安全FM](evidence/ODE_SAFE_FM_round2_scoring_archive.json)、[普通ODE FM](evidence/ODE_REWARD_FM_round2_scoring_archive.json)、[探索安全FM](evidence/EXPLORE_round2_scoring_archive.json)。以下分析命令对应本轮真实执行入口；新的输出目录可避免覆盖既有证据。模型/评分分析在当前获授权Tsinghua主机运行，纯汇总和绘图可在控制工作区执行。
 
 ```bash

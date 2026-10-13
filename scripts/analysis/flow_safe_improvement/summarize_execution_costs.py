@@ -32,6 +32,9 @@ def rank_cost(root):
     return dict(status='ALL_RECORDED_WORKERS_COMPLETE' if all(x['status'] == 'ASSIGNED_POPULATION_COMPLETE' for x in ranks)
                 else 'PARTIAL_OR_INTERRUPTED_WORKER_COUNTERS', recorded_workers=len(ranks), counters=totals,
                 allocated_worker_hours_excluding_initialization=totals.get('wall_seconds', 0)/3600,
+                peak_cuda_allocated_bytes_max=max((x.get('peak_cuda_allocated_bytes', 0) for x in ranks), default=0) or None,
+                mean_recorded_generation_seconds_per_new_scene=(totals.get('GPU_generation_seconds', 0)/totals['new_scenes']
+                                                               if totals.get('new_scenes', 0) else None),
                 counters_sha256=fingerprint(ranks), counters_may_exclude_unflushed_interrupted_work=True)
 
 
@@ -78,6 +81,17 @@ def main():
             result=path/'result_rank0.json'
             item['window_status']=read(result)['status'] if result.exists() else 'IN_PROGRESS'
         training[name]=item
+    qualification_learning = {}
+    for path in sorted((root/'validation').glob('full_head_*')):
+        if not path.is_dir() or not (path/'training_rank0.jsonl').exists():
+            continue
+        rows = [json.loads(line) for line in (path/'training_rank0.jsonl').read_text().splitlines()]
+        all_rows = [json.loads(line) for p in path.glob('training_rank[0-9]*.jsonl') for line in p.read_text().splitlines()]
+        qualification_learning[path.name] = dict(executed_updates_this_invocation=len(rows),
+            update_numbers=[x['update'] for x in rows], global_scene_exposures_this_invocation=16*len(rows),
+            recorded_rank_optimizer_loop_hours=sum(x['seconds'] for x in all_rows)/3600,
+            no_additional_research_seed=True, not_formal_method_efficacy_result=True,
+            result=read(path/'result_rank0.json') if (path/'result_rank0.json').exists() else None)
     candidates={name:rank_cost(path) for name,path in banks.items() if (path/'manifest.json').exists()}
     for name,item in candidates.items():
         manifest=read(banks[name]/'manifest.json')
@@ -91,6 +105,7 @@ def main():
     # Pure report aliases have no sample manifest and incur no new rollout cost.
     patterns=['evaluations/*/manifest.json','evaluations/original_export/*/manifest.json',
         'evaluations/original_export_single_seed/*/manifest.json',
+        'evaluations/final_navtest/*/*/manifest.json',
         'training/*/DEV*/*/manifest.json','online/*/round*/learning/DEV*/*/manifest.json']
     sample_costs, score_costs = {}, {}
     for path in sorted({p for pattern in patterns for p in root.glob(pattern)}):
@@ -101,6 +116,7 @@ def main():
         elif manifest.get('schema') == 'flow_safe_scored_samples_v1' and (folder/'status.json').exists():
             score_costs[name]=read(folder/'status.json')
     auxiliary={str(p.parent.relative_to(root)):read(p) for p in root.glob('evaluations/single_seed_auxiliary/*/report.json')}
+    auxiliary.update({str(p.parent.relative_to(root)):read(p) for p in root.glob('evaluations/final_navtest/*/v2/report.json')})
     historical_v2_paths=list(root.glob('evaluations/original_export/*DEV5_v2*/report.json'))
     historical_v2_paths+=list(root.glob('evaluations/*DEV5_v2*/report.json'))
     historical_v2={str(p.parent.relative_to(root)):read(p) for p in historical_v2_paths}
@@ -112,6 +128,7 @@ def main():
     phase_patterns=['training/*/*phase_records.json','training/*/DEV*/*phase_records.json',
         'online/*/*phase_records.json','online/*/round*/*phase_records.json',
         'online/*/round*/learning/*phase_records.json','online/*/round*/learning/DEV*/*phase_records.json',
+        'evaluations/final_navtest/*/phase_records.json',
         'evaluations/original_export/*/phase_records.json','evaluations/original_export_single_seed/*commands.json']
     unique, by_host, missing_ends = {}, {}, []
     for path in sorted({p for pattern in phase_patterns for p in root.glob(pattern)}):
@@ -145,7 +162,8 @@ def main():
         'optimizer_only_seconds_approx':[1.2,1.5],
         'same_current_reward_population_and_execution_budget':False}
     report=dict(schema='flow_safe_recorded_cost_ledger_v1',utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        status='RECORDED_COST_SNAPSHOT_NOT_AN_ESTIMATED_SPEEDUP',training=training,candidate_banks=candidates,
+        status='RECORDED_COST_SNAPSHOT_NOT_AN_ESTIMATED_SPEEDUP',training=training,
+        qualification_learning=qualification_learning,candidate_banks=candidates,
         D1=d1,D3=d3,reference_and_cache=reference,evaluation_sampling=sample_costs,evaluation_scoring=score_costs,
         auxiliary_v2=auxiliary,historical_multiseed_v2=historical_v2,
         shared_scoring_service_receipts=shared_queues,completed_local_scoring_archives=archives,
@@ -153,6 +171,7 @@ def main():
         historical_GRPO_profile=historical,source_sha256=file_sha(__file__),
         limitations=[
             'Worker GPU_generation_seconds includes host/cache waiting and is not measured CUDA-kernel busy time.',
+            'Per-scene generation time includes input IO, encoding, ODE and the first-scene parity check; it is not isolated model latency.',
             'Allocated worker hours overlap when processes share GPUs; never add them as unique physical GPU-hours.',
             'Interval union covers only saved eight-GPU child invocations with both timestamps; it is a lower bound on all research occupancy.',
             'Interrupted old multi-seed output counters can exclude unflushed work; preserved files and failure records are not discarded.',

@@ -1,0 +1,20 @@
+{
+  "schema": "flow_safe_finite_final_confirmation_v1",
+  "registered_utc": "2026-10-13T11:53:07Z",
+  "timing": "After all second-round DEV results, before third-round DEV results and final Navtest sampling. This is not a blind initial preregistration.",
+  "training_seeds": [42],
+  "inference_seeds": [2101],
+  "required_completed_DEV_windows": 24,
+  "fixed_online_variants": ["ODE_REWARD_FM", "ODE_SAFE_FM", "EXPLORE_SAFE_FM", "ODE_NFT"],
+  "fixed_online_endpoint_round": 3,
+  "additional_models": ["permanent_SFT", "highest_eligible_saved_DEV_checkpoint_or_SFT"],
+  "maximum_unique_exports": 6,
+  "exact_export_and_config_duplicates": "Reuse one sealed evaluation, retaining explicit alias identity and zero-new-work accounting.",
+  "selection_rule": "Use the existing original_export/SELECTION_RULE.json with the user's single_seed_override; require completed single-seed original DEV, NC/DAC/TTC mean nondegradation, fixed-reference-safe component/joint violation counts not increased and positive mean PDMS gain. Highest eligible PDMS wins; exact ties use sorted checkpoint name. Otherwise retain SFT.",
+  "purpose": "Confirm the four matched online endpoints and separately the finite-DEV-qualified checkpoint. Fixed-bank P0/P1/P2 endpoints remain fully reported on DEV; do not add every intermediate checkpoint to Navtest.",
+  "selection_after_Navtest": "prohibited",
+  "candidate_search_or_GT_selection_at_deployment": false,
+  "new_training_or_extra_seeds": false,
+  "resource_routing": "Separate current-capacity routing on the four authorized Tsinghua hosts; no host or shard index enters scene noise. Preserve Base/G/IQE work.",
+  "historical_Navtest_exposure": "Repeatedly observed in earlier research; not a fully blind benchmark."
+}

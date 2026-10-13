@@ -28,3 +28,13 @@ def test_one_sample_has_no_within_scene_diversity_estimate():
     import numpy as np
     from scripts.analysis.flow_safe_improvement.diagnose_policy_projection import diversity
     assert diversity(np.zeros((1, 8, 3))) == {}
+
+
+def test_final_selection_cannot_skip_unfinished_registered_window(tmp_path):
+    from scripts.analysis.flow_safe_improvement.lock_final_evaluation import checked_summary
+    record = dict(all_registered_DEV_windows_complete=False, fixed_budget_DEV_endpoints_complete=False,
+                  training_seeds=[42], inference_seeds=[2101], evaluations=[], missing=['ODE_NFT_round3'])
+    record['sha256'] = fingerprint(record)
+    path = tmp_path/'progress.json'; path.write_text(json.dumps(record))
+    with pytest.raises(ValueError, match='All 24'):
+        checked_summary(path)
