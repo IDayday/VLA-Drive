@@ -19,6 +19,7 @@ from . import objectives
 from .bank import expert_candidates, cache_candidates, score_candidates, COMPONENTS
 from .evaluation import selection_metrics, bank_statistics, argmax_base_tie
 from .budget import training_budget, training_dependencies, bind_training_budget
+from .scorer_scope import scorer_training_ids, scope as scorer_fit_scope, dependencies as scorer_scope_dependencies
 
 
 def training_device(requested):
@@ -134,14 +135,14 @@ def build_pair_bank(config, device="cuda:0"):
     expert.load_state_dict(torch.load(best, weights_only=True, map_location=device), strict=True)
     scenes = load_scenes(config.root/"scenes.json")
     if config.research_protocol == "two_candidate_v1":
-        from .partition import training_ids
-        ds = training_ids(config, scenes, "scorer_fit")
+        scorer_fit = scorer_training_ids(config, scenes)
         expert_manifest = read_json(config.root/"EXPERT_MANIFEST.json")
         hard_sets = read_json(config.root/"HARD_SETS_BEFORE_EXPERT.json")
         diagnostic_ids = set(expert_manifest["hard"]+expert_manifest["ordinary"]+hard_sets["F_train"])
-        scenes = [s for s in scenes if s.scene_id in ds or s.scene_id in diagnostic_ids or s.split_role != "incremental_fit"]
+        scenes = [s for s in scenes if s.scene_id in scorer_fit or s.scene_id in diagnostic_ids or s.split_role != "incremental_fit"]
         atomic_json(config.root/"PAIR_BANK_SCENES.json", {"scene_ids": [s.scene_id for s in scenes],
-                    "purpose": "all D_S/val/cal/dev plus fixed D_E H/N/F diagnostics; D_E never used for Scorer fit",
+                    "purpose": "explicit Scorer fit scope plus fixed expert diagnostics and evaluation roles",
+                    **scorer_scope_dependencies(config),
                     "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
                     "expert_manifest_hash": file_hash(config.root/"EXPERT_MANIFEST.json")}, immutable=True)
     # Fixed development set is generated once here, after expert checkpoint selection.
@@ -205,6 +206,7 @@ def load_bank(config):
         scope = read_json(config.root/"PAIR_BANK_SCENES.json")
         require(scope["partition_hash"] == file_hash(config.root/"DATA_PARTITION.json") and
                 scope["expert_manifest_hash"] == file_hash(config.root/"EXPERT_MANIFEST.json"), "stale pair bank subroles")
+        require(scope.get("scorer_fit_scope") == scorer_scope_dependencies(config).get("scorer_fit_scope"), "stale pair bank Scorer scope")
         require(set(scope["scene_ids"]) <= set(expected_ids), "unknown bank scenes")
         expected_ids = scope["scene_ids"]
     require([r["scene_id"] for r in manifest["rows"]] == expected_ids, "bank scene ID/order join")
@@ -249,9 +251,9 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
     scenes = load_scenes(config.root/"scenes.json")
     lookup = {s.scene_id: s for s in scenes}
     indices = {r["scene_id"]: i for i, r in enumerate(manifest["rows"])}
-    from .partition import training_ids
-    allowed = training_ids(config, scenes, "scorer_fit")
+    allowed = scorer_training_ids(config, scenes)
     fit = [r["scene_id"] for r in manifest["rows"] if r["scene_id"] in allowed]
+    require(set(fit) == allowed, "Scorer bank does not cover its complete fit population")
     if config.research_protocol == "two_candidate_v1":
         bind_training_budget(config, "scorer")
     fit_scores = torch.as_tensor(data["scores"][[indices[i] for i in fit]])
@@ -261,7 +263,8 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
                                pointwise_updates=budget["pointwise_updates"], bank_hash=file_hash(config.root/"PAIR_BANK.json"))
     atomic_json(config.root/"COMPARISON_DISTRIBUTION.json", {"q_hash": sampler.q_hash, "bank_hash": sampler.bank_hash,
                 "scene_ids": fit, "weights": w.tolist(), "unique_valid": int((w > 0).sum()), "replacement": True,
-                "fit_subrole": "scorer_fit" if config.research_protocol == "two_candidate_v1" else "incremental_fit",
+                "fit_scope": scorer_fit_scope(config),
+                "fit_subrole": scorer_fit_scope(config)["scope"] if config.research_protocol == "two_candidate_v1" else "incremental_fit",
                 **({"pointwise_updates": budget["pointwise_updates"], "scorer_updates": budget["scorer_updates"],
                     "training_budget_amendment_hash": budget["amendment_hash"]} if config.research_protocol == "two_candidate_v1" else {}),
                 "valid_group_count": len({lookup[i].source_log_id for i, x in zip(fit, w) if x > 0}),
@@ -269,7 +272,8 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
                 "status": "PRESENT" if w.sum() else "SCORER_COMPARISON_SIGNAL_ABSENT",
                 "objective": "q=abs(gap)/sum(abs(gap)); sampled ranking has no second gap factor"}, immutable=True)
     from .cache_execution import training_cache
-    cache = training_cache(config, [lookup[name] for name in fit])
+    cache = training_cache(config, [lookup[name] for name in fit],
+                           max_bytes=(128 if scorer_fit_scope(config)["scope"] == "all_incremental_fit" else 32)*1024**3)
     module = make_scorer(config)
     def fetch(entries, device):
         rows = [lookup[e["scene_id"]] for e in entries]
@@ -294,7 +298,8 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
         return metrics
     deps = {"experiment_id": config.experiment_id, "base": file_hash(config.root/"BASE_BINDING.json"),
             "bank": file_hash(config.root/"PAIR_BANK.json"), "q_hash": sampler.q_hash,
-            "initialization": file_hash(config.root/"SCORER_INITIALIZATION.json"), "kind": "own_random_internal_scorer", **training_dependencies(config)}
+            "initialization": file_hash(config.root/"SCORER_INITIALIZATION.json"), "kind": "own_random_internal_scorer",
+            **training_dependencies(config), **scorer_scope_dependencies(config)}
     train(module, loss, fetch, sampler, training_config(config, "scorer"), deps, config.root/"scorer", device=device,
           weights={"value": 1., "components": .2, "ranking": .2}, resume=resume, stop_after=stop_after,
           validate=validate, seed=config.training_rng_seed, denominator_function=objectives.denominators)

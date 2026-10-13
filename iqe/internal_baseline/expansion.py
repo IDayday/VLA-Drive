@@ -145,6 +145,9 @@ def main():
     reuse.add_argument("--source-config", required=True)
     reuse.add_argument("--config", required=True)
     reuse.add_argument("--workers", type=int, default=2)
+    amend = sub.add_parser("scorer-all-fit", help="immutable explicit fit-scope revision before head training")
+    amend.add_argument("--config", required=True)
+    amend.add_argument("--reason", required=True)
     score = sub.add_parser("score-stream", help="bounded official scoring of the full bound manifest")
     score.add_argument("--config", required=True)
     score.add_argument("--max-seconds", type=int, default=43200)
@@ -153,6 +156,9 @@ def main():
     cfg = load_config(args.config)
     if args.command == "reuse-context":
         result = reuse_context(load_config(args.source_config), cfg, args.workers)
+    elif args.command == "scorer-all-fit":
+        from .scorer_scope import amend_scope
+        result = amend_scope(cfg, args.reason)
     else:
         result = score_ready(cfg, max_seconds=args.max_seconds, chunk_size=args.chunk_size)
     print(json.dumps(result, allow_nan=False))

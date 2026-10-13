@@ -120,7 +120,8 @@ def audit(config, device='cuda:0'):
     require(result['status'] == 'COMPLETE' and result['best_checkpoint_hash'] == file_hash(config.root/'scorer/best.pt'), 'selected scorer mismatch')
     model.load_state_dict(torch.load(config.root/'scorer/best.pt', weights_only=True, map_location=device), strict=True)
     from .partition import training_ids
-    allowed_fit = training_ids(config, list(scenes.values()), 'scorer_fit')
+    from .scorer_scope import scorer_training_ids, scope
+    allowed_fit = scorer_training_ids(config, list(scenes.values()))
     ix = [i for i, r in enumerate(bank['rows']) if r['scene_id'] in allowed_fit]
     rows = [scenes[bank['rows'][i]['scene_id']] for i in ix]
     predicted, _ = predict_scores(config, model, rows, arrays['trajectories'][ix], device)
@@ -128,8 +129,30 @@ def audit(config, device='cuda:0'):
                             [s.source_log_id for s in rows], bootstrap_repetitions=config.bootstrap_repetitions,
                             bootstrap_seed=config.bootstrap_seed)
     atomic_json(config.root/'MAIN_SCORER_FIT_DIAGNOSTIC.json', {'selection': fit, 'checkpoint_selection_used_fit': False,
-                'fit_subrole': 'scorer_fit' if config.research_protocol == 'two_candidate_v1' else 'incremental_fit',
+                'fit_scope': scope(config),
                 'scorer_hash': file_hash(config.root/'scorer/best.pt'), 'rows': len(ix)}, immutable=True)
+    if scope(config)['scope'] == 'all_incremental_fit':
+        seen = set().union(*(set(counts) for counts in ec.values()))
+        populations = {
+            'D_E_expert_source_pool': training_ids(config, list(scenes.values()), 'expert_fit'),
+            'D_S_expert_specialization_holdout': training_ids(config, list(scenes.values()), 'scorer_fit'),
+            'actually_consumed_by_expert': seen,
+            'never_consumed_by_expert': allowed_fit-seen,
+        }
+        fit_scores, fit_components = arrays['scores'][ix], arrays['components'][ix]
+        choices = argmax_base_tie(predicted)
+        separate = {}
+        for name, ids in populations.items():
+            mask = np.array([s.scene_id in ids for s in rows])
+            separate[name] = selection_metrics(fit_scores[mask], fit_components[mask], choices[mask],
+                [s.source_log_id for s, yes in zip(rows, mask) if yes],
+                bootstrap_repetitions=config.bootstrap_repetitions, bootstrap_seed=config.bootstrap_seed) if mask.any() else {'n': 0}
+        atomic_json(config.root/'SCORER_EXPERT_EXPOSURE_DIAGNOSTICS.json', {
+            'scope': scope(config), 'populations': separate,
+            'actual_expert_exposure_source': 'optimizer-consumed sample IDs, sampler replay verified',
+            'D_E_is_source_pool_not_all_actually_trained': True,
+            'not_heldout_scorer_generalization': True,
+            'independent_generalization_report': 'RESULTS.json/dev_report'}, immutable=True)
     delta = arrays['trajectories'][:, 1, :, :2] - arrays['trajectories'][:, 0, :, :2]
     distances = np.linalg.norm(delta, axis=-1)
     yaw = arrays['trajectories'][:, 1, :, 2]-arrays['trajectories'][:, 0, :, 2]

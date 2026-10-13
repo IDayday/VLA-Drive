@@ -56,11 +56,13 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
             # Record the implementation actually imported after the offline
             # input wait, rather than only the queue launch's earlier commit.
             repo = Path(__file__).resolve().parents[2]
+            from .scorer_scope import scope as scorer_fit_scope
             atomic_json(config.root/"WORKFLOW_CODE_IDENTITY.json", {
                 "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
                 "config_hash": config.identity,
                 "source_hashes": {name: file_hash(Path(__file__).with_name(name))
-                                  for name in ("run.py", "training.py", "reporting.py")},
+                                  for name in ("run.py", "training.py", "reporting.py", "scorer_scope.py")},
+                "scorer_fit_scope": scorer_fit_scope(config),
                 "planned_training_interruptions": False,
                 "expert_updates": budget["expert_updates"],
                 "scorer_updates": budget["scorer_updates"],

@@ -16,6 +16,7 @@ from .binding import load_head
 from .features import JointCache, encode_joint, planner_bundle
 from .training import load_bank, make_scorer, predict_scores, score_context
 from .evaluation import argmax_base_tie, selection_metrics, paired_bootstrap
+from .scorer_scope import scope as scorer_fit_scope
 
 
 def markdown(config, name, text):
@@ -132,7 +133,8 @@ def evaluate(config, device="cuda:0"):
             "SAFETY_REGRESSION": "PRESENT" if any(v["new_violations"] for v in d["safety"].values()) or d["high_to_zero"] else "NONE_OBSERVED",
             "EXACT_RESUME": "NOT_RUN_USER_CANCELLED", "SCIENTIFIC_CONCLUSION": verdict,
             "fixed_dev_requested": len([s for s in scenes if s.split_role == "dev_report"]), "dev_valid_denominator": d["n"],
-            "scorer_training_subrole": "D_S_only", "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
+            "scorer_training_subrole": scorer_fit_scope(config)["scope"],
+            "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
             "base_optimizer_step": read_json(config.root/"BASE_BINDING.json")["optimizer_step"],
             "margin_is_always_base": always_base})
     atomic_json(config.root/"VERDICT.json", result)
@@ -214,8 +216,8 @@ def audit_online(config, device="cuda:0"):
 def diagnostics(config, device="cuda:0"):
     bank, data = load_bank(config)
     scenes = {s.scene_id: s for s in load_scenes(config.root/"scenes.json")}
-    from .partition import training_ids
-    allowed = training_ids(config, list(scenes.values()), "scorer_fit")
+    from .scorer_scope import scorer_training_ids
+    allowed = scorer_training_ids(config, list(scenes.values()))
     eligible = [i for i, r in enumerate(bank["rows"]) if r["scene_id"] in allowed and abs(data["scores"][i, 1]-data["scores"][i, 0]) > .01]
     eligible.sort(key=lambda i: digest([config.selection_seed, "overfit64", bank["rows"][i]["scene_id"]]))
     chosen = eligible[:64]
