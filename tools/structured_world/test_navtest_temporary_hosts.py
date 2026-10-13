@@ -15,6 +15,12 @@ spec.loader.exec_module(d)
 
 
 class TemporaryHostTests(unittest.TestCase):
+    def test_explicit_extra_inference_hosts_stay_inside_task_allowlist(self):
+        policy = {'task_authorizations': {'structured_world_fgtr_round1': {
+            'allowed_hosts': ['base', 'extra'],
+            'additional_inference_hosts': ['extra', 'base', 'unauthorized', 'extra']}}}
+        self.assertEqual(d.evaluation_hosts(policy, ['base']), ['base', 'extra'])
+
     def test_frozen_reference_excludes_temporary_grant_and_legacy_unknown_host(self):
         temporary = dict(host='temporary', index=0, temporary_authorization={'lease_id': 'test'})
         legacy_unknown = dict(host='unknown', index=0)

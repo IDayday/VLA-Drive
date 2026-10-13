@@ -54,7 +54,8 @@ def write(path, value):
 def authorize(host):
     task = read('/mnt/project/server_dispatch_policy.json')['task_authorizations']['structured_world_fgtr_round1']
     policy = read(POLICY)
-    require(host in task['allowed_hosts'] and host in policy['inference_allowed_hosts']
+    inference_hosts = policy['inference_allowed_hosts'] + task.get('additional_inference_hosts', [])
+    require(host in task['allowed_hosts'] and host in inference_hosts
             and policy['population'] == 'navtest' and policy['dispatch_navtest_evaluation'] is True
             and policy['dispatch_development_evaluation'] is False, 'Inference authorization changed: '+host)
 

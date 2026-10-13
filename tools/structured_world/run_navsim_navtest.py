@@ -289,6 +289,10 @@ def temporary_authorization(host, policy, unix=None):
 
 def evaluation_hosts(policy, hosts):
     selected = list(hosts)
+    task = policy.get('task_authorizations', {}).get('structured_world_fgtr_round1', {})
+    for host in task.get('additional_inference_hosts', []):
+        if host in task.get('allowed_hosts', []) and host not in selected:
+            selected.append(host)
     for entry in policy.get('temporary_task_authorizations', {}).values():
         if entry.get('task') != 'structured_world_fgtr_round1': continue
         for host in entry.get('hosts', []):
@@ -317,6 +321,7 @@ def authorized(host=None):
     hosts = policy['task_authorizations']['structured_world_fgtr_round1']['latest_explicit_resource_hosts']
     evaluation = ART / 'NAVSIM_EVALUATION_POLICY_20261011.json'
     if evaluation.exists(): hosts = json.loads(evaluation.read_text()).get('inference_allowed_hosts', hosts)
+    hosts = evaluation_hosts(policy, hosts)
     local = socket.gethostname().removesuffix('-worker-0')
     selected = host or local
     temporary = temporary_authorization(selected, policy)
