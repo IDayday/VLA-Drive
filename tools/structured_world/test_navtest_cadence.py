@@ -80,6 +80,48 @@ class CadenceTests(unittest.TestCase):
         self.assertFalse(cadence.eligible(self.policy, {'training_identity': 'train3', 'updates': 75000}))
         self.assertTrue(cadence.eligible(self.policy, {'training_identity': 'foreign', 'updates': 75000}))
 
+    def explicit_observation(self, **changes):
+        return dict(group='G3', training_identity='train3', updates=45000,
+                    user_instruction='Evaluate the latest saved checkpoint',
+                    requested_utc='2026-10-13T02:00:00Z') | changes
+
+    def test_explicit_latest_checkpoint_keeps_other_groups_and_cadence_unchanged(self):
+        self.bank(45000)
+        self.policy['additional_observations'] = [self.explicit_observation()]
+        path = self.root / 'cadence.json'
+        cadence.atomic(path, self.policy)
+        self.policy = cadence.load_policy(path)
+        self.poll()
+        self.poll()
+        self.assertEqual([a.tag for a in self.calls], ['latest_0045000', 'latest_0070000'])
+        self.assertTrue(cadence.eligible(self.policy, {'training_identity': 'train3', 'updates': 45000}))
+        self.assertFalse(cadence.eligible(self.policy, {'training_identity': 'train2', 'updates': 45000}))
+        self.assertFalse(cadence.eligible(self.policy, {'training_identity': 'train3', 'updates': 75000}))
+        self.assertEqual(cadence.observation_updates(self.policy, 'train2'), self.policy['observation_updates'])
+        key = 'G3_0045000'
+        request = cadence.read(self.output / 'requests' / (key + '.json'))
+        cadence.atomic(self.output / 'completed' / (key + '.json'), {'valid': True})
+        self.exit_proof(key, request)
+        self.poll()
+        self.assertTrue((self.root / 'pins' / key / 'RELEASED.json').exists())
+        self.assertTrue((self.run / 'checkpoints/latest_0045000/payload0.pt').exists())
+
+    def test_invalid_explicit_observations_rejected(self):
+        bad = [dict(training_identity='foreign'), dict(group='G2'), dict(updates=True),
+               dict(updates=0), dict(updates=100001), dict(updates=50000),
+               dict(user_instruction=''), dict(requested_utc='')]
+        path = self.root / 'cadence.json'
+        for changes in bad:
+            with self.subTest(changes=changes):
+                self.policy['additional_observations'] = [self.explicit_observation(**changes)]
+                cadence.atomic(path, self.policy)
+                with self.assertRaises(ValueError):
+                    cadence.load_policy(path)
+        self.policy['additional_observations'] = [self.explicit_observation()] * 2
+        cadence.atomic(path, self.policy)
+        with self.assertRaisesRegex(ValueError, 'Duplicate explicit'):
+            cadence.load_policy(path)
+
     def test_pin_survives_rolling_deletion_and_interrupted_enqueue(self):
         complete = cadence.read(self.folder / 'COMPLETE.json')
         pinned, tag = cadence.pin(self.policy, self.registration, 70000, self.folder, complete)

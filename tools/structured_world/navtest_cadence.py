@@ -58,14 +58,32 @@ def load_policy(path):
             'Base evaluation policy changed')
     require(len(policy['runs']) == 4 and len({r['group'] for r in policy['runs']}) == 4,
             'Four distinct registered G runs required')
+    registered = {r['training_identity']: r['group'] for r in policy['runs']}
+    seen = set()
+    for extra in policy.get('additional_observations', []):
+        identity, update = extra.get('training_identity'), extra.get('updates')
+        require(identity in registered and extra.get('group') == registered[identity]
+                and type(update) is int and 0 < update <= policy.get('training_endpoint', 100000)
+                and bool(extra.get('user_instruction')) and bool(extra.get('requested_utc')),
+                'Invalid explicit additional observation')
+        require((identity, update) not in seen and update not in targets,
+                'Duplicate explicit additional observation')
+        seen.add((identity, update))
     return policy
+
+
+def observation_updates(policy, identity):
+    """A user-requested extra checkpoint belongs only to its registered run."""
+    return sorted(set(policy['observation_updates']) | {
+        extra['updates'] for extra in policy.get('additional_observations', [])
+        if extra['training_identity'] == identity})
 
 
 def eligible(policy, request):
     """Keep completed history; suppress new off-cadence requests for these runs."""
     registered = {r['training_identity'] for r in policy['runs']}
     return (request['training_identity'] not in registered
-            or request['updates'] in policy['observation_updates'])
+            or request['updates'] in observation_updates(policy, request['training_identity']))
 
 
 def checkpoint(run, update, identity):
@@ -214,7 +232,7 @@ def poll(policy, output, enqueue, valid_completion):
             saved_update = read(latest_complete)['completed'] if latest_complete else 0
         except FileNotFoundError:
             saved_update = 0
-        for update in policy['observation_updates']:
+        for update in observation_updates(policy, registration['training_identity']):
             key = registration['group'] + f'_{update:07d}'
             request_path = output / 'requests' / (key + '.json')
             completion = output / 'completed' / (key + '.json')
