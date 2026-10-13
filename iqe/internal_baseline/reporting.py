@@ -50,6 +50,7 @@ def evaluate(config, device="cuda:0"):
                                 "base_IL": None, "expert_IL": None, "log_bootstrap": None, "status": "INCONCLUSIVE_EMPTY_FIXED_SET"}
             continue
         il_base, il_expert = [], []
+        physical_errors = {k: [] for k in ("base_ADE", "base_FDE", "base_yaw_error", "expert_ADE", "expert_FDE", "expert_yaw_error")}
         from iqe.losses import expert_il_terms
         with torch.no_grad():
             for at in range(0, len(indices), 64):
@@ -59,10 +60,17 @@ def evaluate(config, device="cuda:0"):
                 predicted = expert(planner_bundle(config, x, [s.scene_id for s in rows]))
                 il_expert.extend((predicted.raw-x["target_raw"]).abs().sum(-1).mean(-1).cpu().tolist())
                 il_base.extend((x["base_raw"]-x["target_raw"]).abs().sum(-1).mean(-1).cpu().tolist())
+                for prefix, trajectory in (("base", x["base_physical"]), ("expert", predicted.physical)):
+                    xy = torch.linalg.vector_norm(trajectory[..., :2]-x["target_physical"][..., :2], dim=-1)
+                    yaw = trajectory[..., 2]-x["target_physical"][..., 2]
+                    physical_errors[prefix+"_ADE"].extend(xy.mean(-1).cpu().tolist())
+                    physical_errors[prefix+"_FDE"].extend(xy[:, -1].cpu().tolist())
+                    physical_errors[prefix+"_yaw_error"].extend(torch.atan2(yaw.sin(), yaw.cos()).abs().mean(-1).cpu().tolist())
         delta = data["scores"][mask, 1]-data["scores"][mask, 0]
         hard_stats[name] = {"n": int(mask.sum()), "base_PDMS": float(data["scores"][mask, 0].mean()),
                             "expert_PDMS": float(data["scores"][mask, 1].mean()), "expert_minus_base": float(delta.mean()),
                             "base_IL": float(np.mean(il_base)), "expert_IL": float(np.mean(il_expert)),
+                            "physical_errors": {k: float(np.mean(v)) for k,v in physical_errors.items()},
                             "log_bootstrap": paired_bootstrap(delta, [r["log"] for r, yes in zip(bank["rows"], mask) if yes],
                                                               config.bootstrap_repetitions, config.bootstrap_seed)}
     atomic_json(config.root/"EXPERT_SPECIALIZATION.json", hard_stats, immutable=True)

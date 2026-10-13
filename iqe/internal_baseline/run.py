@@ -2,6 +2,7 @@
 from pathlib import Path
 from datetime import datetime, timezone
 import os
+import subprocess
 import time
 from iqe.io import read_json, atomic_json, file_hash, lock
 from iqe.contracts import require
@@ -38,6 +39,20 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
                     "scope": "one expert1000 and scratch scorer2000, no navtest/ACTIVE", "status": "RUNNING",
                     "from_stage": from_stage}
         atomic_json(config.root/"WORKFLOW_LIVE.json", live)
+        if config.research_protocol == "two_candidate_v1":
+            # Record the implementation actually imported after the offline
+            # input wait, rather than only the queue launch's earlier commit.
+            repo = Path(__file__).resolve().parents[2]
+            atomic_json(config.root/"WORKFLOW_CODE_IDENTITY.json", {
+                "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
+                "config_hash": config.identity,
+                "source_hashes": {name: file_hash(Path(__file__).with_name(name))
+                                  for name in ("run.py", "training.py", "reporting.py")},
+                "planned_training_interruptions": False,
+                "expert_updates": config.expert_updates,
+                "scorer_updates": config.scorer_updates,
+                "phase_switch_is_internal": True,
+            }, immutable=True)
         rows = [s for s in load_scenes(config.root/"scenes.json") if s.split_role in {"incremental_fit", "stage_val"}]
         deadline = time.monotonic()+wait_cache_seconds
         while True:
@@ -59,8 +74,16 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
                   ("evaluate", lambda: evaluate(config, device)),
                   ("diagnostics", lambda: diagnostics(config, device)),
                   ("export_diagnostic_bundle", lambda: export_bundle(config, device))]
+        if config.research_protocol == "two_candidate_v1":
+            # This experiment runs each trainer continuously. Checkpoints and
+            # recovery remain available for genuine interruptions; the 500-step
+            # scoring phase switch does not stop or restart its optimizer.
+            stages = [(name, operation) for name, operation in stages
+                      if name not in {"expert_pause_250", "scorer_pause_500"}]
         if from_stage == "scorer":
-            stages = stages[4:]
+            first_scorer = next(i for i, (name, _) in enumerate(stages)
+                                if name in {"scorer_pause_500", "scorer_finish"})
+            stages = stages[first_scorer:]
         for name, operation in stages:
             atomic_json(config.root/"WORKFLOW_STAGE.json", {"stage": name, "status": "RUNNING"})
             start = time.perf_counter()
