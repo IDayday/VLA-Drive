@@ -1,0 +1,28 @@
+{
+  "schema": "flow_safe_deployment_precision_correction_v1",
+  "utc_unix": 1791880190.2071233,
+  "reason": "Raw original VLAAgent retains FP32 history/action modules. Frozen training feature cache was produced with full BF16 parameter storage; actual raw action-token features differ. Full-BF16 raw actor exactly matches old cache on the two isolated scenes.",
+  "source_evidence": "validation/deployment_numerics_P0_epoch1/report.json",
+  "execution_profile": "original_VLAAgent_default_module_dtypes_uncached_v1",
+  "unchanged": [
+    "P/O/N training source and optimizer identities",
+    "frozen BF16 training features and all existing banks",
+    "permanent candidate SFT reference and safety budgets",
+    "evaluation scene-bound BF16 root seeds",
+    "original 10-step ODE and postprocessing",
+    "canonical v1.1 and v2 scoring sources"
+  ],
+  "correction": "Re-evaluate the same SFT and saved checkpoints with original VLAAgent module dtypes and raw observations. Preserve BF16-cache results as separate execution diagnostics. No learning hyperparameter or search adjustment.",
+  "maximum_additional_primary_DEV_policy_evaluations": 25,
+  "primary_budget_per_policy": 8480,
+  "milestones": {
+    "SFT": 1,
+    "P": 12,
+    "O_N": 12
+  },
+  "reuse_only_when_export_hash_execution_and_sealed_outputs_identical": true,
+  "critical_second_seeds_and_final_navtest_use_correct_original_profile_directly": true,
+  "no_extra_training_or_candidate_budget": true,
+  "fixed_reference_safe_sets": "Keep the already fixed four-seed SFT BF16 reference membership; label its sampling definition explicitly. Do not redefine membership after observing new policy scores.",
+  "safety": "Apply the same registered thresholds to original-profile paired DEV changes, with original-profile SFT baseline; BF16-cache interim decisions remain archived."
+}

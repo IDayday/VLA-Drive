@@ -1,0 +1,758 @@
+{
+  "schema": "flow_safe_D3_finite_opportunities_v1",
+  "candidate_scores_are_not_policy_scores": true,
+  "units": "raw_0_to_1",
+  "identities": {
+    "ODE": "8f629040415dc9fd96ac46ead83345e3ea0ce7ed2b6f81f40a017b80d09223e5",
+    "LATENT": "82f7d1f020fc3027afa34e22ae1ae250c099cb3c2be673b38e40a0519efe7d86",
+    "BEHAVIOR": "e88fe77e31c9eed7cd1ae6f78ac689b359d5e6211ef3f09b1e1a1cb000fe54a8",
+    "SDE": "6ab5a4fc0cd4c1c9e4f62ebebae0dc407b72c4156c0c33cebd7b0b28069afd22"
+  },
+  "tables": {
+    "ODE": {
+      "random/all": {
+        "scenes": 256,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.012885477676450388,
+        "discovery_001": 0.64453125,
+        "discovery_005": 0.22265625,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.012885477676450388,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 4
+      },
+      "random/stable_safe": {
+        "scenes": 252,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.002874704094476858,
+        "discovery_001": 0.6388888888888888,
+        "discovery_005": 0.21031746031746032,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.002874704094476858,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "random/intermittent_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.3136721753209919,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.3136721753209919,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/stable_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.9734562513605736,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.9734562513605736,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/progress_only": {
+        "scenes": 165,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.00432598220644639,
+        "discovery_001": 0.9636363636363636,
+        "discovery_005": 0.3151515151515151,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.00432598220644639,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/all": {
+        "scenes": 256,
+        "F_feasible": 0.90625,
+        "safe_gain_nonnegative": 0.16608987941883419,
+        "discovery_001": 0.828125,
+        "discovery_005": 0.5078125,
+        "partial_cost_improvement_only": 0.0078125,
+        "G_safe_mean_on_feasible": 0.18327159108285151,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 91
+      },
+      "targeted/stable_safe": {
+        "scenes": 141,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.003978868398318902,
+        "discovery_001": 0.8581560283687943,
+        "discovery_005": 0.2765957446808511,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.003978868398318902,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/intermittent_failure": {
+        "scenes": 73,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.36658189824514914,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.36658189824514914,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 73
+      },
+      "targeted/stable_failure": {
+        "scenes": 42,
+        "F_feasible": 0.42857142857142855,
+        "safe_gain_nonnegative": 0.3618454789324452,
+        "discovery_001": 0.42857142857142855,
+        "discovery_005": 0.42857142857142855,
+        "partial_cost_improvement_only": 0.047619047619047616,
+        "G_safe_mean_on_feasible": 0.8443061175090386,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 18
+      },
+      "targeted/progress_only": {
+        "scenes": 109,
+        "F_feasible": 0.9908256880733946,
+        "safe_gain_nonnegative": 0.004746567611904925,
+        "discovery_001": 0.9908256880733946,
+        "discovery_005": 0.3394495412844037,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.004790517312015156,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      }
+    },
+    "LATENT": {
+      "random/all": {
+        "scenes": 256,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.012982942499525108,
+        "discovery_001": 0.640625,
+        "discovery_005": 0.2265625,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.012982942499525108,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 4
+      },
+      "random/stable_safe": {
+        "scenes": 252,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.0029830197335084237,
+        "discovery_001": 0.6349206349206349,
+        "discovery_005": 0.21428571428571427,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.0029830197335084237,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "random/intermittent_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.3135433562984319,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.3135433562984319,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/stable_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.9724127972187204,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.9724127972187204,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/progress_only": {
+        "scenes": 166,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.004493337767250793,
+        "discovery_001": 0.9578313253012049,
+        "discovery_005": 0.3192771084337349,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.004493337767250793,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/all": {
+        "scenes": 256,
+        "F_feasible": 0.9140625,
+        "safe_gain_nonnegative": 0.16940566097794318,
+        "discovery_001": 0.8359375,
+        "discovery_005": 0.5390625,
+        "partial_cost_improvement_only": 0.0078125,
+        "G_safe_mean_on_feasible": 0.18533268893313443,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 93
+      },
+      "targeted/stable_safe": {
+        "scenes": 141,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.003985770448493177,
+        "discovery_001": 0.8581560283687943,
+        "discovery_005": 0.3191489361702128,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.003985770448493177,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/intermittent_failure": {
+        "scenes": 73,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.36673560126337257,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.36673560126337257,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 73
+      },
+      "targeted/stable_failure": {
+        "scenes": 42,
+        "F_feasible": 0.47619047619047616,
+        "safe_gain_nonnegative": 0.38176563535451713,
+        "discovery_001": 0.47619047619047616,
+        "discovery_005": 0.47619047619047616,
+        "partial_cost_improvement_only": 0.047619047619047616,
+        "G_safe_mean_on_feasible": 0.801707834244486,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 20
+      },
+      "targeted/progress_only": {
+        "scenes": 109,
+        "F_feasible": 0.9908256880733946,
+        "safe_gain_nonnegative": 0.004764008537257777,
+        "discovery_001": 0.9908256880733946,
+        "discovery_005": 0.4036697247706422,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.004808119727417571,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      }
+    },
+    "BEHAVIOR": {
+      "random/all": {
+        "scenes": 256,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.021899054692761526,
+        "discovery_001": 0.63671875,
+        "discovery_005": 0.50390625,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.021899054692761526,
+        "invalid_proposals": 4065,
+        "fully_repaired_scenes": 4
+      },
+      "random/stable_safe": {
+        "scenes": 252,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.011866412883395515,
+        "discovery_001": 0.6309523809523809,
+        "discovery_005": 0.49603174603174605,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.011866412883395515,
+        "invalid_proposals": 4049,
+        "fully_repaired_scenes": 0
+      },
+      "random/intermittent_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.3261603361996742,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.3261603361996742,
+        "invalid_proposals": 9,
+        "fully_repaired_scenes": 2
+      },
+      "random/stable_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.981750641165966,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.981750641165966,
+        "invalid_proposals": 7,
+        "fully_repaired_scenes": 2
+      },
+      "random/progress_only": {
+        "scenes": 118,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.01392239965550142,
+        "discovery_001": 0.8983050847457628,
+        "discovery_005": 0.635593220338983,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.01392239965550142,
+        "invalid_proposals": 2157,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/all": {
+        "scenes": 256,
+        "F_feasible": 0.9921875,
+        "safe_gain_nonnegative": 0.24626301326756736,
+        "discovery_001": 0.890625,
+        "discovery_005": 0.7578125,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.24820209211219385,
+        "invalid_proposals": 3497,
+        "fully_repaired_scenes": 113
+      },
+      "targeted/stable_safe": {
+        "scenes": 141,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.011573606109774153,
+        "discovery_001": 0.8156028368794326,
+        "discovery_005": 0.574468085106383,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.011573606109774153,
+        "invalid_proposals": 2993,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/intermittent_failure": {
+        "scenes": 73,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.3748459192367666,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.3748459192367666,
+        "invalid_proposals": 361,
+        "fully_repaired_scenes": 73
+      },
+      "targeted/stable_failure": {
+        "scenes": 42,
+        "F_feasible": 0.9523809523809523,
+        "safe_gain_nonnegative": 0.8106595435889313,
+        "discovery_001": 0.9523809523809523,
+        "discovery_005": 0.9523809523809523,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.8511925207683781,
+        "invalid_proposals": 143,
+        "fully_repaired_scenes": 40
+      },
+      "targeted/progress_only": {
+        "scenes": 70,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.009394754225482057,
+        "discovery_001": 0.8857142857142857,
+        "discovery_005": 0.42857142857142855,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.009394754225482057,
+        "invalid_proposals": 2502,
+        "fully_repaired_scenes": 0
+      }
+    },
+    "SDE": {
+      "random/all": {
+        "scenes": 256,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.015349826319924025,
+        "discovery_001": 0.6484375,
+        "discovery_005": 0.41796875,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.015349826319924025,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 4
+      },
+      "random/stable_safe": {
+        "scenes": 252,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.0053339232585052476,
+        "discovery_001": 0.6428571428571429,
+        "discovery_005": 0.4087301587301587,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.0053339232585052476,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "random/intermittent_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.3160240014777801,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.3160240014777801,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/stable_failure": {
+        "scenes": 2,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.9766794369008343,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.9766794369008343,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 2
+      },
+      "random/progress_only": {
+        "scenes": 154,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.008365955970971985,
+        "discovery_001": 0.974025974025974,
+        "discovery_005": 0.6493506493506493,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.008365955970971985,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/all": {
+        "scenes": 256,
+        "F_feasible": 0.98828125,
+        "safe_gain_nonnegative": 0.23714000201873134,
+        "discovery_001": 0.91015625,
+        "discovery_005": 0.7734375,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.23995193880156215,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 112
+      },
+      "targeted/stable_safe": {
+        "scenes": 141,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.00765008921191224,
+        "discovery_001": 0.8581560283687943,
+        "discovery_005": 0.6099290780141844,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.00765008921191224,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      },
+      "targeted/intermittent_failure": {
+        "scenes": 73,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.36753809897691897,
+        "discovery_001": 1.0,
+        "discovery_005": 1.0,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.36753809897691897,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 73
+      },
+      "targeted/stable_failure": {
+        "scenes": 42,
+        "F_feasible": 0.9285714285714286,
+        "safe_gain_nonnegative": 0.7809261122047738,
+        "discovery_001": 0.9285714285714286,
+        "discovery_005": 0.9285714285714286,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.8409973516051412,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 39
+      },
+      "targeted/progress_only": {
+        "scenes": 91,
+        "F_feasible": 1.0,
+        "safe_gain_nonnegative": 0.009998109709879811,
+        "discovery_001": 1.0,
+        "discovery_005": 0.7802197802197802,
+        "partial_cost_improvement_only": 0.0,
+        "G_safe_mean_on_feasible": 0.009998109709879811,
+        "invalid_proposals": 0,
+        "fully_repaired_scenes": 0
+      }
+    }
+  },
+  "costs": {
+    "ODE": {
+      "actual_new_scoring_calls": 30720,
+      "velocity_forward_calls": 29800,
+      "GPU_generation_seconds": 1171.260933239013,
+      "logical_proposals": 32768,
+      "duplicate_proposals": 0,
+      "invalid_physical_proposals": 0,
+      "reference_logical_scoring_cost": 2048,
+      "new_plus_charged_common_reference_calls": 32768,
+      "all_worker_wall_seconds_sum": 4742.802116598934,
+      "discoveries_005_per_100_new_scores": 0.6087239583333334,
+      "discoveries_005_per_100_calls_including_common_reference": 0.5706787109375,
+      "newly_discovered_scenes_005_per_100_new_scores": 0.3352864583333333
+    },
+    "LATENT": {
+      "actual_new_scoring_calls": 30720,
+      "velocity_forward_calls": 29800,
+      "GPU_generation_seconds": 1327.9011562820524,
+      "logical_proposals": 32768,
+      "duplicate_proposals": 0,
+      "invalid_physical_proposals": 0,
+      "reference_logical_scoring_cost": 2048,
+      "new_plus_charged_common_reference_calls": 32768,
+      "all_worker_wall_seconds_sum": 5470.494224803522,
+      "discoveries_005_per_100_new_scores": 0.6380208333333334,
+      "discoveries_005_per_100_calls_including_common_reference": 0.59814453125,
+      "newly_discovered_scenes_005_per_100_new_scores": 0.3645833333333333
+    },
+    "BEHAVIOR": {
+      "actual_new_scoring_calls": 23158,
+      "velocity_forward_calls": 9320,
+      "GPU_generation_seconds": 22.98616704531014,
+      "logical_proposals": 32768,
+      "duplicate_proposals": 0,
+      "invalid_physical_proposals": 7562,
+      "reference_logical_scoring_cost": 2048,
+      "new_plus_charged_common_reference_calls": 25206,
+      "all_worker_wall_seconds_sum": 2968.620549272746,
+      "discoveries_005_per_100_new_scores": 1.3947663874255116,
+      "discoveries_005_per_100_calls_including_common_reference": 1.281440926763469,
+      "newly_discovered_scenes_005_per_100_new_scores": 1.0320407634510753
+    },
+    "SDE": {
+      "actual_new_scoring_calls": 30720,
+      "velocity_forward_calls": 337000,
+      "GPU_generation_seconds": 12837.362387457862,
+      "logical_proposals": 32768,
+      "duplicate_proposals": 0,
+      "invalid_physical_proposals": 0,
+      "reference_logical_scoring_cost": 2048,
+      "new_plus_charged_common_reference_calls": 32768,
+      "all_worker_wall_seconds_sum": 16313.714337212965,
+      "discoveries_005_per_100_new_scores": 0.9928385416666666,
+      "discoveries_005_per_100_calls_including_common_reference": 0.9307861328125,
+      "newly_discovered_scenes_005_per_100_new_scores": 0.7194010416666666
+    }
+  },
+  "paired_exploration_minus_ODE": {
+    "LATENT": {
+      "random": {
+        "safe_gain_nonnegative": {
+          "mean": 9.746482307471886e-05,
+          "CI95": [
+            -4.6744101860200896e-05,
+            0.0002661724845143111
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.00390625,
+          "CI95": [
+            -0.03162055335968379,
+            0.04330708661417323
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "targeted": {
+        "safe_gain_nonnegative": {
+          "mean": 0.0033157815591090246,
+          "CI95": [
+            1.1458916764109232e-06,
+            0.008412388376975272
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.0078125,
+          "CI95": [
+            0.0,
+            0.020002008032128503
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.03125,
+          "CI95": [
+            0.004016064257028112,
+            0.061224489795918366
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "BEHAVIOR": {
+      "random": {
+        "safe_gain_nonnegative": {
+          "mean": 0.009013577016311138,
+          "CI95": [
+            0.007282566626572297,
+            0.010996402462927124
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.28125,
+          "CI95": [
+            0.20991901821196784,
+            0.36033065936216
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "targeted": {
+        "safe_gain_nonnegative": {
+          "mean": 0.08017313384873317,
+          "CI95": [
+            0.048664900842431955,
+            0.11463168071204137
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.0859375,
+          "CI95": [
+            0.04780876494023904,
+            0.12698575331772052
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.25,
+          "CI95": [
+            0.16139423544279186,
+            0.33336501901140664
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "SDE": {
+      "random": {
+        "safe_gain_nonnegative": {
+          "mean": 0.0024643486434736406,
+          "CI95": [
+            0.0020724548401531285,
+            0.002886059569111979
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.1953125,
+          "CI95": [
+            0.14753771798053686,
+            0.24180327868852458
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "targeted": {
+        "safe_gain_nonnegative": {
+          "mean": 0.07105012259989717,
+          "CI95": [
+            0.04321230775853125,
+            0.10226707409659253
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "F_feasible": {
+          "mean": 0.08203125,
+          "CI95": [
+            0.04877065302911094,
+            0.11969884169884165
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "discovery_005": {
+          "mean": 0.265625,
+          "CI95": [
+            0.20799607843137255,
+            0.323085501858736
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    }
+  },
+  "missing_methods": [],
+  "no_search_failure_proves_infeasibility": true,
+  "sha256": "acfdbbef69fe41b850950d0b11a61699c34d017e2c56e01267a368ba9c145768"
+}

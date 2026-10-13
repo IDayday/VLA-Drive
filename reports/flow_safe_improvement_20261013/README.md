@@ -2,7 +2,7 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。本次阶段提交保存数据合同、权重求解器、FM/NFT 核心目标、原模型适配和真实评分验证。D1/D2/D3、P0/P1/P2、三轮在线更新、NFT 匹配学习、第二训练 seed 和最终 Navtest **尚未完成**，不能将本页的接口测试作为强化学习效果或方法胜出的证据。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 08:24 UTC，D1/D2/D3 已完成，P0/P1 完成首个 epoch 的完整 DEV 缓存口径重采样评价（原导出精度重评已启动），P2 完成首个 epoch 更新并在评价；四条有限在线路线正在构建各自首轮的新候选。P 的完整 8-epoch 窗口、三轮在线更新、NFT 正式匹配学习、第二训练 seed 和最终 Navtest仍在推进。下文带时间的段落保留阶段历史，不能将资格测试或候选成绩作为策略最终结果。
 
 2026-10-13 后续进度：已完成 8,192 个 RL_TRAIN 场景的四 seed SFT 参考采样、32,768 次真实 v1.1 评分和逐时刻车身几何审计；随后锁定 512 场景诊断集及 4,096 场景学习集。D1 SFT 的原 ODE/旧 SDE 配对运行已启动。完整动作头的正权重 FM、公共保持和 NFT 训练入口已接入原 ZeRO-2/检查点基础，但此处尚没有更新后策略的重新采样成绩。[执行成本](evidence/reference_screen_execution.json)、[清单身份与安全集合计数](evidence/locked_cohorts.json)。
 
@@ -108,3 +108,19 @@ P2 采用同边界行为搜索。物理非法提案保留原动作、轨迹与�
 D1 三模型、相同 512 场景和 16 个初始噪声的配对诊断已完整完成。[全部结果](evidence/D1_all_checkpoints.json)。随机训练子集上，step12912 相对 SFT 的 ODE/SDE 原始 PDMS 分别增加 0.01260 / 0.01031；困难定向子集分别增加 0.08349 / 0.04795。最终旧 RL 的 ODE 仍优于自身 SDE，当前证据不支持“只在 SDE 学好而未迁移 ODE”为主要解释。EP/DAC 增长伴随 TTC 下降；这些是旧 RL 见过的训练场景，定向集合也不是总体无偏估计，不能替代新方法 DEV/NAVTEST 结果。
 
 [D2 旧 RL step8700 全动作头梯度](evidence/D2_RL8700_gradient_summary.json)中，原始 RL surrogate / reference 条件 KL / SFT replay 梯度 norm 为 0.9733 / 5.3318 / 0.4194，各 loss 系数尚未乘入。RL 与 KL 梯度 cosine 为 +0.2462，不能据原始 loss 大小声称 KL 完全压住 RL；global-batch 会改变与 KL/replay 的相对方向，但本轮不为此另开长训。[旧完整训练的 first/second inner 及裁剪摘要](evidence/D2_legacy_inner_epoch_summary.json)直接复用已归档真实日志统计，未重复运行旧控制器。
+
+08:24 UTC 更新：D3 四个方法均完成 512 场景、每场景 64 个逻辑候选名额。[完整机会与成本表](evidence/D3_all_methods.json)。随机子集 ODE/SDE/LATENT/BEHAVIOR 的 ≥0.005 原始分安全改进发现率分别为 22.27%/41.80%/22.66%/50.39%；定向困难子集为 50.78%/77.34%/53.91%/75.78%。SDE 的安全候选覆盖显著高于 ODE，但仍是候选机会，不能替代随机单候选成绩。行为搜索发现效率较高，继续作为已锁定 P2 候选来源，不依据后到的 DEV 结果改搜索边界。
+
+实际候选采集用到的 7/12/15 个 ODE 同批样本另完成 32 场景、1,600 次真实评分核对：请求轨迹最大差 ≤7.63e-6，原始 score 最大差 ≤1.26e-7，NC/DAC/TTC 逐项相同。[实际批形状验证](evidence/ODE_actual_search_shapes_qualification.json)。这是初始候选运行后的补充验证，不能改写成所有批形状事先都已验证；没有改变阈值或训练布局。
+
+P0/P1 的关键干预诊断已完成：同一 BANK_ODE 上目标分布最大 L1 差为 1.59e-12，8 epoch 的 32,768 次实际候选抽样全部相同。[权重与抽样比较](evidence/P0_P1_target_intervention.json)。两组均真实完成 256 次全动作头更新，全部 359 张量记录到梯度，逐更新 loss 与全局梯度 norm 一致，首个导出 SHA256 也相同。[学习身份核对](evidence/P0_P1_epoch1_identity.json)。该候选库上普通奖励目标已满足安全预算，因此不能从这两组归因安全约束的因果收益；保留已登记的普通在线控制。
+
+首个 epoch 的完整 DEV 五 seed 独立单候选 ODE（BF16 训练缓存执行，尚不能作原导出部署主结果）：P0/P1 PDMS 均为 93.6698，对应 SFT 93.6915，差 −0.0217 分，按 log 的 95% CI 为 [−0.1008, 0.0886]。NC/DAC 均值不变，TTC 下降 0.0354 分；任意 seed 零分场景从15变14，五个 seed 全零场景从7变8，这两种事件不可混用。[P0](evidence/P0_epoch1_DEV.json)、[P1](evidence/P1_epoch1_DEV.json)。尚无有效策略收益证据，未触发预登记安全暂停边界，继续共同 8-epoch 窗口。
+
+P0 首个导出已经通过原始观测的原 VLAAgent 推理：两条固定 TRAIN 场景仅给 image/lang/state/token，运行原 10 步 ODE。Python 文件访问守卫禁止访问冻结特征、SFT teacher 权重、bank/targets/奖励缓存，访问尝试为0，输出有限。[无研究资产部署核验](evidence/P0_epoch1_uncached_deployment.json)。这是部署接口核验，不是两场景规划成绩或稳定时延基准；缓存与原始编码的逐值比较另行记录。
+
+相同 SFT DEV 五 seed 输出的官方 v2 one-stage 辅助评价也已完成，EPDMS=93.7867，单独保留中间 pdm_score，未伪装成 v1。8,480 行中 7,135 行有有效 two-frame comfort，缺失项保持官方不可用和权重移除语义。[v2 辅助基线](evidence/SFT_DEV_auxiliary_v2.json)。
+
+08:33 UTC 部署精度修正：独立原始观测核验发现原 VLAAgent 与 BF16 训练缓存并不逐值等价。[保留的两场景失败证据](evidence/P0_epoch1_uncached_cache_mismatch.json)。隔离实验显示原始 FP32 历史投影使冻结 action-token states 最大差0.375/0.75；全 BF16 原始模型与旧缓存则逐值一致，同缓存仅动作头精度变化的动作差约2.2e-5。[隔离结果](evidence/deployment_numerical_isolation.json)。此前“原导出入口”资格将特征缓存安装进同一 BF16 模型，漏掉了原导出默认模块精度这一边界；如实保留该限制，不能用原资格掩盖。
+
+新增原 VLAAgent 原始观测评价入口，保持其 FP32 history/action、BF16 Qwen、原十步 ODE、scene绑定初始噪声及后处理。SFT 和已保存策略均按相同原导出口径重评，最多25个既定 DEV 模型窗口；同完整权重 hash 的 P0/P1 可复用封存结果，复用与实际评分成本分别计入。[一次修正登记](evidence/deployment_evaluation_correction.json)。旧缓存分数归为独立执行诊断，不修改已运行训练、候选、安全成本预算、保持设置或学习率。固定四 seed SFT 安全集保持原成员和 BF16 有限采样定义；原导出策略均值、配对变化和零分转移使用新原导出 SFT 对照，不能混减。最终 Navtest 和关键第二 seed 将直接采用正确原导出精度。
