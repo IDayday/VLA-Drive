@@ -232,6 +232,8 @@ def predict_scores(config, module, scenes, trajectories, device):
         subset = scenes[at:at+config.scorer_micro_batch]
         x = cache.batch(subset, device)
         p = module(score_context(config, x), torch.as_tensor(trajectories[at:at+len(subset)], device=device))
+        require(torch.isfinite(p["values"]).all().item() and torch.isfinite(p["component_logits"]).all().item(),
+                "nonfinite Scorer output on a valid frozen candidate bank")
         values.append(p["values"].cpu().numpy()); components.append(p["component_logits"].sigmoid().cpu().numpy())
     return np.concatenate(values), np.concatenate(components)
 

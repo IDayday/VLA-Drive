@@ -130,7 +130,7 @@ def evaluate(config, device="cuda:0"):
             "SCORER_SELECTION_GAIN": "PASS" if d["selected_gain"] > 0 else "CANDIDATE_GAIN_NOT_REALIZED",
             "SCORER_GAIN_OVER_BEST_FIXED_POLICY": "PASS" if d["selected_gain_vs_best_fixed_policy"] > 0 else "FAIL",
             "SAFETY_REGRESSION": "PRESENT" if any(v["new_violations"] for v in d["safety"].values()) or d["high_to_zero"] else "NONE_OBSERVED",
-            "EXACT_RESUME": "WAITING_INPUTS", "SCIENTIFIC_CONCLUSION": verdict,
+            "EXACT_RESUME": "NOT_RUN_USER_CANCELLED", "SCIENTIFIC_CONCLUSION": verdict,
             "fixed_dev_requested": len([s for s in scenes if s.split_role == "dev_report"]), "dev_valid_denominator": d["n"],
             "scorer_training_subrole": "D_S_only", "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
             "base_optimizer_step": read_json(config.root/"BASE_BINDING.json")["optimizer_step"],
