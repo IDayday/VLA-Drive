@@ -199,7 +199,8 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
                 "scene_ids": fit, "weights": w.tolist(), "unique_valid": int((w > 0).sum()), "replacement": True,
                 "status": "PRESENT" if w.sum() else "SCORER_COMPARISON_SIGNAL_ABSENT",
                 "objective": "q=abs(gap)/sum(abs(gap)); sampled ranking has no second gap factor"}, immutable=True)
-    cache = JointCache(config)
+    from .cache_execution import training_cache
+    cache = training_cache(config, [lookup[name] for name in fit])
     module = make_scorer(config)
     def fetch(entries, device):
         rows = [lookup[e["scene_id"]] for e in entries]

@@ -22,6 +22,8 @@ def main():
                 s.add_argument("--stop-after", type=int)
             if name == "run":
                 s.add_argument("--wait-cache-seconds", type=int, default=0)
+                s.add_argument("--from-stage", choices=("beginning", "scorer"), default="beginning",
+                               help="Resume after an already complete, hash-verified pair bank")
     args = p.parse_args()
     try:
         c = load_config(args.config)
@@ -42,7 +44,7 @@ def main():
             result = build_cache(c, args.shard, args.shards, args.device, args.max_samples)
         elif args.command == "run":
             from .run import run
-            result = run(c, args.device, args.wait_cache_seconds)
+            result = run(c, args.device, args.wait_cache_seconds, args.from_stage)
         elif args.command == "build-hard-set":
             from .bank import build_initial
             result = build_initial(c)
