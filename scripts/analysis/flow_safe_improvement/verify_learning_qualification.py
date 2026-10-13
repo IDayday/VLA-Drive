@@ -48,8 +48,12 @@ def check(root):
 def main():
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--full',required=True);p.add_argument('--resumed',required=True)
+    p.add_argument('--objective',choices=['positive_fm','nft'],default='positive_fm')
     p.add_argument('--nft');p.add_argument('--sft-weight',required=True);p.add_argument('--output',required=True)
     a=p.parse_args();torch.set_num_threads(4)
+    if any(json.loads((Path(root)/'registered_config.json').read_text())['algorithm']['kind'] != a.objective
+           for root in (a.full,a.resumed)):
+        raise ValueError('Qualification objective label differs from the executed training')
     full,resume=check(a.full),check(a.resumed)
     left,right=[Path(r['checkpoint']) for r in (full,resume)]
     # Both atomic publishers already read every byte to create these seals.
@@ -87,10 +91,12 @@ def main():
     for name,value in forward.items():
         if name.startswith('action_model.'):
             (updated if not torch.equal(value,original[name].to(value.dtype)) else unchanged).append(name)
-    result=dict(status='PASS',qualification_not_method_result=True,full_FM=full,resumed_FM=resume,
+    method_name='NFT' if a.objective=='nft' else 'FM'
+    result=dict(status='PASS',qualification_not_method_result=True,objective=a.objective,
                 exact_resume=comparisons,forward_action_tensors_changed=len(updated),unchanged_action_tensors=unchanged,
                 equality_proof='matching_complete_immutable_checkpoint_publication_SHA256_or_exact_tensor_fallback',
                 original_SFT_sha256=file_sha(a.sft_weight),source_sha256=file_sha(__file__))
+    result['full_'+method_name]=full;result['resumed_'+method_name]=resume
     if a.nft:
         result['NFT']=check(a.nft)
     path=Path(a.output)

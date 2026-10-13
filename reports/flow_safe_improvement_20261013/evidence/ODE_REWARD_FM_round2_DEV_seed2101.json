@@ -1,0 +1,312 @@
+{
+  "schema": "flow_safe_single_candidate_deployment_v1",
+  "status": "COMPLETE_MATCHED_EVALUATION",
+  "policy_identity": "0b39465bcdafb61e77ffb709b3039392c89164bdf9a4f7c4755aef4d2969f0ba",
+  "baseline_identity": "17241197c60ca44a8cfc0603845b262cf3a5019ac74a7631cb39b059fe678236",
+  "reference_identity": "6241ef414c6a53ce0e62d9625b0bdeafb15df83c98b4f87e454d51961ceced83",
+  "payload_hashes": {
+    "policy": "d6b435daa31772b803afd462bb59a1ae11449c722eccebc94317717d4785d381",
+    "baseline": "821e69c3865c810b64084961166ff4d86165766e894d108be9d50e26aa04eef7",
+    "reference": "decb38b88ed9b7232500253daedc3f44c628ed9a9b3d07197474908ab5f3dccc"
+  },
+  "scenes": 1696,
+  "inference_seeds": [
+    2101
+  ],
+  "training_seed_repetitions": 1,
+  "cohort": "dev_tokens",
+  "targeted_TRAIN_diagnostic_is_not_unbiased_population_estimate": false,
+  "primary": "one_fixed_scene_bound_seed_original_10_step_ODE_no_selection",
+  "units": "raw_0_to_1",
+  "means": {
+    "comfort": {
+      "policy": 0.9988207547169812,
+      "SFT": 0.9988207547169812,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "drivable_area_compliance": {
+      "policy": 0.9929245283018868,
+      "SFT": 0.9923349056603774,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "driving_direction_compliance": {
+      "policy": 0.9887971698113207,
+      "SFT": 0.9887971698113207,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "ego_progress": {
+      "policy": 0.8589396097342438,
+      "SFT": 0.8580645080186898,
+      "policy_scene_quantiles": [
+        0.0,
+        0.6106828357998458,
+        0.6667299786700138,
+        0.8903309856955356,
+        1.0,
+        1.0
+      ]
+    },
+    "no_at_fault_collisions": {
+      "policy": 1.0,
+      "SFT": 1.0,
+      "policy_scene_quantiles": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "score": {
+      "policy": 0.9364095858169412,
+      "SFT": 0.9361923657625044,
+      "policy_scene_quantiles": [
+        0.0,
+        0.8371173862699224,
+        0.8591983046327278,
+        0.9534015571707831,
+        1.0,
+        1.0
+      ]
+    },
+    "time_to_collision_within_bound": {
+      "policy": 0.9988207547169812,
+      "SFT": 0.9994103773584906,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired_changes": {
+    "comfort": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0005896226415094339,
+      "CI95": [
+        0.0,
+        0.0012121334607187477
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "driving_direction_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "ego_progress": {
+      "mean": 0.0008751017155540898,
+      "CI95": [
+        0.00030236371248359533,
+        0.0013991682894458593
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "no_at_fault_collisions": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "score": {
+      "mean": 0.00021722005443684545,
+      "CI95": [
+        0.0001259848802014969,
+        0.00028051781633779157
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": -0.0005896226415094339,
+      "CI95": [
+        -0.0012121334607187477,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "fixed_reference_stable_safe_scenes": 1696,
+      "current_any_seed_violation_in_fixed_safe": 0,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 1.0
+    },
+    "drivable_area_compliance": {
+      "fixed_reference_stable_safe_scenes": 1682,
+      "current_any_seed_violation_in_fixed_safe": 1,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 1,
+      "current_pass_rate": 0.9929245283018868
+    },
+    "time_to_collision_within_bound": {
+      "fixed_reference_stable_safe_scenes": 1693,
+      "current_any_seed_violation_in_fixed_safe": 1,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+      "newly_violating_vs_matched_baseline": 1,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9988207547169812
+    },
+    "joint": {
+      "fixed_reference_stable_safe_scenes": 1680,
+      "current_any_seed_violation_in_fixed_safe": 2,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+      "newly_violating_vs_matched_baseline": 1,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9917452830188679
+    }
+  },
+  "zero_transitions": {
+    "any_seed_zero": {
+      "SFT": 13,
+      "policy": 12,
+      "new_failures": 0,
+      "recovered": 1
+    },
+    "all_fixed_seeds_zero": {
+      "SFT": 13,
+      "policy": 12,
+      "new_failures": 0,
+      "recovered": 1
+    },
+    "single_seed_scene_score_zero": {
+      "SFT": 13,
+      "policy": 12,
+      "new_failures": 0,
+      "recovered": 1
+    }
+  },
+  "separate_finite_candidate_opportunities": {
+    "policy": {
+      "candidates_per_scene": 1,
+      "feasible_scenes": 1682,
+      "F_feasible": 0.9917452830188679,
+      "safe_best_mean_on_feasible": 0.9435263122195157,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    },
+    "SFT": {
+      "candidates_per_scene": 1,
+      "feasible_scenes": 1683,
+      "F_feasible": 0.9923349056603774,
+      "safe_best_mean_on_feasible": 0.9434237981777822,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    }
+  },
+  "high_score_decline": {
+    "SFT_scene_mean_threshold": 0.9,
+    "scenes": 1263,
+    "any_negative": 172,
+    "decline_at_least_001": 22,
+    "decline_at_least_005": 1
+  },
+  "no_best_of_N": true,
+  "no_search_GT_selection_or_online_scorer_in_actor": true,
+  "SFT_may_have_seen_DEV": true,
+  "old_RL_saw_DEV": true,
+  "evaluation_override": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/resources/single_seed_override/REGISTRATION.json",
+    "file_sha256": "44c11b53406dfda457b28f055459fe9dee60c62686f775e520f9cade947de7cd",
+    "identity_sha256": "2c6a1ff8b013560c8fc838975407b0e4c262e61be8b869bd349303ce6cf3d756",
+    "user_instruction": "\u4e0d\u7528\u505a\u591aseed\u5b9e\u9a8c"
+  },
+  "multi_seed_experiments_cancelled_by_user": true,
+  "source_inference_seeds": {
+    "policy": [
+      2101
+    ],
+    "baseline": [
+      2101,
+      2102,
+      2103,
+      2104,
+      2105
+    ]
+  },
+  "selected_seed_is_fixed_in_advance_not_chosen_by_score": true,
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "47f6eed8a3cf615ed50b73a34957fd2b1b9ed5a333325d781fe433e4c5b62855"
+    }
+  },
+  "fixed_reference_safety_definition": {
+    "identity": "36968e11fb34a5ff429ecbc618fac63649db90dcca19ee2ba9d4d0ad616516bf",
+    "execution_profile": "frozen_training_BF16_feature_cache",
+    "semantics": "Predeclared finite four-seed SFT set; membership is retained, not reclassified using new policy results. Matched SFT and policy mean/transition comparisons both use the original-export profile."
+  },
+  "sha256": "862e637a4f34d3071c5691e196433c65c8ac051af9e1ef5280e568871ce9b6c5"
+}
