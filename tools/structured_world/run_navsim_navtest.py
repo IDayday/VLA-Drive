@@ -207,6 +207,34 @@ def review_load_oom(destination, failure, evidence):
         raise ValueError('Load-only recovery must not contain scene outputs')
 
 
+def review_scoring_startup_authorization(destination, failure, evidence):
+    """Recover a reviewed routing-only scorer startup failure after GPU drain."""
+    expected = "RuntimeError('Canonical Navtest scoring failed; failed scenes retained')"
+    if failure.get('error') != expected:
+        raise ValueError('Not the reviewed canonical scorer startup failure')
+    log = destination / 'canonical_score.log'
+    launch = destination / 'SCORER_LAUNCH.json'
+    if (evidence.get('scorer_log_sha256') != digest(log)
+            or evidence.get('scorer_launch_sha256') != digest(launch)
+            or not log.read_text().strip().endswith('ValueError: Host outside latest five-host authorization')):
+        raise ValueError('Scoring authorization failure evidence differs')
+    full = json.loads((destination / 'COMPLETE.json').read_text())
+    if full.get('scenes') != 12146 or full.get('full_population') is not True or not full.get('final_attempt'):
+        raise ValueError('Complete original prediction bank required')
+    reports = sorted((destination / 'attempts' / full['final_attempt'] / 'shards').glob('*.json'))
+    bound = evidence.get('attempt_files_sha256', {})
+    if len(reports) != full['shards']:
+        raise ValueError('Every completed original shard is required')
+    for path in reports:
+        report = json.loads(path.read_text())
+        if bound.get(str(path.relative_to(destination))) != digest(path):
+            raise ValueError('Original prediction report hash differs')
+        if (report.get('status') != 'COMPLETE' or report.get('error')
+                or report.get('prediction_identity') != full['identity']
+                or report.get('attempt') != full['final_attempt']):
+            raise ValueError('Prediction/scientific failures cannot use scoring startup review')
+
+
 def recover_infrastructure(args):
     """Explicit recovery; no process signals and no clearing scientific failures."""
     authorized()
@@ -219,6 +247,9 @@ def recover_infrastructure(args):
     if (failure.get('classification') != 'infrastructure'
             and evidence.get('reviewed_failure_kind') == 'CUDA_load_oom_after_qualification'):
         review_load_oom(destination, failure, evidence)
+    elif (failure.get('classification') != 'infrastructure'
+            and evidence.get('reviewed_failure_kind') == 'canonical_scorer_legacy_host_guard'):
+        review_scoring_startup_authorization(destination, failure, evidence)
     elif failure.get('classification') != 'infrastructure':
         # Old wrappers did not record exception stacks. A narrow, explicit
         # transport review may recover this known SSH/stdout failure; preserve
