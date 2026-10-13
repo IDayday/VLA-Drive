@@ -1,0 +1,74 @@
+{
+  "status": "RESTORED_AND_UPDATING",
+  "utc": "2026-10-13T09:12:41.169780+00:00",
+  "host": "training-vla-zt",
+  "source_host": "training-vlawm-zt2",
+  "native_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+  "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "execution_mode": "io_preserving_v1",
+  "resume_boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 80000,
+    "epoch": 25,
+    "exposure": 2559800,
+    "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+    "offset": 625,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "validated_update_range": [
+    80001,
+    80033
+  ],
+  "validated_update_count": 33,
+  "all_FP32_master_update_checks_passed": true,
+  "all_losses_and_gradient_norms_finite": true,
+  "ordered_update_and_scene_exposure_checks_passed": true,
+  "first_update_lrs": [
+    1.5015825803671313e-06,
+    1.5015825803671313e-06,
+    1.5015825803671313e-06,
+    1.5015825803671313e-06,
+    1.5015825803671313e-06,
+    1.5015825803671313e-06,
+    1.5015825803671313e-05
+  ],
+  "latest_update_lrs": [
+    1.4984973099067136e-06,
+    1.4984973099067136e-06,
+    1.4984973099067136e-06,
+    1.4984973099067136e-06,
+    1.4984973099067136e-06,
+    1.4984973099067136e-06,
+    1.4984973099067136e-05
+  ],
+  "timing_update_range": [
+    80021,
+    80033
+  ],
+  "timing_updates": 13,
+  "median_update_seconds": 6.341220855712891,
+  "p90_update_seconds": 7.734914302825928,
+  "mean_update_seconds": 6.1757820936349725,
+  "rank0_peak_allocated_bytes": 34249770496,
+  "GPU_snapshots_not_inference_peak": true,
+  "existing_IQE_cache_producers_preserved": [
+    2215285,
+    2215286,
+    2215287,
+    2215288,
+    2215289,
+    2215290,
+    2215291,
+    2223574
+  ],
+  "whole_host_exclusive": false,
+  "elapsed_training_uncommitted_before_termination_updates": 4873,
+  "no_new_checkpoint_created_for_short_validation": true,
+  "metrics_segments": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/G1_vlawm_zt2_migration_20261013T0850Z/METRICS_SEGMENTS.json",
+  "long_term_numerical_bitwise_equivalence_claimed": false
+}

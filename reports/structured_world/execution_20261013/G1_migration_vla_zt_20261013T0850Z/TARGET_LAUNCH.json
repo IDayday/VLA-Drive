@@ -1,0 +1,302 @@
+{
+  "status": "LAUNCHED",
+  "utc": "2026-10-13T09:07:13.137583+00:00",
+  "host": "training-vla-zt",
+  "argv": [
+    "/mnt/project/structured-world-fgtr-execution-assets/20261012/qwen_runtime_tsinghua_v1/bin/python",
+    "-u",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nproc-per-node=8",
+    "--",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/train_vla.py",
+    "--config",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+    "--cache",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+    "--output",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+    "--scope",
+    "formal",
+    "--micro-batch",
+    "4",
+    "--geometry",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+    "--geometry-identity",
+    "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+    "--dino-root",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+    "--dino-identity",
+    "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+    "--save-every",
+    "5000",
+    "--execution-mode",
+    "io_preserving_v1",
+    "--execution-acceptance",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/IO_EXECUTION_ACCEPTANCE_v1.json",
+    "--resume-origin-run",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v2_vision_amp/G1_FULL_UNIFORM",
+    "--resume"
+  ],
+  "original_argv": [
+    "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+    "-u",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nproc-per-node=8",
+    "--",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/train_vla.py",
+    "--config",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+    "--cache",
+    "/var/tmp/structured-world-fgtr-round1-20261008/navsim_train_full_label_v5_centered",
+    "--output",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+    "--scope",
+    "formal",
+    "--micro-batch",
+    "4",
+    "--geometry",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+    "--geometry-identity",
+    "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+    "--dino-root",
+    "/var/tmp/structured-world-fgtr-round1-20261008/navsim_current_C1_only_v1",
+    "--dino-identity",
+    "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+    "--save-every",
+    "5000",
+    "--execution-mode",
+    "io_preserving_v1",
+    "--execution-acceptance",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/IO_EXECUTION_ACCEPTANCE_v1.json",
+    "--resume-origin-run",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v2_vision_amp/G1_FULL_UNIFORM",
+    "--resume"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009",
+  "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "execution_mode": "io_preserving_v1",
+  "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+  "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+  "parent_completed": 80000,
+  "parent_tag": "latest_0080000",
+  "parent_receipt_sha256": "ffb5e2e98fd950be7897d61cb410ebfcc61982cd74366e90a1e9bc1c6f9424b5",
+  "horizon": 100000,
+  "global_batch": 32,
+  "microbatch": 4,
+  "FM_repeat": 8,
+  "world_size": 8,
+  "GPU_samples": [
+    [
+      {
+        "index": "0",
+        "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "1",
+        "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+        "total": "81920",
+        "used": "10735",
+        "util": "4"
+      },
+      {
+        "index": "2",
+        "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "3",
+        "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+        "total": "81920",
+        "used": "10735",
+        "util": "4"
+      },
+      {
+        "index": "4",
+        "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "5",
+        "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "6",
+        "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "7",
+        "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+        "total": "81920",
+        "used": "10735",
+        "util": "99"
+      }
+    ],
+    [
+      {
+        "index": "0",
+        "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+        "total": "81920",
+        "used": "10735",
+        "util": "100"
+      },
+      {
+        "index": "1",
+        "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+        "total": "81920",
+        "used": "10735",
+        "util": "3"
+      },
+      {
+        "index": "2",
+        "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+        "total": "81920",
+        "used": "10735",
+        "util": "5"
+      },
+      {
+        "index": "3",
+        "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+        "total": "81920",
+        "used": "10735",
+        "util": "4"
+      },
+      {
+        "index": "4",
+        "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+        "total": "81920",
+        "used": "10735",
+        "util": "100"
+      },
+      {
+        "index": "5",
+        "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+        "total": "81920",
+        "used": "10735",
+        "util": "100"
+      },
+      {
+        "index": "6",
+        "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+        "total": "81920",
+        "used": "10735",
+        "util": "5"
+      },
+      {
+        "index": "7",
+        "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      }
+    ],
+    [
+      {
+        "index": "0",
+        "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "1",
+        "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "2",
+        "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "3",
+        "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "4",
+        "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "5",
+        "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "6",
+        "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+        "total": "81920",
+        "used": "10735",
+        "util": "0"
+      },
+      {
+        "index": "7",
+        "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+        "total": "81920",
+        "used": "10735",
+        "util": "99"
+      }
+    ]
+  ],
+  "physical_GPU_UUIDs": [
+    "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+    "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+    "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+    "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+    "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+    "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+    "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+    "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c"
+  ],
+  "preexisting_cache_pids_preserved": [
+    2215285,
+    2215286,
+    2215287,
+    2215288,
+    2215289,
+    2215290,
+    2215291,
+    2223574
+  ],
+  "process_signals_sent": false,
+  "from_scratch": false,
+  "metrics_pre_resume_bytes": 205482984,
+  "unsaved_updates_requiring_replay": 4873,
+  "original_metrics_preserved_without_truncation": true,
+  "log": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/G1_vlawm_zt2_migration_20261013T0850Z/G1_RESUMED_VLA_ZT.log",
+  "locks": [
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/HOST_MIGRATION_RUNTIME.lock",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/physical_gpu_locks/queue_01479a0cdf79ac0e55594282793dffe2b2a34f5861147a720a21441b93b946aa.lock",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/physical_gpu_locks/37a02c35633ceebff1e1954f1972208c0a92049a0aaa0ced841038b7f6b0ed93.lock"
+  ],
+  "pid": 2386933,
+  "start_ticks": 1332105006,
+  "uid": 0
+}
