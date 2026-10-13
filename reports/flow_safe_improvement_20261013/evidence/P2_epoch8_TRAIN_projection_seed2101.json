@@ -1,0 +1,674 @@
+{
+  "status": "COMPLETE_FRESH_POLICY_GEOMETRY_AND_FINITE_TARGET_DIAGNOSTIC",
+  "policy_identity": "934c1d9394dc5fdd581c7463bed4360038b6d0fd3bedf2caa5bdaa36a594d772",
+  "baseline_identity": "c0902448ea4103b3a838b8f06401d8bdd8abe536c1d587ba7c1b592c350da61c",
+  "target_identity": "594f16a1ea4db620e15575e451aafd0f398e7f3f1243aba471cdf7e1f0996d09",
+  "input_payloads_sha256": "6bee71acedc591d8cfa233b080846ff01b9314947395f7fca019e9be679cf8b7",
+  "source_sha256": "fdfb67f44d305f0cef40a63ac5dd99b63db9a511ded32994677199198a910fab",
+  "scenes": 512,
+  "inference_seeds": [
+    2101
+  ],
+  "evaluation_override": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/resources/single_seed_override/REGISTRATION.json",
+    "file_sha256": "44c11b53406dfda457b28f055459fe9dee60c62686f775e520f9cade947de7cd",
+    "identity_sha256": "2c6a1ff8b013560c8fc838975407b0e4c262e61be8b869bd349303ce6cf3d756",
+    "user_instruction": "\u4e0d\u7528\u505a\u591aseed\u5b9e\u9a8c"
+  },
+  "within_scene_diversity_available": false,
+  "tables": {
+    "random/all": {
+      "scenes": 256,
+      "statistics": {
+        "SFT_target_energy_V_m": {
+          "mean": 0.2471425357552174,
+          "CI95": [
+            0.15460796901996793,
+            0.3488193174444387
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "change_target_energy_V_m": {
+          "mean": 0.08799315416446034,
+          "CI95": [
+            -0.0021273417904850364,
+            0.23544306248012895
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "context_update_target_dot_m2": {
+          "mean": 0.01861562917295087,
+          "CI95": [
+            0.004527821308240064,
+            0.03384635306672627
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_direction_agreement": {
+          "mean": 1.0,
+          "CI95": [
+            1.0,
+            1.0
+          ],
+          "scenes": 6,
+          "logs": 6,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_shift_m": {
+          "mean": 0.09900644794106483,
+          "CI95": [
+            0.07922075577904514,
+            0.1213648994661775
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_direction_agreement": {
+          "mean": 1.0,
+          "CI95": [
+            1.0,
+            1.0
+          ],
+          "scenes": 3,
+          "logs": 3,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.019163734861649573,
+          "CI95": [
+            0.009232995994230933,
+            0.030062173116379026
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.04788695126598897,
+          "CI95": [
+            0.04154628182665331,
+            0.05483679089112966
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.12574318766941095,
+          "CI95": [
+            0.10518768858111677,
+            0.1481263325418348
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "policy_target_energy_V_m": {
+          "mean": 0.33513568991967774,
+          "CI95": [
+            0.1955055627092419,
+            0.4962666548560377
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_forward_shift_m": {
+          "mean": 0.383211833980136,
+          "CI95": [
+            0.12258668903321063,
+            0.6612465975094319
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_lateral_shift_m": {
+          "mean": -0.00017851684930593608,
+          "CI95": [
+            -0.08336750683666366,
+            0.09314231688777325
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_mean_displacement_RMS_m": {
+          "mean": 0.19038860493734566,
+          "CI95": [
+            0.07039239514744149,
+            0.3127286731777372
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "random/in_fixed_learning_bank": {
+      "scenes": 10,
+      "statistics": {
+        "SFT_target_energy_V_m": {
+          "mean": 0.2471425357552174,
+          "CI95": [
+            0.15460796901996793,
+            0.3488193174444387
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "change_target_energy_V_m": {
+          "mean": 0.08799315416446034,
+          "CI95": [
+            -0.0021273417904850364,
+            0.23544306248012895
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "context_update_target_dot_m2": {
+          "mean": 0.01861562917295087,
+          "CI95": [
+            0.004527821308240064,
+            0.03384635306672627
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_direction_agreement": {
+          "mean": 1.0,
+          "CI95": [
+            1.0,
+            1.0
+          ],
+          "scenes": 6,
+          "logs": 6,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_shift_m": {
+          "mean": 0.1716559886932373,
+          "CI95": [
+            0.04431891441345215,
+            0.33784707427024835
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_direction_agreement": {
+          "mean": 1.0,
+          "CI95": [
+            1.0,
+            1.0
+          ],
+          "scenes": 3,
+          "logs": 3,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.05143077075481415,
+          "CI95": [
+            -0.009037212580442428,
+            0.15013899952173232
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.08531928108442319,
+          "CI95": [
+            0.03956185480386415,
+            0.1383812399127883
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.21478568706319576,
+          "CI95": [
+            0.07837909789142491,
+            0.38776974798674074
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "policy_target_energy_V_m": {
+          "mean": 0.33513568991967774,
+          "CI95": [
+            0.1955055627092419,
+            0.4962666548560377
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_forward_shift_m": {
+          "mean": 0.383211833980136,
+          "CI95": [
+            0.12258668903321063,
+            0.6612465975094319
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_lateral_shift_m": {
+          "mean": -0.00017851684930593608,
+          "CI95": [
+            -0.08336750683666366,
+            0.09314231688777325
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_mean_displacement_RMS_m": {
+          "mean": 0.19038860493734566,
+          "CI95": [
+            0.07039239514744149,
+            0.3127286731777372
+          ],
+          "scenes": 10,
+          "logs": 10,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "targeted/all": {
+      "scenes": 256,
+      "statistics": {
+        "SFT_target_energy_V_m": {
+          "mean": 0.17498162555983224,
+          "CI95": [
+            0.15901934839714096,
+            0.19190796342854602
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "change_target_energy_V_m": {
+          "mean": 0.027035945466867814,
+          "CI95": [
+            0.01642817221671363,
+            0.0373797604199409
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "context_update_target_dot_m2": {
+          "mean": 0.009567652581895902,
+          "CI95": [
+            0.005723976867553657,
+            0.01479225515491251
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_direction_agreement": {
+          "mean": 0.8120300751879699,
+          "CI95": [
+            0.7441420014094433,
+            0.8777019605689493
+          ],
+          "scenes": 133,
+          "logs": 113,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_shift_m": {
+          "mean": 0.09324872680008411,
+          "CI95": [
+            0.07195141547107053,
+            0.12045991217443185
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_direction_agreement": {
+          "mean": 0.6546762589928058,
+          "CI95": [
+            0.5777699530516431,
+            0.7279569327731091
+          ],
+          "scenes": 139,
+          "logs": 117,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.0035973238991573453,
+          "CI95": [
+            -0.011392951087576604,
+            0.017974812416407606
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.052908896295581424,
+          "CI95": [
+            0.04607007313028664,
+            0.06133389442991641
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.139382132310512,
+          "CI95": [
+            0.1154979914406812,
+            0.169788046912476
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "policy_target_energy_V_m": {
+          "mean": 0.20201757102670007,
+          "CI95": [
+            0.18381642697388262,
+            0.21982718534648304
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_forward_shift_m": {
+          "mean": 0.13187248549366049,
+          "CI95": [
+            0.09392460912161782,
+            0.17441175760287778
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_lateral_shift_m": {
+          "mean": 0.01795992183383712,
+          "CI95": [
+            -0.005628139078332573,
+            0.04009355146644502
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_mean_displacement_RMS_m": {
+          "mean": 0.11997798259586624,
+          "CI95": [
+            0.10223706358614426,
+            0.1382393436252836
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "targeted/in_fixed_learning_bank": {
+      "scenes": 256,
+      "statistics": {
+        "SFT_target_energy_V_m": {
+          "mean": 0.17498162555983224,
+          "CI95": [
+            0.15901934839714096,
+            0.19190796342854602
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "change_target_energy_V_m": {
+          "mean": 0.027035945466867814,
+          "CI95": [
+            0.01642817221671363,
+            0.0373797604199409
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "context_update_target_dot_m2": {
+          "mean": 0.009567652581895902,
+          "CI95": [
+            0.005723976867553657,
+            0.01479225515491251
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_direction_agreement": {
+          "mean": 0.8120300751879699,
+          "CI95": [
+            0.7441420014094433,
+            0.8777019605689493
+          ],
+          "scenes": 133,
+          "logs": 113,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_forward_shift_m": {
+          "mean": 0.09324872680008411,
+          "CI95": [
+            0.07195141547107053,
+            0.12045991217443185
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_direction_agreement": {
+          "mean": 0.6546762589928058,
+          "CI95": [
+            0.5777699530516431,
+            0.7279569327731091
+          ],
+          "scenes": 139,
+          "logs": 117,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.0035973238991573453,
+          "CI95": [
+            -0.011392951087576604,
+            0.017974812416407606
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.052908896295581424,
+          "CI95": [
+            0.04607007313028664,
+            0.06133389442991641
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.139382132310512,
+          "CI95": [
+            0.1154979914406812,
+            0.169788046912476
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "policy_target_energy_V_m": {
+          "mean": 0.20201757102670007,
+          "CI95": [
+            0.18381642697388262,
+            0.21982718534648304
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_forward_shift_m": {
+          "mean": 0.13187248549366049,
+          "CI95": [
+            0.09392460912161782,
+            0.17441175760287778
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_endpoint_lateral_shift_m": {
+          "mean": 0.01795992183383712,
+          "CI95": [
+            -0.005628139078332573,
+            0.04009355146644502
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "target_mean_displacement_RMS_m": {
+          "mean": 0.11997798259586624,
+          "CI95": [
+            0.10223706358614426,
+            0.1382393436252836
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    }
+  },
+  "no_candidate_selection_or_training": true,
+  "energy_definition": "Empirical V-statistic 2 E||X-Y|| - E||X-Xprime|| - E||Y-Yprime||, XY trajectory norm / sqrt(8). Finite-sample biased; with one seed this is only an output-to-target discrepancy, not a policy-distribution distance.",
+  "interpretation": "Lower target energy plus canonical improvement supports absorption; geometry alone does not establish safety, mode-collapse causality or useful scenario-dependent behavior.",
+  "context_direction_thresholds_m": {
+    "forward": 0.1,
+    "lateral": 0.05
+  },
+  "TRAIN_targeted_stratum_is_not_unbiased": true,
+  "sha256": "e8bfd93407a007781d035b4dd564ae48e251f9c7e9030f6c2f6ad92e2f216cb1"
+}

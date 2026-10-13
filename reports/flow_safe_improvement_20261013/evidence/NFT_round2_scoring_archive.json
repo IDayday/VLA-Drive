@@ -1,0 +1,48 @@
+{
+  "status": "COMPLETE_ARCHIVE_BYTE_COMPARISON_PASS_SOURCE_RETAINED",
+  "host": "training-vlawm-tsinghua-zt2",
+  "source": "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_NFT_seed42/round2",
+  "source_manifest_sha256": "6b9b833ca4a0de51e82fb149006511e4078ef1d133c07479dff1d8e509da1471",
+  "source_status": {
+    "status": "STOPPED_COMPLETED_REGISTERED_WINDOW",
+    "identity_sha256": "6b9b833ca4a0de51e82fb149006511e4078ef1d133c07479dff1d8e509da1471",
+    "new_jobs": 16384,
+    "new_scores": 114688,
+    "CPU_scoring_seconds_sum": 3308.224394420162,
+    "workers": 16,
+    "wall_seconds": 2628.76897810027
+  },
+  "source_inventory_sha256": "5efc3582b9254903ee8bc2f3a5dd4e0d206e1663bd9d584d25e9881beb2b9734",
+  "source_files": 39121,
+  "source_logical_bytes": 4096142313,
+  "archive": "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_NFT_seed42/round2/queue.tar.gz",
+  "archive_bytes": 1131247355,
+  "archive_sha256": "67003cf32d3cf44169a365bd9d16732364b2184319f439d58b9329ded4a35581",
+  "source_deleted": false,
+  "commands": [
+    [
+      "tar",
+      "--sort=name",
+      "-I",
+      "gzip -1",
+      "-cf",
+      "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_NFT_seed42/round2/queue.tar.gz.incomplete",
+      "-C",
+      "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_NFT_seed42/round2",
+      "."
+    ],
+    [
+      "tar",
+      "-I",
+      "gzip -1",
+      "-df",
+      "/mnt/project/flow-safe-improvement-20261013/scoring_queue_archives/ODE_NFT_seed42/round2/queue.tar.gz.incomplete",
+      "-C",
+      "/var/tmp/flow-safe-improvement-20261013/scoring_queues/ODE_NFT_seed42/round2"
+    ]
+  ],
+  "wall_seconds": 79.88117038272321,
+  "no_score_or_model_contract_change": true,
+  "source_sha256": "8fdb5eed7cd4078a9d99e85d12d94fe1b21414615986dfafa520790e993ce503",
+  "sha256": "1e7b897a46dd21f4a403dc0f2cf7ddce7017c3f9fdaabe73f81a2613c868c4c4"
+}

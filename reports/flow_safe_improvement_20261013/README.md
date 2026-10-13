@@ -2,7 +2,19 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 10:45 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 已完成共同8-epoch终点和完整DEV原ODE评价，P2 接近8-epoch终点；四条在线路线均已完成首轮，搜索路线第二轮训练也已完成、正在评价，NFT正在第二轮训练。三轮在线终点和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 10:55 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；**P0/P1/P2 均已完成共同8-epoch终点、完整DEV原ODE评价和终点TRAIN诊断**。四条在线路线均已完成首轮；搜索路线第二轮训练/评价完成并进入第三轮，NFT第二轮训练完成、正在评价，两个普通ODE候选路线正在第二轮训练。三轮在线终点和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
+
+当前固定库终点比较如下，均为完整1696场景、无搜索/GT筛选的原始单候选10步ODE；每组2048次全动作头更新。单位为0—100分，区间按log聚类计算，不包含训练/推理seed不确定性。
+
+| 固定预算终点 | PDMS | 相对SFT差值与95%CI | NC / DAC / TTC差值 | 固定SFT安全集联合违规场景 |
+|---|---:|---:|---:|---:|
+| 匹配SFT | 93.61924 | — | — | 1 |
+| P0/P1 epoch8 | 93.62435 | +0.00511 [+0.00255,+0.00904] | 0 / 0 / 0 | 1 |
+| P2 epoch8 | 93.73918 | +0.11995 [−0.07946,+0.32343] | 0 / +0.11792 / −0.23585 | 6 |
+
+[P0/P1身份与独立执行核对](evidence/P0_P1_epoch8_identity.json)、[P2终点](evidence/P2_epoch8_DEV_seed2101.json)、[全部已完成窗口及缺失项](evidence/single_seed_policy_scores.csv)。P0/P1安全保持但收益很小；P2早期收益到终点减弱并出现新的安全失败，尚无安全合格的搜索策略。下图保留所有已完成窗口，空白位置表示尚未完成；不以候选最优值替代策略分数。
+
+![完整动作头学习曲线与固定参考安全集合违规](evidence/policy_learning_curves.png)
 
 2026-10-13 后续进度：已完成 8,192 个 RL_TRAIN 场景的四 seed SFT 参考采样、32,768 次真实 v1.1 评分和逐时刻车身几何审计；随后锁定 512 场景诊断集及 4,096 场景学习集。D1 SFT 的原 ODE/旧 SDE 配对运行已启动。完整动作头的正权重 FM、公共保持和 NFT 训练入口已接入原 ZeRO-2/检查点基础，但此处尚没有更新后策略的重新采样成绩。[执行成本](evidence/reference_screen_execution.json)、[清单身份与安全集合计数](evidence/locked_cohorts.json)。
 
@@ -182,3 +194,30 @@ P0终点另外真实运行512场景TRAIN诊断，P1因完整权重和配置一�
 同一批首轮单候选输出的官方v2 one-stage辅助分数为：SFT93.67596、普通ODE FM93.84458、安全ODE FM93.84458、探索安全FM93.86760、NFT93.65465。[普通FM](evidence/ODE_REWARD_FM_round1_DEV_seed2101_v2.json)、[安全FM](evidence/ODE_SAFE_FM_round1_DEV_seed2101_v2.json)、[探索FM](evidence/EXPLORE_SAFE_FM_round1_DEV_seed2101_v2.json)、[NFT](evidence/ODE_NFT_round1_DEV_seed2101_v2.json)。它们仅作辅助，未进入v1训练reward或与v1均分混合；完整logs与相邻帧缺失语义保持官方定义。
 
 新增三个入口均已有实际执行结果：`diagnose_nft_signal`读取完整真实NFT目标库，`stratify_training_evaluation`分开随机/定向与实际训练曝光，`archive_scoring_queue`在评分器完成并释放锁后归档全部原始请求/结果/失败记录，再解压逐文件字节比较。[探索第二轮评分归档](evidence/EXPLORE_round2_scoring_archive.json)通过，共39160文件、3.52GB逻辑数据，压缩后0.98GB；源文件未删除。归档仅留私有共享运行目录，Git中只保存摘要与代码。原冻结训练/优化器/动作编码/评分源码未因这些分析入口改变。
+
+10:55 UTC P2共同8-epoch终点已完成，完整导出SHA256为 `a15a4ddb289a8f0c55abed18413451bd21635374f31df0c7abb50789a37e83c7`。[P2−P1同预算配对差](evidence/P2_minus_P1_epoch8_seed2101.json)为+0.11483分，95%CI [−0.08637,+0.31855]；NC不变、DAC提高、TTC下降，不能写成全部安全项都下降。相对SFT，P2新增1个DAC、4个TTC违规场景，恢复3个DAC场景；固定参考联合安全集合中的违规1→6。单seed零分场景13→11，其中新增1、恢复3，零分净减少并未消除新增安全失败。该终点支持CASE_C的研究问题，不能据中途高点把P2称为安全成功。
+
+P2原始ODE的[终点TRAIN分层评价](evidence/P2_epoch8_TRAIN_stratified_seed2101.json)中，随机256场景PDMS差+0.44339分，CI [+0.09799,+1.12788]；其中实际进入4096学习库的只有10场景。定向256场景差+1.26536分，CI [−1.82950,+4.48066]。因此不能把随机人口提升直接解释为已训练样本拟合，也不能仅凭TRAIN/DEV点估计之差宣布CASE_F已证明。[目标吸收诊断](evidence/P2_epoch8_TRAIN_projection_seed2101.json)显示随机/定向请求轨迹平均漂移约4.79/5.29厘米，定向部分单输出到有限目标的能量差反而增加0.02704米，CI [+0.01643,+0.03738]；这限制了“目标已经被完整吸收”的解释。
+
+[场景方向诊断](evidence/P2_epoch8_TRAIN_context_seed2101.json)中，定向集合去全局均值后的目标关联为正；进一步去SFT前进距离分箱均值后仍有正关联，但这仍是事后关联，不能当作因果场景推理证明。要求终点前进距离增加至少0.1m的107场景，98场景方向一致；要求减少至少0.1m的26场景，只有10场景一致，平均实际仍增加0.01954m，而目标平均减少0.29927m。横向负/正目标方向一致率为67.80%/63.75%。已有部分场景相关响应，但保守减速与安全修复吸收不足。缓存BF16编码与原导出模块精度的已知差异仍是投影分析的混杂，下一轮不能把所有误差都归因FM优化器。
+
+[在线探索第二轮](evidence/EXPLORE_SAFE_FM_round2_DEV_seed2101.json)完成4096场景全新当前behavior候选、真实评分、512次更新和完整DEV评价：PDMS=93.85596，相对SFT+0.23672分，CI [+0.04697,+0.38876]；NC不变，DAC+0.23585分、TTC−0.17689分。固定SFT安全集合联合违规为3（SFT为1），全人口新增3个TTC违规、未恢复TTC。它已进入预登记第三轮，未因均分提高放松永久SFT安全预算。
+
+新增 `plot_research_results` 已使用封存汇总实际执行，生成[SVG](evidence/policy_learning_curves.svg)和PNG，只画完整原ODE结果，保留尚未完成窗口及log区间。[绘图输入身份](evidence/policy_learning_curves_source.json)。已完成的辅助v2结果继续单列：[SFT seed2101](evidence/SFT_DEV_seed2101_v2.json)、[P0/P1 epoch8](evidence/P0_epoch8_DEV_seed2101_v2.json)、[P2 epoch2](evidence/P2_epoch2_DEV_seed2101_v2.json)、[P2 epoch4](evidence/P2_epoch4_DEV_seed2101_v2.json)。训练入口、学习窗口和所有已登记目标均未改变。
+
+四条在线路线的第二轮本地评分队列已全部原样归档到共享运行目录，并通过解压字节比较；原队列仍保留。[NFT](evidence/NFT_round2_scoring_archive.json)、[ODE安全FM](evidence/ODE_SAFE_FM_round2_scoring_archive.json)、[普通ODE FM](evidence/ODE_REWARD_FM_round2_scoring_archive.json)、[探索安全FM](evidence/EXPLORE_round2_scoring_archive.json)。以下分析命令对应本轮真实执行入口；新的输出目录可避免覆盖既有证据。模型/评分分析在当前获授权Tsinghua主机运行，纯汇总和绘图可在控制工作区执行。
+
+```bash
+SFI_PY=/mnt/project/flow-safe-improvement-20261013/venv/bin/python
+SFI_RUN=/mnt/project/flow-safe-improvement-20261013
+cd /mnt/project/VLA-Drive-flow-safe-improvement-20261013
+$SFI_PY -m scripts.analysis.flow_safe_improvement.summarize_direction \
+  --run-root "$SFI_RUN" --output "$SFI_RUN/diagnostics/status_NEW"
+$SFI_PY -m scripts.analysis.flow_safe_improvement.plot_research_results \
+  --summary "$SFI_RUN/diagnostics/status_NEW/report.json" \
+  --output "$SFI_RUN/diagnostics/curves_NEW"
+$SFI_PY -m scripts.analysis.flow_safe_improvement.diagnose_nft_signal \
+  --targets "$SFI_RUN/online/ODE_NFT_seed42/round1/targets" \
+  --population "$SFI_RUN/population/manifest.json" \
+  --output "$SFI_RUN/diagnostics/NFT_signal_NEW"
+```

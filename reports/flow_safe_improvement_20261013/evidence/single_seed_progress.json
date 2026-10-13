@@ -1,6 +1,6 @@
 {
   "schema": "flow_safe_observed_direction_status_v1",
-  "utc": "2026-10-13T10:45:20.452519+00:00",
+  "utc": "2026-10-13T10:55:15.062818+00:00",
   "status": "RESEARCH_IN_PROGRESS",
   "all_registered_DEV_windows_complete": false,
   "fixed_budget_DEV_endpoints_complete": false,
@@ -1797,8 +1797,165 @@
     },
     {
       "name": "P2_SEARCH_SAFE_FM_epoch8",
-      "status": "NOT_YET_COMPLETE",
-      "fixed_budget_endpoint": true
+      "status": "COMPLETE_MATCHED_EVALUATION",
+      "fixed_budget_endpoint": true,
+      "report": "/mnt/project/flow-safe-improvement-20261013/training/P2_SEARCH_SAFE_FM_seed42/DEV_seed2101_original_epoch8/summary/report.json",
+      "report_sha256": "1a7f4d8f13c8aec43f7cb0f8e34e7339c81a89d7734092f8e112bc6986341f1d",
+      "PDMS": 0.9373918308895802,
+      "SFT_PDMS": 0.9361923657625044,
+      "paired_changes": {
+        "comfort": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "drivable_area_compliance": {
+          "mean": 0.0011792452830188679,
+          "CI95": [
+            -0.0016501990826663178,
+            0.0029950507021311496
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "driving_direction_compliance": {
+          "mean": -0.0005896226415094339,
+          "CI95": [
+            -0.0013882863793980022,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "ego_progress": {
+          "mean": 0.0041758861163028425,
+          "CI95": [
+            0.0017730774118105506,
+            0.006274832809831036
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "no_at_fault_collisions": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "score": {
+          "mean": 0.0011994651270758713,
+          "CI95": [
+            -0.0007945746377250323,
+            0.003234343515935395
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "time_to_collision_within_bound": {
+          "mean": -0.0023584905660377358,
+          "CI95": [
+            -0.004378795272175233,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "safety": {
+        "no_at_fault_collisions": {
+          "fixed_reference_stable_safe_scenes": 1696,
+          "current_any_seed_violation_in_fixed_safe": 0,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 0,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 1.0
+        },
+        "drivable_area_compliance": {
+          "fixed_reference_stable_safe_scenes": 1682,
+          "current_any_seed_violation_in_fixed_safe": 2,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 1,
+          "recovered_all_eval_seeds": 3,
+          "current_pass_rate": 0.9935141509433962
+        },
+        "time_to_collision_within_bound": {
+          "fixed_reference_stable_safe_scenes": 1693,
+          "current_any_seed_violation_in_fixed_safe": 4,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 4,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 0.9970518867924528
+        },
+        "joint": {
+          "fixed_reference_stable_safe_scenes": 1680,
+          "current_any_seed_violation_in_fixed_safe": 6,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 5,
+          "recovered_all_eval_seeds": 2,
+          "current_pass_rate": 0.9905660377358491
+        }
+      },
+      "zero_transitions": {
+        "any_seed_zero": {
+          "SFT": 13,
+          "policy": 11,
+          "new_failures": 1,
+          "recovered": 3
+        },
+        "all_fixed_seeds_zero": {
+          "SFT": 13,
+          "policy": 11,
+          "new_failures": 1,
+          "recovered": 3
+        },
+        "single_seed_scene_score_zero": {
+          "SFT": 13,
+          "policy": 11,
+          "new_failures": 1,
+          "recovered": 3
+        }
+      },
+      "high_score_decline": {
+        "SFT_scene_mean_threshold": 0.9,
+        "scenes": 1263,
+        "any_negative": 123,
+        "decline_at_least_001": 38,
+        "decline_at_least_005": 5
+      },
+      "finite_DEV_selection_eligible": false,
+      "eligibility_is_not_policy_safety_guarantee": true,
+      "inference_seeds": [
+        2101
+      ],
+      "training_seed_repetitions": 1
     },
     {
       "name": "ODE_REWARD_FM_round1",
@@ -2308,8 +2465,165 @@
     },
     {
       "name": "EXPLORE_SAFE_FM_round2",
-      "status": "NOT_YET_COMPLETE",
-      "fixed_budget_endpoint": false
+      "status": "COMPLETE_MATCHED_EVALUATION",
+      "fixed_budget_endpoint": false,
+      "report": "/mnt/project/flow-safe-improvement-20261013/online/EXPLORE_SAFE_FM_seed42/round2/learning/DEV_seed2101_original_epoch2/summary/report.json",
+      "report_sha256": "7ce07165eb1de56d1724e39a91b571a1079c637ab695ff1229cd77652ef93d38",
+      "PDMS": 0.9385596008019746,
+      "SFT_PDMS": 0.9361923657625044,
+      "paired_changes": {
+        "comfort": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "drivable_area_compliance": {
+          "mean": 0.0023584905660377358,
+          "CI95": [
+            0.0,
+            0.0041139868579233956
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "driving_direction_compliance": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "ego_progress": {
+          "mean": 0.00473796786831376,
+          "CI95": [
+            0.0025352904374517653,
+            0.006336310552459788
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "no_at_fault_collisions": {
+          "mean": 0.0,
+          "CI95": [
+            0.0,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "score": {
+          "mean": 0.0023672350394703546,
+          "CI95": [
+            0.0004696550146292247,
+            0.00388757934410777
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "time_to_collision_within_bound": {
+          "mean": -0.001768867924528302,
+          "CI95": [
+            -0.002967390510994833,
+            0.0
+          ],
+          "scenes": 1696,
+          "logs": 16,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      },
+      "safety": {
+        "no_at_fault_collisions": {
+          "fixed_reference_stable_safe_scenes": 1696,
+          "current_any_seed_violation_in_fixed_safe": 0,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 0,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 1.0
+        },
+        "drivable_area_compliance": {
+          "fixed_reference_stable_safe_scenes": 1682,
+          "current_any_seed_violation_in_fixed_safe": 1,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 0,
+          "recovered_all_eval_seeds": 4,
+          "current_pass_rate": 0.9946933962264151
+        },
+        "time_to_collision_within_bound": {
+          "fixed_reference_stable_safe_scenes": 1693,
+          "current_any_seed_violation_in_fixed_safe": 2,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+          "newly_violating_vs_matched_baseline": 3,
+          "recovered_all_eval_seeds": 0,
+          "current_pass_rate": 0.9976415094339622
+        },
+        "joint": {
+          "fixed_reference_stable_safe_scenes": 1680,
+          "current_any_seed_violation_in_fixed_safe": 3,
+          "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+          "newly_violating_vs_matched_baseline": 3,
+          "recovered_all_eval_seeds": 3,
+          "current_pass_rate": 0.9923349056603774
+        }
+      },
+      "zero_transitions": {
+        "any_seed_zero": {
+          "SFT": 13,
+          "policy": 9,
+          "new_failures": 0,
+          "recovered": 4
+        },
+        "all_fixed_seeds_zero": {
+          "SFT": 13,
+          "policy": 9,
+          "new_failures": 0,
+          "recovered": 4
+        },
+        "single_seed_scene_score_zero": {
+          "SFT": 13,
+          "policy": 9,
+          "new_failures": 0,
+          "recovered": 4
+        }
+      },
+      "high_score_decline": {
+        "SFT_scene_mean_threshold": 0.9,
+        "scenes": 1263,
+        "any_negative": 91,
+        "decline_at_least_001": 17,
+        "decline_at_least_005": 3
+      },
+      "finite_DEV_selection_eligible": false,
+      "eligibility_is_not_policy_safety_guarantee": true,
+      "inference_seeds": [
+        2101
+      ],
+      "training_seed_repetitions": 1
     },
     {
       "name": "EXPLORE_SAFE_FM_round3",
@@ -2521,19 +2835,19 @@
       "log_sha256": "fb4e62191955cfebd5bc39a9d9a462cdcb94f96031097f10cff77596cc12e9fc"
     },
     "P2_SEARCH_SAFE_FM": {
-      "updates": 2031,
-      "observed_optimizer_updates": 2031,
-      "scene_exposures": 32496,
+      "updates": 2048,
+      "observed_optimizer_updates": 2048,
+      "scene_exposures": 32768,
       "unique_scene_population": 4096,
       "training_seed": 42,
-      "velocity_forward_scene_calls": 129984,
-      "velocity_backward_scene_calls": 97488,
+      "velocity_forward_scene_calls": 131072,
+      "velocity_backward_scene_calls": 98304,
       "FM_noise_repeats": 8,
-      "rank0_optimizer_loop_seconds": 5449.100214386359,
-      "allocated_rank_hours_optimizer_loop_only": 12.109111587525241,
+      "rank0_optimizer_loop_seconds": 5486.591374484822,
+      "allocated_rank_hours_optimizer_loop_only": 12.192425276632939,
       "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
       "peak_gpu_allocated_GiB": 22.336063385009766,
-      "log_sha256": "f6e7f83f901d09df2667094a053925c0402e1e81f6e9ef3af07ae9ab4e85a0f9"
+      "log_sha256": "15ac8446b8e65196bdba52f468f72af517539d79a5be0ed8199cfcd08b3d350e"
     },
     "ODE_REWARD_FM_round1": {
       "updates": 512,
@@ -2574,8 +2888,19 @@
       "log_sha256": "d3cc8e4f9253f3591d8028b4b862c1f662dbae30ac2f6df6d49061eb86ddb0e2"
     },
     "ODE_SAFE_FM_round2": {
-      "updates": 0,
-      "status": "NOT_STARTED"
+      "updates": 54,
+      "observed_optimizer_updates": 54,
+      "scene_exposures": 864,
+      "unique_scene_population": 4096,
+      "training_seed": 42,
+      "velocity_forward_scene_calls": 3456,
+      "velocity_backward_scene_calls": 2592,
+      "FM_noise_repeats": 8,
+      "rank0_optimizer_loop_seconds": 121.6966638378799,
+      "allocated_rank_hours_optimizer_loop_only": 0.2704370307508442,
+      "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
+      "peak_gpu_allocated_GiB": 22.336063385009766,
+      "log_sha256": "46201ca2120a80a1c5ee2a3ac3e0f5e268ca270444f11f35b58ba09c81df6a7f"
     },
     "ODE_SAFE_FM_round3": {
       "updates": 0,
@@ -2631,19 +2956,19 @@
       "log_sha256": "de5896a99f140cb614143682a8a28ce91738c1ed9f0af1fcb9e3b0663dd9d941"
     },
     "ODE_NFT_round2": {
-      "updates": 302,
-      "observed_optimizer_updates": 302,
-      "scene_exposures": 4832,
+      "updates": 512,
+      "observed_optimizer_updates": 512,
+      "scene_exposures": 8192,
       "unique_scene_population": 4096,
       "training_seed": 42,
-      "velocity_forward_scene_calls": 24160,
-      "velocity_backward_scene_calls": 14496,
+      "velocity_forward_scene_calls": 40960,
+      "velocity_backward_scene_calls": 24576,
       "FM_noise_repeats": 8,
-      "rank0_optimizer_loop_seconds": 712.7442666813731,
-      "allocated_rank_hours_optimizer_loop_only": 1.5838761481808292,
+      "rank0_optimizer_loop_seconds": 1220.1081624682993,
+      "allocated_rank_hours_optimizer_loop_only": 2.711351472151776,
       "allocated_rank_hours_are_not_unique_physical_GPU_hours": true,
       "peak_gpu_allocated_GiB": 27.84003496170044,
-      "log_sha256": "26e8261854544ac254ea83ca07aab4832a8af80bf6b1298252b1bcb25c4dda1d"
+      "log_sha256": "d04b468a6155dc5efec2226bbf6e7efd7a41e510e17fce3fab55d8d158f7ae5c"
     },
     "ODE_NFT_round3": {
       "updates": 0,
@@ -2741,6 +3066,21 @@
       "wall_seconds_is_sum_of_rank_allocations_not_unique_physical_time": true,
       "reference_historical_scoring_cost_separate": true
     },
+    "EXPLORE_SAFE_FM_round3": {
+      "identity": "9d696d78a361c655acf1491beac6f33a87670e1bc8e811a61a75a7a1d4203a94",
+      "complete": false,
+      "counters": {
+        "new_scenes": 538,
+        "logical_proposals": 17216,
+        "velocity_forward_calls": 5380,
+        "actual_new_scoring_calls": 13255,
+        "invalid_physical_proposals": 1809,
+        "GPU_generation_seconds": 305.1402849648148,
+        "wall_seconds": 2515.24937239103
+      },
+      "wall_seconds_is_sum_of_rank_allocations_not_unique_physical_time": true,
+      "reference_historical_scoring_cost_separate": true
+    },
     "ODE_NFT_round1": {
       "identity": "e5ee8aa46f1f5c774ca7731fd28622395c26b73540b8617f35381d25793a226e",
       "complete": true,
@@ -2816,6 +3156,12 @@
       "report_sha256": "fc5adbddafbdd9887957476643b86f6810314b20b5f2719257a08f560045f5c5"
     },
     {
+      "name": "P2_SEARCH_SAFE_FM_epoch8",
+      "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
+      "supported_case": "CASE_C_projection_or_retention_candidate",
+      "report_sha256": "1a7f4d8f13c8aec43f7cb0f8e34e7339c81a89d7734092f8e112bc6986341f1d"
+    },
+    {
       "name": "ODE_REWARD_FM_round1",
       "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
       "supported_case": "CASE_C_projection_or_retention_candidate",
@@ -2832,15 +3178,19 @@
       "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
       "supported_case": "CASE_C_projection_or_retention_candidate",
       "report_sha256": "0e70544a228772d0f32b86a8e2fd271af979c6d942715ddc958c1fba7b8b4dab"
+    },
+    {
+      "name": "EXPLORE_SAFE_FM_round2",
+      "evidence": "MEAN_GAIN_WITH_UNRESOLVED_SAFETY_REGRESSION",
+      "supported_case": "CASE_C_projection_or_retention_candidate",
+      "report_sha256": "7ce07165eb1de56d1724e39a91b571a1079c637ab695ff1229cd77652ef93d38"
     }
   ],
   "missing": [
-    "P2_SEARCH_SAFE_FM_epoch8",
     "ODE_REWARD_FM_round2",
     "ODE_REWARD_FM_round3",
     "ODE_SAFE_FM_round2",
     "ODE_SAFE_FM_round3",
-    "EXPLORE_SAFE_FM_round2",
     "EXPLORE_SAFE_FM_round3",
     "ODE_NFT_round2",
     "ODE_NFT_round3"
@@ -2852,5 +3202,5 @@
     "Candidates, targets, training rewards and DEV policy scores have separate meanings.",
     "CASE labels here are diagnostic evidence, not a final method ranking."
   ],
-  "sha256": "195fb2cf92f4e0b3e443c9bf332ae6a17b9e65725bf54a240ec48a8a9fb34907"
+  "sha256": "6dc4430eeb0304df268bdecb850ddc1c0bfff02cf117f4c940a41d4d7167bf8b"
 }
