@@ -474,6 +474,36 @@ def train_snapshot():
         'latest_metric_mtime': p.stat().st_mtime}
 
 
+def registered_evaluation_owner(argv, pid, start, visible, host):
+    """Bind a live worker to a registered bank; never infer ownership from a name."""
+    required = ('--worker', '--output', '--attempt', '--shard', '--run', '--tag')
+    if any(flag not in argv for flag in required): return None
+    output = Path(argv[argv.index('--output')+1])
+    if output.parent != DEFAULT_OUTPUT/'jobs': return None
+    attempt = argv[argv.index('--attempt')+1]; shard = int(argv[argv.index('--shard')+1])
+    registration = json.loads((output/'REGISTRATION.json').read_text())
+    request = registration['request']
+    report = json.loads((output/'attempts'/attempt/'shards'/f'shard_{shard:03d}.json').read_text())
+    record = json.loads((output/'attempts'/attempt/'ATTEMPT.json').read_text())
+    scripts = [Path(v) for v in argv if v.endswith('/run_navsim_navtest.py')]
+    if (len(scripts) != 1 or registration['frozen_evaluation_source'] != SHA
+            or report['pid'] != pid or str(report['proc_start_ticks']) != str(start)
+            or report['host'].removesuffix('-worker-0') != host
+            or report['visible_gpu'] != visible or report.get('actual_CUDA_UUID') != visible
+            or report['attempt'] != attempt or report['shard'] != shard
+            or report['status'] not in ('LOADING','INFERENCE','COMPLETE')
+            or argv[argv.index('--run')+1] != request['run']
+            or argv[argv.index('--tag')+1] != request['tag']
+            or report['routing_tool_sha256'] != digest(scripts[0])):
+        return None
+    if not any(r['uuid'] == visible and r['host'] == host for r in record['routes']):
+        return None
+    return dict(pid=pid, proc_start_ticks=str(start), GPU_uuid=visible,
+                request_key=request['key'], training_identity=request['training_identity'],
+                kind='registered_navtest_inference', output=str(output), attempt=attempt,
+                binding_basis='exact live PID/start/argv/CUDA UUID, registered attempt and immutable worker hash')
+
+
 def inventory():
     """Read only current process metadata; publish GPU binding fields, no secrets."""
     candidates = ['/tmp/structured-world-round1/envs/qwen/bin/python',
@@ -483,10 +513,20 @@ def inventory():
     for i in range(3):
         samples.append(gpu_rows())
         if i < 2: time.sleep(.5)
-    devices = samples[-1]; owned = {}; process_evidence = []
+    devices = samples[-1]; owned = {}; evaluations = {}; process_evidence = []
     for path in Path('/proc').glob('[0-9]*'):
         try:
             argv = [v.decode() for v in (path/'cmdline').read_bytes().split(b'\0') if v]
+            if '--worker' in argv and any(v.endswith('/run_navsim_navtest.py') for v in argv):
+                env = dict(v.split('=',1) for v in (path/'environ').read_bytes().decode().split('\0') if '=' in v)
+                start = (path/'stat').read_text().rsplit(')',1)[1].split()[19]
+                evidence = registered_evaluation_owner(argv, int(path.name), start,
+                    env.get('CUDA_VISIBLE_DEVICES'), socket.gethostname().removesuffix('-worker-0'))
+                if evidence:
+                    namespace = next((line.split()[1:] for line in (path/'status').read_text().splitlines()
+                                      if line.startswith('NSpid:')), [])
+                    evidence['pid_namespace_aliases'] = [int(value) for value in namespace]
+                    evaluations.setdefault(evidence['GPU_uuid'],[]).append(evidence)
             if str(FROZEN/'tools/structured_world/train_vla.py') not in argv or '--output' not in argv: continue
             env = dict(v.split('=',1) for v in (path/'environ').read_bytes().decode().split('\0') if '=' in v)
             if 'LOCAL_RANK' not in env: continue
@@ -517,7 +557,8 @@ def inventory():
             apps.append(dict(pid=int(pid),GPU_uuid=gpu,used_MiB=int(memory)))
     except (subprocess.SubprocessError,ValueError) as error: query_error=repr(error)
     return dict(host=socket.gethostname(),python=next((p for p in candidates if Path(p).is_file()),None),samples=samples,
-        registered_training_by_GPU=owned,process_evidence=process_evidence,compute_apps=apps,compute_apps_error=query_error,
+        registered_training_by_GPU=owned,registered_evaluation_by_GPU=evaluations,
+        process_evidence=process_evidence,compute_apps=apps,compute_apps_error=query_error,
         namespace_visibility='visible registered rank bindings; additional hidden occupants cannot be enumerated when compute-apps is empty',
         cpu_count=os.cpu_count())
 
@@ -830,7 +871,11 @@ def refresh_routes(args, request):
             free = min(r['free_MiB'] for r in samples)
             if row['uuid'] in seen: continue
             if free < 20 * 1024: continue
-            owned = info['registered_training_by_GPU'].get(row['uuid'],[])
+            owned = list(info['registered_training_by_GPU'].get(row['uuid'],[]))
+            evaluation_owners = info.get('registered_evaluation_by_GPU',{}).get(row['uuid'],[])
+            if any(v['request_key'] == request['key'] for v in evaluation_owners): continue
+            if cost_policy.get('allow_shared_registered_inference', False):
+                owned += evaluation_owners
             aliases = {pid for v in owned for pid in [v['pid'], *v.get('pid_namespace_aliases', [])]}
             device_apps = [r for r in info['compute_apps'] if r['GPU_uuid']==row['uuid']]
             extra = [r for r in device_apps if r['pid'] not in aliases]
@@ -866,7 +911,8 @@ def refresh_routes(args, request):
             seen.add(row['uuid'])
             routes.append({'host': host, 'uuid': row['uuid'], 'index': row['index'], 'python': python,
                 'memory_cap_gib': min(26, int(free / 1024) - 6), 'cohosting_verified_own_training_or_idle': True,
-                'ownership': 'registered owned structured-world training' if owned else 'repeatedly physically empty GPU',
+                'ownership': ('registered owned training and/or Navtest inference' if owned
+                              else 'repeatedly physically empty GPU'),
                 'owner_evidence':owned,
                 'cohost_duty_cycle': cost_policy.get('owned_training_duty_by_host', {}).get(host,
                     cost_policy.get('owned_training_inference_duty_cycle', 1.)) if owned else 1.,
@@ -1113,6 +1159,9 @@ def execute(args, req):
 
 
 def serve(args):
+    if getattr(args, 'parallel_evaluations', False):
+        from navtest_parallel_controller import serve_parallel
+        return serve_parallel(args, sys.modules[__name__])
     authorized(); args.output.mkdir(parents=True, exist_ok=True)
     if args.cadence_policy and args.exit_when_idle:
         raise ValueError('Cadence capture requires a persistent dispatcher, not --exit-when-idle')
@@ -1173,6 +1222,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
     for name in ('enqueue', 'serve', 'worker', 'inspect', 'inventory', 'recover-infrastructure', 'verify-complete'): modes.add_argument('--' + name, action='store_true')
+    parser.add_argument('--parallel-evaluations', action='store_true',
+                        help='One queue owner runs independent checkpoint evaluations concurrently')
+    parser.add_argument('--adopt-running', type=Path,
+                        help='Verified handoff record for already-running native workers/scorer')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument('--inputs', type=Path, default=INPUTS)
     parser.add_argument('--routes', type=Path, default=DEFAULT_OUTPUT / 'ROUTES.json')
