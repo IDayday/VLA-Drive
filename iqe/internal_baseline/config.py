@@ -46,8 +46,14 @@ class Config:
         require(self.experiment_id and Path(self.output_root).is_absolute(), "explicit experiment/output identity required")
         require((self.fit_limit == "all_fit" or (type(self.fit_limit) is int and 0 < self.fit_limit <= 20000))
                 and 0 < self.val_limit <= 1024 and 0 < self.cal_limit <= 1024, "bounded scene budget or explicit all_fit")
-        require(0 < self.expert_updates <= 3000 and self.scorer_updates == 2000 and self.pointwise_updates == 500,
-                "expert budget <=3000; scorer fixed 500+1500 recipe")
+        if self.research_protocol == "two_candidate_v1":
+            require(all(type(value) is int for value in (self.expert_updates, self.scorer_updates, self.pointwise_updates))
+                    and 0 < self.expert_updates <= 10000 and 0 < self.scorer_updates <= 20000
+                    and self.scorer_updates == 4*self.pointwise_updates,
+                    "two-candidate bounded budgets <=10000/20000 with 1:3 scoring phases")
+        else:
+            require(0 < self.expert_updates <= 3000 and self.scorer_updates == 2000 and self.pointwise_updates == 500,
+                    "legacy expert budget <=3000; scorer fixed 500+1500 recipe")
         require(self.validation_interval == 250 and 1 <= self.scoring_workers <= 32 and 1 <= self.scoring_attempts <= 5,
                 "validation/scoring budget")
         require(self.score_context in {"world_action_ego", "action_ego", "planner_ego"}, "explicit scorer input ablation required")

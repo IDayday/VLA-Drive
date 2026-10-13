@@ -20,7 +20,7 @@ COMMANDS = {"init-baseline": "bind-base", "cache-baseline-context": "cache-featu
 
 def main():
     p = argparse.ArgumentParser(description="70k-or-explicit frozen Base + independent expert + own scratch scorer; research only")
-    p.add_argument("command", choices=list(COMMANDS)+["build-baseline-splits", "evaluate-baseline-expert"])
+    p.add_argument("command", choices=list(COMMANDS)+["build-baseline-splits", "evaluate-baseline-expert", "amend-training-budget"])
     p.add_argument("--config", required=True)
     p.add_argument("--experiment-id")
     p.add_argument("--output-root")
@@ -45,6 +45,27 @@ def main():
     for supplied, actual in ((args.experiment_id, c.experiment_id), (args.output_root, c.output_root), (args.base_checkpoint, c.checkpoint),
                               (args.base_run, c.base_run), (args.base_policy, c.checkpoint)):
         require(supplied is None or supplied == actual, "init selection must match the explicit experiment config")
+    if args.command == "amend-training-budget":
+        q = argparse.ArgumentParser(description="Record an immutable budget-only amendment before either head starts")
+        q.add_argument("--budget-config")
+        q.add_argument("--expert-updates", type=int)
+        q.add_argument("--scorer-updates", type=int)
+        q.add_argument("--pointwise-updates", type=int)
+        q.add_argument("--reason", required=True)
+        options = q.parse_args(rest)
+        from .internal_baseline.budget import amend_training_budget
+        target = {name: getattr(options, name) for name in ("expert_updates", "scorer_updates", "pointwise_updates")}
+        if options.budget_config:
+            require(all(value is None for value in target.values()), "choose budget-config OR three explicit update arguments")
+            with open(options.budget_config) as f:
+                target = yaml.safe_load(f)
+            require(isinstance(target, dict), "budget config must contain exactly the three update fields")
+        else:
+            require(all(value is not None for value in target.values()), "all three update budgets are required")
+        result = amend_training_budget(c, target, options.reason)
+        atomic_bytes(c.root/"TRAINING_BUDGET_CONFIG.yaml", yaml.safe_dump(target, sort_keys=True).encode(), immutable=True)
+        print(json.dumps(result))
+        return
     if args.command == "build-baseline-splits":
         require(not rest, "unexpected split arguments")
         from .internal_baseline.binding import binding

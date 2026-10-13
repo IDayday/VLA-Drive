@@ -23,6 +23,8 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
     from .bank import build_initial
     from .training import train_expert, build_pair_bank, train_scorer
     from .reporting import evaluate, diagnostics, export_bundle
+    from .budget import training_budget
+    budget = training_budget(config)
     require(0 <= wait_cache_seconds <= 10800, "bounded cache wait required")
     require(from_stage in {"beginning", "scorer"}, "unknown recovery stage")
     # One workflow owner for this lineage; independent stage commands are for
@@ -46,7 +48,8 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
             load_bank(config)
         live = {"pid": os.getpid(), "host": hostname,
                     "started_utc": datetime.now(timezone.utc).isoformat(), "experiment": config.experiment_id,
-                    "scope": "one expert1000 and scratch scorer2000, no navtest/ACTIVE", "status": "RUNNING",
+                    "scope": f"one expert{budget['expert_updates']} and scratch scorer{budget['scorer_updates']}, no navtest/ACTIVE", "status": "RUNNING",
+                    "effective_training_budget": budget,
                     "from_stage": from_stage}
         atomic_json(config.root/"WORKFLOW_LIVE.json", live)
         if config.research_protocol == "two_candidate_v1":
@@ -59,8 +62,10 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
                 "source_hashes": {name: file_hash(Path(__file__).with_name(name))
                                   for name in ("run.py", "training.py", "reporting.py")},
                 "planned_training_interruptions": False,
-                "expert_updates": config.expert_updates,
-                "scorer_updates": config.scorer_updates,
+                "expert_updates": budget["expert_updates"],
+                "scorer_updates": budget["scorer_updates"],
+                "pointwise_updates": budget["pointwise_updates"],
+                "training_budget_amendment_hash": budget["amendment_hash"],
                 "phase_switch_is_internal": True,
             }, immutable=True)
         rows = [s for s in load_scenes(config.root/"scenes.json") if s.split_role in {"incremental_fit", "stage_val"}]
@@ -86,7 +91,7 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
                   ("export_diagnostic_bundle", lambda: export_bundle(config, device))]
         if config.research_protocol == "two_candidate_v1":
             # This experiment runs each trainer continuously. Checkpoints and
-            # recovery remain available for genuine interruptions; the 500-step
+            # recovery remain available for genuine interruptions; the internal
             # scoring phase switch does not stop or restart its optimizer.
             stages = [(name, operation) for name, operation in stages
                       if name not in {"expert_pause_250", "scorer_pause_500"}]

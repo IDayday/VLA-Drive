@@ -292,7 +292,7 @@ def test_scorer_recipe_constructs_zero_dropout_and_random_initialization_receipt
     {"research_protocol": "unknown"}, {"scorer_dropout": .1}, {"scorer_dropout": -.1},
     {"diagnostic_updates": 301}, {"expert_fit_limit": 16001}, {"scorer_fit_limit": 4001},
     {"expert_fit_limit": 0}, {"scorer_fit_limit": 0}, {"score_context": "external_encoder"},
-    {"expert_updates": 3001}, {"scorer_updates": 1999}, {"pointwise_updates": 0},
+    {"expert_updates": 10001}, {"scorer_updates": 1999}, {"pointwise_updates": 0},
     {"validation_interval": 200}, {"cache_batch": 0}, {"scorer_micro_batch": 0},
 ])
 def test_two_candidate_invalid_or_changed_recipe_is_rejected(tmp_path, bad):

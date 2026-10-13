@@ -18,6 +18,7 @@ from .scorer import construct
 from . import objectives
 from .bank import expert_candidates, cache_candidates, score_candidates, COMPONENTS
 from .evaluation import selection_metrics, bank_statistics, argmax_base_tie
+from .budget import training_budget, training_dependencies, bind_training_budget
 
 
 def training_device(requested):
@@ -49,9 +50,10 @@ def prepare_head_runtime(config):
 
 
 def training_config(config, kind):
+    budget = training_budget(config)
     return {"lr": 1e-4, "weight_decay": .01, "global_batch_size": 128,
             "micro_batch_size": config.expert_micro_batch if kind == "expert" else config.scorer_micro_batch,
-            "max_optimizer_steps": config.expert_updates if kind == "expert" else config.scorer_updates,
+            "max_optimizer_steps": budget["expert_updates"] if kind == "expert" else budget["scorer_updates"],
             "warmup_steps": 50 if kind == "expert" else 100, "lr_min_ratio": .1,
             "grad_clip_norm": 1., "validation_every_steps": config.validation_interval,
             "checkpoint_every_steps": config.validation_interval, "early_stop_patience": 10**9,
@@ -68,6 +70,8 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
     from .partition import training_ids
     allowed = training_ids(config, scenes, "expert_fit")
     require(set(manifest["hard"]+manifest["ordinary"]) <= allowed, "D_S entered expert training")
+    if config.research_protocol == "two_candidate_v1":
+        bind_training_budget(config, "expert")
     from .cache_execution import training_cache
     cache = training_cache(config, [lookup[i] for i in dict.fromkeys(manifest["hard"]+manifest["ordinary"])])
     base = load_head(config, device).eval().requires_grad_(False)
@@ -107,7 +111,7 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
         metrics["selection_key"] = [metrics["oracle_gain"], metrics["hard_val_expert_minus_base"] or 0.]
         return metrics
     deps = {"experiment_id": config.experiment_id, "base": file_hash(config.root/"BASE_BINDING.json"),
-            "manifest": file_hash(config.root/"EXPERT_MANIFEST.json"), "kind": "own_expert_1"}
+            "manifest": file_hash(config.root/"EXPERT_MANIFEST.json"), "kind": "own_expert_1", **training_dependencies(config)}
     result = train(expert, loss, fetch, sampler, training_config(config, "expert"), deps, config.root/"expert",
                    device=device, resume=resume, stop_after=stop_after, validate=validate, seed=config.training_rng_seed,
                    denominator_function=lambda b: {"il": b["mask"].any(-1).sum().float()})
@@ -248,13 +252,18 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
     from .partition import training_ids
     allowed = training_ids(config, scenes, "scorer_fit")
     fit = [r["scene_id"] for r in manifest["rows"] if r["scene_id"] in allowed]
+    if config.research_protocol == "two_candidate_v1":
+        bind_training_budget(config, "scorer")
     fit_scores = torch.as_tensor(data["scores"][[indices[i] for i in fit]])
     w = objectives.comparison_weights(fit_scores, torch.ones_like(fit_scores, dtype=torch.bool)).numpy()
+    budget = training_budget(config)
     sampler = TwoStreamSampler(fit, w, natural_seed=config.natural_seed, comparison_seed=config.comparison_seed,
-                               pointwise_updates=config.pointwise_updates, bank_hash=file_hash(config.root/"PAIR_BANK.json"))
+                               pointwise_updates=budget["pointwise_updates"], bank_hash=file_hash(config.root/"PAIR_BANK.json"))
     atomic_json(config.root/"COMPARISON_DISTRIBUTION.json", {"q_hash": sampler.q_hash, "bank_hash": sampler.bank_hash,
                 "scene_ids": fit, "weights": w.tolist(), "unique_valid": int((w > 0).sum()), "replacement": True,
                 "fit_subrole": "scorer_fit" if config.research_protocol == "two_candidate_v1" else "incremental_fit",
+                **({"pointwise_updates": budget["pointwise_updates"], "scorer_updates": budget["scorer_updates"],
+                    "training_budget_amendment_hash": budget["amendment_hash"]} if config.research_protocol == "two_candidate_v1" else {}),
                 "valid_group_count": len({lookup[i].source_log_id for i, x in zip(fit, w) if x > 0}),
                 "effective_weighted_population": float(w.sum()**2/(w*w).sum()) if w.sum() else 0.,
                 "status": "PRESENT" if w.sum() else "SCORER_COMPARISON_SIGNAL_ABSENT",
@@ -285,7 +294,7 @@ def train_scorer(config, device="cuda:0", resume=None, stop_after=None):
         return metrics
     deps = {"experiment_id": config.experiment_id, "base": file_hash(config.root/"BASE_BINDING.json"),
             "bank": file_hash(config.root/"PAIR_BANK.json"), "q_hash": sampler.q_hash,
-            "initialization": file_hash(config.root/"SCORER_INITIALIZATION.json"), "kind": "own_random_internal_scorer"}
+            "initialization": file_hash(config.root/"SCORER_INITIALIZATION.json"), "kind": "own_random_internal_scorer", **training_dependencies(config)}
     train(module, loss, fetch, sampler, training_config(config, "scorer"), deps, config.root/"scorer", device=device,
           weights={"value": 1., "components": .2, "ranking": .2}, resume=resume, stop_after=stop_after,
           validate=validate, seed=config.training_rng_seed, denominator_function=objectives.denominators)

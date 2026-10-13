@@ -94,6 +94,8 @@ def selected_reference_audit(config, bank, arrays, scenes):
 
 
 def audit(config, device='cuda:0'):
+    from .budget import training_budget
+    budget = training_budget(config)
     device = training_device(device)
     torch.set_num_threads(2)
     bank, arrays = load_bank(config)
@@ -101,11 +103,11 @@ def audit(config, device='cuda:0'):
     manifest = read_json(config.root/'EXPERT_MANIFEST.json')
     q = read_json(config.root/'COMPARISON_DISTRIBUTION.json')
     erows, srows = (read_steps(config.root/k/'steps.jsonl') for k in ('expert', 'scorer'))
-    require(len(erows) == config.expert_updates and len(srows) == config.scorer_updates, 'fixed budget incomplete')
+    require(len(erows) == budget['expert_updates'] and len(srows) == budget['scorer_updates'], 'fixed budget incomplete')
     es = ExpertSampler(manifest['hard'], manifest['ordinary'], config.natural_seed, manifest['hash'],
                        manifest['sampling']['hard'])
     ss = TwoStreamSampler(q['scene_ids'], q['weights'], natural_seed=config.natural_seed,
-                          comparison_seed=config.comparison_seed, pointwise_updates=config.pointwise_updates,
+                          comparison_seed=config.comparison_seed, pointwise_updates=budget['pointwise_updates'],
                           bank_hash=file_hash(config.root/'PAIR_BANK.json'))
     ec, sc = replay_consumption(es, erows), replay_consumption(ss, srows)
     require(ss.q_hash == q['q_hash'], 'replayed comparison identity mismatch')
@@ -152,13 +154,18 @@ def audit(config, device='cuda:0'):
                 'finite_loss_and_gradient_all_steps': True, 'gradient_evidence': gradients,
                 'validation': val, 'selected_result': read_json(config.root/kind/'result.json')}
     summary = {'expert': training_summary('expert', erows), 'scorer': training_summary('scorer', srows),
+               'effective_training_budget': budget,
                'main_scorer_fit': fit, 'exposure_summary': {k: {s: {n: v for n, v in c.items() if n != 'per_scene_exposures'}
                     for s, c in exposure[k].items()} for k in ('expert', 'scorer')},
                'natural_and_comparison_losses_separate': True, 'comparison_second_gap_weight': False,
                'VLM_calls_during_cached_head_training': 0, 'external_scorer_weights_loaded': False}
     summary['selected_reference'] = selected_reference
     atomic_json(config.root/'TRAINING_AUDIT.json', summary, immutable=True)
-    text = '# Own scorer training evidence\n\nPointwise: 500 updates of 128 natural scenes. Then 1,500 updates of 64 natural + 64 gap-sampled comparison scenes. Continuous 2,000-step scheduler; no external initialization. Fitting-set selection is diagnostic, not generalization evidence. Full per-scene exposure is in EXPOSURE_AUDIT.json.\n\n```json\n'+json.dumps(summary, indent=2)+'\n```\n'
+    text = (f"# Own scorer training evidence\n\nPointwise: {budget['pointwise_updates']} updates of 128 natural scenes. "
+            f"Then {budget['scorer_updates']-budget['pointwise_updates']} updates of 64 natural + 64 gap-sampled comparison scenes when comparison signal exists. "
+            f"Continuous {budget['scorer_updates']}-step scheduler; no external initialization. "
+            "Fitting-set selection is diagnostic, not generalization evidence. Actual per-scene/stream exposure, including absent-comparison fallback, is in EXPOSURE_AUDIT.json.\n\n```json\n"
+            +json.dumps(summary, indent=2)+"\n```\n")
     atomic_bytes(config.root/'SCORER_TRAINING_REPORT.md', text.encode())
     return {'status': 'PASS', 'fit_diagnostic': fit, 'exposures': summary['exposure_summary']}
 
