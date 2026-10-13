@@ -1,4 +1,4 @@
-"""Two-process Gloo proof for the new stream-specific objective."""
+"""Two-process Gloo/NCCL proof for the new stream-specific objective."""
 import os
 import sys
 import torch
@@ -27,13 +27,19 @@ def loss(m,x,b):
 
 
 def main(output):
-    dist.init_process_group('gloo')
-    rank=dist.get_rank(); m,x,b=setup(); wrapped=DDP(m)
-    rows=torch.arange(rank,8,2)
+    backend=os.environ.get('IQE_INTERNAL_DDP_BACKEND','gloo')
+    index=int(os.environ.get('LOCAL_RANK','0'))
+    if backend=='nccl':torch.cuda.set_device(index)
+    dist.init_process_group(backend)
+    rank=dist.get_rank(); m,x,b=setup()
+    device=f'cuda:{index}' if backend=='nccl' else 'cpu'
+    m=m.to(device);x=x.to(device);b={k:v.to(device) for k,v in b.items()}
+    wrapped=DDP(m,device_ids=[index] if backend=='nccl' else None)
+    rows=torch.arange(rank,8,2,device=device)
     local={k:v[rows] for k,v in b.items()}
     objective,logs=reduce_terms(loss(wrapped,x[rows],local),{'value':1.,'components':.2,'ranking':.2})
     objective.backward()
-    gradients=[p.grad.clone() for p in m.parameters()]
+    gradients=[p.grad.clone().cpu() for p in m.parameters()]
     all_grad=[None,None];dist.all_gather_object(all_grad,gradients)
     # Check a fully empty-label rank still participates and receives global grad.
     m.zero_grad(set_to_none=True)
@@ -41,7 +47,7 @@ def main(output):
         local['valid'][:]=False
     empty_loss,_=reduce_terms(loss(wrapped,x[rows],local),{'value':1.,'components':.2,'ranking':.2})
     empty_loss.backward()
-    empty=[p.grad.clone() for p in m.parameters()]
+    empty=[p.grad.clone().cpu() for p in m.parameters()]
     dist.barrier();dist.destroy_process_group()
     if rank==0:
         ref,x,b=setup()
@@ -51,7 +57,7 @@ def main(output):
         ref.zero_grad(set_to_none=True);b['valid'][::2]=False
         expected,_=reduce_terms(loss(ref,x,b),{'value':1.,'components':.2,'ranking':.2});expected.backward()
         for actual,p in zip(empty,ref.parameters()):torch.testing.assert_close(actual,p.grad,rtol=1e-5,atol=1e-7)
-        torch.save({'status':'PASS','world_size':2,'unequal_denominators':True,'empty_rank':True,'logs':logs},output)
+        torch.save({'status':'PASS','backend':backend,'world_size':2,'unequal_denominators':True,'empty_rank':True,'logs':logs},output)
 
 
 if __name__=='__main__':main(sys.argv[1])
