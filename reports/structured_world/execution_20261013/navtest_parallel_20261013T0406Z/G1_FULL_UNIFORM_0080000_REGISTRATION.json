@@ -1,0 +1,621 @@
+{
+  "request": {
+    "key": "G1_FULL_UNIFORM_0080000",
+    "group": "G1_FULL_UNIFORM",
+    "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_cadence_20261012/native_pins/G1_FULL_UNIFORM_0080000/native_run",
+    "tag": "latest_0080000",
+    "updates": 80000,
+    "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+    "population": "navtest",
+    "scenes": 12146,
+    "logs": 136,
+    "seed": 42,
+    "precision": "FP32 / TF32 disabled",
+    "variants": [
+      "q0",
+      "q_final"
+    ],
+    "checkpoint_files_sha256": {
+      "mp_rank_00_model_states.pt": "29e75d7e1884718b86699e30fc1ab5cc0c9f1a3a39ae1ae6fe6614c3cdc7bba4",
+      "rng_rank0.pt": "2810471c2fb95b2ff26162c0720b88faa3e42ae0e43380eb609d14c4fd688b3e",
+      "rng_rank1.pt": "326f096d6b2023e1587e7f809ed549f43afccd5dd6f9403b88ac1816958ef61c",
+      "rng_rank2.pt": "93ab468c1c7adcdec3f0bfcca2dbe13abe51d3535ab472db75c476af55cef2de",
+      "rng_rank3.pt": "b284977a77ebd8edf59b3b92b2dab5a8caad37a8589482ef5184d91d00c2b47c",
+      "rng_rank4.pt": "6bcb2fea82f120f5ec42add4ed4450cff2af9a00d6c8f8c2a6673d13976df381",
+      "rng_rank5.pt": "4384669cb2e43ff41dd931153a3720b51ffc7e810a783ecef2d979acb079f9e5",
+      "rng_rank6.pt": "3ec459a7732043c637185ac3b62a642cf0706467da4d4cd27b9079ac30ddd9cd",
+      "rng_rank7.pt": "480bc15914a9838e040553e2511d10dc44cd24b348cbb2cbbd5fae169552e42f",
+      "zero_pp_rank_0_mp_rank_00_optim_states.pt": "7da09089a24ae37f95451d7842c5a0f2bf66817a285e102712bb4bef9ade0a2d",
+      "zero_pp_rank_1_mp_rank_00_optim_states.pt": "425fd3e9a4888448c354959b1f8b890ce91498d0eb6ae9b0f06a37a10227bb77",
+      "zero_pp_rank_2_mp_rank_00_optim_states.pt": "f74478e54fa88c4bcf9a50d2e56e4bfc8314f210c2fcffc6b7ca7e3340394567",
+      "zero_pp_rank_3_mp_rank_00_optim_states.pt": "bb58535a5567f830463a65f6c23f5a7d43742e56ace39de0865acf1af5c60566",
+      "zero_pp_rank_4_mp_rank_00_optim_states.pt": "62946842a3e9b8318434a1c3243a7354a78ab598bfe3ea5b47dc6850092749b1",
+      "zero_pp_rank_5_mp_rank_00_optim_states.pt": "061f54ca51179754728c8e645f191ab992d7609841ef605379e7df7bb0297d4f",
+      "zero_pp_rank_6_mp_rank_00_optim_states.pt": "a6dae16348e411bd658291c4cd8659b6127c081234ecd62e090e0bf13cc71a41",
+      "zero_pp_rank_7_mp_rank_00_optim_states.pt": "7d2cdd5797c99abb60fb5d59d4e97fb21c97475e6fd3982b44b0d8f9632d5390"
+    },
+    "priority": 100
+  },
+  "frozen_evaluation_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "routes": [
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+      "index": 0,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+      "index": 1,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+      "index": 2,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+      "index": 3,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+      "index": 4,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+      "index": 5,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+      "index": 6,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "uuid": "GPU-91fd88e4-a388-6b59-e684-13a463606f9e",
+      "index": 7,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.3681554486975074
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+      "index": 1,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+      "index": 2,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+      "index": 3,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+      "index": 4,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+      "index": 5,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+      "index": 6,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "uuid": "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3",
+      "index": 7,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "repeatedly physically empty GPU",
+      "owner_evidence": [],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": null,
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 1.421288332901895
+    },
+    {
+      "host": "training-vlawm-zt2",
+      "uuid": "GPU-92337d32-0247-da22-077c-a19994af0d37",
+      "index": 3,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 309998,
+          "proc_start_ticks": "952296952",
+          "GPU_uuid": "GPU-92337d32-0247-da22-077c-a19994af0d37",
+          "local_rank": 3,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+          "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "group": "G1_FULL_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            309998
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.3443645322695374
+    },
+    {
+      "host": "training-vlawm-zt2",
+      "uuid": "GPU-af4d0ac9-da59-2291-08f1-0d2dc6ffba13",
+      "index": 4,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 309999,
+          "proc_start_ticks": "952296952",
+          "GPU_uuid": "GPU-af4d0ac9-da59-2291-08f1-0d2dc6ffba13",
+          "local_rank": 4,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+          "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "group": "G1_FULL_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            309999
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.3443645322695374
+    },
+    {
+      "host": "training-vlawm-zt2",
+      "uuid": "GPU-f7653835-479b-07e2-0adf-2b34baf826fe",
+      "index": 7,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 310002,
+          "proc_start_ticks": "952296952",
+          "GPU_uuid": "GPU-f7653835-479b-07e2-0adf-2b34baf826fe",
+          "local_rank": 7,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+          "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "group": "G1_FULL_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            310002
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.3443645322695374
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+      "index": 0,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028891,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+          "local_rank": 0,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028891
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+      "index": 1,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028893,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+          "local_rank": 1,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028893
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+      "index": 2,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028895,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+          "local_rank": 2,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028895
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+      "index": 3,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028896,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+          "local_rank": 3,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028896
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+      "index": 4,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028898,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+          "local_rank": 4,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028898
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+      "index": 5,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028900,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+          "local_rank": 5,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028900
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+      "index": 6,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028901,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+          "local_rank": 6,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028901
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "uuid": "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308",
+      "index": 7,
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "memory_cap_gib": 26,
+      "cohosting_verified_own_training_or_idle": true,
+      "ownership": "registered owned structured-world training",
+      "owner_evidence": [
+        {
+          "pid": 3028903,
+          "proc_start_ticks": "1330164974",
+          "GPU_uuid": "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308",
+          "local_rank": 7,
+          "visible_GPU_mask": null,
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+          "training_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+          "group": "G2_EVENT_UNIFORM",
+          "source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "binding_basis": "exact registered frozen train_vla.py --output and LOCAL_RANK; source set_device(local)",
+          "pid_namespace_aliases": [
+            3028903
+          ]
+        }
+      ],
+      "cohost_duty_cycle": 1.0,
+      "scheduling_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/COHOST_COST_POLICY.json",
+      "minimum_reserve_GiB": 5,
+      "fp32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0080000/model_fp32.pt",
+      "profile_median_scene_seconds": 2.2617978379130363
+    }
+  ],
+  "inputs": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_current_v1_0c54",
+  "input_identity": "b14585d89aecd8f67f088c6cc7eb467dcc12c9a654d9fac0a952626ff5759781",
+  "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+  "metric_index_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+  "training_unchanged": true,
+  "sampling_seed": 42,
+  "variants": [
+    "q0",
+    "q_final"
+  ],
+  "inference": "FP32, strict native master restore, TF32 disabled, one original 10-step proposal",
+  "routing_tool_sha256": "027a4d406dbc596b596fe6aba8ad9e3fe4aeee02218b2315e8e88d2c04d2559d",
+  "registered_utc": "2026-10-13T04:05:44.637958+00:00"
+}

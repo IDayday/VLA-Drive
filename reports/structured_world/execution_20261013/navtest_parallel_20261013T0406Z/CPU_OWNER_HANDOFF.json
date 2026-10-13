@@ -1,0 +1,45 @@
+{
+  "old_controller": {
+    "pid": 484181,
+    "host": "training-rl-zt2-worker-0",
+    "started_utc": "2026-10-13T02:10:31.065049+00:00",
+    "routes_file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/RUNTIME_ROUTES.json",
+    "tool": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_g2_latest_20261013T0157Z/frozen_runtime/run_navsim_navtest.py",
+    "tool_sha256": "027a4d406dbc596b596fe6aba8ad9e3fe4aeee02218b2315e8e88d2c04d2559d",
+    "cadence_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_g2_latest_20261013T0157Z/CADENCE_WITH_G2_LATEST.json",
+    "cadence_policy_sha256": "ab2b33fc7952f3c75111b24f448fadd814e1cd3e6e573517f7e72714765878f0"
+  },
+  "old_controller_start_ticks": "1321511548",
+  "old_controller_exited": true,
+  "new_controller": {
+    "pid": 502070,
+    "start_ticks": "1322282963",
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_parallel_20261013T0406Z/frozen_runtime/run_navsim_navtest.py",
+      "--serve",
+      "--parallel-evaluations",
+      "--adopt-running",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_parallel_20261013T0406Z/ADOPTION.json",
+      "--output",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+      "--inputs",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_current_v1_0c54",
+      "--routes",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/RUNTIME_ROUTES.json",
+      "--cadence-policy",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_g2_latest_20261013T0157Z/CADENCE_WITH_G2_LATEST.json",
+      "--score-workers",
+      "32",
+      "--canonical-python",
+      "/root/miniconda3/envs/navsim/bin/python"
+    ],
+    "utc": "2026-10-13T04:19:04.407946+00:00"
+  },
+  "GPU_and_scorer_processes_signalled": false,
+  "training_processes_signalled": false,
+  "launcher_count": 26,
+  "verification": "Adopted workers all COMPLETE and exact remote PID/start exits proven; canonical bank fully verified. Former-parent wait exit codes unavailable."
+}
