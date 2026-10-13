@@ -1,0 +1,111 @@
+{
+  "status": "COMPLETE_EXPLORATORY_CONTEXT_ALIGNMENT",
+  "tables": {
+    "random": {
+      "scenes": 10,
+      "logs": 10,
+      "raw_mean_dot_m2": 0.016763408299502174,
+      "global_mean_update_RMS_m": 0.0595940460772403,
+      "global_mean_target_RMS_m": 0.17524503330324454,
+      "centered_dot_m2": 0.006376733103829196,
+      "centered_dot_log_bootstrap_CI95": [
+        0.00033250709395234954,
+        0.011146871909542428
+      ],
+      "within_SFT_forward_distance_bin_centered_dot_m2": -0.0015547706605059186,
+      "within_bin_shuffled_target_dot_CI95": [
+        -0.002282919262817385,
+        0.0017152871577096709
+      ],
+      "exploratory_permutation_upper_tail_p": 0.7701149425287356,
+      "direction_groups": {
+        "forward_negative": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "forward_positive": {
+          "scenes": 6,
+          "actual_direction_agreement": 1.0,
+          "mean_actual_endpoint_change_m": 0.14019921620686848,
+          "mean_wanted_endpoint_change_m": 0.6383353803210948
+        },
+        "lateral_negative": {
+          "scenes": 2,
+          "actual_direction_agreement": 1.0,
+          "mean_actual_endpoint_change_m": -0.06732399463653564,
+          "mean_wanted_endpoint_change_m": -0.1821974395598085
+        },
+        "lateral_positive": {
+          "scenes": 1,
+          "actual_direction_agreement": 1.0,
+          "mean_actual_endpoint_change_m": 0.0488189697265625,
+          "mean_wanted_endpoint_change_m": 0.32686881471532914
+        }
+      }
+    },
+    "targeted": {
+      "scenes": 256,
+      "logs": 205,
+      "raw_mean_dot_m2": 0.004676922655438294,
+      "global_mean_update_RMS_m": 0.03857302941600722,
+      "global_mean_target_RMS_m": 0.06091096188483743,
+      "centered_dot_m2": 0.0025386571112581127,
+      "centered_dot_log_bootstrap_CI95": [
+        0.0013575598283385398,
+        0.0037558460341340946
+      ],
+      "within_SFT_forward_distance_bin_centered_dot_m2": 0.0010512250618522298,
+      "within_bin_shuffled_target_dot_CI95": [
+        -0.0005430014160848001,
+        0.0005746395894926057
+      ],
+      "exploratory_permutation_upper_tail_p": 0.0004997501249375312,
+      "direction_groups": {
+        "forward_negative": {
+          "scenes": 26,
+          "actual_direction_agreement": 0.038461538461538464,
+          "mean_actual_endpoint_change_m": 0.08134535275972807,
+          "mean_wanted_endpoint_change_m": -0.29926927797948155
+        },
+        "forward_positive": {
+          "scenes": 107,
+          "actual_direction_agreement": 0.9439252336448598,
+          "mean_actual_endpoint_change_m": 0.10347398062732732,
+          "mean_wanted_endpoint_change_m": 0.3853878981538926
+        },
+        "lateral_negative": {
+          "scenes": 59,
+          "actual_direction_agreement": 0.7796610169491526,
+          "mean_actual_endpoint_change_m": -0.05678016841411591,
+          "mean_wanted_endpoint_change_m": -0.18397524129502288
+        },
+        "lateral_positive": {
+          "scenes": 80,
+          "actual_direction_agreement": 0.6125,
+          "mean_actual_endpoint_change_m": -0.009324247539043425,
+          "mean_wanted_endpoint_change_m": 0.19731080385523603
+        }
+      }
+    }
+  },
+  "policy_identity": "c6f2972502b683d66ab3a75a5da6d250b4995710a8a4ca59476bcd4447b1443f",
+  "baseline_identity": "c0902448ea4103b3a838b8f06401d8bdd8abe536c1d587ba7c1b592c350da61c",
+  "target_identity": "594f16a1ea4db620e15575e451aafd0f398e7f3f1243aba471cdf7e1f0996d09",
+  "input_payloads_sha256": "69fd94ff4e416a8bb2dcf022a7208882810521a5540c1378b9794db6c3dee105",
+  "source_sha256": "d768acf6b3ca1c112374cb30ab68313f3f61df40af12634dc05d6e7cfdab1de6",
+  "forward_distance_bins_m": [
+    0,
+    5,
+    15,
+    30,
+    60
+  ],
+  "shuffle_seed": 431,
+  "repeats": 2000,
+  "five_inference_seeds_are_not_training_repeats": true,
+  "preregistered_before_results": false,
+  "limitations": "Exploratory association after removing global/binned drift, not a causal demonstration of scene reasoning. Bins use SFT requested endpoint distance, not actual initial speed. TRAIN targeted sample is not population-unbiased; random in-bank sample is small. No hyperparameter is fitted or selected.",
+  "sha256": "0fbcaf9ccbcab6d6db93b6ad5785f96b70deb1f7012bbd7c8eb10f83acdf2a9b"
+}

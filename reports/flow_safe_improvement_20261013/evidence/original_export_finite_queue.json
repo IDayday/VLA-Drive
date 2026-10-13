@@ -1,0 +1,125 @@
+{
+  "utc": "2026-10-13T09:12:51.255018+00:00",
+  "host": "training-vlawm-tsinghua-zt3",
+  "jobs": [
+    {
+      "name": "P1_epoch1",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P1_SAFE_FM_seed42/train/export_update000256",
+      "previous_name": null,
+      "reuse_if_identical": {
+        "name": "P0_epoch1",
+        "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update000256"
+      }
+    },
+    {
+      "name": "P1_epoch2",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P1_SAFE_FM_seed42/train/export_update000512",
+      "previous_name": "P1_epoch1",
+      "reuse_if_identical": {
+        "name": "P0_epoch2",
+        "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update000512"
+      }
+    },
+    {
+      "name": "P1_epoch4",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P1_SAFE_FM_seed42/train/export_update001024",
+      "previous_name": "P1_epoch2",
+      "reuse_if_identical": {
+        "name": "P0_epoch4",
+        "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update001024"
+      }
+    },
+    {
+      "name": "P1_epoch8",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P1_SAFE_FM_seed42/train/export_update002048",
+      "previous_name": "P1_epoch4",
+      "reuse_if_identical": {
+        "name": "P0_epoch8",
+        "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update002048"
+      }
+    },
+    {
+      "name": "P0_epoch8",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update002048",
+      "previous_name": "P0_epoch4"
+    },
+    {
+      "name": "P2_epoch4",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P2_SEARCH_SAFE_FM_seed42/train/export_update001024",
+      "previous_name": "P2_epoch2"
+    },
+    {
+      "name": "P2_epoch8",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P2_SEARCH_SAFE_FM_seed42/train/export_update002048",
+      "previous_name": "P2_epoch4"
+    },
+    {
+      "name": "EXPLORE_SAFE_FM_round1",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/EXPLORE_SAFE_FM_seed42/round1/learning/train/export_update000512",
+      "previous_name": null
+    },
+    {
+      "name": "ODE_SAFE_FM_round1",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_SAFE_FM_seed42/round1/learning/train/export_update000512",
+      "previous_name": null
+    },
+    {
+      "name": "ODE_REWARD_FM_round1",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_REWARD_FM_seed42/round1/learning/train/export_update000512",
+      "previous_name": null
+    },
+    {
+      "name": "ODE_NFT_round1",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_NFT_seed42/round1/learning/train/export_update000512",
+      "previous_name": null
+    },
+    {
+      "name": "EXPLORE_SAFE_FM_round2",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/EXPLORE_SAFE_FM_seed42/round2/learning/train/export_update000512",
+      "previous_name": "EXPLORE_SAFE_FM_round1"
+    },
+    {
+      "name": "ODE_SAFE_FM_round2",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_SAFE_FM_seed42/round2/learning/train/export_update000512",
+      "previous_name": "ODE_SAFE_FM_round1"
+    },
+    {
+      "name": "ODE_REWARD_FM_round2",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_REWARD_FM_seed42/round2/learning/train/export_update000512",
+      "previous_name": "ODE_REWARD_FM_round1"
+    },
+    {
+      "name": "ODE_NFT_round2",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_NFT_seed42/round2/learning/train/export_update000512",
+      "previous_name": "ODE_NFT_round1"
+    },
+    {
+      "name": "EXPLORE_SAFE_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/EXPLORE_SAFE_FM_seed42/round3/learning/train/export_update000512",
+      "previous_name": "EXPLORE_SAFE_FM_round2"
+    },
+    {
+      "name": "ODE_SAFE_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_SAFE_FM_seed42/round3/learning/train/export_update000512",
+      "previous_name": "ODE_SAFE_FM_round2"
+    },
+    {
+      "name": "ODE_REWARD_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_REWARD_FM_seed42/round3/learning/train/export_update000512",
+      "previous_name": "ODE_REWARD_FM_round2"
+    },
+    {
+      "name": "ODE_NFT_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_NFT_seed42/round3/learning/train/export_update000512",
+      "previous_name": "ODE_NFT_round2"
+    }
+  ],
+  "evaluation_root": "/mnt/project/flow-safe-improvement-20261013/evaluations/original_export",
+  "population": "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+  "reference_scores": "/mnt/project/flow-safe-improvement-20261013/evaluations/SFT_DEV_reference4_v1",
+  "v1_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache",
+  "v2_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+  "max_wait_hours": 8,
+  "scope": "Remaining 19 of 25 already registered primary first-seed correction evaluations. SFT/P0 e1,e2,e4/P2 e1,e2 use earlier existing evaluation jobs. No training changes.",
+  "correction_registration_sha256": "911670dade36c7fd711c733e70b954ea0c0700c89dc9f1d55e0359c2041a86bb"
+}

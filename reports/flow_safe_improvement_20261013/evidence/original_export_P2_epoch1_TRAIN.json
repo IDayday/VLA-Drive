@@ -1,0 +1,296 @@
+{
+  "schema": "flow_safe_single_candidate_deployment_v1",
+  "status": "COMPLETE_MATCHED_EVALUATION",
+  "policy_identity": "6ed25a409fbaa72bd7b83c612b82cb4bbf7fec19bc36b5f54640024d7d77acca",
+  "baseline_identity": "5875953908d76e645cc92ddcd49fdb05d5ae33c7653a2c6c467482ddaa5e19d1",
+  "reference_identity": "7cb33bf44a89c1c8f847894c994f87f35ab9dd455c766e52a61d632b24a7f2a5",
+  "payload_hashes": {
+    "policy": "0068456d1011adbc1f9c87b7bc579a1000a49382f10f952d65497bc245f57bea",
+    "baseline": "e2ede16d6099c496ebe3c20c57fefb8a7d9b145fd4532188004f592fc3436066",
+    "reference": "540ec8917ec50cc4cfc3dc960abffff49f3b93a7178e12d4bea5010e246df2dd"
+  },
+  "scenes": 512,
+  "inference_seeds": [
+    2101,
+    2102,
+    2103,
+    2104,
+    2105
+  ],
+  "training_seed_repetitions": 1,
+  "cohort": "diagnostic_tokens",
+  "targeted_TRAIN_diagnostic_is_not_unbiased_population_estimate": true,
+  "primary": "mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection",
+  "units": "raw_0_to_1",
+  "means": {
+    "comfort": {
+      "policy": 0.998046875,
+      "SFT": 0.998046875,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "drivable_area_compliance": {
+      "policy": 0.902734375,
+      "SFT": 0.9011718750000001,
+      "policy_scene_quantiles": [
+        0.0,
+        0.2,
+        0.6,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "driving_direction_compliance": {
+      "policy": 0.989453125,
+      "SFT": 0.98984375,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "ego_progress": {
+      "policy": 0.742865445577247,
+      "SFT": 0.7392424211815455,
+      "policy_scene_quantiles": [
+        0.0,
+        0.19348419951037368,
+        0.48756293313307036,
+        0.8032088894422782,
+        1.0,
+        1.0
+      ]
+    },
+    "no_at_fault_collisions": {
+      "policy": 0.999609375,
+      "SFT": 1.0,
+      "policy_scene_quantiles": [
+        0.9,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "score": {
+      "policy": 0.8190396975901623,
+      "SFT": 0.8172624671589772,
+      "policy_scene_quantiles": [
+        0.0,
+        0.19728508312932236,
+        0.5636413072992358,
+        0.8953034760241718,
+        1.0,
+        1.0
+      ]
+    },
+    "time_to_collision_within_bound": {
+      "policy": 0.956640625,
+      "SFT": 0.960546875,
+      "policy_scene_quantiles": [
+        0.0,
+        0.6,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired_changes": {
+    "comfort": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0015625000000000003,
+      "CI95": [
+        -0.005814235719123954,
+        0.009584508026748042
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "driving_direction_compliance": {
+      "mean": -0.0003906249999999999,
+      "CI95": [
+        -0.001378088917245028,
+        0.00039920159680638715
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "ego_progress": {
+      "mean": 0.00362302439570147,
+      "CI95": [
+        -0.0030768707393033245,
+        0.01074672331532848
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "no_at_fault_collisions": {
+      "mean": -0.0003906249999999999,
+      "CI95": [
+        -0.001008064516129032,
+        0.0
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "score": {
+      "mean": 0.0017772304311849496,
+      "CI95": [
+        -0.005679547868142468,
+        0.009764152800682152
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": -0.00390625,
+      "CI95": [
+        -0.010041094611002149,
+        0.0018977139242793881
+      ],
+      "scenes": 512,
+      "logs": 343,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "fixed_reference_stable_safe_scenes": 512,
+      "current_any_seed_violation_in_fixed_safe": 2,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+      "newly_violating_vs_matched_baseline": 2,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.99921875
+    },
+    "drivable_area_compliance": {
+      "fixed_reference_stable_safe_scenes": 425,
+      "current_any_seed_violation_in_fixed_safe": 7,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 3,
+      "newly_violating_vs_matched_baseline": 8,
+      "recovered_all_eval_seeds": 1,
+      "current_pass_rate": 0.902734375
+    },
+    "time_to_collision_within_bound": {
+      "fixed_reference_stable_safe_scenes": 478,
+      "current_any_seed_violation_in_fixed_safe": 2,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+      "newly_violating_vs_matched_baseline": 3,
+      "recovered_all_eval_seeds": 2,
+      "current_pass_rate": 0.956640625
+    },
+    "joint": {
+      "fixed_reference_stable_safe_scenes": 393,
+      "current_any_seed_violation_in_fixed_safe": 8,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 3,
+      "newly_violating_vs_matched_baseline": 9,
+      "recovered_all_eval_seeds": 3,
+      "current_pass_rate": 0.8628906250000001
+    }
+  },
+  "zero_transitions": {
+    "any_seed_zero": {
+      "SFT": 78,
+      "policy": 85,
+      "new_failures": 8,
+      "recovered": 1
+    },
+    "all_fixed_seeds_zero": {
+      "SFT": 27,
+      "policy": 20,
+      "new_failures": 1,
+      "recovered": 8
+    },
+    "five_seed_scene_mean_zero": {
+      "SFT": 27,
+      "policy": 20,
+      "new_failures": 1,
+      "recovered": 8
+    }
+  },
+  "separate_finite_candidate_opportunities": {
+    "policy": {
+      "candidates_per_scene": 5,
+      "feasible_scenes": 479,
+      "F_feasible": 0.935546875,
+      "safe_best_mean_on_feasible": 0.9285511568208499,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    },
+    "SFT": {
+      "candidates_per_scene": 5,
+      "feasible_scenes": 475,
+      "F_feasible": 0.927734375,
+      "safe_best_mean_on_feasible": 0.92672704241431,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    }
+  },
+  "high_score_decline": {
+    "SFT_scene_mean_threshold": 0.9,
+    "scenes": 255,
+    "any_negative": 18,
+    "decline_at_least_001": 11,
+    "decline_at_least_005": 10
+  },
+  "no_best_of_N": true,
+  "no_search_GT_selection_or_online_scorer_in_actor": true,
+  "SFT_may_have_seen_DEV": true,
+  "old_RL_saw_DEV": true,
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "47f6eed8a3cf615ed50b73a34957fd2b1b9ed5a333325d781fe433e4c5b62855"
+    }
+  },
+  "fixed_reference_safety_definition": {
+    "identity": "6807c8b8775aebcfbcead4f9de8dd2de33ccfadbc965f6ac8f96399c1fcb04ec",
+    "execution_profile": "frozen_training_BF16_feature_cache",
+    "semantics": "Predeclared finite four-seed SFT set; membership is retained, not reclassified using new policy results. Matched SFT and policy mean/transition comparisons both use the original-export profile."
+  },
+  "sha256": "94c9b5a87df9a7b007930227d936d0c80d0b4f56c435ba3cb8662e839bf404a0"
+}

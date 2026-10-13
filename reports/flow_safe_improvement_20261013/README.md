@@ -2,7 +2,7 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 08:24 UTC，D1/D2/D3 已完成，P0/P1 完成首个 epoch 的完整 DEV 缓存口径重采样评价（原导出精度重评已启动），P2 完成首个 epoch 更新并在评价；四条有限在线路线正在构建各自首轮的新候选。P 的完整 8-epoch 窗口、三轮在线更新、NFT 正式匹配学习、第二训练 seed 和最终 Navtest仍在推进。下文带时间的段落保留阶段历史，不能将资格测试或候选成绩作为策略最终结果。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 09:20 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 已到第4个 epoch，P2 正在推进第4个 epoch；四条在线路线均进入首轮真实完整动作头更新。原始部署精度重评正在逐检查点完成。共同8-epoch终点、三轮在线终点、NFT匹配窗口、第二训练 seed 和最终 Navtest 尚未完成。下文带时间的段落保留阶段历史，不能将资格测试、候选成绩或中途最高点作为最终结果。
 
 2026-10-13 后续进度：已完成 8,192 个 RL_TRAIN 场景的四 seed SFT 参考采样、32,768 次真实 v1.1 评分和逐时刻车身几何审计；随后锁定 512 场景诊断集及 4,096 场景学习集。D1 SFT 的原 ODE/旧 SDE 配对运行已启动。完整动作头的正权重 FM、公共保持和 NFT 训练入口已接入原 ZeRO-2/检查点基础，但此处尚没有更新后策略的重新采样成绩。[执行成本](evidence/reference_screen_execution.json)、[清单身份与安全集合计数](evidence/locked_cohorts.json)。
 
@@ -124,3 +124,33 @@ P0 首个导出已经通过原始观测的原 VLAAgent 推理：两条固定 TRA
 08:33 UTC 部署精度修正：独立原始观测核验发现原 VLAAgent 与 BF16 训练缓存并不逐值等价。[保留的两场景失败证据](evidence/P0_epoch1_uncached_cache_mismatch.json)。隔离实验显示原始 FP32 历史投影使冻结 action-token states 最大差0.375/0.75；全 BF16 原始模型与旧缓存则逐值一致，同缓存仅动作头精度变化的动作差约2.2e-5。[隔离结果](evidence/deployment_numerical_isolation.json)。此前“原导出入口”资格将特征缓存安装进同一 BF16 模型，漏掉了原导出默认模块精度这一边界；如实保留该限制，不能用原资格掩盖。
 
 新增原 VLAAgent 原始观测评价入口，保持其 FP32 history/action、BF16 Qwen、原十步 ODE、scene绑定初始噪声及后处理。SFT 和已保存策略均按相同原导出口径重评，最多25个既定 DEV 模型窗口；同完整权重 hash 的 P0/P1 可复用封存结果，复用与实际评分成本分别计入。[一次修正登记](evidence/deployment_evaluation_correction.json)。旧缓存分数归为独立执行诊断，不修改已运行训练、候选、安全成本预算、保持设置或学习率。固定四 seed SFT 安全集保持原成员和 BF16 有限采样定义；原导出策略均值、配对变化和零分转移使用新原导出 SFT 对照，不能混减。最终 Navtest 和关键第二 seed 将直接采用正确原导出精度。
+
+08:52 UTC：原 F-SFT 文件与首个新导出的 630 个冻结上游张量已逐张量核对，dtype 均为 BF16，数值完全不变；部署差异来自 VLAAgent 构造的计算模块 dtype，而非上游权重被更新。[源权重直接核对](evidence/source_export_frozen_prefix_identity.json)。完整原导出 SFT DEV 五 seed PDMS 为93.5703；同口径 P0/P1 首 epoch 为93.5821，配对差+0.0118分，95% CI [−0.0081, 0.0422]，仍无明确有效提升。NC不变、DAC+0.0354分、TTC−0.0118分。[原导出基线](evidence/original_export_SFT_DEV.json)、[首 epoch 配对结果](evidence/original_export_P0_epoch1_DEV.json)。不能与旧 BF16 缓存基线交叉相减。
+
+首 epoch 的训练诊断几何分析显示：随机/困难子集相同 root 的平均轨迹漂移约1.31/1.48厘米，五 seed 内 pairwise ADE 各减少约0.74/0.72厘米，目标分布能量距离尚无明确下降。[几何与有限目标吸收诊断](evidence/P0_epoch1_TRAIN_projection.json)。512诊断场景中，实际进入固定4096学习库的随机部分仅10个，定向部分256个；分别给出计数，不能把全部随机训练人口诊断称为已训练样本拟合结果。这些数据使用训练的 BF16 缓存执行口径，仅用于同口径投影分析；原导出完整评价独立报告。
+
+
+09:20 UTC 阶段证据：以下主表使用**原始观测、原 VLAAgent 默认模块 dtype、原10步ODE、五个独立单候选、完整1696场景DEV**。分数为0—100；差值按先场景内平均推理seed、再按log cluster bootstrap计算，未包含训练seed不确定性。
+
+| 检查点 | v1.1 PDMS | 相对SFT差值及95%CI（分） | NC / DAC / TTC差值（分） | v2 one-stage EPDMS（独立列） |
+|---|---:|---:|---:|---:|
+| 固定SFT | 93.5703 | — | — | 93.6849 |
+| P0/P1 epoch1 | 93.5821 | +0.0118 [−0.0081, +0.0422] | 0 / +0.0354 / −0.0118 | 93.7538 |
+| P0/P1 epoch2 | 93.6848 | +0.1145 [+0.0242, +0.2230] | 0 / +0.1297 / +0.0118 | 93.8540 |
+| P2 epoch1 | 93.8233 | +0.2530 [+0.1472, +0.3385] | 0 / +0.1769 / −0.0118 | 93.9441 |
+
+[普通/安全提取epoch2](evidence/original_export_P0_epoch2_DEV.json)、[搜索安全提取epoch1](evidence/original_export_P2_epoch1_DEV.json)、[v2 SFT](evidence/original_export_SFT_DEV_v2.json)、[v2 P0 epoch1](evidence/original_export_P0_epoch1_DEV_v2.json)、[v2 P0 epoch2](evidence/original_export_P0_epoch2_DEV_v2.json)、[v2 P2 epoch1](evidence/original_export_P2_epoch1_DEV_v2.json)。P0/P1 两个已重评检查点的完整导出与config逐hash一致，训练是独立真实执行，评价复用不当作独立训练重复。
+
+P2−P1首epoch的匹配差为+0.2412分，95%CI [+0.1437,+0.3044]；这是候选来源/搜索整体差异，不能单称优化器收益。[配对比较](evidence/original_export_P2_minus_P1_epoch1.json)。P2的五seed全零场景10→2，但任意seed零分场景17→19，其中新增4、恢复2；固定SFT参考安全集中的联合违规7→10，TTC均值亦略降。因此有平均收益与部分恢复，**尚不是安全保持成功**。P0/P1 epoch2固定安全集合联合违规7→4，任意seed零分17→14，但仍有1个场景新变成五seed全零；全部转移保留，不能只报总数净改善。
+
+[完整目标分布统计](evidence/P_fixed_target_summary.json)显示，P0/P1混合前/后的候选期望收益为0.010785/0.005209原始score，平均alpha=0.07785、目标ESS=4.341；P2为0.023043/0.011420，alpha=0.29138、ESS=7.328。P0/P1有1362个场景无超出1e-9数值容差的奖励改进，P2有1004个。三组最大primal残差≤2.53e-10。P2目标的NC/DAC/TTC平均成本均不高于固定reference，但这仅成立于候选混合分布，不能推导拟合模型安全。
+
+[原导出P2首epoch训练诊断](evidence/original_export_P2_epoch1_TRAIN.json)与[目标吸收分析](evidence/original_export_P2_epoch1_TRAIN_projection.json)完整保留512个固定诊断场景及其定向性质。困难256场景目标能量距离变化−0.00085m，CI跨零，目标整体吸收尚不清晰。实际进入固定学习库的随机部分只有10场景，不能把其较宽区间推广到全训练人口。
+
+[事后场景方向分析](evidence/P2_epoch1_context_alignment.json)进一步区分共同前进漂移与目标相关变化：困难场景中，要求终点前进距离增加至少0.1m的107场景有101场景方向一致；要求减少至少0.1m的26场景只有1场景一致，平均实际仍增加0.081m。横向负/正目标的方向一致率为77.97%/61.25%。去掉全局均值与固定SFT终点距离分箱均值后仍存在正的目标关联，但这是事后关联诊断，不是因果场景推理证明；尤其没有证明减速类修复已学会。继续用相同分析入口检查共同训练终点，不据此临时修改LR或clip。
+
+开发选择规则现已明确记录：[有限样本安全合格条件](evidence/original_export_selection_rule.json)。该文件在首epoch结果已观察后形成，时间如实记录；要求NC/DAC/TTC均值不下降、固定安全集合各项及联合违规场景数不增加，且PDMS有正收益。固定预算终点与开发选择结果分开，有限样本合格不等于安全保证。当前没有锁定Navtest检查点。
+
+资源最新变更：用户撤回 `vlawm-zt/zt2/zt3/zt5`，共享调度规则已禁止新任务、重试与评价；本任务只使用名字不同且仍获授权的四台 `vlawm-tsinghua-zt/zt2/zt3/zt4`。[撤回记录](evidence/exact_host_withdrawal.json)。未停止Base/G/IQE真实工作。后续在线评分队列仅把同机文件传输从共享盘改到各训练主机本地盘，模型/候选/评分代码、预算、RNG与命令保持不变；完成后归档全部请求和失败记录。128次重复评分的[存储传输profile](evidence/scoring_transport_storage_profile.json)结果完全一致，中位往返0.421→0.304秒；这不是端到端训练加速结论。
+
+新增入口均已实际执行：`summarize_target_banks`、`diagnose_policy_projection`、`diagnose_context_alignment`、`compare_policy_evaluations`、`profile_scoring_transport`；[有限原导出评价队列](evidence/original_export_finite_queue.json)由 `run_original_evaluation_queue` 执行，仅追踪已登记的剩余19个DEV模型窗口，对完整导出与配置均相同的P0/P1保留显式复用receipt。原始场景/权重/缓存及完整运行身份继续只留在运行目录，不上传Git。

@@ -1,0 +1,296 @@
+{
+  "schema": "flow_safe_single_candidate_deployment_v1",
+  "status": "COMPLETE_MATCHED_EVALUATION",
+  "policy_identity": "17241197c60ca44a8cfc0603845b262cf3a5019ac74a7631cb39b059fe678236",
+  "baseline_identity": "17241197c60ca44a8cfc0603845b262cf3a5019ac74a7631cb39b059fe678236",
+  "reference_identity": "6241ef414c6a53ce0e62d9625b0bdeafb15df83c98b4f87e454d51961ceced83",
+  "payload_hashes": {
+    "policy": "821e69c3865c810b64084961166ff4d86165766e894d108be9d50e26aa04eef7",
+    "baseline": "821e69c3865c810b64084961166ff4d86165766e894d108be9d50e26aa04eef7",
+    "reference": "decb38b88ed9b7232500253daedc3f44c628ed9a9b3d07197474908ab5f3dccc"
+  },
+  "scenes": 1696,
+  "inference_seeds": [
+    2101,
+    2102,
+    2103,
+    2104,
+    2105
+  ],
+  "training_seed_repetitions": 1,
+  "cohort": "dev_tokens",
+  "targeted_TRAIN_diagnostic_is_not_unbiased_population_estimate": false,
+  "primary": "mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection",
+  "units": "raw_0_to_1",
+  "means": {
+    "comfort": {
+      "policy": 0.9988207547169812,
+      "SFT": 0.9988207547169812,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "drivable_area_compliance": {
+      "policy": 0.9922169811320755,
+      "SFT": 0.9922169811320755,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "driving_direction_compliance": {
+      "policy": 0.9887382075471699,
+      "SFT": 0.9887382075471699,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "ego_progress": {
+      "policy": 0.8579991344052311,
+      "SFT": 0.8579991344052311,
+      "policy_scene_quantiles": [
+        0.0,
+        0.6104424664286093,
+        0.6643586524607599,
+        0.8869805528097969,
+        1.0,
+        1.0
+      ]
+    },
+    "no_at_fault_collisions": {
+      "policy": 1.0,
+      "SFT": 1.0,
+      "policy_scene_quantiles": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "score": {
+      "policy": 0.9357032556877143,
+      "SFT": 0.9357032556877143,
+      "policy_scene_quantiles": [
+        0.0,
+        0.8346656113367312,
+        0.8584671989107617,
+        0.9516824687639829,
+        1.0,
+        1.0
+      ]
+    },
+    "time_to_collision_within_bound": {
+      "policy": 0.9984669811320755,
+      "SFT": 0.9984669811320755,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired_changes": {
+    "comfort": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "driving_direction_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "ego_progress": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "no_at_fault_collisions": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "score": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "fixed_reference_stable_safe_scenes": 1696,
+      "current_any_seed_violation_in_fixed_safe": 0,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 1.0
+    },
+    "drivable_area_compliance": {
+      "fixed_reference_stable_safe_scenes": 1682,
+      "current_any_seed_violation_in_fixed_safe": 3,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 3,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9922169811320755
+    },
+    "time_to_collision_within_bound": {
+      "fixed_reference_stable_safe_scenes": 1693,
+      "current_any_seed_violation_in_fixed_safe": 4,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 4,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9984669811320755
+    },
+    "joint": {
+      "fixed_reference_stable_safe_scenes": 1680,
+      "current_any_seed_violation_in_fixed_safe": 7,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 7,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9912735849056604
+    }
+  },
+  "zero_transitions": {
+    "any_seed_zero": {
+      "SFT": 17,
+      "policy": 17,
+      "new_failures": 0,
+      "recovered": 0
+    },
+    "all_fixed_seeds_zero": {
+      "SFT": 10,
+      "policy": 10,
+      "new_failures": 0,
+      "recovered": 0
+    },
+    "five_seed_scene_mean_zero": {
+      "SFT": 10,
+      "policy": 10,
+      "new_failures": 0,
+      "recovered": 0
+    }
+  },
+  "separate_finite_candidate_opportunities": {
+    "policy": {
+      "candidates_per_scene": 5,
+      "feasible_scenes": 1686,
+      "F_feasible": 0.9941037735849056,
+      "safe_best_mean_on_feasible": 0.9447443404615634,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    },
+    "SFT": {
+      "candidates_per_scene": 5,
+      "feasible_scenes": 1686,
+      "F_feasible": 0.9941037735849056,
+      "safe_best_mean_on_feasible": 0.9447443404615634,
+      "candidate_opportunity_only_not_deployed_policy_score": true
+    }
+  },
+  "high_score_decline": {
+    "SFT_scene_mean_threshold": 0.9,
+    "scenes": 1261,
+    "any_negative": 0,
+    "decline_at_least_001": 0,
+    "decline_at_least_005": 0
+  },
+  "no_best_of_N": true,
+  "no_search_GT_selection_or_online_scorer_in_actor": true,
+  "SFT_may_have_seen_DEV": true,
+  "old_RL_saw_DEV": true,
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "47f6eed8a3cf615ed50b73a34957fd2b1b9ed5a333325d781fe433e4c5b62855"
+    }
+  },
+  "fixed_reference_safety_definition": {
+    "identity": "36968e11fb34a5ff429ecbc618fac63649db90dcca19ee2ba9d4d0ad616516bf",
+    "execution_profile": "frozen_training_BF16_feature_cache",
+    "semantics": "Predeclared finite four-seed SFT set; membership is retained, not reclassified using new policy results. Matched SFT and policy mean/transition comparisons both use the original-export profile."
+  },
+  "sha256": "a08452b92927029481abaa268c15341bdd33183957f23d92d016312fe8496a60"
+}

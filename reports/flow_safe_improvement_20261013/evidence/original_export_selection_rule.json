@@ -1,0 +1,16 @@
+{
+  "schema": "flow_safe_empirical_DEV_qualification_v1",
+  "utc_unix": 1791881552.6454604,
+  "timing": "Explicit operationalization after first-epoch scores were observed, before fixed-budget endpoints; not described as an entirely blind preregistration. No tolerance fitted to observed gains.",
+  "source": "User requires NC/DAC/TTC nondegradation and fixed-reference safety accounting.",
+  "eligibility": {
+    "complete_original_export_DEV_five_seed_evaluation": true,
+    "each_NC_DAC_TTC_mean_change_vs_matched_SFT": ">= 0 allowing only 1e-12 floating-point tolerance",
+    "fixed_reference_safe_set_any_seed_violation_count_each_metric_and_joint": "no larger than matched SFT evaluation count",
+    "mean_PDMS_gain": "> 0"
+  },
+  "selection": "Among empirically eligible saved DEV checkpoints choose highest mean PDMS; otherwise retain SFT and report no qualifying improved policy. Always report registered final-budget endpoints separately.",
+  "uncertainty": "Eligibility is an observed finite-seed engineering criterion, not a safety guarantee. Report log-cluster intervals and two separate training seeds.",
+  "second_training_seed_selection": "Matched control and most supported completed research route after full original DEV, including a diagnostic route if no empirically safe policy qualifies. Do not replace a failed safety result with an intermediate maximum.",
+  "navtest": "After checkpoint/route lock only; never fit this rule or search on Navtest."
+}
