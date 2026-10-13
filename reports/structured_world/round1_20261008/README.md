@@ -1,5 +1,11 @@
 # Structured-world FGTR round one — implementation milestone
 
+**Current consolidated results (2026-10-13):**
+[G-series Navtest, nuScenes, historical C/S/A/V references and training status](../../experiment_results/20261013/README.md).
+The dated material below records earlier milestones; its queued/running status
+is historical. The consolidated snapshot distinguishes current, best observed
+and matched-update results, including the G1 recovery from its saved 80k boundary.
+
 [New complete G1/G3 25k Navtest and training-efficiency audit](NAVTEST_25K_AND_TRAINING_EFFICIENCY_20261011.md)
 records PDMS 86.3189/86.7897 on all 12146 scenes. The paired G3−G1 interval
 [-0.0549, 1.0045] includes zero. Current eight-GPU training takes about
