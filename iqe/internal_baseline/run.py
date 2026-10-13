@@ -80,6 +80,17 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
             # scoring phase switch does not stop or restart its optimizer.
             stages = [(name, operation) for name, operation in stages
                       if name not in {"expert_pause_250", "scorer_pause_500"}]
+            # Keep the already owned GPU for the requested final online evidence
+            # immediately after training. These are read-only evaluations; no
+            # artificial pause/resume or additional model fitting is involved.
+            from .reporting import audit_online
+            from .latency import benchmark
+            from .audit_training import audit as audit_training
+            stages.extend((
+                ("audit_actual_training", lambda: audit_training(config, device)),
+                ("audit_current_input_labels", lambda: audit_online(config, device)),
+                ("benchmark_online_bundle", lambda: benchmark(config, device)),
+            ))
         if from_stage == "scorer":
             first_scorer = next(i for i, (name, _) in enumerate(stages)
                                 if name in {"scorer_pause_500", "scorer_finish"})
