@@ -26,9 +26,14 @@ from .runtime_identity import resume_dependencies, validate_runtime, configure_r
 
 
 def original_dataset(config, contract, *, allow_partial=False):
-    from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
     s = contract["source_config"]["foresight"]
     d = config["data"]
+    if not any(s[k] for k in ("enable_current_dino", "enable_future_dino", "enable_interaction")):
+        require(all(d[k] is None for k in ("dino_root", "dino_index", "interaction_root", "clip_root")),
+                "IL-only Base must not retain auxiliary label paths")
+        from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset
+        return ForesightTrainingDataset(d["train_root"])
+    from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
     return ActionVideoForesightDataset(d["train_root"], dino_root=d["dino_root"], dino_index=d["dino_index"],
         expected_dino=d["dino_identity"], candidate=s["candidate"], current=s["enable_current_dino"], future=s["enable_future_dino"],
         interaction_root=d["interaction_root"], expected_interaction=d["interaction_identity"],
@@ -36,7 +41,7 @@ def original_dataset(config, contract, *, allow_partial=False):
         expected_teacher=s["video_teacher_identity"], allow_partial=allow_partial)
 
 
-def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after=None, resume=None, device="cuda"):
+def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after=None, resume=None, device="cuda", execution_policy=None):
     require(mode in {"smoke", "full", "profile"}, "explicit base execution mode")
     if mode == "full":
         require(device.startswith("cuda"), "formal Query base training needs qualified GPU resources")
@@ -55,7 +60,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
     require(cfg["global_batch_size"] % world == 0, "base global batch/world size")
     seed = config["seed"]
     runtime = config["base_runtime"]
-    runtime_identity = validate_runtime(runtime, contract, world, mode=mode, training_config=cfg)
+    runtime_identity = (execution_policy.identity(contract, world) if execution_policy else
+                        validate_runtime(runtime, contract, world, mode=mode, training_config=cfg))
     fit = sorted(s.scene_id for s in scenes if s.split_role == "incremental_fit")
     dependencies = {"framework_contract_hash": contract["framework_contract_hash"], "fit_manifest": digest(fit),
                     "original_targets": config["data"], "world_size": world, "config": cfg, "environment": environment()}
@@ -123,6 +129,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
         configure_language_checkpointing(model)
     # The original model freezes its visual tower and preserves its mode.
     model.train()
+    if execution_policy:
+        execution_policy.configure_model(model)
     dataset = original_dataset(config, contract, allow_partial=mode != "full")
     by_id = {x["token"]: i for i, x in enumerate(dataset.index)}
     fit = sorted(s.scene_id for s in scenes if s.split_role == "incremental_fit")
@@ -133,12 +141,18 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
     from tools.foresight.student_state import optimizer_batch_counts
     from starVLA.dataloader.foresight_dataset import collate_training
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.AdamW(params, lr=cfg["lr"], weight_decay=cfg["weight_decay"],
-                                 betas=tuple(contract["source_config"]["trainer"]["optimizer"]["betas"]))
+    optimizer = (execution_policy.make_optimizer(model, cfg, contract) if execution_policy else
+                 torch.optim.AdamW(params, lr=cfg["lr"], weight_decay=cfg["weight_decay"],
+                                   betas=tuple(contract["source_config"]["trainer"]["optimizer"]["betas"])))
     scheduler = scheduler_factory(optimizer, cfg)
+    ddp_options = ({"gradient_as_bucket_view": execution_policy.gradient_as_bucket_view,
+                    "bucket_cap_mb": execution_policy.bucket_cap_mb} if execution_policy else {})
     wrapped = DistributedDataParallel(model, device_ids=[int(os.environ.get("LOCAL_RANK", "0"))] if device.startswith("cuda") else None,
-                                       find_unused_parameters=True) if world > 1 else model
+                                       find_unused_parameters=True, **ddp_options) if world > 1 else model
     step = epoch = offset = 0
+    from .online_base import checkpoint_origin
+    provenance = checkpoint_origin(None, None, None)
+    execution_migration = None
     if resume:
         state = torch.load(resume_info["load_path"], map_location="cpu", weights_only=False, mmap=True)
         resume_dependencies(state["dependencies"], dependencies,
@@ -147,14 +161,30 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
         require(state["optimizer_step"] == resume_info["receipt"]["optimizer_step"], "Base receipt/step mismatch")
         require(state["seed"] == seed and state["fit_scene_ids"] == fit,
                 "exact Base resume seed or ordered scene population changed")
-        if "runtime_identity" in state:
+        if execution_policy:
+            execution_migration = execution_policy.validate_state(state, runtime_identity)
+        elif "runtime_identity" in state:
             require(state["runtime_identity"]["backend_flags"] == runtime_identity["backend_flags"],
                     "exact Base resume numerical backend flags changed")
-        model.load_state_dict(state["model"], strict=True); optimizer.load_state_dict(state["optimizer"])
+        model.load_state_dict(state["model"], strict=True)
+        if execution_policy:
+            execution_policy.load_optimizer(optimizer, state["optimizer"])
+        else:
+            optimizer.load_state_dict(state["optimizer"])
         scheduler.load_state_dict(state["scheduler"])
         step, epoch, offset = state["optimizer_step"], state["epoch"], state["offset"]
+        provenance = checkpoint_origin(state, resume, resume_info["receipt"]["checksum"])
         restore_rng(state["rng_by_rank"][rank])
         del state
+        if execution_policy and rank == 0:
+            atomic_json(output / "ONLINE_EXECUTION_MIGRATION.json", execution_migration)
+    if step == cfg["max_optimizer_steps"]:
+        if rank == 0:
+            atomic_json(output / "result.json", {"status": "COMPLETE", "optimizer_steps": step,
+                "checkpoint": resume, "new_optimizer_steps": 0, "mode": mode, "termination_reason": "MAX_STEPS"})
+        if world > 1:
+            dist.barrier()
+        return resume
     require(stop_after is None or step < stop_after <= cfg["max_optimizer_steps"], "stop_after must exceed restored step and fit schedule")
     if mode != "full":
         require(0 < (stop_after or cfg["max_optimizer_steps"]) - step <= 32,
@@ -178,8 +208,12 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
                 atomic_torch(path, {"kind": "iqe_query_base", "framework_contract_hash": contract["framework_contract_hash"],
                     "model": model.state_dict(), "optimizer": optimizer.state_dict(), "scheduler": scheduler.state_dict(),
                     "optimizer_step": step, "epoch": epoch, "offset": offset, "dependencies": dependencies,
-                    "rng_by_rank": rngs, "resume_boundary": "optimizer_step", "learned_driving_weights_loaded": False,
-                    "fit_scene_ids": fit, "seed":seed, "mode":mode, "runtime_identity": runtime_identity})
+                    "rng_by_rank": rngs, "resume_boundary": "optimizer_step", **provenance,
+                    "fit_scene_ids": fit, "seed":seed, "mode":mode, "runtime_identity": runtime_identity,
+                    **({"online_base_identity": runtime_identity} if execution_policy else {}),
+                    "terminal": step == cfg["max_optimizer_steps"],
+                    "termination_reason": "MAX_STEPS" if step == cfg["max_optimizer_steps"] else
+                        ("OPERATOR_PAUSED" if stop[0] or step == stop_after else "RUNNING_CHECKPOINT")})
                 atomic_json(str(path) + ".COMPLETE.json", {"checksum": file_hash(path), "optimizer_step": step, "dependencies": dependencies})
             except Exception as exception:
                 error = repr(exception)
@@ -219,7 +253,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
                     entries, mine = address.entries, address.mine
                     if resume and step == start_step and rank == 0:
                         from .resume import record_next_batch
-                        record_next_batch(output, [fit[i] for i in entries])
+                        record_next_batch(output, [fit[i] for i in entries],
+                                          exact=not execution_migration or execution_migration["exact_resume"])
                     targets["iqe_sample_valid"] = targets["iqe_sample_valid"].to(device)
                     data_wait = time.perf_counter() - update_start
                     generator = torch.Generator().manual_seed(seed + step * world + rank)
@@ -261,8 +296,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
                                "previous_checkpoint_seconds": checkpoint_seconds,
                                "runtime_identity_hash": runtime_identity["identity_hash"],
                                "launch_id": launch_id,
-                               "retained_objectives": ["ego_il", "current_dino", "future_clip", "interaction"],
-                               "learned_driving_weights_loaded": False, "status": "RUNNING"}
+                               "retained_objectives": sorted(logs),
+                               "learned_driving_weights_loaded": provenance["learned_driving_weights_loaded"], "status": "RUNNING"}
                         atomic_json(output / "status.json", row)
                         import json
                         with open(output / "steps.jsonl", "a") as f:
