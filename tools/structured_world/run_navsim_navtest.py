@@ -266,6 +266,8 @@ def review_completed_ssh_launcher_exit(destination, failure, evidence):
                 or report.get('shards') != len(codes) or report.get('attempt') != attempt
                 or report.get('status') != 'COMPLETE' or report.get('error')
                 or report.get('prediction_identity') != identity
+                or type(report.get('pid')) is not int or report['pid'] <= 0
+                or not str(report.get('proc_start_ticks', '')).isdigit()
                 or record.get('shard') != i or record.get('shards') != len(codes)
                 or record.get('host') != report.get('host', '').removesuffix('-worker-0')):
             raise ValueError('Incomplete/foreign/scientific shard cannot use SSH completion review')
@@ -278,6 +280,52 @@ def review_completed_ssh_launcher_exit(destination, failure, evidence):
     if len(index) != 12146 or len(expected) != 12146 or len({r['log'] for r in index}) != 136:
         raise ValueError('Complete canonical population required')
     validate_record_union(destination, expected, identity)
+
+
+def worker_exit_proofs(destination, additional_reports=()):
+    """Verify reported native workers exited; never signal a remote process."""
+    proofs = []
+    reports = [json.loads(p.read_text()) for p in (destination/'attempts').glob('*/shards/*.json')]
+    reports.extend(additional_reports)
+    seen = set()
+    for report in reports:
+        host = report.get('host', '').removesuffix('-worker-0'); pid = report.get('pid')
+        start = report.get('proc_start_ticks')
+        if not host or not pid or (host, pid) in seen: continue
+        seen.add((host,pid)); authorized(host)
+        code = "from pathlib import Path;import json;p=Path('/proc/'+str("+str(pid)+")+'/stat');print(json.dumps(dict(exists=p.exists(),start_ticks=p.read_text().rsplit(')',1)[1].split()[19] if p.exists() else None)))"
+        command = ['python','-c',code]
+        if host != socket.gethostname().removesuffix('-worker-0'):
+            command = ['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',host,shlex.join(command)]
+        proof = json.loads(subprocess.check_output(command,text=True,timeout=20))
+        if proof['exists'] and (start is None or str(proof['start_ticks']) == str(start)):
+            raise ValueError('Prior owned worker still alive or unverifiable; cannot fence leases')
+        proofs.append(dict(host=host,pid=pid,expected_start_ticks=start,observed=proof))
+    return proofs
+
+
+def certify_completed_ssh_launchers(destination, codes, attempt):
+    """Accept a proved complete bank despite SSH timeouts, before failing scoring.
+
+    No retry or model error is hidden: retain launcher statuses, original logs,
+    exact evidence hashes, full-bank validation and fresh remote exit proofs.
+    """
+    if (destination/'INFERENCE_FAILED.json').exists():
+        raise ValueError('Existing inference failure cannot be completion-certified')
+    root = destination/'attempts'/attempt
+    paths = [*sorted((root/'shards').glob('*.json')),
+             *sorted((root/'launches').glob('*.json')), *sorted(root.glob('shard_*.log'))]
+    evidence = {'reviewed_failure_kind': 'completed_workers_SSH_timeout_exit_255',
+                'attempt': attempt, 'exit_codes': codes,
+                'attempt_files_sha256': {str(p.relative_to(destination)): digest(p) for p in paths}}
+    review_completed_ssh_launcher_exit(destination, {'exit_codes': codes}, evidence)
+    proofs = worker_exit_proofs(destination)
+    if (destination/'INFERENCE_FAILED.json').exists():
+        raise ValueError('Concurrent inference failure cannot be completion-certified')
+    path = root/'SSH_COMPLETION_CERTIFICATION.json'
+    atomic(path, dict(evidence=evidence, worker_exit_proofs=proofs, observed_utc=now(),
+                     routing_tool_sha256=EXECUTED_TOOL_SHA256, changed_predictions=False))
+    return path
 
 
 def recover_infrastructure(args):
@@ -311,23 +359,7 @@ def recover_infrastructure(args):
         progress=json.loads(report.read_text())
         if progress['error']!=failure['error'] or progress['scenes_done']%16 or not evidence.get('original_traceback_unavailable'):
             raise ValueError('Transport review must disclose missing original stack and bind progress-boundary failure')
-    proofs = []
-    reports = [json.loads(p.read_text()) for p in (destination/'attempts').glob('*/shards/*.json')]
-    reports.append(failure)
-    seen = set()
-    for report in reports:
-        host = report.get('host', '').removesuffix('-worker-0'); pid = report.get('pid')
-        start = report.get('proc_start_ticks')
-        if not host or not pid or (host, pid) in seen: continue
-        seen.add((host,pid)); authorized(host)
-        code = "from pathlib import Path;import json;p=Path('/proc/'+str("+str(pid)+")+'/stat');print(json.dumps(dict(exists=p.exists(),start_ticks=p.read_text().rsplit(')',1)[1].split()[19] if p.exists() else None)))"
-        command = ['python','-c',code]
-        if host != socket.gethostname().removesuffix('-worker-0'):
-            command = ['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',host,shlex.join(command)]
-        proof = json.loads(subprocess.check_output(command,text=True,timeout=20))
-        if proof['exists'] and (start is None or proof['start_ticks'] == start):
-            raise ValueError('Prior owned worker still alive or unverifiable; cannot fence leases')
-        proofs.append(dict(host=host,pid=pid,expected_start_ticks=start,observed=proof))
+    proofs = worker_exit_proofs(destination, [failure])
     if (destination/'scores/INVALID.json').exists(): raise ValueError('Scientific scoring failure cannot be infrastructure-cleared')
     index=json.loads((args.inputs/'index.json').read_text())
     metric_index=json.loads(INDEX.read_text())
@@ -1034,6 +1066,7 @@ def execute(args, req):
     atomic(destination / 'SCORER_LAUNCH.json', {'pid': scorer.pid, 'command': score_command, 'launched_utc': now(),
         'mode': 'CPU process pool starts before GPU shards; atomic-ready predictions streamed immediately'})
     processes = []
+    ssh_completion_certificate = None
     try:
       if not (destination / 'COMPLETE.json').exists():
         attempt = new_attempt(destination, routes)
@@ -1043,8 +1076,12 @@ def execute(args, req):
             'launch_pids': [p.pid for p in processes], 'attempt': attempt, 'observed_utc': now(), 'training': train_snapshot()})
         codes = [p.wait() for p in processes]
         if any(codes):
-            first_failure(destination / 'INFERENCE_FAILED.json', {'classification': 'unclassified', 'exit_codes': codes, 'observed_utc': now()})
-            raise RuntimeError('Inference shard failed; outputs retained; exit codes ' + repr(codes))
+            try:
+                ssh_completion_certificate = certify_completed_ssh_launchers(destination, codes, attempt)
+            except Exception as review_error:
+                first_failure(destination / 'INFERENCE_FAILED.json', {'classification': 'unclassified',
+                    'exit_codes': codes, 'completion_review_error': repr(review_error), 'observed_utc': now()})
+                raise RuntimeError('Inference shard failed; outputs retained; exit codes ' + repr(codes)) from review_error
         finish_predictions(destination, len(routes), attempt)
       atomic(args.output / 'STATE.json', {'status': 'CANONICAL_SCORING', 'request': req, 'pid': scorer.pid,
         'command': score_command, 'observed_utc': now(), 'training': train_snapshot()})
@@ -1059,14 +1096,17 @@ def execute(args, req):
           try: scorer.wait(timeout=30)
           except subprocess.TimeoutExpired: scorer.terminate(); scorer.wait(timeout=30)
       raise
-    if processes and all(process.returncode == 0 for process in processes) and scorer.returncode == 0:
+    if processes and (all(process.returncode == 0 for process in processes) or ssh_completion_certificate) and scorer.returncode == 0:
         atomic(destination / 'OWNED_WORKERS_EXITED.json', {
             'key': req['key'], 'training_identity': req['training_identity'],
             'checkpoint_files_sha256': req['checkpoint_files_sha256'],
             'all_gpu_launchers_exited': True, 'scorer_exited': True,
             'launchers': [{'pid': process.pid, 'returncode': process.returncode} for process in processes],
             'scorer_pid': scorer.pid, 'scorer_returncode': scorer.returncode,
-            'evidence': 'Synchronous local/SSH launchers and canonical scorer all waited to successful exit',
+            'evidence': ('Native remote workers completed and exited; bound SSH timeouts independently certified'
+                         if ssh_completion_certificate else
+                         'Synchronous local/SSH launchers and canonical scorer all waited to successful exit'),
+            'ssh_completion_certificate': str(ssh_completion_certificate) if ssh_completion_certificate else None,
             'observed_utc': now(), 'routing_tool_sha256': EXECUTED_TOOL_SHA256})
     atomic(args.output / 'completed' / (req['key'] + '.json'), {'request': req,
         'score_complete': str(destination / 'scores/COMPLETE.json'), 'valid': True, 'completed_utc': now(), 'training': train_snapshot()})
