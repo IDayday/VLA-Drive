@@ -102,7 +102,8 @@ def audit(config, device='cuda:0'):
     q = read_json(config.root/'COMPARISON_DISTRIBUTION.json')
     erows, srows = (read_steps(config.root/k/'steps.jsonl') for k in ('expert', 'scorer'))
     require(len(erows) == config.expert_updates and len(srows) == config.scorer_updates, 'fixed budget incomplete')
-    es = ExpertSampler(manifest['hard'], manifest['ordinary'], config.natural_seed, manifest['hash'])
+    es = ExpertSampler(manifest['hard'], manifest['ordinary'], config.natural_seed, manifest['hash'],
+                       manifest['sampling']['hard'])
     ss = TwoStreamSampler(q['scene_ids'], q['weights'], natural_seed=config.natural_seed,
                           comparison_seed=config.comparison_seed, pointwise_updates=config.pointwise_updates,
                           bank_hash=file_hash(config.root/'PAIR_BANK.json'))
@@ -116,13 +117,16 @@ def audit(config, device='cuda:0'):
     result = read_json(config.root/'scorer/result.json')
     require(result['status'] == 'COMPLETE' and result['best_checkpoint_hash'] == file_hash(config.root/'scorer/best.pt'), 'selected scorer mismatch')
     model.load_state_dict(torch.load(config.root/'scorer/best.pt', weights_only=True, map_location=device), strict=True)
-    ix = [i for i, r in enumerate(bank['rows']) if r['role'] == 'incremental_fit']
+    from .partition import training_ids
+    allowed_fit = training_ids(config, list(scenes.values()), 'scorer_fit')
+    ix = [i for i, r in enumerate(bank['rows']) if r['scene_id'] in allowed_fit]
     rows = [scenes[bank['rows'][i]['scene_id']] for i in ix]
     predicted, _ = predict_scores(config, model, rows, arrays['trajectories'][ix], device)
     fit = selection_metrics(arrays['scores'][ix], arrays['components'][ix], argmax_base_tie(predicted),
                             [s.source_log_id for s in rows], bootstrap_repetitions=config.bootstrap_repetitions,
                             bootstrap_seed=config.bootstrap_seed)
     atomic_json(config.root/'MAIN_SCORER_FIT_DIAGNOSTIC.json', {'selection': fit, 'checkpoint_selection_used_fit': False,
+                'fit_subrole': 'scorer_fit' if config.research_protocol == 'two_candidate_v1' else 'incremental_fit',
                 'scorer_hash': file_hash(config.root/'scorer/best.pt'), 'rows': len(ix)}, immutable=True)
     delta = arrays['trajectories'][:, 1, :, :2] - arrays['trajectories'][:, 0, :, :2]
     distances = np.linalg.norm(delta, axis=-1)

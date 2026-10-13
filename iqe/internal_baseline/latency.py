@@ -13,6 +13,75 @@ from .features import encode_joint, JointCache
 from .training import score_context, make_scorer
 
 
+def measure_online_modes(algorithm, scenes, device, warmup, repetitions):
+    """Measure complete paths separately, without intermediate CUDA fences.
+
+    Every mode reads the same real images in the same order. The resident bundle
+    is kept constant: memory includes both private heads even for Base-only
+    execution. This measures execution cost, not separate model-loading costs.
+    """
+    counts = {"vlm": 0, "base_decoder": 0, "expert_decoder": 0, "score_projection": 0}
+    def count(name):
+        def hook(*_):
+            counts[name] += 1
+        return hook
+    language = algorithm.adapter.framework.qwen_vl_interface.model.model.language_model
+    handles = [language.register_forward_hook(count("vlm")),
+               algorithm.adapter.framework.action_model.expert.register_forward_hook(count("base_decoder")),
+               algorithm.expert.register_forward_hook(count("expert_decoder")),
+               algorithm.scorer.action_projection.register_forward_hook(count("score_projection"))]
+    expected = {
+        "Base_single_trajectory": {"vlm": 1, "base_decoder": 1, "expert_decoder": 0, "score_projection": 0},
+        "Base_Expert_without_scoring": {"vlm": 1, "base_decoder": 1, "expert_decoder": 1, "score_projection": 0},
+        "Base_Expert_Scorer_argmax": {"vlm": 1, "base_decoder": 1, "expert_decoder": 1, "score_projection": 1},
+    }
+    results = {}
+    try:
+        with torch.no_grad():
+            for mode, calls in expected.items():
+                samples, ids = [], []
+                torch.cuda.reset_peak_memory_stats(device)
+                for i in range(warmup+repetitions):
+                    for key in counts:
+                        counts[key] = 0
+                    scene = scenes[i % len(scenes)]
+                    torch.cuda.synchronize(device)
+                    start = time.perf_counter()
+                    observations = [load_observation(scene, algorithm.adapter.contract)]
+                    if mode == "Base_Expert_Scorer_argmax":
+                        output = algorithm(observations)
+                    else:
+                        planner, _ = encode_joint(algorithm.adapter, observations)
+                        base = algorithm.adapter.predict_s0(planner)
+                        output = base.physical
+                        if mode == "Base_Expert_without_scoring":
+                            expert = algorithm.expert(planner)
+                            output = torch.stack((base.physical, expert.physical), 1)
+                    output = output.cpu()
+                    torch.cuda.synchronize(device)
+                    elapsed = (time.perf_counter()-start)*1000
+                    require(counts == calls, "online mode repeats/misses a shared forward or private head: "+mode)
+                    require(torch.isfinite(output).all().item(), "nonfinite online timing output")
+                    if i >= warmup:
+                        samples.append(elapsed)
+                        ids.append(scene.scene_id)
+                results[mode] = {"mean_ms": float(np.mean(samples)), "p50_ms": float(np.median(samples)),
+                    "p95_ms": float(np.quantile(samples, .95)), "samples_ms": samples,
+                    "scene_ids": ids, "call_counts_per_scene": dict(counts),
+                    "peak_allocated_bytes": torch.cuda.max_memory_allocated(device),
+                    "peak_reserved_bytes": torch.cuda.max_memory_reserved(device)}
+    finally:
+        for handle in handles:
+            handle.remove()
+    return {"modes": results, "warmup_per_mode": warmup, "repetitions_per_mode": repetitions,
+            "same_scene_sequence": len({tuple(v["scene_ids"]) for v in results.values()}) == 1,
+            "input_path": "real_image_read_hash_check_decode_and_original_preprocessing",
+            "cache_used_for_timing": False, "batch": 1,
+            "synchronization": "CUDA synchronize immediately before and after the complete path; no profiling fences between modules",
+            "memory_scope": "same full Base+Expert+Scorer bundle resident for every mode; allocations include all its weights",
+            "timing_scope": "image IO/validation/preprocess through returned physical trajectory CPU copy; model loading excluded"}
+
+
 def benchmark(config, device="cuda:0", warmup=5, repetitions=30):
     require(warmup >= 5 and repetitions >= 30, "deployment latency needs a meaningful timing window")
     torch.set_num_threads(2)
@@ -55,6 +124,8 @@ def benchmark(config, device="cuda:0", warmup=5, repetitions=30):
     h.remove(); ph.remove()
     stats = {key: {"mean": float(np.mean([r[key] for r in records])), "p50": float(np.median([r[key] for r in records])),
                    "p95": float(np.quantile([r[key] for r in records], .95))} for key in records[0]}
+    profiled_peak = {"allocated": torch.cuda.max_memory_allocated(device), "reserved": torch.cuda.max_memory_reserved(device)}
+    online_modes = measure_online_modes(algorithm, scenes, device, warmup, repetitions)
     # Own bundle state roundtrip and cached-vs-online scorer connection, separately
     # from all timing windows. No environment labels are inputs to the algorithm.
     scene = scenes[0]; observations = [load_observation(scene, algorithm.adapter.contract)]
@@ -72,7 +143,9 @@ def benchmark(config, device="cuda:0", warmup=5, repetitions=30):
               "warmup": warmup, "repetitions": repetitions, "source": "real_images_online",
               "synchronization": "CUDA synchronize at each measured boundary, single process",
               "statistics_ms": stats, "samples": records,
-              "peak_allocated_bytes": torch.cuda.max_memory_allocated(device), "peak_reserved_bytes": torch.cuda.max_memory_reserved(device),
+              "peak_allocated_bytes": profiled_peak["allocated"], "peak_reserved_bytes": profiled_peak["reserved"],
+              "three_path_online_comparison": online_modes,
+              "component_timing_caveat": "statistics_ms contains extra synchronization at module boundaries; use the three_path_online_comparison for unfenced full-path comparisons",
               "VLM_calls_per_scene": 1, "score_projection_calls_per_scene": 1,
               "scorer_roundtrip_bitwise": True, "cached_online_prediction_max_abs": float((a-direct["predicted_values"]).abs().max()),
               "bundle_hash": file_hash(config.root/"bundle/BUNDLE.json"), "external_scorer_weights_loaded": False,
