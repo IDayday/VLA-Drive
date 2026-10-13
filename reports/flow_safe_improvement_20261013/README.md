@@ -4,7 +4,7 @@
 
 截至2026-10-13 13:13 UTC，D1/D2/D3、P0/P1/P2共同8-epoch窗口、四条在线路线各3轮及24个完整RL_DEV评价窗口全部完成；共12,288次正式全动作头optimizer更新。所有终点TRAIN诊断和DEV v2辅助评价也已完成。六个模型的最终Navtest已锁定并实际运行，尚未完成，不能提前报告最终确认成绩。按用户最新要求，本轮只有训练seed42，后续推理seed2101；第二训练seed和新的多推理seed实验已取消，已有证据保留。
 
-代码起点：`25f9148eb75ddf171313720e758a280b82c24f7f`；独立分支：`research/flow-safe-improvement-diagnostics-20261013`。完整时间线及早期五seed结果保存在[执行历史](execution_history.md)，当前结论以本页、封存证据与[全部24窗口](evidence/single_seed_policy_scores.csv)为准。没有覆盖旧run或自动合并。
+代码起点：`25f9148eb75ddf171313720e758a280b82c24f7f`；独立分支：`research/flow-safe-improvement-diagnostics-20261013`。完整时间线及早期五seed结果保存在[执行历史](execution_history.md)，当前结论以本页、封存证据与[全部24窗口](evidence/single_seed_policy_scores.csv)、[完整分项与低尾](metrics.md)为准。没有覆盖旧run或自动合并。
 
 ## 六个研究问题的回答
 
@@ -48,6 +48,8 @@ D3每场景64个逻辑候选预算，其中4条共同SFT参考、60条新提案�
 
 每种方法另公平计入2,048条共同参考的逻辑评分成本。行为搜索7,562个非法物理提案消耗预算、保留原因，未计作新评分或reward0；不能以较少真实评分掩盖提案失败。随机部分有可行解的比例均为100%；困难部分ODE/SDE/latent/behavior分别90.63%/98.83%/91.41%/99.22%。**只在有可行候选场景上定义的G_safe均值**，随机为0.01289/0.01535/0.01298/0.02190，困难为0.18327/0.23995/0.18533/0.24820原始score；不要与将负值/不可行场景置零的`safe_gain_nonnegative`辅助统计混淆。[完整D3、分组与真实成本](evidence/D3_all_methods.json)。
 
+搜索复用固定iCEM的精英复用、分布更新与方差下限思路，CVPO/REPS仅提供有限目标分布思想；[上游commit与来源锁](../../configs/flow_safe_improvement/upstream_lock.json)和许可证保留。没有迁入MuJoCo环境或完整长时序actor-critic。
+
 行为搜索被选为后续候选来源，因为安全发现和评分效率改善；latent搜索未显示足够优势。SDE增加覆盖但速度场调用337,000次，ODE/latent各29,800次，行为搜索9,320次，不能只按逻辑候选数称全计算预算相同。共同参考、非法提案与实际forward另列。有限候选最高值不是理论oracle，没找到也不证明场景不可解。
 
 ## P：固定库学习与重新采样
@@ -87,7 +89,7 @@ P2−P1终点为+0.11483分，CI [−0.08637,+0.31855]。P2对SFT新增1个DAC�
 
 ![原单候选ODE完整学习曲线](evidence/policy_learning_curves.svg)
 
-NFT固定官方commit `cbb14f84b8312b620390dfcbe2fab69c1383b104`，核对实际训练代码的forward-process、旧behavior、正负目标、时间采样和归一化；适配s=1−t、DDP velocity取图像符号反向。采用场景奖励中心化、全局reward std与clip5、beta1，不是负advantage乘普通MSE，也不是exp(−MSE)伪似然。每步FM与NFT计算不同：每轮forward噪声实例数分别262,144与327,680。首轮4096组中954等分（20全零），3142有效组中2997仅EP变化；这是离线信号诊断，不是已证明保持loss压住NFT的全头梯度分解。[信号](evidence/NFT_round1_advantage_signal.json)、[真实完整动作头学习资格](evidence/full_head_learning_qualification.json)、[NFT连续/恢复一致](evidence/NFT_exact_resume_qualification.json)。
+NFT固定[官方commit `cbb14f84b8312b620390dfcbe2fab69c1383b104`](https://github.com/NVlabs/DiffusionNFT/tree/cbb14f84b8312b620390dfcbe2fab69c1383b104)，核对实际训练代码的forward-process、旧behavior、正负目标、时间采样和归一化；适配s=1−t、DDP velocity取图像符号反向。采用场景奖励中心化、全局reward std与clip5、beta1，不是负advantage乘普通MSE，也不是exp(−MSE)伪似然。每步FM与NFT计算不同：每轮forward噪声实例数分别262,144与327,680。首轮4096组中954等分（20全零），3142有效组中2997仅EP变化；这是离线信号诊断，不是已证明保持loss压住NFT的全头梯度分解。[信号](evidence/NFT_round1_advantage_signal.json)、[真实完整动作头学习资格](evidence/full_head_learning_qualification.json)、[NFT连续/恢复一致](evidence/NFT_exact_resume_qualification.json)。
 
 ## 吸收与安全失真的具体证据
 
@@ -129,7 +131,7 @@ G系列后续仅保留迁移合同：先冻结refiner与上游，Flow输出tau0�
 
 [24项针对性验证](validation.md)包含评分独立性、动作往返、去重质量、零成本边界、求解器oracle、非负FM、reference冻结、全头梯度、恢复和NFT官方小张量对齐。初始33项和后续37项测试有重叠，不能相加成70项独立验证。实际完整头资格中359张量有有限非零FP32梯度，335个出现可见BF16参数变化，24个没有可见BF16变化；不写成全部都有可见变化。FM与NFT连续/恢复模型、optimizer/RNG/游标检查通过。原缓存/原导出等价检查曾失败，结果保留且主评价已纠正，不能笼统写“所有数值验证PASS”。
 
-正式训练12,288次更新、196,608次场景曝光；每个场景人口为4096，不能将32候选和8个FM噪声repeat误算独立场景。全部rank optimizer循环记录约67.15 rank-hours，包含共享GPU重叠且不含加载/保存，**不是唯一物理GPU-hours**。采样、评分、候选库、缓存、资格学习与历史多seed成本在[实际成本快照](evidence/execution_cost_snapshot.json)分别列出；Navtest仍运行，快照不是最终总成本。旧GRPO profile与新reward/人口不同，不能据时间直接宣称NFT或FM加速若干倍。
+正式训练12,288次更新、196,608次候选训练场景曝光；GT replay与安全reference保持各另196,608次。候选人口4096，GT replay仍使用登记的RL_TRAIN人口；不能将32候选和8个FM噪声repeat误算独立场景。全部rank optimizer循环记录约67.15 rank-hours，包含共享GPU重叠且不含加载/保存，**不是唯一物理GPU-hours**。采样、评分、候选库、缓存、资格学习与历史多seed成本见[成本分表](costs.md)及[实际成本快照](evidence/execution_cost_snapshot.json)分别列出；Navtest仍运行，快照不是最终总成本。旧GRPO profile与新reward/人口不同，不能据时间直接宣称NFT或FM加速若干倍。
 
 保留旧最终结果：v1.1 PDMS +0.1722分、v2 EPDMS +0.2126分；NC/TTC下降、DAC均值小幅提高，新增零分多于恢复。并非“完全无平均收益”或“所有安全项下降”。旧工程已经训练完整动作头/qwen_proj、冻结上游、GT replay、global-batch标准化、相关噪声、noisy-Euler和discount；本轮没有把这些重新包装成新方法，也没有再次实现完整Qwen/DiT/评分平台。[旧最终报告](../ddp_flow_grpo_final_report_20261013/README.md)、[弱收益分析](../ddp_flow_grpo_transition_batch/weak_gain_analysis/README.md)、[数值协议](../ddp_flow_grpo_transition_batch/numerical_protocol.md)。
 
