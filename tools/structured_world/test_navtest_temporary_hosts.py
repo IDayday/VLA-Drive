@@ -21,6 +21,29 @@ class TemporaryHostTests(unittest.TestCase):
             'additional_inference_hosts': ['extra', 'base', 'unauthorized', 'extra']}}}
         self.assertEqual(d.evaluation_hosts(policy, ['base']), ['base', 'extra'])
 
+    def test_shared_dispatch_and_scoring_authorizer_keeps_reservation_guards(self):
+        policy = {'task_authorizations': {'structured_world_fgtr_round1': {
+            'allowed_hosts': ['base', 'extra'], 'latest_explicit_resource_hosts': ['base'],
+            'additional_inference_hosts': ['extra']}}}
+        read_text = Path.read_text
+        def read(path, *args, **kwargs):
+            if str(path) == '/mnt/project/server_dispatch_policy.json':
+                return json.dumps(policy)
+            return read_text(path, *args, **kwargs)
+        with patch.object(d, 'ART', Path(self.tmp.name)), \
+                patch.object(Path, 'read_text', read), \
+                patch.object(d.subprocess, 'check_output', side_effect=lambda cmd, **kw: d.SHA if 'rev-parse' in cmd else ''):
+            d.authorized('extra')
+            with self.assertRaisesRegex(ValueError, 'outside current task'):
+                d.authorized('unknown')
+            policy['host_reservations'] = {'extra': {'exclude_new_other_workloads': True, 'task': 'other'}}
+            with self.assertRaisesRegex(ValueError, 'reserved'):
+                d.authorized('extra')
+            policy['host_reservations'] = {}
+            policy['global_dispatch_prohibitions'] = {'extra': 'withdrawn'}
+            with self.assertRaisesRegex(ValueError, 'prohibition'):
+                d.authorized('extra')
+
     def test_frozen_reference_excludes_temporary_grant_and_legacy_unknown_host(self):
         temporary = dict(host='temporary', index=0, temporary_authorization={'lease_id': 'test'})
         legacy_unknown = dict(host='unknown', index=0)

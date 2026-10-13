@@ -16,6 +16,8 @@ import socket
 import sys
 import time
 
+from run_navsim_navtest import authorized
+
 for name in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'NUMEXPR_NUM_THREADS'):
     os.environ[name] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -38,9 +40,9 @@ def main():
     for name in ('predictions', 'index', 'devkit', 'output'): p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--workers', type=int, default=16)
     a = p.parse_args()
-    policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
-    if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['latest_explicit_resource_hosts']:
-        raise ValueError('Host outside latest five-host authorization')
+    # Scoring uses the same current task, expiry and reservation checks as the
+    # GPU dispatcher; the historical five-host field is not today's allowlist.
+    authorized()
     if not 1 <= a.workers <= 32: raise ValueError('Bounded workers required')
     index = json.loads(a.index.read_text())
     if len(index) != 12146 or len({r['token'] for r in index}) != 12146 or len({r['log'] for r in index}) != 136:
