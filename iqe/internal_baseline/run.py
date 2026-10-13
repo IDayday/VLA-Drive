@@ -10,6 +10,16 @@ from iqe.data.manifests import load_scenes
 
 
 def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
+    # An operator may revise a not-yet-started research training budget while
+    # immutable context/official scoring preparation continues independently.
+    # This gate is outside every optimizer and never changes Base or sampler.
+    hold_path = config.root/"runtime/HOLD_HEAD_TRAINING.json"
+    hold_deadline = time.monotonic()+10800
+    while hold_path.exists() and read_json(hold_path).get("active", False):
+        atomic_json(config.root/"WORKFLOW_STAGE.json", {"stage": "WAIT_EXPLICIT_TRAINING_BUDGET", "status": "HELD",
+                    "reason": read_json(hold_path).get("reason"), "optimizer_updates_started": False})
+        require(time.monotonic() < hold_deadline, "bounded head-training hold expired")
+        time.sleep(20)
     from .bank import build_initial
     from .training import train_expert, build_pair_bank, train_scorer
     from .reporting import evaluate, diagnostics, export_bundle
