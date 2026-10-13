@@ -104,3 +104,7 @@ P2 采用同边界行为搜索。物理非法提案保留原动作、轨迹与�
 [有限预算及实测 profile](evidence/formal_budget_profile.json)在正式训练前锁定。共享盘约余 1.1 TB，新优化器/RNG 完整恢复点存放在已授权训练主机的本地盘，导出权重与报告存共享目录；每个 run 的 storage_identity.json 记录主机和实际路径，不删除任何旧资产。普通 FM 与 NFT 的实测时间含不同资源竞争，只作排期依据，不声称相对加速倍数。
 
 在线阶段的候选和恢复合同已完成真实动作头短验证：3 个场景均为 4 条永久 SFT 参考、12 条当前已更新模型的 ODE 样本、16 条行为搜索候选；搜索中心来自当前 12 条 ODE 中的安全优先选取。外部候选无法通过 NFT on-policy 身份检查，安全权重求解通过。[实际验证](evidence/online_current_behavior_qualification.json)。[三轮登记](evidence/online_registration.json)明确每轮继承前轮完整动作头、重新采样评分并更新两 epoch；四个变体统一在外层刷新边界新建 AdamW 和两 epoch scheduler，轮内恢复保留完整优化器/RNG/数据进度。这不是携带 Adam moments 的连续优化轨迹，该共同选择须作为最终结果的实现限制记录。
+
+D1 三模型、相同 512 场景和 16 个初始噪声的配对诊断已完整完成。[全部结果](evidence/D1_all_checkpoints.json)。随机训练子集上，step12912 相对 SFT 的 ODE/SDE 原始 PDMS 分别增加 0.01260 / 0.01031；困难定向子集分别增加 0.08349 / 0.04795。最终旧 RL 的 ODE 仍优于自身 SDE，当前证据不支持“只在 SDE 学好而未迁移 ODE”为主要解释。EP/DAC 增长伴随 TTC 下降；这些是旧 RL 见过的训练场景，定向集合也不是总体无偏估计，不能替代新方法 DEV/NAVTEST 结果。
+
+[D2 旧 RL step8700 全动作头梯度](evidence/D2_RL8700_gradient_summary.json)中，原始 RL surrogate / reference 条件 KL / SFT replay 梯度 norm 为 0.9733 / 5.3318 / 0.4194，各 loss 系数尚未乘入。RL 与 KL 梯度 cosine 为 +0.2462，不能据原始 loss 大小声称 KL 完全压住 RL；global-batch 会改变与 KL/replay 的相对方向，但本轮不为此另开长训。[旧完整训练的 first/second inner 及裁剪摘要](evidence/D2_legacy_inner_epoch_summary.json)直接复用已归档真实日志统计，未重复运行旧控制器。

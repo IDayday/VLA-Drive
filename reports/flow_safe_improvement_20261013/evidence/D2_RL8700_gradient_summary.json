@@ -1,0 +1,45 @@
+{
+  "behavior_identity": "53304979f6aaf2b4a79735d101492ab30717ed24cfb31bc2bcfd135f8c7b725c",
+  "payload_sha256": "00f4bb7dd158d9bcee0ee71510522e83448712aaef23b47c1eeae7f6341e07cc",
+  "fixed_reward_scale": 0.005,
+  "advantage_clip": 5.0,
+  "clip_range": 0.02,
+  "source_sha256": "160542f70e4f449215eaf7ef5d1518213eee5425c876c1bc5cb40b1b3c1eb6ce",
+  "no_optimizer_updates": true,
+  "gradient_scope": "complete_359_action_tensors_native_BF16_leaf_FP32_observer_sum_FP64_statistics",
+  "deployment_ODE_KL": false,
+  "joint_sum_is_offline_only": true,
+  "status": "COMPLETE_NATIVE_GRADIENT_DIAGNOSTIC",
+  "scenes": 16,
+  "global_advantage_statistics": {
+    "normalization": "global_batch",
+    "moment_dtype": "torch.float64",
+    "epsilon": 1e-06,
+    "clip": 5.0,
+    "global_reward_std": 0.3632463923721041,
+    "global_candidate_count": 256,
+    "global_reward_mean": 0.8137048822827637
+  },
+  "aggregate_norms": {
+    "RL_group": 0.9732576763914683,
+    "RL_global_batch": 1.182005193214071,
+    "RL_fixed_scale": 4.76165415575484,
+    "reference_conditional_KL": 5.331802629040668,
+    "SFT_replay": 0.419351192261211
+  },
+  "aggregate_cosines": {
+    "RL_group/RL_global_batch": 0.8574229859896491,
+    "RL_group/RL_fixed_scale": 0.8295414438818566,
+    "RL_group/reference_conditional_KL": 0.24623612972133693,
+    "RL_group/SFT_replay": 0.08548513115582383,
+    "RL_global_batch/RL_fixed_scale": 0.9520841411643132,
+    "RL_global_batch/reference_conditional_KL": 0.5261509808365135,
+    "RL_global_batch/SFT_replay": -0.029664347933171468,
+    "RL_fixed_scale/reference_conditional_KL": 0.5235399059305085,
+    "RL_fixed_scale/SFT_replay": -0.012410095300115736,
+    "reference_conditional_KL/SFT_replay": -0.21636864230682326
+  },
+  "wall_seconds": 598.7095948364586,
+  "clipping_note": "No optimizer step here; actual pre-clip/scale observations are in the eight-GPU qualification and historical inner-epoch logs",
+  "native_observer_is_not_ZeRO_FP32_accumulation": true
+}

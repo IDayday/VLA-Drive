@@ -21,7 +21,8 @@ def main():
     p.add_argument('--config', default='configs/flow_grpo/frozen_action_head_batched_single8_epoch1.yaml')
     p.add_argument('--source-config', default='/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-source/checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml')
     p.add_argument('--population', required=True)
-    p.add_argument('--cohort', choices=['reference_screen_tokens', 'diagnostic_random_tokens', 'calibration_tokens', 'dev_tokens'], required=True)
+    p.add_argument('--cohort', choices=['reference_screen_tokens', 'diagnostic_random_tokens', 'diagnostic_tokens', 'calibration_tokens', 'dev_tokens'], required=True)
+    p.add_argument('--cohorts', help='Locked directed/random TRAIN cohort manifest, required for diagnostic_tokens')
     p.add_argument('--mode', choices=['ode', 'legacy_sde'], default='ode')
     p.add_argument('--role', choices=['reference', 'evaluation', 'sampler_gap'], default='reference')
     p.add_argument('--behavior')
@@ -34,7 +35,15 @@ def main():
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK', 0)))
     configure_numerics()
     manifest = json.loads(Path(a.population).read_text())
-    tokens = manifest[a.cohort]
+    cohorts = json.loads(Path(a.cohorts).read_text()) if a.cohorts else None
+    if a.cohort == 'diagnostic_tokens':
+        if cohorts is None or cohorts['population_identity'] != manifest['identity_sha256']:
+            raise ValueError('The full TRAIN diagnostic requires its locked cohort identity')
+        tokens = cohorts['diagnostic_tokens']
+        if len(tokens) != 512 or not set(tokens) <= set(manifest['train_tokens']):
+            raise ValueError('Diagnostic inference population changed')
+    else:
+        tokens = manifest[a.cohort]
     assert tokens and not set(tokens).intersection(manifest['navtest_tokens'])
     seeds = manifest[{'reference': 'reference_seeds', 'evaluation': 'evaluation_seeds', 'sampler_gap': 'diagnostic_root_seeds'}[a.role]]
     output = Path(a.output)
@@ -48,6 +57,8 @@ def main():
                 'feature_identity': store.identity_sha, 'seeds': seeds, 'mode': a.mode, 'role': a.role,
                 'root_precision': 'float32_paired_diagnostic' if a.role == 'sampler_gap' else 'original_bfloat16',
                 'source_files': {Path(path).name: file_sha(path) for path in (__file__, sampling.__file__, policy_adapter.__file__)}}
+    if a.cohort == 'diagnostic_tokens':
+        identity.update(explicit_tokens=tokens, cohort_identity=cohorts['sha256'], cohort_manifest_sha256=file_sha(a.cohorts))
     identity['sha256'] = fingerprint(identity)
     with (output / 'manifest.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)

@@ -25,7 +25,9 @@ def load_scores(root, population, role):
     seeds = population['evaluation_seeds' if role == 'evaluation' else 'reference_seeds']
     if sample['seeds'] != seeds or sample['root_precision'] != 'original_bfloat16':
         raise ValueError('Deployment seeds or root precision changed')
-    tokens = population[sample['cohort']]
+    tokens = sample['explicit_tokens'] if sample['cohort'] == 'diagnostic_tokens' else population[sample['cohort']]
+    if sample['cohort'] == 'diagnostic_tokens' and (len(tokens) != 512 or not set(tokens) <= set(population['train_tokens']) or not sample['cohort_identity']):
+        raise ValueError('Full TRAIN diagnostic population changed')
     if sample['tokens_sha256'] != fingerprint(tokens):
         raise ValueError('Evaluation scene denominator changed')
     rows, digests = {}, {}
@@ -92,12 +94,26 @@ def main():
     old_score = np.array([baseline[t]['score'].mean() for t in tokens])
     delta = np.array([policy[t]['score'].mean()-baseline[t]['score'].mean() for t in tokens])
     high = old_score >= .9
+    opportunities = {}
+    for label, source in (('policy', policy), ('SFT', baseline)):
+        best = []
+        for token in tokens:
+            feasible = np.logical_and.reduce([source[token][k] == 1 for k in SAFETY_METRICS])
+            if feasible.any():
+                best.append(float(source[token]['score'][feasible].max()))
+        opportunities[label] = dict(candidates_per_scene=len(population['evaluation_seeds']),
+                                    feasible_scenes=len(best), F_feasible=len(best)/len(tokens),
+                                    safe_best_mean_on_feasible=float(np.mean(best)) if best else None,
+                                    candidate_opportunity_only_not_deployed_policy_score=True)
     report = dict(schema='flow_safe_single_candidate_deployment_v1', status='COMPLETE_MATCHED_EVALUATION',
                   policy_identity=manifest['sha256'], baseline_identity=baseline_manifest['sha256'], reference_identity=reference_manifest['sha256'],
                   payload_hashes=dict(policy=policy_sha, baseline=baseline_sha, reference=reference_sha),
                   scenes=len(tokens), inference_seeds=population['evaluation_seeds'], training_seed_repetitions=1,
+                  cohort=manifest['sample_manifest']['cohort'],
+                  targeted_TRAIN_diagnostic_is_not_unbiased_population_estimate=manifest['sample_manifest']['cohort'] == 'diagnostic_tokens',
                   primary='mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection',
                   units='raw_0_to_1', means=means, paired_changes=changes, safety=safety, zero_transitions=zeros,
+                  separate_finite_candidate_opportunities=opportunities,
                   high_score_decline=dict(SFT_scene_mean_threshold=.9, scenes=int(high.sum()),
                                           any_negative=int((high & (delta < 0)).sum()),
                                           decline_at_least_001=int((high & (delta <= -.001)).sum()),

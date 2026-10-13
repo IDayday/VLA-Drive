@@ -45,7 +45,9 @@ def main():
     population = json.loads(Path(a.population).read_text())
     if population['identity_sha256'] != manifest['population_identity']:
         raise ValueError('Sample and population identities differ')
-    tokens = population[manifest['cohort']]
+    tokens = manifest['explicit_tokens'] if manifest['cohort'] == 'diagnostic_tokens' else population[manifest['cohort']]
+    if manifest['cohort'] == 'diagnostic_tokens' and (len(tokens) != 512 or not set(tokens) <= set(population['train_tokens']) or not manifest['cohort_identity']):
+        raise ValueError('Full TRAIN diagnostic population changed')
     assert fingerprint(tokens) == manifest['tokens_sha256']
     spec = {'repo': str(Path(__file__).resolve().parents[3]), 'cache_roots': [a.cache_root], 'maps_root': '/mnt/navsim/maps'}
     protocol = protocol_identity(spec['repo'])
