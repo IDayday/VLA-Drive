@@ -1,0 +1,42 @@
+{
+  "step4_module": {
+    "max_abs_difference": 2.7775406863383978e-08,
+    "l2_difference": 1.8546897706528398e-07,
+    "different_elements": 14226,
+    "elements": 3301651,
+    "actual_update_l2": 0.016637515276670456,
+    "difference_relative_to_update": 1.1147636541863903e-05,
+    "update_cosine": 0.9999999999379525
+  },
+  "exp_avg": {
+    "max_abs_difference": 3.725290298461914e-09,
+    "l2_difference": 2.7284885462108832e-08
+  },
+  "exp_avg_sq": {
+    "max_abs_difference": 3.637978807091713e-12,
+    "l2_difference": 1.0775330280821116e-11
+  },
+  "per_step": [
+    {
+      "step": 1,
+      "loss_abs_difference": 0.0,
+      "gradient_norm_abs_difference": 0.0
+    },
+    {
+      "step": 2,
+      "loss_abs_difference": 4.1723251298364517e-08,
+      "gradient_norm_abs_difference": 2.384185791015625e-07
+    },
+    {
+      "step": 3,
+      "loss_abs_difference": 1.1920929021691506e-08,
+      "gradient_norm_abs_difference": 2.384185791015625e-07
+    },
+    {
+      "step": 4,
+      "loss_abs_difference": 1.1920929021691506e-08,
+      "gradient_norm_abs_difference": 0.0
+    }
+  ],
+  "interpretation": "Step2 is before interruption; loss differences already occur with matching sample/RNG histories. Production-backend test is not a bitwise proof. Separate deterministic GPU proof passes without disabling dropout."
+}

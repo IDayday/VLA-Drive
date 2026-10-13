@@ -1,0 +1,49 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+___________________ test_nccl_uneven_labels_and_exact_resume ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-133/test_nccl_uneven_labels_and_ex0')
+
+    @pytest.mark.skipif(os.environ.get('IQE_RUN_GPU_TESTS')!='1',reason='GPU test requires explicit qualified resources')
+    def test_nccl_uneven_labels_and_exact_resume(tmp_path):
+        from iqe.resources import qualify
+>       qualify('cuda')
+
+tests/iqe/test_training_resume_ddp.py:200:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+device = 'cuda', policy_path = '/mnt/project/server_dispatch_policy.json'
+
+    def qualify(device, policy_path="/mnt/project/server_dispatch_policy.json"):
+        policy = read_json(policy_path)
+        hostname = socket.gethostname()
+        authorization = policy.get("task_authorizations", {}).get("iqe_v1", {})
+        permitted = set(authorization.get("allowed_hosts", []))
+        permitted.update(h for h in ("training-vla-zt", "training-vla-zt2")
+                         if policy.get("hosts", {}).get(h, {}).get("new_task_dispatch_allowed"))
+        canonical = next((h for h in sorted(permitted)
+                          if hostname in {h, h + "-worker-0"}
+                          or hostname in policy.get("hosts", {}).get(h, {}).get("aliases", [])), None)
+        if canonical is None:
+            raise BlockedError(f"IQE dispatch outside task authorization: {hostname}")
+        result = {"host": hostname, "canonical_host": canonical, "policy": policy_path, "device": device}
+        if device.startswith("cuda"):
+            lines = subprocess.check_output(["nvidia-smi", "--query-gpu=index,memory.used,utilization.gpu", "--format=csv,noheader,nounits"], text=True).splitlines()
+            selected = os.environ.get("CUDA_VISIBLE_DEVICES")
+            allowed_indices = set(selected.split(",")) if selected else {line.split(",")[0].strip() for line in lines}
+            devices = [{"index": i.strip(), "used_mib": int(m), "utilization": int(u)} for i, m, u in (line.split(",") for line in lines)
+                       if i.strip() in allowed_indices]
+            if not devices or any(d["used_mib"] > 1024 or d["utilization"] > 5 for d in devices):
+>               raise BlockedError(f"BLOCKED_GPU_RESOURCES: selected GPUs occupied; existing jobs preserved: {devices}")
+E               iqe.io.BlockedError: BLOCKED_GPU_RESOURCES: selected GPUs occupied; existing jobs preserved: [{'index': '2', 'used_mib': 0, 'utilization': 0}, {'index': '3', 'used_mib': 0, 'utilization': 11}]
+
+iqe/resources.py:31: BlockedError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/iqe/test_training_resume_ddp.py::test_nccl_uneven_labels_and_exact_resume
+1 failed, 1 passed, 1 warning in 5.04s
