@@ -27,7 +27,7 @@
 | 21. 官方 NFT 核心对齐 | 两个 beta 的小张量 loss/梯度与固定上游文件 AST 算术对照通过，旧 behavior detach；已真实运行完整动作头与重新采样的在线窗口。源码与时间/速度符号映射见主报告。 |
 | 22. 部署无 teacher/cache/search | [实际文件访问守卫](evidence/P0_epoch1_uncached_deployment.json)和后续完整 DEV 原始观测推理；actor 不加载 bank，官方 scorer 在推理之后独立运行。 |
 | 23. 异常/缺场景保留分母 | bank 拒绝 worker_error、缺分项、错协议；单seed读取测试拒绝异常和缺场景。真实中断/失败目录保留，只有完整匹配人口才发布评价 COMPLETE。 |
-| 24. DEV/Navtest 不用于更新 | `PopulationContract` 的 log 隔离和 update/calibration 边界测试；targets/replay/保持训练输入均要求 RL_TRAIN。Navtest 入口要求预先锁定权重、人口和源码，拒绝扩展 seed。最终确认尚待执行。 |
+| 24. DEV/Navtest 不用于更新 | `PopulationContract` 的 log 隔离和 update/calibration 边界测试；targets/replay/保持训练输入均要求 RL_TRAIN。Navtest 入口要求预先锁定权重、人口和源码，拒绝扩展 seed。全部24个DEV窗口完成后锁定六组导出；原单候选Navtest正在实际执行。 |
 
 测试源码：[合同](../../tests/safe_flow_improvement/test_bank_contracts.py)、[求解器](../../tests/safe_flow_improvement/test_constrained_weights.py)、[FM/NFT](../../tests/safe_flow_improvement/test_objectives.py)、[搜索/回退/安全暂停](../../tests/rl/safe_flow_improvement/)、[单seed边界](../../tests/safe_flow_improvement/test_single_seed_override.py)、[最终锁定](../../tests/safe_flow_improvement/test_final_evaluation_lock.py)。早期33项与随后37项包含重复运行，不能相加称70个独立测试。
 

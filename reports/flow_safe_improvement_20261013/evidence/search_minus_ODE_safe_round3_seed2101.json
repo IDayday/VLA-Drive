@@ -1,0 +1,157 @@
+{
+  "status": "COMPLETE_MATCHED_POLICY_CONTRAST",
+  "contrast": "search_minus_ODE_safe_round3",
+  "direction": "left_minus_right",
+  "left_report_sha256": "57e794b15ca0a9b666eaec97e76af14e76e3e9c9f7f8143fb5f453dbd7b16a4e",
+  "right_report_sha256": "b9b6c7bc5b8054cd885b0235d670d0c9ebef4f5ba058480cf004022109d7f6e9",
+  "source_sha256": "a4997799b4c3c68534001607d9729acbc228b916bea9fe4c993a98c3f8aea17b",
+  "scenes": 1696,
+  "units": "raw_0_to_1",
+  "paired_changes": {
+    "comfort": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0023584905660377358,
+      "CI95": [
+        0.0,
+        0.0041139868579233956
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "driving_direction_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "ego_progress": {
+      "mean": 0.004647023984845113,
+      "CI95": [
+        0.002399962218767807,
+        0.006308500466267107
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "no_at_fault_collisions": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "score": {
+      "mean": 0.002575017855320683,
+      "CI95": [
+        0.000999984257819917,
+        0.003952818740904767
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": -0.0011792452830188679,
+      "CI95": [
+        -0.0024242669214374953,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "47f6eed8a3cf615ed50b73a34957fd2b1b9ed5a333325d781fe433e4c5b62855"
+    }
+  },
+  "both_share_fixed_SFT_baseline_and_reference": true,
+  "no_best_of_N": true,
+  "training_seed_repetitions": 1,
+  "seed_uncertainty_not_in_cluster_CI": true,
+  "counts_are_in_parent_reports_not_subtracted_as_independent_samples": true,
+  "paired_single_seed_transitions": {
+    "no_at_fault_collisions": {
+      "left_violations": 0,
+      "right_violations": 0,
+      "new_in_left": 0,
+      "recovered_in_left": 0,
+      "failed_in_both": 0
+    },
+    "drivable_area_compliance": {
+      "left_violations": 9,
+      "right_violations": 13,
+      "new_in_left": 0,
+      "recovered_in_left": 4,
+      "failed_in_both": 9
+    },
+    "time_to_collision_within_bound": {
+      "left_violations": 4,
+      "right_violations": 2,
+      "new_in_left": 2,
+      "recovered_in_left": 0,
+      "failed_in_both": 2
+    },
+    "joint": {
+      "left_violations": 13,
+      "right_violations": 14,
+      "new_in_left": 2,
+      "recovered_in_left": 3,
+      "failed_in_both": 11
+    },
+    "nonzero_score": {
+      "left_violations": 9,
+      "right_violations": 13,
+      "new_in_left": 0,
+      "recovered_in_left": 4,
+      "failed_in_both": 9
+    }
+  },
+  "transitions_population": "Full matched evaluation population; fixed-SFT safe-set membership remains in parent reports.",
+  "per_scene_files_sha256": [
+    "e7dd7d84c0c18e0ef5ae36ea41550510e2a60e3e42ecfdbd2ec8823b4b0bb896",
+    "131451665dd1faeab61d2da1907ece43e4c43f3b5fa38cd71f9fa5ed1d89496b"
+  ],
+  "single_seed_any_all_mean_zero_events_coincide": true,
+  "sha256": "2b85191436578083dc56a166b3b11723002595c5c0088dbb6bdeb506bff515d3"
+}

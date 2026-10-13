@@ -1,0 +1,136 @@
+{
+  "status": "COMPLETE_FRESH_POLICY_GEOMETRY_AND_FINITE_TARGET_DIAGNOSTIC",
+  "policy_identity": "b081e3fda82996c74b19ddfa6d9800a709124958dbe4266f8b1b7c42e4c8f085",
+  "baseline_identity": "c0902448ea4103b3a838b8f06401d8bdd8abe536c1d587ba7c1b592c350da61c",
+  "target_identity": null,
+  "input_payloads_sha256": "f50150a1fc5bca9257f4714742b8a19a206c242ce9636c274fb4a11740357fce",
+  "source_sha256": "fdfb67f44d305f0cef40a63ac5dd99b63db9a511ded32994677199198a910fab",
+  "scenes": 512,
+  "inference_seeds": [
+    2101
+  ],
+  "evaluation_override": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/resources/single_seed_override/REGISTRATION.json",
+    "file_sha256": "44c11b53406dfda457b28f055459fe9dee60c62686f775e520f9cade947de7cd",
+    "identity_sha256": "2c6a1ff8b013560c8fc838975407b0e4c262e61be8b869bd349303ce6cf3d756",
+    "user_instruction": "\u4e0d\u7528\u505a\u591aseed\u5b9e\u9a8c"
+  },
+  "within_scene_diversity_available": false,
+  "tables": {
+    "random/all": {
+      "scenes": 256,
+      "statistics": {
+        "endpoint_forward_shift_m": {
+          "mean": 0.0003498196601867676,
+          "CI95": [
+            -1.6533362494368492e-05,
+            0.0007284745801918232
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.0006480943993665278,
+          "CI95": [
+            0.00038704561457224333,
+            0.0009524885563454485
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.0014265565497214054,
+          "CI95": [
+            0.0012486795513079844,
+            0.0016306966029552246
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.002282298036758147,
+          "CI95": [
+            0.0019082599097292722,
+            0.002705003815329149
+          ],
+          "scenes": 256,
+          "logs": 199,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    },
+    "targeted/all": {
+      "scenes": 256,
+      "statistics": {
+        "endpoint_forward_shift_m": {
+          "mean": 0.0015313420444726944,
+          "CI95": [
+            0.000654019750760831,
+            0.002404378472812592
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "endpoint_lateral_shift_m": {
+          "mean": 0.0014375053578987718,
+          "CI95": [
+            0.0009039565295648927,
+            0.0020125640598485568
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_ADE_m": {
+          "mean": 0.002523903977927495,
+          "CI95": [
+            0.0021385589401035094,
+            0.0029778386539128696
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "paired_FDE_m": {
+          "mean": 0.004644423139176517,
+          "CI95": [
+            0.003815129025101988,
+            0.005564812637399935
+          ],
+          "scenes": 256,
+          "logs": 205,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        }
+      }
+    }
+  },
+  "no_candidate_selection_or_training": true,
+  "energy_definition": "Empirical V-statistic 2 E||X-Y|| - E||X-Xprime|| - E||Y-Yprime||, XY trajectory norm / sqrt(8). Finite-sample biased; with one seed this is only an output-to-target discrepancy, not a policy-distribution distance.",
+  "interpretation": "Lower target energy plus canonical improvement supports absorption; geometry alone does not establish safety, mode-collapse causality or useful scenario-dependent behavior.",
+  "context_direction_thresholds_m": {
+    "forward": 0.1,
+    "lateral": 0.05
+  },
+  "TRAIN_targeted_stratum_is_not_unbiased": true,
+  "sha256": "625ad5ff130fcd6a0769c5c1b6d803da003f628196f7fedb813a29a93eccf71c"
+}

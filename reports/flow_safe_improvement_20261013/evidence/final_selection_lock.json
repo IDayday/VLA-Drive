@@ -1,0 +1,114 @@
+{
+  "status": "LOCKED_BEFORE_FINAL_NAVTEST",
+  "utc": "2026-10-13T13:00:51.898126+00:00",
+  "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "navtest_tokens_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "inference_seeds": [
+    2101
+  ],
+  "training_seeds": [
+    42
+  ],
+  "models": {
+    "SFT": {
+      "checkpoint_name": "SFT",
+      "export": "/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/frozen_visual",
+      "weight_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+      "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+      "role": "permanent_matched_baseline",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": null
+    },
+    "ODE_REWARD_FM": {
+      "checkpoint_name": "ODE_REWARD_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_REWARD_FM_seed42/round3/learning/train/export_update000512",
+      "weight_sha256": "0043e3cacf071869da98de4d35cc5c77974b1c3ef36eeb46443d1291e05c9732",
+      "config_sha256": "fda3f417a0f8e4a62fd6f9d623d8a8cb471a41db727c7e448b54b804521d0e7f",
+      "role": "fixed_budget_online_endpoint",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": "dba274424471b56ad738a5147bad77d0ab139cf7739f2c097ce97fec05472005"
+    },
+    "ODE_SAFE_FM": {
+      "checkpoint_name": "ODE_SAFE_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_SAFE_FM_seed42/round3/learning/train/export_update000512",
+      "weight_sha256": "8bcaaba2526a706091a8c6d05ee3afebb24e809c08c1772a5b3777246bb0d2fa",
+      "config_sha256": "fda3f417a0f8e4a62fd6f9d623d8a8cb471a41db727c7e448b54b804521d0e7f",
+      "role": "fixed_budget_online_endpoint",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": "b9b6c7bc5b8054cd885b0235d670d0c9ebef4f5ba058480cf004022109d7f6e9"
+    },
+    "EXPLORE_SAFE_FM": {
+      "checkpoint_name": "EXPLORE_SAFE_FM_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/EXPLORE_SAFE_FM_seed42/round3/learning/train/export_update000512",
+      "weight_sha256": "8cfb3c73b62ffbaa0beb082cd65c2ec8a3c2bce734a60773eedb46b3ee02cdc2",
+      "config_sha256": "fda3f417a0f8e4a62fd6f9d623d8a8cb471a41db727c7e448b54b804521d0e7f",
+      "role": "fixed_budget_online_endpoint",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": "57e794b15ca0a9b666eaec97e76af14e76e3e9c9f7f8143fb5f453dbd7b16a4e"
+    },
+    "ODE_NFT": {
+      "checkpoint_name": "ODE_NFT_round3",
+      "export": "/mnt/project/flow-safe-improvement-20261013/online/ODE_NFT_seed42/round3/learning/train/export_update000512",
+      "weight_sha256": "e58ee871916c4ae2e6d38f485572c058c949247a0ea95033cf64f7a176c58ce8",
+      "config_sha256": "fda3f417a0f8e4a62fd6f9d623d8a8cb471a41db727c7e448b54b804521d0e7f",
+      "role": "fixed_budget_online_endpoint",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": "0589ec96fe01ec3103dd5abaefa602cf73cac12d1fd27eb303ca3108c95847d3"
+    },
+    "DEV_SELECTED": {
+      "checkpoint_name": "P0_REWARD_FM_epoch4",
+      "export": "/mnt/project/flow-safe-improvement-20261013/training/P0_REWARD_FM_seed42/train/export_update001024",
+      "weight_sha256": "00fcb52704d6f19c44fe57d5b3f86c397daf4df502c257ff24bc159e6b1a946f",
+      "config_sha256": "fda3f417a0f8e4a62fd6f9d623d8a8cb471a41db727c7e448b54b804521d0e7f",
+      "role": "finite_DEV_qualified_selection_separate_from_budget_endpoint",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "DEV_report_sha256": "964fed21e017c39e67faebf425cbd8ef16b64a14314a77fd4c467f7f062b0e31"
+    }
+  },
+  "unique_export_count": 6,
+  "registration_sha256": "1861f26cf4f43295c982ecf8cf348809fed8a7c1b9bb354e862a6501eea494aa",
+  "completed_DEV_summary_sha256": "951653ba247658e5d81b733fb6598287f8b25f74076bdfe2efc1a7af6ebcd193",
+  "selection_rule_sha256": "99146510cb4daacd173b30af1abc6f4080a18f8f14d1eaf808b81b08e9595ca1",
+  "single_seed_override_sha256": "44c11b53406dfda457b28f055459fe9dee60c62686f775e520f9cade947de7cd",
+  "eligible_DEV_checkpoints": [
+    {
+      "name": "P0_REWARD_FM_epoch4",
+      "PDMS": 0.9368432911293917
+    },
+    {
+      "name": "P1_SAFE_FM_epoch4",
+      "PDMS": 0.9368432911293917
+    },
+    {
+      "name": "P0_REWARD_FM_epoch8",
+      "PDMS": 0.9362434866370061
+    },
+    {
+      "name": "P1_SAFE_FM_epoch8",
+      "PDMS": 0.9362434866370061
+    }
+  ],
+  "selected_checkpoint": "P0_REWARD_FM_epoch4",
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "47f6eed8a3cf615ed50b73a34957fd2b1b9ed5a333325d781fe433e4c5b62855"
+    }
+  },
+  "v1_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "data_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset",
+  "navtest_datalist": "/mnt/project/DriveDreamer-Policy/test_meta.json",
+  "navtest_datalist_sha256": "e05968c1ded485316bc16905f6a238b25fffede3ff1a7de2f6c1538b624b532e",
+  "v1_cache": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1",
+  "v2_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/metric_cache_navtest_v2",
+  "selection_did_not_read_Navtest_predictions_or_scores": true,
+  "historically_observed_Navtest_not_fully_blind": true,
+  "source_sha256": "afbf0d9d657616cd8bd324ad68b58e0dfb962215e72ac6ebdf1d144cfa71ad52",
+  "sha256": "58da302db394f78c0fa4c01ee33a781b0098ad80ecd8651dcb828ad3e548efd3"
+}
