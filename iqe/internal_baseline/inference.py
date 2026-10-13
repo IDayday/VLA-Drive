@@ -1,4 +1,5 @@
 """Deployable one-VLM-forward algorithm. No environment/target/label dependencies."""
+import math
 import torch
 from torch import nn
 from iqe.contracts import require
@@ -17,7 +18,7 @@ class InternalAlgorithm(nn.Module):
 
     @torch.no_grad()
     def forward(self, observations, *, margin=0., return_debug=False):
-        require(margin >= 0, "nonnegative selection margin")
+        require(math.isfinite(margin) and margin >= 0, "finite nonnegative selection margin")
         planner, context = encode_joint(self.adapter, observations)
         base = self.adapter.predict_s0(planner)
         candidate = self.expert(planner)
@@ -27,6 +28,18 @@ class InternalAlgorithm(nn.Module):
             inputs = inputs | {"world": context.world[:, :0], "world_valid": context.world_valid[:, :0],
                                "action": planner.scene, "action_valid": planner.valid_tokens}
         prediction = self.scorer(inputs, candidates)
+        valid = prediction["valid"]
+        values = prediction["values"]
+        require(valid.dtype == torch.bool and valid.shape == values.shape == candidates.shape[:2],
+                "two-candidate scorer output schema")
+        # NaN comparisons otherwise silently select Base and make a broken scorer
+        # look like a legitimate fallback. Invalid trajectories are excluded, but
+        # every legal candidate must receive finite learned outputs.
+        require(torch.isfinite(values[valid]).all().item(), "nonfinite scorer value for valid candidate")
+        logits = prediction["component_logits"]
+        require(logits.ndim == 3 and logits.shape[:2] == valid.shape,
+                "two-candidate scorer component schema")
+        require(torch.isfinite(logits[valid]).all().item(), "nonfinite scorer component for valid candidate")
         require(prediction["valid"][:, 0].all().item(), "Base trajectory invalid; do not invent a safe fallback")
         select = ((prediction["values"][:, 1]-prediction["values"][:, 0] > margin)
                   & prediction["valid"][:, 1]).long()

@@ -38,9 +38,17 @@ def evaluate(config, device="cuda:0"):
     cache = JointCache(config)
     expert = load_head(config, device).eval()
     expert.load_state_dict(torch.load(config.root/"expert/best.pt", map_location=device, weights_only=True), strict=True)
-    for name, ids in (("H_train", manifest["hard"]), ("H_val", manifest["hard_val"]), ("ordinary_train", manifest["ordinary"])):
+    diagnostic_sets = [("H_train", manifest["hard"]), ("H_val", manifest["hard_val"]), ("ordinary_train", manifest["ordinary"])]
+    if config.research_protocol == "two_candidate_v1":
+        failures = read_json(config.root/"HARD_SETS_BEFORE_EXPERT.json")
+        diagnostic_sets.extend((("F_train", failures["F_train"]), ("F_val", failures["F_val"])))
+    for name, ids in diagnostic_sets:
         mask = np.array([r["scene_id"] in set(ids) for r in bank["rows"]])
         indices = np.flatnonzero(mask)
+        if not len(indices):
+            hard_stats[name] = {"n": 0, "base_PDMS": None, "expert_PDMS": None, "expert_minus_base": None,
+                                "base_IL": None, "expert_IL": None, "log_bootstrap": None, "status": "INCONCLUSIVE_EMPTY_FIXED_SET"}
+            continue
         il_base, il_expert = [], []
         from iqe.losses import expert_il_terms
         with torch.no_grad():
@@ -58,21 +66,7 @@ def evaluate(config, device="cuda:0"):
                             "log_bootstrap": paired_bootstrap(delta, [r["log"] for r, yes in zip(bank["rows"], mask) if yes],
                                                               config.bootstrap_repetitions, config.bootstrap_seed)}
     atomic_json(config.root/"EXPERT_SPECIALIZATION.json", hard_stats, immutable=True)
-    # Select optional margin on natural selector_cal before any dev predictions.
-    calix = [i for i, r in enumerate(bank["rows"]) if r["role"] == "selector_cal"]
-    calscenes = [lookup[bank["rows"][i]["scene_id"]] for i in calix]
-    cp, _ = predict_scores(config, model, calscenes, data["trajectories"][calix], device)
-    cal_results = {}
-    for margin in (0., .01, .02, .05):
-        choices = (cp[:, 1]-cp[:, 0] > margin).astype(np.int64)
-        cal_results[str(margin)] = selection_metrics(data["scores"][calix], data["components"][calix], choices,
-                            [s.source_log_id for s in calscenes], bootstrap_repetitions=config.bootstrap_repetitions, bootstrap_seed=config.bootstrap_seed)
-    # Predeclared tie-break: PDMS, fewer new hard violations, fewer high->zero,
-    # then larger margin. No claim of per-scene safety; raw argmax remains primary.
-    selected_margin = max(cal_results, key=lambda k: (cal_results[k]["selected"],
-                         -sum(x["new_violations"] for x in cal_results[k]["safety"].values()), -cal_results[k]["high_to_zero"], float(k)))
-    atomic_json(config.root/"SINGLE_MARGIN.json", {"margin": float(selected_margin), "role": "selector_cal", "results": cal_results,
-                "scorer_hash": file_hash(best), "bank_hash": file_hash(config.root/"PAIR_BANK.json")}, immutable=True)
+    selected_margin, always_base = _calibrate_loaded(config, model, bank, data, lookup, device)
     output, csv_rows = {}, []
     for role in ("stage_val", "dev_report"):
         ix = [i for i, r in enumerate(bank["rows"]) if r["role"] == role]
@@ -81,7 +75,7 @@ def evaluate(config, device="cuda:0"):
         scores, components = data["scores"][ix], data["components"][ix]
         selectors = {"B0_Base": np.zeros(len(ix), dtype=np.int64), "B1_Expert": np.ones(len(ix), dtype=np.int64),
                      "B2_Oracle_at_2": scores.argmax(1), "B3_ScratchScorer_argmax": argmax_base_tie(predictions),
-                     "B4_ScratchScorer_margin": (predictions[:, 1]-predictions[:, 0] > float(selected_margin)).astype(np.int64)}
+                     "B4_ScratchScorer_margin": np.zeros(len(ix), dtype=np.int64) if always_base else (predictions[:, 1]-predictions[:, 0] > float(selected_margin)).astype(np.int64)}
         output[role] = {}
         for name, choices in selectors.items():
             metrics = selection_metrics(scores, components, choices, [s.source_log_id for s in rows],
@@ -107,15 +101,32 @@ def evaluate(config, device="cuda:0"):
         verdict = "CANDIDATE_GAIN_NOT_REALIZED"
     elif any(v["new_violations"] for v in d["safety"].values()):
         verdict = "SCORE_GAIN_WITH_SAFETY_REGRESSION"
-    elif hard_stats["H_val"]["expert_minus_base"] > 0:
+    elif d["selected_gain_vs_best_fixed_policy"] <= 0:
+        verdict = "EXPERT_DOMINATES_BASE" if d["complementarity"]["B_negative_expert_cost"] <= 1e-8 else "CANDIDATE_GAIN_NOT_REALIZED"
+    elif (hard_stats["H_val"]["expert_minus_base"] or 0.) > 0:
         verdict = "POSITIVE_BASELINE_SIGNAL"
     else:
         verdict = "NO_HELDOUT_SPECIALIZATION_GAIN"
     result = {"verdict": verdict, "single_seed": True, "expert_train_specialized": hard_stats["H_train"]["expert_minus_base"] > 0,
-              "expert_heldout_specialized": hard_stats["H_val"]["expert_minus_base"] > 0,
+              "expert_heldout_specialized": (hard_stats["H_val"]["expert_minus_base"] or 0.) > 0,
               "scorer_all_new_parameters_random": True, "external_scorer_weights_loaded": False,
               "dev_result": d, "formal_ACTIVE_updated": False, "navtest_accessed": False,
               "base_binding_hash": file_hash(config.root/"BASE_BINDING.json")}
+    if config.research_protocol == "two_candidate_v1":
+        result.update({"IMPLEMENTATION_COMPLETE": "PASS", "REAL_BASE_INTEGRATION": "PASS" if (config.root/"SCORE_CONTEXT_AUDIT.json").exists() else "WAITING_INPUTS",
+            "EXPERT_PARAMETER_ISOLATION": "PASS" if (config.root/"EXPERT_FREEZE_AUDIT.json").exists() else "WAITING_INPUTS",
+            "EXPERT_TRAIN_SPECIALIZATION": "PASS" if hard_stats["H_train"]["expert_minus_base"] > 0 else "FAIL",
+            "EXPERT_HELDOUT_SPECIALIZATION": "INCONCLUSIVE" if not hard_stats["H_val"]["n"] else "PASS" if hard_stats["H_val"]["expert_minus_base"] > 0 else "TRAIN_GAIN_ONLY",
+            "ORACLE_COMPLEMENTARITY": "PASS" if d["oracle_gain_vs_best_fixed_policy"] > 0 else "NO_HELDOUT_COVERAGE_GAIN",
+            "SCORER_TRAINED_FROM_SCRATCH": "PASS", "SCORER_SINGLE_VLM_FORWARD": "PASS" if (config.root/"SCORE_CONTEXT_AUDIT.json").exists() else "WAITING_INPUTS",
+            "SCORER_SELECTION_GAIN": "PASS" if d["selected_gain"] > 0 else "CANDIDATE_GAIN_NOT_REALIZED",
+            "SCORER_GAIN_OVER_BEST_FIXED_POLICY": "PASS" if d["selected_gain_vs_best_fixed_policy"] > 0 else "FAIL",
+            "SAFETY_REGRESSION": "PRESENT" if any(v["new_violations"] for v in d["safety"].values()) or d["high_to_zero"] else "NONE_OBSERVED",
+            "EXACT_RESUME": "WAITING_INPUTS", "SCIENTIFIC_CONCLUSION": verdict,
+            "fixed_dev_requested": len([s for s in scenes if s.split_role == "dev_report"]), "dev_valid_denominator": d["n"],
+            "scorer_training_subrole": "D_S_only", "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
+            "base_optimizer_step": read_json(config.root/"BASE_BINDING.json")["optimizer_step"],
+            "margin_is_always_base": always_base})
     atomic_json(config.root/"VERDICT.json", result)
     markdown(config, "EXPERT_SPECIALIZATION_REPORT.md", "# Expert specialization\n\nRaw IL is inherited channel-sum/time-mean L1. All PDMS are [0,1].\n\n```json\n"+json.dumps(hard_stats, indent=2)+"\n```\n")
     markdown(config, "SELECTION_REGRET_DECOMPOSITION.md", "# Selection evidence\n\nSame locked Base, same fixed development scenes. Positive gains and negative costs are totals over all requested scenes; rates divide by n, switch precision by switched scenes. Oracle capture is unbounded and NA when its denominator vanishes.\n\n```json\n"+json.dumps(output, indent=2)+"\n```\n")
@@ -151,8 +162,14 @@ def audit_online(config, device="cuda:0"):
         require(len(calls) == 1 and torch.equal(original, wrapped.physical), "K=1 changes original Base output/call count")
         poisoned = [dict(o, target=torch.full((8, 4), float("nan")), future_actor_gt="deleted/shuffled", score=-999.) for o in obs]
         calls.clear(); p2, c2 = encode_joint(adapter, poisoned)
+        with torch.no_grad(): poisoned_prediction = adapter.predict_s0(p2)
         require(len(calls) == 1 and torch.equal(context.world, c2.world) and torch.equal(context.action, c2.action)
-                and torch.equal(planner.scene, p2.scene), "training labels affect current W/A/planning")
+                and torch.equal(context.current_ego, c2.current_ego)
+                and torch.equal(context.world_valid, c2.world_valid) and torch.equal(context.action_valid, c2.action_valid)
+                and torch.equal(planner.scene, p2.scene) and torch.equal(planner.ego, p2.ego)
+                and torch.equal(planner.valid_tokens, p2.valid_tokens)
+                and torch.equal(wrapped.raw, poisoned_prediction.raw)
+                and torch.equal(wrapped.physical, poisoned_prediction.physical), "training labels affect current W/A/planning/output")
         cached = cache.batch(rows, device)
         evidence.append({"scene_ids": [s.scene_id for s in rows], "original_vs_K1_max_abs": float((original-wrapped.physical).abs().max()),
                          "label_shuffle_W_max_abs": float((context.world-c2.world).abs().max()),
@@ -178,6 +195,10 @@ def audit_online(config, device="cuda:0"):
               "base_head_parameter_count": sum(p.numel() for p in adapter.framework.action_model.expert.parameters()),
               "new_expert_parameter_count": sum(p.numel() for p in expert.parameters()), "new_scorer_parameter_count": sum(p.numel() for p in model.parameters())}
     atomic_json(config.root/"SCORE_CONTEXT_AUDIT.json", result, immutable=True)
+    atomic_json(config.root/"LABEL_INDEPENDENCE_EXTENDED.json", {"status": "PASS", "base_binding_hash": file_hash(config.root/"BASE_BINDING.json"),
+                "audit_hash": file_hash(config.root/"SCORE_CONTEXT_AUDIT.json"), "implementation_hash": file_hash(__file__),
+                "checked_tensors": ["W", "A", "current_ego", "world_valid", "action_valid", "planner_scene", "planner_ego", "planner_mask", "Base_raw", "Base_physical"],
+                "max_abs": 0., "real_scenes": len(scenes)})
     markdown(config, "SCORE_CONTEXT_AUDIT.md", "# Actual current-input W/A audit\n\nOne frozen original VLM; no auxiliary prediction head, external encoder, extra tokens or future labels. Rebatch differences below are numerical observations, not new tolerance gates.\n\n```json\n"+json.dumps(result, indent=2)+"\n```\n")
     return result
 
@@ -185,7 +206,9 @@ def audit_online(config, device="cuda:0"):
 def diagnostics(config, device="cuda:0"):
     bank, data = load_bank(config)
     scenes = {s.scene_id: s for s in load_scenes(config.root/"scenes.json")}
-    eligible = [i for i, r in enumerate(bank["rows"]) if r["role"] == "incremental_fit" and abs(data["scores"][i, 1]-data["scores"][i, 0]) > .01]
+    from .partition import training_ids
+    allowed = training_ids(config, list(scenes.values()), "scorer_fit")
+    eligible = [i for i, r in enumerate(bank["rows"]) if r["scene_id"] in allowed and abs(data["scores"][i, 1]-data["scores"][i, 0]) > .01]
     eligible.sort(key=lambda i: digest([config.selection_seed, "overfit64", bank["rows"][i]["scene_id"]]))
     chosen = eligible[:64]
     if not chosen:
@@ -287,3 +310,45 @@ def export_bundle(config, device="cuda:0"):
                 "deployment_release": False, "ACTIVE_updated": False}
     atomic_json(path/"BUNDLE.json", manifest, immutable=True)
     return {"status": "COMPLETE", "bundle": str(path), "formal_ACTIVE_updated": False}
+
+
+def _calibrate_loaded(config, model, bank, data, lookup, device):
+    # Select optional margin on natural selector_cal before any dev predictions.
+    calix = [i for i, r in enumerate(bank["rows"]) if r["role"] == "selector_cal"]
+    calscenes = [lookup[bank["rows"][i]["scene_id"]] for i in calix]
+    cp, _ = predict_scores(config, model, calscenes, data["trajectories"][calix], device)
+    cal_results = {}
+    margins = (0., .01, .02, .05, .1) if config.research_protocol == "two_candidate_v1" else (0., .01, .02, .05)
+    for margin in margins:
+        choices = (cp[:, 1]-cp[:, 0] > margin).astype(np.int64)
+        cal_results[str(margin)] = selection_metrics(data["scores"][calix], data["components"][calix], choices,
+                            [s.source_log_id for s in calscenes], bootstrap_repetitions=config.bootstrap_repetitions, bootstrap_seed=config.bootstrap_seed)
+    # Predeclared tie-break: PDMS, fewer new hard violations, fewer high->zero,
+    # then larger margin. No claim of per-scene safety; raw argmax remains primary.
+    feasible = list(cal_results)
+    if config.research_protocol == "two_candidate_v1":
+        feasible = [k for k,v in cal_results.items() if v["high_to_zero"] == 0 and all(x["new_violations"] == 0 for x in v["safety"].values())]
+    selected_margin = (max(feasible, key=lambda k: (cal_results[k]["selected"],
+                         -sum(x["new_violations"] for x in cal_results[k]["safety"].values()), -cal_results[k]["high_to_zero"], float(k)))
+                      if feasible else None)
+    always_base = selected_margin is None
+    if selected_margin is not None and config.research_protocol == "two_candidate_v1":
+        always_base = cal_results[selected_margin]["selected_gain"] <= 0
+    atomic_json(config.root/"SINGLE_MARGIN.json", {"margin": float(selected_margin) if selected_margin is not None else None,
+                "always_base": always_base, "status": "NO_NONTRIVIAL_FEASIBLE_GAIN" if always_base else "SELECTED",
+                "role": "selector_cal", "results": cal_results,
+                "scorer_hash": file_hash(config.root/"scorer/best.pt"), "bank_hash": file_hash(config.root/"PAIR_BANK.json")}, immutable=True)
+    return selected_margin, always_base
+
+
+def calibrate_margin(config, device="cuda:0"):
+    bank, data = load_bank(config)
+    result = read_json(config.root/"scorer/result.json")
+    require(result["status"] == "COMPLETE", "finish Scorer before margin calibration")
+    best = config.root/"scorer/best.pt"
+    require(file_hash(best) == result["best_checkpoint_hash"], "Scorer best changed")
+    model = make_scorer(config).to(device)
+    model.load_state_dict(torch.load(best, map_location=device, weights_only=True), strict=True)
+    lookup = {s.scene_id:s for s in load_scenes(config.root/"scenes.json")}
+    _calibrate_loaded(config, model, bank, data, lookup, device)
+    return read_json(config.root/"SINGLE_MARGIN.json")

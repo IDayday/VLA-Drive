@@ -41,9 +41,13 @@ def slice_batch(value, start, end):
 
 def scheduler_factory(optimizer, config):
     steps, warmup, minimum = config["max_optimizer_steps"], config["warmup_steps"], config["lr_min_ratio"]
+    schedule = config.get("schedule", "warmup_cosine")
+    require(schedule in {"warmup_cosine", "warmup_constant"}, "unsupported scheduler")
     def factor(step):
         if step < warmup:
             return (step + 1) / max(1, warmup)
+        if schedule == "warmup_constant":
+            return 1.
         return minimum + (1 - minimum) * .5 * (1 + math.cos(math.pi * min(1, (step - warmup) / max(1, steps - warmup))))
     return torch.optim.lr_scheduler.LambdaLR(optimizer, factor)
 

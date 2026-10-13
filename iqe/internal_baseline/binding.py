@@ -10,6 +10,71 @@ from iqe.data.manifests import load_scenes, save_scenes
 from iqe.training.resume import inspect_checkpoint
 
 
+def _query_snapshot_provenance(state, original):
+    require(state.get("kind") == "iqe_query_base" and state["optimizer_step"] > 1,
+            "learned own Query Base required")
+    require(state.get("framework_contract_hash") == original["framework_contract_hash"],
+            "Base framework contract mismatch")
+    require(state.get("mode") not in {"smoke", "profile"},
+            "diagnostic checkpoint is not the experiment Base")
+    require(state.get("mode") == "full" and state["optimizer"].get("state"),
+            "full own training optimizer provenance required")
+    query = state["model"].get("action_model.expert.query.weight")
+    require(isinstance(query, torch.Tensor) and tuple(query.shape) == (1, original["query_architecture"]["width"]),
+            "single Query action branch contract mismatch")
+
+
+def resolve_base_checkpoint(config, original):
+    """Choose within one declared run; never silently accept an incomplete file.
+
+    ``latest_complete`` explicitly permits skipping newer rejected artifacts,
+    recording why. Older files need not be rehashed once the newest legal one is
+    found. Explicit paths never fall back. The immutable experiment binding,
+    not this selection-attempt report, prevents later checkpoint refreshes.
+    Full framework strict loading remains mandatory in S0Adapter.
+    """
+    root = Path(config.base_run).resolve()
+    automatic = config.checkpoint == "latest_complete"
+    if automatic:
+        paths = set(root.glob("step_*.pt"))
+        paths.update(Path(str(p).removesuffix(".COMPLETE.json")) for p in root.glob("step_*.pt.COMPLETE.json"))
+    else:
+        paths = {Path(config.checkpoint).absolute()}
+
+    def step_hint(path):
+        try:
+            return int(path.stem.removeprefix("step_"))
+        except ValueError:
+            return -1
+
+    rows = [{"path": str(p), "filename_step": step_hint(p), "status": "NOT_INSPECTED_OLDER"}
+            for p in sorted(paths, key=lambda p: (step_hint(p), str(p)), reverse=True)]
+    selected, selected_state = None, None
+    for row in rows:
+        try:
+            path = Path(row["path"]).resolve()
+            require(path.parent == root, "checkpoint must belong to the explicitly declared own Base run")
+            inspected = inspect_checkpoint(path)
+            state = torch.load(path, map_location="cpu", weights_only=False, mmap=True)
+            _query_snapshot_provenance(state, original)
+            receipt = Path(str(path)+".COMPLETE.json")
+            selected = inspected | {"receipt_path": str(receipt), "receipt_hash": file_hash(receipt)}
+            row.update(status="SELECTED", optimizer_step=selected["optimizer_step"], checksum=selected["checksum"])
+            selected_state = state
+            break
+        except Exception as error:
+            row.update(status="REJECTED", reason=str(error))
+    report = {"schema": "own_query_base_selection_v1", "base_run": str(root),
+              "requested": config.checkpoint, "policy": "newest_complete_valid_in_declared_run" if automatic else "explicit_no_fallback",
+              "candidates": rows, "selected": selected, "status": "RESOLVED" if selected else "REJECTED",
+              "newer_rejections": [r for r in rows if r["status"] == "REJECTED"],
+              "resolved_at_utc": datetime.now(timezone.utc).isoformat(),
+              "strict_framework_load_still_required": True}
+    atomic_json(config.root/"BASE_SELECTION_RESOLUTION.json", report)
+    require(selected is not None, "NO_VALID_BASE_CHECKPOINT: " + "; ".join(r["reason"] for r in rows if r["status"] == "REJECTED"))
+    return selected, selected_state
+
+
 def binding(config):
     b = read_json(config.root / "BASE_BINDING.json")
     require(b["experiment_id"] == config.experiment_id and b["config_hash"] == config.identity, "experiment identity changed")
@@ -22,22 +87,8 @@ def bind(config):
         if (config.root / "BASE_BINDING.json").exists():
             return binding(config)
         original = read_json(config.contract)
-        root = Path(config.base_run).resolve()
-        if config.checkpoint == "latest_complete":
-            receipts = [read_json(p) | {"path": str(p).removesuffix(".COMPLETE.json")} for p in root.glob("step_*.pt.COMPLETE.json")]
-            require(receipts, "no complete Base checkpoint receipts")
-            # Select before reading any score. A broken newest receipt is an error,
-            # not an unreported fallback to an earlier/possibly better checkpoint.
-            path = max(receipts, key=lambda r: r["optimizer_step"])["path"]
-        else:
-            path = str(Path(config.checkpoint).resolve())
-        require(Path(path).parent == root, "checkpoint must belong to the explicitly declared own Base run")
-        inspected = inspect_checkpoint(path)
-        state = torch.load(path, map_location="cpu", weights_only=False, mmap=True)
-        require(state["kind"] == "iqe_query_base" and state["optimizer_step"] > 1, "learned own Query Base required")
-        require(state["framework_contract_hash"] == original["framework_contract_hash"], "Base framework contract mismatch")
-        require(state.get("mode") not in {"smoke", "profile"}, "diagnostic checkpoint is not the experiment Base")
-        require(state.get("mode") == "full" and state["optimizer"].get("state"), "full own training optimizer provenance required")
+        inspected, state = resolve_base_checkpoint(config, original)
+        path = inspected["path"]
         repo = Path(__file__).resolve().parents[2]
         for name, expected in (original["query_model_code_hashes"] | original["reused_M0_module_hashes"]).items():
             require(file_hash(repo / name) == expected, "protected Base code changed: " + name)
@@ -47,17 +98,26 @@ def bind(config):
         require(all(s.split_role in {"incremental_fit", "stage_val", "selector_cal", "dev_report"} for s in scenes),
                 "this experiment must not open final_test/navtest")
         fit_seen = set(state.get("fit_scene_ids", []))
+        partitioned = None
+        if config.research_protocol == "two_candidate_v1":
+            from .partition import partition_fit
+            partitioned = partition_fit(config, scenes)
         chosen = []
         for role, cap in (("incremental_fit", None if config.fit_limit == "all_fit" else config.fit_limit), ("stage_val", config.val_limit),
                           ("selector_cal", config.cal_limit), ("dev_report", None)):
             rows = sorted((s for s in scenes if s.split_role == role),
                           key=lambda s: digest([config.selection_seed, role, s.scene_id]))
+            if role == "incremental_fit" and partitioned is not None:
+                rows, cap = partitioned, None
             require(rows, "missing inherited role: " + role)
             for s in rows[:cap]:
                 require(s.source_kind == "original" and s.target_provenance == "gt" and s.input_consistency_status == "verified",
                         "baseline only accepts verified original observations and GT")
                 chosen.append(replace(s, s0_seen=("yes" if s.scene_id in fit_seen else "no") if fit_seen else "unknown"))
         save_scenes(config.root / "scenes.json", chosen)
+        if partitioned is not None:
+            from .partition import finalize_partition
+            finalize_partition(config, chosen)
         atomic_json(config.root/"DATA_ISOLATION.json", validate_isolation(chosen), immutable=True)
         contract = dict(original, query_checkpoint=path, query_checkpoint_hash=inspected["checksum"],
                         binding_status="LOCKED_QUERY_S0", offline_experiment_binding=True,
@@ -70,6 +130,8 @@ def bind(config):
         counts = {r: sum(s.split_role == r for s in chosen) for r in {s.split_role for s in chosen}}
         b = {"schema": "iqe_internal_baseline_binding_v1", "experiment_id": config.experiment_id,
              "config_hash": config.identity, "checkpoint": path, "checkpoint_hash": inspected["checksum"],
+             "checkpoint_receipt": inspected["receipt_path"], "checkpoint_receipt_hash": inspected["receipt_hash"],
+             "selection_resolution_hash": file_hash(config.root/"BASE_SELECTION_RESOLUTION.json"),
              "optimizer_step": state["optimizer_step"], "parent_run_identity": inspected["run_identity"],
              "framework_contract_hash": original["framework_contract_hash"], "head_hash": file_hash(config.root / "BASE_HEAD.pt"),
              "contract_hash": digest(contract), "scene_manifest_hash": file_hash(config.root / "scenes.json"),

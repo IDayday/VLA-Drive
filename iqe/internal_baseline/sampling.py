@@ -55,18 +55,20 @@ class TwoStreamSampler:
 
 
 class ExpertSampler:
-    def __init__(self, hard, ordinary, seed, manifest_hash):
+    def __init__(self, hard, ordinary, seed, manifest_hash, hard_fraction=.9):
         require(hard and ordinary, "hard and ordinary buckets must both contain audited GT")
         self.hard, self.ordinary = tuple(hard), tuple(ordinary)
         self.rng = np.random.default_rng(seed)
-        self.identity = digest([self.hard, self.ordinary, seed, manifest_hash])
+        require(0 < hard_fraction < 1, "hard/ordinary fractions")
+        self.hard_fraction = hard_fraction
+        self.identity = digest([self.hard, self.ordinary, seed, manifest_hash, hard_fraction])
         self.consumed, self.pending = 0, None
 
     def peek(self, n):
         if self.pending is None:
             rng = deepcopy(self.rng)
-            # Cumulative rounding gives exactly 90/10 over ten 128-scene updates.
-            nh = round((self.consumed+n)*.9)-round(self.consumed*.9)
+            # Cumulative quotas apply to draws, never duplicated in the IL loss.
+            nh = round((self.consumed+n)*self.hard_fraction)-round(self.consumed*self.hard_fraction)
             entries = [{"scene_id": self.hard[i], "bucket": "hard"} for i in rng.integers(len(self.hard), size=nh)]
             entries += [{"scene_id": self.ordinary[i], "bucket": "ordinary"} for i in rng.integers(len(self.ordinary), size=n-nh)]
             rng.shuffle(entries)

@@ -33,7 +33,9 @@ def audit(config, device="cuda:0", deterministic=False):
     device = training_device(device)
     torch.set_num_threads(2)
     manifest, data = load_bank(config)
-    candidates = [i for i, r in enumerate(manifest["rows"]) if r["role"] == "incremental_fit"
+    from .partition import training_ids
+    allowed = training_ids(config, load_scenes(config.root/"scenes.json"), "scorer_fit")
+    candidates = [i for i, r in enumerate(manifest["rows"]) if r["scene_id"] in allowed
                   and abs(data['scores'][i, 1]-data['scores'][i, 0]) > .01]
     require(candidates, 'SCORER_COMPARISON_SIGNAL_ABSENT: real two-stream resume probe requires a valid pair')
     candidates.sort(key=lambda i: digest([config.selection_seed, "resume_audit", manifest["rows"][i]["scene_id"]]))

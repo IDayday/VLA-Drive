@@ -37,6 +37,10 @@ class Config:
     scoring_attempts: int = 3
     score_context: str = "world_action_ego"
     diagnostic_updates: int = 200
+    research_protocol: str = "internal_legacy_v1"
+    expert_fit_limit: int = 16000
+    scorer_fit_limit: int = 4000
+    partition_seed: int = 271828
 
     def __post_init__(self):
         require(self.experiment_id and Path(self.output_root).is_absolute(), "explicit experiment/output identity required")
@@ -49,6 +53,10 @@ class Config:
         require(self.score_context in {"world_action_ego", "action_ego", "planner_ego"}, "explicit scorer input ablation required")
         require(self.scorer_micro_batch > 0 and self.expert_micro_batch > 0 and self.cache_batch > 0, "batch budgets")
         require(0 <= self.scorer_dropout < 1 and 0 < self.diagnostic_updates <= 500, "diagnostic/dropout budget")
+        require(self.research_protocol in {"internal_legacy_v1", "two_candidate_v1"}, "unknown research protocol")
+        require(0 < self.expert_fit_limit <= 16000 and 0 < self.scorer_fit_limit <= 4000, "D_E/D_S scene budgets")
+        if self.research_protocol == "two_candidate_v1":
+            require(self.scorer_dropout == 0 and self.diagnostic_updates <= 300, "fixed two-candidate scorer recipe")
 
     @property
     def root(self):
