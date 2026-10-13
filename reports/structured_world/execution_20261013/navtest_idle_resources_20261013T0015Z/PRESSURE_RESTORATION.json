@@ -1,0 +1,72 @@
+{
+  "utc": "2026-10-13T01:04:21.737835+00:00",
+  "hosts": [
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "launch": {
+        "pid": 226814,
+        "start_ticks": 1329110934,
+        "host": "training-vlawm-tsinghua-zt-worker-0",
+        "command": [
+          "/usr/bin/python3",
+          "-B",
+          "-u",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/frozen_pressure_monitor/navtest_idle_pressure.py",
+          "--policy",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/idle_pressure/training-vlawm-tsinghua-zt/POLICY_V2.json"
+        ],
+        "utc": "2026-10-13T00:45:20.934295+00:00",
+        "old_cpu_monitor": 224333,
+        "old_monitor_exited": true,
+        "private_lease_and_capture_unchanged": true,
+        "reason": "Register replacement dispatcher entrypoint so a CPU queue coordinator cannot prevent idle restoration"
+      },
+      "policy_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/idle_pressure/training-vlawm-tsinghua-zt/POLICY_V2.json",
+      "policy_sha256": "2f1469ae9349abb394ea638f808ef2ad97a224efb091a9b21c7ec55643f20810",
+      "released_GPU_count": 8,
+      "lease_state": "ACQUIRED",
+      "pressure_alive": false,
+      "observed_utc": "2026-10-13T01:04:19.420433+00:00",
+      "idle_required_seconds": 600,
+      "pending_requests": [
+        "G0_NO_FUTURE_LABEL_0050000",
+        "G1_FULL_UNIFORM_0070000"
+      ],
+      "no_private_capture_contents_exported": true
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2",
+      "launch": {
+        "pid": 227791,
+        "start_ticks": 1329113167,
+        "host": "training-vlawm-tsinghua-zt2-worker-0",
+        "command": [
+          "/usr/bin/python3",
+          "-B",
+          "-u",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/frozen_pressure_monitor/navtest_idle_pressure.py",
+          "--policy",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/idle_pressure/training-vlawm-tsinghua-zt2/POLICY_V2.json"
+        ],
+        "utc": "2026-10-13T00:45:38.147652+00:00",
+        "old_cpu_monitor": 225512,
+        "old_monitor_exited": true,
+        "private_lease_and_capture_unchanged": true,
+        "reason": "Register replacement dispatcher entrypoint so a CPU queue coordinator cannot prevent idle restoration"
+      },
+      "policy_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/idle_pressure/training-vlawm-tsinghua-zt2/POLICY_V2.json",
+      "policy_sha256": "2e54056a3ee0099b4b3e1c2709c98f1231bd88a7e2f96ab1559e222b42e69ec6",
+      "released_GPU_count": 8,
+      "lease_state": "ACQUIRED",
+      "pressure_alive": false,
+      "observed_utc": "2026-10-13T01:04:21.430709+00:00",
+      "idle_required_seconds": 600,
+      "pending_requests": [
+        "G0_NO_FUTURE_LABEL_0050000",
+        "G1_FULL_UNIFORM_0070000"
+      ],
+      "no_private_capture_contents_exported": true
+    }
+  ],
+  "rule": "Restore exact captured filler after no queued/active useful work and 600 seconds idle."
+}

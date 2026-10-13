@@ -18,14 +18,15 @@ Measure model peak memory on the real current-input path. Require repeated free
 memory at least peak plus the registered reserve. A conservative larger guard
 may be used, but record it rather than calling it the model's actual requirement.
 Measure training update time before and during cohosting. A short profile on one
-GPU can underestimate the sustained effect of a full inference deployment. Treat
-observed interference as a resource-admission input and refresh the next route
-plan accordingly; keep the model, evaluation protocol and training recipe fixed.
+GPU can underestimate the sustained effect of a full inference deployment. Under
+the user's fastest-completion preference, use these measurements to report total
+cost and choose concurrency, not to throttle otherwise authorized inference.
+Refresh routes while keeping the model, evaluation protocol and training recipe fixed.
 
 | Device state | Decision |
 | --- | --- |
 | Idle, enough memory, runtime/input verified | Use it. |
-| Own training, cohosting authorized, enough memory | Profile contention and use within capacity; retain training. |
+| Own training, cohosting authorized, enough memory | Use full inference duty within capacity; retain training and report contention. |
 | Genuine other work, repeated low utilization, sharing authorized, enough memory | Use within qualified sharing limits; retain that work. |
 | Genuine other work with sustained high utilization | Exclude unless sharing that load was explicitly authorized and qualified. |
 | Confirmed pressure script | Journal and release only the selected affected devices, remeasure, then admit. |

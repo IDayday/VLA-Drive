@@ -54,11 +54,14 @@ training; confirmed occupancy or pressure scripts may be terminated only when
 already authorized. Record why a host or device is unavailable instead of
 counting it as deployed. Recheck before dispatch and when load changes.
 
-Measure interference with existing useful work as well as inference speed.
-Available memory alone does not establish spare compute capacity. If cohosting
-materially slows an active training job, route subsequent work to idle devices
-and record the actual slowdown. Drain owned inference at a safe work boundary
-when supported; preserve valid outputs and never terminate genuine training.
+For this project's user, the standing priority (2026-10-13) is fastest completion
+of inference, validation and evaluation, including authorized sharing with their
+training. Use suitable authorized GPUs at full inference duty; do not introduce
+between-scene sleep or reduce duty merely to protect instantaneous training step
+time. Record the temporary training slowdown and total evaluation wall time.
+Memory headroom, real process ownership and current host permissions still
+determine admission. Preserve valid outputs and genuine training; adapt this
+priority if the user gives a different time or resource constraint.
 
 When the user authorizes pressure-script preemption and restoration, capture
 the exact script, argv, working directory, user, process start time, descendants

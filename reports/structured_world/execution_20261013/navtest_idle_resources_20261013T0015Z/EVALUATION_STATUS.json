@@ -1,0 +1,60 @@
+{
+  "utc": "2026-10-13T01:04:21.737835+00:00",
+  "status": "INFERENCE_RUNNING",
+  "key": "G1_FULL_UNIFORM_0070000",
+  "attempt": "20261013T005855_c2300472fcb2",
+  "registered_utc": "2026-10-13T00:58:55.749013+00:00",
+  "registered_unique_GPUs": 20,
+  "GPUs_by_host": {
+    "training-vlawm-tsinghua-zt": 8,
+    "training-vlawm-tsinghua-zt2": 8,
+    "training-vlawm-zt5": 4
+  },
+  "all_registered_duties_one": true,
+  "worker_statuses": {
+    "INFERENCE": 20
+  },
+  "scoring": {
+    "status": "STREAMING",
+    "pid": 229958,
+    "prediction_scenes_ready": 3411,
+    "q0_scored": 3411,
+    "q_final_scored": 3411,
+    "failed_new_rows": 0,
+    "pending_batches": 0,
+    "seconds": 325.76142078638077
+  },
+  "CPU_budget": {
+    "workers": 32,
+    "affinity_CPUs": 128,
+    "cgroup_quota_CPUs": [],
+    "effective_capacity_CPUs": 128,
+    "host_load_1min": 4.7802734375,
+    "reserved_host_CPUs": 16,
+    "native_threads_per_score_worker": 1,
+    "scoring_hosts": 1
+  },
+  "scorer_launch": {
+    "pid": 229958,
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/frozen_dispatcher_v3/stream_navsim_navtest_pdms.py",
+      "--predictions",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G1_FULL_UNIFORM_0070000",
+      "--index",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+      "--devkit",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+      "--output",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G1_FULL_UNIFORM_0070000/scores",
+      "--workers",
+      "32"
+    ],
+    "launched_utc": "2026-10-13T00:58:55.805282+00:00",
+    "mode": "CPU process pool starts before GPU shards; atomic-ready predictions streamed immediately"
+  },
+  "next_prequalified_request": "G0_NO_FUTURE_LABEL_0050000",
+  "partial_progress_is_not_a_full_result": true
+}

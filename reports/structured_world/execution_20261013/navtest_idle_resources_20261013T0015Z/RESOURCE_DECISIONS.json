@@ -1,0 +1,69 @@
+{
+  "utc": "2026-10-13T00:58:54.086722+00:00",
+  "excluded": {
+    "training-vla-zt": "Host reserved for another active task",
+    "training-vla-zt2": "Host reserved for another active task",
+    "training-vla-zt3": "Temporary nine-hour task grant expires 2026-10-12T23:25:43Z; insufficient remaining time for a complete new evaluation. Dispatch on current permanent resources; no extension or pressure restoration.",
+    "training-vla-zt-recovery": "duplicate UUIDs, insufficient headroom, or unrelated high utilization",
+    "training-rl-zt2": "duplicate UUIDs, insufficient headroom, or unrelated high utilization",
+    "training-rl-zt3": "ssh: connect to host training-rl-zt3-ssh.world-model.svc.cluster.local port 22: Connection refused",
+    "training-rl-zt4": "duplicate UUIDs, insufficient headroom, or unrelated high utilization",
+    "training-vlawm-zt2": "duplicate UUIDs, insufficient headroom, or unrelated high utilization",
+    "training-vlawm-zt3": "duplicate UUIDs, insufficient headroom, or unrelated high utilization",
+    "training-vlawm-zt4": "Reserved for migrated G2_EVENT_UNIFORM native training from checkpoint latest_0023269 (TARGET_LAUNCH.json 2026-10-12T02:19:26Z); exclude new Navtest dispatch until this destination reservation is explicitly released. Existing IQE cache workers remain running."
+  },
+  "selection": "current safe unique GPU subset, no fixed host/GPU/shard count",
+  "policy": {
+    "G2_reservation_controller_pid": 1325525,
+    "G2_reservation_recorded_utc": "2026-10-11T05:49:41.786135+00:00",
+    "GPU_or_shard_count_fixed": false,
+    "baseline_median_update_seconds": 3.18,
+    "current_GPU_workers_not_signalled": true,
+    "exclude_high_utilization_training": false,
+    "instruction": "不用降低推理占比，尽快推理完对训练的影响是最小的，所以每次有推理验证评估需求，都是追求最快速度完成。",
+    "observed_G1_median_update_seconds": 9.12,
+    "observed_G3_median_update_seconds": 9.35,
+    "quarantined_hosts": {
+      "training-vlawm-zt4": "Reserved for migrated G2_EVENT_UNIFORM native training from checkpoint latest_0023269 (TARGET_LAUNCH.json 2026-10-12T02:19:26Z); exclude new Navtest dispatch until this destination reservation is explicitly released. Existing IQE cache workers remain running.",
+      "training-vlawm-zt": "Temporary nine-hour task grant expires 2026-10-12T23:25:43Z; insufficient remaining time for a complete new evaluation. Dispatch on current permanent resources; no extension or pressure restoration.",
+      "training-vla-zt3": "Temporary nine-hour task grant expires 2026-10-12T23:25:43Z; insufficient remaining time for a complete new evaluation. Dispatch on current permanent resources; no extension or pressure restoration."
+    },
+    "recorded_utc": "2026-10-11T03:05:07.563168+00:00",
+    "utilization_threshold_percent": 20,
+    "owned_training_inference_duty_cycle": 1.0,
+    "owned_training_duty_by_host": {
+      "training-vla-zt": 1.0,
+      "training-vlawm-zt2": 1.0,
+      "training-rl-zt2": 1.0
+    },
+    "latest_instruction": "不用降低推理占比，尽快推理完对训练的影响是最小的，所以每次有推理验证评估需求，都是追求最快速度完成。",
+    "latest_instruction_utc": "2026-10-13T00:50:49.414217+00:00",
+    "pacing_semantics": "Latest explicit user prioritizes fastest completion. No deliberate inter-scene sleep on verified own training cohosts; maintain capacity, exact ownership, authorization and original inference/metric guards.",
+    "last_pacing_adjustment_utc": "2026-10-13T00:50:49.414217+00:00",
+    "resource_revision_utc": "2026-10-12T23:09:40.787105+00:00",
+    "recovery_source_sha": "17aa32e",
+    "zt5_readiness_requalified": {
+      "utc": "2026-10-13T00:32:55.062061+00:00",
+      "evidence": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/zt5_runtime_staging/training-vlawm-zt5/READINESS.json",
+      "cpu_runtime_passed": true,
+      "GPU_inference_profile_still_required": true,
+      "prior_quarantine": "observed SSH timeout/stdout BrokenPipe; exclude until separate infrastructure readiness requalification"
+    },
+    "pacing_adjustment_evidence": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/G1_INTERFERENCE_ADJUSTMENT.json",
+    "latest_evidence": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_resources_20261013T0015Z/MAX_SPEED_EVALUATION_AUTHORIZATION.json"
+  },
+  "task_preference": {
+    "utc": "2026-10-13T00:52:08.693280+00:00",
+    "priority": "fastest_completion",
+    "inference_duty_cycle": 1.0,
+    "automatic_throttling_to_protect_training_step_time": false,
+    "scope": "inference, validation and evaluation on authorized resources with capacity",
+    "user_instruction": "不用降低推理占比，尽快推理完对训练的影响是最小的，所以每次有推理验证评估需求，都是追求最快速度完成。"
+  },
+  "vla_zt2_live_reservation": {
+    "task": "iqe_v1",
+    "exclude_new_other_workloads": true,
+    "utc": "2026-10-13T00:47:44.818698+00:00",
+    "updated_utc": null
+  }
+}

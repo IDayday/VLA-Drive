@@ -1,0 +1,701 @@
+EEEEEEEEEEEEEE.EEEEEEEEEEEEEEEE.EEEEEEEE.EEEEEEEE.EEEEEEEEEEEE........................
+======================================================================
+ERROR: test_changed_base_policy_rejected_without_spawning (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 297, in test_changed_base_policy_rejected_without_spawning
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_changed_base_policy_rejected_without_spawning (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_changed_capture_script_defers_original_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 317, in test_changed_capture_script_defers_original_restore
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_changed_capture_script_defers_original_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_completed_receipt_does_not_override_live_saved_worker (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 221, in test_completed_receipt_does_not_override_live_saved_worker
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_completed_receipt_does_not_override_live_saved_worker (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_deferred_acquire_must_not_claim_gpu_available (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 604, in test_deferred_acquire_must_not_claim_gpu_available
+    controller, original = self.start(extra=('--ignore-term',))
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_deferred_acquire_must_not_claim_gpu_available (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_genuine_fake_gpu_app_survives_pressure_release (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 186, in test_genuine_fake_gpu_app_survives_pressure_release
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_genuine_fake_gpu_app_survives_pressure_release (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_host_boot_namespace_mismatch_rejected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 309, in test_host_boot_namespace_mismatch_rejected
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_host_boot_namespace_mismatch_rejected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_invalid_or_foreign_completion_receipt_stops_before_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 279, in test_invalid_or_foreign_completion_receipt_stops_before_restore
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_invalid_or_foreign_completion_receipt_stops_before_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_loading_worker_without_cuda_app_is_protected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 209, in test_loading_worker_without_cuda_app_is_protected
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_loading_worker_without_cuda_app_is_protected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_new_resource_activity_at_restore_boundary_prevents_spawn (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 380, in test_new_resource_activity_at_restore_boundary_prevents_spawn
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_new_resource_activity_at_restore_boundary_prevents_spawn (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_no_local_workers_for_new_cycle_defers_instead_of_inventing_exit_proof (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 499, in test_no_local_workers_for_new_cycle_defers_instead_of_inventing_exit_proof
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_no_local_workers_for_new_cycle_defers_instead_of_inventing_exit_proof (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_no_original_never_creates_a_new_filler (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 335, in test_no_original_never_creates_a_new_filler
+    controller, _ = self.start(pressure=False)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_no_original_never_creates_a_new_filler (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_activity_also_resets_entire_interval (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 364, in test_pending_activity_also_resets_entire_interval
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_activity_also_resets_entire_interval (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_during_verifying_stops_only_owned_replacement_then_waits_600 (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 511, in test_pending_during_verifying_stops_only_owned_replacement_then_waits_600
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_during_verifying_stops_only_owned_replacement_then_waits_600 (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_never_restores_pressure (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 175, in test_pending_never_restores_pressure
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_pending_never_restores_pressure (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_private_policy_identity_mismatch_rejected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 304, in test_private_policy_identity_mismatch_rejected
+    self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_private_policy_identity_mismatch_rejected (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_excludes_only_identified_pressure (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 489, in test_real_resource_scanner_excludes_only_identified_pressure
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_excludes_only_identified_pressure (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_flags_memory_and_util_without_gpu_apps (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 414, in test_real_resource_scanner_flags_memory_and_util_without_gpu_apps
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_flags_memory_and_util_without_gpu_apps (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_protects_pre_cuda_script (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 426, in test_real_resource_scanner_protects_pre_cuda_script
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_resource_scanner_protects_pre_cuda_script (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_restore_then_pending_reacquire_and_restore_new_cycle (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 139, in test_real_restore_then_pending_reacquire_and_restore_new_cycle
+    controller, original = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_real_restore_then_pending_reacquire_and_restore_new_cycle (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_registered_coordinator_does_not_mask_workers_or_foreign_scripts (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 437, in test_registered_coordinator_does_not_mask_workers_or_foreign_scripts
+    self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_registered_coordinator_does_not_mask_workers_or_foreign_scripts (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_replacement_execution_identity_change_is_not_signalled (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 572, in test_replacement_execution_identity_change_is_not_signalled
+    controller, _ = self.start(extra=('--exec-marker', str(marker)))
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_replacement_execution_identity_change_is_not_signalled (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_report_from_another_host_is_not_local_exit_evidence (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 263, in test_report_from_another_host_is_not_local_exit_evidence
+    self.saved_worker(request['key'], host='another-worker-0')
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 113, in saved_worker
+    self.stop_owned(child)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_report_from_another_host_is_not_local_exit_evidence (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_request_arriving_at_idle_confirmation_prevents_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 243, in test_request_arriving_at_idle_confirmation_prevents_restore
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_request_arriving_at_idle_confirmation_prevents_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_resource_activity_resets_full_600_second_interval (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 342, in test_resource_activity_resets_full_600_second_interval
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_resource_activity_resets_full_600_second_interval (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_resource_worker_releases_pressure_without_signalling_real_work (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 393, in test_resource_worker_releases_pressure_without_signalling_real_work
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_resource_worker_releases_pressure_without_signalling_real_work (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_restart_reuses_acquired_cycle_without_duplicate_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 325, in test_restart_reuses_acquired_cycle_without_duplicate_restore
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_restart_reuses_acquired_cycle_without_duplicate_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_reverify_existing_replacement_then_fresh_acquire_without_respawn (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 586, in test_reverify_existing_replacement_then_fresh_acquire_without_respawn
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_reverify_existing_replacement_then_fresh_acquire_without_respawn (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_uncontrolled_replacement_exit_keeps_obligation_and_never_respawns (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 555, in test_uncontrolled_replacement_exit_keeps_obligation_and_never_respawns
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_uncontrolled_replacement_exit_keeps_obligation_and_never_respawns (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_unreadable_fake_app_blocks_idle_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 201, in test_unreadable_fake_app_blocks_idle_restore
+    controller, _ = self.start()
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 80, in start
+    self.stop_owned(old)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_navtest_idle_pressure.py", line 65, in stop_owned
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+======================================================================
+ERROR: test_unreadable_fake_app_blocks_idle_restore (tools.structured_world.test_navtest_idle_pressure.IdlePressureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/validate_navtest_pressure_lease.py", line 133, in tearDown
+    fd = lease.open_pidfd(record)
+  File "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/navtest_pressure_lease.py", line 120, in open_pidfd
+    fd = os.pidfd_open(record['pid'], 0)
+AttributeError: module 'os' has no attribute 'pidfd_open'
+
+----------------------------------------------------------------------
+Ran 57 tests in 1.976s
+
+FAILED (errors=58)
