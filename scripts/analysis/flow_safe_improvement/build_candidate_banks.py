@@ -56,6 +56,7 @@ def main():
     p.add_argument('--queue', required=True)
     p.add_argument('--output', required=True)
     p.add_argument('--batch-qualification')
+    p.add_argument('--physical-fallback-registration', help='Explicit BANK-only fixed-reference fallback for rejected behavior proposals')
     p.add_argument('--behavior')
     p.add_argument('--behavior-sha256')
     p.add_argument('--iteration', type=int, default=0)
@@ -65,6 +66,11 @@ def main():
     p.add_argument('--config', default='configs/flow_grpo/frozen_action_head_batched_single8_epoch1.yaml')
     p.add_argument('--source-config', default='/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-source/checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml')
     a = p.parse_args()
+    fallback_spec = None
+    if a.physical_fallback_registration:
+        fallback_spec = json.loads(Path(a.physical_fallback_registration).read_text())
+        if a.method != 'BEHAVIOR' or a.stage != 'BANK' or fallback_spec['physical_failure_policy'] != 'uniform_fixed_reference_fallback':
+            raise ValueError('Fallback is an explicitly registered behavior bank policy; D3 remains unchanged')
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK', 0)))
     configure_numerics()
     rank, world = int(os.environ.get('RANK', 0)), int(os.environ.get('WORLD_SIZE', 1))
@@ -99,6 +105,9 @@ def main():
                 'reference_scores_manifest_sha256': file_sha(Path(a.reference_scores)/'manifest.json'),
                 'batch_qualification_sha256': file_sha(a.batch_qualification) if a.batch_qualification else None,
                 'source_files': {Path(x).name: file_sha(x) for x in (__file__, candidate_search.__file__, sampling.__file__, policy_adapter.__file__, scoring_queue.__file__, qualify_rollout_batch.__file__)}}
+    if fallback_spec:
+        identity.update(physical_failure_policy='uniform_fixed_reference_fallback',
+                        physical_fallback_registration_sha256=file_sha(a.physical_fallback_registration))
     identity['sha256'] = fingerprint(identity)
     out = Path(a.output); out.mkdir(parents=True, exist_ok=True)
     with (out/'manifest.lock').open('a') as lock:
@@ -201,10 +210,11 @@ def main():
                     requests = decode_request(actions.numpy(), act_norm=int(sft.datasets.vla_data.act_norm))
                     keys = [{'root_key': key, 'initial_noise': roots[i].cpu()} for i, key in enumerate(keys[:draws])]
                 torch.cuda.synchronize(); status['GPU_generation_seconds'] += time.monotonic()-t0
-                new_indices, duplicate_of, valid = [], {}, []
+                new_indices, duplicate_of, valid, invalid_indices = [], {}, [], {}
                 for i in range(draws):
                     if physical and physical[i]['status'] != 'PHYSICAL_PROPOSAL_VALID':
                         valid.append(False)
+                        invalid_indices[i] = len(attempts)
                         attempts.append({'round': round_index, 'index': i, 'status': 'INVALID_PHYSICAL_PROPOSAL',
                                          'requested_trajectory': torch.as_tensor(requests[i]), 'normalized_action': actions[i], 'physical': physical[i],
                                          'consumes_logical_budget': True, 'official_score': None})
@@ -227,7 +237,23 @@ def main():
                     diagnostics.append({'scoring': receipt})
                 for i, (_, f) in duplicate_of.items(): results[i] = f
                 for i in range(draws):
-                    if not valid[i]: continue
+                    if not valid[i]:
+                        if fallback_spec:
+                            # A rejected proposal still consumes its one slot.
+                            # Returning an already-scored fixed SFT draw adds no
+                            # score call or discovery. Its duplicate frequency
+                            # enters empirical u, while q_ref remains four draws.
+                            ref_index = seed_for('physical_rejection_reference_fallback', a.seed, token, a.iteration, round_index, i) % 4
+                            record = dict(candidates[ref_index])
+                            record.update(source='reference_fallback', is_reference=False,
+                                          on_policy_for_NFT=False, duplicate_of=ref_index,
+                                          source_parameters={'round': round_index, 'failure_status': 'INVALID_PHYSICAL_PROPOSAL',
+                                                             'original_reference_index': ref_index,
+                                                             'rejected_attempt_index': invalid_indices[i]})
+                            attempts[invalid_indices[i]]['fallback_candidate_index'] = len(candidates)
+                            candidates.append(record)
+                            status['duplicate_proposals'] += 1
+                        continue
                     f = results[i]
                     record = dict(source=source, is_reference=False, behavior_sha256=behavior,
                                   normalized_action=actions[i], requested_trajectory=torch.as_tensor(requests[i]),
@@ -245,7 +271,12 @@ def main():
                               'reference_new_calls_this_run': reference_new_calls, 'reference_reused_calls': reference_reused_calls,
                               'finite_scored_records': len(candidates), 'invalid_physical_attempts': len(attempts)},
                    'candidate_scores_are_not_deployment_policy_scores': True}
-            assert len(candidates)+len(attempts) == budget
+            if fallback_spec:
+                assert len(candidates) == budget and all('fallback_candidate_index' in x for x in attempts)
+                row['budget']['fallback_reused_reference_records'] = len(attempts)
+                row['budget']['invalid_attempts_are_the_same_slots_as_fallbacks'] = True
+            else:
+                assert len(candidates)+len(attempts) == budget
             publish_scene(dst, row, identity['sha256'])
             status['new_scenes'] += 1; status['logical_proposals'] += budget
             status.update(actual_new_scoring_calls=scorer.actual_new_scores, reused_score_candidates=scorer.reused_scores,

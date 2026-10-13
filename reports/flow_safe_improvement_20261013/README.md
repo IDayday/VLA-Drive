@@ -94,3 +94,11 @@ CUDA_VISIBLE_DEVICES= $SFI_PY -m scripts.analysis.flow_safe_improvement.qualify_
 ```
 
 保留的失败包括 SLSQP oracle 边界不收敛、新 worktree 缺少相对资产路径、模型构造会原地补充 DiTConfig 导致缓存身份计算时机错误，以及一个恢复合同测试调用方式错误。已分别修正独立数值 oracle、显式只读源配置路径、构造前身份绑定和测试调用；没有放松原数值阈值、替换旧缓存或覆盖旧正式 run。
+
+截至 2026-10-13 07:30 UTC，完整 DEV 五 seed 基线和独立四 seed 参考已封存，[基线统计](evidence/SFT_DEV_baseline.json)。三种已完成的 D3 比较显示，行为搜索相对独立 ODE 的随机子集安全收益机会增加 0.00901 原始 score，按 log 的 95% 区间为 [0.00728, 0.01100]；困难定向子集增加 0.08017，[0.04866, 0.11463]。这些是有限候选机会，仍须真实策略提取与新噪声 ODE 评价。[三方法配对诊断](evidence/D3_ODE_adaptive_comparison.json)；SDE 探索参照尚在执行。
+
+P2 采用同边界行为搜索。物理非法提案保留原动作、轨迹与失败原因，占用原候选名额，并以 scene 绑定的预登记均匀规则返回四条固定 SFT 参考中的一条；不新增评分、不算新发现。q_ref 仍为原四条参考，候选经验分布按实际重复频率精确合并。[登记](evidence/behavior_bank_policy.json)。真实库前 16 场景的安全目标求解通过，另有两个回退身份/去重质量测试通过。
+
+[实际完整动作头梯度诊断](evidence/D2_SFT_gradient_summary.json)测得 group 与 global-batch 归一化梯度 cosine 0.8571，group 与固定尺度为 0.8668；group 与 GT replay 为 0.1198，global-batch 与 replay 为 −0.0935。这是固定 16 场景 SFT behavior 的 native 梯度观察，不是 ZeRO FP32 累加验证，SFT 与其自身 reference 的 KL 梯度为零是预期结果。旧 RL 非零 reference 梯度窗口另行实际执行。
+
+[有限预算及实测 profile](evidence/formal_budget_profile.json)在正式训练前锁定。共享盘约余 1.1 TB，新优化器/RNG 完整恢复点存放在已授权训练主机的本地盘，导出权重与报告存共享目录；每个 run 的 storage_identity.json 记录主机和实际路径，不删除任何旧资产。普通 FM 与 NFT 的实测时间含不同资源竞争，只作排期依据，不声称相对加速倍数。

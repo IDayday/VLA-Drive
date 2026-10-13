@@ -11,6 +11,7 @@ import json
 import math
 import os
 from pathlib import Path
+import socket
 import time
 
 import numpy as np
@@ -73,6 +74,7 @@ def main():
     p.add_argument('--targets', required=True)
     p.add_argument('--reference-scores', required=True)
     p.add_argument('--output', required=True)
+    p.add_argument('--checkpoint-root', help='Optional host-local recovery storage; original inference exports remain under --output')
     p.add_argument('--epochs', type=int, default=8)
     p.add_argument('--training-seed', type=int, default=42)
     p.add_argument('--retention-coefficient', type=float, required=True)
@@ -162,6 +164,13 @@ def main():
             raise ValueError('Resume changed learning identity')
         atomic_json(out/'run_identity.json', provenance)
         atomic_json(out/'registered_config.json', cfg)
+        storage = dict(checkpoint_root=str(Path(a.checkpoint_root or a.output).resolve()),
+                       checkpoint_host=socket.gethostname(), shared_export_root=str(out.resolve()),
+                       host_local_recovery=bool(a.checkpoint_root))
+        storage_path = out/'storage_identity.json'
+        if storage_path.exists() and json.loads(storage_path.read_text()) != storage:
+            raise ValueError('Resume must preserve the recorded checkpoint host and storage root')
+        atomic_json(storage_path, storage)
         snapshot = out/'source_snapshot'
         snapshot.mkdir(exist_ok=True)
         for source in (__file__, training_actor.__file__, reference_retention.__file__, nft_adapter.__file__, weighted_flow_objective.__file__):
@@ -251,7 +260,7 @@ def main():
             print(json.dumps(metrics), flush=True)
         if update in epoch_checkpoints or update % a.save_every == 0 or update == stop:
             save_cfg = copy.deepcopy(cfg)
-            save_cfg['runtime']['output_dir'] = str(out/('milestones' if update in epoch_checkpoints else 'rolling'))
+            save_cfg['runtime']['output_dir'] = str(Path(a.checkpoint_root or a.output)/('milestones' if update in epoch_checkpoints else 'rolling'))
             last_checkpoint = save_boundary(accelerator, actor, save_cfg, sft, manifest, provenance, update, 0, [cursor])
             rank0_call(lambda: atomic_json(out/'latest_checkpoint.json', {'path': str(last_checkpoint), 'update': update, 'epoch': update*16/len(tokens), 'milestone': update in epoch_checkpoints}), accelerator.device)
             if update in epoch_checkpoints or update == stop:

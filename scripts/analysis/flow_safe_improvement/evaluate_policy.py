@@ -79,8 +79,8 @@ def main():
         safety[key] = dict(fixed_reference_stable_safe_scenes=len(safe_tokens),
                            current_any_seed_violation_in_fixed_safe=sum(not passes(policy[t]).all() for t in safe_tokens),
                            baseline_any_eval_seed_violation_in_fixed_safe=sum(not passes(baseline[t]).all() for t in safe_tokens),
-                           newly_violating_vs_matched_baseline=sum(passes(baseline[t]).all() and not passes(policy[t]).all() for t in tokens),
-                           recovered_all_eval_seeds=sum(not passes(baseline[t]).all() and passes(policy[t]).all() for t in tokens),
+                           newly_violating_vs_matched_baseline=int(sum(passes(baseline[t]).all() and not passes(policy[t]).all() for t in tokens)),
+                           recovered_all_eval_seeds=int(sum(not passes(baseline[t]).all() and passes(policy[t]).all() for t in tokens)),
                            current_pass_rate=float(np.mean([passes(policy[t]).mean() for t in tokens])))
     zeros = {}
     for label, test in [('any_seed_zero', lambda x: bool(np.any(x == 0))),

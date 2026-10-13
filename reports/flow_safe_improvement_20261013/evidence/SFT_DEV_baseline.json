@@ -1,0 +1,261 @@
+{
+  "schema": "flow_safe_single_candidate_deployment_v1",
+  "status": "COMPLETE_MATCHED_EVALUATION",
+  "policy_identity": "e9497f71fc8cf7d8b4582719125cc49403d46774d8c70d2b9371d3452a9b2b17",
+  "baseline_identity": "e9497f71fc8cf7d8b4582719125cc49403d46774d8c70d2b9371d3452a9b2b17",
+  "reference_identity": "6241ef414c6a53ce0e62d9625b0bdeafb15df83c98b4f87e454d51961ceced83",
+  "payload_hashes": {
+    "policy": "21b4681c2c0672aee34b1201ddc06b0d630ef3ede1f4c2761519e95bab227258",
+    "baseline": "21b4681c2c0672aee34b1201ddc06b0d630ef3ede1f4c2761519e95bab227258",
+    "reference": "decb38b88ed9b7232500253daedc3f44c628ed9a9b3d07197474908ab5f3dccc"
+  },
+  "scenes": 1696,
+  "inference_seeds": [
+    2101,
+    2102,
+    2103,
+    2104,
+    2105
+  ],
+  "training_seed_repetitions": 1,
+  "primary": "mean_of_five_independent_single_candidate_original_10_step_ODE_outputs_no_selection",
+  "units": "raw_0_to_1",
+  "means": {
+    "comfort": {
+      "policy": 0.9988207547169812,
+      "SFT": 0.9988207547169812,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "drivable_area_compliance": {
+      "policy": 0.9935141509433962,
+      "SFT": 0.9935141509433962,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "driving_direction_compliance": {
+      "policy": 0.9887382075471699,
+      "SFT": 0.9887382075471699,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "ego_progress": {
+      "policy": 0.8590907755830471,
+      "SFT": 0.8590907755830471,
+      "policy_scene_quantiles": [
+        0.0,
+        0.607294707955225,
+        0.6657290797740405,
+        0.886933606827359,
+        1.0,
+        1.0
+      ]
+    },
+    "no_at_fault_collisions": {
+      "policy": 1.0,
+      "SFT": 1.0,
+      "policy_scene_quantiles": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "score": {
+      "policy": 0.9369147885684079,
+      "SFT": 0.9369147885684079,
+      "policy_scene_quantiles": [
+        0.0,
+        0.833557282823844,
+        0.8586466124083544,
+        0.9522120750206577,
+        1.0,
+        1.0
+      ]
+    },
+    "time_to_collision_within_bound": {
+      "policy": 0.9984669811320755,
+      "SFT": 0.9984669811320755,
+      "policy_scene_quantiles": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "paired_changes": {
+    "comfort": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "driving_direction_compliance": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "ego_progress": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "no_at_fault_collisions": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "score": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    },
+    "time_to_collision_within_bound": {
+      "mean": 0.0,
+      "CI95": [
+        0.0,
+        0.0
+      ],
+      "scenes": 1696,
+      "logs": 16,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "fixed_reference_stable_safe_scenes": 1696,
+      "current_any_seed_violation_in_fixed_safe": 0,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 0,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 1.0
+    },
+    "drivable_area_compliance": {
+      "fixed_reference_stable_safe_scenes": 1682,
+      "current_any_seed_violation_in_fixed_safe": 2,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 2,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9935141509433962
+    },
+    "time_to_collision_within_bound": {
+      "fixed_reference_stable_safe_scenes": 1693,
+      "current_any_seed_violation_in_fixed_safe": 1,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 1,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9984669811320755
+    },
+    "joint": {
+      "fixed_reference_stable_safe_scenes": 1680,
+      "current_any_seed_violation_in_fixed_safe": 3,
+      "baseline_any_eval_seed_violation_in_fixed_safe": 3,
+      "newly_violating_vs_matched_baseline": 0,
+      "recovered_all_eval_seeds": 0,
+      "current_pass_rate": 0.9925707547169812
+    }
+  },
+  "zero_transitions": {
+    "any_seed_zero": {
+      "SFT": 15,
+      "policy": 15,
+      "new_failures": 0,
+      "recovered": 0
+    },
+    "all_fixed_seeds_zero": {
+      "SFT": 7,
+      "policy": 7,
+      "new_failures": 0,
+      "recovered": 0
+    },
+    "five_seed_scene_mean_zero": {
+      "SFT": 7,
+      "policy": 7,
+      "new_failures": 0,
+      "recovered": 0
+    }
+  },
+  "high_score_decline": {
+    "SFT_scene_mean_threshold": 0.9,
+    "scenes": 1257,
+    "any_negative": 0,
+    "decline_at_least_001": 0,
+    "decline_at_least_005": 0
+  },
+  "no_best_of_N": true,
+  "no_search_GT_selection_or_online_scorer_in_actor": true,
+  "SFT_may_have_seen_DEV": true,
+  "old_RL_saw_DEV": true,
+  "sha256": "0567c6d4887a3237fbf0564f609ae00591b55d2c6faa19c2d1bb9580102fa915"
+}

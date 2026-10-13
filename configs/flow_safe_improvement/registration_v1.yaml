@@ -25,7 +25,7 @@ cohorts:
   dev_full: 1696
   dev_expensive_audit: 512
   holdout: reuse_existing_16_complete_logs_1176_training_logs
-  directed_selection: pending_fixed_SFT_reference_feedback_before_search
+  directed_selection: locked_7d3ec54c82fd8162a8892f714531a91f9599c0fd02e99b78166380c6fa4dfdc0
   dev_and_navtest_may_fit_parameters_or_search: false
   fixed_reference_safe: all_four_seeds_metric_equals_one_componentwise_and_joint
   feasible_candidate: NC_equals_1_and_DAC_equals_1_and_TTC_equals_1
@@ -37,7 +37,7 @@ exploration:
   adaptive_rounds: 4
   draws_per_adaptive_round: 15
   methods: [ODE, LEGACY_SDE, LATENT_CEM, BEHAVIOR_CEM]
-  search_parameters: MUST_LOCK_BEFORE_SEARCH_AFTER_PROFILE_ONLY
+  search_parameters: CEMSpec_locked_before_D3_and_unchanged_for_BANK
 fixed_banks:
   scenes: 4096
   candidates: 32
@@ -56,7 +56,8 @@ extraction:
   eta_candidates_raw: [0.005, 0.02, 0.05]
   eta_selection: train_only_closest_median_excess_KL_to_0.1_subject_to_primal_tolerance_then_highest_ESS
   excess_KL_definition: KL_w_to_original_u_plus_log_of_allowed_support_u_mass_for_calibration_only
-  eta_status: CALIBRATION_PENDING
+  eta_status: LOCKED_TRAIN_ONLY
+  selected_eta_raw: 0.005
   fp64_primal_tolerance: 1.0e-9
   solver: L_BFGS_B_dual_with_independent_Clarabel_exponential_cone_oracle
   alpha_max: 0.5
@@ -84,7 +85,7 @@ fixed_bank_learning:
   FM_noise: independent_from_rollout_root
   GT_replay_coefficient: 0.1
   reference_retention: fixed_SFT_safe_sample_path_velocity_distillation
-  reference_retention_coefficient: TRAIN_GRADIENT_CALIBRATION_PENDING_COMMON_TO_ALL_P
+  reference_retention_coefficient: 1.0
 online:
   rounds: 3
   scenes_per_round: 4096
@@ -115,5 +116,8 @@ execution:
   cache_and_CPU_host: training-vlawm-tsinghua-zt2
   cache_CPU_workers_initial: 16
   preserve_IQE_GPU0_and_all_G_tasks: true
-  budget_cost_status: FULL_OPTIMIZER_AND_SEARCH_PROFILES_PENDING_BEFORE_FORMAL_LEARNING
+  budget_cost_status: LOCKED_FINITE_P_O_N_AFTER_ACTUAL_PROFILES
+  profile_receipt: evidence/formal_budget_profile.json
+  optimizer_recovery_storage: host_local_disks_on_authorized_training_containers
+  inference_exports_and_reports: shared_project_storage
   automatic_budget_expansion: prohibited

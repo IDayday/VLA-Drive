@@ -1,0 +1,105 @@
+{
+  "schema": "flow_safe_finite_execution_budget_v1",
+  "utc": "2026-10-13T07:29:26.536217+00:00",
+  "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "P": {
+    "variants": [
+      "P0_REWARD_FM",
+      "P1_SAFE_FM",
+      "P2_SEARCH_SAFE_FM"
+    ],
+    "training_seed": 42,
+    "scenes": 4096,
+    "epochs": 8,
+    "updates_per_variant": 2048,
+    "scene_exposures_per_variant": 32768,
+    "candidate_banks": 2,
+    "logical_calls_including_common_refs_per_bank": 131072,
+    "max_new_calls_per_bank": 114688
+  },
+  "O_N": {
+    "variants": [
+      "ODE_SAFE_FM",
+      "EXPLORE_SAFE_FM",
+      "ODE_REWARD_FM",
+      "ODE_NFT"
+    ],
+    "training_seed": 42,
+    "rounds": 3,
+    "scenes_per_round": 4096,
+    "epochs_per_round": 2,
+    "updates_per_round": 512,
+    "total_updates": 6144,
+    "max_new_calls_per_variant_per_round": 114688,
+    "logical_calls_per_variant_per_round": 131072,
+    "initialization": "permanent_SFT_for_all_variants",
+    "first_round": "fresh_roots_iteration_1_not_relabelled_P_bank",
+    "round_boundary": "saved_current_behavior_plus_fresh_candidates_and_scores"
+  },
+  "critical_second_seed": {
+    "training_seed": 43,
+    "max_lineages": 2,
+    "selection": "matched_control_and_most_supported_research_route_after_full_DEV",
+    "required_full_DEV": true,
+    "not_replaced_by_inference_seeds": true
+  },
+  "evaluation": {
+    "P_epochs": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "online_every_round": true,
+    "full_DEV_scenes": 1696,
+    "inference_seeds": [
+      2101,
+      2102,
+      2103,
+      2104,
+      2105
+    ],
+    "training_diagnostic_scenes": 512,
+    "final_NAVTEST": "only_after_method_and_checkpoint_lock"
+  },
+  "measured_profile": {
+    "FM_8_update_window_seconds": 126.23,
+    "FM_steady_update_seconds_range": [
+      1.15,
+      1.25
+    ],
+    "FM_peak_GiB": 22.336,
+    "NFT_first_four_update_seconds_approx": 1.6,
+    "NFT_peak_GiB": 27.84,
+    "NFT_timing_contended_not_a_matched_speedup": true,
+    "original_chunk1_ODE_512_candidates_seconds": 178.015,
+    "qualified_chunk16_ODE_512_candidates_seconds": 11.18,
+    "official_v1_CPU_seconds_per_candidate_approx": 0.031,
+    "profile_sources": [
+      "validation/full_head_FM_attempt1",
+      "validation/full_head_NFT_attempt1",
+      "validation/ODE_batch_qualification_attempt2",
+      "diagnostics/D3_ODE_adaptive_summary"
+    ]
+  },
+  "counting": {
+    "positive_FM_velocity_forwards_per_scene": 4,
+    "NFT_velocity_forwards_per_scene": 5,
+    "velocity_backwards_per_scene": 3,
+    "FM_noise_repeats": 8,
+    "global_scene_batch": 16,
+    "old_GRPO": "reuse_historical_validated_timing_logs_separately_not_a_same_protocol_speed_ratio",
+    "GPU_hours": "sum_actual_device_worker_wall_time_with_shared_load_disclosed",
+    "scoring": "actual_new_and_shared_reference_historical_cost_both_reported"
+  },
+  "storage": {
+    "shared_free_GiB_at_registration": 1053,
+    "host_local_free_GiB_at_registration_approx": 2200,
+    "full_recovery_GiB_per_milestone_approx": 19,
+    "inference_export_GiB_per_milestone_approx": 5.6,
+    "full_recovery": "retain_on_recorded_training_host_var_tmp",
+    "exports": "shared_RUN_training_or_online_run_export_update",
+    "old_assets_preserved": true
+  },
+  "no_automatic_epoch_or_score_budget_increase": true
+}

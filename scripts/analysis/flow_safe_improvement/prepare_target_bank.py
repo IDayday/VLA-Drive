@@ -3,6 +3,7 @@ import argparse
 from dataclasses import asdict
 import json
 from pathlib import Path
+import time
 
 import numpy as np
 import torch
@@ -37,6 +38,7 @@ def main():
     p.add_argument('--eta-registration', help='Locked training-only calibration receipt; required for formal FM banks')
     p.add_argument('--output', required=True)
     p.add_argument('--resume', action='store_true')
+    p.add_argument('--wait-seconds', type=float, default=0., help='Bounded wait for the existing bank producer to seal missing scenes')
     p.add_argument('--qualification-first-scenes', type=int, help='Bounded real-data optimizer qualification; never a method result')
     a = p.parse_args()
     bank, out = Path(a.bank), Path(a.output)
@@ -61,8 +63,9 @@ def main():
                 'alpha_max': .5, 'delta_useful': .005, 'source_sha256': file_sha(__file__),
                 'permanent_reference_sha256': manifest['reference_SFT'], 'behavior_sha256': manifest['behavior_sha256'],
                 'protocol_sha256': manifest['protocol_sha256']}
-    from starVLA.rl.safe_flow_improvement import constrained_weights
+    from starVLA.rl.safe_flow_improvement import constrained_weights, candidate_bank
     identity['solver_source_sha256'] = file_sha(constrained_weights.__file__)
+    identity['candidate_contract_source_sha256'] = file_sha(candidate_bank.__file__)
     identity['sha256'] = fingerprint(identity)
     out.mkdir(parents=True, exist_ok=True)
     if (out/'manifest.json').exists():
@@ -73,14 +76,29 @@ def main():
     payloads, records, nft_rewards = {}, [], []
     for token in tokens:
         path = bank/'scenes'/token[:2]/(token+'.pt')
+        deadline = time.monotonic() + a.wait_seconds
+        while not path.with_suffix('.json').exists() and time.monotonic() < deadline:
+            time.sleep(1.)
         seal = json.loads(path.with_suffix('.json').read_text())
         if seal['identity_sha256'] != manifest['sha256'] or seal['payload_sha256'] != file_sha(path):
             raise ValueError('Incomplete or changed candidate bank')
         row = torch.load(path, map_location='cpu', weights_only=True)
-        if row['invalid_attempts']:
+        if row['invalid_attempts'] and manifest.get('physical_failure_policy') != 'uniform_fixed_reference_fallback':
             # Preserve failures; do not silently redefine u or convert a
             # physical rejection into a fabricated zero-score trajectory.
             raise ValueError('Formal 32-candidate extraction requires a complete scored bank; physical proposal failures need an explicitly registered repaired bank, not silent exclusion')
+        if manifest.get('physical_failure_policy') == 'uniform_fixed_reference_fallback':
+            if len(row['candidates']) != manifest['logical_budget_per_scene'] or not row['budget'].get('invalid_attempts_are_the_same_slots_as_fallbacks'):
+                raise ValueError('Fallback changed the registered candidate-slot budget')
+            seen = set()
+            for attempt_index, attempt in enumerate(row['invalid_attempts']):
+                index = attempt['fallback_candidate_index']
+                candidate = row['candidates'][index]
+                if index in seen or candidate['source'] != 'reference_fallback' or candidate['source_parameters']['rejected_attempt_index'] != attempt_index:
+                    raise ValueError('Rejected physical attempt is missing its explicit fallback identity')
+                seen.add(index)
+            if len(seen) != sum(c['source'] == 'reference_fallback' for c in row['candidates']):
+                raise ValueError('Unaccounted reference fallback')
         payloads[token] = seal['payload_sha256']
         records.append((token, row))
         if a.objective == 'nft':

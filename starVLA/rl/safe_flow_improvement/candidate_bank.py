@@ -5,7 +5,7 @@ import hashlib
 
 import numpy as np
 
-from .contracts import V1_COMPONENTS, V1_PROTOCOL
+from .contracts import V1_COMPONENTS, V1_PROTOCOL, SFT_SHA256
 
 
 @dataclass
@@ -46,8 +46,12 @@ class Candidate:
         for metric in V1_COMPONENTS:
             if metric not in self.metrics or not np.isfinite(self.metrics[metric]) or not 0 <= self.metrics[metric] <= 1:
                 raise ValueError(f"missing/invalid official {metric}")
-        if self.source not in ("reference_ode", "ode", "legacy_sde", "latent_search", "behavior_search", "gt_probe", "pdm_probe"):
+        if self.source not in ("reference_ode", "ode", "legacy_sde", "latent_search", "behavior_search", "reference_fallback", "gt_probe", "pdm_probe"):
             raise ValueError("unregistered candidate source")
+        if self.source == 'reference_fallback':
+            if (self.behavior_sha256 != SFT_SHA256 or self.source_parameters.get('failure_status') != 'INVALID_PHYSICAL_PROPOSAL'
+                    or self.source_parameters.get('original_reference_index') not in range(4)):
+                raise ValueError('A physical-rejection fallback must identify the actual fixed SFT draw')
         if self.source != "legacy_sde" and self.old_logprob is not None:
             raise ValueError("ODE/external trajectories do not have SDE old-policy logprob")
         if self.is_reference != (self.source == 'reference_ode'):
