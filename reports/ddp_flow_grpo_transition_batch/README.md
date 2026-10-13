@@ -1,8 +1,15 @@
 # Saved-transition batching: F action-head Flow-GRPO
 
 Engineering: **READY_FOR_THIS_PROFILE**, as a bounded, identity-checked full-data
-experiment. Performance: **INSUFFICIENT_EVIDENCE** until the new full-navtest
-evaluation finishes. Numerical acceptance is not a claim of RL improvement.
+experiment. Final evaluation: **COMPLETE** at update12912, five inference seeds.
+PDMS improves by 0.1722 points with a 95% log-bootstrap interval spanning zero;
+EPDMS improves by 0.2126 points with a positive interval. Collision/TTC components
+decline. See the [final results report](../ddp_flow_grpo_final_report_20261013/README.md)
+for full results, uncertainty and portable evidence. Numerical acceptance is not
+a claim of broad policy improvement.
+
+The launch, resource assignments and live-state descriptions below are historical
+snapshots from 2026-09-19; the final evaluation completed on 2026-09-20.
 
 The actual full experiment was launched on 2026-09-19 UTC. Its live state is in
 `runs/action_batch/qualified_w8_single/experiment_control/progress.json` and

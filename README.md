@@ -6,6 +6,9 @@
 > commands for this workspace are documented in
 > [`PPU_REPRODUCTION.md`](PPU_REPRODUCTION.md).
 
+> DDP / Flow-GRPO 强化学习的完整开发记录、最终五推理 seed 结果与可复核数据：
+> [结果汇总报告（2026-10-13）](reports/ddp_flow_grpo_final_report_20261013/README.md)。
+
 [![arXiv](https://img.shields.io/badge/arXiv-2604.01765-b31b1b.svg)](https://arxiv.org/abs/2604.01765)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 

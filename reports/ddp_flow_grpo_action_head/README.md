@@ -1,5 +1,10 @@
 # Action-head RL with frozen encoder features
 
+Final results and the subsequent saved-transition batching experiment are
+consolidated in the [2026-10-13 report](../ddp_flow_grpo_final_report_20261013/README.md).
+The status and resource assignments below describe the original implementation
+stage, before the final update12912 / five-inference-seed evaluation.
+
 The user's latest priority is a real paired PDMS/EPDMS improvement over the original
 F SFT, not throughput alone. The explicitly revised parameter contract freezes all
 modules outside the checkpoint's `action_model` object. The entire original action

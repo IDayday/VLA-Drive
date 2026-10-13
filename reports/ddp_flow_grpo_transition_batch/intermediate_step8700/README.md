@@ -1,5 +1,9 @@
 # Requested interim full-navtest evaluation
 
+The final update12912 / five-inference-seed evaluation is now complete. See the
+[final results report](../../ddp_flow_grpo_final_report_20261013/README.md).
+This document retains the original step8700 / seed42 monitoring snapshot.
+
 Status: **COMPLETE**. All12146 scenes from136 logs were scored, all eight GPU
 workers exited0, and the official CPU scorer exited0. Elapsed evaluation time
 was1872seconds (31.2minutes), including result merging and baseline comparison.

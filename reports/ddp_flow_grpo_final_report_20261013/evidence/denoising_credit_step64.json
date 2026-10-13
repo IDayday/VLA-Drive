@@ -1,0 +1,341 @@
+{
+  "status": "COMPLETE",
+  "scope": "1696 fixed dev scenes, 16 logs; single inference seed42",
+  "optimizer_updates": 64,
+  "labels": {
+    "group": "uniform step credit",
+    "batch": "gamma0.6 raw step credit"
+  },
+  "sources": {
+    "sft/v1": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/frozen_rl_research/v1_g8_eval/frozen_visual_sft.csv",
+      "sha256": "b3c314ffe49c3343f16e3cbbbb0eba7736dcb4124bab2f22ff73f1ad2538f1d4"
+    },
+    "group/v1": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/research64_results/v1_step64/uniform.csv",
+      "sha256": "1ed705aaff55f4cefa731f673dbdb5789ebf44f11543c5a38505b9080968bb33"
+    },
+    "batch/v1": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/research64_results/v1_step64/discount.csv",
+      "sha256": "57341b09ba05ca947355c5bf1fb4fa2ffb51c9cd6cf70c57974676ff65243c8c"
+    },
+    "sft/v2": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual_evaluation/sft_rl_dev_seed42/original_protocol_scores.csv",
+      "sha256": "d89f54108b1438d03aff20e1e53bddc1c6fc8f71ff5054062bb2701e51c9a430"
+    },
+    "group/v2": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/evaluation64/uniform_64/original_protocol_scores.csv",
+      "sha256": "aa43bead62714bfdaf081e83d1b1fd8df97a634a6b96d28a7bcc50251265448a"
+    },
+    "batch/v2": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/evaluation64/discount_64/original_protocol_scores.csv",
+      "sha256": "cefe7b853ce217bd24c04b782e02de70f900e0f7f75c418c1ffa2927dd6e4e88"
+    }
+  },
+  "results": {
+    "v1": {
+      "group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.01118257568230944,
+        "log_bootstrap_95ci": [
+          -0.027874306037882175,
+          0.006957313176988286
+        ],
+        "zero_to_nonzero": 11,
+        "nonzero_to_zero": 29,
+        "high_score_degraded": 93,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.934826724640784,
+        "trained": 0.9236441489584747,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9805424528301887,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8570275353642969,
+            "trained": 0.8935148254248674,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9504716981132075,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9970518867924528,
+            "available": 1696
+          }
+        }
+      },
+      "batch": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.011284001173587865,
+        "log_bootstrap_95ci": [
+          -0.024941018480278142,
+          0.005925163608163859
+        ],
+        "zero_to_nonzero": 10,
+        "nonzero_to_zero": 25,
+        "high_score_degraded": 101,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.934826724640784,
+        "trained": 0.9235427234671962,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9823113207547169,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8570275353642969,
+            "trained": 0.8961015929250445,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9457547169811321,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9970518867924528,
+            "available": 1696
+          }
+        }
+      },
+      "batch_minus_group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.00010142549127842568,
+        "log_bootstrap_95ci": [
+          -0.0039361024565294925,
+          0.006081787120792065
+        ],
+        "zero_to_nonzero": 6,
+        "nonzero_to_zero": 3,
+        "high_score_degraded": 368,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.9236441489584747,
+        "trained": 0.9235427234671962,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9805424528301887,
+            "trained": 0.9823113207547169,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8935148254248674,
+            "trained": 0.8961015929250445,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9504716981132075,
+            "trained": 0.9457547169811321,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9970518867924528,
+            "trained": 0.9970518867924528,
+            "available": 1696
+          }
+        }
+      }
+    },
+    "v2": {
+      "group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.008505004778662166,
+        "log_bootstrap_95ci": [
+          -0.02585880422757712,
+          0.008345680487292376
+        ],
+        "zero_to_nonzero": 11,
+        "nonzero_to_zero": 42,
+        "high_score_degraded": 105,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.9362947686109893,
+        "trained": 0.9277897638323271,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9805424528301887,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8680476646054921,
+            "trained": 0.9126240738981609,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 1.0,
+            "trained": 0.995872641509434,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.995872641509434,
+            "trained": 0.9899764150943396,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9811320754716981,
+            "trained": 0.9752358490566038,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.9025928521373511,
+            "trained": 0.8780658724597057,
+            "available": 1427
+          }
+        }
+      },
+      "batch": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.006538130856412902,
+        "log_bootstrap_95ci": [
+          -0.019993909713864177,
+          0.00907320183992317
+        ],
+        "zero_to_nonzero": 10,
+        "nonzero_to_zero": 38,
+        "high_score_degraded": 100,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.9362947686109893,
+        "trained": 0.9297566377545765,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9823113207547169,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8680476646054921,
+            "trained": 0.913877477328272,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 1.0,
+            "trained": 0.9946933962264151,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.995872641509434,
+            "trained": 0.9941037735849056,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9811320754716981,
+            "trained": 0.9752358490566038,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.9025928521373511,
+            "trained": 0.8780658724597057,
+            "available": 1427
+          }
+        }
+      },
+      "batch_minus_group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": 0.001966873922249265,
+        "log_bootstrap_95ci": [
+          -0.0015664504230770188,
+          0.007368918760932653
+        ],
+        "zero_to_nonzero": 6,
+        "nonzero_to_zero": 3,
+        "high_score_degraded": 325,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, 64 updates; bounded research, not Navtest",
+        "baseline": 0.9277897638323271,
+        "trained": 0.9297566377545765,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9805424528301887,
+            "trained": 0.9823113207547169,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.9126240738981609,
+            "trained": 0.913877477328272,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.995872641509434,
+            "trained": 0.9946933962264151,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.9899764150943396,
+            "trained": 0.9941037735849056,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9752358490566038,
+            "trained": 0.9752358490566038,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.8780658724597057,
+            "trained": 0.8780658724597057,
+            "available": 1427
+          }
+        }
+      }
+    }
+  }
+}

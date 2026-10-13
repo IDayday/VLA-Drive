@@ -1,5 +1,10 @@
 # Completed raw gamma0.6 result at the primary step64 boundary
 
+2026-10-13 archive update: both uniform-credit64 and gamma0.6-credit64 completed.
+Their [paired result JSON](../../ddp_flow_grpo_final_report_20261013/evidence/denoising_credit_step64.json)
+and the [final development report](../../ddp_flow_grpo_final_report_20261013/README.md)
+now include both arms. The uniform status below is the original snapshot.
+
 **Do not extend this configuration to formal long training on this evidence.**
 Original F-SFT initialization, all nonvisual SFT trainables, G16/K10, seed42,
 512 fresh train scenes/8192 candidates/1024 replay exposures. All1696 fixed

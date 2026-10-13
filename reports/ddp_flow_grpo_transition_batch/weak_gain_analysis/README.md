@@ -1,5 +1,7 @@
 # F action-head Flow-GRPO：弱收益诊断
 
+2026-10-13 补记：最终 update12912 / 五推理 seed 已完成，见 [结果汇总报告](../../ddp_flow_grpo_final_report_20261013/README.md)。以下轨迹归因仍针对中间 step8700 / seed42，完整训练日志统计范围不变；不将中期轨迹比例当作最终 checkpoint 的实测值。
+
 2026-09-20；基于真实日志、完整 navtest 配对结果和源码。没有据 navtest
 改训练配方、挑种子或选择新 checkpoint。当前证据最支持：**探索集中在局部微扰，
 有效组的奖励差异又主要来自 progress，因此策略学成了普遍略向前移动；安全退化
