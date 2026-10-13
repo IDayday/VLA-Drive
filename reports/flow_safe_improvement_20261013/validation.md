@@ -32,3 +32,5 @@
 测试源码：[合同](../../tests/safe_flow_improvement/test_bank_contracts.py)、[求解器](../../tests/safe_flow_improvement/test_constrained_weights.py)、[FM/NFT](../../tests/safe_flow_improvement/test_objectives.py)、[搜索/回退/安全暂停](../../tests/rl/safe_flow_improvement/)、[单seed边界](../../tests/safe_flow_improvement/test_single_seed_override.py)、[最终锁定](../../tests/safe_flow_improvement/test_final_evaluation_lock.py)。早期33项与随后37项包含重复运行，不能相加称70个独立测试。
 
 NFT 恢复资格沿用最初短训封存的 `train_fixed_bank.py`（SHA256 `d736f73bd95ca9dc9ee8e7b7e6b0f393fdb82a00eb32fd965857dca6d5509637`）。当前正式 trainer 相比它只增加 host-local checkpoint 路径/身份记录；训练算术、optimizer、RNG 和 loss 模块保持一致。资格输出不是正式方法分数，也不是第二训练 seed。
+
+最终聚合入口`summarize_final_confirmation`已实际验证[拒绝不完整人口](evidence/final_aggregate_incomplete_gate.json)：只要一个锁定模型没有完整v1/v2封存结果，就拒绝发布全量报告。此检查没有新增模型采样或seed。
