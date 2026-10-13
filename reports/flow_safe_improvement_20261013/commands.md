@@ -1,6 +1,6 @@
 # 实际命令与恢复入口
 
-以下是已经执行的命令记录，不是新增实验授权。正式训练已完成，勿再次启动已完成run。当前仅锁定的六组Navtest继续运行。命令参数及原始receipt见[完整记录](evidence/actual_stage_commands.json)。
+以下是已经执行的命令记录，不是新增实验授权。正式训练已完成，勿再次启动已完成run。六组锁定Navtest也已全部完成。命令参数及原始receipt见[完整记录](evidence/actual_stage_commands.json)。
 
 所有模型命令工作目录为`/mnt/project/VLA-Drive-flow-safe-improvement-20261013`；解释器为本轮`/mnt/project/flow-safe-improvement-20261013/venv/bin/python`。每次派发重新读取`/mnt/project/server_dispatch_policy.json`，只允许四台Tsinghua；本地盘恢复点必须在所属主机访问，不能把同名`/var/tmp`误认为共享文件。
 
@@ -80,7 +80,7 @@ cd /mnt/project/VLA-Drive-flow-safe-improvement-20261013
 
 P/O控制器恢复使用相同命令参数并增加`--resume`，只从`latest_checkpoint.json`指向的完整封存点恢复；保留当轮behavior、bank、targets、optimizer、scheduler、RNG和数据游标。`--adopt-existing`是取消多seed时的明确接管模式，不可拿它绕过活动进程身份。启动前核对既有父/子进程PID与start ticks、所有者和源码快照；不允许两个控制器同时操作同一个run。
 
-`run_endpoint_diagnostics --run-root ... --variant ... --resume`恢复同身份的TRAIN终点/v2诊断；已完成不会新增采样。Navtest使用上述`run_locked_navtest`的同模型、同host和相同GPU/CPU参数加`--resume`，它拒绝仍活跃的旧子进程，复用已封存scene和完整v1/v2分片，不新增噪声。当前不需要恢复；六个现有操作进程继续执行。
+`run_endpoint_diagnostics --run-root ... --variant ... --resume`恢复同身份的TRAIN终点/v2诊断；已完成不会新增采样。Navtest使用上述`run_locked_navtest`的同模型、同host和相同GPU/CPU参数加`--resume`，它拒绝仍活跃的旧子进程，复用已封存scene和完整v1/v2分片，不新增噪声。当前全部已完成，无需恢复或重新派发。
 
 `train_fixed_bank --resume <完整checkpoint>`是底层实际恢复入口，正式父进程的`single_seed_phase_records.json`保存其完整torchrun命令。每个训练目录另有`source_snapshot`、`run_identity.json`、`storage_identity.json`、`latest_checkpoint.json`和分rank日志，具体存在文件以目录为准；滚动点与`milestones`分离，不能以未完成导出恢复优化器。
 
@@ -103,3 +103,5 @@ $SFI_PY -m scripts.analysis.flow_safe_improvement.summarize_execution_costs \
 ```
 
 D1/D2/D3、目标求解、场景方向、配对转移和官方NFT对齐入口与早期实际命令见[执行历史](execution_history.md)、[验证映射](validation.md)；所有采样/评分操作必须在当前授权主机执行。最终选择锁已经创建，禁止再次按Navtest结果修改或重选。
+
+最终`summarize_final_confirmation`与`summarize_execution_costs`也已真实成功执行，精确命令及退出码见[最终分析receipt](evidence/final_analysis_commands.json)。前者先验证全部六组封存结果，再按预先指定的三组对比计算log-cluster差值，没有重新选择模型。
