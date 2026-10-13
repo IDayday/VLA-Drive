@@ -15,6 +15,7 @@ from starVLA.rl.safe_flow_improvement.contracts import SFT_SHA256, file_sha, fin
 from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
 from starVLA.rl.safe_flow_improvement.iteration import require_dispatch
 from starVLA.rl.safe_flow_improvement.policy_adapter import decode_request
+from starVLA.rl.safe_flow_improvement.evaluation_override import evaluation_seeds
 
 
 def distance(x, y):
@@ -39,6 +40,8 @@ def sealed(root, token, identity):
 
 def diversity(request):
     xy = np.asarray(request, dtype=np.float64)[..., :2]
+    if len(xy) < 2:
+        return {}  # One inference seed cannot identify within-scene diversity.
     pair = np.linalg.norm(xy[:, None]-xy[None], axis=-1)
     upper = np.triu_indices(len(xy), 1)
     centered = xy.reshape(len(xy), -1).copy(); centered -= centered.mean(0)
@@ -54,13 +57,17 @@ def main():
     for name in ('samples', 'baseline-samples', 'population', 'cohorts', 'output'):
         p.add_argument('--'+name, required=True)
     p.add_argument('--targets', help='Optional fixed TRAIN FM target bank; never use DEV to fit targets')
+    p.add_argument('--evaluation-override')
     a = p.parse_args(); require_dispatch()
     pop, cohorts = [json.loads(Path(x).read_text()) for x in (a.population, a.cohorts)]
     manifests = [json.loads((Path(x)/'manifest.json').read_text()) for x in (a.samples, a.baseline_samples)]
     current, base = manifests
-    fields = ('population_identity', 'tokens_sha256', 'cohort', 'seeds', 'mode', 'role', 'root_precision', 'feature_identity')
+    seeds, override = evaluation_seeds(pop, a.evaluation_override)
+    fields = ('population_identity', 'tokens_sha256', 'cohort', 'mode', 'role', 'root_precision', 'feature_identity')
     if any(current[k] != base[k] for k in fields) or current.get('execution_profile') != base.get('execution_profile'):
         raise ValueError('Require matched roots, observations and execution profiles')
+    if any(not set(seeds) <= set(m['seeds']) <= set(pop['evaluation_seeds']) for m in manifests):
+        raise ValueError('Requested fixed evaluation seeds are missing or changed')
     if base['behavior_sha256'] != SFT_SHA256 or current['mode'] != 'ode' or current['role'] != 'evaluation':
         raise ValueError('Require fresh original-ODE samples and the permanent SFT baseline')
     tokens = current.get('explicit_tokens', pop.get(current['cohort']))
@@ -76,6 +83,10 @@ def main():
     for token in tokens:
         x, xsha = sealed(a.samples, token, current['sha256'])
         b, bsha = sealed(a.baseline_samples, token, base['sha256'])
+        for row, manifest in ((x, current), (b, base)):
+            indices = [manifest['seeds'].index(seed) for seed in seeds]
+            row['requested_trajectories'] = row['requested_trajectories'][indices]
+            row['noise_keys'] = [row['noise_keys'][i] for i in indices]
         if x['noise_keys'] != b['noise_keys']:
             raise ValueError('Paired inference roots changed')
         request, old = [row['requested_trajectories'].double().numpy() for row in (x, b)]
@@ -125,8 +136,10 @@ def main():
                   policy_identity=current['sha256'], baseline_identity=base['sha256'],
                   target_identity=target_manifest['sha256'] if target_manifest else None,
                   input_payloads_sha256=fingerprint(hashes), source_sha256=file_sha(__file__), scenes=len(tokens),
+                  inference_seeds=seeds, evaluation_override=override,
+                  within_scene_diversity_available=len(seeds) > 1,
                   tables=tables, no_candidate_selection_or_training=True,
-                  energy_definition='Empirical V-statistic 2 E||X-Y|| - E||X-Xprime|| - E||Y-Yprime||, XY trajectory norm / sqrt(8). Five-seed finite-sample bias is not an asymptotic policy-distance claim.',
+                  energy_definition='Empirical V-statistic 2 E||X-Y|| - E||X-Xprime|| - E||Y-Yprime||, XY trajectory norm / sqrt(8). Finite-sample biased; with one seed this is only an output-to-target discrepancy, not a policy-distribution distance.',
                   interpretation='Lower target energy plus canonical improvement supports absorption; geometry alone does not establish safety, mode-collapse causality or useful scenario-dependent behavior.',
                   context_direction_thresholds_m=dict(forward=.1, lateral=.05),
                   TRAIN_targeted_stratum_is_not_unbiased=True)

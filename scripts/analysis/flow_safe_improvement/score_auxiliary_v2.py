@@ -57,6 +57,7 @@ def main():
     p.add_argument('--workers', type=int, default=8)
     p.add_argument('--resume', action='store_true')
     p.add_argument('--evaluation-override')
+    p.add_argument('--final-lock', help='Required only for the locked final Navtest auxiliary evaluation')
     a = p.parse_args()
     require_dispatch()
     if not 1 <= a.workers <= 16:
@@ -64,10 +65,20 @@ def main():
     root, out = Path(a.samples), Path(a.output)
     sample, population = json.loads((root/'manifest.json').read_text()), json.loads(Path(a.population).read_text())
     seeds, override = evaluation_seeds(population, a.evaluation_override)
-    if (sample['cohort'] != 'dev_tokens' or sample['mode'] != 'ode' or sample['role'] != 'evaluation'
+    if sample['cohort'] == 'navtest_tokens':
+        if not a.final_lock:
+            raise ValueError('Navtest requires a previously sealed final model-selection lock')
+        locked = json.loads(Path(a.final_lock).read_text()); checksum = locked.pop('sha256')
+        if (fingerprint(locked) != checksum or locked['status'] != 'LOCKED_BEFORE_FINAL_NAVTEST'
+                or sample['final_selection_lock_sha256'] != checksum or seeds != [2101]
+                or sample['behavior_sha256'] not in {m['weight_sha256'] for m in locked['models'].values()}):
+            raise ValueError('Final Navtest auxiliary contract changed')
+    elif sample['cohort'] != 'dev_tokens' or a.final_lock:
+        raise ValueError('Only DEV or explicitly locked final Navtest is supported')
+    if (sample['mode'] != 'ode' or sample['role'] != 'evaluation'
             or sample['population_identity'] != population['identity_sha256'] or not set(seeds) <= set(sample['seeds']) <= set(population['evaluation_seeds'])):
         raise ValueError('Auxiliary v2 requires the same complete fresh DEV ODE population')
-    tokens = population['dev_tokens']
+    tokens = population[sample['cohort']]
     if sample['tokens_sha256'] != fingerprint(tokens):
         raise ValueError('Sample population changed')
     repo = Path(__file__).resolve().parents[3]; devkit = repo/'navsim'
