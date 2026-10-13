@@ -1,0 +1,116 @@
+{
+  "status": "COMPLETE_ACTUAL_NFT_TRAIN_SIGNAL_DIAGNOSTIC",
+  "scenes": 4096,
+  "candidates": 114688,
+  "target_identity": "c87b0e0a361210f883cfcc93707a8358afdac0dc29db4f0078240f9760bb6e4c",
+  "behavior_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+  "bank_identity": "e5ee8aa46f1f5c774ca7731fd28622395c26b73540b8617f35381d25793a226e",
+  "source_sha256": "07e14eab9e08e76d4651ef2ae5fc7913a99dbe6c659bd761d3f71654dc8ef4c4",
+  "input_payloads_sha256": "7f3153700471540dca33d5bc9fc14641725a2e66f24b886842c5b4500b59560c",
+  "group_counts": {
+    "equal": 954,
+    "all_zero": 20,
+    "progress_only": 2997,
+    "safety_variation": 135
+  },
+  "global_reward_std": 0.12431781033032917,
+  "group_reward_std": {
+    "count": 4096,
+    "mean": 0.011309403059827272,
+    "quantiles": [
+      0.0,
+      0.0,
+      0.0007213192966066728,
+      0.001280555752411232,
+      0.002244239440292626,
+      0.00345219096262809,
+      0.3888334380209309,
+      0.5
+    ]
+  },
+  "group_reward_range": {
+    "count": 4096,
+    "mean": 0.03296703939621527,
+    "quantiles": [
+      0.0,
+      0.0,
+      0.002826048062801595,
+      0.005256282539306489,
+      0.009279827085496045,
+      0.014535077427169751,
+      1.0,
+      1.0
+    ]
+  },
+  "absolute_advantage": {
+    "count": 114688,
+    "mean": 0.06956420101371359,
+    "quantiles": [
+      0.0,
+      0.0,
+      0.00033502438815542356,
+      0.0057642018169749626,
+      0.014235346180393672,
+      0.02849948446122212,
+      2.2964098544711127,
+      5.0
+    ]
+  },
+  "positive_fraction_distance_from_half": {
+    "count": 114688,
+    "mean": 0.006956420101371359,
+    "quantiles": [
+      0.0,
+      0.0,
+      3.350243881554235e-05,
+      0.0005764201816974963,
+      0.0014235346180393673,
+      0.0028499484461222122,
+      0.22964098544711126,
+      0.5
+    ]
+  },
+  "exact_zero_advantage_fraction": 0.232421875,
+  "clipped_at_five_fraction": 0.0028163364955357145,
+  "strata": {
+    "progress_only": {
+      "scenes": 2997,
+      "group_mean_abs_advantage": {
+        "count": 2997,
+        "mean": 0.012044833011323874,
+        "quantiles": [
+          7.912302213325773e-05,
+          0.005607121444381623,
+          0.007018821934031906,
+          0.010057150423226153,
+          0.015697549816429613,
+          0.02150654186625066,
+          0.032812995567717614,
+          0.05652682353439118
+        ]
+      }
+    },
+    "safety_variation": {
+      "scenes": 135,
+      "group_mean_abs_advantage": {
+        "count": 135,
+        "mean": 1.8241503755300184,
+        "quantiles": [
+          0.0,
+          0.44946062249199137,
+          0.8761359697931048,
+          1.5526798973284148,
+          2.6796156869772187,
+          3.7200100057417798,
+          4.018717245324448,
+          4.018717245324448
+        ]
+      }
+    }
+  },
+  "advantage_reconstruction_max_abs_error": 0.0,
+  "initial_gradient_identity": "At current_velocity == old_velocity, the positive and negative branches have opposite gradients with identical detached scales. The combined derivative equals clipped_advantage times the positive-branch derivative at beta=1. A positive scalar loss alone is not evidence of a strong policy-improvement gradient.",
+  "limitations": "Offline signal measurement, not an actual full-head gradient decomposition. Does not prove replay/retention dominates, justify changing normalization, or establish NFT convergence or failure.",
+  "no_parameter_update_or_hyperparameter_selection": true,
+  "sha256": "73901e21a32abcca5a733cb9108bda997a614d4df69462f69236d72567ca1839"
+}

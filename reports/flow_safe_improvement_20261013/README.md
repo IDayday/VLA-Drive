@@ -2,7 +2,7 @@
 
 当前状态是 **进行中**。本轮固定使用 F-SFT `frozen_visual step100000`，完整权重 SHA256 为 `9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。它提供了已验证的冻结上游缓存、完整动作头和原 ODE 部署入口，适合作为本轮隔离探索、目标、更新和采样迁移因素的共同起点。本轮没有重新进行 C/S/V/A/G 全家族排名，不能据此称它是所有模型中绝对最优的 base。G 系列继续原有工作。
 
-代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 09:48 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 正在共同第8-epoch窗口内继续训练，P2 已完成第4个 epoch；四条在线路线均已完成首轮512次全动作头更新。共同8-epoch终点、三轮在线终点和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
+代码起点是 `25f9148eb75ddf171313720e758a280b82c24f7f`，分支为 `research/flow-safe-improvement-diagnostics-20261013`。截至 2026-10-13 10:45 UTC，D1/D2/D3、两份完整候选库与三个目标库已完成；P0/P1 已完成共同8-epoch终点和完整DEV原ODE评价，P2 接近8-epoch终点；四条在线路线均已完成首轮，搜索路线第二轮训练也已完成、正在评价，NFT正在第二轮训练。三轮在线终点和锁定后的 Navtest 尚未完成。**按用户最新要求，取消第二训练 seed 和后续多推理 seed 实验；后续统一训练 seed42、原导出单候选评价 seed2101。**固定SFT四参考候选属于目标分布与安全集合定义，保留原身份。下文带时间的段落及五seed结果是已完成历史证据，不代表仍在派发多seed复测。
 
 2026-10-13 后续进度：已完成 8,192 个 RL_TRAIN 场景的四 seed SFT 参考采样、32,768 次真实 v1.1 评分和逐时刻车身几何审计；随后锁定 512 场景诊断集及 4,096 场景学习集。D1 SFT 的原 ODE/旧 SDE 配对运行已启动。完整动作头的正权重 FM、公共保持和 NFT 训练入口已接入原 ZeRO-2/检查点基础，但此处尚没有更新后策略的重新采样成绩。[执行成本](evidence/reference_screen_execution.json)、[清单身份与安全集合计数](evidence/locked_cohorts.json)。
 
@@ -172,3 +172,13 @@ P2−P1首epoch的匹配差为+0.2412分，95%CI [+0.1437,+0.3044]；这是候�
 [P2第4个epoch](evidence/P2_epoch4_DEV_seed2101.json)PDMS=93.8280，差+0.2088分，95%CI [+0.0565,+0.3716]，固定参考安全集合联合违规1→5。比第2个epoch均分收益收窄且安全迁移恶化，继续按已登记8-epoch终点与安全暂停边界执行，不临时放大LR/clip或挑中间最高分。当前最清楚的证据支持“安全候选到参数策略的拟合误差/保持不足”这一研究问题，尚不构成完整方法成功。
 
 单seed诊断明确不再估计场景内多seed多样性：`diagnose_policy_projection --evaluation-override ...` 对单输出将该项标为不可用，单样本目标能量只作为输出到有限目标的差异，不能声称识别完整策略分布或模式坍缩。`summarize_direction` 已实际读取完整结果和训练日志，缺失窗口保留 NOT_YET_COMPLETE。锁定后单seed Navtest 的 `sample_locked_navtest`、`evaluate_locked_navtest` 已通过CLI smoke及禁止未锁定/扩展seed测试，**尚未启动Navtest**，不会以准备代码替代最终确认。后续Navtest安全转移将以同一个SFT2101输出定义，明确不是新建四seed稳定安全集合。
+
+10:45 UTC 固定预算终点：P0/P1 均真实完成2048次全动作头更新、32768次场景曝光。两组最终完整权重SHA256均为 `4595209eae61d22e982ece8156f9f64cc19e427c0becd171ee61742a9b4f2ff6`；各自重新执行的完整DEV单候选2101评价，在均值、配对差、固定安全集合、零分转移和高分下降统计上完全一致。[独立训练与评价身份](evidence/P0_P1_epoch8_identity.json)、[P0终点](evidence/P0_epoch8_DEV_seed2101.json)、[P1终点](evidence/P1_epoch8_DEV_seed2101.json)。最终PDMS=93.62435，匹配SFT=93.61924，差 **+0.00511分**，log bootstrap95%CI [+0.00255,+0.00904]；NC/DAC/TTC/DDC/Comfort均值及安全事件计数不变，仅EP有很小变化。该终点远小于中途epoch2的+0.09866分，必须保留这一收益衰减。有限样本中安全保持，但实用总收益很小；可作为CASE_E的局部证据，不能宣称全面RL成功。P0/P1目标几乎相同，因此这个结果仍不能识别安全约束的因果收益。
+
+P0终点另外真实运行512场景TRAIN诊断，P1因完整权重和配置一致复用其身份，不新增模型或评分调用。[分层规划结果](evidence/P0_epoch8_TRAIN_stratified_seed2101.json)中，随机256场景PDMS差仅+0.00046分，95%CI [−0.00759,+0.00901]；定向困难256场景为+0.19912分，[−2.50623,+2.85198]，区间很宽，不能称训练人口已显著提升。随机部分只有10场景实际进入学习库，定向部分256场景均进入；该诊断并非4096训练场景的全量拟合评价。[几何分析](evidence/P0_epoch8_TRAIN_projection_seed2101.json)显示随机/困难平均请求轨迹漂移约1.75/2.00厘米；困难部分单输出到有限目标的能量差下降约0.01273米。[场景方向分析](evidence/P0_epoch8_TRAIN_context_seed2101.json)的去均值目标关联区间跨零；整体不足以证明有用的场景相关修复已被吸收。单seed不能估计场景内多样性，输出更接近目标也不等于完整策略分布已匹配。
+
+[NFT首轮真实目标信号](evidence/NFT_round1_advantage_signal.json)覆盖4096组、114688条当前ODE样本：954组等分，其中20组全零；3142个非等分组中2997组仅EP变化，约95.4%；135组有NC/DAC/TTC差异（与等分计数不要求互斥）。官方转换采用场景内奖励减均值、全局reward std=0.12432和clip5，已保存advantage与独立重建最大差为0。样本绝对advantage中位数0.00576；progress-only组平均绝对advantage为0.01204，有安全差异组为1.82415。该观察提示信号主要集中在少数安全差异组，但它是离线目标信号诊断，**不是实际全动作头梯度分解**，不能据此证明replay/保持压制NFT，或临时改归一化、LR。首轮NFT劣于普通FM的结论仍只适用于共同512次更新窗口，三轮终点继续运行。
+
+同一批首轮单候选输出的官方v2 one-stage辅助分数为：SFT93.67596、普通ODE FM93.84458、安全ODE FM93.84458、探索安全FM93.86760、NFT93.65465。[普通FM](evidence/ODE_REWARD_FM_round1_DEV_seed2101_v2.json)、[安全FM](evidence/ODE_SAFE_FM_round1_DEV_seed2101_v2.json)、[探索FM](evidence/EXPLORE_SAFE_FM_round1_DEV_seed2101_v2.json)、[NFT](evidence/ODE_NFT_round1_DEV_seed2101_v2.json)。它们仅作辅助，未进入v1训练reward或与v1均分混合；完整logs与相邻帧缺失语义保持官方定义。
+
+新增三个入口均已有实际执行结果：`diagnose_nft_signal`读取完整真实NFT目标库，`stratify_training_evaluation`分开随机/定向与实际训练曝光，`archive_scoring_queue`在评分器完成并释放锁后归档全部原始请求/结果/失败记录，再解压逐文件字节比较。[探索第二轮评分归档](evidence/EXPLORE_round2_scoring_archive.json)通过，共39160文件、3.52GB逻辑数据，压缩后0.98GB；源文件未删除。归档仅留私有共享运行目录，Git中只保存摘要与代码。原冻结训练/优化器/动作编码/评分源码未因这些分析入口改变。

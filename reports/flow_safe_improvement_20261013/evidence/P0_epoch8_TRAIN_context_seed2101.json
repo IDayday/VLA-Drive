@@ -1,0 +1,120 @@
+{
+  "status": "COMPLETE_EXPLORATORY_CONTEXT_ALIGNMENT",
+  "tables": {
+    "random": {
+      "scenes": 10,
+      "logs": 10,
+      "raw_mean_dot_m2": 2.973009116633615e-06,
+      "global_mean_update_RMS_m": 0.010656500544554913,
+      "global_mean_target_RMS_m": 0.0007630340891963938,
+      "centered_dot_m2": 2.030295856595971e-06,
+      "centered_dot_log_bootstrap_CI95": [
+        -5.259616169259963e-06,
+        8.977360842792818e-06
+      ],
+      "within_SFT_forward_distance_bin_centered_dot_m2": 7.021295572119033e-07,
+      "within_bin_shuffled_target_dot_CI95": [
+        -8.498705364764064e-06,
+        9.053904917286979e-06
+      ],
+      "exploratory_permutation_upper_tail_p": 0.3553223388305847,
+      "direction_groups": {
+        "forward_negative": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "forward_positive": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "lateral_negative": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "lateral_positive": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        }
+      }
+    },
+    "targeted": {
+      "scenes": 256,
+      "logs": 205,
+      "raw_mean_dot_m2": 2.3945288447957633e-05,
+      "global_mean_update_RMS_m": 0.0032596518560565452,
+      "global_mean_target_RMS_m": 0.0015809281399861632,
+      "centered_dot_m2": 1.990201001868663e-05,
+      "centered_dot_log_bootstrap_CI95": [
+        -1.6574218039609138e-05,
+        5.719228188694467e-05
+      ],
+      "within_SFT_forward_distance_bin_centered_dot_m2": 1.8565343808562843e-05,
+      "within_bin_shuffled_target_dot_CI95": [
+        -2.6703664052006164e-05,
+        2.443323889117768e-05
+      ],
+      "exploratory_permutation_upper_tail_p": 0.07896051974012994,
+      "direction_groups": {
+        "forward_negative": {
+          "scenes": 1,
+          "actual_direction_agreement": 0.0,
+          "mean_actual_endpoint_change_m": 0.01508331298828125,
+          "mean_wanted_endpoint_change_m": -0.1764274677446096
+        },
+        "forward_positive": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "lateral_negative": {
+          "scenes": 0,
+          "actual_direction_agreement": null,
+          "mean_actual_endpoint_change_m": null,
+          "mean_wanted_endpoint_change_m": null
+        },
+        "lateral_positive": {
+          "scenes": 4,
+          "actual_direction_agreement": 0.75,
+          "mean_actual_endpoint_change_m": 0.02150702476501465,
+          "mean_wanted_endpoint_change_m": 0.08876119344878486
+        }
+      }
+    }
+  },
+  "policy_identity": "19e201f535dcb693e906bb209d97638bb1727d131c569227a7db5153d2a78916",
+  "baseline_identity": "c0902448ea4103b3a838b8f06401d8bdd8abe536c1d587ba7c1b592c350da61c",
+  "target_identity": "805ef84fde0dd76b9a2e8692d2f866630250e8133dee01cfeda33c91a3ffc4d1",
+  "input_payloads_sha256": "27f41f7a24c85838e3e9daba4fa82fff5f7beb56bc3752d8b9203889d4b2f183",
+  "source_sha256": "c54f332ebbc02992183018fb7e56c512c4a7c5f13e298f0f330a7e254bd1682b",
+  "forward_distance_bins_m": [
+    0,
+    5,
+    15,
+    30,
+    60
+  ],
+  "shuffle_seed": 431,
+  "repeats": 2000,
+  "inference_seeds": [
+    2101
+  ],
+  "evaluation_override": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/resources/single_seed_override/REGISTRATION.json",
+    "file_sha256": "44c11b53406dfda457b28f055459fe9dee60c62686f775e520f9cade947de7cd",
+    "identity_sha256": "2c6a1ff8b013560c8fc838975407b0e4c262e61be8b869bd349303ce6cf3d756",
+    "user_instruction": "\u4e0d\u7528\u505a\u591aseed\u5b9e\u9a8c"
+  },
+  "inference_and_bootstrap_seeds_are_not_training_repeats": true,
+  "preregistered_before_results": false,
+  "limitations": "Exploratory association after removing global/binned drift, not a causal demonstration of scene reasoning. Bins use SFT requested endpoint distance, not actual initial speed. TRAIN targeted sample is not population-unbiased; random in-bank sample is small. No hyperparameter is fitted or selected.",
+  "sha256": "cd271f49ac462ed467f73fb80815d94c0b86bcb7678c8897c59a6997939975e1"
+}

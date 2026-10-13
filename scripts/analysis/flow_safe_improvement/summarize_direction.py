@@ -113,7 +113,7 @@ def main():
                     'CASE labels here are diagnostic evidence, not a final method ranking.'])
     report['sha256'] = fingerprint(report); atomic_json(out/'report.json', report)
     with (out/'policy_scores.csv').open('w') as stream:
-        writer = csv.DictWriter(stream, fieldnames=['name', 'status', 'endpoint', 'PDMS_100', 'delta_100', 'CI95_low_100',
+        writer = csv.DictWriter(stream, lineterminator='\n', fieldnames=['name', 'status', 'endpoint', 'PDMS_100', 'delta_100', 'CI95_low_100',
             'CI95_high_100', 'NC_delta_100', 'DAC_delta_100', 'TTC_delta_100', 'fixed_safe_joint_violations', 'SFT_fixed_safe_joint_violations', 'eligible'])
         writer.writeheader()
         for x in evaluations:
