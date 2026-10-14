@@ -13,6 +13,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('anchor','refiner','output'):p.add_argument('--'+k,type=Path,required=True)
     p.add_argument('--predictor',type=Path);p.add_argument('--index',type=Path)
+    p.add_argument('--audit-token-quantization', action='store_true',
+        help='Extra current-image diagnostic forward with FP32 readout tokens; never replaces the registered executed trajectory')
     p.add_argument('--split',choices=('train','dev','navtest'),required=True)
     p.add_argument('--max-seconds',type=float,required=True);a=p.parse_args();started=time.monotonic();resource=helpers.check_host()
     if a.split=='navtest' and not (a.output.parent/'FINAL_METHOD_LOCK.json').exists():raise ValueError('Lock endpoints before final Navtest')
@@ -60,6 +62,14 @@ def main():
     if checked['sha256']!=anchor['checkpoint']['sha256']:raise ValueError('S0 checkpoint changed')
     base=load_student(anchor['run'],anchor['tag'],training,precision='fp32',strip=True).requires_grad_(False).eval()
     policy=runtime.FrozenVLAConsequenceRefiner(base,refiner,predictor,mode=kind,query_config=QueryConfig(**rr['identity']['query_config'])).eval()
+    calls={'qwen':0,'proposal':0}
+    def count_qwen(module, args):calls['qwen']+=1
+    qwen_hook=base.qwen_vl_interface.model.register_forward_pre_hook(count_qwen)
+    original_proposal=base.action_model.predict_action
+    def counted_proposal(*args,**kwargs):
+        calls['proposal']+=1
+        return original_proposal(*args,**kwargs)
+    base.action_model.predict_action=counted_proposal
     data=ForesightCurrentDataset(anchor['data'][a.split]['current_root'])
     if data.identity!=anchor['data'][a.split]['identity']:raise ValueError('Current population changed')
     lookup={row['token']:i for i,row in enumerate(data.index)}
@@ -76,20 +86,46 @@ def main():
     a.output.mkdir(parents=True)
     for k in ('predictions','records'):(a.output/k).mkdir()
     helpers.atomic_json(a.output/'identity.json',{'identity':ident,**contract})
-    latencies=[]
+    latencies=[];execution_checks=[];quantization=[]
     for row in selected:
         if time.monotonic()-started>=a.max_seconds:raise TimeoutError('Bounded online deployment verification')
-        obs=data[lookup[row['token']]];torch.cuda.synchronize();before=time.monotonic();out=policy.predict(obs,sampling_seed=42);torch.cuda.synchronize()
+        obs=data[lookup[row['token']]];previous=dict(calls)
+        torch.cuda.synchronize();before=time.monotonic();out=policy.predict(obs,sampling_seed=42);torch.cuda.synchronize()
         latencies.append(time.monotonic()-before)
+        actual={key:calls[key]-previous[key] for key in calls}
+        if actual!={'qwen':1,'proposal':1}:raise AssertionError('The executed policy must call one actual Qwen forward and one proposal sampler')
+        execution_checks.append({'token':row['token'],**actual})
+        if a.audit_token_quantization:
+            # This is a separately counted diagnostic, not a second model or
+            # candidate in the executed policy, and it cannot choose q_final.
+            old_dtype=policy.feature_dtype;previous=dict(calls)
+            try:
+                policy.feature_dtype=torch.float32
+                unquantized=policy.predict(obs,sampling_seed=42)
+            finally:policy.feature_dtype=old_dtype
+            if {key:calls[key]-previous[key] for key in calls}!={'qwen':1,'proposal':1}:
+                raise AssertionError('Unexpected extra calls in the precision diagnostic')
+            torch.testing.assert_close(out['q0'],unquantized['q0'],rtol=0,atol=0)
+            item={'token':row['token'],'extra_diagnostic_Qwen_forwards':1,'q0_exact':True,
+                'final_xy_max_abs_m':float((out['q_final'][...,:2]-unquantized['q_final'][...,:2]).abs().max())}
+            difference=out['q_final'][...,2]-unquantized['q_final'][...,2]
+            item['final_heading_max_abs_rad']=float(torch.atan2(difference.sin(),difference.cos()).abs().max())
+            for key in ('W','H_A'):
+                full=getattr(unquantized['inputs'],key);stored=getattr(out['inputs'],key)
+                item[key+'_relative_L2']=float((stored-full).norm()/full.norm().clamp_min(1e-12))
+            quantization.append(item)
         dest=a.output/'predictions'/(row['token']+'.npz');temp=dest.with_suffix('.tmp')
         with temp.open('wb') as stream:np.savez_compressed(stream,q0=out['q0'][0].cpu().numpy(),q_final=out['q_final'][0].cpu().numpy())
         temp.replace(dest);helpers.atomic_json(a.output/'records'/(row['token']+'.json'),{'identity':ident,'token':row['token'],'sha256':helpers.digest(dest)})
+    qwen_hook.remove();base.action_model.predict_action=original_proposal
     helpers.atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':len(selected),'GPU_hours':(time.monotonic()-started)/3600.,
         'seconds':time.monotonic()-started,'current_image_read_excluded_from_latency':True,'latency_seconds':latencies,
         'median_latency_excluding_first':float(np.median(latencies[1:] or latencies)),
         'peak_allocated_bytes':torch.cuda.max_memory_allocated(),'peak_reserved_bytes':torch.cuda.max_memory_reserved(),'resources':resource,
         'opened_GT_relation_or_feature_cache':False,'python_training_file_access_guard':True,
-        'guard_is_not_an_OS_sandbox':True,'q0_and_final_exported':True})
+        'guard_is_not_an_OS_sandbox':True,'q0_and_final_exported':True,
+        'actual_module_forward_checks':execution_checks,'token_quantization_diagnostic':quantization,
+        'precision_diagnostic_never_used_to_select_executed_trajectory':True})
 
 
 if __name__=='__main__':main()
