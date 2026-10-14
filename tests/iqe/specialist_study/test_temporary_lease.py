@@ -55,6 +55,20 @@ def test_admission_stops_before_record_drain(tmp_path,monkeypatch):
     assert not record_boundary(lease,200)
 
 
+def test_wrapper_initial_environment_contains_lease_and_rejects_conflicts(tmp_path):
+    import subprocess
+    import sys
+    from iqe.specialist_study.temporary_lease import process_environment
+    lease,_,_=lease_fixture(tmp_path)
+    inherited=dict(os.environ, IQE_TEMPORARY_GUARD_RECEIPT='previous_guard', IQE_TEMPORARY_STOP_FILE='previous_stop')
+    env=process_environment(lease,inherited)
+    assert 'IQE_TEMPORARY_GUARD_RECEIPT' not in env and 'IQE_TEMPORARY_STOP_FILE' not in env
+    code="from pathlib import Path; import os; print(Path('/proc/self/environ').read_bytes().split(b'\\0').count(b'IQE_TEMPORARY_LEASE_ID=test_lease'))"
+    assert subprocess.check_output([sys.executable,'-c',code],env=env,text=True).strip()=='1'
+    with pytest.raises(Exception,match='different temporary lease'):
+        process_environment(lease,dict(env,IQE_TEMPORARY_LEASE_ID='other'))
+
+
 def test_rich_canonical_batch_reuses_and_rejects_corruption(tmp_path):
     config=SimpleNamespace(root=tmp_path,identity='fixture')
     rows=[scene(i) for i in range(4)]

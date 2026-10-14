@@ -10,6 +10,19 @@ from iqe.io import file_hash, read_json
 COMMANDS = {'cooperative-official-scoring', 'precompute-rich-candidates'}
 
 
+def process_environment(lease, inherited):
+    """Set markers before exec so /proc/PID/environ also identifies the guard."""
+    env = dict(inherited)
+    for key, value in {'IQE_TEMPORARY_LEASE_ID': lease['authorization_id'],
+                       'IQE_TEMPORARY_LEASE_EXPIRES_UNIX': str(lease['expires_unix'])}.items():
+        require(key not in env or env[key] == value, 'cannot inherit a different temporary lease')
+        env[key] = value
+    # A new guard must never inherit another process group's guard receipt.
+    env.pop('IQE_TEMPORARY_GUARD_RECEIPT', None)
+    env.pop('IQE_TEMPORARY_STOP_FILE', None)
+    return env
+
+
 def start_ticks(pid):
     return int(Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[19])
 

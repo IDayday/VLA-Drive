@@ -13,31 +13,37 @@ SHA256 `30517484efcc8740c331f42f3f2ba2d1896a4f95cf70e2bf662e0d6c4484e8b0`.
 Base binding is immutable and resolved once. No Base training or locked22k
 identity was changed. No campaign Navtest/ACTIVE/push is authorized or performed.
 
-As observed 2026-10-14 07:26 UTC, E00/E01/E10/E11 all completed5000 updates.
-The selected recipe is E11, private reader + optimized targets, endpoint3000
-EMA selected by fixed stage_val Oracle. Extensions use interaction116 D_E
-scenes and safe_progress393 D_E scenes. The core paired set is125 scenes from
-full D_E74311, not a small fit cap. Matched core H_val is only1 scene and is
-insufficient for a specialty-specific generalization claim.
+Current observation, 2026-10-14 15:30 UTC: all six experts completed5000
+updates. The frozen K4 pool contains Base, E11 3000EMA, interaction3000raw,
+and safe_progress1000raw. The latter is raw, not EMA. Stage_val1024/53logs
+Base is91.39146%, pool Oracle96.52152%; these are not test or Scorer results.
+The core paired set is125 scenes from full D_E74311; matched core H_val is
+only1 scene, insufficient for a specialty-specific generalization claim.
+Extensions use116/393 training scenes and9/11 hard validation scenes.
 
-As observed 2026-10-14 08:04 UTC, the sole controller is tsinghua-zt5
-PID22108 with `--gpus 5 6 1 4`. Both extensions resumed from their complete
-1465-update checkpoints: interaction PID22204/GPU5, safe_progress
-PID22328/GPU6. Exact next128 sample IDs matched the saved sampler state.
-zt6 acquired unidentified19.3GiB/card physical occupancy; no unknown process
-was signalled. Its old controller/trainers and unstarted bank waiters were
-safely replaced, retaining all training state and the original endpoint.
-zt5 GPU0 remains excluded. Every future controller/role launch checks physical
-use and unidentified ownership before allocating CUDA.
+The sole active completion controller is now rl-zt2 PID757988, GPUs4–7.
+Its immutable launch receipt is
+`runtime/pool_recovery_20261014T1459Z/LAUNCH.json`. The old controller failed
+when it attempted to regenerate already-scored validation bytes; the fixed
+pool reads strictly verified original checkpoint/trajectory/official receipts
+instead. See `COMPLETED_VALIDATION_REUSE_FIX.md`. No score, target, tolerance,
+checkpoint or endpoint selection rule was rewritten. Old waiting role PIDs
+were checked idle before replacement; no expert was retrained.
 
-All20,325 spatial contexts are COMPLETE. The remaining bank workers wait for
-the selected pool: D_S PID22105/GPU2, dev PID22104/GPU7, stage_val
-PID22107/GPU1, selector_cal PID22106/GPU4. These are dependency waiters, not
-currently active GPU computation. Native bank scoring uses4 CPUs per role;
-4 additional cooperative CPU helpers only assist explicitly record-locked
-new jobs. Original scoring context, retry budget and candidate order are fixed.
-See `COOPERATIVE_SCORING_AND_BANKS.md` and `RESOURCE_MIGRATION_zt6_to_zt5.md`.
-The old local/zt6 controllers and old cache commands must not be restarted.
+All20,325 spatial contexts are COMPLETE. Deployment stage_val, selector_cal
+and dev banks are COMPLETE; D_S16581 is still building. Scorers are waiting
+for that full bank, not already trained. The controller schedules rich bank
+and S00/S10, followed by S01/S11 when rich labels are complete, all on the
+permanent rl-zt2 node. Actual phase/PID state is in
+`runtime/completion_driver/STATUS.json` and `runtime/bank_parallel/STATUS.json`.
+Physical capacity and unknown ownership are checked before each GPU launch.
+Do not restart the old local/zt5/zt6 controllers or completed cache commands.
+
+Temporary acceleration uses16 GPU workers and8 CPU helpers under the exact
+15:07:18–23:07:18 UTC lease. It only precomputes the already-budgeted six
+raw intermediate columns and assists existing official score jobs; no new
+expert, Scorer, candidate recipe or optimizer update is introduced. See
+`TEMPORARY_RESOURCE_EXECUTION.md` for receipts and absolute drain deadlines.
 
 ## Setup and immutable inputs
 
