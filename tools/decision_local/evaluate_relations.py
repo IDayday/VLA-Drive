@@ -100,6 +100,8 @@ def main():
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     data=FrozenConsequenceData(a.features,a.labels);s=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
     if not s['identity']['kind'].startswith('P_'):raise ValueError('Predictor checkpoint required')
+    if s['identity']['anchor_identity']!=data.feature_identity['anchor_identity'] or s['identity']['query_config']!=data.label_identity['query_config']:
+        raise ValueError('Evaluation must retain the trained foundation and query contract')
     model=build_model(s['identity']['kind'],s['identity']['seed'],s['identity']['dim']).cuda().eval();model.load_state_dict(s['model'],strict=True)
     a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'metrics.jsonl').exists():raise FileExistsError('Immutable evaluation output')
