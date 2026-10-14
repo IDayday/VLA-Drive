@@ -7,7 +7,7 @@ import time
 from iqe.contracts import require
 from iqe.io import file_hash, read_json
 
-COMMANDS = {'cooperative-official-scoring', 'precompute-rich-candidates'}
+COMMANDS = {'cooperative-official-scoring', 'precompute-rich-candidates', 'precompute-deployment-candidates'}
 
 
 def process_environment(lease, inherited):

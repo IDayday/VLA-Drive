@@ -110,7 +110,12 @@ def base_records(config,scenes):
             require(s.score_protocol_hash==proto['protocol_hash'],'Base official protocol changed')
             candidates.append(c);scores.append(s)
         else:
-            c=save_candidate(config,scene,'expert_0',binding['checkpoint_hash'],cache.read(scene)['base_physical'].numpy())
+            own=config.root/'candidates/expert_0'/binding['checkpoint_hash']/(scene.scene_id+'.json')
+            if own.exists():
+                from .rich_precompute import checked_candidate
+                c=checked_candidate(config,scene,{'expert_id':'expert_0','model_hash':binding['checkpoint_hash']})
+            else:
+                c=save_candidate(config,scene,'expert_0',binding['checkpoint_hash'],cache.read(scene)['base_physical'].numpy())
             missing.append((len(candidates),scene,c));candidates.append(c);scores.append(None)
     if missing:
         results=score_candidates(config,[x[1] for x in missing],[x[2] for x in missing],'study_Base')
@@ -123,9 +128,15 @@ def build_role(config,role,device):
     if (folder/'BANK.json').exists():load_bank(config,'deploy',role);return read_json(folder/'STATISTICS.json')
     scenes=scenes_by_role(config)[role];p=pool(config);columns=[base_records(config,scenes)]
     for item in p['experts']:
-        model=load_endpoint(config,item,device)
-        candidates,labels=candidate_labels(config,model,scenes,item['expert_id'],device)
-        columns.append(list(zip(candidates,labels)));del model
+        from .deploy_precompute import collect
+        candidates=collect(config,scenes,item) if role=='scorer_fit' else None
+        if candidates is None:
+            model=load_endpoint(config,item,device)
+            candidates,labels=candidate_labels(config,model,scenes,item['expert_id'],device)
+            del model
+        else:
+            labels=score_candidates(config,scenes,candidates,item['expert_id']+'_'+item['model_hash'][:12])
+        columns.append(list(zip(candidates,labels)))
     rows=[list(x) for x in zip(*columns)]
     return save_bank(config,'deploy',role,scenes,rows,{'sources':p['expert_ids'],'GT_deployment_candidate':False,'intermediate_endpoints_in_deploy':False})
 

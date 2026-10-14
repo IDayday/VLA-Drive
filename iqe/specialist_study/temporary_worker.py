@@ -16,13 +16,14 @@ from .temporary_lease import authorization, can_admit, start_ticks
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--lease',required=True);p.add_argument('--config',required=True)
-    p.add_argument('--name',required=True);p.add_argument('--kind',choices=('score-helper','rich-precompute'),required=True)
+    p.add_argument('--name',required=True);p.add_argument('--kind',choices=('score-helper','rich-precompute','deploy-precompute'),required=True)
     p.add_argument('--worker',type=int,required=True);p.add_argument('--workers',type=int,required=True)
     p.add_argument('--gpu',type=int);p.add_argument('--read-mib-per-second',type=float,default=32.)
     a=p.parse_args();lease=read_json(a.lease);host=socket.gethostname()
     require(a.name.replace('_','').replace('-','').isalnum(),'safe temporary worker name')
     require(os.getpid()==os.getpgrp() and os.getsid(0)==os.getpid(),'wrapper requires its own start_new_session')
-    kind='cooperative-official-scoring' if a.kind=='score-helper' else 'precompute-rich-candidates'
+    kind={'score-helper':'cooperative-official-scoring','rich-precompute':'precompute-rich-candidates',
+          'deploy-precompute':'precompute-deployment-candidates'}[a.kind]
     os.environ.update(IQE_TEMPORARY_LEASE_ID=lease['authorization_id'],
                       IQE_TEMPORARY_LEASE_EXPIRES_UNIX=str(lease['expires_unix']))
     authorization(read_json('/mnt/project/server_dispatch_policy.json'),host,kind,require_guard=False)
@@ -50,7 +51,8 @@ def main():
         from .capacity import probe
         capacity=probe(a.gpu);atomic_json(folder/(a.name+'.CAPACITY.json'),capacity)
         require(capacity['ready'],'temporary GPU not free; no unknown-owner signals')
-        command=[sys.executable,'-u','-m','iqe.specialist_study.rich_precompute','--config',a.config,
+        module='iqe.specialist_study.deploy_precompute' if a.kind=='deploy-precompute' else 'iqe.specialist_study.rich_precompute'
+        command=[sys.executable,'-u','-m',module,'--config',a.config,
                  '--shard',str(a.worker),'--shards',str(a.workers),'--read-mib-per-second',str(a.read_mib_per_second)]
         env['CUDA_VISIBLE_DEVICES']=str(a.gpu)
     requested=[False]
