@@ -54,7 +54,7 @@ def main():
     atomic_json(a.output,{'source_sha':source_sha(ROOT),'tool_sha256':digest(__file__),
         'first_sha256':digest(a.first),'baseline_sha256':digest(a.baseline),'scenes':len(x),'logs':len(logs),'metrics':result,
         'aggregation':'Original scene sufficient sums and valid query denominators retained within sampled logs; no scene×seed pseudo-replication',
-        'limits':'Exploratory fixed-query analysis, one training checkpoint per G arm; type and distance confounded; no causal planning attribution or multiplicity correction'})
+        'limits':'Fixed-query analysis of the declared checkpoint banks (or explicitly registered opposite-fold pooling); log resampling is not foundation-training seed replication. Query type and distance can be confounded; no causal planning attribution or multiplicity correction.'})
 
 
 if __name__=='__main__':main()

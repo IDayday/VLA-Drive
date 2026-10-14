@@ -1,0 +1,132 @@
+{
+  "aggregation": "One opposite-fold output per original scene;4096 scenes, not8192 independent observations",
+  "limits": [
+    "Only the predictor readout is out-of-fold; S0 saw all original training logs",
+    "Half-population fits differ from full-population primary fits; this is not a pure full-data overfit decomposition",
+    "No new refiner was trained and no OOF result was used to select a main checkpoint"
+  ],
+  "models": {
+    "fold0_P_ABS": {
+      "GPU_hours": 0.3993678584317159,
+      "checkpoint_sha256": "a734e445c5390092870ed1ac8f15aac173585daf475ef670ae55746e691e1cb4",
+      "completed_updates": 9888,
+      "evaluation_complete_sha256": "af5e32a59e349f4e1297f5a4d58f23c8a4422c25025a8f536d815eb6af2b4de7",
+      "exposure": 1265064,
+      "metrics_sha256": "dbefb37970c40e555fab3563123051f9d4c7dde0f171600b6f87e468541af2fb",
+      "training_scenes": 52711,
+      "training_source_sha": "52cd997a4e6867474e6ac2bd80daa2733ad4e710"
+    },
+    "fold0_P_DIFF": {
+      "GPU_hours": 0.38732376324168094,
+      "checkpoint_sha256": "873123b201f21f414bcdea93e9bf665f027d21c8924a604a442a4a308b340d6a",
+      "completed_updates": 9888,
+      "evaluation_complete_sha256": "5bb77bfbee659f0777f4ce960ac42b2b1ea1f0050d2e7d0f8131a9cec59a9ace",
+      "exposure": 1265064,
+      "metrics_sha256": "046ea6d16887bc3dc563740f410f392e656333887c0c2c8d33788391332b4a76",
+      "training_scenes": 52711,
+      "training_source_sha": "52cd997a4e6867474e6ac2bd80daa2733ad4e710"
+    },
+    "fold1_P_ABS": {
+      "GPU_hours": 0.36189370456772546,
+      "checkpoint_sha256": "b7969f368e454773a90f1d159e9212619a06db4d275cb2ecde1d1f52c832a436",
+      "completed_updates": 9168,
+      "evaluation_complete_sha256": "8dde836905b407e128797dc9c6ce5e05886209ea57f38bf1ee40f2d2c525ecd4",
+      "exposure": 1173144,
+      "metrics_sha256": "d2c812ef08582a63b0bb12ffd051da1293e28fa0ef9b0adec942c7a807dd61a2",
+      "training_scenes": 48881,
+      "training_source_sha": "52cd997a4e6867474e6ac2bd80daa2733ad4e710"
+    },
+    "fold1_P_DIFF": {
+      "GPU_hours": 0.3723010239413836,
+      "checkpoint_sha256": "a16986c27502e0c10a72d5f8bd06b547f7deed98d780f46ae636ba69028d7a3c",
+      "completed_updates": 9168,
+      "evaluation_complete_sha256": "33ea0d7c2ceb184ad9d186976e4daeb832de0ecd6caee228c95cb974e4275e9c",
+      "exposure": 1173144,
+      "metrics_sha256": "dc7966a3113feeb28400563b1b9d09bee4b0463c37ea238c1022cf8f56439b67",
+      "training_scenes": 48881,
+      "training_source_sha": "52cd997a4e6867474e6ac2bd80daa2733ad4e710"
+    }
+  },
+  "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+  "results": {
+    "P_ABS": {
+      "current_clearance_m_MAE_m": 0.7128228615781138,
+      "current_clearance_m_MAE_m_denominator": 65471.0,
+      "current_clearance_m_direction_accuracy": 0.8747260774287802,
+      "current_clearance_m_direction_accuracy_denominator": 13690.0,
+      "current_clearance_m_pair_MAE_m": 0.2579497970495697,
+      "current_clearance_m_pair_MAE_m_denominator": 52354.0,
+      "current_overlap_counts": {
+        "FN": 5178.0,
+        "FP": 3100.0,
+        "TN": 139813.0,
+        "TP": 15804.0
+      },
+      "current_overlap_precision": 0.8360135421074905,
+      "current_overlap_recall": 0.7532170431798685,
+      "future_clearance_m_MAE_m": 1.0946795772504465,
+      "future_clearance_m_MAE_m_denominator": 154590.0,
+      "future_clearance_m_direction_accuracy": 0.7927901900359527,
+      "future_clearance_m_direction_accuracy_denominator": 31152.0,
+      "future_clearance_m_pair_MAE_m": 0.2835089373602107,
+      "future_clearance_m_pair_MAE_m_denominator": 128272.0,
+      "future_overlap_counts": {
+        "FN": 3133.0,
+        "FP": 1386.0,
+        "TN": 181077.0,
+        "TP": 2952.0
+      },
+      "future_overlap_precision": 0.6804979253112033,
+      "future_overlap_recall": 0.4851273623664749,
+      "logs": 1176,
+      "road_margin_m_MAE_m": 0.44571080807807395,
+      "road_margin_m_MAE_m_denominator": 158618.0,
+      "road_margin_m_direction_accuracy": 0.951200905600945,
+      "road_margin_m_direction_accuracy_denominator": 40636.0,
+      "road_margin_m_pair_MAE_m": 0.17794784618241416,
+      "road_margin_m_pair_MAE_m_denominator": 133092.0,
+      "scenes": 4096
+    },
+    "P_DIFF": {
+      "current_clearance_m_MAE_m": 0.704494335872679,
+      "current_clearance_m_MAE_m_denominator": 65471.0,
+      "current_clearance_m_direction_accuracy": 0.8892622352081812,
+      "current_clearance_m_direction_accuracy_denominator": 13690.0,
+      "current_clearance_m_pair_MAE_m": 0.24013996140291863,
+      "current_clearance_m_pair_MAE_m_denominator": 52354.0,
+      "current_overlap_counts": {
+        "FN": 5139.0,
+        "FP": 3015.0,
+        "TN": 139898.0,
+        "TP": 15843.0
+      },
+      "current_overlap_precision": 0.8401209035952911,
+      "current_overlap_recall": 0.755075779239348,
+      "future_clearance_m_MAE_m": 1.0842158710715981,
+      "future_clearance_m_MAE_m_denominator": 154590.0,
+      "future_clearance_m_direction_accuracy": 0.8159989727786338,
+      "future_clearance_m_direction_accuracy_denominator": 31152.0,
+      "future_clearance_m_pair_MAE_m": 0.2645016730813493,
+      "future_clearance_m_pair_MAE_m_denominator": 128272.0,
+      "future_overlap_counts": {
+        "FN": 3155.0,
+        "FP": 1348.0,
+        "TN": 181115.0,
+        "TP": 2930.0
+      },
+      "future_overlap_precision": 0.6848994857410005,
+      "future_overlap_recall": 0.4815119145439606,
+      "logs": 1176,
+      "road_margin_m_MAE_m": 0.4320953128150055,
+      "road_margin_m_MAE_m_denominator": 158618.0,
+      "road_margin_m_direction_accuracy": 0.9647849197755685,
+      "road_margin_m_direction_accuracy_denominator": 40636.0,
+      "road_margin_m_pair_MAE_m": 0.15144388514925503,
+      "road_margin_m_pair_MAE_m_denominator": 133092.0,
+      "scenes": 4096
+    }
+  },
+  "source_sha": "5a9372d4cfdd5db5dae8b0e5b88004d597a7b4ff",
+  "tool_sha256": "3111cb5b0cf72f9664df45b13d30b020dc5a8791143cb110b98e576506113931",
+  "trigger_sha256": "a0b5b0acb59d3a3f87393a1d0310e1d8d698156eb7b71f22add2b0fb3c11960c"
+}
