@@ -1,0 +1,52 @@
+{
+  "schema": "cfn_full_TRAIN_census_launch_evidence_v1",
+  "observed_utc": "2026-10-14T15:37:20.433318+00:00",
+  "status": "IN_PROGRESS_NOT_FULL_POPULATION_RESULT",
+  "registration": "/mnt/project/constrained-flow-noise-20261014/full_TRAIN_SFT_C_SDE_G16_audit_v1/registration.json",
+  "registration_sha256": "d90f7238c93f936edb8792353f4e037bb5e5fbea2da2d25d20a4a6f117c4c654",
+  "population_count": 101592,
+  "group_size": 16,
+  "maximum_logical_candidate_scores": 1625472,
+  "policy": "fixed original SFT C_SDE; no updates",
+  "shards": 32,
+  "qualification_pass": 32,
+  "qualified_hosts": [
+    "training-vla-zt3",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-zt",
+    "training-vlawm-zt3"
+  ],
+  "running_status_files": 32,
+  "observed_committed_scenes": 2820,
+  "temporary_guards": 24,
+  "temporary_deadline_utc": "2026-10-14T23:07:18+00:00",
+  "native_stop_from_utc": "2026-10-14T22:47:18+00:00",
+  "owned_process_cleanup_fallback_before_utc": "2026-10-14T23:06:18+00:00",
+  "temporary_hosts": [
+    "training-vlawm-zt",
+    "training-vlawm-zt3",
+    "training-vla-zt3"
+  ],
+  "permanent_host": "training-vlawm-tsinghua-zt",
+  "formal_trainers_preserved": true,
+  "deadline_guard_test": {
+    "status": "PASS",
+    "tests": 1,
+    "wall_seconds": 4.3,
+    "test_source_sha256": "b8c9d6ad03882ede6e80fbf2f23090d57f1bbf78f7d64a0ae07b255b145bc44f",
+    "scope": "actual CPU child and orphan process session; native atomic boundary on SIGUSR1; no GPU method-effect claim"
+  },
+  "resume_observation": {
+    "0": 4,
+    "8": 4,
+    "16": 4,
+    "24": 4
+  },
+  "source_sha256": {
+    "audit_train_population.py": "ac2c49f20cc855d14ed34f948912a4a429244c38194e2d4624bc976edd003c5e",
+    "temporary_guard.py": "1d0493ec1958f276dceab94d81ce7628dc89b3d7109f6f9aecbc1b354fecabad",
+    "summarize_population_census.py": "7624a8fbca4f73cd3c2ac33b64c46f390a7247ec59f21e937e3c9f7df7db10d0"
+  },
+  "completion_entry": "/mnt/project/constrained-flow-noise-20261014/full_TRAIN_SFT_C_SDE_G16_audit_v1/full_summary.json",
+  "completion_entry_status": "NOT_AVAILABLE_UNTIL_FULL_VERIFICATION"
+}

@@ -2,13 +2,19 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status at 2026-10-14 15:08 UTC: both full-budget formal runs continue. The
-user-requested extra full-DEV observation of the saved update1024 checkpoints
-is in progress. C_SDE has completed all 1,696 scenes: original single-ODE PDMS
-93.6192 → 94.4840, but TTC violations 1 → 4, so this checkpoint does not meet
-the safety eligibility rule. N_FLOW_NOISE is being evaluated with the same
-seed2101 protocol. These extra observations do not enter the preregistered
-checkpoint-selection schedule. [C_SDE evidence](interim_update1024_C_SDE_ODE.json),
+Status at 2026-10-14 15:35 UTC: both full-budget formal runs continue. The
+user-requested extra full-DEV observation of both saved update1024 checkpoints
+is complete: 1,696 scenes / 16 logs, original single-candidate 10-step ODE,
+seed2101, canonical v1.1. PDMS is SFT **93.6192**, C_SDE **94.4840**,
+N_FLOW_NOISE **94.4822**. TTC violations are **1 / 4 / 10**, respectively;
+neither trained checkpoint meets the safety eligibility rule. Learned noise
+has not demonstrated an extra ODE score gain at this observation. These extra
+observations stay out of preregistered checkpoint selection, while the TTC
+evidence is retained for the existing consecutive-degradation pause rule.
+[Analysis, efficiency findings and next action](interim_update1024_analysis.md),
+[C_SDE evidence](interim_update1024_C_SDE_ODE.json),
+[N_FLOW_NOISE evidence](interim_update1024_N_FLOW_NOISE_ODE.json),
+[paired comparison](interim_update1024_N_minus_C.json),
 [observation registration](interim_update1024_registration.json).
 Core and real-learning acceptance passed; all 101,592 TRAIN condition and
 canonical metric assets are sealed. [Run-start snapshot](formal_start.json).
@@ -28,6 +34,16 @@ completed updates and 19,600 / 22,272 raw scene exposures. The unequal prefixes
 are progress evidence, not a matched method-effect comparison.
 [Snapshot](formal_progress_20261014T1448Z.json),
 [training curves](learning_curves_20261014T1448Z.png).
+
+The user additionally requested the entire TRAIN population, not an extrapolation
+from the first training prefix. A separate **read-only frozen-SFT C_SDE G16
+census** of all 101,592 TRAIN scenes is now running on 32 qualified GPU workers.
+It performs no updates and does not replace either formal line or ODE evaluation.
+The three explicitly authorized temporary hosts expire at **2026-10-14
+23:07:18 UTC**, with native record-boundary stopping from 22:47:18. Permanent
+host bans outside this task-scoped lease remain unchanged. This full census is
+not yet complete; its upfront 1,625,472-candidate budget is not free training
+acceleration. [Execution/expiry evidence](full_TRAIN_census_start.json).
 
 The only formal comparisons are legacy correlated, score-corrected `C_SDE`
 and diagonal learned `N_FLOW_NOISE`. Both retain the complete 359-tensor DDP

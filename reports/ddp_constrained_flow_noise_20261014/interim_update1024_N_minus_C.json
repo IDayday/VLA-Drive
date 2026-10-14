@@ -1,0 +1,214 @@
+{
+  "schema": "cfn_paired_ODE_comparison_v1",
+  "scenes": 1696,
+  "logs": 16,
+  "inference_seed": 2101,
+  "left_behavior_sha256": "924110de818d18b792a075087cf48347ea35cf36ca10446d1673147c4d012ddc",
+  "right_behavior_sha256": "f69ef6a134d2d59057e7c9325fb8e83bda44bea60c4af42ba6031ed01039a3dc",
+  "left_payloads_sha256": "510c11cd2e8b8802d672312365206a9be8c534f757869a03ced9b6e26578ab0b",
+  "right_payloads_sha256": "b0ca5f8177c9ae91a6009b665ce7eedbaf3d2e48da796b48a8e242397de56769",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "cohort": "dev_tokens",
+  "metrics": {
+    "no_at_fault_collisions": {
+      "left": 1.0,
+      "right": 1.0,
+      "right_minus_left": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "drivable_area_compliance": {
+      "left": 0.9970518867924528,
+      "right": 0.995872641509434,
+      "right_minus_left": {
+        "mean": -0.0011792452830188679,
+        "CI95": [
+          -0.0024752986239994766,
+          0.0
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "ego_progress": {
+      "left": 0.8745725111833068,
+      "right": 0.8797201703707174,
+      "right_minus_left": {
+        "mean": 0.005147659187410579,
+        "CI95": [
+          0.003646047038841922,
+          0.0069864622042907975
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "time_to_collision_within_bound": {
+      "left": 0.9976415094339622,
+      "right": 0.9941037735849056,
+      "right_minus_left": {
+        "mean": -0.003537735849056604,
+        "CI95": [
+          -0.0056027000964320155,
+          -0.0008430466365773369
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "comfort": {
+      "left": 0.9988207547169812,
+      "right": 0.9988207547169812,
+      "right_minus_left": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "driving_direction_compliance": {
+      "left": 0.988502358490566,
+      "right": 0.988502358490566,
+      "right_minus_left": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "score": {
+      "left": 0.9448395683389564,
+      "right": 0.9448224766481763,
+      "right_minus_left": {
+        "mean": -1.70916907801879e-05,
+        "CI95": [
+          -0.0015772339810084,
+          0.0020855135223337307
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "left_violations": 0,
+      "right_violations": 0,
+      "left_pass_right_fail": 0,
+      "left_fail_right_pass": 0,
+      "violation_difference": {
+        "mean": 0.0,
+        "CI95": [
+          0.0,
+          0.0
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "drivable_area_compliance": {
+      "left_violations": 5,
+      "right_violations": 7,
+      "left_pass_right_fail": 2,
+      "left_fail_right_pass": 0,
+      "violation_difference": {
+        "mean": 0.0011792452830188679,
+        "CI95": [
+          0.0,
+          0.0024752986239994766
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "time_to_collision_within_bound": {
+      "left_violations": 4,
+      "right_violations": 10,
+      "left_pass_right_fail": 6,
+      "left_fail_right_pass": 0,
+      "violation_difference": {
+        "mean": 0.003537735849056604,
+        "CI95": [
+          0.0008430466365773363,
+          0.005602700096432013
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "joint": {
+      "left_violations": 9,
+      "right_violations": 17,
+      "left_pass_right_fail": 8,
+      "left_fail_right_pass": 0,
+      "violation_difference": {
+        "mean": 0.0047169811320754715,
+        "CI95": [
+          0.0015058828713202398,
+          0.0070423913882669545
+        ],
+        "scenes": 1696,
+        "logs": 16,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    }
+  },
+  "zeros": {
+    "left": 5,
+    "right": 7,
+    "nonzero_to_zero": 2,
+    "zero_to_nonzero": 0
+  },
+  "units": "raw 0-1 scores; multiply means and differences by100 for points",
+  "uncertainty": "paired log-cluster bootstrap with scene weights, excludes training/inference-seed uncertainty",
+  "deployment": "one original 10-step ODE trajectory per scene; no candidate ranking",
+  "left_name": "C_SDE_update1024",
+  "right_name": "N_FLOW_NOISE_update1024",
+  "qualification_only": false,
+  "source_sha256": "e7018f5efe2dc3c2830de099500169a3d0d8771ca2c3de9993727d9840fb15bb",
+  "sha256": "a3ee6feb4e8393384dbf1335969b71f2d210737202c6f0e26ed47f6cf760492a"
+}
