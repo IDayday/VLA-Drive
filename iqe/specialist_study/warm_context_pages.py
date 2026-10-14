@@ -16,18 +16,28 @@ from iqe.io import atomic_json,file_hash,read_json,lock
 from .context_reader import version
 
 
-def run(config_path,workers=8,mib_per_second=512,min_available_gib=128):
+def run(config_path,workers=8,mib_per_second=512,min_available_gib=128,kind='spatial'):
     from .config import load_config
     from .resource_guard import check
     from .binding import scenes_by_role
     from .context import spatial_key
     config=load_config(config_path);check(config,'warm-immutable-spatial-pages')
     require(1<=workers<=8 and 1<=mib_per_second<=512 and min_available_gib>=128,'bounded page warm allocation')
-    out=config.root/'runtime/spatial_page_warm'/socket.gethostname()
+    require(kind in ('spatial','joint'),'unknown immutable context kind')
+    if kind=='joint':
+        from .data import ReusedContext
+        from iqe.internal_baseline.features import cache_key
+        cache=ReusedContext(config,capacity=0).cache
+        path_for=cache.path
+        key_for=lambda scene:cache_key(cache.config,scene)
+    else:
+        path_for=lambda scene:config.root/'spatial_context'/(scene.scene_id+'.pt')
+        key_for=lambda scene:spatial_key(config,scene)
+    out=config.root/('runtime/'+kind+'_page_warm')/socket.gethostname()
     with lock(out/'RUN.lock'):
         roles=scenes_by_role(config);scenes=roles['scorer_fit']+roles['stage_val']
-        total=sum((config.root/'spatial_context'/(s.scene_id+'.pt')).stat().st_size for s in scenes)
-        require(total<=256*1024**3,'page warm scope exceeds 256GiB; no automatic expansion')
+        total=sum(path_for(s).stat().st_size for s in scenes)
+        require(total<=(64 if kind=='joint' else 256)*1024**3,'page warm scope exceeds bounded role bytes')
         deadline=time.monotonic()+3600;rate=mib_per_second*1024**2
         limiter=threading.Lock();schedule=[time.monotonic()];cancel=threading.Event()
         def available():
@@ -42,9 +52,9 @@ def run(config_path,workers=8,mib_per_second=512,min_available_gib=128):
             require(time.monotonic()<deadline,'one-hour page warm budget elapsed')
             if available()<min_available_gib*1024**3:
                 cancel.set();return None
-            path=config.root/'spatial_context'/(scene.scene_id+'.pt');before=version(path)
+            path=path_for(scene);before=version(path)
             receipt=read_json(str(path)+'.COMPLETE.json')
-            require(receipt['key']==spatial_key(config,scene),'page warm context identity changed')
+            require(receipt['key']==key_for(scene),'page warm context identity changed')
             h=hashlib.sha256();count=0
             with open(path,'rb') as stream:
                 while chunk:=stream.read(8*1024**2):
@@ -63,7 +73,7 @@ def run(config_path,workers=8,mib_per_second=512,min_available_gib=128):
                 'total_records':len(scenes),'bytes_read':sum(x['bytes'] for x in results),
                 'seconds':time.monotonic()-started,'config_identity':config.identity,
                 'Base_binding_hash':file_hash(config.root/'BASE_BINDING.json'),
-                'rate_limit_MiB_s':mib_per_second,'GPU_calls':0,'sampler_consumed':0,'new_tensor_files':0}
+                'rate_limit_MiB_s':mib_per_second,'GPU_calls':0,'sampler_consumed':0,'new_tensor_files':0,'context_kind':kind}
         atomic_json(out/f'RESULT_{os.getpid()}.json',result,immutable=True)
         atomic_json(out/'STATUS.json',{k:v for k,v in result.items() if k!='records'}|{'pid':os.getpid()})
 
@@ -72,7 +82,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',required=True)
     p.add_argument('--workers',type=int,default=8);p.add_argument('--mib-per-second',type=int,default=512)
     p.add_argument('--min-available-gib',type=int,default=128)
-    a=p.parse_args();run(a.config,a.workers,a.mib_per_second,a.min_available_gib)
+    p.add_argument('--kind',choices=('spatial','joint'),default='spatial')
+    a=p.parse_args();run(a.config,a.workers,a.mib_per_second,a.min_available_gib,a.kind)
 
 
 if __name__=='__main__':main()
