@@ -78,12 +78,23 @@ def generate(config):
                                                       s['H_train_direct_PDMS_gain'],s['H_val_count'],s['H_val_direct_PDMS_gain']])
         if (folder/'BASE_RETENTION_AUDIT.json').exists():
             value=read_json(folder/'BASE_RETENTION_AUDIT.json');retention.append([folder.name,value['before']==value['after'],value['raw_drift'],value['physical_drift'],value['VLM_calls']])
+    selected_train=get('SELECTED_EXPERT_H_TRAIN_EVIDENCE.json')
+    selected_text=''
+    if selected_train:
+        selected_text=('\nAlready selected pool endpoints, independently rescored on their entire fixed H_train (no further updates or selection):\n\n'+table(
+            ['Expert','Step/endpoint','Scenes','Logs','Base PDMS','Expert PDMS','Direct gain','Base IL','Expert IL'],
+            [[r['specialty'],str(r['step'])+'/'+r['endpoint'],r['metrics']['scenes'],r['metrics']['logs'],
+              r['metrics']['base_01'],r['metrics']['expert_01'],r['metrics']['gain_01'],r['Base_eval_IL'],r['expert_eval_IL']]
+             for r in selected_train['rows']])+
+            '\nThese selected-endpoint diagnostics are distinct from the fixed5000 raw/EMA factorial rows above. '
+            'They measure training-support fit, not unseen-scene generalization. Source files and checksums are in SELECTED_EXPERT_H_TRAIN_EVIDENCE.json. '
+            'The diagnostic performs no optimizer updates, does not modify the pool, and reads no test data.\n')
     report('EXPERT_LEARNING_CURVES.md','# Specialist training evidence\n\n'+
         ('No completed fixed-endpoint H_train diagnostic yet. Intermediate IL is not evidence of PDMS specialization.\n' if not learning else table(
             ['Cell','Endpoint','H_train scenes','Base target IL','Expert target IL','H_train PDMS delta','H_val count','H_val delta'],learning))+
         '\nPure specialty supervision, no anchor/distillation, 5,000 updates, global batch128, unchanged Query IL/dropout. '
         'One update counts128 actual sample presentations; repeated exposure is not new observations. Core cells use identical sample sequence. '
-        'Private-reader cells update only their own copied compression/query/ego/action branch. The shared VLA is absent from head-only training.\n')
+        'Private-reader cells update only their own copied compression/query/ego/action branch. The shared VLA is absent from head-only training.\n'+selected_text)
     report('RAW_EMA_COMPARISON.md','# Raw and EMA endpoint evidence\n\n'+table(
         ['Cell','Update','Endpoint','Expert alone','Oracle with Base','Oracle gain','H_val direct delta','EMA original-Base weight'],endpoints)+
         '\nRows are stage_val. The main factorial interpretation uses fixed update5000 raw/EMA; system endpoints may be selected from1000/3000/5000 using the locked stage_val rule. '
