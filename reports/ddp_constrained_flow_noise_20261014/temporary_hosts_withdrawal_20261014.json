@@ -1,0 +1,94 @@
+{
+  "schema": "cfn_temporary_host_withdrawal_complete_v1",
+  "status": "COMPLETE_NO_OWNED_RESIDUALS",
+  "observed_utc": "2026-10-14T23:08:57.487940+00:00",
+  "user_instruction": "有时间限制的服务器不再使用",
+  "withdrawn_hosts": [
+    "training-vlawm-zt",
+    "training-vlawm-zt3",
+    "training-vla-zt3"
+  ],
+  "dispatch_and_retry_disabled": true,
+  "temporary_lease_extension": false,
+  "original_authorizations_retained_unchanged": true,
+  "all_27_guarded_profile_and_census_invocations_exited_successfully_before_deadline": true,
+  "verification": [
+    {
+      "host": "training-vlawm-zt",
+      "observed_unix": 1792019291.0368626,
+      "flow_registered_invocations": 9,
+      "all_guard_receipts_clean": true,
+      "all_finished_before_expiry": true,
+      "last_guard_finished_unix": 1792006314.3135643,
+      "flow_matching_processes": [],
+      "flow_session_residuals": [],
+      "iqe_lease_marked_processes": [],
+      "signals_sent": [],
+      "scientific_assets_deleted": false
+    },
+    {
+      "host": "training-vlawm-zt3",
+      "observed_unix": 1792019291.0296838,
+      "flow_registered_invocations": 9,
+      "all_guard_receipts_clean": true,
+      "all_finished_before_expiry": true,
+      "last_guard_finished_unix": 1792006546.714256,
+      "flow_matching_processes": [],
+      "flow_session_residuals": [],
+      "iqe_lease_marked_processes": [],
+      "signals_sent": [],
+      "scientific_assets_deleted": false
+    },
+    {
+      "host": "training-vla-zt3",
+      "observed_unix": 1792019291.0447545,
+      "flow_registered_invocations": 9,
+      "all_guard_receipts_clean": true,
+      "all_finished_before_expiry": true,
+      "last_guard_finished_unix": 1792006236.1920674,
+      "flow_matching_processes": [],
+      "flow_session_residuals": [],
+      "iqe_lease_marked_processes": [],
+      "signals_sent": [],
+      "scientific_assets_deleted": false
+    }
+  ],
+  "census": {
+    "completed_scenes": 101592,
+    "total_scenes": 101592,
+    "logs": 1176,
+    "candidate_scores": 1625472,
+    "remaining_scenes": 0,
+    "completed_utc": "2026-10-14T21:35:04.480234+00:00",
+    "summary_sha256": "40784662a30a1da1863a68eb5325b55ab4bf9c091d77917a903f72052554e991",
+    "summary_file_sha256": "3c46da6d61e67bef0fa68757eb5f927c6c9c500e2bced0fcd0c5017e474d3f9c",
+    "registration_sha256": "d90f7238c93f936edb8792353f4e037bb5e5fbea2da2d25d20a4a6f117c4c654",
+    "reference": "frozen SFT C_SDE G16; not ODE deployment or trained-policy evaluation"
+  },
+  "formal_training": {
+    "C_SDE": {
+      "host": "training-vlawm-tsinghua-zt3",
+      "all_eight_training_ranks_alive": true,
+      "completed_common_update": 3624,
+      "raw_exposure": 45294,
+      "total_raw_budget": 203184,
+      "run_path": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1_probability_repair",
+      "configuration_changed": false,
+      "signals_sent": []
+    },
+    "N_FLOW_NOISE": {
+      "host": "training-vlawm-tsinghua-zt4",
+      "all_eight_training_ranks_alive": true,
+      "completed_common_update": 6179,
+      "raw_exposure": 77444,
+      "total_raw_budget": 203184,
+      "run_path": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1",
+      "configuration_changed": false,
+      "signals_sent": []
+    }
+  },
+  "no_signals_needed": true,
+  "no_assets_deleted": true,
+  "no_pending_census_migration": true,
+  "unknown_GPU_owners_untouched": true
+}

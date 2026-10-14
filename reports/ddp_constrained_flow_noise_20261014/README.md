@@ -3,6 +3,18 @@
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
 
+**Temporary hosts withdrawn, 2026-10-14 23:09 UTC:** the user revoked further use of
+`vlawm-zt`, `vlawm-zt3`, and `vla-zt3`. Both temporary lease dispatch entries
+are disabled. All 24 census workers and three profile invocations had already
+exited successfully before expiry; live process/session checks found no Flow
+residuals. No signals or asset deletions were needed. The complete census was
+sealed at 21:35 UTC: **101,592 scenes / 1,176 logs / 1,625,472 candidate scores**,
+with nothing pending for migration. C_SDE and N_FLOW_NOISE remain active on
+permanently authorized Tsinghua zt3/zt4. Their scientific budgets are unchanged.
+[Withdrawal and live verification](temporary_hosts_withdrawal_20261014.json);
+[Complete frozen-SFT census](full_TRAIN_census_complete.json). The census is
+frozen SFT G16 sampling, not a single-candidate deployment result.
+
 **User-requested interim Navtest, 2026-10-14:** both methods at matched
 raw25,398 / update2030 have now completed all 12,146 scenes with original
 single-candidate 10-step ODE, seed2101 and canonical v1.1. PDMS is

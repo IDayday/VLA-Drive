@@ -1,0 +1,54 @@
+{
+  "schema": "cfn_frozen_population_census_summary_v1",
+  "status": "COMPLETE_ALL_TRAIN_G16",
+  "registered_scenes": 101592,
+  "completed_scenes": 101592,
+  "remaining_scenes": 0,
+  "observed_logs": 1176,
+  "registered_logs": 1176,
+  "counts": {
+    "zero_PDMS_advantage_groups": 34432,
+    "all_zero_PDMS_groups": 37,
+    "zero_final_advantage_groups": 22822,
+    "progress_only_official_reward_groups": 58159,
+    "official_safety_cost_varies_groups": 8532,
+    "geometric_cost_varies_groups": 37809,
+    "groups_with_safe_candidate": 101513,
+    "all_PDMS_one": 34330,
+    "other_nonzero_nonunit_tied_groups": 65,
+    "mixed_PDMS_groups": 67160
+  },
+  "tied_PDMS_value_histogram": {
+    "1.0": 34330,
+    "0.8333333333333334": 44,
+    "0.5833333333333334": 21,
+    "0.0": 37
+  },
+  "candidate_means": {
+    "no_at_fault_collisions": 0.9996228787699819,
+    "drivable_area_compliance": 0.9848800840617371,
+    "ego_progress": 0.8632935330023085,
+    "time_to_collision_within_bound": 0.9938762402551382,
+    "comfort": 0.9992463727458855,
+    "driving_direction_compliance": 0.9857336822781322,
+    "score": 0.9315628704995872,
+    "joint_safe_candidate_rate": 0.9790196324513741
+  },
+  "committed_logical_candidate_scores": 1625472,
+  "measured_worker_seconds": {
+    "rollout_seconds": 290849.11285465956,
+    "scoring_seconds": 216108.93019499443,
+    "reference_seconds": 8.593471392989159,
+    "scoring_cpu_seconds": 213678.0343184546
+  },
+  "reference": "fixed original SFT plus original C_SDE G16; no optimizer updates",
+  "not_single_candidate_ODE_deployment": true,
+  "final_advantage_semantics": "fixed initial multipliers only; current training lambda is not substituted",
+  "population_scope": "full registered RL_TRAIN",
+  "registration_sha256": "d90f7238c93f936edb8792353f4e037bb5e5fbea2da2d25d20a4a6f117c4c654",
+  "source_sha256": "7624a8fbca4f73cd3c2ac33b64c46f390a7247ec59f21e937e3c9f7df7db10d0",
+  "observed_unix": 1792013704.480234,
+  "seal_manifest_sha256": "fe21861fb7664918a4548e22cde07a0deb152f693a58a44ab25c9ba3598e4bfc",
+  "retry_cost_scope": "committed unique groups; uncommitted failed attempts and qualification calls must be added from launch/failure receipts",
+  "sha256": "40784662a30a1da1863a68eb5325b55ab4bf9c091d77917a903f72052554e991"
+}
