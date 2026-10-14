@@ -1,0 +1,433 @@
+{
+  "schema": "cfn_single_ODE_report_v1",
+  "scenes": 12146,
+  "logs": 136,
+  "seed": 2101,
+  "training_seed": 42,
+  "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "behavior_sha256": "3e4ee86224d1ecccc83afac1506c55072483ac2876fa61d8e15b33f349dd1ed4",
+  "score_payloads_sha256": "a3c7d254188904451d197767fc79da97f30fe61159ce3b0031b00e9482ad6e14",
+  "baseline_payloads_sha256": "c261135442046e37e0ece4ff29bbb673c7e78e628b210b0cc2f9cb65227e0952",
+  "deployment": "original_VLAAgent_current_observation_single_10_step_ODE",
+  "metrics": {
+    "no_at_fault_collisions": {
+      "current": 0.9792524287831385,
+      "SFT": 0.9816400461057139,
+      "paired": {
+        "mean": -0.0023876173225753335,
+        "CI95": [
+          -0.0036915457497032475,
+          -0.0012565823576886504
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 38,
+      "decline_at_least_0_005": 38
+    },
+    "drivable_area_compliance": {
+      "current": 0.972748229869916,
+      "SFT": 0.9697019594928371,
+      "paired": {
+        "mean": 0.0030462703770788736,
+        "CI95": [
+          0.001312892504679768,
+          0.004767180615527795
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 24,
+      "decline_at_least_0_005": 24
+    },
+    "ego_progress": {
+      "current": 0.8422916700770012,
+      "SFT": 0.8300336650519234,
+      "paired": {
+        "mean": 0.012258005025077845,
+        "CI95": [
+          0.010096856173508618,
+          0.014237315153118392
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        0.4700663743802097,
+        0.6535668804153419,
+        0.8990281113166378,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 167,
+      "decline_at_least_0_005": 65
+    },
+    "time_to_collision_within_bound": {
+      "current": 0.9432735056808826,
+      "SFT": 0.9505186892804215,
+      "paired": {
+        "mean": -0.0072451835995389425,
+        "CI95": [
+          -0.0099340334273984,
+          -0.004622932519397431
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 122,
+      "decline_at_least_0_005": 122
+    },
+    "comfort": {
+      "current": 0.9999176683681871,
+      "SFT": 1.0,
+      "paired": {
+        "mean": -8.233163181294254e-05,
+        "CI95": [
+          -0.0002813902963422767,
+          0.0
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 1,
+      "decline_at_least_0_005": 1
+    },
+    "driving_direction_compliance": {
+      "current": 0.9823398649761238,
+      "SFT": 0.9828338547670015,
+      "paired": {
+        "mean": -0.0004939897908776552,
+        "CI95": [
+          -0.001154653189282154,
+          0.0001229656797303496
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 21,
+      "decline_at_least_0_005": 21
+    },
+    "score": {
+      "current": 0.8924290600063399,
+      "SFT": 0.8891160641705796,
+      "paired": {
+        "mean": 0.003312995835760141,
+        "CI95": [
+          0.0009867259924289727,
+          0.0055402990552904435
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      },
+      "current_quantiles_0_5_10_50_90_100": [
+        0.0,
+        0.5207834743029376,
+        0.829886345436456,
+        0.9518867951833708,
+        1.0,
+        1.0
+      ],
+      "any_negative_difference": 285,
+      "decline_at_least_0_005": 181
+    }
+  },
+  "safety": {
+    "no_at_fault_collisions": {
+      "current_violations": 260,
+      "SFT_violations": 231,
+      "new_violations_in_fixed_SFT_pass_population": 38,
+      "recoveries": 9,
+      "fixed_SFT_pass_population": 11915,
+      "violation_difference": {
+        "mean": 0.0023876173225753335,
+        "CI95": [
+          0.0012412706992395795,
+          0.003694360732640019
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "drivable_area_compliance": {
+      "current_violations": 331,
+      "SFT_violations": 368,
+      "new_violations_in_fixed_SFT_pass_population": 24,
+      "recoveries": 61,
+      "fixed_SFT_pass_population": 11778,
+      "violation_difference": {
+        "mean": -0.0030462703770788736,
+        "CI95": [
+          -0.0047671806155277965,
+          -0.001312892504679771
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "time_to_collision_within_bound": {
+      "current_violations": 689,
+      "SFT_violations": 601,
+      "new_violations_in_fixed_SFT_pass_population": 122,
+      "recoveries": 34,
+      "fixed_SFT_pass_population": 11545,
+      "violation_difference": {
+        "mean": 0.0072451835995389425,
+        "CI95": [
+          0.0046229325193974284,
+          0.009934033427398396
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "joint": {
+      "current_violations": 987,
+      "SFT_violations": 933,
+      "new_violations_in_fixed_SFT_pass_population": 144,
+      "recoveries": 90,
+      "fixed_SFT_pass_population": 11213,
+      "violation_difference": {
+        "mean": 0.0044459081178988965,
+        "CI95": [
+          0.0010919966974401107,
+          0.007817715766449447
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    }
+  },
+  "zeros": {
+    "current": 563,
+    "SFT": 569,
+    "nonzero_to_zero": 60,
+    "zero_to_nonzero": 66,
+    "seed_semantics": "one fixed seed: any/all/scene-mean-zero coincide; no multi-seed robustness claim"
+  },
+  "motion": {
+    "requested_forward_end_m": {
+      "current": 19.50176516443702,
+      "SFT": 19.303597587897634,
+      "paired": {
+        "mean": 0.19816757653938494,
+        "CI95": [
+          0.19210215377706386,
+          0.2039622980280609
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "simulated_forward_end_m": {
+      "current": 19.784376731584956,
+      "SFT": 19.46776466370869,
+      "paired": {
+        "mean": 0.3166120678762694,
+        "CI95": [
+          0.3100328348921913,
+          0.3232841821083556
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "simulated_max_abs_lateral_m": {
+      "current": 2.6294041099710586,
+      "SFT": 2.587708058871859,
+      "paired": {
+        "mean": 0.04169605109919913,
+        "CI95": [
+          0.03659816901212576,
+          0.046728946904935564
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "simulated_mean_speed_mps": {
+      "current": 5.138096471796504,
+      "SFT": 5.051715806425657,
+      "paired": {
+        "mean": 0.0863806653708485,
+        "CI95": [
+          0.08446646822776219,
+          0.0883069276196433
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "simulated_final_speed_mps": {
+      "current": 5.294381758773752,
+      "SFT": 5.003349621233403,
+      "paired": {
+        "mean": 0.2910321375403483,
+        "CI95": [
+          0.2844119657969124,
+          0.29746433743992173
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "request_second_difference_m": {
+      "current": 0.2450266698022322,
+      "SFT": 0.22280413271249244,
+      "paired": {
+        "mean": 0.02222253708973976,
+        "CI95": [
+          0.020299682311028192,
+          0.024095386079821556
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    },
+    "official_progress_m": {
+      "current": 20.458454923297772,
+      "SFT": 20.144287302200755,
+      "paired": {
+        "mean": 0.31416762109702484,
+        "CI95": [
+          0.307104417503958,
+          0.3211365593070278
+        ],
+        "scenes": 12146,
+        "logs": 136,
+        "bootstrap_repeats": 2000,
+        "seed": 42,
+        "training_seed_uncertainty_included": false
+      }
+    }
+  },
+  "arrival": {
+    "definition": "Time to first cross half the fixed SFT final forward displacement; include SFT forward end >=1m; physical .1s interpolation",
+    "eligible_scenes": 12072,
+    "ineligible_scenes": 74,
+    "censoring": "Unreached crossing is flagged and capped at horizon4s; capped time is not an observed arrival",
+    "current_capped_mean_seconds": 1.8484277940852452,
+    "SFT_capped_mean_seconds": 1.868603549650386,
+    "current_not_reached": 0,
+    "SFT_not_reached": 0,
+    "paired_capped_seconds": {
+      "mean": -0.020175755565140962,
+      "CI95": [
+        -0.021139707106568754,
+        -0.019168831885698533
+      ],
+      "scenes": 12072,
+      "logs": 136,
+      "bootstrap_repeats": 2000,
+      "seed": 42,
+      "training_seed_uncertainty_included": false
+    }
+  },
+  "uncertainty": "log-cluster bootstrap with scene weights; no training/inference-seed uncertainty",
+  "reference_safety": "fixed original SFT seed2101 population; not all-noise or base-pretraining-unseen safety",
+  "sha256": "1618e54990403bb4623a7c2652f9be5a33520236a5d243ee3136c08477969983",
+  "observation_context": {
+    "stage": "user_requested_interim",
+    "lock_sha256": "fdab58a271163e5874cda3729a931b63de050ebaa5c204b41386630dd0c0dde3",
+    "matched_RL_raw_exposure": 25398,
+    "formal_budget_fraction": 0.125,
+    "final_confirmation": false,
+    "checkpoint_selection_uses_this_report": false
+  },
+  "cohort": "navtest_tokens",
+  "meets_componentwise_safety_rule": false,
+  "descriptive_safety_alert_components": [],
+  "used_for_DEV_selection_or_training_control": false
+}

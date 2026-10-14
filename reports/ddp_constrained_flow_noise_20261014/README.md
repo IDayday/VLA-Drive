@@ -2,7 +2,21 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Execution update at **2026-10-14 18:49 UTC**: **both formal lines are running**.
+
+**User-requested interim Navtest, 2026-10-14:** both methods at matched
+raw25,398 / update2030 have now completed all 12,146 scenes with original
+single-candidate 10-step ODE, seed2101 and canonical v1.1. PDMS is
+SFT **88.9116**, C_SDE **89.2592** (**+0.3476**), N_FLOW_NOISE **89.2429**
+(**+0.3313**). Both paired log-bootstrap intervals are positive, but NC/TTC
+violations increase: NC **231 / 251 / 260**, TTC **601 / 640 / 689**.
+DAC and the total zero count improve. Neither method meets safety preservation;
+learned noise has not shown additional deployed score benefit at this matched
+checkpoint. This is **12.5% of the formal budget**, not a completed training
+endpoint or a 92-PDMS result. The explicit interim Navtest observation is
+disclosed and does not change training or checkpoint selection.
+[Full test result, safety transfers and execution evidence](interim_navtest_raw025398.md).
+
+Earlier execution update at **2026-10-14 18:49 UTC**: **both formal lines are running**.
 C resumed its complete recovered update1850 state after a targeted numerical
 repair passed real-density/full-head-gradient and eight-rank inner-resume
 qualification. It has now completed update1888 / raw23648; no restart from SFT
@@ -52,11 +66,12 @@ groups, **86.70%** have only EP varying among the official score components.
 This is incomplete population coverage, not a final full-TRAIN estimate or a
 trained-policy deployment score. [Verified snapshot and failure causes](train_population_snapshot_20261014T1615Z.md).
 
-N_FLOW_NOISE has reached its first registered raw25,398 full-DEV observation:
-ODE PDMS **94.5460**, TTC violations **4**, versus SFT **93.6192 / 1**.
-The safety-selection rule still fails, but the registered severe pause rule
-does not trigger. C_SDE has not yet reached the matched exposure; no unmatched
-method ranking is claimed. [N full-DEV evidence](N_FLOW_NOISE_DEV_raw025398.json).
+Both methods have reached their first registered raw25,398 full-DEV observation:
+ODE PDMS is C **94.2246**, N **94.5460**, versus SFT **93.6192**.
+TTC violations are **4 / 4 / 1**. Both fail safety selection, without triggering
+the registered severe-pause boundary. N's better DEV score does not carry over
+as an advantage over C on the matched interim Navtest above.
+[C full-DEV evidence](C_SDE_DEV_raw025398.json), [N full-DEV evidence](N_FLOW_NOISE_DEV_raw025398.json).
 
 Earlier observation at 2026-10-14 15:35 UTC: the
 user-requested extra full-DEV observation of both saved update1024 checkpoints
