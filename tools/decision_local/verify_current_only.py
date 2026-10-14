@@ -28,7 +28,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('anchor','cache','labels','refiner','output'):p.add_argument('--'+k,type=Path,required=True)
     p.add_argument('--predictor',type=Path)
-    p.add_argument('--samples',type=int,default=4);a=p.parse_args();resources=helpers.check_host()
+    p.add_argument('--samples',type=int,default=4);p.add_argument('--max-seconds',type=float,default=900)
+    a=p.parse_args();resources=helpers.check_host();started=time.monotonic()
     anchor=helpers.read(a.anchor);runtime=load_runtime(anchor)
     import numpy as np
     import torch
@@ -40,8 +41,14 @@ def main():
     from starVLA.model.modules.decision_local.consequence_contract import ModelInputs,PredictionQueries,predicted_relations
     from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
+    # Mark admission during CPU native-master reconstruction so an idle-card
+    # watcher cannot mistake this loading process for an unused device. This
+    # uninitialized byte buffer consumes no model/proposal RNG.
+    loading_reservation=torch.empty(768*1024*1024,device='cuda',dtype=torch.uint8)
     train=helpers.read(Path(anchor['run'])/'identity.json')
     model=load_student(anchor['run'],anchor['tag'],train,precision='fp32',strip=True).requires_grad_(False).eval()
+    del loading_reservation
+    loading_seconds=time.monotonic()-started
     rr=torch.load(a.refiner,map_location='cpu',weights_only=False);kind=rr['identity']['kind']
     if kind not in ('E_NONE','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF'):raise ValueError('Camera-only group required')
     predictor=None;records=[rr]
@@ -66,6 +73,7 @@ def main():
         meta=helpers.read(receipt);f=load_file(str(a.cache/'chunks'/(receipt.stem+'.safetensors')));l=load_file(str(a.labels/'chunks'/(receipt.stem+'.safetensors')))
         for i,token in enumerate(meta['tokens']):
             if len(rows)>=a.samples:break
+            if time.monotonic()-started>a.max_seconds:raise TimeoutError('Bounded online/cache verification')
             observation={k:v for k,v in data[lookup[token]].items() if k in policy.camera_fields};observation['token']=token
             torch.cuda.synchronize();started=time.monotonic()
             online=policy.predict(observation,sampling_seed=42)
@@ -92,7 +100,9 @@ def main():
             rows.append({'token':token,'online_cache_max_abs_m':float((final-online['q_final']).abs().max()),
                 'GT_fields_rejected':rejected,'seconds':elapsed,'one_Qwen_forward':online['base_forward_count']==1})
         if len(rows)>=a.samples:break
+    if len(rows)!=a.samples:raise ValueError('Incomplete requested real-image verification population')
     helpers.atomic_json(a.output,{'passed':True,'scenes':rows,'anchor_identity':anchor['identity'],'resources':resources,
+        'GPU_hours':(time.monotonic()-started)/3600.,'loading_seconds':loading_seconds,
         'source_sha':helpers.source_sha(ROOT),'precision':'FP32 anchor, FP16 feature roundtrip, FP32 small heads; TF32off',
         'kind':kind,'predictor_sha256':helpers.digest(a.predictor) if a.predictor else None,'refiner_sha256':helpers.digest(a.refiner),
         'limitations':'smoke heads only unless endpoint receipts show full formal training; label/cache files used solely in verification comparator, never policy.predict'})
