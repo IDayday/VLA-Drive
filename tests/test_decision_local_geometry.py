@@ -4,6 +4,24 @@ from starVLA.model.modules.structured_world.grid import GridSpec
 from starVLA.model.modules.decision_local.consequence_geometry import obstacle_distance, read_consequences, current_cv_occupancy, carry_static_ground_support
 
 
+def test_current_frustum_uses_positive_depth_raw_roi_and_sensor_transform():
+    from tools.decision_local.audit_current_frustum import points_in_current_camera
+    K=np.array([[100.,0.,400.],[0.,100.,300.],[0.,0.,1.]])
+    sensor=np.eye(4);sensor[:3,3]=[2.,-3.,1.]
+    camera=np.array([[0.,0.,10.],[0.,23.,10.],[50.,0.,10.],[0.,0.,-10.]])
+    original=camera.copy()
+    # 800x600 source becomes a y=[75,524] crop. The second point is in
+    # the original image but outside the allowed S0 ROI.
+    mask=points_in_current_camera(camera+sensor[:3,3],sensor,K,None,(800,600))
+    np.testing.assert_array_equal(mask,[True,False,False,False])
+    np.testing.assert_array_equal(camera,original)
+    # Positive radial distortion can push a formerly valid ray beyond the ROI;
+    # this must not be treated as a rectified image or clamped to the border.
+    p=np.array([[30.,0.,10.]])+sensor[:3,3]
+    assert points_in_current_camera(p,sensor,K,None,(800,600))[0]
+    assert not points_in_current_camera(p,sensor,K,np.array([.1,0,0,0,0]),(800,600))[0]
+
+
 def test_static_ground_carry_never_clears_untrusted_objects_or_missing_frames():
     occ=np.zeros((3,4,4),np.uint8);valid=np.ones_like(occ,bool);instance=np.zeros_like(occ)
     occ[1:]=255;valid[1:]=False;instance[1,2,2]=42;valid[0,0,0]=False

@@ -96,12 +96,24 @@ def main():
     for k in ('features','labels','checkpoint','output'):p.add_argument('--'+k,type=Path,required=True)
     p.add_argument('--batch',type=int,default=32);p.add_argument('--controls',action='store_true')
     p.add_argument('--mean-features',type=Path);p.add_argument('--max-seconds',type=float,required=True)
+    p.add_argument('--generalization-config',type=Path,
+        help='Explicit preregistered query-only amplitude check; never changes trained weights')
     a=p.parse_args();resources=check_host();started=time.monotonic()
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     data=FrozenConsequenceData(a.features,a.labels);s=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
     if not s['identity']['kind'].startswith('P_'):raise ValueError('Predictor checkpoint required')
-    if s['identity']['anchor_identity']!=data.feature_identity['anchor_identity'] or s['identity']['query_config']!=data.label_identity['query_config']:
-        raise ValueError('Evaluation must retain the trained foundation and query contract')
+    if s['identity']['anchor_identity']!=data.feature_identity['anchor_identity']:
+        raise ValueError('Evaluation must retain the trained foundation')
+    trained_query=s['identity']['query_config'];evaluated_query=data.label_identity['query_config']
+    if a.generalization_config:
+        declared=read(a.generalization_config)
+        if declared!=evaluated_query or set(declared)!=set(trained_query):
+            raise ValueError('Generalization queries must match their explicit fixed registration')
+        changed={key for key in declared if declared[key]!=trained_query[key]}
+        if not changed or changed-{'lateral_m','time_shift_s'}:
+            raise ValueError('Only registered lateral/time amplitudes may change in this diagnostic')
+    elif trained_query!=evaluated_query:
+        raise ValueError('Evaluation must retain the trained query contract')
     model=build_model(s['identity']['kind'],s['identity']['seed'],s['identity']['dim']).cuda().eval();model.load_state_dict(s['model'],strict=True)
     a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'metrics.jsonl').exists():raise FileExistsError('Immutable evaluation output')
@@ -153,6 +165,9 @@ def main():
     atomic_json(a.output/'COMPLETE.json',{'scenes':scene_count,'results':result,'resource_check':resources,'GPU_hours':(time.monotonic()-started)/3600.,
         'checkpoint_sha256':digest(a.checkpoint),'features':data.feature_identity['identity'],'labels':data.label_identity['identity'],
         'source_sha':source_sha(ROOT),'precision':'FP32 head; TF32off','query_protocol':'q0 seed42, seven fixed complete trajectories',
+        'generalization_only':bool(a.generalization_config),'trained_query_config':trained_query,
+        'evaluated_query_config':evaluated_query,
+        'generalization_config_sha256':digest(a.generalization_config) if a.generalization_config else None,
         'thresholds':{'spatial_ambiguous_below_m':.5,'near_max_displacement_m':1.,'road_sign_ambiguity_m':.25,'clearance_band_m':[0.,1.],'overlap_score':.5},
         'scene_mean_rule':'all scenes retained, zero numerator for unsupported scene; coverage and valid counts reported separately'})
 
