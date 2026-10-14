@@ -64,8 +64,18 @@ def worker(config_path, role, routing_hash, wait_for_dispatch=False):
             require(start['pool_hash'] == read_json(config.root/'SERVING_CANDIDATE_POOL.json')['hash'],
                     'bank dispatch pool mismatch')
         receipt['pool_hash'] = read_json(config.root/'SERVING_CANDIDATE_POOL.json')['hash']
-        atomic_json(folder/'STATUS.json', {'status': 'RUNNING', **receipt})
         try:
+            from .capacity import probe
+            deadline = time.monotonic()+plan['deadline_hours']*3600
+            while True:
+                capacity = probe(route['gpu'])
+                atomic_json(folder/'CAPACITY.json', capacity)
+                if capacity['ready']: break
+                atomic_json(folder/'STATUS.json', {'status': 'WAITING_CAPACITY', **receipt,
+                            'capacity': capacity, 'heartbeat_unix': time.time()})
+                require(time.monotonic() < deadline, 'bank GPU remains busy/unidentified; do not evict owners')
+                time.sleep(20)
+            atomic_json(folder/'STATUS.json', {'status': 'RUNNING', **receipt})
             result = build_role(config, role, 'cuda:0')
         except Exception as error:
             atomic_json(folder/'STATUS.json', {'status': 'FAILED', **receipt, 'error': repr(error)})
@@ -92,7 +102,7 @@ def build_parallel(config):
             status_file = folder/role/'STATUS.json'
             require(status_file.exists(), 'role worker must be deployed explicitly before bank dispatch: '+role)
             status = read_json(status_file)
-            require(status['routing_hash'] == routing_hash and status['status'] in ('READY_WAITING_DISPATCH', 'RUNNING', 'COMPLETE'),
+            require(status['routing_hash'] == routing_hash and status['status'] in ('READY_WAITING_DISPATCH', 'WAITING_CAPACITY', 'RUNNING', 'COMPLETE'),
                     'role worker failed/stale, inspect before retry: '+role)
             if status['status'] == 'READY_WAITING_DISPATCH':
                 require(time.time()-status['heartbeat_unix'] < 120, 'role worker heartbeat stale: '+role)

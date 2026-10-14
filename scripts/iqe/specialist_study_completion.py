@@ -33,6 +33,14 @@ def main():
 
     def launch(command, gpu, *extra):
         check(config, command)
+        from iqe.specialist_study.capacity import probe
+        while True:
+            capacity = probe(gpu)
+            atomic_json(output / ('CAPACITY_gpu_'+str(gpu)+'.json'), capacity)
+            if capacity['ready']:
+                break
+            tick('WAITING_CAPACITY', {'command': command, 'gpu': gpu, 'capacity': capacity})
+            time.sleep(20)
         name = command + ('_' + extra[1] if extra and extra[0] == '--cell' else '')
         previous = sorted(output.glob(name + '_attempt_*.json'))
         attempt = len(previous) + 1
