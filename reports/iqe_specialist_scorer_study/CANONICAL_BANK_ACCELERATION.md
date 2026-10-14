@@ -51,6 +51,16 @@ before this narrow execution change:502 passed,3 skipped,53.43s. The extra match
 factorial analysis test passed1/1; its bootstrap analysis reads only completed
 5000-step validation labels and does not choose or replace any endpoint.
 
+Bank assembly now overlaps up to eight immutable record reads, with at most256
+scenes in flight and exact original row order. All trajectory checksums and
+candidate/scene/protocol joins remain mandatory. A one-worker versus eight-worker
+test verifies byte-identical arrays and bank metadata, missing-component masks
+and stale-context rejection (4 focused tests passed in0.49s). The D_S assembler
+already running with the original serial reader was allowed to finish; it was
+not interrupted for this optimization. Subsequent rich assembly uses the bounded
+reader and writes explicit progress receipts. The study plus baseline regression
+after rich-column orchestration passed82 tests in4.42s.
+
 Inspect running receipts before using the following continuation command; the
 RUN.lock rejects concurrent preparers. It preserves all completed labels:
 

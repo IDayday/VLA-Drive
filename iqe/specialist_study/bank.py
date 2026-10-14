@@ -42,27 +42,41 @@ def directory(config,kind,role):
     return config.root/'banks'/kind/role
 
 
-def save_bank(config,kind,role,scenes,rows,provenance):
+def save_bank(config,kind,role,scenes,rows,provenance,*,read_workers=8):
+    require(1<=read_workers<=8,'bounded immutable bank reader concurrency')
+    require(len(scenes)==len(rows) and all(rows),'complete nonempty scene bank rows')
     p=pool(config);folder=directory(config,kind,role);count=max(len(row) for row in rows);proto=protocol(config)
     horizon=read_json(config.root/'OFFLINE_BASE_CONTRACT.json')['trajectory']['horizon']
     trajectories=np.zeros((len(scenes),count,horizon,3),np.float32)
     scores=np.zeros((len(scenes),count),np.float32);valid=np.zeros_like(scores,dtype=bool)
     components=np.full((*scores.shape,len(COMPONENTS)),np.nan,np.float32);cv=np.zeros_like(components,dtype=bool)
     refs=[]
-    for n,(scene,row) in enumerate(zip(scenes,rows)):
-        references=[]
+    def verified_row(pair):
+        scene,row=pair;references=[];physical=[]
         for k,(candidate,label) in enumerate(row):
             require(candidate.scene_id==scene.scene_id and label.candidate_key==candidate.key,'scene/candidate score join')
             require(file_hash(candidate.trajectory_ref)==candidate.trajectory_hash,'trajectory checksum')
             require(label.score_valid and label.metric_context_hash==scene.metric_context_hash and label.score_protocol_hash==proto['protocol_hash'],'official label incomplete or stale')
             with np.load(candidate.trajectory_ref) as f:trajectory=f['trajectory'].copy()
             require(np.isfinite(trajectory).all(),'invalid physical candidate is not zero score')
-            trajectories[n,k]=trajectory;scores[n,k]=label.total_score_01;valid[n,k]=True
-            for j,c in enumerate(COMPONENTS):
-                cv[n,k,j]=label.component_valid_masks[c]
-                components[n,k,j]=label.named_components[c] if cv[n,k,j] else np.nan
+            physical.append(trajectory)
             references.append({'candidate':asdict(candidate),'label':asdict(label)})
-        refs.append(references)
+        return physical,references
+    with ThreadPoolExecutor(max_workers=read_workers) as workers:
+        # Bound in-flight reads to256 scenes; preserve exact original row order.
+        for start in range(0,len(scenes),256):
+            batch=list(zip(scenes[start:start+256],rows[start:start+256]))
+            for n,(physical,references) in enumerate(workers.map(verified_row,batch),start):
+                for k,trajectory in enumerate(physical):
+                    label=rows[n][k][1]
+                    trajectories[n,k]=trajectory;scores[n,k]=label.total_score_01;valid[n,k]=True
+                    for j,c in enumerate(COMPONENTS):
+                        cv[n,k,j]=label.component_valid_masks[c]
+                        components[n,k,j]=label.named_components[c] if cv[n,k,j] else np.nan
+                refs.append(references)
+            atomic_json(folder/'ASSEMBLY_PROGRESS.json',{'status':'VERIFYING_IMMUTABLE_RECORDS',
+                        'scenes_verified':min(start+256,len(scenes)),'requested_scenes':len(scenes),
+                        'read_workers':read_workers,'updated_unix':time.time()})
     comparison_valid=canonical_comparison_mask(trajectories,valid,scores)
     data=io.BytesIO();np.savez(data,trajectories=trajectories,scores=scores,valid=valid,components=components,component_valid=cv,comparison_valid=comparison_valid)
     atomic_bytes(folder/'arrays.npz',data.getvalue(),immutable=True)
