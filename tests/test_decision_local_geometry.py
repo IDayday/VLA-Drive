@@ -1,7 +1,19 @@
 import numpy as np
 import pytest
 from starVLA.model.modules.structured_world.grid import GridSpec
-from starVLA.model.modules.decision_local.consequence_geometry import obstacle_distance, read_consequences, current_cv_occupancy
+from starVLA.model.modules.decision_local.consequence_geometry import obstacle_distance, read_consequences, current_cv_occupancy, carry_static_ground_support
+
+
+def test_static_ground_carry_never_clears_untrusted_objects_or_missing_frames():
+    occ=np.zeros((3,4,4),np.uint8);valid=np.ones_like(occ,bool);instance=np.zeros_like(occ)
+    occ[1:]=255;valid[1:]=False;instance[1,2,2]=42;valid[0,0,0]=False
+    before=occ.copy()
+    result,support,receipt=carry_static_ground_support(occ,valid,instance,[True,False],[{}, {}, {}])
+    assert result[1,1,1]==0 and support[1,1,1]
+    assert result[1,2,2]==255 and not support[1,2,2]
+    assert result[1,0,0]==255 and not support[1,0,0]
+    assert not support[2].any() and (result[2]==255).all()
+    np.testing.assert_array_equal(occ,before)
 
 
 def test_signed_distance_and_unknown():

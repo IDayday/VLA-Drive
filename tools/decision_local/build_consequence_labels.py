@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from tools.decision_local.common import atomic_json, check_host, digest, identity, read, source_sha
 from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig, trajectory_queries
-from starVLA.model.modules.decision_local.consequence_geometry import read_consequences, current_cv_occupancy
+from starVLA.model.modules.decision_local.consequence_geometry import read_consequences, current_cv_occupancy, carry_static_ground_support
 from starVLA.model.modules.structured_world.grid import GridSpec
 from starVLA.dataloader.foresight_dataset import decode_ego
 
@@ -30,7 +30,7 @@ def current_log(root, log):
 
 
 def scene(task):
-    token, log, q0, state, anchor, split, query_config, clip = task
+    token, log, q0, state, anchor, split, query_config, clip, ground_policy = task
     import cv2
     torch.set_num_threads(1); cv2.setNumThreads(1)
     root = Path(anchor['data'][split]['label_root'])
@@ -39,7 +39,11 @@ def scene(task):
     if metadata['cache_identity'] != anchor['data'][split]['label_identity'] or digest(path) != metadata['label_sha256']:
         raise ValueError('Foreign or changed original geometry label')
     with np.load(path, allow_pickle=False) as f:
-        labels = {k: f[k].copy() for k in ('road_distance', 'road_valid', 'occupancy', 'occupancy_valid')}
+        labels = {k: f[k].copy() for k in ('road_distance', 'road_valid', 'occupancy', 'occupancy_valid', 'instances', 'future_valid')}
+    support_receipt={'rule':'strict existing G label validity'}
+    if ground_policy=='current_static_ground':
+        labels['occupancy'],labels['occupancy_valid'],support_receipt=carry_static_ground_support(
+            labels['occupancy'],labels['occupancy_valid'],labels['instances'],labels['future_valid'],metadata['height_quality'])
     T = q0.shape[1]
     if labels['occupancy'].shape[0] != T+1:
         raise ValueError('Auxiliary physical-time labels differ from query horizon')
@@ -73,7 +77,7 @@ def scene(task):
     result = {k: torch.from_numpy(np.stack([r[k] for r in rows])) for k in rows[0]}
     result.update(ego=gt['ego'].float(), future_valid=torch.ones(T, dtype=torch.bool),
                    body=torch.tensor([body[k] for k in ('length', 'width', 'rear_axle_to_center')]),
-                   cv_receipt=cv_receipt, label_sha256=metadata['label_sha256'])
+                   cv_receipt=cv_receipt, support_receipt=support_receipt, label_sha256=metadata['label_sha256'])
     return result
 
 
@@ -82,6 +86,8 @@ def main():
     p.add_argument('--anchor', type=Path, required=True); p.add_argument('--cache', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True); p.add_argument('--workers', type=int, default=2)
     p.add_argument('--max-seconds', type=float, required=True); p.add_argument('--query-config', type=Path)
+    p.add_argument('--ground-policy',choices=('strict','current_static_ground'),default='strict')
+    p.add_argument('--follow-cache',action='store_true',help='Consume newly committed anchor chunks within the same finite time budget')
     args = p.parse_args()
     resources = check_host(); anchor = read(args.anchor); cache = read(args.cache/'identity.json')
     if cache['anchor_identity'] != anchor['identity'] or cache['split'] not in ('train', 'dev'):
@@ -92,6 +98,7 @@ def main():
         'code_files': {name: digest(ROOT/name) for name in ('tools/decision_local/build_consequence_labels.py',
             'starVLA/model/modules/decision_local/consequence_geometry.py', 'starVLA/model/modules/decision_local/trajectory_queries.py')},
         'split': cache['split'], 'query_config': config, 'distance_clip_m': 10., 'body_spacing_m': .5,
+        'ground_support_policy':args.ground_policy,
         'sources': ['CURRENT', 'CURRENT_CV', 'TRUE_FUTURE'], 'channels': ['road_margin_m', 'obstacle_clearance_m', 'geometric_overlap'],
         'validity': 'original unknown/height masks; distance cannot cross closer unknown; complete body; oracle uses source intersection',
         'future_times': 'true physical time; never warp environment', 'cost': 'CPU labels only; no feature/model evaluation'}
@@ -101,8 +108,16 @@ def main():
     atomic_json(args.output/'identity.json', {'identity': ident, **contract})
     for name in ('chunks', 'records'): (args.output/name).mkdir(exist_ok=True)
     started = time.monotonic(); done = 0
+    def available_receipts():
+        seen=set()
+        while time.monotonic()-started<args.max_seconds:
+            for source in sorted((args.cache/'records').glob('*.json')):
+                if source.name in seen:continue
+                seen.add(source.name);yield source
+            if not args.follow_cache or (args.cache/'COMPLETE.json').exists():break
+            time.sleep(min(10.,max(0.,args.max_seconds-(time.monotonic()-started))))
     with ProcessPoolExecutor(args.workers, mp_context=multiprocessing.get_context('spawn')) as pool:
-        for source in sorted((args.cache/'records').glob('*.json')):
+        for source in available_receipts():
             chunk = source.stem; receipt = read(source)
             out = args.output/'chunks'/(chunk+'.safetensors'); meta = args.output/'records'/(chunk+'.json')
             if time.monotonic()-started >= args.max_seconds: break
@@ -115,7 +130,7 @@ def main():
                 raise ValueError('Changed frozen features')
             tensors = load_file(str(features_path)); by_token = {r['token']: r for r in cache['index']}
             tasks = [(token, by_token[token]['log'], tensors['q0'][i].numpy(), tensors['state'][i].numpy(),
-                      anchor, cache['split'], config, 10.) for i, token in enumerate(receipt['tokens'])]
+                      anchor, cache['split'], config, 10., args.ground_policy) for i, token in enumerate(receipt['tokens'])]
             results = list(pool.map(scene, tasks))
             numeric = {k: torch.stack([r[k] for r in results]).contiguous() for k in results[0] if torch.is_tensor(results[0][k])}
             temporary = out.with_name(out.name+f'.{os.getpid()}.tmp')
@@ -123,11 +138,14 @@ def main():
             atomic_json(meta, {'identity': ident, 'tokens': receipt['tokens'], 'sha256': digest(out),
                 'bytes': out.stat().st_size, 'label_sha256': [r['label_sha256'] for r in results],
                 'current_cv': [r['cv_receipt'] for r in results],
+                'support_extension': [r['support_receipt'] for r in results],
                 'valid_fraction_sources_channels': numeric['valid'].float().mean((0, 1, 3, 4)).tolist(),
                 'common_valid_fraction': float(numeric['common_valid'].float().mean())})
             done += len(results); print(json.dumps({'scenes': done, 'chunk': chunk, 'seconds': time.monotonic()-started}), flush=True)
-    atomic_json(args.output/'STATUS.json', {'identity': ident, 'scenes': done, 'seconds': time.monotonic()-started,
-        'CPU_worker_hours': (time.monotonic()-started)*args.workers/3600., 'resource_check': resources})
+    status={'identity': ident, 'scenes': done, 'seconds': time.monotonic()-started,
+        'CPU_worker_wall_hours_including_wait': (time.monotonic()-started)*args.workers/3600., 'resource_check': resources}
+    atomic_json(args.output/'STATUS.json',status)
+    atomic_json(args.output/'attempts'/(str(time.time_ns())+'.json'),status)
     if done == len(cache['index']):
         atomic_json(args.output/'COMPLETE.json', {'identity': ident, 'scenes': done, 'full_cache_population': True})
 

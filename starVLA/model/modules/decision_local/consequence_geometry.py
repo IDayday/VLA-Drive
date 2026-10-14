@@ -10,6 +10,29 @@ from starVLA.model.modules.structured_world.grid import GridSpec
 from starVLA.model.modules.structured_world.queries import body_points
 
 
+def carry_static_ground_support(occupancy, valid, instances, future_valid, height_quality):
+    """Label-only support for annotated free cells on CURRENT known ground.
+
+    A missing future LiDAR return under the logged ego is not evidence of an
+    unknown road height: the same fixed ego(t0) cell can already have measured
+    ground at t0. Reuse that support only if the unmasked, complete future box
+    raster contains NO object. Never fill an unsupported annotated object,
+    missing frame, invalid LiDAR record, or unknown current ground. No ego GT
+    coordinate/footprint is used. This is a documented static-surface assumption,
+    not a change to the historical G caches or an assertion that no return=free.
+    """
+    occ, mask = np.array(occupancy, copy=True), np.asarray(valid,bool).copy()
+    current_free_ground = mask[0] & (occ[0] == 0)
+    counts=[]
+    for t in range(1,len(occ)):
+        complete = bool(future_valid[t-1]) and 'reason' not in height_quality[t]
+        add = (~mask[t]) & current_free_ground & (instances[t] == 0) & complete
+        mask[t,add]=True;occ[t,add]=0;counts.append(int(add.sum()))
+    return occ,mask,{'added_current_ground_free_cells':counts,
+        'rule':'known current free ground + complete future annotation raster empty; unknown objects stay unknown',
+        'assumption':'static surface at the same fixed xy; never propagate across an annotated unknown object'}
+
+
 def obstacle_distance(occupied, valid, grid=GridSpec(), clip_m=10.):
     occupied, valid = np.asarray(occupied), np.asarray(valid, bool)
     if occupied.shape != (grid.height, grid.width) or valid.shape != occupied.shape:
