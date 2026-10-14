@@ -81,3 +81,47 @@ correct cost-sensitive comparison sampler. They do not warm-start old heads.
 The first real updates have finite losses/gradients; these engineering checks
 are not evidence of heldout improvement. Selection and risk results will use
 the registered endpoints and the complete fixed populations.
+
+## Original matrix: complete locked development result
+
+At 2026-10-14 19:53 UTC, the original four-cell study produced its complete
+fixed development result: 1,696 scenes from 16 logs, with no invalid candidate
+filtered. `PREVIOUS_MATRIX_COMPLETE_DEV.json` records the source hashes. This
+is development evaluation, not a newly run navtest. The R00/R01/R10/R11 recipes
+were already registered and training; none is changed by this observation.
+
+| Policy | PDMS, percentage scale | Difference from Base | High-to-zero scenes |
+|---|---:|---:|---:|
+| Base | 90.53016 | 0 | 0 |
+| Oracle, same Base + three experts | 95.35166 | +4.82150 | 0 |
+| S00, semantic/deploy | 90.29649 | -0.23367 | 25 |
+| S01, semantic/rich | 90.64357 | +0.11341 | 19 |
+| S10, spatial/deploy | 89.48518 | -1.04498 | 29 |
+| S11, spatial/rich, selected on stage_val | 90.26951 | -0.26065 | 17 |
+
+S11 captures -5.406% of the positive Oracle opportunity. Its paired log-bootstrap
+gain interval is [-1.5705, +1.3622] percentage points. New NC/DAC/TTC failure
+scenes number 20/7/80; selected zero scores number 66 versus Base's 55. The
+high-to-zero denominator is the 1,588 Base-high scenes, not only switched scenes.
+Among its 1,271 switches there are 709 improvements, 144 regressions and 418
+ties. A majority of beneficial non-tied switches therefore does not establish
+positive expected utility: costly errors outweigh the small gains here.
+
+S01's small positive development difference also has a confidence interval
+spanning zero and adds failures. It cannot replace the already selected S11
+based on this development result. Rich-candidate and spatial factor contrasts
+all have intervals spanning zero; spatial input did not establish a benefit.
+The separately calibrated margin falls back to Base for every scene and is
+reported as no selection benefit. These results establish candidate opportunity
+and a remaining selection failure, not a successful robust Scorer.
+
+## Resource-only continuation, unchanged experiment
+
+Newly released permanent tsinghua-zt5 GPUs5/6/7 now run R10/R11/R01 respectively.
+Only these owned Scorer processes were paused at their native optimizer boundary:
+R10/R11 at step2790 and R01 at step2896. Their full checkpoints were checksummed,
+the former processes exited, and exactly one successor per cell restored the
+same optimizer, scheduler, RNG and sampling state. The first actual resumed IDs
+match the saved next batch; step logs have no gap or duplicate. Evidence is
+`FREE_GPU_MIGRATION_AUDIT.json`. No Base/G/other research process was signaled,
+no training budget was extended, and no temporary resource was admitted.
