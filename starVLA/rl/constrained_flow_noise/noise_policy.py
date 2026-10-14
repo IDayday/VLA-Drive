@@ -44,6 +44,10 @@ class NoisePolicy(nn.Module):
                            [spec.min_std, spec.max_std], 'learn') if spec.variant == 'N_FLOW_NOISE' else None)
         self.eval()
 
+    def forward(self, **kwargs):
+        from .objective import actor_loss
+        return actor_loss(self, **kwargs)
+
     def condition(self, raw):
         if raw.ndim != 3 or raw.shape[1] != 8:
             raise ValueError('Expected pre-projection observation tokens')
@@ -58,8 +62,13 @@ class NoisePolicy(nn.Module):
         # MLP/tanh/logvar/exp arithmetic and gradients to both weights and hidden.
         params = {name: value.float() for name, value in self.noise_head.named_parameters()}
         device = hidden.device
-        buffers = {'logvar_min': torch.log(torch.tensor([self.spec.min_std**2], device=device, dtype=torch.float32)),
-                   'logvar_max': torch.log(torch.tensor([self.spec.max_std**2], device=device, dtype=torch.float32))}
+        buffers = getattr(self, '_fixed_logvar_fp32', None)
+        if buffers is None or buffers['logvar_min'].device != device:
+            # Fixed configuration constants only; no state-dependent output is
+            # cached. Construct before graph capture, preserving FP32 bounds.
+            buffers = {'logvar_min': torch.log(torch.tensor([self.spec.min_std**2], device=device, dtype=torch.float32)),
+                       'logvar_max': torch.log(torch.tensor([self.spec.max_std**2], device=device, dtype=torch.float32))}
+            self._fixed_logvar_fp32 = buffers
         with torch.autocast(device.type, enabled=False):
             return torch.func.functional_call(self.noise_head, (params, buffers), (hidden.float(),))
 
@@ -67,13 +76,19 @@ class NoisePolicy(nn.Module):
         if self.training or self.policy.action_model.training or (self.noise_head is not None and self.noise_head.training):
             raise ValueError('PG rollout/recompute require deterministic eval mode with autograd allowed')
         head = self.policy.action_model
-        with torch.autocast(x.device.type, dtype=torch.float32, enabled=x.is_cuda):
-            if self.noise_head is not None:
-                velocity, hidden = head.predict_velocity_with_hidden(x, buckets, condition)
-            else:
-                velocity = head.predict_velocity(x, buckets, condition)
+        sigma = None
+        if getattr(self, '_cfn_rollout_graph_enabled', False) and not torch.is_grad_enabled():
+            from .rollout_graph import outputs
+            velocity, sigma = outputs(self, x, buckets, condition)
+        else:
+            with torch.autocast(x.device.type, dtype=torch.float32, enabled=x.is_cuda):
+                if self.noise_head is not None:
+                    velocity, hidden = head.predict_velocity_with_hidden(x, buckets, condition)
+                    sigma = self.noise_std(hidden)
+                else:
+                    velocity = head.predict_velocity(x, buckets, condition)
         if self.noise_head is not None:
-            return flow_noise_transition(x, velocity, self.noise_std(hidden))
+            return flow_noise_transition(x, velocity, sigma)
         times = torch.arange(11, device=x.device, dtype=torch.float32)/10
         return legacy_transition(x, velocity, times[steps], times[steps+1]-times[steps],
                                  first_dt=times[1], noise_level=self.spec.noise_level,

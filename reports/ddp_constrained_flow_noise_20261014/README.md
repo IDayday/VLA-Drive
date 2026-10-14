@@ -22,7 +22,7 @@ An earlier qualification attempt failed because the launch environment lacked
 the deterministic CuBLAS setting; its evidence is preserved. Full TRAIN cache
 generation and missing canonical v1.1 metric-cache production are running.
 
-The first 23 core tests passed on the authorized Tsinghua zt4 host. They cover
+The first 30 core/runtime tests passed on the authorized Tsinghua zt4 host. They cover
 upstream outputs/gradients, time/sign conversion, densities, KL and sigma
 gradients, score-function arithmetic, component advantages, dual direction,
 collector ordering/caps/resumption and geometric costs. This is arithmetic
@@ -48,3 +48,38 @@ uploaded. No original data, features, weights or private scene images are commit
 Upstream boundaries: [patch inventory](../../starVLA/rl/constrained_flow_noise/vendor/PATCHES.md).
 Formal calibration, cost budget, optimizer/resume and outcome sections will be
 updated with measured evidence; a target PDMS above 92 is not assumed achieved.
+
+The finite calibration is complete: 128 predeclared TRAIN scenes, G16 each,
+one C_SDE reference and at most two noise ranges. The initial discrete-std range
+`[0.0105409, 0.1]` was rejected because its median requested-XY second difference
+was 2.80 times C_SDE (registered limit 2). The only allowed half-range passed
+and is locked to `[0.0052704627669472965, 0.05000000000000001]`.
+
+| Initial stochastic policy | PDMS (0–100) | Joint NC/DAC/TTC full pass | Pairwise ADE (m) | Median XY second difference (m) |
+| --- | ---: | ---: | ---: | ---: |
+| C_SDE | 91.5867 | 96.1426% | 0.1322 | 0.2111 |
+| N_FLOW_NOISE original range, rejected | 87.7386 | 91.1621% | 0.3396 | 0.5905 |
+| N_FLOW_NOISE selected half-range | 91.5540 | 96.0449% | 0.1797 | 0.3514 |
+
+These are calibration means over actual stochastic candidates, **not trained
+ODE deployment results**. More geometric diversity is not yet evidence of
+useful driving exploration. No DEV/Navtest data selected the range.
+The fixed road/object thresholds are 0.1720945/0.9274561 metres, the registered
+positive-margin 5th percentiles among C_SDE candidates fully passing all three
+official safety metrics. Common unfiltered cost budgets are
+`[0, 0.03271484375, 0.005859375, 0.02867518074, 0.01117817716]`.
+The first three are event rates; the latter two are bounded geometric costs.
+A zero empirical NC budget does not establish zero true collision probability.
+
+The eight-GPU storage probe confirmed that existing DeepSpeed converts a
+separate FP32 noise group to BF16. The implementation therefore retains the
+audited uniform BF16 storage and FP32 optimizer masters, and evaluates the
+noise module through differentiable FP32 parameter views and FP32 fixed bounds.
+Actual full-DDP kernel checks passed: legacy C_SDE chain unchanged; eager versus
+CUDA graph chain exactly equal; noise-disabled means exactly equal to original
+Euler; sigma-only gradients reached all six MLP tensors and shared DiT; both
+sigma-only and mean-only changes altered ratios. Flat versus serial initial
+mean-ratio errors were at most `1.02e-5` (acceptance `1e-4`), with no PPO update
+performed in that kernel test. A first graph attempt failed on constructing a
+constant during capture; fixed FP32 bound tensors are now prepared before capture.
+Only configuration constants are cached, never noise outputs or trainable hidden states.

@@ -2,6 +2,7 @@
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache
 import multiprocessing
+import time
 import numpy as np
 
 from starVLA.rl.safe_flow_improvement import v1_reward
@@ -80,12 +81,20 @@ def body_margins(body_coordinates, road, observations):
 
 def score_scene(job):
     """Reuse canonical isolated candidate scoring without changing the proposal pool."""
+    cpu_start, wall_start = time.process_time(), time.monotonic()
     records = v1_reward.score_scene(job)
     road, observations, identity = _geometry_context(job[0], job[1])
     for record in records:
         if record['cache'] != identity:
             raise ValueError('Score and geometric consequences used different cache assets')
+        start = time.monotonic()
         record['geometry'] = body_margins(record['simulated_body_coordinates'], road, observations)
+        record['geometric_margins_status'] = 'AVAILABLE_GEOMETRIC_PROXIES_NOT_OFFICIAL_RISK_PROBABILITIES'
+        record['geometry_version'] = 'time_aligned_body_clearance_drivable_union_v1'
+        record['geometry_seconds'] = time.monotonic()-start
+    # Group cost belongs to the scene once, not once per candidate.
+    records[0]['scene_scoring_cpu_seconds'] = time.process_time()-cpu_start
+    records[0]['scene_scoring_wall_seconds'] = time.monotonic()-wall_start
     return records
 
 

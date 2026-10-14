@@ -20,6 +20,8 @@ class ConditionStore:
             complete = json.loads((self.root / 'COMPLETE.json').read_text())
             if complete['identity_sha256'] != fingerprint(self.identity):
                 raise ValueError('Condition publication identity changed')
+            if complete['manifest_sha256'] != file_sha(self.root / 'manifest.json'):
+                raise ValueError('Condition population manifest changed')
         else:
             self.root.mkdir(parents=True, exist_ok=True)
             with (self.root / 'identity.lock').open('a') as lock:
