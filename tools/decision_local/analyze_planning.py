@@ -32,6 +32,7 @@ def stationary_near_query(frame,q0,body,occupancy_valid,grid):
     l2e=attitude@pose_matrix(frame['lidar2ego_translation'],frame['lidar2ego_rotation'])
     anns=frame['anns'];keep=np.array([x in NAV_CLASSES for x in anns['gt_names']],bool)
     boxes=transform_boxes_to_ego(box_container(anns['gt_boxes'][keep]),l2e)
+    if len(boxes)==0:return False
     vel=np.asarray(anns.get('gt_velocity_3d',np.full((len(keep),3),np.nan)))[keep]
     good=np.isfinite(vel).all(-1);vel=np.where(good[:,None],vel,0.)@l2e[:3,:3].T
     near_static=good&(np.linalg.norm(vel[:,:2],axis=1)<=.1)

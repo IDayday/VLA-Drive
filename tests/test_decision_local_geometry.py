@@ -70,3 +70,6 @@ def test_empty_current_frame_not_fake_obstacle_or_empty_unknown():
     occ,mask,receipt=current_cv_occupancy(frame,current,valid,[.5,1.],grid=g)
     assert receipt['objects']==0 and (occ[:,:3]==255).all() and not mask[:,:3].any()
     assert (occ[:,3:]==0).all()
+    from tools.decision_local.analyze_planning import stationary_near_query
+    assert not stationary_near_query(frame,np.zeros((8,3),np.float32),
+        {'length':5.176,'width':2.297,'rear_axle_to_center':1.461},valid,g)

@@ -1,0 +1,756 @@
+{
+  "base_training_seeds": 1,
+  "comparisons": {
+    "E_CURRENT_GT_minus_E_NONE": {
+      "paired": {
+        "PDMS_baseline_percent": 91.15618423220594,
+        "PDMS_first_percent": 91.145468851909,
+        "baseline_zero_fraction": 0.02653301886792453,
+        "delta_percentage_points": -0.010715380296939142,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.02653301886792453,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 16,
+        "losses": 717,
+        "metrics": {
+          "comfort": {
+            "baseline": 1.0,
+            "first": 1.0,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9823113207547169,
+            "first": 0.9823113207547169,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9873231132075472,
+            "first": 0.9873231132075472,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "ego_progress": {
+            "baseline": 0.8535722728162227,
+            "first": 0.8533152922106415,
+            "log_cluster_95_interval": [
+              -0.00048645757666655883,
+              -0.00011913019513486757
+            ],
+            "paired_delta": -0.00025698060558113095
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9905660377358491,
+            "first": 0.9905660377358491,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "score": {
+            "baseline": 0.9115618423220595,
+            "first": 0.9114546885190901,
+            "log_cluster_95_interval": [
+              -0.00020280695829814473,
+              -4.974275648416243e-05
+            ],
+            "paired_delta": -0.00010715380296939141
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9610849056603774,
+            "first": 0.9610849056603774,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          }
+        },
+        "scenes": 1696,
+        "ties": 656,
+        "valid": true,
+        "wins": 323
+      },
+      "primary_preregistered_comparison": false,
+      "transitions": {
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.00011007440934953836,
+        "both_zero": 45,
+        "drivable_area_compliance_worsened_scenes": 0,
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 0,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.00010319613632035762,
+          "new_zeros": 0,
+          "scenes": 1248
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 3.5239553944910185e-06,
+          "new_zeros": 0,
+          "scenes": 47
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "time_to_collision_within_bound_worsened_scenes": 0,
+        "zero_to_nonzero": 0
+      }
+    },
+    "E_CV_GT_minus_E_CURRENT_GT": {
+      "paired": {
+        "PDMS_baseline_percent": 91.145468851909,
+        "PDMS_first_percent": 91.16331510879826,
+        "baseline_zero_fraction": 0.02653301886792453,
+        "delta_percentage_points": 0.017846256889249207,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.02653301886792453,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 16,
+        "losses": 663,
+        "metrics": {
+          "comfort": {
+            "baseline": 1.0,
+            "first": 1.0,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9823113207547169,
+            "first": 0.9823113207547169,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9873231132075472,
+            "first": 0.9873231132075472,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "ego_progress": {
+            "baseline": 0.8533152922106415,
+            "first": 0.853153922783068,
+            "log_cluster_95_interval": [
+              -0.00023242959116900205,
+              -7.584681391925338e-05
+            ],
+            "paired_delta": -0.0001613694275735568
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9905660377358491,
+            "first": 0.9905660377358491,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "score": {
+            "baseline": 0.9114546885190901,
+            "first": 0.9116331510879826,
+            "log_cluster_95_interval": [
+              -9.391940244519306e-05,
+              0.0008627794015184511
+            ],
+            "paired_delta": 0.00017846256889249206
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9610849056603774,
+            "first": 0.9616745283018868,
+            "log_cluster_95_interval": [
+              0.0,
+              0.002181917536015895
+            ],
+            "paired_delta": 0.0005896226415094339
+          }
+        },
+        "scenes": 1696,
+        "ties": 654,
+        "valid": true,
+        "wins": 379
+      },
+      "primary_preregistered_comparison": false,
+      "transitions": {
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": 0.00018332678185443158,
+        "both_zero": 45,
+        "drivable_area_compliance_worsened_scenes": 0,
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 0,
+        "original_high_ge_0p9": {
+          "mean_delta": -6.405170027770915e-05,
+          "new_zeros": 0,
+          "scenes": 1246
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -4.586260377616907e-07,
+          "new_zeros": 0,
+          "scenes": 47
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "time_to_collision_within_bound_worsened_scenes": 0,
+        "zero_to_nonzero": 0
+      }
+    },
+    "E_FUTURE_GT_minus_E_CV_GT": {
+      "paired": {
+        "PDMS_baseline_percent": 91.16331510879826,
+        "PDMS_first_percent": 91.19486585671332,
+        "baseline_zero_fraction": 0.02653301886792453,
+        "delta_percentage_points": 0.03155074791504729,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.025943396226415096,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 16,
+        "losses": 357,
+        "metrics": {
+          "comfort": {
+            "baseline": 1.0,
+            "first": 1.0,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9823113207547169,
+            "first": 0.9829009433962265,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0022288675795555596
+            ],
+            "paired_delta": 0.0005896226415094339
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9873231132075472,
+            "first": 0.9870283018867925,
+            "log_cluster_95_interval": [
+              -0.0006009675601202405,
+              0.0
+            ],
+            "paired_delta": -0.00029481132075471697
+          },
+          "ego_progress": {
+            "baseline": 0.853153922783068,
+            "first": 0.8536755652653849,
+            "log_cluster_95_interval": [
+              3.9789385396279765e-05,
+              0.0017458383073852232
+            ],
+            "paired_delta": 0.0005216424823169262
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9905660377358491,
+            "first": 0.9905660377358491,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "score": {
+            "baseline": 0.9116331510879826,
+            "first": 0.9119486585671331,
+            "log_cluster_95_interval": [
+              -0.0007163041912347228,
+              0.0018180318478839932
+            ],
+            "paired_delta": 0.0003155074791504729
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9616745283018868,
+            "first": 0.9610849056603774,
+            "log_cluster_95_interval": [
+              -0.002181917536015897,
+              0.0
+            ],
+            "paired_delta": -0.0005896226415094339
+          }
+        },
+        "scenes": 1696,
+        "ties": 651,
+        "valid": true,
+        "wins": 688
+      },
+      "primary_preregistered_comparison": true,
+      "transitions": {
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.00021315178429997899,
+        "both_zero": 44,
+        "drivable_area_compliance_worsened_scenes": 0,
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 0,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.00029947956956302566,
+          "new_zeros": 0,
+          "scenes": 1244
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 0.018876687533165053,
+          "new_zeros": 0,
+          "scenes": 47
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "time_to_collision_within_bound_worsened_scenes": 1,
+        "zero_to_nonzero": 1
+      }
+    },
+    "E_FUTURE_GT_minus_E_MASK_ONLY": {
+      "paired": {
+        "PDMS_baseline_percent": 91.22048744607349,
+        "PDMS_first_percent": 91.19486585671332,
+        "baseline_zero_fraction": 0.02535377358490566,
+        "delta_percentage_points": -0.02562158936020059,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.025943396226415096,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 16,
+        "losses": 315,
+        "metrics": {
+          "comfort": {
+            "baseline": 1.0,
+            "first": 1.0,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9829009433962265,
+            "first": 0.9829009433962265,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9870283018867925,
+            "first": 0.9870283018867925,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "ego_progress": {
+            "baseline": 0.854054245305493,
+            "first": 0.8536755652653849,
+            "log_cluster_95_interval": [
+              -0.001017427846924095,
+              0.0003008161716175133
+            ],
+            "paired_delta": -0.00037868004010814093
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9911556603773585,
+            "first": 0.9905660377358491,
+            "log_cluster_95_interval": [
+              -0.001201935120240481,
+              0.0
+            ],
+            "paired_delta": -0.0005896226415094339
+          },
+          "score": {
+            "baseline": 0.912204874460735,
+            "first": 0.9119486585671331,
+            "log_cluster_95_interval": [
+              -0.0006239101775567007,
+              0.00012534007150729668
+            ],
+            "paired_delta": -0.0002562158936020059
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9610849056603774,
+            "first": 0.9610849056603774,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          }
+        },
+        "scenes": 1696,
+        "ties": 651,
+        "valid": true,
+        "wins": 730
+      },
+      "primary_preregistered_comparison": false,
+      "transitions": {
+        "both_nonzero": 1652,
+        "both_nonzero_mean_change": 9.006729890092702e-05,
+        "both_zero": 43,
+        "drivable_area_compliance_worsened_scenes": 0,
+        "no_at_fault_collisions_worsened_scenes": 1,
+        "nonzero_to_zero": 1,
+        "original_high_ge_0p9": {
+          "mean_delta": 8.479480266119272e-05,
+          "new_zeros": 0,
+          "scenes": 1243
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 2.0115797667643844e-05,
+          "new_zeros": 0,
+          "scenes": 45
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "time_to_collision_within_bound_worsened_scenes": 0,
+        "zero_to_nonzero": 0
+      }
+    },
+    "E_FUTURE_GT_minus_E_NONE": {
+      "paired": {
+        "PDMS_baseline_percent": 91.15618423220594,
+        "PDMS_first_percent": 91.19486585671332,
+        "baseline_zero_fraction": 0.02653301886792453,
+        "delta_percentage_points": 0.038681624507357355,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.025943396226415096,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 16,
+        "losses": 727,
+        "metrics": {
+          "comfort": {
+            "baseline": 1.0,
+            "first": 1.0,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9823113207547169,
+            "first": 0.9829009433962265,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0022288675795555596
+            ],
+            "paired_delta": 0.0005896226415094339
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9873231132075472,
+            "first": 0.9870283018867925,
+            "log_cluster_95_interval": [
+              -0.0006009675601202405,
+              0.0
+            ],
+            "paired_delta": -0.00029481132075471697
+          },
+          "ego_progress": {
+            "baseline": 0.8535722728162227,
+            "first": 0.8536755652653849,
+            "log_cluster_95_interval": [
+              -0.0004938175901682712,
+              0.0013674106251472576
+            ],
+            "paired_delta": 0.00010329244916223841
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9905660377358491,
+            "first": 0.9905660377358491,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "score": {
+            "baseline": 0.9115618423220595,
+            "first": 0.9119486585671331,
+            "log_cluster_95_interval": [
+              -0.00020594407296448575,
+              0.0018708613579269096
+            ],
+            "paired_delta": 0.0003868162450735735
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9610849056603774,
+            "first": 0.9610849056603774,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          }
+        },
+        "scenes": 1696,
+        "ties": 653,
+        "valid": true,
+        "wins": 316
+      },
+      "primary_preregistered_comparison": false,
+      "transitions": {
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.00013989941179508577,
+        "both_zero": 44,
+        "drivable_area_compliance_worsened_scenes": 0,
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 0,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.00012377513719149554,
+          "new_zeros": 0,
+          "scenes": 1248
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 0.018879752862521783,
+          "new_zeros": 0,
+          "scenes": 47
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "time_to_collision_within_bound_worsened_scenes": 0,
+        "zero_to_nonzero": 1
+      }
+    }
+  },
+  "group_thresholds_fixed_before_formal_training": {
+    "baseline_high_PDMS_fraction": 0.9,
+    "baseline_low_PDMS_fraction": 0.5
+  },
+  "interpretation": "Frozen mature S0 incremental probes; privileged rows are not deployable; no causal upper bound or from-scratch gain claim. Internal q0 is a shared frozen trained baseline here.",
+  "not_yet_available": [
+    "R_FUTURE_ABS minus R_CURRENT_PRED",
+    "R_FUTURE_DIFF minus R_FUTURE_ABS",
+    "R_FUTURE_DIFF minus E_NONE",
+    "E_FUTURE_GT minus R_FUTURE_DIFF"
+  ],
+  "population": "dev",
+  "protocol": {
+    "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark",
+    "index_sha256": "ae54da4e46ee2b2c62d633b57da95d62b8fcc2921c1d1f15c17d0754e9b12069",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "population": "dev",
+    "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    }
+  },
+  "registry_sha256": "cf43b1fcf53e6b2e0cbd837c5ccfeadb4c0bc0e6e5cac3a48113cdebdd39155a",
+  "scope": "Formal full101592 training, common six-epoch observation, all five E arms seed42; not final24 endpoint or Navtest",
+  "source_sha": "7fdd4f748e8b558398e703b00d4a6b160e96e461",
+  "tables": {
+    "camera_only": [
+      {
+        "PDMS": 91.15618423220594,
+        "PDMS_q0": 91.38836301424385,
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.0009457877031194265,
+        "both_zero": 42,
+        "delta_percentage_points": -0.2321787820378912,
+        "drivable_area_compliance_worsened_scenes": 2,
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.9823113207547169,
+          "driving_direction_compliance": 0.9873231132075472,
+          "ego_progress": 0.8535722728162227,
+          "no_at_fault_collisions": 0.9905660377358491,
+          "score": 0.9115618423220595,
+          "time_to_collision_within_bound": 0.9610849056603774
+        },
+        "mode": "camera_only",
+        "no_at_fault_collisions_worsened_scenes": 1,
+        "nonzero_to_zero": 3,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0020807589161696487,
+          "new_zeros": 1,
+          "scenes": 1242
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -8.573596960447213e-05,
+          "new_zeros": 0,
+          "scenes": 44
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "run": "E_NONE",
+        "scenes": 1696,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/scores/seed42_E_NONE_epoch06",
+        "time_to_collision_within_bound_worsened_scenes": 5,
+        "valid": true,
+        "zero_to_nonzero": 0
+      }
+    ],
+    "oracle_probe": [
+      {
+        "PDMS": 91.145468851909,
+        "PDMS_q0": 91.38836301424385,
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.001055862112468965,
+        "both_zero": 42,
+        "delta_percentage_points": -0.2428941623348304,
+        "drivable_area_compliance_worsened_scenes": 2,
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.9823113207547169,
+          "driving_direction_compliance": 0.9873231132075472,
+          "ego_progress": 0.8533152922106415,
+          "no_at_fault_collisions": 0.9905660377358491,
+          "score": 0.9114546885190901,
+          "time_to_collision_within_bound": 0.9610849056603774
+        },
+        "mode": "oracle_probe",
+        "no_at_fault_collisions_worsened_scenes": 1,
+        "nonzero_to_zero": 3,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0021842674849314532,
+          "new_zeros": 1,
+          "scenes": 1242
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -8.19717445239931e-05,
+          "new_zeros": 0,
+          "scenes": 44
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "run": "E_CURRENT_GT",
+        "scenes": 1696,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/scores/seed42_E_CURRENT_GT_epoch06",
+        "time_to_collision_within_bound_worsened_scenes": 5,
+        "valid": true,
+        "zero_to_nonzero": 0
+      },
+      {
+        "PDMS": 91.16331510879826,
+        "PDMS_q0": 91.38836301424385,
+        "both_nonzero": 1651,
+        "both_nonzero_mean_change": -0.0008725353306145332,
+        "both_zero": 42,
+        "delta_percentage_points": -0.22504790544558115,
+        "drivable_area_compliance_worsened_scenes": 2,
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.9823113207547169,
+          "driving_direction_compliance": 0.9873231132075472,
+          "ego_progress": 0.853153922783068,
+          "no_at_fault_collisions": 0.9905660377358491,
+          "score": 0.9116331510879826,
+          "time_to_collision_within_bound": 0.9616745283018868
+        },
+        "mode": "oracle_probe",
+        "no_at_fault_collisions_worsened_scenes": 1,
+        "nonzero_to_zero": 3,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0019134817675386852,
+          "new_zeros": 1,
+          "scenes": 1242
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -8.24616405188749e-05,
+          "new_zeros": 0,
+          "scenes": 44
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "run": "E_CV_GT",
+        "scenes": 1696,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/scores/seed42_E_CV_GT_epoch06",
+        "time_to_collision_within_bound_worsened_scenes": 4,
+        "valid": true,
+        "zero_to_nonzero": 0
+      },
+      {
+        "PDMS": 91.19486585671332,
+        "PDMS_q0": 91.38836301424385,
+        "both_nonzero": 1652,
+        "both_nonzero_mean_change": -0.001084677471946876,
+        "both_zero": 42,
+        "delta_percentage_points": -0.19349715753053384,
+        "drivable_area_compliance_worsened_scenes": 1,
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.9829009433962265,
+          "driving_direction_compliance": 0.9870283018867925,
+          "ego_progress": 0.8536755652653849,
+          "no_at_fault_collisions": 0.9905660377358491,
+          "score": 0.9119486585671331,
+          "time_to_collision_within_bound": 0.9610849056603774
+        },
+        "mode": "oracle_probe",
+        "no_at_fault_collisions_worsened_scenes": 1,
+        "nonzero_to_zero": 2,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.002205117277388391,
+          "new_zeros": 1,
+          "scenes": 1242
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -7.814269642137207e-05,
+          "new_zeros": 0,
+          "scenes": 44
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "run": "E_FUTURE_GT",
+        "scenes": 1696,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/scores/seed42_E_FUTURE_GT_epoch06",
+        "time_to_collision_within_bound_worsened_scenes": 5,
+        "valid": true,
+        "zero_to_nonzero": 0
+      },
+      {
+        "PDMS": 91.22048744607349,
+        "PDMS_q0": 91.38836301424385,
+        "both_nonzero": 1653,
+        "both_nonzero_mean_change": -0.0011740340964552756,
+        "both_zero": 42,
+        "delta_percentage_points": -0.16787556817033328,
+        "drivable_area_compliance_worsened_scenes": 1,
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.9829009433962265,
+          "driving_direction_compliance": 0.9870283018867925,
+          "ego_progress": 0.854054245305493,
+          "no_at_fault_collisions": 0.9911556603773585,
+          "score": 0.912204874460735,
+          "time_to_collision_within_bound": 0.9610849056603774
+        },
+        "mode": "oracle_probe",
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 1,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.002285501993811954,
+          "new_zeros": 1,
+          "scenes": 1242
+        },
+        "original_low_le_0p5": {
+          "mean_delta": -9.871567130873509e-05,
+          "new_zeros": 0,
+          "scenes": 44
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 0,
+        "run": "E_MASK_ONLY",
+        "scenes": 1696,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/scores/seed42_E_MASK_ONLY_epoch06",
+        "time_to_collision_within_bound_worsened_scenes": 5,
+        "valid": true,
+        "zero_to_nonzero": 0
+      }
+    ]
+  },
+  "tool_sha256": "f63030e805db6b9104fce4616e5356752ae142ad2f158a424ceefbde39db5a3b",
+  "uncertainty": "log-cluster resampling with original scene weights; sampling seeds and head seeds do not replicate the S0 foundation training seed"
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "decision_local_conditional_OOF_check_v1",
+  "registered_unix": 1792010825.8378587,
+  "trigger_source": "Complete24epoch P_ABS/P_DIFF seed42 normal outputs on fixed4096 training diagnostics and full1696 development",
+  "trigger_any_arm": {
+    "continuous_channel": [
+      "road_margin_m",
+      "current_clearance_m",
+      "future_clearance_m"
+    ],
+    "dev_minus_train_MAE_at_least_m": 0.25,
+    "dev_to_train_MAE_ratio_at_least": 1.5,
+    "or_train_minus_dev_overlap_recall_at_least": 0.15
+  },
+  "response": "Four matched P fits: two train-log folds x ABS/DIFF,24epochs,batch128,micro16,seed42; no new base training or R arm",
+  "GPU_hour_cap_for_four_fits": 4,
+  "main_round_cap_unchanged": 100,
+  "no_hyperparameter_or_checkpoint_selection": true,
+  "limitations": [
+    "Different train/dev support and difficulty can also cause gaps; trigger is a diagnostic, not proof of memorization",
+    "Each fold readout sees half the training logs; S0 foundation has already seen all logs",
+    "Original complete-population E/P/R primary endpoints stay unchanged"
+  ]
+}

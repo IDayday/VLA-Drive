@@ -1,0 +1,15 @@
+{
+  "issue": "Elapsed verification clock initially reused the per-scene latency variable; online prediction parity remained exact, but initial proof GPU_hours understated native loading",
+  "prediction_validation_still_passed": true,
+  "bad_original_GPU_hours": 0.00030613017164998584,
+  "correct_whole_child_wall_GPU_hours_upper_bound": 0.09526588022553673,
+  "loading_seconds": 335.91170918755233,
+  "latency_seconds": [
+    1.4114350844174623,
+    1.0851827953010798
+  ],
+  "original_receipt_preserved": true,
+  "fix": "Separate verification_started from per-scene started; independent outer process timeout already bounded the original run",
+  "affected_source": "7fdd4f748e8b558398e703b00d4a6b160e96e461",
+  "training_unchanged": true
+}
