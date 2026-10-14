@@ -1,0 +1,89 @@
+{
+  "schema": "same_initialization_consumption_objective_comparison_v1",
+  "old_cell": "S00",
+  "new_cell": "R00",
+  "new_optimizer_steps": 0,
+  "used_to_change_registered_experiments": false,
+  "role": "stage_val",
+  "same_initial_state_hash": "e046acb770c265fbc527a499e7342bb48d09a6a3bbd2c77c25abba8774fb5e59",
+  "same_sample_ids_in_all_optimizer_steps": 6000,
+  "same_comparison_distribution_fields": {
+    "pairs": true,
+    "weights": true,
+    "normalized_probabilities_derived_from_new_weights": true
+  },
+  "same_optimizer_and_schedule_except_validation_points": true,
+  "old_validation_steps": [
+    3000,
+    4000,
+    5000,
+    6000
+  ],
+  "new_validation_steps": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    6000
+  ],
+  "rows": [
+    {
+      "step": 3000,
+      "smooth_l1_pdms_01": 0.9059192550048465,
+      "mean_bce_pdms_01": 0.9167688412562711,
+      "paired_mean_difference_01": 0.010849586251424626,
+      "base_pdms_01": 0.91391459449369,
+      "smooth_l1_high_zero": 15,
+      "mean_bce_high_zero": 11,
+      "original_validation_hash": "4465de97ef2c1fe70bb7d5b0f63fe2ba5826e89c5bfa2e34b77933840c3ea747",
+      "new_validation_hash": "90bbddb55efa1576eb46310c15ece73d24d50244028f7d889a54bcee259fcc85"
+    },
+    {
+      "step": 4000,
+      "smooth_l1_pdms_01": 0.9092307919781888,
+      "mean_bce_pdms_01": 0.9115328524931101,
+      "paired_mean_difference_01": 0.0023020605149213225,
+      "base_pdms_01": 0.91391459449369,
+      "smooth_l1_high_zero": 8,
+      "mean_bce_high_zero": 14,
+      "original_validation_hash": "1b59cbfa0e6d77e17828f3e76f1b76dcbc3b363cfcf657368163f9dd754803e2",
+      "new_validation_hash": "7c3e7424c0c1226750c66e9734fc7e68ba61240f0eb7c91977a196c264e6c0b4"
+    },
+    {
+      "step": 5000,
+      "smooth_l1_pdms_01": 0.9123774067120394,
+      "mean_bce_pdms_01": 0.9127167732658563,
+      "paired_mean_difference_01": 0.00033936655381694436,
+      "base_pdms_01": 0.91391459449369,
+      "smooth_l1_high_zero": 12,
+      "mean_bce_high_zero": 12,
+      "original_validation_hash": "eec7ee453c40d2c55c1b0fdb3c9fd6dd8b3ae9b004b513fbef6690df0191491b",
+      "new_validation_hash": "25167309fdbd115885fe868feea373b36dbf642d25f6ec59b9bf1f2c652dd54a"
+    },
+    {
+      "step": 6000,
+      "smooth_l1_pdms_01": 0.9054250225162832,
+      "mean_bce_pdms_01": 0.9134518268547254,
+      "paired_mean_difference_01": 0.008026804338442162,
+      "base_pdms_01": 0.91391459449369,
+      "smooth_l1_high_zero": 16,
+      "mean_bce_high_zero": 11,
+      "original_validation_hash": "92dfb293066ddc8d3893fd98e70bfb3fbc63e1b3ea8f3506b72ef6ca89ed1797",
+      "new_validation_hash": "1049b1211b3dd6ddd2f997bfa14a2c555ba49b7dd8ac66bc262bf53863664626"
+    }
+  ],
+  "evidence": {
+    "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/scorers/S00/RUN_IDENTITY.json": "370debd651d1f8200fe54dda621059323b86ae1f696b672fb307c7fd08f00432",
+    "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/scorers/R00/RUN_IDENTITY.json": "449fb39a9ce45a28318db8984a945c0ff8c2509c69a71d645e480e47eb4f9a85",
+    "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/scorers/S00/steps.jsonl": "81fcee2e6c7cc95574c1252c92b052132d1a5b3798ab2a79f6b025f5076239aa",
+    "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/scorers/R00/steps.jsonl": "0a4899ab5798e1df40ce33fe9def98bf8d254e1e174101346297850e65a374ea",
+    "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/scorers/S00/COMPARISON_DISTRIBUTION.json": "15592cec555ae4be9576d638adc5faf9da9b4d67961177ae749b651a9a8f2838",
+    "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/scorers/R00/COMPARISON_DISTRIBUTION.json": "09b2720514e9cc82c342c36e31054d3e9d33978c73eb34f90ebcfc2d0011dd52"
+  },
+  "limits": [
+    "Single seed; common-step descriptive comparison, not a paired confidence interval or test result.",
+    "Selected-best comparisons also differ in validation checkpoint opportunities, so cannot attribute that entire difference solely to loss.",
+    "At6000 BCE remains below Base and retains11 high-to-zero errors; this is not robust qualification."
+  ]
+}
