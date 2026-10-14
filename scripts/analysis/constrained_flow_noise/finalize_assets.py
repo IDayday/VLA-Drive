@@ -1,5 +1,6 @@
 """Seal the two complete RL_TRAIN caches from actual existing producer receipts."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 import hashlib
 from pathlib import Path
@@ -13,7 +14,9 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--population',required=True);p.add_argument('--condition-cache',required=True)
     p.add_argument('--metric-producer',action='append',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--hash-workers',type=int,default=1,help='Bounded read-only metric payload verification; no cache generation or numerical change')
     p.add_argument('--wait',action='store_true');a=p.parse_args();host=require_dispatch()
+    if not 1<=a.hash_workers<=8:raise ValueError('Use at most eight concurrent file readers')
     pop=json.loads(Path(a.population).read_text());tokens=pop['train_tokens'];out=Path(a.output)
     if out.exists():raise FileExistsError(out)
     root=Path(a.condition_cache);started=time.monotonic()
@@ -44,15 +47,24 @@ def main():
     cache=ConditionStore(root,json.loads((root/'identity.json').read_text()),readonly=False)
     if not (root/'COMPLETE.json').exists():cache.finalize(tokens)
     else:ConditionStore(root,readonly=True)
-    for token in tokens:
+    def verify_metric(token):
         row=records[token]
         if row['log']!=pop['token_logs'][token] or file_sha(row['path'])!=row['sha256']:raise ValueError('Sealed metric asset changed')
+    verification_started=time.monotonic();verification_cpu=time.process_time()
+    with ThreadPoolExecutor(max_workers=a.hash_workers) as pool:
+        for index,_ in enumerate(pool.map(verify_metric,tokens),1):
+            if index%1000==0:
+                atomic_json(out.with_suffix('.progress.json'),dict(status='VERIFYING_EVERY_METRIC_PAYLOAD',verified_scenes=index,
+                            required_scenes=len(tokens),hash_workers=a.hash_workers,condition_producer_complete=True,
+                            wall_seconds=time.monotonic()-started,host=host))
     snapshot_root=out.with_suffix('.producer_snapshots');snapshot_root.mkdir(exist_ok=True)
     for name,payload in snapshots.items():(snapshot_root/(name+'.json')).write_bytes(payload)
     result=dict(schema='cfn_full_TRAIN_assets_v1',status='COMPLETE',host=host,population_identity=pop['identity_sha256'],
                 count=len(tokens),condition_identity_sha256=cache.identity_sha,condition_complete_sha256=file_sha(root/'COMPLETE.json'),
                 protocol_sha256=protocols.pop(),entries=[records[t] for t in tokens],producer_receipts_at_seal=receipts,
-                wall_seconds=time.monotonic()-started)
+                wall_seconds=time.monotonic()-started,metric_hash_workers=a.hash_workers,
+                metric_verification_wall_seconds=time.monotonic()-verification_started,
+                metric_verification_CPU_seconds=time.process_time()-verification_cpu)
     result['sha256']=fingerprint(result);atomic_json(out,result)
     print(json.dumps(dict(status='COMPLETE',scenes=len(tokens),sha256=result['sha256'])),flush=True)
 
