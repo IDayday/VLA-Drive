@@ -132,7 +132,14 @@ class NoisePolicy(nn.Module):
             for candidate in range(g):
                 buckets = torch.full((b,), int(k/10*self.policy.action_model.num_timestep_buckets), device=device, dtype=torch.long)
                 steps = torch.full((b,), k, device=device, dtype=torch.long)
-                distribution = self.distribution(x[:, candidate], buckets, condition, steps)
+                try:
+                    distribution = self.distribution(x[:, candidate], buckets, condition, steps)
+                except FloatingPointError as error:
+                    error.chain_evidence = dict(states=[v.detach().cpu() for v in chain],
+                        completed_mean=[v.detach().cpu() for v in means],completed_std=[v.detach().cpu() for v in stds],
+                        root_keys=root_keys,innovation_keys=innovation_keys,generation_step=k,candidate=candidate,
+                        gaussian=getattr(error,'gaussian_evidence',None))
+                    raise
                 mu.append(distribution.mean); sigma.append(distribution.std.expand_as(distribution.mean))
             mean, std = torch.stack(mu, 1), torch.stack(sigma, 1)
             noise = torch.stack([torch.randn((g, 8, 4), device=device, generator=gen) for gen in generators])
@@ -151,7 +158,9 @@ class NoisePolicy(nn.Module):
                   'version': copy.deepcopy(version), 'kernel': vars(self.spec),
                   'root_keys': root_keys, 'innovation_keys': innovation_keys}
         if not all(torch.isfinite(result[name]).all() for name in ('chain', 'old_mean', 'old_std', 'old_elementwise_logp')):
-            raise FloatingPointError('Nonfinite rollout; save failure and abort collection')
+            error=FloatingPointError('Nonfinite rollout; save failure and abort collection')
+            error.chain_evidence={key:(v.detach().cpu() if isinstance(v,torch.Tensor) else v) for key,v in result.items()}
+            raise error
         return result
 
 

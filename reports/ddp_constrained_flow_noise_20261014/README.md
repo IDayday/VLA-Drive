@@ -22,13 +22,13 @@ An earlier qualification attempt failed because the launch environment lacked
 the deterministic CuBLAS setting; its evidence is preserved. Full TRAIN cache
 generation and missing canonical v1.1 metric-cache production are running.
 
-The first 30 core/runtime tests passed on the authorized Tsinghua zt4 host. They cover
+The 34 targeted core/runtime/diagnostic tests passed on the authorized Tsinghua zt4 host. They cover
 upstream outputs/gradients, time/sign conversion, densities, KL and sigma
 gradients, score-function arithmetic, component advantages, dual direction,
 collector ordering/caps/resumption and geometric costs. This is arithmetic
-acceptance, not evidence of driving improvement. Real full-head learning,
-distributed/resume qualification, two formal curves and ODE evaluation remain
-unfinished.
+acceptance, not evidence of driving improvement. Real full-head learning and
+inner-epoch recovery have now passed the bounded qualification below. The two
+formal curves and their ODE outcome comparison remain unfinished.
 
 Commands already executed from this worktree:
 
@@ -83,3 +83,90 @@ mean-ratio errors were at most `1.02e-5` (acceptance `1e-4`), with no PPO update
 performed in that kernel test. A first graph attempt failed on constructing a
 constant during capture; fixed FP32 bound tensors are now prepared before capture.
 Only configuration constants are cached, never noise outputs or trainable hidden states.
+
+Both real eight-GPU learning qualifications completed 32 raw TRAIN scenes,
+512 newly scored trajectories, two behavior collections and four Adam updates.
+They used the complete original action head, genuine canonical feedback,
+both inner epochs, independent reference KL, GT replay and the five dual
+optimizers. C_SDE had finite nonzero full gradients for all 359 tensors;
+N_FLOW_NOISE for all 365 tensors, including the six noise tensors. Actual FP32
+masters changed in every optimizer group. At update 2, 335/359 and 338/365 BF16
+shadow tensors changed, respectively; small FP32 updates below a BF16 rounding
+unit must not be called missing optimizer updates or claimed to change every
+forward tensor. [Aggregate evidence](acceptance_learning.json).
+
+Continuous versus inner-interrupted N_FLOW_NOISE finished with bitwise-equal
+actor/noise weights, all eight FP32 optimizer partitions, every rank's RNG,
+dual optimizer, stream/inner cursors, KL controller and original ODE export.
+A separate interruption after the first16 raw groups passed the same complete
+state comparison, including every saved chain, mean/std/logprob, advantage,
+lambda snapshot, canonical metric and simulated consequence (only execution
+timings excluded). Reconstruction using DeepSpeed's public FP32 checkpoint
+utility additionally confirmed that **all 365 FP32 master tensors actually
+changed**, including every original action tensor and every noise tensor.
+The exported qualification model also ran the original VLAAgent from real
+current observations: no noise head, teacher, training cache or scorer is
+required. All frozen upstream tensors retained their exact original hash.
+These qualification weights will not initialize either formal line.
+
+The matched original-observation SFT DEV baseline is complete for all 1,696
+scenes / 16 logs, one output each at scene-bound seed 2101:
+PDMS **93.6192**, NC 100.0000, DAC 99.2335, TTC 99.9410, EP 85.8065,
+Comfort 99.8821, DDC 98.8797 (all on a 0–100 reporting scale); 13 zero-score
+scenes. [Full paired-analysis contract](SFT_DEV_original_seed2101.json).
+This is **untrained SFT on DEV**, not evidence that RL improved or achieved
+the Navtest research target. DEV is unseen by RL updates; SFT may have seen it.
+The log bootstrap does not include training- or inference-seed uncertainty.
+
+The four-update N_FLOW_NOISE qualification export also completed all 1,696
+original-observation ODE DEV evaluations. PDMS changed by only **+0.000342
+points**, with the same 13 zeros and unchanged safety event counts. This is
+an end-to-end export/evaluation plumbing check, not a meaningful learning gain
+or a formal method comparison. [Qualification-only results](qualification_ODE_seed2101.json).
+
+Full-model cost profiling completed for each variant without the expensive
+all-tensor qualification probes: 128 raw scenes each, 10 C_SDE versus 12
+N_FLOW_NOISE updates because their valid-group boundaries differ. Measured
+update time was 56.34/57.06 seconds; actual profile wall time including its
+end checkpoint/export was 280.92/289.18 seconds. These measurements occurred
+under shared GPU/cache load. Extrapolating component times with ideal rank
+balance gives 85–86 hours per two-pass line; extrapolating the complete measured
+wall interval gives 124–128 hours. These are conditional cost projections,
+not promised completion times or a claimed algorithmic speed-up.
+
+The [common budget](formal_budget.json) is now locked before formal outcomes:
+203,184 unfiltered scene exposures and 3,250,944 freshly scored trajectories
+**per variant**, with shared target 16/cap 32 group collection and two inner
+epochs. The requested finite budget is retained; no resource expiry or GPU-hour
+cap was supplied. All four DEV milestones, TRAIN monitoring and one-time cache
+costs are accounted separately. Recovery points are saved every 1,024 updates
+plus milestone/interruption boundaries and all are retained. Fixed DEV safety pauses use the original
+precalibration rule: a single +2 percentage-point event-rate increase, or
+two successive +0.5-point increases with positive lower paired 95% bounds.
+Additionally, sustained numerical exploration saturation is defined before
+formal training as at least 95% of sigma values within 1% of one log-std bound
+for 20 consecutive collections. A trigger preserves the chain and checkpoint
+and pauses that variant; it never silently changes bounds or safety budgets.
+
+Before formal training, inspection of the actual SFT configuration identified
+one replay-mode correction: the original DiT uses dropout 0.2. The first bounded
+qualifications and profiles had retained the former RL trainer's eval-mode
+replay. Formal GT replay now uses original SFT train mode, with independent
+FM and dropout RNG and exact restoration of the PG eval modes. This applies
+equally to both lines; no reward, sigma range or raw budget changed.
+[Recorded addendum](formal_replay_addendum.json).
+Both corrected eight-GPU real-learning checks completed four updates, with
+all 359/365 gradients finite and nonzero; corrected-mode interruption recovery
+is being verified. Earlier numerical and evaluation evidence is retained with
+its original execution identity, rather than silently relabelled.
+[Corrected replay checks](replay_mode_learning_v3.json).
+
+The saved TRAIN calibration was also audited in physical units, with the
+original scalar XY normalizers and the bicycle's body-frame velocity convention.
+Median first-half-second requested mean-velocity discrepancy was 0.356 m/s
+for C_SDE, 0.474 for the rejected range, and 0.373 for the selected range;
+all simulated t0 states were identical within each scene. This does not claim
+continuous request derivatives. Two read-only analysis mistakes (a scalar
+normalizer reshape and an extra rotation of already body-frame velocity) were
+corrected with superseded evidence retained; neither affected scoring,
+calibration selection or learning. [Physical calibration audit](calibration_physics.json).

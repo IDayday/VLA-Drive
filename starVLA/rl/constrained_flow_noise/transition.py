@@ -14,7 +14,9 @@ from .vendor.rlinf_sampler import gaussian_entropy as _upstream_entropy
 
 def require_gaussian(mean, sigma, value=None):
     if not torch.isfinite(mean).all() or not torch.isfinite(sigma).all() or (sigma <= 0).any():
-        raise FloatingPointError('Training Gaussian requires finite mean and strictly positive finite std')
+        error=FloatingPointError('Training Gaussian requires finite mean and strictly positive finite std')
+        error.gaussian_evidence=dict(mean=mean.detach().cpu(),sigma=sigma.detach().cpu())
+        raise error
     if value is not None and not torch.isfinite(value).all():
         raise FloatingPointError('Nonfinite saved chain; do not replace or remove candidates')
 

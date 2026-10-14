@@ -3,6 +3,7 @@ import torch
 from starVLA.rl.flow_grpo.math import clipped_surrogate, conditional_kl
 from starVLA.rl.flow_grpo.temporal_noise import whiten
 from .transition import gaussian_kl_parts, gaussian_entropy
+from .contracts import seed_for
 
 
 def reference_kl(current, reference, spec):
@@ -25,11 +26,24 @@ def replay_loss(actor, raw, target, seed):
     raw=raw.detach().repeat(repeats,1,1)
     # Separate fresh FM RNG. Candidate root/innovations are never the FM coupling.
     with torch.random.fork_rng(devices=[raw.device.index] if raw.is_cuda else []):
-        torch.manual_seed(int(seed))
+        torch.random.default_generator.manual_seed(int(seed))
+        if raw.is_cuda:torch.cuda.default_generators[raw.device.index].manual_seed(int(seed))
         noise=torch.randn_like(target)
         time=head.sample_time(len(target),target.device,target.dtype)
-    with torch.autocast(raw.device.type,dtype=torch.float32,enabled=raw.is_cuda):
-        return head(raw,target,explicit_randomness={'noise':noise,'t':time})
+    # Original SFT training uses its configured DiT dropout (0.2). PG remains
+    # deterministic eval. Isolate dropout from both FM draws and rollout RNG,
+    # and restore the exact module modes even if a forward raises.
+    modes={module:module.training for module in head.modules()}
+    try:
+        head.train(True)
+        with torch.random.fork_rng(devices=[raw.device.index] if raw.is_cuda else []):
+            dropout_seed=seed_for('cfn_GT_replay_dropout',42,int(seed))
+            torch.random.default_generator.manual_seed(dropout_seed)
+            if raw.is_cuda:torch.cuda.default_generators[raw.device.index].manual_seed(dropout_seed)
+            with torch.autocast(raw.device.type,dtype=torch.float32,enabled=raw.is_cuda):
+                return head(raw,target,explicit_randomness={'noise':noise,'t':time})
+    finally:
+        for module,mode in modes.items():module.training=mode
 
 
 def actor_loss(actor, *, pg, retention, replay, pg_factor, retention_factor,

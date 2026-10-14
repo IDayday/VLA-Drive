@@ -3,10 +3,20 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache
 import multiprocessing
 import time
+import json
+from pathlib import Path
 import numpy as np
 
 from starVLA.rl.safe_flow_improvement import v1_reward
-from .contracts import COSTS
+from .contracts import COSTS, file_sha
+
+
+@lru_cache(maxsize=1)
+def _locked_cache_hashes(path, digest):
+    if file_sha(path)!=digest:raise ValueError('Frozen metric population manifest changed')
+    value=json.loads(Path(path).read_text())
+    if value['status']!='COMPLETE' or value['protocol_sha256']!=v1_reward.SPEC['protocol_sha256']:raise ValueError('Metric manifest protocol changed')
+    return {r['token']:r['sha256'] for r in value['entries']}
 
 
 def bounded_margin_cost(margins, critical, *, no_objects=None):
@@ -83,6 +93,9 @@ def score_scene(job):
     """Reuse canonical isolated candidate scoring without changing the proposal pool."""
     cpu_start, wall_start = time.process_time(), time.monotonic()
     records = v1_reward.score_scene(job)
+    if v1_reward.SPEC.get('metric_manifest'):
+        expected=_locked_cache_hashes(v1_reward.SPEC['metric_manifest'],v1_reward.SPEC['metric_manifest_sha256'])
+        if any(r['cache']['sha256']!=expected[job[0]] for r in records):raise ValueError('Scored TRAIN cache changed after publication')
     road, observations, identity = _geometry_context(job[0], job[1])
     for record in records:
         if record['cache'] != identity:

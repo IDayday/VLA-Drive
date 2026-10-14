@@ -4,6 +4,7 @@ import math
 import os
 from pathlib import Path
 import time
+import traceback
 import torch
 import torch.distributed as dist
 import numpy as np
@@ -60,7 +61,7 @@ def gather_rows(local):
 
 
 @torch.no_grad()
-def collect_batch(behavior,reference,store,service,stream,pop,collector,raw_start,count,calibration,rank,world):
+def collect_batch(behavior,reference,store,service,stream,pop,collector,raw_start,count,calibration,rank,world,*,failure_dir=None,include_reference=True):
     offset=len(collector.rows); local=[]
     start=time.monotonic()
     for i in range(offset,offset+count):
@@ -70,18 +71,36 @@ def collect_batch(behavior,reference,store,service,stream,pop,collector,raw_star
         if raw is None: raise FileNotFoundError('Missing sealed TRAIN observation: '+token)
         device=next(behavior.parameters()).device
         t0=time.monotonic()
-        chain=behavior.sample_chain(raw.to(device),[token],[position],version=collector.behavior_identity)
+        try:
+            chain=behavior.sample_chain(raw.to(device),[token],[position],version=collector.behavior_identity)
+        except Exception as error:
+            if failure_dir is not None:
+                root=Path(failure_dir);root.mkdir(parents=True,exist_ok=True)
+                torch.save(dict(token=token,position=position,version=collector.behavior_identity,raw=raw.cpu(),
+                                RNG_root_seed=seed_for('cfn_root',42,token,position),
+                                RNG_innovation_seed=seed_for('cfn_innovation',42,token,position),
+                                partial_chain=getattr(error,'chain_evidence',None),traceback=traceback.format_exc()),
+                           root/f'rollout_rank{rank}_position{position}.pt')
+            raise
         torch.cuda.synchronize(); rollout_seconds=time.monotonic()-t0
         request=decode_request(chain['chain'][0,:,-1].float().cpu().numpy(),act_norm=1)
         t0=time.monotonic()
-        records=service.score([(token,pop['token_logs'][token],request)])[0]
+        try:
+            records=service.score([(token,pop['token_logs'][token],request)])[0]
+        except Exception:
+            if failure_dir is not None:
+                root=Path(failure_dir);root.mkdir(parents=True,exist_ok=True)
+                torch.save(dict(token=token,position=position,chain=cpu_tree(chain),requested_trajectory=request,
+                                traceback=traceback.format_exc(),status='SCORING_FAILURE_NOT_ZERO_REWARD'),
+                           root/f'score_rank{rank}_position{position}.pt')
+            raise
         scoring_seconds=time.monotonic()-t0
         rewards=torch.tensor([[r['metrics']['score'] for r in records]],dtype=torch.float64)
         costs=torch.from_numpy(np.stack([costs_from_record(r,calibration['thresholds']) for r in records]))[None]
         advantage,statistics=component_advantages(rewards,costs,collector.lambda_snapshot,calibration['component_floors'])
         t0=time.monotonic()
         ref=None
-        if i<16:
+        if i<16 and include_reference:
             values=reference.saved_statistics(chain['raw'],chain['chain'])
             ref={k:values[k] for k in ('mean','std')}
         torch.cuda.synchronize(); reference_seconds=time.monotonic()-t0

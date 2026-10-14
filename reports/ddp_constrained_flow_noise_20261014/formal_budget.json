@@ -1,0 +1,118 @@
+{
+  "schema": "cfn_common_formal_budget_v1",
+  "utc": "2026-10-14T05:23:25.769591+00:00",
+  "host": "training-vlawm-tsinghua-zt4",
+  "variants": [
+    "C_SDE",
+    "N_FLOW_NOISE"
+  ],
+  "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "train_scenes": 101592,
+  "raw_passes": 2,
+  "raw_exposures_per_variant": 203184,
+  "training_candidates_per_variant": 3250944,
+  "shared_budget_clock": "unfiltered raw scenes including refill and discarded groups",
+  "milestones": [
+    25398,
+    50796,
+    101592,
+    203184
+  ],
+  "effective_groups_target": 16,
+  "raw_groups_cap": 32,
+  "G": 16,
+  "K": 10,
+  "inner_epochs": 2,
+  "save_every_optimizer_updates": 1024,
+  "checkpoint_retention": "Keep all saved recovery points, milestones and failure evidence; no automatic deletion",
+  "monitor": {
+    "scenes": 128,
+    "candidates_per_scene": 16,
+    "points": [
+      0,
+      0.25,
+      0.5,
+      1.0,
+      2.0
+    ],
+    "candidates_per_variant": 10240,
+    "population": "precalibration_registration.monitor_tokens",
+    "updates_or_dual_use": false
+  },
+  "DEV_evaluation": {
+    "baseline_scores": "/mnt/project/constrained-flow-noise-20261014/evaluation/SFT_DEV_original/scores",
+    "override": "/mnt/project/constrained-flow-noise-20261014/evaluation_override.json",
+    "cache_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache",
+    "CPU_workers": 16,
+    "points": "All four fixed raw-exposure milestones, full1696 scenes, original single-candidate ODE",
+    "baseline_report_sha256": "bbb7ee20c58149939f5b702c14140798b66780a658999ab677b0137afc76f46a"
+  },
+  "severe_safety_rule": {
+    "single_DEV_binary_violation_increase": 0.02,
+    "sustained_two_DEV_binary_violation_increase": 0.005,
+    "sustained_requires_lower_95CI_positive": true,
+    "no_automatic_hyperparameter_change": true
+  },
+  "numerical_saturation_pause": {
+    "one_log_std_bound_fraction": 0.95,
+    "relative_log_range_edge": 0.01,
+    "consecutive_collections": 20
+  },
+  "initialization": "Original SFT only; all qualification/profile weights excluded",
+  "profiles": {
+    "C_SDE": {
+      "identity_sha256": "8ba7260807d379ad10ec1e30496a2adc198570b07a967e3824a8caa7a57999a3",
+      "raw_scenes": 128,
+      "candidates": 2048,
+      "updates": 10,
+      "accepted_exposures": 80,
+      "seconds_rollout_sum": 701.1291448380798,
+      "seconds_scoring_worker_wall_sum": 389.72305172868073,
+      "seconds_scoring_CPU_sum": 359.9746280410001,
+      "seconds_reference_sum": 24.661612844094634,
+      "optimizer_seconds_max_rank": 56.409969698637724,
+      "seconds_per_raw_perfect_rank_balance": 1.5300718427733955,
+      "seconds_per_raw_observed_with_end_IO": 2.1947345088556176,
+      "extrapolated_2_pass_hours_per_host": [
+        86.35725480613043,
+        123.87081567981106
+      ],
+      "extrapolated_allocated_GPU_hours": [
+        690.8580384490434,
+        990.9665254384885
+      ],
+      "profile_receipt_sha256": "17e43f53a77ced28bb3c6876afb12e2b1ba988fc83daf03cced3c5c9461c44c0"
+    },
+    "N_FLOW_NOISE": {
+      "identity_sha256": "18f0939d6bb8b3f3a377063cd0ac600792306d5d00e1e864eb8fc50c5bf6b300",
+      "raw_scenes": 128,
+      "candidates": 2048,
+      "updates": 12,
+      "accepted_exposures": 87,
+      "seconds_rollout_sum": 589.636650417,
+      "seconds_scoring_worker_wall_sum": 472.32097305357456,
+      "seconds_scoring_CPU_sum": 407.1620956020002,
+      "seconds_reference_sum": 23.70472836866975,
+      "optimizer_seconds_max_rank": 57.25832552462816,
+      "seconds_per_raw_perfect_rank_balance": 1.5075478086291696,
+      "seconds_per_raw_observed_with_end_IO": 2.2603146413894137,
+      "extrapolated_2_pass_hours_per_host": [
+        85.08599831903034,
+        127.5721583600185
+      ],
+      "extrapolated_allocated_GPU_hours": [
+        680.6879865522427,
+        1020.577266880148
+      ],
+      "profile_receipt_sha256": "70089ecd0757ede3bfaf1d30b8b6eb6deaae9f3d42649a48ff153a3b81a95d9d"
+    }
+  },
+  "profile_caveats": "Measured under active authorized shared GPU/cache workloads. Bounds describe measured balance and IO overhead, not a guaranteed runtime interval. No paper speed-up multiplier assumed.",
+  "authorized_resources": "At most two independent full-eight-GPU training jobs on capacity-qualified allowed Tsinghua hosts; preserve all other genuine jobs",
+  "time_window": "No explicit expiry or GPU-hour cap was supplied; retain requested finite two-pass budget",
+  "navtest": "No access until common endpoint/selection lock; one scene-bound inference seed2101",
+  "source_sha256": "dc26897350ee8e24eb1e4418512f5bda17013df90a1bb284f0df9cdf626048cd",
+  "sha256": "6cfed0f6a6bff784f401103a011c995413ca2ccc9f0b8081225fa1bdf978f09f"
+}

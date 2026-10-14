@@ -38,11 +38,16 @@ def main():
     p.add_argument('--resume', action='store_true')
     p.add_argument('--finalize', action='store_true')
     p.add_argument('--priority-tokens', help='JSON list of TRAIN tokens to encode first; does not change population')
+    p.add_argument('--progress-prefix', default='', help='Distinct administrative receipt names for an additional producer; feature identity unchanged')
     a = p.parse_args()
     host = require_dispatch(); configure_numerics()
     pop = json.loads(Path(a.population).read_text())
     tokens = pop['train_tokens']
     rank, world = int(os.environ.get('RANK', 0)), int(os.environ.get('WORLD_SIZE', 1))
+    if any(c not in 'abcdefghijklmnopqrstuvwxyz0123456789_' for c in a.progress_prefix):
+        raise ValueError('Invalid producer receipt prefix')
+    progress_name = f'{a.progress_prefix}rank{rank}.json'
+    qualification_name = f'{a.progress_prefix}qualification_rank{rank}.json'
     out = Path(a.output)
     if a.finalize:
         identity = json.loads((out / 'identity.json').read_text())
@@ -89,7 +94,7 @@ def main():
                 'input_list_sha256': file_sha(TRAIN_LIST), 'data_root': DATA_ROOT,
                 'contents': ['scene_identity', 'observation_features'], 'no_cached_labels': True}
     store = ConditionStore(out, identity, readonly=False)
-    if (out / f'rank{rank}.json').exists() and not a.resume:
+    if (out / progress_name).exists() and not a.resume:
         raise ValueError('Existing cache progress requires --resume')
     data_cfg = copy.deepcopy(agent.model_config)
     data_cfg.datasets.vla_data.data_root = DATA_ROOT
@@ -125,8 +130,8 @@ def main():
         status['GPU_elapsed_seconds'] += time.monotonic() - begin
         status['wall_seconds'] = time.monotonic() - started
         if (status['new'] + status['reused']) % 16 == 0:
-            atomic_json(out / f'rank{rank}.json', status)
-        if len(check_raw) == 2 and not (out / f'qualification_rank{rank}.json').exists():
+            atomic_json(out / progress_name, status)
+        if len(check_raw) == 2 and not (out / qualification_name).exists():
             checks = []
             for b in (1, 2):
                 raw = torch.cat(check_raw[:b])
@@ -152,12 +157,12 @@ def main():
                 restored = sample_ode(model, encode_condition(model, check_raw[0]), root).float().cpu().numpy()
             if not np.array_equal(direct, restored):
                 raise ValueError('Original predict_action_infer_1d and cache path disagree')
-            atomic_json(out / f'qualification_rank{rank}.json', {'status': 'PASS', 'identity_sha256': store.identity_sha,
+            atomic_json(out / qualification_name, {'status': 'PASS', 'identity_sha256': store.identity_sha,
                         'checks': checks, 'direct_original_predict_exact': True,
                         'scope': 'canonical batch-one prefix; two scene and two action chunk layouts; same-layout equality'})
     status.update(status='ASSIGNED_COMPLETE', wall_seconds=time.monotonic()-started,
                   peak_cuda_allocated_bytes=torch.cuda.max_memory_allocated())
-    atomic_json(out / f'rank{rank}.json', status)
+    atomic_json(out / progress_name, status)
     print(json.dumps(status), flush=True)
 
 

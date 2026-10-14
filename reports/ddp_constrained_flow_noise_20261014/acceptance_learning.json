@@ -1,0 +1,141 @@
+{
+  "C_SDE": {
+    "identity_sha256": "8972b607cbedc8f16b167577643d0a3f1562580a02afa341fbd0361c0f1f608e",
+    "updates": 4,
+    "collections": 2,
+    "raw_cursor": 32,
+    "accepted_exposures": 21,
+    "replay_cursor": 64,
+    "qualification_only": true,
+    "gradient_tensors": 359,
+    "all_gradients_present": true,
+    "all_gradients_finite": true,
+    "all_gradients_nonzero": true,
+    "BF16_tensors_with_value_change_after_update2": 335,
+    "FP32_master_updates_checked": true
+  },
+  "N_FLOW_NOISE": {
+    "identity_sha256": "9793aa6e883a51fe7ae5daedf43bdd51d2d60f0310c3c34e64a80a2377c58dd9",
+    "updates": 4,
+    "collections": 2,
+    "raw_cursor": 32,
+    "accepted_exposures": 21,
+    "replay_cursor": 64,
+    "qualification_only": true,
+    "gradient_tensors": 365,
+    "all_gradients_present": true,
+    "all_gradients_finite": true,
+    "all_gradients_nonzero": true,
+    "BF16_tensors_with_value_change_after_update2": 338,
+    "FP32_master_updates_checked": true,
+    "added_noise_parameters": 205252
+  },
+  "resume_inner_v1.json": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "identity": "9793aa6e883a51fe7ae5daedf43bdd51d2d60f0310c3c34e64a80a2377c58dd9",
+    "actor_and_noise_exact": true,
+    "FP32_optimizer_all_8_partitions_exact": true,
+    "RNG_all_8_ranks_exact": true,
+    "dual_optimizer_exact": true,
+    "data_raw_accepted_replay_and_inner_cursors_exact": true,
+    "KL_controller_exact": true,
+    "original_ODE_export_exact": true,
+    "checked_optimizer_files": [
+      "pytorch_model/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt",
+      "current_action_and_noise; engine_step_counters"
+    ],
+    "excluded": "wall/CPU timing, output paths and sampled diagnostic probe history; no scientific state excluded"
+  },
+  "original_export_N_v1.json": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "export_sha256": "8bb025d5a33de08628208f57aae20fa0234813f5010d00662a94c5f3a9ddc1d1",
+    "upstream_hash_before": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+    "upstream_hash_after": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+    "changed_action_tensors": 335,
+    "noise_head_absent": true,
+    "teacher_cache_search_scorer_not_used": true,
+    "inference_seed": 2101,
+    "checks": [
+      {
+        "shape": [
+          1,
+          8,
+          4
+        ],
+        "finite": true,
+        "input_keys": [
+          "image",
+          "lang",
+          "state",
+          "token"
+        ]
+      },
+      {
+        "shape": [
+          1,
+          8,
+          4
+        ],
+        "finite": true,
+        "input_keys": [
+          "image",
+          "lang",
+          "state",
+          "token"
+        ]
+      }
+    ],
+    "actual_original_inference_entrypoint": "VLAAgent.model.predict_action_infer_1d"
+  },
+  "scope": "Real 32-scene, 4-update qualification only; weights never initialize formal training",
+  "resume_collector_v1.json": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "identity": "9793aa6e883a51fe7ae5daedf43bdd51d2d60f0310c3c34e64a80a2377c58dd9",
+    "actor_and_noise_exact": true,
+    "FP32_optimizer_all_8_partitions_exact": true,
+    "RNG_all_8_ranks_exact": true,
+    "dual_optimizer_exact": true,
+    "data_raw_accepted_replay_and_inner_cursors_exact": true,
+    "KL_controller_exact": true,
+    "original_ODE_export_exact": true,
+    "checked_optimizer_files": [
+      "pytorch_model/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt",
+      "current_action_and_noise; engine_step_counters"
+    ],
+    "excluded": "wall/CPU timing, output paths and sampled diagnostic probe history; no scientific state excluded"
+  },
+  "master_updates_N_v1.json": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt4",
+    "checkpoint_identity": "9793aa6e883a51fe7ae5daedf43bdd51d2d60f0310c3c34e64a80a2377c58dd9",
+    "variant": "N_FLOW_NOISE",
+    "tensors": 365,
+    "all_master_tensors_actually_changed": true,
+    "reconstruction": "Installed DeepSpeed public get_fp32_state_dict_from_zero_checkpoint, all eight saved partitions"
+  },
+  "resume_saved_chains_v1.json": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "identity": "9793aa6e883a51fe7ae5daedf43bdd51d2d60f0310c3c34e64a80a2377c58dd9",
+    "collections": 2,
+    "all_saved_chains_means_stds_logprobs_advantages_lambdas_and_feedback_exact": true,
+    "excluded": "Only seven explicitly named execution timings; physical event times and all simulations compared"
+  }
+}

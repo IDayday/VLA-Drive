@@ -15,7 +15,7 @@ from starVLA.rl.flow_grpo.config import resolve_config
 from starVLA.rl.flow_grpo.loading import weight_path
 from starVLA.rl.flow_grpo.data import KeyedDataset
 from .contracts import SFT_SHA256, file_sha, validate_parameters
-from .noise_policy import KernelSpec, NoisePolicy
+from .noise_policy import KernelSpec, NoisePolicy, legacy_std_range
 
 DEFAULT_CONFIG = 'configs/flow_grpo/frozen_action_head_batched_single8_epoch1.yaml'
 DEFAULT_SOURCE = '/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-source/checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml'
@@ -52,6 +52,9 @@ def load_action_closure(*, config=DEFAULT_CONFIG, source=DEFAULT_SOURCE, dtype=t
 
 def make_noise_policy(variant, bounds, **kwargs):
     policy, cfg, sft = load_action_closure(**kwargs)
+    # C_SDE ignores learned bounds; label its actual unchanged transition range.
+    # This is metadata only: distribution() still calls the original SDE kernel.
+    if variant=='C_SDE':bounds=legacy_std_range()[:2]
     # Same deterministic initial MLP on every rank, independent of data/RNG
     # consumed when constructing the existing action module.
     with torch.random.fork_rng(devices=[]):
