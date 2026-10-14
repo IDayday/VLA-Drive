@@ -60,6 +60,9 @@ def main():
         while process.poll() is None:
             tick(stage, {'pid': process.pid})
             time.sleep(30)
+        if process.returncode != 0:
+            tick('FAILED', {'failed_stage': stage, 'pid': process.pid,
+                            'returncode': process.returncode, 'artifacts_preserved': True})
         require(process.returncode == 0, f'{stage} failed ({process.returncode}); no automatic experiment replacement')
 
     def run(command, gpu, *extra):

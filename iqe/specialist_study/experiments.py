@@ -24,6 +24,10 @@ def endpoint(config,cell,step,kind):
 
 
 def load_endpoint(config,item,device):
+    # Head inference inherits the deterministic FP32 runtime used during expert
+    # training/validation; a new CLI must not choose another execution backend.
+    from .training import runtime
+    device=runtime(device)
     require(file_hash(item['checkpoint'])==item['checksum'],'selected specialist checkpoint changed')
     module=make_specialist(config,item['private_reader']).to(device)
     module.load_state_dict(torch.load(item['checkpoint'],map_location=device,weights_only=True),strict=True)
@@ -113,7 +117,7 @@ def extend(config,device='cuda:0'):
 
 
 def stage_val_columns(config,items,device):
-    from .training import candidate_labels
+    from .validation_reuse import completed_endpoint_records
     val=scenes_by_role(config)['stage_val'];base=verified_base_scores(config,val)
     names=('no_at_fault_collisions','drivable_area_compliance')
     values=[np.array([base[s.scene_id]['total_score_01'] for s in val])]
@@ -121,9 +125,8 @@ def stage_val_columns(config,items,device):
                        if base[s.scene_id]['component_valid_masks'].get(c,False) else np.nan
                        for c in names] for s in val])]
     for item in items:
-        model=load_endpoint(config,item,device)
-        _,labels=candidate_labels(config,model,val,item['cell']+'_'+item['endpoint'],device)
-        values.append(np.array([x.total_score_01 for x in labels]));del model
+        labels=[label for _,label in completed_endpoint_records(config,item,val)]
+        values.append(np.array([x.total_score_01 for x in labels]))
         safety.append(np.array([[x.named_components[c] if x.component_valid_masks.get(c,False) else np.nan
                                  for c in names] for x in labels]))
     return val,np.stack(values,1),np.stack(safety,1)
