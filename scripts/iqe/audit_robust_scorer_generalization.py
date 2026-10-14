@@ -142,6 +142,7 @@ def figure(evidence, destination):
     ax[1].bar(x, [evidence["cells"][c]["dev_report"]["high_to_zero_count"] for c in cells], color="#e45756")
     ax[1].set(xticks=x, xticklabels=cells, ylabel="Base >= 0.8, selected <= 1e-8 (scenes)")
     fig.suptitle("From-scratch Scorers: fixed four-candidate pool; one training seed")
+    fig.supxlabel("Fit: 16,581 scenes / 211 logs; dev: 1,696 / 16. Error bars: paired-log bootstrap 95% CI.", fontsize=9)
     fig.savefig(destination / "generalization.png", dpi=160)
     plt.close(fig)
 

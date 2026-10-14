@@ -92,3 +92,22 @@ not change the production 3000+3000 schedule. Evidence is
 CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m iqe.robust_scorer.qualification resume-audit --config configs/iqe/robust_scorer/mean_risk_v1.yaml --device cuda:0
 /root/miniconda3/envs/ddp/bin/python -m iqe.robust_scorer.report --config configs/iqe/robust_scorer/mean_risk_v1.yaml
 ```
+
+The full four-cell evaluation is complete. The following read-only diagnostics
+reuse checksummed predictions and official banks; they neither fit parameters
+nor change the locked model choice. The first reports fitting versus heldout
+selection and severe-error costs. The second measures existing close-trajectory
+safety comparisons in D_S only, without generating new candidates.
+
+```bash
+OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python scripts/iqe/audit_robust_scorer_generalization.py --config configs/iqe/robust_scorer/mean_risk_v1.yaml
+OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python scripts/iqe/audit_scorer_boundary_coverage.py --config configs/iqe/robust_scorer/mean_risk_v1.yaml
+```
+
+Actual outputs are under `qualification/generalization_audit/` and
+`qualification/boundary_coverage/`. The rich bank already contains 1,457
+NC/DAC safety-crossing candidate pairs with mean XY trajectory distance at most
+0.1 m, across 1,141 D_S scenes and 139 logs. That distance is not physical
+clearance. This is evidence about training supervision, not a new heldout
+success result or permission to retune against dev. No fifth training cell has
+been started under the completed four-cell registration.
