@@ -1,0 +1,82 @@
+{
+  "captured_utc": "2026-10-14T23:32:50.243106+00:00",
+  "repository": "IDayday/VLA-Drive",
+  "branch": "research/iqe-robust-scorer-20261014",
+  "source_HEAD_before_summary_commit": "b6a5bbdfc9b4d238b1ce12935d236884d01be675",
+  "branch_research_origin": "b2975b16dc8eea3aa724f87117863780503d4123",
+  "base_checkpoint_sha256": "30517484efcc8740c331f42f3f2ba2d1896a4f95cf70e2bf662e0d6c4484e8b0",
+  "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+  "dev_scene_ids_hash": "4e2021295669679b37a768fce48f0194bf80a335548a0c06f90b14a1dc10fd43",
+  "completed_expert_runs": 6,
+  "completed_original_scorer_runs": 4,
+  "completed_reward_scorer_runs": 4,
+  "geometric_training_result": {
+    "GPU_seconds": 16244.251708850265,
+    "actual_global_batch": 128,
+    "best_checkpoint_hash": "d51fa3f46798d9ad59f9db6b7bbd6ffe8b23725058788a81fe5efd9e42998d69",
+    "best_selection_key": [
+      0.9124008397193393,
+      -23
+    ],
+    "checkpoint": "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_006000.pt",
+    "elapsed_seconds": 4061.062923528254,
+    "new_optimizer_steps": 5998,
+    "optimizer_steps": 6000,
+    "parameter_hash_after": "c8e31f5f2d2e4d8d33ecda04e73ed882864adf0004c5d82d2e0d06941ab58762",
+    "parameter_hash_before": "445a7f9a21b715452206a42d341031ec3396840aa38f59bc124ad0d45ff21ff8",
+    "parameters_changed": true,
+    "resume_boundary": "optimizer_step",
+    "resume_mode": "EXACT_OPTIMIZER_BOUNDARY",
+    "status": "COMPLETE",
+    "termination": {
+      "best_snapshot": {
+        "checksum": "d51fa3f46798d9ad59f9db6b7bbd6ffe8b23725058788a81fe5efd9e42998d69",
+        "path": "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/best_step_004000.pt"
+      },
+      "early_stop_patience": 1000000000,
+      "stopped_at_step": 6000,
+      "terminal": true,
+      "termination_reason": "MAX_STEPS"
+    }
+  },
+  "geometric_status": {
+    "global_batch": 128,
+    "seconds_per_update": 0.6707423770357397,
+    "status": "RUNNING",
+    "step": 6000,
+    "world_size": 4
+  },
+  "geometric_choice": {
+    "step": 4000,
+    "hash": "d51fa3f46798d9ad59f9db6b7bbd6ffe8b23725058788a81fe5efd9e42998d69"
+  },
+  "geometric_finalizer_status": {
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "iqe.geometric_readout.evaluation",
+      "--config",
+      "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/geometric_readout/full.yaml",
+      "--device",
+      "cuda:0"
+    ],
+    "gpu": {
+      "free_MiB": 81221,
+      "unoccupied": true,
+      "used_MiB": 0,
+      "utilization": 0,
+      "uuid": "GPU-f9371c55-5054-e42c-71bf-f1314992af79"
+    },
+    "stage": "evaluation",
+    "status": "RUNNING",
+    "utc": "2026-10-14T23:29:25.325660+00:00"
+  },
+  "geometric_complete_dev_result_archived": false,
+  "existing_navtest_scorer_executed": false,
+  "scientific_status": "RELIABLE_HELDOUT_SELECTION_NOT_ESTABLISHED",
+  "new_training_launched_by_summary": false,
+  "new_navtest_launched_by_summary": false,
+  "ACTIVE_updated": false,
+  "temporary_servers_used": false,
+  "large_weights_or_raw_images_committed": false
+}

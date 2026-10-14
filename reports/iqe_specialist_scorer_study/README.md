@@ -1,5 +1,9 @@
 # Query specialist and internal Scorer study
 
+Current consolidated results: [2026-10-14 results summary](../iqe_results_summary_20261014/README.md).
+The progress paragraphs below are retained historical snapshots; the summary separates
+completed development results, previously completed Navtest, and the geometric follow-up.
+
 Code starts at `fdc9a7bfbcd19287c9164e80ca2edcf6d9d0d69c` on isolated branch `research/iqe-specialist-scorer-transfer-study`. No active Base or deployment is modified. The Base is the existing complete 70k Query checkpoint; its immutable binding is in `evidence/BASE_BINDING.json`.
 
 The full legal expert subset contains 74,311 scenes; the Scorer-only fit subset has 16,581 scenes. They remain log-disjoint. The 16,843 target-audit candidates are current Base failure/opportunity scenes from expert fit and stage validation, not a new 16k training cap. Stage validation has 1,024 fixed scenes, calibration 1,024 and development 1,696. No new navtest is run.

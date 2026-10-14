@@ -1,5 +1,7 @@
 # 从零训练的 Scorer：固定候选池结果
 
+含原 S 矩阵、专家数据、既有测试集结果及最新几何跟进的[统一汇总](../iqe_results_summary_20261014/README.md)。本页保留已完成 R 矩阵的独立结论。
+
 以下 PDMS 使用百分制。模型选择仅使用 stage_val，margin 仅使用 selector_cal；完整固定 dev 在模型与规则锁定后读取。没有新 navtest，也没有更新 ACTIVE。
 
 实验：`query70k_robust_scorer_mean_risk_seed20261014`；代码起点：`b2975b16dc8eea3aa724f87117863780503d4123`。
