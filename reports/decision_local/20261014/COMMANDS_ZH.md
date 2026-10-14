@@ -11,7 +11,7 @@
 | 40次开发规划观察 | `development_observations_v1/REGISTRY.json` 中 `commands.export` 与 `commands.score`；原canonical scorer不修改 |
 | 15项预测器终点关系检查 | `relation_endpoints_v1/REGISTRY.json` 中每个job的 `command`；包括固定训练4096、完整开发和固定新扰动幅度 |
 | 真实在线部署 | `online_deploy_smoke4_kinv2/` 是已执行4图链路；`CAMERA_ONLY_KINV2.json` 与 `CAMERA_ONLY_E_NONE_DIAGNOSTIC.json` 是在线/缓存比较 |
-| 恢复验证 | `RESUME_NUMERICAL_ASSESSMENT.json`、`OUTPUT_ASSESSMENT.json` 及仓库 `evidence/RESUME_AA_AB.json`、`RESUME_OUTPUTS.json` |
+| 恢复验证 | `resume_smoke/RESUME_NUMERICAL_ASSESSMENT.json`、`resume_smoke/OUTPUT_ASSESSMENT.json` 及仓库 `evidence/RESUME_AA_AB.json`、`RESUME_OUTPUTS.json` |
 
 登记不等于已训练完成。完整人口、对应预测器24epoch终点等依赖未齐的job保持待启动，不能把队列名称当结果。正式训练源码固定为 `/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014` 的 `3c08240a…`；后续报告提交不会改变后台训练器。
 
@@ -102,4 +102,9 @@ PYCODE
 
 导出分片的实际`--rank/--shards`和GPU绑定在对应`evaluation_runtime_*/claims/<id>/EXPORT_*.json`；CPU命令仍使用锁定canonical实现。动态路由不改变scene seed、batch1、头FP32、TF32关闭或q_final主输出。已完成的分片/分数只可在身份与哈希一致时按原生机制复用。
 
-原生恢复的精确argv见每个run的`PRIMARY_HEADS_COMPLETION.json.runs[].command`，在已经退出的暂停run上追加`--resume`；RAM续训同时保留`resources/ram_continuation_tsg5_v1`等输入逐字段/逐字节一致性记录。当前所有正式头已完成，不需再次续训。
+原生恢复的精确argv见每个run的`PRIMARY_HEADS_COMPLETION.json.runs[].command`，在已经退出的暂停run上追加`--resume`；RAM续训同时保留`ram_continuation_tsg5_v1`等输入逐字段/逐字节一致性记录。当前所有正式头已完成，不需再次续训。
+
+
+最后的汇总/原生ego误差/聚合图实际argv保存在`final_navtest_v1/trajectory_errors_launch/COMMAND.json`和`FINAL_ANALYSIS_COMMANDS.json`；全部返回成功。描述性ego误差只在模型轨迹导出后读取未来GT，使用native Scene转换，不参与部署或选轨。初版错误地假设export有index.json而失败，修正为绑定已有feature身份的population元数据后通过64场景GT对照；失败收据保留，未改变模型或canonical评分。
+
+`COST_FINAL_GPU.json`、`FINAL_RESOURCE_INVENTORY.json`、`final_navtest_v1/FINAL_COMPLETION.json`记录实际完成成本、消费者退出与完整场景数。最终只推`feature/decision-local-consequence-learning-20261014`，不合并。推送后的远端SHA在共享目录`FINAL_DELIVERY_RECEIPT.json`核对；它是交付提交，训练源码仍以各run identity为准。

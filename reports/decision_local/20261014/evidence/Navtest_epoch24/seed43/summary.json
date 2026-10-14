@@ -1,0 +1,225 @@
+{
+  "base_training_seeds": 1,
+  "comparisons": {
+    "R_FUTURE_DIFF_minus_R_FUTURE_ABS": {
+      "paired": {
+        "PDMS_baseline_percent": 89.47231989124012,
+        "PDMS_first_percent": 89.42679373400199,
+        "baseline_zero_fraction": 0.041495142433723035,
+        "delta_percentage_points": -0.04552615723812199,
+        "failed_baseline": 0,
+        "failed_first": 0,
+        "first_zero_fraction": 0.04174213732916186,
+        "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+        "logs": 136,
+        "losses": 3550,
+        "metrics": {
+          "comfort": {
+            "baseline": 0.9999176683681871,
+            "first": 0.9999176683681871,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9751358471924914,
+            "first": 0.9748888522970526,
+            "log_cluster_95_interval": [
+              -0.0007362584419214926,
+              0.00023384158451297354
+            ],
+            "paired_delta": -0.0002469948954388276
+          },
+          "driving_direction_compliance": {
+            "baseline": 0.9840688292441956,
+            "first": 0.9841099950601021,
+            "log_cluster_95_interval": [
+              -0.00015556729135903546,
+              0.00028010283761205866
+            ],
+            "paired_delta": 4.116581590647127e-05
+          },
+          "ego_progress": {
+            "baseline": 0.837143353361784,
+            "first": 0.8369729442222275,
+            "log_cluster_95_interval": [
+              -0.0005864097458051851,
+              0.0002244720461042025
+            ],
+            "paired_delta": -0.00017040913955653636
+          },
+          "no_at_fault_collisions": {
+            "baseline": 0.9824633624238432,
+            "first": 0.9824633624238432,
+            "log_cluster_95_interval": [
+              0.0,
+              0.0
+            ],
+            "paired_delta": 0.0
+          },
+          "score": {
+            "baseline": 0.8947231989124012,
+            "first": 0.8942679373400199,
+            "log_cluster_95_interval": [
+              -0.0009736128455923203,
+              3.4011758748812915e-05
+            ],
+            "paired_delta": -0.00045526157238121994
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9496953729622921,
+            "first": 0.9491190515396015,
+            "log_cluster_95_interval": [
+              -0.0012351615210284626,
+              7.923993077992174e-05
+            ],
+            "paired_delta": -0.0005763214226905978
+          }
+        },
+        "scenes": 12146,
+        "ties": 4443,
+        "valid": true,
+        "wins": 4153
+      },
+      "primary_preregistered_comparison": true,
+      "transitions": {
+        "both_nonzero": 11635,
+        "both_nonzero_mean_change": -0.00022453699722507558,
+        "both_zero": 500,
+        "drivable_area_compliance_worsened_scenes": 7,
+        "no_at_fault_collisions_worsened_scenes": 0,
+        "nonzero_to_zero": 7,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0012405860890046315,
+          "new_zeros": 7,
+          "scenes": 8929
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 0.007157232586002497,
+          "new_zeros": 0,
+          "scenes": 525
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 4,
+        "time_to_collision_within_bound_worsened_scenes": 11,
+        "zero_to_nonzero": 4
+      }
+    }
+  },
+  "group_thresholds_fixed_before_formal_training": {
+    "baseline_high_PDMS_fraction": 0.9,
+    "baseline_low_PDMS_fraction": 0.5
+  },
+  "interpretation": "Frozen mature S0 incremental probes; privileged rows are not deployable; no causal upper bound or from-scratch gain claim. Internal q0 is a shared frozen trained baseline here.",
+  "not_yet_available": [
+    "E_FUTURE_GT minus E_CV_GT",
+    "R_FUTURE_ABS minus R_CURRENT_PRED",
+    "R_FUTURE_DIFF minus E_NONE",
+    "E_CURRENT_GT minus E_NONE",
+    "E_CV_GT minus E_CURRENT_GT",
+    "E_FUTURE_GT minus E_MASK_ONLY",
+    "E_FUTURE_GT minus E_NONE",
+    "E_FUTURE_GT minus R_FUTURE_DIFF"
+  ],
+  "population": "navtest",
+  "protocol": {
+    "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark",
+    "index_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "population": "navtest",
+    "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    }
+  },
+  "registry_sha256": "5d0e2fde055518f836536ab2c60d4c38a338f369ce4db912b43bc2a553f81bd9",
+  "scope": "locked common24epoch final camera-only arms, head seed43; foundation seed remains one",
+  "source_sha": "a6fc3cb9eeb88067d10c40a1e84881dcdf3b21ca",
+  "tables": {
+    "camera_only": [
+      {
+        "PDMS": 89.47231989124012,
+        "PDMS_q0": 89.5278681371478,
+        "both_nonzero": 11620,
+        "both_nonzero_mean_change": -0.0002866258843685373,
+        "both_zero": 478,
+        "delta_percentage_points": -0.0555482459077001,
+        "drivable_area_compliance_worsened_scenes": 23,
+        "metrics": {
+          "comfort": 0.9999176683681871,
+          "drivable_area_compliance": 0.9751358471924914,
+          "driving_direction_compliance": 0.9840688292441956,
+          "ego_progress": 0.837143353361784,
+          "no_at_fault_collisions": 0.9824633624238432,
+          "score": 0.8947231989124012,
+          "time_to_collision_within_bound": 0.9496953729622921
+        },
+        "mode": "camera_only",
+        "no_at_fault_collisions_worsened_scenes": 5,
+        "nonzero_to_zero": 26,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0027514706957955364,
+          "new_zeros": 18,
+          "scenes": 8929
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 0.03628600061313974,
+          "new_zeros": 1,
+          "scenes": 520
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 7,
+        "run": "R_FUTURE_ABS",
+        "scenes": 12146,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/scores/seed43_R_FUTURE_ABS_epoch24",
+        "time_to_collision_within_bound_worsened_scenes": 26,
+        "valid": true,
+        "zero_to_nonzero": 22
+      },
+      {
+        "PDMS": 89.42679373400199,
+        "PDMS_q0": 89.5278681371478,
+        "both_nonzero": 11619,
+        "both_nonzero_mean_change": -0.0005115424358890843,
+        "both_zero": 480,
+        "delta_percentage_points": -0.10107440314582208,
+        "drivable_area_compliance_worsened_scenes": 24,
+        "metrics": {
+          "comfort": 0.9999176683681871,
+          "drivable_area_compliance": 0.9748888522970526,
+          "driving_direction_compliance": 0.9841099950601021,
+          "ego_progress": 0.8369729442222275,
+          "no_at_fault_collisions": 0.9824633624238432,
+          "score": 0.8942679373400199,
+          "time_to_collision_within_bound": 0.9491190515396015
+        },
+        "mode": "camera_only",
+        "no_at_fault_collisions_worsened_scenes": 5,
+        "nonzero_to_zero": 27,
+        "original_high_ge_0p9": {
+          "mean_delta": -0.0031832328571830917,
+          "new_zeros": 20,
+          "scenes": 8929
+        },
+        "original_low_le_0p5": {
+          "mean_delta": 0.03277721858508224,
+          "new_zeros": 1,
+          "scenes": 520
+        },
+        "progress_up_with_any_NC_TTC_DAC_down": 8,
+        "run": "R_FUTURE_DIFF",
+        "scenes": 12146,
+        "source": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/scores/seed43_R_FUTURE_DIFF_epoch24",
+        "time_to_collision_within_bound_worsened_scenes": 31,
+        "valid": true,
+        "zero_to_nonzero": 20
+      }
+    ],
+    "oracle_probe": []
+  },
+  "tool_sha256": "f63030e805db6b9104fce4616e5356752ae142ad2f158a424ceefbde39db5a3b",
+  "uncertainty": "log-cluster resampling with original scene weights; sampling seeds and head seeds do not replicate the S0 foundation training seed"
+}

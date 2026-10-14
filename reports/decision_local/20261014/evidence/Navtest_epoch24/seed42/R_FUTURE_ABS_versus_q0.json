@@ -1,0 +1,104 @@
+{
+  "paired": {
+    "PDMS_baseline_percent": 89.5278681371478,
+    "PDMS_first_percent": 89.44093559080959,
+    "baseline_zero_fraction": 0.04116581590647127,
+    "delta_percentage_points": -0.08693254633821351,
+    "failed_baseline": 0,
+    "failed_first": 0,
+    "first_zero_fraction": 0.04231845875185246,
+    "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+    "logs": 136,
+    "losses": 2502,
+    "metrics": {
+      "comfort": {
+        "baseline": 0.9999176683681871,
+        "first": 0.9999176683681871,
+        "log_cluster_95_interval": [
+          0.0,
+          0.0
+        ],
+        "paired_delta": 0.0
+      },
+      "drivable_area_compliance": {
+        "baseline": 0.9755475053515561,
+        "first": 0.9744771941379878,
+        "log_cluster_95_interval": [
+          -0.002415490209323096,
+          9.014927636986591e-05
+        ],
+        "paired_delta": -0.001070311213568253
+      },
+      "driving_direction_compliance": {
+        "baseline": 0.984192326691915,
+        "first": 0.9842334925078216,
+        "log_cluster_95_interval": [
+          -0.0002677400074362265,
+          0.0003286353869963852
+        ],
+        "paired_delta": 4.116581590647127e-05
+      },
+      "ego_progress": {
+        "baseline": 0.8367849121536238,
+        "first": 0.8361857325452465,
+        "log_cluster_95_interval": [
+          -0.0017645822007711235,
+          0.0004940420273029204
+        ],
+        "paired_delta": -0.000599179608377362
+      },
+      "no_at_fault_collisions": {
+        "baseline": 0.9823398649761238,
+        "first": 0.9822986991602174,
+        "log_cluster_95_interval": [
+          -0.0005016329605374162,
+          0.0004411189027954948
+        ],
+        "paired_delta": -4.116581590647127e-05
+      },
+      "score": {
+        "baseline": 0.895278681371478,
+        "first": 0.8944093559080959,
+        "log_cluster_95_interval": [
+          -0.0021595266204805052,
+          0.00037202762440952537
+        ],
+        "paired_delta": -0.0008693254633821351
+      },
+      "time_to_collision_within_bound": {
+        "baseline": 0.9508480158076733,
+        "first": 0.9506833525440475,
+        "log_cluster_95_interval": [
+          -0.0010878665964818963,
+          0.0008673177433630115
+        ],
+        "paired_delta": -0.00016466326362588507
+      }
+    },
+    "scenes": 12146,
+    "ties": 4347,
+    "valid": true,
+    "wins": 5297
+  },
+  "transitions": {
+    "both_nonzero": 11615,
+    "both_nonzero_mean_change": 0.00014088412163474042,
+    "both_zero": 483,
+    "drivable_area_compliance_worsened_scenes": 27,
+    "no_at_fault_collisions_worsened_scenes": 5,
+    "nonzero_to_zero": 31,
+    "original_high_ge_0p9": {
+      "mean_delta": -0.0027087186857849355,
+      "new_zeros": 20,
+      "scenes": 8929
+    },
+    "original_low_le_0p5": {
+      "mean_delta": 0.029372462526041598,
+      "new_zeros": 0,
+      "scenes": 520
+    },
+    "progress_up_with_any_NC_TTC_DAC_down": 6,
+    "time_to_collision_within_bound_worsened_scenes": 19,
+    "zero_to_nonzero": 17
+  }
+}

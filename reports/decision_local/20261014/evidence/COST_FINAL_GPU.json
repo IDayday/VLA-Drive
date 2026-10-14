@@ -1,0 +1,2087 @@
+{
+  "CPU_label_receipts": [
+    {
+      "CPU_worker_wall_hours_including_wait": 0.006766367935472065,
+      "receipt": "labels_dev_current_ground_kinv2/COMPLETE.json",
+      "scenes": 1696,
+      "sha256": "250d58490461f65e1685bf5e202753a3330adcab2baee45ce8b6f65c2e40fe47",
+      "wall_seconds": 12.179460601881146
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 0.8081650146417734,
+      "receipt": "labels_dev_current_ground_v1/STATUS.json",
+      "scenes": 1696,
+      "sha256": "fb8de59d053e25494f82fcb50ac73002d5c1cfc1b3ff4c0cc9a9f08bc3678347",
+      "wall_seconds": 1454.697025096044
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 0.1006384034972224,
+      "receipt": "labels_dev_generalization_v1/STATUS.json",
+      "scenes": 1696,
+      "sha256": "faa1cfee7bcde8aebce4987f0960e472a03fad176199f102698f685e52b06e43",
+      "wall_seconds": 90.57456238381565
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 2.414342418486873,
+      "receipt": "labels_diagnostic4096_current_static_ground_kinv2/STATUS.json",
+      "scenes": 4096,
+      "sha256": "0fd8b9ac63d2c8ea91ea3779ca5912f6643ee4e9feaae416e164c38d26067873",
+      "wall_seconds": 1448.605449916795
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 2.414150094833846,
+      "receipt": "labels_diagnostic4096_strict_kinv2/STATUS.json",
+      "scenes": 4096,
+      "sha256": "2e4a08e3c6959dea7a4852aa0dedcd45f953a81f768a3414d065a5b6f812a852",
+      "wall_seconds": 1448.4900556318462
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 0.002888112993290027,
+      "receipt": "labels_profile64_current_ground_kinv2/COMPLETE.json",
+      "scenes": 64,
+      "sha256": "68760c26722359ff3638659f609ac5e814a0c8824285595928ece3c3b5c9c0e7",
+      "wall_seconds": 5.198602044954896
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 7.981219620108605,
+      "receipt": "labels_train_current_ground_kinv2/COMPLETE.json",
+      "scenes": 101592,
+      "sha256": "707907d320a1ba716ea08f2399828352132e56d01742f0c29e7f1d86a56e53be",
+      "wall_seconds": 7183.097655722871
+    },
+    {
+      "CPU_worker_wall_hours_including_wait": 19.53605336928119,
+      "receipt": "labels_train_current_ground_v1/STATUS.json",
+      "scenes": 101592,
+      "sha256": "62521089e9fb66b55d353c4db3e1282729753355b22a0caf8f9f6e094a30002f",
+      "wall_seconds": 8791.224014606327
+    }
+  ],
+  "CPU_label_worker_wall_hours_including_dependency_wait": 33.264223401778274,
+  "categories": {
+    "G_readonly_fields": 2.205430432876391,
+    "G_readonly_validation": 0.09368516533687297,
+    "OOF_training_and_evaluation": 1.5424394185111545,
+    "correction_diagnostics": 0.024137511600533297,
+    "development_anchor_cache": 0.640290698726765,
+    "diagnostic_anchor_cache": 1.7178937002322023,
+    "initial_and_cache_validation": 0.18797272081331662,
+    "navtest_anchor_cache": 4.911359703517212,
+    "online_deployment": 0.8856827485885715,
+    "planning_export": 1.9002406631072033,
+    "primary_small_heads": 17.600386718586574,
+    "relationship_evaluation": 0.06233138318535767,
+    "small_data_and_numerical_checks": 0.3645251549511643,
+    "train_anchor_cache": 39.31212583078796
+  },
+  "components": [
+    {
+      "GPU_process_hours": 39.31212583078796,
+      "category": "train_anchor_cache",
+      "fields": [
+        "old_12_worker_process_GPU_hours",
+        "new_21_worker_process_GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Includes retired workers, retained partial chunks and new loading",
+      "receipt": "FULL_POPULATION_RECEIPT.json",
+      "receipt_sha256": "152007cb39a071506711f6658a3cafc8b2c6574643e7420c8e95b5b8d7aef53d"
+    },
+    {
+      "GPU_process_hours": 4.911359703517212,
+      "category": "navtest_anchor_cache",
+      "fields": [
+        "GPU_hours_total_including_loading_and_retired_attempts"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/PREPARATION_COMPLETE_RECEIPT.json",
+      "receipt_sha256": "26da0f81fe33c87f5184adf71368e92617b404c3e0d0d2e2570ae6f4b0ba3d85"
+    },
+    {
+      "GPU_process_hours": 0.640290698726765,
+      "category": "development_anchor_cache",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_dev_full_v1/workers/000.json",
+      "receipt_sha256": "2bd025a3153cdb3a0c28383b9b79a06851de7e95f691f0bbaf4685f58ddc43ea"
+    },
+    {
+      "GPU_process_hours": 0.36370366794028086,
+      "category": "diagnostic_anchor_cache",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_diagnostic4096_v1/workers/000.json",
+      "receipt_sha256": "87c369ee0cd9774073c9a0b249b6607dc9da051855283e7e3ea91c90f74888e1"
+    },
+    {
+      "GPU_process_hours": 0.36344957379082593,
+      "category": "diagnostic_anchor_cache",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_diagnostic4096_v1/workers/001.json",
+      "receipt_sha256": "9125de30559c1ff01c8ea8ddf036766146917e2e03dd710963ac3135c5b48f39"
+    },
+    {
+      "GPU_process_hours": 0.36305492145109586,
+      "category": "diagnostic_anchor_cache",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_diagnostic4096_v1/workers/002.json",
+      "receipt_sha256": "e2018eb9135038a9f086697f219008af0f7726de6a9e9f36e282657d363ad2b8"
+    },
+    {
+      "GPU_process_hours": 0.41033571300556004,
+      "category": "diagnostic_anchor_cache",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_diagnostic4096_v1/workers/003.json",
+      "receipt_sha256": "3fc6d83c49e35491b094e7220cc2cadd3f43d41824d5a7b9a254b75f5fbe36e4"
+    },
+    {
+      "GPU_process_hours": 0.09618355154008087,
+      "category": "initial_and_cache_validation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_profile64_fp16/workers/000.json",
+      "receipt_sha256": "9e3213959daec76b06be66c470500f1c4877d5a04fbd6a8778397d017b5c531a"
+    },
+    {
+      "GPU_process_hours": 0.09178916927323573,
+      "category": "initial_and_cache_validation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "anchor_profile64_fp16/workers/redistribution_validation_v2_000.json",
+      "receipt_sha256": "a786338769ed15b3e5e8bcb0185b206daf575e4530a16a103004de5e630b9f7d"
+    },
+    {
+      "GPU_process_hours": 0.21734982404443953,
+      "category": "diagnostic_anchor_cache",
+      "fields": [
+        "GPU_hours_until_stop"
+      ],
+      "multiplier": 1.0,
+      "note": "Retired partial producer; retained work not charged twice elsewhere",
+      "receipt": "launches/anchor_diagnostic4096_retired.json",
+      "receipt_sha256": "17326cd92f3bb4a28540466c2cd91dc8e81b81219cb69289351334dfa9a5b79b"
+    },
+    {
+      "GPU_process_hours": 1.0761700185243455,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/E_NONE/COMPLETE.json",
+      "receipt_sha256": "30a96933bc56d1c7a1c2751f35b0c4a8ece4583b82ba246d92fda0a9b712603e"
+    },
+    {
+      "GPU_process_hours": 1.2878717332126366,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/E_CURRENT_GT/COMPLETE.json",
+      "receipt_sha256": "931b055da699bfd9627878de658a5daf7ce3489f12ab30004a625dd62abd3680"
+    },
+    {
+      "GPU_process_hours": 1.0759916822865812,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/P_ABS/COMPLETE.json",
+      "receipt_sha256": "42097c8b49a42cdc72deb0430e4c2471979dd20698d75d6bae5cfe50dfd339ce"
+    },
+    {
+      "GPU_process_hours": 0.9093322084663831,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/R_FUTURE_ABS/COMPLETE.json",
+      "receipt_sha256": "b1e6cbdbaac6490f60ec11a11b0fb038e41e0033f6be9c038e3af8a123366294"
+    },
+    {
+      "GPU_process_hours": 1.0761069024204173,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/P_QUERY_ONLY/COMPLETE.json",
+      "receipt_sha256": "9cf5b0300d8e34532fa91ebad6802eafdb60d3d599606ef4c8e4ce96cbb6a4df"
+    },
+    {
+      "GPU_process_hours": 0.7670887382916407,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/R_FUTURE_DIFF/COMPLETE.json",
+      "receipt_sha256": "11d421809d0e1f71f8ff05d2b667d33fa38ee972f82788731e969cd7fc9190dc"
+    },
+    {
+      "GPU_process_hours": 0.914544355100273,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/R_CURRENT_PRED/COMPLETE.json",
+      "receipt_sha256": "cb1830a19564c2456673dfd822cdac115b5c8e4d28102f2ecb228ddc8cad526d"
+    },
+    {
+      "GPU_process_hours": 1.4802341680942723,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "4c97720d911c5e6769f1752f311444137d09c5ef584454a4dd29881a2339e4ed"
+    },
+    {
+      "GPU_process_hours": 1.076107987053175,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/E_CV_GT/COMPLETE.json",
+      "receipt_sha256": "a476aa341057cffbc2ee16707f35fd78c9377a18249ee1f4a91f42fa43cc1429"
+    },
+    {
+      "GPU_process_hours": 1.2855403360191526,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "c73ec9fed7b51388a7d27a85711ad8c4c4d5e733cf666457421816a284877b28"
+    },
+    {
+      "GPU_process_hours": 1.0760525834679397,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed42/E_MASK_ONLY/COMPLETE.json",
+      "receipt_sha256": "704c634fa036009c10c842d1854845b8805aab2088181fe1c58ed2912ef3895d"
+    },
+    {
+      "GPU_process_hours": 0.7824238681441703,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/E_NONE/COMPLETE.json",
+      "receipt_sha256": "2c7a6461b8b67d5e3b02300e102922a98ae27b2739b0a3a200d77b2f9f5eae11"
+    },
+    {
+      "GPU_process_hours": 1.1403365187709116,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/P_ABS/COMPLETE.json",
+      "receipt_sha256": "dfe42c9b1af9d3b55283ec49048053983cb16aedadd8babe538f5b7c7e1a30a8"
+    },
+    {
+      "GPU_process_hours": 0.860945436457227,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/R_FUTURE_ABS/COMPLETE.json",
+      "receipt_sha256": "f12e679cd48b77a94db1cf9b696195f1f94a28c4b58494f6e3b8a39f2573745e"
+    },
+    {
+      "GPU_process_hours": 0.8525943412049997,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/R_FUTURE_DIFF/COMPLETE.json",
+      "receipt_sha256": "3cd0660a941fa789c5787cc9e4bccc15c5e2babd092a705f701cb57cb7061d1c"
+    },
+    {
+      "GPU_process_hours": 1.1405587986163381,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "e9d2f8c74867484e7eccd80e53ff9f66c488cbf7b106b93134cb8420004583f4"
+    },
+    {
+      "GPU_process_hours": 0.7984870424561086,
+      "category": "primary_small_heads",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "Native cumulative cost, including resumes",
+      "receipt": "formal_seed43/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "001f74529e7068597e76ce174a937249237f37b816c32858185acc86e557700a"
+    },
+    {
+      "GPU_process_hours": 0.004604518194165495,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/evaluations/fold1_P_ABS/COMPLETE.json",
+      "receipt_sha256": "8dde836905b407e128797dc9c6ce5e05886209ea57f38bf1ee40f2d2c525ecd4"
+    },
+    {
+      "GPU_process_hours": 0.004611158686586552,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/evaluations/fold1_P_DIFF/COMPLETE.json",
+      "receipt_sha256": "33ea0d7c2ceb184ad9d186976e4daeb832de0ecd6caee228c95cb974e4275e9c"
+    },
+    {
+      "GPU_process_hours": 0.004606165970261726,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/evaluations/fold0_P_ABS/COMPLETE.json",
+      "receipt_sha256": "af5e32a59e349f4e1297f5a4d58f23c8a4422c25025a8f536d815eb6af2b4de7"
+    },
+    {
+      "GPU_process_hours": 0.004603723112183313,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/evaluations/fold0_P_DIFF/COMPLETE.json",
+      "receipt_sha256": "5bb77bfbee659f0777f4ce960ac42b2b1ea1f0050d2e7d0f8131a9cec59a9ace"
+    },
+    {
+      "GPU_process_hours": 0.00312750236545172,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/execution_smoke2/STATUS.json",
+      "receipt_sha256": "b4502c61f06741018c121dc7004740402969e7c5567e8e194f2ee3eea56e5557"
+    },
+    {
+      "GPU_process_hours": 0.36189370456772546,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/fold1_P_ABS/COMPLETE.json",
+      "receipt_sha256": "11f06088891e1d4b01c7f8ee0809bae33ca94ec9932002cc07e4e90f6142a457"
+    },
+    {
+      "GPU_process_hours": 0.3723010239413836,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/fold1_P_DIFF/COMPLETE.json",
+      "receipt_sha256": "704c114170cf32c5e5c10671e4ae6ec803a1c8e0ce959088ec93a0bf87f9de1f"
+    },
+    {
+      "GPU_process_hours": 0.3993678584317159,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/fold0_P_ABS/COMPLETE.json",
+      "receipt_sha256": "6f0a5d47ec846dba7dc02b9bf50c5b2b9cdbee39ef7c757b73a710c9d29886ec"
+    },
+    {
+      "GPU_process_hours": 0.38732376324168094,
+      "category": "OOF_training_and_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "conditional_oof_v1/fold0_P_DIFF/COMPLETE.json",
+      "receipt_sha256": "bcfd78cad8f06db8b4cf6c7c5a830f69de50edb9d9fa93474cf2be62e8468b81"
+    },
+    {
+      "GPU_process_hours": 0.733212785230555,
+      "category": "G_readonly_fields",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "G_diagnostic_dev75k_v1/G2_EVENT_UNIFORM/COMPLETE.json",
+      "receipt_sha256": "29790967efc46e9e62c08e8ac1f83ec64472c2f41cd52e0330a15c19957bd19c"
+    },
+    {
+      "GPU_process_hours": 0.7332122237975031,
+      "category": "G_readonly_fields",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "G_diagnostic_dev75k_v1/G3_EVENT_LOCAL/COMPLETE.json",
+      "receipt_sha256": "f7b81cb29cc6b03582a9914020d496f1954017f10fcee4f85b7d132c8a90578f"
+    },
+    {
+      "GPU_process_hours": 0.7390054238483329,
+      "category": "G_readonly_fields",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "G_diagnostic_dev75k_v1/G1_FULL_UNIFORM/COMPLETE.json",
+      "receipt_sha256": "6d796f5be369cc916ea607401f141b214f9e2770a43f1dd3340ae9ff66e59ac7"
+    },
+    {
+      "GPU_process_hours": 0.09368516533687297,
+      "category": "G_readonly_validation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "G_diagnostic_smoke4/G1_FULL_UNIFORM/COMPLETE.json",
+      "receipt_sha256": "62e70bdb2f75829e32c2b2add7f629b855eb9798fa50c747b7f8f79301468ec3"
+    },
+    {
+      "GPU_process_hours": 0.04436575076195166,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/E_NONE/COMPLETE.json",
+      "receipt_sha256": "a922b1823257449375901cb2a9631feeb8f1d5412e5d1b0398d4386a2cb9f03f"
+    },
+    {
+      "GPU_process_hours": 0.044228232303608415,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/E_CURRENT_GT/COMPLETE.json",
+      "receipt_sha256": "51f85173bb4b2ffd3215ff6d6669b1b1e30bff3ed33fed4f73422ed7cf8c13e2"
+    },
+    {
+      "GPU_process_hours": 0.01968343569017533,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/P_ABS/COMPLETE.json",
+      "receipt_sha256": "14d3e5cf5413df4a905a84976d3a71cefd123d0d70d64e2fe37019ee24f10401"
+    },
+    {
+      "GPU_process_hours": 0.019662866956657834,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "6632b87513159fb8e6e0877ab656c0b10dfd8bbcc982b8b97f89af50e8152dec"
+    },
+    {
+      "GPU_process_hours": 0.044145161353048426,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/E_CV_GT/COMPLETE.json",
+      "receipt_sha256": "c7e2dc855a64687b146f9a47dfa520b16c3d3d386228305184cfe65961ac17b9"
+    },
+    {
+      "GPU_process_hours": 0.044304083798617486,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_v1/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "372ad71c3f819a87dc0f4ca51f5a2af7479d4d90f49855118778e7b5c594d96b"
+    },
+    {
+      "GPU_process_hours": 0.015927177182295256,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_mmap_v1/P_QUERY_ONLY/COMPLETE.json",
+      "receipt_sha256": "9758e4cb017e719da76a53443798502e65f099b6bd609ead01ed7abe50d4586e"
+    },
+    {
+      "GPU_process_hours": 0.01595086138540258,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "diagnostic4096_mmap_v1/E_MASK_ONLY/COMPLETE.json",
+      "receipt_sha256": "fe00112183b7f36418e5e3d432f2f8cdbb337d7ce02cca5325803b657b35779c"
+    },
+    {
+      "GPU_process_hours": 0.001622323938128021,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke/P_DIFF_42/COMPLETE.json",
+      "receipt_sha256": "3391961d50f2d18e5ae85d75ef314cfb2943567e47560a4948b8902adf759273"
+    },
+    {
+      "GPU_process_hours": 0.001717659716701342,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/E_NONE/COMPLETE.json",
+      "receipt_sha256": "a947b7224bb7671260cf7c85b6ab572e0499d8180ffc074de6f0dba7373e2e19"
+    },
+    {
+      "GPU_process_hours": 0.0016331970520938436,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/E_CURRENT_GT/COMPLETE.json",
+      "receipt_sha256": "495b40f4760a213125fbf3a9221748d55aba41b423102bcb6110d0b231cc8526"
+    },
+    {
+      "GPU_process_hours": 0.0017666873527276848,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/P_ABS/COMPLETE.json",
+      "receipt_sha256": "6087ea93153a00ac754cab605da139d329a33c93ab56b7b7ab2b53ddbaa1f2bc"
+    },
+    {
+      "GPU_process_hours": 0.001908890251070261,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/R_FUTURE_ABS/COMPLETE.json",
+      "receipt_sha256": "2a313e2a51f096a5898cfbc6ae02e0ad64d4c57dc4ae2c7bfe4c8adc3b8ae7c1"
+    },
+    {
+      "GPU_process_hours": 0.0015715579657504955,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/P_QUERY_ONLY/COMPLETE.json",
+      "receipt_sha256": "491fd3be643272e240ba1d6ada0e816061fa2b4765209f57fc9bde5d1b118ea1"
+    },
+    {
+      "GPU_process_hours": 0.0018801918315390746,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/R_FUTURE_DIFF/COMPLETE.json",
+      "receipt_sha256": "110a9a09384386591e2c1bf94078eab901979eb7fb4e9aa840368b3d346702e0"
+    },
+    {
+      "GPU_process_hours": 0.001871167323552072,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/R_CURRENT_PRED/COMPLETE.json",
+      "receipt_sha256": "8db1a544272de5dde344f7ca1b42a7dfe3ff30d47894440379529bba58daab4a"
+    },
+    {
+      "GPU_process_hours": 0.0016116604886742103,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "6a7c176cfdbaa1b730abe7ff6b0fcc0c487cc684b297649cadfff1b52e4e7641"
+    },
+    {
+      "GPU_process_hours": 0.0015776483823234837,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/E_CV_GT/COMPLETE.json",
+      "receipt_sha256": "36819409c11ae85b52edc81ccd6391f5aeebec34e476b065c0df7b879aa9b357"
+    },
+    {
+      "GPU_process_hours": 0.0016191151381159822,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "a6d74937a6d3a9df8d472e6554e666ecbaa215468c7d871c6a933fe34d28c161"
+    },
+    {
+      "GPU_process_hours": 0.001684085248141653,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_current_ground/E_MASK_ONLY/COMPLETE.json",
+      "receipt_sha256": "ca53e10c86d9efede3606f4e6f209e795f7500fcbb10f60993a930218d60ca06"
+    },
+    {
+      "GPU_process_hours": 0.00046612418049739464,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_kinv2/R_FUTURE_DIFF/COMPLETE.json",
+      "receipt_sha256": "764c978fedaf18a7dfa18b0ea7d740428899d182d2aef0b711ea1f651b2cc00b"
+    },
+    {
+      "GPU_process_hours": 0.0004001252720546391,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_kinv2/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "dd7c086672f7acc6619cd8405b5622599fc385ce02a67f73b1c125b8fb2ef6cb"
+    },
+    {
+      "GPU_process_hours": 0.0004802828835737374,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "smoke_kinv2/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "aac6435607f91e6fc91d0a1489ae82c59e05b7b1806f09bdd232fa510fb47e9f"
+    },
+    {
+      "GPU_process_hours": 0.0006570341081048052,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "resume_smoke/E_NONE/uninterrupted/STATUS.json",
+      "receipt_sha256": "d004fe903f4acef7d566b1d80755dc8af0d5f7c75e6b5055a996bee0aa56186c"
+    },
+    {
+      "GPU_process_hours": 0.0008970528675450219,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "resume_smoke/E_NONE/interrupted/STATUS.json",
+      "receipt_sha256": "a4d1aeee0c9d3465cb227a172d141f4ece0d12cc82cc2134a0d18ef52d10c528"
+    },
+    {
+      "GPU_process_hours": 0.0006260067912646466,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "resume_smoke/P_DIFF/uninterrupted/STATUS.json",
+      "receipt_sha256": "1ae56620815d968300592933be860647f15f247b359b89605b9ce1921d0253f3"
+    },
+    {
+      "GPU_process_hours": 0.0008380297317893968,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "resume_smoke/P_DIFF/interrupted/STATUS.json",
+      "receipt_sha256": "8edc1bf0cd29795b776f2cffff3565d69fac9cef234b070c747d9f2d8553fcd3"
+    },
+    {
+      "GPU_process_hours": 0.0006839897364584936,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "resume_smoke/P_DIFF/AA/STATUS.json",
+      "receipt_sha256": "93de616101c165f9bc8d6e2dba692b3120f0b74d66b89d68beaca1c89c65bd3e"
+    },
+    {
+      "GPU_process_hours": 0.004248331009099881,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_same_gpu_v1/P_DIFF_mmap_tensors/STATUS.json",
+      "receipt_sha256": "5fcac13078a1b08b2d3329bf29f4d653592c84d9332417adc5a6c42c86566344"
+    },
+    {
+      "GPU_process_hours": 0.003923128302623,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_same_gpu_v1/E_NONE_mmap_tensors/STATUS.json",
+      "receipt_sha256": "51de4c95b36d5d8582cb8d8822d77d87fc8df5b347de25095e67410af69709bd"
+    },
+    {
+      "GPU_process_hours": 0.01295248058779786,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_same_gpu_v1/E_NONE_slice/STATUS.json",
+      "receipt_sha256": "52a49e2dd8874a0c45b814c5fe846911098c3c22016ac7ffb9129850844eeaee"
+    },
+    {
+      "GPU_process_hours": 0.013194435820914806,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_same_gpu_v1/P_DIFF_AA/STATUS.json",
+      "receipt_sha256": "ae19618637af8dd053ac6b8c5cea0c613f99ca515a04752505d47d7814975764"
+    },
+    {
+      "GPU_process_hours": 0.0086451678050475,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_same_gpu_v1/P_DIFF_slice/STATUS.json",
+      "receipt_sha256": "48f76631570d43bf5f2313b641523ae476e3531699f61a2fa3c712a97076291a"
+    },
+    {
+      "GPU_process_hours": 0.021354148529450563,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_training_pair_v1/E_NONE/COMPLETE.json",
+      "receipt_sha256": "e1cce3425823523208bd12d93322639911527db2428828383f5ee3f11b3a1749"
+    },
+    {
+      "GPU_process_hours": 0.021396624194167088,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "reader_training_pair_v1/P_DIFF/COMPLETE.json",
+      "receipt_sha256": "fdbbe551ebffe2db5c2b6a01dbba5a8c514c2bfa53b006afb220cd7074b8049d"
+    },
+    {
+      "GPU_process_hours": 0.0015618162902279033,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_DIFF_generalization/COMPLETE.json",
+      "receipt_sha256": "5cf9c3f8b30fe090279a25c0c78d1341b6ebb1c510c300b5d1b158bd95f679d1"
+    },
+    {
+      "GPU_process_hours": 0.00844627471951147,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_DIFF_train4096/COMPLETE.json",
+      "receipt_sha256": "5621261905879d6a0fa2e58a5436bbbf67598d8c084c67eea3fe1fb1be026fe9"
+    },
+    {
+      "GPU_process_hours": 0.0017424785925282372,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_DIFF_dev/COMPLETE.json",
+      "receipt_sha256": "437fd1b0bb3009dc25362be8c4364f518729f2b2ad36a81fcee19c4a928bc33a"
+    },
+    {
+      "GPU_process_hours": 0.0015389842074364423,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_ABS_generalization/COMPLETE.json",
+      "receipt_sha256": "4b2d8f791ba2a70a79e1f96a71e71091b52e22429a308361e38dceebb2ab64df"
+    },
+    {
+      "GPU_process_hours": 0.002980895388043589,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_DIFF_dev/COMPLETE.json",
+      "receipt_sha256": "e214a61fa9e4a6811f44a290c426c3c64b967d581e0d1f1d1adf9fe787879580"
+    },
+    {
+      "GPU_process_hours": 0.00850191535686867,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_ABS_train4096/COMPLETE.json",
+      "receipt_sha256": "7daaa285dd5bbe0e4b6614d5e220f682a0844439a5599b9b2246967f25542fe4"
+    },
+    {
+      "GPU_process_hours": 0.007284490791045957,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_DIFF_train4096/COMPLETE.json",
+      "receipt_sha256": "f601ab36c8a8474c5a15301d8b416830d531eb91a4525f183fb0c7caa3f765ec"
+    },
+    {
+      "GPU_process_hours": 0.001438132974629601,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_DIFF_generalization/COMPLETE.json",
+      "receipt_sha256": "11999a6e8f9027fe3c7135d2d4ca0ef3cdcf90c9d364a490d7b7489009349e9e"
+    },
+    {
+      "GPU_process_hours": 0.0014772558176062173,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_ABS_generalization/COMPLETE.json",
+      "receipt_sha256": "d289aca958e0f5015014894eb7a48b1902ac0d70bbc8b75750aa0e35e158522f"
+    },
+    {
+      "GPU_process_hours": 0.00867033982080304,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_ABS_train4096/COMPLETE.json",
+      "receipt_sha256": "7bca3a1b9b8da8ed94ce312c9cb97b06b7869c1aa16b1390c65ce269ed6b939b"
+    },
+    {
+      "GPU_process_hours": 0.006997915208339691,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_QUERY_ONLY_train4096/COMPLETE.json",
+      "receipt_sha256": "397a0e149d0ce2cc86379273a63add2df7bc42f164d815ebe2c374b69120c75f"
+    },
+    {
+      "GPU_process_hours": 0.0016215576795447204,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed43_P_ABS_dev/COMPLETE.json",
+      "receipt_sha256": "030cc3a24e080fa84581a475513112241668fc8fae042d6ab5b6abbe931dc2e1"
+    },
+    {
+      "GPU_process_hours": 0.0018997747047493855,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_QUERY_ONLY_dev/COMPLETE.json",
+      "receipt_sha256": "1bb54bb086790d46f65caff8635806aee0de7fb9bdaa24229610737dd410c35f"
+    },
+    {
+      "GPU_process_hours": 0.001501769887076484,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_ABS_dev/COMPLETE.json",
+      "receipt_sha256": "d4cc0fa46d81aaf808fb91e72c5db1bf5f9d6b0c451e33504f4599b010f9ed55"
+    },
+    {
+      "GPU_process_hours": 0.0015351886053880056,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_endpoints_v1/seed42_P_QUERY_ONLY_generalization/COMPLETE.json",
+      "receipt_sha256": "eb788391397fafd6a32a30b8e8cf0cb6f7db736ebe6e1c5fc00917b9bb335455"
+    },
+    {
+      "GPU_process_hours": 0.0002928225380472011,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_smoke64/COMPLETE.json",
+      "receipt_sha256": "9baef1d601a53a38cbb5e3408bb173883a2dcad297d5d98e643bc5dec827e6a0"
+    },
+    {
+      "GPU_process_hours": 0.00030541466807739603,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_smoke64_complete_metrics/COMPLETE.json",
+      "receipt_sha256": "1a70de2ba650617a65729f910eeba0403277a25052496d89fc5bde2b78aaef5e"
+    },
+    {
+      "GPU_process_hours": 0.0028799494909536507,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_observer_diagnostic1696/main/COMPLETE.json",
+      "receipt_sha256": "8f37863819df6f45ddde040d0d15d95c81006385dd292364125eb346b1809a7a"
+    },
+    {
+      "GPU_process_hours": 0.0016544064444800218,
+      "category": "relationship_evaluation",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "relation_observer_diagnostic1696/generalization/COMPLETE.json",
+      "receipt_sha256": "185093cda484d82ffb9e61aa546d8dcd91fa6543fc791ad3ca55c4d73236df46"
+    },
+    {
+      "GPU_process_hours": 0.0015985581853116553,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_R_FUTURE_ABS_dev/summary.json",
+      "receipt_sha256": "de3a2ba87fbb17341a8d15382303f6f2ec0472d688292c0b1ad2e65bcee9d217"
+    },
+    {
+      "GPU_process_hours": 0.003989753470652634,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_NONE_train4096/summary.json",
+      "receipt_sha256": "acfb1506fae7348dd83144c1c7750ae97352474987ddf7c4ac5ba1ae4997f304"
+    },
+    {
+      "GPU_process_hours": 0.004740752204735246,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_R_FUTURE_ABS_train4096/summary.json",
+      "receipt_sha256": "a0f2bb013e3c3aa192df35014149595f0fb96c868661426fc794d9441c768211"
+    },
+    {
+      "GPU_process_hours": 0.004334300565015939,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_R_FUTURE_DIFF_train4096/summary.json",
+      "receipt_sha256": "37df9069d367dc6e797391a5998c5cbe32fcb0134aa799fd2036a42a93882009"
+    },
+    {
+      "GPU_process_hours": 0.0012807355417559544,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_FUTURE_GT_dev/summary.json",
+      "receipt_sha256": "71d3d3229b1059197a638b586d17718ef87b6779d9fea14fe82c30fa2a7ac8bd"
+    },
+    {
+      "GPU_process_hours": 0.0016648948089116149,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_NONE_dev/summary.json",
+      "receipt_sha256": "759ab432ff339530b7856dc456011639aece9fa802e47e29d5dd33caa6fb4458"
+    },
+    {
+      "GPU_process_hours": 0.0009185201090036167,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_CV_GT_train4096/summary.json",
+      "receipt_sha256": "a03dc6c90e4891f1ee8760deb93849a4246e46eba097e16f512eb54d49c8ca34"
+    },
+    {
+      "GPU_process_hours": 0.0005543232160723872,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_CV_GT_dev/summary.json",
+      "receipt_sha256": "4ec7df16396562afa1240a026e614b263fa93291a6c47859ce98f25bbee82b1f"
+    },
+    {
+      "GPU_process_hours": 0.004059875800998675,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_E_FUTURE_GT_train4096/summary.json",
+      "receipt_sha256": "9237d23c7b500363b8b76b79db08ff7f5e2a7adaf581f11aac71d174c2642342"
+    },
+    {
+      "GPU_process_hours": 0.0009957976980755727,
+      "category": "correction_diagnostics",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "correction_diagnostics_v1/seed42_R_FUTURE_DIFF_dev/summary.json",
+      "receipt_sha256": "3cc0939a9a02908c2a544ce8456d3f1e802ebde6004d42c37f7b020d9bad69f0"
+    },
+    {
+      "GPU_process_hours": 0.10408809557557105,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "online_deploy_smoke4_kinv2/COMPLETE.json",
+      "receipt_sha256": "3513fed787457ce3c848dd64bd86d0e9da154413358fd00176204de0e2ec2694"
+    },
+    {
+      "GPU_process_hours": 0.06444903222554584,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "instrumented_deployment_v1/R_FUTURE_DIFF_formal24_v2/COMPLETE.json",
+      "receipt_sha256": "39c50aaca1e17f830b55753b00837e2694faa358ce5b1601213d4d6290c0b397"
+    },
+    {
+      "GPU_process_hours": 0.10316527543537733,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "instrumented_deployment_v1/E_NONE_formal24_v2/COMPLETE.json",
+      "receipt_sha256": "c44bf6f944f2ebee757802e37a640899ad25bfee5b4ea53cceaf508acdbbac1b"
+    },
+    {
+      "GPU_process_hours": 0.04477989421588265,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed42_R_FUTURE_ABS.json",
+      "receipt_sha256": "e295833a3932a11c7edcdd3b2a9b7ccf581a21d54ba7440c897aedb0db555a46"
+    },
+    {
+      "GPU_process_hours": 0.08669975768464307,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed42_E_NONE.json",
+      "receipt_sha256": "c40b02d0a14261f9de14bbfde0200af1b8e59f182cf4f4f9f9e67573628fb992"
+    },
+    {
+      "GPU_process_hours": 0.07698917817893541,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed42_R_FUTURE_DIFF.json",
+      "receipt_sha256": "d5e86d5e23bb5a45052a9546f9ed16eecbecff41c4fbb6f07d70789c3e9b45e4"
+    },
+    {
+      "GPU_process_hours": 0.049029313254997965,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed43_R_FUTURE_DIFF.json",
+      "receipt_sha256": "cfb93aacefa2b960ccb8b7885d31e1a3401284ab81b5d50fac731ba36f03aa0d"
+    },
+    {
+      "GPU_process_hours": 0.04903599133094152,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed43_R_FUTURE_ABS.json",
+      "receipt_sha256": "03efe3563c154ac57e9e89d121c2df60bf402dd38dc06a7c7f19c835dc32e76b"
+    },
+    {
+      "GPU_process_hours": 0.03936821977970087,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/seed42_R_CURRENT_PRED.json",
+      "receipt_sha256": "e6b84ed67e6842c26e113edd830ab60e57b1804f1943540b5ef7af1db5d762a8"
+    },
+    {
+      "GPU_process_hours": 0.08486612859610533,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "formal_deployment_v1/online_DIFF_64/COMPLETE.json",
+      "receipt_sha256": "0117587ba68b71a32a18900b3bbbc0b08d298617d8419a82dfb15f55e604638c"
+    },
+    {
+      "GPU_process_hours": 0.001177697743082212,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "planning_smoke_R_DIFF/COMPLETE.json",
+      "receipt_sha256": "3af5ee9ae3baeb2e5deed60d77fb815815bdad0a5033b104300307cbfdbdbd49"
+    },
+    {
+      "GPU_process_hours": 0.00046318905945453377,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "dev_score_smoke4/R_FUTURE_DIFF/COMPLETE.json",
+      "receipt_sha256": "8cc3aeecf138811f831eec2213a154e8fce6b2ccb3716cb6a5ca44e87e0794b0"
+    },
+    {
+      "GPU_process_hours": 0.00032224640457166566,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "dev_score_smoke4/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "76a91df06f34c0c3bfb7bf7830a4bb50b28b711209d5bc1e897416a50f06b665"
+    },
+    {
+      "GPU_process_hours": 0.01388541934080422,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "shard_validation1696/reference/COMPLETE.json",
+      "receipt_sha256": "f1ea8dbce1757c000cd9f7e94120ae9dbfc86ed3f545e367098447f4d2c2ae73"
+    },
+    {
+      "GPU_process_hours": 0.015393866632237203,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "shard_validation1696/sharded/COMPLETE.json",
+      "receipt_sha256": "4502168671fb5b806e8ef3e527edd3e55bf28ce64bca6d154b8a2d969ad3f811"
+    },
+    {
+      "GPU_process_hours": 0.0005619642360963756,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "stream_shard_validation4/predictions/COMPLETE.json",
+      "receipt_sha256": "22822914f2ceb0e7794909fd4f9a640b5f3d97f8281685f6666e9dab98d5a21d"
+    },
+    {
+      "GPU_process_hours": 0.0006051356971470846,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "stream_observer_debug4/predictions/E_NONE/COMPLETE.json",
+      "receipt_sha256": "79ca0ca5f1a0661a384014a0a1147f575bd801c9075ca0189901731e20093fdc"
+    },
+    {
+      "GPU_process_hours": 0.0006415310201959478,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "stream_observer_debug4/predictions/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "1e5e407f2470b8be9c38e81c2d00861aac4e0bbaae7b815a083790e220e8fb5b"
+    },
+    {
+      "GPU_process_hours": 0.0003995819032813112,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "observer_debug4/predictions/E_NONE/COMPLETE.json",
+      "receipt_sha256": "d13c16c2f8bedaba307c9a551a7d8eaf93f23654f0c49cffc8cbb1b9b3052c95"
+    },
+    {
+      "GPU_process_hours": 0.00041293588673902885,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "observer_debug4/predictions/E_FUTURE_GT/COMPLETE.json",
+      "receipt_sha256": "731df8c3800cbfe22c90f4fcc6dc04f79e0b3bdcdafe4da3d2ad36dc1b109a26"
+    },
+    {
+      "GPU_process_hours": 0.014854730603595575,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_DIFF_epoch12/COMPLETE.json",
+      "receipt_sha256": "6b12a010d2f45c68ccde4e137a1f3d20874e1824c36ebae2257848935ce0e287"
+    },
+    {
+      "GPU_process_hours": 0.015050478169901503,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_DIFF_epoch18/COMPLETE.json",
+      "receipt_sha256": "050f6a16b07af110fcf3aa0a1c654208e05f76ad1b32d73c5a1266c8baf6032d"
+    },
+    {
+      "GPU_process_hours": 0.011908634261538585,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_DIFF_epoch06/COMPLETE.json",
+      "receipt_sha256": "be86c33d9223261e380bbfb0ea6028000d7699a42012b761ef0db71a84ff76b3"
+    },
+    {
+      "GPU_process_hours": 0.019191337446164754,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_MASK_ONLY_epoch06/COMPLETE.json",
+      "receipt_sha256": "62c962f83a1244469ea64d19a96bf994f16cb7c7a8d98e007033055d5d2d978a"
+    },
+    {
+      "GPU_process_hours": 0.011609438062748976,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_DIFF_epoch18/COMPLETE.json",
+      "receipt_sha256": "52a14896994dd5ebc62138fab052f50a548a3c0934391ff6174b8b94b1ba2171"
+    },
+    {
+      "GPU_process_hours": 0.011829677865219613,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_NONE_epoch24/COMPLETE.json",
+      "receipt_sha256": "edb97df708692c3bd7305a9f40862f6aceea0901c24257eba810c2445a871aa4"
+    },
+    {
+      "GPU_process_hours": 0.015392636879761185,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_ABS_epoch24/COMPLETE.json",
+      "receipt_sha256": "3cf836f7b319ea7ac4f8dc02a80b8b96338ff6081c13e5af1d60a06759d9bd7d"
+    },
+    {
+      "GPU_process_hours": 0.018261381823362576,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_DIFF_epoch12/COMPLETE.json",
+      "receipt_sha256": "a5f1b821e87e9c27b96856d60658cbcf3df1b46cce3c0c1d03393177ed0ffdeb"
+    },
+    {
+      "GPU_process_hours": 0.012219242046380209,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CURRENT_GT_epoch24/COMPLETE.json",
+      "receipt_sha256": "e27b584a4ec49881398b284b21e857c0a36175ceb5303a0c16801dbb489e2dfd"
+    },
+    {
+      "GPU_process_hours": 0.018695964764079285,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_NONE_epoch12/COMPLETE.json",
+      "receipt_sha256": "16c7738e3751dd231ff222a000731bd37b1e46bd065936ac226113d96b1e52de"
+    },
+    {
+      "GPU_process_hours": 0.014601800066625906,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_NONE_epoch06/COMPLETE.json",
+      "receipt_sha256": "03e3fc2752872d529b64e3bfaed9b3ccd0f454e64baeaa44098440389e481552"
+    },
+    {
+      "GPU_process_hours": 0.014009493310521873,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CV_GT_epoch24/COMPLETE.json",
+      "receipt_sha256": "5bdd6c1ae2e6e33fbf0842d248f040f9b91b49f8ebb4095116a72e935c2c106c"
+    },
+    {
+      "GPU_process_hours": 0.015007665559856428,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_CURRENT_PRED_epoch18/COMPLETE.json",
+      "receipt_sha256": "5b219356b1f3d13ce106127be55ff9abc46a6f90ecdca451689a884770ecb40f"
+    },
+    {
+      "GPU_process_hours": 0.014425530498847365,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_MASK_ONLY_epoch12/COMPLETE.json",
+      "receipt_sha256": "187ef696255c543aeb7a93ea00d9d756bd8bef3b1946d5e3595fafca985bfb5f"
+    },
+    {
+      "GPU_process_hours": 0.01692120941873226,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_ABS_epoch12/COMPLETE.json",
+      "receipt_sha256": "69661f5d54918b68e325daffd856a9abc8f3513f9551adfd16e9370a086ec42e"
+    },
+    {
+      "GPU_process_hours": 0.020033096191473306,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CV_GT_epoch06/COMPLETE.json",
+      "receipt_sha256": "da7924afa300a517b51ce54b59fa9263f7de474b010533306ee120d78fb1e77f"
+    },
+    {
+      "GPU_process_hours": 0.01509382779451294,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_MASK_ONLY_epoch18/COMPLETE.json",
+      "receipt_sha256": "f05ceb487c89c44189c6a5834ef00ed45c3f1b33326f7dff7eb8e70c40eb91b9"
+    },
+    {
+      "GPU_process_hours": 0.022270748565594356,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_NONE_epoch18/COMPLETE.json",
+      "receipt_sha256": "818e9d9151bbbd654e85eec55398cd9135e11ff04d67121e2772ebf45e5f9ae3"
+    },
+    {
+      "GPU_process_hours": 0.01544428789212058,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_ABS_epoch18/COMPLETE.json",
+      "receipt_sha256": "10722d186e95e2f22a5f495ab75048c5dda34deea7212b08e46528aa00059d01"
+    },
+    {
+      "GPU_process_hours": 0.01092513424758282,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_DIFF_epoch24/COMPLETE.json",
+      "receipt_sha256": "9df61b02d08c5cd55505fb605b9f67403a1ed0a8903103841e12a75040b6f414"
+    },
+    {
+      "GPU_process_hours": 0.018188376490854554,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CV_GT_epoch18/COMPLETE.json",
+      "receipt_sha256": "ec807b922f2127afeb1398e66f211ac201246aa8e68d879e7e5e0fb5d450fad4"
+    },
+    {
+      "GPU_process_hours": 0.0199526626828851,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CURRENT_GT_epoch06/COMPLETE.json",
+      "receipt_sha256": "056daff6d7f22d9a2bd28b467369f757315b3e1f1ddde3c2c794857359d353c3"
+    },
+    {
+      "GPU_process_hours": 0.01760076484694663,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_FUTURE_GT_epoch06/COMPLETE.json",
+      "receipt_sha256": "b41b867c8236941346780f0d63cd180f966faacd9585ac15955b3e8751ac104f"
+    },
+    {
+      "GPU_process_hours": 0.014758332572980887,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_FUTURE_GT_epoch18/COMPLETE.json",
+      "receipt_sha256": "2391273b047f7003e91c1870552fd90d9388a14bdf9f4217aefe4745a6f1bffa"
+    },
+    {
+      "GPU_process_hours": 0.017949258506091106,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_ABS_epoch18/COMPLETE.json",
+      "receipt_sha256": "95316888a9dbb82dba57368082318e080e1ed20585d8f203520a7b306b2ada14"
+    },
+    {
+      "GPU_process_hours": 0.017483332437566584,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_ABS_epoch12/COMPLETE.json",
+      "receipt_sha256": "de22e0e3ea47d3ea3cfc87ff0d42e2023260c1b9913acf12324874c5d63ec740"
+    },
+    {
+      "GPU_process_hours": 0.016395508125941788,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_ABS_epoch24/COMPLETE.json",
+      "receipt_sha256": "f84a3e266dd5677d7af42e36a4e41305804036f35302746b2364c1af20f0a33e"
+    },
+    {
+      "GPU_process_hours": 0.012429248666804699,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_ABS_epoch06/COMPLETE.json",
+      "receipt_sha256": "19c6b46fea509d286c3c25b3d6ea83677648f66ef0567ab1a3db82801b9ae688"
+    },
+    {
+      "GPU_process_hours": 0.013848336812419195,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_FUTURE_GT_epoch24/COMPLETE.json",
+      "receipt_sha256": "cb1b3279bbd3f39661c952873b905a398f58b3c83ac0d5c6b52a4255ce30d1fe"
+    },
+    {
+      "GPU_process_hours": 0.013352361179163887,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_CURRENT_PRED_epoch06/COMPLETE.json",
+      "receipt_sha256": "2c04ed11cb1fe1d07d58d9d0ad1edf34c2a8c42a51d2243653fbb33f2688a58c"
+    },
+    {
+      "GPU_process_hours": 0.020093995111270083,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CURRENT_GT_epoch12/COMPLETE.json",
+      "receipt_sha256": "de048965a2c73d7d2b149db47c6f5cd65802f3d3aa75551c262dffc3b19f7c59"
+    },
+    {
+      "GPU_process_hours": 0.012444494932165576,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_ABS_epoch06/COMPLETE.json",
+      "receipt_sha256": "6e17d73012654c04b5db8dfc23148b8801ce7d486d0d866a088f2ca8e9896202"
+    },
+    {
+      "GPU_process_hours": 0.01796758852640374,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_CURRENT_PRED_epoch12/COMPLETE.json",
+      "receipt_sha256": "f8e695706ab63bc82ca8d58fc9d8918c9282c3a9b276a9f859762b31753ac57b"
+    },
+    {
+      "GPU_process_hours": 0.016386285212097895,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed43_R_FUTURE_DIFF_epoch24/COMPLETE.json",
+      "receipt_sha256": "addbaf85582500cfe1ac17d5943afd8338b60f9fe3b327ffa1e838fa90343ef9"
+    },
+    {
+      "GPU_process_hours": 0.020086359158158304,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_FUTURE_GT_epoch12/COMPLETE.json",
+      "receipt_sha256": "2450518da67c66e7be642917cc91788ee0d955db14b96332ddca2787c2014a76"
+    },
+    {
+      "GPU_process_hours": 0.01678773198225018,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_FUTURE_DIFF_epoch06/COMPLETE.json",
+      "receipt_sha256": "25bcae0b4e8ffaa2e18dc035fd5fa1c86cec9e425af431a87a1965c5ed435640"
+    },
+    {
+      "GPU_process_hours": 0.014629318569269445,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CURRENT_GT_epoch18/COMPLETE.json",
+      "receipt_sha256": "8b6e827428d13e9e0734f82b42a86454ef455b46d70c32b6542ea9afc4510fc5"
+    },
+    {
+      "GPU_process_hours": 0.019076954438868497,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_CV_GT_epoch12/COMPLETE.json",
+      "receipt_sha256": "a97a10720d79ebfbb2b14c892652830517f32dca2be28e06537f98ba069a9a36"
+    },
+    {
+      "GPU_process_hours": 0.015277934871200058,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_E_MASK_ONLY_epoch24/COMPLETE.json",
+      "receipt_sha256": "4625f43f4679edcd27e33fed2cfcf7e7b57df129cf774a446ec1ca0e615a7fd3"
+    },
+    {
+      "GPU_process_hours": 0.016268722874422867,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "development_observations_v1/predictions/seed42_R_CURRENT_PRED_epoch24/COMPLETE.json",
+      "receipt_sha256": "cd5990a6912681850bad2f0ff7f19e4d946a1a8da40a87ecf290e36efe1013a6"
+    },
+    {
+      "GPU_process_hours": 0.014845801562898688,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_FUTURE_GT_epoch18/COMPLETE.json",
+      "receipt_sha256": "e26644a68b2dc7e3b42a301b6d998c8e8d21c0bb64087570a117a7c8c720ecea"
+    },
+    {
+      "GPU_process_hours": 0.014822690249938104,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_NONE_epoch18/COMPLETE.json",
+      "receipt_sha256": "fa21367f41bad2b4b5e8b8b0c03405b9c8f781b3892a044548079f4fbb7f722d"
+    },
+    {
+      "GPU_process_hours": 0.012668145858786173,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_NONE_epoch24/COMPLETE.json",
+      "receipt_sha256": "c5831838d49cfe5a4138a0895e2a3ae62049219c7587f6c19c22345c28fb75c6"
+    },
+    {
+      "GPU_process_hours": 0.012277059590754409,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_NONE_epoch06/COMPLETE.json",
+      "receipt_sha256": "d5550fd9b47134185281e9a3e53bfd658283c0a0d51221bd9f14538edd7cf97b"
+    },
+    {
+      "GPU_process_hours": 0.01330918818505274,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_FUTURE_GT_epoch06/COMPLETE.json",
+      "receipt_sha256": "eefb1b327a99a2a9eccd14cc1075048dca87ac51293c169b19c04fcc8072fe21"
+    },
+    {
+      "GPU_process_hours": 0.012301767282187938,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_NONE_epoch12/COMPLETE.json",
+      "receipt_sha256": "fe795087c2188de6a481ca1955deeee18e5a0553edad058b45bed34ded6cb02e"
+    },
+    {
+      "GPU_process_hours": 0.014455899331822163,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_FUTURE_GT_epoch12/COMPLETE.json",
+      "receipt_sha256": "f361f8f46e8d11d1d3e330d56947a8463bafe2f723adbf9e60e49a7d2471a6bc"
+    },
+    {
+      "GPU_process_hours": 0.013125733811822202,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "information_seed43_v1/predictions/seed43_E_FUTURE_GT_epoch24/COMPLETE.json",
+      "receipt_sha256": "99c7737a0cc217c1e8e5b2514101c1cb1ebdf31adfa744f0508f01fbed8eccb8"
+    },
+    {
+      "GPU_process_hours": 0.2140921237392144,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed42_E_NONE_epoch24/COMPLETE.json",
+      "receipt_sha256": "0759efd837bfa9174a0b692e94383e0aaa8ebf2b25e057190a703d8f7d260861"
+    },
+    {
+      "GPU_process_hours": 0.17218997401702732,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed42_R_FUTURE_ABS_epoch24/COMPLETE.json",
+      "receipt_sha256": "6f088be5946a5aea3590f355958980555f956a03a4eaa4744684ee7364899906"
+    },
+    {
+      "GPU_process_hours": 0.15455692981369795,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed42_R_FUTURE_DIFF_epoch24/COMPLETE.json",
+      "receipt_sha256": "6949979b670417874e9ceb552d55ec906ccd90da15446c8b1ced4cba6fadc757"
+    },
+    {
+      "GPU_process_hours": 0.2167866123427747,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed43_R_FUTURE_ABS_epoch24/COMPLETE.json",
+      "receipt_sha256": "941070f9a2ff8a78598c4e8bb6be5ded7d9a5cfd195800ccf070918060993b37"
+    },
+    {
+      "GPU_process_hours": 0.1661600311775045,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed43_R_FUTURE_DIFF_epoch24/COMPLETE.json",
+      "receipt_sha256": "2a1aa056034b6dcfb033c53c5f581e91954f9df67f2c78785b2ad46c59c7f67a"
+    },
+    {
+      "GPU_process_hours": 0.19606125475373118,
+      "category": "planning_export",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "final_navtest_v1/seed42_R_CURRENT_PRED_epoch24/COMPLETE.json",
+      "receipt_sha256": "862355625f785da8c42bbaf25c74eb7a956682d7a92ce1190342892dd80c97b6"
+    },
+    {
+      "GPU_process_hours": 0.0050304390102004016,
+      "category": "small_data_and_numerical_checks",
+      "fields": [
+        "GPU_hours"
+      ],
+      "multiplier": 1.0,
+      "note": "",
+      "receipt": "LOSS_SCALE_4096.json",
+      "receipt_sha256": "f2e698f38cd43e2353c4681c76c4d41dc9b5aa2436af6c19c946f117115744de"
+    },
+    {
+      "GPU_process_hours": 0.09526588022553673,
+      "category": "online_deployment",
+      "fields": [
+        "correct_whole_child_wall_GPU_hours_upper_bound"
+      ],
+      "multiplier": 1.0,
+      "note": "Corrected whole-process timing; original faulty timer is preserved, not counted",
+      "receipt": "deployment_queue_debug2/TIMING_CORRECTION.json",
+      "receipt_sha256": "b1689fd093d0464e2b0bb3bf0a5c1f181a66bc958f8197bdb2557a0fe168db3a"
+    },
+    {
+      "GPU_process_hours": 0.08794598208533393,
+      "category": "online_deployment",
+      "fields": [
+        "GPU_process_hours_upper_bound_from_log_mtime"
+      ],
+      "multiplier": 1.0,
+      "note": "Failed instrumentation attempt; log-final-write elapsed estimate, not a wait() timer",
+      "receipt": "instrumented_deployment_v1/FAILED_OUTER_HOOK.json",
+      "receipt_sha256": "c47263d65cad6b482eccfa5655687e247d806e7a50d6cd6529208d9105c5953e"
+    }
+  ],
+  "historical_shared_S0_training_GPU_hours": 483.48133029778796,
+  "limits": [
+    "Process wall intervals can overlap on the same GPU; they are not physical-device busy hours or energy",
+    "Small imports, metadata commands, CPU-only analysis and some old failure startup intervals were not separately metered",
+    "Several native timers begin within the Python entry; do not claim exact allocation billing",
+    "CPU label worker wall-hours include time waiting for cache producers, not CPU kernel-hours",
+    "No base training, label-cache source or ancestor cost is counted as a fresh small-head experiment"
+  ],
+  "missing_cost_receipts": [],
+  "operational_cap_GPU_hours": 100,
+  "pending_formal_training": [],
+  "recorded_GPU_process_hours": 71.44850185082127,
+  "reserve_is_not_reported_as_measured_consumption": true,
+  "source_sha": "a6fc3cb9eeb88067d10c40a1e84881dcdf3b21ca",
+  "tool_sha256": "e087fa0dec129d2e54cd0c6f75cfbc9dc88209379f810e8a167afddcfc91146d",
+  "unmetered_overhead_budget_reserve_GPU_hours": 2
+}
