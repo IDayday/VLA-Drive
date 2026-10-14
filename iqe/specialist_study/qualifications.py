@@ -201,6 +201,93 @@ def scorer_resume(config, device):
     return report
 
 
+@torch.no_grad()
+def online_cached_system(config, system, device):
+    """Compare the trained bundle with cache on attested original image batches.
+
+    Original AMP batch composition is a measured numerical dependency. This
+    does not claim batch-1 and batch-4 hidden states are bitwise interchangeable.
+    Both sides use the very same fixed expert pool and selected scratch Scorer.
+    """
+    from iqe.contracts import FeatureBundle
+    from iqe.data.sources import load_observation
+    from .context_batch_layout import OriginalBatchReplay
+    from .context_reader import VerifiedSpatialReader
+    from .scorer_training import CONTEXT_KEYS
+    output=config.root/'qualifications/online_cached_system/REPORT.json'
+    dependencies={'Base':file_hash(config.root/'BASE_BINDING.json'),
+        'pool':file_hash(config.root/'SERVING_CANDIDATE_POOL.json'),
+        'scorer_selection':file_hash(config.root/'SCORER_MATRIX_SELECTION.json')}
+    if output.exists():
+        result=read_json(output)
+        require(result['dependencies']==dependencies,'online/cache qualification identity changed')
+        return result
+    selected=scenes_by_role(config)['stage_val'][:4]
+    layout=OriginalBatchReplay(config)
+    groups=list(dict.fromkeys(layout.batches[s.scene_id] for s in selected))
+    wanted={s.scene_id for s in selected}
+    cache=ReusedContext(config,capacity=16)
+    spatial=VerifiedSpatialReader(config,16) if system.scorer.spatial else None
+    rows=[]
+    for group in groups:
+        observations=[layout.scenes[sid] for sid in group]
+        require(all(s.split_role!='final_test' for s in observations),'forbidden image qualification role')
+        captured={}
+
+        def context_hook(_module,args):
+            require('context' not in captured,'Scorer called twice in shared online inference')
+            captured['context']={k:v.detach().cpu().clone() for k,v in args[0].items()}
+
+        def base_hook(_module,_args,result):
+            require('base_raw' not in captured,'Base decoder called twice')
+            captured['base_raw']=result.raw.detach().cpu().clone()
+
+        handles=[system.scorer.register_forward_pre_hook(context_hook),
+            system.adapter.framework.action_model.expert.register_forward_hook(base_hook)]
+        try:
+            online=system.shared_forward([load_observation(s,system.adapter.contract) for s in observations])
+        finally:
+            for handle in handles:handle.remove()
+        require(online['calls']=={'visual':1,'language':1},'online/cache audit ran a second VLA')
+        indices=[i for i,s in enumerate(observations) if s.scene_id in wanted]
+        scenes=[observations[i] for i in indices]
+        cached=cache.batch(scenes,device)
+        planner=FeatureBundle(cached['planner_scene'],cached['planner_ego'],cached['planner_mask'],
+            system.adapter.contract_hash,tuple(s.scene_id for s in scenes))
+        base=system.adapter.predict_s0(planner)
+        private={k:cached[k] for k in ('planner_scene','planner_ego','planner_mask','world','action','current_ego')}
+        candidates=torch.stack([base.physical]+[expert(private).physical for expert in system.experts],1)
+        context={k:cached[k].detach() for k in CONTEXT_KEYS}
+        if spatial is not None:context.update(spatial.batch(scenes,device))
+        predicted=system.scorer(context,candidates)['values']
+        differences={}
+        for name,value in context.items():
+            reference=captured['context'][name][indices]
+            actual=value.detach().cpu()
+            require(actual.shape==reference.shape and actual.dtype==reference.dtype,'online/cache schema changed: '+name)
+            if actual.dtype==torch.bool:
+                require(torch.equal(actual,reference),'online/cache mask changed: '+name)
+                differences[name]=0.
+            else:
+                differences[name]=float((actual-reference).abs().max())
+                require(differences[name]<=1e-5,'online/cache context drift: '+name)
+        differences['Base_raw']=float((base.raw.cpu()-captured['base_raw'][indices]).abs().max())
+        differences['candidate_physical']=float((candidates.cpu()-online['candidates'][indices].cpu()).abs().max())
+        differences['predicted_scores']=float((predicted.cpu()-online['predicted_scores'][indices].cpu()).abs().max())
+        require(differences['Base_raw']<=1e-5 and differences['candidate_physical']<=1e-4
+                and differences['predicted_scores']<=1e-5,'trained online/cache prediction drift')
+        require(torch.equal(predicted.argmax(1).cpu(),online['selected'][indices].cpu()),'online/cache selected candidate changed')
+        rows.append({'scene_ids':[s.scene_id for s in scenes],'canonical_batch':list(group),
+            'observation_hashes':[s.observation_hash for s in scenes],'differences':differences,
+            'selected_exact':True,'online_calls':online['calls'],'cached_VLA_calls':0})
+    result={'status':'PASS','dependencies':dependencies,'scenes':len(selected),'batches':rows,
+        'original_batch_plan_hash':layout.plan_hash,'raw_context_score_tolerance':1e-5,'physical_tolerance':1e-4,
+        'batch_shape_invariance_claimed':False,'training_or_selection_uses_this_diagnostic':False,
+        'real_images':True,'external_scorer_loaded':False,'extra_VLA_per_candidate':False}
+    atomic_json(output,result,immutable=True)
+    return result
+
+
 def bundle_roundtrip(config, device):
     from iqe.data.sources import load_observation
     from .evaluation import load_research_bundle

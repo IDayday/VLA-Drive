@@ -177,12 +177,16 @@ def generate(config):
         '\nMeasurements include real image decode and one shared visual/language forward, per-expert action computation and selected score head. '
         'Semantic and spatial costs are separate. Cached head training is not deployment latency.\n')
     resume=get('qualifications/expert_gpu_resume/REPORT.json')
+    scorer_resume=get('qualifications/scorer_gpu_resume/REPORT.json')
+    online_cache=get('qualifications/online_cached_system/REPORT.json')
     reference=get('qualifications/official_reference/REPORT.json')
     roundtrip=get('research_bundle/ROUNDTRIP_REPORT.json')
     report('REGRESSION_AND_RESUME_REPORT.md','# Regression and actual integration\n\n'
         'Repository regression:476 passed,3 skipped,4 warnings,60.20s (pytest_regression_v5.txt). After adding physical-capacity guards, the focused study/artifact suite passed47 tests in4.33s (pytest_capacity_migration.txt). '
         'These are distinct evidence runs, not an invented aggregate suite count.\n\n'+table(
             ['Real check','Status','Scope'],[['GPU private-reader exact resume',resume['status'] if resume else 'UNTESTED','32 real scenes,4 continuous vs2+2,raw/EMA/Adam/scheduler/RNG/cursor/loss/next IDs; terminal adds0'],
+            ['GPU scratch-Scorer two-flow resume',scorer_resume['status'] if scorer_resume else 'WAITING_INPUTS','real D_S non-tie pairs,4 continuous vs2+2 across diagnostic phase boundary; all model/Adam/RNG/two-stream states'],
+            ['Trained-system online/cache equivalence',online_cache['status'] if online_cache else 'WAITING_INPUTS','four real stage_val observations,attested original AMP batches,raw context/candidate/score and exact choice; no claim of arbitrary batch-size invariance'],
             ['Fresh official reference invariance',reference['status'] if reference else 'UNTESTED','two real scenes,Base/GT audit,reorder/delete/duplicate/chunk,exact bank agreement'],
             ['Independent-process research bundle',roundtrip['status'] if roundtrip else 'WAITING_INPUTS','real images,strict loading,finite outputs and stable selected candidate']])+
         '\nNo training fixture is presented as real integration. The CPU/Gloo distributed loss test is separate from the actual single-GPU training path. '

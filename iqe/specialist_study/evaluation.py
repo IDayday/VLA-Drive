@@ -195,11 +195,12 @@ def load_research_bundle(path,device):
 
 def benchmark(config,device='cuda:0'):
     from iqe.s0_adapter import S0Adapter
-    from .qualifications import scorer_resume
+    from .qualifications import scorer_resume,online_cached_system
     scorer_resume(config,device)
     chosen=read_json(config.root/'SCORER_MATRIX_SELECTION.json')['selected']['cell'];scorer=selected_scorer(config,chosen,device)
     p=pool(config);adapter=S0Adapter.load_and_validate_s0(read_json(config.root/'OFFLINE_BASE_CONTRACT.json'),device)
     experts=[load_endpoint(config,item,device) for item in p['experts']];system=ResearchSystem(adapter,experts,scorer).eval().requires_grad_(False)
+    online_cached_system(config,system,device)
     scenes=scenes_by_role(config)['stage_val'][:32];rows=[]
     sync=lambda:torch.cuda.synchronize() if str(device).startswith('cuda') else None
     scorer_parameters={}
