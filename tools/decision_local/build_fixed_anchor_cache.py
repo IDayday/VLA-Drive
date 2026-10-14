@@ -29,6 +29,9 @@ def main():
     parser.add_argument('--max-seconds', type=float, required=True)
     parser.add_argument('--verify-samples', type=int, default=4)
     parser.add_argument('--storage-dtype', choices=('float16', 'float32'), default='float16')
+    parser.add_argument('--continue-existing', action='store_true',
+        help='Explicit stateless worker redistribution, preserving the original cache contract')
+    parser.add_argument('--continuation-attempt', default='')
     args = parser.parse_args()
     resources = helpers.check_host()
     anchor = helpers.read(args.anchor)
@@ -74,9 +77,21 @@ def main():
     ident = helpers.identity(config)
     args.output.mkdir(parents=True, exist_ok=True)
     existing = args.output/'identity.json'
-    if existing.exists() and helpers.read(existing)['identity'] != ident:
-        raise ValueError('Refusing incompatible cache reuse')
-    helpers.atomic_json(existing, {'identity': ident, **config})
+    producer={'source_sha':helpers.source_sha(ROOT),'writer_sha256':helpers.digest(__file__),
+        'attempt':args.continuation_attempt,'rank':args.rank,'shards':args.shards}
+    if args.continue_existing:
+        if not args.continuation_attempt or not existing.exists():raise ValueError('Explicit existing-cache continuation identity required')
+        origin=helpers.read(existing)
+        # Only writer execution/provenance may differ. Every model, sample,
+        # precision, RNG, shape and storage field must match exactly.
+        for key,value in config.items():
+            if key not in ('source_sha','writer_sha256') and origin.get(key)!=value:
+                raise ValueError('Changed cache semantics: '+key)
+        ident=origin['identity'];config={k:v for k,v in origin.items() if k!='identity'}
+    else:
+        if existing.exists() and helpers.read(existing)['identity'] != ident:
+            raise ValueError('Refusing incompatible cache reuse')
+        helpers.atomic_json(existing, {'identity': ident, **config})
     helpers.atomic_json(args.output/'index.json', index)
     for name in ('chunks', 'records', 'workers'):
         (args.output/name).mkdir(exist_ok=True)
@@ -91,6 +106,26 @@ def main():
     state_before = {k: p.detach().cpu().clone() for k, p in model.named_buffers()}
     dtype = torch.float16 if args.storage_dtype == 'float16' else torch.float32
     profile, checks, completed = [], [], 0
+    continuation_check=None
+    if args.continue_existing:
+        from safetensors.torch import load_file
+        committed=sorted((args.output/'records').glob('*.json'))
+        if not committed:raise ValueError('Continuation requires a committed numerical reference')
+        reference=helpers.read(committed[args.rank%len(committed)])
+        original_path=args.output/'chunks'/(committed[args.rank%len(committed)].stem+'.safetensors')
+        if helpers.digest(original_path)!=reference['sha256']:raise ValueError('Changed committed reference')
+        row=next(x for x in index if x['token']==reference['tokens'][0])
+        old=load_file(str(original_path));observation=data[lookup[row['token']]]
+        with torch.no_grad():
+            encoded=model.encode_current([observation]);action=model.build_planner_condition(encoded)
+            plans=torch.stack([model.action_model.predict_action(action,initial_noise=scene_noise(row['token'],seed,action.device)).float()[0]
+                for seed in config['seeds']])
+        got={'W':encoded['W'][0].to(dtype).cpu(),'H_A':encoded['action_queries'][0].to(dtype).cpu(),
+             'q0_encoded':plans.cpu(),'q0':decode_ego(plans).cpu(),
+             'state':torch.from_numpy(np.asarray(observation['state'],dtype=np.float32)[0].copy())}
+        for key,value in got.items():torch.testing.assert_close(value,old[key][0],rtol=0,atol=0)
+        continuation_check={'token':row['token'],'all_stored_fields_bit_exact':True,'reference_sha256':reference['sha256']}
+        del old,got,encoded,action,plans
     chunks = (len(index)+args.chunk_size-1)//args.chunk_size
     for chunk in range(args.rank, chunks, args.shards):
         if time.monotonic()-started >= args.max_seconds:
@@ -153,7 +188,8 @@ def main():
         temporary.replace(path)
         helpers.atomic_json(receipt, {'identity': ident, 'sha256': helpers.digest(path),
             'bytes': path.stat().st_size, 'tokens': [r['token'] for r in members],
-            'current_record_sha256': input_records, 'features': {k: list(v.shape) for k, v in tensors.items()}})
+            'current_record_sha256': input_records, 'features': {k: list(v.shape) for k, v in tensors.items()},
+            'producer':producer})
         completed += len(members)
         print(json.dumps({'rank': args.rank, 'chunk': chunk, 'scenes': completed,
                           'seconds': time.monotonic()-started, 'bytes_per_scene': path.stat().st_size/len(members)}), flush=True)
@@ -161,12 +197,13 @@ def main():
         torch.testing.assert_close(value.cpu(), state_before[name], rtol=0, atol=0)
     torch.cuda.synchronize()
     seconds = time.monotonic()-started
-    helpers.atomic_json(args.output/'workers'/f'{args.rank:03d}.json', {
+    worker_name=(args.continuation_attempt+'_' if args.continue_existing else '')+f'{args.rank:03d}.json'
+    helpers.atomic_json(args.output/'workers'/worker_name, {
         'identity': ident, 'rank': args.rank, 'shards': args.shards, 'scenes': completed,
         'seconds': seconds, 'GPU_hours': seconds/3600., 'loading_seconds': loaded,
         'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
         'peak_reserved_bytes': torch.cuda.max_memory_reserved(), 'resource_check': resources,
-        'plan_and_storage_checks': checks, 'timing': profile,
+        'plan_and_storage_checks': checks, 'timing': profile,'producer':producer,'continuation_reference':continuation_check,
         'all_frozen_buffers_unchanged': True, 'status': 'complete' if completed == sum(len(index[c*args.chunk_size:(c+1)*args.chunk_size]) for c in range(args.rank, chunks, args.shards)) else 'paused_at_chunk_boundary'})
     receipts = [args.output/'records'/f'{c:06d}.json' for c in range(chunks)]
     if all(p.exists() for p in receipts):
