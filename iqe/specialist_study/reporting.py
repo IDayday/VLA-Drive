@@ -222,7 +222,15 @@ def generate(config):
     online_cache=get('qualifications/online_cached_system/REPORT.json')
     reference=get('qualifications/official_reference/REPORT.json')
     roundtrip=get('research_bundle/ROUNDTRIP_REPORT.json')
+    regression_path=repo/'reports/iqe_specialist_scorer_study/evidence/REGRESSION_FINAL.json'
+    regression=read_json(regression_path) if regression_path.exists() else None
+    regression_text=(f'Current implementation regression: {regression["passed"]} passed, '
+        f'{regression["skipped"]} skipped, {regression["warnings"]} warnings in{regression["seconds"]}s; '
+        f'tested commit `{regression["tested_commit"]}`. Full stdout and command/environment receipt: '
+        '`evidence/pytest_final_implementation.txt`, `evidence/REGRESSION_FINAL.json`. '
+        'CUDA was disabled for this regression invocation; real GPU integration is separately listed below.\n\n') if regression else ''
     report('REGRESSION_AND_RESUME_REPORT.md','# Regression and actual integration\n\n'
+        +regression_text+
         'Repository regression after the mmap reader:514 passed,3 skipped,4 warnings,54.73s (pytest_regression_mmap.txt). '
         'Earlier regression at a938fb32:502 passed,3 skipped,4 warnings,53.43s (pytest_regression_precompute.txt). '
         'The subsequent RAM-reader tests passed13/13; external-host worker/adoption tests passed4/4. '
