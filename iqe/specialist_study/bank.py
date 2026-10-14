@@ -249,7 +249,11 @@ def append_unique_rich_column(config,scenes,candidates,rows,hashes,sources,sourc
         else:
             pending.append((n,scene,candidate))
     if pending:
-        labels=score_candidates(config,[s for _,s,_ in pending],[c for _,_,c in pending],job_name)
+        if hasattr(config,'root') and (config.root/'runtime/rich_official_precompute/PLAN.json').exists():
+            from .rich_labels import prepared_or_score
+            labels=prepared_or_score(config,[s for _,s,_ in pending],[c for _,_,c in pending],job_name)
+        else:
+            labels=score_candidates(config,[s for _,s,_ in pending],[c for _,_,c in pending],job_name)
         require(len(labels)==len(pending),'rich official label coverage')
         for (n,_,candidate),label in zip(pending,labels):
             rows[n].append((candidate,label));hashes[n].add(candidate.trajectory_hash);sources[source]+=1
@@ -284,10 +288,15 @@ def build_rich(config,device='cuda:0'):
     hashes=[{c.trajectory_hash for c,_ in row} for row in rows];sources=Counter();label_requests=Counter()
     for item in p['experts']:
         for step in (1000,3000):
-            early=endpoint(config,item['cell'],step,'raw');model=load_endpoint(config,early,device)
-            candidates=unscored_rich_column(config,model,scenes,item['cell']+f'_raw_{step}',device)
+            early=endpoint(config,item['cell'],step,'raw')
+            from .rich_precompute import collect_completed
+            candidates=collect_completed(config,scenes,item['cell']+f'_raw_{step}',early['model_hash'])
+            if candidates is None:
+                model=load_endpoint(config,early,device)
+                candidates=unscored_rich_column(config,model,scenes,item['cell']+f'_raw_{step}',device)
+                del model
             label_requests.update(append_unique_rich_column(config,scenes,candidates,rows,hashes,sources,
-                'own_intermediate',item['cell']+f'_raw_{step}_unique_'+early['model_hash'][:12]));del model
+                'own_intermediate',item['cell']+f'_raw_{step}_unique_'+early['model_hash'][:12]))
     import pandas as pd
     from .target_rules import verify_target_assets
     verify_target_assets(config)

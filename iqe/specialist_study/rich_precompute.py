@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import torch
@@ -49,6 +50,40 @@ def column(config,expert_id,model_hash,scenes):
     found=[x for x in p['columns'] if x['expert_id']==expert_id and x['model_hash']==model_hash]
     require(len(found)==1,'rich precompute endpoint outside fixed columns')
     return p,found[0]
+
+
+def collect_completed(config, scenes, expert_id, model_hash, workers=8):
+    """Read complete canonical records without loading a model or its features.
+
+    The checkpoint, original batch receipt and every candidate byte are still
+    verified. Threads only overlap immutable file reads; returned scene order
+    and the numerical inference batch that originally created each row stay fixed.
+    """
+    require(1 <= workers <= 8, 'bounded rich record readers')
+    found = column(config, expert_id, model_hash, scenes)
+    if found is None:
+        return None
+    p, item = found
+    paths = [config.root/'runtime/rich_precompute'/expert_id/model_hash/f'batch_{i:06d}.json'
+             for i in range((len(scenes)+31)//32)]
+    if not all(path.exists() for path in paths):
+        return None
+    require(file_hash(item['checkpoint']) == item['checksum'], 'rich source checkpoint changed')
+    def read(index):
+        sub = scenes[index*32:(index+1)*32]
+        receipt = read_json(paths[index])
+        expected = {'plan_hash': p['hash'], 'column': expert_id, 'model_hash': model_hash,
+                    'batch_index': index, 'scene_hash': digest([asdict(s) for s in sub])}
+        require(receipt['binding'] == expected, 'rich completed batch identity mismatch')
+        rows = [checked_candidate(config, scene, item) for scene in sub]
+        require([c.key for c in rows] == receipt['candidate_keys'] and
+                [c.trajectory_hash for c in rows] == receipt['trajectory_hashes'],
+                'rich completed candidate bytes changed')
+        return rows
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        rows = [c for batch_rows in executor.map(read, range(len(paths))) for c in batch_rows]
+    require(file_hash(item['checkpoint']) == item['checksum'], 'rich source checkpoint changed during read')
+    return rows
 
 
 def checked_candidate(config,scene,item):
