@@ -99,6 +99,28 @@ def test_masked_nan_and_pair_normalization():
     torch.testing.assert_close(a, b)
 
 
+def test_pair_requires_both_endpoints_and_swap_preserves_signed_error():
+    # A missing anchor cannot supervise a valid-looking variant by itself.
+    raw = torch.zeros(1, 2, 3, 5)
+    truth = torch.zeros_like(raw)
+    raw[:, 1, :, 0] = 2.
+    truth[:, 1, :, 0] = .5
+    valid = torch.ones_like(raw, dtype=torch.bool)
+    original = consequence_loss(raw, truth, valid)['difference']
+    assert original > 0
+    swapped = consequence_loss(raw.flip(1), truth.flip(1), valid.flip(1))['difference']
+    torch.testing.assert_close(original, swapped, rtol=0, atol=0)
+    torch.testing.assert_close(raw[:, 1]-raw[:, 0], -(raw.flip(1)[:, 1]-raw.flip(1)[:, 0]))
+    valid[:, 0] = False
+    truth[:, 0] = float('nan')
+    missing = consequence_loss(raw, truth, valid)
+    assert missing['difference'] == 0
+    assert all(count.sum() == 0 for key, count in missing['counts'].items() if key.startswith('pair_'))
+    same = raw[:, :1].expand(-1, 2, -1, -1)
+    identical = consequence_loss(same, same, torch.ones_like(same, dtype=torch.bool))
+    assert identical['difference'] == 0
+
+
 def test_refiner_zero_initial_and_oracle_entry_separation():
     inputs, queries = fixtures()
     model = ResidualRefiner(16, dim=32)

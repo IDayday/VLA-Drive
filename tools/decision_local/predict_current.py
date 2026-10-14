@@ -62,9 +62,16 @@ def main():
     if checked['sha256']!=anchor['checkpoint']['sha256']:raise ValueError('S0 checkpoint changed')
     base=load_student(anchor['run'],anchor['tag'],training,precision='fp32',strip=True).requires_grad_(False).eval()
     policy=runtime.FrozenVLAConsequenceRefiner(base,refiner,predictor,mode=kind,query_config=QueryConfig(**rr['identity']['query_config'])).eval()
-    calls={'qwen':0,'proposal':0}
-    def count_qwen(module, args):calls['qwen']+=1
-    qwen_hook=base.qwen_vl_interface.model.register_forward_pre_hook(count_qwen)
+    # The pinned S0 invokes Qwen's visual and language submodules directly,
+    # bypassing the outer conditional-generation forward. Hook the executed
+    # modules instead of a wrapper that is never called on this native path.
+    calls={'qwen_visual':0,'qwen_language':0,'proposal':0}
+    def count_visual(module, args):calls['qwen_visual']+=1
+    def count_language(module, args):calls['qwen_language']+=1
+    native_qwen=base.qwen_vl_interface.model.model
+    qwen_hooks=[native_qwen.visual.register_forward_pre_hook(count_visual),
+                native_qwen.language_model.register_forward_pre_hook(count_language)]
+    expected_calls={'qwen_visual':1,'qwen_language':1,'proposal':1}
     original_proposal=base.action_model.predict_action
     def counted_proposal(*args,**kwargs):
         calls['proposal']+=1
@@ -93,7 +100,7 @@ def main():
         torch.cuda.synchronize();before=time.monotonic();out=policy.predict(obs,sampling_seed=42);torch.cuda.synchronize()
         latencies.append(time.monotonic()-before)
         actual={key:calls[key]-previous[key] for key in calls}
-        if actual!={'qwen':1,'proposal':1}:raise AssertionError('The executed policy must call one actual Qwen forward and one proposal sampler')
+        if actual!=expected_calls:raise AssertionError('Expected one native visual/language pass and one proposal sampler, got '+repr(actual))
         execution_checks.append({'token':row['token'],**actual})
         if a.audit_token_quantization:
             # This is a separately counted diagnostic, not a second model or
@@ -103,7 +110,7 @@ def main():
                 policy.feature_dtype=torch.float32
                 unquantized=policy.predict(obs,sampling_seed=42)
             finally:policy.feature_dtype=old_dtype
-            if {key:calls[key]-previous[key] for key in calls}!={'qwen':1,'proposal':1}:
+            if {key:calls[key]-previous[key] for key in calls}!=expected_calls:
                 raise AssertionError('Unexpected extra calls in the precision diagnostic')
             torch.testing.assert_close(out['q0'],unquantized['q0'],rtol=0,atol=0)
             item={'token':row['token'],'extra_diagnostic_Qwen_forwards':1,'q0_exact':True,
@@ -117,7 +124,8 @@ def main():
         dest=a.output/'predictions'/(row['token']+'.npz');temp=dest.with_suffix('.tmp')
         with temp.open('wb') as stream:np.savez_compressed(stream,q0=out['q0'][0].cpu().numpy(),q_final=out['q_final'][0].cpu().numpy())
         temp.replace(dest);helpers.atomic_json(a.output/'records'/(row['token']+'.json'),{'identity':ident,'token':row['token'],'sha256':helpers.digest(dest)})
-    qwen_hook.remove();base.action_model.predict_action=original_proposal
+    for hook in qwen_hooks:hook.remove()
+    base.action_model.predict_action=original_proposal
     helpers.atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':len(selected),'GPU_hours':(time.monotonic()-started)/3600.,
         'seconds':time.monotonic()-started,'current_image_read_excluded_from_latency':True,'latency_seconds':latencies,
         'median_latency_excluding_first':float(np.median(latencies[1:] or latencies)),

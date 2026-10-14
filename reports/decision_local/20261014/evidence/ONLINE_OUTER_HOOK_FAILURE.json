@@ -1,0 +1,36 @@
+{
+  "result": "failed instrument assertion, not changed policy outputs",
+  "source_sha": "9ffd2647",
+  "launch": {
+    "command": [
+      "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+      "-u",
+      "/mnt/project/VLA-Drive-decision-local-instrumented-frozen-20261014/tools/decision_local/predict_current.py",
+      "--anchor",
+      "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+      "--refiner",
+      "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_ABS/epoch_06.pt",
+      "--predictor",
+      "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+      "--output",
+      "/mnt/project/decision-local-consequence-artifacts/20261014/instrumented_deployment_v1/smoke_R_ABS6",
+      "--index",
+      "/mnt/project/decision-local-consequence-artifacts/20261014/instrumented_deployment_v1/index4.json",
+      "--split",
+      "dev",
+      "--max-seconds",
+      "900",
+      "--audit-token-quantization"
+    ],
+    "pid": 826736,
+    "host": "training-rl-zt2",
+    "GPU": 2,
+    "started_unix": 1792014860.3944645,
+    "purpose": "execution/call-count/FP16-token diagnostic only; 6epoch refiner is not a final result",
+    "source_sha": "9ffd2647"
+  },
+  "cause": "Pinned S0 calls Qwen visual and language submodules directly; outer conditional-generation hook counted zero. Correct instrumentation must count both actually executed submodules.",
+  "corrective_action": "New frozen source hooks visual/language separately; keep this failed run and use a new output directory",
+  "GPU_process_hours_upper_bound_from_log_mtime": 0.08794598208533393,
+  "file_mtime_is_last_traceback_write_not_independent_process_wait_timer": true
+}

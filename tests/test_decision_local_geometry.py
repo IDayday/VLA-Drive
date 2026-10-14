@@ -73,3 +73,36 @@ def test_empty_current_frame_not_fake_obstacle_or_empty_unknown():
     from tools.decision_local.analyze_planning import stationary_near_query
     assert not stationary_near_query(frame,np.zeros((8,3),np.float32),
         {'length':5.176,'width':2.297,'rear_axle_to_center':1.461},valid,g)
+
+
+def test_cv_uses_current_velocity_rotates_it_and_does_not_mutate_boxes():
+    import copy
+    g = GridSpec(xmin=-10, xmax=10, ymin=-10, ymax=10)
+    frame = {'ego2global_translation': [13., -4., 0.],
+             'ego2global_rotation': [1., 0., 0., 0.],
+             'lidar2ego_translation': [1., 0., 0.],
+             'lidar2ego_rotation': [2**-.5, 0., 0., 2**-.5],
+             'anns': {'gt_names': np.array(['vehicle']),
+                      'gt_boxes': np.array([[2., 0., 0., 4., 2., 2., 0.]], dtype=np.float32),
+                      'gt_velocity_3d': np.array([[2., 0., 0.]])}}
+    saved = copy.deepcopy(frame)
+    current = np.zeros((g.height, g.width), np.uint8)
+    # After sensor->ego: center=(1,2), x=[0,2], y=[0,4]. The pinned
+    # box rasterizer includes boundary cells at 0.5m spacing.
+    current[20:29, 20:25] = 1
+    valid = np.ones_like(current, bool)
+    occ, support, receipt = current_cv_occupancy(frame, current, valid, [.5, 1.], grid=g)
+    for i, row_shift in enumerate((2, 4)):
+        expected = np.zeros_like(current)
+        expected[20+row_shift:29+row_shift, 20:25] = 1
+        np.testing.assert_array_equal(occ[i], expected)
+    assert support.all() and receipt['provided_velocity_valid'] == 1
+    np.testing.assert_array_equal(frame['anns']['gt_boxes'], saved['anns']['gt_boxes'])
+    np.testing.assert_array_equal(frame['anns']['gt_velocity_3d'], saved['anns']['gt_velocity_3d'])
+    # Missing current velocity is an explicitly counted static fallback,
+    # including when unrelated future-shaped data is present in the record.
+    del frame['anns']['gt_velocity_3d']
+    frame['future_positions'] = np.full((8, 3), 1e6)
+    stationary, _, fallback = current_cv_occupancy(frame, current, valid, [.5, 1.], grid=g)
+    np.testing.assert_array_equal(stationary, np.repeat(current[None], 2, axis=0))
+    assert fallback['zero_velocity_fallback'] == 1
