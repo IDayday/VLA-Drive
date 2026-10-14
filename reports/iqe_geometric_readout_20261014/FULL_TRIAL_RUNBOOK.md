@@ -78,3 +78,27 @@ W/A/V、ego、相机矩阵和 masks 均与缓存逐位相同；Base raw 最大�
 每个batch实际视觉/语言前向各1次、各Decoder各1次、评分上下文和空间读取各1次。
 加入不可用GT/未来/真实分数标签后输出不变。此项使用本实验第2步checkpoint，
 验证的是新输入接线，不是专家收益或Scorer泛化。详见 `REAL_ONLINE_QUALIFICATION.json`。
+
+两卡 NCCL、新进程双流恢复检查也已通过，总共8个独立诊断更新。
+连续4步与2步中断后恢复至4步，在参数、optimizer、scheduler、两条sampler、
+RNG、已消费IDs、下一批IDs、loss序列和梯度范数序列上全部一致。
+这是缩短至第2步的阶段切换测试，不改变正式3000步切换。
+证据：`REAL_TWO_FLOW_RESUME.json`；诊断权重不参与正式选择。
+
+```bash
+# 在相同两张实际空闲卡上依次执行；三个 mode 必须各启动新进程。
+CUDA_VISIBLE_DEVICES=4,5 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
+/root/miniconda3/envs/ddp/bin/python -m torch.distributed.run \
+  --standalone --nproc_per_node=2 -m iqe.geometric_readout.exact_resume continuous \
+  --config configs/iqe/geometric_readout/full.yaml
+# 将 continuous 分别替换为 interrupted、resume；完成后：
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.exact_resume compare \
+  --config configs/iqe/geometric_readout/full.yaml
+
+# 32个稳态测量/模式，真实读图到CPU轨迹；纯架构成本，不是效果评估。
+CUDA_VISIBLE_DEVICES=4 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.benchmark \
+  --config configs/iqe/geometric_readout/full.yaml \
+  --checkpoint /mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_000002.pt \
+  --device cuda:0
+```
