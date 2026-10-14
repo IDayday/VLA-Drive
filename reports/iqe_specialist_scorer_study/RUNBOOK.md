@@ -13,7 +13,7 @@ SHA256 `30517484efcc8740c331f42f3f2ba2d1896a4f95cf70e2bf662e0d6c4484e8b0`.
 Base binding is immutable and resolved once. No Base training or locked22k
 identity was changed. No campaign Navtest/ACTIVE/push is authorized or performed.
 
-Current observation, 2026-10-14 15:30 UTC: all six experts completed5000
+Current observation, 2026-10-14 17:36 UTC: all six experts completed5000
 updates. The frozen K4 pool contains Base, E11 3000EMA, interaction3000raw,
 and safe_progress1000raw. The latter is raw, not EMA. Stage_val1024/53logs
 Base is91.39146%, pool Oracle96.52152%; these are not test or Scorer results.
@@ -21,29 +21,37 @@ The core paired set is125 scenes from full D_E74311; matched core H_val is
 only1 scene, insufficient for a specialty-specific generalization claim.
 Extensions use116/393 training scenes and9/11 hard validation scenes.
 
-The sole active completion controller is now rl-zt2 PID757988, GPUs4–7.
-Its immutable launch receipt is
-`runtime/pool_recovery_20261014T1459Z/LAUNCH.json`. The old controller failed
+The sole active completion controller is now rl-zt2 PID781267. S00 completed
+6000 updates; S01 runs on local vla-zt GPU7, S10 on rl-zt2 GPU6, and S11 uses
+rl-zt2 GPU4 after S00 naturally exited. Its immutable launch receipt is
+`runtime/scorer_route_20261014T1731Z/COMPLETION_LAUNCH.json`. An earlier controller failed
 when it attempted to regenerate already-scored validation bytes; the fixed
 pool reads strictly verified original checkpoint/trajectory/official receipts
 instead. See `COMPLETED_VALIDATION_REUSE_FIX.md`. No score, target, tolerance,
 checkpoint or endpoint selection rule was rewritten. Old waiting role PIDs
 were checked idle before replacement; no expert was retrained.
 
-All20,325 spatial contexts are COMPLETE. Deployment stage_val, selector_cal
-and dev banks are COMPLETE; D_S16581 is still building. Scorers are waiting
-for that full bank, not already trained. The controller schedules rich bank
-and S00/S10, followed by S01/S11 when rich labels are complete, all on the
-permanent rl-zt2 node. Actual phase/PID state is in
+All20,325 spatial contexts and all four deployment banks are COMPLETE.
+The16,581-scene rich bank is COMPLETE, hash `f3d2a5284c59d91815002090228252bb101145c492ef2d651207d6420b6058a8`.
+All four Scorers have performed actual optimizer updates; only S00 is complete
+at this observation. Actual phase/PID state is in
 `runtime/completion_driver/STATUS.json` and `runtime/bank_parallel/STATUS.json`.
 Physical capacity and unknown ownership are checked before each GPU launch.
 Do not restart the old local/zt5/zt6 controllers or completed cache commands.
 
-Temporary acceleration uses16 GPU workers and8 CPU helpers under the exact
+Temporary acceleration used16 GPU workers and8 CPU helpers under the exact
 15:07:18–23:07:18 UTC lease. It only precomputes the already-budgeted six
 raw intermediate columns and assists existing official score jobs; no new
 expert, Scorer, candidate recipe or optimizer update is introduced. See
 `TEMPORARY_RESOURCE_EXECUTION.md` for receipts and absolute drain deadlines.
+The GPU workers completed and exited naturally; bounded CPU helpers only
+finish existing immutable records. Do not extend their23:07:18UTC lease.
+
+The semantic heads run from the original joint context cache. Spatial heads
+use the qualified `ram_mmap_v1` reader and one218.86GiB lossless temporary RAM
+copy on rl-zt2. Keep at least128GiB host RAM reserve; don't remove mapped files.
+See `SCORER_RUNTIME_AND_PROGRESS.md` for actual failed Lustre mmap timings,
+the128-scene equality test and S10's exact220→221 optimizer-boundary migration.
 
 ## Setup and immutable inputs
 
@@ -157,22 +165,46 @@ expert Oracle numbers are not reported as actual selection gains.
 
 Already completed real checks: private-reader4-update uninterrupted/resume and
 terminal behavior; official two-scene Base/GT reference invariance;256 real-image
-spatial pilot;16-record lossless reader test. Required later Scorer two-stream
-resume and bundle roundtrip run on actual final banks/weights. These qualification
+spatial pilot;16-record lossless reader test. The real Scorer two-stream
+resume test has passed; bundle roundtrip will run on actual final weights. These qualification
 weights do not become deployment candidates.
 
 ## Controller recovery and another Base
 
-Only when the existing zt6 controller and its children are confirmed inactive:
+The current controller observes existing S00/S10 children and the external S01
+worker; its adoption receipt is tied to exact PID/start ticks. Do not reuse that
+receipt after process identities change. Reconstruct a new verified adoption
+receipt when live owned children must survive an administrative parent handoff.
+Only when the current controller and all Scorer processes are confirmed inactive,
+the following same-host recovery reuses all complete stages and continues native
+checkpoints. On rl-zt2, verify the existing qualified RAM manifest first:
 
 ```bash
-/root/miniconda3/envs/ddp/bin/python scripts/iqe/specialist_study_completion.py --config configs/iqe/specialist_scorer/study.yaml --gpus 5 6 1 4
+IQE_SPATIAL_READER_MODE=ram_mmap_v1 IQE_SPATIAL_MMAP_RECORDS=32768 CUDA_VISIBLE_DEVICES=6 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config /mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json --cell S10 --device cuda:0 --resume auto
+IQE_SPATIAL_READER_MODE=ram_mmap_v1 IQE_SPATIAL_MMAP_RECORDS=32768 CUDA_VISIBLE_DEVICES=4 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config /mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json --cell S11 --device cuda:0 --resume auto
 ```
 
-Its RUN.lock prevents concurrent controllers; it reuses complete stages and
-resumes incomplete cells. Resource routing is separate from scientific identity.
-See runtime/completion_driver/STATUS.json and runtime/tsinghua56 launch receipts.
-Never blindly kill process groups or restart old queue controllers.
+For S01 on its current vla-zt GPU7, after the supervisor and child are both
+confirmed inactive:
+
+```bash
+CUDA_VISIBLE_DEVICES=7 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config /mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json --cell S01 --device cuda:0 --resume auto
+```
+
+Cell RUN.lock prevents concurrent writers, but do not intentionally enqueue a
+duplicate. Resource routing is separate from scientific identity. Complete
+terminal checkpoints add no new updates. If the RAM stage is unavailable, the
+original `legacy` reader remains mathematically compatible and uses the original
+project files; don't present its slower speed as the RAM path. Rebuild the exact
+RAM stage only on an approved host with sufficient reserve, using:
+
+```bash
+/root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.ram_stage --config /mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json --workers 8 --max-gib 224 --min-available-gib 180 --rate-mib 512
+```
+
+Partial RAM stages exit nonzero. Complete coverage, byte identity, node binding
+and qualification are mandatory before a controller enables the RAM path.
+Never signal unknown owners, kill process groups or restart old queue controllers.
 
 A different Base requires a new campaign_id/output_root/reuse_root/YAML. Choose an
 explicit checkpoint in the intended Base run or base_checkpoint:latest_complete.

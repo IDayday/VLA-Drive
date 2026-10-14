@@ -103,17 +103,23 @@ def generate(config):
         '\n'+json.dumps(pool['stage_val_expert_contribution'],indent=2)+'\n')+
         '\nPool selection is stage_val only. No fixed requirement to retain three specialists; redundant/no-support branches are omitted. Rich supervision candidates never enter this pool.\n')
 
-    initializations=[];training=[]
+    initializations=[];training=[];scorer_validation=[]
     for folder in sorted((root/'scorers').glob('*')):
         value=get(str(folder.relative_to(root)/'SCORER_INITIALIZATION.json'))
         if value:
             initializations.append([folder.name,value.get('init_seed',value.get('module_init_seed')),value['initial_state_hash'],value['parameter_count'],value['external_scorer_weights_loaded']])
         value=get(str(folder.relative_to(root)/'SCORER_TRAINING_REPORT.json'),{})
         live=get(str(folder.relative_to(root)/'status.json'),{})
-        if value or live:training.append([folder.name,live.get('status',value.get('status')),
+        closed=get(str(folder.relative_to(root)/'result.json'),{})
+        state=closed.get('status') if closed.get('status')=='COMPLETE' else live.get('status',value.get('status'))
+        if value or live:training.append([folder.name,state,
                 live.get('step',value.get('optimizer_steps')),value.get('optimizer_steps'),
                 value.get('natural_consumed'),value.get('comparison_consumed'),
                 value.get('supervised_natural_candidate_exposures'),value.get('ranking_candidate_exposures')])
+        for path in sorted(folder.glob('validation_*.json')):
+            score=read_json(path)
+            scorer_validation.append([folder.name,int(path.stem.split('_')[-1]),score['selected_01'],
+                score['selected_gain_01'],score['regret_01'],score['high_to_zero'],score['selected_zero']])
     report('SCORER_WEIGHT_PROVENANCE.md','# Independent Scorer initialization\n\n'+table(
         ['Cell','Initialization seed','Initial state SHA256','New parameters','External Scorer loaded'],initializations)+
         '\nAll new scoring projections/readers/trajectory encoders/Decoder/output heads start randomly. Common semantic modules use identical initialization across the factorial cells. '
@@ -123,7 +129,12 @@ def generate(config):
         '\nD_S only; first3000 updates pointwise, then3000 updates natural64+comparison64. The continuous warmup100/constant1e-4 scheduler is not restarted. '
         'Rich pretraining increases candidate exposure and label cost; equal update counts do not mean equal compute/label budget. '
         'Current updates come from the actual trainer status; exposure counters are from the last closed invocation and can lag an active continuation. '
-        'No Scorer currently missing from this table should be interpreted as trained.\n')
+        'A complete native result takes precedence over the last periodic RUNNING status. '
+        'No Scorer currently missing from this table should be interpreted as trained.\n\n'+
+        'Predeclared stage_val evaluations (not final dev or test results):\n\n'+table(
+            ['Cell','Update','Selected PDMS','Gain over Base','Regret','High to zero','Selected zero'],scorer_validation)+
+        '\nThe endpoint rule remains highest stage_val selected PDMS, then fewer new NC/DAC violations, then earlier update. '
+        'Negative intermediate outcomes do not change the fixed6000-update recipe or the frozen candidate pool.\n')
     from .costs import summarize as summarize_costs
     costs=summarize_costs(root)
     atomic_json(root/'TRAINING_AND_LABEL_COST.json',costs)
@@ -186,7 +197,9 @@ def generate(config):
     reference=get('qualifications/official_reference/REPORT.json')
     roundtrip=get('research_bundle/ROUNDTRIP_REPORT.json')
     report('REGRESSION_AND_RESUME_REPORT.md','# Regression and actual integration\n\n'
-        'Repository regression at a938fb32:502 passed,3 skipped,4 warnings,53.43s (pytest_regression_precompute.txt). Earlier regression:476 passed,3 skipped,4 warnings,60.20s (pytest_regression_v5.txt). '
+        'Repository regression after the mmap reader:514 passed,3 skipped,4 warnings,54.73s (pytest_regression_mmap.txt). '
+        'Earlier regression at a938fb32:502 passed,3 skipped,4 warnings,53.43s (pytest_regression_precompute.txt). '
+        'The subsequent RAM-reader tests passed13/13; external-host worker/adoption tests passed4/4. '
         'These are distinct evidence runs, not an invented aggregate suite count.\n\n'+table(
             ['Real check','Status','Scope'],[['GPU private-reader exact resume',resume['status'] if resume else 'UNTESTED','32 real scenes,4 continuous vs2+2,raw/EMA/Adam/scheduler/RNG/cursor/loss/next IDs; terminal adds0'],
             ['GPU scratch-Scorer two-flow resume',scorer_resume['status'] if scorer_resume else 'WAITING_INPUTS','real D_S non-tie pairs,4 continuous vs2+2 across diagnostic phase boundary; all model/Adam/RNG/two-stream states'],
