@@ -20,13 +20,24 @@ scenes and safe_progress393 D_E scenes. The core paired set is125 scenes from
 full D_E74311, not a small fit cap. Matched core H_val is only1 scene and is
 insufficient for a specialty-specific generalization claim.
 
-The only downstream controller is tsinghua-zt6 PID5452, GPUs0–3. It runs at most
-two extensions then four Scorers. Extension PIDs6335/GPU0 and6410/GPU1 are real
-active jobs. The old local waiting controller was retired before it launched
-children. tsinghua-zt5 GPU0 has an unknown owner and is excluded. Four failed
-spatial identities resumed on GPU1–4; original completed records are retained.
-The old local two-worker cache commands and the original queue dispatcher are
-historical and must not be restarted.
+As observed 2026-10-14 08:04 UTC, the sole controller is tsinghua-zt5
+PID22108 with `--gpus 5 6 1 4`. Both extensions resumed from their complete
+1465-update checkpoints: interaction PID22204/GPU5, safe_progress
+PID22328/GPU6. Exact next128 sample IDs matched the saved sampler state.
+zt6 acquired unidentified19.3GiB/card physical occupancy; no unknown process
+was signalled. Its old controller/trainers and unstarted bank waiters were
+safely replaced, retaining all training state and the original endpoint.
+zt5 GPU0 remains excluded. Every future controller/role launch checks physical
+use and unidentified ownership before allocating CUDA.
+
+All20,325 spatial contexts are COMPLETE. The remaining bank workers wait for
+the selected pool: D_S PID22105/GPU2, dev PID22104/GPU7, stage_val
+PID22107/GPU1, selector_cal PID22106/GPU4. These are dependency waiters, not
+currently active GPU computation. Native bank scoring uses4 CPUs per role;
+4 additional cooperative CPU helpers only assist explicitly record-locked
+new jobs. Original scoring context, retry budget and candidate order are fixed.
+See `COOPERATIVE_SCORING_AND_BANKS.md` and `RESOURCE_MIGRATION_zt6_to_zt5.md`.
+The old local/zt6 controllers and old cache commands must not be restarted.
 
 ## Setup and immutable inputs
 
@@ -65,7 +76,7 @@ CUDA_VISIBLE_DEVICES=3 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_st
 ```
 
 Worker0/2 completed on rl-zt2; worker1/5 completed after exact original-batch
-replay on zt5; worker3/4 are finishing. Whole-cache COMPLETE requires all six
+replay on zt5; worker3/4 also completed. Whole-cache COMPLETE verified all six
 receipts and exact full-scene coverage. A changed batch shape caused six
 language-context mismatches. The verified original batch plan resolves them to
 exact raw/W/A equality; tolerance1e-5, capture source and old cache are unchanged.
@@ -76,17 +87,17 @@ See `evidence/ORIGINAL_BATCH_REPLAY.json`. No fallback changes precision or labe
 Six attempts maximum, each5000 updates/global128/micro16/warmup100/cosine-to0.1,
 AdamW1e-4/weight_decay0/clip1/EMA0.999FP32. The four pilot cells share the same
 125 scenes and sample order. Raw/EMA at1000/3000/5000 are snapshots, not extra
-experts. Commands for each existing cell (same executable, e.g. on zt6):
+experts. Commands for each existing cell (only after confirming no matching live run):
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E00 --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E01 --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E10 --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E11 --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-expert-matrix --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell EXT_interaction --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=1 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell EXT_safe_progress --device cuda:0 --resume auto
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli freeze-candidate-pool --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E00 --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E01 --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E10 --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell E11 --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-expert-matrix --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell EXT_interaction --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=6 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-expert-cell --config configs/iqe/specialist_scorer/study.yaml --cell EXT_safe_progress --device cuda:0 --resume auto
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli freeze-candidate-pool --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
 ```
 
 For a genuinely fresh new cell omit `--resume auto`; for a completed cell resume
@@ -100,19 +111,19 @@ No external action teacher or Scorer weights are loaded.
 Only after the pool is locked:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli build-deployment-bank --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=1 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli build-rich-bank --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S00 --device cuda:0
-CUDA_VISIBLE_DEVICES=1 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S01 --device cuda:0
-CUDA_VISIBLE_DEVICES=2 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S10 --device cuda:0
-CUDA_VISIBLE_DEVICES=3 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S11 --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli build-deployment-bank --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=6 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli build-rich-bank --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S00 --device cuda:0
+CUDA_VISIBLE_DEVICES=6 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S01 --device cuda:0
+CUDA_VISIBLE_DEVICES=1 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S10 --device cuda:0
+CUDA_VISIBLE_DEVICES=4 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli train-scorer-cell --config configs/iqe/specialist_scorer/study.yaml --cell S11 --device cuda:0
 ```
 
 S00/S10 can start with the deployment bank; S01/S11 require the rich bank. Spatial
 S10/S11 require the full spatial receipt. Banks never use GT as a deployment
 candidate. Rich GT-identical optimized trajectories are excluded; legal low-score
 negative actions remain. All official scores use independent fresh candidate
-contexts, score scale[0,1], retries and strict checksum joins, CPU workers8.
+contexts, score scale[0,1], retries and strict checksum joins, up to8 native CPU workers per job (bank runtime route caps each role at4).
 
 Each Scorer is random initialized,6000 updates/global128/micro16,AdamW1e-4,
 weight_decay0.01,warmup100 then constantlr. First3000 natural128 pointwise;
@@ -124,10 +135,10 @@ preserves both sampler cursors, RNG, optimizer/scheduler and q/bank identity.
 ## Fixed final evaluation, research export and checks
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-scorer-matrix --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli calibrate-selection --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-final-system --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
-CUDA_VISIBLE_DEVICES=0 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli benchmark-system --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-scorer-matrix --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli calibrate-selection --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli evaluate-final-system --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=5 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.cli benchmark-system --config configs/iqe/specialist_scorer/study.yaml --device cuda:0
 /root/miniconda3/envs/ddp/bin/python -m iqe.specialist_study.reporting --config configs/iqe/specialist_scorer/study.yaml
 ```
 
@@ -149,7 +160,7 @@ weights do not become deployment candidates.
 Only when the existing zt6 controller and its children are confirmed inactive:
 
 ```bash
-/root/miniconda3/envs/ddp/bin/python scripts/iqe/specialist_study_completion.py --config configs/iqe/specialist_scorer/study.yaml --gpus 0 1 2 3
+/root/miniconda3/envs/ddp/bin/python scripts/iqe/specialist_study_completion.py --config configs/iqe/specialist_scorer/study.yaml --gpus 5 6 1 4
 ```
 
 Its RUN.lock prevents concurrent controllers; it reuses complete stages and

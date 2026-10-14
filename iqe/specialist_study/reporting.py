@@ -167,7 +167,7 @@ def generate(config):
     reference=get('qualifications/official_reference/REPORT.json')
     roundtrip=get('research_bundle/ROUNDTRIP_REPORT.json')
     report('REGRESSION_AND_RESUME_REPORT.md','# Regression and actual integration\n\n'
-        'Repository regression:465 passed,3 skipped,4 warnings,54.30s (pytest_regression_v4.txt), including original-batch replay and unchanged-GT exclusion. '
+        'Repository regression:476 passed,3 skipped,4 warnings,60.20s (pytest_regression_v5.txt). After adding physical-capacity guards, the focused study/artifact suite passed47 tests in4.33s (pytest_capacity_migration.txt). '
         'These are distinct evidence runs, not an invented aggregate suite count.\n\n'+table(
             ['Real check','Status','Scope'],[['GPU private-reader exact resume',resume['status'] if resume else 'UNTESTED','32 real scenes,4 continuous vs2+2,raw/EMA/Adam/scheduler/RNG/cursor/loss/next IDs; terminal adds0'],
             ['Fresh official reference invariance',reference['status'] if reference else 'UNTESTED','two real scenes,Base/GT audit,reorder/delete/duplicate/chunk,exact bank agreement'],
