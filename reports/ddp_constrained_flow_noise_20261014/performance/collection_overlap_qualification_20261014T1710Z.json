@@ -1,0 +1,119 @@
+{
+  "status": "PASS",
+  "host": "training-vlawm-tsinghua-zt2",
+  "source_sha256": "7af6dc3662381563f63e656cb4421b975c4557b471d89a63da876809881bc12f",
+  "adapter_sha256": "5770f3e55b21ea45f985faf9ac4e244477a85113d8e5cd9bb68c64798bed5851",
+  "variants": {
+    "C_SDE": {
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1/checkpoints/update001024_raw012760",
+      "identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "measurements": [
+        {
+          "iteration": 0,
+          "mode": "overlap",
+          "warmup": true,
+          "seconds": 14.22814628481865,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 1,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 12.629897713661194,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 2,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 10.17115775309503,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 3,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 10.543009826913476,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 4,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 11.968195023015141,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        }
+      ],
+      "serial_median_seconds": 12.299046368338168,
+      "overlap_median_seconds": 10.357083790004253,
+      "collection_speedup": 1.187500904473528
+    },
+    "N_FLOW_NOISE": {
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update001024_raw012744",
+      "identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "measurements": [
+        {
+          "iteration": 0,
+          "mode": "overlap",
+          "warmup": true,
+          "seconds": 13.78185198828578,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 1,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 13.795028565451503,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 2,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 9.27056198567152,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 3,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 9.020685793831944,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 4,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 15.374403033405542,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        }
+      ],
+      "serial_median_seconds": 14.584715799428523,
+      "overlap_median_seconds": 9.145623889751732,
+      "collection_speedup": 1.5947207074381933
+    }
+  },
+  "scope": "TRAIN-only real full-head execution benchmark; no optimizer or new formal exposure",
+  "actual_candidate_score_calls": 320,
+  "limitation": "Paired single-rank collection benchmark; full eight-rank training and restore equivalence still required before deployment"
+}
