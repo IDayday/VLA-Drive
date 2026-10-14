@@ -1,0 +1,2680 @@
+diff --git a/configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml b/configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml
+index 2f7efddca1d506bafed21a7430486cd3e258426f..f4252026e7180c881f6266d3050f5eafabc0e091 100644
+--- a/configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml
++++ b/configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml
+@@ -63,8 +63,8 @@ datasets:
+     load_reward_data: false
+ trainer:
+   epochs: 24
+-  max_train_steps: 100000
+-  num_warmup_steps: 5000
++  max_train_steps: 17424
++  num_warmup_steps: 726
+   save_interval: 10000
+   eval_interval: 200000
+   learning_rate:
+@@ -149,17 +149,18 @@ structured_world:
+   queries: 1024
+   refine_warmup_updates: 1000
+   class_statistics:
+-    status: uncalibrated_debug_only
+-    current_positive_weight: 1.0
+-    future_positive_weight: 1.0
+-    arrival_positive_weight: 1.0
+-    release_positive_weight: 1.0
++    status: whole_training_population_derived_sqrt_negative_positive
++    label_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
++    arrival_positive_weight: 7.9690810628974
++    current_positive_weight: 3.553073806447493
++    future_positive_weight: 3.46425622930606
++    release_positive_weight: 2.285906796698916
+   loss_weights:
+     geometry: 0.11612486667757727
+     future: 0.10546160273575751
+     query: 0.3871265716143443
+     refine: 1.0
+-  registration_status: common_weights_selected_nuscenes_full_assets_pending
++  registration_status: frozen_after_common_calibration_and_profile
+   formal_training_seed: 42
+   evaluation_sampling_seeds:
+   - 42
+@@ -176,3 +177,7 @@ structured_world:
+   shared_loss_calibration:
+     rule_sha256: bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4
+     selected_recipe_sha256: 1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4
++  formal_recipe_assets:
++    label_cache_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
++    current_DINO_identity: b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e
++    shared_geometry_identity: 8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79
+diff --git a/configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml b/configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml
+index cc73c12829d253ec3119bbc93f42efaa946a6e63..8aa57f1980aa3d79d486b816dec8ad9a4e86f3f8 100644
+--- a/configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml
++++ b/configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml
+@@ -63,8 +63,8 @@ datasets:
+     load_reward_data: false
+ trainer:
+   epochs: 24
+-  max_train_steps: 100000
+-  num_warmup_steps: 5000
++  max_train_steps: 17424
++  num_warmup_steps: 726
+   save_interval: 10000
+   eval_interval: 200000
+   learning_rate:
+@@ -149,17 +149,18 @@ structured_world:
+   queries: 1024
+   refine_warmup_updates: 1000
+   class_statistics:
+-    status: uncalibrated_debug_only
+-    current_positive_weight: 1.0
+-    future_positive_weight: 1.0
+-    arrival_positive_weight: 1.0
+-    release_positive_weight: 1.0
++    status: whole_training_population_derived_sqrt_negative_positive
++    label_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
++    arrival_positive_weight: 7.9690810628974
++    current_positive_weight: 3.553073806447493
++    future_positive_weight: 3.46425622930606
++    release_positive_weight: 2.285906796698916
+   loss_weights:
+     geometry: 0.11612486667757727
+     future: 0.10546160273575751
+     query: 0.3871265716143443
+     refine: 1.0
+-  registration_status: common_weights_selected_nuscenes_full_assets_pending
++  registration_status: frozen_after_common_calibration_and_profile
+   formal_training_seed: 42
+   evaluation_sampling_seeds:
+   - 42
+@@ -176,3 +177,7 @@ structured_world:
+   shared_loss_calibration:
+     rule_sha256: bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4
+     selected_recipe_sha256: 1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4
++  formal_recipe_assets:
++    label_cache_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
++    current_DINO_identity: b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e
++    shared_geometry_identity: 8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79
+diff --git a/starVLA/dataloader/structured_world/dataset.py b/starVLA/dataloader/structured_world/dataset.py
+index 0fa57a122cfde31d5f80c605c112d21eba21278e..20226547fb6147429ee2275c52be86da740e15e5 100644
+--- a/starVLA/dataloader/structured_world/dataset.py
++++ b/starVLA/dataloader/structured_world/dataset.py
+@@ -99,6 +99,8 @@ class StructuredNAVSIMDataset(Dataset):
+             targets['auxiliary_future_time_valid'] = torch.from_numpy(arrays['future_valid'].copy())
+             targets['future_valid'] = validate_native_ego_contract(targets['ego'], arrays['ego_physical'], arrays['future_valid'])
+         targets['ego_bodies'] = metadata['ego_body']
++        targets['label_sha256'] = metadata['label_sha256']
++        targets['label_schema'] = self.identity['schema']
+         return observation, targets
+ 
+ 
+diff --git a/starVLA/dataloader/structured_world/nuscenes_dataset.py b/starVLA/dataloader/structured_world/nuscenes_dataset.py
+index 4263f22fd2b146416fe9aef2cb08ea7699fdefaf..bb1b51f1e3587d3b3163337c6641ab2ae4349e2d 100644
+--- a/starVLA/dataloader/structured_world/nuscenes_dataset.py
++++ b/starVLA/dataloader/structured_world/nuscenes_dataset.py
+@@ -75,4 +75,6 @@ class StructuredNuScenesDataset(Dataset):
+         if targets['ego'].shape != (6, 4) or targets['current_dino'].shape != (6, 1024, 6, 8) or not targets['future_valid'].all():
+             raise ValueError('nuScenes 6-step / 6-camera target contract changed')
+         targets['ego_bodies'] = metadata['ego_body']
++        targets['label_sha256'] = metadata['label_sha256']
++        targets['label_schema'] = self.identity['schema']
+         return observation, targets
+diff --git a/starVLA/dataloader/structured_world/prepared_current.py b/starVLA/dataloader/structured_world/prepared_current.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..893d6ff9e379f0911637fefea566c07eb3725f47
+--- /dev/null
++++ b/starVLA/dataloader/structured_world/prepared_current.py
+@@ -0,0 +1,124 @@
++"""Current-only CPU preprocessing, scoped to one real optimizer batch.
++
++No visual embeddings, trainable outputs, future labels or teacher inputs are
++cached. The original processor packs each actual microbatch, including padding.
++Pinned buffers remain owned by the payload until its CUDA consumers finish.
++"""
++from dataclasses import dataclass
++import hashlib
++import json
++import numpy as np
++import torch
++import transformers
++
++
++@dataclass(frozen=True)
++class PreparedCurrent:
++    instructions: tuple
++    image_identity: tuple
++    processor_identity: str
++    inputs: dict
++    position_ids: torch.Tensor
++    slots: dict
++    geometry_images: torch.Tensor
++    calibration: dict
++    pixel_valid: torch.Tensor
++
++    def validate(self, examples, instructions, processor_identity):
++        if (tuple(instructions) != self.instructions or
++            tuple(tuple(id(image) for image in row['image']) for row in examples) != self.image_identity or
++            processor_identity != self.processor_identity):
++            raise ValueError('Prepared current input belongs to another microbatch/processor')
++
++    def to(self, device):
++        def transfer(value):
++            return value.to(device, non_blocking=True) if torch.is_tensor(value) else value
++        return PreparedCurrent(self.instructions, self.image_identity, self.processor_identity,
++            {k: transfer(v) for k, v in self.inputs.items()}, transfer(self.position_ids),
++            {k: transfer(v) for k, v in self.slots.items()}, transfer(self.geometry_images),
++            {k: transfer(v) for k, v in self.calibration.items()}, transfer(self.pixel_valid))
++
++
++def processor_identity(model):
++    processor = model.qwen_vl_interface.processor
++    record = {'transformers': transformers.__version__,
++        'processor_class': type(processor).__module__+'.'+type(processor).__name__,
++        'processor': processor.to_dict(), 'chat_template': processor.chat_template,
++        'image_processor': processor.image_processor.to_dict(),
++        'tokenizer_init_kwargs': processor.tokenizer.init_kwargs,
++        'camera_count': model.cameras,
++        'tokenizer_vocab': processor.tokenizer.get_vocab(),
++        'padding_side': processor.tokenizer.padding_side,
++        'CoT_prompt': model.config.datasets.vla_data.get('CoT_prompt', None),
++        'camera_order': 'existing dataset observation order; unchanged ROI',
++        'special_token_ids': model._special_token_ids}
++    return hashlib.sha256(json.dumps(record, sort_keys=True, default=str).encode()).hexdigest()
++
++
++def pin(value):
++    return value.pin_memory() if torch.is_tensor(value) else value
++
++
++class CurrentBatchCollator:
++    """Called by the existing single ordered CPU prefetch coordinator."""
++    def __init__(self, model, microbatch, collate):
++        self.model, self.microbatch, self.collate = model, microbatch, collate
++        self.identity = processor_identity(model)
++
++    def __call__(self, rows):
++        from starVLA.model.framework.DDPForesight import ROBOT_HISTORY_TOKEN
++        observations, targets = self.collate(rows)
++        from starVLA.model.modules.structured_world.queries import prepare_query_candidates
++        targets['query_candidates'] = [item.pin_memory() for item in
++            prepare_query_candidates(targets, grid=self.model.grid)]
++        if not torch.isfinite(targets['ego']).all() or not targets['future_valid'].all():
++            raise ValueError('Invalid native ego targets in CPU collator')
++        for at in range(0, len(observations), self.microbatch):
++            micro = observations[at:at+self.microbatch]
++            instructions = [row['lang']+' '+ROBOT_HISTORY_TOKEN+
++                ''.join(self.model.foresight_tokens)+''.join(self.model.act_query_tokens) for row in micro]
++            messages = []
++            for row, instruction in zip(micro, instructions):
++                template = self.model.config.datasets.vla_data.get('CoT_prompt', None)
++                prompt = template.replace('{instruction}', instruction) if template is not None else instruction
++                messages.append([{'role': 'user', 'content':
++                    [{'type': 'image', 'image': image} for image in row['image']]+
++                    [{'type': 'text', 'text': prompt}]}])
++            inputs = self.model.qwen_vl_interface.processor.apply_chat_template(
++                messages, tokenize=True, padding=True, add_generation_prompt=True,
++                return_dict=True, return_tensors='pt')
++            if any(torch.is_tensor(v) and v.device.type != 'cpu' for v in inputs.values()):
++                raise ValueError('Worker preprocessing unexpectedly allocated GPU input')
++            with torch.no_grad():
++                positions, _ = self.model.qwen_vl_interface.model.model.get_rope_index(
++                    input_ids=inputs['input_ids'], image_grid_thw=inputs['image_grid_thw'],
++                    video_grid_thw=inputs.get('video_grid_thw'), attention_mask=inputs['attention_mask'])
++                slots = {name: self.model._find_token_positions(inputs['input_ids'], ids)
++                         for name, ids in self.model._special_token_ids.items()}
++            states = np.asarray([row['state'] for row in micro])
++            if states.shape != (len(micro), 1, 4) or not np.isfinite(states).all():
++                raise ValueError('Invalid allowed current ego state')
++            payload = PreparedCurrent(tuple(instructions),
++                tuple(tuple(id(image) for image in row['image']) for row in micro), self.identity,
++                {k: pin(v) for k, v in inputs.items()}, pin(positions),
++                {k: pin(v) for k, v in slots.items()},
++                pin(torch.stack([row['geometry_images'] for row in micro])),
++                {k: pin(torch.stack([row['calibration'][k] for row in micro]))
++                 for k in ('sensor2ego', 'intrinsics', 'post_rots', 'post_trans')},
++                pin(torch.stack([row['geometry_pixel_valid'] for row in micro])))
++            for row in micro:
++                row['_prepared_current'] = payload
++        return observations, {k: pin(v) for k, v in targets.items()}
++
++
++def transfer_optimizer_batch(observations, targets, device):
++    """One transfer per batched tensor; microbatches retain views and ownership."""
++    for at, row in enumerate(observations):
++        cpu = row['_prepared_current']
++        if at == 0 or cpu is not observations[at-1]['_prepared_current_cpu']:
++            moved = cpu.to(device)
++        row['_prepared_current_cpu'] = cpu
++        row['_prepared_current'] = moved
++    return observations, {k: ([item.to(device, non_blocking=True) for item in v] if k == 'query_candidates'
++                             else v.to(device, non_blocking=True) if torch.is_tensor(v) else v)
++                          for k, v in targets.items()}
+diff --git a/starVLA/model/framework/vla_structured_fgtr.py b/starVLA/model/framework/vla_structured_fgtr.py
+index 6e03b2eb5a00e4330a4f2e73d9de39565f6c9d9a..8d3b7f13a89c047e113b3771d1f1115434323a96 100644
+--- a/starVLA/model/framework/vla_structured_fgtr.py
++++ b/starVLA/model/framework/vla_structured_fgtr.py
+@@ -73,8 +73,31 @@ class VLAStructuredFGTR(DDPForesight):
+         # contract while retaining FP32 parameters; canonical inference uses
+         # amp()'s existing inference_fp32 bypass.
+         with self.amp():
++            prepared = getattr(self, '_active_prepared_current', None)
++            if prepared is not None:
++                prepared.validate(examples, instructions, self.current_processor_identity)
++                inputs = prepared.inputs
++                with torch.no_grad():
++                    parts, deepstack = self.qwen_vl_interface.model.model.get_image_features(
++                        inputs['pixel_values'], inputs['image_grid_thw'])
++                return (inputs['input_ids'], inputs['attention_mask'], prepared.position_ids,
++                        prepared.slots, torch.cat(parts, dim=0), deepstack)
+             return super()._build_qwen_batch(examples, instructions)
+ 
++    def encode_current(self, observations):
++        # Typed execution payload is derived only from current images/prompt;
++        # the historical teacher-cache whitelist is not weakened.
++        from starVLA.dataloader.structured_world.prepared_current import PreparedCurrent
++        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
++        if prepared is not None and (not isinstance(prepared, PreparedCurrent) or
++                any(row.get('_prepared_current') is not prepared for row in observations)):
++            raise ValueError('Mixed/untrusted current preprocessing payload')
++        self._active_prepared_current = prepared
++        try:
++            return super().encode_current(observations)
++        finally:
++            self._active_prepared_current = None
++
+     def load_shared_geometry(self, path, expected_identity, *, allow_debug=False):
+         state = torch.load(path, map_location='cpu', weights_only=False)
+         if state['identity'] != expected_identity or state['dataset'] != self.structured_options['dataset']:
+@@ -90,12 +113,18 @@ class VLAStructuredFGTR(DDPForesight):
+ 
+     def geometric_current(self, observations):
+         device = next(self.geometry.parameters()).device
++        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
++        if prepared is not None:
++            if any(row.get('_prepared_current') is not prepared for row in observations):
++                raise ValueError('Geometry microbatch identity mismatch')
++            return self.geometry(prepared.geometry_images, prepared.calibration, prepared.pixel_valid,
++                                 canonical_fp32=getattr(self, 'inference_fp32', False))
+         images = torch.stack([item['geometry_images'] for item in observations]).to(device=device, dtype=torch.float32)
+         calibration = {key: torch.stack([item['calibration'][key] for item in observations]).to(device=device, dtype=torch.float32)
+                        for key in ('sensor2ego', 'intrinsics', 'post_rots', 'post_trans')}
+         # No map, box, LiDAR/depth label, or global pose can enter this call.
+         pixel_valid = torch.stack([item['geometry_pixel_valid'] for item in observations]).to(device)
+-        return self.geometry(images, calibration, pixel_valid)
++        return self.geometry(images, calibration, pixel_valid, canonical_fp32=getattr(self, 'inference_fp32', False))
+ 
+     def plan_from_current(self, observations, *, proposal_generator=None, initial_noise=None, encoded=None, H_A=None):
+         encoded = self.encode_current(observations) if encoded is None else encoded
+@@ -152,18 +181,24 @@ class VLAStructuredFGTR(DDPForesight):
+             raw['current_DINO'] = dino.detach()
+         planned = self.plan_from_current(observations, encoded=encoded, H_A=action, proposal_generator=proposal_generator)
+         gradient_norms = {}
+-        for name, value in (('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])):
++        activation_gradient_samples = {}
++        for name, value in (('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])) if getattr(self, 'record_activation_metrics', True) else ():
+             if value.requires_grad:
+                 def record_gradient(gradient, key=name):
+                     norm = torch.linalg.vector_norm(gradient.detach().float()).detach()
+                     gradient_norms[key] = norm if getattr(self, 'defer_activation_metrics', False) else float(norm)
++                    if getattr(self, 'execution_diagnostic_capture', False):
++                        flat = gradient.detach().float().flatten()
++                        indices = torch.arange(min(1024, flat.numel()), device=flat.device)*max(1, flat.numel()-1)//max(1, min(1024, flat.numel())-1)
++                        activation_gradient_samples[key] = flat[indices].clone()
+                 value.register_hook(record_gradient)
+         semantic = self.scene_semantics(planned['current']['B0'], planned['Bt'])
+         query = sample_queries(planned['q0'], targets, mode=self.query_mode, generator=query_generator,
+-                                count=int(self.structured_options.get('queries', 1024)), grid=self.grid)
++                                count=int(self.structured_options.get('queries', 1024)), grid=self.grid,
++                                execution_fast=getattr(self, 'execution_fast', False))
+         aux, effective = compute_structured_losses(semantic, targets, query, targets['ego_bodies'],
+                             semantic_mode=self.semantic_mode, statistics=self.structured_options['class_statistics'],
+-                            global_scenes=scenes, grid=self.grid)
++                            global_scenes=scenes, grid=self.grid, execution_fast=getattr(self, 'execution_fast', False))
+         # Depth supervision is loss-only and scene-normalized, with no-return
+         # pixels excluded by the pinned RCSample depth-label implementation.
+         depth_scenes = []
+@@ -187,9 +222,13 @@ class VLAStructuredFGTR(DDPForesight):
+         raw.update({k: value.detach() for k, value in aux.items()}, refine=refine.detach())
+         return {'loss': sum(losses.values()), 'losses': losses,
+                 'metrics': {'raw': raw, 'effective_counts': effective, 'activation_gradient_norms': gradient_norms,
++                    'activation_gradient_samples': activation_gradient_samples,
+                     'refine_effective_weight': float(weights['refine'])*warmup,
+                     'query_strata': query['strata_records'], 'proposal_out_of_range': planned['out_of_range'].detach()},
+-                'diagnostics': {'q0': planned['q0'].detach(), 'q_final': planned['q_final'].detach()}}
++                'diagnostics': {'q0': planned['q0'].detach(), 'q_final': planned['q_final'].detach(),
++                    **({name: value.detach() for name, value in
++                        [('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])]}
++                       if getattr(self, 'execution_diagnostic_capture', False) else {})}}
+ 
+     @torch.no_grad()
+     def predict_action(self, observations, *, sampling_seed=42, initial_noise=None, return_diagnostics=False):
+diff --git a/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py b/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py
+index 88577febc48cc8e840a4fee36ac9268269dde584..7fb109d2c5c45c51af7e715327cde105291128ce 100644
+--- a/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py
++++ b/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py
+@@ -297,7 +297,9 @@ class DiT(ModelMixin, ConfigMixin):
+         hidden_states = hidden_states.contiguous()
+         encoder_hidden_states = encoder_hidden_states.contiguous()
+ 
+-        all_hidden_states = [hidden_states]
++        # Retain intermediate outputs only when the caller requests them.
++        # Autograd and selective checkpointing keep their own required inputs.
++        all_hidden_states = [hidden_states] if return_all_hidden_states else None
+ 
+         # Process through transformer blocks
+         for idx, block in enumerate(self.transformer_blocks):
+@@ -311,7 +313,8 @@ class DiT(ModelMixin, ConfigMixin):
+                 hidden_states = block(hidden_states, **block_args)
+             if active_token_mask is not None:
+                 hidden_states = torch.where(active_token_mask[..., None], hidden_states, 0.)
+-            all_hidden_states.append(hidden_states)
++            if all_hidden_states is not None:
++                all_hidden_states.append(hidden_states)
+ 
+         # Output processing
+         conditioning = temb
+@@ -381,12 +384,13 @@ class SelfAttentionTransformer(ModelMixin, ConfigMixin):
+     ):
+         # Process through transformer blocks - single pass through the blocks
+         hidden_states = hidden_states.contiguous()
+-        all_hidden_states = [hidden_states]
++        all_hidden_states = [hidden_states] if return_all_hidden_states else None
+ 
+         # Process through transformer blocks
+         for idx, block in enumerate(self.transformer_blocks):
+             hidden_states = block(hidden_states)
+-            all_hidden_states.append(hidden_states)
++            if all_hidden_states is not None:
++                all_hidden_states.append(hidden_states)
+ 
+         if return_all_hidden_states:
+             return hidden_states, all_hidden_states
+diff --git a/starVLA/model/modules/structured_world/execution.py b/starVLA/model/modules/structured_world/execution.py
+index 7f0322f68873080fcccd65cee9b071813c94b0de..27fbf08e8f5ffeb03bbc95215465c31ae0fb98d9 100644
+--- a/starVLA/model/modules/structured_world/execution.py
++++ b/starVLA/model/modules/structured_world/execution.py
+@@ -2,7 +2,7 @@
+ 
+ 
+ def configure_execution(model, mode):
+-    if mode not in ('reference', 'io_preserving_v1', 'loss_preserving_v1'):
++    if mode not in ('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'):
+         raise ValueError('Unregistered execution mode')
+     enabled = mode != 'reference'
+     checkpointed = mode != 'loss_preserving_v1'
+@@ -13,10 +13,28 @@ def configure_execution(model, mode):
+         language.gradient_checkpointing_enable()
+     model.action_model.model.gradient_checkpointing = checkpointed
+     model.defer_activation_metrics = enabled
++    fast = mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
++    model.execution_fast = fast
++    model.future_space.execution_fast = fast
++    model.geometry.conv_autocast_bf16 = mode == 'precision_fast'
++    model.future_space.future_time_vectorized = mode == 'engineering_timevec'
++    model.refiner.fgtr_time_vectorized = mode == 'engineering_timevec'
++    from .qwen_execution import install_qwen_vision_lengths, uninstall_qwen_vision_lengths
++    vision = model.qwen_vl_interface.model.model.visual
++    qwen_metadata = install_qwen_vision_lengths(vision) if fast else uninstall_qwen_vision_lengths(vision)
+     # Do not change geometry checkpointing: recomputation involves mutable BN
+     # statistics, unlike the language/DiT LayerNorm blocks above.
+     return {'mode': mode, 'Qwen_language_activation_checkpointing': checkpointed,
+             'DiT_activation_checkpointing': checkpointed,
+             'geometry_checkpointing_and_BN': 'unchanged',
+             'deferred_activation_metrics': enabled, 'ordered_CPU_prefetch': enabled,
+-            'precision_loss_noise_and_proposal_steps': 'unchanged'}
++            'precision_loss_noise_and_proposal_steps': 'unchanged',
++            'future_shared_current_spatial_mix_and_action_MLN': fast,
++            'typed_current_CPU_processor_and_pinned_batch_transfer': fast,
++            'query_and_body_execution_reuse': fast,
++            'Qwen_vision_metadata_adapter': qwen_metadata,
++            'formal_acceptance_required': fast,
++            'numerical_level': 'E3' if mode == 'precision_fast' else 'E2',
++            'geometry_convolution_BF16_autocast': mode == 'precision_fast',
++            'time_vectorization': mode == 'engineering_timevec',
++            'projection_depthnet_grid_loss_master_communication': 'FP32 unchanged'}
+diff --git a/starVLA/model/modules/structured_world/fgtr.py b/starVLA/model/modules/structured_world/fgtr.py
+index 026189c8c31b4c67eb17b762d4277b524aaa0160..31c3094d26b49d2d20023eef24679f2ef35c99d2 100644
+--- a/starVLA/model/modules/structured_world/fgtr.py
++++ b/starVLA/model/modules/structured_world/fgtr.py
+@@ -3,7 +3,7 @@ from contextlib import contextmanager
+ import torch
+ from torch import nn
+ from mmcv.ops.multi_scale_deform_attn import MultiScaleDeformableAttention
+-from .future import mature_decoder, physical_time_features
++from .future import mature_decoder, physical_time_features, can_batch_independent, time_chunk_size
+ from .grid import GridSpec
+ 
+ 
+@@ -39,6 +39,8 @@ class DDPProposalFGTR(nn.Module):
+         if steps not in (6, 8):
+             raise ValueError('Registered horizon required')
+         self.steps, self.channels = steps, channels
++        self.fgtr_time_vectorized = False
++        self.fgtr_time_chunk_size = 0
+         self.grid = grid or GridSpec()
+         self.action_projection = nn.Linear(hidden_dim, channels)
+         self.way_decoder = mature_decoder(channels, layers=1, cross=True)
+@@ -52,6 +54,21 @@ class DDPProposalFGTR(nn.Module):
+         nn.init.zeros_(self.coordinate_decoder[-1].bias)
+         self.register_buffer('times_s', .5*torch.arange(1, steps+1), persistent=True)
+ 
++    def _read_times(self, queries, positions, Bt, uv, shapes, start):
++        batch = len(Bt)
++        chunk = time_chunk_size(self.fgtr_time_chunk_size, self.steps)
++        reads = []
++        for first in range(0, self.steps, chunk):
++            count = min(chunk, self.steps-first)
++            query = queries[first:first+count].transpose(0, 1)+positions[:, first:first+count]
++            query = query.reshape(batch*count, self.channels).unsqueeze(0)
++            value = Bt[:, first:first+count].reshape(batch*count, self.channels, -1).permute(2, 0, 1)
++            reference = uv[:, first:first+count].reshape(batch*count, 1, 1, 2)
++            read = self.col_attn(query=query, value=value, reference_points=reference,
++                                 spatial_shapes=shapes, level_start_index=start)
++            reads.append(read.squeeze(0).reshape(batch, count, self.channels))
++        return torch.cat(reads, 1)
++
+     def forward(self, H_A, Bt, q0_encoded, q0_physical):
+         batch = len(H_A)
+         if Bt.shape != (batch, self.steps, self.channels, self.grid.height, self.grid.width) or q0_encoded.shape != (batch, self.steps, 4):
+@@ -65,14 +82,25 @@ class DDPProposalFGTR(nn.Module):
+         positions = self.position(q0_physical.float()/40.)+self.out_of_range_embedding(out_of_range.long())
+         shapes = torch.tensor([[self.grid.height, self.grid.width]], device=Bt.device, dtype=torch.long)
+         start = torch.zeros(1, device=Bt.device, dtype=torch.long)
+-        residuals = []
+-        for t in range(self.steps):
+-            read = self.col_attn(query=queries[t:t+1]+positions[:, t].unsqueeze(0),
+-                                 value=Bt[:, t].flatten(2).permute(2, 0, 1),
+-                                 reference_points=uv[:, t:t+1].unsqueeze(2),
+-                                 spatial_shapes=shapes, level_start_index=start)
+-            residuals.append(self.coordinate_decoder(read.squeeze(0)))
+-        residual = torch.stack(residuals, 1)
++        vectorized = self.fgtr_time_vectorized and can_batch_independent(self.coordinate_decoder)
++        if vectorized and can_batch_independent(self.col_attn):
++            reads = self._read_times(queries, positions, Bt, uv, shapes, start)
++        else:
++            reads, residuals = [], []
++            for t in range(self.steps):
++                read = self.col_attn(query=queries[t:t+1]+positions[:, t].unsqueeze(0),
++                                     value=Bt[:, t].flatten(2).permute(2, 0, 1),
++                                     reference_points=uv[:, t:t+1].unsqueeze(2),
++                                     spatial_shapes=shapes, level_start_index=start)
++                if vectorized:
++                    reads.append(read.squeeze(0))
++                else:
++                    residuals.append(self.coordinate_decoder(read.squeeze(0)))
++            if vectorized:
++                reads = torch.stack(reads, 1)
++        # Native training attention has dropout=0.1: retain its per-time calls
++        # and RNG order, while batching only this deterministic coordinate MLP.
++        residual = (self.coordinate_decoder(reads) if vectorized else torch.stack(residuals, 1))
+         final = q0_encoded+residual
+         # Decode uses atan2(sin, cos); avoid a new trajectory/control representation.
+         return {'q_final_encoded': final, 'residual': residual, 'out_of_range': out_of_range,
+diff --git a/starVLA/model/modules/structured_world/future.py b/starVLA/model/modules/structured_world/future.py
+index ed510c950154fc2159208a04042d7d980e92358b..4f93feae94dc96bf8ce2206d66782fdd049784b9 100644
+--- a/starVLA/model/modules/structured_world/future.py
++++ b/starVLA/model/modules/structured_world/future.py
+@@ -3,6 +3,7 @@
+ TokenLearner, MLN, latent decoder and TokenFuser are pinned upstream modules.
+ New time and VLM conditioning wrappers generate one spatial residual per time.
+ """
++from numbers import Real
+ import torch
+ from torch import nn
+ from third_party.resworld.ported.tokenlearner import TokenLearner, TokenFuser
+@@ -25,12 +26,46 @@ def physical_time_features(seconds):
+     return torch.stack((seconds/4., torch.sin(seconds), torch.cos(seconds), torch.ones_like(seconds)), -1)
+ 
+ 
++def can_batch_independent(module):
++    """Batching must not change random draws or batch-dependent normalization.
++
++    In particular, native MultiheadAttention stores dropout as a float rather
++    than an nn.Dropout child. No training flags or probabilities are changed.
++    """
++    for child in module.modules():
++        # BN also interprets tensor axes differently from Linear/LN, even with
++        # frozen running statistics. Native decoders have no BN; be conservative
++        # if a caller substitutes one later rather than changing its layout.
++        if isinstance(child, nn.modules.batchnorm._BatchNorm):
++            return False
++        if child.training:
++            if isinstance(child, nn.modules.dropout._DropoutNd) and child.p > 0:
++                return False
++            dropout = getattr(child, 'dropout', None)
++            if isinstance(dropout, Real) and dropout > 0:
++                return False
++    return True
++
++
++def time_chunk_size(value, steps):
++    """Zero selects the whole horizon; positive integers bound temporaries."""
++    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
++        raise ValueError('Time chunk size must be a nonnegative integer')
++    return min(value or steps, steps)
++
++
+ class SingleFrameFuture(nn.Module):
+     def __init__(self, hidden_dim, steps, *, channels=256, scene_tokens=16, grid=None):
+         super().__init__()
+         if steps not in (6, 8):
+             raise ValueError('Only the registered 3s/4s horizons are supported')
+         self.steps, self.channels = steps, channels
++        # Opt in through configure_execution; reference remains the default.
++        # Plain attributes add no parameters or persistent checkpoint entries.
++        self.execution_fast = False
++        # P1 is separately opt-in, including when P0 is enabled by its caller.
++        self.future_time_vectorized = False
++        self.future_time_chunk_size = 0
+         self.grid = grid or GridSpec()
+         self.position = nn.Sequential(nn.Linear(2, channels), nn.ReLU(), nn.Linear(channels, channels))
+         self.tokenlearner = TokenLearner(scene_tokens, 2*channels)
+@@ -42,6 +77,22 @@ class SingleFrameFuture(nn.Module):
+         self.tokenfuser = TokenFuser(scene_tokens, channels)
+         self.register_buffer('times_s', .5*torch.arange(1, steps+1), persistent=True)
+ 
++    def _decode_times(self, conditioned, semantic, time, latent_pos):
++        batch, tokens, channels = conditioned.shape
++        chunk = time_chunk_size(self.future_time_chunk_size, self.steps)
++        decoded = []
++        for first in range(0, self.steps, chunk):
++            count = min(chunk, self.steps-first)
++            # Time joins the batch axis, never the attention sequence axis.
++            queries = (conditioned[:, None]+semantic[:, None])+time[None, first:first+count, None]
++            queries = queries.reshape(batch*count, tokens, channels).transpose(0, 1)
++            positions = latent_pos[:, None].expand(-1, count, -1, -1)
++            positions = positions.reshape(batch*count, tokens, channels).transpose(0, 1)
++            output = self.res_latent_decoder(query=queries, key=queries, value=queries,
++                                            query_pos=positions, key_pos=positions)
++            decoded.append(output.transpose(0, 1).reshape(batch, count, tokens, channels))
++        return torch.cat(decoded, 1)
++
+     def forward(self, B0, action_hidden, q0_physical):
+         if B0.shape[1:] != (self.channels, self.grid.height, self.grid.width) or q0_physical.shape != (len(B0), self.steps, 3):
+             raise ValueError('Current geometry/proposal horizon mismatch')
+@@ -61,13 +112,39 @@ class SingleFrameFuture(nn.Module):
+         semantic = self.semantic(action_hidden.float()).mean(1, keepdim=True)
+         condition = q0_physical[..., :2].flatten(1).unsqueeze(1)/40.
+         time = self.time(physical_time_features(self.times_s))
++        vectorized = (self.future_time_vectorized and can_batch_independent(self.res_latent_decoder)
++                      and can_batch_independent(self.action_mln)
++                      # A substituted BN fuser can amplify tiny decoder batch
++                      # roundoff. Keep its entire original per-time path.
++                      and not any(isinstance(m, nn.modules.batchnorm._BatchNorm)
++                                  for m in self.tokenfuser.modules()))
++        fusion_vectorized = vectorized and self.tokenfuser.can_batch_time_fusion()
++        conditioned = self.action_mln(latent, condition) if self.execution_fast or vectorized else None
++        spatial_mix = (self.tokenfuser.prepare_spatial_mix(B0)
++                       if fusion_vectorized or (self.execution_fast and self.tokenfuser.can_reuse_spatial_mix()) else None)
++        decoded = self._decode_times(conditioned, semantic, time, latent_pos) if vectorized else None
++        if fusion_vectorized:
++            # GN remains independent for every scene/time, with exactly its
++            # original C,N and C,D axes. No B0/spatial_mix repeat or Bt stack.
++            tokens = decoded.reshape(batch*self.steps, decoded.shape[2], self.channels)
++            values = self.tokenfuser.prepare_token_values(tokens)
++            values = values.reshape(batch, self.steps, self.channels, -1)
++            delta = self.tokenfuser.fuse_time(values, spatial_mix, B0)
++            return B0[:, None]+delta
+         future = []
+         for t in range(self.steps):
+-            residual_tokens = self.action_mln(latent, condition)+semantic+time[t]
+-            residual_tokens = self.res_latent_decoder(
+-                query=residual_tokens.transpose(0, 1), key=residual_tokens.transpose(0, 1),
+-                value=residual_tokens.transpose(0, 1), query_pos=latent_pos.transpose(0, 1),
+-                key_pos=latent_pos.transpose(0, 1)).transpose(0, 1)
+-            delta = self.tokenfuser(residual_tokens, B0)
++            if decoded is None:
++                residual_tokens = (conditioned if self.execution_fast else self.action_mln(latent, condition))+semantic+time[t]
++                residual_tokens = self.res_latent_decoder(
++                    query=residual_tokens.transpose(0, 1), key=residual_tokens.transpose(0, 1),
++                    value=residual_tokens.transpose(0, 1), query_pos=latent_pos.transpose(0, 1),
++                    key_pos=latent_pos.transpose(0, 1)).transpose(0, 1)
++            else:
++                residual_tokens = decoded[:, t]
++            if spatial_mix is None:
++                delta = self.tokenfuser(residual_tokens, B0)
++            else:
++                token_values = self.tokenfuser.prepare_token_values(residual_tokens)
++                delta = self.tokenfuser.fuse(token_values, spatial_mix, B0)
+             future.append(B0+delta)
+         return torch.stack(future, 1)
+diff --git a/starVLA/model/modules/structured_world/geo_bev.py b/starVLA/model/modules/structured_world/geo_bev.py
+index 04c704097a9ac9de720af26514cdea516ea123dd..b07c9e2d8b02cb1f5403a45d16c9cec68ca82fc2 100644
+--- a/starVLA/model/modules/structured_world/geo_bev.py
++++ b/starVLA/model/modules/structured_world/geo_bev.py
+@@ -66,6 +66,9 @@ class SingleFrameGeoBEV(nn.Module):
+         super().__init__()
+         self.grid = grid or GridSpec()
+         self.image_size = tuple(image_size)
++        # Separate E3 candidate: keep parameters, projection, DepthNet and
++        # grid sampling FP32. Canonical inference always bypasses this policy.
++        self.conv_autocast_bf16 = False
+         self.backbone = ResNet(depth=50, num_stages=4, out_indices=(2, 3),
+                               frozen_stages=-1, norm_cfg={'type': 'BN', 'requires_grad': True},
+                               norm_eval=False, style='pytorch', with_cp=True)
+@@ -92,7 +95,7 @@ class SingleFrameGeoBEV(nn.Module):
+         self.initialization['backbone'] = {'kind': 'public_ImageNet_ResNet50', 'sha256': file_sha256(path),
+                                            'excluded_classifier_keys': sorted(removed)}
+ 
+-    def forward(self, images, calibration, pixel_valid=None):
++    def forward(self, images, calibration, pixel_valid=None, *, canonical_fp32=False):
+         if images.ndim != 5 or images.shape[1] not in (3, 6) or images.shape[2:] != (3, *self.image_size):
+             raise ValueError('One current timestep with exactly 3/6 registered cameras required')
+         batch, cameras = images.shape[:2]
+@@ -106,7 +109,10 @@ class SingleFrameGeoBEV(nn.Module):
+         if any(p.dtype != torch.float32 for p in self.parameters()):
+             raise RuntimeError('Pinned geometry path requires FP32 parameters')
+         with torch.autocast(device_type=images.device.type, enabled=False):
+-            features = self.fpn(self.backbone(images.float().flatten(0, 1)))
++            with torch.autocast(device_type=images.device.type, dtype=torch.bfloat16,
++                                enabled=self.conv_autocast_bf16 and not canonical_fp32):
++                features = self.fpn(self.backbone(images.float().flatten(0, 1)))
++            features = features.float()
+             features = features.reshape(batch, cameras, *features.shape[1:])
+             sensor2ego = calibration['sensor2ego'].float()
+             intrinsics = calibration['intrinsics'].float()
+@@ -117,7 +123,10 @@ class SingleFrameGeoBEV(nn.Module):
+             bda = torch.eye(3, device=images.device).expand(batch, 3, 3)
+             mlp = self.view.get_mlp_input(sensor2ego, global_identity, intrinsics, post_rots, post_trans, bda)
+             bev, depth = self.view((features, sensor2ego, global_identity, intrinsics, post_rots, post_trans, bda, mlp))
+-            output = self.bev_neck(self.bev_backbone(bev))
++            with torch.autocast(device_type=images.device.type, dtype=torch.bfloat16,
++                                enabled=self.conv_autocast_bf16 and not canonical_fp32):
++                output = self.bev_neck(self.bev_backbone(bev))
++            output = output.float()
+             if output.shape[-2:] != (self.grid.height, self.grid.width):
+                 raise RuntimeError('BEV encoder changed the registered spatial extent')
+             return {'B0': output, 'depth': depth,
+diff --git a/starVLA/model/modules/structured_world/grid.py b/starVLA/model/modules/structured_world/grid.py
+index c6d3dda81abcda480475944c889d348401aae1ed..cd795aa4a1a407af9140931affe8f6ee931818c6 100644
+--- a/starVLA/model/modules/structured_world/grid.py
++++ b/starVLA/model/modules/structured_world/grid.py
+@@ -43,16 +43,27 @@ class GridSpec:
+         invalid = ((uv < 0) | (uv >= 1) | ~torch.isfinite(uv)).any(-1)
+         return uv, invalid
+ 
+-    def sample(self, fields, xy, *, mode='bilinear'):
++    def prepare_sample(self, xy):
++        """Ephemeral coordinates for repeated reads of the same XY tensor.
++
++        The returned tensors retain the coordinate gradient. They must only be
++        reused within one forward, with the same grid and unchanged XY.
++        """
++        uv, invalid = self.normalized_reference(xy)
++        safe = torch.where(torch.isfinite(uv), uv, torch.full_like(uv, -2))
++        return (2*safe-1).unsqueeze(2), ~invalid
++
++    def sample(self, fields, xy, *, mode='bilinear', _prepared=None):
+         """Returns values plus explicit validity; padding is never a free label."""
+         if fields.ndim != 4 or fields.shape[-2:] != (self.height, self.width) or xy.ndim != 3 or len(fields) != len(xy):
+             raise ValueError('Expected B,C,H,W and B,K,2 on the registered grid')
+-        uv, invalid = self.normalized_reference(xy)
+         from torch.nn.functional import grid_sample
+-        safe = torch.where(torch.isfinite(uv), uv, torch.full_like(uv, -2))
+-        values = grid_sample(fields, (2*safe-1).unsqueeze(2), mode=mode,
++        coordinates, supported = self.prepare_sample(xy) if _prepared is None else _prepared
++        if coordinates.shape != (*xy.shape[:2], 1, 2) or supported.shape != xy.shape[:2]:
++            raise ValueError('Prepared coordinates must match the current XY tensor')
++        values = grid_sample(fields, coordinates, mode=mode,
+                              padding_mode='zeros', align_corners=False).squeeze(-1).transpose(1, 2)
+-        return values, ~invalid
++        return values, supported
+ 
+     def resworld_config(self, *, depth=(1., 100., 1.)):
+         return {'x': [self.xmin, self.xmax, self.dx], 'y': [self.ymin, self.ymax, self.dy],
+diff --git a/starVLA/model/modules/structured_world/losses.py b/starVLA/model/modules/structured_world/losses.py
+index c82b08502a76b4ddc4ebda76a300c254244a9abb..7fc73d21b515d9c6209066aafd82cc74c589b942 100644
+--- a/starVLA/model/modules/structured_world/losses.py
++++ b/starVLA/model/modules/structured_world/losses.py
+@@ -2,7 +2,7 @@
+ import torch
+ from torch.nn import functional as F
+ from .grid import GridSpec
+-from .queries import read_time_field, body_relations
++from .queries import read_time_field, body_relations, _TimeReadPlan, _body_footprints, ForwardFieldFiniteCache
+ 
+ 
+ def scene_means(values, valid):
+@@ -32,17 +32,26 @@ def binary_loss(logits, labels, valid, *, positive_weight=1.):
+ 
+ 
+ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_mode,
+-                               statistics, global_scenes=None, grid=None):
++                               statistics, global_scenes=None, grid=None, execution_fast=False):
+     grid = grid or GridSpec()
+     xy, time = queries['poses'][..., :2], queries['time_index']
+-    road, in_grid = grid.sample(prediction['road_distance_m'], xy)
+-    road_gt, _ = grid.sample(targets['road_distance'][:, None].float(), xy)
+-    road_valid, _ = grid.sample(targets['road_valid'][:, None].float(), xy, mode='nearest')
+-    current, _ = grid.sample(prediction['current_logits'], xy)
+-    O0, _ = grid.sample(targets['occupancy'][:, :1].float(), xy, mode='nearest')
+-    valid0, _ = grid.sample(targets['occupancy_valid'][:, :1].float(), xy, mode='nearest')
+-    Ot, in_future = read_time_field(targets['occupancy'][:, 1:, None].float(), xy, time, grid, mode='nearest')
+-    validt, _ = read_time_field(targets['occupancy_valid'][:, 1:, None].float(), xy, time, grid, mode='nearest')
++    prepared = grid.prepare_sample(xy) if execution_fast else None
++    plan = _TimeReadPlan(xy, time, targets['occupancy'].shape[1]-1, grid) if execution_fast else None
++    finite_cache = ForwardFieldFiniteCache() if execution_fast else None
++    # The registered labels are uint8 and bool. Their float casts cannot create
++    # nonfinite values; unusual floating labels still take the checked path.
++    occupancy_finite = not targets['occupancy'].is_floating_point() and not targets['occupancy'].is_complex()
++    valid_finite = not targets['occupancy_valid'].is_floating_point() and not targets['occupancy_valid'].is_complex()
++    road, in_grid = grid.sample(prediction['road_distance_m'], xy, _prepared=prepared)
++    road_gt, _ = grid.sample(targets['road_distance'][:, None].float(), xy, _prepared=prepared)
++    road_valid, _ = grid.sample(targets['road_valid'][:, None].float(), xy, mode='nearest', _prepared=prepared)
++    current, _ = grid.sample(prediction['current_logits'], xy, _prepared=prepared)
++    O0, _ = grid.sample(targets['occupancy'][:, :1].float(), xy, mode='nearest', _prepared=prepared)
++    valid0, _ = grid.sample(targets['occupancy_valid'][:, :1].float(), xy, mode='nearest', _prepared=prepared)
++    Ot, in_future = read_time_field(targets['occupancy'][:, 1:, None].float(), xy, time, grid, mode='nearest',
++        execution_fast=execution_fast, known_finite=occupancy_finite, finite_cache=finite_cache, _plan=plan)
++    validt, _ = read_time_field(targets['occupancy_valid'][:, 1:, None].float(), xy, time, grid, mode='nearest',
++        execution_fast=execution_fast, known_finite=valid_finite, finite_cache=finite_cache, _plan=plan)
+     valid0 = (valid0[..., 0] > .5) & in_grid & (O0[..., 0] != 255)
+     pair_valid = valid0 & (validt[..., 0] > .5) & in_future & (Ot[..., 0] != 255)
+     raw, counts = {}, {}
+@@ -53,7 +62,8 @@ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_
+                                 positive_weight=statistics['current_positive_weight'])
+     raw['current_occupancy'] = scene_reduce(values, global_scenes=global_scenes); counts['current_occupancy'] = count.detach()
+     if semantic_mode != 'none':
+-        future_logits, _ = read_time_field(prediction['future_logits'], xy, time, grid)
++        future_logits, _ = read_time_field(prediction['future_logits'], xy, time, grid,
++            execution_fast=execution_fast, finite_cache=finite_cache, _plan=plan)
+         if semantic_mode == 'full':
+             weight = future_logits.new_tensor([1., statistics['future_positive_weight']])
+             labels = (Ot[..., 0] == 1).long()
+@@ -74,12 +84,32 @@ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_
+         else:
+             raise ValueError('Unknown future semantic objective')
+     # Local relations are reads of these same prediction fields, not a risk head.
++    footprints = _body_footprints(queries['poses'], time, bodies, grid, targets['occupancy'].shape[1]-1) if execution_fast else None
+     predicted = body_relations(prediction['road_distance_m'], prediction['pt'],
+-                                queries['poses'], time, bodies, grid=grid)
++                                queries['poses'], time, bodies, grid=grid, execution_fast=execution_fast,
++                                finite_cache=finite_cache, _footprints=footprints)
+     truth = body_relations(targets['road_distance'][:, None].float(), (targets['occupancy'][:, 1:, None] == 1).float(),
+-                            queries['poses'], time, bodies, grid=grid)
+-    road_support = body_relations(targets['road_valid'][:, None].float(),
+-                        targets['occupancy_valid'][:, 1:, None].float(), queries['poses'], time, bodies, grid=grid)
++                            queries['poses'], time, bodies, grid=grid, execution_fast=execution_fast,
++                            known_finite=True, finite_cache=finite_cache, _footprints=footprints)
++    if execution_fast:
++        road_margins, full_valid = [], []
++        for row, footprint in enumerate(footprints):
++            count_k, points_k = footprint['points'].shape[:2]
++            support, _ = grid.sample(targets['road_valid'][row:row+1, None].float(), footprint['xy'],
++                                      _prepared=footprint['prepared'])
++            # Same bilinear reads and amin tie rule as body_relations. Its
++            # discarded future-valid overlap/in_range are not needed here.
++            road_margins.append(support.reshape(count_k, points_k).amin(1))
++            if semantic_mode != 'none':
++                sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
++                    footprint['xy'], footprint['time'], grid, execution_fast=True, known_finite=valid_finite,
++                    finite_cache=finite_cache, _plan=footprint['plan'])
++                full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
++        road_support = {'road_margin_m': torch.stack(road_margins)}
++    else:
++        road_support = body_relations(targets['road_valid'][:, None].float(),
++                            targets['occupancy_valid'][:, 1:, None].float(), queries['poses'], time, bodies, grid=grid,
++                            execution_fast=execution_fast, known_finite=valid_finite, finite_cache=finite_cache, _footprints=footprints)
+     # The minimum over all body points requires all road labels to be known.
+     road_mask = (road_support['road_margin_m'] >= 1.-1e-5) & predicted['in_range']
+     values, count = scene_means(F.smooth_l1_loss(predicted['road_margin_m']/10., truth['road_margin_m']/10., reduction='none'), road_mask)
+@@ -88,14 +118,19 @@ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_
+     if semantic_mode != 'none':
+         # Verify that every future footprint cell is labeled.
+         from .queries import body_points
+-        full_valid = []
+-        for row, body in enumerate(bodies):
+-            points = body_points(queries['poses'][row], body)
+-            count_k, points_k = points.shape[:2]
+-            t = time[row, :, None].expand(-1, points_k).reshape(1, -1)
+-            sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
+-                                                  points.reshape(1, -1, 2), t, grid)
+-            full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
++        if not execution_fast:
++            full_valid = []
++            for row, body in enumerate(bodies):
++                footprint = footprints[row] if footprints is not None else None
++                points = footprint['points'] if footprint is not None else body_points(queries['poses'][row], body)
++                count_k, points_k = points.shape[:2]
++                t = footprint['time'] if footprint is not None else time[row, :, None].expand(-1, points_k).reshape(1, -1)
++                body_xy = footprint['xy'] if footprint is not None else points.reshape(1, -1, 2)
++                sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
++                                                      body_xy, t, grid, execution_fast=execution_fast,
++                                                      known_finite=valid_finite, finite_cache=finite_cache,
++                                                      _plan=footprint['plan'] if footprint is not None else None)
++                full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
+         mask = torch.stack(full_valid) & predicted['in_range']
+         values, count = scene_means((predicted['occupancy_overlap_proxy']-truth['occupancy_overlap_proxy']).square(), mask)
+         relation = relation+scene_reduce(values, global_scenes=global_scenes)
+diff --git a/starVLA/model/modules/structured_world/proposal_execution.py b/starVLA/model/modules/structured_world/proposal_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..bf1f65b099fe1b464c85e758e28f272aee59b6be
+--- /dev/null
++++ b/starVLA/model/modules/structured_world/proposal_execution.py
+@@ -0,0 +1,222 @@
++"""Opt-in, instance-local K/V Linear reuse for ONE native eval proposal.
++
++No attention processor/operator is replaced. No training forward is adapted.
++Install disabled by default, outside numerical/profile probes. A used scope
++requires outer no_grad and every head submodule in eval; it always restores its
++temporary Linear forwards, even on exceptions. GPU acceptance remains pending.
++"""
++from __future__ import annotations
++
++import copy
++import functools
++import hashlib
++import inspect
++from pathlib import Path
++import textwrap
++from types import MethodType
++import threading
++
++import diffusers
++from diffusers.models.attention_processor import Attention, AttnProcessor2_0
++import torch
++from torch import nn
++from starVLA.model.modules.action_model.GR00T_ActionHeader import FlowmatchingActionHead
++from starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit import DiT
++
++_STATE = "_structured_world_proposal_kv_v1"
++_SOURCES = (
++    (FlowmatchingActionHead, FlowmatchingActionHead.predict_action,
++     "b67edc82a2ad110ef9feec68b5a457ea2371784f54b5ba75e2b32a18dce42999",
++     "fffe39195d71da02b9737072b6b8bc1edc08b4ab8e3312006ed7f589a36ff259"),
++    (DiT, DiT.forward,
++     "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2",
++     "09b6999219e708494517052980917f0f5884c7f891680cfc8ba8eb9308b1d443"),
++    (AttnProcessor2_0, AttnProcessor2_0.__call__,
++     "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90",
++     "bff040a099598b093263b84b78d4c53f83cb1e2be2af1c81209fdef6075fa7bc"),
++    (Attention, Attention.forward,
++     "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90",
++     "b8021dea011a83c3aa739de1cb8c6aad9d991129b32550aed26d40f2127973ec"),
++    (nn.Linear, nn.Linear.forward,
++     "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823",
++     "4fed9af0cf2326f84d7fa1fd675941f3c3262378ee94d927c5a4f5695990cf5f"),
++)
++
++
++def _hash(value):
++    return hashlib.sha256(value).hexdigest()
++
++
++def _attest_sources():
++    if diffusers.__version__ != "0.35.2" or torch.__version__.split("+")[0] != "2.5.1":
++        raise ValueError("Proposal K/V candidate requires audited Diffusers 0.35.2 / Torch 2.5.1")
++    records = []
++    for cls, method, module_hash, function_hash in _SOURCES:
++        if getattr(cls, method.__name__) is not method:
++            raise ValueError("Proposal class method already has an adapter: " + cls.__name__)
++        path = Path(inspect.getsourcefile(inspect.unwrap(method))).resolve()
++        actual = _hash(path.read_bytes())
++        source_hash = _hash(textwrap.dedent(inspect.getsource(method)).encode())
++        if actual != module_hash or source_hash != function_hash:
++            raise ValueError("Unaudited proposal source: " + str(path))
++        records.append({"class": cls.__module__ + "." + cls.__name__, "source_file": str(path),
++                        "source_sha256": actual, "method_sha256": source_hash})
++    return records
++
++
++def _native_linear(layer):
++    if (type(layer) is not nn.Linear or "forward" in layer.__dict__ or
++            layer.forward.__func__ is not nn.Linear.forward or
++            layer._forward_hooks or layer._forward_pre_hooks or layer._backward_hooks):
++        raise ValueError("Proposal K/V requires an unwrapped native Linear without hooks")
++
++
++class _Projection:
++    def __init__(self, layer, name, thread_id):
++        self.layer, self.name, self.thread_id = layer, name, thread_id
++        self.original = layer.forward
++        self.input = self.output = self.key = None
++        self.output_version = None
++        self.hits = self.misses = self.bypasses = 0
++
++    def forward(self, owner, value):
++        if (threading.get_ident() != self.thread_id or torch.is_grad_enabled() or
++                owner.training or torch.is_inference_mode_enabled()):
++            self.bypasses += 1
++            return self.original(value)
++        # CPU-side identity/version and autocast metadata only: no .item(),
++        # tensor hashes, GPU comparisons or synchronizing device transfers.
++        device = value.device.type
++        key = (value._version, value.dtype, value.device,
++               torch.is_autocast_enabled(device), torch.get_autocast_dtype(device),
++               tuple((id(p), p._version, p.dtype, p.device) for p in owner.parameters()))
++        if (value is self.input and key == self.key and self.output is not None and
++                self.output._version == self.output_version):
++            self.hits += 1
++            return self.output
++        self.misses += 1
++        result = self.original(value)
++        self.input, self.key, self.output = value, key, result
++        self.output_version = result._version
++        return result
++
++    def clear(self):
++        self.input = self.output = self.key = None
++        self.output_version = None
++
++
++def _predict(state, owner, *args, **kwargs):
++    reason = ("disabled" if not state["enabled"] else "grad_enabled" if torch.is_grad_enabled()
++              else "inference_mode" if torch.is_inference_mode_enabled()
++              else "training_submodule" if any(m.training for m in owner.modules()) else None)
++    if reason:
++        state["last_scope"] = {"used": False, "reason": reason}
++        return state["original"](*args, **kwargs)
++    if state["active"]:
++        raise ValueError("Nested/concurrent proposal K/V scopes are not supported")
++    for _, layer in state["targets"]:
++        _native_linear(layer)
++    state["active"] = True
++    projections = [_Projection(layer, name, threading.get_ident()) for name, layer in state["targets"]]
++    bindings = []
++    succeeded = False
++    try:
++        for projection in projections:
++            # Bind only the native Linear's arithmetic entry; Module.__call__,
++            # original Diffusers processor, norms, masks and SDPA remain intact.
++            function = projection.forward
++            projection.layer.forward = MethodType(function, projection.layer)
++            bindings.append((projection.layer, projection.layer.forward))
++        result = state["original"](*args, **kwargs)  # exactly one original ten-step call
++        succeeded = True
++        return result
++    finally:
++        state["last_scope"] = {
++            "used": True, "succeeded": succeeded,
++            "projection_calls_saved": sum(p.hits for p in projections),
++            "projection_calls_executed": sum(p.misses for p in projections),
++            "projection_calls_bypassed": sum(p.bypasses for p in projections),
++            "retained_KV_bytes_at_scope_end": sum(p.output.numel()*p.output.element_size()
++                for p in projections if p.output is not None),
++            "per_projection": [{"name": p.name, "hits": p.hits, "misses": p.misses} for p in projections],
++        }
++        for layer, bound in bindings:
++            if layer.__dict__.get("forward") is bound:
++                delattr(layer, "forward")
++        for projection in projections: projection.clear()
++        state["active"] = False
++
++
++def install_proposal_kv_cache(head, *, enabled=False):
++    """Install on one actual FlowmatchingActionHead; default stays disabled.
++
++    Enabled calls still bypass cache unless called in outer no_grad/eval. The
++    native @no_grad method, qwen_proj, ten Euler steps and RNG are unchanged.
++    Unknown sources/processors or existing adapters fail before mutation.
++    """
++    state = head.__dict__.get(_STATE)
++    if state is not None:
++        _check_installed(head, state)
++        if state["active"]: raise ValueError("Cannot configure an active proposal scope")
++        state["enabled"] = bool(enabled)
++        return proposal_kv_cache_status(head)
++    if type(head) is not FlowmatchingActionHead or type(head.model) is not DiT:
++        raise ValueError("Proposal K/V requires the actual registered GR00T/DiT classes")
++    if "predict_action" in head.__dict__ or head.predict_action.__func__ is not FlowmatchingActionHead.predict_action:
++        raise ValueError("Proposal method already has an adapter")
++    if "forward" in head.model.__dict__ or head.num_inference_timesteps != 10:
++        raise ValueError("Proposal K/V requires native DiT and original ten steps")
++    sources = _attest_sources()
++    targets = []
++    for index, block in enumerate(head.model.transformer_blocks):
++        attn = block.attn1
++        if type(attn) is not Attention or type(attn.processor) is not AttnProcessor2_0:
++            raise ValueError("Proposal K/V requires native Attention / AttnProcessor2_0")
++        if "forward" in attn.__dict__ or "forward" in block.__dict__:
++            raise ValueError("Attention/block already has an instance forward adapter")
++        if block.cross_attention_dim is not None:
++            for name in ("to_k", "to_v"):
++                layer = getattr(attn, name)
++                _native_linear(layer)
++                targets.append((f"transformer_blocks.{index}.attn1.{name}", layer))
++    if not targets or len({id(layer) for _, layer in targets}) != len(targets):
++        raise ValueError("Expected independent native cross-attention K/V projections")
++    state = {"original": head.predict_action, "targets": targets, "enabled": bool(enabled),
++             "active": False, "last_scope": None, "provenance": {
++                 "schema": "proposal_KV_native_Linear_instance_adapter_v1", "sources": sources,
++                 "adapter_file": str(Path(__file__).resolve()), "adapter_sha256": _hash(Path(__file__).read_bytes()),
++                 "cross_attention_layers": len(targets)//2, "default_enabled": False,
++                 "processor_norm_cross_head_norm_masks_SDPA_Euler_rng": "native and unchanged",
++                 "scope": "one original predict_action call; outer no_grad and all eval; inference_mode bypass",
++                 "GPU_numerical_and_performance_acceptance": "pending; do not enable by default"}}
++    @functools.wraps(FlowmatchingActionHead.predict_action)
++    def wrapped(owner, *args, **kwargs):
++        return _predict(state, owner, *args, **kwargs)
++    state["function"] = wrapped
++    head.predict_action = MethodType(wrapped, head)
++    setattr(head, _STATE, state)
++    return proposal_kv_cache_status(head)
++
++
++def _check_installed(head, state):
++    bound = head.__dict__.get("predict_action")
++    if getattr(bound, "__self__", None) is not head or getattr(bound, "__func__", None) is not state["function"]:
++        raise ValueError("Installed proposal adapter was replaced; refusing to overwrite it")
++
++
++def proposal_kv_cache_status(head):
++    state = head.__dict__.get(_STATE)
++    if state is None: return {"installed": False, "enabled": False}
++    _check_installed(head, state)
++    return copy.deepcopy({"installed": True, "enabled": state["enabled"], "active": state["active"],
++                          "provenance": state["provenance"], "last_scope": state["last_scope"]})
++
++
++def uninstall_proposal_kv_cache(head):
++    state = head.__dict__.get(_STATE)
++    if state is None: return False
++    _check_installed(head, state)
++    if state["active"]: raise ValueError("Cannot remove an active proposal scope")
++    delattr(head, "predict_action")
++    delattr(head, _STATE)
++    return True
+diff --git a/starVLA/model/modules/structured_world/queries.py b/starVLA/model/modules/structured_world/queries.py
+index 97097db705ed0d20e685c1238883335430d64440..ae1f7fd59b6476642b4bdd425373309a530fc3d1 100644
+--- a/starVLA/model/modules/structured_world/queries.py
++++ b/starVLA/model/modules/structured_world/queries.py
+@@ -1,15 +1,30 @@
+ """Registered K pose distributions and complete-body field reads."""
++from collections import OrderedDict
++from dataclasses import dataclass, replace
++from functools import lru_cache
++import json
++from pathlib import Path
++import weakref
+ import torch
+ from .grid import GridSpec
+ 
+ 
+-def body_points(poses, body, *, spacing_m=.5, lateral_offset_m=0.):
+-    """Cover the rectangle, including every edge/corner and rear-axle offset."""
+-    length, width = float(body['length']), float(body['width'])
+-    xs = torch.linspace(-length/2, length/2, int(length/spacing_m)+2, device=poses.device)
+-    ys = torch.linspace(-width/2, width/2, int(width/spacing_m)+2, device=poses.device)
++def _body_template(length, width, rear, spacing_m, lateral_offset_m, device, dtype):
++    xs = torch.linspace(-length/2, length/2, int(length/spacing_m)+2, device=device, dtype=dtype)
++    ys = torch.linspace(-width/2, width/2, int(width/spacing_m)+2, device=device, dtype=dtype)
+     yy, xx = torch.meshgrid(ys, xs, indexing='ij')
+-    local = torch.stack((xx.flatten()+float(body['rear_axle_to_center']), yy.flatten()+lateral_offset_m), -1)
++    return torch.stack((xx.flatten()+rear, yy.flatten()+lateral_offset_m), -1)
++
++
++_cached_body_template = lru_cache(maxsize=32)(_body_template)
++
++
++def body_points(poses, body, *, spacing_m=.5, lateral_offset_m=0., execution_fast=False):
++    """Cover the rectangle, including every edge/corner and rear-axle offset."""
++    template = _cached_body_template if execution_fast else _body_template
++    # The reference linspace uses the default dtype, even for double poses.
++    local = template(float(body['length']), float(body['width']), float(body['rear_axle_to_center']),
++                     spacing_m, lateral_offset_m, poses.device, torch.get_default_dtype())
+     angle = poses[..., 2:3]
+     c, s = angle.cos(), angle.sin()
+     x = c*local[:, 0]-s*local[:, 1]
+@@ -26,7 +41,156 @@ def boundary_candidates(road, occupancy, valid):
+     return valid[1:] & ((road.abs() <= 1.)[None] | changed | edge)
+ 
+ 
+-def sample_queries(q0_physical, targets, *, mode, generator, count=1024, grid=None):
++def _label_identity(targets, row, *, required=False):
++    hashes, schemas = targets.get('label_sha256'), targets.get('label_schema')
++    if hashes is None or schemas is None:
++        if required:
++            raise ValueError('CPU candidate preparation requires verified label_sha256/label_schema')
++        return None
++    sha = hashes[row]
++    schema = schemas if isinstance(schemas, str) else schemas[row]
++    if not isinstance(sha, str) or len(sha) != 64 or any(c not in '0123456789abcdef' for c in sha) or not isinstance(schema, str) or not schema:
++        raise ValueError('Verified per-sample label SHA256 and schema required')
++    return sha, schema
++
++
++def bind_query_label_identities(targets, tokens, *, cache_root, expected_cache_identity, grid=None):
++    """Bind already-verified Dataset labels to their original read-only records.
++
++    The Dataset must first verify/load the payloads, as in the reference path.
++    This hook only binds those batch rows to metadata; it is not a replacement
++    payload verifier. Returns a new shallow targets dict, leaving labels intact.
++    """
++    grid = grid or GridSpec()
++    root = Path(cache_root)
++    identity = json.loads((root/'identity.json').read_text())
++    if identity['identity'] != expected_cache_identity or GridSpec(**identity['grid']) != grid:
++        raise ValueError('Original label cache identity/grid mismatch')
++    if len(tokens) != len(targets['occupancy']):
++        raise ValueError('Label tokens must follow collated batch row order')
++    hashes = []
++    for token in tokens:
++        if not isinstance(token, str) or not token or Path(token).name != token:
++            raise ValueError('Expected an original scene token')
++        record = json.loads((root/'records'/(token+'.json')).read_text())
++        if record['cache_identity'] != expected_cache_identity or record['token'] != token:
++            raise ValueError('Foreign label record or scene token')
++        hashes.append(record['label_sha256'])
++    bound = dict(targets, label_sha256=hashes, label_schema=[identity['schema']]*len(tokens))
++    for row in range(len(tokens)):
++        _label_identity(bound, row, required=True)
++    return bound
++
++
++@dataclass(frozen=True)
++class PreparedQueryCandidates:
++    """Picklable CPU-prepared row; slice the list with the other batch labels.
++
++    Indices retain torch.nonzero's original t/y/x ordering. The caller verifies
++    the payload SHA and keeps the identified labels immutable after preparing.
++    No RNG is used. Only index tensors move to the device or pinned memory.
++    """
++    global_indices: torch.Tensor
++    boundary_indices: torch.Tensor
++    label_sha256: str
++    label_schema: str
++    grid: GridSpec
++    label_shapes: tuple
++
++    def to(self, device, *, non_blocking=False):
++        return replace(self, global_indices=self.global_indices.to(device=device, non_blocking=non_blocking),
++                       boundary_indices=self.boundary_indices.to(device=device, non_blocking=non_blocking))
++
++    def pin_memory(self):
++        return replace(self, global_indices=self.global_indices.pin_memory(),
++                       boundary_indices=self.boundary_indices.pin_memory())
++
++    def validate(self, targets, row, grid):
++        if _label_identity(targets, row, required=True) != (self.label_sha256, self.label_schema) or self.grid != grid:
++            raise ValueError('Prepared candidate label hash/schema/grid mismatch')
++        if self.label_shapes != tuple(tuple(targets[key].shape[1:]) for key in ('occupancy_valid', 'occupancy', 'road_distance')):
++            raise ValueError('Prepared candidate label shape mismatch')
++        for indices in (self.global_indices, self.boundary_indices):
++            if indices.ndim != 2 or indices.shape[1] != 3 or indices.dtype != torch.long:
++                raise ValueError('Expected original nonzero t/y/x indices')
++
++
++def prepare_query_candidates(targets, *, grid=None, execution_cache=None):
++    """CPU collator hook; attach its row list as targets['query_candidates'].
++
++    Call after stacking labels, before pinning/transferring or microbatch slicing.
++    Both strata are prepared without RNG so the same result supports G0--G3.
++    Pass verified per-row payload hashes/schema alongside the labels. There is
++    no persistent cache or label-file modification.
++    """
++    grid = grid or GridSpec()
++    keys = ('occupancy_valid', 'occupancy', 'road_distance')
++    if any(targets[key].device.type != 'cpu' for key in keys):
++        raise ValueError('Prepare query indices on CPU before optimizer-batch transfer')
++    cache = execution_cache if execution_cache is not None else QueryExecutionCache()
++    prepared = []
++    for row in range(len(targets['occupancy'])):
++        sha, schema = _label_identity(targets, row, required=True)
++        candidates, boundary = cache.candidates(targets, row, grid, local=True)
++        if boundary is None:
++            boundary = candidates.new_empty(0, 3)
++        prepared.append(PreparedQueryCandidates(candidates, boundary, sha, schema, grid,
++            tuple(tuple(targets[key].shape[1:]) for key in keys)))
++    return prepared
++
++
++class QueryExecutionCache:
++    """Bounded, memory-only indices for an unchanged, identified label sample.
++
++    Pass collated ``label_sha256`` (one verified payload SHA per row) and
++    ``label_schema`` (one schema per row, or a shared string) in targets.
++    Missing identities disable index caching. New tensors, in-place changes,
++    grid/schema/hash changes invalidate a hit; no label files are read/written.
++    """
++    def __init__(self, max_samples=8):
++        if max_samples < 1:
++            raise ValueError('Positive cache capacity required')
++        self.max_samples = max_samples
++        self._samples = OrderedDict()
++        self.hits = self.misses = 0
++
++    def clear(self):
++        self._samples.clear()
++
++    def candidates(self, targets, row, grid, *, local):
++        tensors = [targets[key] for key in ('occupancy_valid', 'occupancy', 'road_distance')]
++        key, snapshot = None, None
++        identity = _label_identity(targets, row)
++        if identity is not None:
++            sha, schema = identity
++            try:
++                snapshot = [(weakref.ref(t), t._version) for t in tensors]
++            except RuntimeError:  # Inference tensors have no mutation counter.
++                pass
++            if snapshot is not None:
++                key = (sha, schema, grid, row, tensors[0].device)
++        entry = self._samples.get(key) if key is not None else None
++        if entry is not None and all(ref() is t and version == t._version
++                                     for (ref, version), t in zip(entry['snapshot'], tensors)):
++            self.hits += 1
++            self._samples.move_to_end(key)
++        else:
++            self.misses += 1
++            entry = {'snapshot': snapshot, 'global': torch.nonzero(tensors[0][row, 1:].detach(), as_tuple=False),
++                     'boundary': None}
++            if key is not None:
++                self._samples[key] = entry
++                self._samples.move_to_end(key)
++                while len(self._samples) > self.max_samples:
++                    self._samples.popitem(last=False)
++        if local and len(entry['global']) and entry['boundary'] is None:
++            entry['boundary'] = torch.nonzero(boundary_candidates(tensors[2][row].detach(),
++                tensors[1][row].detach(), tensors[0][row].detach()), as_tuple=False)
++        return entry['global'], entry['boundary']
++
++
++def sample_queries(q0_physical, targets, *, mode, generator, count=1024, grid=None,
++                   execution_fast=False, execution_cache=None):
+     """50% proposal-body neighborhood, 25% boundaries/events, 25% global.
+ 
+     Poses and labels are detached. Empty strata use global valid cells with
+@@ -39,13 +203,27 @@ def sample_queries(q0_physical, targets, *, mode, generator, count=1024, grid=No
+     result, times, records = [], [], []
+     valid = targets['occupancy_valid'].detach()
+     occ = targets['occupancy'].detach()
++    cache = (execution_cache if execution_cache is not None else QueryExecutionCache()) if execution_fast else None
++    prepared = targets.get('query_candidates') if execution_fast else None
++    if prepared is not None and len(prepared) != len(q0_physical):
++        raise ValueError('Prepared candidate rows must follow optimizer-batch slicing')
+     for row in range(len(q0_physical)):
+-        candidates = torch.nonzero(valid[row, 1:], as_tuple=False)
++        if prepared is not None:
++            item = prepared[row]
++            item.validate(targets, row, grid)
++            item = item.to(q0_physical.device, non_blocking=True)
++            candidates, boundary = item.global_indices, item.boundary_indices
++        elif execution_fast:
++            candidates, boundary = cache.candidates(targets, row, grid, local=mode == 'local')
++        else:
++            candidates = torch.nonzero(valid[row, 1:], as_tuple=False)
+         if len(candidates) == 0:
+             # Preserve scene/trajectory population, return invalid auxiliary
+             # positions explicitly rather than hallucinating free labels.
+             result.append(q0_physical.new_zeros(count, 3)); times.append(torch.zeros(count, dtype=torch.long, device=q0_physical.device))
+-            records.append({'global_valid_cells': 0, 'fallback': count, 'invalid_scene': True})
++            records.append({'global_valid_cells': 0,
++                            'fallback': torch.full((), count, dtype=torch.long, device=q0_physical.device) if execution_fast else count,
++                            'invalid_scene': True})
+             continue
+         def draw(pool, number):
+             chosen = pool[torch.randint(len(pool), (number,), generator=generator, device=pool.device)]
+@@ -55,7 +233,7 @@ def sample_queries(q0_physical, targets, *, mode, generator, count=1024, grid=No
+             position[:, 2] = (torch.rand(number, generator=generator, device=pool.device)*2-1)*torch.pi
+             return position, chosen[:, 0]
+         position, selected_t = draw(candidates, count)
+-        fallback = 0
++        fallback = selected_t.new_zeros(()) if execution_fast else 0
+         if mode == 'local':
+             local_count, boundary_count = count//2, count//4
+             anchor_t = torch.randint(q0_physical.shape[1], (local_count,), generator=generator, device=q0_physical.device)
+@@ -70,24 +248,106 @@ def sample_queries(q0_physical, targets, *, mode, generator, count=1024, grid=No
+             eligible = ~out & valid[row, t+1, y, x]
+             position[:local_count] = torch.where(eligible[:, None], local, position[:local_count])
+             selected_t[:local_count] = torch.where(eligible, t, selected_t[:local_count])
+-            fallback += int((~eligible).sum())
+-            boundary = torch.nonzero(boundary_candidates(targets['road_distance'][row], occ[row], valid[row]), as_tuple=False)
++            local_fallback = (~eligible).sum().detach()
++            fallback += local_fallback if execution_fast else int(local_fallback)
++            if not execution_fast:
++                boundary = torch.nonzero(boundary_candidates(targets['road_distance'][row], occ[row], valid[row]), as_tuple=False)
+             if len(boundary):
+                 position[local_count:local_count+boundary_count], selected_t[local_count:local_count+boundary_count] = draw(boundary, boundary_count)
+             else:
+                 fallback += boundary_count
+         result.append(position.detach()); times.append(selected_t.detach())
++        neighbor_queries = ((t != anchor_t) & eligible).sum().detach() if mode == 'local' else selected_t.new_zeros(()) if execution_fast else 0
++        if not execution_fast and mode == 'local':
++            neighbor_queries = int(neighbor_queries)
+         records.append({'global_valid_cells': len(candidates), 'fallback': fallback, 'invalid_scene': False,
+                         'registered_pose_strata': {'proposal_body_neighborhood': count//2 if mode == 'local' else 0,
+                             'road_occupancy_event_boundary': count//4 if mode == 'local' else 0,
+                             'global_uniform': count//4 if mode == 'local' else count},
+-                        'neighbor_time_queries': int(((t != anchor_t) & eligible).sum()) if mode == 'local' else 0})
++                        'neighbor_time_queries': neighbor_queries})
+     return {'poses': torch.stack(result), 'time_index': torch.stack(times), 'strata_records': records}
+ 
+ 
+-def read_time_field(field, xy, time_index, grid=None, *, mode='bilinear'):
+-    """Read B,T,C,H,W at each pose's real physical time, without time averaging."""
++class _TimeReadPlan:
++    """Pack each (batch,time) into a 2D grid_sample batch, preserving K order."""
++    def __init__(self, xy, time_index, steps, grid):
++        self.xy, self.time_index, self.steps, self.grid = xy, time_index, steps, grid
++        batch, count = time_index.shape
++        integral_time = time_index.long()
++        selected = torch.nonzero((time_index >= 0) & (time_index < steps) & (time_index == integral_time), as_tuple=False)
++        group = selected[:, 0]*steps+integral_time[selected[:, 0], selected[:, 1]]
++        order = torch.argsort(group, stable=True)
++        self.selected, self.group = selected[order], group[order]
++        counts = torch.bincount(group, minlength=batch*steps)
++        starts = counts.cumsum(0)-counts
++        self.slot = torch.arange(len(group), device=xy.device)-starts[self.group]
++        width = max(1, int(counts.max()))
++        self.packed_xy = xy.new_zeros(batch*steps, width, 2)
++        self.packed_xy[self.group, self.slot] = xy[self.selected[:, 0], self.selected[:, 1]]
++        self.prepared = grid.prepare_sample(self.packed_xy)
++
++    def read(self, field, mode):
++        value, supported = self.grid.sample(field.flatten(0, 1), self.packed_xy,
++                                            mode=mode, _prepared=self.prepared)
++        batch, count = self.time_index.shape
++        # Keep zero gradients (rather than None) even with no selected times.
++        result = field.new_zeros(batch, count, field.shape[2])+value.reshape(-1, field.shape[2])[:0].sum(0)
++        result = result+self.xy[:, :0].sum()
++        result[self.selected[:, 0], self.selected[:, 1]] = value[self.group, self.slot]
++        valid = torch.zeros(batch, count, dtype=torch.bool, device=field.device)
++        valid[self.selected[:, 0], self.selected[:, 1]] = supported[self.group, self.slot]
++        return result, valid
++
++
++class ForwardFieldFiniteCache:
++    """One forward only: check a floating field once across all its row views.
++
++    Never retain this cache across optimizer updates. In-place mutations change
++    the version and force a new check. Integer/bool sources are finite by type.
++    """
++    def __init__(self):
++        self._fields = {}
++        self.checks = 0
++
++    def is_finite(self, field):
++        if not field.is_floating_point() and not field.is_complex():
++            return True
++        base = field
++        while base._base is not None:
++            base = base._base
++        try:
++            version = base._version
++        except RuntimeError:  # No safe mutation tracking for inference tensors.
++            self.checks += 1
++            return bool(torch.isfinite(field).all())
++        entry = self._fields.get(id(base))
++        if entry is None or entry[0] is not base or entry[1] != version:
++            self.checks += 1
++            entry = (base, version, bool(torch.isfinite(base).all()))
++            self._fields[id(base)] = entry
++        return entry[2]
++
++
++def read_time_field(field, xy, time_index, grid=None, *, mode='bilinear', execution_fast=False,
++                    known_finite=False, finite_cache=None, _plan=None):
++    """Read B,T,C,H,W at each pose's real physical time, without time averaging.
++
++    ``known_finite`` is a caller-provided proof (e.g. byte/bool label casts),
++    not a requested relaxation of NaN semantics. Otherwise a forward-scoped
++    ``finite_cache`` checks floating sources once and shares results over views.
++    """
+     grid = grid or GridSpec()
++    # In the reference, NaN/Inf at an unselected time still enters through
++    # value*0. Sparse reads must retain that behavior, including its gradients.
++    finite = known_finite
++    if execution_fast and not finite and len(field) and field.shape[1]:
++        finite = finite_cache.is_finite(field) if finite_cache is not None else bool(torch.isfinite(field).all())
++    if execution_fast and len(field) and field.shape[1] and finite:
++        if _plan is None or _plan.steps != field.shape[1]:
++            _plan = _TimeReadPlan(xy, time_index, field.shape[1], grid)
++        if _plan.xy is not xy or _plan.time_index is not time_index or _plan.grid != grid:
++            raise ValueError('Time read plans are scoped to the same forward/XY/time/grid')
++        return _plan.read(field, mode)
+     batch, count = time_index.shape
+     result = field.new_zeros(batch, count, field.shape[2])
+     supported = torch.zeros(batch, count, dtype=torch.bool, device=field.device)
+@@ -99,16 +359,35 @@ def read_time_field(field, xy, time_index, grid=None, *, mode='bilinear'):
+     return result, supported
+ 
+ 
+-def body_relations(road, future_occupancy, poses, time_index, bodies, *, grid=None):
+-    grid = grid or GridSpec()
+-    road_margins, overlaps, supported = [], [], []
++def _body_footprints(poses, time_index, bodies, grid, steps):
++    """Reuse poses' geometry/coordinates only inside one loss forward."""
++    footprints = []
+     for row, body in enumerate(bodies):
+-        points = body_points(poses[row], body)
++        points = body_points(poses[row], body, execution_fast=True)
+         count, coverage = points.shape[:2]
+         xy = points.reshape(1, count*coverage, 2)
+-        distance, in_road = grid.sample(road[row:row+1], xy)
+         time = time_index[row, :, None].expand(-1, coverage).reshape(1, -1)
+-        occupancy, in_occ = read_time_field(future_occupancy[row:row+1], xy, time, grid)
++        footprints.append({'points': points, 'xy': xy, 'time': time,
++                           'prepared': grid.prepare_sample(xy), 'plan': _TimeReadPlan(xy, time, steps, grid)})
++    return footprints
++
++
++def body_relations(road, future_occupancy, poses, time_index, bodies, *, grid=None,
++                   execution_fast=False, known_finite=False, finite_cache=None, _footprints=None):
++    grid = grid or GridSpec()
++    if execution_fast and finite_cache is None:
++        finite_cache = ForwardFieldFiniteCache()
++    road_margins, overlaps, supported = [], [], []
++    for row, body in enumerate(bodies):
++        footprint = _footprints[row] if execution_fast and _footprints is not None else None
++        points = footprint['points'] if footprint is not None else body_points(poses[row], body, execution_fast=execution_fast)
++        count, coverage = points.shape[:2]
++        xy = footprint['xy'] if footprint is not None else points.reshape(1, count*coverage, 2)
++        distance, in_road = grid.sample(road[row:row+1], xy, _prepared=footprint['prepared'] if footprint is not None else None)
++        time = footprint['time'] if footprint is not None else time_index[row, :, None].expand(-1, coverage).reshape(1, -1)
++        occupancy, in_occ = read_time_field(future_occupancy[row:row+1], xy, time, grid,
++            execution_fast=execution_fast, known_finite=known_finite, finite_cache=finite_cache,
++            _plan=footprint['plan'] if footprint is not None else None)
+         road_margins.append(distance.reshape(count, coverage).amin(1))
+         overlaps.append(occupancy.reshape(count, coverage).amax(1))
+         supported.append((in_road & in_occ).reshape(count, coverage).all(1))
+diff --git a/starVLA/model/modules/structured_world/qwen_execution.py b/starVLA/model/modules/structured_world/qwen_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..ffe3177ed15f29dd24587ad7ea95c066f54b9bea
+--- /dev/null
++++ b/starVLA/model/modules/structured_world/qwen_execution.py
+@@ -0,0 +1,198 @@
++"""Instance-local Qwen3-VL vision split metadata adapter, Transformers 4.57.0.
++
++Call install_qwen_vision_lengths(model.qwen_vl_interface.model.model.visual)
++before workers/forwards start. Only audited forward source is transformed;
++attention operators, precision, RNG, weights and buffers stay upstream-owned.
++See qwen_execution.README.md for source hashes and the exact patch.
++"""
++from __future__ import annotations
++
++import copy
++import difflib
++import functools
++import hashlib
++import inspect
++from pathlib import Path
++import textwrap
++from types import MethodType
++
++import transformers
++
++
++_STATE = "_structured_world_qwen_lengths_v1"
++_METADATA = "_structured_world_lengths_cpu"
++_MODULE_HASHES = {
++    "starVLA.model.modules.vlm.qwen3_vl.modeling_qwen3_vl":
++        "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661",
++    "transformers.models.qwen3_vl.modeling_qwen3_vl":
++        "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
++}
++_FORWARD_HASHES = {
++    "Qwen3VLVisionModel": "967c72a546faa603d7172adfa61d20ac6abe0f00ec03feb61d959dc723621aea",
++    "Qwen3VLVisionAttention": "5a41ddeae90c047846ecdc78bd220c88a11e8bc9bed27a3f831fc6ae3d6e00c5",
++}
++
++
++def _sha256(value):
++    return hashlib.sha256(value).hexdigest()
++
++
++def _lengths_cpu(cu_seqlens):
++    # The same int32 subtraction and values as the original per-layer path.
++    # One host transfer per vision forward, no cross-forward metadata cache.
++    return tuple((cu_seqlens[1:] - cu_seqlens[:-1]).tolist())
++
++
++def _replace_once(source, before, after):
++    if source.count(before) != 1:
++        raise ValueError("Audited Qwen source patch anchor changed")
++    return source.replace(before, after, 1)
++
++
++def _patch_source(source, kind):
++    if kind == "Qwen3VLVisionModel":
++        source = _replace_once(
++            source,
++            "    hidden_states = self.patch_embed(hidden_states)\n",
++            "    if '_structured_world_lengths_cpu' in kwargs:\n"
++            "        raise ValueError('Vision split metadata is adapter-owned')\n"
++            "    hidden_states = self.patch_embed(hidden_states)\n",
++        )
++        source = _replace_once(
++            source,
++            "    cu_seqlens = F.pad(cu_seqlens, (1, 0), value=0)\n",
++            "    cu_seqlens = F.pad(cu_seqlens, (1, 0), value=0)\n"
++            "    lengths_cpu = (_structured_world_make_lengths_cpu(cu_seqlens)\n"
++            "                   if self.config._attn_implementation != 'flash_attention_2' else None)\n",
++        )
++        return _replace_once(
++            source,
++            "            position_embeddings=position_embeddings,\n",
++            "            position_embeddings=position_embeddings,\n"
++            "            _structured_world_lengths_cpu=lengths_cpu,\n",
++        )
++    if kind == "Qwen3VLVisionAttention":
++        source = _replace_once(
++            source,
++            "    seq_length = hidden_states.shape[0]\n",
++            "    lengths_cpu = kwargs.pop('_structured_world_lengths_cpu', None)\n"
++            "    seq_length = hidden_states.shape[0]\n",
++        )
++        source = _replace_once(
++            source,
++            "        lengths = cu_seqlens[1:] - cu_seqlens[:-1]\n",
++            "        if lengths_cpu is None:\n"
++            "            lengths_cpu = _structured_world_make_lengths_cpu(cu_seqlens)\n",
++        )
++        return _replace_once(
++            source,
++            "torch.split(tensor, lengths.tolist(), dim=2)",
++            "torch.split(tensor, lengths_cpu, dim=2)",
++        )
++    raise ValueError("Unsupported Qwen forward kind")
++
++
++def _prepare_forward(owner, kind):
++    cls = type(owner)
++    if cls.__name__ != kind or cls.__module__ not in _MODULE_HASHES:
++        raise ValueError("Unregistered Qwen class: " + cls.__module__ + "." + cls.__name__)
++    original = owner.forward
++    if "forward" in owner.__dict__ or getattr(original, "__func__", None) is not cls.forward:
++        raise ValueError("Qwen forward already has an instance adapter")
++    path = Path(inspect.getsourcefile(cls.forward)).resolve()
++    file_hash = _sha256(path.read_bytes())
++    if file_hash != _MODULE_HASHES[cls.__module__]:
++        raise ValueError("Unregistered Qwen source hash: " + str(path))
++    source = textwrap.dedent(inspect.getsource(cls.forward))
++    source_hash = _sha256(source.encode())
++    if source_hash != _FORWARD_HASHES[kind]:
++        raise ValueError("Unregistered Qwen forward source hash: " + kind)
++    patched = _patch_source(source, kind)
++    namespace = dict(cls.forward.__globals__)
++    namespace["_structured_world_make_lengths_cpu"] = _lengths_cpu
++    # No original globals or class methods are mutated. Only pinned, local
++    # source can reach this compile; no model/data text is executed.
++    exec(compile(patched, str(Path(__file__).resolve()) + ":" + kind, "exec"), namespace)
++    function = functools.update_wrapper(namespace["forward"], cls.forward)
++    record = {
++        "class": cls.__module__ + "." + kind,
++        "source_file": str(path),
++        "source_file_sha256": file_hash,
++        "original_forward_sha256": source_hash,
++        "patched_forward_sha256": _sha256(patched.encode()),
++        "patch": "".join(difflib.unified_diff(
++            source.splitlines(keepends=True), patched.splitlines(keepends=True),
++            fromfile=kind + "/original", tofile=kind + "/instance_adapter",
++        )),
++    }
++    return owner, original, function, record
++
++
++def _check_installed(state):
++    for owner, original, function, _ in state["bindings"]:
++        bound = owner.__dict__.get("forward")
++        if getattr(bound, "__self__", None) is not owner or getattr(bound, "__func__", None) is not function:
++            raise ValueError("Installed Qwen adapter was replaced; refusing to overwrite it")
++
++
++def install_qwen_vision_lengths(vision):
++    """Install on one actual vision instance; return JSON-compatible provenance.
++
++    Unknown versions/source and pre-existing instance forward adapters fail
++    before mutation. Repeated installation on the same instance is idempotent.
++    Flash Attention 2 retains its original path and does no metadata transfer.
++    Install before forwards start, outside torch.compile/JIT/export.
++    """
++    state = vision.__dict__.get(_STATE)
++    if state is not None:
++        _check_installed(state)
++        return copy.deepcopy(state["provenance"])
++    if transformers.__version__ != "4.57.0":
++        raise ValueError("Qwen split adapter requires audited Transformers 4.57.0")
++    bindings = [_prepare_forward(vision, "Qwen3VLVisionModel")]
++    if not len(vision.blocks):
++        raise ValueError("Qwen vision has no attention blocks")
++    for block in vision.blocks:
++        if type(block).__name__ != "Qwen3VLVisionBlock" or type(block).__module__ not in _MODULE_HASHES:
++            raise ValueError("Unregistered Qwen vision block")
++        if "forward" in block.__dict__:
++            raise ValueError("Qwen vision block already has an instance adapter")
++        bindings.append(_prepare_forward(block.attn, "Qwen3VLVisionAttention"))
++    if len({id(owner) for owner, _, _, _ in bindings}) != len(bindings):
++        raise ValueError("Shared attention instances require a separate audited adapter")
++    records = {record["class"]: record for _, _, _, record in bindings}
++    provenance = {
++        "schema": "qwen_vision_lengths_instance_adapter_v1",
++        "transformers_version": transformers.__version__,
++        "adapter_file": str(Path(__file__).resolve()),
++        "adapter_sha256": _sha256(Path(__file__).read_bytes()),
++        "vision_class": records[bindings[0][3]["class"]]["class"],
++        "attention_layers": len(vision.blocks),
++        "upstream": list(records.values()),
++        "metadata": "one int32-derived tuple per non-FA2 vision forward; reused by every Q/K/V split",
++        "shared_classes_and_site_packages_modified": False,
++        "attention_backend_precision_rng_parameters_buffers": "unchanged",
++        "GPU_equivalence_and_speed_validation": "pending; no numerical acceptance implied",
++    }
++    try:
++        for owner, _, function, _ in bindings:
++            owner.forward = MethodType(function, owner)
++        setattr(vision, _STATE, {"bindings": bindings, "provenance": provenance})
++    except BaseException:
++        for owner, _, function, _ in bindings:
++            if getattr(owner.__dict__.get("forward"), "__func__", None) is function:
++                delattr(owner, "forward")
++        raise
++    return copy.deepcopy(provenance)
++
++
++def uninstall_qwen_vision_lengths(vision):
++    """Remove this instance's adapter, retaining weights/state/backend/modes."""
++    state = vision.__dict__.get(_STATE)
++    if state is None:
++        return False
++    _check_installed(state)
++    for owner, _, _, _ in state["bindings"]:
++        delattr(owner, "forward")
++    delattr(vision, _STATE)
++    return True
+diff --git a/tools/structured_world/benchmark_engineering_execution.py b/tools/structured_world/benchmark_engineering_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..5d4dca2b5c1c09e6a8f152689d5af244811ea9f2
+--- /dev/null
++++ b/tools/structured_world/benchmark_engineering_execution.py
+@@ -0,0 +1,485 @@
++"""Bounded native-origin benchmark: six alternating IO/fast 220-update jobs.
++
++Default --manifest INPUT.json --output NEW_DIR only writes a reviewable plan.
++An operator must explicitly add --execute ON the qualified host. No SSH,
++Navtest, retries, process termination, checkpoint deletion or old-output reuse.
++
++Manifest: source_root, source_sha (full frozen commit), python, host,
++gpu_uuids (eight, rank order), qualification {path, sha256}, artifact_root,
++minimum_free_MiB, budget {GPU_hours_limit<=120, already_spent, reserved_elsewhere,
++per_job_reserve_GPU_hours}, candidate_mode (optional: engineering_fast default,
++engineering_timevec or precision_fast; one candidate only), and cases (1..4). Each case contains name,
++pilot_origin_run, pilot_origin_tag, origin_identity, origin_complete_sha256,
++train_args: an argv list of --config/--cache/--geometry/--geometry-identity/
++--dino-root/--dino-identity/--image-root/--micro-batch pairs. All six repetitions
++restore the SAME native model/optimizer/LR/data/RNG prefix. Outputs are private.
++
++Qualification must declare passed:true, host and physical_gpu_UUIDs. Optional
++environment.packages is checked against the actual private Python runtime.
++The frozen trainer must support --benchmark-no-end-save. An owned worker shim
++only runs that trainer and reads cumulative allocated/reserved peaks at exit.
++IO wall includes rank0 stdout arrivals; fast wall includes true log flushes.
++"""
++import argparse
++from contextlib import ExitStack
++import fcntl
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import re
++import runpy
++import signal
++import socket
++import statistics
++import subprocess
++import sys
++import threading
++import time
++
++TASK = 'structured_world_fgtr_round1'
++POLICY = Path('/mnt/project/server_dispatch_policy.json')
++MODES = ('io_preserving_v1', 'engineering_fast')
++CANDIDATES = ('engineering_fast', 'engineering_timevec', 'precision_fast')
++BASE_FLAGS = {'--config', '--cache', '--geometry', '--geometry-identity',
++              '--dino-root', '--dino-identity', '--image-root', '--micro-batch'}
++PACKAGES = ('torch', 'transformers', 'deepspeed', 'mmcv', 'mmengine', 'timm', 'omegaconf', 'numpy')
++SCRIPT = Path(__file__).resolve()
++
++
++def require(condition, message):
++    if not condition: raise ValueError(message)
++
++
++def read(path): return json.loads(Path(path).read_text())
++
++
++def digest(path):
++    h = hashlib.sha256()
++    with Path(path).open('rb') as stream:
++        for block in iter(lambda: stream.read(8 << 20), b''): h.update(block)
++    return h.hexdigest()
++
++
++def write(path, value):
++    with Path(path).open('x') as stream: json.dump(value, stream, indent=2)
++
++
++def checked(command, cwd=None, env=None):
++    return subprocess.check_output(command, cwd=cwd, env=env, text=True).strip()
++
++
++def immutable_source(root, sha):
++    require(re.fullmatch('[0-9a-f]{40}', sha), 'Supply the full frozen commit')
++    require(checked(['git', 'rev-parse', 'HEAD'], root) == sha, 'Frozen source commit changed')
++    require(not checked(['git', 'status', '--porcelain'], root), 'Frozen source must be clean')
++
++
++def authorize(host):
++    policy = read(POLICY)
++    require(host in policy['task_authorizations'][TASK]['allowed_hosts'], 'Current task policy rejects host')
++    return {'path': str(POLICY), 'sha256': digest(POLICY), 'task_authorization': policy['task_authorizations'][TASK]}
++
++
++def origin(case):
++    run = Path(case['pilot_origin_run']).resolve()
++    tag = case['pilot_origin_tag']
++    require(isinstance(tag, str) and Path(tag).name == tag and not tag.startswith('writing_'), 'Unsafe origin tag')
++    contract, folder = read(run/'identity.json'), run/'checkpoints'/tag
++    complete = read(folder/'COMPLETE.json')
++    require(digest(folder/'COMPLETE.json') == case['origin_complete_sha256'], 'Origin COMPLETE changed')
++    require(contract['identity'] == complete['identity'] == case['origin_identity'], 'Foreign native origin identity')
++    require(complete['ranks'] == contract['world_size'] == 8 and complete['tag'] == tag, 'Full8 native origin required')
++    require(contract['effective_global_batch'] == 32 and contract['FM_repeat'] == 8 and contract['training_seed'] == 42,
++            'Original global32/FM8/seed42 contract required')
++    expected = {'mp_rank_00_model_states.pt'} | {f'rng_rank{r}.pt' for r in range(8)} | {
++        f'zero_pp_rank_{r}_mp_rank_00_optim_states.pt' for r in range(8)}
++    require(set(complete['file_sha256']) == expected, 'Native 17-file origin required')
++    require(all(re.fullmatch('[0-9a-f]{64}', value) for value in complete['file_sha256'].values()), 'Malformed native payload digest')
++    require(all((folder/p).is_file() and (folder/p).stat().st_size > 0 for p in expected), 'Origin payload missing')
++    require(contract['scope'] in ('formal', 'profile') and contract['dataset'] == 'navsim'
++            and contract['schedule_horizon'] == 100000 and contract['schedule_warmup'] == 5000,
++            'Origin must preserve native NAV 100k/5000 schedule')
++    require(contract['scenes_per_epoch'] == contract['source_population_scenes'] == 101592
++            and contract['engineering_training_selection'] is None, 'Full original training population required')
++    recipe = contract['config']['structured_world']['formal_recipe_assets']
++    require(recipe == {'label_cache_identity': contract['cache_identity'], 'current_DINO_identity': contract['DINO_identity'],
++                       'shared_geometry_identity': contract['shared_geometry_identity']}, 'Origin frozen asset/config mismatch')
++    require(contract['config']['framework']['action_model']['num_inference_timesteps'] == 10,
++            'Original 10-step action contract required')
++    require(0 <= complete['completed'] and complete['completed']+220 <= contract['schedule_horizon'], 'Origin is outside native schedule')
++    return {'run': str(run), 'tag': tag, 'complete_sha256': case['origin_complete_sha256'],
++            'complete': complete, 'contract': contract, 'origin_scope': contract['scope'],
++            'origin_source_sha': contract['training_source_sha'], 'optimizer_groups_sha256': digest(run/'optimizer_groups.json'),
++            'payload_verification': 'Inventory/metadata checked here; original trainer hashes every owned native payload and verifies all-rank boundary'}
++
++
++def build_plan(manifest, output, driver=SCRIPT):
++    root = Path(manifest['source_root']).resolve()
++    cases = manifest['cases']
++    candidate = manifest.get('candidate_mode', MODES[1])
++    require(candidate in CANDIDATES, 'Choose exactly one supported candidate mode')
++    modes = (MODES[0], candidate)
++    require(1 <= len(cases) <= 4, 'Bounded manifest allows 6..24 jobs, six per case')
++    require(len(set(manifest['gpu_uuids'])) == len(manifest['gpu_uuids']) == 8, 'Eight unique UUIDs required')
++    require(all(uuid.startswith('GPU-') for uuid in manifest['gpu_uuids']), 'Physical GPU UUIDs required')
++    require(Path(manifest['python']).is_absolute() and Path(driver).is_absolute(), 'Absolute runtime/driver paths required')
++    require(Path(manifest['artifact_root']).is_absolute() and manifest['minimum_free_MiB'] > 0, 'Explicit resource reserve/lock root required')
++    budget = manifest['budget']
++    require(0 < budget['GPU_hours_limit'] <= 120 and min(budget['already_spent'], budget['reserved_elsewhere']) >= 0
++            and budget['per_job_reserve_GPU_hours'] > 0 and all(math.isfinite(v) for v in budget.values()), 'Finite shared budget <=120 GPUh required')
++    require(budget['already_spent']+budget['reserved_elsewhere']+len(cases)*6*budget['per_job_reserve_GPU_hours'] <= budget['GPU_hours_limit'],
++            'Whole matrix reservation exceeds shared GPUh budget')
++    jobs, names = [], set()
++    for case in cases:
++        name = case['name']
++        require(re.fullmatch('[A-Za-z0-9_.-]+', name) and name not in names, 'Unique safe case names required')
++        names.add(name)
++        args = case['train_args']
++        require(len(args) % 2 == 0 and all(isinstance(a, str) for a in args), 'train_args must be option/value argv pairs')
++        flags = args[::2]
++        require(set(flags) <= BASE_FLAGS and len(flags) == len(set(flags)), 'Only explicit scientific asset args allowed, without duplicates')
++        values = dict(zip(flags, args[1::2]))
++        require(set(flags) == BASE_FLAGS and values['--micro-batch'] in ('1', '2', '4'), 'Explicit complete frozen asset paths and microbatch required')
++        require(Path(case['pilot_origin_run']).is_absolute(), 'Absolute native origin run required')
++        for repeat in range(6):
++            mode = modes[repeat % 2]
++            key = name+'_'+str(repeat+1).zfill(2)+'_'+mode
++            run = output/'runs'/key
++            original_args = args+['--scope', 'profile', '--debug-updates', '220',
++                '--pilot-origin-run', case['pilot_origin_run'], '--pilot-origin-tag', case['pilot_origin_tag'],
++                '--benchmark-no-end-save', '--execution-mode', mode, '--logging-every', '20',
++                '--evidence-every', '100', '--save-every', '2147483647', '--output', str(run)]
++            launcher = [manifest['python'], '-m', 'torch.distributed.run', '--nnodes=1', '--nproc_per_node=8',
++                        '--max_restarts=0', '--master_port='+str(manifest.get('master_port', 29580))]
++            require(1024 <= manifest.get('master_port', 29580) <= 65535, 'Invalid torchrun port')
++            # -- must precede each script: torchrun otherwise consumes --run as
++            # an ambiguous abbreviation of its own --run-path option.
++            jobs.append({'key': key, 'case': name, 'mode': mode, 'run': str(run), 'train_args': original_args,
++                'original_command': launcher+['--', str(root/'tools/structured_world/train_vla.py')]+original_args,
++                'command': launcher+['--', str(driver), '--worker', '--trainer', str(root/'tools/structured_world/train_vla.py'),
++                                    '--run', str(run), '--']+original_args})
++    return {'schema': 'engineering_execution_benchmark_plan_v1', 'manifest': manifest, 'source_root': str(root),
++            'source_sha': manifest['source_sha'], 'driver': str(driver), 'driver_sha256': digest(driver),
++            'candidate_mode': candidate, 'mode_pair': list(modes),
++            'warmup_updates': 20, 'stable_updates': 200, 'total_jobs': len(jobs), 'maximum_job_updates': 220,
++            'maximum_total_updates': len(jobs)*220, 'jobs': jobs}
++
++
++def runtime_snapshot(python):
++    code = 'import sys,json,importlib.metadata as m;print(json.dumps({"python":sys.version,"executable":sys.executable,"prefix":sys.prefix,"packages":{n:m.version(n) for n in '+repr(PACKAGES)+'}}))'
++    env = os.environ.copy()
++    env['CUDA_VISIBLE_DEVICES'] = ''
++    return json.loads(checked([python, '-B', '-c', code], env=env))
++
++
++def readiness(manifest):
++    policy = authorize(manifest['host'])
++    require(socket.gethostname().removesuffix('-worker-0') == manifest['host'], 'Execute on the qualified host, no remote dispatch')
++    rows = checked(['nvidia-smi', '--query-gpu=uuid,memory.used,memory.free,utilization.gpu', '--format=csv,noheader,nounits']).splitlines()
++    gpus = []
++    for row in rows:
++        uuid, used, free, util = [value.strip() for value in row.split(',')]
++        gpus.append(dict(uuid=uuid, used_MiB=int(used), free_MiB=int(free), utilization=int(util)))
++    apps = checked(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name', '--format=csv,noheader,nounits'])
++    require(len(gpus) == 8 and {g['uuid'] for g in gpus} == set(manifest['gpu_uuids']), 'Physical UUID inventory changed')
++    require(not apps and all(g['used_MiB'] <= 128 and g['utilization'] <= 5 and g['free_MiB'] >= manifest['minimum_free_MiB'] for g in gpus),
++            'GPU host is occupied/insufficiently free; no process is stopped')
++    return {'policy': policy, 'gpus': gpus, 'compute_apps': [], 'observed_unix': time.time()}
++
++
++def acquire(stack, path):
++    path.parent.mkdir(parents=True, exist_ok=True)
++    stream = stack.enter_context(path.open('a'))
++    fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
++    return stream
++
++
++def json_lines(path):
++    return [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
++
++
++def summary(values):
++    require(values and all(math.isfinite(v) and v > 0 for v in values), 'Invalid/missing duration samples')
++    ordered = sorted(values)
++    at = (len(ordered)-1)*.9
++    p90 = ordered[math.floor(at)]*(math.ceil(at)-at)+ordered[math.ceil(at)]*(at-math.floor(at)) if at % 1 else ordered[int(at)]
++    return {'samples': len(values), 'median_seconds': statistics.median(values), 'P90_seconds': p90, 'mean_seconds': statistics.mean(values)}
++
++
++class BoundaryTimer:
++    """Observe optimizer boundaries only; no RNG or per-update synchronization."""
++    def __init__(self, synchronize, maximum, clock=time.monotonic):
++        self.synchronize, self.maximum, self.clock = synchronize, maximum, clock
++        self.count, self.start, self.local_seconds, self.max_rank_seconds = 0, None, None, None
++
++    def after_step(self, boundary):
++        if not boundary: return
++        self.count += 1
++        if self.count in (20, 220):
++            self.synchronize()
++            observed = self.clock()
++            if self.count == 20: self.start = observed
++            else:
++                self.local_seconds = observed-self.start
++                self.max_rank_seconds = self.maximum(self.local_seconds)
++
++
++def analyze_job(job, native, process):
++    run, start = Path(job['run']), native['complete']['completed']
++    identity, completed, boundary = read(run/'identity.json'), read(run/'TRAINING_COMPLETE.json'), read(run/'RESUME_BOUNDARY_VERIFIED.json')
++    expected = native['contract']
++    for key in ('config', 'cache_identity', 'current_and_GT_identity', 'DINO_identity', 'shared_geometry_identity',
++                'training_seed', 'world_size', 'effective_global_batch', 'FM_repeat', 'microbatch', 'dataset',
++                'scenes_per_epoch', 'updates_per_epoch', 'schedule_horizon', 'schedule_warmup', 'determinism', 'precision', 'initialization_assets'):
++        require(identity[key] == expected[key], 'Pilot changed native scientific contract: '+key)
++    ancestry = identity['engineering_continue_origin']
++    require(ancestry['identity'] == expected['identity'] and ancestry['tag'] == native['tag'] and ancestry['complete_sha256'] == native['complete_sha256'], 'Pilot ancestry changed')
++    require(identity['benchmark_no_end_checkpoint'] and identity['execution_mode'] == job['mode'], 'Incorrect benchmark mode/save policy')
++    require(completed['identity'] == boundary['identity'] == identity['identity'] and completed['updates'] == start+220,
++            'Pilot did not finish the exact 220 updates')
++    require(boundary['passed'] and boundary['completed'] == start and boundary['all_task_RNG'] == 'exact all ranks', 'Native boundary/RNG proof missing')
++    require(digest(run/'optimizer_groups.json') == native['optimizer_groups_sha256'], 'Actual optimizer/LR groups changed')
++    require(not (run/'checkpoints').exists() or not list((run/'checkpoints').iterdir()), 'Disposable benchmark unexpectedly saved checkpoints')
++    metrics = json_lines(run/'metrics.jsonl')
++    require([row['updates'] for row in metrics] == list(range(start+1, start+221)), 'Metric population incomplete/duplicated')
++    arrivals = json_lines(run/'stdout_metric_arrivals.jsonl')
++    require([row['updates'] for row in arrivals] == (list(range(start+1, start+221)) if job['mode'] == MODES[0] else list(range(start+20, start+221, 20))), 'Metric stdout arrival population changed')
++    clocks = {row['updates']: row['monotonic_ns']/1e9 for row in arrivals}
++    stable = metrics[20:]
++    scenes = metrics[-1]['scene_exposure']-metrics[19]['scene_exposure']
++    peaks = [read(run/f'worker_rank{rank}.json') for rank in range(8)]
++    require(all(p['passed'] and p['rank'] == rank and p['GPU_UUID'] == job['gpu_uuids'][rank] for rank, p in enumerate(peaks)), 'Missing/mismatched full8 worker completion')
++    require(all(p['optimizer_boundaries'] == 220 for p in peaks), 'Incorrect actual optimizer boundary population')
++    require(all(math.isfinite(p['stable_200_local_wall_seconds']) and p['stable_200_local_wall_seconds'] > 0
++                and p['peak_allocated_bytes'] > 0 and p['peak_reserved_bytes'] >= p['peak_allocated_bytes'] for p in peaks), 'Invalid rank wall/peak receipt')
++    end_wall = max(p['stable_200_local_wall_seconds'] for p in peaks)
++    require(end_wall > 0 and all(p['stable_200_max_rank_wall_seconds'] == end_wall for p in peaks), 'All-rank boundary wall proof missing')
++    if job['mode'] != MODES[0]:
++        windows = json_lines(run/'performance_windows.jsonl')
++        require(len(windows) == 11 and all(w['start_update'] == start+20*i+1 and w['end_update'] == start+20*(i+1) and w['updates'] == 20 for i, w in enumerate(windows)), 'Exact warm20/stable200 window boundaries required')
++        selected = windows[1:]
++        trainer_window_wall = sum(w['wall_seconds_max_rank_including_log_flush'] for w in selected)
++        window_rates = [w['wall_seconds_max_rank_including_log_flush']/20 for w in selected]
++        durations = [d for w in selected for d in w['update_current_stream_seconds_max_rank']]
++        require(sum(w['scene_exposure'] for w in selected) == scenes, 'Stable scene exposure mismatch')
++        trainer_max_rank_seconds = sum(durations)
++    else:
++        trainer_window_wall = None
++        window_rates = [(clocks[start+20*(i+1)]-clocks[start+20*i])/20 for i in range(1, 11)]
++        durations = [clocks[u]-clocks[u-1] for u in range(start+21, start+221)]
++        trainer_max_rank_seconds = sum(row['seconds'] for row in stable)
++    wall = end_wall
++    timing = 'identical all-rank MAX optimizer boundary20->220 wall for both modes; includes log20 through219, excludes final update220 log and end-edge MAX collective'
++    require(len(durations) == 200 and wall > 0 and scenes > 0, 'Invalid stable measurement')
++    return {'key': job['key'], 'case': job['case'], 'mode': job['mode'], 'passed': True,
++        'stable_updates': 200, 'stable_scene_exposure': scenes, 'stable_wall_seconds': wall,
++        'stable_seconds_per_update': wall/200, 'trainer_window_wall_seconds': trainer_window_wall,
++        'stable_200_window_max_rank_wall_seconds': end_wall,
++        'all_rank_stable_200_wall_seconds': [p['stable_200_local_wall_seconds'] for p in peaks],
++        'boundary_timing_semantics': 'CUDA sync only after optimizer step20 and220; MAX collective at220 outside measured span; final step log excluded',
++        'stable_200_window_rank0_stdout_wall_seconds': clocks[start+220]-clocks[start+20],
++        'timing_semantics': timing, 'stable_global_scenes_per_second': scenes/wall,
++        'wall_per_update_including_logs': summary(window_rates), 'update_intervals': summary(durations),
++        'update_interval_semantics': 'max-rank CUDA stream events, excludes final log flush' if job['mode'] != MODES[0] else 'rank0 stdout arrival deltas, includes logging',
++        'sum_trainer_max_rank_update_seconds': trainer_max_rank_seconds,
++        'all_rank_peak_allocated_reserved_bytes': [[p['peak_allocated_bytes'], p['peak_reserved_bytes']] for p in peaks],
++        'process_wall_seconds': process['wall_seconds'], 'process_GPU_hours': process['wall_seconds']*8/3600,
++        'startup_through_native_boundary_seconds': process.get('native_boundary_observed_seconds'),
++        'startup_observation_poll_seconds': .05,
++        'startup_through_first_metric_arrival_seconds': arrivals[0]['since_process_start_seconds'],
++        'startup_includes': 'Python/DS/model/native hash+restore+boundary plus first update (IO) or first20 updates (fast)',
++        'checkpoint_save_seconds': 0., 'checkpoint_save_policy': 'read-only origin; no new checkpoint; native hash/load costs included in startup',
++        'origin_checkpoint_save_seconds': native['complete'].get('save_seconds'),
++        'checkpoint_cost_limit': 'Historical origin save_seconds is disclosed separately; no new save timing or amortization is inferred from these disposable windows',
++        'post_last_stdout_until_process_exit_seconds': process['wall_seconds']-arrivals[-1]['since_process_start_seconds'],
++        'native_boundary': boundary, 'run_identity': identity['identity'],
++        'source': {key: identity[key] for key in ('training_source_sha', 'training_source_tree_sha256', 'config', 'cache_identity', 'current_and_GT_identity', 'DINO_identity', 'shared_geometry_identity', 'initialization_assets')},
++        'artifacts': {'run': str(run), 'stdout': str(run/'stdout.log'), 'arrivals': str(run/'stdout_metric_arrivals.jsonl')}}
++
++
++def run_job(job, locks):
++    run = Path(job['run'])
++    run.mkdir(parents=True, exist_ok=False)
++    env = os.environ.copy()
++    env.update(OMP_NUM_THREADS='2', TOKENIZERS_PARALLELISM='false', PYTHONUNBUFFERED='1',
++               PYTHONDONTWRITEBYTECODE='1', PYTHONPATH=str(Path(job['trainer']).parents[2]), CUDA_VISIBLE_DEVICES=','.join(job['gpu_uuids']))
++    started, unix = time.monotonic_ns(), time.time()
++    finished, boundary_observed = threading.Event(), []
++    def observe_boundary():
++        while not finished.is_set():
++            if (run/'RESUME_BOUNDARY_VERIFIED.json').exists():
++                boundary_observed.append((time.monotonic_ns()-started)/1e9); return
++            finished.wait(.05)
++    with (run/'stdout.log').open('x') as log, (run/'stdout_metric_arrivals.jsonl').open('x') as arrivals:
++        proc = subprocess.Popen(job['command'], env=env, cwd=Path(job['trainer']).parents[2], stdout=subprocess.PIPE,
++            stderr=subprocess.STDOUT, text=True, errors='replace', bufsize=1, start_new_session=True, pass_fds=tuple(lock.fileno() for lock in locks))
++        observer = threading.Thread(target=observe_boundary, daemon=True); observer.start()
++        monitor_error = None
++        try: write(run/'PROCESS.json', {'pid': proc.pid, 'started_unix': unix, 'command': job['command']})
++        except OSError as exc: monitor_error = repr(exc)
++        try:
++            for line_number, line in enumerate(proc.stdout, 1):
++                now = time.monotonic_ns()
++                if monitor_error is not None: continue  # Drain while actual children finish; never drop their lease.
++                try: log.write(line); log.flush()
++                except OSError as exc: monitor_error = repr(exc); continue
++                try: record = json.loads(line)
++                except (ValueError, TypeError): continue
++                if isinstance(record, dict) and isinstance(record.get('updates'), int) and ('seconds' in record or 'seconds_per_update' in record):
++                    try:
++                        arrivals.write(json.dumps({'updates': record['updates'], 'monotonic_ns': now, 'observed_unix': time.time(),
++                            'since_process_start_seconds': (now-started)/1e9, 'stdout_line': line_number})+'\n'); arrivals.flush()
++                    except OSError as exc: monitor_error = repr(exc)
++        finally:
++            # A monitor failure must not drop the lease while its actual workers
++            # continue. torchrun also inherits both FDs if this parent is lost.
++            returncode = proc.wait()
++            finished.set(); observer.join()
++        outcome = {'returncode': returncode, 'wall_seconds': (time.monotonic_ns()-started)/1e9, 'pid': proc.pid,
++                   'native_boundary_observed_seconds': boundary_observed[0] if boundary_observed else None, 'monitor_error': monitor_error}
++        write(run/'PROCESS_EXIT.json', outcome)
++        require(monitor_error is None, 'Metric monitor failed; actual children exited, logs retained')
++        require(returncode == 0, 'Real worker stage failed; logs retained, no retry')
++        return outcome
++
++
++def worker():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--worker', action='store_true')
++    parser.add_argument('--trainer', type=Path, required=True)
++    parser.add_argument('--run', type=Path, required=True)
++    parser.add_argument('args', nargs=argparse.REMAINDER)
++    args = parser.parse_args()
++    rank = int(os.environ['RANK']); local = int(os.environ['LOCAL_RANK'])
++    sys.path.insert(0, str(args.trainer.resolve().parents[2]))
++    import torch
++    import torch.distributed as dist
++    from deepspeed.runtime.engine import DeepSpeedEngine
++    def maximum(seconds):
++        value = torch.tensor(seconds, dtype=torch.float64, device=torch.device('cuda', local))
++        dist.all_reduce(value, op=dist.ReduceOp.MAX)
++        return value.item()
++    timer = BoundaryTimer(lambda: torch.cuda.synchronize(local), maximum)
++    original_step = DeepSpeedEngine.step
++    def timed_step(engine, *step_args, **kwargs):
++        boundary = engine.is_gradient_accumulation_boundary()
++        result = original_step(engine, *step_args, **kwargs)
++        timer.after_step(boundary)
++        return result
++    DeepSpeedEngine.step = timed_step
++    started = time.monotonic()
++    passed = False
++    try:
++        sys.argv = [str(args.trainer)]+(args.args[1:] if args.args[:1] == ['--'] else args.args)
++        runpy.run_path(str(args.trainer), run_name='__main__')
++        passed = True
++    finally:
++        DeepSpeedEngine.step = original_step
++        initialized = torch.cuda.is_initialized()
++        write(args.run/f'worker_rank{rank}.json', {'rank': rank, 'passed': passed,
++            'GPU_UUID': os.environ['CUDA_VISIBLE_DEVICES'].split(',')[local], 'trainer': str(args.trainer),
++            'worker_wall_seconds': time.monotonic()-started,
++            'optimizer_boundaries': timer.count, 'stable_200_local_wall_seconds': timer.local_seconds,
++            'stable_200_max_rank_wall_seconds': timer.max_rank_seconds,
++            'peak_allocated_bytes': torch.cuda.max_memory_allocated(local) if initialized else None,
++            'peak_reserved_bytes': torch.cuda.max_memory_reserved(local) if initialized else None})
++
++
++def aggregate(results, candidate_mode=MODES[1]):
++    modes_pair = (MODES[0], candidate_mode)
++    cases = {}
++    for result in results: cases.setdefault(result['case'], {}).setdefault(result['mode'], []).append(result)
++    summary_cases = {}
++    for case, modes in cases.items():
++        row = {}
++        for mode, jobs in modes.items():
++            wall, scenes = sum(j['stable_wall_seconds'] for j in jobs), sum(j['stable_scene_exposure'] for j in jobs)
++            row[mode] = {'finished_repetitions': len(jobs), 'stable_wall_seconds': wall, 'scene_exposure': scenes,
++                         'global_scenes_per_second': scenes/wall, 'repetition_seconds_per_update': summary([j['stable_wall_seconds']/200 for j in jobs])}
++        if set(row) == set(modes_pair) and all(row[m]['finished_repetitions'] == 3 for m in modes_pair):
++            row['candidate_to_IO_throughput_ratio'] = row[candidate_mode]['global_scenes_per_second']/row[MODES[0]]['global_scenes_per_second']
++            row['mode_pair'] = list(modes_pair)
++        summary_cases[case] = row
++    return summary_cases
++
++
++def main():
++    if '--worker' in sys.argv[1:]:
++        worker(); return 0
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--manifest', type=Path, required=True)
++    parser.add_argument('--output', type=Path, required=True)
++    parser.add_argument('--execute', action='store_true')
++    args = parser.parse_args()
++    output = args.output.resolve()
++    require(not output.exists(), 'Output must be fresh; no retry/overwrite')
++    manifest = read(args.manifest)
++    plan = build_plan(manifest, output)
++    immutable_source(plan['source_root'], plan['source_sha'])
++    trainer = Path(plan['source_root'])/'tools/structured_world/train_vla.py'
++    require("'--benchmark-no-end-save'" in trainer.read_text(), 'Need new immutable trainer commit supporting --benchmark-no-end-save')
++    require(repr(plan['candidate_mode']) in trainer.read_text(), 'Frozen trainer does not support selected candidate mode')
++    natives = {case['name']: origin(case) for case in manifest['cases']}
++    output.mkdir(parents=True, exist_ok=False)
++    write(output/'MANIFEST.json', plan)
++    if not args.execute:
++        print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'manifest': str(output/'MANIFEST.json')})); return 0
++    results, status, error = [], 'COMPLETE', None
++    stop_requested = [False]
++    def stop_after_current(*unused): stop_requested[0] = True
++    for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stop_after_current)
++    try:
++        driver_root = SCRIPT.parents[2]
++        driver_sha = checked(['git', 'rev-parse', 'HEAD'], driver_root)
++        immutable_source(driver_root, driver_sha)
++        require(checked(['git', 'ls-files', '--', str(SCRIPT.relative_to(driver_root))], driver_root), 'Driver must be committed before execution')
++        q = manifest['qualification']
++        require(digest(q['path']) == q['sha256'], 'Qualification record changed')
++        qualified = read(q['path'])
++        require(qualified['passed'] and qualified['host'] == manifest['host'] and set(qualified['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Host/full8 qualification mismatch')
++        environment = runtime_snapshot(manifest['python'])
++        for name, value in qualified.get('environment', {}).get('packages', {}).items():
++            require(environment['packages'].get(name) == value, 'Private runtime version differs: '+name)
++        write(output/'REGISTRATION.json', {'manifest_sha256': digest(args.manifest), 'driver_sha': driver_sha,
++            'driver_code_sha256': digest(SCRIPT), 'training_source_sha': plan['source_sha'], 'qualification': qualified,
++            'qualification_sha256': q['sha256'], 'environment': environment, 'origins': natives,
++            'budget': manifest['budget'], 'no_formal_training_or_Navtest_dispatch': True})
++        with ExitStack() as stack:
++            root = Path(manifest['artifact_root'])
++            queue_key = hashlib.sha256(json.dumps([plan['source_sha'], [[c['pilot_origin_run'], c['pilot_origin_tag']] for c in manifest['cases']]], sort_keys=True).encode()).hexdigest()
++            physical_key = hashlib.sha256(json.dumps(sorted(manifest['gpu_uuids'])).encode()).hexdigest()
++            locks = [acquire(stack, root/'engineering_benchmark_locks'/(queue_key+'.lock')),
++                     acquire(stack, root/'physical_gpu_locks'/(physical_key+'.lock'))]
++            for job in plan['jobs']:
++                if stop_requested[0] or (output/'STOP_BEFORE_NEXT_JOB').exists(): status = 'STOPPED_BEFORE_NEXT_JOB'; break
++                budget = manifest['budget']
++                spent = sum(result['process_GPU_hours'] for result in results)
++                require(budget['already_spent']+budget['reserved_elsewhere']+spent+budget['per_job_reserve_GPU_hours'] <= budget['GPU_hours_limit'], 'GPUh admission budget exhausted; no next job')
++                immutable_source(plan['source_root'], plan['source_sha'])
++                require(digest(SCRIPT) == plan['driver_sha256'] and digest(q['path']) == q['sha256'], 'Immutable driver/qualification changed')
++                native = origin(next(case for case in manifest['cases'] if case['name'] == job['case']))
++                gate = readiness(manifest)
++                write(output/(job['key']+'_RESOURCE_GATE.json'), gate)
++                job.update(gpu_uuids=manifest['gpu_uuids'], trainer=str(trainer))
++                process = run_job(job, locks)
++                result = analyze_job(job, native, process)
++                require(origin(next(case for case in manifest['cases'] if case['name'] == job['case'])) == native, 'Read-only origin changed during pilot')
++                results.append(result)
++                write(output/(job['key']+'_RESULT.json'), result)
++                print(json.dumps({'job': job['key'], 'status': 'COMPLETE', 'scenes_per_second': result['stable_global_scenes_per_second']}), flush=True)
++    except BaseException as exc:
++        status, error = 'FAILED', repr(exc)
++        write(output/'FAILURE.json', {'error': error, 'completed_jobs': len(results), 'logs_preserved': True})
++    process_hours = sum(read(p)['wall_seconds']*8/3600 for p in (output/'runs').glob('*/PROCESS_EXIT.json'))
++    write(output/'RESULTS.json', {'status': status, 'error': error, 'completed_jobs': len(results), 'planned_jobs': len(plan['jobs']),
++        'process_GPU_hours': process_hours, 'candidate_mode': plan['candidate_mode'], 'mode_pair': plan['mode_pair'],
++        'cases': aggregate(results, plan['candidate_mode']), 'jobs': results,
++        'limits': ['Both modes measure all-rank optimizer20->220 wall (final small log excluded); IO also records stdout arrival wall and fast records full log-window wall.',
++                   'Rank peaks are cumulative per process, including warmup/startup.',
++                   'GPUh budget governs next-job admission; running workers finish without termination. Other tasks budgeted by supplied already_spent/reserved_elsewhere.']})
++    return 0 if status == 'COMPLETE' else 2
++
++
++if __name__ == '__main__': sys.exit(main())
+diff --git a/tools/structured_world/train_vla.py b/tools/structured_world/train_vla.py
+index 380fa8869cd95e47de499c29d3068191a4e753f0..611c04f0d1f7879bd8d38fcb9ea4b2629a04e3ab 100644
+--- a/tools/structured_world/train_vla.py
++++ b/tools/structured_world/train_vla.py
+@@ -51,6 +51,7 @@ def source_hashes():
+     paths.append(ROOT/'tools/structured_world/stage_timing.py')
+     paths.append(ROOT/'tools/structured_world/prefetch.py')
+     paths.append(ROOT/'tools/structured_world/resume_origin.py')
++    paths.append(ROOT/'tools/structured_world/execution_log.py')
+     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
+ 
+@@ -75,12 +76,29 @@ def main():
+     parser.add_argument('--image-root', type=Path)
+     parser.add_argument('--profile-stages', action='store_true',
+                         help='Only profile scope: measure the real model and optimizer stages')
+-    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1'), default='reference')
++    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'), default='reference')
++    parser.add_argument('--logging-every', type=int, default=20)
++    parser.add_argument('--evidence-every', type=int, default=100)
++    parser.add_argument('--pilot-origin-run', type=Path, help='Read-only engineering continuation; never changes parent latest')
++    parser.add_argument('--pilot-origin-tag', help='Required immutable complete tag for a pilot origin')
++    parser.add_argument('--use-formal-schedule', action='store_true', help='Finite engineering run, original dataset schedule from update zero')
++    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Only read-only-origin performance windows; numerical/recovery pilots still save')
+     parser.add_argument('--execution-acceptance', type=Path,
+                         help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
+     parser.add_argument('--resume-origin-run', type=Path,
+                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
+     args = parser.parse_args()
++    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
++    if min(args.logging_every, args.evidence_every) < 1:
++        raise ValueError('Positive metric/evidence intervals required')
++    if args.scope == 'formal' and fast:
++        raise ValueError('engineering_fast remains a pilot until its independent acceptance is registered')
++    if args.pilot_origin_run and (args.scope != 'profile' or not args.pilot_origin_tag or args.resume_origin_run or args.debug_scenes):
++        raise ValueError('Pilot origins require profile scope, immutable tag and unchanged full population')
++    if args.use_formal_schedule and (args.scope == 'formal' or args.pilot_origin_run):
++        raise ValueError('Explicit common schedule is only for an engineering run without an origin')
++    if args.benchmark_no_end_save and (args.scope != 'profile' or not args.pilot_origin_run or args.resume):
++        raise ValueError('Benchmark windows must retain their immutable origin and cannot be resumed in place')
+     if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
+         raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
+     execution_acceptance = None
+@@ -164,6 +182,22 @@ def main():
+     updates_per_epoch = math.ceil(len(data)/32)
+     horizon = (100000 if dataset == 'navsim' else 24*updates_per_epoch) if args.scope == 'formal' else args.debug_updates
+     warmup = (5000 if dataset == 'navsim' else updates_per_epoch) if args.scope == 'formal' else max(1, horizon//10)
++    if args.use_formal_schedule:
++        horizon = 100000 if dataset == 'navsim' else 24*updates_per_epoch
++        warmup = 5000 if dataset == 'navsim' else updates_per_epoch
++    pilot_origin = None
++    pilot_parent = None
++    if args.pilot_origin_run:
++        if Path(args.pilot_origin_tag).name != args.pilot_origin_tag:
++            raise ValueError('Unsafe pilot checkpoint tag')
++        pilot_parent = json.loads((args.pilot_origin_run/'identity.json').read_text())
++        pilot_complete = json.loads((args.pilot_origin_run/'checkpoints'/args.pilot_origin_tag/'COMPLETE.json').read_text())
++        if pilot_complete['identity'] != pilot_parent['identity'] or pilot_complete['ranks'] != world:
++            raise ValueError('Foreign/incomplete pilot origin')
++        horizon, warmup = pilot_parent['schedule_horizon'], pilot_parent['schedule_warmup']
++        pilot_origin = {'run': str(args.pilot_origin_run), 'tag': args.pilot_origin_tag,
++                        'identity': pilot_parent['identity'], 'completed': pilot_complete['completed'],
++                        'complete_sha256': file_digest(args.pilot_origin_run/'checkpoints'/args.pilot_origin_tag/'COMPLETE.json')}
+     contract = {'schema': 'structured_world_student_v1', 'scope': args.scope,
+         'training_source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+         'training_source_tree_sha256': source_hashes(), 'external_source_versions': json.loads((ROOT/'third_party/LOCK.json').read_text()),
+@@ -183,6 +217,24 @@ def main():
+         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
+         'extra_stage_instrumentation': args.profile_stages}
+     contract['execution_mode'] = args.execution_mode
++    contract['external_execution_patches'] = {'record': json.loads((ROOT/'third_party/EXECUTION_PATCHES.json').read_text()),
++        'sha256': file_digest(ROOT/'third_party/EXECUTION_PATCHES.json')}
++    if args.execution_mode == 'precision_fast':
++        contract['numeric_execution_candidate'] = {'level': 'E3', 'BF16': ['geometry.backbone', 'geometry.fpn', 'geometry.bev_backbone', 'geometry.bev_neck'],
++            'FP32': ['geometry.view', 'projection', 'grid_sample', 'loss_reduction', 'master_weights', 'optimizer', 'gradient_communication'],
++            'SyncBN': 'same population, counters and module types; floating running-stat changes require paired evaluation',
++            'canonical_inference': 'FP32 bypass preserved'}
++    if fast:
++        contract['execution_logging'] = {'summary_every': args.logging_every, 'detailed_evidence_every': args.evidence_every,
++                                        'checkpoint_pause_end_flush': True}
++    if pilot_origin:
++        for key in ('config', 'cache_identity', 'current_and_GT_identity', 'DINO_identity', 'shared_geometry_identity',
++                    'training_seed', 'world_size', 'effective_global_batch', 'FM_repeat', 'microbatch',
++                    'dataset', 'scenes_per_epoch', 'updates_per_epoch', 'determinism', 'precision'):
++            if contract[key] != pilot_parent[key]:
++                raise ValueError('Pilot changed scientific contract: '+key)
++        contract['engineering_continue_origin'] = pilot_origin
++    contract['benchmark_no_end_checkpoint'] = args.benchmark_no_end_save
+     if execution_acceptance is not None:
+         contract['execution_acceptance'] = execution_acceptance
+     resume_origin = None
+@@ -229,14 +281,14 @@ def main():
+                   [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
+     generators['counts'] = torch.Generator().manual_seed(420500+rank)
+     completed, epoch, offset, exposure, elapsed = 0, 0, 0, 0, 0.
+-    if args.resume or resume_origin is not None:
+-        recovery_run = args.output if args.resume else args.resume_origin_run
+-        tag = (recovery_run/'checkpoints/latest').read_text().strip()
++    if args.resume or resume_origin is not None or pilot_origin is not None:
++        recovery_run = args.output if args.resume else (args.pilot_origin_run if pilot_origin else args.resume_origin_run)
++        tag = args.pilot_origin_tag if pilot_origin and not args.resume else (recovery_run/'checkpoints/latest').read_text().strip()
+         if Path(tag).name != tag:
+             raise ValueError('Unsafe checkpoint pointer')
+         recovery_folder = recovery_run/'checkpoints'/tag
+         complete = json.loads((recovery_folder/'COMPLETE.json').read_text())
+-        expected_identity = identity if args.resume else resume_origin['identity']
++        expected_identity = identity if args.resume else (pilot_origin['identity'] if pilot_origin else resume_origin['identity'])
+         if complete['identity'] != expected_identity:
+             raise ValueError('Incomplete/foreign recovery checkpoint')
+         verify_checkpoint_files(recovery_folder, complete, rank=rank, world=world)
+@@ -251,8 +303,15 @@ def main():
+                 'completed': completed, 'epoch': epoch, 'offset': offset, 'exposure': exposure, **boundary})
+     if rank == 0:
+         atomic_json(args.output/'optimizer_groups.json', group_records)
++    if pilot_origin and json.loads((args.pilot_origin_run/'optimizer_groups.json').read_text()) != group_records:
++        raise ValueError('Pilot optimizer groups differ from origin')
++    # A pilot has an immutable origin and a finite registered exposure budget.
++    # Reloading an interrupted pilot must not add that budget a second time.
++    end_update = (pilot_origin['completed']+args.debug_updates if pilot_origin else args.debug_updates) if (pilot_origin or args.use_formal_schedule) else horizon
++    if completed > end_update:
++        raise ValueError('Recovery boundary is beyond the registered training endpoint')
+     milestones = ({25000, 50000, 75000, 100000} if dataset == 'navsim' else
+-                  {epoch*updates_per_epoch for epoch in (6, 12, 18, 24)}) if args.scope == 'formal' else {horizon}
++                  {epoch*updates_per_epoch for epoch in (6, 12, 18, 24)}) if args.scope == 'formal' else {end_update}
+     def save(status):
+         nonlocal elapsed
+         tag = f'milestone_{completed:07d}' if completed in milestones else f'latest_{completed:07d}'
+@@ -292,12 +351,18 @@ def main():
+                     raise ValueError('Foreign checkpoint found during retention')
+                 shutil.rmtree(old)
+         dist.barrier()
+-    if not completed:
++    if not completed and not args.benchmark_no_end_save:
+         save('INITIAL')
+     elif resume_origin is not None and not args.resume:
+         # Own an atomic recovery point before executing the first upgraded step.
+         save('RUNNING')
+     optimized_execution = args.execution_mode != 'reference'
++    from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
++    from tools.structured_world.execution_log import ExecutionLogWindow
++    collator = CurrentBatchCollator(model, args.micro_batch, collate_structured) if fast else collate_structured
++    if fast:
++        model.current_processor_identity = collator.identity
++    log_window = ExecutionLogWindow(args.output, world, 1 if args.profile_stages else args.logging_every) if fast else None
+     batch_cache = {}
+     def batches_for(current_epoch):
+         if not optimized_execution:
+@@ -309,25 +374,32 @@ def main():
+                 del batch_cache[previous]
+         return batch_cache[current_epoch]
+     with ThreadPoolExecutor(max_workers=2) as pool, \
+-            (OrderedScenePrefetch(data, collate_structured, pool) if optimized_execution else nullcontext()) as prefetch:
+-        while completed < horizon:
++            (OrderedScenePrefetch(data, collator, pool) if optimized_execution else nullcontext()) as prefetch:
++        while completed < end_update:
+             batches = batches_for(epoch)
+             if offset >= len(batches):
+                 epoch += 1; offset = 0; continue
+             start = time.monotonic()
++            if fast:
++                log_window.begin()
++                update_start, update_end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
++                update_start.record()
+             indices = batches[offset][rank::world]
+             if prefetch is None:
+                 samples = list(pool.map(data.__getitem__, indices))
+-                observations, targets = collate_structured(samples)
++                observations, targets = collator(samples)
+             else:
+                 observations, targets = prefetch.consume((epoch, offset), indices)
+-                if completed+1 < horizon:
++                if completed+1 < end_update:
+                     next_epoch, next_offset = epoch, offset+1
+                     if next_offset == len(batches):
+                         next_epoch, next_offset = epoch+1, 0
+                     prefetch.submit((next_epoch, next_offset), batches_for(next_epoch)[next_offset][rank::world])
+             data_seconds = time.monotonic()-start
+             counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
++            if fast:
++                observations, targets = transfer_optimizer_batch(observations, targets, torch.device('cuda', local))
++                model.record_activation_metrics = completed % args.evidence_every == 0
+             actual_lrs = []
+             for group, record in zip(engine.optimizer.param_groups, group_records):
+                 base = float(record['base_lr'])
+@@ -335,22 +407,38 @@ def main():
+                 actual_lrs.append(group['lr'])
+             logs, raw, effective, query_records, activation_gradients = {}, {}, {}, [], []
+             proposal_out_of_range = 0
++            fast_scalars = {}
++            evidence_due = not fast or completed % args.evidence_every == 0
++            evidence = {'fp32_master_update_evidence_sampled_this_update': evidence_due}
+             for at in range(0, len(indices), args.micro_batch):
+                 end = min(len(indices), at+args.micro_batch); boundary = end == len(indices)
+                 engine.set_gradient_accumulation_boundary(boundary)
+                 output = engine(observations[at:end], {k: v[at:end] for k, v in targets.items()},
+                     completed_updates=completed, noise_generator=generators['noise'], time_generator=generators['time'],
+                     proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)
+-                if not torch.isfinite(output['loss']):
++                finite = torch.isfinite(output['loss']).to(torch.int32)
++                if fast: dist.all_reduce(finite, op=dist.ReduceOp.MIN)
++                if not finite:
+                     raise FloatingPointError('Nonfinite full objective')
+                 engine.backward(output['loss'], scale_wrt_gas=False)
+                 if optimized_execution:
+                     # Queue the unchanged optimizer before transferring detached
+                     # diagnostic scalars to the host. Preserve the before/after
+                     # FP32 master sample boundary and the original loss graph.
+-                    if boundary: before = capture_master_samples(engine.optimizer)
++                    if boundary and evidence_due: before = capture_master_samples(engine.optimizer)
+                     engine.step()
+-                    if boundary: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
++                    if boundary and evidence_due: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
++                if fast:
++                    for prefix, collection in [('weighted', output['losses']), ('raw', output['metrics']['raw']),
++                                               ('count', output['metrics']['effective_counts']),
++                                               ('activation', output['metrics']['activation_gradient_norms'])]:
++                        for name, value in collection.items():
++                            key = prefix+'/'+name
++                            fast_scalars[key] = fast_scalars.get(key, 0.)+value.detach().sum()
++                    fast_scalars['out_of_range'] = fast_scalars.get('out_of_range', 0.)+output['metrics']['proposal_out_of_range'].sum()
++                    query_records.extend(output['metrics']['query_strata'])
++                    del output
++                    continue
+                 for name, value in output['losses'].items(): logs[name] = logs.get(name, 0.)+float(value.detach())
+                 for name, value in output['metrics']['raw'].items(): raw[name] = raw.get(name, 0.)+float(value.detach())
+                 for name, value in output['metrics']['effective_counts'].items():
+@@ -371,6 +459,37 @@ def main():
+                     engine.step()
+                     if boundary: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
+                 del output
++            if fast:
++                update_end.record()
++                completed += 1; exposure += len(batches[offset]); offset += 1
++                fast_scalars['gradient_norm'] = torch.as_tensor(engine.get_global_grad_norm(), device='cuda')
++                # Stable packing even when detailed activation evidence is not sampled.
++                for name in ('H_A', 'B0', 'Bt'):
++                    fast_scalars.setdefault('activation/'+name, torch.zeros((), device='cuda'))
++                log_window.append({'updates': completed, 'epoch': epoch, 'offset': offset,
++                    'scene_exposure': exposure, 'batch_scenes': len(batches[offset-1]),
++                    'fractional_epochs': exposure/len(data), 'actual_parameter_group_lrs': actual_lrs,
++                    'rank0_query_strata': query_records, 'execution_mode': args.execution_mode,
++                    'activation_metrics_sampled': model.record_activation_metrics,
++                    'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
++                    'peak_GPU_reserved_bytes_rank0': torch.cuda.max_memory_reserved(), **evidence},
++                    fast_scalars, tuple(sorted(logs)) or tuple(sorted(k.removeprefix('weighted/') for k in fast_scalars if k.startswith('weighted/'))),
++                    (update_start, update_end))
++                stop = (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after)
++                save_due = stop or completed == end_update or completed in milestones or completed % args.save_every == 0
++                if log_window.due() or save_due: elapsed += log_window.flush()
++                if stage_timing is not None:
++                    local_stages = stage_timing.consume_after_synchronize()
++                    with (args.output/f'stages_rank{rank}.jsonl').open('a') as stream:
++                        stream.write(json.dumps({'updates': completed, **local_stages})+'\n')
++                if save_due and (stop or not args.benchmark_no_end_save):
++                    save('PAUSED' if stop else ('COMPLETE' if completed == end_update else 'RUNNING'))
++                if completed == end_update and rank == 0:
++                    atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,
++                        'exposure': exposure, 'GPU_hours': elapsed*world/3600., 'evaluation_complete': False,
++                        'engineering_pilot_only': args.scope != 'formal'})
++                if stop: break
++                continue
+             torch.cuda.synchronize()
+             cost = torch.tensor(time.monotonic()-start, device='cuda'); dist.all_reduce(cost, op=dist.ReduceOp.MAX)
+             stage_records = None
+@@ -401,9 +520,9 @@ def main():
+                 print(json.dumps(record), flush=True)
+             if (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after):
+                 save('PAUSED'); break
+-            if completed in milestones or completed % args.save_every == 0:
+-                save('COMPLETE' if completed == horizon else 'RUNNING')
+-            if completed == horizon and rank == 0:
++            if (completed in milestones or completed % args.save_every == 0) and not args.benchmark_no_end_save:
++                save('COMPLETE' if completed == end_update else 'RUNNING')
++            if completed == end_update and rank == 0:
+                 atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,
+                     'exposure': exposure, 'GPU_hours': elapsed*world/3600., 'evaluation_complete': False})
+     dist.destroy_process_group()
+diff --git a/tools/structured_world/validate_engineering_execution.py b/tools/structured_world/validate_engineering_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..d7fb15926949449211f6af32f0fdc4350b5f7af1
+--- /dev/null
++++ b/tools/structured_world/validate_engineering_execution.py
+@@ -0,0 +1,235 @@
++"""Eight-rank real trained-model forward/gradient/RNG execution comparison.
++
++No optimizer update or new initialization claim. The A/A replay records native
++CUDA variation separately from the A/B execution change. Tolerances are fixed
++before the probe, and any failure prevents formal deployment.
++"""
++import argparse
++from concurrent.futures import ThreadPoolExecutor
++from contextlib import nullcontext
++import json
++import os
++from pathlib import Path
++import socket
++import sys
++import time
++os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
++import torch
++from torch import distributed as dist, nn
++from omegaconf import OmegaConf
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT))
++from starVLA.model.framework.vla_structured_fgtr import VLAStructuredFGTR
++from starVLA.model.modules.structured_world.execution import configure_execution
++from starVLA.dataloader.structured_world.dataset import StructuredNAVSIMDataset, collate_structured
++from tools.ddpolicy_vehicle.training_state import epoch_batches
++from tools.foresight.student_state import capture_rng, restore_rng, optimizer_batch_counts
++from tools.structured_world.recovery_boundary import exact
++from tools.structured_world.training_assets import file_digest
++from tools.structured_world.train_vla import atomic_json
++
++GRAD_RTOL, GRAD_ATOL = 1e-4, 1e-6
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    for name in ('run', 'cache', 'dino-root', 'output'):
++        parser.add_argument('--'+name, type=Path, required=True)
++    parser.add_argument('--model-state-file', type=Path,
++                        help='Optional byte-identical local copy; avoids concurrent NFS mmap page faults')
++    parser.add_argument('--attention-diagnostic', choices=('native', 'math'), default='native',
++                        help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
++    parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
++    parser.add_argument('--tag', required=True, help='Explicit immutable complete checkpoint, never a moving latest')
++    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast'), default='engineering_fast')
++    parser.add_argument('--precision-diagnostic', choices=('native', 'fp32'), default='native',
++                        help='FP32 is a separate controlled numerical diagnostic, never a formal precision change')
++    args = parser.parse_args()
++    policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
++    if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']:
++        raise ValueError('Unauthorized execution probe host')
++    rank, world, local = [int(os.environ[name]) for name in ('RANK', 'WORLD_SIZE', 'LOCAL_RANK')]
++    if world != 8:
++        raise ValueError('This probe requires the actual full eight-rank model')
++    torch.cuda.set_device(local); torch.set_num_threads(2)
++    if not dist.is_initialized(): dist.init_process_group('nccl')
++    torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
++    torch.backends.cudnn.benchmark = False; torch.backends.cudnn.deterministic = True
++    torch.use_deterministic_algorithms(True, warn_only=True)
++    identity = json.loads((args.run/'identity.json').read_text())
++    tag = args.tag
++    if Path(tag).name != tag: raise ValueError('Unsafe checkpoint pointer')
++    folder = args.run/'checkpoints'/tag
++    complete = json.loads((folder/'COMPLETE.json').read_text())
++    if complete['identity'] != identity['identity']:
++        raise ValueError('Preserved complete immutable model required')
++    if identity['dataset'] != 'navsim':
++        raise ValueError('This full numerical probe requires NAVSIM; six-camera compatibility is separately verified')
++    model_file = args.model_state_file or folder/'mp_rank_00_model_states.pt'
++    if rank == 0:
++        if file_digest(model_file) != complete['file_sha256']['mp_rank_00_model_states.pt']:
++            raise ValueError('Saved model hash changed')
++        args.output.mkdir(parents=True, exist_ok=True)
++        atomic_json(args.output/'REGISTRATION.json', {'checkpoint': tag, 'training_identity': identity['identity'],
++            'scope': 'no-update actual trained model A/A and execution A/B', 'ranks': world, 'microbatch': args.microbatch,
++            'optimized_mode': args.optimized_mode,
++            'gradient_tolerance': {'rtol': GRAD_RTOL, 'atol': GRAD_ATOL},
++            'forward_loss_tolerance': {'rtol': 1e-6, 'atol': 1e-7},
++            'trajectory_RNG_and_discrete_buffers': 'bitwise',
++            'floating_buffers': 'E3 differences reported' if args.optimized_mode == 'precision_fast' else 'bitwise',
++            'precision': identity['precision']})
++        atomic_json(args.output/'ATTENTION_DIAGNOSTIC.json', {'mode': args.attention_diagnostic,
++            'precision_diagnostic': args.precision_diagnostic,
++            'formal_attention_backend_changed': False,
++            'formal_precision_changed': False,
++            'purpose': 'isolate checkpoint recomputation equivalence from native Flash backward variation'})
++    dist.barrier()
++    model = VLAStructuredFGTR(OmegaConf.create(identity['config'])).float()
++    saved = torch.load(model_file, map_location='cpu', mmap=True, weights_only=False)
++    model.load_state_dict(saved['module'], strict=True)
++    epoch, offset = saved['epoch'], saved['offset']
++    del saved
++    model = nn.SyncBatchNorm.convert_sync_batchnorm(model).cuda().train()
++    model.inference_fp32 = args.precision_diagnostic == 'fp32'
++    model.shared_geometry_identity = identity['shared_geometry_identity']
++    model.execution_diagnostic_capture = True
++    data = StructuredNAVSIMDataset(args.cache, '/var/tmp/ddp-full-foresight-20260929/student_train_v1',
++        dino_root=args.dino_root, dino_index='', expected_dino=identity['DINO_identity'],
++        image_root='/var/tmp/ddp-full-foresight-20260929/images')
++    if data.identity['identity'] != identity['cache_identity']: raise ValueError('Foreign data contract')
++    batches = epoch_batches(len(data), 32, 42, epoch)
++    if offset == len(batches):
++        epoch += 1; offset = 0; batches = epoch_batches(len(data), 32, 42, epoch)
++    selected_batch = batches[offset][:args.microbatch*world]
++    indices = selected_batch[rank::world]
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        observations, targets = collate_structured(list(pool.map(data.__getitem__, indices)))
++    generators = {name: torch.Generator(device='cuda').manual_seed(420000+rank+shift)
++        for name, shift in [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
++    generators['counts'] = torch.Generator().manual_seed(420500+rank)
++    start_rng = torch.load(folder/f'rng_rank{rank}.pt', map_location='cpu', weights_only=False)
++    buffers = {name: value.detach().clone() for name, value in model.named_buffers()}
++    reference_grads, reference_outputs, reference_buffers, reference_rng = {}, None, None, None
++    reference_activation = None
++    checks = []
++    from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
++    collator = CurrentBatchCollator(model, args.microbatch, collate_structured)
++    model.current_processor_identity = collator.identity
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        prepared_observations, prepared_targets = collator(list(pool.map(data.__getitem__, indices)))
++    prepared_observations, prepared_targets = transfer_optimizer_batch(prepared_observations, prepared_targets, torch.device('cuda', local))
++    for label, mode in [('reference', 'io_preserving_v1'), ('reference_replay', 'io_preserving_v1'),
++                        ('optimized', args.optimized_mode)]:
++        configure_execution(model, mode)
++        model.zero_grad(set_to_none=True)
++        with torch.no_grad():
++            for name, value in model.named_buffers(): value.copy_(buffers[name])
++        restore_rng(start_rng, generators)
++        counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
++        torch.cuda.synchronize(); begin = time.monotonic()
++        from torch.nn.attention import sdpa_kernel, SDPBackend
++        attention = sdpa_kernel(SDPBackend.MATH) if args.attention_diagnostic == 'math' else nullcontext()
++        with attention:
++            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast') else (observations, targets)
++            result = model(obs, tgt, completed_updates=complete['completed'],
++                noise_generator=generators['noise'], time_generator=generators['time'],
++                proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)
++            result['loss'].backward()
++        torch.cuda.synchronize(); seconds = time.monotonic()-begin
++        outputs = {**{key: value.detach().cpu() for key, value in result['diagnostics'].items()},
++                   **{key: value.detach().cpu() for key, value in result['losses'].items()}}
++        activation = {name: value.cpu() for name, value in result['metrics']['activation_gradient_samples'].items()}
++        after_rng = capture_rng(generators)
++        after_buffers = {name: value.detach().cpu().clone() for name, value in model.named_buffers()}
++        grad_keys = {name for name, parameter in model.named_parameters() if parameter.grad is not None}
++        grad_diff, violations, grad_elements, square_error, square_ref = 0., 0, 0, 0., 0.
++        dot, square_actual = 0., 0.
++        groups = {}
++        if reference_outputs is None:
++            reference_outputs, reference_rng, reference_buffers = outputs, after_rng, after_buffers
++            reference_activation = activation
++            reference_grads = {name: parameter.grad.detach().cpu().clone() for name, parameter in model.named_parameters()
++                               if parameter.grad is not None}
++        else:
++            exact(after_rng, reference_rng, 'post-forward/backward RNG')
++            if mode == 'precision_fast':
++                if set(after_buffers) != set(reference_buffers):
++                    raise AssertionError('Precision candidate changed buffer inventory')
++                for name, value in after_buffers.items():
++                    if not value.is_floating_point(): exact(value, reference_buffers[name], 'discrete buffer/'+name)
++                buffer_changes = {name: {'max_absolute': float((value-reference_buffers[name]).abs().max()),
++                    'relative_L2': float(torch.linalg.vector_norm((value-reference_buffers[name]).double())/torch.linalg.vector_norm(reference_buffers[name].double()).clamp_min(1e-300))}
++                    for name,value in after_buffers.items() if value.is_floating_point() and value.numel()}
++            else:
++                exact(after_buffers, reference_buffers, 'post-forward/backward mutable buffers')
++                buffer_changes = {}
++            if grad_keys != set(reference_grads): raise AssertionError('Changed gradient parameter inventory')
++            forward_checks = {}
++            for name, value in outputs.items():
++                expected = reference_outputs[name]
++                error = value-expected
++                forward_checks[name] = {'max_absolute': float(error.abs().max()),
++                    'relative_L2': float(torch.linalg.vector_norm(error.double())/torch.linalg.vector_norm(expected.double()).clamp_min(1e-300)),
++                    'strict_passed': bool(torch.allclose(value, expected, rtol=0 if name in ('q0', 'q_final') else 1e-6,
++                                                         atol=0 if name in ('q0', 'q_final') else 1e-7))}
++            for name, parameter in model.named_parameters():
++                if name not in grad_keys: continue
++                actual, expected = parameter.grad.detach().cpu(), reference_grads[name]
++                error = (actual-expected).abs()
++                if not torch.isfinite(actual).all(): raise AssertionError('Nonfinite gradients: '+name)
++                violations += int((error > GRAD_ATOL+GRAD_RTOL*expected.abs()).sum())
++                grad_diff = max(grad_diff, float(error.max()))
++                grad_elements += error.numel()
++                square_error += float(error.double().square().sum())
++                square_ref += float(expected.double().square().sum())
++                dot += float((actual.double()*expected.double()).sum())
++                square_actual += float(actual.double().square().sum())
++                group = groups.setdefault(name.split('.')[0], {'square_error': 0., 'square_reference': 0.,
++                    'dot': 0., 'square_actual': 0., 'parameter_max_absolute': [], 'elements': 0})
++                group['square_error'] += float(error.double().square().sum())
++                group['square_reference'] += float(expected.double().square().sum())
++                group['dot'] += float((actual.double()*expected.double()).sum())
++                group['square_actual'] += float(actual.double().square().sum())
++                group['parameter_max_absolute'].append(float(error.max()))
++                group['elements'] += error.numel()
++                del actual, error
++        record = {'label': label, 'mode': mode, 'forward_and_backward_seconds': seconds,
++            'forward_checks': forward_checks if reference_outputs is not outputs else {},
++            'buffer_float_changes': buffer_changes if reference_outputs is not outputs else {},
++            'gradient_parameter_count': len(grad_keys), 'gradient_elements_compared': grad_elements,
++            'gradient_max_absolute_difference': grad_diff, 'gradient_tolerance_violations': violations,
++            'gradient_relative_L2': (square_error/max(square_ref, 1e-300))**.5,
++            'gradient_cosine': dot/max((square_ref*square_actual)**.5, 1e-300) if grad_elements else None,
++            'per_parameter_group': {name: {'relative_L2': (g['square_error']/max(g['square_reference'], 1e-300))**.5,
++                'cosine': g['dot']/max((g['square_reference']*g['square_actual'])**.5, 1e-300),
++                'max_absolute': max(g['parameter_max_absolute']),
++                'parameter_max_error_p50_p90_p99': [float(torch.quantile(torch.tensor(g['parameter_max_absolute']), p)) for p in (.5,.9,.99)],
++                'elements': g['elements']} for name, g in groups.items()},
++            'activation_gradient_1024_fixed_samples': {name: {'max_absolute': float((v-reference_activation[name]).abs().max()),
++                'relative_L2': float(torch.linalg.vector_norm((v-reference_activation[name]).double())/torch.linalg.vector_norm(reference_activation[name].double()).clamp_min(1e-300)),
++                'cosine': float(torch.nn.functional.cosine_similarity(v.double().reshape(1,-1),reference_activation[name].double().reshape(1,-1)))} for name,v in activation.items()},
++            'RNG_and_discrete_buffers': 'bitwise',
++            'floating_buffers': 'E3 differences reported' if mode == 'precision_fast' else 'bitwise',
++            'q0_and_q_final': 'strict bitwise checks retained; Bt/loss tolerance recorded',
++            'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
++            'strict_gradient_passed': violations == 0,
++            'passed': violations == 0 and (reference_outputs is outputs or all(v['strict_passed'] for v in forward_checks.values()))}
++        checks.append(record)
++        print(json.dumps({'rank': rank, **record}), flush=True)
++        del result
++    records = [None]*world
++    dist.all_gather_object(records, {'rank': rank, 'tokens': [data.index[i]['token'] for i in indices], 'checks': checks})
++    passed = all(len(row['checks']) == 3 and all(check['passed'] for check in row['checks']) for row in records)
++    if rank == 0:
++        atomic_json(args.output/'COMPLETE.json', {'training_identity': identity['identity'], 'checkpoint': tag,
++            'ranks': world, 'scene_count': len(selected_batch), 'per_rank': records, 'passed': passed,
++            'attention_diagnostic': args.attention_diagnostic, 'optimized_mode': args.optimized_mode,
++            'precision_diagnostic': args.precision_diagnostic,
++            'limitation': 'No optimizer update here; native ZeRO update/profile and exact boundary recovery are verified separately'})
++    dist.destroy_process_group()
++    if not passed: raise AssertionError('Real model execution equivalence failed; formal rollout prohibited')
++
++
++if __name__ == '__main__':
++    main()

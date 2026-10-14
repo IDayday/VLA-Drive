@@ -1,0 +1,71 @@
+{
+  "source_sha": "b3cefdd994146526cf70f259010fce5077fc5692",
+  "purpose": "Matched endpoint derivative fitting pilots, full training disabled",
+  "groups": {
+    "s3_fm_endpoint": [
+      {
+        "variant": "s3",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S3_100k/initialization.json",
+        "run_id": "S3_r1_fm_endpoint_kinematics_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-fm-kinematics-20261006/configs/trajectory_objective/fm_endpoint_kinematics.json",
+        "port": 30010
+      },
+      {
+        "variant": "s3",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S3_100k/initialization.json",
+        "run_id": "S3_r1_fm_endpoint_braking_512",
+        "relative_cards": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-fm-kinematics-20261006/configs/trajectory_objective/fm_endpoint_braking.json",
+        "port": 30011
+      }
+    ],
+    "s0_fm_endpoint": [
+      {
+        "variant": "s0",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S0_50k/initialization.json",
+        "run_id": "S0_r1_fm_endpoint_kinematics_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-fm-kinematics-20261006/configs/trajectory_objective/fm_endpoint_kinematics.json",
+        "port": 30012
+      },
+      {
+        "variant": "s0",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S0_50k/initialization.json",
+        "run_id": "S0_r1_fm_endpoint_braking_512",
+        "relative_cards": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-fm-kinematics-20261006/configs/trajectory_objective/fm_endpoint_braking.json",
+        "port": 30013
+      }
+    ]
+  },
+  "reused_controls": {
+    "s3": "/mnt/project/trajectory-objective-training-artifacts/20261006/matched_pilots/students/S3_r1_control_512",
+    "s0": "/mnt/project/trajectory-objective-training-artifacts/20261006/matched_pilots/students/S0_r1_control_512"
+  },
+  "updates": 512
+}

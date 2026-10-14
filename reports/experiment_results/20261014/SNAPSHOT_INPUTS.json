@@ -1,0 +1,496 @@
+{
+  "queue": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225",
+  "expected_completed_navtest_checkpoints": 21,
+  "runs": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g0_rlzt2_deploy_20261010T2355/formal/G0_NO_FUTURE_LABEL",
+      "expected_identity": "6b30c6300151400cc1a36a56abedbc58d48a889061b123ea9f7e6e024ad1db4a",
+      "status": "paused_by_user",
+      "host": "",
+      "notes": "Native pause at 71052; automatic training/evaluation held by user; not a 100k completed experiment."
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+      "expected_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "status": "paused_by_user",
+      "host": "",
+      "notes": "Native paused at 84135; prior unsaved branches were replayed, counters exclude discarded physical work; no automatic continuation.",
+      "resume_registration": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/continue_incomplete_20261014T0042Z/G1_FULL_UNIFORM/REGISTRATION.json"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G2_EVENT_UNIFORM",
+      "expected_identity": "a4226d2ce8974c3536118b01b4e775d0f0e16cf30ce4b670dee8ed5446912589",
+      "status": "active",
+      "host": "training-vla-zt2",
+      "notes": "Exact native relocation at 65288; io_preserving_v1 unchanged. Latest completed Navtest is 70k. Earlier discarded/replayed updates excluded from accepted-lineage counters; current tail timing is not an isolated benchmark.",
+      "resume_registration": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/G2_vla_zt2_migration_20261014T0700Z/G2_EVENT_UNIFORM/REGISTRATION.json"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+      "expected_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+      "status": "complete",
+      "host": "",
+      "notes": "100k endpoint complete; final Navtest also complete."
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_formal/G1_FULL_UNIFORM",
+      "expected_identity": "7bc94fb37bbfe65be4491a0d9666cb7d1e294cd1c8a2253a362e4bd26bea7a7a",
+      "status": "paused_by_user",
+      "host": "",
+      "notes": "Native paused at 7811 (10.759 epochs); only 6-epoch val completed.",
+      "resume_registration": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/continue_incomplete_20261014T0042Z/NUSCENES_G1/REGISTRATION.json"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL",
+      "expected_identity": "43bf49aca9277c889585dca3e4e805446eb790ea6de0b030c852f46cac34bdec",
+      "status": "complete",
+      "host": "",
+      "notes": "24 epochs complete. Evaluation completion verified independently of the older TRAINING_COMPLETE evaluation_complete=false field."
+    }
+  ],
+  "comparisons": [
+    {
+      "name": "G1_25000_q_final minus G0_25000_q_final",
+      "candidate": [
+        "G1",
+        25000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        25000,
+        "q_final"
+      ],
+      "interpretation": "Future labels versus planning-driven future representation; one training seed, intermediate endpoint."
+    },
+    {
+      "name": "G2_25000_q_final minus G1_25000_q_final",
+      "candidate": [
+        "G2",
+        25000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        25000,
+        "q_final"
+      ],
+      "interpretation": "Event organization versus full future occupancy; one seed, intermediate endpoint."
+    },
+    {
+      "name": "G3_25000_q_final minus G2_25000_q_final",
+      "candidate": [
+        "G3",
+        25000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        25000,
+        "q_final"
+      ],
+      "interpretation": "Planning-local distribution for all structured supervision; not future-only sampling."
+    },
+    {
+      "name": "G3_25000_q_final minus G1_25000_q_final",
+      "candidate": [
+        "G3",
+        25000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        25000,
+        "q_final"
+      ],
+      "interpretation": "Combined event and structured local sampling; mechanisms not isolated."
+    },
+    {
+      "name": "G1_50000_q_final minus G0_50000_q_final",
+      "candidate": [
+        "G1",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Future labels versus planning-driven future representation; one training seed, intermediate endpoint."
+    },
+    {
+      "name": "G2_50000_q_final minus G1_50000_q_final",
+      "candidate": [
+        "G2",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Event organization versus full future occupancy; one seed, intermediate endpoint."
+    },
+    {
+      "name": "G3_50000_q_final minus G2_50000_q_final",
+      "candidate": [
+        "G3",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Planning-local distribution for all structured supervision; not future-only sampling."
+    },
+    {
+      "name": "G3_50000_q_final minus G1_50000_q_final",
+      "candidate": [
+        "G3",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Combined event and structured local sampling; mechanisms not isolated."
+    },
+    {
+      "name": "G1_60000_q_final minus G0_60000_q_final",
+      "candidate": [
+        "G1",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        60000,
+        "q_final"
+      ],
+      "interpretation": "Matched-update comparison, one training seed; not common 100k final endpoint."
+    },
+    {
+      "name": "G3_70000_q_final minus G1_70000_q_final",
+      "candidate": [
+        "G3",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        70000,
+        "q_final"
+      ],
+      "interpretation": "Matched-update comparison, one training seed; not common 100k final endpoint."
+    },
+    {
+      "name": "G3_80000_q_final minus G1_80000_q_final",
+      "candidate": [
+        "G3",
+        80000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        80000,
+        "q_final"
+      ],
+      "interpretation": "Matched-update comparison, one training seed; not common 100k final endpoint."
+    },
+    {
+      "name": "G0_60000_q_final minus G0_60000_q0",
+      "candidate": [
+        "G0",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        60000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independently trained DDP baseline."
+    },
+    {
+      "name": "G1_80000_q_final minus G1_80000_q0",
+      "candidate": [
+        "G1",
+        80000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        80000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independently trained DDP baseline."
+    },
+    {
+      "name": "G2_50000_q_final minus G2_50000_q0",
+      "candidate": [
+        "G2",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        50000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independently trained DDP baseline."
+    },
+    {
+      "name": "G3_100000_q_final minus G3_100000_q0",
+      "candidate": [
+        "G3",
+        100000,
+        "q_final"
+      ],
+      "baseline": [
+        "G3",
+        100000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independently trained DDP baseline."
+    },
+    {
+      "name": "G0_60000_q_final minus G0_50000_q_final",
+      "candidate": [
+        "G0",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning-curve observation; checkpoint selection is post hoc."
+    },
+    {
+      "name": "G1_80000_q_final minus G1_60000_q_final",
+      "candidate": [
+        "G1",
+        80000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        60000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning-curve observation; checkpoint selection is post hoc."
+    },
+    {
+      "name": "G2_50000_q_final minus G2_45000_q_final",
+      "candidate": [
+        "G2",
+        50000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        45000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning-curve observation; checkpoint selection is post hoc."
+    },
+    {
+      "name": "G3_100000_q_final minus G3_80000_q_final",
+      "candidate": [
+        "G3",
+        100000,
+        "q_final"
+      ],
+      "baseline": [
+        "G3",
+        80000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning-curve observation; checkpoint selection is post hoc."
+    },
+    {
+      "name": "G3_100000_q_final minus G3_50000_q_final",
+      "candidate": [
+        "G3",
+        100000,
+        "q_final"
+      ],
+      "baseline": [
+        "G3",
+        50000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning-curve observation; checkpoint selection is post hoc."
+    },
+    {
+      "name": "G2_60000_q_final minus G1_60000_q_final",
+      "candidate": [
+        "G2",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        60000,
+        "q_final"
+      ],
+      "interpretation": "Matched update; one training seed; G3 changes all structured query supervision, not only future sampling."
+    },
+    {
+      "name": "G1_70000_q_final minus G0_70000_q_final",
+      "candidate": [
+        "G1",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        70000,
+        "q_final"
+      ],
+      "interpretation": "Matched update; one training seed; G3 changes all structured query supervision, not only future sampling."
+    },
+    {
+      "name": "G2_70000_q_final minus G1_70000_q_final",
+      "candidate": [
+        "G2",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G1",
+        70000,
+        "q_final"
+      ],
+      "interpretation": "Matched update; one training seed; G3 changes all structured query supervision, not only future sampling."
+    },
+    {
+      "name": "G3_70000_q_final minus G2_70000_q_final",
+      "candidate": [
+        "G3",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        70000,
+        "q_final"
+      ],
+      "interpretation": "Matched update; one training seed; G3 changes all structured query supervision, not only future sampling."
+    },
+    {
+      "name": "G2_60000_q_final minus G2_45000_q_final",
+      "candidate": [
+        "G2",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        45000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning curve; 45k was selected post hoc; no training-seed replication."
+    },
+    {
+      "name": "G2_70000_q_final minus G2_60000_q_final",
+      "candidate": [
+        "G2",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        60000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning curve; 45k was selected post hoc; no training-seed replication."
+    },
+    {
+      "name": "G2_70000_q_final minus G2_45000_q_final",
+      "candidate": [
+        "G2",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        45000,
+        "q_final"
+      ],
+      "interpretation": "Within-run learning curve; 45k was selected post hoc; no training-seed replication."
+    },
+    {
+      "name": "G0_70000_q_final minus G0_70000_q0",
+      "candidate": [
+        "G0",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G0",
+        70000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independent DDP baseline."
+    },
+    {
+      "name": "G2_60000_q_final minus G2_60000_q0",
+      "candidate": [
+        "G2",
+        60000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        60000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independent DDP baseline."
+    },
+    {
+      "name": "G2_70000_q_final minus G2_70000_q0",
+      "candidate": [
+        "G2",
+        70000,
+        "q_final"
+      ],
+      "baseline": [
+        "G2",
+        70000,
+        "q0"
+      ],
+      "interpretation": "Same-model refinement diagnostic; q0 is not an independent DDP baseline."
+    }
+  ],
+  "nuscenes_aggregations": [
+    "reports/structured_world/round1_20261008/NUSCENES_TIME_AGGREGATION_20261010.json",
+    "reports/structured_world/round1_20261008/NUSCENES_TIME_AGGREGATION_24E_20261010.json"
+  ],
+  "historical_best": "reports/experiment_results/20261008/data/best_checkpoints.csv",
+  "historical_checkpoints": "reports/experiment_results/20261008/data/navtest_checkpoints.csv",
+  "evidence": [
+    "reports/structured_world/round1_20261008/ANALYSIS_AND_DIFFERENCES_ZH_20261010.md",
+    "reports/structured_world/round1_20261008/NUSCENES_TRAINING_BUDGET_20261010.json",
+    "reports/structured_world/round1_20261008/NAVSIM_NAVTEST_HISTORICAL_REFERENCES_20261011.json",
+    "reports/structured_world/execution_20261012/NO_REGRESSION_HOST_FAST_AND_16GPU_ZH.md",
+    "reports/structured_world/execution_20261012/G1_NATIVE_FIVEPOINT_REVIEW.json",
+    "reports/structured_world/execution_20261013/navtest_parallel_20261013T0406Z/COSTS.json",
+    "reports/structured_world/execution_20261013/navtest_g0_60k_20261013T0647Z/EXECUTION.json",
+    "reports/structured_world/execution_20261013/G1_migration_vla_zt_20261013T0850Z/MIGRATION_VERIFIED.json",
+    "reports/structured_world/execution_20261013/G1_migration_vla_zt_20261013T0850Z/REPLAY_LOG_SANITY.json",
+    "reports/structured_world/execution_20261013/G1_migration_vla_zt_20261013T0850Z/FOUR_HOST_PROHIBITION.json",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g2_only_20261014T0449Z/PAUSE_COMPLETE.json",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_pause_20261014T0425Z/PAUSE_COMPLETE.json",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/G2_vla_zt2_migration_20261014T0700Z/MIGRATION_COMPLETE.json",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/g2_70k_status_20261014T1446Z/QUEUE_RECOVERY_COMPLETE.json"
+  ],
+  "archive_anonymous_navtest_scenes": true
+}

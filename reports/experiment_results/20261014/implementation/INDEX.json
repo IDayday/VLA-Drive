@@ -1,0 +1,127 @@
+{
+  "versions": [
+    {
+      "version": "C",
+      "commit": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+      "purpose": "Full current/future DINO + GT-MAE; C0-C5 target/W matrix",
+      "files": 57,
+      "manifest": "versions/C.json",
+      "patch": null
+    },
+    {
+      "version": "S",
+      "commit": "1493deda247107efe076b9294863a6753391298a",
+      "purpose": "Eight-frame / video targets, GT action auxiliary condition, S4 direct W planner",
+      "files": 71,
+      "manifest": "versions/S.json",
+      "patch": "patches/C_to_S.patch"
+    },
+    {
+      "version": "A",
+      "commit": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "purpose": "A_ACTION / A_NO_MAE implementation and memory/query interfaces",
+      "files": 75,
+      "manifest": "versions/A.json",
+      "patch": "patches/S_to_A.patch"
+    },
+    {
+      "version": "V_QUERY",
+      "commit": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c",
+      "purpose": "Actual V_QUERY formal source; keep interface/runtime changes explicit",
+      "files": 75,
+      "manifest": "versions/V_QUERY.json",
+      "patch": "patches/A_to_V_QUERY.patch"
+    },
+    {
+      "version": "R1_S0",
+      "commit": "ee2f086d7fcb94a6ee442ff8747e378d8be016e6",
+      "purpose": "Optimized-label route, S0 original FM",
+      "files": 73,
+      "manifest": "versions/R1_S0.json",
+      "patch": "patches/S_to_R1_S0.patch"
+    },
+    {
+      "version": "R1_R_S3",
+      "commit": "32de37db070f0e4df2ce66f25e850bed2561828e",
+      "purpose": "Optimized-label Action-Only/S3 original FM; original logged auxiliary condition",
+      "files": 73,
+      "manifest": "versions/R1_R_S3.json",
+      "patch": "patches/R1_S0_to_R1_R_S3.patch"
+    },
+    {
+      "version": "OBJECTIVE_AXES",
+      "commit": "7e406a122fd662830327a0050241db728576cbb7",
+      "purpose": "512-update mature pilots: normalized axes and rollout",
+      "files": 81,
+      "manifest": "versions/OBJECTIVE_AXES.json",
+      "patch": "patches/R1_R_S3_to_OBJECTIVE_AXES.patch"
+    },
+    {
+      "version": "OBJECTIVE_GAIN",
+      "commit": "1da528e0dee0a1f81bc38b06524905b52fff724f",
+      "purpose": "Absolute x and heading FM gain pilots",
+      "files": 83,
+      "manifest": "versions/OBJECTIVE_GAIN.json",
+      "patch": "patches/OBJECTIVE_AXES_to_OBJECTIVE_GAIN.patch"
+    },
+    {
+      "version": "OBJECTIVE_ENDPOINT",
+      "commit": "b3cefdd994146526cf70f259010fce5077fc5692",
+      "purpose": "Endpoint kinematics/braking pilots and four generic-start formal runs",
+      "files": 85,
+      "manifest": "versions/OBJECTIVE_ENDPOINT.json",
+      "patch": "patches/OBJECTIVE_GAIN_to_OBJECTIVE_ENDPOINT.patch"
+    },
+    {
+      "version": "OBJECTIVE_V2",
+      "commit": "6ec45b0e8705c7919fb555c20324f91580add976",
+      "purpose": "Curriculum/normalization/weak rollout, actual optimizer groups; rejected cold-start recipe",
+      "files": 85,
+      "manifest": "versions/OBJECTIVE_V2.json",
+      "patch": "patches/OBJECTIVE_ENDPOINT_to_OBJECTIVE_V2.patch"
+    },
+    {
+      "version": "FM_STEPS",
+      "commit": "771c802021e24d7ad3c3ff4f77c6de3824669edd",
+      "purpose": "Fixed-C1 inference Euler-step sweep, not another training objective",
+      "files": 61,
+      "manifest": "versions/FM_STEPS.json",
+      "patch": "patches/C_to_FM_STEPS.patch"
+    },
+    {
+      "version": "G_NAVSIM",
+      "commit": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+      "purpose": "Single-frame geometry, time-conditioned Bt, genuine detached proposal, FGTR residual; original FM",
+      "files": 73,
+      "manifest": "versions/G_NAVSIM.json",
+      "patch": "patches/S_to_G_NAVSIM.patch"
+    },
+    {
+      "version": "G_NUSCENES",
+      "commit": "41da7c198cf0ac4f799aee2a27a0a8126de30230",
+      "purpose": "Actual six-camera/six-time formal recipe and dataset class statistics",
+      "files": 73,
+      "manifest": "versions/G_NUSCENES.json",
+      "patch": "patches/G_NAVSIM_to_G_NUSCENES.patch"
+    },
+    {
+      "version": "G_P0_WINDOW_SOURCE",
+      "commit": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+      "purpose": "Actual engineering_fast performance-window model source; not adopted formal execution",
+      "files": 78,
+      "manifest": "versions/G_P0_WINDOW_SOURCE.json",
+      "patch": "patches/G_NAVSIM_to_G_P0_WINDOW_SOURCE.patch"
+    },
+    {
+      "version": "G_HOST_FAST",
+      "commit": "30f70d63556342382367aaff25ddce4342ff256c",
+      "purpose": "Conservative host-only/visual-cache/world-scaling candidates; not fully accepted",
+      "files": 79,
+      "manifest": "versions/G_HOST_FAST.json",
+      "patch": "patches/G_P0_WINDOW_SOURCE_to_G_HOST_FAST.patch"
+    }
+  ],
+  "unique_files": 204,
+  "source_bytes": 1821949,
+  "unchanged_file_reuse": "Same SHA256 bytes stored once; every version maps original paths explicitly"
+}

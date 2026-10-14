@@ -1,0 +1,207 @@
+diff --git a/configs/trajectory_objective/fm_endpoint_braking.json b/configs/trajectory_objective/fm_endpoint_braking.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c93bb641d3193a714f02e97b80f535e538e5038
+--- /dev/null
++++ b/configs/trajectory_objective/fm_endpoint_braking.json
+@@ -0,0 +1,8 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 1.0, 1.0],
++  "fm_total_weight": 1.75,
++  "fm_endpoint_velocity_weight": 0.0005,
++  "fm_endpoint_acceleration_weight": 0.000025,
++  "fm_braking_scene_weight": 1.0,
++  "fm_braking_speed_drop_mps": 2.0
++}
+diff --git a/configs/trajectory_objective/fm_endpoint_kinematics.json b/configs/trajectory_objective/fm_endpoint_kinematics.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e9d9068675214103b342f7f4147204aeac1eeb4c
+--- /dev/null
++++ b/configs/trajectory_objective/fm_endpoint_kinematics.json
+@@ -0,0 +1,6 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 1.0, 1.0],
++  "fm_total_weight": 1.75,
++  "fm_endpoint_velocity_weight": 0.0005,
++  "fm_endpoint_acceleration_weight": 0.000025
++}
+diff --git a/starVLA/model/framework/DDPForesight.py b/starVLA/model/framework/DDPForesight.py
+index cd95d840e076ea2084a7285092dac8a1363e4269..5d5f6084238edb453672b8fd2e8f553ed83d058a 100644
+--- a/starVLA/model/framework/DDPForesight.py
++++ b/starVLA/model/framework/DDPForesight.py
+@@ -133,8 +133,14 @@ class DDPForesight(Qwenvl_OFT):
+         fm_options = {}
+         if objective is not None and any(float(w) != 1. for w in objective.fm_channel_weights):
+             fm_options['channel_weights'] = objective.fm_channel_weights
++        if objective is not None and objective.has_fm_endpoint_objective:
++            fm_options['endpoint_options'] = dict(braking_scene_weight=objective.fm_braking_scene_weight,
++                braking_speed_drop_mps=objective.fm_braking_speed_drop_mps, timestep_s=objective.timestep_s)
+         with self.amp():
+             fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times,**fm_options)
++        endpoint_terms = fm if isinstance(fm, dict) else None
++        if endpoint_terms is not None:
++            fm = endpoint_terms['fm']
+         if objective is not None and objective.fm_total_weight != 1.:
+             fm = fm * objective.fm_total_weight
+         losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
+@@ -144,6 +150,15 @@ class DDPForesight(Qwenvl_OFT):
+             from torch import distributed as dist
+             world=dist.get_world_size() if dist.is_initialized() else 1
+             losses['ego_fm']=fm*(len(ego)*world/float(counts['ego_scenes']))
++        if endpoint_terms is not None:
++            factor = len(ego)*world/float(counts['ego_scenes']) if 'ego_scenes' in counts else 1.
++            for task, coefficient in [('velocity',objective.fm_endpoint_velocity_weight),
++                                      ('acceleration',objective.fm_endpoint_acceleration_weight)]:
++                value=endpoint_terms['endpoint_'+task]
++                if coefficient:
++                    losses['ego_fm_endpoint_'+task]=value*coefficient*factor
++                metrics['fm_endpoint_'+task+'_raw']=value.detach()*factor
++            metrics['fm_braking_fraction']=endpoint_terms['braking_fraction'].detach()*factor
+         if objective is not None and objective.active(completed_updates):
+             rollout_losses, rollout_metrics = self.compute_trajectory_objective(
+                 action, ego, noise[:len(ego)], targets, completed_updates, counts)
+diff --git a/starVLA/model/modules/action_model/GR00T_ActionHeader.py b/starVLA/model/modules/action_model/GR00T_ActionHeader.py
+index 2cf9254a58a7b56e256043215ed2dba168931c0d..c09c2cf3821de244c2c887fb833be0689194f4bb 100644
+--- a/starVLA/model/modules/action_model/GR00T_ActionHeader.py
++++ b/starVLA/model/modules/action_model/GR00T_ActionHeader.py
+@@ -288,7 +288,7 @@ class FlowmatchingActionHead(nn.Module):
+ 
+ 
+     def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None,
+-                *, noise=None, times=None, channel_weights=None):
++                *, noise=None, times=None, channel_weights=None, endpoint_options=None):
+         """
+         vl_embs: shape (B, seq_length, feature_dim)
+         actions: shape (B, future_action_window_size, D_action)
+@@ -348,6 +348,9 @@ class FlowmatchingActionHead(nn.Module):
+ 
+         # Slice out only the action portion of pred and target.
+         from starVLA.model.modules.foresight.trajectory_objective import weighted_flow_mse
++        if endpoint_options is not None:
++            from starVLA.model.modules.foresight.trajectory_objective import flow_endpoint_terms
++            return flow_endpoint_terms(pred_actions,velocity,actions,t[:,0,0],channel_weights=channel_weights,**endpoint_options)
+         loss = weighted_flow_mse(pred_actions, velocity, channel_weights)
+         return loss
+ 
+diff --git a/starVLA/model/modules/foresight/trajectory_objective.py b/starVLA/model/modules/foresight/trajectory_objective.py
+index 169d79efab9a3a04dfec58d6d88a4fdd0366be1e..6ddaa649ce217ea9893863a7f6fde727b7aebfe1 100644
+--- a/starVLA/model/modules/foresight/trajectory_objective.py
++++ b/starVLA/model/modules/foresight/trajectory_objective.py
+@@ -16,6 +16,10 @@ from starVLA.dataloader.foresight_dataset import X_MEAN, X_STD, Y_MEAN, Y_STD
+ class TrajectoryObjectiveConfig:
+     fm_channel_weights: tuple = (1., 1., 1., 1.)
+     fm_total_weight: float = 1.
++    fm_endpoint_velocity_weight: float = 0.
++    fm_endpoint_acceleration_weight: float = 0.
++    fm_braking_scene_weight: float = 0.
++    fm_braking_speed_drop_mps: float = 2.
+     position_weight: float = 0.
+     heading_weight: float = 0.
+     velocity_weight: float = 0.
+@@ -40,12 +44,13 @@ class TrajectoryObjectiveConfig:
+             values = getattr(cfg, name)
+             if len(values) != length or any(not math.isfinite(float(v)) or float(v) <= 0 for v in values):
+                 raise ValueError(f'{name} requires {length} finite positive values')
+-        for name in ('position_weight', 'heading_weight', 'velocity_weight', 'acceleration_weight',
++        for name in ('fm_endpoint_velocity_weight', 'fm_endpoint_acceleration_weight', 'fm_braking_scene_weight',
++                     'position_weight', 'heading_weight', 'velocity_weight', 'acceleration_weight',
+                      'risk_overshoot_weight', 'risk_margin_m'):
+             value = getattr(cfg, name)
+             if not math.isfinite(value) or value < 0:
+                 raise ValueError(f'Invalid trajectory objective {name}')
+-        for name in ('fm_total_weight', 'longitudinal_tolerance_m', 'lateral_tolerance_m', 'heading_tolerance_rad',
++        for name in ('fm_braking_speed_drop_mps', 'fm_total_weight', 'longitudinal_tolerance_m', 'lateral_tolerance_m', 'heading_tolerance_rad',
+                      'velocity_tolerance_mps', 'acceleration_tolerance_mps2'):
+             value = getattr(cfg, name)
+             if not math.isfinite(value) or value <= 0:
+@@ -60,6 +65,11 @@ class TrajectoryObjectiveConfig:
+             raise ValueError('checkpoint_rollout must be boolean')
+         return cfg
+ 
++    @property
++    def has_fm_endpoint_objective(self):
++        return any(value > 0 for value in (self.fm_endpoint_velocity_weight,
++                   self.fm_endpoint_acceleration_weight, self.fm_braking_scene_weight))
++
+     @property
+     def absolute_fm_channel_weights(self):
+         mean = sum(self.fm_channel_weights) / len(self.fm_channel_weights)
+@@ -80,20 +90,60 @@ class TrajectoryObjectiveConfig:
+                 ('position', 'heading', 'velocity', 'acceleration', 'risk_overshoot')}
+ 
+ 
+-def weighted_flow_mse(prediction, target, channel_weights=None):
++def weighted_flow_mse(prediction, target, channel_weights=None, scene_weights=None):
+     """Preserve the exact legacy operation for equal/default weights.
+ 
+     Weights refer to encoded [x, y, sin(yaw), cos(yaw)], NOT Frenet axes.
+     Dividing by their mean preserves expected scale for isotropic encoded errors.
+     """
+-    if channel_weights is None or all(float(v) == 1. for v in channel_weights):
++    if scene_weights is None and (channel_weights is None or all(float(v) == 1. for v in channel_weights)):
+         return ((prediction - target) ** 2).mean()
+-    weights = prediction.new_tensor(channel_weights)
++    weights = prediction.new_tensor(channel_weights if channel_weights is not None else [1.] * prediction.shape[-1])
+     if weights.shape != (prediction.shape[-1],) or not torch.isfinite(weights).all() or (weights <= 0).any():
+         raise ValueError('Invalid FM channel weights')
+     error = prediction.float() - target.float()
+     weights = weights.float() / weights.float().mean()
+-    return (error.square() * weights).mean()
++    values = error.square() * weights
++    if scene_weights is None:
++        return values.mean()
++    if scene_weights.shape != (len(prediction),) or not torch.isfinite(scene_weights).all() or (scene_weights <= 0).any():
++        raise ValueError('Invalid FM scene weights')
++    # Do not divide by the weight mean: non-braking scenes keep their full loss.
++    return (values.mean(dim=(1, 2)) * scene_weights).mean()
++
++
++def flow_endpoint_terms(prediction, target_flow, actions, times, *, channel_weights=None,
++                        braking_scene_weight=0., braking_speed_drop_mps=2., timestep_s=.5):
++    """Physical derivatives of fitting error in a linear-bridge FM endpoint estimate.
++
++    Flow time t and vehicle time tau are different. For the original bridge,
++    x_t=(1-t)*noise+t*GT and v*=GT-noise. The estimated endpoint error is
++    (1-t)*(v_pred-v*). Vehicle velocity error is its difference over 0.5 s;
++    this is not the FM vector field itself or a final ten-step rollout score.
++    """
++    if prediction.shape != actions.shape or target_flow.shape != actions.shape or actions.shape[1:] != (8,4) or times.shape != (len(actions),):
++        raise ValueError('FM endpoint objective expects repeated N x 8 x 4 and N flow times')
++    if timestep_s != .5:
++        raise ValueError('Vehicle timestamps must retain their original 0.5-second spacing')
++    error = (prediction.float() - target_flow.detach().float()) * (1 - times.detach().float())[:,None,None]
++    xy_error = error[...,:2] * error.new_tensor([X_STD, Y_STD])
++    origin = xy_error.new_zeros((len(xy_error),1,2))
++    velocity_error = torch.diff(torch.cat((origin,xy_error),1),dim=1) / timestep_s
++    acceleration_error = torch.diff(velocity_error,dim=1) / timestep_s
++    scene_weights = None
++    fraction = error.new_zeros(())
++    if braking_scene_weight > 0:
++        gt = physical_xy(actions.detach().float())
++        gt_velocity = torch.diff(torch.cat((origin,gt),1),dim=1) / timestep_s
++        speed = torch.linalg.vector_norm(gt_velocity,dim=-1)
++        braking = speed[:,:2].mean(-1)-speed[:,-2:].mean(-1)>braking_speed_drop_mps
++        scene_weights = 1 + braking_scene_weight * braking.float()
++        fraction = braking.float().mean()
++    reduce = lambda value: value.mean() if scene_weights is None else (value*scene_weights).mean()
++    return dict(fm=weighted_flow_mse(prediction,target_flow,channel_weights,scene_weights),
++                endpoint_velocity=reduce(velocity_error.square().sum(-1).mean(-1)),
++                endpoint_acceleration=reduce(acceleration_error.square().sum(-1).mean(-1)),
++                braking_fraction=fraction)
+ 
+ 
+ def physical_xy(encoded):
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index 5b863f5f2313d7ae243eeba7e9d9ee1b01359c92..ac24ac0c238c3ce9af0ca07b0419d293c796f367 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -412,6 +412,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                     row['trajectory_objective']={
+                         'fm_total_weight':objective.fm_total_weight,
+                         'absolute_fm_channel_weights':objective.absolute_fm_channel_weights,
++                        'fm_endpoint_velocity_weight':objective.fm_endpoint_velocity_weight,
++                        'fm_endpoint_acceleration_weight':objective.fm_endpoint_acceleration_weight,
++                        'fm_braking_scene_weight':objective.fm_braking_scene_weight,
++                        'fm_endpoint_semantics':'physical velocity/acceleration fitting at the current linear-bridge FM endpoint estimate; not final rollout diagnostics',
+                         'rollout_active':objective.active(completed-1+loss_update_offset),
+                         'effective_weights':objective.effective_weights(completed-1+loss_update_offset),
+                         'rollout_steps':model.action_model.num_inference_timesteps,

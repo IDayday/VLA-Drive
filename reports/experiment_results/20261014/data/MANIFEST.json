@@ -1,0 +1,75 @@
+{
+  "schema": "round1_results_consolidation_v1",
+  "started_UTC": "2026-10-14T15:06:19.111779+00:00",
+  "finished_UTC": "2026-10-14T15:08:01.228100+00:00",
+  "inputs_sha256": "6e474f736d2facba45b892658aaf9f84f73d900ad0c490103593bcc43ae1edd3",
+  "exporter_sha256": "72e97277d49c85e7eca19fa43e00a88e9ee4de478f7bc1e609578e53b6435213",
+  "report_base_commit": "ed0725c767a888403b6a6ef3490eb0fdfc929a23",
+  "counts": {
+    "navtest_checkpoints": 21,
+    "navtest_variants": 42,
+    "nuscenes_checkpoint_observations": 5,
+    "training_runs": 6,
+    "scene_field_observations": 8
+  },
+  "nuscenes_prefix_check": {
+    "existing_exporter_tolerance": 1e-07,
+    "max_abs_difference": 1.4116734448066381e-09
+  },
+  "outputs": {
+    "G_BOOTSTRAP_LOG_ORDER.json": {
+      "sha256": "3ffd3ad260a5a3667325c873ed193b72bf42b8ba0e0c9e368cfc40f2b1bc087e",
+      "bytes": 4083
+    },
+    "G_NAVTEST_SCENES.csv.gz": {
+      "sha256": "f6b09b24f3b3247934448ade84efc6047c2ba18a4ab246c0445ee9ecb50712e9",
+      "bytes": 17742888
+    },
+    "HISTORICAL_BEST.csv": {
+      "sha256": "62b09c74688b5da41c36aaafff288260900b9f85845e6206a0786bc96ec113e2",
+      "bytes": 6278
+    },
+    "NAVSIM_LEARNING_CURVES.png": {
+      "sha256": "48fa899296d9bdf8a8fa416264b4d40e613a1fc2c3678a41b3d38221d1551782",
+      "bytes": 167332
+    },
+    "NAVSIM_NAVTEST.csv": {
+      "sha256": "ed717dbd0d719faa655ad1688010d4d5d84928bb2df9b853acc13a314c67d171",
+      "bytes": 11196
+    },
+    "NUSCENES_PLANNING.csv": {
+      "sha256": "2e40886e424f251678ae1856e245ce29213483517ebbba6d8230bc137a3c8698",
+      "bytes": 6921
+    },
+    "PAIRED_COMPARISONS.json": {
+      "sha256": "c20a36921995f3714097dcbd8fe2f9f2d83ed2dc47cb9a72c2fcd3779bda711f",
+      "bytes": 115214
+    },
+    "SCENE_SUPERVISION.json": {
+      "sha256": "3a1bb715d7265807f3d915b1de7ff3a9bf69d5b98ec9ed515912f410019e7ee4",
+      "bytes": 269424
+    },
+    "SOURCE_VERSIONS.json": {
+      "sha256": "5565546f51691123c2336d5582e9cfea9ff81fe3049fcafc725325522fd695be",
+      "bytes": 388046
+    },
+    "TRAINING_STATUS.csv": {
+      "sha256": "328a465511792db8a90af9be50a2f8e86db361a278eb4edf79f7b408c8de8234",
+      "bytes": 3245
+    }
+  },
+  "checks": [
+    "42 canonical CSV hashes, all means, zero counts and identical token/log membership",
+    "canonical protocol equality, registered training and checkpoint identities",
+    "bounded live log prefixes and explicit native continuation segments where registered",
+    "nuScenes native completion hashes and prefix aggregation consistency"
+  ],
+  "limits": [
+    "No new inference, training, model selection or performance benchmark",
+    "Latest/best observations are not a common completed training endpoint",
+    "Repeatedly observed Navtest is not an untouched final holdout",
+    "Scene bootstrap and inference sampling seeds do not replace training seeds",
+    "Training GPU-hour counters omit preprocessing, pilots, scoring and discarded branches",
+    "Current tail timings include any cohost interference and are not isolated benchmarks"
+  ]
+}

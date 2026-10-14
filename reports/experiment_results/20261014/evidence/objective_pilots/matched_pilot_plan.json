@@ -1,0 +1,61 @@
+{
+  "stage": "MATCHED_512_UPDATE_PILOTS",
+  "source_sha": "7e406a122fd662830327a0050241db728576cbb7",
+  "initialization": "same mature S3 FP32 weights, original full S3 auxiliaries retained, reset optimizer identical across arms",
+  "fixed_controls": {
+    "global_batch": 32,
+    "world_size": 4,
+    "micro_batch": 4,
+    "pilot_updates": 512,
+    "learning_rate": 1e-05,
+    "warmup": 0,
+    "scheduler_horizon": 100000,
+    "data": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "loss_update_offset": 100000,
+    "seed": 42
+  },
+  "scope_note": "Short mature-model diagnosis. Full runs, if justified, will use original generic initialization, eight total GPUs, 5000-update warmup and 100000 updates.",
+  "groups": {
+    "control": [
+      {
+        "run_id": "S3_r1_control_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "port": 29963,
+        "data": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+        "objective": null
+      }
+    ],
+    "candidates": [
+      {
+        "run_id": "S3_r1_fm_axes_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "port": 29964,
+        "data": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-campaign-20261006/configs/trajectory_objective/fm_axes.json"
+      },
+      {
+        "run_id": "S3_r1_rollout_512",
+        "relative_cards": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "port": 29965,
+        "data": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+        "objective": "/mnt/project/trajectory-objective-training-artifacts/20261006/selected_candidates/rollout_calibrated_v1.json"
+      }
+    ]
+  },
+  "selection": "official held-out dev scoring, never Navtest; no full runs enabled by this pilot launcher"
+}

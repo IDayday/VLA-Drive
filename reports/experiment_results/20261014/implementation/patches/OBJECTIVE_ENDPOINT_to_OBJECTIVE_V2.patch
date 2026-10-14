@@ -1,0 +1,398 @@
+diff --git a/starVLA/model/framework/DDPForesight.py b/starVLA/model/framework/DDPForesight.py
+index 5d5f6084238edb453672b8fd2e8f553ed83d058a..87c938c2bf30905eba4ecf5e1ac6c62dab59f110 100644
+--- a/starVLA/model/framework/DDPForesight.py
++++ b/starVLA/model/framework/DDPForesight.py
+@@ -117,7 +117,7 @@ class DDPForesight(Qwenvl_OFT):
+         return torch.cat((action, world), dim=1)
+ 
+     def forward(self, observations, targets, *, completed_updates=0, noise_generator=None,
+-                time_generator=None, horizon_generator=None, global_counts=None):
++                time_generator=None, horizon_generator=None, global_counts=None, objective_updates=None):
+         encoded=self.encode_current(observations)
+         action=self.build_planner_condition(encoded);device=action.device
+         ego=targets['ego'].to(device=device,dtype=torch.float32)
+@@ -130,19 +130,27 @@ class DDPForesight(Qwenvl_OFT):
+         u=torch.rand((len(y),),device=device,generator=time_generator)
+         times=(cfg.noise_s-u.pow(1./cfg.noise_beta_alpha))/cfg.noise_s
+         objective = getattr(self, 'trajectory_objective_config', None)
++        objective_updates = completed_updates if objective_updates is None else objective_updates
++        effective_fm = objective.effective_fm(objective_updates) if objective is not None else None
+         fm_options = {}
+-        if objective is not None and any(float(w) != 1. for w in objective.fm_channel_weights):
+-            fm_options['channel_weights'] = objective.fm_channel_weights
++        if objective is not None and any(float(w) != 1. for w in effective_fm['channel_weights']):
++            fm_options['channel_weights'] = effective_fm['channel_weights']
+         if objective is not None and objective.has_fm_endpoint_objective:
+-            fm_options['endpoint_options'] = dict(braking_scene_weight=objective.fm_braking_scene_weight,
++            normalizer = 1.
++            if objective.fm_normalize_scene_weights and effective_fm['braking_scene_weight']:
++                if global_counts is None or 'ego_braking_scenes' not in global_counts:
++                    raise ValueError('Normalized braking weights require optimizer-batch global counts')
++                normalizer += effective_fm['braking_scene_weight'] * global_counts['ego_braking_scenes'] / global_counts['ego_scenes']
++            fm_options['endpoint_options'] = dict(braking_scene_weight=effective_fm['braking_scene_weight'],
++                scene_weight_normalizer=normalizer,
+                 braking_speed_drop_mps=objective.fm_braking_speed_drop_mps, timestep_s=objective.timestep_s)
+         with self.amp():
+             fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times,**fm_options)
+         endpoint_terms = fm if isinstance(fm, dict) else None
+         if endpoint_terms is not None:
+             fm = endpoint_terms['fm']
+-        if objective is not None and objective.fm_total_weight != 1.:
+-            fm = fm * objective.fm_total_weight
++        if objective is not None and effective_fm['total_weight'] != 1.:
++            fm = fm * effective_fm['total_weight']
+         losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
+         weights=min(1.,(completed_updates+1)/cfg.auxiliary_warmup)
+         counts=global_counts or {}
+@@ -152,16 +160,18 @@ class DDPForesight(Qwenvl_OFT):
+             losses['ego_fm']=fm*(len(ego)*world/float(counts['ego_scenes']))
+         if endpoint_terms is not None:
+             factor = len(ego)*world/float(counts['ego_scenes']) if 'ego_scenes' in counts else 1.
+-            for task, coefficient in [('velocity',objective.fm_endpoint_velocity_weight),
+-                                      ('acceleration',objective.fm_endpoint_acceleration_weight)]:
++            for task, coefficient in [('velocity',effective_fm['velocity_weight']),
++                                      ('acceleration',effective_fm['acceleration_weight'])]:
+                 value=endpoint_terms['endpoint_'+task]
+                 if coefficient:
+                     losses['ego_fm_endpoint_'+task]=value*coefficient*factor
+                 metrics['fm_endpoint_'+task+'_raw']=value.detach()*factor
+             metrics['fm_braking_fraction']=endpoint_terms['braking_fraction'].detach()*factor
+-        if objective is not None and objective.active(completed_updates):
++            for index,channel in enumerate(('x','y','sin_yaw','cos_yaw')):
++                metrics['fm_channel_'+channel+'_raw']=endpoint_terms['channel_mse'][index]*factor
++        if objective is not None and objective.active(objective_updates):
+             rollout_losses, rollout_metrics = self.compute_trajectory_objective(
+-                action, ego, noise[:len(ego)], targets, completed_updates, counts)
++                action, ego, noise[:len(ego)], targets, objective_updates, counts)
+             losses.update(rollout_losses); metrics.update(rollout_metrics)
+         if hasattr(self,'future_head'):
+             values=targets['future_latent'].to(device)
+diff --git a/starVLA/model/modules/foresight/trajectory_objective.py b/starVLA/model/modules/foresight/trajectory_objective.py
+index 6ddaa649ce217ea9893863a7f6fde727b7aebfe1..60f510ae8093a35cf766b3b7d0ff6b6066a326b6 100644
+--- a/starVLA/model/modules/foresight/trajectory_objective.py
++++ b/starVLA/model/modules/foresight/trajectory_objective.py
+@@ -20,6 +20,8 @@ class TrajectoryObjectiveConfig:
+     fm_endpoint_acceleration_weight: float = 0.
+     fm_braking_scene_weight: float = 0.
+     fm_braking_speed_drop_mps: float = 2.
++    fm_warmup_updates: int = 0
++    fm_normalize_scene_weights: bool = False
+     position_weight: float = 0.
+     heading_weight: float = 0.
+     velocity_weight: float = 0.
+@@ -63,8 +65,24 @@ class TrajectoryObjectiveConfig:
+                 raise ValueError(f'{name} must be a positive integer')
+         if not isinstance(cfg.checkpoint_rollout, bool):
+             raise ValueError('checkpoint_rollout must be boolean')
++        if isinstance(cfg.fm_warmup_updates, bool) or not isinstance(cfg.fm_warmup_updates, int) or cfg.fm_warmup_updates < 0:
++            raise ValueError('fm_warmup_updates must be a nonnegative integer')
++        if not isinstance(cfg.fm_normalize_scene_weights, bool):
++            raise ValueError('fm_normalize_scene_weights must be boolean')
+         return cfg
+ 
++    def effective_fm(self, completed_updates):
++        """Ramp from the original FM objective using this run's update counter."""
++        ramp = min(1., (completed_updates + 1) / self.fm_warmup_updates) if self.fm_warmup_updates else 1.
++        absolute = tuple(1. + ramp * (w - 1.) for w in self.absolute_fm_channel_weights)
++        # Keep the historical computation when warmup is disabled.
++        channels = absolute if self.fm_warmup_updates else self.fm_channel_weights
++        total = sum(absolute) / 4 if self.fm_warmup_updates else self.fm_total_weight
++        return dict(channel_weights=channels, total_weight=total, ramp=ramp,
++                    velocity_weight=ramp*self.fm_endpoint_velocity_weight,
++                    acceleration_weight=ramp*self.fm_endpoint_acceleration_weight,
++                    braking_scene_weight=ramp*self.fm_braking_scene_weight)
++
+     @property
+     def has_fm_endpoint_objective(self):
+         return any(value > 0 for value in (self.fm_endpoint_velocity_weight,
+@@ -113,7 +131,8 @@ def weighted_flow_mse(prediction, target, channel_weights=None, scene_weights=No
+ 
+ 
+ def flow_endpoint_terms(prediction, target_flow, actions, times, *, channel_weights=None,
+-                        braking_scene_weight=0., braking_speed_drop_mps=2., timestep_s=.5):
++                        braking_scene_weight=0., braking_speed_drop_mps=2., timestep_s=.5,
++                        scene_weight_normalizer=1.):
+     """Physical derivatives of fitting error in a linear-bridge FM endpoint estimate.
+ 
+     Flow time t and vehicle time tau are different. For the original bridge,
+@@ -133,19 +152,27 @@ def flow_endpoint_terms(prediction, target_flow, actions, times, *, channel_weig
+     scene_weights = None
+     fraction = error.new_zeros(())
+     if braking_scene_weight > 0:
+-        gt = physical_xy(actions.detach().float())
+-        gt_velocity = torch.diff(torch.cat((origin,gt),1),dim=1) / timestep_s
+-        speed = torch.linalg.vector_norm(gt_velocity,dim=-1)
+-        braking = speed[:,:2].mean(-1)-speed[:,-2:].mean(-1)>braking_speed_drop_mps
++        braking = braking_scenes(actions, braking_speed_drop_mps)
+         scene_weights = 1 + braking_scene_weight * braking.float()
++        if not math.isfinite(scene_weight_normalizer) or scene_weight_normalizer < 1:
++            raise ValueError('Invalid global scene weight normalizer')
++        scene_weights = scene_weights / scene_weight_normalizer
+         fraction = braking.float().mean()
+     reduce = lambda value: value.mean() if scene_weights is None else (value*scene_weights).mean()
+     return dict(fm=weighted_flow_mse(prediction,target_flow,channel_weights,scene_weights),
++                channel_mse=(prediction.detach().float()-target_flow.detach().float()).square().mean(dim=(0,1)),
+                 endpoint_velocity=reduce(velocity_error.square().sum(-1).mean(-1)),
+                 endpoint_acceleration=reduce(acceleration_error.square().sum(-1).mean(-1)),
+                 braking_fraction=fraction)
+ 
+ 
++def braking_scenes(actions, speed_drop_mps=2.):
++    gt = physical_xy(actions.detach().float())
++    origin = gt.new_zeros((len(gt), 1, 2))
++    speed = torch.linalg.vector_norm(torch.diff(torch.cat((origin, gt), 1), dim=1) / .5, dim=-1)
++    return speed[:, :2].mean(-1) - speed[:, -2:].mean(-1) > speed_drop_mps
++
++
+ def physical_xy(encoded):
+     return encoded[..., :2] * encoded.new_tensor([X_STD, Y_STD]) + encoded.new_tensor([X_MEAN, Y_MEAN])
+ 
+diff --git a/tools/foresight/student_state.py b/tools/foresight/student_state.py
+index 7033207c954b52e8084656362bc7ec3401f72972..1f39d8c8af78ac6502123fa7e5bbf65e918bc478 100644
+--- a/tools/foresight/student_state.py
++++ b/tools/foresight/student_state.py
+@@ -36,7 +36,7 @@ def restore_rng(state,generators):
+     for key,generator in generators.items():generator.set_state(state['generators'][key].cpu())
+ 
+ 
+-def optimizer_batch_counts(targets,horizon_generator,device):
++def optimizer_batch_counts(targets,horizon_generator,device,objective=None):
+     """Select LOSS horizons before microbatch slicing, never alter current inputs.
+ 
+     All ranks SUM the entire optimizer batch denominator exactly once. The model
+@@ -44,6 +44,9 @@ def optimizer_batch_counts(targets,horizon_generator,device):
+     the optimizer's gradient average. No further microbatch averaging is valid.
+     """
+     counts={'ego_scenes':len(targets['ego'])}
++    if objective is not None and objective.fm_normalize_scene_weights and objective.fm_braking_scene_weight:
++        from starVLA.model.modules.foresight.trajectory_objective import braking_scenes
++        counts['ego_braking_scenes'] = int(braking_scenes(targets['ego'], objective.fm_braking_speed_drop_mps).sum())
+     if 'future_clip' in targets:
+         values, valid = targets['future_clip'], targets['future_clip_valid']
+         if values.ndim != 6 or valid.shape != values.shape[:-1] or valid.dtype != torch.bool:
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index ac24ac0c238c3ce9af0ca07b0419d293c796f367..7f2ba1f84d106c43d384fd87d15bba54a5d08026 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -24,7 +24,7 @@ from tools.ddpolicy_vehicle.prepare_data import atomic_json
+ from tools.ddpolicy_vehicle.run_meter import metered_run
+ from tools.ddpolicy_vehicle.training_state import epoch_batches
+ from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
+-from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups,capture_master_samples,master_update_evidence,MAX_GROUP_ELEMENTS
++from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups,capture_master_samples,master_update_evidence,MAX_GROUP_ELEMENTS,configured_gradient_clipping
+ from starVLA.model.modules.vehicle_joint.initialization import identity_hash,module_manifest,tensor_hash
+ from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset,collate_training
+ from .student_state import capture_rng,restore_rng,optimizer_batch_counts,learning_rate,validate_rank_batches
+@@ -225,13 +225,15 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                       for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head','spatiotemporal_head')}})
+     import deepspeed
+     ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
+-               'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
++               'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':configured_gradient_clipping(cfg.trainer),'steps_per_print':1000000,
+                'zero_optimization':{'stage':2,'overlap_comm':True,'contiguous_gradients':True,'reduce_bucket_size':50000000,'allgather_bucket_size':50000000},
+                'optimizer':{'type':'AdamW','params':{'lr':schedule['base'],'betas':list(cfg.trainer.optimizer.betas),
+                     'eps':float(cfg.trainer.optimizer.eps),'weight_decay':float(cfg.trainer.optimizer.weight_decay)}}}
+     if a.offload_optimizer:
+         ds_config['zero_optimization']['offload_optimizer']={'device':'cpu','pin_memory':True};ds_config['zero_force_ds_cpu_optimizer']=True
+-    groups,group_records=bounded_parameter_groups(model.named_parameters())
++    module_rates=OmegaConf.to_container(cfg.trainer.learning_rate,resolve=True)
++    groups,group_records=bounded_parameter_groups(model.named_parameters(), learning_rates=module_rates)
++    lr_multipliers=[record['base_lr']/schedule['base'] for record in group_records]
+     if rank==0 and not a.resume:atomic_json(out/'optimizer_groups.json',group_records)
+     engine,_,_,_=deepspeed.initialize(model=model,model_parameters=groups,config=ds_config)
+     initial_memory=torch.tensor([torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved()],device='cuda',dtype=torch.int64)
+@@ -323,9 +325,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+             observations,targets=collate_training(samples)
+             data_seconds=time.time()-started
+             torch.cuda.reset_peak_memory_stats()
+-            counts=optimizer_batch_counts(targets,generators['horizon'],'cuda')
++            counts=optimizer_batch_counts(targets,generators['horizon'],'cuda',getattr(model,'trajectory_objective_config',None))
+             lr=learning_rate(completed,schedule['base'],schedule['minimum'],schedule['warmup'],schedule['horizon'])
+-            for group in engine.optimizer.param_groups:group['lr']=lr
++            for group,multiplier in zip(engine.optimizer.param_groups,lr_multipliers):group['lr']=lr*multiplier
+             logs={};exposures=torch.zeros(6,device='cuda',dtype=torch.int64)
+             if need_vis:
+                 h=targets['visual_horizon'];valid=targets['future_valid'][torch.arange(len(h)),h].sum(-1)
+@@ -338,6 +340,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                 end=min(len(indices),at+a.micro_batch);boundary=end==len(indices)
+                 engine.set_gradient_accumulation_boundary(boundary)
+                 output=engine(observations[at:end],{k:v[at:end] for k,v in targets.items()},completed_updates=completed+loss_update_offset,
++                    objective_updates=completed,
+                     noise_generator=generators['noise'],time_generator=generators['time'],horizon_generator=generators['horizon'],global_counts=counts)
+                 if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
+                 engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
+@@ -345,11 +348,11 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                 for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw','future_clip_raw'):
+                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
+                 for key, value in output['metrics'].items():
+-                    if key.startswith('ego_rollout_'):
++                    if key.startswith(('ego_rollout_', 'fm_endpoint_', 'fm_braking_', 'fm_channel_')):
+                         # Already normalized against all optimizer scenes/ranks.
+                         logs[key]=logs.get(key,0.)+float(value)
+                 if boundary:before=capture_master_samples(engine.optimizer)
+-                observe = full_method and a.scope=='formal' and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
++                observe = full_method and a.scope in {'formal','objective_pilot'} and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
+                 if observe:
+                     from tools.full_foresight.training_observation import before_step,after_step
+                     observation_before=before_step(model)
+@@ -408,7 +411,11 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
+                 if a.scope=='profile':row['rank0_readout_forward_gpu_ms']=readout_times
+                 objective=getattr(model,'trajectory_objective_config',None)
++                row['gradient_clipping']=ds_config['gradient_clipping']
++                row['lr_by_group']=[lr*m for m in lr_multipliers]
++                row['clip_scale']=min(1.,ds_config['gradient_clipping']/max(row['grad_norm'],1e-12)) if ds_config['gradient_clipping'] else 1.
+                 if objective is not None:
++                    effective_fm=objective.effective_fm(completed-1)
+                     row['trajectory_objective']={
+                         'fm_total_weight':objective.fm_total_weight,
+                         'absolute_fm_channel_weights':objective.absolute_fm_channel_weights,
+@@ -416,14 +423,17 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                         'fm_endpoint_acceleration_weight':objective.fm_endpoint_acceleration_weight,
+                         'fm_braking_scene_weight':objective.fm_braking_scene_weight,
+                         'fm_endpoint_semantics':'physical velocity/acceleration fitting at the current linear-bridge FM endpoint estimate; not final rollout diagnostics',
+-                        'rollout_active':objective.active(completed-1+loss_update_offset),
+-                        'effective_weights':objective.effective_weights(completed-1+loss_update_offset),
++                        'effective_fm':effective_fm,
++                        'objective_updates':completed,
++                        'scene_weights_normalized':objective.fm_normalize_scene_weights,
++                        'rollout_active':objective.active(completed-1),
++                        'effective_weights':objective.effective_weights(completed-1),
+                         'rollout_steps':model.action_model.num_inference_timesteps,
+                         'rollout_dropout':'disabled; checkpoint recomputation also disables dropout',
+                         'cadence_scaling':'active-update coefficients; no multiplication by rollout_every'}
+                 if full_method:
+                     fcfg=model.foresight_config;warm=min(1.,(completed+loss_update_offset)/fcfg.auxiliary_warmup)
+-                    fm_gain=objective.fm_total_weight if objective is not None else 1.
++                    fm_gain=effective_fm['total_weight'] if objective is not None else 1.
+                     row['effective_weights']={'ego_fm':fm_gain,'current_dino':fcfg.lambda_cur if need_cur else 0.,
+                         'future_dino':fcfg.lambda_fut*warm if need_fut else 0.,'interaction':fcfg.lambda_int*warm if need_int else 0.}
+                     row['raw_losses']={'ego_fm':logs['ego_fm']/fm_gain,**{k:logs.get(k+'_raw') for k in ('current_dino','future_dino','interaction')}}
+diff --git a/tools/trajectory_objective/calibrate.py b/tools/trajectory_objective/calibrate.py
+index 247bb34fcee9941cec6d9dd898f3c01128ab9c61..625250ffa6c0c78e473e653a141cadde7c4e140e 100644
+--- a/tools/trajectory_objective/calibrate.py
++++ b/tools/trajectory_objective/calibrate.py
+@@ -19,7 +19,10 @@ def main():
+     p.add_argument('--training-run', required=True); p.add_argument('--tag', default='milestone_100000')
+     p.add_argument('--data', required=True); p.add_argument('--labels', required=True)
+     p.add_argument('--objective', required=True); p.add_argument('--output', type=Path, required=True)
++    p.add_argument('--compare-objective')
++    p.add_argument('--generic-initialization', action='store_true')
+     p.add_argument('--samples', type=int, default=4)
++    p.add_argument('--braking-samples', type=int, default=0)
+     a = p.parse_args(); a.output.mkdir(parents=True, exist_ok=True)
+     if not 1 <= a.samples <= 8: raise ValueError('Small training-only calibration')
+     torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32 = torch.backends.cudnn.allow_tf32 = False
+@@ -27,11 +30,28 @@ def main():
+     atomic_json(a.output/'progress.json', dict(stage='LOADING', started_unix=started))
+     training, checkpoint = checkpoint_identity(a.training_run, a.tag)
+     cfg = TrajectoryObjectiveConfig.from_mapping(json.loads(Path(a.objective).read_text()))
+-    model = load_student(a.training_run, a.tag, training, precision='bf16', strip=True)
++    comparison = TrajectoryObjectiveConfig.from_mapping(json.loads(Path(a.compare_objective).read_text())) if a.compare_objective else None
++    if a.generic_initialization:
++        from omegaconf import OmegaConf
++        from starVLA.model.framework import build_framework
++        config=OmegaConf.create(training['config']);config.framework.qwenvl.device_map='cpu'
++        model=build_framework(config);model.strip_auxiliary_heads();model.cuda().bfloat16().eval()
++    else:
++        model = load_student(a.training_run, a.tag, training, precision='bf16', strip=True)
+     model.action_model.train()
+     data = ForesightTrainingDataset(a.data, ego_relabel_root=a.labels)
+     if data.identity['split'] != 'train': raise ValueError('Calibration cannot use dev/Navtest')
+-    chosen = np.random.default_rng(20261006).choice(len(data), size=a.samples, replace=False)
++    chosen = list(np.random.default_rng(20261006).choice(len(data), size=a.samples, replace=False))
++    if a.braking_samples:
++        if not 0 < a.braking_samples <= 4:raise ValueError('At most four additional braking scenes')
++        overlay=np.load(Path(a.labels)/'labels.npz')
++        xy=overlay['trajectories'][...,:2]
++        velocity=np.diff(np.concatenate((np.zeros((len(xy),1,2)),xy),axis=1),axis=1)/.5
++        speed=np.linalg.norm(velocity,axis=-1)
++        mask=overlay['accepted'] & ((speed[:,:2].mean(-1)-speed[:,-2:].mean(-1))>cfg.fm_braking_speed_drop_mps)
++        tokens=set(overlay['tokens'][mask].tolist())
++        candidates=[i for i,row in enumerate(data.index) if row['token'] in tokens and i not in chosen]
++        chosen += list(np.random.default_rng(20261008).choice(candidates,size=a.braking_samples,replace=False))
+     records = []
+     for at, index in enumerate(chosen):
+         observation, target = data[int(index)]
+@@ -48,9 +68,28 @@ def main():
+         torch.manual_seed(77000 + int(index))
+         with model.amp(): fm = model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times)
+         base_grad = torch.autograd.grad(fm, selected)
++        reference=None
++        if comparison is not None:
++            torch.manual_seed(77000+int(index))
++            with model.amp(): ref=model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times,
++                channel_weights=comparison.fm_channel_weights,endpoint_options=dict(braking_scene_weight=comparison.fm_braking_scene_weight,
++                    braking_speed_drop_mps=comparison.fm_braking_speed_drop_mps))
++            ref_loss=ref['fm']*comparison.fm_total_weight+ref['endpoint_velocity']*comparison.fm_endpoint_velocity_weight+ref['endpoint_acceleration']*comparison.fm_endpoint_acceleration_weight
++            ref_grad=torch.autograd.grad(ref_loss,selected)
++            reference=dict(loss=float(ref_loss.detach()),gradient=dict(condition=float(ref_grad[0].float().norm()),decoder=float(ref_grad[1].float().norm())))
++            del ref,ref_loss,ref_grad
+         torch.manual_seed(77000 + int(index))
+-        with model.amp(): weighted = model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times,
+-            channel_weights=cfg.fm_channel_weights)
++        with model.amp(): endpoint = model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times,
++            channel_weights=cfg.fm_channel_weights, endpoint_options=dict(braking_scene_weight=cfg.fm_braking_scene_weight,
++                braking_speed_drop_mps=cfg.fm_braking_speed_drop_mps))
++        # Train-only reference fraction is recorded; optimizer training computes
++        # the exact global-batch denominator, including original-GT fallbacks.
++        normalizer=1.+cfg.fm_braking_scene_weight*.15 if cfg.fm_normalize_scene_weights else 1.
++        components=dict(fm=endpoint['fm']*cfg.fm_total_weight/normalizer,
++            endpoint_velocity=endpoint['endpoint_velocity']*cfg.fm_endpoint_velocity_weight/normalizer,
++            endpoint_acceleration=endpoint['endpoint_acceleration']*cfg.fm_endpoint_acceleration_weight/normalizer)
++        weighted=sum(components.values())
++        component_grads={k:torch.autograd.grad(v,selected,retain_graph=True) for k,v in components.items()}
+         weighted_grad = torch.autograd.grad(weighted, selected)
+         torch.cuda.synchronize(); step_start = time.time(); torch.cuda.reset_peak_memory_stats()
+         with model.amp(): rollout = model.action_model.rollout_action(condition,
+@@ -67,18 +106,26 @@ def main():
+         def norms(grads): return dict(condition=float(grads[0].float().norm()), decoder=float(grads[1].float().norm()))
+         bnorm, wnorm, rnorm = norms(base_grad), norms(weighted_grad), norms(combined)
+         ratios = {key: rnorm[key]/max(wnorm[key],1e-12) for key in rnorm}
+-        record = dict(token=observation['token'], index=int(index), fm=float(fm.detach()), weighted_fm=float(weighted.detach()),
++        record = dict(token=observation['token'], index=int(index), sampling_group='uniform' if at<a.samples else 'braking',
++            fm=float(fm.detach()), weighted_fm=float(weighted.detach()),
++            fm_components={k:float(v.detach()) for k,v in components.items()},
++            fm_channel_raw=endpoint['channel_mse'].tolist(),
++            fm_component_gradients={k:norms(v) for k,v in component_grads.items()},
++            calibration_scene_weight_normalizer=normalizer,
+             rollout_raw=values, physical_diagnostics={k:float(v.mean().detach()) for k,v in diagnostics.items()},
+             fm_gradient=bnorm, weighted_fm_gradient=wnorm, rollout_combined_gradient=rnorm,
+             active_update_rollout_to_weighted_fm_gradient_ratio=ratios,
+             rollout_term_gradient={k:norms(v) for k,v in gradients.items()},
+             peak_allocated_bytes=torch.cuda.max_memory_allocated(), seconds=time.time()-step_start)
++        record['objective_to_original_fm_gradient_ratio']={k:wnorm[k]/max(bnorm[k],1e-12) for k in bnorm}
++        record['comparison_objective']=reference
++        record['weighted_fm_vs_original_gradient_cosine']={key:float(torch.nn.functional.cosine_similarity(base_grad[i].float().flatten(),weighted_grad[i].float().flatten(),dim=0)) for i,key in enumerate(['condition','decoder'])}
+         records.append(record); atomic_json(a.output/'records.json',records)
+-        atomic_json(a.output/'progress.json',dict(stage='CALIBRATING',completed=at+1,expected=a.samples,seconds=time.time()-started))
+-        del rollout,terms,gradients,combined,base_grad,weighted_grad,condition,encoded
++        atomic_json(a.output/'progress.json',dict(stage='CALIBRATING',completed=at+1,expected=len(chosen),seconds=time.time()-started))
++        del rollout,terms,gradients,combined,base_grad,weighted_grad,condition,encoded,component_grads,components,endpoint
+         torch.cuda.empty_cache()
+-    result=dict(status='REAL_GRADIENT_CALIBRATION_COMPLETE', checkpoint=checkpoint, data=data.identity['identity'],
+-        labels=data.ego_relabel_identity['identity'], objective=asdict(cfg), samples=records,
++    result=dict(status='REAL_GRADIENT_CALIBRATION_COMPLETE', checkpoint=checkpoint, generic_initialization=a.generic_initialization, data=data.identity['identity'],
++        labels=data.ego_relabel_identity['identity'], objective=asdict(cfg), comparison_objective=asdict(comparison) if comparison else None, samples=records,
+         scope='uniform training scenes; real mature BF16 action head; detached current condition to measure shared-condition and decoder gradients; not optimizer/ZeRO verification or official PDMS',
+         claim='finite gradients and magnitude evidence only; training/held-out safety validation still required',seconds=time.time()-started)
+     atomic_json(a.output/'result.json',result); atomic_json(a.output/'progress.json',dict(stage='COMPLETE',seconds=time.time()-started))
+diff --git a/tools/trajectory_objective/pilot_initialization.py b/tools/trajectory_objective/pilot_initialization.py
+index 78f1064f60e7af9635cbe937d4092e211db70668..a6cba5b4dd4427cdfae2e0b8783d70e84fe9fbc3 100644
+--- a/tools/trajectory_objective/pilot_initialization.py
++++ b/tools/trajectory_objective/pilot_initialization.py
+@@ -16,5 +16,14 @@ def validate(path,config,scope):
+     cfg=OmegaConf.to_container(config,resolve=True)
+     cfg.pop('trajectory_objective',None)
+     parent=dict(record['parent_config']);parent.pop('trajectory_objective',None)
++    # Finite pilots may tune optimizer hyperparameters, never architecture,
++    # data routing, initialization seed or auxiliary-loss configuration.
++    cfg=json.loads(json.dumps(cfg));parent=json.loads(json.dumps(parent))
++    for item in (cfg,parent):
++        trainer=item.get('trainer',{})
++        for key in ('learning_rate','gradient_clipping','max_grad_norm'):
++            trainer.pop(key,None)
++        if 'scheduler_specific_kwargs' in trainer:
++            trainer['scheduler_specific_kwargs'].pop('min_lr',None)
+     if cfg!=parent:raise ValueError('Pilot must preserve the exact parent architecture/config except ego objective')
+     return record

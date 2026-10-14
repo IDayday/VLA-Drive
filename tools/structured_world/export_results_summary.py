@@ -1,12 +1,14 @@
-"""Read-only round-one result consolidation; no models, jobs or scene IDs exported.
+"""Read-only round-one result consolidation; no models, jobs or raw scene IDs exported.
 
 Uses the existing canonical CSV validator and log-cluster bootstrap. Native
 weights are never loaded. A live training log is captured as a bounded prefix;
-G1's resumed tail is selected using its recorded byte boundary, not max(step).
+Resumed tails use registered byte boundaries, not max(step). Optional per-scene
+archives contain only anonymous IDs and numeric metrics.
 """
 import argparse
 import csv
 import datetime as dt
+import gzip
 import hashlib
 import io
 import json
@@ -80,6 +82,16 @@ def main():
             boundary = segments['resumed_segment_start_byte']
             require(boundary < len(raw) and raw[boundary - 1:boundary] == b'\n',
                     'Invalid recorded resume boundary')
+        if run.get('resume_registration'):
+            require(not run.get('metrics_segments'), 'Use one explicit resume boundary')
+            registration = read(run['resume_registration'])
+            require(registration['identity'] == ident['identity'], 'Wrong continuation lineage')
+            boundary = registration['metrics_prefix_bytes']
+            require(0 < boundary < len(raw) and raw[boundary - 1:boundary] == b'\n',
+                    'Invalid native continuation byte boundary')
+            first = json.loads(raw[boundary:].splitlines()[0])
+            parent = registration.get('parent_completed', registration.get('native_completed'))
+            require(first['updates'] == parent + 1, 'Continuation does not start at native parent + 1')
         tail = raw[boundary:].splitlines()[-32:]
         rows = [json.loads(line) for line in tail]
         last = rows[-1]
@@ -232,6 +244,29 @@ def main():
     write_csv(args.output / 'TRAINING_STATUS.csv', training)
     write_csv(args.output / 'NUSCENES_PLANNING.csv', nuscenes)
     write_csv(args.output / 'HISTORICAL_BEST.csv', historical)
+    if spec.get('archive_anonymous_navtest_scenes'):
+        # Same namespace as the immutable C/S/A/V archive, allowing exact pairing.
+        # Only numeric metrics and opaque IDs leave the controlled workspace.
+        def anon(kind, value):
+            return digest(f'cs-planning-results-v1:{kind}:navtest:{value}'.encode())[:24]
+        labels = {**METRICS, 'DDC': 'driving_direction_compliance'}
+        fields = ['evaluation_id', 'group', 'updates', 'variant', 'scene_id', 'log_id',
+                  *labels, 'status']
+        with (args.output / 'G_NAVTEST_SCENES.csv.gz').open('wb') as binary:
+            with gzip.GzipFile(filename='', fileobj=binary, mode='wb', mtime=0) as compressed:
+                with io.TextIOWrapper(compressed, encoding='utf-8', newline='') as stream:
+                    writer = csv.DictWriter(stream, fieldnames=fields)
+                    writer.writeheader()
+                    for (group, update, variant), table in sorted(tables.items()):
+                        for token, row in sorted(table.items()):
+                            writer.writerow({'evaluation_id': f'navtest:G:{group}:{update}:{variant}:42',
+                                             'group': group, 'updates': update, 'variant': variant,
+                                             'scene_id': anon('scene', token),
+                                             'log_id': anon('log', row['log']),
+                                             **{k: float(row[v]) * 100 for k, v in labels.items()},
+                                             'status': row['status']})
+        dump(args.output / 'G_BOOTSTRAP_LOG_ORDER.json',
+             [anon('log', value) for value in sorted(set(population.values()))])
     dump(args.output / 'PAIRED_COMPARISONS.json', {
         'bootstrap': {'replicates': 20000, 'seed_reset_for_each_pair': 42, 'unit': 'log',
                       'scene_weighting': 'pooled sampled log sums / sampled scene counts',
@@ -276,9 +311,9 @@ def main():
                 'nuscenes_prefix_check': {'existing_exporter_tolerance': 1e-7,
                                           'max_abs_difference': native_prefix_max_abs_difference},
                 'outputs': outputs,
-                'checks': ['36 canonical CSV hashes, all means, zero counts and identical token/log membership',
+                'checks': [f'{len(planning)} canonical CSV hashes, all means, zero counts and identical token/log membership',
                            'canonical protocol equality, registered training and checkpoint identities',
-                           'bounded live log prefixes and explicit G1 resume segment',
+                           'bounded live log prefixes and explicit native continuation segments where registered',
                            'nuScenes native completion hashes and prefix aggregation consistency'],
                 'limits': ['No new inference, training, model selection or performance benchmark',
                            'Latest/best observations are not a common completed training endpoint',

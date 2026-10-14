@@ -1,0 +1,885 @@
+diff --git a/configs/trajectory_objective/fm_axes.json b/configs/trajectory_objective/fm_axes.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..fe75e8efa8469aeadeecf30ab6daead14bf2c425
+--- /dev/null
++++ b/configs/trajectory_objective/fm_axes.json
+@@ -0,0 +1,3 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 1.0, 1.0]
++}
+diff --git a/configs/trajectory_objective/rollout_kinematics.json b/configs/trajectory_objective/rollout_kinematics.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a3d7fb9e26bcc72e97caf3be121ba7f998b23c8
+--- /dev/null
++++ b/configs/trajectory_objective/rollout_kinematics.json
+@@ -0,0 +1,16 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 1.0, 1.0],
++  "position_weight": 0.0001,
++  "heading_weight": 0.00001,
++  "velocity_weight": 0.001,
++  "acceleration_weight": 0.00025,
++  "longitudinal_tolerance_m": 0.5,
++  "lateral_tolerance_m": 0.25,
++  "heading_tolerance_rad": 0.05235987755982988,
++  "velocity_tolerance_mps": 1.0,
++  "acceleration_tolerance_mps2": 1.0,
++  "horizon_weights": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
++  "warmup_updates": 1000,
++  "rollout_every": 4,
++  "checkpoint_rollout": true
++}
+diff --git a/starVLA/model/framework/DDPForesight.py b/starVLA/model/framework/DDPForesight.py
+index e61f2a1be3807eb7a76c9780e15946b5e4e1d1bc..9abd2167a89a03328bb9235645966a7074fb7f9e 100644
+--- a/starVLA/model/framework/DDPForesight.py
++++ b/starVLA/model/framework/DDPForesight.py
+@@ -12,6 +12,9 @@ from starVLA.model.modules.foresight.dino_feature_head import DINOFeatureHead
+ from starVLA.model.modules.foresight.interaction_latent_head import InteractionLatentHead
+ from starVLA.model.modules.foresight.losses import masked_regression, interaction_loss
+ from starVLA.model.modules.foresight.tokens import replace_query_embeddings
++from starVLA.model.modules.foresight.trajectory_objective import (
++    TrajectoryObjectiveConfig, trajectory_loss_terms, scene_mean,
++)
+ 
+ 
+ class DDPForesight(Qwenvl_OFT):
+@@ -20,6 +23,7 @@ class DDPForesight(Qwenvl_OFT):
+         raise ValueError('Use verified generic initialization or an identity-checked THIS-campaign resume')
+ 
+     def __init__(self, config, accelerator=None):
++        self.trajectory_objective_config = TrajectoryObjectiveConfig.from_mapping(config.get('trajectory_objective'))
+         options=dict(config.foresight)
+         # Environment-backed OmegaConf values are strings until explicitly typed.
+         for key in ('lambda_vis','lambda_int','lambda_cur','lambda_fut','normalization_eps'):
+@@ -125,8 +129,12 @@ class DDPForesight(Qwenvl_OFT):
+         noise=torch.randn(y.shape,device=device,dtype=y.dtype,generator=noise_generator)
+         u=torch.rand((len(y),),device=device,generator=time_generator)
+         times=(cfg.noise_s-u.pow(1./cfg.noise_beta_alpha))/cfg.noise_s
++        objective = getattr(self, 'trajectory_objective_config', None)
++        fm_options = {}
++        if objective is not None and any(float(w) != 1. for w in objective.fm_channel_weights):
++            fm_options['channel_weights'] = objective.fm_channel_weights
+         with self.amp():
+-            fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times)
++            fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times,**fm_options)
+         losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
+         weights=min(1.,(completed_updates+1)/cfg.auxiliary_warmup)
+         counts=global_counts or {}
+@@ -134,6 +142,10 @@ class DDPForesight(Qwenvl_OFT):
+             from torch import distributed as dist
+             world=dist.get_world_size() if dist.is_initialized() else 1
+             losses['ego_fm']=fm*(len(ego)*world/float(counts['ego_scenes']))
++        if objective is not None and objective.active(completed_updates):
++            rollout_losses, rollout_metrics = self.compute_trajectory_objective(
++                action, ego, noise[:len(ego)], targets, completed_updates, counts)
++            losses.update(rollout_losses); metrics.update(rollout_metrics)
+         if hasattr(self,'future_head'):
+             values=targets['future_latent'].to(device)
+             valid=targets['future_valid'].to(device)
+@@ -193,6 +205,25 @@ class DDPForesight(Qwenvl_OFT):
+                            future_clip_effective_weight=cfg.lambda_fut * weights)
+         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
+ 
++    def compute_trajectory_objective(self, action, ego, initial_noise, targets, completed_updates, counts):
++        cfg = self.trajectory_objective_config
++        # Reuse independent noise from the first FM repeat; no new RNG stream.
++        # Labels have never entered encode_current or the DiT condition.
++        with self.amp():
++            prediction = self.action_model.rollout_action(
++                action, initial_noise=initial_noise,
++                checkpoint_steps=cfg.checkpoint_rollout, inference_mode=True)
++        terms, diagnostics = trajectory_loss_terms(prediction, ego, cfg, risk_mask=targets.get('ego_risk_mask'))
++        from torch import distributed as dist
++        world = dist.get_world_size() if dist.is_initialized() else 1
++        mean = lambda v: scene_mean(v, global_scene_count=counts.get('ego_scenes'), world_size=world)
++        weights = cfg.effective_weights(completed_updates)
++        losses = {'ego_rollout_' + task: mean(value) * weights[task]
++                  for task, value in terms.items() if weights[task] > 0}
++        metrics = {'ego_rollout_' + task + '_raw': mean(value).detach() for task, value in terms.items()}
++        metrics.update({'ego_rollout_' + name: mean(value).detach() for name, value in diagnostics.items()})
++        return losses, metrics
++
+     @torch.no_grad()
+     def predict_action(self,observations,*,sampling_seed=42,initial_noise=None):
+         encoded=self.encode_current(observations)
+diff --git a/starVLA/model/modules/action_model/GR00T_ActionHeader.py b/starVLA/model/modules/action_model/GR00T_ActionHeader.py
+index 1126c84035caa1818292d863503b4ca481507325..2cf9254a58a7b56e256043215ed2dba168931c0d 100644
+--- a/starVLA/model/modules/action_model/GR00T_ActionHeader.py
++++ b/starVLA/model/modules/action_model/GR00T_ActionHeader.py
+@@ -6,6 +6,7 @@
+ 
+ 
+ from dataclasses import dataclass, field
++from contextlib import contextmanager, nullcontext
+ 
+ import torch
+ import torch.nn.functional as F
+@@ -21,6 +22,19 @@ from starVLA.model.modules.action_model.flow_matching_head.action_encoder import
+ 
+ from starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit import DiT
+ 
++
++@contextmanager
++def _head_eval_mode(module):
++    """Restore each flag, including when a checkpoint recomputes during backward."""
++    modes = [(child, child.training) for child in module.modules()]
++    try:
++        for child, _ in modes:
++            child.training = False
++        yield
++    finally:
++        for child, mode in modes:
++            child.training = mode
++
+ # TODO try to meger DiT Modules with follow_match_head, they are just the same arch, but diff loss, use diffusers package will be simple
+ 
+ class CategorySpecificLinear(nn.Module):
+@@ -274,7 +288,7 @@ class FlowmatchingActionHead(nn.Module):
+ 
+ 
+     def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None,
+-                *, noise=None, times=None):
++                *, noise=None, times=None, channel_weights=None):
+         """
+         vl_embs: shape (B, seq_length, feature_dim)
+         actions: shape (B, future_action_window_size, D_action)
+@@ -333,11 +347,24 @@ class FlowmatchingActionHead(nn.Module):
+         pred_actions = pred
+ 
+         # Slice out only the action portion of pred and target.
+-        loss = ((pred_actions - velocity) ** 2).mean()
++        from starVLA.model.modules.foresight.trajectory_objective import weighted_flow_mse
++        loss = weighted_flow_mse(pred_actions, velocity, channel_weights)
+         return loss
+ 
+     @torch.no_grad()
+     def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None, initial_noise: torch.Tensor = None) -> torch.Tensor:
++        return self.rollout_action(vl_embs, state=state, initial_noise=initial_noise)
++
++    def rollout_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None,
++                       initial_noise: torch.Tensor = None, *, checkpoint_steps=False,
++                       inference_mode=False) -> torch.Tensor:
++        """The original Euler sampler, optionally with gradients through every step.
++
++        Training objectives use inference_mode=True to remove DiT dropout. Each
++        checkpointed function restores that mode AGAIN during backward; merely
++        toggling eval for forward would produce incorrect recomputed gradients.
++        The deployment wrapper retains its legacy caller-controlled mode.
++        """
+         # Set initial actions as the sampled noise.
+         batch_size = vl_embs.shape[0]
+         device = vl_embs.device
+@@ -358,43 +385,37 @@ class FlowmatchingActionHead(nn.Module):
+ 
+         vl_embs = self.qwen_proj(vl_embs)
+ 
+-        # Run denoising steps.
++        def step(current_actions, condition, timesteps_tensor):
++            with _head_eval_mode(self) if inference_mode else nullcontext():
++                return self._rollout_velocity(current_actions, condition, timesteps_tensor)
++
++        # Run the SAME number/timestamps of Euler steps as native inference.
+         for t in range(num_steps):
+-            t_cont = t / float(num_steps)  # e.g. goes 0, 1/N, 2/N, ...
++            t_cont = t / float(num_steps)
+             t_discretized = int(t_cont * self.num_timestep_buckets)
+-
+-            # Embed noised action trajectory.
+-            timesteps_tensor = torch.full(
+-                size=(batch_size,), fill_value=t_discretized, device=device
+-            )
+-            action_features = self.action_encoder(actions, timesteps_tensor)
+-            # Maybe add position embedding.
+-            if self.config.add_pos_embed:
+-                pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
+-                pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
+-                action_features = action_features + pos_embs
+-
+-            # Join vision, language, state and action embedding along sequence dimension.
+-            # future_tokens = self.future_tokens.weight.unsqueeze(0).expand(vl_embs.shape[0], -1, -1)
+-            # sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1) \
+-            #     if state_features is not None else torch.cat((future_tokens, action_features), dim=1)
+-
+-            sa_embs = action_features
+-
+-            # Run model forward.
+-            model_output = self.model(
+-                hidden_states=sa_embs,
+-                encoder_hidden_states=vl_embs,
+-                timestep=timesteps_tensor,
+-            )
+-            pred = self.action_decoder(model_output)
+-
+-            pred_velocity = pred
+-
+-            # Update actions using euler integration.
++            timesteps_tensor = torch.full(size=(batch_size,), fill_value=t_discretized, device=device)
++            if checkpoint_steps and torch.is_grad_enabled():
++                from torch.utils.checkpoint import checkpoint
++                pred_velocity = checkpoint(step, actions, vl_embs, timesteps_tensor, use_reentrant=False)
++            else:
++                pred_velocity = step(actions, vl_embs, timesteps_tensor)
+             actions = actions + dt * pred_velocity
+         return actions
+ 
++    def _rollout_velocity(self, actions, vl_embs, timesteps_tensor):
++        device = vl_embs.device
++        action_features = self.action_encoder(actions, timesteps_tensor)
++        if self.config.add_pos_embed:
++            pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
++            pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
++            action_features = action_features + pos_embs
++        model_output = self.model(
++            hidden_states=action_features,
++            encoder_hidden_states=vl_embs,
++            timestep=timesteps_tensor,
++        )
++        return self.action_decoder(model_output)
++
+     def predict_action_onestep(self, vl_embs: torch.Tensor, actions, timesteps_tensor) -> torch.Tensor:
+         # Set initial actions as the sampled noise.
+         batch_size = vl_embs.shape[0]
+diff --git a/starVLA/model/modules/foresight/trajectory_objective.py b/starVLA/model/modules/foresight/trajectory_objective.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..1f1cff641b417d7b7cab3ef2e92405bf95ae4cd7
+--- /dev/null
++++ b/starVLA/model/modules/foresight/trajectory_objective.py
+@@ -0,0 +1,161 @@
++"""Opt-in ego objectives in physical units, at the eight original timestamps.
++
++These are supervised fitting losses, not differentiable official PDM scores.
++Future labels enter here only, after current-observation encoding.
++"""
++from dataclasses import dataclass
++import math
++
++import torch
++import torch.nn.functional as F
++
++from starVLA.dataloader.foresight_dataset import X_MEAN, X_STD, Y_MEAN, Y_STD
++
++
++@dataclass(frozen=True)
++class TrajectoryObjectiveConfig:
++    fm_channel_weights: tuple = (1., 1., 1., 1.)
++    position_weight: float = 0.
++    heading_weight: float = 0.
++    velocity_weight: float = 0.
++    acceleration_weight: float = 0.
++    risk_overshoot_weight: float = 0.
++    longitudinal_tolerance_m: float = .5
++    lateral_tolerance_m: float = .25
++    heading_tolerance_rad: float = math.pi / 60  # 3 degrees, a scale not a guarantee
++    velocity_tolerance_mps: float = 1.
++    acceleration_tolerance_mps2: float = 1.
++    risk_margin_m: float = .25
++    timestep_s: float = .5
++    horizon_weights: tuple = (1.,) * 8
++    warmup_updates: int = 1000
++    rollout_every: int = 1
++    checkpoint_rollout: bool = True
++
++    @classmethod
++    def from_mapping(cls, options=None):
++        cfg = cls(**dict(options or {}))
++        for name, length in (('fm_channel_weights', 4), ('horizon_weights', 8)):
++            values = getattr(cfg, name)
++            if len(values) != length or any(not math.isfinite(float(v)) or float(v) <= 0 for v in values):
++                raise ValueError(f'{name} requires {length} finite positive values')
++        for name in ('position_weight', 'heading_weight', 'velocity_weight', 'acceleration_weight',
++                     'risk_overshoot_weight', 'risk_margin_m'):
++            value = getattr(cfg, name)
++            if not math.isfinite(value) or value < 0:
++                raise ValueError(f'Invalid trajectory objective {name}')
++        for name in ('longitudinal_tolerance_m', 'lateral_tolerance_m', 'heading_tolerance_rad',
++                     'velocity_tolerance_mps', 'acceleration_tolerance_mps2'):
++            value = getattr(cfg, name)
++            if not math.isfinite(value) or value <= 0:
++                raise ValueError(f'Invalid trajectory objective {name}')
++        if cfg.timestep_s != .5:
++            raise ValueError('This label contract has fixed 0.5-second timestamps')
++        for name in ('warmup_updates', 'rollout_every'):
++            value = getattr(cfg, name)
++            if isinstance(value, bool) or not isinstance(value, int) or value < 1:
++                raise ValueError(f'{name} must be a positive integer')
++        if not isinstance(cfg.checkpoint_rollout, bool):
++            raise ValueError('checkpoint_rollout must be boolean')
++        return cfg
++
++    @property
++    def has_rollout_loss(self):
++        return any(getattr(self, task + '_weight') > 0 for task in
++                   ('position', 'heading', 'velocity', 'acceleration', 'risk_overshoot'))
++
++    def active(self, completed_updates):
++        # All microbatches/ranks use the same optimizer-update counter, including resume.
++        return self.has_rollout_loss and (completed_updates + 1) % self.rollout_every == 0
++
++    def effective_weights(self, completed_updates):
++        ramp = min(1., (completed_updates + 1) / self.warmup_updates) if self.active(completed_updates) else 0.
++        return {task: getattr(self, task + '_weight') * ramp for task in
++                ('position', 'heading', 'velocity', 'acceleration', 'risk_overshoot')}
++
++
++def weighted_flow_mse(prediction, target, channel_weights=None):
++    """Preserve the exact legacy operation for equal/default weights.
++
++    Weights refer to encoded [x, y, sin(yaw), cos(yaw)], NOT Frenet axes.
++    Dividing by their mean preserves expected scale for isotropic encoded errors.
++    """
++    if channel_weights is None or all(float(v) == 1. for v in channel_weights):
++        return ((prediction - target) ** 2).mean()
++    weights = prediction.new_tensor(channel_weights)
++    if weights.shape != (prediction.shape[-1],) or not torch.isfinite(weights).all() or (weights <= 0).any():
++        raise ValueError('Invalid FM channel weights')
++    error = prediction.float() - target.float()
++    weights = weights.float() / weights.float().mean()
++    return (error.square() * weights).mean()
++
++
++def physical_xy(encoded):
++    return encoded[..., :2] * encoded.new_tensor([X_STD, Y_STD]) + encoded.new_tensor([X_MEAN, Y_MEAN])
++
++
++def trajectory_loss_terms(prediction, target, cfg, *, risk_mask=None):
++    """Return one value per scene per task, plus physical diagnostics.
++
++    Every correspondence retains physical time. GT yaw defines tangent/normal;
++    there is no nearest-point matching that could hide longitudinal lateness.
++    Derivatives are interval-average vehicle motion, not FM vector-field velocity.
++    """
++    if prediction.shape != target.shape or target.ndim != 3 or target.shape[1:] != (8, 4):
++        raise ValueError('Trajectory objective expects B x 8 x 4 encoded poses')
++    if not torch.isfinite(prediction).all() or not torch.isfinite(target).all():
++        raise ValueError('Nonfinite trajectory objective input')
++    prediction, target = prediction.float(), target.detach().float()
++    p, g = physical_xy(prediction), physical_xy(target)
++    # [sin, cos] -> unit [cos, sin]. atan2 is unnecessary and singular at (0, 0).
++    gt_heading = F.normalize(target[..., [3, 2]], dim=-1, eps=1e-6)
++    if (target[..., 2:].norm(dim=-1) < .5).any():
++        raise ValueError('GT heading must be a valid encoded direction')
++    gt_normal = torch.stack((-gt_heading[..., 1], gt_heading[..., 0]), -1)
++    error = p - g
++    along = (error * gt_heading).sum(-1)
++    lateral = (error * gt_normal).sum(-1)
++    weights = prediction.new_tensor(cfg.horizon_weights)
++    weights = weights / weights.mean()
++    reduce = lambda value: (value * weights).mean(-1)
++    position = reduce((along / cfg.longitudinal_tolerance_m).square() +
++                      (lateral / cfg.lateral_tolerance_m).square())
++    pred_heading = F.normalize(prediction[..., [3, 2]], dim=-1, eps=1e-6)
++    # Unit-vector distance is 2*(1-cos(delta_yaw)) away from the zero-vector corner.
++    heading = reduce((pred_heading - gt_heading).square().sum(-1) / cfg.heading_tolerance_rad ** 2)
++    # Both current poses are exactly (0, 0) in the common current-ego frame.
++    origin = p.new_zeros((len(p), 1, 2))
++    vp = torch.diff(torch.cat((origin, p), 1), dim=1) / cfg.timestep_s
++    vg = torch.diff(torch.cat((origin, g), 1), dim=1) / cfg.timestep_s
++    dv = vp - vg
++    velocity = reduce(dv.square().sum(-1) / cfg.velocity_tolerance_mps ** 2)
++    # Seven interval-to-interval changes; no invented current velocity/acceleration.
++    da = torch.diff(dv, dim=1) / cfg.timestep_s
++    acceleration = (da.square().sum(-1) * weights[1:]).sum(-1) / weights[1:].sum()
++    acceleration = acceleration / cfg.acceleration_tolerance_mps2 ** 2
++    terms = dict(position=position, heading=heading, velocity=velocity, acceleration=acceleration)
++    if cfg.risk_overshoot_weight > 0:
++        if risk_mask is None:
++            raise ValueError('risk_overshoot_weight requires explicit ego_risk_mask labels; no inferred blanket risk')
++        if risk_mask.shape != along.shape or risk_mask.dtype != torch.bool:
++            raise ValueError('ego_risk_mask must be a B x 8 boolean time-aligned mask')
++        mask = risk_mask.to(device=p.device)
++        # Average across ALL eight timestamps/scenes, so rare risk windows do not
++        # get implicitly oversampled and microbatch/rank normalization is exact.
++        terms['risk_overshoot'] = reduce(
++            ((along - cfg.risk_margin_m).clamp_min(0) / cfg.longitudinal_tolerance_m).square() * mask)
++    diagnostics = {
++        'along_squared_m': reduce(along.square()),
++        'lateral_squared_m': reduce(lateral.square()),
++        'interval_velocity_squared_mps': reduce(dv.square().sum(-1)),
++    }
++    return terms, diagnostics
++
++
++def scene_mean(values, *, global_scene_count=None, world_size=1):
++    """Match existing DDP/ZeRO mean gradients over all optimizer microbatches."""
++    if global_scene_count is None:
++        return values.mean()
++    if global_scene_count <= 0 or world_size < 1:
++        raise ValueError('Invalid global ego scene normalization')
++    return values.sum() * world_size / global_scene_count
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index 816e069b24174fbe96087d9530b96fb677f744c7..85eea3f3687ee5e5c823d84f2dd9625d0aa7782d 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -44,18 +44,21 @@ def main():
+     p.add_argument('--warmup',type=int,required=True);p.add_argument('--save-every',type=int,default=200)
+     p.add_argument('--milestones',default='0');p.add_argument('--stop-after',type=int,default=0)
+     p.add_argument('--max-seconds',type=float);p.add_argument('--campaign-gpu-hours',type=float)
+-    p.add_argument('--scope',choices=('startup','small_fit','profile','formal'),required=True)
++    p.add_argument('--scope',choices=('startup','small_fit','profile','objective_pilot','formal'),required=True)
+     p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
+     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
+     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
+     p.add_argument('--registration')
+     p.add_argument('--ego-relabel-root', help='Completed optimized planner labels; preserve logged video conditioning')
++    p.add_argument('--pilot-initialization',help='Identity-checked mature weights; objective_pilot scope only')
+     a=p.parse_args()
+     if min(a.global_batch,a.micro_batch,a.updates,a.save_every)<=0 or any(x is not None and x<=0 for x in (a.max_seconds,a.campaign_gpu_hours)):raise ValueError('Positive training/budget settings required')
+     if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
+     if a.scope=='startup' and (a.updates>4 or (a.max_seconds is None or a.max_seconds>1800)):raise ValueError('Startup <=4 updates/1800seconds')
+     if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
+     if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
++    if a.scope=='objective_pilot' and (a.limit or a.updates>10000):
++        raise ValueError('Objective pilots require full training manifest and at most 10000 updates')
+     if not 0<=a.loader_workers<=8:raise ValueError('Bounded per-rank I/O workers required')
+     if a.scope=='profile' and (a.updates>120 or not a.limit or (a.max_seconds is None or a.max_seconds>14400)):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
+     milestones={int(x) for x in a.milestones.split(',') if x}
+@@ -76,6 +79,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze a clean source before training')
+     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
++    from tools.trajectory_objective.pilot_initialization import validate as validate_pilot_initialization
++    pilot_initialization=validate_pilot_initialization(a.pilot_initialization,cfg,a.scope)
++    loss_update_offset=pilot_initialization['checkpoint']['completed'] if pilot_initialization else 0
+     from starVLA.model.modules.foresight.tradeoff import CANDIDATES
+     full_method=bool(cfg.foresight.get('full_algorithm',False))
+     clip_method=cfg.foresight.get('future_target_type','legacy_single_frame') != 'legacy_single_frame'
+@@ -93,8 +99,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         ForesightConfig(**dict(cfg.foresight)).validate()
+         if any((need_cur,need_fut,need_int,need_vis,full_method,clip_method)):
+             raise ValueError('Native action-only must disable every auxiliary task')
+-    if a.ego_relabel_root and not (native_action_only or clip_method and cfg.foresight.future_action_condition=='gt_ego'):
+-        raise ValueError('Optimized ego overlay requires native action-only or logged-action video conditioning')
++    if a.ego_relabel_root and not (native_action_only or clip_method and
++            cfg.foresight.future_action_condition in ('none','gt_ego')):
++        raise ValueError('Optimized ego overlay requires native action-only, unconditioned future targets, or logged-action conditioning')
+     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity,
+                      ego_relabel_root=a.ego_relabel_root)
+     if clip_method:
+@@ -146,6 +153,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+               'offload_optimizer':a.offload_optimizer,'optimizer_max_group_elements':MAX_GROUP_ELEMENTS,
+               'normalization':'global valid elements per optimizer batch; every scene ego loss',
+               'device_names':device_names}
++    if pilot_initialization:
++        identity['pilot_initialization']=pilot_initialization
++        identity['loss_update_offset']=loss_update_offset
+     if dino_campaign:identity.update(schema='foresight_dino_student_training_v1',dino=data.dino_identity,
+                                     future_sampling='one independent request from fixed1/2/4; no valid-label resampling')
+     if tradeoff:identity.update(schema='dino_tradeoff_student_v1',future_sampling='DISABLED',local_images=bool(a.local_image_root),
+@@ -193,12 +203,16 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         torch.use_deterministic_algorithms(True);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.benchmark=False
+     from starVLA.model.framework import build_framework
+     model=build_framework(cfg)
++    if pilot_initialization:
++        pilot_weights=torch.load(pilot_initialization['weights'],map_location='cpu',weights_only=True)
++        model.float();model.load_state_dict(pilot_weights,strict=True);del pilot_weights
+     if rank==0 and not a.resume:
+         init={'action':module_manifest(model.action_model),'state':module_manifest(model.action_input_model),
+               'driving_tokens':model.qwen_vl_interface.driving_token_initialization,
+               'W':tensor_hash(model.foresight_queries) if hasattr(model,'foresight_queries') else None,
+               'generic_source_manifest':json.loads(Path(cfg.from_scratch.source_manifest).read_text()),
+-              'driving_weights_loaded':False,'future_teacher_in_model':False}
++              'driving_weights_loaded':bool(pilot_initialization),'future_teacher_in_model':False,
++              **({'pilot_initialization':pilot_initialization['identity']} if pilot_initialization else {})}
+         atomic_json(out/'initialization.json',init)
+         if full_method:
+             atomic_json(out/'auxiliary_initialization.json',{
+@@ -323,13 +337,17 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+             for at in range(0,len(indices),a.micro_batch):
+                 end=min(len(indices),at+a.micro_batch);boundary=end==len(indices)
+                 engine.set_gradient_accumulation_boundary(boundary)
+-                output=engine(observations[at:end],{k:v[at:end] for k,v in targets.items()},completed_updates=completed,
++                output=engine(observations[at:end],{k:v[at:end] for k,v in targets.items()},completed_updates=completed+loss_update_offset,
+                     noise_generator=generators['noise'],time_generator=generators['time'],horizon_generator=generators['horizon'],global_counts=counts)
+                 if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
+                 engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
+                 for key,value in output['losses'].items():logs[key]=logs.get(key,0.)+float(value.detach())
+                 for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw','future_clip_raw'):
+                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
++                for key, value in output['metrics'].items():
++                    if key.startswith('ego_rollout_'):
++                        # Already normalized against all optimizer scenes/ranks.
++                        logs[key]=logs.get(key,0.)+float(value)
+                 if boundary:before=capture_master_samples(engine.optimizer)
+                 observe = full_method and a.scope=='formal' and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
+                 if observe:
+@@ -389,8 +407,16 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                      'grad_norm':float(engine.get_global_grad_norm()),'per_rank_profile':[v.cpu().tolist() for v in all_perf],
+                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
+                 if a.scope=='profile':row['rank0_readout_forward_gpu_ms']=readout_times
++                objective=getattr(model,'trajectory_objective_config',None)
++                if objective is not None and objective.has_rollout_loss:
++                    row['trajectory_objective']={
++                        'rollout_active':objective.active(completed-1+loss_update_offset),
++                        'effective_weights':objective.effective_weights(completed-1+loss_update_offset),
++                        'rollout_steps':model.action_model.num_inference_timesteps,
++                        'rollout_dropout':'disabled; checkpoint recomputation also disables dropout',
++                        'cadence_scaling':'active-update coefficients; no multiplication by rollout_every'}
+                 if full_method:
+-                    fcfg=model.foresight_config;warm=min(1.,completed/fcfg.auxiliary_warmup)
++                    fcfg=model.foresight_config;warm=min(1.,(completed+loss_update_offset)/fcfg.auxiliary_warmup)
+                     row['effective_weights']={'ego_fm':1.,'current_dino':fcfg.lambda_cur if need_cur else 0.,
+                         'future_dino':fcfg.lambda_fut*warm if need_fut else 0.,'interaction':fcfg.lambda_int*warm if need_int else 0.}
+                     row['raw_losses']={'ego_fm':logs['ego_fm'],**{k:logs.get(k+'_raw') for k in ('current_dino','future_dino','interaction')}}
+diff --git a/tools/s3_optimized_training/run.py b/tools/s3_optimized_training/run.py
+index 7ecf91c48f71ccfea3cd20d76e4d529722a99c3e..fc5371035d24d647e06d3b3a7692167bed8c4633 100644
+--- a/tools/s3_optimized_training/run.py
++++ b/tools/s3_optimized_training/run.py
+@@ -17,10 +17,11 @@ DEFAULT_CAMPAIGN = '/mnt/project/DriveVLA-M0/outputs/robust_navtrain_campaign_20
+ 
+ 
+ def baseline(variant='s3'):
+-    cfg = read(SOURCE / 'configs/s3_optimized/baseline_config.json')
+-    reg = read(SOURCE / 'configs/s3_optimized/baseline_registration.json')
+-    if reg['arm'] != 'S3' or identity_hash(cfg) != reg['config_sha256']:
+-        raise ValueError('Frozen S3 baseline configuration changed')
++    family = 's0' if variant == 's0' else 's3'
++    cfg = read(SOURCE / f'configs/{family}_optimized/baseline_config.json')
++    reg = read(SOURCE / f'configs/{family}_optimized/baseline_registration.json')
++    if reg['arm'] != family.upper() or identity_hash(cfg) != reg['config_sha256']:
++        raise ValueError('Frozen baseline configuration changed')
+     if variant == 'action-only':
+         # R is the existing native DDP path: no W tokens or auxiliary modules.
+         # Keep the original Qwen/history/DiT recipe and public initialization.
+@@ -31,23 +32,41 @@ def baseline(variant='s3'):
+         reg = {**reg, 'arm': 'DDP_ACTION_ONLY', 'config_sha256': identity_hash(cfg),
+                'dino': None, 'interaction': None, 'future_clip': None,
+                'definition': 'native DDP Qwen + history state + original DiT; zero W tokens; ego FM loss only'}
+-    elif variant != 's3':
++    elif variant not in ('s3', 's0'):
+         raise ValueError('Unknown training variant')
+     return cfg, reg
+ 
+ 
++def apply_objective(cfg, path):
++    """Validate an opt-in recipe before allocating a model or registering a run."""
++    if not path:
++        return cfg
++    from dataclasses import asdict
++    from starVLA.model.modules.foresight.trajectory_objective import TrajectoryObjectiveConfig
++    import copy
++    objective = TrajectoryObjectiveConfig.from_mapping(read(path))
++    if objective.risk_overshoot_weight:
++        raise ValueError('This dataset has no audited ego_risk_mask cache; risk loss is an API for a future identified cache')
++    cfg = copy.deepcopy(cfg)
++    cfg['trajectory_objective'] = asdict(objective)
++    # JSON canonicalization keeps resume equality stable for tuple-valued fields.
++    cfg['trajectory_objective'] = json.loads(json.dumps(cfg['trajectory_objective']))
++    return cfg
++
++
+ def preflight(a):
+     """Load metadata and label hashes before torchrun/CUDA; no model allocation."""
+     from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
+     from tools.foresight.student_state import validate_rank_batches
+     variant = getattr(a, 'variant', 's3')
+     cfg, reference = baseline(variant)
++    cfg = apply_objective(cfg, getattr(a, 'objective_config', None))
+     current, ego, index = training_population(a.data)
+     if len(index) != reference['scene_count'] or identity_hash(index) != reference['scene_index']:
+         raise ValueError('S3 train/dev population changed')
+     overlay, _, _ = load_overlay(a.labels, current, ego, index)
+     f = cfg['foresight']
+-    if variant == 's3':
++    if variant in ('s3', 's0'):
+         dataset = ActionVideoForesightDataset(
+             a.data, ego_relabel_root=a.labels, candidate=f['candidate'], current=True, future=True,
+             dino_root=a.dino_root, dino_index=a.dino_index, expected_dino=reference['dino'],
+@@ -77,9 +96,11 @@ def preflight(a):
+         'scene_count': len(dataset), 'optimized_accepted': overlay['accepted_scenes'],
+         'original_fallback': overlay['fallback_scenes'], 'excluded_source_scenes': overlay['excluded_source_scenes'],
+         'ego_relabel_identity': overlay['identity'], 'variant': variant,
+-        'auxiliary_targets_unchanged': variant == 's3',
++        'auxiliary_targets_unchanged': variant in ('s3', 's0'),
++        'future_target_type': f.get('future_target_type', 'disabled'),
+         'video_condition': 'original_logged_ego' if variant == 's3' else 'disabled',
+         'initialization': reference['initialization'],
++        **({'trajectory_objective': cfg['trajectory_objective']} if 'trajectory_objective' in cfg else {}),
+         'sampled_dataset_items': 3}
+ 
+ 
+@@ -92,7 +113,7 @@ def command(a, reference, config_path, registration_path):
+               'schedule-updates': reference['schedule_updates'], 'warmup': 5000,
+               'save-every': 200, 'milestones': ','.join(map(str, reference['milestones'])),
+               'loader-workers': a.loader_workers, 'scope': 'formal', 'registration': registration_path}
+-    if reference['arm'] == 'S3':
++    if reference['arm'] in ('S3', 'S0'):
+         values.update({'dino-root': a.dino_root, 'dino-index': a.dino_index, 'dino-identity': reference['dino'],
+                        'interaction-root': a.interaction_root, 'interaction-identity': reference['interaction'],
+                        'clip-root': a.clip_root, 'clip-identity': reference['future_clip']})
+@@ -113,6 +134,10 @@ def registration(a, cfg, reference, overlay, source):
+             'config_sha256': identity_hash(cfg), 'baseline_training_source_sha': reference['training_source_sha'],
+             'baseline_run_id': reference['run_id'], 'ego_relabel_identity': overlay['identity'],
+             'ego_relabel': overlay,
++            **({'trajectory_objective': cfg['trajectory_objective'],
++                'definition': 'baseline architecture with explicitly registered opt-in ego fitting objectives',
++                'baseline_definition': reference.get('definition')}
++               if 'trajectory_objective' in cfg else {}),
+             'video_condition': 'original_logged_ego' if reference['arm'] == 'S3' else 'disabled'}
+ 
+ 
+@@ -188,7 +213,8 @@ def main():
+         p.add_argument('--local-image-root')
+         p.add_argument('--gpus', type=int, default=8)
+         p.add_argument('--micro-batch', type=int, default=4)
+-        p.add_argument('--variant', choices=('s3', 'action-only'), default='s3')
++        p.add_argument('--variant', choices=('s3', 'action-only', 's0'), default='s3')
++        p.add_argument('--objective-config', help='Opt-in objective JSON; a new run-id/source snapshot is required')
+         if name == 'train':
+             p.add_argument('--output', default=DEFAULT_OUTPUT)
+             p.add_argument('--run-id', default='S3_optimized_seed42_100k_v1')
+diff --git a/tools/trajectory_objective/__init__.py b/tools/trajectory_objective/__init__.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/tools/trajectory_objective/calibrate.py b/tools/trajectory_objective/calibrate.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..247bb34fcee9941cec6d9dd898f3c01128ab9c61
+--- /dev/null
++++ b/tools/trajectory_objective/calibrate.py
+@@ -0,0 +1,87 @@
++"""Training-only real-head gradients/cost; does not claim an official PDMS gain."""
++import argparse
++from dataclasses import asdict
++import json
++from pathlib import Path
++import time
++
++import numpy as np
++import torch
++
++from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset
++from starVLA.model.modules.foresight.trajectory_objective import TrajectoryObjectiveConfig, trajectory_loss_terms
++from tools.foresight.checkpoints import checkpoint_identity, load_student
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++
++
++def main():
++    p = argparse.ArgumentParser(__doc__)
++    p.add_argument('--training-run', required=True); p.add_argument('--tag', default='milestone_100000')
++    p.add_argument('--data', required=True); p.add_argument('--labels', required=True)
++    p.add_argument('--objective', required=True); p.add_argument('--output', type=Path, required=True)
++    p.add_argument('--samples', type=int, default=4)
++    a = p.parse_args(); a.output.mkdir(parents=True, exist_ok=True)
++    if not 1 <= a.samples <= 8: raise ValueError('Small training-only calibration')
++    torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32 = torch.backends.cudnn.allow_tf32 = False
++    started = time.time()
++    atomic_json(a.output/'progress.json', dict(stage='LOADING', started_unix=started))
++    training, checkpoint = checkpoint_identity(a.training_run, a.tag)
++    cfg = TrajectoryObjectiveConfig.from_mapping(json.loads(Path(a.objective).read_text()))
++    model = load_student(a.training_run, a.tag, training, precision='bf16', strip=True)
++    model.action_model.train()
++    data = ForesightTrainingDataset(a.data, ego_relabel_root=a.labels)
++    if data.identity['split'] != 'train': raise ValueError('Calibration cannot use dev/Navtest')
++    chosen = np.random.default_rng(20261006).choice(len(data), size=a.samples, replace=False)
++    records = []
++    for at, index in enumerate(chosen):
++        observation, target = data[int(index)]
++        with torch.no_grad():
++            encoded = model.encode_current([observation]); condition = model.build_planner_condition(encoded)
++        condition = condition.detach().requires_grad_()
++        ego = target['ego'][None].cuda().float(); y = ego.repeat(8, 1, 1)
++        gen = torch.Generator(device='cuda').manual_seed(99000 + int(index))
++        noise = torch.randn(y.shape, generator=gen, device='cuda')
++        u = torch.rand(8, generator=gen, device='cuda')
++        head_cfg = model.action_model.config
++        times = (head_cfg.noise_s-u.pow(1./head_cfg.noise_beta_alpha))/head_cfg.noise_s
++        selected = (condition, model.action_model.action_decoder.layer2.weight)
++        torch.manual_seed(77000 + int(index))
++        with model.amp(): fm = model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times)
++        base_grad = torch.autograd.grad(fm, selected)
++        torch.manual_seed(77000 + int(index))
++        with model.amp(): weighted = model.action_model(condition.repeat(8,1,1), y, noise=noise, times=times,
++            channel_weights=cfg.fm_channel_weights)
++        weighted_grad = torch.autograd.grad(weighted, selected)
++        torch.cuda.synchronize(); step_start = time.time(); torch.cuda.reset_peak_memory_stats()
++        with model.amp(): rollout = model.action_model.rollout_action(condition,
++            initial_noise=noise[:1], checkpoint_steps=True, inference_mode=True)
++        terms, diagnostics = trajectory_loss_terms(rollout, ego, cfg)
++        values = {}; gradients = {}
++        for task, term in terms.items():
++            grads = torch.autograd.grad(term.mean(), selected, retain_graph=True)
++            if not all(torch.isfinite(g).all() for g in grads): raise FloatingPointError('Nonfinite '+task+' gradient')
++            gradients[task] = tuple(g.detach().float() for g in grads)
++            values[task] = float(term.mean().detach())
++        combined = [sum(gradients[task][i] * getattr(cfg,task+'_weight') for task in gradients)
++                    for i in range(len(selected))]
++        def norms(grads): return dict(condition=float(grads[0].float().norm()), decoder=float(grads[1].float().norm()))
++        bnorm, wnorm, rnorm = norms(base_grad), norms(weighted_grad), norms(combined)
++        ratios = {key: rnorm[key]/max(wnorm[key],1e-12) for key in rnorm}
++        record = dict(token=observation['token'], index=int(index), fm=float(fm.detach()), weighted_fm=float(weighted.detach()),
++            rollout_raw=values, physical_diagnostics={k:float(v.mean().detach()) for k,v in diagnostics.items()},
++            fm_gradient=bnorm, weighted_fm_gradient=wnorm, rollout_combined_gradient=rnorm,
++            active_update_rollout_to_weighted_fm_gradient_ratio=ratios,
++            rollout_term_gradient={k:norms(v) for k,v in gradients.items()},
++            peak_allocated_bytes=torch.cuda.max_memory_allocated(), seconds=time.time()-step_start)
++        records.append(record); atomic_json(a.output/'records.json',records)
++        atomic_json(a.output/'progress.json',dict(stage='CALIBRATING',completed=at+1,expected=a.samples,seconds=time.time()-started))
++        del rollout,terms,gradients,combined,base_grad,weighted_grad,condition,encoded
++        torch.cuda.empty_cache()
++    result=dict(status='REAL_GRADIENT_CALIBRATION_COMPLETE', checkpoint=checkpoint, data=data.identity['identity'],
++        labels=data.ego_relabel_identity['identity'], objective=asdict(cfg), samples=records,
++        scope='uniform training scenes; real mature BF16 action head; detached current condition to measure shared-condition and decoder gradients; not optimizer/ZeRO verification or official PDMS',
++        claim='finite gradients and magnitude evidence only; training/held-out safety validation still required',seconds=time.time()-started)
++    atomic_json(a.output/'result.json',result); atomic_json(a.output/'progress.json',dict(stage='COMPLETE',seconds=time.time()-started))
++
++
++if __name__ == '__main__': main()
+diff --git a/tools/trajectory_objective/pilot_initialization.py b/tools/trajectory_objective/pilot_initialization.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..78f1064f60e7af9635cbe937d4092e211db70668
+--- /dev/null
++++ b/tools/trajectory_objective/pilot_initialization.py
+@@ -0,0 +1,20 @@
++"""A strict, explicit warm start permitted only in objective_pilot scope."""
++import json
++from pathlib import Path
++from omegaconf import OmegaConf
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash,file_sha256
++
++
++def validate(path,config,scope):
++    if not path:return None
++    if scope!='objective_pilot':raise ValueError('Learned pilot initialization is forbidden in full/formal training')
++    record=json.loads(Path(path).read_text())
++    if (record.get('schema')!='trajectory_objective_matched_pilot_initialization_v1' or
++        record.get('identity')!=identity_hash({k:v for k,v in record.items() if k!='identity'}) or
++        file_sha256(record['weights'])!=record['weights_sha256']):
++        raise ValueError('Incomplete or changed pilot initialization')
++    cfg=OmegaConf.to_container(config,resolve=True)
++    cfg.pop('trajectory_objective',None)
++    parent=dict(record['parent_config']);parent.pop('trajectory_objective',None)
++    if cfg!=parent:raise ValueError('Pilot must preserve the exact parent architecture/config except ego objective')
++    return record
+diff --git a/tools/trajectory_objective/prepare_pilot.py b/tools/trajectory_objective/prepare_pilot.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..513fa33780876bb193f8935b402ac57f4a41dea4
+--- /dev/null
++++ b/tools/trajectory_objective/prepare_pilot.py
+@@ -0,0 +1,44 @@
++"""Freeze mature FP32 weights for matched short objective pilots only."""
++import argparse
++import fcntl
++import json
++import os
++from pathlib import Path
++
++os.environ['CUDA_VISIBLE_DEVICES'] = ''
++import torch
++
++from tools.foresight.checkpoints import checkpoint_identity
++from starVLA.model.modules.vehicle_joint.initialization import file_sha256, identity_hash
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    p.add_argument('--training-run',required=True);p.add_argument('--tag',required=True)
++    p.add_argument('--output',type=Path,required=True);a=p.parse_args()
++    a.output.mkdir(parents=True,exist_ok=True)
++    lock=(a.output/'EXPORT.lock').open('a+');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    torch.set_num_threads(2)
++    training,checkpoint=checkpoint_identity(a.training_run,a.tag)
++    manifest=a.output/'initialization.json';weights=a.output/'fp32_model.pt'
++    if manifest.exists():
++        old=json.loads(manifest.read_text())
++        if old['checkpoint']!=checkpoint or file_sha256(weights)!=old['weights_sha256']:
++            raise ValueError('Existing pilot initialization changed')
++        print(json.dumps(old,indent=2));return
++    if weights.exists():raise FileExistsError('Incomplete export; inspect before retry')
++    from deepspeed.utils.zero_to_fp32 import get_fp32_state_dict_from_zero_checkpoint
++    state=get_fp32_state_dict_from_zero_checkpoint(str(Path(a.training_run)/'checkpoints'),tag=a.tag)
++    if any(not torch.isfinite(v).all() for v in state.values() if v.is_floating_point()):
++        raise FloatingPointError('Nonfinite pilot parent weights')
++    temporary=weights.with_suffix('.tmp');torch.save(state,temporary);temporary.replace(weights)
++    record=dict(schema='trajectory_objective_matched_pilot_initialization_v1',checkpoint=checkpoint,
++        parent_config=training['config'],parent_run=str(Path(a.training_run).resolve()),
++        weights=str(weights.resolve()),weights_sha256=file_sha256(weights),
++        purpose='matched training-domain objective pilots only; full runs must use original generic initialization')
++    record['identity']=identity_hash(record);atomic_json(manifest,record)
++    print(json.dumps(record,indent=2))
++
++
++if __name__=='__main__':main()
+diff --git a/tools/trajectory_objective/verify_compatibility.py b/tools/trajectory_objective/verify_compatibility.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..798adcef30a56e3487bbcd84a16a03fb7c7fb44c
+--- /dev/null
++++ b/tools/trajectory_objective/verify_compatibility.py
+@@ -0,0 +1,78 @@
++"""CPU comparison against an unmodified frozen native head; never load a VLM/GPU."""
++import argparse
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++
++import torch
++from omegaconf import OmegaConf
++
++from starVLA.model.modules.action_model.GR00T_ActionHeader import FlowmatchingActionHead
++
++
++def tiny_config():
++    return OmegaConf.create({'framework': {'qwenvl': {'vl_hidden_dim': 24}, 'action_model': {
++        'hidden_size': 32, 'action_dim': 4, 'action_horizon': 8, 'num_inference_timesteps': 10,
++        'noise_beta_alpha': 1.5, 'noise_beta_beta': 1., 'noise_s': .999,
++        'num_timestep_buckets': 1000, 'add_pos_embed': True, 'max_seq_len': 16,
++        'DiTConfig': {'input_embedding_dim': 32, 'num_layers': 2,
++                      'num_attention_heads': 4, 'attention_head_dim': 8},
++        'diffusion_model_cfg': {'cross_attention_dim': 32, 'dropout': .2,
++            'final_dropout': True, 'interleave_self_attention': True,
++            'norm_type': 'ada_norm', 'output_dim': 32, 'positional_embeddings': None}}}})
++
++
++def verify(reference_source):
++    path = Path(reference_source) / 'starVLA/model/modules/action_model/GR00T_ActionHeader.py'
++    spec = importlib.util.spec_from_file_location('frozen_native_action_header', path)
++    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
++    torch.manual_seed(42); original = module.FlowmatchingActionHead(tiny_config())
++    torch.manual_seed(42); changed = FlowmatchingActionHead(tiny_config())
++    assert original.state_dict().keys() == changed.state_dict().keys()
++    assert all(torch.equal(v, changed.state_dict()[k]) for k, v in original.state_dict().items())
++    condition = torch.randn(2, 8, 24); noise = torch.randn(2, 8, 4)
++    target = torch.randn_like(noise); times = torch.tensor([.2, .8])
++    old_loss, new_loss = [], []
++    for model, losses in ((original, old_loss), (changed, new_loss)):
++        model.train(); torch.manual_seed(71)
++        loss = model(condition, target, noise=noise, times=times)
++        loss.backward(); losses.append(loss.detach())
++    assert torch.equal(old_loss[0], new_loss[0])
++    gradient_errors = []
++    for (name, a), (other, b) in zip(original.named_parameters(), changed.named_parameters()):
++        assert name == other and (a.grad is None) == (b.grad is None)
++        if a.grad is not None: gradient_errors.append((a.grad - b.grad).abs().max().item())
++    assert max(gradient_errors) == 0
++    original.eval(); changed.eval()
++    before = original.predict_action(condition, initial_noise=noise)
++    after = changed.predict_action(condition, initial_noise=noise)
++    assert torch.equal(before, after)
++    differentiable = changed.rollout_action(condition, initial_noise=noise, checkpoint_steps=True, inference_mode=True)
++    assert torch.equal(after, differentiable)
++    return {
++        'passed': True, 'device': 'cpu', 'dtype': 'float32', 'torch': torch.__version__,
++        'scope': 'two scenes, small real DiT, 10 native Euler steps; not full-checkpoint GPU qualification',
++        'reference_source': str(Path(reference_source).resolve()),
++        'reference_action_header_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
++        'state_dict_keys_and_initial_parameters_exact': True,
++        'default_fm_loss_max_error': (old_loss[0] - new_loss[0]).abs().item(),
++        'default_fm_parameter_gradient_max_error': max(gradient_errors),
++        'native_prediction_max_error': (before - after).abs().max().item(),
++        'differentiable_rollout_native_prediction_max_error': (after - differentiable).abs().max().item(),
++    }
++
++
++def main():
++    p = argparse.ArgumentParser(__doc__)
++    p.add_argument('--reference-source', required=True)
++    p.add_argument('--output', type=Path)
++    a = p.parse_args(); torch.set_num_threads(2)
++    result = verify(a.reference_source)
++    print(json.dumps(result, indent=2))
++    if a.output:
++        a.output.parent.mkdir(parents=True, exist_ok=True)
++        a.output.write_text(json.dumps(result, indent=2) + '\n')
++
++
++if __name__ == '__main__': main()

@@ -1,0 +1,681 @@
+{
+  "scope": "128 hash-selected held-out dev scenes, four native noise seeds; paired diagnostic, not full dev or Navtest",
+  "scenes": 128,
+  "logs": 16,
+  "seeds": [
+    42,
+    43,
+    44,
+    45
+  ],
+  "architectures": {
+    "s3": {
+      "summaries": {
+        "control": {
+          "means_points": {
+            "no_at_fault_collisions": 96.875,
+            "drivable_area_compliance": 99.21875,
+            "ego_progress": 90.26141944694764,
+            "time_to_collision_within_bound": 91.2109375,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.609375,
+            "score": 91.75931539456145
+          },
+          "position_noise_rms_m": 0.10254161059856415,
+          "yaw_noise_rms_degrees": 0.3088915699541243,
+          "zero_cases": 16,
+          "always_zero_scenes": 4,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.6960494203856266,
+            "along_rms_m": 1.1362116736229873,
+            "lateral_rms_m": 0.33290709692492026,
+            "along_bias_m": 0.06105280277992872,
+            "endpoint_along_bias_m": 0.15279803400403602,
+            "yaw_rms_degrees": 2.6365012845404276,
+            "interval_velocity_rms_mps": 0.6410997739957546,
+            "interval_acceleration_rms_mps2": 0.47537770451282757,
+            "moving_yaw_rms_degrees": 2.688544476278353,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.8378829918098631,
+              "endpoint_along_bias_m": 1.126049146366152,
+              "endpoint_positive_overshoot_p95_m": 8.694150701166247,
+              "interval_velocity_rms_mps": 0.9629855088946903
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.701853502099314,
+            "along_rms_m": 1.1401971535142423,
+            "lateral_rms_m": 0.3350662942977142,
+            "along_bias_m": 0.06105280637502262,
+            "endpoint_along_bias_m": 0.15279803589760332,
+            "yaw_rms_degrees": 2.6545355416480096,
+            "interval_velocity_rms_mps": 0.6485825883077951,
+            "interval_acceleration_rms_mps2": 0.5559360751188356,
+            "moving_yaw_rms_degrees": 2.7066787677500614,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 1.8397380466777598,
+              "endpoint_along_bias_m": 1.1260492176603765,
+              "endpoint_positive_overshoot_p95_m": 8.699550951196498,
+              "interval_velocity_rms_mps": 0.9668214677676371
+            }
+          }
+        },
+        "kinematics": {
+          "means_points": {
+            "no_at_fault_collisions": 96.484375,
+            "drivable_area_compliance": 99.8046875,
+            "ego_progress": 89.35612075138177,
+            "time_to_collision_within_bound": 91.796875,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.21875,
+            "score": 91.56114406307569
+          },
+          "position_noise_rms_m": 0.1548338085412979,
+          "yaw_noise_rms_degrees": 0.34695696125054587,
+          "zero_cases": 18,
+          "always_zero_scenes": 4,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.7609866582346774,
+            "along_rms_m": 1.197912024357149,
+            "lateral_rms_m": 0.3258213812917626,
+            "along_bias_m": -0.11362528792900423,
+            "endpoint_along_bias_m": -0.143015596387883,
+            "yaw_rms_degrees": 2.6310392978352737,
+            "interval_velocity_rms_mps": 0.6704501452475088,
+            "interval_acceleration_rms_mps2": 0.49009337451730245,
+            "moving_yaw_rms_degrees": 2.6834049995945035,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.9336743564685914,
+              "endpoint_along_bias_m": 1.2168200510600742,
+              "endpoint_positive_overshoot_p95_m": 8.963284983926153,
+              "interval_velocity_rms_mps": 1.0077146520952778
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.7700794476995337,
+            "along_rms_m": 1.2068700409523567,
+            "lateral_rms_m": 0.329531488533288,
+            "along_bias_m": -0.11362529300032376,
+            "endpoint_along_bias_m": -0.1430156380936677,
+            "yaw_rms_degrees": 2.653818691828821,
+            "interval_velocity_rms_mps": 0.6809593549419184,
+            "interval_acceleration_rms_mps2": 0.5782321920075859,
+            "moving_yaw_rms_degrees": 2.706229682795716,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 1.939375334859146,
+              "endpoint_along_bias_m": 1.2168201467577848,
+              "endpoint_positive_overshoot_p95_m": 9.095986784961003,
+              "interval_velocity_rms_mps": 1.0132979774507052
+            }
+          }
+        },
+        "braking": {
+          "means_points": {
+            "no_at_fault_collisions": 96.484375,
+            "drivable_area_compliance": 100.0,
+            "ego_progress": 89.21647884042757,
+            "time_to_collision_within_bound": 94.140625,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.0234375,
+            "score": 92.47952243351139
+          },
+          "position_noise_rms_m": 0.17754516005516052,
+          "yaw_noise_rms_degrees": 0.33761307570298327,
+          "zero_cases": 18,
+          "always_zero_scenes": 3,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.721672532781487,
+            "along_rms_m": 1.1142793800973902,
+            "lateral_rms_m": 0.3333641332721393,
+            "along_bias_m": 0.00037530252219993704,
+            "endpoint_along_bias_m": -0.03212244009925232,
+            "yaw_rms_degrees": 2.6341466233005155,
+            "interval_velocity_rms_mps": 0.6337541216751211,
+            "interval_acceleration_rms_mps2": 0.4666939066988946,
+            "moving_yaw_rms_degrees": 2.6867288276411183,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.6994940489413923,
+              "endpoint_along_bias_m": 0.8944059903377625,
+              "endpoint_positive_overshoot_p95_m": 7.661399996111535,
+              "interval_velocity_rms_mps": 0.86445691991635
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.7344704998444138,
+            "along_rms_m": 1.127037145193248,
+            "lateral_rms_m": 0.3377274199769121,
+            "along_bias_m": 0.0003752825277631294,
+            "endpoint_along_bias_m": -0.03212242524270492,
+            "yaw_rms_degrees": 2.655695265833632,
+            "interval_velocity_rms_mps": 0.6461324443165339,
+            "interval_acceleration_rms_mps2": 0.5502925041070709,
+            "moving_yaw_rms_degrees": 2.708490300108785,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 1.7107737977815658,
+              "endpoint_along_bias_m": 0.8944061869576156,
+              "endpoint_positive_overshoot_p95_m": 7.482103297049602,
+              "interval_velocity_rms_mps": 0.8737564681277281
+            }
+          }
+        }
+      },
+      "comparisons": {
+        "kinematics": {
+          "delta_points": {
+            "no_at_fault_collisions": -0.390625,
+            "drivable_area_compliance": 0.5859375,
+            "ego_progress": -0.9052986955658008,
+            "time_to_collision_within_bound": 0.5859375,
+            "comfort": 0.0,
+            "driving_direction_compliance": -0.390625,
+            "score": -0.19817133148575042
+          },
+          "per_seed_delta_points": {
+            "42": {
+              "no_at_fault_collisions": -0.78125,
+              "drivable_area_compliance": 0.0,
+              "ego_progress": -1.230250287372191,
+              "time_to_collision_within_bound": 0.0,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": -0.6428126197384132
+            },
+            "43": {
+              "no_at_fault_collisions": -0.78125,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -1.3111090900422662,
+              "time_to_collision_within_bound": 0.78125,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": -0.35098295418427783
+            },
+            "44": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -0.5097757559374004,
+              "time_to_collision_within_bound": 0.0,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": -0.21240656497391702
+            },
+            "45": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -0.5700596489113466,
+              "time_to_collision_within_bound": 1.5625,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": 0.41351681295360615
+            }
+          },
+          "log_cluster_95ci_points": {
+            "no_at_fault_collisions": [
+              -1.171875,
+              0.0
+            ],
+            "drivable_area_compliance": [
+              0.0,
+              1.7578125
+            ],
+            "ego_progress": [
+              -1.8495215915583185,
+              -0.2988366532165229
+            ],
+            "time_to_collision_within_bound": [
+              -1.171875,
+              2.734375
+            ],
+            "comfort": [
+              0.0,
+              0.0
+            ],
+            "driving_direction_compliance": [
+              -1.171875,
+              0.0
+            ],
+            "score": [
+              -1.0628459061405615,
+              0.7401204304240518
+            ]
+          },
+          "rescued_zero_cases": 0,
+          "new_zero_cases": 2
+        },
+        "braking": {
+          "delta_points": {
+            "no_at_fault_collisions": -0.390625,
+            "drivable_area_compliance": 0.78125,
+            "ego_progress": -1.0449406065200542,
+            "time_to_collision_within_bound": 2.9296875,
+            "comfort": 0.0,
+            "driving_direction_compliance": -0.5859375,
+            "score": 0.7202070389499773
+          },
+          "per_seed_delta_points": {
+            "42": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -0.6040081628803328,
+              "time_to_collision_within_bound": 3.125,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": 1.0504132654665277
+            },
+            "43": {
+              "no_at_fault_collisions": -0.78125,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -1.4434274863296874,
+              "time_to_collision_within_bound": 2.34375,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.78125,
+              "score": 0.24492604736262996
+            },
+            "44": {
+              "no_at_fault_collisions": -0.78125,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -1.4670663968233295,
+              "time_to_collision_within_bound": 3.125,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": 0.5605973346569458
+            },
+            "45": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -0.6652603800468675,
+              "time_to_collision_within_bound": 3.125,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.78125,
+              "score": 1.0248915083138044
+            }
+          },
+          "log_cluster_95ci_points": {
+            "no_at_fault_collisions": [
+              -1.7578125,
+              0.5859375
+            ],
+            "drivable_area_compliance": [
+              0.0,
+              2.34375
+            ],
+            "ego_progress": [
+              -2.52708433690914,
+              -0.017680745251577045
+            ],
+            "time_to_collision_within_bound": [
+              -0.1953125,
+              6.640625
+            ],
+            "comfort": [
+              0.0,
+              0.0
+            ],
+            "driving_direction_compliance": [
+              -1.5625,
+              0.0
+            ],
+            "score": [
+              -0.8142758004449944,
+              2.4280195095409423
+            ]
+          },
+          "rescued_zero_cases": 1,
+          "new_zero_cases": 3
+        }
+      }
+    },
+    "s0": {
+      "summaries": {
+        "control": {
+          "means_points": {
+            "no_at_fault_collisions": 96.09375,
+            "drivable_area_compliance": 99.609375,
+            "ego_progress": 89.68559651559912,
+            "time_to_collision_within_bound": 91.9921875,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.609375,
+            "score": 91.56821729816625
+          },
+          "position_noise_rms_m": 0.19471773505210876,
+          "yaw_noise_rms_degrees": 0.5675682828214025,
+          "zero_cases": 22,
+          "always_zero_scenes": 5,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.7878641124091944,
+            "along_rms_m": 1.2429740858990115,
+            "lateral_rms_m": 0.34802521296884664,
+            "along_bias_m": 0.2681806127203235,
+            "endpoint_along_bias_m": 0.5337190800386937,
+            "yaw_rms_degrees": 2.570857179542357,
+            "interval_velocity_rms_mps": 0.6846113413642101,
+            "interval_acceleration_rms_mps2": 0.5023275955602002,
+            "moving_yaw_rms_degrees": 2.6220173610724036,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.9991678877401216,
+              "endpoint_along_bias_m": 1.8288359278871429,
+              "endpoint_positive_overshoot_p95_m": 8.351900485303691,
+              "interval_velocity_rms_mps": 0.9387502165106449
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.7996477613285429,
+            "along_rms_m": 1.255987378642638,
+            "lateral_rms_m": 0.35569204344507993,
+            "along_bias_m": 0.2681805914753781,
+            "endpoint_along_bias_m": 0.5337190277476138,
+            "yaw_rms_degrees": 2.6327676968967633,
+            "interval_velocity_rms_mps": 0.7003834646934106,
+            "interval_acceleration_rms_mps2": 0.6279229929761238,
+            "moving_yaw_rms_degrees": 2.684888069858184,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 2.007232615266568,
+              "endpoint_along_bias_m": 1.828835719492485,
+              "endpoint_positive_overshoot_p95_m": 8.801535695007756,
+              "interval_velocity_rms_mps": 0.9480878148772425
+            }
+          }
+        },
+        "kinematics": {
+          "means_points": {
+            "no_at_fault_collisions": 95.8984375,
+            "drivable_area_compliance": 99.609375,
+            "ego_progress": 88.47782984374793,
+            "time_to_collision_within_bound": 93.5546875,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.51171875,
+            "score": 91.60209055989496
+          },
+          "position_noise_rms_m": 0.24881573021411896,
+          "yaw_noise_rms_degrees": 0.533956334946388,
+          "zero_cases": 23,
+          "always_zero_scenes": 4,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.8070133997385482,
+            "along_rms_m": 1.2394836893708625,
+            "lateral_rms_m": 0.343612532780329,
+            "along_bias_m": -0.06901657836442679,
+            "endpoint_along_bias_m": -0.09886986158869732,
+            "yaw_rms_degrees": 2.6681410153901717,
+            "interval_velocity_rms_mps": 0.690955587309454,
+            "interval_acceleration_rms_mps2": 0.5300187982285857,
+            "moving_yaw_rms_degrees": 2.721191901884645,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.7201881240882233,
+              "endpoint_along_bias_m": 1.0553750095821752,
+              "endpoint_positive_overshoot_p95_m": 7.790521503957808,
+              "interval_velocity_rms_mps": 0.8644842644102915
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.8242096295528091,
+            "along_rms_m": 1.2618535386506338,
+            "lateral_rms_m": 0.3521708005455668,
+            "along_bias_m": -0.06901657135418224,
+            "endpoint_along_bias_m": -0.09886984535353044,
+            "yaw_rms_degrees": 2.7210470444170523,
+            "interval_velocity_rms_mps": 0.7120396075805749,
+            "interval_acceleration_rms_mps2": 0.6688393618215543,
+            "moving_yaw_rms_degrees": 2.7748444116833353,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 1.7378009293792052,
+              "endpoint_along_bias_m": 1.055375176516382,
+              "endpoint_positive_overshoot_p95_m": 8.382098425592215,
+              "interval_velocity_rms_mps": 0.8808905380052034
+            }
+          }
+        },
+        "braking": {
+          "means_points": {
+            "no_at_fault_collisions": 96.875,
+            "drivable_area_compliance": 99.0234375,
+            "ego_progress": 88.95669086254293,
+            "time_to_collision_within_bound": 93.1640625,
+            "comfort": 100.0,
+            "driving_direction_compliance": 99.609375,
+            "score": 91.4598191093928
+          },
+          "position_noise_rms_m": 0.2946842908859253,
+          "yaw_noise_rms_degrees": 0.5586312470967052,
+          "zero_cases": 21,
+          "always_zero_scenes": 4,
+          "mean_trajectory_target_errors": {
+            "ade_m": 0.809284221736818,
+            "along_rms_m": 1.2308246047310665,
+            "lateral_rms_m": 0.3226409023988098,
+            "along_bias_m": -0.12110539824060926,
+            "endpoint_along_bias_m": -0.17972072372562248,
+            "yaw_rms_degrees": 2.547783681456271,
+            "interval_velocity_rms_mps": 0.6841233861100431,
+            "interval_acceleration_rms_mps2": 0.5421861292019824,
+            "moving_yaw_rms_degrees": 2.598292047302657,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 20,
+              "along_rms_m": 1.6789613897498121,
+              "endpoint_along_bias_m": 0.8990007415246435,
+              "endpoint_positive_overshoot_p95_m": 7.503170809580008,
+              "interval_velocity_rms_mps": 0.8659575586871728
+            }
+          },
+          "per_sample_target_errors": {
+            "ade_m": 0.8347541197357203,
+            "along_rms_m": 1.2629545297906648,
+            "lateral_rms_m": 0.33288301489234573,
+            "along_bias_m": -0.12110539451740382,
+            "endpoint_along_bias_m": -0.17972062003447803,
+            "yaw_rms_degrees": 2.6083095252534467,
+            "interval_velocity_rms_mps": 0.710628727027273,
+            "interval_acceleration_rms_mps2": 0.6951307988178408,
+            "moving_yaw_rms_degrees": 2.6595803912835008,
+            "braking_proxy": {
+              "definition": "GT last-two interval mean speed at least 2 m/s below first-two; diagnostic proxy, not an actor-risk label",
+              "scenes": 80,
+              "along_rms_m": 1.7098799155764757,
+              "endpoint_along_bias_m": 0.8990006105647673,
+              "endpoint_positive_overshoot_p95_m": 7.813477990897671,
+              "interval_velocity_rms_mps": 0.8862811467703579
+            }
+          }
+        }
+      },
+      "comparisons": {
+        "kinematics": {
+          "delta_points": {
+            "no_at_fault_collisions": -0.1953125,
+            "drivable_area_compliance": 0.0,
+            "ego_progress": -1.2077666718511293,
+            "time_to_collision_within_bound": 1.5625,
+            "comfort": 0.0,
+            "driving_direction_compliance": -0.09765625,
+            "score": 0.03387326172869672
+          },
+          "per_seed_delta_points": {
+            "42": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.78125,
+              "ego_progress": -0.15013196510316307,
+              "time_to_collision_within_bound": 0.78125,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": 0.39317418120701547
+            },
+            "43": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": -0.78125,
+              "ego_progress": -1.563631325799655,
+              "time_to_collision_within_bound": 3.125,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": 0.1948411142501429
+            },
+            "44": {
+              "no_at_fault_collisions": 0.0,
+              "drivable_area_compliance": 0.0,
+              "ego_progress": -0.9699457737570018,
+              "time_to_collision_within_bound": 2.34375,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": 0.5724184276012501
+            },
+            "45": {
+              "no_at_fault_collisions": -0.78125,
+              "drivable_area_compliance": 0.0,
+              "ego_progress": -2.1473576227446936,
+              "time_to_collision_within_bound": 0.0,
+              "comfort": 0.0,
+              "driving_direction_compliance": -0.390625,
+              "score": -1.0249406761436213
+            }
+          },
+          "log_cluster_95ci_points": {
+            "no_at_fault_collisions": [
+              -0.78125,
+              0.390625
+            ],
+            "drivable_area_compliance": [
+              -0.5859375,
+              0.5859375
+            ],
+            "ego_progress": [
+              -1.7303191331612635,
+              -0.7402163923135082
+            ],
+            "time_to_collision_within_bound": [
+              0.390625,
+              3.125
+            ],
+            "comfort": [
+              0.0,
+              0.0
+            ],
+            "driving_direction_compliance": [
+              -0.29296875,
+              0.0
+            ],
+            "score": [
+              -0.6417137999431379,
+              0.7797150650822321
+            ]
+          },
+          "rescued_zero_cases": 2,
+          "new_zero_cases": 3
+        },
+        "braking": {
+          "delta_points": {
+            "no_at_fault_collisions": 0.78125,
+            "drivable_area_compliance": -0.5859375,
+            "ego_progress": -0.7289056530561308,
+            "time_to_collision_within_bound": 1.171875,
+            "comfort": 0.0,
+            "driving_direction_compliance": 0.0,
+            "score": -0.10839818877338737
+          },
+          "per_seed_delta_points": {
+            "42": {
+              "no_at_fault_collisions": 0.78125,
+              "drivable_area_compliance": 0.0,
+              "ego_progress": -0.2932610554494759,
+              "time_to_collision_within_bound": 0.0,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": -0.3175046064372815
+            },
+            "43": {
+              "no_at_fault_collisions": 0.78125,
+              "drivable_area_compliance": -0.78125,
+              "ego_progress": -0.7654401313750051,
+              "time_to_collision_within_bound": 2.34375,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": 0.33210827859374736
+            },
+            "44": {
+              "no_at_fault_collisions": 0.78125,
+              "drivable_area_compliance": -0.78125,
+              "ego_progress": -0.7508995742255002,
+              "time_to_collision_within_bound": 1.5625,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": 0.012646010739375026
+            },
+            "45": {
+              "no_at_fault_collisions": 0.78125,
+              "drivable_area_compliance": -0.78125,
+              "ego_progress": -1.1060218511745399,
+              "time_to_collision_within_bound": 0.78125,
+              "comfort": 0.0,
+              "driving_direction_compliance": 0.0,
+              "score": -0.46084243798939123
+            }
+          },
+          "log_cluster_95ci_points": {
+            "no_at_fault_collisions": [
+              0.0,
+              2.34375
+            ],
+            "drivable_area_compliance": [
+              -1.953125,
+              0.390625
+            ],
+            "ego_progress": [
+              -2.280788106546187,
+              1.1587215750363502
+            ],
+            "time_to_collision_within_bound": [
+              -0.78125,
+              3.90625
+            ],
+            "comfort": [
+              0.0,
+              0.0
+            ],
+            "driving_direction_compliance": [
+              0.0,
+              0.0
+            ],
+            "score": [
+              -1.8439154070092,
+              1.6536854970192016
+            ]
+          },
+          "rescued_zero_cases": 5,
+          "new_zero_cases": 4
+        }
+      }
+    }
+  },
+  "official_reference_parity": {
+    "bank": "s3_braking_seed43",
+    "scenes": 128,
+    "max_error": {
+      "no_at_fault_collisions": 0.0,
+      "drivable_area_compliance": 0.0,
+      "ego_progress": 0.0,
+      "time_to_collision_within_bound": 0.0,
+      "comfort": 0.0,
+      "driving_direction_compliance": 0.0,
+      "score": 0.0
+    },
+    "tolerance": 1e-08
+  }
+}

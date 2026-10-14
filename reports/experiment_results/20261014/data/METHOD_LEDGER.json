@@ -1,0 +1,565 @@
+[
+  {
+    "method_id": "C0",
+    "family": "C",
+    "change": "DINO target 128x96, pool1, W=144; current + one sampled future + GT-MAE",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "",
+    "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+  },
+  {
+    "method_id": "C1",
+    "family": "C",
+    "change": "DINO target 256x192, pool2, W=144; current + one sampled future + GT-MAE",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "",
+    "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+  },
+  {
+    "method_id": "C2",
+    "family": "C",
+    "change": "DINO target 256x192, pool1, W=576; current + one sampled future + GT-MAE",
+    "status": "no_formal_planning_result",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "C3 real 4-step resume check; C5 120-update profiles; C2 target/config preparation",
+    "training_source_sha": ""
+  },
+  {
+    "method_id": "C3",
+    "family": "C",
+    "change": "DINO target 384x288, pool2, W=324; current + one sampled future + GT-MAE",
+    "status": "no_formal_planning_result",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "C3 real 4-step resume check; C5 120-update profiles; C2 target/config preparation",
+    "training_source_sha": ""
+  },
+  {
+    "method_id": "C4",
+    "family": "C",
+    "change": "DINO target 512x384, pool4, W=144; current + one sampled future + GT-MAE",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "",
+    "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+  },
+  {
+    "method_id": "C5",
+    "family": "C",
+    "change": "DINO target 512x384, pool2, W=576; current + one sampled future + GT-MAE",
+    "status": "no_formal_planning_result",
+    "evidence": "evidence/c/formal_registration_v1.json",
+    "engineering_only": "C3 real 4-step resume check; C5 120-update profiles; C2 target/config preparation",
+    "training_source_sha": ""
+  },
+  {
+    "method_id": "S0",
+    "family": "S",
+    "change": "C1 current; eight future DINO frames; token LayerNorm; MAE reads W",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/C_S_COMPLETED_RUNS.json",
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  {
+    "method_id": "S1",
+    "family": "S",
+    "change": "S0 + GT-ego action conditioning in training-only future head",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/C_S_COMPLETED_RUNS.json",
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  {
+    "method_id": "S2",
+    "family": "S",
+    "change": "S0 future target replaced by V-JEPA video tokens; no action condition",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/C_S_COMPLETED_RUNS.json",
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  {
+    "method_id": "S3",
+    "family": "S",
+    "change": "S2 + GT-ego action memory in future head",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/C_S_COMPLETED_RUNS.json",
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  {
+    "method_id": "S4",
+    "family": "S",
+    "change": "S3 + original action head directly reads final W",
+    "status": "formal_100k_complete",
+    "evidence": "evidence/C_S_COMPLETED_RUNS.json",
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  {
+    "method_id": "A_ACTION",
+    "family": "A/V",
+    "change": "S0 MAE readout moves from W to action representation",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/av",
+    "training_source_sha": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882"
+  },
+  {
+    "method_id": "A_NO_MAE",
+    "family": "A/V",
+    "change": "S0 removes MAE supervision, retains current/future DINO",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/av",
+    "training_source_sha": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882"
+  },
+  {
+    "method_id": "V_QUERY",
+    "family": "A/V",
+    "change": "S3 GT-ego action enters both memory and future queries",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/av",
+    "training_source_sha": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c"
+  },
+  {
+    "method_id": "A_W",
+    "family": "A/V alias",
+    "change": "Identical verified checkpoint reuse",
+    "status": "alias_not_independent_run",
+    "evidence": "../20261008/analysis/baseline_reuse_proof.json",
+    "alias_of": "S0"
+  },
+  {
+    "method_id": "V_NONE",
+    "family": "A/V alias",
+    "change": "Identical verified checkpoint reuse",
+    "status": "alias_not_independent_run",
+    "evidence": "../20261008/analysis/baseline_reuse_proof.json",
+    "alias_of": "S2"
+  },
+  {
+    "method_id": "V_MEMORY",
+    "family": "A/V alias",
+    "change": "Identical verified checkpoint reuse",
+    "status": "alias_not_independent_run",
+    "evidence": "../20261008/analysis/baseline_reuse_proof.json",
+    "alias_of": "S3"
+  },
+  {
+    "method_id": "F0",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/F0",
+    "normalized_mse": 0.3417930634342653
+  },
+  {
+    "method_id": "F1",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/F1",
+    "normalized_mse": 0.34312615668513274
+  },
+  {
+    "method_id": "V0",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/V0",
+    "normalized_mse": 0.3024481789614684
+  },
+  {
+    "method_id": "V1",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/V1",
+    "normalized_mse": 0.3021207502223947
+  },
+  {
+    "method_id": "F_ACTION_ONLY",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/F_ACTION_ONLY",
+    "normalized_mse": 0.5937758986051981
+  },
+  {
+    "method_id": "V_ACTION_ONLY",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/V_ACTION_ONLY",
+    "normalized_mse": 0.37251329418478496
+  },
+  {
+    "method_id": "P_QUERY_v2",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/P_QUERY_v2",
+    "normalized_mse": 0.29984195426616644
+  },
+  {
+    "method_id": "P_ACTION_ONLY_QUERY_v2",
+    "family": "frozen_readout_probe",
+    "change": "Fixed C1 W: teacher type / action memory-query / action-only auxiliary controls",
+    "status": "completed_2000_readout_updates; no_policy_training",
+    "evidence": "evidence/probes/P_ACTION_ONLY_QUERY_v2",
+    "normalized_mse": 0.37324728483362773
+  },
+  {
+    "method_id": "C1_W_INTERVENTION",
+    "family": "dependency_diagnostic",
+    "change": "Permute intermediate W at layers9/18 on fixed128dev",
+    "status": "completed_read_only; not_new_policy",
+    "evidence": "evidence/probes/C1_W_CANONICAL_PDMS_DIAGNOSTIC.json"
+  },
+  {
+    "method_id": "C1_FM_STEPS",
+    "family": "inference",
+    "change": "Fixed C1@100k original Euler 1/2/3/5/8/10/15/20/30 steps",
+    "status": "nine_complete_navtest_banks; no_training",
+    "evidence": "evidence/fm_steps/RESULTS.json"
+  },
+  {
+    "method_id": "R_r1",
+    "family": "optimized_labels",
+    "change": "r1 optimized ego labels; original FM unchanged",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/optimized"
+  },
+  {
+    "method_id": "S0_r1",
+    "family": "optimized_labels",
+    "change": "r1 optimized ego labels; original FM unchanged",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/optimized"
+  },
+  {
+    "method_id": "S3_r1",
+    "family": "optimized_labels",
+    "change": "r1 optimized ego labels; original FM unchanged",
+    "status": "formal_100k_complete",
+    "evidence": "../20261008/configs/optimized"
+  },
+  {
+    "method_id": "S0_pilot_control",
+    "family": "objective mature pilot",
+    "change": "control",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_matched_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 89.55510203841281
+  },
+  {
+    "method_id": "S0_pilot_fm_axes",
+    "family": "objective mature pilot",
+    "change": "fm_axes",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_matched_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 89.88641836401105
+  },
+  {
+    "method_id": "S0_pilot_initial",
+    "family": "objective mature pilot",
+    "change": "initial",
+    "status": "read_only_parent",
+    "evidence": "evidence/objective_pilots/dev_S0_matched_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 89.64364209100249
+  },
+  {
+    "method_id": "S0_pilot_rollout",
+    "family": "objective mature pilot",
+    "change": "rollout",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_matched_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 90.12088972988114
+  },
+  {
+    "method_id": "S3_pilot_control",
+    "family": "objective mature pilot",
+    "change": "control",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_matched_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.58082296264016
+  },
+  {
+    "method_id": "S3_pilot_fm_axes",
+    "family": "objective mature pilot",
+    "change": "fm_axes",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_matched_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.93321657523465
+  },
+  {
+    "method_id": "S3_pilot_initial",
+    "family": "objective mature pilot",
+    "change": "initial",
+    "status": "read_only_parent",
+    "evidence": "evidence/objective_pilots/dev_S3_matched_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.54239936301992
+  },
+  {
+    "method_id": "S3_pilot_rollout",
+    "family": "objective mature pilot",
+    "change": "rollout",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_matched_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 89.34323219799383
+  },
+  {
+    "method_id": "S0_pilot_fm_absolute_x",
+    "family": "objective mature pilot",
+    "change": "fm_absolute_x",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_fm_gain_both_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 90.92895348831247
+  },
+  {
+    "method_id": "S0_pilot_fm_absolute_x_yaw",
+    "family": "objective mature pilot",
+    "change": "fm_absolute_x_yaw",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_fm_gain_both_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 90.5003194518229
+  },
+  {
+    "method_id": "S3_pilot_fm_absolute_x",
+    "family": "objective mature pilot",
+    "change": "fm_absolute_x",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_fm_gain_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.87114432128254
+  },
+  {
+    "method_id": "S3_pilot_fm_absolute_x_yaw",
+    "family": "objective mature pilot",
+    "change": "fm_absolute_x_yaw",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_fm_gain_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.90853179935253
+  },
+  {
+    "method_id": "S0_pilot_braking",
+    "family": "objective mature pilot",
+    "change": "braking",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_fm_endpoint_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 90.43939023737022
+  },
+  {
+    "method_id": "S0_pilot_kinematics",
+    "family": "objective mature pilot",
+    "change": "kinematics",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S0_fm_endpoint_evidence.json",
+    "parent_update": 50000,
+    "dev_PDMS": 90.57313317162293
+  },
+  {
+    "method_id": "S3_pilot_braking",
+    "family": "objective mature pilot",
+    "change": "braking",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_fm_endpoint_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 91.24249769930648
+  },
+  {
+    "method_id": "S3_pilot_kinematics",
+    "family": "objective mature pilot",
+    "change": "kinematics",
+    "status": "completed_512_adaptation",
+    "evidence": "evidence/objective_pilots/dev_S3_fm_endpoint_evidence.json",
+    "parent_update": 100000,
+    "dev_PDMS": 90.74554031002103
+  },
+  {
+    "method_id": "S3_V12_objective_seed42_full100k_v1",
+    "family": "aggressive_objective",
+    "change": "absolute x4 + braking gain + bridge endpoint velocity/acceleration",
+    "status": "paused_rejected_joint_recipe",
+    "evidence": "../20261008/analysis/objective_v2/original_training_pause.json",
+    "last_update": 52200,
+    "training_source_sha": "b3cefdd994146526cf70f259010fce5077fc5692"
+  },
+  {
+    "method_id": "S0_r1_objective_seed42_full100k_v1",
+    "family": "aggressive_objective",
+    "change": "absolute x4 + braking gain + bridge endpoint velocity/acceleration",
+    "status": "paused_rejected_joint_recipe",
+    "evidence": "../20261008/analysis/objective_v2/original_training_pause.json",
+    "last_update": 54428,
+    "training_source_sha": "b3cefdd994146526cf70f259010fce5077fc5692"
+  },
+  {
+    "method_id": "S0_V12_objective_seed42_full100k_v1",
+    "family": "aggressive_objective",
+    "change": "absolute x4 + braking gain + bridge endpoint velocity/acceleration",
+    "status": "paused_rejected_joint_recipe",
+    "evidence": "../20261008/analysis/objective_v2/original_training_pause.json",
+    "last_update": 38468,
+    "training_source_sha": "b3cefdd994146526cf70f259010fce5077fc5692"
+  },
+  {
+    "method_id": "S3_r1_objective_seed42_full100k_v1",
+    "family": "aggressive_objective",
+    "change": "absolute x4 + braking gain + bridge endpoint velocity/acceleration",
+    "status": "paused_rejected_joint_recipe",
+    "evidence": "../20261008/analysis/objective_v2/original_training_pause.json",
+    "last_update": 54518,
+    "training_source_sha": "b3cefdd994146526cf70f259010fce5077fc5692"
+  },
+  {
+    "method_id": "S0_v2_control",
+    "family": "objective_v2",
+    "change": "original FM",
+    "status": "paused_at_2000; no_5k_or_100k_claim",
+    "evidence": "../20261008/analysis/objective_v2/final_report.json",
+    "training_source_sha": "6ec45b0e8705c7919fb555c20324f91580add976"
+  },
+  {
+    "method_id": "S0_v2_candidate",
+    "family": "objective_v2",
+    "change": "milder FM weights, scene-normalized braking, 1k curriculum, weak native rollout",
+    "status": "paused_at_2000; no_5k_or_100k_claim",
+    "evidence": "../20261008/analysis/objective_v2/final_report.json",
+    "training_source_sha": "6ec45b0e8705c7919fb555c20324f91580add976"
+  },
+  {
+    "method_id": "S3_v2_control",
+    "family": "objective_v2",
+    "change": "original FM",
+    "status": "paused_at_2000; no_5k_or_100k_claim",
+    "evidence": "../20261008/analysis/objective_v2/final_report.json",
+    "training_source_sha": "6ec45b0e8705c7919fb555c20324f91580add976"
+  },
+  {
+    "method_id": "S3_v2_candidate",
+    "family": "objective_v2",
+    "change": "milder FM weights, scene-normalized braking, 1k curriculum, weak native rollout",
+    "status": "paused_at_2000; no_5k_or_100k_claim",
+    "evidence": "../20261008/analysis/objective_v2/final_report.json",
+    "training_source_sha": "6ec45b0e8705c7919fb555c20324f91580add976"
+  },
+  {
+    "method_id": "navsim/G0_NO_FUTURE_LABEL",
+    "family": "G",
+    "change": "same full geometry/Bt/FGTR structure; no future semantic/relation labels",
+    "status": "paused_by_user",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "71052",
+    "endpoint": "100000",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  {
+    "method_id": "navsim/G1_FULL_UNIFORM",
+    "family": "G",
+    "change": "full future occupancy; uniform K1024 structured queries",
+    "status": "paused_by_user",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "84135",
+    "endpoint": "100000",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  {
+    "method_id": "navsim/G2_EVENT_UNIFORM",
+    "family": "G",
+    "change": "conditional enter/release; uniform K1024 structured queries",
+    "status": "active",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "73775",
+    "endpoint": "100000",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  {
+    "method_id": "navsim/G3_EVENT_LOCAL",
+    "family": "G",
+    "change": "same targets as G2; 50% q0 body/neighborhood + 25% boundary/event + 25% global for ALL structured supervision",
+    "status": "complete",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "100000",
+    "endpoint": "100000",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d"
+  },
+  {
+    "method_id": "nuscenes/G1_FULL_UNIFORM",
+    "family": "G",
+    "change": "full future occupancy; uniform K1024 structured queries",
+    "status": "paused_by_user",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "7811",
+    "endpoint": "17424",
+    "training_source_sha": "41da7c198cf0ac4f799aee2a27a0a8126de30230"
+  },
+  {
+    "method_id": "nuscenes/G3_EVENT_LOCAL",
+    "family": "G",
+    "change": "same targets as G2; 50% q0 body/neighborhood + 25% boundary/event + 25% global for ALL structured supervision",
+    "status": "complete",
+    "evidence": "data/TRAINING_STATUS.csv",
+    "last_update": "17424",
+    "endpoint": "17424",
+    "training_source_sha": "41da7c198cf0ac4f799aee2a27a0a8126de30230"
+  },
+  {
+    "method_id": "nuscenes/G0_NO_FUTURE_LABEL",
+    "family": "G",
+    "change": "same full geometry/Bt/FGTR structure; no future semantic/relation labels",
+    "status": "prepared_not_started_then_paused_by_user",
+    "evidence": "evidence/NUSCENES_PAUSE.json",
+    "last_update": 0
+  },
+  {
+    "method_id": "io_preserving_v1",
+    "family": "execution",
+    "change": "Accepted IO execution; official runs retain original algorithm",
+    "status": "adopted",
+    "evidence": "reports/structured_world/round1_20261008/NAVTEST_25K_AND_TRAINING_EFFICIENCY_20261011.md"
+  },
+  {
+    "method_id": "engineering_fast",
+    "family": "execution",
+    "change": "metadata, processor, transfers/logs, MLN/Fuser, queries reuse",
+    "status": "faster_windows; formal_guard_still_closed",
+    "evidence": "reports/structured_world/execution_20261011/PERFORMANCE_EVIDENCE_20261011_1405_ZH.md"
+  },
+  {
+    "method_id": "engineering_timevec",
+    "family": "execution",
+    "change": "time batch vectorization",
+    "status": "Bt_tolerance_failed; not_adopted",
+    "evidence": "reports/structured_world/execution_20261011/IMPLEMENTATION_AND_ACCEPTANCE_ZH.md"
+  },
+  {
+    "method_id": "precision_fast",
+    "family": "execution",
+    "change": "local geometry BF16",
+    "status": "E3_screen_only; not_adopted",
+    "evidence": "reports/structured_world/execution_20261011/IMPLEMENTATION_AND_ACCEPTANCE_ZH.md"
+  },
+  {
+    "method_id": "visual_cache_probe",
+    "family": "execution",
+    "change": "frozen Qwen visual + all DeepStack",
+    "status": "batch_shape_difference; no_full_cache",
+    "evidence": "reports/structured_world/execution_20261012/NO_REGRESSION_HOST_FAST_AND_16GPU_ZH.md"
+  },
+  {
+    "method_id": "engineering_host_fast_and_16GPU",
+    "family": "execution",
+    "change": "host-only preservation and 8-to-16 execution candidates",
+    "status": "qualification/CPU_evidence; no_accepted_full_GPU_comparison",
+    "evidence": "reports/structured_world/execution_20261012/NO_REGRESSION_HOST_FAST_AND_16GPU_ZH.md"
+  }
+]

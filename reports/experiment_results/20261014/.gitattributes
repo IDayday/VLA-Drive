@@ -1,0 +1,9 @@
+# Preserve exact evidence/source bytes and manifest hashes after cloning.
+* -text
+
+# CSV writers use standard CRLF record endings.
+*.csv whitespace=cr-at-eol
+
+# Historical source and original git diffs retain upstream whitespace verbatim.
+implementation/snapshots/** -whitespace
+implementation/patches/*.patch -whitespace

@@ -1,0 +1,105 @@
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index a4182b5c9b21c80daceba713825df3aefb6d3b1b..816e069b24174fbe96087d9530b96fb677f744c7 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -93,11 +93,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         ForesightConfig(**dict(cfg.foresight)).validate()
+         if any((need_cur,need_fut,need_int,need_vis,full_method,clip_method)):
+             raise ValueError('Native action-only must disable every auxiliary task')
+-    # S0 has no future-action conditioning; S3 explicitly reads ego_video,
+-    # which remains the logged trajectory while ego supplies optimized FM GT.
+-    if a.ego_relabel_root and not (native_action_only or clip_method and
+-            cfg.foresight.future_action_condition in ('none','gt_ego')):
+-        raise ValueError('Optimized ego overlay requires native action-only, unconditioned future targets, or logged-action conditioning')
++    if a.ego_relabel_root and not (native_action_only or clip_method and cfg.foresight.future_action_condition=='gt_ego'):
++        raise ValueError('Optimized ego overlay requires native action-only or logged-action video conditioning')
+     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity,
+                      ego_relabel_root=a.ego_relabel_root)
+     if clip_method:
+diff --git a/tools/s3_optimized_training/run.py b/tools/s3_optimized_training/run.py
+index b2f9dee3203f0662fcb1a27d281889b323107681..7ecf91c48f71ccfea3cd20d76e4d529722a99c3e 100644
+--- a/tools/s3_optimized_training/run.py
++++ b/tools/s3_optimized_training/run.py
+@@ -17,11 +17,10 @@ DEFAULT_CAMPAIGN = '/mnt/project/DriveVLA-M0/outputs/robust_navtrain_campaign_20
+ 
+ 
+ def baseline(variant='s3'):
+-    family = 's0' if variant == 's0' else 's3'
+-    cfg = read(SOURCE / f'configs/{family}_optimized/baseline_config.json')
+-    reg = read(SOURCE / f'configs/{family}_optimized/baseline_registration.json')
+-    if reg['arm'] != family.upper() or identity_hash(cfg) != reg['config_sha256']:
+-        raise ValueError('Frozen baseline configuration changed')
++    cfg = read(SOURCE / 'configs/s3_optimized/baseline_config.json')
++    reg = read(SOURCE / 'configs/s3_optimized/baseline_registration.json')
++    if reg['arm'] != 'S3' or identity_hash(cfg) != reg['config_sha256']:
++        raise ValueError('Frozen S3 baseline configuration changed')
+     if variant == 'action-only':
+         # R is the existing native DDP path: no W tokens or auxiliary modules.
+         # Keep the original Qwen/history/DiT recipe and public initialization.
+@@ -32,7 +31,7 @@ def baseline(variant='s3'):
+         reg = {**reg, 'arm': 'DDP_ACTION_ONLY', 'config_sha256': identity_hash(cfg),
+                'dino': None, 'interaction': None, 'future_clip': None,
+                'definition': 'native DDP Qwen + history state + original DiT; zero W tokens; ego FM loss only'}
+-    elif variant not in ('s3', 's0'):
++    elif variant != 's3':
+         raise ValueError('Unknown training variant')
+     return cfg, reg
+ 
+@@ -48,7 +47,7 @@ def preflight(a):
+         raise ValueError('S3 train/dev population changed')
+     overlay, _, _ = load_overlay(a.labels, current, ego, index)
+     f = cfg['foresight']
+-    if variant in ('s3', 's0'):
++    if variant == 's3':
+         dataset = ActionVideoForesightDataset(
+             a.data, ego_relabel_root=a.labels, candidate=f['candidate'], current=True, future=True,
+             dino_root=a.dino_root, dino_index=a.dino_index, expected_dino=reference['dino'],
+@@ -78,8 +77,7 @@ def preflight(a):
+         'scene_count': len(dataset), 'optimized_accepted': overlay['accepted_scenes'],
+         'original_fallback': overlay['fallback_scenes'], 'excluded_source_scenes': overlay['excluded_source_scenes'],
+         'ego_relabel_identity': overlay['identity'], 'variant': variant,
+-        'auxiliary_targets_unchanged': variant in ('s3', 's0'),
+-        'future_target_type': f.get('future_target_type', 'disabled'),
++        'auxiliary_targets_unchanged': variant == 's3',
+         'video_condition': 'original_logged_ego' if variant == 's3' else 'disabled',
+         'initialization': reference['initialization'],
+         'sampled_dataset_items': 3}
+@@ -94,7 +92,7 @@ def command(a, reference, config_path, registration_path):
+               'schedule-updates': reference['schedule_updates'], 'warmup': 5000,
+               'save-every': 200, 'milestones': ','.join(map(str, reference['milestones'])),
+               'loader-workers': a.loader_workers, 'scope': 'formal', 'registration': registration_path}
+-    if reference['arm'] in ('S3', 'S0'):
++    if reference['arm'] == 'S3':
+         values.update({'dino-root': a.dino_root, 'dino-index': a.dino_index, 'dino-identity': reference['dino'],
+                        'interaction-root': a.interaction_root, 'interaction-identity': reference['interaction'],
+                        'clip-root': a.clip_root, 'clip-identity': reference['future_clip']})
+@@ -186,26 +184,20 @@ def main():
+         p.add_argument('--dino-root', default='/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1')
+         p.add_argument('--dino-index', default='/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1')
+         p.add_argument('--interaction-root', default='/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1')
+-        p.add_argument('--clip-root')
++        p.add_argument('--clip-root', default='/mnt/project/action-video-foresight-artifacts/20261002/targets_video_clip_train_v1')
+         p.add_argument('--local-image-root')
+         p.add_argument('--gpus', type=int, default=8)
+         p.add_argument('--micro-batch', type=int, default=4)
+-        p.add_argument('--variant', choices=('s3', 'action-only', 's0'), default='s3')
++        p.add_argument('--variant', choices=('s3', 'action-only'), default='s3')
+         if name == 'train':
+             p.add_argument('--output', default=DEFAULT_OUTPUT)
+-            p.add_argument('--run-id')
++            p.add_argument('--run-id', default='S3_optimized_seed42_100k_v1')
+             p.add_argument('--master-port', type=int, default=29952)
+             p.add_argument('--loader-workers', type=int, default=2)
+             p.add_argument('--resume', action='store_true', help='Resume only this same optimized-data run')
+             p.add_argument('--dry-run', action='store_true')
+             p.add_argument('--stop-after', type=int, default=0, help='Save a recoverable pause at this update')
+     a = parser.parse_args()
+-    if a.mode in ('check','train') and not a.clip_root:
+-        kind = 'dino_sequence' if a.variant == 's0' else 'video_clip'
+-        a.clip_root = f'/mnt/project/action-video-foresight-artifacts/20261002/targets_{kind}_train_v1'
+-    if a.mode == 'train' and not a.run_id:
+-        a.run_id = {'s0':'S0_optimized_seed42_100k_v1','s3':'S3_optimized_seed42_100k_v1',
+-                    'action-only':'DDP_action_only_optimized_seed42_100k_v1'}[a.variant]
+     try:
+         if a.mode == 'prepare':
+             result = prepare(a.campaign, a.data, a.labels)

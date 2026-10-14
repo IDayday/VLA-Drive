@@ -1,0 +1,86 @@
+{
+  "status": "COMPLETE",
+  "utc": "2026-10-14T04:56:15.115780+00:00",
+  "user_scope": "Keep NAVSIM G2 only; pause other unfinished G training and automatic evaluations to release resources",
+  "paused_groups": {
+    "G0_NO_FUTURE_LABEL": {
+      "group": "G0_NO_FUTURE_LABEL",
+      "status": "PAUSED_BY_USER",
+      "completed": 71052,
+      "checkpoint": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g0_rlzt2_deploy_20261010T2355/formal/G0_NO_FUTURE_LABEL/checkpoints/latest_0071052",
+      "native_full_resume_state_verified": true,
+      "payload_hashes_verified": 17,
+      "training_host": "training-rl-zt2-worker-0",
+      "training_processes_exited": true,
+      "automatic_training_and_evaluation_disabled": true,
+      "resume_requires_new_user_instruction": true,
+      "receipt": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g2_only_20261014T0449Z/G0_CHECKPOINT_VERIFIED.json",
+      "utc": "2026-10-14T04:56:15.115780+00:00"
+    },
+    "G1_FULL_UNIFORM": {
+      "group": "G1_FULL_UNIFORM",
+      "status": "PAUSED_BY_USER",
+      "completed": 84135,
+      "checkpoint": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/checkpoints/latest_0084135",
+      "native_full_resume_state_verified": true,
+      "payload_hashes_verified": 17,
+      "training_host": "training-vla-zt-worker-0",
+      "training_processes_exited": true,
+      "automatic_training_and_evaluation_disabled": true,
+      "resume_requires_new_user_instruction": true,
+      "receipt": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g2_only_20261014T0449Z/G1_CHECKPOINT_VERIFIED.json",
+      "utc": "2026-10-14T04:56:15.115780+00:00"
+    }
+  },
+  "G2": {
+    "utc": "2026-10-14T04:55:30.872885+00:00",
+    "status": "CONTINUES_UNCHANGED",
+    "host": "training-vlawm-tsinghua-zt",
+    "updates": 64007,
+    "previous_observed_updates": 63981,
+    "target_updates": 100000,
+    "scene_exposure": 2048064,
+    "recent_median_seconds": 3.3794453144073486,
+    "training_recipe_changed": false,
+    "next_navtest_updates": [
+      70000,
+      80000,
+      90000,
+      100000
+    ]
+  },
+  "G3": "completed earlier; results retained; no new work",
+  "nuScenes": "previous explicit pause retained",
+  "evaluation": {
+    "active_groups": [
+      "G2_EVENT_UNIFORM"
+    ],
+    "controller_pid": 2552228,
+    "exclusive_controller_lock_verified": true,
+    "remaining_observation_updates": [
+      70000,
+      80000,
+      90000,
+      100000
+    ],
+    "historical_completed_banks_preserved": 20,
+    "gate_verification": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_g2_only_20261014T0449Z/NAVTEST_GATE_VERIFIED.json"
+  },
+  "resources": {
+    "training_vla_zt": "G1 ranks exited; all 8 GPUs report 0 MiB allocated and 0% utilization at verification",
+    "training_rl_zt2": "G0 ranks exited; each GPU retains 558 MiB / 100% utilization from owners outside this process namespace; not signaled",
+    "our_pressure_monitors": "both stopped; automatic pressure refill disabled"
+  },
+  "preserved": [
+    "weights",
+    "all optimizer partitions",
+    "native step-based LR schedule identity",
+    "all-rank RNG",
+    "BN buffers",
+    "epoch/offset/exposure",
+    "existing results and data"
+  ],
+  "scientific_interpretation": "G0/G1 remain incomplete at recorded unequal endpoints; stopping for resources is not evidence that these methods are universally invalid",
+  "training_source_modified": false,
+  "unrelated_tasks_stopped": false
+}

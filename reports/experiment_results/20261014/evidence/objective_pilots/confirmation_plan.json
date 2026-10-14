@@ -1,0 +1,52 @@
+{
+  "source_sha": "7e406a122fd662830327a0050241db728576cbb7",
+  "purpose": "Three matched S0 architecture-confirmation pilots; provisional objectives, no full training",
+  "groups": {
+    "s0_control": [
+      {
+        "variant": "s0",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S0_50k/initialization.json",
+        "run_id": "S0_r1_control_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "objective": null,
+        "port": 29966
+      }
+    ],
+    "s0_candidates": [
+      {
+        "variant": "s0",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S0_50k/initialization.json",
+        "run_id": "S0_r1_fm_axes_512",
+        "relative_cards": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "objective": "/mnt/project/VLA-Drive-trajectory-objective-campaign-20261006/configs/trajectory_objective/fm_axes.json",
+        "port": 29967
+      },
+      {
+        "variant": "s0",
+        "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+        "initialization": "/mnt/project/trajectory-objective-training-artifacts/20261006/pilot_initialization/S0_50k/initialization.json",
+        "run_id": "S0_r1_rollout_512",
+        "relative_cards": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "objective": "/mnt/project/trajectory-objective-training-artifacts/20261006/selected_candidates/rollout_calibrated_v1.json",
+        "port": 29968
+      }
+    ]
+  }
+}

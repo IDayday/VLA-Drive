@@ -1,0 +1,524 @@
+diff --git a/starVLA/dataloader/foresight_dataset.py b/starVLA/dataloader/foresight_dataset.py
+index bae6b9b0c9df2c127d7c5a1fa7c791e0f05e09a9..1eb0078069b1f4274663cc89ed4f3a248cbf4cd3 100644
+--- a/starVLA/dataloader/foresight_dataset.py
++++ b/starVLA/dataloader/foresight_dataset.py
+@@ -65,11 +65,16 @@ class ForesightCurrentDataset(Dataset):
+ 
+ class ForesightTrainingDataset(ForesightCurrentDataset):
+     """Every arm keeps the current/ego index; missing auxiliary labels are masks."""
+-    def __init__(self,root,*,future_root=None,interaction_root=None,expected_future=None,expected_interaction=None):
++    def __init__(self,root,*,future_root=None,interaction_root=None,expected_future=None,expected_interaction=None,ego_relabel_root=None):
+         super().__init__(root)
+         self.ego_identity=json.loads((self.root/'ego_identity.json').read_text())
+         if self.ego_identity['schema']!='foresight_ego_labels_v1' or self.ego_identity['index_sha256']!=self.identity['index_sha256']:
+             raise ValueError('Ego/current manifest mismatch')
++        self.ego_relabel_identity = None
++        if ego_relabel_root:
++            from tools.s3_optimized_training.labels import load_overlay
++            self.ego_relabel_identity, self._optimized_ego, self._optimized_accepted = load_overlay(
++                ego_relabel_root, self.identity, self.ego_identity, self.index)
+         self.future_root=Path(future_root) if future_root else None
+         self.interaction_root=Path(interaction_root) if interaction_root else None
+         self.future_shards={};self.future_identity=None;self.interaction_identity=None
+@@ -94,6 +99,12 @@ class ForesightTrainingDataset(ForesightCurrentDataset):
+         label=torch.load(self.root/'ego'/(token+'.pt'),weights_only=True,map_location='cpu')
+         if label['identity']!=self.ego_identity['identity'] or label['token']!=token:raise ValueError('Ego label identity mismatch')
+         targets={'ego':label['ego']}
++        if self.ego_relabel_identity is not None:
++            # Recorded video/traffic still describe the original logged motion.
++            # Only the planner's supervision changes; no labels enter observations.
++            targets['ego_video'] = label['ego']
++            if self._optimized_accepted[i]:
++                targets['ego'] = torch.from_numpy(encode_ego(self._optimized_ego[i]))
+         if self.future_root:
+             folder=self.future_shards[i%self.future_identity['shards']]
+             label=torch.load(folder/'targets'/(token+'.pt'),weights_only=True,map_location='cpu')
+diff --git a/starVLA/model/framework/ddp_action_video_foresight.py b/starVLA/model/framework/ddp_action_video_foresight.py
+index 93176f5d3760e6933cbf6f75ae2b0d0d03e4bcc6..7516dbddba8d6a1b94cf5cd777e3c827a228bc35 100644
+--- a/starVLA/model/framework/ddp_action_video_foresight.py
++++ b/starVLA/model/framework/ddp_action_video_foresight.py
+@@ -27,7 +27,8 @@ class DDPActionVideoForesight(DDPFullForesight):
+         if cfg.future_action_condition == 'gt_ego':
+             from starVLA.dataloader.foresight_dataset import decode_ego
+             # Decode fixed DDP normalization into physical ego(t0) coordinates.
+-            decoded = decode_ego(targets['ego'].detach().to(device).float())
++            video_ego = targets.get('ego_video', targets['ego'])
++            decoded = decode_ego(video_ego.detach().to(device).float())
+             action = torch.cat((decoded[..., :2], decoded[..., 2:3].sin(), decoded[..., 2:3].cos()), -1)
+         with self.amp():
+             prediction = self.spatiotemporal_head(world, (cfg.future_grid_height, cfg.future_grid_width), gt_action=action)
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index da41dbee614b2f769a904cbf15b228d3f62661d7..a4182b5c9b21c80daceba713825df3aefb6d3b1b 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -49,6 +49,7 @@ def main():
+     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
+     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
+     p.add_argument('--registration')
++    p.add_argument('--ego-relabel-root', help='Completed optimized planner labels; preserve logged video conditioning')
+     a=p.parse_args()
+     if min(a.global_batch,a.micro_batch,a.updates,a.save_every)<=0 or any(x is not None and x<=0 for x in (a.max_seconds,a.campaign_gpu_hours)):raise ValueError('Positive training/budget settings required')
+     if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
+@@ -86,7 +87,19 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+     if need_vis and float(cfg.foresight.lambda_vis)<=0 or need_int and float(cfg.foresight.lambda_int)<=0:raise ValueError('Active auxiliary loss requires calibrated nonzero weight')
+     if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
+     if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
+-    data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
++    native_action_only = cfg.framework.name=='DDPForesight' and arm=='R' and int(cfg.foresight.num_queries)==0
++    if native_action_only:
++        from starVLA.model.modules.foresight.config import ForesightConfig
++        ForesightConfig(**dict(cfg.foresight)).validate()
++        if any((need_cur,need_fut,need_int,need_vis,full_method,clip_method)):
++            raise ValueError('Native action-only must disable every auxiliary task')
++    # S0 has no future-action conditioning; S3 explicitly reads ego_video,
++    # which remains the logged trajectory while ego supplies optimized FM GT.
++    if a.ego_relabel_root and not (native_action_only or clip_method and
++            cfg.foresight.future_action_condition in ('none','gt_ego')):
++        raise ValueError('Optimized ego overlay requires native action-only, unconditioned future targets, or logged-action conditioning')
++    data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity,
++                     ego_relabel_root=a.ego_relabel_root)
+     if clip_method:
+         from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
+         if bool(a.clip_root) != need_fut:
+@@ -111,7 +124,13 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         from starVLA.dataloader.dino_foresight_dataset import DINOTrainingDataset
+         data=DINOTrainingDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+             current=need_cur,future=need_fut,allow_partial=a.scope!='formal',**data_kwargs)
+-    else:data=ForesightTrainingDataset(a.data,**data_kwargs)
++    else:
++        data=ForesightTrainingDataset(a.data,**data_kwargs)
++        data.local_image_root=a.local_image_root
++        if a.local_image_root:
++            stage=json.loads((Path(a.data)/'local_stage.json').read_text())
++            if stage['source_identity']!=data.identity['identity'] or stage['scenes']!=len(data) or Path(stage['image_root'])!=Path(a.local_image_root):
++                raise ValueError('Incomplete or foreign local image staging')
+     if data.identity['split']!='train' or not (Path(a.data)/'COMPLETE.json').exists():raise ValueError('Only completed training split can update student')
+     size=min(len(data),a.limit) if a.limit else len(data)
+     validate_rank_batches(size,a.global_batch,world,a.micro_batch)
+@@ -142,18 +161,22 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         identity.update(schema='ddp_action_video_student_v1',future_clip=data.clip_identity,
+             future_sampling='one complete eight-real-frame request per scene; whole-view mask on any missing frame',
+             auxiliary_frequency='ego repeat8, current once, full native clip once, valid MAE once; Qwen once')
+-    if full_method and a.scope=='formal':
++    if (full_method or a.ego_relabel_root) and a.scope=='formal':
+         from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+         if not a.registration:raise ValueError('Full formal registration required')
+         registered=json.loads(Path(a.registration).read_text())
+         if registered['training_source_sha']!=source or registered['scene_count']!=size:raise ValueError('Registration source/population changed')
+-        if clip_method:
++        if clip_method or a.ego_relabel_root:
+             expected={'run_id':a.run_id,'config_sha256':identity_hash(OmegaConf.to_container(cfg,resolve=True)),
+                 'global_batch':a.global_batch,'micro_batch':a.micro_batch,'world_size':world,
+                 'updates':a.updates,'schedule_updates':a.schedule_updates,'milestones':sorted(milestones)}
+             if any(registered.get(k)!=v for k,v in expected.items()):
+                 raise ValueError('Action/video formal registration configuration/schedule mismatch')
++            if registered.get('ego_relabel_identity') != (data.ego_relabel_identity or {}).get('identity'):
++                raise ValueError('Registered optimized planning labels changed')
+         identity['registration_sha256']=file_sha256(a.registration)
++    if data.ego_relabel_identity is not None:
++        identity['ego_relabel'] = data.ego_relabel_identity
+     signature=identity_hash(identity)
+     lock=None
+     if rank==0:
+diff --git a/tools/s3_optimized_training/labels.py b/tools/s3_optimized_training/labels.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..6215d0e8cbb55277d49a770bcf997a59fe88b914
+--- /dev/null
++++ b/tools/s3_optimized_training/labels.py
+@@ -0,0 +1,166 @@
++"""CPU-only preparation of immutable, token-aligned planning label overlays."""
++import hashlib
++import json
++from pathlib import Path
++import shutil
++import tempfile
++
++import numpy as np
++
++
++def read(path):
++    return json.loads(Path(path).read_text())
++
++
++def digest(path):
++    h = hashlib.sha256()
++    with Path(path).open('rb') as stream:
++        for block in iter(lambda: stream.read(8 << 20), b''):
++            h.update(block)
++    return h.hexdigest()
++
++
++def identity_hash(value):
++    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
++
++
++def write(path, value):
++    Path(path).write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n')
++
++
++def released_labels(campaign):
++    """Use the completed current campaign, never a latest/previous fallback."""
++    campaign = Path(campaign).resolve()
++    output = campaign / 'final'
++    lineage = {'campaign': str(campaign)}
++    requirement = campaign / 'required_geometry_release.json'
++    if requirement.exists():
++        release_path = Path(read(requirement)['release_file'])
++        if not release_path.is_file() or read(release_path).get('complete') is not True:
++            raise ValueError('Trajectory geometry refinement is not released yet: ' + str(release_path))
++        release = read(release_path)
++        if release.get('accepted_geometry_failures') != 0:
++            raise ValueError('Released labels still contain accepted geometry failures')
++        output = Path(release['final_output']).resolve()
++        for path, expected in (
++            (campaign / 'final/trajectories.npz', release['source_trajectories_sha256']),
++            (output / 'trajectories.npz', release['output_trajectories_sha256']),
++        ):
++            if digest(path) != expected:
++                raise ValueError('Stale or modified geometry release: ' + str(path))
++        lineage.update(geometry_release=release, geometry_release_sha256=digest(release_path),
++                       geometry_requirement_sha256=digest(requirement))
++    summary = read(output / 'summary.json')
++    if summary.get('complete') is not True or summary.get('missing_count', 0) or summary.get('error_count', 0):
++        raise ValueError('Trajectory optimization output is incomplete')
++    manifest = read(output / 'manifest.json')
++    if not manifest.get('run_identity') or summary.get('run_identity') != manifest['run_identity']:
++        raise ValueError('Trajectory summary/manifest identity mismatch')
++    lineage.update(output=str(output), run_identity=manifest['run_identity'],
++                   summary_sha256=digest(output / 'summary.json'),
++                   manifest_sha256=digest(output / 'manifest.json'),
++                   trajectories_sha256=digest(output / 'trajectories.npz'))
++    hashes = output / 'artifact_hashes.json'
++    if hashes.exists():
++        expected = read(hashes)
++        for name in ('manifest.json', 'trajectories.npz'):
++            if expected.get(name) != digest(output / name):
++                raise ValueError('Published artifact hash mismatch: ' + name)
++    return output, manifest, summary, lineage
++
++
++def training_population(data):
++    data = Path(data)
++    current, ego = read(data / 'identity.json'), read(data / 'ego_identity.json')
++    index, done = read(data / 'index.json'), read(data / 'COMPLETE.json')
++    tokens = [row['token'] for row in index]
++    if (not tokens or len(set(tokens)) != len(tokens) or
++        any(not isinstance(t, str) or not t or Path(t).name != t or t in ('.', '..') for t in tokens)):
++        raise ValueError('Empty, duplicate or invalid training tokens')
++    if (current.get('schema') != 'ddpolicy_current_cameras_v1' or current.get('split') != 'train'
++        or ego.get('schema') != 'foresight_ego_labels_v1' or ego.get('split') != 'train'
++        or current['index_sha256'] != identity_hash(index) or ego['index_sha256'] != current['index_sha256']
++        or done.get('scenes') != len(tokens) or done.get('failures') != 0
++        or done.get('current_identity') != current['identity'] or done.get('ego_identity') != ego['identity']):
++        raise ValueError('Only a complete, unchanged training population is supported')
++    for ident in (current, ego):
++        if identity_hash({k: v for k, v in ident.items() if k != 'identity'}) != ident['identity']:
++            raise ValueError('Source data identity hash mismatch')
++    return current, ego, index
++
++
++def prepare(campaign, data, destination, expected_scenes=103288):
++    output, manifest, summary, lineage = released_labels(campaign)
++    current, ego, index = training_population(data)
++    with np.load(output / 'trajectories.npz', allow_pickle=False) as bank:
++        tokens, poses, accepted = (bank[k].copy() for k in ('tokens', 'trajectories', 'accepted'))
++    if digest(output / 'trajectories.npz') != lineage['trajectories_sha256']:
++        raise ValueError('Trajectory source changed while preparing labels')
++    if (tokens.ndim != 1 or tokens.dtype.kind != 'U' or len(set(tokens.tolist())) != len(tokens)
++        or poses.shape != (len(tokens), 8, 3) or poses.dtype.kind != 'f' or not np.isfinite(poses).all()
++        or accepted.shape != tokens.shape or accepted.dtype != np.bool_):
++        raise ValueError('Invalid trajectory bank: require unique tokens, finite [N,8,3] and boolean accepted')
++    if (len(tokens) != expected_scenes or len(manifest['tokens']) != len(tokens)
++        or set(manifest['tokens']) != set(tokens.tolist()) or summary.get('exported_scenes') != len(tokens)
++        or summary.get('expected_scenes') != len(tokens)):
++        raise ValueError('Incomplete source token coverage')
++    lookup = {token: i for i, token in enumerate(tokens.tolist())}
++    missing = [row['token'] for row in index if row['token'] not in lookup]
++    if missing:
++        raise ValueError(f'{len(missing)} training tokens missing from trajectory bank: {missing[:5]}')
++    at = np.asarray([lookup[row['token']] for row in index])
++    # Coordinate contract of navsim_robust_labels: ego(t0) rear axle, meters,
++    # radians, eight absolute poses at 0.5..4.0s. encode_ego happens at loading.
++    selected = poses[at].astype(np.float32)
++    if not np.isfinite(selected).all():
++        raise ValueError('Trajectory values overflow float32')
++    ident = {'schema': 's3_optimized_ego_overlay_v1', 'split': 'train',
++             'current_identity': current['identity'], 'original_ego_identity': ego['identity'],
++             'index_sha256': current['index_sha256'], 'partition_sha256': current['partition_sha256'],
++             'source': lineage, 'source_scenes': len(tokens), 'scenes': len(index),
++             'excluded_source_scenes': len(tokens) - len(index), 'accepted_scenes': int(accepted[at].sum()),
++             'fallback_scenes': int((~accepted[at]).sum()),
++             'policy': 'accepted optimized planning target; otherwise original ego target; preserve every train token',
++             'video_condition': 'original_logged_ego', 'frame': 'local_rear_axle',
++             'times_s': [.5 * i for i in range(1, 9)], 'fields': ['x_m', 'y_m', 'yaw_rad']}
++    destination = Path(destination).resolve()
++    if destination.exists():
++        saved, _, _ = load_overlay(destination, current, ego, index)
++        if {k: v for k, v in saved.items() if k not in ('identity', 'labels_sha256')} != ident:
++            raise ValueError('Existing overlay has a different source; use a new output directory')
++        return saved
++    destination.parent.mkdir(parents=True, exist_ok=True)
++    temp = Path(tempfile.mkdtemp(prefix='.' + destination.name + '-', dir=destination.parent))
++    try:
++        np.savez_compressed(temp / 'labels.npz', tokens=tokens[at], trajectories=selected, accepted=accepted[at])
++        ident['labels_sha256'] = digest(temp / 'labels.npz')
++        ident['identity'] = identity_hash(ident)
++        write(temp / 'identity.json', ident)
++        write(temp / 'COMPLETE.json', {'identity': ident['identity'], 'scenes': len(index)})
++        temp.rename(destination)
++    finally:
++        if temp.exists():
++            shutil.rmtree(temp)
++    return ident
++
++
++def load_overlay(root, current, ego, index):
++    root = Path(root)
++    ident, done = read(root / 'identity.json'), read(root / 'COMPLETE.json')
++    if (ident.get('schema') != 's3_optimized_ego_overlay_v1' or ident.get('split') != 'train'
++        or current.get('split') != 'train' or ident.get('video_condition') != 'original_logged_ego'
++        or ident.get('frame') != 'local_rear_axle' or ident.get('times_s') != [.5 * i for i in range(1, 9)]
++        or ident['current_identity'] != current['identity'] or ident['original_ego_identity'] != ego['identity']
++        or ident['index_sha256'] != identity_hash(index) or ident['partition_sha256'] != current['partition_sha256']
++        or done != {'identity': ident['identity'], 'scenes': len(index)} or ident['scenes'] != len(index)
++        or identity_hash({k: v for k, v in ident.items() if k != 'identity'}) != ident['identity']
++        or digest(root / 'labels.npz') != ident['labels_sha256']):
++        raise ValueError('Optimized label identity, training population or content changed')
++    with np.load(root / 'labels.npz', allow_pickle=False) as bank:
++        tokens, poses, accepted = (bank[k].copy() for k in ('tokens', 'trajectories', 'accepted'))
++    if (tokens.tolist() != [row['token'] for row in index] or poses.shape != (len(index), 8, 3)
++        or poses.dtype != np.float32 or not np.isfinite(poses).all()
++        or accepted.dtype != np.bool_ or accepted.shape != (len(index),)
++        or int(accepted.sum()) != ident['accepted_scenes'] or int((~accepted).sum()) != ident['fallback_scenes']):
++        raise ValueError('Invalid aligned optimized trajectory labels')
++    return ident, poses, accepted
+diff --git a/tools/s3_optimized_training/run.py b/tools/s3_optimized_training/run.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..b2f9dee3203f0662fcb1a27d281889b323107681
+--- /dev/null
++++ b/tools/s3_optimized_training/run.py
+@@ -0,0 +1,224 @@
++"""Prepare optimized labels and launch the registered S3 recipe (CPU preflight first)."""
++import argparse
++import fcntl
++import json
++import os
++from pathlib import Path
++import shlex
++import subprocess
++import sys
++
++from .labels import digest, identity_hash, load_overlay, prepare, read, training_population, write
++
++SOURCE = Path(__file__).resolve().parents[2]
++DEFAULT_OUTPUT = '/mnt/project/s3-optimized-training-artifacts'
++DEFAULT_DATA = '/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1'
++DEFAULT_CAMPAIGN = '/mnt/project/DriveVLA-M0/outputs/robust_navtrain_campaign_20261003_simscale_v1'
++
++
++def baseline(variant='s3'):
++    family = 's0' if variant == 's0' else 's3'
++    cfg = read(SOURCE / f'configs/{family}_optimized/baseline_config.json')
++    reg = read(SOURCE / f'configs/{family}_optimized/baseline_registration.json')
++    if reg['arm'] != family.upper() or identity_hash(cfg) != reg['config_sha256']:
++        raise ValueError('Frozen baseline configuration changed')
++    if variant == 'action-only':
++        # R is the existing native DDP path: no W tokens or auxiliary modules.
++        # Keep the original Qwen/history/DiT recipe and public initialization.
++        cfg['framework']['name'] = 'DDPForesight'
++        cfg['foresight'] = {'arm': 'R', 'num_queries': 0, 'lambda_vis': 0., 'lambda_int': 0.,
++                            'enable_current_dino': False, 'enable_future_dino': False,
++                            'enable_interaction': False, 'gradient_checkpointing': True}
++        reg = {**reg, 'arm': 'DDP_ACTION_ONLY', 'config_sha256': identity_hash(cfg),
++               'dino': None, 'interaction': None, 'future_clip': None,
++               'definition': 'native DDP Qwen + history state + original DiT; zero W tokens; ego FM loss only'}
++    elif variant not in ('s3', 's0'):
++        raise ValueError('Unknown training variant')
++    return cfg, reg
++
++
++def preflight(a):
++    """Load metadata and label hashes before torchrun/CUDA; no model allocation."""
++    from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
++    from tools.foresight.student_state import validate_rank_batches
++    variant = getattr(a, 'variant', 's3')
++    cfg, reference = baseline(variant)
++    current, ego, index = training_population(a.data)
++    if len(index) != reference['scene_count'] or identity_hash(index) != reference['scene_index']:
++        raise ValueError('S3 train/dev population changed')
++    overlay, _, _ = load_overlay(a.labels, current, ego, index)
++    f = cfg['foresight']
++    if variant in ('s3', 's0'):
++        dataset = ActionVideoForesightDataset(
++            a.data, ego_relabel_root=a.labels, candidate=f['candidate'], current=True, future=True,
++            dino_root=a.dino_root, dino_index=a.dino_index, expected_dino=reference['dino'],
++            interaction_root=a.interaction_root, expected_interaction=reference['interaction'],
++            clip_root=a.clip_root, expected_clip=reference['future_clip'],
++            future_type=f['future_target_type'], expected_teacher=f['video_teacher_identity'],
++            allow_partial=False, image_root=a.local_image_root)
++    else:
++        from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset
++        dataset = ForesightTrainingDataset(a.data, ego_relabel_root=a.labels)
++        dataset.local_image_root = a.local_image_root
++        if a.local_image_root:
++            stage = read(Path(a.data) / 'local_stage.json')
++            if (stage['source_identity'] != current['identity'] or stage['scenes'] != len(index)
++                or Path(stage['image_root']) != Path(a.local_image_root)):
++                raise ValueError('Incomplete or foreign local image staging')
++    validate_rank_batches(len(dataset), reference['global_batch'], a.gpus, a.micro_batch)
++    # Materialize actual current images + every target type for a few scenes.
++    # This catches missing staged data and schema incompatibilities before GPUs.
++    for i in sorted({0, len(dataset) // 2, len(dataset) - 1}):
++        observation, targets = dataset[i]
++        if observation['token'] != index[i]['token'] or 'ego_video' not in targets:
++            raise ValueError('Planning/video label routing failed')
++        if variant == 'action-only' and set(targets) != {'ego', 'ego_video'}:
++            raise ValueError('Native action-only may load only ego planning labels')
++    return cfg, reference, overlay, {
++        'scene_count': len(dataset), 'optimized_accepted': overlay['accepted_scenes'],
++        'original_fallback': overlay['fallback_scenes'], 'excluded_source_scenes': overlay['excluded_source_scenes'],
++        'ego_relabel_identity': overlay['identity'], 'variant': variant,
++        'auxiliary_targets_unchanged': variant in ('s3', 's0'),
++        'future_target_type': f.get('future_target_type', 'disabled'),
++        'video_condition': 'original_logged_ego' if variant == 's3' else 'disabled',
++        'initialization': reference['initialization'],
++        'sampled_dataset_items': 3}
++
++
++def command(a, reference, config_path, registration_path):
++    cmd = [sys.executable, '-m', 'torch.distributed.run', '--nproc_per_node', str(a.gpus),
++           '--master_port', str(a.master_port), '-m', 'tools.foresight.train_student']
++    values = {'config': config_path, 'data': a.data, 'ego-relabel-root': a.labels,
++              'campaign-root': a.output, 'run-id': a.run_id, 'global-batch': reference['global_batch'],
++              'micro-batch': a.micro_batch, 'updates': reference['updates'],
++              'schedule-updates': reference['schedule_updates'], 'warmup': 5000,
++              'save-every': 200, 'milestones': ','.join(map(str, reference['milestones'])),
++              'loader-workers': a.loader_workers, 'scope': 'formal', 'registration': registration_path}
++    if reference['arm'] in ('S3', 'S0'):
++        values.update({'dino-root': a.dino_root, 'dino-index': a.dino_index, 'dino-identity': reference['dino'],
++                       'interaction-root': a.interaction_root, 'interaction-identity': reference['interaction'],
++                       'clip-root': a.clip_root, 'clip-identity': reference['future_clip']})
++    if a.local_image_root:
++        values['local-image-root'] = a.local_image_root
++    for key, value in values.items():
++        cmd += ['--' + key, str(value)]
++    if a.resume:
++        cmd += ['--resume', '--acknowledge-stop']
++    if getattr(a, 'stop_after', 0):
++        cmd += ['--stop-after', str(a.stop_after)]
++    return cmd
++
++
++def registration(a, cfg, reference, overlay, source):
++    return {**reference, 'run_id': a.run_id, 'training_source_sha': source,
++            'world_size': a.gpus, 'micro_batch': a.micro_batch, 'local_image_root': a.local_image_root,
++            'config_sha256': identity_hash(cfg), 'baseline_training_source_sha': reference['training_source_sha'],
++            'baseline_run_id': reference['run_id'], 'ego_relabel_identity': overlay['identity'],
++            'ego_relabel': overlay,
++            'video_condition': 'original_logged_ego' if reference['arm'] == 'S3' else 'disabled'}
++
++
++def freeze(path, value):
++    if path.exists():
++        if read(path) != value:
++            raise ValueError('Frozen run registration/config changed: ' + str(path))
++    else:
++        write(path, value)
++
++
++def launch(a):
++    if not a.run_id or Path(a.run_id).name != a.run_id or a.run_id in ('.', '..'):
++        raise ValueError('run-id must be a single directory name')
++    cfg, reference, overlay, report = preflight(a)
++    source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=SOURCE, text=True).strip()
++    if subprocess.check_output(['git', 'status', '--porcelain'], cwd=SOURCE).strip():
++        raise ValueError('Training requires a clean, committed source snapshot')
++    root = Path(a.output).resolve()
++    config_path = root / 'registrations' / (a.run_id + '_config.json')
++    registration_path = root / 'registrations' / (a.run_id + '.json')
++    reg = registration(a, cfg, reference, overlay, source)
++    cmd = command(a, reference, config_path, registration_path)
++    report.update(command=shlex.join(cmd), source_sha=source, run_id=a.run_id)
++    print(json.dumps(report, indent=2), flush=True)
++    if a.dry_run:
++        return
++    root.mkdir(parents=True, exist_ok=True)
++    # Keep a host-independent filesystem lock while the launcher and ranks live.
++    lock = (root / (a.run_id + '.launch.lock')).open('a+')
++    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
++    run = root / 'students' / a.run_id
++    if run.exists():
++        if not a.resume:
++            raise FileExistsError('Run exists; use a new run-id or --resume for this same data version')
++        state = read(run / 'status.json')
++        if state['status'] == 'COMPLETE':
++            raise ValueError('Completed run cannot be resumed')
++        previous = read(run / 'identity.json')
++        if previous.get('ego_relabel') != overlay or previous.get('source_sha') != source:
++            raise ValueError('Resume cannot change optimized labels or training source')
++    elif a.resume:
++        raise ValueError('No interrupted run to resume')
++    config_path.parent.mkdir(parents=True, exist_ok=True)
++    freeze(config_path, cfg)
++    freeze(registration_path, reg)
++    write(root / (a.run_id + '_preflight.json'), report)
++    env = dict(os.environ)
++    env.setdefault('OMP_NUM_THREADS', '2')
++    env.setdefault('TOKENIZERS_PARALLELISM', 'false')
++    # exec preserves terminal signals. The lock descriptor remains open across
++    # exec so a second invocation cannot start duplicate ranks.
++    os.set_inheritable(lock.fileno(), True)
++    os.chdir(SOURCE)
++    os.execvpe(cmd[0], cmd, env)
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    sub = parser.add_subparsers(dest='mode', required=True)
++    p = sub.add_parser('prepare', help='CPU only: validate release and snapshot train labels')
++    p.add_argument('--campaign', default=DEFAULT_CAMPAIGN)
++    p.add_argument('--data', default=DEFAULT_DATA)
++    p.add_argument('--labels', default=DEFAULT_OUTPUT + '/labels_v1')
++    for name in ('check', 'train'):
++        p = sub.add_parser(name, help='CPU data preflight' if name == 'check' else 'Launch S3; --dry-run checks without training')
++        p.add_argument('--data', default=DEFAULT_DATA)
++        p.add_argument('--labels', default=DEFAULT_OUTPUT + '/labels_v1')
++        p.add_argument('--dino-root', default='/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1')
++        p.add_argument('--dino-index', default='/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1')
++        p.add_argument('--interaction-root', default='/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1')
++        p.add_argument('--clip-root')
++        p.add_argument('--local-image-root')
++        p.add_argument('--gpus', type=int, default=8)
++        p.add_argument('--micro-batch', type=int, default=4)
++        p.add_argument('--variant', choices=('s3', 'action-only', 's0'), default='s3')
++        if name == 'train':
++            p.add_argument('--output', default=DEFAULT_OUTPUT)
++            p.add_argument('--run-id')
++            p.add_argument('--master-port', type=int, default=29952)
++            p.add_argument('--loader-workers', type=int, default=2)
++            p.add_argument('--resume', action='store_true', help='Resume only this same optimized-data run')
++            p.add_argument('--dry-run', action='store_true')
++            p.add_argument('--stop-after', type=int, default=0, help='Save a recoverable pause at this update')
++    a = parser.parse_args()
++    if a.mode in ('check','train') and not a.clip_root:
++        kind = 'dino_sequence' if a.variant == 's0' else 'video_clip'
++        a.clip_root = f'/mnt/project/action-video-foresight-artifacts/20261002/targets_{kind}_train_v1'
++    if a.mode == 'train' and not a.run_id:
++        a.run_id = {'s0':'S0_optimized_seed42_100k_v1','s3':'S3_optimized_seed42_100k_v1',
++                    'action-only':'DDP_action_only_optimized_seed42_100k_v1'}[a.variant]
++    try:
++        if a.mode == 'prepare':
++            result = prepare(a.campaign, a.data, a.labels)
++            print(json.dumps(result, indent=2))
++        elif a.mode == 'check':
++            print(json.dumps(preflight(a)[-1], indent=2))
++        else:
++            if not 1 <= a.master_port <= 65535 or not 0 <= a.loader_workers <= 8:
++                raise ValueError('Invalid port or loader worker count')
++            launch(a)
++    except (ValueError, FileNotFoundError, FileExistsError, BlockingIOError) as error:
++        parser.exit(2, str(error) + '\n')
++
++
++if __name__ == '__main__':
++    main()

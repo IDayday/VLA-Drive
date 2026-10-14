@@ -1,0 +1,87 @@
+{
+  "status": "RECOVERED",
+  "controller": {
+    "pid": 2682441,
+    "host": "training-vla-zt-worker-0",
+    "started_utc": "2026-10-14T14:48:23.369303+00:00",
+    "tool": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_navsim_navtest.py",
+    "tool_sha256": "0590daf9ce3237bbc0ba78028106925fbaaa59283dc6458b901f2ab8ac38d50f",
+    "cadence_policy": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_g2_latest_20261013T0157Z/CADENCE_WITH_G2_LATEST.json",
+    "cadence_policy_sha256": "ab2b33fc7952f3c75111b24f448fadd814e1cd3e6e573517f7e72714765878f0",
+    "routes_file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/continue_incomplete_20261014T0042Z/NAVTEST_RUNTIME_ROUTES.json",
+    "mode": "parallel_checkpoint_evaluations",
+    "helper_sha256": "1ecf6736b12883f3882ec3dd4e9702bb26bad8b020ee1d4b6c42ed681b37ef78"
+  },
+  "state": {
+    "status": "IDLE_AWAITING_REQUESTS",
+    "active_keys": [],
+    "failed_keys": [],
+    "observed_utc": "2026-10-14T14:49:09.430063+00:00",
+    "GPU_count": "dynamic; distinct physical UUIDs and model processes counted separately",
+    "per_job_states": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/job_states"
+  },
+  "cadence": {
+    "historical_off_cadence_results_preserved": true,
+    "observation_updates": [
+      25000,
+      50000,
+      60000,
+      70000,
+      80000,
+      90000,
+      100000
+    ],
+    "observations": [
+      {
+        "key": "G2_EVENT_UNIFORM_0025000",
+        "status": "COMPLETE",
+        "updates": 25000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0045000",
+        "status": "COMPLETE",
+        "updates": 45000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0050000",
+        "status": "COMPLETE",
+        "updates": 50000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0060000",
+        "status": "COMPLETE",
+        "updates": 60000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0070000",
+        "status": "COMPLETE",
+        "updates": 70000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0080000",
+        "latest_saved_update": 70000,
+        "status": "WAITING_FOR_NATIVE_CHECKPOINT",
+        "updates": 80000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0090000",
+        "latest_saved_update": 70000,
+        "status": "WAITING_FOR_NATIVE_CHECKPOINT",
+        "updates": 90000
+      },
+      {
+        "key": "G2_EVENT_UNIFORM_0100000",
+        "status": "ORIGINAL_SUPERVISOR_OWNS_REQUEST",
+        "updates": 100000
+      }
+    ],
+    "observed_utc": "2026-10-14T14:48:53.479136+00:00",
+    "schema": "structured_world_navsim_navtest_cadence_v1",
+    "training_processes_changed": false
+  },
+  "cause": "native training controller and cadence capture raced with different filesystem aliases for identical checkpoint payloads",
+  "fix": "80k and 90k request registration delegated to sole cadence observer; native training controller owns 100k; verified unused 70k alias released",
+  "training_process_or_scientific_code_changed": false,
+  "score_bank_changed": false,
+  "utc": "2026-10-14T14:49:12.522903+00:00"
+}

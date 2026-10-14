@@ -1,0 +1,1687 @@
+diff --git a/configs/action_video_foresight/execution_budget.yaml b/configs/action_video_foresight/execution_budget.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d7d9d7161dda63097e38ed65aae90102dcc14a6
+--- /dev/null
++++ b/configs/action_video_foresight/execution_budget.yaml
+@@ -0,0 +1,23 @@
++campaign: action-video-foresight-20261002
++user_time_limit: null
++user_gpu_hours_limit: null
++permitted_hosts: [training-vla-zt, training-vla-zt2, training-rl-zt2, training-vlawm-zt, training-vlawm-zt2]
++external_paid_resources: false
++resources: {gpus_per_host: 8, gpu_model: A800-SXM4-80GB}
++old_campaign_budget_inherited: false
++finite_plan:
++  old_model_updates: 0
++  frozen_probes: [F0, F1, V0, V1, F_ACTION_ONLY, V_ACTION_ONLY]
++  formal_primary: [S0, S1, S2, S3, S4]
++  shared_full_updates: 100000
++  shared_observation_updates: 25000
++  second_seed_priority: [S3, S4]
++  attribution_controls: [C_BASE_A, C_BASE_AW, S4_NO_MAE]
++  measured_topology: single_host_8gpu_per_model
++  global_batch: 32
++  micro_batch_per_gpu: 4
++  formal_registration: immutable_per_run_on_full_cache_completion
++  raw_loss_weights: {current: 1.0, future: 1.1549543539882532, interaction: 0.8328945981862067}
++  auxiliary_warmup_updates: 1000
++accounting: all_startup_extract_probe_train_fail_resume_evaluate_gpu_allocations
++stop_policy: explicit_user_stop_or_unrepairable_correctness_or_unavailable_legal_assets
+diff --git a/starVLA/model/framework/DDPForesight.py b/starVLA/model/framework/DDPForesight.py
+index abfcba490614bb7a788363f1e2c8da6b6dd087ad..e61f2a1be3807eb7a76c9780e15946b5e4e1d1bc 100644
+--- a/starVLA/model/framework/DDPForesight.py
++++ b/starVLA/model/framework/DDPForesight.py
+@@ -86,6 +86,7 @@ class DDPForesight(Qwenvl_OFT):
+         instructions=[e['lang']+' '+ROBOT_HISTORY_TOKEN+''.join(self.foresight_tokens)+
+                       ''.join(self.act_query_tokens) for e in current]
+         ids,attention,positions,slots,visual,deepstack=self._build_qwen_batch(current,instructions)
++        self._diagnostic_world_positions = slots.get('foresight')
+         self.last_sequence_lengths=attention.sum(-1).detach()
+         rows=torch.arange(len(current),device=ids.device)
+         with self.amp():
+@@ -101,10 +102,20 @@ class DDPForesight(Qwenvl_OFT):
+         return {'W':hidden[rows[:,None],slots['foresight']] if self.foresight_tokens else hidden[:,:0],
+                 'action_queries':hidden[rows[:,None],slots['action']]}
+ 
++    def build_planner_condition(self, encoded):
++        action, world = encoded['action_queries'], encoded['W']
++        mode = self.foresight_config.planner_condition_mode
++        if mode == 'action_only':
++            return action
++        if mode != 'action_plus_W' or world.ndim != 3 or world.shape[0] != action.shape[0] or world.shape[2] != action.shape[2] or not world.shape[1]:
++            raise ValueError('Invalid explicit direct-W planner condition')
++        # Raw final Qwen states: the original action head applies qwen_proj ONCE.
++        return torch.cat((action, world), dim=1)
++
+     def forward(self, observations, targets, *, completed_updates=0, noise_generator=None,
+                 time_generator=None, horizon_generator=None, global_counts=None):
+         encoded=self.encode_current(observations)
+-        action=encoded['action_queries'];device=action.device
++        action=self.build_planner_condition(encoded);device=action.device
+         ego=targets['ego'].to(device=device,dtype=torch.float32)
+         if ego.shape!=(len(observations),8,4) or not torch.isfinite(ego).all():raise ValueError('Invalid ego target')
+         repeat=int(self.config.framework.action_model.repeated_diffusion_steps)
+@@ -149,7 +160,7 @@ class DDPForesight(Qwenvl_OFT):
+         if hasattr(self,'dino_head'):
+             from starVLA.model.modules.foresight.losses import request_future_horizons
+             # Physical seconds keep old future IDs0/1/2 mapped to1/2/4, even with h=0.
+-            if cfg.enable_future_dino:
++            if cfg.enable_future_dino and cfg.future_target_type == 'legacy_single_frame':
+                 horizon=targets.get('dino_horizon')
+                 if horizon is None: horizon=request_future_horizons(len(ego),horizon_generator)
+                 if horizon.shape!=(len(ego),) or horizon.dtype!=torch.long or ((horizon<0)|(horizon>2)).any():
+@@ -157,6 +168,8 @@ class DDPForesight(Qwenvl_OFT):
+             for task,enabled,weight in [('current_dino',cfg.enable_current_dino,cfg.lambda_cur),
+                                         ('future_dino',cfg.enable_future_dino,cfg.lambda_fut)]:
+                 if not enabled: continue
++                if task == 'future_dino' and cfg.future_target_type != 'legacy_single_frame':
++                    continue
+                 values=targets[task];mask=targets[task+'_valid']
+                 if task=='future_dino':
+                     rows=torch.arange(len(ego),device=values.device);selection=horizon.to(values.device)
+@@ -173,12 +186,17 @@ class DDPForesight(Qwenvl_OFT):
+                 losses[task]=loss*weight*task_warmup
+                 metrics.update({task+'_raw':loss.detach(),task+'_global_elements':count})
+                 metrics[task+'_effective_weight']=weight*task_warmup
++        if cfg.future_target_type != 'legacy_single_frame' and cfg.enable_future_dino:
++            loss, count = self.compute_clip_loss(encoded['W'], targets, counts.get('future_clip'))
++            losses['future_clip'] = loss * cfg.lambda_fut * weights
++            metrics.update(future_clip_raw=loss.detach(), future_clip_global_valid_scenes=count,
++                           future_clip_effective_weight=cfg.lambda_fut * weights)
+         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
+ 
+     @torch.no_grad()
+     def predict_action(self,observations,*,sampling_seed=42,initial_noise=None):
+         encoded=self.encode_current(observations)
+-        action=encoded['action_queries']
++        action=self.build_planner_condition(encoded)
+         if initial_noise is None:
+             generator=torch.Generator(device=action.device).manual_seed(sampling_seed)
+             initial_noise=torch.randn((len(observations),8,4),device=action.device,generator=generator)
+@@ -187,6 +205,6 @@ class DDPForesight(Qwenvl_OFT):
+         return decode_ego(ego.float())
+ 
+     def strip_auxiliary_heads(self):
+-        for name in ('future_head','dino_head','interaction_head'):
++        for name in ('future_head','dino_head','interaction_head','spatiotemporal_head'):
+             if hasattr(self,name):delattr(self,name)
+         return self
+diff --git a/starVLA/model/framework/ddp_action_video_foresight.py b/starVLA/model/framework/ddp_action_video_foresight.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..93176f5d3760e6933cbf6f75ae2b0d0d03e4bcc6
+--- /dev/null
++++ b/starVLA/model/framework/ddp_action_video_foresight.py
+@@ -0,0 +1,41 @@
++"""Current-only execution, GT-action-conditioned auxiliary clip prediction."""
++import torch
++from .ddp_full_foresight import DDPFullForesight
++from starVLA.model.modules.vehicle_joint.initialization import initialization_seed
++from starVLA.model.modules.foresight.future_spatiotemporal_head import FutureSpatiotemporalHead, normalized_clip_loss
++
++
++class DDPActionVideoForesight(DDPFullForesight):
++    def __init__(self, config, accelerator=None):
++        if config.framework.name != 'DDPActionVideoForesight' or config.foresight.get('future_target_type', 'legacy_single_frame') == 'legacy_single_frame':
++            raise ValueError('Explicit action/video configuration required')
++        super().__init__(config, accelerator)
++        cfg = self.foresight_config
++        if cfg.enable_future_dino:
++            with initialization_seed(int(config.seed)+2500):
++                self.spatiotemporal_head = FutureSpatiotemporalHead(
++                    self.qwen_vl_interface.model.config.hidden_size, cfg.future_feature_dim,
++                    cfg.future_time_intervals_s, cfg.readout_dim, cfg.readout_layers,
++                    action_condition=cfg.future_action_condition)
++
++    def compute_clip_loss(self, world, targets, global_count):
++        cfg = self.foresight_config
++        if getattr(self, '_deployment_only', False) or not hasattr(self, 'spatiotemporal_head'):
++            raise RuntimeError('Missing configured future task')
++        device = world.device
++        action = None
++        if cfg.future_action_condition == 'gt_ego':
++            from starVLA.dataloader.foresight_dataset import decode_ego
++            # Decode fixed DDP normalization into physical ego(t0) coordinates.
++            decoded = decode_ego(targets['ego'].detach().to(device).float())
++            action = torch.cat((decoded[..., :2], decoded[..., 2:3].sin(), decoded[..., 2:3].cos()), -1)
++        with self.amp():
++            prediction = self.spatiotemporal_head(world, (cfg.future_grid_height, cfg.future_grid_width), gt_action=action)
++        return normalized_clip_loss(prediction, targets['future_clip'].to(device),
++                                    targets['future_clip_valid'].to(device), eps=cfg.normalization_eps,
++                                    global_count=global_count)
++
++    def forward(self, *args, **kwargs):
++        if hasattr(self, 'spatiotemporal_head') != self.foresight_config.enable_future_dino:
++            raise RuntimeError('Future task/module mismatch')
++        return super().forward(*args, **kwargs)
+diff --git a/starVLA/model/framework/ddp_full_foresight.py b/starVLA/model/framework/ddp_full_foresight.py
+index 30433311692416cd9a83aa89626328fc2498ce0a..2269ce6b4bf73a9040c52c2e9534657708ac4824 100644
+--- a/starVLA/model/framework/ddp_full_foresight.py
++++ b/starVLA/model/framework/ddp_full_foresight.py
+@@ -10,7 +10,7 @@ from starVLA.model.modules.vehicle_joint.initialization import initialization_se
+ 
+ class DDPFullForesight(DDPForesight):
+     def __init__(self, config, accelerator=None):
+-        if config.framework.name != 'DDPFullForesight' or not config.foresight.get('full_algorithm', False):
++        if config.framework.name not in ('DDPFullForesight', 'DDPActionVideoForesight') or not config.foresight.get('full_algorithm', False):
+             raise ValueError('Explicit full-method configuration required')
+         super().__init__(config, accelerator=accelerator)
+         cfg = self.foresight_config
+diff --git a/starVLA/model/modules/foresight/config.py b/starVLA/model/modules/foresight/config.py
+index f4f894727fae2301473acb5e4a27125db4ed910a..0ad121ad8d8fde1abd0e8a5514c940a4eb370d4b 100644
+--- a/starVLA/model/modules/foresight/config.py
++++ b/starVLA/model/modules/foresight/config.py
+@@ -28,6 +28,16 @@ class ForesightConfig:
+     full_algorithm: bool = False
+     candidate: str = ''
+     ablation: str = 'FULL'
++    future_target_type: str = 'legacy_single_frame'
++    future_action_condition: str = 'none'
++    planner_condition_mode: str = 'action_only'
++    clip_times_s: tuple = (.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.)
++    future_feature_dim: int = 1024
++    future_grid_height: int = 9
++    future_grid_width: int = 12
++    future_time_intervals_s: tuple = ((.5, 1.), (1.5, 2.), (2.5, 3.), (3.5, 4.))
++    video_teacher_identity: str = ''
++    future_normalization: str = 'nonaffine_layernorm_per_token_v1'
+ 
+     @property
+     def is_tradeoff(self):
+@@ -43,6 +53,24 @@ class ForesightConfig:
+         return self.enable_interaction if self.is_dino else self.arm in ('C','D')
+ 
+     def validate(self):
++        if self.future_target_type not in ('legacy_single_frame', 'dino_sequence', 'video_clip'):
++            raise ValueError('Unknown future representation')
++        if self.future_action_condition not in ('none', 'gt_ego') or self.planner_condition_mode not in ('action_only', 'action_plus_W'):
++            raise ValueError('Unknown action condition / planner mode')
++        if self.future_target_type == 'legacy_single_frame':
++            if self.future_action_condition != 'none' or self.planner_condition_mode != 'action_only' or self.video_teacher_identity:
++                raise ValueError('Legacy configuration cannot silently change its action/future paths')
++        else:
++            if not self.full_algorithm or self.candidate != 'C1' or tuple(self.clip_times_s) != (.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.):
++                raise ValueError('Action/video study fixes C1 and eight real physical timestamps')
++            if self.future_normalization != 'nonaffine_layernorm_per_token_v1' or not self.video_teacher_identity:
++                raise ValueError('Explicit frozen target identity and normalization required')
++            if min(self.future_feature_dim, self.future_grid_height, self.future_grid_width) < 1:
++                raise ValueError('Invalid native future feature layout')
++            spans = tuple(tuple(x) for x in self.future_time_intervals_s)
++            expected = tuple((t, t) for t in self.clip_times_s) if self.future_target_type == 'dino_sequence' else ((.5, 1.), (1.5, 2.), (2.5, 3.), (3.5, 4.))
++            if spans != expected:
++                raise ValueError('Future token times must follow image or native tubelet layout')
+         if self.full_algorithm:
+             from .tradeoff import CANDIDATES
+             definitions = {'FULL': (True, True, True), 'NO_INTERACTION': (True, True, False),
+diff --git a/starVLA/model/modules/foresight/ego_trajectory_condition.py b/starVLA/model/modules/foresight/ego_trajectory_condition.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..906488b8c5cf59ac5746d5aeb6884a1789828618
+--- /dev/null
++++ b/starVLA/model/modules/foresight/ego_trajectory_condition.py
+@@ -0,0 +1,24 @@
++"""Training-only GT action tokens, separate from the execution action encoder."""
++import torch
++from torch import nn
++
++
++class EgoTrajectoryConditionEncoder(nn.Module):
++    def __init__(self, dim=512, xy_scale=20.):
++        super().__init__()
++        if xy_scale <= 0:
++            raise ValueError('Positive physical coordinate scale required')
++        self.xy_scale = float(xy_scale)
++        self.point = nn.Sequential(nn.Linear(4, dim), nn.GELU(), nn.Linear(dim, dim))
++        self.time = nn.Sequential(nn.Linear(3, dim), nn.GELU(), nn.Linear(dim, dim))
++        self.register_buffer('physical_times_s', torch.arange(1, 9).float() * .5, persistent=True)
++
++    def forward(self, gt_xy_sincos):
++        if gt_xy_sincos.ndim != 3 or gt_xy_sincos.shape[1:] != (8, 4) or not torch.isfinite(gt_xy_sincos).all():
++            raise ValueError('GT physical ego xy/sin/cos at 0.5--4 seconds required')
++        gt = gt_xy_sincos.detach()
++        gt = torch.cat((gt[..., :2] / self.xy_scale, gt[..., 2:]), -1)
++        t = self.physical_times_s / 4.
++        time = torch.stack((t, (torch.pi * t).sin(), (torch.pi * t).cos()), -1)
++        dtype = self.point[0].weight.dtype
++        return self.point(gt.to(dtype)) + self.time(time.to(dtype))[None]
+diff --git a/starVLA/model/modules/foresight/future_spatiotemporal_head.py b/starVLA/model/modules/foresight/future_spatiotemporal_head.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..1e819a4561896bd6e033175d3b6ad974d9df31af
+--- /dev/null
++++ b/starVLA/model/modules/foresight/future_spatiotemporal_head.py
+@@ -0,0 +1,86 @@
++"""Direct W/action memory readout; auxiliary results never write back to W."""
++import torch
++from torch import nn
++from .future_latent_head import CrossReadout
++from .ego_trajectory_condition import EgoTrajectoryConditionEncoder
++
++
++class FutureSpatiotemporalHead(nn.Module):
++    def __init__(self, hidden_dim, feature_dim, time_intervals_s, dim=512, layers=2,
++                 action_condition='none', use_world=True):
++        super().__init__()
++        if action_condition not in ('none', 'gt_ego') or not (use_world or action_condition == 'gt_ego'):
++            raise ValueError('At least one explicitly declared conditioning source required')
++        spans = torch.as_tensor(time_intervals_s, dtype=torch.float32)
++        if spans.ndim != 2 or spans.shape[1] != 2 or not torch.isfinite(spans).all() or (spans[:, 0] > spans[:, 1]).any():
++            raise ValueError('Native temporal intervals required')
++        self.register_buffer('time_intervals_s', spans, persistent=True)
++        self.action_condition, self.use_world = action_condition, use_world
++        self.project = nn.Linear(hidden_dim, dim)
++        self.action_encoder = EgoTrajectoryConditionEncoder(dim)
++        self.memory_type = nn.Embedding(2, dim)
++        self.time = nn.Sequential(nn.Linear(4, dim), nn.GELU(), nn.Linear(dim, dim))
++        self.view = nn.Embedding(3, dim)
++        self.spatial = nn.Sequential(nn.Linear(2, dim), nn.GELU(), nn.Linear(dim, dim))
++        self.blocks = nn.ModuleList(CrossReadout(dim, 8) for _ in range(layers))
++        self.output = nn.Linear(dim, feature_dim)
++        self.action_encoder.requires_grad_(action_condition == 'gt_ego')
++        self.project.requires_grad_(use_world)
++
++    def forward(self, world, grid, *, gt_action=None):
++        if (gt_action is not None) != (self.action_condition == 'gt_ego'):
++            raise ValueError('Absent condition is not a zero trajectory; obey declared mode')
++        if self.use_world:
++            if world is None or world.ndim != 3 or not torch.isfinite(world).all():
++                raise ValueError('Invalid current W')
++            batch, device = len(world), world.device
++        else:
++            if world is not None:
++                raise ValueError('Action-only control has no W input')
++            batch, device = len(gt_action), gt_action.device
++        height, width = grid
++        if min(height, width) < 1:
++            raise ValueError('Invalid native spatial grid')
++        memory = []
++        if self.use_world:
++            memory.append(self.project(world) + self.memory_type.weight[0])
++        if gt_action is not None:
++            if len(gt_action) != batch:
++                raise ValueError('Action/scene batch mismatch')
++            memory.append(self.action_encoder(gt_action) + self.memory_type.weight[1])
++        memory = torch.cat(memory, 1)
++        yy, xx = torch.meshgrid((torch.arange(height, device=device) + .5) / height,
++                               (torch.arange(width, device=device) + .5) / width, indexing='ij')
++        xy = torch.stack((2*xx-1, 2*yy-1), -1).reshape(-1, 2).to(memory.dtype)
++        span = self.time_intervals_s.to(device=device, dtype=memory.dtype) / 4.
++        mid = span.mean(-1)
++        temporal = self.time(torch.stack((span[:, 0], span[:, 1], mid.sin(), mid.cos()), -1))
++        query = (self.view(torch.arange(3, device=device))[None, :, None, None]
++                 + temporal[None, None, :, None] + self.spatial(xy)[None, None, None])
++        query = query.expand(batch, -1, -1, -1, -1).flatten(1, 3)
++        for block in self.blocks:
++            query = block(query, memory)
++        return self.output(query).reshape(batch, 3, len(span), height, width, -1)
++
++
++def normalized_clip_loss(prediction, target, valid, *, eps=1e-5, global_count=None):
++    """Mean channel -> space/time -> valid view -> valid scene; DDP global mean."""
++    from torch import distributed as dist
++    from torch.nn import functional as F
++    if prediction.shape != target.shape or prediction.ndim != 6 or valid.shape != target.shape[:-1] or valid.dtype != torch.bool:
++        raise ValueError('Expected B,V,T,H,W,C and a Boolean token mask')
++    if not torch.isfinite(prediction[valid]).all() or not torch.isfinite(target[valid]).all():
++        raise ValueError('Nonfinite valid clip feature')
++    p = torch.where(valid[..., None], prediction.float(), 0.)
++    t = torch.where(valid[..., None], target.detach().float(), 0.)
++    p = F.layer_norm(p, (p.shape[-1],), eps=eps)
++    t = F.layer_norm(t, (t.shape[-1],), eps=eps)
++    error = (p-t).square().mean(-1)
++    token_count = valid.sum((2, 3, 4)); view_valid = token_count > 0
++    view_error = (error*valid).sum((2, 3, 4)) / token_count.clamp_min(1)
++    scene_valid = view_valid.any(-1)
++    scene_error = (view_error*view_valid).sum(-1) / view_valid.sum(-1).clamp_min(1)
++    count = int(scene_valid.sum()) if global_count is None else int(global_count)
++    world = dist.get_world_size() if dist.is_initialized() else 1
++    scale = world if global_count is not None else 1
++    return (scene_error*scene_valid).sum() * scale / max(count, 1), count
+diff --git a/starVLA/model/modules/foresight/video_target_encoder.py b/starVLA/model/modules/foresight/video_target_encoder.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..3ea5caf69a62c2437a66f9b25cce0b55a42b0d7c
+--- /dev/null
++++ b/starVLA/model/modules/foresight/video_target_encoder.py
+@@ -0,0 +1,88 @@
++"""Strict official V-JEPA 2.1 encoder only; offline labels, no Hub downloading."""
++import importlib
++from pathlib import Path
++import subprocess
++import sys
++import torch
++from torch import nn
++from torch.nn import functional as F
++from PIL import Image
++import numpy as np
++from starVLA.model.modules.vehicle_joint.initialization import file_sha256
++
++
++class VideoTargetEncoder(nn.Module):
++    def __init__(self, source_root, checkpoint, *, source_sha, weight_sha256, pool=2):
++        super().__init__()
++        source_root = Path(source_root)
++        actual_source = subprocess.check_output(['git', '-C', str(source_root), 'rev-parse', 'HEAD'], text=True).strip()
++        if actual_source != source_sha or file_sha256(checkpoint) != weight_sha256:
++            raise ValueError('Official video teacher identity mismatch')
++        if subprocess.check_output(['git', '-C', str(source_root), 'status', '--porcelain']).strip():
++            raise ValueError('Official video teacher source must be immutable')
++        sys.path.insert(0, str(source_root))
++        module = importlib.import_module('app.vjepa_2_1.models.vision_transformer')
++        if not Path(module.__file__).resolve().is_relative_to(source_root.resolve()):
++            raise ValueError('Foreign src/app package shadowed the pinned official encoder')
++        # Exact official ViT-L loader arguments; dynamic 8-frame rectangular input
++        # is handled by official RoPE, not by duplicating/interpolating frames.
++        self.encoder = module.vit_large(patch_size=16, img_size=(384, 384), num_frames=64,
++            tubelet_size=2, use_sdpa=True, use_SiLU=False, wide_SiLU=True,
++            uniform_power=False, use_rope=True, img_temporal_dim_size=1, interpolate_rope=True)
++        saved = torch.load(checkpoint, map_location='cpu', weights_only=False)
++        if 'ema_encoder' not in saved:
++            raise ValueError('Official 2.1 distilled ViT-L requires ema_encoder')
++        state = {}
++        for key, value in saved['ema_encoder'].items():
++            # Prefix-only cleanup. No unexplained discarded or initialized keys.
++            for prefix in ('module.', 'backbone.'):
++                if key.startswith(prefix):
++                    key = key[len(prefix):]
++            if key in state:
++                raise ValueError('Duplicate official checkpoint key after prefix cleanup')
++            state[key] = value
++        self.encoder.load_state_dict(state, strict=True)
++        self.encoder.requires_grad_(False).eval()
++        self.pool = int(pool)
++        if self.pool != 2:
++            raise ValueError('This campaign fixes one spatial pool=2 and preserves native time')
++        self.identity = {'family': 'V-JEPA 2.1 distilled ViT-L/16', 'source_sha': source_sha,
++            'weight_sha256': weight_sha256, 'checkpoint_key': 'ema_encoder',
++            'input_axes': 'B,C,T,H,W', 'input_hw': [288,384], 'input_times_s': [.5*i for i in range(1,9)],
++            'native_thw': [4,18,24], 'output_thw': [4,9,12], 'tubelet': 2, 'pool': 2,
++            'feature_dim': self.encoder.embed_dim, 'output': 'last block, norms_block[-1], time,row,column',
++            'temporal_semantics': 'bidirectional full-clip context; pairs [.5,1],[1.5,2],[2.5,3],[3.5,4]',
++            'precision': 'FP32, TF32 off', 'preprocess': 'RGB PIL bicubic resize384x288, ImageNet mean/std once; no crop/padding',
++            'tokenizer': 'official video PatchEmbed3D, no predictor/robot action weights'}
++
++    def train(self, mode=True):
++        super().train(False)
++        self.encoder.eval()
++        return self
++
++    @staticmethod
++    def preprocess(frames):
++        if len(frames) != 8:
++            raise ValueError('Eight real source frames required; no missing-frame filling')
++        values = []
++        for frame in frames:
++            if not isinstance(frame, Image.Image):
++                raise TypeError('Original RGB PIL images required')
++            x = np.asarray(frame.convert('RGB').resize((384,288), Image.Resampling.BICUBIC)).copy()
++            values.append(torch.from_numpy(x).permute(2,0,1).float()/255.)
++        clip = torch.stack(values,1)
++        return (clip-clip.new_tensor([.485,.456,.406])[:,None,None,None])/clip.new_tensor([.229,.224,.225])[:,None,None,None]
++
++    @torch.no_grad()
++    def forward(self, clips):
++        if clips.ndim != 5 or clips.shape[1:] != (3,8,288,384) or not torch.isfinite(clips).all():
++            raise ValueError('Expected eight real normalized frames B,C,T,H,W')
++        features = self.encoder(clips.float())
++        if not isinstance(features, torch.Tensor) or features.shape != (len(clips),4*18*24,1024):
++            raise ValueError('Official native video time/space layout changed')
++        features = features.reshape(len(clips),4,18,24,1024)
++        features = F.avg_pool2d(features.permute(0,1,4,2,3).flatten(0,1),2)
++        result = features.reshape(len(clips),4,1024,9,12).permute(0,1,3,4,2).contiguous()
++        if not torch.isfinite(result).all():
++            raise FloatingPointError('Invalid official video features')
++        return result
+diff --git a/starVLA/model/modules/foresight/world_intervention.py b/starVLA/model/modules/foresight/world_intervention.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..27b06bba09326d86ea14877d1d759cf8c778ec58
+--- /dev/null
++++ b/starVLA/model/modules/foresight/world_intervention.py
+@@ -0,0 +1,32 @@
++"""Frozen-model diagnostic at an intermediate layer, preserving token positions."""
++from contextlib import contextmanager
++import torch
++
++
++@contextmanager
++def permute_world_at_layer(model, layer_index, permutation):
++    if model.training:
++        raise ValueError('Intermediate-W intervention is a read-only diagnostic')
++    layers = model.qwen_vl_interface.model.model.language_model.layers
++    if not 0 <= layer_index < len(layers):
++        raise ValueError('Intervention layer out of range')
++    record = {'layer': layer_index, 'image_path_changed': False, 'sequence_length_changed': False,
++              'position_encoding_changed': False, 'intervention': 'permute W output, then continue Qwen'}
++    def apply(_module, _args, output):
++        hidden = output[0] if isinstance(output, tuple) else output
++        if not isinstance(hidden, torch.Tensor):
++            raise TypeError('Unsupported Qwen decoder layer output')
++        positions = model._diagnostic_world_positions
++        order = torch.as_tensor(permutation, device=hidden.device, dtype=torch.long)
++        if order.shape != (len(hidden),) or sorted(order.tolist()) != list(range(len(hidden))):
++            raise ValueError('A scene permutation, not a token permutation, is required')
++        rows = torch.arange(len(hidden), device=hidden.device)
++        world = hidden[rows[:, None], positions]
++        replacement = hidden.clone()
++        replacement[rows[:, None], positions] = world[order]
++        return (replacement, *output[1:]) if isinstance(output, tuple) else replacement
++    handle = layers[layer_index].register_forward_hook(apply)
++    try:
++        yield record
++    finally:
++        handle.remove()
+diff --git a/tools/action_video_foresight/build_clip_index.py b/tools/action_video_foresight/build_clip_index.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..34a6e764ff3615ad8352b47ba514b8b2d1dcc142
+--- /dev/null
++++ b/tools/action_video_foresight/build_clip_index.py
+@@ -0,0 +1,88 @@
++"""Immutable eight-real-frame index; shared source population for both teachers."""
++import argparse
++from collections import defaultdict
++from concurrent.futures import ProcessPoolExecutor
++import json
++from pathlib import Path
++import subprocess
++from tools.ddpolicy_vehicle.prepare_data import load_trusted, camera_path, CAMERAS, atomic_json
++from tools.foresight.prepare_vehicle_trajectories import timed_frames
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash, file_sha256
++
++TIMES=[.5*i for i in range(1,9)]
++
++
++def one_log(job):
++    log,tokens,split,cfg=job
++    path=Path(cfg['raw_log_root'])/(log+'.pkl');frames=load_trusted(path)
++    positions={f['token']:i for i,f in enumerate(frames)}
++    if len(positions)!=len(frames):raise ValueError('Duplicate raw frame token')
++    scenes=[]
++    for token in tokens:
++        current=json.loads((Path(cfg[split+'_data'])/'current'/(token+'.json')).read_text())
++        at=positions[token];frame=frames[at]
++        if int(frame['timestamp'])!=current['timestamp']:raise ValueError('Wrong decision timestamp')
++        future=timed_frames(frames,at,TIMES,cfg['tolerance']);views=[];current_views=[]
++        actual=[None if f is None else (int(f['timestamp'])-int(frame['timestamp']))/1e6 for f in future]
++        for view,cam in enumerate(CAMERAS):
++            cp=camera_path(frame['cams'][cam]['data_path'],cfg)
++            if cp.resolve()!=Path(current['image_paths'][view]).resolve():raise ValueError('Current image mismatch')
++            current_views.append(str(cp));refs=[]
++            for f in future:
++                if f is None:refs.append(None);continue
++                try:ip=camera_path(f['cams'][cam]['data_path'],cfg)
++                except FileNotFoundError:refs.append(None);continue
++                st=ip.stat();refs.append({'path':str(ip),'timestamp':int(f['timestamp']),'bytes':st.st_size,'mtime_ns':st.st_mtime_ns})
++            views.append(refs)
++        scenes.append({'token':token,'log':log,'split':split,'timestamp':int(frame['timestamp']),
++            'requested_times_s':TIMES,'actual_times_s':actual,'current_paths':current_views,
++            'frames_by_view':views,'clip_view_valid':[all(x is not None for x in v) for v in views]})
++    return scenes,{'log':log,'split':split,'source_sha256':file_sha256(path)}
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    for key in ('train-data','dev-data','split-manifest','raw-log-root','sensor-root','output'):p.add_argument('--'+key,required=True)
++    p.add_argument('--fallback-sensor-root',action='append',default=[]);p.add_argument('--workers',type=int,default=8)
++    p.add_argument('--tolerance',type=float,default=.05);a=p.parse_args()
++    if not 1<=a.workers<=16 or not 0<a.tolerance<=.05:raise ValueError('Bounded timestamp/index settings required')
++    source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
++    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze source before indexing')
++    out=Path(a.output);out.mkdir(parents=True,exist_ok=True);(out/'logs').mkdir(exist_ok=True)
++    indices={s:json.loads((Path(getattr(a,s+'_data'))/'index.json').read_text()) for s in ('train','dev')}
++    partition=json.loads(Path(a.split_manifest).read_text())
++    if {r['log'] for r in indices['train']}&{r['log'] for r in indices['dev']}:raise ValueError('Log overlap')
++    for s in indices:
++        if [r['token'] for r in indices[s]]!=partition[s+'_tokens']:raise ValueError('Population changed')
++    registration={'schema':'action_video_clip_index_registration_v1','source':source,'args':vars(a),
++        'partition_sha256':file_sha256(a.split_manifest),'index_hashes':{s:identity_hash(v) for s,v in indices.items()}}
++    if (out/'registration.json').exists() and json.loads((out/'registration.json').read_text())!=registration:raise ValueError('Resume index changed')
++    atomic_json(out/'registration.json',registration)
++    jobs=[];rows={};logs=[]
++    for s,index in indices.items():
++        grouped=defaultdict(list)
++        for r in index:grouped[r['log']].append(r['token'])
++        for log,tokens in grouped.items():
++            saved=out/'logs'/f'{s}_{log}.json'
++            if saved.exists():
++                value=json.loads(saved.read_text());rows.update({r['token']:r for r in value['scenes']});logs.append(value['audit'])
++            else:jobs.append((log,tokens,s,vars(a)))
++    with ProcessPoolExecutor(max_workers=a.workers) as pool:
++        for scenes,audit in pool.map(one_log,jobs):
++            atomic_json(out/'logs'/f"{audit['split']}_{audit['log']}.json",{'scenes':scenes,'audit':audit})
++            rows.update({r['token']:r for r in scenes});logs.append(audit)
++            atomic_json(out/'progress.json',{'scenes':len(rows),'logs':len(logs),'remaining_logs':len(jobs)-len(logs)})
++    hashes={};coverage={}
++    for s,index in indices.items():
++        selected=[rows[r['token']] for r in index];atomic_json(out/(s+'_scenes.json'),selected)
++        hashes[s]=file_sha256(out/(s+'_scenes.json'))
++        coverage[s]={'scenes':len(selected),'valid_views':sum(sum(r['clip_view_valid']) for r in selected),
++            'all_views_valid':sum(all(r['clip_view_valid']) for r in selected),'no_valid_clip':sum(not any(r['clip_view_valid']) for r in selected)}
++    identity={'schema':'action_video_clip_index_v1','partition_sha256':registration['partition_sha256'],
++        'index_hashes':registration['index_hashes'],'files':hashes,'times_s':TIMES,'views':list(CAMERAS),
++        'timestamp_tolerance_s':a.tolerance,'source':source,'raw_logs':sorted(logs,key=lambda r:(r['split'],r['log'])),
++        'missing_policy':'whole view invalid if any real frame missing; retain ego scene'}
++    identity['identity']=identity_hash(identity);atomic_json(out/'identity.json',identity)
++    atomic_json(out/'COMPLETE.json',{'identity':identity['identity'],'coverage':coverage,'failures':0})
++
++if __name__=='__main__':main()
+diff --git a/tools/action_video_foresight/cache_frame_sequence_targets.py b/tools/action_video_foresight/cache_frame_sequence_targets.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..55f0b955f86141bb31b84cca94bbdbeedc0686de
+--- /dev/null
++++ b/tools/action_video_foresight/cache_frame_sequence_targets.py
+@@ -0,0 +1,3 @@
++"""Independent-frame DINO extraction uses the shared native target writer."""
++from .cache_video_targets import main
++if __name__=='__main__':main()
+diff --git a/tools/action_video_foresight/cache_video_targets.py b/tools/action_video_foresight/cache_video_targets.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..77f3f5405c61d3a865668aa098b6ae55d76acb93
+--- /dev/null
++++ b/tools/action_video_foresight/cache_video_targets.py
+@@ -0,0 +1,107 @@
++"""Offline native video or independent-frame targets, atomic sharded resume."""
++import argparse,fcntl,json,os,subprocess
++from pathlib import Path
++from concurrent.futures import ThreadPoolExecutor
++import torch
++from PIL import Image
++from safetensors.torch import save_file
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++from tools.ddpolicy_vehicle.run_meter import metered_run
++from starVLA.model.modules.vehicle_joint.initialization import file_sha256,identity_hash
++from starVLA.model.modules.foresight.video_target_encoder import VideoTargetEncoder
++from starVLA.model.modules.foresight.dinov3_target_encoder import DINOv3TargetEncoder
++from starVLA.model.modules.foresight.tradeoff import preprocess_current
++
++
++def load_real_view(view):
++    frames=[];hashes=[]
++    for r in view:
++        if r is None:raise ValueError('Never fill a missing clip')
++        p=Path(r['path']);st=p.stat()
++        if (st.st_size,st.st_mtime_ns)!=(r['bytes'],r['mtime_ns']):raise ValueError('Source image changed')
++        with Image.open(p) as img:frames.append(img.convert('RGB'))
++        hashes.append(file_sha256(p))
++    return frames,hashes
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    for k in ('index','output','campaign-root','run-id'):p.add_argument('--'+k,required=True)
++    p.add_argument('--target-type',choices=('video_clip','dino_sequence'),required=True)
++    p.add_argument('--split',choices=('train','dev'),required=True)
++    for k in ('source-root','source-sha','checkpoint','weight-sha256','dino-model-root'):p.add_argument('--'+k)
++    p.add_argument('--shards',type=int,default=1);p.add_argument('--shard',type=int,default=0)
++    p.add_argument('--chunk-size',type=int,default=16);p.add_argument('--clip-batch',type=int,default=2)
++    p.add_argument('--limit-scenes',type=int,default=0);a=p.parse_args()
++    if not 0<=a.shard<a.shards or min(a.chunk_size,a.clip_batch)<1 or a.limit_scenes<0:raise ValueError('Invalid finite extraction bounds')
++    source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
++    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze extraction source')
++    torch.set_num_threads(4);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
++    idx=Path(a.index);index=json.loads((idx/'identity.json').read_text())
++    if index['schema']!='action_video_clip_index_v1' or not (idx/'COMPLETE.json').exists():raise ValueError('Complete real frame index required')
++    scene_path=idx/(a.split+'_scenes.json')
++    if file_sha256(scene_path)!=index['files'][a.split]:raise ValueError('Changed clip population')
++    scenes=json.loads(scene_path.read_text());out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
++    with metered_run(a.campaign_root,a.run_id,1,{'kind':a.target_type+'_target_extraction','real_optimizer_updates':0}) as (meter,_,save):
++        if a.target_type=='video_clip':
++            model=VideoTargetEncoder(a.source_root,a.checkpoint,source_sha=a.source_sha,weight_sha256=a.weight_sha256).cuda()
++            recipe=model.identity;t=4;spans=[[.5,1.],[1.5,2.],[2.5,3.],[3.5,4.]]
++        else:
++            model=DINOv3TargetEncoder(a.dino_model_root).cuda();recipe={**model.recipe,'input_width_height':[384,288],'pool':2,
++                'native_grid_hw':[18,24],'output_grid_hw':[9,12],'preprocess':'full source RGB, PIL bicubic384x288, ImageNet once, no crop',
++                'precision':'FP32, TF32 off','temporal_path':'eight independent images; no video attention'}
++            t=8;spans=[[x,x] for x in index['times_s']]
++        ident={'schema':'action_video_clip_targets_v1','future_target_type':a.target_type,'clip_index':index['identity'],
++            'scene_index_hash':index['index_hashes'][a.split],'partition_sha256':index['partition_sha256'],'split':a.split,
++            'scene_count':len(scenes),'target_shape':[3,t,9,12,1024],'time_intervals_s':spans,'times_s':index['times_s'],
++            'recipe':recipe,'dtype':'float16','normalization':'raw teacher features; training nonaffine channel LayerNorm',
++            'chunk_size':a.chunk_size,'source':source,'writer_sha256':file_sha256(__file__),
++            'missing_policy':'invalid whole view if any of eight real frames unavailable; identical eligibility for both teachers'}
++        ident['identity']=identity_hash(ident)
++        with (out/'IDENTITY.lock').open('a+') as guard:
++            fcntl.flock(guard,fcntl.LOCK_EX)
++            if (out/'identity.json').exists() and json.loads((out/'identity.json').read_text())!=ident:raise ValueError('Existing cache is incompatible')
++            atomic_json(out/'identity.json',ident)
++        count=min(a.limit_scenes,len(scenes)) if a.limit_scenes else len(scenes);chunks=(count+a.chunk_size-1)//a.chunk_size
++        with ThreadPoolExecutor(max_workers=8) as pool:
++            for chunk in range(a.shard,chunks,a.shards):
++                rows=scenes[chunk*a.chunk_size:(chunk+1)*a.chunk_size];dest=out/f'chunk_{chunk:06d}.safetensors';meta=dest.with_suffix('.json')
++                if meta.exists():
++                    old=json.loads(meta.read_text())
++                    if old['identity']!=ident['identity'] or old['tokens']!=[r['token'] for r in rows] or file_sha256(dest)!=old['sha256']:raise ValueError('Foreign/corrupt existing target chunk')
++                    continue
++                features=torch.zeros(len(rows),3,t,9,12,1024,dtype=torch.float16);valid=torch.zeros(features.shape[:-1],dtype=torch.bool)
++                jobs=[(i,v,refs) for i,row in enumerate(rows) for v,refs in enumerate(row['frames_by_view']) if row['clip_view_valid'][v]]
++                quant=[0.,0,0.];hashes={}
++                for start in range(0,len(jobs),a.clip_batch):
++                    batch=jobs[start:start+a.clip_batch];loaded=list(pool.map(load_real_view,[j[2] for j in batch]))
++                    if a.target_type=='video_clip':
++                        x=torch.stack([model.preprocess(frames) for frames,_ in loaded]).cuda();z=model(x).cpu()
++                    else:
++                        # Explicit independent frame encoding, same exact RGB source/ROI as video.
++                        values=[]
++                        for frames,_ in loaded:
++                            for frame in frames:
++                                import numpy as np
++                                rgb=torch.from_numpy(np.asarray(frame.resize((384,288),Image.Resampling.BICUBIC)).copy()).permute(2,0,1).float()/255.
++                                values.append((rgb-rgb.new_tensor([.485,.456,.406])[:,None,None])/rgb.new_tensor([.229,.224,.225])[:,None,None])
++                        with torch.inference_mode():native=model(torch.stack(values).cuda())
++                        pooled=torch.nn.functional.avg_pool2d(native,2)
++                        z=pooled.reshape(len(batch),8,1024,9,12).permute(0,1,3,4,2).cpu()
++                    stored=z.half()
++                    if not torch.isfinite(stored).all():raise FloatingPointError('FP16 clip overflow')
++                    error=stored.float()-z;quant[0]+=float(error.square().sum());quant[1]+=z.numel();quant[2]=max(quant[2],float(error.abs().max()))
++                    for j,(scene,view,_) in enumerate(batch):
++                        features[scene,view]=stored[j];valid[scene,view]=True;hashes[f'{scene}:{view}']=loaded[j][1]
++                    meter['encoded_clips']=meter.get('encoded_clips',0)+len(batch);save()
++                temp=dest.with_suffix(f'.{os.getpid()}.tmp');save_file({'features':features,'valid':valid},str(temp),metadata={'identity':ident['identity']});temp.replace(dest)
++                atomic_json(meta,{'identity':ident['identity'],'tokens':[r['token'] for r in rows],'image_sha256':hashes,'sha256':file_sha256(dest),
++                    'bytes':dest.stat().st_size,'quantization_mse':quant[0]/quant[1] if quant[1] else None,'quantization_max_abs':quant[2],
++                    'valid_views':int(valid.flatten(2).any(-1).sum())})
++                meter['last_chunk']=chunk;save()
++        total=(len(scenes)+a.chunk_size-1)//a.chunk_size
++        if all((out/f'chunk_{i:06d}.json').exists() for i in range(total)):
++            atomic_json(out/'COMPLETE.json',{'identity':ident['identity'],'scenes':len(scenes),'chunks':total,
++                'cache_bytes':sum((out/f'chunk_{i:06d}.safetensors').stat().st_size for i in range(total))})
++
++if __name__=='__main__':main()
+diff --git a/tools/action_video_foresight/run_experiments.py b/tools/action_video_foresight/run_experiments.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..8cc368ba4eb9442d7ee29afdd2acde2aac04a082
+--- /dev/null
++++ b/tools/action_video_foresight/run_experiments.py
+@@ -0,0 +1,92 @@
++"""Freeze explicit S0--S4 identities and launch existing full trainer, no old weights."""
++import argparse,json,os,subprocess,sys
++from pathlib import Path
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash,file_sha256
++from starVLA.model.modules.foresight.config import ForesightConfig
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++
++ARMS={'S0':('dino_sequence','none','action_only'), 'S1':('dino_sequence','gt_ego','action_only'),
++ 'S2':('video_clip','none','action_only'),'S3':('video_clip','gt_ego','action_only'),
++ 'S4':('video_clip','gt_ego','action_plus_W'),'C_BASE_A':('video_clip','none','action_only'),
++ 'C_BASE_AW':('video_clip','none','action_plus_W'),'S4_NO_MAE':('video_clip','gt_ego','action_plus_W')}
++
++
++def create_config(base,arm,clip,lambda_future,seed):
++    import copy
++    cfg=copy.deepcopy(base);target,condition,planner=ARMS[arm]
++    cfg['seed']=seed;cfg['framework']['name']='DDPActionVideoForesight';cfg['framework']['qwenvl']['device_map']='cpu'
++    f=cfg['foresight'];f.update(arm='C1',candidate='C1',ablation='FULL',future_target_type=target,
++        future_action_condition=condition,planner_condition_mode=planner,clip_times_s=[.5*i for i in range(1,9)],
++        future_feature_dim=1024,future_grid_height=9,future_grid_width=12,
++        future_time_intervals_s=clip['time_intervals_s'],video_teacher_identity=identity_hash(clip['recipe']),
++        future_normalization='nonaffine_layernorm_per_token_v1',lambda_cur=1.,lambda_fut=lambda_future,lambda_int=.8328945981862067)
++    if arm in ('C_BASE_A','C_BASE_AW'):f.update(arm='NO_FUTURE',ablation='NO_FUTURE',enable_future_dino=False,lambda_fut=0.)
++    if arm=='S4_NO_MAE':f.update(arm='NO_INTERACTION',ablation='NO_INTERACTION',enable_interaction=False,lambda_int=0.)
++    ForesightConfig(**f).validate();return cfg
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    for k in ('base-config','data','dino-root','dino-index','interaction-root','clip-root','campaign-root','run-id'):p.add_argument('--'+k,required=True)
++    p.add_argument('--arm',choices=ARMS,required=True);p.add_argument('--calibration');p.add_argument('--lambda-future',type=float)
++    p.add_argument('--seed',type=int,default=42);p.add_argument('--gpus',type=int,default=8);p.add_argument('--micro-batch',type=int,default=4)
++    p.add_argument('--updates',type=int,default=100000);p.add_argument('--schedule-updates',type=int,default=100000)
++    p.add_argument('--scope',choices=('startup','profile','formal'),required=True);p.add_argument('--limit',type=int,default=0)
++    p.add_argument('--stop-after',type=int,default=0);p.add_argument('--master-port',type=int,required=True)
++    p.add_argument('--milestones',default='0,1,100,500,1000,2000,5000,10000,25000,50000,75000,100000')
++    p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true');p.add_argument('--deterministic',action='store_true')
++    p.add_argument('--local-image-root')
++    p.add_argument('--register-only',action='store_true');a=p.parse_args()
++    source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
++    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze run source')
++    base=json.loads(Path(a.base_config).read_text());base=base.get('config',base)
++    clip=json.loads((Path(a.clip_root)/'identity.json').read_text())
++    if a.calibration:
++        calibration=json.loads(Path(a.calibration).read_text())
++        if not calibration['passed']:raise ValueError('No real calibrated four-loss validation')
++        weight=calibration['lambda_fut'];calibration_id=file_sha256(a.calibration)
++    elif a.scope!='formal' and a.lambda_future and a.lambda_future>0:weight=a.lambda_future;calibration_id='engineering_unit_weight_only'
++    else:raise ValueError('Formal experiment needs verified real training calibration')
++    cfg=create_config(base,a.arm,clip,weight,a.seed)
++    root=Path(a.campaign_root);directory=root/'registrations';directory.mkdir(parents=True,exist_ok=True)
++    config_path=directory/(a.run_id+'_config.json');registration_path=directory/(a.run_id+'.json')
++    index=json.loads((Path(a.data)/'index.json').read_text());di=json.loads((Path(a.dino_root)/'identity.json').read_text());ii=json.loads((Path(a.interaction_root)/'identity.json').read_text())
++    milestones=sorted(int(x) for x in a.milestones.split(',') if x)
++    registration={'schema':'action_video_formal_registration_v1','run_id':a.run_id,'arm':a.arm,'training_source_sha':source,
++        'config_sha256':identity_hash(cfg),'scene_count':len(index),'scene_index':identity_hash(index),'seed':a.seed,
++        'global_batch':32,'micro_batch':a.micro_batch,'world_size':a.gpus,'updates':a.updates,'schedule_updates':a.schedule_updates,
++        'milestones':milestones,'calibration_sha256':calibration_id,'dino':di['identity'],'interaction':ii['identity'],
++        'future_clip':clip['identity'] if cfg['foresight']['enable_future_dino'] else None,
++        'initialization':'genericQwen plus independently seeded random driving, queries and heads; no checkpoint initialization',
++        'GPU_hours_limit':None,'time_limit':None,'stage_pause':a.stop_after,'scope':a.scope,
++        'local_image_root':a.local_image_root}
++    if a.resume and registration_path.exists():
++        registration['stage_pause']=json.loads(registration_path.read_text())['stage_pause']
++    for path,value in [(config_path,cfg),(registration_path,registration)]:
++        if path.exists() and json.loads(path.read_text())!=value:raise ValueError('Frozen registration/config changed')
++        if not path.exists():atomic_json(path,value)
++    if a.scope=='formal':
++        if a.limit or len(index)!=101592 or not (Path(a.data)/'COMPLETE.json').exists():raise ValueError('Formal common population must be complete')
++        if cfg['foresight']['enable_future_dino']:
++            complete=json.loads((Path(a.clip_root)/'COMPLETE.json').read_text())
++            if complete['identity']!=clip['identity'] or complete['scenes']!=len(index):raise ValueError('No formal partial clip labels')
++    if a.register_only:return
++    command=[sys.executable,'-m','torch.distributed.run','--nproc_per_node',str(a.gpus),'--master_port',str(a.master_port),
++        '-m','tools.foresight.train_student','--config',str(config_path),'--data',a.data,'--dino-root',a.dino_root,
++        '--dino-index',a.dino_index,'--dino-identity',di['identity'],'--campaign-root',a.campaign_root,'--run-id',a.run_id,
++        '--global-batch','32','--micro-batch',str(a.micro_batch),'--updates',str(a.updates),'--schedule-updates',str(a.schedule_updates),
++        '--warmup',str(0 if a.scope=='startup' else 5000),'--scope',a.scope,'--limit',str(a.limit),'--stop-after',str(a.stop_after),
++        '--save-every','200','--milestones',a.milestones,'--loader-workers','2']
++    # The reusable trainer now explicitly supports unbounded wall time/GPUh;
++    # the finite registered optimizer horizon remains the execution boundary.
++    if a.scope=='startup':command+=['--max-seconds','1800','--campaign-gpu-hours','1000000']
++    elif a.scope=='profile':command+=['--max-seconds','14400','--campaign-gpu-hours','1000000']
++    if cfg['foresight']['enable_future_dino']:command+=['--clip-root',a.clip_root,'--clip-identity',clip['identity']]
++    if cfg['foresight']['enable_interaction']:command+=['--interaction-root',a.interaction_root,'--interaction-identity',ii['identity']]
++    if a.local_image_root:command+=['--local-image-root',a.local_image_root]
++    if a.scope=='formal':command+=['--registration',str(registration_path)]
++    for key in ('resume','acknowledge_stop','deterministic'):
++        if getattr(a,key):command+=['--'+key.replace('_','-')]
++    os.execvpe(command[0],command,os.environ)
++
++if __name__=='__main__':main()
+diff --git a/tools/action_video_foresight/run_formal_campaign.py b/tools/action_video_foresight/run_formal_campaign.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..8e00e32fc704eb40df12ae4c7182b9836e696acf
+--- /dev/null
++++ b/tools/action_video_foresight/run_formal_campaign.py
+@@ -0,0 +1,215 @@
++"""Host-local finite formal run: wait for complete targets, train fresh, evaluate dev.
++
++Never starts a Navtest observer, edits an older worktree, or signals a foreign job.
++The plan is immutable; restarting a controller requires explicit acknowledgement.
++"""
++import argparse
++import fcntl
++import json
++import os
++from pathlib import Path
++import shlex
++import signal
++import socket
++import subprocess
++import sys
++import time
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash, file_sha256
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++
++
++def read(path):
++    return json.loads(Path(path).read_text())
++
++
++def complete_targets(root, expected_identity, scenes):
++    root = Path(root)
++    if read(root/'identity.json')['identity'] != expected_identity:
++        raise ValueError('Registered target identity changed')
++    if not (root/'COMPLETE.json').exists():
++        return False
++    done = read(root/'COMPLETE.json')
++    if done['identity'] != expected_identity or done['scenes'] != scenes:
++        raise ValueError('Complete marker has a different population')
++    return all((root/f'chunk_{i:06d}.json').exists() and
++               (root/f'chunk_{i:06d}.safetensors').exists() for i in range(done['chunks']))
++
++
++def ready_gpus(cards, pressure_script):
++    # Auto-yielding pressure is allowed to remain; every other compute PID blocks.
++    rows = subprocess.check_output(['nvidia-smi', '--query-gpu=index,uuid,memory.free',
++                                    '--format=csv,noheader,nounits'], text=True)
++    devices = {uid.strip(): (int(index), int(free))
++               for index, uid, free in (row.split(',') for row in rows.splitlines())}
++    if any(next((free for index, free in devices.values() if index == card), 0) < 32000
++           for card in cards):
++        return False
++    apps = subprocess.check_output(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid',
++                                    '--format=csv,noheader,nounits'], text=True)
++    for line in apps.splitlines():
++        if not line.strip():
++            continue
++        uid, pid = line.split(',')
++        if devices.get(uid.strip(), (-1, 0))[0] not in cards:
++            continue
++        try:
++            proc = Path('/proc')/str(int(pid))
++            args = [x.decode() for x in (proc/'cmdline').read_bytes().split(b'\0') if x]
++            is_yielding_pressure = (pressure_script in args and '--gpu' in args and
++                                    proc.stat().st_uid == os.getuid())
++        except FileNotFoundError:
++            # A driver PID outside our namespace is not evidence of an idle GPU.
++            return False
++        if not is_yielding_pressure:
++            return False
++    return True
++
++
++def main():
++    parser = argparse.ArgumentParser(__doc__)
++    parser.add_argument('--plan', required=True)
++    parser.add_argument('--arm', choices=('S0','S1','S2','S3','S4'), required=True)
++    parser.add_argument('--resume-controller', action='store_true')
++    parser.add_argument('--acknowledge-stop', action='store_true')
++    args = parser.parse_args()
++    plan = read(args.plan)
++    if plan['identity'] != identity_hash({k:v for k,v in plan.items() if k!='identity'}):
++        raise ValueError('Campaign plan changed')
++    spec = plan['runs'][args.arm]
++    if socket.gethostname() != spec['hostname']:
++        raise ValueError('Wrong authorized host')
++    work = Path(plan['source_worktree'])
++    source = subprocess.check_output(['git','rev-parse','HEAD'],cwd=work,text=True).strip()
++    if source != plan['training_source_sha'] or subprocess.check_output(['git','status','--porcelain'],cwd=work).strip():
++        raise ValueError('Formal source must remain frozen')
++    if file_sha256(plan['calibration']) != plan['calibration_sha256']:
++        raise ValueError('Training-only calibration changed')
++    if file_sha256(plan['base_config']) != plan['base_config_sha256']:
++        raise ValueError('Public/random initialization configuration changed')
++    root = Path(plan['campaign_root'])
++    out = root/'formal_controllers'/spec['run_id']
++    out.mkdir(parents=True,exist_ok=True)
++    lock = (out/'RUN.lock').open('a+')
++    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    state_path = out/'status.json'
++    if state_path.exists():
++        state = read(state_path)
++        if not args.resume_controller or state['plan_identity'] != plan['identity']:
++            raise ValueError('Existing campaign controller requires explicit unchanged resume')
++        if state['status'] == 'COMPLETE':
++            return
++    else:
++        state = {'plan_identity':plan['identity'],'arm':args.arm,'events':[]}
++    state.update(pid=os.getpid(),host=socket.gethostname(),status='WAITING_TARGETS')
++    stopping = [False]
++    signal.signal(signal.SIGINT,lambda *_:stopping.__setitem__(0,True))
++    signal.signal(signal.SIGTERM,lambda *_:stopping.__setitem__(0,True))
++    children = []
++    run = root/'students'/spec['run_id']
++    def event(kind, **details):
++        state['events'].append(dict(time=time.time(),event=kind,**details))
++        atomic_json(state_path,state)
++    def stopped():
++        return stopping[0] or (root/'STOP_REQUESTED').exists() or (out/'STOP_REQUESTED').exists()
++    def launch(label, command, env=None, cwd=None):
++        log = out/(label+'_'+str(time.time_ns())+'.log')
++        with log.open('x') as stream:
++            proc = subprocess.Popen(command,cwd=cwd or work,env=env,
++                                    stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
++        event('START',label=label,pid=proc.pid,command=command,log=str(log))
++        return proc
++    try:
++        event('WAIT_FOR_COMPLETE_NATIVE_TARGETS',expected_identity=spec['clip_identity'])
++        while not complete_targets(spec['clip_root'],spec['clip_identity'],plan['scene_count']):
++            if stopped():
++                state['status']='PAUSED';event('STOP_BEFORE_TRAINING');return
++            time.sleep(10)
++        for asset, marker in spec.get('local_asset_markers', {}).items():
++            state['status']='WAITING_LOCAL_ASSETS';event('WAIT_LOCAL_ASSET',asset=asset,marker=marker)
++            while not Path(marker).exists():
++                if stopped():
++                    state['status']='PAUSED';event('STOP_BEFORE_TRAINING');return
++                time.sleep(10)
++        state['status']='WAITING_GPU'
++        event('TARGETS_COMPLETE')
++        # Release only original ledger-verified reserve parents, never a trainer.
++        if plan.get('old_pressure_registration'):
++            from tools.full_foresight.navtest_milestones import release_owned_pressure
++            prior = read(plan['old_pressure_registration'])['config']
++            for model in prior['models']:
++                if model['hostname']==socket.gethostname():
++                    release_owned_pressure(prior,model,out,reason='Explicit new five-host training authorization; verified owned pressure only')
++        while not ready_gpus(spec['gpus'],plan['auto_yield_pressure_script']):
++            if stopped():
++                state['status']='PAUSED';event('STOP_BEFORE_TRAINING');return
++            time.sleep(10)
++        command=[sys.executable,'-u','-m','tools.action_video_foresight.run_experiments']
++        values={'base-config':plan['base_config'],'data':spec.get('train_data',plan['train_data']),
++                'dino-root':spec.get('dino_root',plan['dino_root']),'dino-index':plan['dino_index'],
++                'interaction-root':spec.get('interaction_root',plan['interaction_root']),'clip-root':spec['clip_root'],
++                'campaign-root':str(root),'run-id':spec['run_id'],'arm':args.arm,
++                'calibration':plan['calibration'],'scope':'formal','updates':plan['updates'],
++                'schedule-updates':plan['updates'],'gpus':len(spec['gpus']),
++                'micro-batch':plan['micro_batch'],'seed':plan['seed'],
++                'master-port':spec['master_port'],'milestones':','.join(map(str,plan['milestones']))}
++        for key,value in values.items():
++            command+=['--'+key,str(value)]
++        if spec.get('local_image_root'):
++            command+=['--local-image-root',spec['local_image_root']]
++        if (run/'status.json').exists():
++            previous=read(run/'status.json')
++            if previous['status']=='COMPLETE':
++                event('TRAINING_ALREADY_COMPLETE')
++                # A previous export/scoring failure must remain recoverable without
++                # attempting to extend a completed optimizer run.
++                for update in plan['evaluation_updates']:
++                    children.append(launch(spec['run_id']+'_dev'+str(update),
++                        [sys.executable,'-u','-m','tools.action_video_foresight.evaluate_milestone',
++                         '--plan',args.plan,'--arm',args.arm,'--update',str(update)]))
++                if any(p.wait() for p in children):
++                    raise RuntimeError('Completed training still has failed development evaluations')
++                state['status']='COMPLETE';event('REGISTERED_DEV_RECOVERED');return
++            if previous['status'] not in ('PAUSED','FAILED') or not args.acknowledge_stop:
++                raise ValueError('Do not duplicate/resume a model without explicit stop acknowledgement')
++            command+=['--resume','--acknowledge-stop']
++        environment=dict(os.environ,CUDA_VISIBLE_DEVICES=','.join(map(str,spec['gpus'])),
++                         OMP_NUM_THREADS='2',TOKENIZERS_PARALLELISM='false')
++        training=launch('formal_training',command,environment)
++        state['status']='TRAINING';event('FORMAL_STARTED')
++        launched=set()
++        while training.poll() is None:
++            if stopped():
++                # This marker belongs to the current run and is checked at optimizer boundaries.
++                run.mkdir(parents=True,exist_ok=True);(run/'STOP_REQUESTED').touch()
++            for update in plan['evaluation_updates']:
++                if update in launched or not (run/'checkpoints'/f'milestone_{update:06d}'/'COMPLETE.json').exists():
++                    continue
++                label=spec['run_id']+'_dev'+str(update)+'_seed42'
++                # Complete evaluation can share authorized GPUs; canonical CPU scoring
++                # is performed only on the registered reference host/environment.
++                eval_command=[sys.executable,'-u','-m','tools.action_video_foresight.evaluate_milestone',
++                    '--plan',args.plan,'--arm',args.arm,'--update',str(update)]
++                children.append(launch(label,eval_command,environment))
++                launched.add(update)
++            time.sleep(10)
++        event('TRAINING_EXIT',code=training.returncode)
++        progress=read(run/'status.json')
++        if progress['status']=='PAUSED':
++            state['status']='PAUSED';event('SAVED_PAUSE',completed=progress['completed']);return
++        if training.returncode or progress['status']!='COMPLETE':
++            raise RuntimeError('Formal training failed; checkpoints and failed ledger remain intact')
++        for update in plan['evaluation_updates']:
++            if update not in launched:
++                children.append(launch(spec['run_id']+'_dev'+str(update),
++                    [sys.executable,'-u','-m','tools.action_video_foresight.evaluate_milestone',
++                     '--plan',args.plan,'--arm',args.arm,'--update',str(update)],environment))
++        codes=[p.wait() for p in children]
++        if any(codes):
++            raise RuntimeError('Training complete, some development evaluations failed; retain all rows')
++        state['status']='COMPLETE';event('TRAINING_AND_REGISTERED_DEV_COMPLETE',updates=progress['completed'],exposure=progress['exposure'])
++    except BaseException as error:
++        state.update(status='FAILED',error=repr(error));event('ERROR');raise
++
++
++if __name__=='__main__':
++    main()
+diff --git a/tools/action_video_foresight/train_frozen_W_probe.py b/tools/action_video_foresight/train_frozen_W_probe.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..c4595b59f6cbdef57f8eb3293d51a593ea10b5e5
+--- /dev/null
++++ b/tools/action_video_foresight/train_frozen_W_probe.py
+@@ -0,0 +1,110 @@
++"""Train only lightweight future readouts on frozen100k W; never a planner update."""
++import argparse,json,random,subprocess,time
++from pathlib import Path
++import numpy as np
++import torch
++from torch.nn import functional as F
++from safetensors import safe_open
++from starVLA.model.modules.foresight.future_spatiotemporal_head import FutureSpatiotemporalHead,normalized_clip_loss
++from starVLA.dataloader.foresight_dataset import decode_ego
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash,file_sha256,initialization_seed
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++from tools.ddpolicy_vehicle.run_meter import metered_run
++
++
++class ProbeData:
++    def __init__(self, representations, current, targets, split):
++        self.rroot=Path(representations)/'representations';self.current=Path(current);self.targets=Path(targets)
++        self.index=json.loads((Path(representations)/(split+'_representation_queries.json')).read_text())
++        all_index=json.loads((self.current/'index.json').read_text());self.mapping={r['token']:i for i,r in enumerate(all_index)}
++        self.identity=json.loads((self.targets/'identity.json').read_text())
++        current_id=json.loads((self.current/'identity.json').read_text())
++        if self.identity['split']!=split or self.identity['scene_index_hash']!=current_id['index_sha256']:raise ValueError('Probe source population mismatch')
++        if not (self.targets/'COMPLETE.json').exists():raise ValueError('Full matching target population required for scientific probe')
++    def batch(self,ids,device):
++        w=[];action=[];features=[];valid=[]
++        for i in ids:
++            token=self.index[i]['token'];r=torch.load(self.rroot/(token+'.pt'),weights_only=True);w.append(r['W'])
++            label=torch.load(self.current/'ego'/(token+'.pt'),weights_only=True);gt=decode_ego(label['ego'])
++            action.append(torch.cat((gt[...,:2],gt[...,2:3].sin(),gt[...,2:3].cos()),-1))
++            chunk,at=divmod(self.mapping[token],self.identity['chunk_size'])
++            with safe_open(str(self.targets/f'chunk_{chunk:06d}.safetensors'),framework='pt',device='cpu') as f:
++                if f.metadata()['identity']!=self.identity['identity']:raise ValueError('Probe cache shard mismatch')
++                features.append(f.get_slice('features')[at]);valid.append(f.get_slice('valid')[at])
++        return [torch.stack(x).to(device) for x in (w,action,features,valid)]
++
++
++def evaluate(model,data,device,batch,permutation_seed=812):
++    model.eval();rows=[];swapped=[]
++    generator=torch.Generator().manual_seed(permutation_seed);order=torch.randperm(len(data.index),generator=generator).tolist()
++    # Fixed, whole-population partner manifest, no error-based selection.
++    mapping={order[i]:order[(i+max(1,len(order)//2))%len(order)] for i in range(len(order))}
++    with torch.inference_mode():
++        for start in range(0,len(data.index),batch):
++            ids=list(range(start,min(start+batch,len(data.index))));w,a,t,v=data.batch(ids,device)
++            wp,ap,_,_=data.batch([mapping[i] for i in ids],device)
++            inputs=[('normal',w,a),('permuted_W',wp,a),('permuted_action',w,ap)]
++            scores={}
++            for name,ww,aa in inputs:
++                with torch.autocast('cuda',dtype=torch.bfloat16):p=model(ww if model.use_world else None,(9,12),gt_action=aa if model.action_condition=='gt_ego' else None)
++                for j,i in enumerate(ids):
++                    loss,n=normalized_clip_loss(p[j:j+1],t[j:j+1],v[j:j+1]);scores.setdefault(i,{})[name]=float(loss) if n else None
++            for j,i in enumerate(ids):rows.append({**data.index[i],'valid_clip_views':int(v[j].flatten(1).any(-1).sum()),'swap_token':data.index[mapping[i]]['token'],**scores[i],'failure':None})
++    result={'requested':len(data.index),'scenes':len(rows),'failed':0}
++    for name in ('normal','permuted_W','permuted_action'):
++        values=[r[name] for r in rows if r[name] is not None];result[name+'_normalized_mse']=sum(values)/len(values) if values else None;result[name+'_valid_scenes']=len(values)
++    model.train();return rows,result
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    for k in ('representations','train-data','dev-data','train-targets','dev-targets','output','campaign-root','run-id'):p.add_argument('--'+k,required=True)
++    p.add_argument('--condition',choices=('none','gt_ego'),required=True);p.add_argument('--action-only',action='store_true')
++    p.add_argument('--updates',type=int,default=2000);p.add_argument('--batch',type=int,default=16);p.add_argument('--seed',type=int,default=42)
++    p.add_argument('--resume',action='store_true');a=p.parse_args()
++    if min(a.updates,a.batch)<1:raise ValueError('Fixed finite probe budget')
++    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze probe source')
++    torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
++    train=ProbeData(a.representations,a.train_data,a.train_targets,'train');dev=ProbeData(a.representations,a.dev_data,a.dev_targets,'dev')
++    if {r['log'] for r in train.index}&{r['log'] for r in dev.index}:raise ValueError('Probe log leakage')
++    out=Path(a.output);out.mkdir(parents=True,exist_ok=a.resume)
++    with metered_run(a.campaign_root,a.run_id,1,{'kind':'frozen_W_lightweight_probe','main_model_optimizer_updates':0}) as (meter,_,save):
++        first=torch.load(train.rroot/(train.index[0]['token']+'.pt'),weights_only=True)
++        with initialization_seed(a.seed+2500):
++            model=FutureSpatiotemporalHead(first['W'].shape[-1],train.identity['target_shape'][-1],
++                train.identity['time_intervals_s'],action_condition=a.condition,use_world=not a.action_only).cuda()
++        optimizer=torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],lr=1e-4,weight_decay=.001)
++        rng=torch.Generator().manual_seed(a.seed+13000);completed=epoch=offset=exposure=0;order=torch.randperm(len(train.index),generator=rng)
++        identity={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'frozen_checkpoint':first['checkpoint'],
++            'train_queries':identity_hash(train.index),'dev_queries':identity_hash(dev.index),'train_targets':train.identity['identity'],
++            'dev_targets':dev.identity['identity'],'condition':a.condition,'use_world':not a.action_only,'updates':a.updates,'batch':a.batch,'seed':a.seed,
++            'trainable_parameters':sum(p.numel() for p in model.parameters() if p.requires_grad)}
++        if a.resume:
++            s=torch.load(out/'latest.pt',weights_only=False)
++            if s['identity']!=identity:raise ValueError('Probe resume identity')
++            model.load_state_dict(s['model'],strict=True);optimizer.load_state_dict(s['optimizer']);rng.set_state(s['shuffle']);torch.set_rng_state(s['torch']);torch.cuda.set_rng_state_all(s['cuda'])
++            completed,epoch,offset,exposure,order=[s[k] for k in ('completed','epoch','offset','exposure','order')]
++        else:atomic_json(out/'identity.json',identity)
++        def checkpoint():
++            payload={'identity':identity,'model':model.state_dict(),'optimizer':optimizer.state_dict(),'shuffle':rng.get_state(),'torch':torch.get_rng_state(),
++                'cuda':torch.cuda.get_rng_state_all(),'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'order':order}
++            torch.save(payload,out/'latest.tmp');(out/'latest.tmp').replace(out/'latest.pt')
++        while completed<a.updates:
++            if (out/'STOP_REQUESTED').exists():meter['status']='PAUSED';checkpoint();save();return
++            if offset>=len(order):epoch+=1;offset=0;order=torch.randperm(len(train.index),generator=rng)
++            ids=order[offset:offset+a.batch].tolist();w,action,target,valid=train.batch(ids,'cuda')
++            optimizer.zero_grad(set_to_none=True)
++            with torch.autocast('cuda',dtype=torch.bfloat16):prediction=model(w if model.use_world else None,(9,12),gt_action=action if a.condition=='gt_ego' else None)
++            loss,n=normalized_clip_loss(prediction,target,valid);loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.)
++            if any(not torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None):raise FloatingPointError('Invalid probe gradient')
++            optimizer.step();completed+=1;offset+=len(ids);exposure+=len(ids)
++            with (out/'train.jsonl').open('a') as f:f.write(json.dumps({'update':completed,'exposure':exposure,'loss':float(loss),'valid_scenes':n,'epoch':epoch,'offset':offset})+'\n')
++            if completed%200==0:checkpoint()
++            meter.update(real_optimizer_updates=completed,main_model_optimizer_updates=0,scene_exposure=exposure);save()
++        checkpoint();rows,result=evaluate(model,dev,'cuda',a.batch)
++        atomic_json(out/'SUMMARY.json',result)
++        with (out/'dev_queries.jsonl').open('w') as f:
++            for r in rows:f.write(json.dumps(r)+'\n')
++        save()
++
++if __name__=='__main__':main()
+diff --git a/tools/foresight/checkpoints.py b/tools/foresight/checkpoints.py
+index 3811d13f8a2dca8e8b7fd79f18adae0bb379650b..2a0b100106a4aa305f45c377730e6c0bcd3d5e40 100644
+--- a/tools/foresight/checkpoints.py
++++ b/tools/foresight/checkpoints.py
+@@ -7,7 +7,7 @@ from starVLA.model.modules.vehicle_joint.initialization import identity_hash,fil
+ 
+ def checkpoint_identity(run,tag):
+     run=Path(run);identity=json.loads((run/'identity.json').read_text())
+-    if identity.get('schema') not in ('foresight_student_training_v1','foresight_dino_student_training_v1','dino_tradeoff_student_v1','ddp_full_foresight_student_v1') or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
++    if identity.get('schema') not in ('foresight_student_training_v1','foresight_dino_student_training_v1','dino_tradeoff_student_v1','ddp_full_foresight_student_v1','ddp_action_video_student_v1') or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
+         raise ValueError('Foreign or changed student identity')
+     if Path(tag).name!=tag:raise ValueError('Checkpoint tag must be a directory name')
+     folder=run/'checkpoints'/tag;complete=json.loads((folder/'COMPLETE.json').read_text())
+@@ -15,11 +15,14 @@ def checkpoint_identity(run,tag):
+     files={p.name:file_sha256(p) for p in sorted(folder.glob('*.pt'))}
+     if not any('model_states' in k for k in files) or not any('optim_states' in k for k in files):raise ValueError('Missing model or FP32 masters')
+     classes={'DDPForesight':'starVLA.model.framework.DDPForesight.DDPForesight',
+-             'DDPFullForesight':'starVLA.model.framework.ddp_full_foresight.DDPFullForesight'}
++             'DDPFullForesight':'starVLA.model.framework.ddp_full_foresight.DDPFullForesight',
++             'DDPActionVideoForesight':'starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight'}
+     name=identity['config']['framework']['name']
+     if name not in classes:raise ValueError('Wrong checkpoint class')
+-    if (name=='DDPFullForesight') != (identity['schema']=='ddp_full_foresight_student_v1'):
++    if (name in ('DDPFullForesight','DDPActionVideoForesight')) != (identity['schema'] in ('ddp_full_foresight_student_v1','ddp_action_video_student_v1')):
+         raise ValueError('Full-method checkpoint schema/class mismatch')
++    if (name=='DDPActionVideoForesight') != (identity['schema']=='ddp_action_video_student_v1'):
++        raise ValueError('Action/video schema must preserve its exact framework and planner mode')
+     record={'run_identity':identity['identity'],'training_source_sha':identity['source_sha'],'tag':tag,
+             'completed':complete['completed'],'arm':identity['config']['foresight']['arm'],'scope':identity['scope'],'files':files,
+             'training_seed':int(identity['config']['seed']),'model_class':classes[name]}
+diff --git a/tools/foresight/export_interaction_targets.py b/tools/foresight/export_interaction_targets.py
+index ae523d3aaccfe208cd169cc4fd0364d494814c21..9b4292afde1774e783a84fb43f57d597c3ae9217 100644
+--- a/tools/foresight/export_interaction_targets.py
++++ b/tools/foresight/export_interaction_targets.py
+@@ -3,6 +3,7 @@ import argparse
+ import json
+ from pathlib import Path
+ import subprocess
++import time
+ import torch
+ from tools.ddpolicy_vehicle.prepare_data import atomic_json
+ from tools.ddpolicy_vehicle.run_meter import metered_run
+@@ -11,6 +12,15 @@ from starVLA.model.modules.trajectory_mae.model import TrajectoryMAE
+ from .teacher_runtime import TeacherDataset,inputs
+ 
+ 
++def save_target(path, payload):
++    """Atomically save one latent without retaining its entire inference batch."""
++    path = Path(path)
++    compact = {**payload, 'latent': payload['latent'].detach().clone()}
++    temporary = path.with_suffix('.tmp')
++    torch.save(compact, temporary)
++    temporary.replace(path)
++
++
+ def main():
+     p=argparse.ArgumentParser(__doc__)
+     for key in ('data','teacher-run','checkpoint','frozen-teacher','output','campaign-root','run-id'):p.add_argument('--'+key,required=True)
+@@ -19,8 +29,9 @@ def main():
+     p.add_argument('--campaign-gpu-hours',type=float,default=6000)
+     a=p.parse_args()
+     if min(a.batch,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive export batch and budgets required')
+-    with metered_run(a.campaign_root,a.run_id,1,{'kind':'interaction_target_export','real_optimizer_updates':0}) as (record,_,save):
+-        import time
++    attempt = a.run_id + '_attempt_' + str(time.time_ns())
++    with metered_run(a.campaign_root,attempt,1,{'kind':'interaction_target_export','real_optimizer_updates':0,
++                                           'run_id_parent':a.run_id}) as (record,_,save):
+         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+         if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Lock export source before producing teacher targets')
+         teacher_id=json.loads((Path(a.teacher_run)/'identity.json').read_text())
+@@ -71,7 +82,7 @@ def main():
+                     old=torch.load(path,weights_only=True)
+                     if old['identity']!=identity['identity'] or not torch.equal(old['latent'],z[i]):raise ValueError('Non-deterministic/existing target mismatch')
+                 else:
+-                    tmp=path.with_suffix('.tmp');torch.save(payload,tmp);tmp.replace(path)
++                    save_target(path, payload)
+             record['inference_scenes']=start+len(indices);save()
+         atomic_json(out/'COMPLETE.json',{'scenes':len(data),'identity':identity['identity'],'failed':0})
+ 
+diff --git a/tools/foresight/export_predictions.py b/tools/foresight/export_predictions.py
+index 50fdd260b150d3e9fda85da73f5a310067d02b01..83ec600be745c6f819c40bcfda3183c860cf3bc0 100644
+--- a/tools/foresight/export_predictions.py
++++ b/tools/foresight/export_predictions.py
+@@ -21,8 +21,10 @@ def main():
+     p.add_argument('--world-size',type=int,default=1);p.add_argument('--limit',type=int,default=0)
+     p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--final-lock')
+     p.add_argument('--campaign-gpu-hours',type=float,default=6000)
++    p.add_argument('--gpu-memory-fraction',type=float,default=1.0,
++                   help='Allocator cap for sharing a GPU with a separately running trainer')
+     a=p.parse_args()
+-    if not 0<=a.rank<a.world_size or a.limit<0 or min(a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Invalid shard/budget')
++    if not 0<=a.rank<a.world_size or a.limit<0 or min(a.max_seconds,a.campaign_gpu_hours)<=0 or not 0<a.gpu_memory_fraction<=1:raise ValueError('Invalid shard/budget')
+     with metered_run(a.campaign_root,a.run_id,1,{'kind':'foresight_current_camera_export','real_optimizer_updates':0}) as (record,_,save):
+         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+         from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
+@@ -40,6 +42,7 @@ def main():
+             lock=json.loads(Path(a.final_lock).read_text())
+             from .lock_navtest import validate_lock
+             validate_lock(lock,checkpoint,source,data.identity,len(data),a.sampling_seed,protocol['steps'])
++            protocol['evaluation_purpose']=lock.get('evaluation_purpose','final_locked_model')
+         identity={'checkpoint':checkpoint,'current_identity':data.identity,'evaluation_source':source,'protocol':protocol,
+                   'world_size':a.world_size,'limit':a.limit}
+         out=Path(a.output);(out/'predictions').mkdir(parents=True,exist_ok=True)
+@@ -48,6 +51,7 @@ def main():
+         else:atomic_json(out/'identity.json',identity)
+         signature=identity_hash(identity);record.update(checkpoint=checkpoint['sha256'],protocol=protocol);save()
+         torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
++        torch.cuda.set_per_process_memory_fraction(a.gpu_memory_fraction)
+         model=load_student(a.training_run,a.checkpoint_tag,training)
+         if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('Formal export requires FP32 parameters')
+         atomic_json(out/f'loading_rank_{a.rank}.json',model.deployment_precision)
+@@ -72,7 +76,11 @@ def main():
+                 with temp.open('wb') as stream:np.savez_compressed(stream,trajectory=trajectory.cpu().numpy())
+                 temp.replace(dest);row['proposal_sha256']=file_sha256(dest)
+             except Exception as error:row.update(status='failed',error=repr(error));failed+=1
+-            atomic_json(meta,row);done+=1;record.update(inference_scenes=done,failed=failed);save()
++            atomic_json(meta,row);done+=1
++            record.update(inference_scenes=done,failed=failed,
++                          peak_allocated_bytes=torch.cuda.max_memory_allocated(),
++                          peak_reserved_bytes=torch.cuda.max_memory_reserved(),
++                          gpu_memory_fraction=a.gpu_memory_fraction);save()
+         atomic_json(out/f'shard_{a.rank}.json',{'status':'complete' if done==len(ids) else 'paused','requested':len(ids),
+                     'completed':done,'failed':failed,'identity_sha256':signature})
+         record.update(inference_scenes=done,failed=failed)
+diff --git a/tools/foresight/score_pdms.py b/tools/foresight/score_pdms.py
+index 401b51af5ef0865048d5e1e9f23cf9e911fe3938..8c9089146e3fb1bd5ea360c2402a37dd2a5a58c9 100644
+--- a/tools/foresight/score_pdms.py
++++ b/tools/foresight/score_pdms.py
+@@ -83,6 +83,8 @@ def merge_parts(out,bank,index,identity,parts):
+              'export_identity':export,'evaluator_identity':evaluators[0],'parts_csv_sha256':csv_hashes,
+              'full_navtest':export['current_identity']['split']=='navtest' and not export['limit'],
+              'diagnostic':export['checkpoint']['scope']!='formal' or bool(export['limit']),
++             'evaluation_purpose':export['protocol'].get('evaluation_purpose','registered_development'),
++             'checkpoint_probe':export['protocol'].get('evaluation_purpose')=='user_requested_fixed_checkpoint',
+              'failure_policy':'retain all requested rows, zero on failure, any failure invalidates benchmark',
+              'environment':'official full traffic/route environment; no vehicle-only scoring filter',
+              'evaluator_protocol':'official NAVSIM v1.1, one executed ego trajectory, no learned scorer/oracle'}
+diff --git a/tools/foresight/student_state.py b/tools/foresight/student_state.py
+index 45445f3ba48183621931461c528e614ae18a72c8..7033207c954b52e8084656362bc7ec3401f72972 100644
+--- a/tools/foresight/student_state.py
++++ b/tools/foresight/student_state.py
+@@ -44,6 +44,11 @@ def optimizer_batch_counts(targets,horizon_generator,device):
+     the optimizer's gradient average. No further microbatch averaging is valid.
+     """
+     counts={'ego_scenes':len(targets['ego'])}
++    if 'future_clip' in targets:
++        values, valid = targets['future_clip'], targets['future_clip_valid']
++        if values.ndim != 6 or valid.shape != values.shape[:-1] or valid.dtype != torch.bool:
++            raise ValueError('Native clip layout/mask mismatch')
++        counts['future_clip'] = int(valid.flatten(1).any(-1).sum())
+     for task in ('current_dino','future_dino'):
+         if task not in targets: continue
+         values, valid = targets[task], targets[task+'_valid']
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index 027cdeb6f24fdc4e605b94da855ea78778d59882..da41dbee614b2f769a904cbf15b228d3f62661d7 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -35,6 +35,7 @@ def main():
+     for key in ('config','data','campaign-root','run-id'):p.add_argument('--'+key,required=True)
+     p.add_argument('--future-root');p.add_argument('--future-identity')
+     p.add_argument('--dino-root');p.add_argument('--dino-index');p.add_argument('--dino-identity')
++    p.add_argument('--clip-root');p.add_argument('--clip-identity')
+     p.add_argument('--local-image-root')
+     p.add_argument('--loader-workers',type=int,default=0)
+     p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
+@@ -42,20 +43,20 @@ def main():
+     p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
+     p.add_argument('--warmup',type=int,required=True);p.add_argument('--save-every',type=int,default=200)
+     p.add_argument('--milestones',default='0');p.add_argument('--stop-after',type=int,default=0)
+-    p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--campaign-gpu-hours',type=float,required=True)
++    p.add_argument('--max-seconds',type=float);p.add_argument('--campaign-gpu-hours',type=float)
+     p.add_argument('--scope',choices=('startup','small_fit','profile','formal'),required=True)
+     p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
+     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
+     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
+     p.add_argument('--registration')
+     a=p.parse_args()
+-    if min(a.global_batch,a.micro_batch,a.updates,a.save_every,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive training/budget settings required')
++    if min(a.global_batch,a.micro_batch,a.updates,a.save_every)<=0 or any(x is not None and x<=0 for x in (a.max_seconds,a.campaign_gpu_hours)):raise ValueError('Positive training/budget settings required')
+     if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
+-    if a.scope=='startup' and (a.updates>4 or a.max_seconds>1800):raise ValueError('Startup <=4 updates/1800seconds')
++    if a.scope=='startup' and (a.updates>4 or (a.max_seconds is None or a.max_seconds>1800)):raise ValueError('Startup <=4 updates/1800seconds')
+     if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
+     if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
+     if not 0<=a.loader_workers<=8:raise ValueError('Bounded per-rank I/O workers required')
+-    if a.scope=='profile' and (a.updates>120 or not a.limit or a.max_seconds>14400):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
++    if a.scope=='profile' and (a.updates>120 or not a.limit or (a.max_seconds is None or a.max_seconds>14400)):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
+     milestones={int(x) for x in a.milestones.split(',') if x}
+     if any(x<0 or x>a.updates for x in milestones):raise ValueError('Milestone out of range')
+     rank=int(os.environ['RANK']);world=int(os.environ['WORLD_SIZE']);local=int(os.environ['LOCAL_RANK'])
+@@ -76,6 +77,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
+     from starVLA.model.modules.foresight.tradeoff import CANDIDATES
+     full_method=bool(cfg.foresight.get('full_algorithm',False))
++    clip_method=cfg.foresight.get('future_target_type','legacy_single_frame') != 'legacy_single_frame'
+     tradeoff=arm in CANDIDATES and not full_method
+     dino_campaign=full_method or arm.startswith('W_') or arm=='R_NATIVE' or tradeoff
+     need_cur=bool(cfg.foresight.get('enable_current_dino',False));need_fut=bool(cfg.foresight.get('enable_future_dino',False))
+@@ -85,7 +87,18 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+     if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
+     if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
+     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
+-    if full_method:
++    if clip_method:
++        from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
++        if bool(a.clip_root) != need_fut:
++            raise ValueError('Configured clip task requires exactly its identified target cache')
++        data=ActionVideoForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
++            candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
++            clip_root=a.clip_root,expected_clip=a.clip_identity,future_type=cfg.foresight.future_target_type,
++            expected_teacher=cfg.foresight.video_teacher_identity,
++            allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
++    elif a.clip_root or a.clip_identity:
++        raise ValueError('Legacy training must not silently consume a video cache')
++    elif full_method:
+         from starVLA.dataloader.full_foresight_dataset import FullForesightDataset
+         data=FullForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+             candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
+@@ -125,11 +138,21 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         candidate=CANDIDATES[cfg.foresight.candidate].record(),
+         attention='native causal; current→view,row,column W→action; W retained at deployment',
+         auxiliary_frequency='one current and one requested future per original scene; valid MAE once; Qwen once')
++    if clip_method:
++        identity.update(schema='ddp_action_video_student_v1',future_clip=data.clip_identity,
++            future_sampling='one complete eight-real-frame request per scene; whole-view mask on any missing frame',
++            auxiliary_frequency='ego repeat8, current once, full native clip once, valid MAE once; Qwen once')
+     if full_method and a.scope=='formal':
+         from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+         if not a.registration:raise ValueError('Full formal registration required')
+         registered=json.loads(Path(a.registration).read_text())
+         if registered['training_source_sha']!=source or registered['scene_count']!=size:raise ValueError('Registration source/population changed')
++        if clip_method:
++            expected={'run_id':a.run_id,'config_sha256':identity_hash(OmegaConf.to_container(cfg,resolve=True)),
++                'global_batch':a.global_batch,'micro_batch':a.micro_batch,'world_size':world,
++                'updates':a.updates,'schedule_updates':a.schedule_updates,'milestones':sorted(milestones)}
++            if any(registered.get(k)!=v for k,v in expected.items()):
++                raise ValueError('Action/video formal registration configuration/schedule mismatch')
+         identity['registration_sha256']=file_sha256(a.registration)
+     signature=identity_hash(identity)
+     lock=None
+@@ -143,7 +166,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+             if (out/'STOP_REQUESTED').exists():(out/'STOP_REQUESTED').rename(out/('STOP_ACKNOWLEDGED_'+str(time.time_ns())))
+         else:atomic_json(out/'identity.json',{'identity':signature,**identity})
+     dist.barrier()
+-    if charged_gpu_hours(root)>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before model loading')
++    if a.campaign_gpu_hours is not None and charged_gpu_hours(root)>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before model loading')
+     random.seed(int(cfg.seed)+rank);np.random.seed(int(cfg.seed)+rank);torch.manual_seed(int(cfg.seed)+rank)
+     torch.set_num_threads(2)
+     if a.deterministic:
+@@ -159,13 +182,13 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         atomic_json(out/'initialization.json',init)
+         if full_method:
+             atomic_json(out/'auxiliary_initialization.json',{
+-                name:module_manifest(getattr(model,name)) for name in ('query_geometry','dino_head','interaction_head')
++                name:module_manifest(getattr(model,name)) for name in ('query_geometry','dino_head','interaction_head','spatiotemporal_head')
+                 if hasattr(model,name)})
+         model.qwen_vl_interface.processor.save_pretrained(str(out/'tokenizer'))
+         atomic_json(out/'parameters.json',{'total':sum(p.numel() for p in model.parameters()),
+             'trainable':sum(p.numel() for p in model.parameters() if p.requires_grad),
+             'groups':{key:sum(p.numel() for name,p in model.named_parameters() if name.startswith(key) and p.requires_grad)
+-                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head')}})
++                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head','spatiotemporal_head')}})
+     import deepspeed
+     ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
+                'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
+@@ -247,7 +270,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                 end=torch.cuda.Event(enable_timing=True);end.record()
+                 head_events.append((name,pending.pop(),end))
+             head_hooks.extend([module.register_forward_pre_hook(before),module.register_forward_hook(after)])
+-        for name in ('dino_head','interaction_head'):
++        for name in ('dino_head','interaction_head','spatiotemporal_head'):
+             if hasattr(model,name):attach_head(name,getattr(model,name))
+     try:
+         if not a.resume and 0 in milestones:checkpoint('milestone_000000')
+@@ -255,8 +278,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+         while completed<a.updates:
+             batches=epoch_batches(size,a.global_batch,int(cfg.seed),epoch)
+             if offset==len(batches):epoch+=1;offset=0;continue
+-            stop=stopping[0] or (out/'STOP_REQUESTED').exists() or time.time()-begin>=a.max_seconds or bool(a.stop_after and completed>=a.stop_after)
+-            if rank==0:stop=stop or charged_gpu_hours(root)>=a.campaign_gpu_hours
++            stop=stopping[0] or (out/'STOP_REQUESTED').exists() or (a.max_seconds is not None and time.time()-begin>=a.max_seconds) or bool(a.stop_after and completed>=a.stop_after)
++            if rank==0:stop=stop or (a.campaign_gpu_hours is not None and charged_gpu_hours(root)>=a.campaign_gpu_hours)
+             stop_tensor=torch.tensor(int(stop),device='cuda');dist.all_reduce(stop_tensor,op=dist.ReduceOp.MAX)
+             if stop_tensor:
+                 status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break
+@@ -273,7 +296,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+             if need_vis:
+                 h=targets['visual_horizon'];valid=targets['future_valid'][torch.arange(len(h)),h].sum(-1)
+                 for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
+-            if need_fut:
++            if need_fut and not clip_method:
+                 h=targets['dino_horizon'];valid=targets['future_dino_valid'][torch.arange(len(h)),h].flatten(2).any(-1).sum(-1)
+                 for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
+             dist.all_reduce(exposures)
+@@ -285,7 +308,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                 if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
+                 engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
+                 for key,value in output['losses'].items():logs[key]=logs.get(key,0.)+float(value.detach())
+-                for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw'):
++                for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw','future_clip_raw'):
+                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
+                 if boundary:before=capture_master_samples(engine.optimizer)
+                 observe = full_method and a.scope=='formal' and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
+@@ -324,11 +347,15 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                 for task in ('current_dino','future_dino'):counters[task+'_elements']+=int(counts.get(task,0))
+                 counters['current_requests']+=len(batches[offset-1])*int(need_cur)
+                 counters['future_requests']+=len(batches[offset-1])*int(need_fut)
++            if clip_method:
++                counters['future_clip_scenes']=counters.get('future_clip_scenes',0)+int(counts.get('future_clip',0))
++                counters['physical_future_frame_requests']=counters.get('physical_future_frame_requests',0)+8*len(batches[offset-1])*int(need_fut)
+             for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
+             torch.cuda.synchronize()
+             readout_times={'current_dino':0.,'future_dino':0.,'interaction':0.};dino_call=0
+             for name,start_event,end_event in head_events:
+                 if name=='interaction_head':key='interaction'
++                elif name=='spatiotemporal_head':key='future_dino'
+                 else:
+                     key='current_dino' if need_cur and (not need_fut or dino_call%2==0) else 'future_dino'
+                     dino_call+=1
+@@ -350,6 +377,12 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                     row['horizon_scene_requests']=exposures[:3].cpu().tolist();row['horizon_valid_views']=exposures[3:].cpu().tolist()
+                     row['valid_patches']={k:int(counts.get(k,0))//fcfg.dino_feature_dim for k in ('current_dino','future_dino')}
+                     row['valid_interaction_scenes']=int(counts.get('interaction',0))//int(np.prod(targets['interaction_latent'].shape[1:])) if need_int else 0
++                    if clip_method:
++                        row['effective_weights']['future_clip']=row['effective_weights'].pop('future_dino')
++                        row['raw_losses']['future_clip']=logs.get('future_clip_raw')
++                        row['raw_losses'].pop('future_dino',None)
++                        row['valid_clip_scenes']=int(counts.get('future_clip',0))
++                        row['planner_condition_mode']=cfg.foresight.planner_condition_mode
+                 with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
+             write_status()
+             if completed in milestones:checkpoint(f'milestone_{completed:06d}')
+diff --git a/tools/full_foresight/canonical_scores.py b/tools/full_foresight/canonical_scores.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..cac0a882517b4f13c95238e5d77d4df18c296373
+--- /dev/null
++++ b/tools/full_foresight/canonical_scores.py
+@@ -0,0 +1,137 @@
++"""Score immutable development exports in one audited CPU environment.
++
++Does not modify trainers, predictions, caches, or the original score tables.
++Identical existing score identities are reused; different runtime environments
++are rescored into an independent directory before paired comparisons.
++"""
++import argparse
++import fcntl
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++import numpy as np
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++from tools.local_interaction_mask_v2.compare_pdms import METRICS, read
++from tools.local_interaction_mask_v2.score_async import digest
++
++
++def read_json(path):return json.loads(Path(path).read_text())
++
++
++def runtime_effect(original, canonical):
++    """Same predictions/cache/population; measure only the CPU scoring difference."""
++    first=read(Path(original)/'scenes.csv');second=read(Path(canonical)/'scenes.csv')
++    if set(first)!=set(second):raise ValueError('Scoring populations differ')
++    tokens=sorted(first)
++    for token in tokens:
++        if any(first[token][k]!=second[token][k] for k in ('log','proposal_sha256','metric_cache_sha256','status')):
++            raise ValueError('Scoring inputs or failures changed; not a runtime-only comparison')
++    if any(first[t]['status']!='ok' for t in tokens):raise ValueError('Failed scenes cannot prove scoring parity')
++    result={'scenes':len(tokens),'same_prediction_and_cache':True,'metrics':{}}
++    for metric in METRICS:
++        a=np.asarray([float(first[t][metric]) for t in tokens]);b=np.asarray([float(second[t][metric]) for t in tokens])
++        if not np.isfinite(a).all() or not np.isfinite(b).all():raise ValueError('Invalid scoring comparison')
++        delta=b-a
++        result['metrics'][metric]={'changed_scenes_above_1e_12':int((abs(delta)>1e-12).sum()),
++            'max_abs_difference':float(abs(delta).max()),'mean_difference':float(delta.mean())}
++    return result
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__)
++    for key in ('campaign-root','reference-score','devkit','metric-index','current-index','scoring-python'):
++        p.add_argument('--'+key,required=True)
++    p.add_argument('--registrations',nargs='+',required=True)
++    p.add_argument('--workers',type=int,default=16)
++    p.add_argument('--watch-seconds',type=int,default=0);p.add_argument('--interval',type=int,default=60)
++    a=p.parse_args();root=Path(a.campaign_root)
++    if not 1<=a.workers<=16 or a.interval<10 or a.watch_seconds<0:raise ValueError('Bounded CPU observer required')
++    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Lock clean observer source')
++    source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
++    reference=read_json(Path(a.reference_score)/'summary.json')
++    expected=reference['evaluator_identity']
++    gate=read_json(root/'scoring_protocol_v1.json')
++    if not gate['passed'] or digest(a.metric_index)!=gate['metric_index_sha256'] or expected['navsim_python_tree_sha256']!=gate['navsim_tree_sha256']:
++        raise ValueError('Audited official cache/evaluator required')
++    if not reference['valid'] or reference['failed'] or reference['diagnostic']:raise ValueError('Complete formal reference required')
++    versions=json.loads(subprocess.check_output([a.scoring_python,'-c',
++        "import importlib.metadata,json;print(json.dumps({n:importlib.metadata.version(n) for n in ('numpy','scipy','shapely')}))"],text=True))
++    if versions!=expected['runtime_versions']:raise ValueError('Canonical Python differs from audited reference runtime')
++    registration_paths=[Path(x) for x in a.registrations];registrations=[read_json(x) for x in registration_paths]
++    milestones=registrations[0]['development_updates']
++    if any(v['development_updates']!=milestones for v in registrations):raise ValueError('Unmatched milestone schedule')
++    out=root/'canonical_evaluation_v1';out.mkdir(exist_ok=True)
++    lock=(out/'observer.lock').open('a+');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    contract={'registration_sha256':[digest(x) for x in registration_paths],
++              'reference_score_sha256':digest(Path(a.reference_score)/'summary.json'),
++              'evaluator_identity':expected,'observer_source':source}
++    state_path=out/'status.json'
++    if state_path.exists():
++        state=read_json(state_path)
++        if state['contract']!=contract:raise ValueError('Canonical observer contract changed')
++    else:state={'contract':contract,'events':[]}
++    state.update(status='RUNNING',pid=os.getpid(),started_unix=time.time())
++    def publish(event):
++        state['events'].append({'time':time.time(),**event});state['updated_unix']=time.time();atomic_json(state_path,state)
++    env=dict(os.environ,CUDA_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
++    deadline=time.monotonic()+a.watch_seconds
++    try:
++        while True:
++            if (root/'STOP_REQUESTED').exists():
++                state.update(status='PAUSED',updated_unix=time.time());atomic_json(state_path,state);return
++            complete=True
++            for step in milestones:
++                entries=[]
++                for reg in registrations:
++                    for run_id,spec in reg['runs'].items():
++                        label=f'{run_id}_dev{step}_seed42';original=root/'scores'/label
++                        if not (original/'summary.json').exists():complete=False;continue
++                        raw=read_json(original/'summary.json')
++                        if not raw['valid'] or raw['failed'] or raw['diagnostic']:raise ValueError('Invalid original score cannot be promoted')
++                        checkpoint=raw['export_identity']['checkpoint']
++                        if checkpoint['completed']!=step or checkpoint['training_source_sha']!=reg['training_source_sha'] or checkpoint['arm']!=spec['candidate']:
++                            raise ValueError('Unregistered checkpoint in score table')
++                        score=original
++                        if raw['evaluator_identity']!=expected:
++                            score=root/'scores_canonical_env_v1'/label;score.parent.mkdir(exist_ok=True)
++                            if not (score/'summary.json').exists():
++                                cmd=[a.scoring_python,'-m','tools.foresight.score_pdms','--devkit',a.devkit,
++                                    '--metric-index',a.metric_index,'--current-index',a.current_index,
++                                    '--predictions',str(root/'evaluations'/label),'--output',str(score),
++                                    '--campaign-root',str(root),'--run-id',label+'_canonical_'+str(time.time_ns()),'--workers',str(a.workers)]
++                                if score.exists():cmd.append('--resume')
++                                publish({'event':'CPU_RESCORE','label':label,'command':cmd})
++                                started=time.time()
++                                with (root/'logs'/(label+'_canonical_observer.log')).open('a') as stream:
++                                    subprocess.run(cmd,env=env,stdout=stream,stderr=subprocess.STDOUT,check=True)
++                                publish({'event':'CPU_RESCORE_DONE','label':label,'workers':a.workers,
++                                         'wall_seconds':time.time()-started,'gpu_count':0})
++                            actual=read_json(score/'summary.json')
++                            if actual['evaluator_identity']!=expected or actual['export_identity']!=raw['export_identity'] or not actual['valid']:
++                                raise ValueError('Canonical score changed environment/export or failed')
++                            effect_path=out/(label+'_runtime_effect.json')
++                            if not effect_path.exists():atomic_json(effect_path,runtime_effect(original,score))
++                        entries.append({'arm':spec['candidate'],'training_seed':spec['seed'],'sampling_seed':42,'score_dir':str(score)})
++                expected_count=sum(len(r['runs']) for r in registrations)
++                if len(entries)==expected_count:
++                    registry=out/f'dev{step}_registry.json';paired=out/f'dev{step}_paired'
++                    if registry.exists() and read_json(registry)!=entries:raise ValueError('Canonical score mapping changed')
++                    if not registry.exists():atomic_json(registry,entries)
++                    if not (paired/'summary.json').exists():
++                        cmd=[sys.executable,'-m','tools.full_foresight.summarize_planning','--registry',str(registry),
++                            '--output',str(paired),'--split','dev','--sampling-seeds','42','--screen',
++                            '--expected-arms',','.join(e['arm'] for e in entries)]
++                        subprocess.run(cmd,env=env,check=True)
++                        publish({'event':'PAIRED_REPORT','step':step,'report':str(paired/'summary.json')})
++            state['all_seed42_milestones_complete']=complete;state['updated_unix']=time.time();atomic_json(state_path,state)
++            if complete or time.monotonic()>=deadline or (root/'STOP_REQUESTED').exists():
++                state['status']='SEED42_MILESTONES_COMPLETE' if complete else 'PAUSED';atomic_json(state_path,state);return
++            time.sleep(min(a.interval,max(0,deadline-time.monotonic())))
++    except BaseException as error:
++        state.update(status='FAILED',error=repr(error));atomic_json(state_path,state);raise
++
++
++if __name__=='__main__':main()
+diff --git a/tools/full_foresight/register_priority.py b/tools/full_foresight/register_priority.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..7fbdc2d191a23d4948308ec1c6c8923a30d9a56d
+--- /dev/null
++++ b/tools/full_foresight/register_priority.py
+@@ -0,0 +1,87 @@
++"""Freeze the user-requested fastest single main run, preserving the old matrix plan."""
++import argparse
++import copy
++import json
++from pathlib import Path
++import subprocess
++import time
++from tools.ddpolicy_vehicle.prepare_data import atomic_json
++from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
++from starVLA.model.modules.vehicle_joint.initialization import identity_hash, file_sha256
++
++
++def checked_extra_host(candidate, world, host, inventory):
++    """Only the explicitly authorized C4 extension can add rl-zt2 to this run."""
++    if candidate != 'C4':
++        if host or inventory:
++            raise ValueError('Additional-host registration is only for the requested C4 run')
++        return None
++    if world != 8 or host != 'training-rl-zt2' or inventory is None:
++        raise ValueError('C4 requires the explicitly authorized standalone rl-zt2 inventory')
++    if (inventory['host_alias'] != host or inventory['gpu_count'] != 8 or
++            not inventory['all_gpus_free'] or
++            {g['index'] for g in inventory['gpus']} != set(range(8)) or
++            len({g['uuid'] for g in inventory['gpus']}) != 8 or
++            any(g['memory_total_mib'] < 81920 or g['memory_used_mib'] >= 512
++                for g in inventory['gpus'])):
++        raise ValueError('Missing/occupied/mismatched authorized eight-A80080GB allocation')
++    return {'host_alias': host, 'hostname': inventory['hostname'],
++            'gpu_uuids': [g['uuid'] for g in inventory['gpus']],
++            'authorization': inventory['authorization']}
++
++
++def main():
++    p = argparse.ArgumentParser(__doc__)
++    for key in ('previous-registration', 'training-worktree', 'decision', 'output', 'campaign-root', 'run-id'):
++        p.add_argument('--' + key, required=True)
++    p.add_argument('--candidate',choices=('C0','C1','C4'),default='C0',
++                   help='C0/C1/C4 share144-query student shape; C4 requires explicit extra-host inventory')
++    p.add_argument('--additional-host',choices=('training-rl-zt2',))
++    p.add_argument('--resource-inventory')
++    a = p.parse_args()
++    out = Path(a.output)
++    if out.exists():raise FileExistsError('Immutable registration already exists')
++    work = Path(a.training_worktree)
++    if subprocess.check_output(['git', 'status', '--porcelain'], cwd=work).strip():raise ValueError('Training source must be clean')
++    old = json.loads(Path(a.previous_registration).read_text())
++    if identity_hash({k:v for k,v in old.items() if k != 'identity'}) != old['identity']:raise ValueError('Old registration hash changed')
++    decision = json.loads(Path(a.decision).read_text())
++    if decision['objective'] != 'fastest_single_complete_C0' or not decision['measurement_complete']:
++        raise ValueError('Actual full-model speed evidence required')
++    world = decision['selected_world_size']
++    if world not in (8,16):raise ValueError('Use only the two authorized eight-GPU servers')
++    if a.candidate!='C0' and world!=8:raise ValueError('Companion only uses the spare standalone host')
++    extra_host = checked_extra_host(a.candidate,world,a.additional_host,
++        json.loads(Path(a.resource_inventory).read_text()) if a.resource_inventory else None)
++    if file_sha256(decision['selected_profile_path']) != decision['selected_profile_sha256']:
++        raise ValueError('Measured profile changed')
++    profile = json.loads(Path(decision['selected_profile_path']).read_text())
++    if not profile['measurement_complete'] or profile['world_size'] != world or profile['candidate'] != 'C0' or not profile['all_four_losses']:
++        raise ValueError('Wrong measured main experiment')
++    reg = copy.deepcopy(old);reg.pop('identity')
++    reg.update(schema='ddp_full_priority_registration_v2', created_unix=time.time(),
++        parent_registration_sha256=file_sha256(a.previous_registration),
++        training_source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=work,text=True).strip(),
++        nodes=world//8, priority='Complete C0 first; C1 companion can use the second standalone host',
++        runs={a.run_id:dict(candidate=a.candidate,seed=42,updates=old['updates'],schedule_updates=old['updates'],
++                           global_batch=32,gpus=world,micro_batch=32//world)},
++        topology_decision=decision, topology_decision_sha256=file_sha256(a.decision),
++        planned_optimizer_updates=old['updates'],
++        estimated_campaign_gpu_hours=charged_gpu_hours(Path(a.campaign_root)) + profile['optimizer_gpu_hours_per_1000_updates']*old['updates']/1000*1.35+64,
++        old_matrix_status='PAUSED_USER_PRIORITY; old run weights and ledgers preserved, not reused for initialization',
++        screen_behavior='25000 remains a common observation point; priority C0 continues to100000 without waiting for matrix ranking',
++        secondary_budget='Remaining C1-C5, second seeds and ablations deferred until main result; no extra resource authorization')
++    if reg['estimated_campaign_gpu_hours'] > reg['gpu_hours_cap']:raise ValueError('Measured main plan exceeds existing cap')
++    if extra_host:
++        reg.update(priority='User-authorized C4 on rl-zt2; existing C0/C1 continue unchanged',
++                   additional_host=extra_host,
++                   resource_inventory_sha256=file_sha256(a.resource_inventory),
++                   authorized_hosts=sorted(set(old['authorized_hosts']) | {extra_host['host_alias']}),
++                   old_matrix_status='C0/C1 remain active; C4 starts independently from generic/random initialization',
++                   screen_behavior='Same100000 schedule and fixed development milestones as C0/C1',
++                   measured_cost_scope='C0/C1/C4 have identical144W/8x6target student shapes; inherited8GPU cost estimate, actual rl-zt2 throughput observed in formal run')
++    reg['identity'] = identity_hash(reg);atomic_json(out,reg)
++    print(json.dumps({'registration':str(out),'identity':reg['identity'],'world_size':world,'estimated_gpu_hours':reg['estimated_campaign_gpu_hours']}))
++
++
++if __name__ == '__main__':main()

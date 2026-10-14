@@ -1,0 +1,767 @@
+diff --git a/starVLA/dataloader/structured_world/prepared_current.py b/starVLA/dataloader/structured_world/prepared_current.py
+index 893d6ff9e379f0911637fefea566c07eb3725f47..ad379ed7b8a45acd23375f6854d58a4c89b009b8 100644
+--- a/starVLA/dataloader/structured_world/prepared_current.py
++++ b/starVLA/dataloader/structured_world/prepared_current.py
+@@ -61,16 +61,18 @@ def pin(value):
+ 
+ class CurrentBatchCollator:
+     """Called by the existing single ordered CPU prefetch coordinator."""
+-    def __init__(self, model, microbatch, collate):
++    def __init__(self, model, microbatch, collate, *, prepare_candidates=True):
+         self.model, self.microbatch, self.collate = model, microbatch, collate
++        self.prepare_candidates = prepare_candidates
+         self.identity = processor_identity(model)
+ 
+     def __call__(self, rows):
+         from starVLA.model.framework.DDPForesight import ROBOT_HISTORY_TOKEN
+         observations, targets = self.collate(rows)
+-        from starVLA.model.modules.structured_world.queries import prepare_query_candidates
+-        targets['query_candidates'] = [item.pin_memory() for item in
+-            prepare_query_candidates(targets, grid=self.model.grid)]
++        if self.prepare_candidates:
++            from starVLA.model.modules.structured_world.queries import prepare_query_candidates
++            targets['query_candidates'] = [item.pin_memory() for item in
++                prepare_query_candidates(targets, grid=self.model.grid)]
+         if not torch.isfinite(targets['ego']).all() or not targets['future_valid'].all():
+             raise ValueError('Invalid native ego targets in CPU collator')
+         for at in range(0, len(observations), self.microbatch):
+diff --git a/starVLA/model/framework/vla_structured_fgtr.py b/starVLA/model/framework/vla_structured_fgtr.py
+index 8d3b7f13a89c047e113b3771d1f1115434323a96..bb68b07b83a46443373b81c2876b435cd83dd8d8 100644
+--- a/starVLA/model/framework/vla_structured_fgtr.py
++++ b/starVLA/model/framework/vla_structured_fgtr.py
+@@ -88,7 +88,8 @@ class VLAStructuredFGTR(DDPForesight):
+         # Typed execution payload is derived only from current images/prompt;
+         # the historical teacher-cache whitelist is not weakened.
+         from starVLA.dataloader.structured_world.prepared_current import PreparedCurrent
+-        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
++        prepared = observations[0].get('_prepared_current') if getattr(
++            self, 'execution_prepare_current', getattr(self, 'execution_fast', False)) else None
+         if prepared is not None and (not isinstance(prepared, PreparedCurrent) or
+                 any(row.get('_prepared_current') is not prepared for row in observations)):
+             raise ValueError('Mixed/untrusted current preprocessing payload')
+@@ -113,7 +114,8 @@ class VLAStructuredFGTR(DDPForesight):
+ 
+     def geometric_current(self, observations):
+         device = next(self.geometry.parameters()).device
+-        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
++        prepared = observations[0].get('_prepared_current') if getattr(
++            self, 'execution_prepare_current', getattr(self, 'execution_fast', False)) else None
+         if prepared is not None:
+             if any(row.get('_prepared_current') is not prepared for row in observations):
+                 raise ValueError('Geometry microbatch identity mismatch')
+diff --git a/starVLA/model/modules/structured_world/execution.py b/starVLA/model/modules/structured_world/execution.py
+index 27fbf08e8f5ffeb03bbc95215465c31ae0fb98d9..26fd9431116c81b3b7d3a0ef10205712028e19cf 100644
+--- a/starVLA/model/modules/structured_world/execution.py
++++ b/starVLA/model/modules/structured_world/execution.py
+@@ -2,7 +2,7 @@
+ 
+ 
+ def configure_execution(model, mode):
+-    if mode not in ('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'):
++    if mode not in ('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec', 'engineering_host_fast'):
+         raise ValueError('Unregistered execution mode')
+     enabled = mode != 'reference'
+     checkpointed = mode != 'loss_preserving_v1'
+@@ -14,6 +14,10 @@ def configure_execution(model, mode):
+     model.action_model.model.gradient_checkpointing = checkpointed
+     model.defer_activation_metrics = enabled
+     fast = mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
++    prepared = fast or mode == 'engineering_host_fast'
++    # Input preparation/logging is independent of mathematical reuse. The
++    # host-only pilot must retain the reference future/query/loss operators.
++    model.execution_prepare_current = prepared
+     model.execution_fast = fast
+     model.future_space.execution_fast = fast
+     model.geometry.conv_autocast_bf16 = mode == 'precision_fast'
+@@ -21,20 +25,26 @@ def configure_execution(model, mode):
+     model.refiner.fgtr_time_vectorized = mode == 'engineering_timevec'
+     from .qwen_execution import install_qwen_vision_lengths, uninstall_qwen_vision_lengths
+     vision = model.qwen_vl_interface.model.model.visual
+-    qwen_metadata = install_qwen_vision_lengths(vision) if fast else uninstall_qwen_vision_lengths(vision)
++    qwen_metadata = install_qwen_vision_lengths(vision) if prepared else uninstall_qwen_vision_lengths(vision)
+     # Do not change geometry checkpointing: recomputation involves mutable BN
+     # statistics, unlike the language/DiT LayerNorm blocks above.
+     return {'mode': mode, 'Qwen_language_activation_checkpointing': checkpointed,
+             'DiT_activation_checkpointing': checkpointed,
+             'geometry_checkpointing_and_BN': 'unchanged',
+             'deferred_activation_metrics': enabled, 'ordered_CPU_prefetch': enabled,
+-            'precision_loss_noise_and_proposal_steps': 'unchanged',
++            'precision_loss_noise_and_proposal_steps': (
++                'Original FM/proposal/loss unchanged; BF16 geometry convolution activations only'
++                if mode == 'precision_fast' else 'unchanged'),
+             'future_shared_current_spatial_mix_and_action_MLN': fast,
+-            'typed_current_CPU_processor_and_pinned_batch_transfer': fast,
++            'typed_current_CPU_processor_and_pinned_batch_transfer': prepared,
+             'query_and_body_execution_reuse': fast,
+             'Qwen_vision_metadata_adapter': qwen_metadata,
+-            'formal_acceptance_required': fast,
++            'formal_acceptance_required': prepared,
+             'numerical_level': 'E3' if mode == 'precision_fast' else 'E2',
+             'geometry_convolution_BF16_autocast': mode == 'precision_fast',
++            'DeepSpeed_parameter_and_optimizer_precision': 'FP32',
++            'DeepSpeed_gradient_communication_precision': 'FP32',
++            'TF32': False,
++            'canonical_inference_precision': 'FP32',
+             'time_vectorization': mode == 'engineering_timevec',
+             'projection_depthnet_grid_loss_master_communication': 'FP32 unchanged'}
+diff --git a/tools/structured_world/benchmark_engineering_execution.py b/tools/structured_world/benchmark_engineering_execution.py
+index 5d4dca2b5c1c09e6a8f152689d5af244811ea9f2..5e1ec165cfb30b8501577b8b7650917f6b018956 100644
+--- a/tools/structured_world/benchmark_engineering_execution.py
++++ b/tools/structured_world/benchmark_engineering_execution.py
+@@ -2,13 +2,14 @@
+ 
+ Default --manifest INPUT.json --output NEW_DIR only writes a reviewable plan.
+ An operator must explicitly add --execute ON the qualified host. No SSH,
+-Navtest, retries, process termination, checkpoint deletion or old-output reuse.
++Navtest, job retries, process termination or checkpoint deletion. Explicit
++--continue-from validates and references a completed prefix in a fresh output.
+ 
+ Manifest: source_root, source_sha (full frozen commit), python, host,
+ gpu_uuids (eight, rank order), qualification {path, sha256}, artifact_root,
+ minimum_free_MiB, budget {GPU_hours_limit<=120, already_spent, reserved_elsewhere,
+ per_job_reserve_GPU_hours}, candidate_mode (optional: engineering_fast default,
+-engineering_timevec or precision_fast; one candidate only), and cases (1..4). Each case contains name,
++engineering_timevec, precision_fast or engineering_host_fast; one candidate only), and cases (1..4). Each case contains name,
+ pilot_origin_run, pilot_origin_tag, origin_identity, origin_complete_sha256,
+ train_args: an argv list of --config/--cache/--geometry/--geometry-identity/
+ --dino-root/--dino-identity/--image-root/--micro-batch pairs. All six repetitions
+@@ -41,7 +42,7 @@ import time
+ TASK = 'structured_world_fgtr_round1'
+ POLICY = Path('/mnt/project/server_dispatch_policy.json')
+ MODES = ('io_preserving_v1', 'engineering_fast')
+-CANDIDATES = ('engineering_fast', 'engineering_timevec', 'precision_fast')
++CANDIDATES = ('engineering_fast', 'engineering_timevec', 'precision_fast', 'engineering_host_fast')
+ BASE_FLAGS = {'--config', '--cache', '--geometry', '--geometry-identity',
+               '--dino-root', '--dino-identity', '--image-root', '--micro-batch'}
+ PACKAGES = ('torch', 'transformers', 'deepspeed', 'mmcv', 'mmengine', 'timm', 'omegaconf', 'numpy')
+@@ -66,8 +67,8 @@ def write(path, value):
+     with Path(path).open('x') as stream: json.dump(value, stream, indent=2)
+ 
+ 
+-def checked(command, cwd=None, env=None):
+-    return subprocess.check_output(command, cwd=cwd, env=env, text=True).strip()
++def checked(command, cwd=None, env=None, timeout=None):
++    return subprocess.check_output(command, cwd=cwd, env=env, text=True, timeout=timeout).strip()
+ 
+ 
+ def immutable_source(root, sha):
+@@ -79,7 +80,12 @@ def immutable_source(root, sha):
+ def authorize(host):
+     policy = read(POLICY)
+     require(host in policy['task_authorizations'][TASK]['allowed_hosts'], 'Current task policy rejects host')
+-    return {'path': str(POLICY), 'sha256': digest(POLICY), 'task_authorization': policy['task_authorizations'][TASK]}
++    require(host not in policy.get('global_dispatch_prohibitions', {}), 'Host withdrawn for all new work')
++    reservation = policy.get('host_reservations', {}).get(host, {})
++    require(not (reservation.get('exclude_new_other_workloads') and reservation.get('task') != TASK),
++            'Host reserved for another active task; a benchmark needs a coordinated idle window')
++    return {'path': str(POLICY), 'sha256': digest(POLICY),
++            'task_authorization': policy['task_authorizations'][TASK], 'host_reservation': reservation}
+ 
+ 
+ def origin(case):
+@@ -174,19 +180,40 @@ def runtime_snapshot(python):
+     return json.loads(checked([python, '-B', '-c', code], env=env))
+ 
+ 
+-def readiness(manifest):
++def readiness(manifest, record_sample=None):
+     policy = authorize(manifest['host'])
+     require(socket.gethostname().removesuffix('-worker-0') == manifest['host'], 'Execute on the qualified host, no remote dispatch')
+-    rows = checked(['nvidia-smi', '--query-gpu=uuid,memory.used,memory.free,utilization.gpu', '--format=csv,noheader,nounits']).splitlines()
+-    gpus = []
+-    for row in rows:
+-        uuid, used, free, util = [value.strip() for value in row.split(',')]
+-        gpus.append(dict(uuid=uuid, used_MiB=int(used), free_MiB=int(free), utilization=int(util)))
+-    apps = checked(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name', '--format=csv,noheader,nounits'])
+-    require(len(gpus) == 8 and {g['uuid'] for g in gpus} == set(manifest['gpu_uuids']), 'Physical UUID inventory changed')
+-    require(not apps and all(g['used_MiB'] <= 128 and g['utilization'] <= 5 and g['free_MiB'] >= manifest['minimum_free_MiB'] for g in gpus),
+-            'GPU host is occupied/insufficiently free; no process is stopped')
+-    return {'policy': policy, 'gpus': gpus, 'compute_apps': [], 'observed_unix': time.time()}
++    started, samples = time.monotonic(), []
++    def record(sample):
++        sample.update(attempt=len(samples)+1, observed_unix=time.time(), elapsed_seconds=time.monotonic()-started)
++        samples.append(sample)
++        if record_sample is not None: record_sample(sample)
++    while True:
++        sample = {'gpus': [], 'compute_apps': []}
++        try:
++            timeout = lambda: max(.001, min(2., 10.-(time.monotonic()-started)))
++            rows = checked(['nvidia-smi', '--query-gpu=uuid,memory.used,memory.free,utilization.gpu', '--format=csv,noheader,nounits'], timeout=timeout()).splitlines()
++            for row in rows:
++                uuid, used, free, util = [value.strip() for value in row.split(',')]
++                sample['gpus'].append(dict(uuid=uuid, used_MiB=int(used), free_MiB=int(free), utilization=int(util)))
++            sample['compute_apps'] = checked(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name', '--format=csv,noheader,nounits'], timeout=timeout()).splitlines()
++        except Exception as exc:
++            record({**sample, 'decision': 'query_failed', 'error': repr(exc)})
++            raise
++        gpus, apps = sample['gpus'], sample['compute_apps']
++        inventory = len(gpus) == 8 and {g['uuid'] for g in gpus} == set(manifest['gpu_uuids'])
++        memory = all(g['used_MiB'] <= 128 and g['free_MiB'] >= manifest['minimum_free_MiB'] for g in gpus)
++        idle = all(g['utilization'] <= 5 for g in gpus)
++        sample['decision'] = 'occupied' if apps or not memory else 'inventory_changed' if not inventory else 'ready' if idle else 'settling_utilization'
++        record(sample)
++        require(not apps, 'GPU compute app present; no settling, process stopped or job retried')
++        require(inventory, 'Physical UUID inventory changed')
++        require(memory, 'GPU memory occupied/insufficiently free; no settling or process stopped')
++        if idle:
++            return {'policy': policy, **sample, 'samples': samples, 'settle_limit_seconds': 10., 'sample_interval_seconds': .5}
++        remaining = 10.-(time.monotonic()-started)
++        require(remaining > 0, 'Empty-app GPU utilization did not settle within 10 seconds; samples retained, no job started')
++        time.sleep(min(.5, remaining))
+ 
+ 
+ def acquire(stack, path):
+@@ -405,6 +432,89 @@ def aggregate(results, candidate_mode=MODES[1]):
+     return summary_cases
+ 
+ 
++def completed_prefix(plan, previous, natives):
++    """Read-only verification; never admit an earlier failed/unfinished worker."""
++    previous = Path(previous).resolve()
++    old, registration, outcome = [read(previous/name) for name in ('MANIFEST.json', 'REGISTRATION.json', 'RESULTS.json')]
++    require({k: v for k, v in old['manifest'].items() if k != 'candidate_mode'} ==
++            {k: v for k, v in plan['manifest'].items() if k != 'candidate_mode'},
++            'Continuation changed source/assets/origins/cases/resources/budget')
++    for key in ('schema', 'source_root', 'source_sha', 'warmup_updates', 'stable_updates', 'total_jobs', 'maximum_job_updates', 'maximum_total_updates'):
++        require(old[key] == plan[key], 'Continuation job/update/timing grid changed: '+key)
++    candidate_changed = old['candidate_mode'] != plan['candidate_mode']
++    require(not candidate_changed or all(r['mode'] == MODES[0] for r in outcome['jobs']),
++            'Candidate switch only allowed for an entirely reference-only completed prefix')
++    expected = build_plan(old['manifest'], previous, Path(old['driver']))
++    require(all(old.get(k) == v for k, v in expected.items()), 'Previous plan job grid/commands/timing/source altered')
++    require(registration['training_source_sha'] == plan['source_sha'] and registration['origins'] == natives
++            and registration['budget'] == plan['manifest']['budget'], 'Previous registered native/scientific/budget identity changed')
++    require(registration['driver_code_sha256'] == old['driver_sha256'], 'Previous driver identity changed')
++    immutable_source(Path(old['driver']).parents[2], registration['driver_sha'])
++    count = outcome['completed_jobs']
++    require(type(count) is int and 0 < count <= plan['total_jobs'] and len(outcome['jobs']) == count
++            and outcome['planned_jobs'] == plan['total_jobs'], 'Require a nonempty exact completed prefix')
++    require(outcome['status'] in ('FAILED', 'STOPPED_BEFORE_NEXT_JOB', 'COMPLETE')
++            and outcome['candidate_mode'] == old['candidate_mode'] and outcome['mode_pair'] == old['mode_pair'], 'Previous controller/result mode or completion state changed')
++    require([r['key'] for r in outcome['jobs']] == [j['key'] for j in old['jobs'][:count]], 'Completed jobs are not the ordered prefix')
++    inherited = read(previous/'CONTINUE_FROM.json') if (previous/'CONTINUE_FROM.json').exists() else {'jobs': [], 'completed_prefix': 0}
++    require(outcome.get('reused_jobs', 0) == inherited['completed_prefix'] == len(inherited['jobs']) <= count, 'Mixed inherited prefix evidence')
++    own_keys = {j['key'] for j in old['jobs'][len(inherited['jobs']):count]}
++    runs = previous/'runs'
++    require({p.name for p in runs.iterdir()} == own_keys if runs.exists() else not own_keys,
++            'Earlier started/failed/unfinished or mixed worker exists; no actual job retry')
++    require({p.name for p in previous.glob('*_RESULT.json')} == {j['key']+'_RESULT.json' for j in old['jobs'][:count]}, 'Missing/extra success receipt outside prefix')
++    references, results = [], []
++    for i, job in enumerate(old['jobs'][:count]):
++        new_job = plan['jobs'][i]
++        def scientific_args(j):
++            args = list(j['train_args'])
++            args[args.index('--output')+1] = '<private-output>'
++            return args
++        require(all(job[k] == new_job[k] for k in ('key', 'case', 'mode')) and scientific_args(job) == scientific_args(new_job),
++                'Reused job case/mode/scientific/native/timing args changed')
++        path = previous/(job['key']+'_RESULT.json')
++        result = read(path)
++        require(result == outcome['jobs'][i] and result['passed'], 'Success receipt differs from previous RESULTS')
++        run = Path(result['artifacts']['run']).resolve()
++        driver, driver_sha = Path(old['driver']), registration['driver_sha']
++        if i < len(inherited['jobs']):
++            ref = inherited['jobs'][i]
++            require(ref['key'] == job['key'] and digest(ref['result_path']) == ref['result_sha256']
++                    and read(ref['result_path']) == result and ref['run'] == str(run), 'Inherited success reference changed')
++            driver, driver_sha = Path(ref['worker_driver']), ref['worker_driver_sha']
++            require(digest(driver) == ref['worker_driver_code_sha256'], 'Inherited worker driver changed')
++            immutable_source(driver.parents[2], driver_sha)
++        else:
++            require(run == Path(job['run']).resolve(), 'Success run is not owned by previous controller')
++        process = read(run/'PROCESS_EXIT.json')
++        require(process['returncode'] == 0 and process.get('monitor_error') is None, 'Earlier actual job failed; no retry')
++        command = [str(run) if a == job['run'] else a for a in job['command']]
++        command[command.index('--')+1] = str(driver)
++        require(read(run/'PROCESS.json')['command'] == command, 'Success worker command differs from registered native job')
++        actual_job = {**job, 'run': str(run), 'gpu_uuids': plan['manifest']['gpu_uuids']}
++        require(result == analyze_job(actual_job, natives[job['case']], process), 'Success receipt cannot be reproduced from actual rank/boundary/window artifacts')
++        require(result['source']['training_source_sha'] == plan['source_sha'], 'Success training source differs')
++        require(all(read(run/f'worker_rank{rank}.json')['trainer'] == str(Path(plan['source_root'])/'tools/structured_world/train_vla.py') for rank in range(8)), 'Rank trainer source changed')
++        proof_names = ['PROCESS.json', 'PROCESS_EXIT.json', 'RESUME_BOUNDARY_VERIFIED.json', 'identity.json',
++                       'TRAINING_COMPLETE.json', 'optimizer_groups.json', 'metrics.jsonl', 'stdout_metric_arrivals.jsonl']
++        proof_names += [f'worker_rank{rank}.json' for rank in range(8)]
++        if job['mode'] != MODES[0]: proof_names.append('performance_windows.jsonl')
++        references.append({'key': job['key'], 'result_path': str(path), 'result_sha256': digest(path), 'run': str(run),
++            'worker_driver': str(driver), 'worker_driver_sha': driver_sha, 'worker_driver_code_sha256': digest(driver),
++            'verified_artifact_sha256': {str(run/name): digest(run/name) for name in proof_names}})
++        results.append(result)
++    hours = sum(r['process_GPU_hours'] for r in results)
++    require(math.isclose(outcome['process_GPU_hours'], hours, rel_tol=1e-12), 'Previous process budget includes unverified/failed work')
++    budget = plan['manifest']['budget']
++    require(budget['already_spent']+budget['reserved_elsewhere']+hours+(plan['total_jobs']-count)*budget['per_job_reserve_GPU_hours'] <= budget['GPU_hours_limit'], 'Continuation remaining matrix exceeds shared GPUh budget')
++    files = ['MANIFEST.json', 'REGISTRATION.json', 'RESULTS.json']
++    files += [name for name in ('FAILURE.json', 'CONTINUE_FROM.json') if (previous/name).exists()]
++    return results, {'previous_output': str(previous), 'completed_prefix': count, 'remaining_jobs': plan['total_jobs']-count,
++        'planned_candidate_changed': candidate_changed, 'previous_candidate_mode': old['candidate_mode'], 'candidate_mode': plan['candidate_mode'],
++        'reused_process_GPU_hours': hours, 'previous_environment': registration['environment'], 'jobs': references,
++        'previous_record_sha256': {str(previous/name): digest(previous/name) for name in files}, 'old_files_modified': False}
++
++
+ def main():
+     if '--worker' in sys.argv[1:]:
+         worker(); return 0
+@@ -412,6 +522,7 @@ def main():
+     parser.add_argument('--manifest', type=Path, required=True)
+     parser.add_argument('--output', type=Path, required=True)
+     parser.add_argument('--execute', action='store_true')
++    parser.add_argument('--continue-from', type=Path, help='Verify/reuse successful ordered prefix; fresh output only, no retry of any previously started incomplete job')
+     args = parser.parse_args()
+     output = args.output.resolve()
+     require(not output.exists(), 'Output must be fresh; no retry/overwrite')
+@@ -422,11 +533,20 @@ def main():
+     require("'--benchmark-no-end-save'" in trainer.read_text(), 'Need new immutable trainer commit supporting --benchmark-no-end-save')
+     require(repr(plan['candidate_mode']) in trainer.read_text(), 'Frozen trainer does not support selected candidate mode')
+     natives = {case['name']: origin(case) for case in manifest['cases']}
++    results, continuation = [], None
++    if args.continue_from:
++        require(not output.is_relative_to(args.continue_from.resolve()), 'Continuation output must be outside previous artifacts')
++        results, continuation = completed_prefix(plan, args.continue_from, natives)
+     output.mkdir(parents=True, exist_ok=False)
+     write(output/'MANIFEST.json', plan)
++    if continuation:
++        write(output/'CONTINUE_FROM.json', continuation)
++        for result in results: write(output/(result['key']+'_RESULT.json'), result)
+     if not args.execute:
+-        print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'manifest': str(output/'MANIFEST.json')})); return 0
+-    results, status, error = [], 'COMPLETE', None
++        print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'reused_jobs': len(results),
++                          'remaining_jobs': len(plan['jobs'])-len(results), 'manifest': str(output/'MANIFEST.json')})); return 0
++    reused = len(results)
++    status, error = 'COMPLETE', None
+     stop_requested = [False]
+     def stop_after_current(*unused): stop_requested[0] = True
+     for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stop_after_current)
+@@ -440,19 +560,20 @@ def main():
+         qualified = read(q['path'])
+         require(qualified['passed'] and qualified['host'] == manifest['host'] and set(qualified['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Host/full8 qualification mismatch')
+         environment = runtime_snapshot(manifest['python'])
++        if continuation: require(environment == continuation['previous_environment'], 'Private runtime differs from completed prefix')
+         for name, value in qualified.get('environment', {}).get('packages', {}).items():
+             require(environment['packages'].get(name) == value, 'Private runtime version differs: '+name)
+         write(output/'REGISTRATION.json', {'manifest_sha256': digest(args.manifest), 'driver_sha': driver_sha,
+             'driver_code_sha256': digest(SCRIPT), 'training_source_sha': plan['source_sha'], 'qualification': qualified,
+             'qualification_sha256': q['sha256'], 'environment': environment, 'origins': natives,
+-            'budget': manifest['budget'], 'no_formal_training_or_Navtest_dispatch': True})
++            'budget': manifest['budget'], 'continue_from': continuation, 'no_formal_training_or_Navtest_dispatch': True})
+         with ExitStack() as stack:
+             root = Path(manifest['artifact_root'])
+             queue_key = hashlib.sha256(json.dumps([plan['source_sha'], [[c['pilot_origin_run'], c['pilot_origin_tag']] for c in manifest['cases']]], sort_keys=True).encode()).hexdigest()
+             physical_key = hashlib.sha256(json.dumps(sorted(manifest['gpu_uuids'])).encode()).hexdigest()
+             locks = [acquire(stack, root/'engineering_benchmark_locks'/(queue_key+'.lock')),
+                      acquire(stack, root/'physical_gpu_locks'/(physical_key+'.lock'))]
+-            for job in plan['jobs']:
++            for job in plan['jobs'][reused:]:
+                 if stop_requested[0] or (output/'STOP_BEFORE_NEXT_JOB').exists(): status = 'STOPPED_BEFORE_NEXT_JOB'; break
+                 budget = manifest['budget']
+                 spent = sum(result['process_GPU_hours'] for result in results)
+@@ -460,7 +581,10 @@ def main():
+                 immutable_source(plan['source_root'], plan['source_sha'])
+                 require(digest(SCRIPT) == plan['driver_sha256'] and digest(q['path']) == q['sha256'], 'Immutable driver/qualification changed')
+                 native = origin(next(case for case in manifest['cases'] if case['name'] == job['case']))
+-                gate = readiness(manifest)
++                def record_sample(sample):
++                    with (output/'READINESS_SAMPLES.jsonl').open('a') as stream:
++                        stream.write(json.dumps({'job': job['key'], **sample})+'\n')
++                gate = readiness(manifest, record_sample)
+                 write(output/(job['key']+'_RESOURCE_GATE.json'), gate)
+                 job.update(gpu_uuids=manifest['gpu_uuids'], trainer=str(trainer))
+                 process = run_job(job, locks)
+@@ -472,9 +596,11 @@ def main():
+     except BaseException as exc:
+         status, error = 'FAILED', repr(exc)
+         write(output/'FAILURE.json', {'error': error, 'completed_jobs': len(results), 'logs_preserved': True})
+-    process_hours = sum(read(p)['wall_seconds']*8/3600 for p in (output/'runs').glob('*/PROCESS_EXIT.json'))
++    new_process_hours = sum(read(p)['wall_seconds']*8/3600 for p in (output/'runs').glob('*/PROCESS_EXIT.json'))
++    process_hours = new_process_hours+(continuation['reused_process_GPU_hours'] if continuation else 0.)
+     write(output/'RESULTS.json', {'status': status, 'error': error, 'completed_jobs': len(results), 'planned_jobs': len(plan['jobs']),
+-        'process_GPU_hours': process_hours, 'candidate_mode': plan['candidate_mode'], 'mode_pair': plan['mode_pair'],
++        'process_GPU_hours': process_hours, 'new_process_GPU_hours': new_process_hours, 'reused_jobs': reused,
++        'remaining_jobs': len(plan['jobs'])-len(results), 'candidate_mode': plan['candidate_mode'], 'mode_pair': plan['mode_pair'],
+         'cases': aggregate(results, plan['candidate_mode']), 'jobs': results,
+         'limits': ['Both modes measure all-rank optimizer20->220 wall (final small log excluded); IO also records stdout arrival wall and fast records full log-window wall.',
+                    'Rank peaks are cumulative per process, including warmup/startup.',
+diff --git a/tools/structured_world/run_world_scaling_node.py b/tools/structured_world/run_world_scaling_node.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..261dbe2f53969155259a9413be4e7cb27a9b2b95
+--- /dev/null
++++ b/tools/structured_world/run_world_scaling_node.py
+@@ -0,0 +1,90 @@
++"""One qualified node of a bounded 8/16-GPU profile; reuses benchmark worker.
++
++This is an explicit node launcher, not a queue or a training migration tool.
++Both 16-GPU nodes must be launched for the same job during a coordinated idle
++window. Planning never touches GPUs. Execution keeps the physical pool lease
++through all owned children, as in the existing eight-card benchmark.
++"""
++import argparse
++from contextlib import ExitStack
++import hashlib
++import json
++import os
++from pathlib import Path
++import socket
++import sys
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT))
++from tools.structured_world import benchmark_engineering_execution as bench
++
++
++def command(manifest, job, node):
++    bench.require(manifest['schema'] == 'structured_world_scaling_windows_v1', 'Unknown profile schema')
++    world = job['world_size']
++    bench.require(world in (8, 16) and 0 <= node < world // 8, 'One or two full8 nodes required')
++    bench.require(job['mode'] in ('io_preserving_v1', 'engineering_host_fast'), 'No combined math/precision candidate')
++    bench.require(job['updates'] == 220 and job['group'] in ('G1', 'G3'), 'Locked G1/G3 warm20 + stable200')
++    root = Path(manifest['source_root'])
++    bench.require(root.resolve() == ROOT, 'Run the launcher from the declared frozen source')
++    host = manifest['hosts'][node]
++    bench.require(len(host['gpu_uuids']) == len(set(host['gpu_uuids'])) == 8, 'Eight unique physical GPUs required')
++    run = Path(job['run'])
++    assets = manifest['assets']
++    args = [manifest['python'], '-B', '-m', 'torch.distributed.run', '--nnodes='+str(world // 8),
++        '--nproc-per-node=8', '--node-rank='+str(node), '--master-addr='+manifest['hosts'][0]['address'],
++        '--master-port='+str(job['port']), '--rdzv-conf=timeout=120', '--max-restarts=0', '--',
++        str(root/'tools/structured_world/benchmark_engineering_execution.py'), '--worker',
++        '--trainer', str(root/'tools/structured_world/train_vla.py'), '--run', str(run), '--',
++        '--config', str(root/'configs/structured_world'/manifest['configs'][job['group']]),
++        '--scope', 'profile', '--world-scaling-profile', '--use-formal-schedule',
++        '--debug-updates', '220', '--benchmark-no-end-save', '--micro-batch', str(32 // world),
++        '--execution-mode', job['mode'], '--output', str(run)]
++    for name in ('cache', 'geometry', 'geometry-identity', 'dino-root', 'dino-identity', 'image-root'):
++        args += ['--'+name, assets[name]]
++    return args
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--manifest', required=True, type=Path)
++    parser.add_argument('--job', required=True)
++    parser.add_argument('--node-rank', type=int, required=True)
++    parser.add_argument('--execute', action='store_true')
++    args = parser.parse_args()
++    manifest = bench.read(args.manifest)
++    job = manifest['jobs'][args.job]
++    argv = command(manifest, job, args.node_rank)
++    if not args.execute:
++        print(json.dumps({'status': 'PLANNED_ONLY', 'command': argv, 'GPU_work_started': False}))
++        return
++    host = manifest['hosts'][args.node_rank]
++    bench.require(socket.gethostname().removesuffix('-worker-0') == host['host'], 'Wrong node host')
++    bench.immutable_source(ROOT, manifest['source_sha'])
++    bench.require(bench.digest(host['qualification']['path']) == host['qualification']['sha256'], 'Host qualification changed')
++    proof = bench.read(host['qualification']['path'])
++    bench.require(proof['status'] == 'ENVIRONMENT_AND_OPERATOR_QUALIFIED_NOT_MODEL_ACCEPTANCE', 'Unqualified environment')
++    # Check policy BEFORE importing the trainer/model, which can initialize NCCL.
++    bench.authorize(host['host'])
++    environment = bench.runtime_snapshot(manifest['python'])
++    for name in ('torch', 'transformers', 'deepspeed', 'mmcv', 'mmengine', 'numpy'):
++        bench.require(environment['packages'][name] == proof['packages'][name],
++                      'Runtime changed since host qualification: '+name)
++    os.environ.update(NCCL_SOCKET_IFNAME='eth0', TORCH_NCCL_ASYNC_ERROR_HANDLING='1',
++        TORCH_EXTENSIONS_DIR=host['torch_extensions'], MAX_JOBS='4')
++    pool = hashlib.sha256(json.dumps(sorted(host['gpu_uuids'])).encode()).hexdigest()
++    with ExitStack() as stack:
++        lock = bench.acquire(stack, Path(manifest['physical_locks'])/(pool+'.lock'))
++        ready = bench.readiness({'host': host['host'], 'gpu_uuids': host['gpu_uuids'], 'minimum_free_MiB': 68000})
++        node_run = Path(job['run']).parent/(Path(job['run']).name+'_node'+str(args.node_rank))
++        process = bench.run_job({'run': str(node_run), 'trainer': str(ROOT/'tools/structured_world/train_vla.py'),
++            'gpu_uuids': host['gpu_uuids'], 'command': argv}, [lock])
++        bench.write(node_run/'PROFILE_NODE_RECEIPT.json', {'manifest_sha256': bench.digest(args.manifest),
++            'readiness': ready, 'environment': environment, 'process': process,
++            'world': job['world_size'], 'node_rank': args.node_rank,
++            'node_process_GPU_hours': process['wall_seconds']*8/3600, 'formal_authorized': False})
++        bench.require(process['returncode'] == 0, 'Owned profile node failed; preserve original logs')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tools/structured_world/train_vla.py b/tools/structured_world/train_vla.py
+index 611c04f0d1f7879bd8d38fcb9ea4b2629a04e3ab..5476c555aa969722f68d92c38b38595b3ebe5cfe 100644
+--- a/tools/structured_world/train_vla.py
++++ b/tools/structured_world/train_vla.py
+@@ -32,6 +32,10 @@ from tools.structured_world.training_assets import initialization_assets, file_d
+ from starVLA.model.modules.structured_world.execution import configure_execution
+ from tools.structured_world.prefetch import OrderedScenePrefetch
+ from tools.structured_world.resume_origin import read_origin, verify_scientific_contract
++from tools.structured_world.native_capture import validate_args as validate_capture_args, observation_plan, storage_admission
++from tools.structured_world.world_scaling_profile import (
++    validate_args as validate_scaling_args, validate_ranks as validate_scaling_ranks,
++    contract as scaling_contract)
+ 
+ 
+ def atomic_json(path, value):
+@@ -52,6 +56,8 @@ def source_hashes():
+     paths.append(ROOT/'tools/structured_world/prefetch.py')
+     paths.append(ROOT/'tools/structured_world/resume_origin.py')
+     paths.append(ROOT/'tools/structured_world/execution_log.py')
++    paths.append(ROOT/'tools/structured_world/native_capture.py')
++    paths.append(ROOT/'tools/structured_world/world_scaling_profile.py')
+     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
+ 
+@@ -76,19 +82,25 @@ def main():
+     parser.add_argument('--image-root', type=Path)
+     parser.add_argument('--profile-stages', action='store_true',
+                         help='Only profile scope: measure the real model and optimizer stages')
+-    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'), default='reference')
++    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec', 'engineering_host_fast'), default='reference')
+     parser.add_argument('--logging-every', type=int, default=20)
+     parser.add_argument('--evidence-every', type=int, default=100)
+     parser.add_argument('--pilot-origin-run', type=Path, help='Read-only engineering continuation; never changes parent latest')
+     parser.add_argument('--pilot-origin-tag', help='Required immutable complete tag for a pilot origin')
+     parser.add_argument('--use-formal-schedule', action='store_true', help='Finite engineering run, original dataset schedule from update zero')
+-    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Only read-only-origin performance windows; numerical/recovery pilots still save')
++    parser.add_argument('--world-scaling-profile', action='store_true',
++                        help='Finite fresh 8x4/16x2 throughput probe only; never load native eight-rank state on sixteen ranks')
++    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Read-only-origin or explicit fresh world-scaling performance windows; numerical/recovery pilots still save')
+     parser.add_argument('--execution-acceptance', type=Path,
+                         help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
+     parser.add_argument('--resume-origin-run', type=Path,
+                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
++    parser.add_argument('--capture-updates', help='Pilot-only relative native capture offsets, e.g. 1,32,100,250; continuous training')
++    parser.add_argument('--capture-storage-budget', type=Path, help='Explicit owned storage/free-space admission, checked before every pilot save; quota visibility recorded')
+     args = parser.parse_args()
+-    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
++    validate_capture_args(args)
++    validate_scaling_args(args)
++    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec', 'engineering_host_fast')
+     if min(args.logging_every, args.evidence_every) < 1:
+         raise ValueError('Positive metric/evidence intervals required')
+     if args.scope == 'formal' and fast:
+@@ -97,7 +109,8 @@ def main():
+         raise ValueError('Pilot origins require profile scope, immutable tag and unchanged full population')
+     if args.use_formal_schedule and (args.scope == 'formal' or args.pilot_origin_run):
+         raise ValueError('Explicit common schedule is only for an engineering run without an origin')
+-    if args.benchmark_no_end_save and (args.scope != 'profile' or not args.pilot_origin_run or args.resume):
++    if args.benchmark_no_end_save and (args.scope != 'profile' or
++            not (args.pilot_origin_run or args.world_scaling_profile) or args.resume):
+         raise ValueError('Benchmark windows must retain their immutable origin and cannot be resumed in place')
+     if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
+         raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
+@@ -117,9 +130,12 @@ def main():
+     canonical = socket.gethostname().removesuffix('-worker-0')
+     if canonical not in hosts:
+         raise ValueError('Host is not authorized for this task')
++    if args.world_scaling_profile:
++        from tools.structured_world.benchmark_engineering_execution import authorize
++        authorize(canonical)  # Never bypass another task's active reservation.
+     rank, world, local = int(os.environ['RANK']), int(os.environ['WORLD_SIZE']), int(os.environ['LOCAL_RANK'])
+-    if world != 8 or args.micro_batch not in (1, 2, 4):
+-        raise ValueError('One complete eight-GPU host and registered microbatch required')
++    validate_scaling_ranks(args, rank=rank, world=world, local=local,
++                          local_world=int(os.environ.get('LOCAL_WORLD_SIZE', '8')))
+     torch.cuda.set_device(local)
+     # The existing framework's distributed state can initialize NCCL on import.
+     if not dist.is_initialized():
+@@ -217,6 +233,16 @@ def main():
+         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
+         'extra_stage_instrumentation': args.profile_stages}
+     contract['execution_mode'] = args.execution_mode
++    if args.world_scaling_profile:
++        contract['world_scaling_profile'] = scaling_contract(args, world)
++    # Keep the scientific base precision equal to the immutable origin. Actual
++    # candidate compute is separately declared; these are metadata only.
++    contract['base_precision'] = contract['precision']
++    contract['base_precision_scope'] = 'locked scientific origin/comparison contract; not the actual E3 candidate compute'
++    contract['effective_training_precision'] = (contract['precision'] if args.execution_mode != 'precision_fast' else
++        'FP32 parameters/master/optimizer/gradient communication; BF16 Qwen vision/language and original action compute; '
++        'BF16 Geo R50/FPN/BEV backbone+neck convolutions; FP32 DepthNet/view/projection/grid_sample/loss/refiner; '
++        'TF32 off; canonical inference FP32 bypass')
+     contract['external_execution_patches'] = {'record': json.loads((ROOT/'third_party/EXECUTION_PATCHES.json').read_text()),
+         'sha256': file_digest(ROOT/'third_party/EXECUTION_PATCHES.json')}
+     if args.execution_mode == 'precision_fast':
+@@ -235,6 +261,11 @@ def main():
+                 raise ValueError('Pilot changed scientific contract: '+key)
+         contract['engineering_continue_origin'] = pilot_origin
+     contract['benchmark_no_end_checkpoint'] = args.benchmark_no_end_save
++    capture_plan = observation_plan(args.capture_updates, pilot_origin['completed'] if pilot_origin else 0, args.debug_updates)
++    if capture_plan is not None:
++        contract['engineering_native_capture'] = {**capture_plan,
++            'storage_budget_sha256': file_digest(args.capture_storage_budget),
++            'denominator_evidence': 'every update: existing global_counts and all-rank scene/loss-horizon evidence; pilot logging cost measured separately'}
+     if execution_acceptance is not None:
+         contract['execution_acceptance'] = execution_acceptance
+     resume_origin = None
+@@ -281,6 +312,7 @@ def main():
+                   [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
+     generators['counts'] = torch.Generator().manual_seed(420500+rank)
+     completed, epoch, offset, exposure, elapsed = 0, 0, 0, 0, 0.
++    loaded_boundary_completed = None
+     if args.resume or resume_origin is not None or pilot_origin is not None:
+         recovery_run = args.output if args.resume else (args.pilot_origin_run if pilot_origin else args.resume_origin_run)
+         tag = args.pilot_origin_tag if pilot_origin and not args.resume else (recovery_run/'checkpoints/latest').read_text().strip()
+@@ -298,6 +330,7 @@ def main():
+         completed, epoch, offset, exposure, elapsed = [state[k] for k in ('completed', 'epoch', 'offset', 'exposure', 'elapsed')]
+         restore_rng(torch.load(recovery_folder/f'rng_rank{rank}.pt', map_location='cpu', weights_only=False), generators)
+         boundary = verify_boundary(engine, recovery_folder, generators)
++        loaded_boundary_completed = completed
+         if rank == 0:
+             atomic_json(args.output/'RESUME_BOUNDARY_VERIFIED.json', {'identity': identity,
+                 'completed': completed, 'epoch': epoch, 'offset': offset, 'exposure': exposure, **boundary})
+@@ -312,11 +345,27 @@ def main():
+         raise ValueError('Recovery boundary is beyond the registered training endpoint')
+     milestones = ({25000, 50000, 75000, 100000} if dataset == 'navsim' else
+                   {epoch*updates_per_epoch for epoch in (6, 12, 18, 24)}) if args.scope == 'formal' else {end_update}
++    if capture_plan is not None:
++        milestones.update(capture_plan['absolute_updates'])
+     def save(status):
+         nonlocal elapsed
+         tag = f'milestone_{completed:07d}' if completed in milestones else f'latest_{completed:07d}'
+         staging = 'writing_'+tag
+         checkpoint_root = args.output/'checkpoints'
++        if capture_plan is not None:
++            admission = [None]
++            if rank == 0:
++                try:
++                    admission[0] = storage_admission(args.capture_storage_budget, args.output,
++                        expected_digest=contract['engineering_native_capture']['storage_budget_sha256'])
++                except (ValueError, OSError, KeyError, TypeError) as error:
++                    admission[0] = {'ok': False, 'error': str(error)}
++            dist.broadcast_object_list(admission, src=0)
++            if not admission[0]['ok']:
++                raise RuntimeError('Pilot storage admission blocked: '+admission[0]['error'])
++            if rank == 0:
++                with (args.output/'capture_storage_admissions.jsonl').open('a') as stream:
++                    stream.write(json.dumps({'completed': completed, **admission[0]})+'\n')
+         if shutil.disk_usage(args.output).free < 100*(1 << 30):
+             raise RuntimeError('Storage reserve below 100 GiB; preserving existing recovery checkpoints')
+         state = {'identity': identity, 'completed': completed, 'epoch': epoch, 'offset': offset,
+@@ -359,11 +408,21 @@ def main():
+     optimized_execution = args.execution_mode != 'reference'
+     from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
+     from tools.structured_world.execution_log import ExecutionLogWindow
+-    collator = CurrentBatchCollator(model, args.micro_batch, collate_structured) if fast else collate_structured
++    collator = CurrentBatchCollator(model, args.micro_batch, collate_structured,
++        prepare_candidates=model.execution_fast) if fast else collate_structured
+     if fast:
+         model.current_processor_identity = collator.identity
+     log_window = ExecutionLogWindow(args.output, world, 1 if args.profile_stages else args.logging_every) if fast else None
+     batch_cache = {}
++    capture_logging_seconds = 0.
++    def capture_record(record):
++        nonlocal capture_logging_seconds
++        if capture_plan is not None:
++            started = time.monotonic()
++            with (args.output/f'capture_denominators_rank{rank}.jsonl').open('a') as stream:
++                stream.write(json.dumps({'updates': completed, 'epoch': epoch, 'offset_after_update': offset,
++                    'logging_seconds_prior': capture_logging_seconds, **record})+'\n')
++            capture_logging_seconds += time.monotonic()-started
+     def batches_for(current_epoch):
+         if not optimized_execution:
+             return epoch_batches(len(data), 32, 42, current_epoch)
+@@ -397,9 +456,25 @@ def main():
+                     prefetch.submit((next_epoch, next_offset), batches_for(next_epoch)[next_offset][rank::world])
+             data_seconds = time.monotonic()-start
+             counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
++            capture_counts = None
++            if capture_plan is not None:
++                # Reuse the already all-reduced CPU counts and already drawn
++                # CPU loss horizons BEFORE device transfer. No new RNG/count
++                # computation or collective belongs to these observations.
++                capture_started = time.monotonic()
++                capture_counts = {'global_counts': dict(counts), 'schedule_horizon': horizon,
++                    'schedule_warmup': warmup, 'continuation_endpoint': end_update,
++                    'source_population_scenes': original_population, 'rank': rank,
++                    'global_scene_indices': list(batches[offset]), 'local_scene_indices': list(indices),
++                    'loss_horizons': {name: targets[name].detach().tolist()
++                        for name in ('dino_horizon', 'visual_horizon') if name in targets}}
++                capture_logging_seconds += time.monotonic()-capture_started
++            evidence_due = (not fast or completed % args.evidence_every == 0 or
++                (loaded_boundary_completed is not None and completed == loaded_boundary_completed) or
++                (capture_plan is not None and completed+1 in milestones))
+             if fast:
+                 observations, targets = transfer_optimizer_batch(observations, targets, torch.device('cuda', local))
+-                model.record_activation_metrics = completed % args.evidence_every == 0
++                model.record_activation_metrics = evidence_due
+             actual_lrs = []
+             for group, record in zip(engine.optimizer.param_groups, group_records):
+                 base = float(record['base_lr'])
+@@ -408,7 +483,6 @@ def main():
+             logs, raw, effective, query_records, activation_gradients = {}, {}, {}, [], []
+             proposal_out_of_range = 0
+             fast_scalars = {}
+-            evidence_due = not fast or completed % args.evidence_every == 0
+             evidence = {'fp32_master_update_evidence_sampled_this_update': evidence_due}
+             for at in range(0, len(indices), args.micro_batch):
+                 end = min(len(indices), at+args.micro_batch); boundary = end == len(indices)
+@@ -462,6 +536,7 @@ def main():
+             if fast:
+                 update_end.record()
+                 completed += 1; exposure += len(batches[offset]); offset += 1
++                if capture_plan is not None: capture_record(capture_counts)
+                 fast_scalars['gradient_norm'] = torch.as_tensor(engine.get_global_grad_norm(), device='cuda')
+                 # Stable packing even when detailed activation evidence is not sampled.
+                 for name in ('H_A', 'B0', 'Bt'):
+@@ -472,7 +547,8 @@ def main():
+                     'rank0_query_strata': query_records, 'execution_mode': args.execution_mode,
+                     'activation_metrics_sampled': model.record_activation_metrics,
+                     'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
+-                    'peak_GPU_reserved_bytes_rank0': torch.cuda.max_memory_reserved(), **evidence},
++                    'peak_GPU_reserved_bytes_rank0': torch.cuda.max_memory_reserved(),
++                    **({'global_counts': dict(counts)} if capture_plan is not None else {}), **evidence},
+                     fast_scalars, tuple(sorted(logs)) or tuple(sorted(k.removeprefix('weighted/') for k in fast_scalars if k.startswith('weighted/'))),
+                     (update_start, update_end))
+                 stop = (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after)
+@@ -499,6 +575,7 @@ def main():
+                 stage_records = [None]*world
+                 dist.all_gather_object(stage_records, local_stages)
+             elapsed += float(cost); completed += 1; exposure += len(batches[offset]); offset += 1
++            if capture_plan is not None: capture_record(capture_counts)
+             keys = sorted(logs); packed = torch.tensor([logs[k] for k in keys], device='cuda'); dist.all_reduce(packed); packed /= world
+             if rank == 0:
+                 gradient_norm = float(engine.get_global_grad_norm())
+@@ -514,6 +591,8 @@ def main():
+                     'gradient_clip_scale': min(1., clip_limit/(gradient_norm+1e-6)) if clip_limit > 0 else 1.,
+                     'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
+                     'GPU_hours': elapsed*world/3600., 'seconds': float(cost), **evidence}
++                if capture_plan is not None:
++                    record['global_counts'] = dict(counts)
+                 if stage_records is not None:
+                     record['per_rank_stage_timing'] = stage_records
+                 with (args.output/'metrics.jsonl').open('a') as stream: stream.write(json.dumps(record)+'\n')
+@@ -525,6 +604,11 @@ def main():
+             if completed == end_update and rank == 0:
+                 atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,
+                     'exposure': exposure, 'GPU_hours': elapsed*world/3600., 'evaluation_complete': False})
++    if capture_plan is not None:
++        atomic_json(args.output/f'capture_logging_rank{rank}.json', {'rank': rank,
++            'completed': completed, 'logging_wall_seconds': capture_logging_seconds,
++            'scope': 'pilot denominator record construction and rank-local file writes; normal metric packing/flush remains in process wall',
++            'additional_count_collectives': 0, 'additional_RNG_draws': 0})
+     dist.destroy_process_group()
+ 
+ 
+diff --git a/tools/structured_world/validate_engineering_execution.py b/tools/structured_world/validate_engineering_execution.py
+index d7fb15926949449211f6af32f0fdc4350b5f7af1..4a7e2c27e63492e5be69364d08253e07d1b84b2f 100644
+--- a/tools/structured_world/validate_engineering_execution.py
++++ b/tools/structured_world/validate_engineering_execution.py
+@@ -42,7 +42,7 @@ def main():
+                         help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
+     parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
+     parser.add_argument('--tag', required=True, help='Explicit immutable complete checkpoint, never a moving latest')
+-    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast'), default='engineering_fast')
++    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast', 'engineering_host_fast'), default='engineering_fast')
+     parser.add_argument('--precision-diagnostic', choices=('native', 'fp32'), default='native',
+                         help='FP32 is a separate controlled numerical diagnostic, never a formal precision change')
+     args = parser.parse_args()
+@@ -114,7 +114,8 @@ def main():
+     reference_activation = None
+     checks = []
+     from starVLA.dataloader.structured_world.prepared_current import CurrentBatchCollator, transfer_optimizer_batch
+-    collator = CurrentBatchCollator(model, args.microbatch, collate_structured)
++    collator = CurrentBatchCollator(model, args.microbatch, collate_structured,
++        prepare_candidates=args.optimized_mode != 'engineering_host_fast')
+     model.current_processor_identity = collator.identity
+     with ThreadPoolExecutor(max_workers=2) as pool:
+         prepared_observations, prepared_targets = collator(list(pool.map(data.__getitem__, indices)))
+@@ -131,7 +132,7 @@ def main():
+         from torch.nn.attention import sdpa_kernel, SDPBackend
+         attention = sdpa_kernel(SDPBackend.MATH) if args.attention_diagnostic == 'math' else nullcontext()
+         with attention:
+-            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast') else (observations, targets)
++            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast','engineering_host_fast') else (observations, targets)
+             result = model(obs, tgt, completed_updates=complete['completed'],
+                 noise_generator=generators['noise'], time_generator=generators['time'],
+                 proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)

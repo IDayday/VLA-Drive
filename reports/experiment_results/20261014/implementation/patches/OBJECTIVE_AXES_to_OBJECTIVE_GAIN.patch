@@ -1,0 +1,111 @@
+diff --git a/configs/trajectory_objective/fm_absolute_x.json b/configs/trajectory_objective/fm_absolute_x.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..f862d8e1654f85e3ea65eb86cd9e2696532c270c
+--- /dev/null
++++ b/configs/trajectory_objective/fm_absolute_x.json
+@@ -0,0 +1,4 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 1.0, 1.0],
++  "fm_total_weight": 1.75
++}
+diff --git a/configs/trajectory_objective/fm_absolute_x_yaw.json b/configs/trajectory_objective/fm_absolute_x_yaw.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..fcca1285585dc437a2961335a3da52ab98e456b8
+--- /dev/null
++++ b/configs/trajectory_objective/fm_absolute_x_yaw.json
+@@ -0,0 +1,4 @@
++{
++  "fm_channel_weights": [4.0, 1.0, 2.0, 2.0],
++  "fm_total_weight": 2.25
++}
+diff --git a/starVLA/model/framework/DDPForesight.py b/starVLA/model/framework/DDPForesight.py
+index 9abd2167a89a03328bb9235645966a7074fb7f9e..cd95d840e076ea2084a7285092dac8a1363e4269 100644
+--- a/starVLA/model/framework/DDPForesight.py
++++ b/starVLA/model/framework/DDPForesight.py
+@@ -135,6 +135,8 @@ class DDPForesight(Qwenvl_OFT):
+             fm_options['channel_weights'] = objective.fm_channel_weights
+         with self.amp():
+             fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times,**fm_options)
++        if objective is not None and objective.fm_total_weight != 1.:
++            fm = fm * objective.fm_total_weight
+         losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
+         weights=min(1.,(completed_updates+1)/cfg.auxiliary_warmup)
+         counts=global_counts or {}
+diff --git a/starVLA/model/modules/foresight/trajectory_objective.py b/starVLA/model/modules/foresight/trajectory_objective.py
+index 1f1cff641b417d7b7cab3ef2e92405bf95ae4cd7..169d79efab9a3a04dfec58d6d88a4fdd0366be1e 100644
+--- a/starVLA/model/modules/foresight/trajectory_objective.py
++++ b/starVLA/model/modules/foresight/trajectory_objective.py
+@@ -15,6 +15,7 @@ from starVLA.dataloader.foresight_dataset import X_MEAN, X_STD, Y_MEAN, Y_STD
+ @dataclass(frozen=True)
+ class TrajectoryObjectiveConfig:
+     fm_channel_weights: tuple = (1., 1., 1., 1.)
++    fm_total_weight: float = 1.
+     position_weight: float = 0.
+     heading_weight: float = 0.
+     velocity_weight: float = 0.
+@@ -44,7 +45,7 @@ class TrajectoryObjectiveConfig:
+             value = getattr(cfg, name)
+             if not math.isfinite(value) or value < 0:
+                 raise ValueError(f'Invalid trajectory objective {name}')
+-        for name in ('longitudinal_tolerance_m', 'lateral_tolerance_m', 'heading_tolerance_rad',
++        for name in ('fm_total_weight', 'longitudinal_tolerance_m', 'lateral_tolerance_m', 'heading_tolerance_rad',
+                      'velocity_tolerance_mps', 'acceleration_tolerance_mps2'):
+             value = getattr(cfg, name)
+             if not math.isfinite(value) or value <= 0:
+@@ -59,6 +60,11 @@ class TrajectoryObjectiveConfig:
+             raise ValueError('checkpoint_rollout must be boolean')
+         return cfg
+ 
++    @property
++    def absolute_fm_channel_weights(self):
++        mean = sum(self.fm_channel_weights) / len(self.fm_channel_weights)
++        return tuple(self.fm_total_weight * value / mean for value in self.fm_channel_weights)
++
+     @property
+     def has_rollout_loss(self):
+         return any(getattr(self, task + '_weight') > 0 for task in
+diff --git a/tools/foresight/train_student.py b/tools/foresight/train_student.py
+index 85eea3f3687ee5e5c823d84f2dd9625d0aa7782d..5b863f5f2313d7ae243eeba7e9d9ee1b01359c92 100644
+--- a/tools/foresight/train_student.py
++++ b/tools/foresight/train_student.py
+@@ -408,8 +408,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
+                 if a.scope=='profile':row['rank0_readout_forward_gpu_ms']=readout_times
+                 objective=getattr(model,'trajectory_objective_config',None)
+-                if objective is not None and objective.has_rollout_loss:
++                if objective is not None:
+                     row['trajectory_objective']={
++                        'fm_total_weight':objective.fm_total_weight,
++                        'absolute_fm_channel_weights':objective.absolute_fm_channel_weights,
+                         'rollout_active':objective.active(completed-1+loss_update_offset),
+                         'effective_weights':objective.effective_weights(completed-1+loss_update_offset),
+                         'rollout_steps':model.action_model.num_inference_timesteps,
+@@ -417,9 +419,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
+                         'cadence_scaling':'active-update coefficients; no multiplication by rollout_every'}
+                 if full_method:
+                     fcfg=model.foresight_config;warm=min(1.,(completed+loss_update_offset)/fcfg.auxiliary_warmup)
+-                    row['effective_weights']={'ego_fm':1.,'current_dino':fcfg.lambda_cur if need_cur else 0.,
++                    fm_gain=objective.fm_total_weight if objective is not None else 1.
++                    row['effective_weights']={'ego_fm':fm_gain,'current_dino':fcfg.lambda_cur if need_cur else 0.,
+                         'future_dino':fcfg.lambda_fut*warm if need_fut else 0.,'interaction':fcfg.lambda_int*warm if need_int else 0.}
+-                    row['raw_losses']={'ego_fm':logs['ego_fm'],**{k:logs.get(k+'_raw') for k in ('current_dino','future_dino','interaction')}}
++                    row['raw_losses']={'ego_fm':logs['ego_fm']/fm_gain,**{k:logs.get(k+'_raw') for k in ('current_dino','future_dino','interaction')}}
+                     row['horizon_scene_requests']=exposures[:3].cpu().tolist();row['horizon_valid_views']=exposures[3:].cpu().tolist()
+                     row['valid_patches']={k:int(counts.get(k,0))//fcfg.dino_feature_dim for k in ('current_dino','future_dino')}
+                     row['valid_interaction_scenes']=int(counts.get('interaction',0))//int(np.prod(targets['interaction_latent'].shape[1:])) if need_int else 0
+diff --git a/tools/s3_optimized_training/run.py b/tools/s3_optimized_training/run.py
+index fc5371035d24d647e06d3b3a7692167bed8c4633..c4db266a71e392f711b7b4195c7a0542d1b9438d 100644
+--- a/tools/s3_optimized_training/run.py
++++ b/tools/s3_optimized_training/run.py
+@@ -34,6 +34,11 @@ def baseline(variant='s3'):
+                'definition': 'native DDP Qwen + history state + original DiT; zero W tokens; ego FM loss only'}
+     elif variant not in ('s3', 's0'):
+         raise ValueError('Unknown training variant')
++    # Keep the existing recipe and its checkpoints; save explicit immutable
++    # checkpoints for the user-requested 50k:10k:100k evaluation schedule.
++    reg = {**reg, 'baseline_milestones': reg['milestones'],
++           'milestones': sorted(set(reg['milestones']) |
++                                {50000, 60000, 70000, 80000, 90000, 100000})}
+     return cfg, reg
+ 
+ 
