@@ -251,8 +251,13 @@ def benchmark(config,device='cuda:0'):
     loaded_cell=chosen
     for n,cell in modes:
             score=cell is not None
+            # Residency is set outside the timed window. A Base-only memory
+            # figure must not silently include three unused GPU experts.
+            for index,expert in enumerate(experts):
+                expert.to(device if index<n else 'cpu')
             if score and cell!=loaded_cell:
                 scorer=selected_scorer(config,cell,device);system.scorer=scorer;loaded_cell=cell
+            system.scorer.to(device if score else 'cpu')
             if score:scorer_parameters[cell]=sum(parameter.numel() for parameter in scorer.parameters())
             elapsed=[];scorer_times=[];calls=[];start_event=[None];handles=[]
             def before(*_):sync();start_event[0]=time.perf_counter()
@@ -275,6 +280,10 @@ def benchmark(config,device='cuda:0'):
                 'scorer_p95_seconds':float(np.quantile(scorer_times[3:],.95)) if scorer_times else 0.,
                 'scorer_measurements':len(scorer_times[3:]) if scorer_times else 0,
                 'GPU_peak_bytes':torch.cuda.max_memory_allocated() if str(device).startswith('cuda') else None,
+                'GPU_resident_parameter_bytes':sum(parameter.numel()*parameter.element_size()
+                    for parameter in system.parameters() if parameter.device.type=='cuda'),
+                'inactive_expert_and_scorer_weights_on_CPU':True,
+                'weight_transfer_in_timing':False,
                 'visual_calls':1,'language_calls':1,'score_context_projection_calls':int(score),'independent_Decoder_calls':n+1,
                 'device':str(device),'online_image_decode_included':True,'timing_hooks_enabled_in_all_conditions':True})
     bundle=export_bundle(config,chosen)
