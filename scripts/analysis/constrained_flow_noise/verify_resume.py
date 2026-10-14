@@ -36,6 +36,7 @@ def without_execution_timing(value):
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--continuous',required=True);p.add_argument('--resumed',required=True)
     p.add_argument('--output',required=True);p.add_argument('--chains-only',action='store_true')
+    p.add_argument('--mmap',action='store_true',help='Optional lower-RAM reads; default streams tensors to avoid slow remote page faults')
     a=p.parse_args();host=require_dispatch();torch.set_num_threads(4)
     roots=[Path(a.continuous),Path(a.resumed)]
     if Path(a.output).exists():raise FileExistsError(a.output)
@@ -56,7 +57,7 @@ def main():
         return
     evidence=[]
     for relative in sorted(p.relative_to(checkpoints[0]) for p in (checkpoints[0]/'pytorch_model').glob('*.pt')):
-        values=[torch.load(r/relative,map_location='cpu',weights_only=False,mmap=True) for r in checkpoints]
+        values=[torch.load(r/relative,map_location='cpu',weights_only=False,mmap=a.mmap) for r in checkpoints]
         # Actual DS files contain scientific states as well as save/load bookkeeping.
         if 'optim_states' in str(relative):
             equal(*values,path=str(relative));evidence.append(str(relative))
@@ -76,7 +77,7 @@ def main():
             if key in values[0]['state'] or key in values[1]['state']:
                 equal(values[0]['state'][key],values[1]['state'][key],path=f'rank{rank}.'+key)
     exports=[r/f'export_raw{reports[0]["raw_cursor"]:06d}'/'pytorch_model.pt' for r in roots]
-    exported=[torch.load(path,map_location='cpu',weights_only=True,mmap=True) for path in exports]
+    exported=[torch.load(path,map_location='cpu',weights_only=True,mmap=a.mmap) for path in exports]
     equal(*exported,path='original_ODE_full_export');del exported
     atomic_json(Path(a.output),dict(status='PASS',host=host,identity=identities[0]['sha256'],
                 actor_and_noise_exact=True,FP32_optimizer_all_8_partitions_exact=True,RNG_all_8_ranks_exact=True,

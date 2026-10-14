@@ -2,7 +2,8 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status: implementation and acceptance in progress; no formal training result yet.
+Status: core and real-learning acceptance passed; two formal launchers queued
+behind complete cache sealing. No formal training result yet.
 
 The only formal comparisons are legacy correlated, score-corrected `C_SDE`
 and diagonal learned `N_FLOW_NOISE`. Both retain the complete 359-tensor DDP
@@ -156,8 +157,12 @@ FM and dropout RNG and exact restoration of the PG eval modes. This applies
 equally to both lines; no reward, sigma range or raw budget changed.
 [Recorded addendum](formal_replay_addendum.json).
 Both corrected eight-GPU real-learning checks completed four updates, with
-all 359/365 gradients finite and nonzero; corrected-mode interruption recovery
-is being verified. Earlier numerical and evaluation evidence is retained with
+all 359/365 gradients finite and nonzero. Corrected-mode interruption recovery
+also passed exact actor/noise, eight FP32 optimizer partitions, RNG, dual,
+cursors, saved chains and original ODE export comparisons. The corrected
+export passed real-observation inference with noise head absent and all upstream
+weights unchanged. [Corrected recovery evidence](corrected_resume_acceptance.json).
+Earlier numerical and evaluation evidence is retained with
 its original execution identity, rather than silently relabelled.
 [Corrected replay checks](replay_mode_learning_v3.json).
 
@@ -170,3 +175,46 @@ continuous request derivatives. Two read-only analysis mistakes (a scalar
 normalizer reshape and an extra rotation of already body-frame velocity) were
 corrected with superseded evidence retained; neither affected scoring,
 calibration selection or learning. [Physical calibration audit](calibration_physics.json).
+
+At 2026-10-14 06:20 UTC, all required acceptance receipts are PASS. The C_SDE
+launcher is assigned to `training-vlawm-tsinghua-zt3`, and N_FLOW_NOISE to
+`training-vlawm-tsinghua-zt4`. They wait for full TRAIN cache publication and
+fresh eight-GPU memory checks, without preempting unrelated owners. Metric
+production has sealed 100,892/101,592 TRAIN scenes; the final log is still
+being computed. The corrected condition population has finished production.
+Neither a queued launcher nor the four-update qualification is a formal result.
+
+Formal training source is frozen at commit
+`8275f6b06878fba3f082d2ac213ca70557c21753`, with 83 exact source/config hashes
+in the private `formal_sources.json`. Later report/evaluation adapters do not
+change those training files. These two commands have actually been launched
+on their respective hosts:
+
+```bash
+python -m scripts.analysis.constrained_flow_noise.launch_formal --variant C_SDE --run-root /mnt/project/constrained-flow-noise-20261014 --population /mnt/project/flow-safe-improvement-20261013/population/manifest.json --output /mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1 --source-lock /mnt/project/constrained-flow-noise-20261014/formal_sources.json
+python -m scripts.analysis.constrained_flow_noise.launch_formal --variant N_FLOW_NOISE --run-root /mnt/project/constrained-flow-noise-20261014 --population /mnt/project/flow-safe-improvement-20261013/population/manifest.json --output /mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1 --source-lock /mnt/project/constrained-flow-noise-20261014/formal_sources.json
+```
+
+Recovery uses the same variant/output/source-lock command with `--resume`
+pointing to that run's actual `latest_checkpoint.json` path. It does not reset
+the optimizer, lambda, raw cursor or scheduler. A registered safety pause is
+not automatically resumed.
+
+The new `lock_final` adapter implements the already registered safe DEV rule
+for these two lines only. It checks all eight endpoint states and every fixed
+DEV observation before sealing any Navtest selection. Endpoints are always
+kept separate from DEV selections, and identical exported weights reuse one
+evaluation. Maximum final budget is five unique models (SFT, two endpoints,
+two selections), one seed 2101 each. No new Navtest prediction or score has
+been accessed for selection. Its read-only invocation was executed and
+correctly returned `WAITING_FOR_FORMAL_ENDPOINTS`; two targeted tests passed.
+
+`evaluate_final` reuses the existing original-observation locked Navtest actor
+and canonical single-candidate worker. Its CLI smoke passed; actual Navtest
+execution remains gated by the endpoint lock. `summarize_runs` was exercised
+on both real corrected qualifications and produced CSV/PNG curves in the
+private smoke directory, explicitly marked qualification-only. Stochastic
+candidate metrics and original ODE DEV metrics occupy separate tables/panels.
+A first reporting smoke encountered the legacy C_SDE log's absent entropy
+field; this is now retained as unavailable rather than filled with zero.
+Covariance-aware C_SDE entropy remains available in its real monitor summary.

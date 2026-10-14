@@ -1,0 +1,49 @@
+{
+  "scope": "Corrected original SFT train-mode replay; bounded 32 raw TRAIN scenes / 4 updates, excluded from formal initializations",
+  "inner_resume": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "identity": "b3648e52df14357caaa7a08cb0220e33c90bfa063354ddd2916457f610da4c39",
+    "actor_and_noise_exact": true,
+    "FP32_optimizer_all_8_partitions_exact": true,
+    "RNG_all_8_ranks_exact": true,
+    "dual_optimizer_exact": true,
+    "data_raw_accepted_replay_and_inner_cursors_exact": true,
+    "KL_controller_exact": true,
+    "original_ODE_export_exact": true,
+    "checked_optimizer_files": [
+      "pytorch_model/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt",
+      "pytorch_model/bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt",
+      "current_action_and_noise; engine_step_counters"
+    ],
+    "excluded": "wall/CPU timing, output paths and sampled diagnostic probe history; no scientific state excluded"
+  },
+  "saved_behavior_chains": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt3",
+    "identity": "b3648e52df14357caaa7a08cb0220e33c90bfa063354ddd2916457f610da4c39",
+    "collections": 2,
+    "all_saved_chains_means_stds_logprobs_advantages_lambdas_and_feedback_exact": true,
+    "excluded": "Only seven explicitly named execution timings; physical event times and all simulations compared"
+  },
+  "original_ODE_export": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt4",
+    "export_sha256": "9847706b66863415c6c14b82e53c26c18562869edb88b03a240158d982d32820",
+    "upstream_hash_before": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+    "upstream_hash_after": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+    "changed_action_tensors": 335,
+    "noise_head_absent": true,
+    "teacher_cache_search_scorer_not_used": true,
+    "inference_seed": 2101,
+    "actual_original_inference_entrypoint": "VLAAgent.model.predict_action_infer_1d",
+    "real_observation_scenes_checked": 2
+  },
+  "comparison_reader_change": "Eager CPU reads by default, optional mmap; scientific equality checks unchanged"
+}
