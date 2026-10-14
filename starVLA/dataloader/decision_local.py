@@ -16,7 +16,9 @@ def read(path):
 
 
 class FrozenConsequenceData:
-    def __init__(self, features, labels, *, require_complete=True):
+    def __init__(self, features, labels, *, require_complete=True, reader='slice'):
+        if reader not in ('slice','mmap_tensors'):raise ValueError('Unknown frozen-cache reader')
+        self.reader=reader
         self.features, self.labels = Path(features), Path(labels)
         self.feature_identity = read(self.features/'identity.json')
         self.label_identity = read(self.labels/'identity.json')
@@ -37,9 +39,20 @@ class FrozenConsequenceData:
         if {r['token'] for r in self.index} != set(self.locations):
             raise ValueError('No scene may be silently dropped')
         self.handles = OrderedDict()
+        self.tensor_chunks = {}
 
     def _chunk(self, root, name, ident):
         key = (str(root), name)
+        if self.reader=='mmap_tensors':
+            if key not in self.tensor_chunks:
+                # Keep read-only tensor views on the immutable file mapping.
+                # No GPU feature cache and no duplicate serialized dataset.
+                # The safe_open descriptor is closed after creating the views;
+                # their storage retains the mapping, shared by the OS page cache.
+                with safe_open(str(root/'chunks'/(name+'.safetensors')),framework='pt',device='cpu') as handle:
+                    if handle.metadata()['identity']!=ident:raise ValueError('Foreign chunk')
+                    self.tensor_chunks[key]={k:handle.get_tensor(k) for k in handle.keys()}
+            return self.tensor_chunks[key]
         if key not in self.handles:
             handle = safe_open(str(root/'chunks'/(name+'.safetensors')), framework='pt', device='cpu')
             if handle.metadata()['identity'] != ident: raise ValueError('Foreign chunk')
@@ -56,13 +69,14 @@ class FrozenConsequenceData:
             l = self._chunk(self.labels, chunk, self.label_identity['identity'])
             # Two anchor seeds alternate per scene/epoch, independent of arm and
             # head initialization. Exactly one exposure per original scene.
-            nanchors = f.get_slice('q0').get_shape()[1]
+            nanchors = f['q0'].shape[1] if self.reader=='mmap_tensors' else f.get_slice('q0').get_shape()[1]
             phase = int(hashlib.sha256(token.encode()).hexdigest()[:8], 16)
             anchor = 0 if evaluation else (phase+epoch) % nanchors
-            row = {k: f.get_slice(k)[at] for k in ('W', 'H_A', 'state')}
-            row.update({k: f.get_slice(k)[at, anchor] for k in ('q0', 'q0_encoded')})
-            row.update({k: l.get_slice(k)[at, anchor] for k in ('poses', 'in_grid', 'kinematic_valid', 'relations', 'valid', 'common_valid')})
-            row.update({k: l.get_slice(k)[at] for k in ('ego', 'future_valid', 'body')})
+            get=lambda chunk,k:chunk[k] if self.reader=='mmap_tensors' else chunk.get_slice(k)
+            row = {k: get(f,k)[at] for k in ('W', 'H_A', 'state')}
+            row.update({k: get(f,k)[at, anchor] for k in ('q0', 'q0_encoded')})
+            row.update({k: get(l,k)[at, anchor] for k in ('poses', 'in_grid', 'kinematic_valid', 'relations', 'valid', 'common_valid')})
+            row.update({k: get(l,k)[at] for k in ('ego', 'future_valid', 'body')})
             rows.append(row)
         batch = {}
         for k in rows[0]:

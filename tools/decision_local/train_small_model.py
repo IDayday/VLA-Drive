@@ -103,6 +103,7 @@ def main():
     p.add_argument('--lr',type=float,default=1e-4); p.add_argument('--dim',type=int,default=512)
     p.add_argument('--max-updates',type=int,default=0); p.add_argument('--max-seconds',type=float,required=True)
     p.add_argument('--resume',action='store_true'); p.add_argument('--save-every',type=int,default=200)
+    p.add_argument('--data-reader',choices=('slice','mmap_tensors'),default='slice')
     a = p.parse_args()
     if min(a.epochs,a.batch,a.microbatch,a.max_seconds)<1: raise ValueError('Finite positive budget required')
     if a.scope=='formal' and (a.epochs not in (24,32) or a.batch!=128 or a.dim!=512):
@@ -110,8 +111,8 @@ def main():
     resources = check_host(); start = time.monotonic()
     torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32=False; torch.backends.cudnn.allow_tf32=False
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
-    train = FrozenConsequenceData(a.features,a.labels)
-    dev = FrozenConsequenceData(a.dev_features,a.dev_labels) if a.dev_features else None
+    train = FrozenConsequenceData(a.features,a.labels,reader=a.data_reader)
+    dev = FrozenConsequenceData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
     if train.feature_identity['split']!='train':raise ValueError('Training must use the registered training split')
     if a.scope=='diagnostic' and len(train.index)!=4096:raise ValueError('Use the fixed 4096 training diagnostic population')
     if a.scope=='formal' and (len(train.index)!=101592 or dev is None or len(dev.index)!=1696):
@@ -136,6 +137,7 @@ def main():
     run_identity={'schema':'decision_local_small_head_v1','source_sha':source_sha(ROOT),
         'source_files':{str(f.relative_to(ROOT)):digest(f) for f in source_files},'kind':a.kind,'seed':a.seed,
         'scope':a.scope,'features':train.feature_identity['identity'],'labels':train.label_identity['identity'],
+        'data_reader':a.data_reader,
         'anchor_identity':train.feature_identity['anchor_identity'],
         'feature_storage_dtype':train.feature_identity['storage_dtype'],
         'query_config':train.label_identity['query_config'],
