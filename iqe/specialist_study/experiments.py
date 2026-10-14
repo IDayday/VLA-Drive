@@ -64,6 +64,9 @@ def evaluate_experts(config,device='cpu'):
                 'private_reader':r['private_reader'],'Base':v['fixed_policy_01'][0],'Expert':v['fixed_policy_01'][1],
                 'Oracle':v['oracle_01'],'Oracle_gain':v['oracle_gain_01'],'hard_val_gain':v['hard_val_direct_gain'],
                 'ordinary_gain':v['ordinary_direct_gain'],'EMA_Base_weight':r['ema_initial_base_weight']})
+    from .diagnostics import specialist_learning
+    for cell,spec in matrix['cells'].items():
+        if spec.get('status','READY')=='READY':specialist_learning(config,cell,device)
     return {'selected':best,'blocked':blocked,'scientific_status':result['scientific_status']}
 
 
@@ -110,12 +113,18 @@ def extend(config,device='cuda:0'):
 def stage_val_columns(config,items,device):
     from .training import candidate_labels
     val=scenes_by_role(config)['stage_val'];base=verified_base_scores(config,val)
+    names=('no_at_fault_collisions','drivable_area_compliance')
     values=[np.array([base[s.scene_id]['total_score_01'] for s in val])]
+    safety=[np.array([[base[s.scene_id]['named_components'][c]
+                       if base[s.scene_id]['component_valid_masks'].get(c,False) else np.nan
+                       for c in names] for s in val])]
     for item in items:
         model=load_endpoint(config,item,device)
         _,labels=candidate_labels(config,model,val,item['cell']+'_'+item['endpoint'],device)
         values.append(np.array([x.total_score_01 for x in labels]));del model
-    return val,np.stack(values,1)
+        safety.append(np.array([[x.named_components[c] if x.component_valid_masks.get(c,False) else np.nan
+                                 for c in names] for x in labels]))
+    return val,np.stack(values,1),np.stack(safety,1)
 
 
 def freeze_pool(config,device='cuda:0'):
@@ -133,14 +142,17 @@ def freeze_pool(config,device='cuda:0'):
         if (config.root/'experts'/cell/'result.json').exists():
             choices=rows_for_cell(config,cell)
             items.append(max(choices,key=lambda r:(*r['validation']['selection_key'],-r['step'],r['endpoint']=='raw')))
-    val,scores=stage_val_columns(config,items,device)
+    val,scores,safety=stage_val_columns(config,items,device)
+    successful=(scores>=.8)&np.isfinite(safety).all(-1)&(safety>=1-1e-8).all(-1)
     subsets=[]
     for size in range(len(items)+1):
         for subset in combinations(range(1,len(items)+1),size):
             oracle=scores[:,[0,*subset]].max(1)
             subsets.append({'indices':[0,*subset],'cells':[items[i-1]['cell'] for i in subset],
                             'base_mean':float(scores[:,0].mean()),'oracle_mean':float(oracle.mean()),
-                            'oracle_gain':float((oracle-scores[:,0]).mean())})
+                            'oracle_gain':float((oracle-scores[:,0]).mean()),
+                            'safe_high_quality_scenes':int(successful[:,[0,*subset]].any(1).sum()),
+                            'common_zero':int((scores[:,[0,*subset]]<=1e-8).all(1).sum())})
     # Greedy measurable marginal coverage; fully redundant specialists are omitted.
     remaining=list(range(1,len(items)+1));chosen=[];old=scores[:,0].copy()
     while remaining:
@@ -162,6 +174,10 @@ def freeze_pool(config,device='cuda:0'):
           'research_only_no_oracle_gain':research_only,'selection_role':'stage_val','selection_tolerance':policy['minimum_mean_oracle_gain'],'minimum_scene_oracle_gain':policy['minimum_scene_oracle_gain'],
           'stage_val_manifest_hash':digest([s.scene_id for s in val]),'subset_results':subsets,
           'expert_recipe_hash':file_hash(config.root/'EXPERT_RECIPE_SELECTION.json'),'ACTIVE_updated':False}
+    pool['stage_val_expert_contribution']={items[i-1]['cell']:{
+        'unique_safe_high_quality':int((successful[:,i]&~np.delete(successful,i,axis=1).any(1)).sum()),
+        'leave_one_out_Oracle_gain':float((scores.max(1)-np.delete(scores,i,axis=1).max(1)).mean()),
+        'scene_denominator':len(val)} for i in range(1,len(items)+1)}
     pool['hash']=digest(pool);atomic_json(path,pool,immutable=True)
     return pool
 

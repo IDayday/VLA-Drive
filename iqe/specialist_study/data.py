@@ -88,6 +88,7 @@ def old_gt_labels(config):
     selected=root/'SELECTED_EXPERT_DATA.json'
     if selected.exists(): paths.append(Path(read_json(selected)['directory'])/'EXPERT_MANIFEST.json')
     for path in paths:
+        if not path.exists():continue  # cold Base-only context source has no previous expert manifest
         for sid,row in read_json(path).get('gt_audit',{}).items():
             if 'GT' in row: result[sid]=row['GT']
     return result
@@ -108,6 +109,8 @@ def audit_opportunities(config, max_samples=None):
     if finished.exists():
         receipt=read_json(finished)
         require(set(receipt['record_hashes'])=={s.scene_id for s in failures},'target audit scene population changed')
+        require(receipt['optimized_trajectory_hash']==file_hash(Path(config.optimized_root)/'optimized_trajectories.npz'),
+                'optimized target asset changed since completed audit')
         for sid,checksum in receipt['record_hashes'].items():require(file_hash(out/'scenes'/(sid+'.json'))==checksum,'target audit changed')
         return receipt
     locked={'scene_ids':[s.scene_id for s in failures], 'complete_population':all_count, 'pilot':max_samples is not None,
@@ -120,7 +123,8 @@ def audit_opportunities(config, max_samples=None):
         optimized={str(t):v for t,v in zip(f['tokens'],f['trajectories'])}
     optimized_hash=file_hash(root/'optimized_trajectories.npz')
     cache=ReusedContext(config); gt_prior=old_gt_labels(config); proto=protocol(config)
-    dt=read_json(config.root/'OFFLINE_BASE_CONTRACT.json')['trajectory']['dt']
+    trajectory_contract=read_json(config.root/'OFFLINE_BASE_CONTRACT.json')['trajectory']
+    dt=trajectory_contract['dt'];horizon=trajectory_contract['horizon']
     pending=[]; records={}; all_start=time.perf_counter()
     def prepare(s):
         path=out/'scenes'/(s.scene_id+'.json')
@@ -147,7 +151,7 @@ def audit_opportunities(config, max_samples=None):
         r={'scene_id':s.scene_id,'source_log':s.source_log_id,'role':s.split_role,
            'base_binding_hash':locked['base_binding_hash'],'scene_context_hash':s.metric_context_hash,
            'optimized_asset_hash':optimized_hash,'base':base[s.scene_id], 'gt':gt,
-           'gt_geometry':geometry(g,dt),'gt_candidate':asdict(candidate),
+           'gt_geometry':geometry(g,dt,horizon),'gt_candidate':asdict(candidate),
            'specialties':failure_specialties(base[s.scene_id]),'optimized':None}
         if opt is not None and s.scene_id in labels.index:
             info=labels.loc[s.scene_id]
@@ -158,7 +162,7 @@ def audit_opportunities(config, max_samples=None):
                   'generation_scorer':'historical optimization provenance retained; current acceptance uses official environment scores only',
                   'external_source_may_have_seeded_search':not str(info['source']).startswith(('gt','quintic','geometry','local')),
                   'new_network_weights_loaded':False}
-            r['optimized_geometry']=geometry(opt,dt)
+            r['optimized_geometry']=geometry(opt,dt,horizon)
             r['optimized_geometry']['historical_strict_pass']=bool(strict.loc[s.scene_id,'strict_geometry_pass'])
             opt_candidate=save_candidate(config,s,'audit_offline_optimized',optimized_hash,opt)
             r['optimized_candidate']=asdict(opt_candidate)

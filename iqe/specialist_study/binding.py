@@ -24,15 +24,23 @@ def bind(config):
         source=Path(config.reuse_root)
         original=read_json(config.contract)
         from iqe.internal_baseline.binding import resolve_base_checkpoint
-        selected,state=resolve_base_checkpoint(config,original)
+        selection_config=config
+        preparation=config.root/'SOURCE_PREPARATION.json'
+        if preparation.exists():
+            prepared=read_json(preparation)
+            require(prepared['campaign_config_hash']==config.identity and
+                    prepared['source_binding_hash']==file_hash(source/'BASE_BINDING.json'),'source preparation identity changed')
+            selection_config=SimpleNamespace(base_run=config.base_run,checkpoint=prepared['checkpoint'],root=config.root)
+        selected,state=resolve_base_checkpoint(selection_config,original)
         require(not state.get('mode') in ('smoke','profile'), 'real own trained Base required')
         old=read_json(source/'BASE_BINDING.json')
         require(selected['checksum']==old['checkpoint_hash'],
                 'requested Base has no matching reusable context; build its full context under a new campaign before binding')
         require(digest(read_json(source/'OFFLINE_BASE_CONTRACT.json')) == old['contract_hash'], 'source contract identity changed')
         require(file_hash(source/'BASE_HEAD.pt') == old['head_hash'], 'source action head corrupted')
-        require(file_hash(config.scene_manifest)==old['scene_manifest_hash'], 'source scene population changed')
-        scenes=load_scenes(config.scene_manifest)
+        selected_manifest=source/'scenes.json' if preparation.exists() else Path(config.scene_manifest)
+        require(file_hash(selected_manifest)==old['scene_manifest_hash'], 'source scene population changed')
+        scenes=load_scenes(selected_manifest)
         require(all(s.split_role!='final_test' for s in scenes),'final_test cannot enter campaign')
         isolation=validate_isolation(scenes)
         partition=read_json(source/'DATA_PARTITION.json')

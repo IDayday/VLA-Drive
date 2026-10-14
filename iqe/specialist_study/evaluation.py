@@ -140,11 +140,13 @@ class ResearchSystem(nn.Module):
                 for h in handles:h.remove()
         candidates=[self.adapter.predict_s0(planner).physical]
         candidates.extend(m(x).physical for m in self.experts[:count]);trajectories=torch.stack(candidates,1)
+        require(torch.isfinite(trajectories).all().item(),'invalid deployed candidate trajectory')
         predictions=None
         if score and count:
             context={k:x[k] for k in CONTEXT_KEYS}
             if self.scorer.spatial:context.update({k:x[k] for k in ('visual','visual_valid','visual_xy')})
             predictions=self.scorer(context,trajectories)['values']
+            require(torch.isfinite(predictions).all().item(),'nonfinite deployed Scorer output')
             chosen=predictions.argmax(1)  # stable registry order, exact tie Base first
         else:chosen=torch.zeros(len(observations),device=trajectories.device,dtype=torch.long)
         return {'trajectory':trajectories[torch.arange(len(observations),device=trajectories.device),chosen],
@@ -155,9 +157,15 @@ def load_research_bundle(path,device):
     from iqe.s0_adapter import S0Adapter
     from .models import Specialist,StudyScorer
     from .scorer_training import CELLS
+    path=Path(path);receipt=read_json(path.parent/'BUNDLE.json')
+    require(file_hash(path)==receipt['checksum'],'research bundle checksum mismatch')
     payload=torch.load(path,map_location='cpu',weights_only=False)
     require(payload['kind']=='iqe_specialist_study_research_bundle_v1' and payload['GT_required']==False and payload['metric_cache_required']==False,'invalid research bundle')
     require(file_hash(payload['Base_binding']['checkpoint'])==payload['Base_binding']['checkpoint_hash'],'Base external weight dependency changed')
+    require(payload['pool']['hash']==receipt['pool_hash'] and payload['pool']['hash']==digest({k:v for k,v in payload['pool'].items() if k!='hash'}),'bundle pool mismatch')
+    require(not payload['initialization']['external_scorer_weights_loaded'] and not payload['initialization']['loaded_scorer_weights'],
+            'bundle has an external Scorer initialization')
+    require(digest(payload['contract'])==payload['Base_binding']['contract_hash'],'bundle Base contract changed')
     adapter=S0Adapter.load_and_validate_s0(payload['contract'],device)
     experts=[]
     for spec,state in zip(payload['pool']['experts'],payload['expert_states']):

@@ -104,6 +104,8 @@ def train_expert(config,cell,device='cuda:0',resume=None,stop_after=None):
         sampler=SceneSampler(ids,config.seed,manifest['hash'])
         target=None
         if spec['target']=='offline_optimized':
+            from .target_rules import verify_target_assets
+            verify_target_assets(config)
             with np.load(Path(config.optimized_root)/'optimized_trajectories.npz') as f:
                 target={str(i):torch.from_numpy(t.copy()).float() for i,t in zip(f['tokens'],f['trajectories']) if str(i) in set(ids)}
             require(set(target)==set(ids),'optimized target missing from paired manifest')

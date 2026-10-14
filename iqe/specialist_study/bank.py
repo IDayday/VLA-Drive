@@ -176,6 +176,8 @@ def build_rich(config,device='cuda:0'):
             candidates,labels=candidate_labels(config,model,scenes,item['cell']+f'_raw_{step}',device)
             append_column(candidates,labels,'own_intermediate');del model
     import pandas as pd
+    from .target_rules import verify_target_assets
+    verify_target_assets(config)
     info=pd.read_parquet(Path(config.optimized_root)/'optimized_labels.parquet').set_index('token')
     with np.load(Path(config.optimized_root)/'optimized_trajectories.npz') as f:optimized={str(i):t for i,t in zip(f['tokens'],f['trajectories'])}
     asset=file_hash(Path(config.optimized_root)/'optimized_trajectories.npz');dt=read_json(config.root/'OFFLINE_BASE_CONTRACT.json')['trajectory']['dt']

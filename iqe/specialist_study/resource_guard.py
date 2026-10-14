@@ -12,7 +12,7 @@ def check(config,command):
     allowed={name for name in policy['allowed_hosts']}
     for item in policy['allowed_hosts'].values():allowed.update(item.get('aliases',[]))
     require(host in allowed,'host forbidden by current server dispatch policy: '+host)
-    if command in ('train-expert-cell','train-scorer-cell','cache-score-context','run-specialist-scorer-study'):
+    if command in ('train-expert-cell','train-scorer-cell','cache-score-context','prepare-context-source','run-specialist-scorer-study'):
         require(not host.startswith('training-vla-zt2-') and host!='training-vla-zt2','Base training host is reserved')
     receipt={'hostname':host,'policy_hash':file_hash(path),'command':command,'CUDA_VISIBLE_DEVICES':os.environ.get('CUDA_VISIBLE_DEVICES'),
              'no_other_process_signals':True}
