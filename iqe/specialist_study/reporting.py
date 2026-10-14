@@ -1,5 +1,7 @@
 """Derive human-readable campaign evidence from actual committed stage artifacts."""
 import argparse
+import csv
+import io
 import json
 import subprocess
 from datetime import datetime, timezone
@@ -106,6 +108,20 @@ def generate(config):
         'Complete shared weight hashes remain tied to the original immutable checkpoint; private training modules contain no shared VLA parameters.\n')
 
     pool=get('SERVING_CANDIDATE_POOL.json')
+    if pool:
+        stream=io.StringIO(newline='')
+        writer=csv.DictWriter(stream,fieldnames=['role','pool_hash','candidate_cells','K','scenes','logs',
+            'base_PDMS_01','oracle_PDMS_01','oracle_gain_01','safe_high_quality_scenes','common_zero'])
+        writer.writeheader()
+        for row in pool['subset_results']:
+            writer.writerow({'role':'stage_val','pool_hash':pool['hash'],
+                'candidate_cells':'+'.join(['Base',*row['cells']]),'K':len(row['indices']),
+                'scenes':len(roles['roles']['stage_val']['scene_ids']),
+                'logs':len(roles['roles']['stage_val']['source_groups']),
+                'base_PDMS_01':row['base_mean'],'oracle_PDMS_01':row['oracle_mean'],
+                'oracle_gain_01':row['oracle_gain'],'safe_high_quality_scenes':row['safe_high_quality_scenes'],
+                'common_zero':row['common_zero']})
+        atomic_bytes(root/'SPECIALIST_POOL_RESULTS.csv',stream.getvalue().encode())
     report('SPECIALIST_POOL_RESULTS.md','# Candidate pool\n\n'+('WAITING_INPUTS: fixed expert endpoints/selection are not complete.\n' if not pool else
         f'Locked experts: `{pool["expert_ids"]}`; pool hash `{pool["hash"]}`. '
         f'Research-only no-coverage diagnostic: {pool["research_only_no_oracle_gain"]}.\n\n'+table(
