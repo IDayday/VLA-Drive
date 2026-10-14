@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--acceptance', required=True)
     parser.add_argument('--source-lock', required=True)
     parser.add_argument('--receipt', required=True)
+    parser.add_argument('--stop-request', help='Current cooperative stop receipt; rejects stale result files')
     parser.add_argument('--adapter-module', default='scripts.analysis.constrained_flow_noise.train_efficient_cast',
                         choices=['scripts.analysis.constrained_flow_noise.train_efficient_cast',
                                  'scripts.analysis.constrained_flow_noise.train_efficient_batch'])
@@ -42,10 +43,21 @@ def main():
     identity = json.loads((run / 'run_identity.json').read_text())
     if json.loads((checkpoint / 'identity.json').read_text()) != identity:
         raise ValueError('Checkpoint scientific identity changed')
+    if args.adapter_module.endswith('train_efficient_batch') and not args.stop_request:
+        raise ValueError('Execution upgrade requires its fresh stop request')
+    stop_time = json.loads(Path(args.stop_request).read_text())['requested_unix'] if args.stop_request else None
+    latest = json.loads((run / 'latest_checkpoint.json').read_text())
+    boundary = json.loads((checkpoint / 'boundary.json').read_text())
+    if Path(latest['path']) != checkpoint:
+        raise ValueError('Do not roll a continuing run back to an older checkpoint')
     for rank in range(8):
-        report = json.loads((run / f'result_rank{rank}.json').read_text())
+        result_file = run / f'result_rank{rank}.json'
+        if stop_time is not None and result_file.stat().st_mtime < stop_time - 1:
+            raise ValueError('Stale stop report from an earlier invocation')
+        report = json.loads(result_file.read_text())
         if (report['status'] != 'STOPPED_AT_SAVED_BOUNDARY' or
-                Path(report['checkpoint']) != checkpoint or report.get('safety_pause')):
+                Path(report['checkpoint']) != checkpoint or report.get('safety_pause') or
+                report['updates'] != boundary['update']):
             raise ValueError('Every rank must stop at the same safe native boundary')
     for relative, digest in json.loads((checkpoint / 'files.json').read_text()).items():
         if file_sha(checkpoint / relative) != digest:

@@ -2,17 +2,21 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Execution update at 2026-10-14 17:49 UTC: N_FLOW_NOISE has resumed from
-its complete native update2580 / raw32230 state with qualified execution-only
-acceleration. Production raw-scene throughput increased from 1.063 to 2.316/s
-in the recorded consecutive windows (2.18x; shared-load and population caveats
-apply). Both variants' eight-rank learning/optimizer/RNG/ODE-export equivalence
-and inner interruption recovery passed. Existing batch-PDMS code has also
-been located and adapted with independent canonical reference/candidate
-aggregation; real batch/split/order/distractor equality passed, while its
-separate full training acceptance is running. C's 826-step exact recovery is
-complete; its reproduced probability-layout fault remains paused, not repaired
-by these performance changes. Neither formal endpoint is complete.
+Execution update at 2026-10-14 18:12 UTC: existing batch-PDMS code has been
+adapted and deployed to N_FLOW_NOISE from its complete native update2722 /
+raw33958 checkpoint. All eight ranks have continued through update2774 /
+raw34606. Batch simulation retains independent canonical reference/candidate
+aggregation, including EP normalization. Equality passed for 512 real policy
+candidates under different batch splits, order and distractors; both variants'
+eight-rank learning/optimizer/RNG/ODE exports and an old-to-new execution
+interruption recovery also passed. Warm CPU scoring improved 2.68x. The first
+16-collection production windows show only 1.050 to 1.070 raw scenes/s (1.019x),
+so the scoring microbenchmark is not claimed as whole-training acceleration.
+An earlier execution change initially showed 2.18x throughput, but update time
+subsequently rose from about 2 to 5 seconds before the batch adapter started;
+its cause remains unresolved. C's 826-step exact recovery is complete; its
+reproduced probability-layout fault remains paused, not repaired by these
+performance changes. Neither formal endpoint is complete.
 [Performance evidence, source reuse and commands](performance/README.md).
 
 Status correction at 2026-10-14 16:43 UTC: **neither formal run is complete**.

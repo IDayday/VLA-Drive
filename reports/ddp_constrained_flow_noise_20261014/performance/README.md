@@ -45,7 +45,7 @@ C 窗口为 1,664 个 raw scenes / 2,258 秒；N 窗口为 1,592 / 1,479 秒。�
 
 [三项组合的固定场景 ABBA 采集测试](combined_execution_benchmark_v1.json)：C_SDE 从 10.965 秒降至 5.908 秒，约 **1.86×**；N_FLOW_NOISE 从 14.040 秒降至 4.734 秒，约 **2.97×**。原链、均值、std、logprob、请求、模拟结果、全部指标、成本、优势、reference 与 RNG 均逐值一致。范围仍是单 rank 的两个真实场景采集，不是全训练。
 
-正式 N 已在 update2580 / raw32230 的原生完整 checkpoint 无损接续；中断时处于 collection1290 的收集阶段，已评分的首批候选和数据游标保留，补样没有重新生成旧链。[生产吞吐](N_production_throughput.json) 比较切换前 64 个 collection 与排除冷启动边界后的 32 个 collection：**1.063 → 2.316 raw scenes/s，约 2.18×**；完整 collection 间隔中位数 **23 → 10 秒**，包含更新和 IO。两个时间窗场景不同、主机共享负载可能变化，不能把该比值说成任意人口/主机的保证。后窗 776 raw / 512 accepted scenes，12,416 次真实候选评分；没有减少 G16/K10 或训练曝光。
+正式 N 已在 update2580 / raw32230 的原生完整 checkpoint 无损接续；中断时处于 collection1290 的收集阶段，已评分的首批候选和数据游标保留，补样没有重新生成旧链。[初期生产吞吐](N_production_throughput.json) 比较切换前 64 个 collection 与排除冷启动边界后的 32 个 collection：**1.063 → 2.316 raw scenes/s，约 2.18×**；完整 collection 间隔中位数 **23 → 10 秒**，包含更新和 IO。两个时间窗场景不同、主机共享负载可能变化，不能把该比值说成任意人口/主机的保证。后窗 776 raw / 512 accepted scenes，12,416 次真实候选评分；没有减少 G16/K10 或训练曝光。后续运行已出现新的耗时变化，见下文，2.18× 不能代表目前持续吞吐。
 
 ## 复用已有批量 PDMS
 
@@ -53,13 +53,23 @@ C 窗口为 1,664 个 raw scenes / 2,258 秒；N 窗口为 1,592 / 1,479 秒。�
 
 新适配复用其批量 trajectory transform / simulator / metric 流程，直接调用本轮锁定的官方 v1.1 `PDMSimulator` 与所有原始分项实现。聚合时，给每条候选建立 `[同一实际官方参考, 该候选]` 的两行视图，调用**未修改的官方 `_aggregate_scores`**。没有复制一套 scorer，也没有使用 G16 的最大进度归一化。参考自身违规造成的乘法 mask、NC=0.5、5 米阈值和阈值下零分处理都继承官方代码；不是简单除以未评分参考的原始进度。
 
+原 Flow-GRPO 与本轮改动前的 RewardService 本来就逐候选独立评分；这里是防止批量加速引入新污染，不是用“旧 EP 归一化 bug”解释过往 RL 结果。
+
 明确的反例：参考进度 10 米、目标候选 6 米、其他候选 12 米，全部通过乘法分项。直接把三条送入原聚合会把目标 EP 从 0.6 改为 0.5，也改变总分；独立 pair 聚合保持 EP=0.6。新增 7 项测试包含此负面对照、参考失败、NC=0.5、零进度、阈值两侧及随机置换。
 
 [真实数据验收](batch_score_qualification_v1.json)：32 个连续 TRAIN 场景、512 条已存策略候选；batch/chunk 1/3/8/16，前四场景另作逆序、chunk5、不同内容干扰候选及重复候选。所有请求、模拟状态/车身、NC/DAC/TTC/EP/Comfort/DDC/PDMS、原始进度、事件时间、几何余量和成本**逐值一致**；共 2,656 次资格测试候选评分。诊断用干扰轨迹不进入 RL 采样或更新。该固定顺序测试的 CPU 评分耗时为 31.213 → 10.361 秒，约 3.01×，含冷缓存差异；另以 warm ABBA 测量排除首轮初始化影响。
 
 [warm ABBA 评分测量](batch_score_warm_benchmark_v1.json) 在固定前 8 个真实 TRAIN 场景、相同已优化几何实现下，排除双方 warmup 后测得 **2.68×** 评分提速，全部反馈再次逐值一致；共 768 次候选评分，仍不是整个训练的加速倍数。G16 的逻辑候选评价仍为 16，实际仿真从 16 次 `[参考, 候选]` 的 32 条 proposal，变成一次 `[参考, 16候选]` 的 17 条 proposal；最后仍分别进行 16 次官方 pair 聚合，不共享 EP 分母。
 
-批量评分的正式接入还需独立八卡学习/恢复验收；这与前三项已部署优化分开登记。新的执行身份保留旧执行 manifest、acceptance、源码和 checkpoint，升级不会重新标注已有链的执行来源。
+批量评分的独立八卡学习/恢复验收已全部通过：[完整证据](batch_full_acceptance.json)、[7 项分项协议测试](batch_score_unit_acceptance.json)。C/N 两组完整动作头与 N 噪声网络、八个 FP32 optimizer 分片、每 rank RNG、dual、KL、游标、保存链、全部反馈及最终原 ODE 导出逐值一致。恢复测试显式从前一执行版的第一个 inner 更新 checkpoint 切入批量评分版，再与连续更新比较，不只是新版本自身重启。
+
+执行身份为 `0b054e56de8277df5faead4d1aab484afd69aacb484d2594b0a6c0af4119f3c4`。正式 N 在 update2722 / raw33958 完整边界停止并原生接续该执行版。[部署与源文件核对](batch_execution_activation_20261014T1812Z.json) 记录八个 rank 已实际完成 update2774 / raw34606；原 83 个科学源文件和 7 个执行源文件 hash 全部匹配。旧执行 manifest、acceptance、源码和 checkpoint 全部保留；额外的执行 ancestry 记录升级，科学 run identity 不变。
+
+[批量评分接入后的生产窗口](N_batch_production_throughput.json)：比较切换前的最后 16 个稳态 collection 与排除启动边界后的前 16 个 collection，两窗恰好均为 400 raw / 256 accepted scenes、6,400 次候选评分；耗时 **381 → 374 秒**，吞吐 **1.050 → 1.070 raw scenes/s，仅约 1.019×**。这是不同场景、共享负载下的短窗口观测，不能认定稳定的整段提速。评分微基准的 2.68× 没有等比例传递到已经重叠执行的整个训练；不得将各项倍数相乘。
+
+另一个尚未解决的变化发生在批量适配启动之前：update2601–2640 的八 rank 临界更新时间中位数为 **1.954 秒**，update2701–2722 已为 **4.897 秒**；批量版 update2723–2758 为 **4.947 秒**。目前不能把原因归给批量评分。现场检查未见其他可见 GPU 计算进程、GPU 温度/功率降频或 CPU quota 限流；这些检查不足以确定根因。保留原始耗时证据，不修改数值平台或训练目标来掩盖变化。当前批量版窗口的更新累计约 155 秒，占 374 秒总墙钟约 42%；其余仍包含采样、未被隐藏的评分、同步与 IO，后续定位应使用实际临界路径。
+
+[验收资源成本](qualification_cost.json)：三个执行修订的八卡短训分别占用约 1.33 / 1.28 / 1.23 GPU-hours，各自评分 1,536 条真实候选；这些是限定工程资格测试，不计作正式训练新曝光，也没有隐去其开销。CPU 对比、warmup、评分微基准单列在各自 JSON。三次全部原生短训时间包含进程持有 GPU 时的保存与导出时间，不等于 GPU kernel 活跃时长。
 
 保留的失败：最初包装入口使用 argparse REMAINDER，torchrun 吞掉 `--` 后在解析参数阶段退出，没有执行任何训练。已改为只解析包装入口选项并保留原生参数的 `parse_known_args`；失败源码和日志保留在私有 `efficient_execution_qualification_v1`。这是启动接口问题，不是算法结果。
 
@@ -79,6 +89,35 @@ $PY -m scripts.analysis.constrained_flow_noise.profile_training_cost \
 $PY -m scripts.analysis.constrained_flow_noise.qualify_efficient_training \
   --run-root "$RUN" --output "$RUN/efficient_execution_qualification_v3" \
   --adapter-module scripts.analysis.constrained_flow_noise.train_efficient_cast
+
+# 已执行：现有真实轨迹的 batch/分块/顺序/干扰候选验收。
+$PY -m scripts.analysis.constrained_flow_noise.qualify_batch_scoring \
+  --run-root "$RUN" --output "$RUN/batch_score_qualification_v1.json" --scenes 32
+$PY -m scripts.analysis.constrained_flow_noise.benchmark_batch_score \
+  --run-root "$RUN" --output "$RUN/batch_score_warm_benchmark_v1.json"
+$PY -m pytest -q tests/constrained_flow_noise/test_batch_scoring_contract.py
+
+# 已执行：batch 版八卡学习、原执行版中断到 batch 版恢复。
+$PY -m scripts.analysis.constrained_flow_noise.qualify_efficient_training \
+  --run-root "$RUN" --output "$RUN/efficient_execution_qualification_v4" \
+  --adapter-module scripts.analysis.constrained_flow_noise.train_efficient_batch \
+  --interrupted-adapter-module scripts.analysis.constrained_flow_noise.train_efficient_cast
+
+# 已启动的正式原生接续；所有旧结果和原 checkpoint 保留。
+$PY -m scripts.analysis.constrained_flow_noise.resume_efficient \
+  --run "$RUN/formal_N_FLOW_NOISE_seed42_v1" \
+  --checkpoint "$RUN/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update002722_raw033958" \
+  --acceptance "$RUN/efficient_execution_qualification_v4/acceptance.json" \
+  --source-lock "$RUN/formal_sources.json" \
+  --receipt "$RUN/execution_deploy_v4/N_efficient_resume.json" \
+  --adapter-module scripts.analysis.constrained_flow_noise.train_efficient_batch \
+  --stop-request "$RUN/execution_deploy_v4/N_native_stop_request.json"
+
+# 已执行：切换前后各 16 个完整生产 collection；不把重叠计时相加。
+$PY -m scripts.analysis.constrained_flow_noise.compare_execution_throughput \
+  --run "$RUN/formal_N_FLOW_NOISE_seed42_v1" --first-new-collection 1361 \
+  --before-count 16 --after-count 16 \
+  --output "$RUN/execution_deploy_v4/N_production_throughput.json"
 ```
 
 正式接续先向本任务八个 trainer rank 发 SIGUSR1，等全部保存同一原生完整恢复点并退出，随后 `resume_efficient` 校验源码、acceptance、checkpoint 全部 hash、八 rank 停止状态、运行锁和空闲显存。不会重置 Adam、lambda、KL controller、LR 阶段、数据/RNG 或已保存链。恢复命令与实际 checkpoint 必须取已生成的执行 receipt，不从权重文件单独续训。
