@@ -108,17 +108,21 @@ def generate(config):
         value=get(str(folder.relative_to(root)/'SCORER_INITIALIZATION.json'))
         if value:
             initializations.append([folder.name,value.get('init_seed',value.get('module_init_seed')),value['initial_state_hash'],value['parameter_count'],value['external_scorer_weights_loaded']])
-        value=get(str(folder.relative_to(root)/'SCORER_TRAINING_REPORT.json'))
-        if value:training.append([folder.name,value['optimizer_steps'],value['natural_consumed'],value['comparison_consumed'],
-                                 value.get('supervised_natural_candidate_exposures'),value.get('ranking_candidate_exposures')])
+        value=get(str(folder.relative_to(root)/'SCORER_TRAINING_REPORT.json'),{})
+        live=get(str(folder.relative_to(root)/'status.json'),{})
+        if value or live:training.append([folder.name,live.get('status',value.get('status')),
+                live.get('step',value.get('optimizer_steps')),value.get('optimizer_steps'),
+                value.get('natural_consumed'),value.get('comparison_consumed'),
+                value.get('supervised_natural_candidate_exposures'),value.get('ranking_candidate_exposures')])
     report('SCORER_WEIGHT_PROVENANCE.md','# Independent Scorer initialization\n\n'+table(
         ['Cell','Initialization seed','Initial state SHA256','New parameters','External Scorer loaded'],initializations)+
         '\nAll new scoring projections/readers/trajectory encoders/Decoder/output heads start randomly. Common semantic modules use identical initialization across the factorial cells. '
         'Only same-cell optimizer-boundary checkpoints may resume a Scorer; no other cell, DrivoR, M0, old driving evaluator or teacher weights are eligible.\n')
     report('SCORER_TRAINING_REPORT.md','# Scorer training\n\n'+table(
-        ['Cell','Updates','Natural scenes consumed','Pairs consumed','Natural candidate exposures','Ranking candidate exposures'],training)+
+        ['Cell','Live state','Current updates','Last closed invocation updates','Closed natural consumed','Closed pairs consumed','Closed natural candidate exposures','Closed ranking candidate exposures'],training)+
         '\nD_S only; first3000 updates pointwise, then3000 updates natural64+comparison64. The continuous warmup100/constant1e-4 scheduler is not restarted. '
         'Rich pretraining increases candidate exposure and label cost; equal update counts do not mean equal compute/label budget. '
+        'Current updates come from the actual trainer status; exposure counters are from the last closed invocation and can lag an active continuation. '
         'No Scorer currently missing from this table should be interpreted as trained.\n')
     from .costs import summarize as summarize_costs
     costs=summarize_costs(root)

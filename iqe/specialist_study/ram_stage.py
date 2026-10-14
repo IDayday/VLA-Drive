@@ -109,6 +109,8 @@ def main():
     p.add_argument('--min-available-gib',type=int,default=180);p.add_argument('--rate-mib',type=int,default=512)
     a=p.parse_args();r=build(a.config,a.workers,a.max_gib,a.min_available_gib,a.rate_mib)
     print({k:v for k,v in r.items() if k!='records'},flush=True)
+    if r['status'] != 'COMPLETE':
+        raise SystemExit(2)
 
 
 if __name__=='__main__':main()
