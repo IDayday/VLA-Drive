@@ -18,6 +18,11 @@ zero-valued trajectories in eight scenes where Base scores at least 0.8 and adds
 14 NC and three DAC failure scenes. This is not a reliable deployment result.
 S11 was still completing its fixed budget when this diagnosis was written.
 
+Completion update, 2026-10-14 19:45 UTC: all four original cells reached 6000
+updates. The final S11 endpoint did not displace the same 4000-step best
+(final endpoint PDMS90.53008). Its complete development evaluation is a separate
+locked post-training stage, not a reason to alter the new R-cell recipes.
+
 ## Score overestimation, measured on actual candidates
 
 `S00_STAGE_VAL_CALIBRATION_DIAGNOSIS.json` binds the actual selected S00 weight
@@ -37,6 +42,11 @@ These are aggregate prediction diagnostics, not calibrated safety probabilities.
 They show overestimation on failed trajectories and a generalization gap. They
 do not prove that replacing one loss function alone resolves it.
 
+The complete read-only `PREVIOUS_SCORER_REWARD_CALIBRATION.json` now covers both
+S00 and S01 on D_S and stage_val. S00's mean prediction on true-zero candidates
+is 0.18616 in D_S and 0.53814 in stage_val; S01's is 0.24332 and 0.50231.
+The degradation therefore includes both candidate ordering and score reliability.
+
 ## Data exposure and shift
 
 Base saw all 16,581 D_S training scenes; it did not see the locked 1,024
@@ -49,6 +59,14 @@ four* training candidates it has 2,081 NC failures, 2,869 DAC failures, and
 5,781 TTC failures. The complete deploy bank has 4,606 zero-valued candidates.
 The rich bank has 14,229 zero-valued candidates among 193,358. Candidate counts
 alone therefore do not explain why heldout Base failures are missed.
+
+`TRAINING_SIGNAL_DISTRIBUTION.json` audits the actual comparison population:
+57,858 non-tie pairs on D_S, effective scene count6063.3, effective log count80.2,
+largest log mass3.74%, and top1% scene mass4.31%. Base-zero scenes account for
+91/16581 scenes and1.66% of comparison mass; on stage_val they are29/1024 and
+5.12% of the analogous diagnostic mass. This is not evidence of a sampler
+normalization bug or single-log domination. The stage_val diagnostic distribution
+is never used as a training sampler. The four registered recipes are unchanged.
 
 Data shift, geometry shortcuts, inadequate representation and the regression
 objective are competing explanations. Existing raw-argmax and component losses

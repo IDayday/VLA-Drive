@@ -1,0 +1,873 @@
+{
+  "observed_at_utc": "2026-10-14T19:53:25.966361+00:00",
+  "note": "timestamped snapshot; inspect live process/receipts before later action",
+  "cells": {
+    "R00": {
+      "status": {
+        "global_batch": 128,
+        "seconds_per_update": 0.711734621321775,
+        "status": "RUNNING",
+        "step": 2839,
+        "world_size": 1
+      },
+      "launch": {
+        "cell": "R00",
+        "code_commit": "111ec3d6886347de5ba79c4963e980cb089804c0",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "iqe.robust_scorer.cli",
+          "train",
+          "--config",
+          "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/robust_scorer/mean_risk_v1.yaml",
+          "--cell",
+          "R00",
+          "--device",
+          "cuda:0",
+          "--resume",
+          "auto"
+        ],
+        "config_hash": "8a96cd02ee4727e118c35dc20997c7f6c67169870613ea4ec4dc53ce30f5938d",
+        "cwd": "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014",
+        "gpu": 6,
+        "gpu_preflight": {
+          "free_mib": 81221,
+          "utilization": 0,
+          "uuid": "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999"
+        },
+        "host": "training-rl-zt2",
+        "launched_utc": "20261014T192621311037Z",
+        "log": "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/runtime/R00_20261014T192621311037Z.log",
+        "max_optimizer_updates": 6000,
+        "pgid": 796894,
+        "pid": 796894,
+        "policy_hash": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92",
+        "preexisting_owners": [],
+        "signals_sent_to_other_tasks": false,
+        "start_ticks": "1336366653",
+        "temporary_host": false
+      },
+      "validations": {
+        "validation_001000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.3271484375,
+          "cell": "R00",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.0,
+          "epsilon_optimal_rate": 0.6982421875,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.006485277585471597,
+            "mean": 0.004311376920668408,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.013772289278060486
+          },
+          "high_to_zero": 10,
+          "large_gap_regret_0_1": 67,
+          "large_gap_regret_0_5": 25,
+          "logs": 53,
+          "negative_switch_cost_01": 0.022420462366426364,
+          "objective": "mean_bce",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": 0.08404143521592543,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.026731839287094772,
+          "prediction_hash": "671b366e6a539448c925b1ccfb85023b3e057447ee006e5d0031b2390c9c3e07",
+          "regret_01": 0.04698923342220951,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 6,
+              "selected_failures": 12,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 10,
+              "selected_failures": 28,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 31,
+              "selected_failures": 71,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "07086d843673869469a94261afff8098c6a21b1e5f25b0cee46e6821e3168caf",
+          "selected_01": 0.9182259714143584,
+          "selected_gain_01": 0.004311376920668408,
+          "selected_over_best_fixed_01": 0.004311376920668408,
+          "selected_zero": 35,
+          "selection_key": [
+            0.9182259714143584,
+            -16
+          ],
+          "switch_count": 689,
+          "switch_precision_excluding_ties": 0.7733644859813084,
+          "switch_rate": 0.6728515625
+        },
+        "validation_002000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.2587890625,
+          "cell": "R00",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.0,
+          "epsilon_optimal_rate": 0.7353515625,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.00930036048127247,
+            "mean": 0.0025768060877453536,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.012218943663100133
+          },
+          "high_to_zero": 9,
+          "large_gap_regret_0_1": 77,
+          "large_gap_regret_0_5": 27,
+          "logs": 53,
+          "negative_switch_cost_01": 0.026040120894322172,
+          "objective": "mean_bce",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": 0.050229540555614315,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.028616926982067525,
+          "prediction_hash": "6371d5d044530aa1669cca023921ccaaf8c2d9ed09377275e719960a9c68643c",
+          "regret_01": 0.04872380425513256,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 4,
+              "selected_failures": 8,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 16,
+              "selected_failures": 35,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 38,
+              "selected_failures": 79,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "6bfa2e03671ac2e0fad59f4875032febd97319249fd3de32245a522b07b1bf41",
+          "selected_01": 0.9164914005814353,
+          "selected_gain_01": 0.0025768060877453536,
+          "selected_over_best_fixed_01": 0.0025768060877453536,
+          "selected_zero": 36,
+          "selection_key": [
+            0.9164914005814353,
+            -20
+          ],
+          "switch_count": 759,
+          "switch_precision_excluding_ties": 0.7983193277310925,
+          "switch_rate": 0.7412109375
+        }
+      }
+    },
+    "R01": {
+      "status": {
+        "global_batch": 128,
+        "seconds_per_update": 0.9096026874529558,
+        "status": "RUNNING",
+        "step": 2455,
+        "world_size": 1
+      },
+      "launch": {
+        "cell": "R01",
+        "code_commit": "111ec3d6886347de5ba79c4963e980cb089804c0",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "iqe.robust_scorer.cli",
+          "train",
+          "--config",
+          "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/robust_scorer/mean_risk_v1.yaml",
+          "--cell",
+          "R01",
+          "--device",
+          "cuda:0"
+        ],
+        "config_hash": "8a96cd02ee4727e118c35dc20997c7f6c67169870613ea4ec4dc53ce30f5938d",
+        "cwd": "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014",
+        "gpu": 2,
+        "gpu_preflight": {
+          "free_mib": 67998,
+          "utilization": 75,
+          "uuid": "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24"
+        },
+        "host": "training-vlawm-tsinghua-zt5",
+        "launched_utc": "20261014T191556377995Z",
+        "log": "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/runtime/R01_20261014T191556377995Z.log",
+        "max_optimizer_updates": 6000,
+        "pgid": 67735,
+        "pid": 67735,
+        "policy_hash": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92",
+        "preexisting_owners": [
+          {
+            "cmdline": "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python -u /mnt/project/VLA-Drive-decision-local-cache-expansion-frozen-20261014/tools/decision_local/build_fixed_anchor_cache.py --anchor /mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json --output /mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1 --split train --rank 15 --shards 21 --chunk-size 128 --max-seconds 5400 --verify-samples 1 --continue-existing --continuation-attempt resource21_1906 ",
+            "memory_mib": "13146",
+            "pid": 64859
+          }
+        ],
+        "signals_sent_to_other_tasks": false,
+        "start_ticks": "50067125",
+        "temporary_host": false
+      },
+      "validations": {
+        "validation_001000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.30078125,
+          "cell": "R01",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.1,
+          "epsilon_optimal_rate": 0.7177734375,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.020572205430419883,
+            "mean": -0.0066543472348712385,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0043915180692230505
+          },
+          "high_to_zero": 14,
+          "large_gap_regret_0_1": 88,
+          "large_gap_regret_0_5": 33,
+          "logs": 53,
+          "negative_switch_cost_01": 0.035129104915540665,
+          "objective": "mean_bce",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": -0.12971282778890103,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.028474757680669427,
+          "prediction_hash": "658019d53b142180a801ce9fe234c6b4ad2d11c42db79d8eee96d3b5da057ab8",
+          "regret_01": 0.057954957577749155,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 8,
+              "selected_failures": 13,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 17,
+              "selected_failures": 35,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 52,
+              "selected_failures": 93,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "e23ac10dab804d1de8384a6d38c1e9a59cb5245e49852de5ebb4d383dc901d70",
+          "selected_01": 0.9072602472588187,
+          "selected_gain_01": -0.0066543472348712385,
+          "selected_over_best_fixed_01": -0.0066543472348712385,
+          "selected_zero": 42,
+          "selection_key": [
+            0.9072602472588187,
+            -25
+          ],
+          "switch_count": 716,
+          "switch_precision_excluding_ties": 0.7647058823529411,
+          "switch_rate": 0.69921875
+        },
+        "validation_002000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.3095703125,
+          "cell": "R01",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.1,
+          "epsilon_optimal_rate": 0.708984375,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.012438680456362181,
+            "mean": -0.0009649098210502416,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.008132037849556645
+          },
+          "high_to_zero": 11,
+          "large_gap_regret_0_1": 81,
+          "large_gap_regret_0_5": 28,
+          "logs": 53,
+          "negative_switch_cost_01": 0.026318019692553207,
+          "objective": "mean_bce",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": -0.018808934525360872,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.025353109871502966,
+          "prediction_hash": "eb9534cf7df0241978f5018fbf32713b0842889f7c2d3bf8d5beec78c989e60d",
+          "regret_01": 0.05226552016392816,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 6,
+              "selected_failures": 12,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 12,
+              "selected_failures": 31,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 38,
+              "selected_failures": 82,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "eb652bbecc31e852daa19bd4a3b90cb1cdce0d186eb2e8b9b55606ad3bdb584e",
+          "selected_01": 0.9129496846726397,
+          "selected_gain_01": -0.0009649098210502416,
+          "selected_over_best_fixed_01": -0.0009649098210502416,
+          "selected_zero": 38,
+          "selection_key": [
+            0.9129496846726397,
+            -18
+          ],
+          "switch_count": 707,
+          "switch_precision_excluding_ties": 0.7963386727688787,
+          "switch_rate": 0.6904296875
+        }
+      }
+    },
+    "R10": {
+      "status": {
+        "global_batch": 128,
+        "seconds_per_update": 0.9094249060704674,
+        "status": "RUNNING",
+        "step": 2455,
+        "world_size": 1
+      },
+      "launch": {
+        "cell": "R10",
+        "code_commit": "111ec3d6886347de5ba79c4963e980cb089804c0",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "iqe.robust_scorer.cli",
+          "train",
+          "--config",
+          "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/robust_scorer/mean_risk_v1.yaml",
+          "--cell",
+          "R10",
+          "--device",
+          "cuda:0"
+        ],
+        "config_hash": "8a96cd02ee4727e118c35dc20997c7f6c67169870613ea4ec4dc53ce30f5938d",
+        "cwd": "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014",
+        "gpu": 3,
+        "gpu_preflight": {
+          "free_mib": 67998,
+          "utilization": 39,
+          "uuid": "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690"
+        },
+        "host": "training-vlawm-tsinghua-zt5",
+        "launched_utc": "20261014T191556396637Z",
+        "log": "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/runtime/R10_20261014T191556396637Z.log",
+        "max_optimizer_updates": 6000,
+        "pgid": 67736,
+        "pid": 67736,
+        "policy_hash": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92",
+        "preexisting_owners": [
+          {
+            "cmdline": "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python -u /mnt/project/VLA-Drive-decision-local-cache-expansion-frozen-20261014/tools/decision_local/build_fixed_anchor_cache.py --anchor /mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json --output /mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1 --split train --rank 16 --shards 21 --chunk-size 128 --max-seconds 5400 --verify-samples 1 --continue-existing --continuation-attempt resource21_1906 ",
+            "memory_mib": "13146",
+            "pid": 64861
+          }
+        ],
+        "signals_sent_to_other_tasks": false,
+        "start_ticks": "50067127",
+        "temporary_host": false
+      },
+      "validations": {
+        "validation_001000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.353515625,
+          "cell": "R10",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.0,
+          "epsilon_optimal_rate": 0.6591796875,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.006671876939682971,
+            "mean": 0.0028495945007307455,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.011680668058893796
+          },
+          "high_to_zero": 8,
+          "large_gap_regret_0_1": 77,
+          "large_gap_regret_0_5": 26,
+          "logs": 53,
+          "negative_switch_cost_01": 0.017710707819787785,
+          "objective": "zero_hurdle",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": 0.055546990214831934,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.02056030232051853,
+          "prediction_hash": "3610ed0fd5cd805da6f0f2f802f638ee528ce18a4e4e148b8868ac9c8a859ea0",
+          "regret_01": 0.04845101584214717,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 7,
+              "selected_failures": 15,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 5,
+              "selected_failures": 23,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 22,
+              "selected_failures": 64,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "38e0838d320caf537ed81912548ddbbc6c44db27586bb7cb00289409a707a917",
+          "selected_01": 0.9167641889944207,
+          "selected_gain_01": 0.0028495945007307455,
+          "selected_over_best_fixed_01": 0.0028495945007307455,
+          "selected_zero": 36,
+          "selection_key": [
+            0.9167641889944207,
+            -12
+          ],
+          "switch_count": 662,
+          "switch_precision_excluding_ties": 0.7279411764705882,
+          "switch_rate": 0.646484375
+        },
+        "validation_002000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.2861328125,
+          "cell": "R10",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.0,
+          "epsilon_optimal_rate": 0.7255859375,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.018676040581624,
+            "mean": -0.004303660010918975,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.007486017276786955
+          },
+          "high_to_zero": 8,
+          "large_gap_regret_0_1": 99,
+          "large_gap_regret_0_5": 30,
+          "logs": 53,
+          "negative_switch_cost_01": 0.030755364074138924,
+          "objective": "zero_hurdle",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": -0.08389100991498152,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.02645170406321995,
+          "prediction_hash": "9c4cef631e8eebd5027991da2902ef83ac28d018b0b60fd34ced347d6de99f3b",
+          "regret_01": 0.05560427035379689,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 6,
+              "selected_failures": 10,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 14,
+              "selected_failures": 34,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 49,
+              "selected_failures": 92,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "f30bd3dc30b6e913d45e715053a8a5b2d2038875729c5bc844f61198887a1cc5",
+          "selected_01": 0.909610934482771,
+          "selected_gain_01": -0.004303660010918975,
+          "selected_over_best_fixed_01": -0.004303660010918975,
+          "selected_zero": 40,
+          "selection_key": [
+            0.909610934482771,
+            -20
+          ],
+          "switch_count": 731,
+          "switch_precision_excluding_ties": 0.8013100436681223,
+          "switch_rate": 0.7138671875
+        }
+      }
+    },
+    "R11": {
+      "status": {
+        "global_batch": 128,
+        "seconds_per_update": 0.9095865507507241,
+        "status": "RUNNING",
+        "step": 2455,
+        "world_size": 1
+      },
+      "launch": {
+        "cell": "R11",
+        "code_commit": "111ec3d6886347de5ba79c4963e980cb089804c0",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "iqe.robust_scorer.cli",
+          "train",
+          "--config",
+          "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/robust_scorer/mean_risk_v1.yaml",
+          "--cell",
+          "R11",
+          "--device",
+          "cuda:0"
+        ],
+        "config_hash": "8a96cd02ee4727e118c35dc20997c7f6c67169870613ea4ec4dc53ce30f5938d",
+        "cwd": "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014",
+        "gpu": 4,
+        "gpu_preflight": {
+          "free_mib": 67998,
+          "utilization": 96,
+          "uuid": "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753"
+        },
+        "host": "training-vlawm-tsinghua-zt5",
+        "launched_utc": "20261014T191556424795Z",
+        "log": "/mnt/project/iqe-robust-scorer-20261014/mean_risk_v1/runtime/R11_20261014T191556424795Z.log",
+        "max_optimizer_updates": 6000,
+        "pgid": 67737,
+        "pid": 67737,
+        "policy_hash": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92",
+        "preexisting_owners": [
+          {
+            "cmdline": "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python -u /mnt/project/VLA-Drive-decision-local-cache-expansion-frozen-20261014/tools/decision_local/build_fixed_anchor_cache.py --anchor /mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json --output /mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1 --split train --rank 17 --shards 21 --chunk-size 128 --max-seconds 5400 --verify-samples 1 --continue-existing --continuation-attempt resource21_1906 ",
+            "memory_mib": "13146",
+            "pid": 64863
+          }
+        ],
+        "signals_sent_to_other_tasks": false,
+        "start_ticks": "50067130",
+        "temporary_host": false
+      },
+      "validations": {
+        "validation_001000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.291015625,
+          "cell": "R11",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.1,
+          "epsilon_optimal_rate": 0.6796875,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.01584804737621738,
+            "mean": -0.0028686948789982125,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.007468345456832593
+          },
+          "high_to_zero": 9,
+          "large_gap_regret_0_1": 83,
+          "large_gap_regret_0_5": 27,
+          "logs": 53,
+          "negative_switch_cost_01": 0.027824073913507164,
+          "objective": "zero_hurdle",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": -0.05591931284685923,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.02495537903450895,
+          "prediction_hash": "f7dfdd45d09a718392a460cf1e200651b4178e8c83a095014bbf61db016fd3d4",
+          "regret_01": 0.05416930522187613,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 6,
+              "selected_failures": 13,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 10,
+              "selected_failures": 27,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 44,
+              "selected_failures": 86,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "66a19ee6376b1e83b2f7f4a1648b2d698a85afdad20385d89ddc627733918d29",
+          "selected_01": 0.9110458996146917,
+          "selected_gain_01": -0.0028686948789982125,
+          "selected_over_best_fixed_01": -0.0028686948789982125,
+          "selected_zero": 37,
+          "selection_key": [
+            0.9110458996146917,
+            -16
+          ],
+          "switch_count": 726,
+          "switch_precision_excluding_ties": 0.7240618101545254,
+          "switch_rate": 0.708984375
+        },
+        "validation_002000": {
+          "bank_hash": "77072dc9cbbae9a65171aa61a7d6aa387efefabc5b86d7cb9ee2e6f6731e9aa2",
+          "base_01": 0.91391459449369,
+          "base_fallback_rate": 0.2412109375,
+          "cell": "R11",
+          "checkpoint_kind": "raw_argmax",
+          "common_zero": 11,
+          "dropout": 0.1,
+          "epsilon_optimal_rate": 0.7265625,
+          "fixed_policy_01": [
+            0.91391459449369,
+            0.7770630238373997,
+            0.8772178951912792,
+            0.8157841650245246
+          ],
+          "gain_ci": {
+            "groups": 53,
+            "lower_95": -0.023446972852347876,
+            "mean": -0.007824775588233024,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.004114563509134936
+          },
+          "high_to_zero": 9,
+          "large_gap_regret_0_1": 100,
+          "large_gap_regret_0_5": 32,
+          "logs": 53,
+          "negative_switch_cost_01": 0.03504614971461706,
+          "objective": "zero_hurdle",
+          "oracle_01": 0.9652152048365679,
+          "oracle_capture": -0.15252792385771957,
+          "oracle_gain_01": 0.05130061034287792,
+          "oracle_gain_ci": {
+            "groups": 53,
+            "lower_95": 0.04032711939488718,
+            "mean": 0.05130061034287792,
+            "reliable_log_count": true,
+            "repetitions": 2000,
+            "seed": 11235,
+            "upper_95": 0.0642964123718172
+          },
+          "pool_hash": "baccbfbfa27b387c30a58acf59cd6bd53a564cadd7dc6bdb29fab80de8b80029",
+          "positive_switch_gain_01": 0.027221374126384035,
+          "prediction_hash": "7af79ccb104f9321f1afa13c6f2fe33a5b267ce2962a371fbe4c3375999a3fe9",
+          "regret_01": 0.05912538593111094,
+          "safety": {
+            "drivable_area_compliance": {
+              "base_failures": 12,
+              "new_failures": 3,
+              "selected_failures": 8,
+              "valid_denominator": 1024
+            },
+            "no_at_fault_collisions": {
+              "base_failures": 20,
+              "new_failures": 18,
+              "selected_failures": 38,
+              "valid_denominator": 1024
+            },
+            "time_to_collision_within_bound": {
+              "base_failures": 52,
+              "new_failures": 59,
+              "selected_failures": 102,
+              "valid_denominator": 1024
+            }
+          },
+          "scenes": 1024,
+          "scorer_state_hash": "d7dfb8f74e16f827e6b5af9d0066188c76ffc85c55776a394093ef645bf84eff",
+          "selected_01": 0.9060898189054569,
+          "selected_gain_01": -0.007824775588233024,
+          "selected_over_best_fixed_01": -0.007824775588233024,
+          "selected_zero": 42,
+          "selection_key": [
+            0.9060898189054569,
+            -21
+          ],
+          "switch_count": 777,
+          "switch_precision_excluding_ties": 0.7865853658536586,
+          "switch_rate": 0.7587890625
+        }
+      }
+    }
+  },
+  "finalizer": {
+    "code_commit": "e3a7075b0485d9227ef246b02493b9a412a8ea08",
+    "config_hash": "8a96cd02ee4727e118c35dc20997c7f6c67169870613ea4ec4dc53ce30f5938d",
+    "gpu": 6,
+    "host": "training-rl-zt2",
+    "launched_utc": "2026-10-14T19:48:05.799639+00:00",
+    "max_wait_seconds": 7200,
+    "no_other_process_signals": true,
+    "pid": 799784,
+    "source_hashes": {
+      "bundle.py": "fca43164bf3c0adcc85cf93b40d8c91f3f399ab5f34d673821679d50a4ed37ed",
+      "evaluation.py": "e6f6540a22228377ad0f903eb7b82e3b2a1be695695b5e20cd2845280c15e7b0",
+      "qualification.py": "15fc58ba7a101a41f47adb5b0dcbcc73767c15e6c8921675d88809f0474aeafb",
+      "report.py": "7f30d438836ba2c3eb9ae05b50c697010b86b981c41015b7d625e260e55c68f1"
+    },
+    "start_ticks": "1336496981"
+  },
+  "new_navtest": false,
+  "ACTIVE_updated": false
+}
