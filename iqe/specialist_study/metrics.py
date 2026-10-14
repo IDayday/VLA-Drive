@@ -4,11 +4,20 @@ from iqe.scoring.reference import COMPONENTS
 from iqe.internal_baseline.evaluation import paired_bootstrap
 
 
-def select(predicted,valid=None,margin=0.):
-    p=np.asarray(predicted);v=np.isfinite(p) if valid is None else np.asarray(valid)&np.isfinite(p)
-    require(p.ndim==2 and v.shape==p.shape and v[:,0].all(),'invalid Base cannot be silently replaced')
-    adjusted=np.where(v,p,-np.inf);winner=adjusted.argmax(1)
-    chosen=np.where(adjusted[np.arange(len(p)),winner]-adjusted[:,0]>margin,winner,0)
+def stable_order(count,expert_ids=None):
+    ids=list(expert_ids) if expert_ids is not None else [f'expert_{i}' for i in range(count)]
+    require(len(ids)==count and len(set(ids))==count and ids.count('expert_0')==1,'stable candidate IDs/Base required')
+    return ids.index('expert_0'),sorted(range(count),key=lambda i:(ids[i]!='expert_0',ids[i]))
+
+
+def select(predicted,valid=None,margin=0.,*,expert_ids=None):
+    p=np.asarray(predicted);v=np.ones_like(p,dtype=bool) if valid is None else np.asarray(valid,dtype=bool)
+    require(p.ndim==2 and v.shape==p.shape and np.isfinite(margin) and margin>=0,'candidate selection shape/margin')
+    base,order=stable_order(p.shape[1],expert_ids)
+    require(v[:,base].all(),'invalid Base cannot be silently replaced')
+    require(np.isfinite(p[v]).all(),'nonfinite Scorer output on valid candidate')
+    adjusted=np.where(v,p,-np.inf);winner=np.asarray(order)[adjusted[:,order].argmax(1)]
+    chosen=np.where(adjusted[np.arange(len(p)),winner]-adjusted[:,base]>margin,winner,base)
     return chosen
 
 

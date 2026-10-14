@@ -19,7 +19,7 @@ def evaluate_scorers(config,device='cuda:0'):
     rows=[]
     for cell in CELLS:
         m=selected_scorer(config,cell,device);meta,bank,pred=predict(config,m,'stage_val',device)
-        stats=metrics(bank['scores'],bank['components'],select(pred,bank['valid']),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+        stats=metrics(bank['scores'],bank['components'],select(pred,bank['valid'],expert_ids=meta['provenance']['sources']),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
         stats.update(cell=cell,checkpoint=str(config.root/'scorers'/cell/'best.pt'),checkpoint_hash=file_hash(config.root/'scorers'/cell/'best.pt'))
         rows.append(stats);del m
     winner=max(rows,key=lambda r:(r['selected_01'],-sum(r['safety'][k]['new_failures'] for k in ('no_at_fault_collisions','drivable_area_compliance')),-list(CELLS).index(r['cell'])))
@@ -47,7 +47,7 @@ def calibrate(config,device='cuda:0'):
     atomic_json(config.root/'MARGIN_RULES_BEFORE_CALIBRATION.json',rules,immutable=True)
     m=selected_scorer(config,cell,device);meta,bank,pred=predict(config,m,'selector_cal',device);rows=[]
     for delta in rules['delta_grid']:
-        stats=metrics(bank['scores'],bank['components'],select(pred,bank['valid'],delta),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+        stats=metrics(bank['scores'],bank['components'],select(pred,bank['valid'],delta,expert_ids=meta['provenance']['sources']),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
         stats['delta']=delta;stats['feasible']=stats['high_to_zero']<=recipe['margin_high_zero_budget'] and stats['safety']['no_at_fault_collisions']['new_failures']<=recipe['margin_new_NC_budget'] and stats['safety']['drivable_area_compliance']['new_failures']<=recipe['margin_new_DAC_budget'];rows.append(stats)
     eligible=[r for r in rows if r['feasible']]
     best=max(eligible,key=lambda r:(r['selected_01'],-r['switch_count'],r['delta'])) if eligible else None
@@ -64,21 +64,21 @@ def evaluate_final(config,device='cuda:0'):
             'selection':file_hash(config.root/'SCORER_MATRIX_SELECTION.json'),'margin':file_hash(config.root/'SELECTOR_MARGIN.json'),
             'fixed_dev_ids_hash':digest([s.scene_id for s in scenes_by_role(config)['dev_report']])}
     atomic_json(config.root/'FINAL_EVALUATION_LOCK.json',frozen,immutable=True)
-    meta,bank=load_bank(config,'deploy','dev_report');r=bank['scores'];rows=[];predictions={}
+    meta,bank=load_bank(config,'deploy','dev_report');r=bank['scores'];rows=[];predictions={};ids=meta['provenance']['sources']
     for index,eid in enumerate(pool(config)['expert_ids']):
         out=metrics(r,bank['components'],np.full(len(r),index),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=eid;rows.append(out)
     out=metrics(r,bank['components'],r.argmax(1),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']='Oracle';rows.append(out)
     for cell in CELLS:
         m=selected_scorer(config,cell,device);_,_,pred=predict(config,m,'dev_report',device);predictions[cell]=pred
-        out=metrics(r,bank['components'],select(pred,bank['valid']),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=cell;rows.append(out);del m
-    chosen=selection['selected']['cell'];choice=np.zeros(len(r),int) if margin['selected_delta'] is None else select(predictions[chosen],bank['valid'],margin['selected_delta'])
+        out=metrics(r,bank['components'],select(pred,bank['valid'],expert_ids=ids),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=cell;rows.append(out);del m
+    chosen=selection['selected']['cell'];choice=np.zeros(len(r),int) if margin['selected_delta'] is None else select(predictions[chosen],bank['valid'],margin['selected_delta'],expert_ids=ids)
     out=metrics(r,bank['components'],choice,meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=chosen+'_margin';rows.append(out)
     subsets=[]
     for count in range(r.shape[1]):
         for group in combinations(range(1,r.shape[1]),count):
             indices=[0,*group];truth=r[:,indices];comp=bank['components'][:,indices]
             for cell,pred in predictions.items():
-                out=metrics(truth,comp,select(pred[:,indices],bank['valid'][:,indices]),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+                out=metrics(truth,comp,select(pred[:,indices],bank['valid'][:,indices],expert_ids=[ids[i] for i in indices]),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
                 out.update(cell=cell,expert_ids=[pool(config)['expert_ids'][i] for i in indices],margin_recalibrated_for_subset=False);subsets.append(out)
     result={'scope':'entire_fixed_dev_report','requested_scenes':len(meta['scene_ids']),'results':rows,'subsets':subsets,
             'bindings':frozen,'safety_reference':'same Base checkpoint','units':'[0,1]','training_seed_count':1}
@@ -86,7 +86,7 @@ def evaluate_final(config,device='cuda:0'):
     m=selected_scorer(config,chosen,device);diagnoses={}
     for kind in ['scene_mismatch','trajectory_time_shuffle','remove_W']+(['shuffle_V','mask_V'] if m.spatial else []):
         _,_,p=predict(config,m,'dev_report',device,diagnostic=kind)
-        diagnoses[kind]=metrics(r,bank['components'],select(p,bank['valid']),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+        diagnoses[kind]=metrics(r,bank['components'],select(p,bank['valid'],expert_ids=ids),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
     atomic_json(config.root/'SCORER_INFORMATION_DIAGNOSES.json',diagnoses,immutable=True)
     export_bundle(config,chosen)
     raw=next(x for x in rows if x['cell']==chosen)
@@ -115,8 +115,12 @@ def export_bundle(config,cell):
 
 class ResearchSystem(nn.Module):
     """Deployment wrapper: one Base, N independent heads, one internal Scorer."""
-    def __init__(self,adapter,experts,scorer):
+    def __init__(self,adapter,experts,scorer,expert_ids=None):
         super().__init__();self.adapter=adapter;self.experts=nn.ModuleList(experts);self.scorer=scorer
+        self.expert_ids=tuple(expert_ids or [f'expert_{i}' for i in range(len(experts)+1)])
+        from .metrics import stable_order
+        base,_=stable_order(len(experts)+1,self.expert_ids)
+        require(base==0,'deployment Base branch must retain its registered identity')
     @torch.no_grad()
     def shared_forward(self,observations,*,expert_count=None,score=True):
         from .context import SharedCapture
@@ -162,7 +166,10 @@ class ResearchSystem(nn.Module):
             finally:
                 for handle in handles:handle.remove()
             require(torch.isfinite(predictions).all().item(),'nonfinite deployed Scorer output')
-            chosen=predictions.argmax(1)  # stable registry order, exact tie Base first
+            from .metrics import stable_order
+            _,order=stable_order(count+1,self.expert_ids[:count+1])
+            ordered=torch.tensor(order,device=predictions.device)
+            chosen=ordered[predictions[:,ordered].argmax(1)]
         else:chosen=torch.zeros(len(observations),device=trajectories.device,dtype=torch.long)
         return {'trajectory':trajectories[torch.arange(len(observations),device=trajectories.device),chosen],
                 'candidates':trajectories,'predicted_scores':predictions,'selected':chosen,'calls':calls,'branch_calls':branch_calls}
@@ -190,7 +197,7 @@ def load_research_bundle(path,device):
     spatial=CELLS[payload['scorer_cell']]['spatial'];vd=state['spatial_reader.projection.1.weight'].shape[1] if spatial else None
     scorer=StudyScorer(wd,ad,adapter.framework.action_model.trajectory_contract,spatial=spatial,visual_dim=vd,views=len(payload['contract']['input']['views']))
     scorer.load_state_dict(state,strict=True)
-    return ResearchSystem(adapter,experts,scorer.to(device)).to(device).eval().requires_grad_(False)
+    return ResearchSystem(adapter,experts,scorer.to(device),payload['pool']['expert_ids']).to(device).eval().requires_grad_(False)
 
 
 def benchmark(config,device='cuda:0'):
@@ -199,7 +206,7 @@ def benchmark(config,device='cuda:0'):
     scorer_resume(config,device)
     chosen=read_json(config.root/'SCORER_MATRIX_SELECTION.json')['selected']['cell'];scorer=selected_scorer(config,chosen,device)
     p=pool(config);adapter=S0Adapter.load_and_validate_s0(read_json(config.root/'OFFLINE_BASE_CONTRACT.json'),device)
-    experts=[load_endpoint(config,item,device) for item in p['experts']];system=ResearchSystem(adapter,experts,scorer).eval().requires_grad_(False)
+    experts=[load_endpoint(config,item,device) for item in p['experts']];system=ResearchSystem(adapter,experts,scorer,p['expert_ids']).eval().requires_grad_(False)
     online_cached_system(config,system,device)
     scenes=scenes_by_role(config)['stage_val'][:32];rows=[]
     sync=lambda:torch.cuda.synchronize() if str(device).startswith('cuda') else None

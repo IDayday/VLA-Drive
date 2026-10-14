@@ -141,7 +141,7 @@ def train_scorer(config,cell,device='cuda:0',resume=None,stop_after=None):
         def loss(model,b):return terms(model(b['context'],b['trajectories']),b)
         def validation(model,step):
             vm,vb,pred=predict(config,model,'stage_val',device)
-            result=metrics(vb['scores'],vb['components'],select(pred,vb['valid']),vm['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+            result=metrics(vb['scores'],vb['components'],select(pred,vb['valid'],expert_ids=vm['provenance']['sources']),vm['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
             result['selection_key']=[result['selected_01'],-sum(result['safety'][c]['new_failures'] for c in ('no_at_fault_collisions','drivable_area_compliance'))]
             result.update(checkpoint_kind='raw_argmax',scorer_state_hash=module_hash(model),pool_hash=pool(config)['hash'])
             return result

@@ -94,6 +94,13 @@ def write_batch(config,p,item,scenes,index,model,device,cache):
     require(file_hash(item['checkpoint'])==item['checksum'],'deployment endpoint changed')
     with lock(str(out)+'.CLAIM.lock'):
         if out.exists():return read_batch(config,p,item,scenes,index),True
+        original=[config.root/'candidates'/item['expert_id']/item['model_hash']/(s.scene_id+'.json') for s in scenes]
+        if all(path.exists() for path in original):
+            rows=[checked_candidate(config,s,item) for s in scenes]
+            atomic_json(out,{'binding':binding,'candidate_keys':[c.key for c in rows],
+                            'trajectory_hashes':[c.trajectory_hash for c in rows],
+                            'reused_existing_records':True},immutable=True)
+            return rows,True
         if item['reuse_rich_source']:
             values=verified_rich_values(config,p,item,scenes,index)
         else:

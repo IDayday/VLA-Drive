@@ -53,6 +53,6 @@ def test_new_ema_column_computes_once_and_retains_original_partial_records(tmp_p
     from iqe.specialist_study.deploy_precompute import receipt_path
     receipt_path(config,item,0).unlink()
     rows2,_=write_batch(config,plan,item,scenes,0,model,'cpu',cache)
-    assert rows2==rows
+    assert rows2==rows and model.calls==2
     (tmp_path/'candidates'/item['expert_id']/item['model_hash']/(scenes[0].scene_id+'.npz')).write_bytes(b'corrupt')
     with pytest.raises(Exception,match='corrupt'):read_batch(config,plan,item,scenes,0)

@@ -85,6 +85,16 @@ def test_argmax_and_oracle_regret_identity():
     assert result['selected_gain_01']==pytest.approx(result['oracle_gain_01']-result['regret_01'])
 
 
+def test_exact_tie_follows_stable_id_after_candidate_permutation():
+    ids=['expert_0','expert_1','expert_2'];p=np.array([[.2,.9,.9],[.8,.8,.8]])
+    expected=[ids[i] for i in select(p,expert_ids=ids)]
+    order=[2,0,1];permuted=[ids[i] for i in order]
+    assert [permuted[i] for i in select(p[:,order],expert_ids=permuted)]==expected==['expert_1','expert_0']
+    with pytest.raises(Exception,match='nonfinite'):
+        select(np.array([[.2,np.nan]]),np.ones((1,2),bool))
+    assert select(np.array([[.2,np.nan]]),np.array([[True,False]])).tolist()==[0]
+
+
 def test_explicit_padding_nan_does_not_contaminate_loss_or_gradient():
     b=batch([[.8,float('nan')]],[True],[False])
     p=torch.tensor([[.5,float('nan')]],requires_grad=True)
