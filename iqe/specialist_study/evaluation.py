@@ -101,6 +101,18 @@ def evaluate_final(config,device='cuda:0'):
             'bindings':frozen,'safety_reference':'same Base checkpoint','units':'[0,1]','training_seed_count':1}
     atomic_json(config.root/'FINAL_SYSTEM_RESULTS.json',result,immutable=True);write_csv(config.root/'FINAL_SYSTEM_RESULTS.csv',rows)
     m=selected_scorer(config,chosen,device);diagnoses={}
+    # Read the already fitted D_S only after choices and final dev predictions
+    # are locked. This separates training fit from heldout selection failure;
+    # it cannot change a checkpoint, pool, margin or optimizer.
+    fit_meta,fit_bank,fit_pred=predict(config,m,'scorer_fit',device)
+    fit_metrics=metrics(fit_bank['scores'],fit_bank['components'],
+                        select(fit_pred,fit_bank['valid'],expert_ids=fit_meta['provenance']['sources']),
+                        fit_meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+    fit_diagnostic={'cell':chosen,'scope':'entire_fixed_D_S_after_selection_lock','metrics':fit_metrics,
+                    'bank_hash':fit_meta['hash'],'checkpoint_hash':selection['selected']['checkpoint_hash'],
+                    'selection_lock_hash':file_hash(config.root/'FINAL_EVALUATION_LOCK.json'),
+                    'optimizer_updates':0,'used_for_checkpoint_or_recipe_selection':False}
+    atomic_json(config.root/'SCORER_FIT_DIAGNOSTIC.json',fit_diagnostic,immutable=True)
     for kind in ['scene_mismatch','trajectory_time_shuffle','remove_W']+(['shuffle_V','mask_V'] if m.spatial else []):
         _,_,p=predict(config,m,'dev_report',device,diagnostic=kind)
         diagnoses[kind]=metrics(r,bank['components'],select(p,bank['valid'],expert_ids=ids),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
@@ -111,7 +123,9 @@ def evaluate_final(config,device='cuda:0'):
     if any(raw['safety'][k]['new_failures'] for k in raw['safety']) or raw['high_to_zero']:conclusion='SCORE_GAIN_WITH_SAFETY_REGRESSION' if raw['selected_gain_01']>0 else conclusion
     verdict={'IMPLEMENTATION':'PASS','DATA_AVAILABLE':'PASS','TRAINING_COMPLETE':'PASS','HELDOUT_GAIN':raw['oracle_gain_01']>0,
              'SELECTION_GAIN':raw['selected_gain_01'],'GAIN_OVER_BEST_FIXED':raw['selected_over_best_fixed_01'],'SAFETY_RESULT':raw['safety'],
-             'SCIENTIFIC_CONCLUSION':conclusion,'MULTI_SEED':'UNTESTED','ACTIVE_UPDATED':False,'EXTERNAL_SCORER_WEIGHTS':False}
+             'SCIENTIFIC_CONCLUSION':conclusion,'MULTI_SEED':'UNTESTED','ACTIVE_UPDATED':False,'EXTERNAL_SCORER_WEIGHTS':False,
+             'SCORER_TRAIN_FIT_GAIN':fit_metrics['selected_gain_01'],
+             'SCORER_GENERALIZATION_GAP_SIGNAL':fit_metrics['selected_gain_01']>0 and raw['selected_gain_01']<=0}
     atomic_json(config.root/'VERDICT.json',verdict)
     return verdict
 

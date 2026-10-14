@@ -197,6 +197,21 @@ def generate(config):
         '\nThe identity selected_mean−Base_mean=G−R is checked. All Scorers use the same locked pool. Raw argmax and optional selector_cal margin are separate. '
         'Always-Base is never called selection success. DDC compliance is diagnostic because its official weight is zero. '
         'Detailed valid denominators, NC/DAC/TTC failures, wrong-switch costs and fixed-policy comparisons are in FINAL_SYSTEM_RESULTS.json.\n')
+    fit_diagnostic=get('SCORER_FIT_DIAGNOSTIC.json')
+    information=get('SCORER_INFORMATION_DIAGNOSES.json')
+    report('SCORER_DIAGNOSTICS.md','# Training fit and information diagnostics\n\n'+
+        ('WAITING_INPUTS: all Scorers and the final selection are not yet locked.\n' if fit_diagnostic is None else
+         table(['Cell','Role','Scenes','Base','Selected','Selected gain','Regret'],
+               [[fit_diagnostic['cell'],'D_S after all selection locks',fit_diagnostic['metrics']['scenes'],
+                 fit_diagnostic['metrics']['base_01'],fit_diagnostic['metrics']['selected_01'],
+                 fit_diagnostic['metrics']['selected_gain_01'],fit_diagnostic['metrics']['regret_01']]]))+\
+        '\nThis uses the entire actual Scorer training population, no optimizer updates and no additional checkpoint selection. '
+        'It distinguishes training-fit evidence from heldout selection evidence; it is not a generalization score.\n\n'+
+        ('Information interventions are pending.\n' if information is None else table(
+            ['Read-only intervention','Scenes','Selected PDMS','Regret','High to zero'],
+            [[name,v['scenes'],v['selected_01'],v['regret_01'],v['high_to_zero']] for name,v in information.items()]))+
+        '\nScene mismatch, trajectory time reversal, W removal and spatial interventions do not train another model. '
+        'An altered prediction by itself is not evidence of useful information; compare actual quality and regret with the locked correct-pairing result.\n')
     latency=get('LATENCY_AND_PARAMETER_REPORT.json')
     report('LATENCY_AND_PARAMETER_REPORT.md','# Real inference cost\n\n'+
         ('WAITING_INPUTS: trained-system image-to-trajectory benchmark not executed.\n' if latency is None else json.dumps(latency,indent=2)+'\n')+
