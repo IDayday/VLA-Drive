@@ -21,6 +21,7 @@ class QueryConfig:
     max_speed_mps: float = 40.
     max_acceleration_mps2: float = 12.
     max_yaw_rate_rps: float = 1.5
+    kinematics_revision: str = 'heading_transition_v2'
 
     def to_dict(self):
         return asdict(self)
@@ -85,8 +86,16 @@ def trajectory_queries(q0, current_velocity, config=QueryConfig()):
         da = np.gradient(dv, dense, axis=0, edge_order=2)
         speed = np.linalg.norm(dv, axis=-1)
         rate = np.abs(dv[:, 0]*da[:, 1]-dv[:, 1]*da[:, 0])/np.maximum(speed**2, config.stationary_speed_mps**2)
+        # Curvature alone misses a stopped car's sideways perturbation: its
+        # velocity points sideways with zero curvature, while the body heading
+        # jumps from the legal current heading when crossing the speed floor.
+        # Check the actual heading convention as well. Query poses stay intact;
+        # physically invalid variants are masked, never whole scenes or q0.
+        actual_heading = (np.interp(dense,ts,fallback_yaw) if k==0 else
+            np.where(speed>=config.stationary_speed_mps,np.arctan2(dv[:,1],dv[:,0]),np.interp(dense,ts,fallback_yaw)))
+        heading_rate = np.abs(np.gradient(np.unwrap(actual_heading),dense,edge_order=2))
         stats = dict(speed_max_mps=float(speed.max()), acceleration_max_mps2=float(np.linalg.norm(da, axis=-1).max()),
-                     yaw_rate_max_rps=float(rate.max()), initial_position_error_m=float(np.linalg.norm(dense_xy[0])))
+                     yaw_rate_max_rps=float(max(rate.max(),heading_rate.max())), initial_position_error_m=float(np.linalg.norm(dense_xy[0])))
         stats['valid'] = (stats['speed_max_mps'] <= config.max_speed_mps and
                           stats['acceleration_max_mps2'] <= config.max_acceleration_mps2 and
                           stats['yaw_rate_max_rps'] <= config.max_yaw_rate_rps)

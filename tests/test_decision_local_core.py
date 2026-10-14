@@ -50,6 +50,8 @@ def test_lateral_is_path_normal_not_global_y_and_stationary_heading():
     stop = trajectory_queries(np.zeros((8, 3)), [0., 0.])
     assert np.isfinite(stop['poses']).all()
     np.testing.assert_array_equal(stop['poses'][5:], np.zeros((2, 8, 3)))
+    assert stop['kinematic_valid'][0] and stop['kinematic_valid'][5:].all()
+    assert not stop['kinematic_valid'][1:5].any()  # no instantaneous sideways heading jump
     with pytest.raises(ValueError):
         time_warp(t, 3., 1.)
 

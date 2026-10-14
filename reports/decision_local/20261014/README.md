@@ -51,3 +51,5 @@ G 诊断统一锁定现存 **75000** checkpoint：G3 70000 的临时权重已按
 补齐恢复 moments 与固定输入输出：P_DIFF 恢复的 optimizer 最大差异 3.26e-9，独立连续 A/A 为 3.73e-9；恢复输出最大差异 7.15e-6，A/A 为 1.17e-5；归一化 L2 分别 4.97e-7、8.17e-7，loss 差异均 4.47e-8。原逐位失败保留，E1 的数据、完整 RNG、scheduler、曝光和位置精确相同。本次短链路支持按已观测 CUDA 浮点差异解释恢复，不等于长期训练逐位相同保证。见 evidence/RESUME_AA_AB.json、RESUME_OUTPUTS.json。
 
 用户在本轮明确增加 tsinghua-zt5。SSH 和共享目录正常，已有基础环境版本一致；必要 overlay 已复制至 `/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen`，未升级共享 site-packages。初次检查 1–7 卡约 1.6GB 且 100% 利用率，容器内进程不可见，按既有要求不处理、不抢占，等资源释放再使用。完整缓存提取仍在 vla-zt/rl-zt2 继续。共同 100 GPU-hours 操作上限未扩大。
+
+停车边界的进一步测试发现：仅用路径曲率无法识别“零速起步向侧面移动、heading 突然旋转”的扰动。`heading_transition_v2` 在同一个 1.5 rad/s 物理阈值下，增加实际 heading 变化率检查，不改七条查询的位置与姿态、不改 q0、不按 GT 后果删变体。64 场景两组 q0 中 11 个变体的 mask 改变。`refresh_query_validity.py` 对旧紧凑标签逐轨迹验证 pose 逐位一致，只生成新的运动学 mask/统计版本；已有标签生产进程及其源码不热修改。训练前所有对照统一采用这项修复。14 项单元检查通过。
