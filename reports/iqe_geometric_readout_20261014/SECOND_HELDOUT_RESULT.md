@@ -12,7 +12,10 @@
 因此不能依据3000步时相对较弱对照的改善，宣称几何结构已经优于原结构。
 本模型4000相对3000步改善1.2370点；配对log bootstrap 2000次、seed11235，
 95%区间[0.3516,2.2644]点。该变化同时包含训练推进和阶段数据/目标变化，
-不能单独归因于ranking loss。与S11的同一场景预测配对区间尚未计算。
+不能单独归因于ranking loss。已在空闲GPU4重新得到本项目原S11的固定stage_val预测，严格加载其4k最佳权重，
+结果复现原记录。新模型相对S11的同场景配对区间为[-0.9119,0.6222]点，
+包含零，尚无稳定组间优势证据。125个场景真分更好、69个更差、830个平局；
+较多小改善仍被少数大损失抵消。没有把对照权重用于新模型初始化或教师。
 
 4000步的正确替换收益3.4444点，错误替换损失3.5958点，净收益仍负。
 错误替换85/1024，分布于28个logs；最严重10次替换消耗0.9434点。
@@ -27,3 +30,12 @@
 5000/6000步及完整开发结果仍待实际完成。继续原训练，不改变数据、
 初始化、损失、阈值或端点选择；不加载外部权重，不增加训练预算。
 证据及原始验证记录：STAGE_4000_AUDIT.json。
+
+同场景对照：MATCHED_CONTROL_4000.json、MATCHED_CONTROL_REPRODUCTION.json。
+复现入口（只读取本项目自己的S11，不训练、无外部权重）：
+
+```bash
+CUDA_VISIBLE_DEVICES=4 OMP_NUM_THREADS=2 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.control_audit \
+  --config configs/iqe/geometric_readout/full.yaml --device cuda:0
+```
