@@ -57,6 +57,38 @@ CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
 没有有效非平凡 margin 时报告 always-Base，不称 Scorer 成功。
 raw argmax 始终独立报告。禁止新 navtest 或 ACTIVE 更新。
 
+训练结束后的研究包与新进程真实图像检查：
+
+```bash
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.bundle \
+  --config configs/iqe/geometric_readout/full.yaml
+CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.bundle_check capture \
+  --config configs/iqe/geometric_readout/full.yaml --device cuda:0
+CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=ram_mmap_v1 \
+/root/miniconda3/envs/ddp/bin/python -m iqe.geometric_readout.bundle_check verify \
+  --config configs/iqe/geometric_readout/full.yaml --device cuda:0
+```
+
+新包绑定几何读取实现的源码身份；相同形状的旧全局读取权重不能被误认为
+相同架构。导出校验已选端点，支持重复调用及原子payload提交后、receipt之前
+中断的恢复。不会改写既有Base或部署ACTIVE。
+
+可用以下有界控制器接续上述步骤。它只等待已有训练，不启动训练或发送信号。
+这里的PID和start ticks是本次实际活跃的训练句柄；后续新进程不能照抄旧PID。
+训练结束、运行锁释放、永久主机授权仍有效、GPU没有可见或不明占用后才执行。
+
+```bash
+/root/miniconda3/envs/ddp/bin/python scripts/iqe/finish_geometric_scorer.py \
+  --config configs/iqe/geometric_readout/full.yaml \
+  --expect-host training-rl-zt2 --gpu 0 \
+  --training-pid 832367 --training-start-ticks 1337412802 \
+  --max-wait-seconds 7200
+```
+
+运行记录在 `full_v1/runtime/finalizer`。控制器不扩展6000步预算，也不访问
+navtest。其完整开发评估和最终模型包验收必须以真实完成receipt为准。
+
 真实图像接线资格（可用本实验早期完整 checkpoint，但不作为效果证据）：
 
 ```bash
