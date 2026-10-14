@@ -1,0 +1,456 @@
+{
+  "scope": "fixed_predictor_endpoint_checks",
+  "runtime": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/runtime",
+  "training_source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+  "evaluation_source_sha": "d739b81baab5bf6275b44fd13b9b22efb7c93dc4",
+  "mean_representation_population": "fixed4096 training-only scenes, common to all groups",
+  "jobs": [
+    {
+      "id": "seed42_P_ABS_train4096",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_train4096",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_train4096",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_ABS_dev",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_dev",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_dev",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_ABS_generalization",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_generalization",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_ABS_generalization",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600",
+        "--generalization-config",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/configs/decision_local/generalization_queries.json"
+      ]
+    },
+    {
+      "id": "seed42_P_DIFF_train4096",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_train4096",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_train4096",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_DIFF_dev",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_dev",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_dev",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_DIFF_generalization",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_generalization",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_DIFF_generalization",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600",
+        "--generalization-config",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/configs/decision_local/generalization_queries.json"
+      ]
+    },
+    {
+      "id": "seed42_P_QUERY_ONLY_train4096",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_train4096",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_train4096",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_QUERY_ONLY_dev",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_dev",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_dev",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed42_P_QUERY_ONLY_generalization",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_generalization",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed42_P_QUERY_ONLY_generalization",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600",
+        "--generalization-config",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/configs/decision_local/generalization_queries.json"
+      ]
+    },
+    {
+      "id": "seed43_P_ABS_train4096",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_train4096",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_train4096",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed43_P_ABS_dev",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_dev",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_dev",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed43_P_ABS_generalization",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_generalization",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_ABS_generalization",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600",
+        "--generalization-config",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/configs/decision_local/generalization_queries.json"
+      ]
+    },
+    {
+      "id": "seed43_P_DIFF_train4096",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_train4096",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_train4096",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed43_P_DIFF_dev",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_dev",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_dev",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600"
+      ]
+    },
+    {
+      "id": "seed43_P_DIFF_generalization",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_generalization",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_generalization_v1",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/relation_endpoints_v1/seed43_P_DIFF_generalization",
+        "--controls",
+        "--mean-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/mean_train4096.pt",
+        "--max-seconds",
+        "600",
+        "--generalization-config",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/configs/decision_local/generalization_queries.json"
+      ]
+    }
+  ],
+  "no_new_training": true,
+  "no_navtest": true
+}

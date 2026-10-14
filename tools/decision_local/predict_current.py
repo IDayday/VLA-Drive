@@ -25,6 +25,7 @@ def main():
         if 'label_root' in record:forbidden.append(str(Path(record['label_root']).resolve())+'/')
         forbidden.append(str(Path(record['current_root']).resolve()/'ego')+'/')
     forbidden.append('/mnt/navsim/trainval_navsim_logs/')
+    forbidden.append('/mnt/navsim/test_navsim_logs/')
     def reject_training_open(event,args):
         if event!='open' or not args or not isinstance(args[0],(str,bytes)):return
         path=str(Path(args[0].decode() if isinstance(args[0],bytes) else args[0]).absolute())
