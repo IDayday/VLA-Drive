@@ -1,0 +1,2725 @@
+{
+  "base_training_seeds": 1,
+  "formal_head_runs": 17,
+  "limitations": "State receipt complements existing strict-load and A/A-versus-resume evidence; it is not a new long-run numerical-equivalence claim.",
+  "runs": [
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008258.8588276,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_NONE/epoch_24.pt",
+      "checkpoint_bytes": 98835882,
+      "checkpoint_sha256": "875bee625d0668f17616fbdeeba6a1841708757047929d2eb289f346a8516025",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_NONE",
+        "--kind",
+        "E_NONE",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.0761700185243455,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17449603974819183,
+        "p90_update_s": 0.258426196873188
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "E_NONE",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_NONE",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_E_NONE",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "a6f104cc9e7fe575e6d141dbd45aa2004f96cd42c64b7db9a3aa82a86b020955",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008257.7346864,
+            "host": "training-rl-zt2",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 5800.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792009693.2903063,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3182
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CURRENT_GT/epoch_24.pt",
+      "checkpoint_bytes": 98835946,
+      "checkpoint_sha256": "c08d639997d7d6adbd363b5c8459116c5043b574081dc0cbdc68e65a4b410fb6",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CURRENT_GT",
+        "--kind",
+        "E_CURRENT_GT",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.2878717332126366,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17434465885162354,
+        "p90_update_s": 0.26822113543748854
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "E_CURRENT_GT",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CURRENT_GT",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_E_CURRENT_GT",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "bad8a000dcc6010ed8f522191fd68ecf251b4e08e7987a20c564881a1a9313bf",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008259.0920622,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CV_GT/epoch_24.pt",
+      "checkpoint_bytes": 98835882,
+      "checkpoint_sha256": "f167b04cee90120322459c8a69d9ae09b36906c078013a3366f6fcdb5ed9bb4f",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CV_GT",
+        "--kind",
+        "E_CV_GT",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.076107987053175,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17424579709768295,
+        "p90_update_s": 0.2583052720874548
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "E_CV_GT",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_CV_GT",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_E_CV_GT",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "38871f542df2a06410894620eb4d03cfd6696cf7f6ba71004c1b9df61449f78b",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008257.7144358,
+            "host": "training-rl-zt2",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 5709.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792009792.9017947,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3295
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_FUTURE_GT/epoch_24.pt",
+      "checkpoint_bytes": 98835946,
+      "checkpoint_sha256": "c2e6b04c1470f94a54ddaeaf33532ac67e23370ece63f6bd425513e5f570acf9",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_FUTURE_GT",
+        "--kind",
+        "E_FUTURE_GT",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.2855403360191526,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17023584246635437,
+        "p90_update_s": 0.2534849876537919
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "E_FUTURE_GT",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_FUTURE_GT",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_E_FUTURE_GT",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "a6858c1d8cff92b8b7b701dc21f08839d7666c65a72205a7fb31f5eae78512cf",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008259.282396,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_MASK_ONLY/epoch_24.pt",
+      "checkpoint_bytes": 98835882,
+      "checkpoint_sha256": "6a5f05cacf4a651829da58b9d00ffeab473fe2cc36b4f531b01698084a0bb642",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_MASK_ONLY",
+        "--kind",
+        "E_MASK_ONLY",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.0760525834679397,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17437535896897316,
+        "p90_update_s": 0.25844236090779305
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "E_MASK_ONLY",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_MASK_ONLY",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_E_MASK_ONLY",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "e7e3d0855e69b9ef6566d53f6212bfe9cbe58852e60f93a0c4e013e7d4ade49b",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008259.5016465,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt",
+      "checkpoint_bytes": 92424170,
+      "checkpoint_sha256": "d02a28c407551b2a391c114b43b0da7afedb0db2594bd307d98f5ffc9eb51be7",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS",
+        "--kind",
+        "P_ABS",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.0759916822865812,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.1733451411128044,
+        "p90_update_s": 0.2573883570730686
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "23701909d5f625e1965b6f3879dec380062ed74f7a4afa5dfc573e5123c3b7c5",
+        "kind": "P_ABS",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 7628805,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 36,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 36,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS",
+      "parameter_inventory_sha256": "b54b8c93f732dabd58c8a1d0eae5b3d6cf57c1fd80752b474ce3204c3fbc1691",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_P_ABS",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "f76269f7072a126e4422a33a8a3906e295ae1d84082cb55fc14bcf9ef3232de0",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008257.787683,
+            "host": "training-rl-zt2",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 5709.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792009792.7829976,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3295
+        },
+        {
+          "max_seconds": 1974.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013533.1592784,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 18278
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+      "checkpoint_bytes": 92424234,
+      "checkpoint_sha256": "7c8ea0fc4258b924e1c69e91b429e8fa6f8f388b05d1ed32718b2400607553fc",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF",
+        "--kind",
+        "P_DIFF",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.4802341680942723,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.12170746363699436,
+        "p90_update_s": 0.1448070824146271
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "23701909d5f625e1965b6f3879dec380062ed74f7a4afa5dfc573e5123c3b7c5",
+        "kind": "P_DIFF",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 7628805,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 36,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 36,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF",
+      "parameter_inventory_sha256": "b54b8c93f732dabd58c8a1d0eae5b3d6cf57c1fd80752b474ce3204c3fbc1691",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_P_DIFF",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "73329378f2e2bdf57a35cb74e78f5b095661f02c6774a856e48dc369c97be8a6",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008259.087141,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY/epoch_24.pt",
+      "checkpoint_bytes": 84029790,
+      "checkpoint_sha256": "c3742b17284466a7237ce4b601f88e25d1e99225f1b3a6660e4a80d5f4816a48",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY",
+        "--kind",
+        "P_QUERY_ONLY",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.0761069024204173,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.17263110168278217,
+        "p90_update_s": 0.257485156878829
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 1049088,
+        "initial_model_sha256": "23701909d5f625e1965b6f3879dec380062ed74f7a4afa5dfc573e5123c3b7c5",
+        "kind": "P_QUERY_ONLY",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 7628805,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 36,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 34,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_QUERY_ONLY",
+      "parameter_inventory_sha256": "b54b8c93f732dabd58c8a1d0eae5b3d6cf57c1fd80752b474ce3204c3fbc1691",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_P_QUERY_ONLY",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "842b6378ec0e651457be725d5217fa54caf80d75217962536da66c2f7d1e8c95",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008259.7415955,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt",
+      "checkpoint_bytes": 92424170,
+      "checkpoint_sha256": "0af38a3ac056a45155e66315b1148ddfd1e53e6d15b07b3807beff7511b86b2d",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS",
+        "--kind",
+        "P_ABS",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.1403365187709116,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.19000927172601223,
+        "p90_update_s": 0.2618908192962408
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "48f1da66293850dfb788a5e4c2db2084df32f3fea9aee9b425137a42fffabb12",
+        "kind": "P_ABS",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 7628805,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 36,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 36,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS",
+      "parameter_inventory_sha256": "b54b8c93f732dabd58c8a1d0eae5b3d6cf57c1fd80752b474ce3204c3fbc1691",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_P_ABS",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "4d0296297c59322a53fd5559b446c53a1231a842390aaf158b3634c162a750c1",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792008258.923847,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt",
+      "checkpoint_bytes": 92424170,
+      "checkpoint_sha256": "bbcea0227f5d7118ba0aa9573b318263432d6aa4b025fba6cfb427389584a60e",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF",
+        "--kind",
+        "P_DIFF",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200"
+      ],
+      "complete": {
+        "GPU_hours": 1.1405587986163381,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.18998964875936508,
+        "p90_update_s": 0.2617217153310776
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "48f1da66293850dfb788a5e4c2db2084df32f3fea9aee9b425137a42fffabb12",
+        "kind": "P_DIFF",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 7628805,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 36,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 36,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF",
+      "parameter_inventory_sha256": "b54b8c93f732dabd58c8a1d0eae5b3d6cf57c1fd80752b474ce3204c3fbc1691",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_P_DIFF",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "91244889120efbb7df71fea7ff2aef1b0702ad3ffa9fdfa10016e894eccc4851",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012146.510725,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 6303.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013138.6254537,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3020
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_CURRENT_PRED/epoch_24.pt",
+      "checkpoint_bytes": 98836010,
+      "checkpoint_sha256": "2fd7c4bc451fe38efd9dcafd614673d991c134a7d2b7d113ecd111d26aa51376",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_CURRENT_PRED",
+        "--kind",
+        "R_CURRENT_PRED",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200",
+        "--predictor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt"
+      ],
+      "complete": {
+        "GPU_hours": 0.914544355100273,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.14367827802198008,
+        "p90_update_s": 0.160572006017901
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "R_CURRENT_PRED",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": "d02a28c407551b2a391c114b43b0da7afedb0db2594bd307d98f5ffc9eb51be7",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_CURRENT_PRED",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_R_CURRENT_PRED",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "8427e82a9f078ef2ed1583fd5d371c45c65e898d65cc79e74af1359cd07b0909",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012146.3848681,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 6303.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013138.393763,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3020
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_ABS/epoch_24.pt",
+      "checkpoint_bytes": 98836010,
+      "checkpoint_sha256": "b043063f73b4bc38d630aed606b9a4e0294d3d9936f6cc084540731bb5318bf2",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_ABS",
+        "--kind",
+        "R_FUTURE_ABS",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200",
+        "--predictor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_ABS/epoch_24.pt"
+      ],
+      "complete": {
+        "GPU_hours": 0.9093322084663831,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.14093534398125485,
+        "p90_update_s": 0.15942316898144782
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "R_FUTURE_ABS",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": "d02a28c407551b2a391c114b43b0da7afedb0db2594bd307d98f5ffc9eb51be7",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_ABS",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_R_FUTURE_ABS",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "13ec593f6441a55f56fbe3c9a3c55e8d2a01297d8da2a8b19955316d7b7bf5ff",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013645.5519812,
+            "host": "training-vla-zt",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 7119.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013864.8691251,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 46
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_DIFF/epoch_24.pt",
+      "checkpoint_bytes": 98836010,
+      "checkpoint_sha256": "b5a0fa13ec2ddcf187144351001e7124cbca7e301537357d7936fac40915a422",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_DIFF",
+        "--kind",
+        "R_FUTURE_DIFF",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "42",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200",
+        "--predictor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt"
+      ],
+      "complete": {
+        "GPU_hours": 0.7670887382916407,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.13741144200321287,
+        "p90_update_s": 0.15420796280959626
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "R_FUTURE_DIFF",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": "7c8ea0fc4258b924e1c69e91b429e8fa6f8f388b05d1ed32718b2400607553fc",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_DIFF",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed42_R_FUTURE_DIFF",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "1b2f460f33c7c25e84a9c5e6836fc4e7181ad40523b50799cdd0706e6806de96",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012369.660535,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 6526.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013138.7637477,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 2651
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_ABS/epoch_24.pt",
+      "checkpoint_bytes": 98836010,
+      "checkpoint_sha256": "e5fd90a8a4c8a77a3d77975d9555d2183fbce5d1ddd0ba5bba25a72c57b367f9",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_ABS",
+        "--kind",
+        "R_FUTURE_ABS",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200",
+        "--predictor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt"
+      ],
+      "complete": {
+        "GPU_hours": 0.860945436457227,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.14174739448935725,
+        "p90_update_s": 0.1596356102032587
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "R_FUTURE_ABS",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": "0af38a3ac056a45155e66315b1148ddfd1e53e6d15b07b3807beff7511b86b2d",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_ABS",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_R_FUTURE_ABS",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "43b0754d752a63aad3f0e8b6c4be17bc663490cda6eee18add57ff3af752642a",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 7200.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012369.479805,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 6526.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013139.2645452,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 2651
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_DIFF/epoch_24.pt",
+      "checkpoint_bytes": 98836010,
+      "checkpoint_sha256": "ac8189bcb5e363b70394562316f3f12039e2535db3f507ff9849150ac25e939d",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_DIFF",
+        "--kind",
+        "R_FUTURE_DIFF",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "7200",
+        "--predictor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt"
+      ],
+      "complete": {
+        "GPU_hours": 0.8525943412049997,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.1394005810143426,
+        "p90_update_s": 0.15800045990617947
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "R_FUTURE_DIFF",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": "bbcea0227f5d7118ba0aa9573b318263432d6aa4b025fba6cfb427389584a60e",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_DIFF",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_R_FUTURE_DIFF",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "605c1d1a109697310920a49860d0444041fc2c048f4f1584b0fadd1839378252",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 4500.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012067.253918,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 3524.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013138.4775474,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3428
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_NONE/epoch_24.pt",
+      "checkpoint_bytes": 98835946,
+      "checkpoint_sha256": "12e7f74db60dbc3449eb662dc5424ad58be730cff6aba66d431576f72e499ad3",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_NONE",
+        "--kind",
+        "E_NONE",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "4500"
+      ],
+      "complete": {
+        "GPU_hours": 0.7824238681441703,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.11058111797319725,
+        "p90_update_s": 0.1278662275755778
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "E_NONE",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_NONE",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_E_NONE",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "de0ee8963507c734831a42cc4ecef1d7a60c7927933d4c2227375bbb7223d915",
+      "training_records": 19056
+    },
+    {
+      "attempts": [
+        {
+          "max_seconds": 4500.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792012067.4269333,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": false,
+          "starting_update": 0
+        },
+        {
+          "max_seconds": 3524.0,
+          "max_updates": 0,
+          "resource_check": {
+            "checked_unix": 1792013138.9630823,
+            "host": "training-vlawm-tsinghua-zt5",
+            "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+          },
+          "resume": true,
+          "starting_update": 3428
+        }
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_FUTURE_GT/epoch_24.pt",
+      "checkpoint_bytes": 98835946,
+      "checkpoint_sha256": "ea7a59b4972034f0d58bd255e8774419d9d973ab40f9d8de6f2fb983d824a6f6",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014/tools/decision_local/train_small_model.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_train_current_ground_kinv2",
+        "--dev-features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+        "--dev-labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_dev_current_ground_kinv2",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_FUTURE_GT",
+        "--kind",
+        "E_FUTURE_GT",
+        "--scope",
+        "formal",
+        "--epochs",
+        "24",
+        "--batch",
+        "128",
+        "--microbatch",
+        "16",
+        "--seed",
+        "43",
+        "--data-reader",
+        "mmap_tensors",
+        "--max-seconds",
+        "4500"
+      ],
+      "complete": {
+        "GPU_hours": 0.7984870424561086,
+        "completed": 19056,
+        "epoch": 24,
+        "exposure": 2438208,
+        "full_training_population": true,
+        "median_update_s": 0.1159050629939884,
+        "p90_update_s": 0.13340446639340373
+      },
+      "data_order_exact_permutation": true,
+      "identity": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "E_FUTURE_GT",
+        "labels": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "predictor_sha256": null,
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v2",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ]
+        },
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "decision_local_small_head_v1",
+        "scope": "formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "a2fd7757be24efd63330259d5ab4f34e071e263ed41e56be7d10d54cdfe3612e",
+          "tools/decision_local/train_small_model.py": "b1b98133fa4e5c9a3487822ebd1cc3e5e370570085bc5bb06a19ae6643974624"
+        },
+        "source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+        "trainable_parameters": 8162308,
+        "weight_decay": 0.001
+      },
+      "model_state_tensors": 44,
+      "native_state_keys": [
+        "GPU_hours",
+        "completed",
+        "epoch",
+        "exposure",
+        "identity",
+        "model",
+        "offset",
+        "optimizer",
+        "order",
+        "rng",
+        "scheduler"
+      ],
+      "optimizer_group_lr": [
+        1.000000066586408e-05
+      ],
+      "optimizer_state_tensors": 44,
+      "optimizer_steps": [
+        19056
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/E_FUTURE_GT",
+      "parameter_inventory_sha256": "2f0404031b7e618c68d13d45751bfd8b3c49b00409f35771c2244c3f59a1648f",
+      "rng_keys": [
+        "cuda",
+        "generators",
+        "numpy",
+        "python",
+        "torch"
+      ],
+      "run_id": "formal_seed43_E_FUTURE_GT",
+      "scheduler_last_epoch": 19056,
+      "training_log_sha256": "0b333decc0befaf3f8766052a5eaddcd88c5c936a928bb766cade6177eedfdd1",
+      "training_records": 19056
+    }
+  ],
+  "scope": "Native final head checkpoints; no weights uploaded and no resumed training",
+  "source_sha": "0f8b99768a0484d6ca75dce4a9958e4b6a960754",
+  "tool_sha256": "9a44ec8b10a8efb5aeccfa9cee45f9f8553de6618df05a914221b23dc3af2bc2"
+}

@@ -1,0 +1,107 @@
+{
+  "routing": [
+    {
+      "original_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/REGISTRY_VLA.json",
+      "new_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/REGISTRY_TSG5.json",
+      "same_commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-decision-local-final-evaluation-frozen-20261014/tools/decision_local/evaluate_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/features",
+          "--queries",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/queries",
+          "--checkpoint",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_ABS/epoch_24.pt",
+          "--output",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/seed43_R_FUTURE_ABS_epoch24",
+          "--mode",
+          "camera_only",
+          "--max-seconds",
+          "600",
+          "--predictor",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_ABS/epoch_24.pt"
+        ],
+        "score": [
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-decision-local-final-evaluation-frozen-20261014/tools/structured_world/stream_navsim_navtest_pdms.py",
+          "--predictions",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/seed43_R_FUTURE_ABS_epoch24",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/scores/seed43_R_FUTURE_ABS_epoch24",
+          "--workers",
+          "16",
+          "--population",
+          "navtest",
+          "--research-scope",
+          "decision_local",
+          "--max-seconds",
+          "7200"
+        ]
+      },
+      "reason": "Newly available authorized tsinghua-zt5, CPU protocol checked on4 real scenes; no active child stopped",
+      "unix": 1792017031.8569188
+    },
+    {
+      "original_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/REGISTRY_RL.json",
+      "new_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/REGISTRY_TSG5.json",
+      "same_commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-decision-local-final-evaluation-frozen-20261014/tools/decision_local/evaluate_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/features",
+          "--queries",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/queries",
+          "--checkpoint",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_DIFF/epoch_24.pt",
+          "--output",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/seed43_R_FUTURE_DIFF_epoch24",
+          "--mode",
+          "camera_only",
+          "--max-seconds",
+          "600",
+          "--predictor",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/P_DIFF/epoch_24.pt"
+        ],
+        "score": [
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-decision-local-final-evaluation-frozen-20261014/tools/structured_world/stream_navsim_navtest_pdms.py",
+          "--predictions",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/seed43_R_FUTURE_DIFF_epoch24",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/scores/seed43_R_FUTURE_DIFF_epoch24",
+          "--workers",
+          "16",
+          "--population",
+          "navtest",
+          "--research-scope",
+          "decision_local",
+          "--max-seconds",
+          "7200"
+        ]
+      },
+      "reason": "Newly available authorized tsinghua-zt5, CPU protocol checked on4 real scenes; no active child stopped",
+      "unix": 1792017031.8628147
+    }
+  ],
+  "scope": "Same6locked24epochcamera-onlyarms",
+  "score_pools": {
+    "per_host": 2,
+    "workers_per_pool": 16,
+    "maximum_across3hosts": 96
+  },
+  "prior_two_host_receipt_retained": true
+}

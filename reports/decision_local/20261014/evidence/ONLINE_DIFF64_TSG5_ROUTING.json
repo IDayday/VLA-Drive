@@ -1,0 +1,26 @@
+{
+  "reason": "Use newly released authorized tsinghua-zt5 capacity; preserve original active workers",
+  "original_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_deployment_v1/REGISTRY_v2.json",
+  "new_registry": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_deployment_v1/REGISTRY_TSG5.json",
+  "same_command": [
+    "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+    "-u",
+    "/mnt/project/VLA-Drive-decision-local-deployment-v2-frozen-20261014/tools/decision_local/predict_current.py",
+    "--anchor",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+    "--refiner",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_DIFF/epoch_24.pt",
+    "--predictor",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/P_DIFF/epoch_24.pt",
+    "--output",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/formal_deployment_v1/online_DIFF_64",
+    "--index",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/formal_deployment_v1/fixed_dev64.json",
+    "--split",
+    "dev",
+    "--max-seconds",
+    "1200"
+  ],
+  "unix": 1792016827.4890914,
+  "old_runtime": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_deployment_v1/runtime_v2"
+}
