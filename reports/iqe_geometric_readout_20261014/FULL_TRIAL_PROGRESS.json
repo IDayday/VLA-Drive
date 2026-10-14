@@ -1,0 +1,133 @@
+{
+  "recorded_utc": "2026-10-14T22:25:57.743024+00:00",
+  "diagnostic": {
+    "changed_selections": 37,
+    "correct": {
+      "base_01": 0.9350531101226807,
+      "mse": 0.010278718546032906,
+      "oracle_01": 0.9693174958229065,
+      "selected_01": 0.9649755954742432
+    },
+    "experimental_risk": "geometry assumptions and frozen V may still be insufficient",
+    "final_state_hash": "7e08ff06f24ecfb30014c2f067e0a9faadbfbef7e6f868a3d7dd9121948493f1",
+    "global_control": {
+      "base_01": 0.9350531101226807,
+      "mse": 0.03902887925505638,
+      "oracle_01": 0.9693174958229065,
+      "selected_01": 0.9418139457702637
+    },
+    "maximum_prediction_change": 0.9509435892105103,
+    "optimizer_steps": 300,
+    "parameters_changed": true,
+    "scenes": 64,
+    "scientific_generalization_result": false,
+    "status": "COMPLETE",
+    "weights_eligible_for_deployment": false,
+    "wrong_visual": {
+      "base_01": 0.9350531101226807,
+      "mse": 0.08293488621711731,
+      "oracle_01": 0.9693174958229065,
+      "selected_01": 0.8855028748512268
+    }
+  },
+  "full_training_snapshot": {
+    "global_batch": 128,
+    "seconds_per_update": 1.2461049946041796,
+    "status": "RUNNING",
+    "step": 224,
+    "world_size": 4
+  },
+  "launch": {
+    "pid": 832367,
+    "start_ticks": "1337412802",
+    "host": "training-rl-zt2-worker-0",
+    "utc": "2026-10-14T22:20:42.795248+00:00",
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc_per_node=4",
+      "-m",
+      "iqe.geometric_readout.full",
+      "train",
+      "--config",
+      "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/geometric_readout/full.yaml",
+      "--device",
+      "cuda:0",
+      "--resume",
+      "auto"
+    ],
+    "gpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "resource_snapshot": {
+      "0": [
+        0,
+        0
+      ],
+      "1": [
+        0,
+        0
+      ],
+      "2": [
+        0,
+        0
+      ],
+      "3": [
+        0,
+        0
+      ],
+      "4": [
+        0,
+        0
+      ],
+      "5": [
+        0,
+        0
+      ],
+      "6": [
+        0,
+        0
+      ],
+      "7": [
+        0,
+        0
+      ]
+    },
+    "commit": "4a19a44eb9fed8d122f5d2929d3c26c0c576c5e5",
+    "maximum_total_updates": 6000,
+    "parent_checkpoint": "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_000002.pt",
+    "temporary_host": false,
+    "external_weights": false
+  },
+  "complete_calibration_records": 20325,
+  "calibration_payload_bytes": 46191059,
+  "D_S_scenes": 16581,
+  "full_target_steps": 6000,
+  "source_code_commit": "4a19a44eb9fed8d122f5d2929d3c26c0c576c5e5",
+  "runtime_code_mutated": false,
+  "resume_receipt_exact": true,
+  "next_batch_matches_actual_step3": true,
+  "first_86_parameters_have_finite_gradients": true,
+  "native_four_rank_updates_confirmed": true,
+  "heldout_geometry_quality": "WAITING_FOR_REGISTERED_VALIDATIONS",
+  "new_navtest": false,
+  "ACTIVE_updated": false,
+  "new_expert_or_Base_updates": 0,
+  "real_online_qualification": {
+    "status": "PASS",
+    "checkpoint": "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_000002.pt",
+    "real_scenes": 4,
+    "single_visual_and_language_forward": true,
+    "context_max_abs": 0.0,
+    "Base_raw_max_abs": 8.344650268554688e-07,
+    "physical_max_abs": 6.198883056640625e-06,
+    "score_max_abs": 8.940696716308594e-08,
+    "labels_do_not_change_output": true,
+    "scientific_quality_result": false
+  }
+}
