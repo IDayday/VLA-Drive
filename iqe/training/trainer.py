@@ -83,7 +83,7 @@ def complete_result(output):
             'termination':result.get('termination', {'legacy_completed_record':True})}, immutable=True)
 
 def train(module, loss_function, fetch, sampler, config, dependencies, output, *, device="cpu", weights=None,
-          resume=None, non_exact_finetune=False, validate=None, stop_after=None, audit=None, seed=42, denominator_function=None, resume_allow_fallback=False):
+          resume=None, non_exact_finetune=False, validate=None, stop_after=None, audit=None, seed=42, denominator_function=None, resume_allow_fallback=False, after_optimizer_step=None):
     rank, world = init_distributed(device)
     device = f"cuda:{int(os.environ.get('LOCAL_RANK', '0'))}" if device.startswith("cuda") else device
     global_batch = config.get("global_batch_size", config.get("global_scene_batch_size"))
@@ -236,6 +236,8 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                                       "norm": p.grad.detach().float().norm().item() if p.grad is not None else None}
                                  for name, p in module.named_parameters() if p.requires_grad and (step == start_step or stop_after == step + 1)}
             optimizer.step(); scheduler.step(); sampler.consume(len(entries)); step += 1
+            if after_optimizer_step is not None:
+                after_optimizer_step(module, step)
             consumed.extend(e["scene_id"] for e in entries)
             row = {"optimizer_step": step, "losses": logs, "loss": loss_value, "gradient_norm": float(norm),
                    "sample_ids": [e["scene_id"] for e in entries], "global_batch_actual": len(entries),
@@ -247,7 +249,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                 with open(output / "steps.jsonl", "a") as f:
                     import json
                     f.write(json.dumps(row, allow_nan=False) + "\n")
-            if validate and (step % config["validation_every_steps"] == 0 or step == config["max_optimizer_steps"]):
+            if validate and ((step in config["validation_steps"] if "validation_steps" in config else step % config["validation_every_steps"] == 0) or step == config["max_optimizer_steps"]):
                 module.eval()
                 validation, error = None, None
                 if rank == 0:

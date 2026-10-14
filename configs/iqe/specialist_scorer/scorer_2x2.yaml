@@ -1,0 +1,22 @@
+lr: 0.0001
+weight_decay: 0.01
+global_batch_size: 128
+max_optimizer_steps: 6000
+warmup_steps: 100
+lr_min_ratio: 1.0
+grad_clip_norm: 1.0
+schedule: warmup_constant
+validation_steps: [3000, 4000, 5000, 6000]
+checkpoint_every_steps: 1000
+phase_switch_step: 3000
+natural_phase2: 64
+comparison_phase2: 64
+value_weight: 1.0
+components_weight: 0.2
+ranking_weight: 0.2
+dropout: 0.0
+cells:
+  S00: {spatial: false, rich: false}
+  S01: {spatial: false, rich: true}
+  S10: {spatial: true, rich: false}
+  S11: {spatial: true, rich: true}

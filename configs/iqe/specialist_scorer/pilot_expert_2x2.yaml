@@ -1,0 +1,17 @@
+lr: 0.0001
+weight_decay: 0.0
+global_batch_size: 128
+max_optimizer_steps: 5000
+warmup_steps: 100
+lr_min_ratio: 0.1
+grad_clip_norm: 1.0
+schedule: warmup_cosine
+validation_steps: [1000, 3000, 5000]
+checkpoint_every_steps: 1000
+ema_decay: 0.999
+anchor_ratio: 0
+cells:
+  E00: {target: gt, private_reader: false}
+  E10: {target: offline_optimized, private_reader: false}
+  E01: {target: gt, private_reader: true}
+  E11: {target: offline_optimized, private_reader: true}
