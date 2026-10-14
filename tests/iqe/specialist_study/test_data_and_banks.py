@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from iqe.specialist_study.target_rules import eligibility
 from iqe.specialist_study.data import failure_specialties,admissible_optimized_source
-from iqe.specialist_study.bank import canonical_comparison_mask,trajectory_variants
+from iqe.specialist_study.bank import canonical_comparison_mask,trajectory_variants,constructed_geometry,duplicates_original_gt
 from iqe.scoring.reference import COMPONENTS
 
 
@@ -42,8 +42,26 @@ def test_identical_candidate_does_not_create_additional_ranking_information():
 
 def test_rich_variants_no_future_extrapolation_and_correct_time_geometry():
     p=np.zeros((8,3),np.float32);p[:,0]=np.arange(1,9)*2
-    variants=trajectory_variants(p,.5)
+    variants=trajectory_variants(p,.5,current_speed=4.)
     assert len(variants)==4
     assert all(x.shape==(8,3) and np.isfinite(x).all() for _,x in variants)
     assert all(x[-1,0]<=p[-1,0]+1e-6 for _,x in variants)
     assert len({x.tobytes() for _,x in variants})==4
+
+
+def test_constructed_candidates_use_current_physical_speed_and_dynamics():
+    p=np.zeros((8,3),np.float32);p[:,0]=np.arange(1,9)*2
+    assert constructed_geometry(p,.5,current_speed=4.)['valid']
+    assert not constructed_geometry(p,.5,current_speed=30.)['valid']
+    p[:,2]=np.pi
+    assert not constructed_geometry(p,.5,current_speed=4.)['valid']
+    with pytest.raises(Exception,match='current physical speed'):
+        trajectory_variants(p,.5)
+
+
+def test_rich_optimized_label_cannot_hide_unchanged_gt():
+    gt=np.zeros((8,3),np.float64);gt[:,0]=np.arange(1,9)
+    same=gt.copy();same[:,2]=2*np.pi
+    assert duplicates_original_gt(same,gt)
+    improved=gt.copy();improved[:,1]=.1
+    assert not duplicates_original_gt(improved,gt)

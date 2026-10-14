@@ -138,19 +138,34 @@ class ResearchSystem(nn.Module):
                 x=context.tensors()|{'planner_scene':planner.scene,'planner_ego':planner.ego,'planner_mask':planner.valid_tokens}
             finally:
                 for h in handles:h.remove()
-        candidates=[self.adapter.predict_s0(planner).physical]
-        candidates.extend(m(x).physical for m in self.experts[:count]);trajectories=torch.stack(candidates,1)
+        branch_calls={'Base_decoder':0,'expert_decoders':[0]*count,'score_context_projections':0,'spatial_reader':0}
+        def branch(name,index=None):
+            def callback(*_):
+                if index is None:branch_calls[name]+=1
+                else:branch_calls[name][index]+=1
+            return callback
+        handles=[self.adapter.framework.action_model.expert.register_forward_hook(branch('Base_decoder'))]
+        handles += [m.expert.register_forward_hook(branch('expert_decoders',i)) for i,m in enumerate(self.experts[:count])]
+        try:
+            candidates=[self.adapter.predict_s0(planner).physical]
+            candidates.extend(m(x).physical for m in self.experts[:count]);trajectories=torch.stack(candidates,1)
+        finally:
+            for handle in handles:handle.remove()
         require(torch.isfinite(trajectories).all().item(),'invalid deployed candidate trajectory')
         predictions=None
         if score and count:
             context={k:x[k] for k in CONTEXT_KEYS}
             if self.scorer.spatial:context.update({k:x[k] for k in ('visual','visual_valid','visual_xy')})
-            predictions=self.scorer(context,trajectories)['values']
+            handles=[self.scorer.world_projection.register_forward_hook(branch('score_context_projections'))]
+            if self.scorer.spatial:handles.append(self.scorer.spatial_reader.register_forward_hook(branch('spatial_reader')))
+            try:predictions=self.scorer(context,trajectories)['values']
+            finally:
+                for handle in handles:handle.remove()
             require(torch.isfinite(predictions).all().item(),'nonfinite deployed Scorer output')
             chosen=predictions.argmax(1)  # stable registry order, exact tie Base first
         else:chosen=torch.zeros(len(observations),device=trajectories.device,dtype=torch.long)
         return {'trajectory':trajectories[torch.arange(len(observations),device=trajectories.device),chosen],
-                'candidates':trajectories,'predicted_scores':predictions,'selected':chosen,'calls':calls}
+                'candidates':trajectories,'predicted_scores':predictions,'selected':chosen,'calls':calls,'branch_calls':branch_calls}
 
 
 def load_research_bundle(path,device):
@@ -180,13 +195,22 @@ def load_research_bundle(path,device):
 
 def benchmark(config,device='cuda:0'):
     from iqe.s0_adapter import S0Adapter
+    from .qualifications import scorer_resume
+    scorer_resume(config,device)
     chosen=read_json(config.root/'SCORER_MATRIX_SELECTION.json')['selected']['cell'];scorer=selected_scorer(config,chosen,device)
     p=pool(config);adapter=S0Adapter.load_and_validate_s0(read_json(config.root/'OFFLINE_BASE_CONTRACT.json'),device)
     experts=[load_endpoint(config,item,device) for item in p['experts']];system=ResearchSystem(adapter,experts,scorer).eval().requires_grad_(False)
     scenes=scenes_by_role(config)['stage_val'][:32];rows=[]
     sync=lambda:torch.cuda.synchronize() if str(device).startswith('cuda') else None
-    for n in range(len(experts)+1):
-        for score in ([False] if n==0 else [False,True]):
+    scorer_parameters={}
+    modes=[(n,None) for n in range(len(experts)+1)]
+    modes += [(n,cell) for cell in ('S00','S10') for n in range(1,len(experts)+1)]
+    loaded_cell=chosen
+    for n,cell in modes:
+            score=cell is not None
+            if score and cell!=loaded_cell:
+                scorer=selected_scorer(config,cell,device);system.scorer=scorer;loaded_cell=cell
+            if score:scorer_parameters[cell]=sum(parameter.numel() for parameter in scorer.parameters())
             elapsed=[];scorer_times=[];calls=[];start_event=[None];handles=[]
             def before(*_):sync();start_event[0]=time.perf_counter()
             def after(*_):sync();scorer_times.append(time.perf_counter()-start_event[0])
@@ -196,17 +220,47 @@ def benchmark(config,device='cuda:0'):
                 sync();started=time.perf_counter();obs=[load_observation(scenes[i%len(scenes)],adapter.contract)]
                 result=system.shared_forward(obs,expert_count=n,score=score);sync()
                 if i>=3:elapsed.append(time.perf_counter()-started);calls.append(result['calls'])
+                require(result['branch_calls']=={'Base_decoder':1,'expert_decoders':[1]*n,
+                    'score_context_projections':int(score),'spatial_reader':int(score and scorer.spatial)},'independent branch/projection calls changed')
             for h in handles:h.remove()
             require(all(x=={'visual':1,'language':1} for x in calls),'online shared calls')
-            rows.append({'K':n+1,'scorer':score,'mean_seconds':float(np.mean(elapsed)),'p50_seconds':float(np.median(elapsed)),
+            rows.append({'K':n+1,'scorer':score,'scorer_cell':cell,'scoring_input':'spatial' if score and scorer.spatial else ('semantic' if score else None),
+                'mean_seconds':float(np.mean(elapsed)),'p50_seconds':float(np.median(elapsed)),
                 'p95_seconds':float(np.quantile(elapsed,.95)),'measurements':len(elapsed),'warmup':3,'batch':1,
                 'scorer_p50_seconds':float(np.median(scorer_times[3:])) if scorer_times else 0.,
                 'GPU_peak_bytes':torch.cuda.max_memory_allocated() if str(device).startswith('cuda') else None,
-                'visual_calls':1,'language_calls':1,'device':str(device),'online_image_decode_included':True})
+                'visual_calls':1,'language_calls':1,'score_context_projection_calls':int(score),'independent_Decoder_calls':n+1,
+                'device':str(device),'online_image_decode_included':True,'timing_hooks_enabled_in_all_conditions':True})
     bundle=export_bundle(config,chosen)
     # All private weights restored strictly; independent process command is in RUNBOOK.
     result={'rows':rows,'hardware':torch.cuda.get_device_name() if str(device).startswith('cuda') else 'CPU',
         'Base_parameters':sum(p.numel() for p in adapter.parameters()),'expert_parameters':[sum(p.numel() for p in m.parameters()) for m in experts],
-        'scorer_parameters':sum(p.numel() for p in scorer.parameters()),'bundle':str(bundle),'runtime':'locked Base original inference precision'}
+        'scorer_parameters':scorer_parameters,'bundle':str(bundle),'runtime':'locked Base original inference precision'}
     atomic_json(config.root/'LATENCY_AND_PARAMETER_REPORT.json',result,immutable=True)
+    # Check an independently loaded process against the current in-memory model.
+    system.scorer=selected_scorer(config,chosen,device)
+    observation=load_observation(scenes[0],adapter.contract)
+    reference=system.shared_forward([observation])
+    refpath=config.root/'research_bundle/ROUNDTRIP_REFERENCE.pt'
+    atomic_torch(refpath,{k:reference[k].detach().cpu() for k in ('trajectory','candidates','predicted_scores','selected')},immutable=True)
+    atomic_json(config.root/'research_bundle/ROUNDTRIP_INPUT.json',{'scene_id':scenes[0].scene_id,
+        'observation_hash':scenes[0].observation_hash,'reference_hash':file_hash(refpath),
+        'physical_tolerance':1e-4,'score_tolerance':1e-5},immutable=True)
+    import os,subprocess,sys
+    process=subprocess.run([sys.executable,'-m','iqe.specialist_study.qualifications','bundle-roundtrip','--config',
+        str(config.root/'resolved_config.yaml') if (config.root/'resolved_config.yaml').exists() else str(_portable_config(config)),
+        '--device',str(device)],cwd=Path(__file__).resolve().parents[2],env=dict(os.environ),capture_output=True,text=True)
+    (config.root/'research_bundle/ROUNDTRIP_PROCESS.log').write_text(process.stdout+process.stderr)
+    require(process.returncode==0,'independent process bundle restore failed; inspect ROUNDTRIP_PROCESS.log')
+    from .reporting import generate
+    generate(config)
     return result
+
+
+def _portable_config(config):
+    from dataclasses import asdict
+    import yaml
+    from iqe.io import atomic_bytes
+    path=config.root/'resolved_config.yaml'
+    atomic_bytes(path,yaml.safe_dump(asdict(config),sort_keys=True).encode(),immutable=True)
+    return path

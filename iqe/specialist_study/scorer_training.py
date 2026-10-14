@@ -11,7 +11,7 @@ from .binding import scenes_by_role
 from .models import StudyScorer,load_bridge
 from .objectives import StudySampler,terms,denominators,pair_population
 from .data import ReusedContext
-from .context import SpatialCache
+from .context_reader import VerifiedSpatialReader as SpatialCache
 from .training import runtime,trainer_config,preload
 from .bank import load_bank,pool
 from .metrics import metrics,select
@@ -51,6 +51,32 @@ def fetch_context(config,scenes,device,cache,spatial_cache=None):
     x=cache.batch(scenes,device);context={k:x[k].detach() for k in CONTEXT_KEYS}
     if spatial_cache is not None:context.update(spatial_cache.batch(scenes,device))
     return context
+
+
+def batch_fetch(config,scenes,cache,spatial,deploy,rich,use_rich):
+    """Same natural/pair batch construction for training and real resume audits."""
+    lookup={s.scene_id:s for s in scenes};index={s.scene_id:i for i,s in enumerate(scenes)}
+    def fetch(entries,dev):
+        require(len({e['phase'] for e in entries})==1,'a microbatch cannot mix sampler phases')
+        batch_scenes=[lookup[e['scene_id']] for e in entries]
+        context=fetch_context(config,batch_scenes,dev,cache,spatial)
+        active=rich if entries[0]['phase']==1 and use_rich else deploy
+        width=max(active['scores'].shape[1],2)
+        names=('trajectories','scores','valid','components','component_valid');rows={k:[] for k in names}
+        natural=[];comparison=[]
+        for e in entries:
+            source=rich if e['phase']==1 and use_rich else deploy
+            n=index[e['scene_id']]
+            candidate_indices=[e['pair_i'],e['pair_j']] if e['comparison'] else list(range(source['scores'].shape[1]))
+            for key in names:
+                shape=(width,*source[key].shape[2:]);value=np.zeros(shape,dtype=source[key].dtype)
+                chosen=source[key][n,candidate_indices];value[:len(chosen)]=chosen;rows[key].append(value)
+            is_padding=e.get('_padding',False)
+            natural.append(e['natural'] and not is_padding);comparison.append(e['comparison'] and not is_padding)
+        b={k:torch.from_numpy(np.stack(v)).to(dev) for k,v in rows.items()}
+        b.update(context=context,natural=torch.tensor(natural,device=dev),comparison=torch.tensor(comparison,device=dev))
+        return b
+    return fetch
 
 
 @torch.no_grad()
@@ -111,25 +137,7 @@ def train_scorer(config,cell,device='cuda:0',resume=None,stop_after=None):
             'pairs':sampler.pairs.tolist(),'weights':sampler.weights.tolist(),'probabilities':sampler.q.tolist() if sampler.q is not None else [],
             'definition':'q(x,i,j) proportional to non_tie*abs(gap)/all_valid_unordered_pair_count; sampled loss is unweighted',
             'status':'PRESENT' if sampler.q is not None else 'SCORER_COMPARISON_SIGNAL_ABSENT'},immutable=True)
-        def fetch(entries,dev):
-            batch_scenes=[lookup[e['scene_id']] for e in entries]
-            context=fetch_context(config,batch_scenes,dev,cache,spatial)
-            active=rich if entries[0]['phase']==1 and CELLS[actual]['rich'] else deploy
-            width=max(active['scores'].shape[1],2)
-            names=('trajectories','scores','valid','components','component_valid');rows={k:[] for k in names}
-            natural=[];comparison=[]
-            for e in entries:
-                source=rich if e['phase']==1 and CELLS[actual]['rich'] else deploy
-                n=index[e['scene_id']]
-                candidate_indices=[e['pair_i'],e['pair_j']] if e['comparison'] else list(range(source['scores'].shape[1]))
-                for key in names:
-                    shape=(width,*source[key].shape[2:]);value=np.zeros(shape,dtype=source[key].dtype)
-                    chosen=source[key][n,candidate_indices];value[:len(chosen)]=chosen;rows[key].append(value)
-                is_padding=e.get('_padding',False)
-                natural.append(e['natural'] and not is_padding);comparison.append(e['comparison'] and not is_padding)
-            b={k:torch.from_numpy(np.stack(v)).to(dev) for k,v in rows.items()}
-            b.update(context=context,natural=torch.tensor(natural,device=dev),comparison=torch.tensor(comparison,device=dev))
-            return b
+        fetch=batch_fetch(config,scenes,cache,spatial,deploy,rich,CELLS[actual]['rich'])
         def loss(model,b):return terms(model(b['context'],b['trajectories']),b)
         def validation(model,step):
             vm,vb,pred=predict(config,model,'stage_val',device)
@@ -167,6 +175,7 @@ def train_scorer(config,cell,device='cuda:0',resume=None,stop_after=None):
                       natural_seed=config.seed+10,comparison_seed=config.seed+11,training_rng_seed=config.seed+20,
                       supervised_natural_candidate_exposures=natural_candidates,
                       ranking_candidate_exposures=pair_candidates,padded_forward_candidate_exposures=padded_forward_candidates)
+        if spatial is not None:result['spatial_reader_statistics']=dict(spatial.statistics)
         atomic_json(folder/'SCORER_TRAINING_REPORT.json',result)
         if diagnostic:
             module.eval();x=fetch(sampler.peek(128),device)

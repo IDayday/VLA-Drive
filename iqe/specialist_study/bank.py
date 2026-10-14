@@ -133,15 +133,59 @@ def build_deploy(config,device='cuda:0'):
     return {role:build_role(config,role,device) for role in ('scorer_fit','stage_val','selector_cal','dev_report')}
 
 
-def trajectory_variants(physical,dt):
+CONSTRUCTION_LIMITS = {'max_speed_mps': 70., 'max_abs_acceleration_mps2': 10.,
+                       'max_lateral_acceleration_mps2': 8., 'max_yaw_rate_rad_s': 1.2,
+                       'max_jerk_mps3': 30.}
+
+
+def duplicates_original_gt(candidate, original, tolerance=1e-5):
+    """Do not smuggle unchanged GT into B_rich under an optimized-source name."""
+    a,b=np.asarray(candidate),np.asarray(original)
+    require(a.shape==b.shape and a.shape[-1]==3,'GT comparison trajectory contract')
+    yaw=np.arctan2(np.sin(a[...,2]-b[...,2]),np.cos(a[...,2]-b[...,2]))
+    return bool(np.abs(a[...,:2]-b[...,:2]).max()<=tolerance and np.abs(yaw).max()<=tolerance)
+
+
+def constructed_geometry(physical, dt, current_speed):
+    """Checks construction plausibility, never removes safety-negative labels.
+
+    Current speed is the real observation's ego_dynamic_state norm in m/s, not
+    the normalized four-channel planning ego feature. The initial pose is the
+    current rear axle at (0,0,0). Collision/road checks belong to official labels.
+    """
+    p = np.asarray(physical, dtype=np.float64)
+    coarse = geometry(p, dt, horizon=len(p))
+    if not coarse['valid'] or not np.isfinite(current_speed) or not 0 <= current_speed < 70:
+        return {'valid': False, 'reason': 'geometry_or_current_speed'}
+    velocity = np.diff(np.concatenate((np.zeros((1, 2)), p[:, :2])), axis=0)/dt
+    speed = np.linalg.norm(velocity, axis=1)
+    acceleration = np.diff(np.r_[current_speed, speed])/dt
+    # First future point represents an interval-average speed at dt/2.
+    acceleration[0] *= 2
+    yaw_rate = np.diff(np.unwrap(np.r_[0., p[:, 2]]))/dt
+    lateral = speed*np.abs(yaw_rate)
+    jerk = np.diff(acceleration)/dt
+    maxima = {'max_speed_mps': float(speed.max()), 'max_abs_acceleration_mps2': float(np.abs(acceleration).max()),
+              'max_lateral_acceleration_mps2': float(lateral.max()), 'max_yaw_rate_rad_s': float(np.abs(yaw_rate).max()),
+              'max_jerk_mps3': float(np.abs(jerk).max()) if len(jerk) else 0.}
+    failed = [key for key, value in maxima.items() if value > CONSTRUCTION_LIMITS[key]]
+    return {'valid': not failed, 'reasons': failed, **maxima}
+
+
+def trajectory_variants(physical,dt,current_speed=None,diagnostics=None):
     """Small deterministic braking/speed and lateral-curvature perturbations.
 
     They are interventions on an own predicted trajectory, not fabricated observed
     future. Every variant receives a fresh official outcome label. Beyond-horizon
     extrapolation is forbidden; time warps stay within the original time support.
     """
+    require(current_speed is not None,'current physical speed is required for constructed candidates')
     p=np.asarray(physical,dtype=np.float64);n=len(p);times=np.arange(n+1)*dt
     xy=np.concatenate((np.zeros((1,2)),p[:,:2]),0);result=[]
+    def append(name,value):
+        checks=constructed_geometry(value,dt,current_speed)
+        if diagnostics is not None:diagnostics.append({'source':name,**checks})
+        if checks['valid']:result.append((name,value))
     for scale in (.85,.95):
         query=times[1:]*scale
         altered=np.column_stack([np.interp(query,times,xy[:,j]) for j in range(2)])
@@ -149,13 +193,13 @@ def trajectory_variants(physical,dt):
         yaw=np.arctan2(delta[:,1],delta[:,0]);speed=np.linalg.norm(delta,axis=1)/dt
         yaw=np.where(speed<.05,p[:,2],yaw)
         value=np.column_stack((altered,yaw)).astype(np.float32)
-        if geometry(value,dt,horizon=n)['valid']:result.append(('time_warp_'+str(scale),value))
+        append('time_warp_'+str(scale),value)
     for amplitude in (-.2,.2):
         fraction=np.arange(1,n+1)/n;normal=np.column_stack((-np.sin(p[:,2]),np.cos(p[:,2])))
         altered=p[:,:2]+(amplitude*np.sin(np.pi*fraction)**2)[:,None]*normal
         delta=np.diff(np.concatenate((np.zeros((1,2)),altered),0),axis=0)
         yaw=np.arctan2(delta[:,1],delta[:,0]);value=np.column_stack((altered,yaw)).astype(np.float32)
-        if geometry(value,dt,horizon=n)['valid']:result.append(('lateral_bend_'+str(amplitude),value))
+        append('lateral_bend_'+str(amplitude),value)
     return result
 
 
@@ -181,14 +225,32 @@ def build_rich(config,device='cuda:0'):
     info=pd.read_parquet(Path(config.optimized_root)/'optimized_labels.parquet').set_index('token')
     with np.load(Path(config.optimized_root)/'optimized_trajectories.npz') as f:optimized={str(i):t for i,t in zip(f['tokens'],f['trajectories'])}
     asset=file_hash(Path(config.optimized_root)/'optimized_trajectories.npz');dt=read_json(config.root/'OFFLINE_BASE_CONTRACT.json')['trajectory']['dt']
-    requests=[]
+    rules={'schema':'current_state_bounded_variants_v1','time_warps':[.85,.95],'lateral_bend_meters':[-.2,.2],
+           'limits':CONSTRUCTION_LIMITS,'current_speed_source':'observation.ego_speed from norm(frame.ego_dynamic_state[:2]), m/s',
+           't0':'current rear axle (0,0,0)','future_input':False,'official_safety_negatives_retained':True,
+           'no_beyond_horizon_extrapolation':True,'source_scope':'constructed variants only; no filtering of real deployment negatives',
+           'original_GT_not_added_as_optimized':True,'GT_duplicate_xy_and_periodic_yaw_tolerance':1e-5}
+    atomic_json(config.root/'RICH_CONSTRUCTION_RULES_BEFORE_LABELS.json',rules,immutable=True)
+    requests=[];construction_counts=Counter();target_cache=ReusedContext(config,capacity=1)
     for n,s in enumerate(scenes):
         if len(rows[n])>=config.max_rich_candidates:continue
         proposal=[]
         if s.scene_id in info.index and s.scene_id in optimized and admissible_optimized_source(str(info.loc[s.scene_id,'source'])):
             t=optimized[s.scene_id]
-            if geometry(t,dt,horizon=t.shape[0])['valid']:proposal.append(('offline_optimized',t))
-        proposal+=trajectory_variants(data['trajectories'][n,0],dt)
+            if geometry(t,dt,horizon=t.shape[0])['valid']:
+                if duplicates_original_gt(t,target_cache.read(s)['target_physical'].numpy()):
+                    construction_counts['optimized_equals_original_GT_excluded']+=1
+                else:proposal.append(('offline_optimized',t))
+        observation=read_json(s.observation_ref)
+        require(observation['token']==s.scene_id and np.isfinite(observation['ego_speed']),'invalid current state for variant constructor')
+        require(digest({'record':observation,'images':{path:file_hash(path) for path in observation['image_paths']}})==s.observation_hash,
+                'current observation changed before rich construction')
+        checks=[]
+        proposal+=trajectory_variants(data['trajectories'][n,0],dt,float(observation['ego_speed']),checks)
+        for check in checks:
+            construction_counts['attempted']+=1
+            construction_counts['accepted' if check['valid'] else 'rejected_geometry']+=1
+            for reason in check.get('reasons',[]):construction_counts[reason]+=1
         planned=0
         for source,t in proposal:
             if len(rows[n])+planned>=config.max_rich_candidates:break
@@ -198,4 +260,5 @@ def build_rich(config,device='cuda:0'):
         labels=score_candidates(config,[x[1] for x in requests],[x[2] for x in requests],'study_rich_variants')
         for (n,s,c,source),r in zip(requests,labels):rows[n].append((c,r));sources[source]+=1
     return save_bank(config,'rich','scorer_fit',scenes,rows,{'additional_sources':dict(sources),'deployment_bank_hash':meta['hash'],
-            'label_budget_max':len(scenes)*12,'external_teacher_weights_loaded':False,'GT_added':False})
+            'label_budget_max':len(scenes)*12,'external_teacher_weights_loaded':False,'GT_added':False,
+            'construction_geometry':dict(construction_counts),'construction_rules_hash':file_hash(config.root/'RICH_CONSTRUCTION_RULES_BEFORE_LABELS.json')})

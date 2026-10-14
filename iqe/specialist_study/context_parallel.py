@@ -20,6 +20,7 @@ from .config import load_config
 from .context import SharedCapture, SpatialCache
 from .data import ReusedContext
 from .resource_guard import check
+from .context_batch_layout import OriginalBatchReplay, errors as context_errors, within_tolerance
 
 
 def ordered_scenes(config):
@@ -97,6 +98,7 @@ def run_worker(config, topology, worker, device):
         torch.backends.cudnn.allow_tf32 = False
         start = time.perf_counter()
         errors, count, output_bytes = [], 0, 0
+        layout_replay, layout_replays = None, []
         atomic_json(folder / 'STATUS.json', {'status': 'LOADING' if pending else 'VERIFYING',
                     'pid': os.getpid(), 'host': os.uname().nodename, 'pending': len(pending), 'reused': len(rows)-len(pending)})
         if pending:
@@ -121,13 +123,18 @@ def run_worker(config, topology, worker, device):
                     written = 0
                     for i, scene in enumerate(sub):
                         prior = old.read(scene)
-                        row = {'scene_id': scene.scene_id,
-                               'raw_max_abs': float((prediction.raw[i].cpu()-prior['base_raw']).abs().max()),
-                               'world_max_abs': float((values['world'][i].cpu()-prior['world']).abs().max()),
-                               'action_max_abs': float((values['action'][i].cpu()-prior['action']).abs().max())}
-                        require(all(row[k] <= 1e-5 for k in ('raw_max_abs', 'world_max_abs', 'action_max_abs')), 'context drift exceeds preregistered tolerance')
+                        item = {k: v[i] for k, v in values.items()}
+                        row = context_errors(scene.scene_id, prediction.raw[i], item, prior)
+                        if not within_tolerance(row):
+                            atomic_json(folder/'layout_replays'/(scene.scene_id+'.REGROUPED.json'), row, immutable=True)
+                            if layout_replay is None:
+                                layout_replay = OriginalBatchReplay(config)
+                            item, row, evidence = layout_replay.replay(scene, adapter, capture, prior, row)
+                            atomic_json(folder/'layout_replays'/(scene.scene_id+'.json'), evidence, immutable=True)
+                            layout_replays.append(evidence)
+                        require(within_tolerance(row), 'original-batch context drift exceeds preregistered tolerance')
                         errors.append(row)
-                        cache.write(scene, {k: values[k][i] for k in ('visual', 'visual_valid', 'visual_xy', 'visual_grid')})
+                        cache.write(scene, {k: item[k] for k in ('visual', 'visual_valid', 'visual_xy', 'visual_grid')})
                         written += cache.path(scene).stat().st_size
                     count += len(sub)
                     output_bytes += written
@@ -138,12 +145,14 @@ def run_worker(config, topology, worker, device):
                     atomic_json(folder / 'STATUS.json', {'status': 'RUNNING', 'pid': os.getpid(), 'host': os.uname().nodename,
                         'new_records': count, 'pending': len(pending), 'reused': len(rows)-len(pending),
                         'output_bytes': output_bytes, 'wall_seconds': time.perf_counter()-start,
-                        'VLM_calls_per_batch': 1, 'visual_calls_per_batch': 1})
+                        'VLM_calls_per_encode': 1, 'visual_calls_per_encode': 1,
+                        'additional_original_batch_replays': len(layout_replays)})
             finally:
                 capture.close()
         if stop[0]:
             result = {'status': 'PAUSED_RECORD_BOUNDARY', 'new_records': count, 'orphaned': orphaned,
-                      'plan_hash': plan['hash'], 'numeric_comparison': errors}
+                      'plan_hash': plan['hash'], 'numeric_comparison': errors,
+                      'original_batch_replays': layout_replays}
             atomic_json(folder / f'PAUSED_{time.time_ns()}.json', result, immutable=True)
             atomic_json(folder / 'STATUS.json', {k: v for k, v in result.items() if k != 'numeric_comparison'})
             return result
@@ -155,7 +164,8 @@ def run_worker(config, topology, worker, device):
                   'scene_receipt_hashes': receipts, 'new_records': count, 'reused': len(rows)-len(pending),
                   'numeric_comparison': errors, 'labels_do_not_affect_context': True,
                   'inherited_records': 'original unchanged capture code plus full tensor checksums; earlier per-record numeric logs were not persisted',
-                  'orphaned': orphaned, 'output_bytes': output_bytes, 'wall_seconds': time.perf_counter()-start}
+                  'orphaned': orphaned, 'output_bytes': output_bytes, 'wall_seconds': time.perf_counter()-start,
+                  'original_batch_replays': layout_replays}
         atomic_json(folder / 'COMPLETE.json', result, immutable=True)
         atomic_json(folder / 'STATUS.json', {k: v for k, v in result.items() if k not in ('numeric_comparison', 'scene_receipt_hashes')})
         return result

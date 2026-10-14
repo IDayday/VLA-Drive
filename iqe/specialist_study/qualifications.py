@@ -152,14 +152,96 @@ def official_invariance(config):
     return result
 
 
+def scorer_resume(config, device):
+    from .bank import load_bank
+    from .scorer_training import create_scorer, batch_fetch
+    from .objectives import StudySampler, pair_population, terms, denominators
+    check(config, 'train-scorer-cell');device=runtime(device)
+    root=config.root/'qualifications/scorer_gpu_resume'
+    if (root/'REPORT.json').exists():return read_json(root/'REPORT.json')
+    metadata,all_data=load_bank(config,'deploy','scorer_fit')
+    pairs,_=pair_population(all_data['scores'],all_data['comparison_valid'])
+    indices=list(dict.fromkeys(int(p[0]) for p in pairs))[:64]
+    require(indices,'SCORER_COMPARISON_SIGNAL_ABSENT: cannot run a real two-flow audit')
+    all_scenes=scenes_by_role(config)['scorer_fit']
+    scenes=[all_scenes[i] for i in indices];data={k:v[indices] for k,v in all_data.items()}
+    cache=preload(config,scenes)
+    fetch=batch_fetch(config,scenes,cache,None,data,data,False)
+    cfg=trainer_config(config,'scorer')
+    cfg.update(max_optimizer_steps=4,warmup_steps=1,validation_steps=[],checkpoint_every_steps=2)
+    deps={'diagnostic':'real_Scorer_two_flow_resume','bank_hash':metadata['hash'],
+          'Base':file_hash(config.root/'BASE_BINDING.json'),'scene_ids':digest([s.scene_id for s in scenes]),
+          'diagnostic_phase_boundary':2,'production_phase_boundary':3000}
+    def run(name,stop=None,resume=None):
+        model,_=create_scorer(config,'S00',diagnostic=True)
+        sampler=StudySampler([s.scene_id for s in scenes],data['scores'],data['comparison_valid'],
+            seed=config.seed+10,bank_hash=metadata['hash'],phase_steps=2)
+        train(model,lambda m,b:terms(m(b['context'],b['trajectories']),b),fetch,sampler,cfg,deps,root/name,
+              device=device,seed=config.seed+20,resume=resume,stop_after=stop,denominator_function=denominators,
+              weights={'value':1.,'components':.2,'ranking':.2})
+        return sampler.peek(128)
+    next_continuous=run('continuous')
+    run('interrupted',stop=2)
+    next_restored=run('interrupted',resume='auto')
+    paths=[root/name/'step_000004.pt' for name in ('continuous','interrupted')]
+    a,b=[torch.load(p,map_location='cpu',weights_only=False) for p in paths]
+    same={key:equal_tree(a[key],b[key]) for key in ('module','optimizer','scheduler','sampler','rng_by_rank','consumed_sample_ids')}
+    same['next_natural_and_pair_ids']=next_continuous==next_restored
+    require(all(same.values()),'real Scorer two-flow resume mismatch')
+    import json
+    logs=[[json.loads(s) for s in (root/name/'steps.jsonl').read_text().splitlines()] for name in ('continuous','interrupted')]
+    require([x['loss'] for x in logs[0]]==[x['loss'] for x in logs[1]],'Scorer resumed loss changed')
+    report={'status':'PASS','bank_hash':metadata['hash'],'real_scene_ids':[s.scene_id for s in scenes],
+        'hardware':torch.cuda.get_device_name() if 'cuda' in device else 'CPU','equality':same,
+        'phases':'two natural-only updates then two natural64/pair64 updates; production remains 3000/3000',
+        'natural_consumed':a['sampler']['natural_consumed'],'comparison_consumed':a['sampler']['comparison_consumed'],
+        'losses_equal':True,'checkpoint_hashes':[file_hash(p) for p in paths],
+        'external_scorer_weights_loaded':False,'diagnostic_model_not_used_for_selection':True}
+    atomic_json(root/'REPORT.json',report,immutable=True)
+    return report
+
+
+def bundle_roundtrip(config, device):
+    from iqe.data.sources import load_observation
+    from .evaluation import load_research_bundle
+    check(config, 'benchmark-system')
+    root = config.root/'research_bundle'
+    source = read_json(root/'ROUNDTRIP_INPUT.json')
+    require(file_hash(root/'ROUNDTRIP_REFERENCE.pt') == source['reference_hash'], 'bundle reference changed')
+    candidates = {s.scene_id: s for s in scenes_by_role(config)['stage_val']}
+    scene = candidates[source['scene_id']]
+    require(scene.observation_hash == source['observation_hash'], 'roundtrip observation changed')
+    model = load_research_bundle(root/'bundle.pt', device)
+    observation = load_observation(scene, model.adapter.contract)
+    with torch.no_grad():
+        result = model.shared_forward([observation])
+    expected = torch.load(root/'ROUNDTRIP_REFERENCE.pt', map_location='cpu', weights_only=True)
+    differences = {name: float((result[name].detach().cpu()-value).abs().max())
+                   for name, value in expected.items() if name != 'selected'}
+    require(differences['trajectory'] <= source['physical_tolerance'] and differences['candidates'] <= source['physical_tolerance']
+            and differences['predicted_scores'] <= source['score_tolerance'], 'bundle restored outputs changed')
+    require(torch.equal(result['selected'].cpu(), expected['selected']), 'bundle restored candidate selection changed')
+    require(result['calls'] == {'visual': 1, 'language': 1}, 'bundle executed extra VLA')
+    report = {'status': 'PASS', 'independent_process': True, 'bundle_hash': file_hash(root/'bundle.pt'),
+              'observation_hash': scene.observation_hash, 'differences': differences,
+              'selected_exact': True, 'calls': result['calls'], 'branch_calls': result['branch_calls'],
+              'external_scorer_weights_loaded': False, 'GT_or_metric_cache_read_for_inference': False,
+              'ACTIVE_updated': False, 'device': device}
+    atomic_json(root/'ROUNDTRIP_REPORT.json', report, immutable=True)
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('expert-resume', 'official-reference'))
+    parser.add_argument('command', choices=('expert-resume', 'scorer-resume', 'official-reference', 'bundle-roundtrip'))
     parser.add_argument('--config', required=True)
     parser.add_argument('--device', default='cuda:0')
     args = parser.parse_args()
     config = load_config(args.config)
-    result = expert_resume(config, args.device) if args.command == 'expert-resume' else official_invariance(config)
+    if args.command == 'expert-resume':result = expert_resume(config, args.device)
+    elif args.command == 'scorer-resume':result = scorer_resume(config, args.device)
+    elif args.command == 'official-reference':result = official_invariance(config)
+    else:result = bundle_roundtrip(config, args.device)
     import json
     print(json.dumps(result))
 
