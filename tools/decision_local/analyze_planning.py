@@ -84,6 +84,7 @@ def main():
         with np.load(rawpath) as f:known=f['occupancy_valid'][0].copy()
         frame=current_log('/mnt/navsim/trainval_navsim_logs/trainval',row['log'])[token]
         groups={'all_scenes':True,'original_high_ge_0p9':rec['q0_score']>=.9,'original_low_le_0p5':rec['q0_score']<=.5,
+            'original_progress_below_0p5':float(original[token].get('ego_progress') or 0)<=.5,
             'dynamic_enter_at_query':bool((pair&~current&future).any()),'space_release_at_query':bool((pair&current&~future).any()),
             'road_boundary_or_outside':bool((mask[0,:,0]&(rel[0,:,0]<=.5)).any()),
             'current_speed_below_0p5_mps':bool(np.linalg.norm(state)<.5),
