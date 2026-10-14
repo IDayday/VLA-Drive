@@ -49,6 +49,12 @@ def scorer_from_payload(payload):
 def load(path, device='cuda:0'):
     from iqe.s0_adapter import S0Adapter
     from iqe.specialist_study.models import Specialist
+    from iqe.specialist_study.training import runtime
+    # This version's training, cached inference and online reference all use
+    # this locked backend. The public loader must restore it itself: callers
+    # must not need the qualification CLI's incidental runtime setup.
+    # This restores execution flags, not weights, RNG seeds or the Base recipe.
+    device = runtime(device)
     path = Path(path)
     receipt = read_json(path.parent/'BUNDLE.json')
     require(file_hash(path) == receipt['checksum'], 'bundle checksum changed')

@@ -104,3 +104,43 @@ def test_research_scorer_payload_roundtrip_and_external_rejection(cell):
     payload['initialization']['external_scorer_weights_loaded'] = True
     with pytest.raises(ValueError, match='external'):
         scorer_from_payload(payload)
+
+
+def test_public_bundle_restores_locked_backend_before_loading(monkeypatch, tmp_path):
+    import os
+    import torch
+    from iqe.robust_scorer import bundle
+    saved = (torch.are_deterministic_algorithms_enabled(),
+             torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
+             torch.backends.cudnn.benchmark, torch.get_num_threads())
+    rng = torch.get_rng_state().clone()
+    monkeypatch.delenv('CUBLAS_WORKSPACE_CONFIG', raising=False)
+    try:
+        torch.use_deterministic_algorithms(False)
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.backends.cudnn.benchmark = True
+        def receipt_boundary(_path):
+            assert torch.are_deterministic_algorithms_enabled()
+            assert not torch.backends.cuda.matmul.allow_tf32
+            assert not torch.backends.cudnn.allow_tf32
+            assert not torch.backends.cudnn.benchmark
+            assert os.environ['CUBLAS_WORKSPACE_CONFIG'] == ':4096:8'
+            assert torch.equal(rng, torch.get_rng_state())
+            raise RuntimeError('verified before model/checkpoint loading')
+        monkeypatch.setattr(bundle, 'read_json', receipt_boundary)
+        with pytest.raises(RuntimeError, match='verified before model/checkpoint loading'):
+            bundle.load(tmp_path/'bundle.pt', 'cpu')
+    finally:
+        torch.use_deterministic_algorithms(saved[0])
+        torch.backends.cuda.matmul.allow_tf32 = saved[1]
+        torch.backends.cudnn.allow_tf32 = saved[2]
+        torch.backends.cudnn.benchmark = saved[3]
+        torch.set_num_threads(saved[4])
+
+
+def test_public_bundle_rejects_conflicting_cublas_identity(monkeypatch, tmp_path):
+    from iqe.robust_scorer.bundle import load
+    monkeypatch.setenv('CUBLAS_WORKSPACE_CONFIG', ':16:8')
+    with pytest.raises(ValueError, match='CUBLAS identity'):
+        load(tmp_path/'bundle.pt', 'cpu')
