@@ -2,8 +2,19 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status at 2026-10-14 16:17 UTC: both formal runs and all 32 census workers
-continue. The verified frozen-SFT census snapshot covers **17,455 / 101,592**
+Status correction at 2026-10-14 16:43 UTC: **neither formal run is complete**.
+N_FLOW_NOISE is live at 2,294 updates / 28,638 raw exposures (14.095% of its
+two-pass budget). C_SDE exited at 16:09 UTC after 1,850 updates because the
+fresh-chain probability consistency check failed. The previous statement that
+both runs continued was based on stale training logs and was incorrect.
+An isolated eight-GPU recovery is replaying the original saved chains from the
+last complete checkpoint at update1,024; all ranks have reproduced the first
+92 updates exactly in the recorded numerical fields. Recovery is not yet
+complete, and no probability threshold has been relaxed. All 32 census worker
+processes are live; the committed population snapshot now covers **28,601 /
+101,592** scenes. [Current results, failure and recovery evidence](progress_and_conclusions_20261014T1643Z.md).
+
+The earlier verified frozen-SFT census snapshot covers **17,455 / 101,592**
 TRAIN scenes: all-full groups **33.824%**, all-zero **0.052%**, other ties
 **0.046%**. Final zero-advantage groups are **22.698%** under fixed initial
 multipliers; nearly all are saturated full-score groups. Of non-tied PDMS

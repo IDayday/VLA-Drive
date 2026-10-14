@@ -1,0 +1,62 @@
+{
+  "status": "COMPLETE_DIAGNOSTIC",
+  "host": "training-vlawm-tsinghua-zt3",
+  "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1/checkpoints/update001024_raw012760",
+  "checkpoint_boundary": {
+    "schema": "cfn_boundary_v1",
+    "phase": "ready",
+    "update": 1024,
+    "collection": 512,
+    "raw_exposure": 12760,
+    "next_inner": 0,
+    "world": 8
+  },
+  "failure_updates": 1850,
+  "failure_sha256": "3d599d7c705015574e537aa230b860ef51ffe617b03df92ed72998de4766f1f9",
+  "analysis_source_sha256": "75860e49055bf37d0a8745208079d4abdeffb213bd8cb4302e605e3d1e8f694e",
+  "checks": [
+    {
+      "position": 23188,
+      "fresh_chain_from_loaded_checkpoint": false,
+      "mean_max_abs": 3.337860107421875e-06,
+      "std_max_abs": 0.0,
+      "elementwise_logp_max_abs": 0.0012912750244140625,
+      "mean_ratio_flat_vs_serial_max_abs": 8.988380432128906e-05,
+      "rank3_slot": 3
+    },
+    {
+      "position": 23188,
+      "fresh_chain_from_loaded_checkpoint": true,
+      "mean_max_abs": 2.86102294921875e-06,
+      "std_max_abs": 0.0,
+      "elementwise_logp_max_abs": 0.0010535717010498047,
+      "mean_ratio_flat_vs_serial_max_abs": 3.2842159271240234e-05,
+      "serial_fresh_ratio_error": 0.0,
+      "flat_fresh_ratio_error": 3.2842159271240234e-05,
+      "rank3_slot": 3
+    },
+    {
+      "position": 23199,
+      "fresh_chain_from_loaded_checkpoint": false,
+      "mean_max_abs": 4.76837158203125e-07,
+      "std_max_abs": 0.0,
+      "elementwise_logp_max_abs": 7.581710815429688e-05,
+      "mean_ratio_flat_vs_serial_max_abs": 4.76837158203125e-06,
+      "rank3_slot": 11
+    },
+    {
+      "position": 23199,
+      "fresh_chain_from_loaded_checkpoint": true,
+      "mean_max_abs": 4.76837158203125e-07,
+      "std_max_abs": 0.0,
+      "elementwise_logp_max_abs": 6.151199340820312e-05,
+      "mean_ratio_flat_vs_serial_max_abs": 3.337860107421875e-06,
+      "serial_fresh_ratio_error": 0.0,
+      "flat_fresh_ratio_error": 3.337860107421875e-06,
+      "rank3_slot": 11
+    }
+  ],
+  "scope": "No optimizer, no scoring, no new training; loaded checkpoint differs from failed current actor",
+  "wall_seconds": 43.044097267091274,
+  "peak_cuda_GiB": 1.931431770324707
+}
