@@ -1,6 +1,7 @@
 """Execute a finite registered list of development exports and canonical scores.
 
-No checkpoint selection, new training, Navtest or retry is performed. Existing
+No checkpoint selection, new training or retry is performed. Final Navtest
+requires a separate locked endpoint and completed acceptance receipt. Existing
 prediction and scoring tools retain all model/metric validation. CPU scoring may
 overlap the next small-head export. Only this task's own GPU processes
 may share an inference device; unknown/other owners are skipped.
@@ -68,7 +69,17 @@ def main():
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--gpus',nargs='+',type=int,required=True)
     p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--cpu-parallel',type=int,default=2)
     a=p.parse_args();resource=check_host();registration=read(a.registry);registered_hash=digest(a.registry)
-    if registration['population'] not in ('debug','dev'):raise ValueError('This finite observer does not run Navtest')
+    if registration['population'] not in ('debug','dev','navtest'):raise ValueError('Unsupported evaluation population')
+    final=registration['population']=='navtest'
+    if final:
+        lock=Path(registration['method_lock'])
+        if not lock.is_file() or digest(lock)!=registration['method_lock_sha256']:
+            raise ValueError('Final Navtest requires its immutable method/endpoint lock')
+        locked=read(lock)
+        if locked['main_endpoint_epochs']!=24 or locked['proposal_sampling_seed']!=42:
+            raise ValueError('Only the registered common endpoint and proposal seed are supported')
+    score_timeout=7200 if final else 3600
+    admission_seconds=score_timeout+700
     if not 1<=a.cpu_parallel<=2 or a.max_seconds<=0:raise ValueError('Bounded concurrency required')
     state=Path(registration['runtime']);state.mkdir(parents=True,exist_ok=True)
     (state/'claims').mkdir(exist_ok=True);(state/'results').mkdir(exist_ok=True)
@@ -80,7 +91,7 @@ def main():
         if digest(a.registry)!=registered_hash:raise ValueError('Registered evaluation list changed')
         for name,(child,job,stream,began) in list(active.items()):
             code=child.poll()
-            if code is None and time.monotonic()-began>3600:
+            if code is None and time.monotonic()-began>score_timeout:
                 # Only this observer's stateless canonical CPU process group.
                 os.killpg(child.pid,signal.SIGTERM);code=child.wait(timeout=30)
             if code is None:continue
@@ -89,7 +100,16 @@ def main():
             atomic_json(state/'results'/(name+'.json'),{'returncode':code,'complete':success,'finished_unix':time.time()})
             if success and baseline is None:baseline=score
             del active[name]
-        if len(active)<a.cpu_parallel and time.monotonic()-start<a.max_seconds-4300:
+        ready=True
+        if final:
+            receipt=Path(registration['final_readiness'])
+            ready=receipt.exists()
+            if ready:
+                acceptance=read(receipt)
+                if not acceptance.get('accepted') or acceptance['method_lock_sha256']!=registration['method_lock_sha256']:
+                    raise ValueError('Unaccepted or mismatched final endpoint')
+                if digest(lock)!=registration['method_lock_sha256']:raise ValueError('Locked final method changed')
+        if ready and len(active)<a.cpu_parallel and time.monotonic()-start<a.max_seconds-admission_seconds:
             for job in registration['jobs']:
                 name=job['id'];claim=state/'claims'/name
                 if claim.exists() or not all(Path(x).exists() for x in job['requires']):continue
@@ -117,7 +137,7 @@ def main():
         time.sleep(10.)
     atomic_json(state/'FINISHED.json',{'seconds':time.monotonic()-start,
         'pending':[j['id'] for j in registration['jobs'] if not (state/'claims'/j['id']).exists()],
-        'scope':'Only registered development observations; failures preserved, no automatic retry or model selection'})
+        'scope':'Only registered observations; final Navtest additionally gated on endpoint readiness; failures preserved, no automatic retry or model selection'})
 
 
 if __name__=='__main__':main()
