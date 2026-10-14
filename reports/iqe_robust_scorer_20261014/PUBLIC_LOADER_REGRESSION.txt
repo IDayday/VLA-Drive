@@ -1,0 +1,16 @@
+Executed 2026-10-14 UTC in /mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014
+Command:
+OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/iqe/test_robust_scorer_evaluation.py tests/iqe/test_robust_scorer.py tests/iqe/specialist_study/test_context_batch_layout.py
+
+...............................                                          [100%]
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 1 warning in 8.26s
+
+Scope: current targeted regression, including both new public-loader backend
+tests. This is not an additional disjoint test count to add to earlier runs,
+and does not substitute for the separate actual-image loader check.

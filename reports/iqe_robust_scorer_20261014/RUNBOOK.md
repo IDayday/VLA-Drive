@@ -70,6 +70,25 @@ margin is recorded separately. No GT or metric-cache dependency exists in that
 inference wrapper. The two explicit post-training commands above generate the
 real trained-head evidence; CPU serialization tests do not stand in for it.
 
+The public loader now restores this bundle version's registered deterministic
+backend, including TF32 flags, before constructing the model. This is the same
+backend already used by training, cached evaluation and the online reference;
+it does not rewrite any checkpoint or reset training seeds. A caller does not
+need to invoke the qualification CLI to obtain that execution contract.
+The following separate-process check deliberately starts with incompatible
+default backend flags, loads through the public API, and compares one real
+stage_val image against the existing reference. It does not repeat latency
+windows, consume optimizer steps, or alter tolerances.
+
+```bash
+CUDA_VISIBLE_DEVICES=6 OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python scripts/iqe/verify_robust_scorer_bundle_loader.py --config configs/iqe/robust_scorer/mean_risk_v1.yaml --device cuda:0 --max-samples 1
+```
+
+Its output is `qualification/public_loader/REPORT.json`; the actual bounded
+launch uses a 900-second timeout on the verified free GPU6 of `training-rl-zt2`.
+Inspect `qualification/public_loader/LAUNCH.json` and the process before any
+retry. Existing weights and all selected predictions remain unchanged.
+
 The bounded finalizer below waits for all four terminal checkpoints and their
 training locks to be released, then for GPU6 to be unoccupied. It only runs the
 registered evaluation/export/qualification/report stages, rechecks permanent

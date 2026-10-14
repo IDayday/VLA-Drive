@@ -36,7 +36,10 @@ def main():
         n, k = scores.shape
         nc = bank['components'][..., COMPONENTS.index('no_at_fault_collisions')]
         dac = bank['components'][..., COMPONENTS.index('drivable_area_compliance')]
-        known = np.isfinite(nc) & np.isfinite(dac) & valid
+        component_valid = np.asarray(bank['component_valid'], bool)
+        known = (np.isfinite(nc) & np.isfinite(dac) & valid
+                 & component_valid[..., COMPONENTS.index('no_at_fault_collisions')]
+                 & component_valid[..., COMPONENTS.index('drivable_area_compliance')])
         safe = known & (nc >= 1-1e-8) & (dac >= 1-1e-8)
         fail = known & ~safe
         i, j = np.triu_indices(k, 1)
