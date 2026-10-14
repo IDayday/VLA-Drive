@@ -1,0 +1,56 @@
+{
+  "existing_ego_labels_checked": 64,
+  "limitations": [
+    "Descriptive open-loop errors; do not replace canonical PDMS or alter exported trajectories",
+    "Future masks only control this post-execution error statistic; every scene remains in CSV",
+    "No test map, future obstacle or additional model-input cache constructed"
+  ],
+  "log_sha256": {
+    "2021.10.05.08.11.15_veh-50_00437_00585": "4836b36db5ad35ea52afc1e2b96dde0078187691138007375f30912f6d5028f0"
+  },
+  "native_conversion": "Scene._build_ego_status + Scene.get_future_trajectory",
+  "native_versus_training_GT_max_abs": 2.7382515881413383e-06,
+  "resources": {
+    "checked_unix": 1792017333.5177188,
+    "host": "training-vla-zt",
+    "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+  },
+  "runs": [
+    {
+      "complete_future_scenes": 64,
+      "csv_sha256": "d15a4735037aa41fa115b638ac9b3be634c22abb4686ac8f371596f70de50952",
+      "identity": "15a19ab5f019a6b97368b3be12398b50d57c05bb9b46eb65340b0ac596c13299",
+      "metrics": {
+        "q0_ADE_m": {
+          "mean": 0.7703541749781131,
+          "supported_scenes": 64
+        },
+        "q0_FDE_m": {
+          "mean": 1.519748852975576,
+          "supported_scenes": 64
+        },
+        "q0_heading_MAE_rad": {
+          "mean": 0.04401912800509923,
+          "supported_scenes": 64
+        },
+        "q_final_ADE_m": {
+          "mean": 0.7689147163013363,
+          "supported_scenes": 64
+        },
+        "q_final_FDE_m": {
+          "mean": 1.513372123293108,
+          "supported_scenes": 64
+        },
+        "q_final_heading_MAE_rad": {
+          "mean": 0.04330848158955729,
+          "supported_scenes": 64
+        }
+      },
+      "predictions": "/mnt/project/decision-local-consequence-artifacts/20261014/development_observations_v1/predictions/seed42_R_FUTURE_DIFF_epoch24",
+      "scenes": 64
+    }
+  ],
+  "seconds": 5.3506065886467695,
+  "source_sha": "b69a1466dbf74def71293dc3d6556cff99f6839c",
+  "tool_sha256": "1561a8878efc4de953f88be790c95beef68ac29cbd69c96f15ef9a43d4159d44"
+}
