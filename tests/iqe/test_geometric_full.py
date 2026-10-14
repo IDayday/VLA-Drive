@@ -86,3 +86,26 @@ def test_run_lock_fails_fast_and_config_rejects_unregistered_fields(tmp_path):
     assert Config(**kwargs).root==Path('/output')
     with pytest.raises(TypeError):Config(**kwargs,load_external_weights=True)
     with pytest.raises(ValueError):Config(**(kwargs|{'output_root':'/source'}))
+
+
+def test_online_camera_side_channel_never_enters_vla_and_hooks_cleanup(monkeypatch):
+    from iqe.geometric_readout.bundle import GeometricResearchSystem,CAMERAS
+    from iqe.specialist_study.evaluation import ResearchSystem
+    seen=[]
+    class Head(torch.nn.Module):
+        def __init__(self):super().__init__();self.weight=torch.nn.Parameter(torch.ones(()))
+        def forward(self,context,trajectory):
+            assert set(context)==CAMERAS|{'world'}
+            return context
+    head=Head();system=GeometricResearchSystem(None,[torch.nn.Identity()],head)
+    obs=[{'image':'unchanged reference'}]
+    def base(self,observations,**kwargs):
+        assert observations is obs and observations==[{'image':'unchanged reference'}]
+        seen.append(1);return self.scorer({'world':torch.ones(1,2,3)},torch.zeros(1,2,8,3))
+    monkeypatch.setattr(ResearchSystem,'shared_forward',base)
+    camera={k:torch.ones(1,3,3,3,requires_grad=True) for k in CAMERAS}
+    result=system.shared_forward(obs,calibration=camera)
+    assert len(seen)==1 and all(not result[k].requires_grad for k in CAMERAS)
+    assert not head._forward_pre_hooks
+    with pytest.raises(ValueError):system.shared_forward(obs,calibration=camera|{'GT':torch.zeros(1)})
+    assert not head._forward_pre_hooks
