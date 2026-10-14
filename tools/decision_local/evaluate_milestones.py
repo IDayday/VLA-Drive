@@ -120,16 +120,51 @@ def main():
                 env=dict(os.environ,CUDA_VISIBLE_DEVICES=str(devices[0]),OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1')
                 atomic_json(claim/'COMMANDS.json',{'commands':job['commands'],'gpu':devices[0],
                     'started_unix':time.time(),'source_sha':source_sha(ROOT)})
-                with (state/(name+'_export.log')).open('w') as stream:
-                    code=subprocess.run(job['commands']['export'],cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=660).returncode
-                if code:
-                    atomic_json(state/'results'/(name+'.json'),{'complete':False,'export_returncode':code});continue
                 score=Path(job['scores']);score.mkdir(exist_ok=True,parents=True)
                 atomic_json(score/'RESEARCH_INPUT.json',{'predictions':job['predictions'],'checkpoint':job['checkpoint']})
-                if baseline is not None:reuse_q0(baseline,Path(job['predictions']),score,Path(registration['metric_index']))
-                stream=(state/(name+'_score.log')).open('w')
-                child=subprocess.Popen(job['commands']['score'],cwd=ROOT,env=dict(env,CUDA_VISIBLE_DEVICES=''),
-                    stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+                streaming=bool(registration.get('streaming',False))
+                if streaming:
+                    # The mature streaming scorer verifies every new q0 against
+                    # the proposal SHA and metric cache SHA of these prior rows.
+                    # No unverified score is aggregated, even before GPU export.
+                    if baseline is not None:
+                        bm=read(baseline/'identity.json');bd=read(baseline/'COMPLETE.json')
+                        if not bd['q0']['valid'] or bm['index_sha256']!=digest(Path(registration['metric_index'])):
+                            raise ValueError('Invalid initial-plan scoring bank')
+                        target=score/'q0/records';target.mkdir(parents=True,exist_ok=True)
+                        for path in (baseline/'q0/records').glob('*.json'):os.link(path,target/path.name)
+                        atomic_json(score/'Q0_REUSE.json',{'baseline':str(baseline),'validation':'Streaming scorer must exactly match each newly exported q0 proposal and cache hash'})
+                    stream=(state/(name+'_score.log')).open('w')
+                    child=subprocess.Popen(job['commands']['score'],cwd=ROOT,env=dict(env,CUDA_VISIBLE_DEVICES=''),
+                        stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+                # Device count is measured now; placement never changes the
+                # model's semantic identity, batch1 arithmetic or proposal RNG.
+                chosen=devices if registration.get('shard_exports',False) else devices[:1]
+                exports=[]
+                for rank,gpu in enumerate(chosen):
+                    command=list(job['commands']['export'])
+                    if registration.get('shard_exports',False):command+=['--rank',str(rank),'--shards',str(len(chosen))]
+                    logfile=(state/(name+f'_export_{rank:02d}.log')).open('w')
+                    worker=subprocess.Popen(command,cwd=ROOT,env=dict(env,CUDA_VISIBLE_DEVICES=str(gpu)),
+                        stdout=logfile,stderr=subprocess.STDOUT,start_new_session=True)
+                    exports.append((worker,logfile))
+                    atomic_json(claim/f'EXPORT_{rank:02d}.json',{'pid':worker.pid,'gpu':gpu,'command':command,'started_unix':time.time()})
+                codes=[];deadline=time.monotonic()+660
+                for worker,logfile in exports:
+                    try:code=worker.wait(timeout=max(.1,deadline-time.monotonic()))
+                    except subprocess.TimeoutExpired:
+                        os.killpg(worker.pid,signal.SIGTERM);code=worker.wait(timeout=30)
+                    logfile.close();codes.append(code)
+                if any(codes):
+                    atomic_json(Path(job['predictions'])/'INFERENCE_FAILED.json',{'returncodes':codes,'owned_shards_only':True})
+                    if streaming:
+                        os.killpg(child.pid,signal.SIGTERM);child.wait(timeout=30);stream.close()
+                    atomic_json(state/'results'/(name+'.json'),{'complete':False,'export_returncodes':codes});continue
+                if not streaming:
+                    if baseline is not None:reuse_q0(baseline,Path(job['predictions']),score,Path(registration['metric_index']))
+                    stream=(state/(name+'_score.log')).open('w')
+                    child=subprocess.Popen(job['commands']['score'],cwd=ROOT,env=dict(env,CUDA_VISIBLE_DEVICES=''),
+                        stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
                 active[name]=(child,job,stream,time.monotonic())
                 if len(active)>=a.cpu_parallel:break
         if not active and all((state/'claims'/j['id']).exists() for j in registration['jobs']):break

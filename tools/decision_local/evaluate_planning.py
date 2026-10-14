@@ -5,6 +5,7 @@ This exports the exact frozen-cache path previously checked against real images.
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -24,7 +25,9 @@ def main():
     p.add_argument('--predictor',type=Path);p.add_argument('--oracle-labels',type=Path)
     p.add_argument('--mode',choices=('camera_only','oracle_probe'),required=True)
     p.add_argument('--batch',type=int,default=1);p.add_argument('--max-seconds',type=float,required=True)
+    p.add_argument('--rank',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     a=p.parse_args();resources=check_host();started=time.monotonic()
+    if not 0<=a.rank<a.shards:raise ValueError('Invalid execution-only scene shard')
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     fmeta,qmeta=read(a.features/'identity.json'),read(a.queries/'identity.json')
     if qmeta['features']!=fmeta['identity'] or qmeta['contains_GT']:raise ValueError('Current-only query bank required')
@@ -56,10 +59,12 @@ def main():
     ident=identity(contract);a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'identity.json').exists() and read(a.output/'identity.json')['identity']!=ident:raise ValueError('Foreign export')
     atomic_json(a.output/'identity.json',{'identity':ident,**contract})
-    for k in ('predictions','records'):(a.output/k).mkdir(exist_ok=True)
+    for k in ('predictions','records','workers'):(a.output/k).mkdir(exist_ok=True)
     done=0
     with torch.no_grad():
-        for receipt in sorted((a.features/'records').glob('*.json')):
+        # Partition whole immutable cache chunks, keeping batch1 arithmetic and
+        # scene-bound q0 exactly independent of placement and shard count.
+        for receipt in sorted((a.features/'records').glob('*.json'))[a.rank::a.shards]:
             if time.monotonic()-started>=a.max_seconds:raise TimeoutError('Bounded inference time exhausted')
             fm=read(receipt);qm=read(a.queries/'records'/receipt.name)
             if fm['tokens']!=qm['tokens']:raise ValueError('Mismatched input/query scene order')
@@ -72,6 +77,14 @@ def main():
                 target=load_file(str(lp))
             for start in range(0,len(fm['tokens']),a.batch):
                 stop=min(start+a.batch,len(fm['tokens']));sl=slice(start,stop)
+                members=fm['tokens'][start:stop]
+                saved=[a.output/'records'/(token+'.json') for token in members]
+                if all(path.exists() for path in saved):
+                    for token,path in zip(members,saved):
+                        old=read(path)
+                        if old['identity']!=ident or old['sha256']!=digest(a.output/'predictions'/(token+'.npz')):
+                            raise ValueError('Committed prediction changed before resume')
+                    done+=len(members);continue
                 current=ModelInputs(f['H_A'][sl].cuda().float(),f['W'][sl].cuda().float(),f['q0_encoded'][sl,0].cuda(),
                     f['q0'][sl,0].cuda(),f['state'][sl].cuda(),q['body'][sl].cuda())
                 T=current.q0.shape[1]
@@ -90,13 +103,28 @@ def main():
                 final=decode_ego(output).cpu().numpy();q0=current.q0.cpu().numpy()
                 if not np.isfinite(final).all():raise FloatingPointError('Invalid predicted trajectory; no scene dropped')
                 for j,token in enumerate(fm['tokens'][start:stop]):
-                    dest=a.output/'predictions'/(token+'.npz');temp=dest.with_suffix('.tmp')
+                    dest=a.output/'predictions'/(token+'.npz');temp=dest.with_name(dest.name+f'.{os.getpid()}.tmp')
                     with temp.open('wb') as stream:np.savez_compressed(stream,q0=q0[j],q_final=final[j])
                     temp.replace(dest);atomic_json(a.output/'records'/(token+'.json'),{'identity':ident,'token':token,'sha256':digest(dest)})
                     done+=1
-    if done!=len(fmeta['index']):raise ValueError('Incomplete prediction population')
-    atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':done,'seconds':time.monotonic()-started,
-        'GPU_hours':(time.monotonic()-started)/3600.,'resources':resources,'cache_based':True,'online_latency_included':False})
+    expected=sum(len(read(path)['tokens']) for path in sorted((a.features/'records').glob('*.json'))[a.rank::a.shards])
+    if done!=expected:raise ValueError('Incomplete assigned prediction population')
+    atomic_json(a.output/'workers'/f'{a.rank:03d}_of_{a.shards:03d}.json',{'identity':ident,'scenes':done,
+        'rank':a.rank,'shards':a.shards,'seconds':time.monotonic()-started,'GPU_hours':(time.monotonic()-started)/3600.,'resources':resources})
+    workers=[a.output/'workers'/f'{rank:03d}_of_{a.shards:03d}.json' for rank in range(a.shards)]
+    if all(path.exists() for path in workers):
+        receipts=[read(path) for path in workers]
+        tokens={row['token'] for row in fmeta['index']}
+        if any(row['identity']!=ident for row in receipts) or sum(row['scenes'] for row in receipts)!=len(tokens):
+            raise ValueError('Incomplete or foreign shard receipts')
+        if {path.stem for path in (a.output/'records').glob('*.json')}!=tokens:raise ValueError('Final export population differs')
+        for token in tokens:
+            record=read(a.output/'records'/(token+'.json'))
+            if record['identity']!=ident or record['sha256']!=digest(a.output/'predictions'/(token+'.npz')):
+                raise ValueError('Committed shard prediction changed')
+        atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':len(tokens),
+            'GPU_hours':sum(row['GPU_hours'] for row in receipts),'workers':receipts,
+            'cache_based':True,'online_latency_included':False})
 
 
 if __name__=='__main__':main()

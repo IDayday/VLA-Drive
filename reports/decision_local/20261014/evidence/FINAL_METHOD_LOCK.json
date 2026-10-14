@@ -1,0 +1,55 @@
+{
+  "schema": "decision_local_final_method_endpoint_v1",
+  "locked_unix": 1792008045.4137478,
+  "main_endpoint_epochs": 24,
+  "model_selection": "All preregistered camera-only comparisons at the common endpoint; no best-epoch selection",
+  "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+  "anchor_checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+  "small_head_training_source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+  "features_identity": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+  "labels_identity": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+  "formal_acceptance_sha256": "b1c1e261581e0aa8c657a2f5c11ff5575d4e06d25072c860abd7b9c79257b914",
+  "camera_only_runs": [
+    {
+      "seed": 42,
+      "kind": "E_NONE",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/E_NONE/epoch_24.pt"
+    },
+    {
+      "seed": 42,
+      "kind": "R_CURRENT_PRED",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_CURRENT_PRED/epoch_24.pt"
+    },
+    {
+      "seed": 42,
+      "kind": "R_FUTURE_ABS",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_ABS/epoch_24.pt"
+    },
+    {
+      "seed": 42,
+      "kind": "R_FUTURE_DIFF",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed42/R_FUTURE_DIFF/epoch_24.pt"
+    },
+    {
+      "seed": 43,
+      "kind": "R_FUTURE_ABS",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_ABS/epoch_24.pt"
+    },
+    {
+      "seed": 43,
+      "kind": "R_FUTURE_DIFF",
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/formal_seed43/R_FUTURE_DIFF/epoch_24.pt"
+    }
+  ],
+  "proposal_sampling_seed": 42,
+  "scenes": 12146,
+  "current_identity": "44ba2878112ec0c51a8998db4fe1096e4e965904934dead7a101c29c43821cdb",
+  "protocol": "NAVSIM v1 canonical, FP32 base/master and heads, TF32off, one original10-step q0, one residual; q_final main, no scoring selection",
+  "preparation_now": "Frozen S0 current inputs/features/q0 only; no small-head results or Navtest scores read",
+  "scoring_gate": "All registered main24epoch heads and their corresponding development endpoint observations must complete first",
+  "privileged_probe_evaluation": "Full development; no Navtest oracle labels currently deployed",
+  "historical_test_reuse": "Old Navtest has already been repeatedly observed; this is disclosed, not an untouched test claim",
+  "budget_GPU_hours_cap": 100,
+  "cache_GPU_hour_allocation_within_existing_final_budget": 6,
+  "no_new_head_or_training_population": true
+}
