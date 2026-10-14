@@ -73,6 +73,16 @@ def score_diagnostics(prediction, bank):
         result['reliability_bins'].append({'lower': float(lo), 'upper': float(hi), 'count': int(mask.sum()),
                                          'prediction': float(p[mask].mean()) if mask.any() else None,
                                          'truth': float(r[mask].mean()) if mask.any() else None})
+    result['binned_mean_calibration_error'] = sum(
+        row['count']*abs(row['prediction']-row['truth']) for row in result['reliability_bins'] if row['count'])/int(valid.sum())
+    result['candidate_columns'] = []
+    for index in range(r.shape[1]):
+        good = valid[:, index]
+        zero = good & (r[:, index] <= 1e-8)
+        result['candidate_columns'].append(dict(index=index, valid=int(good.sum()), zeros=int(zero.sum()),
+            predicted_mean=float(p[good, index].mean()) if good.any() else None,
+            true_mean=float(r[good, index].mean()) if good.any() else None,
+            mean_prediction_on_zero=float(p[zero, index].mean()) if zero.any() else None))
     i, j = np.triu_indices(r.shape[1], 1)
     gap = r[:, i]-r[:, j]
     good = valid[:, i] & valid[:, j] & (np.abs(gap) > .01)
@@ -85,6 +95,32 @@ def score_diagnostics(prediction, bank):
         logits = np.asarray(prediction['nonzero_logits'], dtype=np.float64)
         probability = 1/(1+np.exp(-np.clip(logits, -80, 80)))
         result['joint_nonzero_brier'] = float(((probability-(r > 1e-8))[valid]**2).mean())
+    return result
+
+
+def information_diagnostics(config, device):
+    """Read-only corruptions, never new trajectory labels or selection data."""
+    from iqe.specialist_study.scorer_training import predict
+    choice = read_json(config.root/'MODEL_CHOICE.json')
+    cell = choice['selected']['cell']
+    dependencies = dict(choice_hash=file_hash(config.root/'MODEL_CHOICE.json'),
+                        checkpoint_hash=choice['selected']['checkpoint_hash'])
+    path = config.root/'INFORMATION_DIAGNOSTICS.json'
+    if path.exists():
+        result = read_json(path)
+        require(result['dependencies'] == dependencies, 'stale information diagnostic')
+        return result
+    model, _ = chosen_endpoint(config, cell, device)
+    source = config.source()
+    rows = {}
+    for kind in (None, 'scene_mismatch', 'trajectory_time_shuffle', 'remove_W'):
+        meta, bank, values = predict(source, model, 'stage_val', device, diagnostic=kind)
+        rows[kind or 'correct_pairing'] = statistics(config, meta, bank, {'values': values})
+    result = dict(dependencies=dependencies, role='fixed_stage_val_after_choice_lock', rows=rows,
+                  new_optimizer_steps=0, used_to_change_choice_or_recipe=False,
+                  labels='original physical candidate bank; predictions alone are deliberately corrupted',
+                  trajectory_corruptions_are_new_policy_results=False)
+    atomic_json(path, result, immutable=True)
     return result
 
 
@@ -157,6 +193,7 @@ def evaluate(config, device='cuda:0'):
     device = runtime(device)
     choice = lock_choice(config)
     margin = calibrate(config, device)
+    information_diagnostics(config, device)
     source = config.source()
     frozen = dict(choice_hash=file_hash(config.root/'MODEL_CHOICE.json'), margin_hash=file_hash(config.root/'SELECTOR_MARGIN.json'),
                   dev_scene_ids_hash=digest([s.scene_id for s in scenes_by_role(source)['dev_report']]),
