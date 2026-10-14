@@ -130,6 +130,7 @@ def train_expert(config,cell,device='cuda:0',resume=None,stop_after=None):
                 hard=np.array([s.scene_id in hv for s in val]);delta=truth[:,1]-truth[:,0]
                 stats.update(hard_val_count=int(hard.sum()),hard_val_direct_gain=float(delta[hard].mean()) if hard.any() else None,
                              ordinary_direct_gain=float(delta[~hard].mean()) if (~hard).any() else None,
+                             new_oracle_scenes_gt_0_01=int((delta>.01).sum()),
                              candidate_hash=module_hash(module),checkpoint_endpoint=endpoint)
                 # Strict comparison retains the earlier step and raw on an exact raw/EMA tie.
                 stats['selection_key']=[stats['oracle_gain_01'],stats['hard_val_direct_gain'] if hard.any() else -1.]

@@ -54,7 +54,9 @@ def evaluate_experts(config,device='cpu'):
     best=max(rows,key=lambda r:(*r['validation']['selection_key'],-r['step'],r['endpoint']=='raw'))
     result={'schema':'stage_val_selected_expert_recipe_v1','pilot':matrix['pilot'],'selected':best,
             'all_endpoints':rows,'blocked_cells':blocked,'selected_on':'stage_val','dev_accessed':False,
-            'matrix_manifest_hash':matrix['hash'],'scientific_status':'HELDOUT_ORACLE_GAIN' if best['validation']['oracle_gain_01']>1e-8 else 'NO_HELDOUT_ORACLE_GAIN'}
+            'matrix_manifest_hash':matrix['hash'],'scientific_status':'HELDOUT_ORACLE_GAIN'
+            if best['validation']['oracle_gain_01']>1e-8 and best['validation']['new_oracle_scenes_gt_0_01']>0
+            else 'NO_HELDOUT_ORACLE_GAIN'}
     result['hash']=digest(result);atomic_json(config.root/'EXPERT_RECIPE_SELECTION.json',result,immutable=True)
     with open(config.root/'EXPERT_2X2_RESULTS.csv','w',newline='') as stream:
         writer=csv.DictWriter(stream,fieldnames=['cell','step','endpoint','target','private_reader','Base','Expert','Oracle','Oracle_gain','hard_val_gain','ordinary_gain','EMA_Base_weight'])
