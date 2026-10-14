@@ -134,7 +134,7 @@ def online_cache(config, system, device):
     source = config.source()
     scenes = scenes_by_role(source)["stage_val"][:4]
     replay = OriginalBatchReplay(source)
-    groups = list(dict.fromkeys(replay.batches[s.scene_id] for s in scenes))
+    groups = list(dict.fromkeys(replay.batch_for(s.scene_id) for s in scenes))
     wanted = {s.scene_id for s in scenes}
     cache = ReusedContext(source, capacity=16)
     rows = []
@@ -188,7 +188,8 @@ def online_cache(config, system, device):
                      "online_calls": online["calls"], "branch_calls": online["branch_calls"],
                      "cache_head_VLA_calls": 0})
     return {"status": "PASS", "real_scenes": len(scenes), "batches": rows,
-            "original_batch_plan_hash": replay.plan_hash, "tolerances": TOLERANCES,
+            "original_batch_plan_hash": replay.plan_hash,
+            "original_batch_layout_provenance": replay.provenance, "tolerances": TOLERANCES,
             "batch_shape_invariance_claimed": False, "no_training_or_selection_use": True}
 
 

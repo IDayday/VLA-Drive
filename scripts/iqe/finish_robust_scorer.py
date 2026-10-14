@@ -77,7 +77,9 @@ def main():
             code_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             gpu=a.gpu, max_wait_seconds=a.max_wait_seconds, no_other_process_signals=True,
             source_hashes={name: file_hash(ROOT/'iqe/robust_scorer'/name)
-                           for name in ('evaluation.py', 'bundle.py', 'qualification.py', 'report.py')})
+                           for name in ('evaluation.py', 'bundle.py', 'qualification.py', 'report.py')},
+            qualification_dependencies={name: file_hash(ROOT/name) for name in
+                ('iqe/specialist_study/context_batch_layout.py', 'iqe/internal_baseline/features.py')})
         atomic_json(folder/'LAUNCH.json', launch)
         expires = time.monotonic()+a.max_wait_seconds
         env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(a.gpu), OMP_NUM_THREADS='2', MKL_NUM_THREADS='2',
@@ -103,6 +105,8 @@ def main():
                 time.sleep(20)
             require(all(file_hash(ROOT/'iqe/robust_scorer'/name) == checksum for name, checksum in launch['source_hashes'].items()),
                     'finalization implementation changed after registration')
+            require(all(file_hash(ROOT/name) == checksum for name, checksum in launch['qualification_dependencies'].items()),
+                    'online/cache qualification dependencies changed after registration')
             cmd = [sys.executable, *command, '--config', str(Path(a.config).resolve())]
             if stage not in ('bundle', 'report'):
                 cmd += ['--device', 'cuda:0']
