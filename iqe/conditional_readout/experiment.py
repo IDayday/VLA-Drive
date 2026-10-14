@@ -113,6 +113,10 @@ def train_cell(config,device='cuda:0',resume=None,stop_after=None,diagnostic=Non
                 check=read_json(config.root/'diagnostics'/kind/'DIAGNOSTIC.json')
                 require(check['status']=='COMPLETE' and check['optimizer_steps']==300,
                         'complete the bounded real diagnostics before the new formal cell')
+            decision=read_json(config.root/'TRAINING_DECISION.json')
+            require(file_hash(config.root/'DIAGNOSTIC_COMPARISON.json')==decision['evidence_hash'],
+                    'diagnostic decision evidence changed')
+            require(decision['proceed'], 'registered follow-up stopped: '+decision['reason'])
         dm,deploy=load_bank(source,'deploy','scorer_fit');rm,rich=load_bank(source,'rich','scorer_fit')
         vm,vb=load_bank(source,'deploy','stage_val');roles=scenes_by_role(source);scenes=roles['scorer_fit']
         require(dm['scene_ids']==rm['scene_ids']==[s.scene_id for s in scenes], 'fit bank join')

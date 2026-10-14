@@ -74,6 +74,11 @@ latencies. All comparisons retain a single frozen visual/language execution.
 
 ## Commands
 
+The completed diagnostics now have a negative budget-expansion decision (see
+`RESULT.md`). The formal train command below is retained for interface/history
+documentation and deliberately exits nonzero for this experiment identity.
+Do not remove or overwrite the decision to rerun an unregistered trial.
+
 Run from `/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014` on a currently
 permitted host and verified free GPU; never use protected vla-zt2. The runtime
 resource checks are repeated by the CLI. No temporary-host lease is needed.
