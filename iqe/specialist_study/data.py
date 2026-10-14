@@ -221,7 +221,7 @@ def select_pilot(config):
     require(audit['status']=='COMPLETE','complete D_E opportunity audit required')
     from .target_rules import core_audit
     stats=core_audit(config)['summary']
-    eligible=[s for s in SPECIALTIES if stats[s]['gt_eligible']]
+    eligible=[s for s in SPECIALTIES if stats[s]['gt_eligible'] or stats[s]['paired']]
     require(eligible,'NO_ELIGIBLE_SPECIALTY')
     # Prefer an identifiable paired target study, then aggregate supervised opportunity,
     # then cross-log support. This fixed rule never consumes heldout outcomes.
