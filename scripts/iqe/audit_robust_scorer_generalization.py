@@ -87,7 +87,17 @@ def analyze(config):
             if "nonzero_logits" in prediction:
                 prob = 1 / (1 + np.exp(-np.clip(prediction["nonzero_logits"].astype(float), -80, 80)))
                 rows[role]["joint_nonzero_probability_on_true_zero"] = float(prob[zero].mean()) if zero.any() else None
-        evidence["cells"][cell] = {"stage_val_selected_step": identity["step"], **rows}
+        curves = []
+        for step in config.validation_steps:
+            path = config.root / 'scorers' / cell / f'validation_{step:06d}.json'
+            stats = read_json(path)
+            curves.append(dict(step=step, validation_hash=file_hash(path),
+                               selected_01=stats['selected_01'], high_to_zero=stats['high_to_zero'],
+                               completed_ranking_updates=max(0, step-config.phase_switch)))
+        evidence["cells"][cell] = {
+            "stage_val_selected_step": identity["step"],
+            "ranking_updates_in_selected_checkpoint": max(0, identity["step"]-config.phase_switch),
+            "completed_training_budget": config.updates, "stage_val_learning_curve": curves, **rows}
     destination = config.root / "qualification/generalization_audit"
     atomic_json(destination / "REPORT.json", evidence, immutable=True)
     lines = ["# 自训 Scorer 留出与风险诊断", "",
@@ -103,6 +113,9 @@ def analyze(config):
                      f"{d['high_to_zero_count']} / {d['high_base_denominator']} | {text} | "
                      f"{100*d['zero_candidate_mean_prediction']:.2f} |")
     lines += ["", "高分转零分的损失计入共同场景总分母；其占比按真实损失总量计算，而非只比较错误次数。",
+              "四组均完成6000步预算，但验证集选出的端点是 R00/1000、R01/3000、R10/1000、R11/1000。"
+              "这些端点都在排序阶段开始前；不能将它们的开发收益归功于后3000步排序训练。"
+              "继续训练后的验证变化同时混合了曝光和排序阶段变化，不能据此单独断言排序损失有害。",
               "训练集与开发集的基础质量和独立 log 数不同；这些结果定位现象，不单独证明表征、数据或目标中的某一个具有因果责任。",
               "新四组的全部训练已经结束。图和报告不增加新的模型选择机会，也不将总是回退 Base 记为 Scorer 成功。"]
     atomic_bytes(destination / "REPORT.md", ("\n".join(lines) + "\n").encode(), immutable=True)

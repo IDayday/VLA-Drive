@@ -125,3 +125,47 @@ same optimizer, scheduler, RNG and sampling state. The first actual resumed IDs
 match the saved next batch; step logs have no gap or duplicate. Evidence is
 `FREE_GPU_MIGRATION_AUDIT.json`. No Base/G/other research process was signaled,
 no training budget was extended, and no temporary resource was admitted.
+
+## New registered matrix: complete development predictions
+
+At 2026-10-14 20:48 UTC all four new heads had completed their fixed 6000
+updates and predictions for all 1696 fixed dev scenes. The remaining full-fit
+diagnostic inference and online/bundle qualification were still running.
+`NEW_MATRIX_COMPLETE_DEV.json` binds every complete prediction checksum, the
+fixed official bank, and the model choice made before dev was read.
+
+| Cell | Objective / dropout | Stage-val-selected step | Dev PDMS | Difference from Base | High-to-zero |
+|---|---|---:|---:|---:|---:|
+| R00 | Expected-score BCE / 0 | 1000 | 90.69596 | +0.16580 | 11 |
+| R01 | Expected-score BCE / 0.1 | 3000 | 90.43758 | -0.09258 | 25 |
+| R10 | Joint nonzero hurdle / 0 | 1000 | 90.50657 | -0.02359 | 18 |
+| R11 | Joint nonzero hurdle / 0.1 | 1000 | 89.74630 | -0.78386 | 23 |
+
+The preselected R00 has a paired-log gain interval of [-1.10253, +1.23602]
+percentage points. It captures 3.4387% of the unchanged 4.8215-point Oracle
+opportunity. Its new NC/DAC/TTC failure counts are 14/4/44; selected zero scores
+are 61 versus Base's 55. None of these four heads establishes robust heldout
+selection or safe deployment. The independently calibrated margin grid has no
+feasible nontrivial choice; always-Base fallback is not a selection success.
+
+R00's selected endpoint improves the complete 16581-scene D_S population by
+0.99759 points, versus 0.16580 on dev. Mean predictions on truly zero-valued
+candidates are 0.33707 in D_S and 0.58484 in dev. Its gap-weighted comparison
+accuracy is 89.497% on D_S and 84.478% on dev. Classification-style aggregate
+accuracy therefore does not replace actual selected reward and severe-error
+accounting.
+
+All four chosen endpoints precede the ranking phase, which starts after update
+3000. Do not attribute their development results to the subsequent ranking
+updates. At fixed update6000, stage_val scores are respectively 91.34518,
+90.32480, 90.42856 and 89.16445, versus Base91.39146. This does not identify
+ranking as the cause of deterioration: continued exposure and the training
+phase both change. It does show that simply requesting more updates did not
+solve the observed heldout issue in these registered runs.
+
+The new objectives and dropout did not remove severe overestimation on failed
+trajectories. Existing evidence supports a generalization and risk-ranking
+problem, not missing Oracle opportunity. It does not isolate one of data shift,
+frozen representation, geometric grounding or objective design as the sole
+cause. No fifth recipe, extra seed, changed pool, or dev-tuned threshold was
+started to turn these negative findings into a favorable result.
