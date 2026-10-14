@@ -1,0 +1,207 @@
+{
+  "schema": "cfn_real_group_signal_efficiency_v1",
+  "source_sha256": "70ff6c805173c3064e7f5da9c984ff826799bdd26b3e016a21dc64db376aa295",
+  "variants": {
+    "C_SDE": {
+      "variant": "C_SDE",
+      "run_identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "collections": 512,
+      "through_update": 1024,
+      "counts": {
+        "tail_groups_after_16th_effective": 1712,
+        "raw_groups": 12760,
+        "ACCEPTED": 8190,
+        "tied_PDMS": 4485,
+        "tied_PDMS_all_one": 4472,
+        "tied_PDMS_all_zero": 3,
+        "accepted_A_RMS_below_0_01": 163,
+        "accepted_A_RMS_below_0_1": 522,
+        "accepted_official_binary_cost_varies": 885,
+        "accepted_only_reward_component_varies": 4346,
+        "accepted_reward_tied_geometric_or_safety_signal": 1040,
+        "accepted_positive_reward_range_below_0_001": 22,
+        "accepted_positive_reward_range_below_0_005": 712,
+        "ZERO_FINAL_ADVANTAGE": 3281,
+        "zero_A_all_six_components_constant": 3003,
+        "zero_A_only_inactive_components_vary": 278,
+        "zero_A_active_components_cancel": 0,
+        "zero_A_still_used_in_first16_retention_dual": 2147,
+        "SURPLUS_SAME_BEHAVIOR": 1289
+      },
+      "actual_candidate_scores": 204160,
+      "PG_unused_candidate_scores": 73120,
+      "accepted_A_RMS_quantiles_0_10_25_50_75_90_100": [
+        2.7593686155837924e-06,
+        0.12540922708952632,
+        0.1756486769229481,
+        0.29606232599680804,
+        0.6176796793664214,
+        1.0559054830536496,
+        6.009957622810821
+      ],
+      "accepted_PDMS_range_quantiles_0_10_25_50_75_90_100": [
+        0.0,
+        0.0,
+        0.005415528870376496,
+        0.008889620088870342,
+        0.01708955009061955,
+        0.41666666666666663,
+        1.0
+      ],
+      "first16_unfiltered_cost_means": [
+        0.0007781982421875,
+        0.01131439208984375,
+        0.008331298828125,
+        0.012912677273561917,
+        0.02113885479596612
+      ],
+      "last64_first16_unfiltered_cost_means": [
+        0.000244140625,
+        0.0087890625,
+        0.00555419921875,
+        0.014180203293563967,
+        0.021704237940687897
+      ],
+      "fixed_cost_budgets": [
+        0.0,
+        0.03271484375,
+        0.005859375,
+        0.028675180737633258,
+        0.011178177155719025
+      ],
+      "lambda_after": [
+        1.6554535627365112,
+        0.0,
+        1.643905520439148,
+        0.0,
+        2.644307851791382
+      ],
+      "measured_worker_seconds_by_reason": {
+        "ACCEPTED": {
+          "rollout_seconds": 33709.62149218656,
+          "scoring_seconds": 19961.10448567383,
+          "reference_seconds": 1402.5477765612304,
+          "scoring_cpu_seconds": 19710.87752627995
+        },
+        "ZERO_FINAL_ADVANTAGE": {
+          "rollout_seconds": 13495.697789244354,
+          "scoring_seconds": 8750.233436442912,
+          "reference_seconds": 482.1259130090475,
+          "scoring_cpu_seconds": 8643.338618677979
+        },
+        "SURPLUS_SAME_BEHAVIOR": {
+          "rollout_seconds": 5372.6899053268135,
+          "scoring_seconds": 3140.1267822962254,
+          "reference_seconds": 0.13782486133277416,
+          "scoring_cpu_seconds": 3099.526406409997
+        }
+      },
+      "time_semantics": "Measured worker sums, not exclusive GPU-hours or a prediction of speedup",
+      "refill_tail_semantics": "Read-only prefix counterfactual on each saved collection; smaller refills may lose GPU parallelism and change later policy history",
+      "archive_hashes_sha256": "9aacbc053b204354944214cf7bd7c6c271627ab7f819e9df90ab107aba6c2e06",
+      "gradient_limitation": "Nonzero/RMS advantages are not measurements of useful actor gradient or deployment gain"
+    },
+    "N_FLOW_NOISE": {
+      "variant": "N_FLOW_NOISE",
+      "run_identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "collections": 512,
+      "through_update": 1024,
+      "counts": {
+        "tail_groups_after_16th_effective": 1785,
+        "raw_groups": 12744,
+        "ACCEPTED": 8192,
+        "tied_PDMS": 4349,
+        "tied_PDMS_all_one": 4337,
+        "tied_PDMS_all_zero": 4,
+        "accepted_A_RMS_below_0_01": 138,
+        "accepted_A_RMS_below_0_1": 490,
+        "accepted_official_binary_cost_varies": 1013,
+        "accepted_only_reward_component_varies": 4313,
+        "accepted_reward_tied_geometric_or_safety_signal": 996,
+        "accepted_positive_reward_range_below_0_001": 28,
+        "accepted_positive_reward_range_below_0_005": 128,
+        "ZERO_FINAL_ADVANTAGE": 3204,
+        "zero_A_all_six_components_constant": 2954,
+        "zero_A_only_inactive_components_vary": 250,
+        "zero_A_active_components_cancel": 0,
+        "zero_A_still_used_in_first16_retention_dual": 2059,
+        "SURPLUS_SAME_BEHAVIOR": 1348
+      },
+      "actual_candidate_scores": 203904,
+      "PG_unused_candidate_scores": 72832,
+      "accepted_A_RMS_quantiles_0_10_25_50_75_90_100": [
+        3.5553998506096087e-06,
+        0.18160521934772886,
+        0.2631054904393844,
+        0.4318187391174436,
+        0.8943421943193528,
+        1.2767635144282292,
+        6.860072706424491
+      ],
+      "accepted_PDMS_range_quantiles_0_10_25_50_75_90_100": [
+        0.0,
+        0.0,
+        0.008513252043135855,
+        0.013584026368914315,
+        0.028500245371607308,
+        0.41666666666666663,
+        1.0
+      ],
+      "first16_unfiltered_cost_means": [
+        0.00089263916015625,
+        0.0124969482421875,
+        0.01244354248046875,
+        0.013186681808919772,
+        0.021051533376770112
+      ],
+      "last64_first16_unfiltered_cost_means": [
+        0.0001220703125,
+        0.00970458984375,
+        0.00933837890625,
+        0.014543028482401951,
+        0.021308817872873923
+      ],
+      "fixed_cost_budgets": [
+        0.0,
+        0.03271484375,
+        0.005859375,
+        0.028675180737633258,
+        0.011178177155719025
+      ],
+      "lambda_after": [
+        1.7216646671295166,
+        0.0,
+        2.5674338340759277,
+        0.0,
+        2.717525005340576
+      ],
+      "measured_worker_seconds_by_reason": {
+        "ACCEPTED": {
+          "rollout_seconds": 29910.2253268864,
+          "scoring_seconds": 20282.260327862576,
+          "reference_seconds": 1352.0862101446837,
+          "scoring_cpu_seconds": 19954.964077850043
+        },
+        "ZERO_FINAL_ADVANTAGE": {
+          "rollout_seconds": 11716.808874754235,
+          "scoring_seconds": 8618.972974443808,
+          "reference_seconds": 444.87251309864223,
+          "scoring_cpu_seconds": 8485.323901959033
+        },
+        "SURPLUS_SAME_BEHAVIOR": {
+          "rollout_seconds": 4917.6807227768,
+          "scoring_seconds": 3311.129116434604,
+          "reference_seconds": 0.14430062286555767,
+          "scoring_cpu_seconds": 3250.127185577002
+        }
+      },
+      "time_semantics": "Measured worker sums, not exclusive GPU-hours or a prediction of speedup",
+      "refill_tail_semantics": "Read-only prefix counterfactual on each saved collection; smaller refills may lose GPU parallelism and change later policy history",
+      "archive_hashes_sha256": "a6d57f889b92a999740e827c75cd81371d29bd85184f7714384d4f5829cd5b0c",
+      "gradient_limitation": "Nonzero/RMS advantages are not measurements of useful actor gradient or deployment gain"
+    }
+  },
+  "no_new_rollouts_or_updates": true,
+  "descriptive_thresholds_not_training_filters": true,
+  "sha256": "81346fdc5f908dfaad8713bf2ade0beef9c6ef526d484e21b8e34639808f107e"
+}

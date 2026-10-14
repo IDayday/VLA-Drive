@@ -1,0 +1,54 @@
+{
+  "schema": "cfn_user_requested_interim_DEV_v1",
+  "utc": "2026-10-14T15:00:02.980291+00:00",
+  "user_request": "目前是否有可供分析的结果，如果没有，现在是否能够评测一下，看看目前的强化学习方案效果如何？还存在什么问题",
+  "role": "extra_diagnostic_observation_not_registered_checkpoint_selection",
+  "variants": [
+    {
+      "variant": "C_SDE",
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1/checkpoints/update001024_raw012760",
+      "boundary": {
+        "schema": "cfn_boundary_v1",
+        "phase": "ready",
+        "update": 1024,
+        "collection": 512,
+        "raw_exposure": 12760,
+        "next_inner": 0,
+        "world": 8
+      },
+      "export": "/mnt/project/constrained-flow-noise-20261014/interim_DEV_update1024_20261014/C_SDE_export",
+      "evaluation": "/mnt/project/constrained-flow-noise-20261014/interim_DEV_update1024_20261014/C_SDE",
+      "run_identity_sha256": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9"
+    },
+    {
+      "variant": "N_FLOW_NOISE",
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update001024_raw012744",
+      "boundary": {
+        "schema": "cfn_boundary_v1",
+        "phase": "ready",
+        "update": 1024,
+        "collection": 512,
+        "raw_exposure": 12744,
+        "next_inner": 0,
+        "world": 8
+      },
+      "export": "/mnt/project/constrained-flow-noise-20261014/interim_DEV_update1024_20261014/N_FLOW_NOISE_export",
+      "evaluation": "/mnt/project/constrained-flow-noise-20261014/interim_DEV_update1024_20261014/N_FLOW_NOISE",
+      "run_identity_sha256": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1"
+    }
+  ],
+  "scene_count": 1696,
+  "log_count": 16,
+  "single_inference_seed": 2101,
+  "training_seed": 42,
+  "sampler": "original_single_candidate_10_step_ODE",
+  "reward": "canonical_NAVSIM_v1.1",
+  "source_training_commit": "8275f6b06878fba3f082d2ac213ca70557c21753",
+  "matched_optimizer_updates": 1024,
+  "raw_exposure_difference": 16,
+  "formal_training_unmodified": true,
+  "navtest_used": false,
+  "baseline": "/mnt/project/constrained-flow-noise-20261014/evaluation/SFT_DEV_original/scores",
+  "host": "training-vlawm-tsinghua-zt",
+  "workers": 16
+}

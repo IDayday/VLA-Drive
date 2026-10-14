@@ -1,0 +1,202 @@
+{
+  "schema": "cfn_formal_progress_snapshot_v1",
+  "snapshot_utc": "2026-10-14T14:48:19Z",
+  "training_seed": 42,
+  "evaluation_seed": 2101,
+  "completed_formal_comparison": false,
+  "source_summary_sha256": "c6e06dd983bdbcc2aa0ad582759879c816a0218c3b6ef531bd3576c08adfef26",
+  "plot_source_sha256": "33cc4856c3d4771dcfdb7b60526b59e6ec72b433744dd2f6f1d4254511054265",
+  "variants": {
+    "C_SDE": {
+      "run_identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "common_complete_rank_updates": 1572,
+      "raw_exposure_at_latest_update": 19600,
+      "accepted_exposure_at_latest_update": 12572,
+      "real_PG_updates": 1572,
+      "replay_reference_only_updates": 0,
+      "observed_collection_totals": {
+        "scenes": 19600,
+        "candidates": 313600,
+        "accepted_groups": 12572,
+        "zero_PDMS_advantage_groups": 6924,
+        "zero_final_advantage_groups": 5069,
+        "all_zero_PDMS_groups": 6,
+        "progress_only_official_reward_groups": 11021,
+        "official_safety_cost_varies_groups": 1556,
+        "geometric_cost_varies_groups": 7154,
+        "unused_effective_surplus_groups": 1959
+      },
+      "seconds": {
+        "rollout_seconds": 79780.25855424814,
+        "scoring_seconds": 48779.66965365596,
+        "reference_seconds": 2870.5344908870757,
+        "scoring_cpu_seconds": 48170.24643860797
+      },
+      "monitor_seconds": {
+        "rollout_seconds": 722.5750473104417,
+        "scoring_seconds": 358.92201553843915,
+        "reference_seconds": 0.013743074610829353,
+        "scoring_cpu_seconds": 330.8373679840001
+      },
+      "logged_update_GPU_seconds_including_reexecuted_attempts": 41496.10721253604,
+      "duplicated_update_log_rows_by_rank": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "compute_accounting": {
+        "training_rollout_forward_calls": 3136000,
+        "training_rollout_forward_examples": 3136000,
+        "frozen_reference_forward_calls": 12576,
+        "frozen_reference_forward_examples": 2012160,
+        "PG_retention_forward_calls": 46084,
+        "PG_retention_backward_calls": 46084,
+        "PG_retention_forward_examples": 7373440,
+        "PG_retention_backward_examples": 7373440,
+        "GT_replay_forward_calls": 25152,
+        "GT_replay_backward_calls": 25152,
+        "GT_replay_forward_examples": 201216,
+        "GT_replay_backward_examples": 201216,
+        "PG_scene_exposures_over_completed_inner_updates": 25144,
+        "GT_scene_exposures_over_completed_inner_updates": 25152,
+        "monitor_rollout_forward_examples": 20480,
+        "monitor_rollout_forward_calls": 20480,
+        "canonical_training_candidate_scores": 313600,
+        "canonical_monitor_candidate_scores": 2048,
+        "canonical_contract": "One invocation per candidate: [fixed official reference, that candidate]",
+        "scope": "Completed collection records and all-rank completed inner updates; actual padded calls included. Repeated/partially failed attempts are not inferred from final logical records. Their measured log time is reported separately; a retry requires its preserved attempt receipts.",
+        "excluded_one_time_graph_setup": {
+          "forward_calls_per_cold_rank": 4,
+          "definition": "3 eager warmups plus 1 CUDA graph capture",
+          "source": "starVLA/rl/flow_grpo/velocity_graph.py:NoGradVelocityGraph",
+          "note": "Add once per graph-creating rank/process invocation; not a candidate or training exposure."
+        }
+      },
+      "recovery_checkpoint": {
+        "path": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1/checkpoints/update001024_raw012760",
+        "boundary": {
+          "schema": "cfn_boundary_v1",
+          "phase": "ready",
+          "update": 1024,
+          "collection": 512,
+          "raw_exposure": 12760,
+          "next_inner": 0,
+          "world": 8
+        },
+        "files_manifest_sha256": "1bb9e9cce38c937e59102d1c0affa9bb7a460ef63429fb9756701a80d2be8e47",
+        "complete": true
+      },
+      "population_rates": {
+        "accepted_groups": 0.6414285714285715,
+        "zero_PDMS_advantage_groups": 0.353265306122449,
+        "zero_final_advantage_groups": 0.25862244897959186,
+        "all_zero_PDMS_groups": 0.0003061224489795918,
+        "progress_only_official_reward_groups": 0.5622959183673469,
+        "official_safety_cost_varies_groups": 0.07938775510204081,
+        "geometric_cost_varies_groups": 0.365
+      },
+      "scoring_CPU_hours": 13.380624010724436
+    },
+    "N_FLOW_NOISE": {
+      "run_identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "common_complete_rank_updates": 1782,
+      "raw_exposure_at_latest_update": 22272,
+      "accepted_exposure_at_latest_update": 14255,
+      "real_PG_updates": 1782,
+      "replay_reference_only_updates": 0,
+      "observed_collection_totals": {
+        "scenes": 22272,
+        "candidates": 356352,
+        "accepted_groups": 14255,
+        "zero_PDMS_advantage_groups": 7738,
+        "zero_final_advantage_groups": 5717,
+        "all_zero_PDMS_groups": 8,
+        "progress_only_official_reward_groups": 12335,
+        "official_safety_cost_varies_groups": 2045,
+        "geometric_cost_varies_groups": 8049,
+        "unused_effective_surplus_groups": 2300
+      },
+      "seconds": {
+        "rollout_seconds": 73118.25952716544,
+        "scoring_seconds": 51232.14924448542,
+        "reference_seconds": 2807.2455285247415,
+        "scoring_cpu_seconds": 50530.93380181009
+      },
+      "monitor_seconds": {
+        "rollout_seconds": 502.2492724880576,
+        "scoring_seconds": 361.52203697524965,
+        "reference_seconds": 0.013062842190265656,
+        "scoring_cpu_seconds": 333.97738010499984
+      },
+      "logged_update_GPU_seconds_including_reexecuted_attempts": 44020.80726992898,
+      "duplicated_update_log_rows_by_rank": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "compute_accounting": {
+        "training_rollout_forward_calls": 3563520,
+        "training_rollout_forward_examples": 3563520,
+        "frozen_reference_forward_calls": 14256,
+        "frozen_reference_forward_examples": 2280960,
+        "PG_retention_forward_calls": 51900,
+        "PG_retention_backward_calls": 51900,
+        "PG_retention_forward_examples": 8304000,
+        "PG_retention_backward_examples": 8304000,
+        "GT_replay_forward_calls": 28512,
+        "GT_replay_backward_calls": 28512,
+        "GT_replay_forward_examples": 228096,
+        "GT_replay_backward_examples": 228096,
+        "PG_scene_exposures_over_completed_inner_updates": 28510,
+        "GT_scene_exposures_over_completed_inner_updates": 28512,
+        "monitor_rollout_forward_examples": 20480,
+        "monitor_rollout_forward_calls": 20480,
+        "canonical_training_candidate_scores": 356352,
+        "canonical_monitor_candidate_scores": 2048,
+        "canonical_contract": "One invocation per candidate: [fixed official reference, that candidate]",
+        "scope": "Completed collection records and all-rank completed inner updates; actual padded calls included. Repeated/partially failed attempts are not inferred from final logical records. Their measured log time is reported separately; a retry requires its preserved attempt receipts.",
+        "excluded_one_time_graph_setup": {
+          "forward_calls_per_cold_rank": 4,
+          "definition": "3 eager warmups plus 1 CUDA graph capture",
+          "source": "starVLA/rl/flow_grpo/velocity_graph.py:NoGradVelocityGraph",
+          "note": "Add once per graph-creating rank/process invocation; not a candidate or training exposure."
+        }
+      },
+      "recovery_checkpoint": {
+        "path": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update001024_raw012744",
+        "boundary": {
+          "schema": "cfn_boundary_v1",
+          "phase": "ready",
+          "update": 1024,
+          "collection": 512,
+          "raw_exposure": 12744,
+          "next_inner": 0,
+          "world": 8
+        },
+        "files_manifest_sha256": "9b6df58a5b720c5330ddffa4d7afc10c234b1f147ec02aa7c8b9556062150d71",
+        "complete": true
+      },
+      "population_rates": {
+        "accepted_groups": 0.6400413074712644,
+        "zero_PDMS_advantage_groups": 0.3474317528735632,
+        "zero_final_advantage_groups": 0.2566900143678161,
+        "all_zero_PDMS_groups": 0.00035919540229885057,
+        "progress_only_official_reward_groups": 0.5538344109195402,
+        "official_safety_cost_varies_groups": 0.09181932471264367,
+        "geometric_cost_varies_groups": 0.36139547413793105
+      },
+      "scoring_CPU_hours": 14.036370500502803
+    }
+  },
+  "interpretation": "Different unfinished exposure endpoints; stream statistics are operational evidence, not a matched deployed-policy comparison. Only the zero-update fixed monitor is available, and no formal DEV score exists in this snapshot."
+}

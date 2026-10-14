@@ -176,14 +176,19 @@ def plot_curves(root, summaries, curves):
             axes[1, 2].plot([r['raw_exposure'] for r in dev], [r['PDMS'] for r in dev], 'o-', label=name)
     titles = ['Accepted / raw exposure', 'Conditional reference KL proxy', 'Mean discrete transition std',
               'Fixed TRAIN stochastic G16 PDMS', 'Fixed TRAIN stochastic joint safety (%)', 'Full DEV original single ODE PDMS']
+    max_exposure = max((r['raw_exposure'] for data in curves.values() for r in data), default=1)
     for axis, title in zip(axes.flat, titles):
         axis.set_title(title)
         axis.set_xlabel('Unfiltered raw scene exposure')
+        axis.set_xlim(0, max_exposure)
         axis.grid(alpha=.2)
         if axis.lines:
             axis.legend()
         else:
             axis.text(.5, .5, 'No completed observation yet', ha='center', va='center', transform=axis.transAxes)
+    axes[1, 1].set_ylim(0, 100)
+    if not axes[1, 2].lines:
+        axes[1, 2].set_ylim(0, 100)
     fig.savefig(root/'learning_curves.png', dpi=180)
     plt.close(fig)
 

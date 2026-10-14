@@ -2,10 +2,32 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status at 2026-10-14 07:19 UTC: both full-budget formal runs are performing
-real updates. Core and real-learning acceptance passed; all 101,592 TRAIN
-condition and canonical metric assets are sealed. Formal ODE outcomes remain
-pending. [Run-start snapshot](formal_start.json).
+Status at 2026-10-14 15:08 UTC: both full-budget formal runs continue. The
+user-requested extra full-DEV observation of the saved update1024 checkpoints
+is in progress. C_SDE has completed all 1,696 scenes: original single-ODE PDMS
+93.6192 → 94.4840, but TTC violations 1 → 4, so this checkpoint does not meet
+the safety eligibility rule. N_FLOW_NOISE is being evaluated with the same
+seed2101 protocol. These extra observations do not enter the preregistered
+checkpoint-selection schedule. [C_SDE evidence](interim_update1024_C_SDE_ODE.json),
+[observation registration](interim_update1024_registration.json).
+Core and real-learning acceptance passed; all 101,592 TRAIN condition and
+canonical metric assets are sealed. [Run-start snapshot](formal_start.json).
+
+Read-only analysis of the first 512 saved behavior collections per method
+confirms a substantial efficiency problem: only 64.19% / 64.28% of raw groups
+enter PG. Zero final advantages account for 25.71% / 25.14%; effective refill
+surplus accounts for another 10.10% / 10.58%. Across both methods, 145,952 of
+408,064 candidate scores did not enter PG. Some zero groups still contribute
+to first16 reference retention and unbiased-by-filter dual statistics, so this
+is a PG-utilization count, not a claim that all associated work had no use.
+Over 99.7% of tied-PDMS groups have all16 candidates at score1; all-failure
+groups are only 3 / 4. [Signal and measured cost breakdown](interim_update1024_signal_efficiency.json).
+
+The earlier 14:48 UTC live training snapshot covers 1,572 / 1,782 all-rank
+completed updates and 19,600 / 22,272 raw scene exposures. The unequal prefixes
+are progress evidence, not a matched method-effect comparison.
+[Snapshot](formal_progress_20261014T1448Z.json),
+[training curves](learning_curves_20261014T1448Z.png).
 
 The only formal comparisons are legacy correlated, score-corrected `C_SDE`
 and diagonal learned `N_FLOW_NOISE`. Both retain the complete 359-tensor DDP
