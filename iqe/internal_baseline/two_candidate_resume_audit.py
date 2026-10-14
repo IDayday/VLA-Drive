@@ -1,3 +1,4 @@
+from .expert_data_revision import artifact as expert_artifact
 """Bounded, isolated expert/Scorer exact-resume qualification on bound features.
 
 Real probes use existing F_plan/W/A, audited GT and the two-candidate bank. They
@@ -160,7 +161,7 @@ def _run_pair(root, factory, fetch, loss, cfg, dependencies, options):
 
 
 def _expert_probe(config, root, scenes, device):
-    manifest = read_json(config.root/"EXPERT_MANIFEST.json")
+    manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
     require(manifest["hash"] == digest({k: v for k, v in manifest.items() if k != "hash"}), "expert manifest changed")
     allowed = training_ids(config, list(scenes.values()), "expert_fit")
     require(set(manifest["hard"]) <= allowed, "resume probe hard set contains D_S or heldout data")
@@ -202,7 +203,7 @@ def _expert_probe(config, root, scenes, device):
     cfg = training_config(config, "expert")
     require(cfg["max_optimizer_steps"] == 1000 and cfg["schedule"] == "warmup_constant", "probe requires original 1000-update expert timeline")
     deps = {"purpose": "two_candidate_real_expert_resume_only", "base_binding": file_hash(config.root/"BASE_BINDING.json"),
-            "partition": file_hash(config.root/"DATA_PARTITION.json"), "expert_manifest": file_hash(config.root/"EXPERT_MANIFEST.json"),
+            "partition": file_hash(config.root/"DATA_PARTITION.json"), "expert_manifest": file_hash(expert_artifact(config, "EXPERT_MANIFEST.json")),
             "scene_ids": ids, "plan_hash": plan["plan_hash"]}
     atomic_json(root/"INPUTS.json", {"scene_ids": ids, "role": "D_E audited H only",
                 "diagnostic_sampling": "32 hard scenes with replacement; no change to main 80/20 sampler",

@@ -145,6 +145,10 @@ def score_candidates(config, scenes, candidates, job_name):
 
 
 def build_initial(config):
+    from .expert_data_revision import selected_summary
+    selected = selected_summary(config)
+    if selected is not None:
+        return selected
     if config.research_protocol == "two_candidate_v1":
         return build_threshold_hard_set(config)
     scenes = load_scenes(config.root / "scenes.json")
@@ -184,13 +188,14 @@ def build_initial(config):
     return {"hard_candidates": len(target_scenes), "eligible_hard": len(eligible), "ordinary": len(ordinary), "hard_val": len(hard["stage_val"])}
 
 
-def failure_and_target_audit(base, target=None, *, epsilon=1e-8):
+def failure_and_target_audit(base, target=None, *, epsilon=1e-8, failure_threshold=.8):
     """Fixed protocol; missing components are unavailable, never implicit failure."""
     protected = COMPONENTS[:2]
     missing = [c for c in protected if not base["component_valid_masks"].get(c, False)]
     if not base["score_valid"] or missing:
         return {"failure": False, "eligible": False, "reasons": ["BASE_LABEL_OR_PROTECTED_COMPONENT_UNAVAILABLE"]}
-    failed = base["total_score_01"] < .8 or any(base["named_components"][c] < 1-epsilon for c in protected)
+    require(.8 <= failure_threshold <= .9, "explicit Base failure threshold must be in [0.8,0.9]")
+    failed = base["total_score_01"] < failure_threshold or any(base["named_components"][c] < 1-epsilon for c in protected)
     if target is None:
         return {"failure": failed, "eligible": False, "reasons": []}
     reasons = []
@@ -204,22 +209,28 @@ def failure_and_target_audit(base, target=None, *, epsilon=1e-8):
     return {"failure": failed, "eligible": not reasons, "reasons": reasons}
 
 
-def build_threshold_hard_set(config):
+def build_threshold_hard_set(config, *, failure_threshold=.8, output_dir=None, verified_base_scores_hash=None):
     from .partition import training_ids
     scenes = load_scenes(config.root/"scenes.json")
     expert_ids = training_ids(config, scenes, "expert_fit")
     selected = [s for s in scenes if s.scene_id in expert_ids or s.split_role == "stage_val"]
-    labels = score_candidates(config, selected, cache_candidates(config, selected, "base"), "base_expert_fit_stage_val")
-    base = {s.scene_id: asdict(r) for s, r in zip(selected, labels)}
+    output_dir = Path(output_dir) if output_dir is not None else config.root
+    if verified_base_scores_hash is not None:
+        require(file_hash(config.root/"BASE_FIT_VAL_SCORES.json") == verified_base_scores_hash, "Base score snapshot changed")
+        base = read_json(config.root/"BASE_FIT_VAL_SCORES.json")
+        require(set(base) == {s.scene_id for s in selected}, "Base score population changed")
+    else:
+        labels = score_candidates(config, selected, cache_candidates(config, selected, "base"), "base_expert_fit_stage_val")
+        base = {s.scene_id: asdict(r) for s, r in zip(selected, labels)}
     atomic_json(config.root/"BASE_FIT_VAL_SCORES.json", base, immutable=True)
     failures = {role: [s.scene_id for s in selected if (s.scene_id in expert_ids if role == "expert_fit" else s.split_role == "stage_val")
-                       and failure_and_target_audit(base[s.scene_id])["failure"]] for role in ("expert_fit", "stage_val")}
+                       and failure_and_target_audit(base[s.scene_id], failure_threshold=failure_threshold)["failure"]] for role in ("expert_fit", "stage_val")}
     lookup = {s.scene_id: s for s in scenes}
     # Choose ordinary candidates before target scores. Safe/high Base rows have
     # priority; score failures/target gaps cannot silently enter the ordinary set.
     failed_set = set(failures["expert_fit"])
     ordinary_candidates = sorted((s for s in selected if s.scene_id in expert_ids and s.scene_id not in failed_set
-                                   and not failure_and_target_audit(base[s.scene_id])["reasons"]),
+                                   and not failure_and_target_audit(base[s.scene_id], failure_threshold=failure_threshold)["reasons"]),
                                  key=lambda s: digest([config.selection_seed, "ordinary", s.scene_id]))[:2048]
     target_ids = list(dict.fromkeys(failures["expert_fit"]+failures["stage_val"]+[s.scene_id for s in ordinary_candidates]))
     target_scenes = [lookup[i] for i in target_ids]
@@ -229,7 +240,7 @@ def build_threshold_hard_set(config):
     for role in failures:
         hard[role] = []
         for sid in failures[role]:
-            a = failure_and_target_audit(base[sid], target[sid])
+            a = failure_and_target_audit(base[sid], target[sid], failure_threshold=failure_threshold)
             a.update(Base=base[sid], GT=target[sid], input_consistency=lookup[sid].input_consistency_status,
                      target_hash=lookup[sid].target_id)
             audits[sid] = a
@@ -242,19 +253,20 @@ def build_threshold_hard_set(config):
                             "reasons": [] if legal else ["ORDINARY_GT_PROTECTED_SAFETY_UNAVAILABLE_OR_FAILED"]}
         if legal: ordinary.append(s.scene_id)
     fixed = {"F_train": failures["expert_fit"], "H_train": hard["expert_fit"], "F_val": failures["stage_val"],
-             "H_val": hard["stage_val"], "rules": {"high_quality": .8, "target_gain": .05, "safety_epsilon": 1e-8},
+             "H_val": hard["stage_val"], "rules": {"high_quality": .8, "base_failure_threshold": failure_threshold, "target_gain": .05, "safety_epsilon": 1e-8},
              "defined_before_expert_training": True, "expert_fit_only": True}
-    atomic_json(config.root/"HARD_SETS_BEFORE_EXPERT.json", fixed, immutable=True)
+    atomic_json(output_dir/"HARD_SETS_BEFORE_EXPERT.json", fixed, immutable=True)
     manifest = {"schema": "two_candidate_expert_80_20_v1", "hard": hard["expert_fit"], "ordinary": ordinary,
                 "hard_val": hard["stage_val"], "failure_val": failures["stage_val"], "gt_audit": audits,
                 "base_binding_hash": file_hash(config.root/"BASE_BINDING.json"),
                 "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
                 "sampling": {"hard": .8, "ordinary": .2}, "seed": config.natural_seed, "source": "resampling_only",
-                "ordinary_rule": "fixed hash max2048 non-failure Base with valid target and full GT NC/DAC; no D_S"}
+                "ordinary_rule": "fixed hash max2048 non-failure Base with valid target and full GT NC/DAC; no D_S",
+                "base_failure_threshold": failure_threshold, "gt_minimum": .8, "target_gain_minimum": .05}
     manifest["hash"] = digest(manifest)
-    atomic_json(config.root/"EXPERT_MANIFEST.json", manifest, immutable=True)
-    atomic_json(config.root/"EXPERT_TRAIN_MANIFEST.json", manifest, immutable=True)
-    atomic_json(config.root/"TARGET_AUDIT_QUEUE.json", {i:a for i,a in audits.items() if a["reasons"]}, immutable=True)
+    atomic_json(output_dir/"EXPERT_MANIFEST.json", manifest, immutable=True)
+    atomic_json(output_dir/"EXPERT_TRAIN_MANIFEST.json", manifest, immutable=True)
+    atomic_json(output_dir/"TARGET_AUDIT_QUEUE.json", {i:a for i,a in audits.items() if a["reasons"]}, immutable=True)
     require(manifest["hard"], "NO_ELIGIBLE_HARD_SET")
     require(ordinary, "NO_ELIGIBLE_ORDINARY_SET: preserve fixed 80/20 recipe")
     return {"failure_train": len(failures["expert_fit"]), "eligible_hard": len(hard["expert_fit"]),

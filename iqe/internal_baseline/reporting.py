@@ -1,3 +1,4 @@
+from .expert_data_revision import artifact as expert_artifact
 from dataclasses import asdict
 from pathlib import Path
 from copy import deepcopy
@@ -33,7 +34,7 @@ def evaluate(config, device="cuda:0"):
     model.load_state_dict(torch.load(best, map_location=device, weights_only=True), strict=True)
     scenes = load_scenes(config.root/"scenes.json")
     lookup = {s.scene_id: s for s in scenes}
-    manifest = read_json(config.root/"EXPERT_MANIFEST.json")
+    manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
     base_scores = read_json(config.root/"BASE_FIT_VAL_SCORES.json")
     hard_stats = {}
     cache = JointCache(config)
@@ -41,7 +42,7 @@ def evaluate(config, device="cuda:0"):
     expert.load_state_dict(torch.load(config.root/"expert/best.pt", map_location=device, weights_only=True), strict=True)
     diagnostic_sets = [("H_train", manifest["hard"]), ("H_val", manifest["hard_val"]), ("ordinary_train", manifest["ordinary"])]
     if config.research_protocol == "two_candidate_v1":
-        failures = read_json(config.root/"HARD_SETS_BEFORE_EXPERT.json")
+        failures = read_json(expert_artifact(config, "HARD_SETS_BEFORE_EXPERT.json"))
         diagnostic_sets.extend((("F_train", failures["F_train"]), ("F_val", failures["F_val"])))
     for name, ids in diagnostic_sets:
         mask = np.array([r["scene_id"] in set(ids) for r in bank["rows"]])

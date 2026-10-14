@@ -1,3 +1,4 @@
+from .expert_data_revision import artifact as expert_artifact
 """Read-only evidence from the completed, selected own expert/scorer experiment.
 
 The fitting-set result is a diagnostic, never a checkpoint-selection metric.
@@ -100,7 +101,7 @@ def audit(config, device='cuda:0'):
     torch.set_num_threads(2)
     bank, arrays = load_bank(config)
     scenes = {s.scene_id: s for s in load_scenes(config.root/'scenes.json')}
-    manifest = read_json(config.root/'EXPERT_MANIFEST.json')
+    manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
     q = read_json(config.root/'COMPARISON_DISTRIBUTION.json')
     erows, srows = (read_steps(config.root/k/'steps.jsonl') for k in ('expert', 'scorer'))
     require(len(erows) == budget['expert_updates'] and len(srows) == budget['scorer_updates'], 'fixed budget incomplete')

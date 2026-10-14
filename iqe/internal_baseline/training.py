@@ -1,3 +1,4 @@
+from .expert_data_revision import artifact as expert_artifact
 """Cached head training using the existing exact-resume, DDP-aware IQE trainer."""
 from copy import deepcopy
 from pathlib import Path
@@ -66,7 +67,7 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
     device = training_device(device)
     scenes = load_scenes(config.root/"scenes.json")
     lookup = {s.scene_id: s for s in scenes}
-    manifest = read_json(config.root/"EXPERT_MANIFEST.json")
+    manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
     require(all(lookup[i].split_role == "incremental_fit" for i in manifest["hard"]+manifest["ordinary"]), "expert role leakage")
     from .partition import training_ids
     allowed = training_ids(config, scenes, "expert_fit")
@@ -112,7 +113,7 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
         metrics["selection_key"] = [metrics["oracle_gain"], metrics["hard_val_expert_minus_base"] or 0.]
         return metrics
     deps = {"experiment_id": config.experiment_id, "base": file_hash(config.root/"BASE_BINDING.json"),
-            "manifest": file_hash(config.root/"EXPERT_MANIFEST.json"), "kind": "own_expert_1", **training_dependencies(config)}
+            "manifest": file_hash(expert_artifact(config, "EXPERT_MANIFEST.json")), "kind": "own_expert_1", **training_dependencies(config)}
     result = train(expert, loss, fetch, sampler, training_config(config, "expert"), deps, config.root/"expert",
                    device=device, resume=resume, stop_after=stop_after, validate=validate, seed=config.training_rng_seed,
                    denominator_function=lambda b: {"il": b["mask"].any(-1).sum().float()})
@@ -136,15 +137,15 @@ def build_pair_bank(config, device="cuda:0"):
     scenes = load_scenes(config.root/"scenes.json")
     if config.research_protocol == "two_candidate_v1":
         scorer_fit = scorer_training_ids(config, scenes)
-        expert_manifest = read_json(config.root/"EXPERT_MANIFEST.json")
-        hard_sets = read_json(config.root/"HARD_SETS_BEFORE_EXPERT.json")
+        expert_manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
+        hard_sets = read_json(expert_artifact(config, "HARD_SETS_BEFORE_EXPERT.json"))
         diagnostic_ids = set(expert_manifest["hard"]+expert_manifest["ordinary"]+hard_sets["F_train"])
         scenes = [s for s in scenes if s.scene_id in scorer_fit or s.scene_id in diagnostic_ids or s.split_role != "incremental_fit"]
         atomic_json(config.root/"PAIR_BANK_SCENES.json", {"scene_ids": [s.scene_id for s in scenes],
                     "purpose": "explicit Scorer fit scope plus fixed expert diagnostics and evaluation roles",
                     **scorer_scope_dependencies(config),
                     "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
-                    "expert_manifest_hash": file_hash(config.root/"EXPERT_MANIFEST.json")}, immutable=True)
+                    "expert_manifest_hash": file_hash(expert_artifact(config, "EXPERT_MANIFEST.json"))}, immutable=True)
     # Fixed development set is generated once here, after expert checkpoint selection.
     base_candidates = cache_candidates(config, scenes, "base")
     base_labels = score_candidates(config, scenes, base_candidates, "bank_base_all_roles")
@@ -205,7 +206,7 @@ def load_bank(config):
     if config.research_protocol == "two_candidate_v1":
         scope = read_json(config.root/"PAIR_BANK_SCENES.json")
         require(scope["partition_hash"] == file_hash(config.root/"DATA_PARTITION.json") and
-                scope["expert_manifest_hash"] == file_hash(config.root/"EXPERT_MANIFEST.json"), "stale pair bank subroles")
+                scope["expert_manifest_hash"] == file_hash(expert_artifact(config, "EXPERT_MANIFEST.json")), "stale pair bank subroles")
         require(scope.get("scorer_fit_scope") == scorer_scope_dependencies(config).get("scorer_fit_scope"), "stale pair bank Scorer scope")
         require(set(scope["scene_ids"]) <= set(expected_ids), "unknown bank scenes")
         expected_ids = scope["scene_ids"]
