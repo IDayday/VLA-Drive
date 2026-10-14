@@ -1,0 +1,16 @@
+experiment_id: query70k_robust_scorer_mean_risk_seed20261014
+output_root: /mnt/project/iqe-robust-scorer-20261014/mean_risk_v1
+source_campaign: /mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1
+seed: 20261014
+training_seed: 20261034
+sampler_seed: 20261024
+updates: 6000
+phase_switch: 3000
+global_batch: 128
+micro_batch: 16
+lr: 0.0001
+weight_decay: 0.01
+warmup: 100
+checkpoint_interval: 1000
+validation_steps: [1000, 2000, 3000, 4000, 5000, 6000]
+feature_memory_gib: 16
