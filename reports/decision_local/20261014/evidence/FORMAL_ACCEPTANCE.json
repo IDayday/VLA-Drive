@@ -1,0 +1,80 @@
+{
+  "accepted": true,
+  "utc_unix": 1792004881.9697971,
+  "training_source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+  "training_source_root": "/mnt/project/VLA-Drive-decision-local-execution-frozen-20261014",
+  "scope": "Shared frozen-S0 small-head recipe; no PDMS threshold or checkpoint selection",
+  "features_identity": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+  "labels_identity": "10b58ccdfe1b3b1c82491c04aa90c66cc9b227478b8db9d8eba1a0dfaa7c066b",
+  "requires_before_each_formal_start": [
+    "Complete101592 feature+label population",
+    "Complete1696 development population",
+    "Exact common source/hash and own group input mode",
+    "Completed24epoch corresponding predictor for R"
+  ],
+  "epochs": 24,
+  "batch": 128,
+  "microbatch": 16,
+  "lr": 0.0001,
+  "weight_decay": 0.001,
+  "lambda_diff": 1.0,
+  "distance_scale_m": 5.0,
+  "distance_clip_m": 10.0,
+  "data_reader": "mmap_tensors",
+  "precision": "FP32 heads; TF32off; common FP16 frozen token storage",
+  "current_static_ground_support_assumption": "current_static_ground",
+  "evidence_sha256": {
+    "LABEL_AUDIT_4096_CURRENT_GROUND.json": "4197e17f9be079471c7863973c863fb4e04ed24097b9ad69a7a7f68632659d76",
+    "LOSS_SCALE_4096.json": "f2e698f38cd43e2353c4681c76c4d41dc9b5aa2436af6c19c946f117115744de",
+    "MMAP_READER_PARITY.json": "4cb887b62c71f9d73a6712dd845e39daf8d1a41126d049bbfa782251b929ac92",
+    "reader_same_gpu_v1/NUMERICAL.json": "7bc96751f848df67eac39aa370cc73a24a2207c7a99abc347dd9ce06edc76177",
+    "reader_same_gpu_v1/AA.json": "b5acb2f23e81d4d185e26ac15993a3e62bb7a676ce352de92a262fc3d9f622bb",
+    "reader_same_gpu_v1/PERFORMANCE.json": "efe563b963c93c8b1ee9c9d994c0ada455b52ea936e053526c87751766c66e4d"
+  },
+  "execution_numerics": {
+    "input_fields_exact": true,
+    "E1_exact": true,
+    "E_NONE_100_updates_exact": true,
+    "P_DIFF_AB": {
+      "E1_exact": true,
+      "model_bit_exact": false,
+      "parameters": {
+        "max_absolute": 1.5784312381583732e-06,
+        "normalized_L2": 5.146688364167125e-07,
+        "cosine": 0.9999999999995812
+      },
+      "moments": {
+        "max_absolute": 1.2051314115524292e-06,
+        "normalized_L2": 0.00024349115732473059,
+        "cosine": 0.9999999779806706
+      },
+      "outputs": {
+        "max_absolute": 0.0003719925880432129,
+        "normalized_L2": 2.931425081891952e-05,
+        "cosine": 0.9999999995906197
+      }
+    },
+    "P_DIFF_AA": {
+      "E1_exact": true,
+      "parameters": {
+        "max_absolute": 1.4419811122934334e-06,
+        "normalized_L2": 3.897969568347829e-07,
+        "cosine": 0.9999999999996424
+      },
+      "moments": {
+        "max_absolute": 8.689239621162415e-07,
+        "normalized_L2": 0.00017370327137098112,
+        "cosine": 0.9999999887932715
+      },
+      "outputs": {
+        "max_absolute": 0.00026702880859375,
+        "normalized_L2": 2.0904599955225774e-05,
+        "cosine": 0.9999999997917004
+      }
+    },
+    "interpretation": "Mmap changes only immutable CPU tensor retrieval; same graph/values/order. P_DIFF100-step output drift is1.4x this single A/A, same small magnitude; not bitwise or long-term equality claim. All formal arms start together with this reader; no historical optimizer is migrated."
+  },
+  "frozen_base_or_paused_research_resumed": false,
+  "selected_from_development_PDMS": false,
+  "formal_training_complete": false
+}

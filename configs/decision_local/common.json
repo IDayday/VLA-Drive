@@ -14,12 +14,23 @@
   "gradient_clip": 1.0,
   "training_seed": 42,
   "confirmation_seed": 43,
-  "proposal_training_seeds": [42, 43],
+  "proposal_training_seeds": [
+    42,
+    43
+  ],
   "distance_clip_m_initial": 10.0,
   "distance_loss_scale_m_initial": 5.0,
   "difference_weight_initial": 1.0,
   "head_compute_precision": "FP32; TF32 disabled",
   "base_feature_storage": "FP16; same cast in online head interface; q0 original FP32",
   "budget_gpu_hours_operational_cap": 100,
-  "status": "engineering checks; label support and training-only calibration not frozen for formal training"
+  "status": "Shared small-head recipe accepted on training4096 diagnostics; full101592 data required before formal start",
+  "data_reader": "mmap_tensors",
+  "overlap_positive_weights": [
+    1.0,
+    1.0
+  ],
+  "ground_support_policy": "current_static_ground",
+  "kinematics_revision": "heading_transition_v2",
+  "formal_training_source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c"
 }

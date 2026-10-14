@@ -1,0 +1,125 @@
+{
+  "full_dev": true,
+  "labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+  "limitations": [
+    "G clearance uses fixed0.5 occupancy threshold plus EDT, not an original learned G distance head",
+    "Fixed query locality is relative to the shared S0 plan; each G future field retains its own normal q0 conditioning",
+    "Common-query evidence does not by itself isolate the causal effect of the historical G sampling rule"
+  ],
+  "locality_sensitivity": {
+    "far_insensitive": {
+      "current_clearance_m_pair_MAE": 0.07852311810762369,
+      "future_clearance_m_pair_MAE": 0.27805042715504874,
+      "pairs": 2775,
+      "road_margin_m_pair_MAE": 0.08471136750602298
+    },
+    "far_sensitive": {
+      "current_clearance_m_pair_MAE": 0.14353743175532194,
+      "future_clearance_m_pair_MAE": 0.2017072920365767,
+      "pairs": 37,
+      "road_margin_m_pair_MAE": 0.13199125952986687
+    },
+    "near_insensitive": {
+      "current_clearance_m_pair_MAE": 0.05504455164462514,
+      "future_clearance_m_pair_MAE": 0.17396252387039068,
+      "pairs": 4861,
+      "road_margin_m_pair_MAE": 0.08955891798613962
+    },
+    "near_sensitive": {
+      "current_clearance_m_pair_MAE": 0.08393778119768415,
+      "future_clearance_m_pair_MAE": 0.2016329684090349,
+      "pairs": 1101,
+      "road_margin_m_pair_MAE": 0.12118039425081581
+    }
+  },
+  "metrics": {
+    "current_clearance_m": {
+      "coverage": 0.2927476465702057,
+      "direction_valid_pairs": 6182,
+      "pair_MAE": 0.06691211695476187,
+      "pooled_MAE": 0.19903217612573731,
+      "relative_direction_accuracy": 0.9813976059527661,
+      "supported_scene_MAE": 0.2513221156611881,
+      "supported_scenes": 1186
+    },
+    "current_overlap": {
+      "FN": 560.0,
+      "FP": 533.0,
+      "TN": 61539.0,
+      "TP": 6664.0,
+      "coverage": 0.7296158671379089,
+      "pooled_MAE": 0.024919487427575184,
+      "precision": 0.9259413644574128,
+      "recall": 0.9224806201550387,
+      "supported_scene_MAE": 0.02785224417991262,
+      "supported_scenes": 1612
+    },
+    "future_clearance_m": {
+      "coverage": 0.7114323973655701,
+      "direction_valid_pairs": 13405,
+      "pair_MAE": 0.20851630065756557,
+      "pooled_MAE": 0.8848544520231171,
+      "relative_direction_accuracy": 0.8120104438642297,
+      "supported_scene_MAE": 0.975326125610753,
+      "supported_scenes": 1638
+    },
+    "future_overlap": {
+      "FN": 1147.0,
+      "FP": 409.0,
+      "TN": 77355.0,
+      "TP": 1616.0,
+      "coverage": 0.8478668332099915,
+      "pooled_MAE": 0.02800623160554845,
+      "precision": 0.7980246913580247,
+      "recall": 0.5848715164676077,
+      "supported_scene_MAE": 0.028408504267780712,
+      "supported_scenes": 1680
+    },
+    "road_margin_m": {
+      "coverage": 0.7069048881530762,
+      "direction_valid_pairs": 17070,
+      "pair_MAE": 0.09200197147427944,
+      "pooled_MAE": 0.23497077890644782,
+      "relative_direction_accuracy": 0.9879906268306972,
+      "supported_scene_MAE": 0.23888462216480755,
+      "supported_scenes": 1598
+    }
+  },
+  "model_export": {
+    "checkpoint_files": {
+      "mp_rank_00_model_states.pt": "73cfe571ae4c0f3b7ed90a04da8ee490f0d492d5c012d66603a58d9d2385e8fa",
+      "rng_rank0.pt": "4343bbab69eee57d913f455ccc3d2b7cb22d0fc2ff464fa9715fbc8f98ae9591",
+      "rng_rank1.pt": "2e9f7de21be26161d252810b9025362fe7fc295fd0504a426bdceb897606eb2a",
+      "rng_rank2.pt": "9d6b7e3706d707974f0658610a86ef6c1175c0ff1a6aaeda61426cba61ebe1f1",
+      "rng_rank3.pt": "136367a158df6cdf23262c167e9d03954d0eb89f633ca3108cc03237e30a8585",
+      "rng_rank4.pt": "1014320575882a82db1c563500883072df611d4e5a7dcbf507953bfe64af686d",
+      "rng_rank5.pt": "afdc386335ae3000457e1a1863a1a376696953f650b09dd4e9b8c3143659270d",
+      "rng_rank6.pt": "5af9bf91c7f0e1af9e5c2b6b88b49a32e5a1880d9e7fc19e9ae2ba2123cf5cd9",
+      "rng_rank7.pt": "2022fe51348b2a6755cd2b003dc1070eb0e675d6bfdce6deb652922ac0c1f625",
+      "zero_pp_rank_0_mp_rank_00_optim_states.pt": "153d715c6846d1c73c4499ccfd29dfad5de92cc67663b8bcce3103414e2d29e0",
+      "zero_pp_rank_1_mp_rank_00_optim_states.pt": "87261d6ea4e310b5aa1a25677c827eab0ae83a17fce2045393c3cb4428b9bc90",
+      "zero_pp_rank_2_mp_rank_00_optim_states.pt": "06d02e06f59c4aee507517ee250b679e669b61d47b80666f26569bbe332fd907",
+      "zero_pp_rank_3_mp_rank_00_optim_states.pt": "25cb2bff0f01f355fb203b082f77151400b41ea81f6e48be2b92345f5d29b178",
+      "zero_pp_rank_4_mp_rank_00_optim_states.pt": "4377fa20a67054f1efc3fd1e80736aee547c6e402c5411915f98eb58bdb29e92",
+      "zero_pp_rank_5_mp_rank_00_optim_states.pt": "8772bc98d247ecb8a261b96a36bdce01cec009351dd16e2ed87873eee4e8f74a",
+      "zero_pp_rank_6_mp_rank_00_optim_states.pt": "303b0edeca369d046918ec084deca5b75d584f82aa9504203b2fa96850f63298",
+      "zero_pp_rank_7_mp_rank_00_optim_states.pt": "7bf37d34eb0dd929d0cb575dfea6e2d86f4e7a24d4ff96ac549a1aa63bfd9323"
+    },
+    "clearance_proxy": "threshold current/future predicted occupancy at fixed0.5, signed EDT clipped10m; not an original G distance head",
+    "forward": "normal own H_A/q0/B0/Bt; S0 supplies only fixed independent query coordinates",
+    "geometric_operator_sha256": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+    "group": "G3_EVENT_LOCAL",
+    "identity": "e3432916feac3d2d15e3ba5d4cf7578e11d5c59bb3fcbfcfc493e9261b5e7710",
+    "input_identity": "5058f705c43713a33471258cc3d2b637c0978cc18984d4ac42ebb29db7899458",
+    "overlap_proxy": "max predicted occupancy over complete body; uncalibrated, not official collision probability",
+    "query_identity": "2fccd3a5b75dc7a6b8885d44515772c17f6a30b43d99270b659b510588473e12",
+    "reader_sha256": "c69705a7017c5e4ae98f697b28596f7e47eebca13a8fbdae0147509aa7b50155",
+    "sampling_seed": 42,
+    "source_sha": "4f5c240960a745f8919b5b67f7db3739278687cc",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "updates": 75000
+  },
+  "scenes": 1696,
+  "source_sha": "ced9c2ef689adea44d34f3b978dab3ad02ab9f49",
+  "tool_sha256": "1641160ded392446cea533b60173f4c67542334073fc74e0e2b5ea7995337d60"
+}

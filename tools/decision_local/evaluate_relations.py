@@ -37,6 +37,13 @@ def scene_metrics(pred,truth,valid,poses):
             out[name+'_pair_MAE']=mean((pd-td).abs(),pair)
             out[name+'_pair_abs_error_sum']=torch.where(pair,(pd-td).abs(),torch.zeros_like(pd)).sum((1,2))
             out[name+'_pair_valid_times']=pair.sum((1,2))
+            # Distance quadrants mix lateral variants and arrival-time warps;
+            # report perturbation type separately rather than calling that
+            # contrast a pure causal effect of distance from q0.
+            for group,sl in [('lateral',slice(0,4)),('arrival_time',slice(4,6))]:
+                pm=pair[:,sl]
+                out[name+'_'+group+'_pair_abs_error_sum']=torch.where(pm,(pd[:,sl]-td[:,sl]).abs(),torch.zeros_like(pd[:,sl])).sum((1,2))
+                out[name+'_'+group+'_pair_valid_times']=pm.sum((1,2))
             out[name+'_direction_accuracy']=mean(((pd*td)>0).float(),certain)
             out[name+'_direction_correct_pairs']=(((pd*td)>0)&certain).sum((1,2))
             out[name+'_direction_valid_pairs']=certain.sum((1,2))
@@ -50,6 +57,14 @@ def scene_metrics(pred,truth,valid,poses):
             out[name+'_change_valid']=pair.sum((1,2))
             out[name+'_change_correct']=((predicted_change==changed)&pair).sum((1,2))
             out[name+'_change_FN']=(changed&~predicted_change&pair).sum((1,2))
+            full=m.all(-1);has_true=y.any(-1);has_pred=p.any(-1)
+            gt_first=y.to(torch.int64).argmax(-1);pred_first=p.to(torch.int64).argmax(-1)
+            both=full&has_true&has_pred
+            out[name+'_first_conflict_full_sequences']=full.sum(1)
+            out[name+'_first_conflict_both_present']=both.sum(1)
+            out[name+'_first_conflict_absolute_time_error_sum_s']=torch.where(both,(gt_first-pred_first).abs()*.5,0.).sum(1)
+            out[name+'_full_sequence_event_FN']=(full&has_true&~has_pred).sum(1)
+            out[name+'_full_sequence_event_FP']=(full&~has_true&has_pred).sum(1)
     # Physical pre-registration: distinguish one-to-two grid-cell local changes
     # from wider temporal reparameterizations. Tiny spatial changes are ambiguous.
     d=(poses[:,1:,:,:2]-poses[:,:1,:,:2]).norm(dim=-1).amax(-1)

@@ -1,0 +1,125 @@
+{
+  "full_dev": true,
+  "labels": "3018566527f8c18223b7b71e1d990d9a901ca75f21345d65a6f75a6ba98d9176",
+  "limitations": [
+    "G clearance uses fixed0.5 occupancy threshold plus EDT, not an original learned G distance head",
+    "Fixed query locality is relative to the shared S0 plan; each G future field retains its own normal q0 conditioning",
+    "Common-query evidence does not by itself isolate the causal effect of the historical G sampling rule"
+  ],
+  "locality_sensitivity": {
+    "far_insensitive": {
+      "current_clearance_m_pair_MAE": 0.08900021421095118,
+      "future_clearance_m_pair_MAE": 0.2974932654726047,
+      "pairs": 2775,
+      "road_margin_m_pair_MAE": 0.10154610052139762
+    },
+    "far_sensitive": {
+      "current_clearance_m_pair_MAE": 0.1387908986750865,
+      "future_clearance_m_pair_MAE": 0.23175023859197444,
+      "pairs": 37,
+      "road_margin_m_pair_MAE": 0.14056502902968246
+    },
+    "near_insensitive": {
+      "current_clearance_m_pair_MAE": 0.05931102864476148,
+      "future_clearance_m_pair_MAE": 0.1809613230592579,
+      "pairs": 4861,
+      "road_margin_m_pair_MAE": 0.10695983233451994
+    },
+    "near_sensitive": {
+      "current_clearance_m_pair_MAE": 0.08811900080466757,
+      "future_clearance_m_pair_MAE": 0.20570839483536885,
+      "pairs": 1101,
+      "road_margin_m_pair_MAE": 0.13515111578816172
+    }
+  },
+  "metrics": {
+    "current_clearance_m": {
+      "coverage": 0.2927476465702057,
+      "direction_valid_pairs": 6182,
+      "pair_MAE": 0.07301286136624288,
+      "pooled_MAE": 0.2195912859042314,
+      "relative_direction_accuracy": 0.9796182465221611,
+      "supported_scene_MAE": 0.2825363695253642,
+      "supported_scenes": 1186
+    },
+    "current_overlap": {
+      "FN": 657.0,
+      "FP": 587.0,
+      "TN": 61485.0,
+      "TP": 6567.0,
+      "coverage": 0.7296158671379089,
+      "pooled_MAE": 0.026544220809214276,
+      "precision": 0.9179480011182555,
+      "recall": 0.9090531561461794,
+      "supported_scene_MAE": 0.028884613457309083,
+      "supported_scenes": 1612
+    },
+    "future_clearance_m": {
+      "coverage": 0.7114323973655701,
+      "direction_valid_pairs": 13405,
+      "pair_MAE": 0.21902734765876278,
+      "pooled_MAE": 0.981536928917107,
+      "relative_direction_accuracy": 0.7958970533383066,
+      "supported_scene_MAE": 1.0831391208585823,
+      "supported_scenes": 1638
+    },
+    "future_overlap": {
+      "FN": 1282.0,
+      "FP": 495.0,
+      "TN": 77269.0,
+      "TP": 1481.0,
+      "coverage": 0.8478668332099915,
+      "pooled_MAE": 0.03365803235056254,
+      "precision": 0.7494939271255061,
+      "recall": 0.5360115816141875,
+      "supported_scene_MAE": 0.03371858652485382,
+      "supported_scenes": 1680
+    },
+    "road_margin_m": {
+      "coverage": 0.7069048881530762,
+      "direction_valid_pairs": 17070,
+      "pair_MAE": 0.10876101753055537,
+      "pooled_MAE": 0.2879546072327559,
+      "relative_direction_accuracy": 0.9835969537199766,
+      "supported_scene_MAE": 0.2973173653624199,
+      "supported_scenes": 1598
+    }
+  },
+  "model_export": {
+    "checkpoint_files": {
+      "mp_rank_00_model_states.pt": "e717546b368fc933e02cbf27581857cbc882407671e5fe62b7ace14ce3d9e005",
+      "rng_rank0.pt": "e45d3a98e471e0426423988a5a4aef077b01f72993a2677f28b2a82bef2e9ddf",
+      "rng_rank1.pt": "71d65701ad6d0827c7dd8e5c52ee9d09aaaeb36f511ea648f56833f998aa0105",
+      "rng_rank2.pt": "eb3b5f881b275b45e9515d09c341a4101e1e54043c2fa767ef35757cba50224d",
+      "rng_rank3.pt": "71b79e1aec029e50423030fdd24ce22bbafe0e7fc70ffc64f901d449b875c775",
+      "rng_rank4.pt": "e01a8a3c2e0bc3dd14f055be053044e46d5983e7f888527363035e3f86e122af",
+      "rng_rank5.pt": "4921a6c067ad0f5ee73968b7affbf3cb948a5cb5ada5fbfa915d8d3ba140f406",
+      "rng_rank6.pt": "46df0ee1c85e64a7791f7695daf769f0f4cbe6aac5482922f63b298e6e1157c2",
+      "rng_rank7.pt": "112b02d3e18735d84c00a5a9d04d9216f9b7644a0fc5049fd0220722241a5000",
+      "zero_pp_rank_0_mp_rank_00_optim_states.pt": "02159af6e98537246e85c700b52dfbc33835093453063a00504e45bea161e774",
+      "zero_pp_rank_1_mp_rank_00_optim_states.pt": "4e6a89101c6fc705e2e654aef8249159a860043d6ada7da39b36ec3559a758c6",
+      "zero_pp_rank_2_mp_rank_00_optim_states.pt": "3d6d28242be3e295711888a09816b27e0b47792f201645c44479fb3c097d97fe",
+      "zero_pp_rank_3_mp_rank_00_optim_states.pt": "d0c0793fbd697e73cbeb1df678b3286c5c4a623bfd68a182e89135975b3ea6c2",
+      "zero_pp_rank_4_mp_rank_00_optim_states.pt": "2ae6d523d8e5ec6eafb2bf17460cf5fba5bd869074625637b7f20824ee0a4f89",
+      "zero_pp_rank_5_mp_rank_00_optim_states.pt": "57973dd67be0678cbb8e39905e8d9426364b098f8d6635871129a25740e526cd",
+      "zero_pp_rank_6_mp_rank_00_optim_states.pt": "8617651f3ae14ce2bea30f4fb1b78731ef6b5aba65cafb313a2d798b1d3e584d",
+      "zero_pp_rank_7_mp_rank_00_optim_states.pt": "84221fcf913cec3d62db5362d60f32f8c3f8673a3376d658d67b6a489e862cae"
+    },
+    "clearance_proxy": "threshold current/future predicted occupancy at fixed0.5, signed EDT clipped10m; not an original G distance head",
+    "forward": "normal own H_A/q0/B0/Bt; S0 supplies only fixed independent query coordinates",
+    "geometric_operator_sha256": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+    "group": "G2_EVENT_UNIFORM",
+    "identity": "563e1fc29d2a10e15a5c034b2fd7db22e1fd99c7659814a1d617b16c87514078",
+    "input_identity": "5058f705c43713a33471258cc3d2b637c0978cc18984d4ac42ebb29db7899458",
+    "overlap_proxy": "max predicted occupancy over complete body; uncalibrated, not official collision probability",
+    "query_identity": "2fccd3a5b75dc7a6b8885d44515772c17f6a30b43d99270b659b510588473e12",
+    "reader_sha256": "c69705a7017c5e4ae98f697b28596f7e47eebca13a8fbdae0147509aa7b50155",
+    "sampling_seed": 42,
+    "source_sha": "4f5c240960a745f8919b5b67f7db3739278687cc",
+    "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "updates": 75000
+  },
+  "scenes": 1696,
+  "source_sha": "ced9c2ef689adea44d34f3b978dab3ad02ab9f49",
+  "tool_sha256": "1641160ded392446cea533b60173f4c67542334073fc74e0e2b5ea7995337d60"
+}
