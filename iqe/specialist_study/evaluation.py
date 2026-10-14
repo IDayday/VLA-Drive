@@ -244,6 +244,10 @@ def benchmark(config,device='cuda:0'):
     scorer_parameters={}
     modes=[(n,None) for n in range(len(experts)+1)]
     modes += [(n,cell) for cell in ('S00','S10') for n in range(1,len(experts)+1)]
+    # Also time the actual selected checkpoint if rich pretraining won; the
+    # semantic/spatial architecture comparison does not stand in for this run.
+    if chosen not in ('S00','S10'):
+        modes.append((len(experts),chosen))
     loaded_cell=chosen
     for n,cell in modes:
             score=cell is not None
