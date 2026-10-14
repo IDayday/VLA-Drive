@@ -14,6 +14,8 @@ from tools.local_interaction_mask_v2.compare_pdms import read as read_scores,com
 
 COMPARISONS=[('E_FUTURE_GT','E_CV_GT'),('R_FUTURE_ABS','R_CURRENT_PRED'),
     ('R_FUTURE_DIFF','R_FUTURE_ABS'),('R_FUTURE_DIFF','E_NONE')]
+SECONDARY=[('E_CURRENT_GT','E_NONE'),('E_CV_GT','E_CURRENT_GT'),
+    ('E_FUTURE_GT','E_MASK_ONLY'),('E_FUTURE_GT','E_NONE'),('E_FUTURE_GT','R_FUTURE_DIFF')]
 
 
 def transitions(first,base):
@@ -64,10 +66,11 @@ def main():
         tables[mode].append(row);runs[name]=final
         atomic_json(a.output/(name+'_versus_q0.json'),{'paired':paired,'transitions':transitions(final,original)})
     comparisons={};pending=[]
-    for first,base in COMPARISONS:
+    for first,base in COMPARISONS+SECONDARY:
         if first not in runs or base not in runs:pending.append(first+' minus '+base);continue
         result,rows=compare(runs[first],runs[base],bootstrap=a.bootstrap)
-        comparisons[first+'_minus_'+base]={'paired':result,'transitions':transitions(runs[first],runs[base])}
+        comparisons[first+'_minus_'+base]={'paired':result,'transitions':transitions(runs[first],runs[base]),
+            'primary_preregistered_comparison':(first,base) in COMPARISONS}
         with (a.output/(first+'_minus_'+base+'.csv')).open('w') as stream:
             w=csv.DictWriter(stream,list(rows[0]));w.writeheader();w.writerows(rows)
     atomic_json(a.output/'summary.json',{'registry_sha256':digest(a.registry),'source_sha':source_sha(ROOT),'tool_sha256':digest(__file__),
