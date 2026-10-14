@@ -37,3 +37,22 @@ rate time axis. Finished terminal checkpoints execute no extra optimizer step.
 The initialization audit, comparison distribution, dependency identity,
 per-step validation predictions and checksummed full states are under
 `scorers/<cell>/`. No command above trains Base, changes experts or starts navtest.
+
+After all four complete, the following entry point first locks the stage_val
+model choice, then calibrates the separately reported margin, and only then
+reads the fixed full dev bank. It also reports read-only D_S fitting diagnostics.
+Incomplete cells fail instead of selecting a conveniently early result.
+
+```bash
+/root/miniconda3/envs/ddp/bin/python -m iqe.robust_scorer.evaluation lock-choice --config configs/iqe/robust_scorer/mean_risk_v1.yaml
+CUDA_VISIBLE_DEVICES=1 /root/miniconda3/envs/ddp/bin/python -m iqe.robust_scorer.evaluation evaluate --config configs/iqe/robust_scorer/mean_risk_v1.yaml --device cuda:0
+/root/miniconda3/envs/ddp/bin/python -m iqe.robust_scorer.bundle --config configs/iqe/robust_scorer/mean_risk_v1.yaml
+```
+
+The exported research bundle includes the Scorer and private expert states and
+the checksummed original Base dependency. Its loader is
+`iqe.robust_scorer.bundle.load(path, device)`, which returns the existing
+`ResearchSystem` single-VLA wrapper. Default selection is raw argmax; the optional
+margin is recorded separately. No GT or metric-cache dependency exists in that
+inference wrapper. Real trained-head online/bundle qualification remains an
+explicit post-training step; CPU serialization tests do not stand in for it.
