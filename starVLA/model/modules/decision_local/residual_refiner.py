@@ -38,7 +38,8 @@ class ResidualRefiner(nn.Module):
             if not isinstance(predicted, torch.Tensor) or predicted.shape != shape:
                 raise TypeError('camera_only accepts predicted tensor, not OracleRelations/TrainingTargets')
             values = predicted
-            support = queries.in_grid[..., None].expand(shape)
+            kinematic = queries.kinematic_valid.clone(); kinematic[:, 0] = True
+            support = (queries.in_grid & kinematic[..., None])[..., None].expand(shape)
         return self._refine(inputs, queries, values, support)
 
     def oracle_probe(self, inputs, queries, relations):

@@ -93,5 +93,7 @@ def oracle_relations(batch, kind):
     values = torch.cat((batch['relations'][:, 0], batch['relations'][:, source, ..., 1:]), -1)
     # Same common support for every privileged arm, even current channels.
     valid = torch.cat((batch['common_valid'], batch['common_valid'][..., 1:]), -1)
+    kinematic=batch['kinematic_valid'].clone();kinematic[:,0]=True
+    valid=valid&kinematic[...,None,None]
     if kind == 'E_MASK_ONLY': values = torch.zeros_like(values)
     return OracleRelations(values, valid, {'E_CURRENT_GT':'CURRENT','E_CV_GT':'CV','E_FUTURE_GT':'FUTURE','E_MASK_ONLY':'MASK_ONLY'}[kind])

@@ -119,3 +119,18 @@ def test_query_only_independent_training_architecture_does_not_read_visual():
     changed = ModelInputs(torch.full_like(inputs.H_A, float('nan')), torch.full_like(inputs.W, float('nan')),
                            inputs.q0_encoded, inputs.q0, inputs.state, inputs.body)
     torch.testing.assert_close(a, model(changed, queries), rtol=0, atol=0)
+
+
+def test_camera_relation_support_is_current_kinematics_only():
+    inputs,queries=fixtures()
+    model=ResidualRefiner(16,dim=32)
+    # Make the output sensitive after its required zero-initialized start.
+    torch.nn.init.normal_(model.output.weight,std=.02)
+    queries.kinematic_valid[:,2]=False
+    queries.kinematic_valid[:,0]=False  # q0 is retained even if it is poor.
+    relations=torch.randn(2,7,8,5)
+    original=model.camera_only(inputs,queries,relations)
+    changed=relations.clone();changed[:,2]=10000.
+    torch.testing.assert_close(original,model.camera_only(inputs,queries,changed),rtol=0,atol=0)
+    changed=relations.clone();changed[:,0]+=10.
+    assert not torch.equal(original,model.camera_only(inputs,queries,changed))

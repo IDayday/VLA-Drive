@@ -1,0 +1,50 @@
+{
+  "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+  "limitations": "smoke heads only unless endpoint receipts show full formal training; label/cache files used solely in verification comparator, never policy.predict",
+  "passed": true,
+  "precision": "FP32 anchor, FP16 feature roundtrip, FP32 small heads; TF32off",
+  "predictor_sha256": "dc208ceb55ccab77b58481e08e7f215e4133a830e40e1095b4c4efef664f900f",
+  "refiner_sha256": "167416a9b26aa359362460cdbbeb08d24fcb4c2ec6a2ce828474ddc4c05f171b",
+  "resources": {
+    "checked_unix": 1791999119.4332237,
+    "host": "training-vla-zt",
+    "policy_sha256": "cf2893a6e47072bf595f5a0a5192ea117015a4fbc5a9d294926b5b27618efe92"
+  },
+  "scenes": [
+    {
+      "GT_fields_rejected": 5,
+      "one_Qwen_forward": true,
+      "online_cache_max_abs_m": 0.0,
+      "seconds": 1.423355570062995,
+      "token": "0002267a294e52a7"
+    },
+    {
+      "GT_fields_rejected": 5,
+      "one_Qwen_forward": true,
+      "online_cache_max_abs_m": 0.0,
+      "seconds": 1.2191832233220339,
+      "token": "00060e3599d05532"
+    },
+    {
+      "GT_fields_rejected": 5,
+      "one_Qwen_forward": true,
+      "online_cache_max_abs_m": 0.0,
+      "seconds": 1.221178077161312,
+      "token": "0011b5d98be95c53"
+    },
+    {
+      "GT_fields_rejected": 5,
+      "one_Qwen_forward": true,
+      "online_cache_max_abs_m": 0.0,
+      "seconds": 1.2182684671133757,
+      "token": "0029579f2a395d02"
+    }
+  ],
+  "source_sha": "67da11396d238c9205751623d2fb0ccd237625a8",
+  "execution_source_note": "Source SHA is repository HEAD at completion; these new uncommitted files were executed, exact bytes bound here. Not a formal training identity.",
+  "executed_new_files": {
+    "tools/decision_local/verify_current_only.py": "610fee71a1934e9d8c12207cae57b515a989d9ed736d502a436f4b63abff83bd",
+    "starVLA/model/framework/frozen_vla_consequence_refiner.py": "9f8e3c813f0e90ac6b4c0aad95b13f1d93147fbd21263c456ae91ad6c6b75906"
+  },
+  "latency_limitations": "Four-scene engineering measurement; later inventory showed IQE S01 began sharing GPU7 during this check. Not an isolated deployment latency benchmark."
+}

@@ -1,6 +1,6 @@
 # 局部轨迹后果差异学习：执行记录
 
-本目录是正在执行的研究记录，不是已完成的实验报告。正式 E/P/R、G70k 诊断、第二 seed 和最终 Navtest 尚未完成，不能据 smoke 推断规划收益。
+本目录是正在执行的研究记录，不是已完成的实验报告。正式 E/P/R、共同 G75k 诊断、第二 seed 和最终 Navtest 尚未完成，不能据 smoke 推断规划收益。
 
 ## 冻结起点
 
@@ -39,3 +39,15 @@ E 三种 GT 信息均为特权探针，另设 mask-only 诊断；E_NONE 与 R �
 G 诊断统一锁定现存 **75000** checkpoint：G3 70000 的临时权重已按旧磁盘清理规则释放，而 G1/G2/G3 的 75000 原生文件都完整存在。选择发生在本轮诊断之前，不看哪组有利、不续训制造历史权重，见 evidence/G_DIAGNOSTIC_LOCK.json。
 
 恢复 smoke：E_NONE 的模型、optimizer、scheduler、RNG 与数据位置逐位相等。P_DIFF 原严格逐位测试未通过；继续执行的最大参数差异 3.27e-7，同环境连续 A/A 为 4.24e-7，数据顺序、曝光、scheduler、RNG 精确一致。尚不能把这一项结果描述为所有恢复验证已完成；完整 moments 和输出对照仍在补齐。
+
+## 部署与恢复的后续实际验证
+
+真实当前图像 → 一次 S0 Qwen → 原 10 步 q0 → 七条确定性几何查询 → 预测关系 → 一次连续残差的入口已经运行。4 个真实样本的在线/缓存 W、H_A、q0、查询与 q_final 相同；入口拒绝 GT 地图、未来关系和未来 validity。FP16 特征存储误差已单列，q0 仍为 FP32。相关 receipt 同时标注了执行时未提交代码的文件 hash，不能只拿当时 HEAD 代替它的源码身份。首个在线时延约 1.22 秒，但同卡有另一个实际任务启动，因此不作为隔离性能结论。
+
+修正器对不可行动力学变体的关系使用确定性 mask，q0 总保留。它只依据当前生成的查询，不读取 GT；训练与部署使用相同处理。此修正发生在上述在线检查之后，正式权重仍需重做在线/缓存核验。
+
+4 个开发集调试场景已通过原 canonical evaluator，q0/q_final 均无评分异常。见 evidence/CANONICAL_DEBUG4.json；这是 64 场景 smoke 权重的链路检查，**不是完整开发集结果，也不支持规划增益结论**。部署导出分别提供 camera_only 和 oracle_probe 入口，后者的标签身份、顺序和文件 hash 必须匹配。
+
+补齐恢复 moments 与固定输入输出：P_DIFF 恢复的 optimizer 最大差异 3.26e-9，独立连续 A/A 为 3.73e-9；恢复输出最大差异 7.15e-6，A/A 为 1.17e-5；归一化 L2 分别 4.97e-7、8.17e-7，loss 差异均 4.47e-8。原逐位失败保留，E1 的数据、完整 RNG、scheduler、曝光和位置精确相同。本次短链路支持按已观测 CUDA 浮点差异解释恢复，不等于长期训练逐位相同保证。见 evidence/RESUME_AA_AB.json、RESUME_OUTPUTS.json。
+
+用户在本轮明确增加 tsinghua-zt5。SSH 和共享目录正常，已有基础环境版本一致；必要 overlay 已复制至 `/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen`，未升级共享 site-packages。初次检查 1–7 卡约 1.6GB 且 100% 利用率，容器内进程不可见，按既有要求不处理、不抢占，等资源释放再使用。完整缓存提取仍在 vla-zt/rl-zt2 继续。共同 100 GPU-hours 操作上限未扩大。

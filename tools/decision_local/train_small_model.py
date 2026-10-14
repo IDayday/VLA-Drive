@@ -112,6 +112,8 @@ def main():
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
     train = FrozenConsequenceData(a.features,a.labels)
     dev = FrozenConsequenceData(a.dev_features,a.dev_labels) if a.dev_features else None
+    if train.feature_identity['split']!='train':raise ValueError('Training must use the registered training split')
+    if a.scope=='diagnostic' and len(train.index)!=4096:raise ValueError('Use the fixed 4096 training diagnostic population')
     if a.scope=='formal' and (len(train.index)!=101592 or dev is None or len(dev.index)!=1696):
         raise ValueError('Full common population required')
     if dev and {r['log'] for r in train.index}&{r['log'] for r in dev.index}: raise ValueError('Train/dev log leakage')
@@ -134,11 +136,16 @@ def main():
     run_identity={'schema':'decision_local_small_head_v1','source_sha':source_sha(ROOT),
         'source_files':{str(f.relative_to(ROOT)):digest(f) for f in source_files},'kind':a.kind,'seed':a.seed,
         'scope':a.scope,'features':train.feature_identity['identity'],'labels':train.label_identity['identity'],
+        'anchor_identity':train.feature_identity['anchor_identity'],
+        'feature_storage_dtype':train.feature_identity['storage_dtype'],
+        'query_config':train.label_identity['query_config'],
         'dev_features':dev.feature_identity['identity'] if dev else None,'dev_labels':dev.label_identity['identity'] if dev else None,
         'epochs':a.epochs,'batch':a.batch,'microbatch':a.microbatch,'lr':a.lr,'dim':a.dim,'weight_decay':.001,
         'scheduler':'one epoch linear warmup then cosine to0.1LR','clip':1.,'compute_precision':'FP32','TF32':False,
         'initial_model_sha256':initial_hash,'predictor_sha256':digest(a.predictor) if a.predictor else None,
-        'trainable_parameters':sum(x.numel() for x in model.parameters()),'frozen_base_optimizer_updates':0}
+        'trainable_parameters':sum(x.numel() for x in model.parameters()),
+        'inactive_memory_projection_parameters':sum(x.numel() for x in model.memory.parameters()) if a.kind=='P_QUERY_ONLY' else 0,
+        'frozen_base_optimizer_updates':0}
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.
@@ -161,6 +168,9 @@ def main():
             'GPU_hours':s['GPU_hours'],'peak_allocated_bytes':torch.cuda.max_memory_allocated(),
             'peak_reserved_bytes':torch.cuda.max_memory_reserved(),'resource_check':resources})
     if completed==0: checkpoint()
+    # Previous pause evidence remains; this attempt has its own invocation log.
+    atomic_json(a.output/('attempt_%07d.json'%completed),{'resume':a.resume,'starting_update':completed,
+        'max_seconds':a.max_seconds,'max_updates':a.max_updates,'resource_check':resources})
     timings=[]; last=time.monotonic()
     while epoch<a.epochs:
         if (a.output/'STOP_REQUESTED').exists() or time.monotonic()-start>=a.max_seconds or (a.max_updates and completed>=a.max_updates):

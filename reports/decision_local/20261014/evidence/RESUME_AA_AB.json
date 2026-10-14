@@ -1,0 +1,49 @@
+{
+  "E_NONE": {
+    "E1_all_rng_scheduler_order_cursor_exact": true,
+    "comparisons": {
+      "interrupted": {
+        "model": {
+          "max_absolute": 0.0,
+          "normalized_L2": 0.0,
+          "different_tensors": 0
+        },
+        "optimizer": {
+          "max_absolute": 0.0,
+          "normalized_L2": 0.0,
+          "different_tensors": 0
+        }
+      }
+    }
+  },
+  "P_DIFF": {
+    "E1_all_rng_scheduler_order_cursor_exact": true,
+    "comparisons": {
+      "interrupted": {
+        "model": {
+          "max_absolute": 3.267498414061265e-07,
+          "normalized_L2": 3.1366664368184355e-08,
+          "different_tensors": 30
+        },
+        "optimizer": {
+          "max_absolute": 3.259629011154175e-09,
+          "normalized_L2": 5.21082972989084e-10,
+          "different_tensors": 72
+        }
+      },
+      "AA": {
+        "model": {
+          "max_absolute": 4.236878794472432e-07,
+          "normalized_L2": 3.063291835650094e-08,
+          "different_tensors": 30
+        },
+        "optimizer": {
+          "max_absolute": 3.725290298461914e-09,
+          "normalized_L2": 6.224769891586171e-10,
+          "different_tensors": 72
+        }
+      }
+    }
+  },
+  "assessment": "E_NONE bit-exact; P_DIFF strict bit-exact test retained as failed. Resumed P_DIFF is assessed against independent uninterrupted A/A; no thresholds were increased."
+}

@@ -1,0 +1,41 @@
+{
+  "note": "FP32 CPU fixed-input readout of real GPU-trained checkpoints; parameter/moment GPU A/A assessment separate. Strict P_DIFF failure retained.",
+  "results": {
+    "E_NONE": {
+      "E1_exact": true,
+      "output_comparisons": {
+        "interrupted": {
+          "absolute_loss_difference": 0.0,
+          "prediction": {
+            "cosine": 1.000000000000001,
+            "max_absolute": 0.0,
+            "normalized_L2": 0.0
+          }
+        }
+      }
+    },
+    "P_DIFF": {
+      "E1_exact": true,
+      "output_comparisons": {
+        "AA": {
+          "absolute_loss_difference": 4.470348358154297e-08,
+          "prediction": {
+            "cosine": 0.9999999999996755,
+            "max_absolute": 1.1682510375976562e-05,
+            "normalized_L2": 8.174329920891245e-07
+          }
+        },
+        "interrupted": {
+          "absolute_loss_difference": 4.470348358154297e-08,
+          "prediction": {
+            "cosine": 0.9999999999998777,
+            "max_absolute": 7.152557373046875e-06,
+            "normalized_L2": 4.970605913891835e-07
+          }
+        }
+      }
+    }
+  },
+  "source_sha": "67da11396d238c9205751623d2fb0ccd237625a8",
+  "tool_sha256": "bc2ef907c91191fef95931fa9e5e3e45eb596a671af2cf340edb10c4bd4f6d34"
+}

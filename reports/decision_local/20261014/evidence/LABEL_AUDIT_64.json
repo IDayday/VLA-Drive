@@ -1,0 +1,394 @@
+{
+  "CV_missing_velocity_zero_fallback": 0,
+  "CV_objects": 5240,
+  "audit_sha256": "12fc6213a2fb88c23ec59a4a0f861b825db0e92c738b0a99cb5742e59123abf6",
+  "body_in_grid_fraction_per_time": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "common_support": {
+    "clearance_m": {
+      "coverage": 0.19294084821428573,
+      "per_time_coverage": [
+        0.0,
+        0.020089285714285716,
+        0.15513392857142858,
+        0.20089285714285715,
+        0.26674107142857145,
+        0.31026785714285715,
+        0.31919642857142855,
+        0.27120535714285715
+      ],
+      "supported_scenes": 38
+    },
+    "overlap": {
+      "coverage": 0.6994977678571429,
+      "per_time_coverage": [
+        0.2779017857142857,
+        0.6595982142857143,
+        0.7098214285714286,
+        0.8102678571428571,
+        0.8292410714285714,
+        0.7957589285714286,
+        0.7823660714285714,
+        0.7310267857142857
+      ],
+      "supported_scenes": 61
+    },
+    "road_margin_m": {
+      "coverage": 0.7268415178571429,
+      "per_time_coverage": [
+        0.24665178571428573,
+        0.6316964285714286,
+        0.7243303571428571,
+        0.8136160714285714,
+        0.8772321428571429,
+        0.8727678571428571,
+        0.8526785714285714,
+        0.7957589285714286
+      ],
+      "supported_scenes": 60
+    }
+  },
+  "ground_support_policy": "current_static_ground",
+  "information_source_label_differences": {
+    "CV_minus_CURRENT": {
+      "clearance_m": {
+        "coverage": 0.21442522321428573,
+        "different_at_least_0p5_fraction": 0.3448275862068966,
+        "mean_abs": 1.2448691129684448
+      },
+      "overlap": {
+        "coverage": 0.7412109375,
+        "different_at_least_0p5_fraction": 0.12196499153020893,
+        "mean_abs": 0.12196499109268188
+      },
+      "road_margin_m": {
+        "coverage": 0.7268415178571429,
+        "different_at_least_0p5_fraction": 0.0,
+        "mean_abs": 0.0
+      }
+    },
+    "FUTURE_minus_CV": {
+      "clearance_m": {
+        "coverage": 0.2099609375,
+        "different_at_least_0p5_fraction": 0.22990033222591363,
+        "mean_abs": 0.4699241518974304
+      },
+      "overlap": {
+        "coverage": 0.6996372767857143,
+        "different_at_least_0p5_fraction": 0.014955134596211365,
+        "mean_abs": 0.014955134131014347
+      },
+      "road_margin_m": {
+        "coverage": 0.7268415178571429,
+        "different_at_least_0p5_fraction": 0.0,
+        "mean_abs": 0.0
+      }
+    }
+  },
+  "interpretation": "Label differences/coverage, not learned planning value. No threshold selected from dev/test.",
+  "kinematically_valid_fraction_per_variant": [
+    1.0,
+    0.921875,
+    0.90625,
+    0.90625,
+    0.90625,
+    0.9921875,
+    0.9765625
+  ],
+  "kinematics_percentiles": {
+    "acceleration_mps2": [
+      2.8411810398101807,
+      6.471043586730957,
+      8.027841329574585,
+      399.3387939453125,
+      798.6876220703125
+    ],
+    "speed_mps": [
+      6.096509695053101,
+      10.79525899887085,
+      12.774150848388672,
+      19.46214485168457,
+      39.94184494018555
+    ],
+    "yaw_rate_rps": [
+      0.2064458653330803,
+      0.6798090040683746,
+      2.041603982448578,
+      1106.4407104492163,
+      4953.2080078125
+    ]
+  },
+  "label_identity": "e8c25a001244a3eea8a985c0a2aa5b5577763bbbb42f91eeede7b38fba820fa5",
+  "query_config": {
+    "dense_dt": 0.025,
+    "dt": 0.5,
+    "lateral_m": [
+      -0.5,
+      0.5,
+      -1.0,
+      1.0
+    ],
+    "max_acceleration_mps2": 12.0,
+    "max_speed_mps": 40.0,
+    "max_yaw_rate_rps": 1.5,
+    "stationary_speed_mps": 0.15,
+    "time_shift_s": [
+      -0.5,
+      0.5
+    ]
+  },
+  "scene_count": 64,
+  "source_coverage": {
+    "CURRENT": {
+      "clearance_m": {
+        "after_variant_mask_coverage": 0.2818080357142857,
+        "clipped_10m_fraction": 0.09801980198019802,
+        "per_time_coverage": [
+          0.0,
+          0.049107142857142856,
+          0.19419642857142858,
+          0.32142857142857145,
+          0.38950892857142855,
+          0.43080357142857145,
+          0.45089285714285715,
+          0.4185267857142857
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -1.7164382934570312,
+          -1.6242593383789063,
+          -1.1150533437728882,
+          1.3795257806777954,
+          9.967119121551514,
+          9.99999981880188,
+          10.0
+        ],
+        "raw_coverage": 0.28250558035714285,
+        "supported_scenes": 47
+      },
+      "overlap": {
+        "after_variant_mask_coverage": 0.7440011160714286,
+        "clipped_10m_fraction": null,
+        "per_time_coverage": [
+          0.2779017857142857,
+          0.6595982142857143,
+          0.7354910714285714,
+          0.8359375,
+          0.8861607142857143,
+          0.8861607142857143,
+          0.8616071428571429,
+          0.8091517857142857
+        ],
+        "positive_fraction": 0.1211325707856741,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "raw_coverage": 0.767578125,
+        "supported_scenes": 61
+      },
+      "road_margin_m": {
+        "after_variant_mask_coverage": 0.7268415178571429,
+        "clipped_10m_fraction": 0.01381957773512476,
+        "per_time_coverage": [
+          0.24665178571428573,
+          0.6316964285714286,
+          0.7243303571428571,
+          0.8136160714285714,
+          0.8772321428571429,
+          0.8727678571428571,
+          0.8526785714285714,
+          0.7957589285714286
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -0.7997284531593323,
+          -0.47823015749454495,
+          0.32251548767089844,
+          2.594415307044983,
+          6.9088502407074,
+          9.999999046325684,
+          10.0
+        ],
+        "raw_coverage": 0.7400948660714286,
+        "supported_scenes": 60
+      }
+    },
+    "CURRENT_CV": {
+      "clearance_m": {
+        "after_variant_mask_coverage": 0.23228236607142858,
+        "clipped_10m_fraction": 0.0936936936936937,
+        "per_time_coverage": [
+          0.0,
+          0.022321428571428572,
+          0.1875,
+          0.23549107142857142,
+          0.30580357142857145,
+          0.3705357142857143,
+          0.375,
+          0.36160714285714285
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -1.25,
+          -0.8511972713470459,
+          0.4095648527145386,
+          2.1133804321289062,
+          9.331772994995124,
+          9.999999046325684,
+          10.0
+        ],
+        "raw_coverage": 0.23256138392857142,
+        "supported_scenes": 39
+      },
+      "overlap": {
+        "after_variant_mask_coverage": 0.7413504464285714,
+        "clipped_10m_fraction": null,
+        "per_time_coverage": [
+          0.2779017857142857,
+          0.6595982142857143,
+          0.7354910714285714,
+          0.8359375,
+          0.8839285714285714,
+          0.8727678571428571,
+          0.8604910714285714,
+          0.8046875
+        ],
+        "positive_fraction": 0.023522770041400076,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "raw_coverage": 0.7654854910714286,
+        "supported_scenes": 62
+      },
+      "road_margin_m": {
+        "after_variant_mask_coverage": 0.7268415178571429,
+        "clipped_10m_fraction": 0.01381957773512476,
+        "per_time_coverage": [
+          0.24665178571428573,
+          0.6316964285714286,
+          0.7243303571428571,
+          0.8136160714285714,
+          0.8772321428571429,
+          0.8727678571428571,
+          0.8526785714285714,
+          0.7957589285714286
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -0.7997284531593323,
+          -0.47823015749454495,
+          0.32251548767089844,
+          2.594415307044983,
+          6.9088502407074,
+          9.999999046325684,
+          10.0
+        ],
+        "raw_coverage": 0.7400948660714286,
+        "supported_scenes": 60
+      }
+    },
+    "TRUE_FUTURE": {
+      "clearance_m": {
+        "after_variant_mask_coverage": 0.69921875,
+        "clipped_10m_fraction": 0.07940941739824421,
+        "per_time_coverage": [
+          0.71875,
+          0.7946428571428571,
+          0.7488839285714286,
+          0.7209821428571429,
+          0.6741071428571429,
+          0.6506696428571429,
+          0.6529017857142857,
+          0.6328125
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -0.8135817050933838,
+          -0.055886236093938356,
+          0.7976837158203125,
+          2.984521985054016,
+          9.073745346069341,
+          10.0,
+          10.0
+        ],
+        "raw_coverage": 0.7466517857142857,
+        "supported_scenes": 58
+      },
+      "overlap": {
+        "after_variant_mask_coverage": 0.8621651785714286,
+        "clipped_10m_fraction": null,
+        "per_time_coverage": [
+          0.828125,
+          0.9352678571428571,
+          0.8962053571428571,
+          0.9029017857142857,
+          0.8738839285714286,
+          0.8381696428571429,
+          0.8314732142857143,
+          0.7912946428571429
+        ],
+        "positive_fraction": 0.012297734627831715,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "raw_coverage": 0.9125279017857143,
+        "supported_scenes": 64
+      },
+      "road_margin_m": {
+        "after_variant_mask_coverage": 0.7268415178571429,
+        "clipped_10m_fraction": 0.01381957773512476,
+        "per_time_coverage": [
+          0.24665178571428573,
+          0.6316964285714286,
+          0.7243303571428571,
+          0.8136160714285714,
+          0.8772321428571429,
+          0.8727678571428571,
+          0.8526785714285714,
+          0.7957589285714286
+        ],
+        "positive_fraction": null,
+        "quantiles": [
+          -0.7997284531593323,
+          -0.47823015749454495,
+          0.32251548767089844,
+          2.594415307044983,
+          6.9088502407074,
+          9.999999046325684,
+          10.0
+        ],
+        "raw_coverage": 0.7400948660714286,
+        "supported_scenes": 60
+      }
+    }
+  },
+  "source_sha": "67da11396d238c9205751623d2fb0ccd237625a8",
+  "split": "train",
+  "threshold_basis": "fixed physical registration:0.5m grid ambiguity,road +/-0.25m,clearance0/1m,overlap binary; no PDMS access"
+}

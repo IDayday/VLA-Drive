@@ -114,7 +114,13 @@ def main():
             for source in sorted((args.cache/'records').glob('*.json')):
                 if source.name in seen:continue
                 seen.add(source.name);yield source
-            if not args.follow_cache or (args.cache/'COMPLETE.json').exists():break
+            if not args.follow_cache:break
+            if (args.cache/'COMPLETE.json').exists():
+                # The last producer may commit between our scan and this check.
+                # Rescan once against the committed complete manifest.
+                for source in sorted((args.cache/'records').glob('*.json')):
+                    if source.name not in seen:seen.add(source.name);yield source
+                break
             time.sleep(min(10.,max(0.,args.max_seconds-(time.monotonic()-started))))
     with ProcessPoolExecutor(args.workers, mp_context=multiprocessing.get_context('spawn')) as pool:
         for source in available_receipts():

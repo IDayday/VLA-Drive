@@ -57,7 +57,9 @@ def read_consequences(road, road_valid, occupancy, occupancy_valid, poses, body,
     K, T, _ = poses.shape
     if len(occupancy) != T or occupancy_valid.shape != occupancy.shape:
         raise ValueError('Environment fields must follow real physical query times')
-    points = body_points(poses, body, execution_fast=True)
+    # Reference signature also exists in the pinned original G runtime; this
+    # read-only operator must not require its later execution-cache additions.
+    points = body_points(poses, body)
     P = points.shape[-2]
     xy = points.permute(1, 0, 2, 3).reshape(T, K*P, 2)
     distances, distance_valid = zip(*(obstacle_distance(o, v, grid, clip_m) for o, v in zip(occupancy, occupancy_valid)))
