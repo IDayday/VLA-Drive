@@ -1,0 +1,32 @@
+{
+  "result_path": "/mnt/project/iqe-geometric-readout-20261014/full_v1/qualification/LATENCY_000002.json",
+  "result_sha256": "5e4312728e37c76f26bc6dc6ee93ad78e71430a81560c5488d35c7856e4dab49",
+  "result_file_utc": "2026-10-14T22:34:53+00:00",
+  "launch": {
+    "pid": 835202,
+    "start_ticks": "1337480242",
+    "host": "training-rl-zt2-worker-0",
+    "GPU": 4,
+    "utc": "2026-10-14T22:31:57.202325+00:00",
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "iqe.geometric_readout.benchmark",
+      "--config",
+      "/mnt/project/DriveVLA-M0-iqe-robust-scorer-20261014/configs/iqe/geometric_readout/full.yaml",
+      "--checkpoint",
+      "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_000002.pt",
+      "--device",
+      "cuda:0"
+    ],
+    "measurements_per_mode": 32,
+    "warmup": 3,
+    "modes": 4,
+    "training_updates": 0
+  },
+  "benchmark_code_sha256": "33adf832c0f33f81306d0bd19fa7345925751b63b9c3fedbbdee3aa2bde1530b",
+  "benchmark_implementation_commit": "c6c09ff4",
+  "scene_definition": "first32 in immutable source stage_val, prevalidated before timing, identical order for each mode",
+  "reported_milliseconds_are_seconds_times1000": true,
+  "pipeline_difference_interpretation": "small whole-pipeline differences within a few milliseconds are timing variability, not negative scoring cost"
+}

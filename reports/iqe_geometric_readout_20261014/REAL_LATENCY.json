@@ -1,0 +1,145 @@
+{
+  "Base_parameters": 2147752352,
+  "CUDA_synchronization": "synchronize before/after full sample; scorer CUDA events in same forward",
+  "VLM_runtime": "unchanged locked Base inference runtime",
+  "actual_images": true,
+  "cache_head_latency_substituted": false,
+  "checkpoint": "/mnt/project/iqe-geometric-readout-20261014/full_v1/scorer/step_000002.pt",
+  "checkpoint_hash": "7a2cfdb69e75f939cdc8ddb53ba60de161e6c6ad9e0efdcc9ea583c86946a594",
+  "checkpoint_optimizer_step": 2,
+  "control_scorer_parameters": 4898311,
+  "control_weights": "same random initialization, architecture cost reference only",
+  "device": "NVIDIA A800-SXM4-80GB",
+  "expert_parameters": [
+    15708576,
+    15708576,
+    15708576
+  ],
+  "external_scorer_weights_loaded": false,
+  "filesystem_state": "prevalidated warm file cache",
+  "input_load_decode_processor_and_output_CPU_copy_included": true,
+  "new_optimizer_steps": 0,
+  "raw_times_unit": "seconds",
+  "rows": [
+    {
+      "K": 1,
+      "all_calls_verified": true,
+      "batch": 1,
+      "mean_seconds": 0.7372353934915736,
+      "mode": "Base",
+      "p50_seconds": 0.735333664342761,
+      "p95_seconds": 0.7609338087029756,
+      "peak_allocated_bytes": 9063382528,
+      "peak_reserved_bytes": 9221177344,
+      "repetitions": 32,
+      "scorer_mean_seconds": 0.0,
+      "scorer_p50_seconds": 0.0,
+      "scorer_p95_seconds": 0.0,
+      "verified_branches": {
+        "Base_decoder": 1,
+        "expert_decoders": [],
+        "score_context_projections": 0,
+        "spatial_reader": 0
+      },
+      "verified_calls": {
+        "language": 1,
+        "visual": 1
+      },
+      "warmup": 3
+    },
+    {
+      "K": 4,
+      "all_calls_verified": true,
+      "batch": 1,
+      "mean_seconds": 0.7943579192506149,
+      "mode": "Base_plus_three",
+      "p50_seconds": 0.7943596439436078,
+      "p95_seconds": 0.8154419993050397,
+      "peak_allocated_bytes": 9250121728,
+      "peak_reserved_bytes": 9435086848,
+      "repetitions": 32,
+      "scorer_mean_seconds": 0.0,
+      "scorer_p50_seconds": 0.0,
+      "scorer_p95_seconds": 0.0,
+      "verified_branches": {
+        "Base_decoder": 1,
+        "expert_decoders": [
+          1,
+          1,
+          1
+        ],
+        "score_context_projections": 0,
+        "spatial_reader": 0
+      },
+      "verified_calls": {
+        "language": 1,
+        "visual": 1
+      },
+      "warmup": 3
+    },
+    {
+      "K": 4,
+      "all_calls_verified": true,
+      "batch": 1,
+      "mean_seconds": 0.7910636870074086,
+      "mode": "global_spatial_reference",
+      "p50_seconds": 0.7903851112350821,
+      "p95_seconds": 0.8219823061488569,
+      "peak_allocated_bytes": 9269390848,
+      "peak_reserved_bytes": 9449766912,
+      "repetitions": 32,
+      "scorer_mean_seconds": 0.007540971949696541,
+      "scorer_p50_seconds": 0.0072216479778289796,
+      "scorer_p95_seconds": 0.00841773419380188,
+      "verified_branches": {
+        "Base_decoder": 1,
+        "expert_decoders": [
+          1,
+          1,
+          1
+        ],
+        "score_context_projections": 1,
+        "spatial_reader": 1
+      },
+      "verified_calls": {
+        "language": 1,
+        "visual": 1
+      },
+      "warmup": 3
+    },
+    {
+      "K": 4,
+      "all_calls_verified": true,
+      "batch": 1,
+      "mean_seconds": 0.7912090111058205,
+      "mode": "geometric",
+      "p50_seconds": 0.7909957719966769,
+      "p95_seconds": 0.8170077085494996,
+      "peak_allocated_bytes": 9269392384,
+      "peak_reserved_bytes": 9451864064,
+      "repetitions": 32,
+      "scorer_mean_seconds": 0.01127981099486351,
+      "scorer_p50_seconds": 0.011036928176879884,
+      "scorer_p95_seconds": 0.013098451042175293,
+      "verified_branches": {
+        "Base_decoder": 1,
+        "expert_decoders": [
+          1,
+          1,
+          1
+        ],
+        "score_context_projections": 1,
+        "spatial_reader": 1
+      },
+      "verified_calls": {
+        "language": 1,
+        "visual": 1
+      },
+      "warmup": 3
+    }
+  ],
+  "scientific_quality_evaluation": false,
+  "scorer_parameters": 4898311,
+  "source_Base_hash": "30517484efcc8740c331f42f3f2ba2d1896a4f95cf70e2bf662e0d6c4484e8b0",
+  "status": "COMPLETE"
+}
