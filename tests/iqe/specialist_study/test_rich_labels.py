@@ -51,3 +51,29 @@ def test_corrupt_prepared_column_receipt_is_not_silently_rescored(tmp_path, monk
     atomic_json(root/'column.COMPLETE.json', {'checksum': 'wrong', 'binding_hash': digest({'fixed': True})})
     with pytest.raises(Exception, match='checksum'):
         rich_labels.prepared_or_score(config, [], [], 'column')
+
+
+def test_publishing_requests_is_the_exact_existing_job_without_worker_launch(tmp_path, monkeypatch):
+    from iqe.internal_baseline import bank
+    config, scenes, _, _, _, _, candidates = setup(tmp_path)
+    config.navsim_root = '/fixture/navsim'
+    config.scoring_attempts = 2
+    proto = {'protocol_hash': 'protocol', 'navsim_root': '/fixture/navsim',
+             'nuplan_root': '/fixture/nuplan', 'navsim_source_hash': 'source', 'config': {'fixed': True}}
+    monkeypatch.setattr(bank, 'protocol', lambda config: proto)
+    monkeypatch.setattr(bank.subprocess, 'run', lambda *a, **k: pytest.fail('publisher launched scoring'))
+    path, job = bank.prepare_score_job(config, scenes, candidates, 'column')
+    items = []
+    for scene, candidate in zip(scenes, candidates):
+        seed = int(digest({'scene_id': scene.scene_id, 'seed': 42, 'repetition': 0})[:8], 16)
+        request = {'candidate': asdict(candidate), 'scene': asdict(scene), 'protocol_hash': 'protocol',
+                   'navsim_root': '/fixture/navsim', 'source_hash': 'source', 'config': {'fixed': True},
+                   'seed': seed, 'eval_seed': 42, 'repetition': 0}
+        response = config.root/'scores'/(digest([candidate.key, scene.metric_context_hash, 'protocol', seed])+'.json')
+        items.append({'request': request, 'response': str(response)})
+    expected = {'items': items, 'navsim_root': '/fixture/navsim', 'nuplan_root': '/fixture/nuplan', 'attempts_per_invocation': 2}
+    assert job == read_json(path) == expected
+    assert path.parent.name == 'column_'+digest(items)[:12]
+    before = path.read_bytes()
+    assert bank.prepare_score_job(config, scenes, candidates, 'column')[0] == path
+    assert path.read_bytes() == before

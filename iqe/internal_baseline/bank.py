@@ -102,7 +102,8 @@ def expert_candidates(config, module, scenes, weight_hash, device, batch_size=64
     return rows
 
 
-def score_candidates(config, scenes, candidates, job_name):
+def prepare_score_job(config, scenes, candidates, job_name):
+    """Publish the unchanged immutable requests, without consuming CPU workers."""
     require(len(scenes) == len(candidates), "candidate scene join length")
     proto = protocol(config)
     items = []
@@ -120,6 +121,13 @@ def score_candidates(config, scenes, candidates, job_name):
            "attempts_per_invocation": config.scoring_attempts}
     path = folder / "JOB.json"
     atomic_json(path, job, immutable=True)
+    return path, job
+
+
+def score_candidates(config, scenes, candidates, job_name):
+    path, job = prepare_score_job(config, scenes, candidates, job_name)
+    folder = path.parent
+    items = job['items']
     workers = int(os.environ.get("IQE_OFFICIAL_SCORE_WORKERS", config.scoring_workers))
     require(1 <= workers <= config.scoring_workers, "runtime scoring workers may only bound configured concurrency")
     repo = Path(__file__).resolve().parents[2]
