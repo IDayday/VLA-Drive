@@ -14,14 +14,15 @@ import sys
 import time
 
 from scripts.analysis.flow_safe_improvement.sample_locked_navtest import locked_contract
-from starVLA.rl.constrained_flow_noise.contracts import file_sha, require_dispatch
+from starVLA.rl.constrained_flow_noise.contracts import file_sha, fingerprint, require_dispatch
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from .analyze_ode import analyze
 from .evaluate_policy import child_environment
 from .lock_final import read, sealed
 
 
-def evaluate_one(lock_path, model, population_path, output, baseline_scores, workers):
+def evaluate_one(lock_path, model, population_path, output, baseline_scores, workers,
+                 baseline_wait_seconds=0, observation_context=None):
     host = require_dispatch()
     population = read(population_path)
     lock, lock_sha, selected = locked_contract(lock_path, model, population)
@@ -32,6 +33,8 @@ def evaluate_one(lock_path, model, population_path, output, baseline_scores, wor
     identity = dict(final_lock_sha256=lock_sha, model=model, weight_sha256=selected['weight_sha256'],
                     seed=2101, population_identity=population['identity_sha256'], world=8,
                     source_sha256=file_sha(__file__), analysis_sha256=file_sha(Path(__file__).with_name('analyze_ode.py')))
+    if observation_context is not None:
+        identity['observation_context'] = observation_context
     if (output/'identity.json').exists() and read(output/'identity.json') != identity:
         raise ValueError('Final evaluation recovery identity changed')
     atomic_json(output/'identity.json', identity)
@@ -79,11 +82,28 @@ def evaluate_one(lock_path, model, population_path, output, baseline_scores, wor
         manifest = sealed(output/'scores/manifest.json')
         if manifest['protocol_sha256'] != lock['v1_protocol_sha256']:
             raise ValueError('Navtest scoring protocol changed after selection lock')
+        baseline_wait_started = time.monotonic()
+        while not (Path(baseline_scores)/'COMPLETE').is_file():
+            require_dispatch()
+            if time.monotonic()-baseline_wait_started >= baseline_wait_seconds:
+                raise TimeoutError('Matched SFT scores incomplete; no partial-population analysis')
+            atomic_json(output/'analysis_status.json', dict(status='WAITING_FOR_COMPLETE_MATCHED_SFT',
+                        baseline_scores=str(baseline_scores), utc_unix=time.time()))
+            time.sleep(5)
+        baseline_wait_elapsed = time.monotonic()-baseline_wait_started
         report = analyze(output/'scores', baseline_scores, population)
         if report['scenes'] != 12146 or report['behavior_sha256'] != selected['weight_sha256']:
             raise ValueError('Incomplete or wrong final model')
+        if observation_context is not None:
+            report['observation_context'] = observation_context
+            report['cohort'] = 'navtest_tokens'
+            report['meets_componentwise_safety_rule'] = report.pop('safe_DEV_selection_eligible')
+            report['descriptive_safety_alert_components'] = report.pop('severe_safety_pause_components')
+            report['used_for_DEV_selection_or_training_control'] = False
+            report['sha256'] = fingerprint({k:v for k,v in report.items() if k != 'sha256'})
         atomic_json(output/'report.json', report)
         atomic_json(output/'cost.json', dict(status='COMPLETE', host=host, wall_seconds=time.monotonic()-started,
+                    baseline_wait_seconds=baseline_wait_elapsed,
                     scoring=read(output/'scores/status.json'),
                     inference_shards=[read(p) for p in sorted((output/'samples').glob('shard*.json'))]))
         return report

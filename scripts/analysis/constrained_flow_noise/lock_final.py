@@ -37,6 +37,30 @@ def choose(rows):
     return min(eligible, key=lambda x: (-x['PDMS'], x['raw_exposure'])) if eligible else None
 
 
+def formal_run_paths(root, variant):
+    """Follow an explicit, same-scientific-lineage native continuation only."""
+    root = Path(root)
+    parent = root/f'formal_{variant}_seed42_v1'
+    pointer = root/f'formal_{variant}_active_continuation.json'
+    if not pointer.exists():
+        return [parent]
+    route = read(pointer)
+    child, checkpoint = Path(route['output']), Path(route['checkpoint'])
+    if (Path(route['parent']).resolve() != parent.resolve() or child.resolve() == parent.resolve()
+            or child.resolve().parent != root.resolve() or not (checkpoint/'COMPLETE').is_file()):
+        raise ValueError('Invalid formal continuation route')
+    identities = [sealed(p) for p in (parent/'run_identity.json', child/'run_identity.json', checkpoint/'identity.json')]
+    if (len({x['sha256'] for x in identities}) != 1
+            or any(x['qualification_only'] or x['variant'] != variant for x in identities)):
+        raise ValueError('Continuation is not the same formal scientific lineage')
+    origin = read(child/'native_continuation_origin.json')
+    if (origin['qualification_only'] or Path(origin['checkpoint']).resolve() != checkpoint.resolve()
+            or origin['scientific_identity'] != identities[0]['sha256']
+            or origin['numerical_execution_identity'] != read(child/'execution_identity.json')['sha256']):
+        raise ValueError('Continuation origin/execution mismatch')
+    return [parent, child]
+
+
 def collect(root, population):
     root = Path(root)
     budget = sealed(root/'formal_budget.json')
@@ -52,7 +76,8 @@ def collect(root, population):
         raise ValueError('Full matched original SFT DEV baseline required')
     pending, runs = [], {}
     for variant in VARIANTS:
-        run = root/f'formal_{variant}_seed42_v1'
+        lineage = formal_run_paths(root, variant)
+        run = lineage[-1]
         result_path = run/'result_rank0.json'
         if not result_path.exists():
             pending.append(dict(variant=variant, reason='formal endpoint not yet saved'))
@@ -66,7 +91,7 @@ def collect(root, population):
         complete = result['status'] == 'COMPLETE_FIXED_RAW_BUDGET'
         pause = result.get('safety_pause')
         if not complete and not pause:
-            pending.append(dict(variant=variant, reason='interrupted formal run still requires exact resume'))
+            pending.append(dict(variant=variant, reason='formal budget incomplete; saved result may precede live progress', run=str(run)))
             continue
         if complete and result['raw_cursor'] != budget['raw_exposures_per_variant']:
             raise ValueError('Completion label does not match registered raw exposure')
@@ -100,6 +125,7 @@ def collect(root, population):
                                 raw_exposure=result['raw_cursor'], safety_pause=pause))
             continue
         runs[variant] = dict(run=str(run), run_identity=identity['sha256'], endpoint=endpoint,
+                             native_run_lineage=[str(p) for p in lineage],
                              selection=choose(rows), DEV=rows, actual_raw_exposure=result['raw_cursor'],
                              complete_fixed_budget=complete, safety_pause=pause, result_sha256=file_sha(result_path))
     return dict(status='READY_TO_LOCK' if not pending else 'WAITING_FOR_FORMAL_ENDPOINTS',

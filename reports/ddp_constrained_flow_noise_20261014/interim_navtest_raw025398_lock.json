@@ -1,0 +1,77 @@
+{
+  "schema": "cfn_user_requested_interim_navtest_v1",
+  "status": "LOCKED_BEFORE_FINAL_NAVTEST",
+  "legacy_status_semantics": "Frozen sampler compatibility token; this is an INTERIM observation, not a final endpoint",
+  "purpose": "Explicit user request: 测一下测试集结果",
+  "formal_budget_complete": false,
+  "utc": "2026-10-14T19:12:36.028444+00:00",
+  "checkpoint_rule": "Both RL variants at the predetermined first 25398 raw-exposure milestone; no score-based selection",
+  "model_selection_performed": false,
+  "training_or_selection_rule_changed": false,
+  "models": {
+    "SFT": {
+      "export": "/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/frozen_visual",
+      "weight_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+      "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "raw_exposure": 0,
+      "role": "permanent_SFT_baseline"
+    },
+    "C_SDE": {
+      "export": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1_probability_repair/export_raw025398",
+      "weight_sha256": "9b04289dde82ff6c91e3f745d8fa44c3fdf09ab569305a0d29ef68c9c02ee5d3",
+      "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "raw_exposure": 25398,
+      "update": 2030,
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1_probability_repair/checkpoints/update002030_raw025398",
+      "checkpoint_files_sha256": "b2e3e8417c2daf7628eeb773e514a93da7b53edd508515eb84baaab613f3ac3a",
+      "run_identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "role": "user_requested_matched_interim_observation",
+      "numerical_execution_sha256": "e2e904b3efd7c6dd4b51fa69492322904455574a6111e08f0a9c29e12b0a012f"
+    },
+    "N_FLOW_NOISE": {
+      "export": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/export_raw025398",
+      "weight_sha256": "3e4ee86224d1ecccc83afac1506c55072483ac2876fa61d8e15b33f349dd1ed4",
+      "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+      "sampler_source_sha256": "12b14aa71d7770f1cd0b4b25a42bef30fd97f9e97db1f6a070bc7b3f0c32008e",
+      "raw_exposure": 25398,
+      "update": 2030,
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update002030_raw025398",
+      "checkpoint_files_sha256": "5d75dc6fc0e0ae0c7792f8fde26f031957acf1b21c7b60d358d3fceb6c6e8a75",
+      "run_identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "role": "user_requested_matched_interim_observation",
+      "numerical_execution_sha256": "0b054e56de8277df5faead4d1aab484afd69aacb484d2594b0a6c0af4119f3c4"
+    }
+  },
+  "unique_export_count": 3,
+  "inference_seeds": [
+    2101
+  ],
+  "training_seeds": [
+    42
+  ],
+  "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+  "navtest_tokens_sha256": "8c8536f7369f584794ae215fcfffd5027c4f2ca5bc84b2e5f320e001d040009b",
+  "deployment_execution_profile": {
+    "name": "original_VLAAgent_default_module_dtypes_uncached_v1",
+    "qwen_parameter_dtype": "torch.bfloat16",
+    "action_parameter_dtype": "torch.float32",
+    "history_parameter_dtype": "torch.float32",
+    "attention_backend": "flash_attention_2",
+    "actor_sources": {
+      "infer.py": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+      "starVLA/model/framework/QwenOFT.py": "7ac768d4f9adf3161d0c0c9c00ae13e7237224f53755be6381695bdc14c82b9c",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "81cdc45976af8746dfc3c88c79cbd6c50a122231dc174d0a6ccece7960281bca"
+    }
+  },
+  "v1_protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+  "data_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset",
+  "navtest_datalist": "/mnt/project/DriveDreamer-Policy/test_meta.json",
+  "navtest_datalist_sha256": "e05968c1ded485316bc16905f6a238b25fffede3ff1a7de2f6c1538b624b532e",
+  "v1_cache": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1",
+  "historically_observed_Navtest_not_fully_blind": true,
+  "this_observation_must_be_disclosed_in_final_report": true,
+  "source_sha256": "3e3d7c7b84e49b18d439aad940423cda0a71cdc8bbbe721395afa30edf53e9c9",
+  "sha256": "fdab58a271163e5874cda3729a931b63de050ebaa5c204b41386630dd0c0dde3"
+}

@@ -1,0 +1,152 @@
+{
+  "stage": "user_requested_interim_Navtest",
+  "models": [
+    {
+      "model": "SFT",
+      "pid": 302223,
+      "process_start_unix": 1792005187.28,
+      "host": "training-vlawm-tsinghua-zt2",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "scripts.analysis.constrained_flow_noise.interim_navtest",
+        "evaluate",
+        "--lock",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/observation_lock.json",
+        "--model",
+        "SFT",
+        "--population",
+        "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+        "--output",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/SFT",
+        "--baseline-scores",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/SFT/scores",
+        "--workers",
+        "16"
+      ],
+      "log": "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/SFT.log",
+      "lock_sha256": "fdab58a271163e5874cda3729a931b63de050ebaa5c204b41386630dd0c0dde3",
+      "started_unix": 1792005187.7556195,
+      "existing_processes_preserved": true,
+      "model_processes": 8,
+      "unique_GPU_uuids": [
+        "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+        "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+        "GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6",
+        "GPU-220170c8-e900-2090-9c71-5eb562f2d0c0",
+        "GPU-ccacd0ea-138e-cba3-bdaa-c5290f852915",
+        "GPU-88994300-43aa-ec6a-973e-a92276b2a045",
+        "GPU-cb83ff92-fe81-0597-9d9a-257bfe48cec3",
+        "GPU-c40bf31b-444d-5efb-7156-90b71a4d70b3"
+      ],
+      "observed_previous_peak_inference_bytes": 7950648320,
+      "capacity_guard_free_MiB": 35000,
+      "stage": "user_requested_interim",
+      "source_files": {
+        "scripts/analysis/constrained_flow_noise/interim_navtest.py": "3e3d7c7b84e49b18d439aad940423cda0a71cdc8bbbe721395afa30edf53e9c9",
+        "scripts/analysis/constrained_flow_noise/evaluate_final.py": "09b0a6dfaad44e04b1b9bb781659b9ab72729791528eb581771a57bbf5e58f9e"
+      }
+    },
+    {
+      "model": "C_SDE",
+      "pid": 4045248,
+      "process_start_unix": 1792005188.26,
+      "host": "training-vlawm-tsinghua-zt4",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "scripts.analysis.constrained_flow_noise.interim_navtest",
+        "evaluate",
+        "--lock",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/observation_lock.json",
+        "--model",
+        "C_SDE",
+        "--population",
+        "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+        "--output",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/C_SDE",
+        "--baseline-scores",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/SFT/scores",
+        "--workers",
+        "16"
+      ],
+      "log": "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/C_SDE.log",
+      "lock_sha256": "fdab58a271163e5874cda3729a931b63de050ebaa5c204b41386630dd0c0dde3",
+      "started_unix": 1792005188.31837,
+      "existing_processes_preserved": true,
+      "model_processes": 8,
+      "unique_GPU_uuids": [
+        "GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42",
+        "GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f",
+        "GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59",
+        "GPU-4fe15b93-9f87-08ea-699d-40375083da94",
+        "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f",
+        "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f",
+        "GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce",
+        "GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7"
+      ],
+      "observed_previous_peak_inference_bytes": 7950648320,
+      "capacity_guard_free_MiB": 35000,
+      "stage": "user_requested_interim",
+      "source_files": {
+        "scripts/analysis/constrained_flow_noise/interim_navtest.py": "3e3d7c7b84e49b18d439aad940423cda0a71cdc8bbbe721395afa30edf53e9c9",
+        "scripts/analysis/constrained_flow_noise/evaluate_final.py": "09b0a6dfaad44e04b1b9bb781659b9ab72729791528eb581771a57bbf5e58f9e"
+      }
+    },
+    {
+      "model": "N_FLOW_NOISE",
+      "pid": 2272971,
+      "process_start_unix": 1792005188.47,
+      "host": "training-vlawm-tsinghua-zt",
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "scripts.analysis.constrained_flow_noise.interim_navtest",
+        "evaluate",
+        "--lock",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/observation_lock.json",
+        "--model",
+        "N_FLOW_NOISE",
+        "--population",
+        "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+        "--output",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/N_FLOW_NOISE",
+        "--baseline-scores",
+        "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/SFT/scores",
+        "--workers",
+        "16"
+      ],
+      "log": "/mnt/project/constrained-flow-noise-20261014/interim_Navtest_raw025398_20261014/N_FLOW_NOISE.log",
+      "lock_sha256": "fdab58a271163e5874cda3729a931b63de050ebaa5c204b41386630dd0c0dde3",
+      "started_unix": 1792005189.0628896,
+      "existing_processes_preserved": true,
+      "model_processes": 8,
+      "unique_GPU_uuids": [
+        "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+        "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+        "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+        "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+        "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+        "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+        "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+        "GPU-91fd88e4-a388-6b59-e684-13a463606f9e"
+      ],
+      "observed_previous_peak_inference_bytes": 7950648320,
+      "capacity_guard_free_MiB": 35000,
+      "stage": "user_requested_interim",
+      "source_files": {
+        "scripts/analysis/constrained_flow_noise/interim_navtest.py": "3e3d7c7b84e49b18d439aad940423cda0a71cdc8bbbe721395afa30edf53e9c9",
+        "scripts/analysis/constrained_flow_noise/evaluate_final.py": "09b0a6dfaad44e04b1b9bb781659b9ab72729791528eb581771a57bbf5e58f9e"
+      }
+    }
+  ],
+  "unique_physical_GPUs": 24,
+  "existing_work_preserved": true,
+  "pressure_processes_stopped": 0,
+  "source_hash_verification": "All 83 frozen scientific files unchanged",
+  "tests": "12 passed: interim boundary and final selection/native continuation routing",
+  "formal_training_continues": true,
+  "full_test_scores_per_model": 12146,
+  "logical_candidate_score_budget": 36438,
+  "final_seed_count": 1
+}

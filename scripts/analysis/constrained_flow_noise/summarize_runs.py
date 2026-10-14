@@ -8,7 +8,7 @@ import numpy as np
 
 from starVLA.rl.constrained_flow_noise.contracts import VARIANTS, file_sha, fingerprint, require_dispatch
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from .lock_final import read, sealed
+from .lock_final import read, sealed, formal_run_paths
 
 
 def rows(path):
@@ -74,14 +74,18 @@ def compute_accounting(collections, curve, monitor, identity):
     return result
 
 
-def summarize(run, qualification=False):
+def summarize(run, qualification=False, ancestors=()):
     run = Path(run)
     if not (run/'run_identity.json').exists():
         return dict(status='NOT_STARTED', path=str(run)), []
     identity = sealed(run/'run_identity.json')
     if identity['qualification_only'] != qualification:
         raise ValueError('Formal and qualification curves must not be mixed')
-    logs = [rows(run/f'training_rank{rank}.jsonl') for rank in range(8)]
+    lineage = [Path(p) for p in ancestors] + [run]
+    for prior in lineage:
+        if sealed(prior/'run_identity.json')['sha256'] != identity['sha256']:
+            raise ValueError('Cannot merge curves across scientific run identities')
+    logs = [sum((rows(p/f'training_rank{rank}.jsonl') for p in lineage), []) for rank in range(8)]
     indexed = [{x['update']: x for x in values} for values in logs]
     common = sorted(set.intersection(*(set(x) for x in indexed)))
     curve = []
@@ -108,7 +112,14 @@ def summarize(run, qualification=False):
             item['lambda_snapshot_'+name] = values[0]['lambda_snapshot'][j]
             item['dual_first16_'+name] = values[0]['dual']['cost_means'][j]
         curve.append(item)
-    collection_map = {int(p.stem): read(p) for p in sorted((run/'collection_summaries').glob('*.json'))}
+    collection_map, replaced_collections = {}, []
+    for directory in lineage:
+        for p in sorted((directory/'collection_summaries').glob('*.json')):
+            key, record = int(p.stem), read(p)
+            if key in collection_map:
+                replaced_collections.append(dict(collection=key, superseded_record=collection_map[key],
+                                                 replacement_record=str(p)))
+            collection_map[key] = record
     collections = list(collection_map.values())
     monitor = [read(p) for p in sorted((run/'monitor').glob('raw*/summary.json')) if (p.parent/'COMPLETE').exists()]
     dev = []
@@ -136,6 +147,8 @@ def summarize(run, qualification=False):
     exposure_means = {k: sum(x[k]*x['scenes'] for x in collections)/count if count else None for k in
                       ('PDMS_mean', 'joint_safe_candidate_rate', 'pairwise_ADE_mean_m', 'request_second_difference_mean_m')}
     summary = dict(status=result['status'] if result else 'IN_PROGRESS', path=str(run),
+                   native_run_lineage=[str(p) for p in lineage],
+                   superseded_collection_attempts=replaced_collections,
                    variant=identity['variant'], run_identity=identity['sha256'], qualification_only=qualification,
                    original_SFT_sha256=identity['SFT_sha256'], condition_identity=identity['condition_identity'],
                    common_complete_rank_updates=len(common), latest_all_rank_update=common[-1] if common else 0,
@@ -206,12 +219,13 @@ def main():
         raise FileExistsError('Snapshots are immutable: ' + str(out))
     out.mkdir(parents=True)
     runs = ({x.split('=', 1)[0]: Path(x.split('=', 1)[1]) for x in args.qualification_run} if args.qualification_run else
-            {v: Path(args.run_root)/f'formal_{v}_seed42_v1' for v in VARIANTS})
+            {v: formal_run_paths(args.run_root, v)[-1] for v in VARIANTS})
     summaries, curves = {}, {}
     for name, path in runs.items():
         if name not in VARIANTS:
             raise ValueError('Only the two registered methods are supported')
-        summaries[name], curves[name] = summarize(path, qualification=bool(args.qualification_run))
+        ancestors = [] if args.qualification_run else formal_run_paths(args.run_root, name)[:-1]
+        summaries[name], curves[name] = summarize(path, qualification=bool(args.qualification_run), ancestors=ancestors)
         if curves[name]:
             with (out/(name+'_updates.csv')).open('w') as stream:
                 writer = csv.DictWriter(stream, fieldnames=list(curves[name][0]))
