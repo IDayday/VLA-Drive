@@ -90,6 +90,9 @@ CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m 
 # After the formal fixed budget completes; lock on stage_val, calibrate, then dev.
 CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.evaluation evaluate --config "$CFG" --device cuda:0
 $PY -m iqe.conditional_readout.bundle --config "$CFG"
+CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.qualification online --config "$CFG" --device cuda:0
+# Run as a separate CLI process after online writes its fixed reference.
+CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.qualification roundtrip --config "$CFG" --device cuda:0
 ```
 
 ## First real diagnostic and deterministic implementation repair
@@ -110,6 +113,15 @@ The next real diagnostic separately verifies that. No weights or sample cursor
 were discarded, because this failed attempt completed zero updates.
 
 The strict roundtrip test compares identical eval/requires_grad flags on both
-sides. Comparing a trainable source to a frozen loaded model changes MHA
-fastpath dispatch even under no_grad; no numerical tolerance was relaxed to
-hide that test-setup difference.
+sides. An initial comparison with mismatched flags was not bitwise equal;
+the corrected test aligns those execution conditions and passes without
+relaxing tolerance. It does not establish bitwise equality between arbitrary
+attention execution paths.
+
+The repaired model has completed real GPU optimizer updates under the original
+deterministic runtime; all 86 trainable parameter tensors had finite gradients
+at its first update. The focused regression run is 23 passed / 1 skipped
+(the inherited opt-in two-GPU terminal-resume test was not run again).
+Final diagnostic results and the decision about formal training remain separate
+from those engineering checks. New online/export entrypoints are implemented
+and unit checked; their trained real-image evidence requires the formal endpoint.
