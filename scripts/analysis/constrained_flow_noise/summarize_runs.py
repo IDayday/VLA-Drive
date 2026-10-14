@@ -20,6 +20,60 @@ def rows(path):
     return [json.loads(line) for line in lines if line.endswith('\n')]
 
 
+def compute_accounting(collections, curve, monitor, identity):
+    """Count completed logical work, including padding but not invented retries.
+
+    A collection can be scored before either inner update finishes. Count its
+    rollout once and count only the inner updates present on all eight ranks.
+    These are velocity API invocations/examples, not CUDA kernel/FLOP counts.
+    """
+    result = dict(training_rollout_forward_calls=0, training_rollout_forward_examples=0,
+                  frozen_reference_forward_calls=0, frozen_reference_forward_examples=0,
+                  PG_retention_forward_calls=0, PG_retention_backward_calls=0,
+                  PG_retention_forward_examples=0, PG_retention_backward_examples=0,
+                  GT_replay_forward_calls=0, GT_replay_backward_calls=0,
+                  GT_replay_forward_examples=0, GT_replay_backward_examples=0,
+                  PG_scene_exposures_over_completed_inner_updates=0,
+                  GT_scene_exposures_over_completed_inner_updates=0)
+    for collection in collections.values():
+        count = collection['velocity_evaluations']
+        for source, target in [('rollout', 'training_rollout'), ('frozen_reference', 'frozen_reference')]:
+            for unit in ('calls', 'examples'):
+                result[target+'_forward_'+unit] += count[source+'_'+unit]
+    seen = set()
+    for update in curve:
+        key = update['collection'], update['inner']
+        if key in seen or update['collection'] not in collections:
+            raise ValueError('Duplicate inner update or missing completed collection')
+        seen.add(key)
+        count = collections[key[0]]['velocity_evaluations']
+        if not 1 <= key[1] <= count['inner_epochs']:
+            raise ValueError('Inner update outside the registered collection')
+        for source, target in [('PG_reference', 'PG_retention'), ('GT_replay', 'GT_replay')]:
+            for direction in ('forward', 'backward'):
+                result[target+'_'+direction+'_calls'] += count['per_inner_'+source+'_'+direction+'_calls']
+                result[target+'_'+direction+'_examples'] += count['per_inner_'+source+'_examples']
+        result['PG_scene_exposures_over_completed_inner_updates'] += update['accepted_groups']
+        result['GT_scene_exposures_over_completed_inner_updates'] += count['per_inner_GT_replay_forward_calls']
+    # Monitor uses the same G16, K10, chunk1 no-grad rollout, with no updates or
+    # reference velocity calls. Keep this cost separate from the training stream.
+    if identity['kernel']['rollout_chunk'] != 1:
+        raise ValueError('Monitor call accounting requires the locked chunk1 layout')
+    result['monitor_rollout_forward_examples'] = sum(x['candidates'] for x in monitor)*identity['kernel']['steps']
+    result['monitor_rollout_forward_calls'] = result['monitor_rollout_forward_examples']
+    result['canonical_training_candidate_scores'] = sum(x['candidates'] for x in collections.values())
+    result['canonical_monitor_candidate_scores'] = sum(x['candidates'] for x in monitor)
+    result['canonical_contract'] = 'One invocation per candidate: [fixed official reference, that candidate]'
+    result['scope'] = ('Completed collection records and all-rank completed inner updates; actual padded calls included. '
+                       'Repeated/partially failed attempts are not inferred from final logical records. '
+                       'Their measured log time is reported separately; a retry requires its preserved attempt receipts.')
+    result['excluded_one_time_graph_setup'] = dict(
+        forward_calls_per_cold_rank=4, definition='3 eager warmups plus 1 CUDA graph capture',
+        source='starVLA/rl/flow_grpo/velocity_graph.py:NoGradVelocityGraph',
+        note='Add once per graph-creating rank/process invocation; not a candidate or training exposure.')
+    return result
+
+
 def summarize(run, qualification=False):
     run = Path(run)
     if not (run/'run_identity.json').exists():
@@ -54,7 +108,8 @@ def summarize(run, qualification=False):
             item['lambda_snapshot_'+name] = values[0]['lambda_snapshot'][j]
             item['dual_first16_'+name] = values[0]['dual']['cost_means'][j]
         curve.append(item)
-    collections = [read(p) for p in sorted((run/'collection_summaries').glob('*.json'))]
+    collection_map = {int(p.stem): read(p) for p in sorted((run/'collection_summaries').glob('*.json'))}
+    collections = list(collection_map.values())
     monitor = [read(p) for p in sorted((run/'monitor').glob('raw*/summary.json')) if (p.parent/'COMPLETE').exists()]
     dev = []
     for path in sorted((run/'DEV').glob('raw*/report.json')):
@@ -90,6 +145,7 @@ def summarize(run, qualification=False):
                    accepted_exposure_at_latest_update=curve[-1]['accepted_exposure'] if curve else 0,
                    observed_collection_totals=totals, unfiltered_stream_exposure_weighted=exposure_means,
                    seconds=seconds, monitor_seconds=monitor_seconds,
+                   compute_accounting=compute_accounting(collection_map, curve, monitor, identity),
                    logged_update_GPU_seconds_including_reexecuted_attempts=sum(x['seconds'] for rank in logs for x in rank),
                    duplicated_update_log_rows_by_rank=[len(x)-len(y) for x, y in zip(logs, indexed)],
                    time_accounting='component sums are worker measurements; GPU allocation time is reported separately from launcher receipts',

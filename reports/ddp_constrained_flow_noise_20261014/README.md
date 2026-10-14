@@ -266,3 +266,21 @@ qualification/SFT pair and reproduces the earlier +0.000342-point difference;
 this is marked qualification-only. Formal N_FLOW_NOISE minus C_SDE intervals
 will use paired scene differences, rather than subtraction of two separate
 confidence intervals.
+
+The curve exporter also aggregates the saved velocity-call counters, separately
+for rollout, frozen reference, PG/retention, GT replay and the fixed TRAIN
+monitor. Completed inner updates are counted from the intersection of all eight
+rank logs, so a scored collection does not automatically count as two updates.
+Padding remains part of compute cost; accepted scene exposure and GT replay
+exposure are separate. [The accounting check](compute_accounting_acceptance.json)
+uses both actual 32-scene qualification runs: each has 512 candidate scores,
+5,120 rollout calls, 24 frozen-reference calls, 126 PG/retention forward and
+backward calls, and 64 GT replay forward and backward calls. These are logical
+velocity calls with examples counted separately, not GPU kernel/FLOP counts.
+Each cold graph-creating rank additionally executes three warmups and one
+capture; that setup is explicitly separate from candidate/update counts.
+Repeated or partially failed attempts require their preserved receipts rather
+than being inferred from the final logical stream. The 83 frozen training and
+evaluation source files still match the formal source seal; this change only
+extends postprocessing, and the waiting final controller will use it for the
+final curve export.
