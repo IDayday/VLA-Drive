@@ -87,4 +87,29 @@ CUDA_VISIBLE_DEVICES=1 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m 
 CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.cli train --config "$CFG" --device cuda:0
 # Only after an actual interruption; full sampler, optimizer and RNG are restored.
 CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.cli train --config "$CFG" --device cuda:0 --resume auto
+# After the formal fixed budget completes; lock on stage_val, calibrate, then dev.
+CUDA_VISIBLE_DEVICES=0 IQE_SPATIAL_READER_MODE=mmap_v1 OMP_NUM_THREADS=2 $PY -m iqe.conditional_readout.evaluation evaluate --config "$CFG" --device cuda:0
+$PY -m iqe.conditional_readout.bundle --config "$CFG"
 ```
+
+## First real diagnostic and deterministic implementation repair
+
+The global control completed all 300 updates on rl-zt2 GPU0. On its fixed
+64 training scenes, deployment-pool Base was 93.5053, Oracle 96.9317 and the
+diagnostic selected score 94.1814. Wrong-scene V changed zero choices. This is
+training-set evidence only and the model is not eligible for deployment.
+
+The first conditioned attempt failed before any optimizer update because CUDA
+`upsample_linear1d_backward` has no deterministic implementation. Its records
+are retained in `failed_attempts/conditioned_cuda_interpolate`. After the global
+control exited, the operator was replaced with the same fixed half-pixel linear
+interpolation matrix and GEMM backward. The deterministic runtime was retained.
+CPU float64 value/derivative tests cover 8-to-16 and other time dimensions at
+1e-12 tolerance; the failure does not justify claiming GPU backward passed.
+The next real diagnostic separately verifies that. No weights or sample cursor
+were discarded, because this failed attempt completed zero updates.
+
+The strict roundtrip test compares identical eval/requires_grad flags on both
+sides. Comparing a trainable source to a frozen loaded model changes MHA
+fastpath dispatch even under no_grad; no numerical tolerance was relaxed to
+hide that test-setup difference.

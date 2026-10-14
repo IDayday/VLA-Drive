@@ -13,6 +13,24 @@ from iqe.internal_baseline.scorer import InternalScorer
 from iqe.specialist_study.models import SpatialReader, StudyScorer
 
 
+def interpolate_time_tokens(tokens, output_steps):
+    """Half-pixel linear interpolation with deterministic GEMM backward.
+
+    CUDA upsample_linear1d_backward is rejected by the locked deterministic
+    runtime. The fixed interpolation matrix implements the same time weights;
+    no learned parameter, position change or precision workaround is introduced.
+    """
+    steps=tokens.shape[-2]
+    require(steps>0 and output_steps>0, 'positive time dimensions required')
+    position=((torch.arange(output_steps,device=tokens.device,dtype=tokens.dtype)+.5)
+              *(steps/output_steps)-.5).clamp(0,steps-1)
+    left=position.floor().long();right=(left+1).clamp_max(steps-1)
+    fraction=(position-left.to(position.dtype))[:,None]
+    weights=(F.one_hot(left,steps).to(tokens.dtype)*(1-fraction)
+             +F.one_hot(right,steps).to(tokens.dtype)*fraction)
+    return torch.matmul(weights,tokens)
+
+
 class ConditionedSpatialReader(SpatialReader):
     def forward(self, visual, valid, xy, trajectory_tokens=None):
         if trajectory_tokens is None:
@@ -33,9 +51,7 @@ class ConditionedSpatialReader(SpatialReader):
                   + self.position(torch.cat((p.sin(), p.cos()), -1))
                   + self.camera[None, :, None])
         query_count = self.queries.shape[1]
-        condition = F.interpolate(trajectory_tokens.flatten(0, 1).transpose(1, 2),
-                                  size=query_count, mode='linear', align_corners=False)
-        condition = condition.transpose(1, 2).reshape(b, k, query_count, self.hidden)
+        condition = interpolate_time_tokens(trajectory_tokens,query_count)
         query = self.queries[None, None] + condition[:, :, None]
         # The batch axes are scene, candidate, view. Attention inside this
         # layer sees only the queries of that one candidate and that one view.

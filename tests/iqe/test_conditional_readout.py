@@ -8,6 +8,20 @@ from iqe.specialist_study.models import StudyScorer
 from iqe.conditional_readout.model import ConditionalReadoutScorer
 
 
+def test_fixed_linear_interpolation_matches_value_and_derivative():
+    from iqe.conditional_readout.model import interpolate_time_tokens
+    for steps,outputs in ((8,16),(3,7),(1,16),(8,3)):
+        a=torch.randn(2,3,steps,11,dtype=torch.float64,requires_grad=True)
+        b=a.detach().clone().requires_grad_(True)
+        reference=torch.nn.functional.interpolate(a.flatten(0,1).transpose(1,2),
+            size=outputs,mode='linear',align_corners=False).transpose(1,2).reshape(2,3,outputs,11)
+        actual=interpolate_time_tokens(b,outputs)
+        weights=torch.randn_like(actual)
+        (reference*weights).sum().backward();(actual*weights).sum().backward()
+        torch.testing.assert_close(reference,actual,atol=1e-12,rtol=1e-12)
+        torch.testing.assert_close(a.grad,b.grad,atol=1e-12,rtol=1e-12)
+
+
 def contract():
     return TrajectoryContract(8, .5, 'normalized_xy_sincos', 'ego_relative', 'rear_axle',
                               'radian', (10., .3, 0., 0.), (8., 2., 1., 1.), 'test')
