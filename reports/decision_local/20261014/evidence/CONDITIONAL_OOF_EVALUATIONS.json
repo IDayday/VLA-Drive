@@ -1,0 +1,121 @@
+{
+  "scope": "fixed_predictor_endpoint_checks",
+  "runtime": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluation_runtime",
+  "jobs": [
+    {
+      "id": "fold0_P_ABS",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/TRIGGER.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold0_P_ABS",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold0_P_ABS",
+        "--max-seconds",
+        "600"
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_ABS/epoch_24.pt"
+    },
+    {
+      "id": "fold0_P_DIFF",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/TRIGGER.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold0_P_DIFF",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold0_P_DIFF",
+        "--max-seconds",
+        "600"
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold0_P_DIFF/epoch_24.pt"
+    },
+    {
+      "id": "fold1_P_ABS",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/TRIGGER.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_ABS/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_ABS/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold1_P_ABS",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_ABS/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold1_P_ABS",
+        "--max-seconds",
+        "600"
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_ABS/epoch_24.pt"
+    },
+    {
+      "id": "fold1_P_DIFF",
+      "requires": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/TRIGGER.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_DIFF/epoch_24.pt",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_DIFF/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1/COMPLETE.json",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2/COMPLETE.json"
+      ],
+      "output": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold1_P_DIFF",
+      "max_seconds": 600,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-decision-local-relation-eval-frozen-20261014/tools/decision_local/evaluate_relations.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/labels_diagnostic4096_current_static_ground_kinv2",
+        "--checkpoint",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_DIFF/epoch_24.pt",
+        "--output",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/evaluations/fold1_P_DIFF",
+        "--max-seconds",
+        "600"
+      ],
+      "checkpoint": "/mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/fold1_P_DIFF/epoch_24.pt"
+    }
+  ],
+  "condition": "Evaluate only completed conditional OOF fits, not incomplete2update smoke",
+  "aggregation": "Each training log is scored only by the predictor fit on the opposite fold; pooled4096 scene population, not8192",
+  "source_sha": "d739b81b"
+}
