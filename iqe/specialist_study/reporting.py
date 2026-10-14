@@ -120,6 +120,19 @@ def generate(config):
         '\nD_S only; first3000 updates pointwise, then3000 updates natural64+comparison64. The continuous warmup100/constant1e-4 scheduler is not restarted. '
         'Rich pretraining increases candidate exposure and label cost; equal update counts do not mean equal compute/label budget. '
         'No Scorer currently missing from this table should be interpreted as trained.\n')
+    from .costs import summarize as summarize_costs
+    costs=summarize_costs(root)
+    atomic_json(root/'TRAINING_AND_LABEL_COST.json',costs)
+    report('TRAINING_AND_LABEL_COST.md','# Measured training and label cost\n\n'+table(
+        ['Cell','Updates','Sample presentations','Update-loop seconds','Completed-invocation GPU seconds','Invocation coverage complete'],
+        [[r['cell'],r['optimizer_updates_logged'],r['sample_presentations'],r['optimizer_update_loop_seconds'],
+          r['completed_invocation_allocated_GPU_seconds'],r['invocation_coverage_complete']] for r in costs['training']])+
+        '\nUpdate-loop time is summed from unique optimizer-step records. Trainer GPU seconds are allocated process wall time, including validation, '
+        'checkpoint and official-score waits, not measured active GPU kernel time. Resumed extension runs include their archived1465-update source '
+        'invocations. False invocation coverage means only completed segments have recorded timing, not a fabricated full-run total. '
+        'Official job and cooperative-worker wall times, requested candidate counts including legitimate cache reuse, and receipt identities are in '
+        'TRAINING_AND_LABEL_COST.json. Parallel job durations must not be added and called end-to-end elapsed time; CPU worker wall time includes IO/lock wait. '
+        'Inherited Base planning/W/A caches are reused assets, not newly computed work attributed to this campaign.\n')
     report('RANKING_OBJECTIVE_TEST.md','# Cost-sensitive variable-K objective\n\n'
         'For each scene, use all valid unordered pairs P_x, then a_xij = non_tie*abs(gap)/max(P_x,1). '
         'The comparison sampler draws q proportional to a; the sampled softplus loss is not multiplied by gap again. '
@@ -176,8 +189,8 @@ def generate(config):
         'No current Base/optimizer/data cursor or other experiment was restarted for these checks.\n')
     status={'generated_utc':now,'dependencies':dependencies,'TRAINING_COMPLETE':'PASS' if final else 'RUNNING',
             'SCIENTIFIC_CONCLUSION':get('VERDICT.json',{}).get('SCIENTIFIC_CONCLUSION','UNTESTED'),
-            'expert_update_counts':{p.parent.name:read_json(p).get('optimizer_steps') for p in (root/'experts').glob('*/result.json')},
-            'scorer_update_counts':{p.parent.name:read_json(p).get('optimizer_steps') for p in (root/'scorers').glob('*/result.json')},
+            'expert_update_counts':{r['cell']:r['optimizer_updates_logged'] for r in costs['training'] if r['kind']=='experts'},
+            'scorer_update_counts':{r['cell']:r['optimizer_updates_logged'] for r in costs['training'] if r['kind']=='scorers'},
             'spatial_complete':spatial is not None,'Base_training_modified':False,'ACTIVE_updated':False,'push_executed':False}
     atomic_json(root/'REPORT_STATUS.json',status)
     return status
