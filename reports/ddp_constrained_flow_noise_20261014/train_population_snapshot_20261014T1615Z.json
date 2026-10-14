@@ -1,0 +1,119 @@
+{
+  "schema": "cfn_population_saturation_snapshot_v1",
+  "status": "PARTIAL_POPULATION",
+  "full_payload_verification_completed": false,
+  "snapshot_started_utc": "2026-10-14T16:14:59.997774+00:00",
+  "completed_scenes": 17455,
+  "registered_scenes": 101592,
+  "observed_logs": 1128,
+  "committed_candidate_scores": 279280,
+  "groups": {
+    "all_one": {
+      "scenes": 5904,
+      "zero_final_advantage_groups": 3959,
+      "official_safety_cost_varies_groups": 0,
+      "geometric_cost_varies_groups": 1945,
+      "progress_only_official_reward_groups": 0,
+      "groups_with_safe_candidate": 5904,
+      "nonzero_final_advantage_groups": 1945
+    },
+    "mixed": {
+      "scenes": 11534,
+      "zero_final_advantage_groups": 0,
+      "official_safety_cost_varies_groups": 1445,
+      "geometric_cost_varies_groups": 4466,
+      "progress_only_official_reward_groups": 10000,
+      "groups_with_safe_candidate": 11530,
+      "nonzero_final_advantage_groups": 11534
+    },
+    "other_tied": {
+      "scenes": 8,
+      "zero_final_advantage_groups": 3,
+      "official_safety_cost_varies_groups": 0,
+      "geometric_cost_varies_groups": 5,
+      "progress_only_official_reward_groups": 0,
+      "groups_with_safe_candidate": 5,
+      "nonzero_final_advantage_groups": 5
+    },
+    "all_zero": {
+      "scenes": 9,
+      "zero_final_advantage_groups": 0,
+      "official_safety_cost_varies_groups": 0,
+      "geometric_cost_varies_groups": 9,
+      "progress_only_official_reward_groups": 0,
+      "groups_with_safe_candidate": 0,
+      "nonzero_final_advantage_groups": 9
+    }
+  },
+  "rare_group_details": {
+    "other_tied": {
+      "no_at_fault_collisions_all_zero_groups": 0,
+      "no_at_fault_collisions_any_nonpass_groups": 0,
+      "no_at_fault_collisions_varies_groups": 0,
+      "drivable_area_compliance_all_zero_groups": 0,
+      "drivable_area_compliance_any_nonpass_groups": 0,
+      "drivable_area_compliance_varies_groups": 0,
+      "time_to_collision_within_bound_all_zero_groups": 3,
+      "time_to_collision_within_bound_any_nonpass_groups": 3,
+      "time_to_collision_within_bound_varies_groups": 0,
+      "ego_progress_all_zero_groups": 0,
+      "ego_progress_any_nonpass_groups": 0,
+      "ego_progress_varies_groups": 0,
+      "comfort_all_zero_groups": 5,
+      "comfort_any_nonpass_groups": 5,
+      "comfort_varies_groups": 0,
+      "driving_direction_compliance_all_zero_groups": 0,
+      "driving_direction_compliance_any_nonpass_groups": 0,
+      "driving_direction_compliance_varies_groups": 0
+    },
+    "all_zero": {
+      "no_at_fault_collisions_all_zero_groups": 2,
+      "no_at_fault_collisions_any_nonpass_groups": 2,
+      "no_at_fault_collisions_varies_groups": 0,
+      "drivable_area_compliance_all_zero_groups": 7,
+      "drivable_area_compliance_any_nonpass_groups": 7,
+      "drivable_area_compliance_varies_groups": 0,
+      "time_to_collision_within_bound_all_zero_groups": 1,
+      "time_to_collision_within_bound_any_nonpass_groups": 1,
+      "time_to_collision_within_bound_varies_groups": 0,
+      "ego_progress_all_zero_groups": 9,
+      "ego_progress_any_nonpass_groups": 9,
+      "ego_progress_varies_groups": 0,
+      "comfort_all_zero_groups": 0,
+      "comfort_any_nonpass_groups": 0,
+      "comfort_varies_groups": 0,
+      "driving_direction_compliance_all_zero_groups": 0,
+      "driving_direction_compliance_any_nonpass_groups": 1,
+      "driving_direction_compliance_varies_groups": 1,
+      "all_candidates_have_zero_multiplicative_factor": 9
+    }
+  },
+  "rare_candidate_metric_patterns": {
+    "other_tied": {
+      "comfort=0": 80,
+      "time_to_collision_within_bound=0": 48
+    },
+    "all_zero": {
+      "no_at_fault_collisions=0,ego_progress=0": 16,
+      "drivable_area_compliance=0,ego_progress=0": 112,
+      "no_at_fault_collisions=0,time_to_collision_within_bound=0,ego_progress=0": 15,
+      "no_at_fault_collisions=0,time_to_collision_within_bound=0,ego_progress=0,driving_direction_compliance=0.5": 1
+    }
+  },
+  "candidate_metric_means": {
+    "no_at_fault_collisions": 0.99958106559725,
+    "drivable_area_compliance": 0.9851797479232312,
+    "ego_progress": 0.8633662472768985,
+    "time_to_collision_within_bound": 0.9941635634488685,
+    "comfort": 0.9994163563448869,
+    "driving_direction_compliance": 0.9859048266972215,
+    "score": 0.9318970075643773
+  },
+  "registration_sha256": "d90f7238c93f936edb8792353f4e037bb5e5fbea2da2d25d20a4a6f117c4c654",
+  "seal_manifest_sha256": "f80df0a46b7fadbc6fb947982df539e4536b4b97c9bebf44e708590b3b213a26",
+  "analysis_source_sha256": "df6e573cdca977b187b7d88794b20dc2c6b3d7ef7bf369c91aa575b648377d31",
+  "policy": "fixed SFT / original C_SDE / G16; not trained Flow-Noise or single ODE",
+  "advantage": "fixed initial lambda=[1,1,1,0.1,0.1]; not current training multipliers",
+  "boundary": "Observed sealed subset only until full coverage; no additional sampling or updates",
+  "sha256": "3e67d8a4a6a5551fc5157a00375636e667a55c2ad25060cd1d40a0ee62c85a04"
+}

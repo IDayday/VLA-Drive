@@ -2,7 +2,22 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status at 2026-10-14 15:35 UTC: both full-budget formal runs continue. The
+Status at 2026-10-14 16:17 UTC: both formal runs and all 32 census workers
+continue. The verified frozen-SFT census snapshot covers **17,455 / 101,592**
+TRAIN scenes: all-full groups **33.824%**, all-zero **0.052%**, other ties
+**0.046%**. Final zero-advantage groups are **22.698%** under fixed initial
+multipliers; nearly all are saturated full-score groups. Of non-tied PDMS
+groups, **86.70%** have only EP varying among the official score components.
+This is incomplete population coverage, not a final full-TRAIN estimate or a
+trained-policy deployment score. [Verified snapshot and failure causes](train_population_snapshot_20261014T1615Z.md).
+
+N_FLOW_NOISE has reached its first registered raw25,398 full-DEV observation:
+ODE PDMS **94.5460**, TTC violations **4**, versus SFT **93.6192 / 1**.
+The safety-selection rule still fails, but the registered severe pause rule
+does not trigger. C_SDE has not yet reached the matched exposure; no unmatched
+method ranking is claimed. [N full-DEV evidence](N_FLOW_NOISE_DEV_raw025398.json).
+
+Earlier observation at 2026-10-14 15:35 UTC: the
 user-requested extra full-DEV observation of both saved update1024 checkpoints
 is complete: 1,696 scenes / 16 logs, original single-candidate 10-step ODE,
 seed2101, canonical v1.1. PDMS is SFT **93.6192**, C_SDE **94.4840**,
