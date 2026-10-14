@@ -19,7 +19,7 @@ from .objectives import terms, denominators
 from .training import runtime
 
 
-def run(config_path, device, samples):
+def run(config_path, device, samples, candidate_mode='mmap_v1'):
     require(samples in (64, 128), 'reader qualification is capped at 128 real fit scenes')
     config=load_config(config_path)
     from .resource_guard import check
@@ -35,7 +35,8 @@ def run(config_path, device, samples):
     cache=ReusedContext(config,capacity=samples)
     contexts={};timings={};statistics={}
     rng=torch.get_rng_state().clone();cuda_rng=torch.cuda.get_rng_state_all()
-    for mode in ('legacy','mmap_v1'):
+    require(candidate_mode in ('mmap_v1','ram_mmap_v1'), 'qualified reader execution variant')
+    for mode in ('legacy',candidate_mode):
         os.environ['IQE_SPATIAL_READER_MODE']=mode
         os.environ['IQE_SPATIAL_MMAP_RECORDS']='32768'
         reader=VerifiedSpatialReader(config,64)
@@ -53,11 +54,11 @@ def run(config_path, device, samples):
         if isinstance(a,dict):return a.keys()==b.keys() and all(equal(a[k],b[k]) for k in a)
         if isinstance(a,(list,tuple)):return len(a)==len(b) and all(equal(x,y) for x,y in zip(a,b))
         return a==b
-    require(equal(contexts['legacy'],contexts['mmap_v1']), 'mmap changes real training input bytes')
+    require(equal(contexts['legacy'],contexts[candidate_mode]), 'reader changes real training input bytes')
     require(torch.equal(rng,torch.get_rng_state()) and all(torch.equal(a,b) for a,b in zip(cuda_rng,torch.cuda.get_rng_state_all())),
             'reader changed training RNG')
     updates={};states={};compute={}
-    for mode in ('legacy','mmap_v1'):
+    for mode in ('legacy',candidate_mode):
         model.load_state_dict(initial,strict=True);model.train()
         optimizer=torch.optim.AdamW(model.parameters(),lr=1e-4,weight_decay=.01)
         batch=contexts[mode];den=denominators(batch);optimizer.zero_grad(set_to_none=True)
@@ -74,7 +75,7 @@ def run(config_path, device, samples):
         states[mode]={'model':deepcopy(model.state_dict()),'optimizer':deepcopy(optimizer.state_dict()),'gradient':gradient}
         updates[mode]={'loss':sum(values),'gradient_norm':float(norm),'model_hash':module_hash(model),
                        'gradient_hash':_tensor_map_hash(gradient.items())}
-    require(equal(states['legacy'],states['mmap_v1']), 'mmap changes gradient/Adam/model update')
+    require(equal(states['legacy'],states[candidate_mode]), 'reader changes gradient/Adam/model update')
     report={'status':'PASS','scene_ids':[s.scene_id for s in scenes],'actual_samples':samples,
             'Base_binding_hash':file_hash(config.root/'BASE_BINDING.json'),
             'deployment_bank_hash':file_hash(config.root/'banks/deploy/scorer_fit/BANK.json'),
@@ -85,14 +86,19 @@ def run(config_path, device, samples):
             'reader_statistics':statistics,'GPU_peak_allocated_bytes':torch.cuda.max_memory_allocated(),
             'production_throughput_claim':False,'timing_scope':'three diagnostic fetches, not steady training',
             'qualification_weights_not_used_for_training_selection':True}
-    atomic_json(config.root/'qualifications/spatial_reader_mmap_v1/REPORT.json',report,immutable=True)
+    report['candidate_mode']=candidate_mode
+    if candidate_mode == 'ram_mmap_v1':
+        from .ram_stage import stage_root
+        report['ram_manifest_hash']=file_hash(stage_root(config)/'MANIFEST.json')
+    atomic_json(config.root/f'qualifications/spatial_reader_{candidate_mode}/REPORT.json',report,immutable=True)
     print(report,flush=True)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',required=True)
     p.add_argument('--device',default='cuda:0');p.add_argument('--samples',type=int,default=128)
-    a=p.parse_args();run(a.config,a.device,a.samples)
+    p.add_argument('--candidate-mode',choices=('mmap_v1','ram_mmap_v1'),default='mmap_v1')
+    a=p.parse_args();run(a.config,a.device,a.samples,a.candidate_mode)
 
 
 if __name__=='__main__':main()

@@ -45,7 +45,7 @@ def main():
     parser.add_argument('--deadline-hours', type=float, default=24.)
     parser.add_argument('--phase', choices=('all','post_expert'), default='all')
     parser.add_argument('--adopt-existing', help='Verified local PID/start-time receipt; never kills child processes')
-    parser.add_argument('--spatial-reader', choices=('legacy','mmap_v1'), default='legacy')
+    parser.add_argument('--spatial-reader', choices=('legacy','mmap_v1','ram_mmap_v1'), default='legacy')
     parser.add_argument('--spatial-records', type=int, default=32768)
     args = parser.parse_args()
     require(len(set(args.gpus)) == 4 and 0 < args.deadline_hours <= 36, 'four explicit GPUs and bounded deadline required')
@@ -56,15 +56,19 @@ def main():
     deadline = time.monotonic() + args.deadline_hours * 3600
     env = dict(os.environ, PYTHONPATH=str(repo), OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
     require(1<=args.spatial_records<=32768,'bounded mapped spatial records')
-    if args.spatial_reader=='mmap_v1':
-        qualification=read_json(config.root/'qualifications/spatial_reader_mmap_v1/REPORT.json')
+    if args.spatial_reader!='legacy':
+        qualification=read_json(config.root/f'qualifications/spatial_reader_{args.spatial_reader}/REPORT.json')
         require(qualification['status']=='PASS' and qualification['all_input_tensor_bytes_equal']
                 and qualification['RNG_unchanged'] and qualification['gradient_Adam_parameter_update_equal']
                 and qualification['reader_code_hash']==file_hash(repo/'iqe/specialist_study/context_reader.py')
                 and qualification['Base_binding_hash']==file_hash(config.root/'BASE_BINDING.json')
                 and qualification['deployment_bank_hash']==file_hash(config.root/'banks/deploy/scorer_fit/BANK.json'),
-                'mmap reader qualification missing or stale')
-        env.update(IQE_SPATIAL_READER_MODE='mmap_v1',IQE_SPATIAL_MMAP_RECORDS=str(args.spatial_records))
+                'spatial reader qualification missing or stale')
+        if args.spatial_reader == 'ram_mmap_v1':
+            from iqe.specialist_study.ram_stage import stage_root
+            require(qualification['ram_manifest_hash']==file_hash(stage_root(config)/'MANIFEST.json'),
+                    'qualified RAM stage missing or changed')
+        env.update(IQE_SPATIAL_READER_MODE=args.spatial_reader,IQE_SPATIAL_MMAP_RECORDS=str(args.spatial_records))
     adopted=read_json(args.adopt_existing) if args.adopt_existing else None
     if adopted:
         require(adopted['host']==os.uname().nodename and adopted['config_identity']==config.identity
