@@ -43,9 +43,13 @@ def main():
     model=load_student(anchor['run'],anchor['tag'],train,precision='fp32',strip=True).requires_grad_(False).eval()
     pp=torch.load(a.predictor,map_location='cpu',weights_only=False);rr=torch.load(a.refiner,map_location='cpu',weights_only=False)
     if pp['identity']['kind']!='P_DIFF' or rr['identity']['kind']!='R_FUTURE_DIFF':raise ValueError('Matched DIFF end-to-end probe required')
+    if rr['identity']['predictor_sha256']!=helpers.digest(a.predictor):raise ValueError('Refiner was trained with a different predictor')
     predictor=ConsequenceQueryHead(dim=pp['identity']['dim']).cuda();predictor.load_state_dict(pp['model'],strict=True)
     refiner=ResidualRefiner(dim=rr['identity']['dim']).cuda();refiner.load_state_dict(rr['model'],strict=True)
     labelid=helpers.read(a.labels/'identity.json');cacheid=helpers.read(a.cache/'identity.json')
+    for record in (pp,rr):
+        if record['identity']['anchor_identity']!=anchor['identity'] or record['identity']['query_config']!=labelid['query_config']:
+            raise ValueError('Different frozen foundation or query contract')
     policy=runtime.FrozenVLAConsequenceRefiner(model,refiner,predictor,query_config=QueryConfig(**labelid['query_config'])).eval()
     data=ForesightCurrentDataset(anchor['data'][cacheid['split']]['current_root']);lookup={r['token']:i for i,r in enumerate(data.index)}
     rows=[]
@@ -59,7 +63,7 @@ def main():
             torch.cuda.synchronize();elapsed=time.monotonic()-started
             current=ModelInputs(f['H_A'][i:i+1].cuda().float(),f['W'][i:i+1].cuda().float(),
                 f['q0_encoded'][i:i+1,0].cuda(),f['q0'][i:i+1,0].cuda(),f['state'][i:i+1].cuda(),l['body'][i:i+1].cuda())
-            queries=PredictionQueries(l['poses'][i:i+1,0].cuda(),torch.arange(1,9,device='cuda')*.5,
+            queries=PredictionQueries(l['poses'][i:i+1,0].cuda(),torch.arange(1,current.q0.shape[1]+1,device='cuda')*.5,
                 l['in_grid'][i:i+1,0].cuda(),l['kinematic_valid'][i:i+1,0].cuda())
             with torch.no_grad():
                 relations=predicted_relations(predictor(current,queries));final=decode_ego(refiner.camera_only(current,queries,relations))
@@ -67,6 +71,7 @@ def main():
                 torch.testing.assert_close(getattr(current,name),getattr(online['inputs'],name),rtol=0,atol=0)
             torch.testing.assert_close(queries.poses,online['queries'].poses,rtol=0,atol=0)
             torch.testing.assert_close(queries.in_grid,online['queries'].in_grid,rtol=0,atol=0)
+            torch.testing.assert_close(queries.kinematic_valid,online['queries'].kinematic_valid,rtol=0,atol=0)
             torch.testing.assert_close(final,online['q_final'],rtol=1e-6,atol=1e-6)
             rejected=0
             for key in ('ego','gt_map','future_valid','relations','occupancy'):
