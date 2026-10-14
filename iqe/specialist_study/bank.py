@@ -211,8 +211,15 @@ def trajectory_variants(physical,dt,current_speed=None,diagnostics=None):
 def unscored_rich_column(config,module,scenes,expert_id,device):
     """Keep the existing 32-scene generation order; screen duplicates before labels."""
     module.eval();identity=module_hash(module);cache=ReusedContext(config);candidates=[]
+    from .rich_precompute import column, batch
+    precomputed=column(config,expert_id,identity,scenes)
     for start in range(0,len(scenes),32):
         sub=scenes[start:start+32]
+        if precomputed is not None:
+            p,item=precomputed
+            rows,_=batch(config,p,item,sub,start//32,module,device,cache)
+            candidates+=rows
+            continue
         physical=module(cache.batch(sub,device)).physical.cpu().numpy()
         with ThreadPoolExecutor(max_workers=4) as workers:
             candidates+=list(workers.map(lambda pair:save_candidate(config,pair[0],expert_id,identity,pair[1]),zip(sub,physical)))

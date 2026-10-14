@@ -11,10 +11,14 @@ def check(config,command):
     policy=read_json(path);host=socket.gethostname()
     allowed={name for name in policy['allowed_hosts']}
     for item in policy['allowed_hosts'].values():allowed.update(item.get('aliases',[]))
-    require(host in allowed,'host forbidden by current server dispatch policy: '+host)
+    temporary=None
+    if host not in allowed:
+        from .temporary_lease import authorization
+        temporary=authorization(policy,host,command)
     if command in ('train-expert-cell','train-scorer-cell','cache-score-context','prepare-context-source','run-specialist-scorer-study'):
         require(not host.startswith('training-vla-zt2-') and host!='training-vla-zt2','Base training host is reserved')
     receipt={'hostname':host,'policy_hash':file_hash(path),'command':command,'CUDA_VISIBLE_DEVICES':os.environ.get('CUDA_VISIBLE_DEVICES'),
              'no_other_process_signals':True}
+    if temporary:receipt['temporary_lease_id']=temporary['authorization_id'];receipt['expires_unix']=temporary['expires_unix']
     atomic_json(config.root/'runtime_resource_checks'/(command+'_'+host+'.json'),receipt)
     return receipt

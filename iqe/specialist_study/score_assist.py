@@ -42,6 +42,8 @@ def run(config_path, worker, workers, deadline_hours):
     require(0 <= worker < workers <= 16 and 0 < deadline_hours <= 36, 'bounded CPU helper allocation required')
     config = load_config(config_path)
     check(config, 'cooperative-official-scoring')
+    from .temporary_lease import active_lease, can_admit, record_boundary
+    lease = active_lease('cooperative-official-scoring')
     folder = config.root / 'runtime/cooperative_scoring' / socket.gethostname()
     folder.mkdir(parents=True, exist_ok=True)
     name = f'helper_{worker}_of_{workers}'
@@ -56,10 +58,14 @@ def run(config_path, worker, workers, deadline_hours):
             'worker_code_hash': file_hash(score_worker.__file__), 'config_hash': config.identity,
             'official_numeric_function_changed': False, 'legacy_jobs_excluded': True})
         while time.monotonic() < deadline:
+            if lease and (not can_admit(lease) or not record_boundary(lease)):
+                atomic_json(folder / (name + '.STATUS.json'), {'status': 'LEASE_DRAINED', **totals})
+                return
             paths = sorted((config.root / 'scoring_jobs').glob('*/COOPERATIVE_PROTOCOL.json'),
                            key=lambda p: p.stat().st_mtime_ns)
             activity = False
             for marker in paths:
+                if lease and not can_admit(lease):break
                 path = marker.parent / 'JOB.json'
                 key = str(path)
                 if key in processed:
@@ -80,6 +86,10 @@ def run(config_path, worker, workers, deadline_hours):
                 start = time.monotonic()
                 done = failed = skipped_failed = 0
                 for item in todo:
+                    if not record_boundary(lease):
+                        atomic_json(folder / (name + '.STATUS.json'), {'status': 'LEASE_DRAINED', 'job': key,
+                                    'job_done_before_boundary': done, **totals})
+                        return
                     response = Path(item['response'])
                     # Helpers do not revisit prior failed attempts. Primary
                     # retry and error policy remain authoritative and visible.
