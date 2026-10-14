@@ -104,12 +104,12 @@ def evaluate_final(config,device='cuda:0'):
     # Read the already fitted D_S only after choices and final dev predictions
     # are locked. This separates training fit from heldout selection failure;
     # it cannot change a checkpoint, pool, margin or optimizer.
-    fit_meta,fit_bank,fit_pred=predict(config,m,'scorer_fit',device)
-    fit_metrics=metrics(fit_bank['scores'],fit_bank['components'],
-                        select(fit_pred,fit_bank['valid'],expert_ids=fit_meta['provenance']['sources']),
-                        fit_meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+    from .diagnostics import scorer_fit
+    fitted=scorer_fit(config,chosen,device)
+    fit_metrics=fitted['metrics']
     fit_diagnostic={'cell':chosen,'scope':'entire_fixed_D_S_after_selection_lock','metrics':fit_metrics,
-                    'bank_hash':fit_meta['hash'],'checkpoint_hash':selection['selected']['checkpoint_hash'],
+                    'bank_hash':fitted['bindings']['bank_hash'],'checkpoint_hash':selection['selected']['checkpoint_hash'],
+                    'read_only_cell_diagnostic':file_hash(config.root/'scorers'/chosen/'FULL_FIT_DIAGNOSTIC.json'),
                     'selection_lock_hash':file_hash(config.root/'FINAL_EVALUATION_LOCK.json'),
                     'optimizer_updates':0,'used_for_checkpoint_or_recipe_selection':False}
     atomic_json(config.root/'SCORER_FIT_DIAGNOSTIC.json',fit_diagnostic,immutable=True)

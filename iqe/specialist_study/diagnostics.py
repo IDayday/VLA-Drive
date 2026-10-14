@@ -14,6 +14,51 @@ from .metrics import metrics
 from iqe.internal_baseline.bank import COMPONENTS
 
 
+def scorer_fit(config, cell, device='cuda:0'):
+    """Read the fixed D_S after that cell's endpoint is closed, with no updates."""
+    from .bank import load_bank
+    from .scorer_training import selected_scorer, predict
+    from .objectives import pair_population
+    from .metrics import report_metrics, select
+    from iqe.io import lock
+    from .resource_guard import check
+    check(config, 'diagnose-completed-scorer-fit')
+    folder=config.root/'scorers'/cell
+    result=read_json(folder/'result.json')
+    require(result['status']=='COMPLETE' and result['optimizer_steps']==6000,
+            'fit diagnosis needs a completed fixed-budget cell')
+    meta,bank=load_bank(config,'deploy','scorer_fit')
+    bindings={'cell':cell,'Base_binding_hash':file_hash(config.root/'BASE_BINDING.json'),
+        'bank_hash':meta['hash'],'checkpoint_hash':file_hash(folder/'best.pt')}
+    require(bindings['checkpoint_hash']==result['best_checkpoint_hash'],'fit endpoint changed')
+    output=folder/'FULL_FIT_DIAGNOSTIC.json'
+    with lock(folder/'FIT_DIAGNOSTIC.lock'):
+        if output.exists():
+            previous=read_json(output)
+            require(previous['bindings']==bindings,'fit diagnosis dependencies changed')
+            return previous
+        model=selected_scorer(config,cell,device)
+        _,_,pred=predict(config,model,'scorer_fit',device)
+        stats=report_metrics(bank['scores'],bank['components'],
+            select(pred,bank['valid'],expert_ids=meta['provenance']['sources']),meta['source_logs'],
+            seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+        pair,weight=pair_population(bank['scores'],bank['comparison_valid'])
+        pair_fit={'valid_pairs':len(pair),'gap_weighted_accuracy':None}
+        if len(pair):
+            x,i,j=pair.T
+            correct=(pred[x,i]-pred[x,j])*(bank['scores'][x,i]-bank['scores'][x,j])>0
+            pair_fit['gap_weighted_accuracy']=float(np.dot(weight,correct)/weight.sum())
+        error=np.abs(pred-bank['scores'])
+        smooth=np.where(error<.1,error**2/.2,error-.05)
+        natural_value=float(((smooth*bank['valid']).sum(1)/bank['valid'].sum(1)).mean())
+        report={'bindings':bindings,'scope':'entire_fixed_D_S','metrics':stats,'pair_fit':pair_fit,
+            'natural_scene_SmoothL1_beta_0_1':natural_value,'optimizer_updates':0,
+            'new_training_run':False,'used_for_checkpoint_or_recipe_selection':False,
+            'external_scorer_weights_loaded':False,'stage_val_dev_cal_test_read':False}
+        atomic_json(output,report,immutable=True)
+        return report
+
+
 @torch.no_grad()
 def target_il(config, module, scenes, cache, target_kind, device):
     optimized = None
