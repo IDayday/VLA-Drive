@@ -331,6 +331,15 @@ class FlowmatchingActionHead(nn.Module):
 
     def predict_velocity(self, actions, timesteps_tensor, projected_condition):
         """Differentiable velocity; condition has ALREADY passed qwen_proj once."""
+        return self.predict_velocity_with_hidden(actions, timesteps_tensor, projected_condition)[0]
+
+    def predict_velocity_with_hidden(self, actions, timesteps_tensor, projected_condition):
+        """Return velocity and the same DiT pass's final pre-decoder action states.
+
+        Existing velocity/ODE/SFT callers keep identical operations and weights.
+        The auxiliary exploration policy consumes [B, action_horizon, H_dit];
+        H_dit is the actual DiT output width, not a hardcoded model size.
+        """
         action_features = self.action_encoder(actions, timesteps_tensor)
         if self.config.add_pos_embed:
             pos_ids = torch.arange(action_features.shape[1], device=actions.device)
@@ -338,7 +347,7 @@ class FlowmatchingActionHead(nn.Module):
         output = self.model(hidden_states=action_features,
                             encoder_hidden_states=projected_condition,
                             timestep=timesteps_tensor, return_all_hidden_states=False)
-        return self.action_decoder(output)
+        return self.action_decoder(output), output
 
     def forward(self, vl_embs, actions, video_token=None, state=None,
                 global_scene_tokens=None, explicit_randomness=None):
