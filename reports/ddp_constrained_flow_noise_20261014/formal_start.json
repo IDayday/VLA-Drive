@@ -1,0 +1,104 @@
+{
+  "status": "FORMAL_TRAINING_IN_PROGRESS",
+  "observed_utc": "2026-10-14T07:19:24.220442+00:00",
+  "source_training_commit": "8275f6b06878fba3f082d2ac213ca70557c21753",
+  "training_seed": 42,
+  "ODE_evaluation_seed": 2101,
+  "formal_outcome_available": false,
+  "TRAIN_scenes": 101592,
+  "raw_exposures_per_variant": 203184,
+  "new_training_candidates_per_variant": 3250944,
+  "variants": {
+    "C_SDE": {
+      "host": "training-vlawm-tsinghua-zt3",
+      "pid": 414805,
+      "started_UTC": "2026-10-14T07:05:51.074362+00:00",
+      "run_identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "budget_file_sha256": "2b00f02f1745f3694ff07a2d231a2eca199b9e49aaa3f7edd629c9a57c9a6e72",
+      "metric_manifest_file_sha256": "62475b55e2b0b404ddcefd70b70d08acfed47d66ca91f76456ec486f8777ef51",
+      "common_completed_updates": 26,
+      "raw_exposure": 320,
+      "accepted_exposure": 208,
+      "LR": [
+        5.249343832020997e-08
+      ],
+      "lambda_snapshot": [
+        1.0,
+        0.8845115303993225,
+        0.9796193242073059,
+        3.1013041734695435e-06,
+        0.14240099489688873
+      ],
+      "initial_checkpoint_exists": true,
+      "initial_stochastic_monitor": {
+        "scenes": 128,
+        "candidates": 2048,
+        "PDMS_mean": 0.917720924237896,
+        "joint_safe_candidate_rate": 0.97607421875,
+        "zero_PDMS_advantage_groups": 39,
+        "all_zero_PDMS_groups": 0,
+        "zero_final_advantage_groups": 24,
+        "progress_only_official_reward_groups": 78,
+        "official_safety_cost_varies_groups": 11,
+        "geometric_cost_varies_groups": 53,
+        "pairwise_ADE_mean_m": 0.13413407048210502,
+        "request_second_difference_mean_m": 0.23777539044385776
+      }
+    },
+    "N_FLOW_NOISE": {
+      "host": "training-vlawm-tsinghua-zt4",
+      "pid": 3935539,
+      "started_UTC": "2026-10-14T07:05:53.414236+00:00",
+      "run_identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "budget_file_sha256": "2b00f02f1745f3694ff07a2d231a2eca199b9e49aaa3f7edd629c9a57c9a6e72",
+      "metric_manifest_file_sha256": "62475b55e2b0b404ddcefd70b70d08acfed47d66ca91f76456ec486f8777ef51",
+      "common_completed_updates": 36,
+      "raw_exposure": 448,
+      "accepted_exposure": 288,
+      "LR": [
+        7.349081364829395e-08,
+        7.349081364829395e-08
+      ],
+      "lambda_snapshot": [
+        1.0,
+        0.8385492563247681,
+        1.0391074419021606,
+        0.0,
+        0.16689713299274445
+      ],
+      "initial_checkpoint_exists": true,
+      "initial_stochastic_monitor": {
+        "scenes": 128,
+        "candidates": 2048,
+        "PDMS_mean": 0.9185948219328105,
+        "joint_safe_candidate_rate": 0.97607421875,
+        "zero_PDMS_advantage_groups": 37,
+        "all_zero_PDMS_groups": 0,
+        "zero_final_advantage_groups": 23,
+        "progress_only_official_reward_groups": 79,
+        "official_safety_cost_varies_groups": 12,
+        "geometric_cost_varies_groups": 52,
+        "pairwise_ADE_mean_m": 0.1800362397916615,
+        "request_second_difference_mean_m": 0.3712963943835348
+      }
+    }
+  },
+  "complete_assets": {
+    "count": 101592,
+    "condition_identity_sha256": "80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0b",
+    "protocol_sha256": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "sha256": "51f04cab23a0714d67e50d0dd2aa64f8ce18230f061d61c77f293f5491c227aa",
+    "metric_hash_workers": 8,
+    "metric_verification_wall_seconds": 290.0768817141652,
+    "metric_verification_CPU_seconds": 672.238149262
+  },
+  "cache_disk_observation": {
+    "utc": "2026-10-14T06:31:29Z",
+    "method": "du -sh; allocated filesystem bytes rounded to binary display units",
+    "corrected_condition_cache": "3.9G",
+    "new_v1_metric_cache": "31G",
+    "reused_old_v1_cache_directory": "2.8G",
+    "scope": "Directory observations; old cache is shared with preserved historical assets, not an additional upload or a duplicated new cache. Weights, behavior chains and checkpoints excluded."
+  },
+  "interpretation": "Initial stochastic monitor precedes learning and is not ODE deployment. Early warmup updates are execution evidence, not method efficacy. Formal DEV and Navtest outcomes remain pending."
+}

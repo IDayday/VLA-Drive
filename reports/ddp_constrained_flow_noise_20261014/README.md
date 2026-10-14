@@ -2,8 +2,10 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Status: core and real-learning acceptance passed; two formal launchers queued
-behind complete cache sealing. No formal training result yet.
+Status at 2026-10-14 07:19 UTC: both full-budget formal runs are performing
+real updates. Core and real-learning acceptance passed; all 101,592 TRAIN
+condition and canonical metric assets are sealed. Formal ODE outcomes remain
+pending. [Run-start snapshot](formal_start.json).
 
 The only formal comparisons are legacy correlated, score-corrected `C_SDE`
 and diagonal learned `N_FLOW_NOISE`. Both retain the complete 359-tensor DDP
@@ -21,7 +23,7 @@ chunk 1/16, including the original inference call. Identity:
 `80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0b`.
 An earlier qualification attempt failed because the launch environment lacked
 the deterministic CuBLAS setting; its evidence is preserved. Full TRAIN cache
-generation and missing canonical v1.1 metric-cache production are running.
+generation and missing canonical v1.1 metric-cache production are complete.
 
 The 34 targeted core/runtime/diagnostic tests passed on the authorized Tsinghua zt4 host. They cover
 upstream outputs/gradients, time/sign conversion, densities, KL and sigma
@@ -218,3 +220,49 @@ candidate metrics and original ODE DEV metrics occupy separate tables/panels.
 A first reporting smoke encountered the legacy C_SDE log's absent entropy
 field; this is now retained as unavailable rather than filled with zero.
 Covariance-aware C_SDE entropy remains available in its real monitor summary.
+
+Both formal jobs started at 07:05 UTC on the assigned eight-GPU hosts and
+completed the fresh 128-scene initial monitor, initial atomic recovery point,
+and genuine on-policy actor updates. At the 07:19 snapshot, all eight ranks
+had completed 26 C_SDE updates (320 raw / 208 accepted scenes) and 36
+N_FLOW_NOISE updates (448 raw / 288 accepted scenes). Different collection
+boundaries and shared-host speeds are recorded rather than treated as equal
+update budgets. Both continue toward the same 203,184 raw-scene endpoint.
+No post-update formal DEV point is available yet; the first is raw 25,398.
+
+Full-cache publication has content fingerprint
+`51f04cab23a0714d67e50d0dd2aa64f8ce18230f061d61c77f293f5491c227aa`.
+Every condition payload was loaded/validated and every metric payload's SHA
+was verified. The last metric-only verification used eight bounded reader
+threads and took 290.08 seconds. Earlier serial reading, its elapsed cost and
+source are preserved; only that owned read-only finalizer was restarted after
+the complete condition seal existed. No cache content, training source,
+calibration value or numerical execution setting changed. Measured allocated
+directory sizes are approximately 3.9 GiB for corrected conditions, 31 GiB for
+new v1 caches, and 2.8 GiB for the shared preserved old v1 cache directory.
+
+The independent fixed TRAIN monitor at **zero actor updates** gives the
+following starting stochastic policies. These 128 scenes are separate from
+the calibration set, and this table is not DEV or deployed ODE performance:
+
+| Initial policy | Stochastic PDMS (0–100) | Joint safety pass | Zero final-A groups | Pairwise ADE (m) | Mean XY second difference (m) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| C_SDE | 91.7721 | 97.6074% | 24/128 | 0.1341 | 0.2378 |
+| N_FLOW_NOISE | 91.8595 | 97.6074% | 23/128 | 0.1800 | 0.3713 |
+
+Higher initial diversity includes additional jitter and does not establish
+useful exploration or a learned improvement. The actual run identities are
+`86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9`
+and `eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1`.
+The fixed-point original ODE DEV evaluations execute within each trainer;
+the separate `finish_registered` process waits for both valid endpoints before
+locking and running final Navtest. It never restarts training or changes a
+safety pause. The main goal remains incomplete until the actual endpoints,
+single-ODE evaluations and result analysis are delivered.
+
+The paired `compare_ode` adapter reuses sealed canonical scores and the
+existing log-cluster bootstrap. It has been run on the actual 1,696-scene
+qualification/SFT pair and reproduces the earlier +0.000342-point difference;
+this is marked qualification-only. Formal N_FLOW_NOISE minus C_SDE intervals
+will use paired scene differences, rather than subtraction of two separate
+confidence intervals.
