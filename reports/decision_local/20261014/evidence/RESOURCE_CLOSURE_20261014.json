@@ -1,0 +1,132 @@
+{
+  "schema": "decision_local_resource_closure_v1",
+  "user_instruction": "有时间限制的服务器不再使用，把结果push到仓库",
+  "checked_utc": "2026-10-14T23:08:59.964387+00:00",
+  "scope": "decision_local_consequence_learning_round1",
+  "time_limited_hosts_excluded": [
+    "training-vla-zt3",
+    "training-vlawm-zt",
+    "training-vlawm-zt3"
+  ],
+  "new_dispatch_allowed_on_time_limited_hosts": false,
+  "automatic_retry_allowed_on_time_limited_hosts": false,
+  "pressure_filler_restart_allowed_on_time_limited_hosts": false,
+  "policy_path": "/mnt/project/server_dispatch_policy.json",
+  "policy_sha256": "5006bd2070407a7a1dde293fd3bcb229fd1fcb97c85407247718149f6b38b2eb",
+  "policy_updated_utc": "2026-10-14T23:07:44.772223+00:00",
+  "shared_policy_already_revoked": true,
+  "shared_policy_rewritten_by_this_closure": false,
+  "temporary_grants_snapshot": {
+    "g-navtest-temporary-hosts-20261012T142543Z": {
+      "task": "structured_world_fgtr_round1",
+      "hosts": [],
+      "revoked_hosts_by_latest_scope": [
+        "training-vlawm-zt",
+        "training-vla-zt3"
+      ],
+      "admission_status": "REVOKED_FOR_OUT_OF_SCOPE_HOSTS",
+      "new_task_dispatch_allowed": false,
+      "starts_unix": 1791815143.361883,
+      "expires_unix": 1791847543.361883,
+      "revoked_utc": null,
+      "revocation_instruction": null
+    },
+    "iqe-navtest-temporary-hosts-20261012T142543Z": {
+      "task": "iqe_v1",
+      "hosts": [],
+      "revoked_hosts_by_latest_scope": [
+        "training-vlawm-zt",
+        "training-vla-zt3"
+      ],
+      "admission_status": "REVOKED_FOR_OUT_OF_SCOPE_HOSTS",
+      "new_task_dispatch_allowed": false,
+      "starts_unix": 1791815143.361883,
+      "expires_unix": 1791847543.361883,
+      "revoked_utc": null,
+      "revocation_instruction": null
+    },
+    "iqe-temporary-resources-20261014T150718Z": {
+      "task": "iqe_specialist_scorer_transfer_study_and_mopd",
+      "hosts": [
+        "training-vlawm-zt",
+        "training-vlawm-zt3",
+        "training-vla-zt3"
+      ],
+      "revoked_hosts_by_latest_scope": null,
+      "admission_status": "REVOKED_BY_USER_NO_FURTHER_USE",
+      "new_task_dispatch_allowed": false,
+      "starts_unix": 1791990438.0,
+      "expires_unix": 1792019238.0,
+      "revoked_utc": "2026-10-14T23:07:44.772223+00:00",
+      "revocation_instruction": "有时间限制的服务器不再使用"
+    },
+    "flow-temporary-resources-20261014T150718Z": {
+      "task": "flow_safe_improvement_20261013",
+      "hosts": [
+        "training-vlawm-zt",
+        "training-vlawm-zt3",
+        "training-vla-zt3"
+      ],
+      "revoked_hosts_by_latest_scope": null,
+      "admission_status": "REVOKED_BY_USER_NO_FURTHER_USE",
+      "new_task_dispatch_allowed": false,
+      "starts_unix": 1791990438.0,
+      "expires_unix": 1792019238.0,
+      "revoked_utc": "2026-10-14T23:07:44.772223+00:00",
+      "revocation_instruction": "有时间限制的服务器不再使用"
+    }
+  },
+  "decision_local_used_hosts": [
+    "training-vla-zt",
+    "training-rl-zt2",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "decision_local_used_time_limited_hosts": false,
+  "resource_guard_source": "tools/decision_local/common.py:check_host",
+  "resource_guard_sha256": "011db6a4b2c3912963a84d47b58b3b35c8dd0b0ba8b2eeb6944b787f8fac1763",
+  "process_checks": [
+    {
+      "host": "training-vla-zt-worker-0",
+      "checked_unix": 1792019304.008727,
+      "matching_decision_local_processes": [],
+      "permission_denied_process_count": 0,
+      "scope": "visible container processes only; no signals sent; unrelated processes omitted"
+    },
+    {
+      "host": "training-rl-zt2-worker-0",
+      "checked_unix": 1792019304.139958,
+      "matching_decision_local_processes": [],
+      "permission_denied_process_count": 0,
+      "scope": "visible container processes only; no signals sent; unrelated processes omitted"
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "checked_unix": 1792019304.1383896,
+      "matching_decision_local_processes": [],
+      "permission_denied_process_count": 0,
+      "scope": "visible container processes only; no signals sent; unrelated processes omitted"
+    }
+  ],
+  "process_checks_limit": "Visible container processes on this research round's three actual hosts only. No claim about unrelated jobs on withdrawn hosts; no SSH sessions opened to withdrawn hosts.",
+  "evaluation_observers_finished": {
+    "final_navtest_v1/evaluation_runtime_vla/FINISHED.json": {
+      "sha256": "2899b5b30deb239854dfece6f444c644ae744a41d134fbe5d56054b69fc735eb",
+      "pending": []
+    },
+    "final_navtest_v1/evaluation_runtime_rl/FINISHED.json": {
+      "sha256": "3363e1865cd727c4e91f4ee277d2872d542037d492d569147ce7de489fa2877d",
+      "pending": []
+    },
+    "final_navtest_v1/evaluation_runtime_tsg5/FINISHED.json": {
+      "sha256": "68f41322a6a8ebb07bcf1ca06f4e929ca9c9238f1b56f359b25e054557c51137",
+      "pending": []
+    }
+  },
+  "research_completion_sha256": "2d6cff9cb3cf7f98a317752bf74aa156e9bdb32b5ee576d3b65f53f078cd6811",
+  "process_signals_sent": [],
+  "new_research_or_pressure_work_started": false,
+  "G2_and_paused_research_unchanged": true,
+  "results_source_commit_before_closure": "c0f7c2fd26f0469f6da163e868469dc26860e44c",
+  "training_source_sha": "3c08240a20709b285966ce5b1dfd6d7d49be0d6c",
+  "datasets_caches_weights_retained_in_shared_storage": true
+}
