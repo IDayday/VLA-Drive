@@ -120,19 +120,22 @@ def score_candidates(config, scenes, candidates, job_name):
            "attempts_per_invocation": config.scoring_attempts}
     path = folder / "JOB.json"
     atomic_json(path, job, immutable=True)
+    workers = int(os.environ.get("IQE_OFFICIAL_SCORE_WORKERS", config.scoring_workers))
+    require(1 <= workers <= config.scoring_workers, "runtime scoring workers may only bound configured concurrency")
     repo = Path(__file__).resolve().parents[2]
     env = dict(os.environ, PYTHONPATH=str(repo), CUDA_VISIBLE_DEVICES="", OMP_NUM_THREADS="1", MKL_NUM_THREADS="1",
                OPENBLAS_NUM_THREADS="1", NUMEXPR_NUM_THREADS="1")
     def run(shard):
         with open(folder / f"worker_{shard}.log", "a") as log:
             return subprocess.run([config.scoring_python, "-m", "iqe.internal_baseline.score_worker", str(path),
-                                   "--shard", str(shard), "--shards", str(config.scoring_workers)],
+                                   "--shard", str(shard), "--shards", str(workers)],
                                   env=env, cwd=repo, stdout=log, stderr=log).returncode
     started = time.perf_counter()
-    with ThreadPoolExecutor(max_workers=config.scoring_workers) as pool:
-        codes = list(pool.map(run, range(config.scoring_workers)))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        codes = list(pool.map(run, range(workers)))
     atomic_json(folder/"STATUS.json", {"status": "COMPLETE" if not any(codes) else "PARTIAL", "codes": codes,
-                "wall_seconds": time.perf_counter()-started, "candidate_count": len(candidates), "workers": config.scoring_workers})
+                "wall_seconds": time.perf_counter()-started, "candidate_count": len(candidates), "workers": workers,
+                "configured_worker_limit": config.scoring_workers})
     require(not any(codes), "official label job incomplete; retry same command, inspect " + str(folder))
     records = []
     for item, candidate in zip(items, candidates):

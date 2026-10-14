@@ -130,6 +130,9 @@ def build_role(config,role,device):
 
 
 def build_deploy(config,device='cuda:0'):
+    if (config.root/'runtime/BANK_ROUTING.json').exists():
+        from .bank_parallel import build_parallel
+        return build_parallel(config)
     return {role:build_role(config,role,device) for role in ('scorer_fit','stage_val','selector_cal','dev_report')}
 
 

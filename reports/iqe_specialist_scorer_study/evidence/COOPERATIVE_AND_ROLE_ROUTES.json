@@ -1,0 +1,385 @@
+{
+  "at_unix": 1791964248.7790716,
+  "parent_commit": "3991eb6f3798558e0430ae5c29a9a8d1cbb8aa75",
+  "artifacts": {
+    "runtime/BANK_ROUTING.json": {
+      "Base_binding_hash": "19c22bfed0477389f817484be4fddbe66daaec429a85e9f7de50161437a3a2fd",
+      "config_hash": "b96a9aebec4f3d38130c69a12364a1c64fdba80c8895775a0babfcc852ffc1a7",
+      "deadline_hours": 20,
+      "roles": {
+        "dev_report": {
+          "gpu": 3,
+          "host": "training-vlawm-tsinghua-zt6",
+          "scoring_workers": 4
+        },
+        "scorer_fit": {
+          "gpu": 2,
+          "host": "training-vlawm-tsinghua-zt6",
+          "scoring_workers": 4
+        },
+        "selector_cal": {
+          "gpu": 4,
+          "host": "training-vlawm-tsinghua-zt5",
+          "scoring_workers": 4
+        },
+        "stage_val": {
+          "gpu": 1,
+          "host": "training-vlawm-tsinghua-zt5",
+          "scoring_workers": 4
+        }
+      },
+      "schema": "whole_role_bank_routing_v1"
+    },
+    "runtime/cooperative_scoring/ZT5_FOUR_HELPER_LAUNCH.json": {
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "started_unix": 1791963715.7784653,
+      "before": [
+        {
+          "job": "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/scoring_jobs/EXT_interaction_ema_adaba738784c_2dacb3228872",
+          "items": 1024,
+          "receipts": 1024
+        },
+        {
+          "job": "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/scoring_jobs/EXT_safe_progress_ema_9fd803ca77d4_78d5c10fb552",
+          "items": 1024,
+          "receipts": 1024
+        }
+      ],
+      "helpers": [
+        {
+          "pid": 18142,
+          "worker": 0,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "0",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18143,
+          "worker": 1,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "1",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18144,
+          "worker": 2,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "2",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18145,
+          "worker": 3,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "3",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        }
+      ],
+      "CPU_limit": 4,
+      "maximum_authorized": 16,
+      "scale_up_requires_measured_net_throughput": true,
+      "legacy_jobs_excluded": true,
+      "active_trainers_unmodified": true
+    },
+    "runtime/cooperative_scoring/ZT5_FOUR_HELPER_RETRY_2.json": {
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "started_unix": 1791963797.3387668,
+      "reason": "allow exact configured three attempts, no budget change; previous helpers refused before scoring",
+      "helpers": [
+        {
+          "pid": 18433,
+          "worker": 0,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "0",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18434,
+          "worker": 1,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "1",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18435,
+          "worker": 2,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "2",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        },
+        {
+          "pid": 18436,
+          "worker": 3,
+          "command": [
+            "/root/miniconda3/envs/navsim/bin/python",
+            "-u",
+            "-m",
+            "iqe.specialist_study.score_assist",
+            "--config",
+            "configs/iqe/specialist_scorer/study.yaml",
+            "--worker",
+            "3",
+            "--workers",
+            "4",
+            "--deadline-hours",
+            "12"
+          ]
+        }
+      ]
+    },
+    "runtime/bank_parallel/selector_cal/LAUNCH.json": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "iqe.specialist_study.bank_parallel",
+        "--config",
+        "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json",
+        "--role",
+        "selector_cal",
+        "--routing-hash",
+        "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+        "--wait-for-dispatch"
+      ],
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "pid": 19345,
+      "pool_dispatch_dependency": true,
+      "role": "selector_cal",
+      "route": {
+        "gpu": 4,
+        "host": "training-vlawm-tsinghua-zt5",
+        "scoring_workers": 4
+      },
+      "source_commit": "3991eb6f3798558e0430ae5c29a9a8d1cbb8aa75",
+      "started_unix": 1791964009.9757986
+    },
+    "runtime/bank_parallel/dev_report/LAUNCH.json": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "iqe.specialist_study.bank_parallel",
+        "--config",
+        "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json",
+        "--role",
+        "dev_report",
+        "--routing-hash",
+        "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+        "--wait-for-dispatch"
+      ],
+      "host": "training-vlawm-tsinghua-zt6-worker-0",
+      "pid": 9890,
+      "pool_dispatch_dependency": true,
+      "role": "dev_report",
+      "route": {
+        "gpu": 3,
+        "host": "training-vlawm-tsinghua-zt6",
+        "scoring_workers": 4
+      },
+      "source_commit": "3991eb6f3798558e0430ae5c29a9a8d1cbb8aa75",
+      "started_unix": 1791964011.34185
+    },
+    "runtime/bank_parallel/stage_val/LAUNCH.json": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "iqe.specialist_study.bank_parallel",
+        "--config",
+        "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json",
+        "--role",
+        "stage_val",
+        "--routing-hash",
+        "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+        "--wait-for-dispatch"
+      ],
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "pid": 19362,
+      "pool_dispatch_dependency": true,
+      "role": "stage_val",
+      "route": {
+        "gpu": 1,
+        "host": "training-vlawm-tsinghua-zt5",
+        "scoring_workers": 4
+      },
+      "source_commit": "3991eb6f3798558e0430ae5c29a9a8d1cbb8aa75",
+      "started_unix": 1791964011.215547
+    },
+    "runtime/bank_parallel/scorer_fit/LAUNCH.json": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "iqe.specialist_study.bank_parallel",
+        "--config",
+        "/mnt/project/iqe-specialist-scorer-study-20261014/base70k_v1/resolved_config.json",
+        "--role",
+        "scorer_fit",
+        "--routing-hash",
+        "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+        "--wait-for-dispatch"
+      ],
+      "host": "training-vlawm-tsinghua-zt6-worker-0",
+      "pid": 9898,
+      "pool_dispatch_dependency": true,
+      "role": "scorer_fit",
+      "route": {
+        "gpu": 2,
+        "host": "training-vlawm-tsinghua-zt6",
+        "scoring_workers": 4
+      },
+      "source_commit": "3991eb6f3798558e0430ae5c29a9a8d1cbb8aa75",
+      "started_unix": 1791964011.7264392
+    },
+    "runtime/bank_parallel/selector_cal/STATUS.json": {
+      "heartbeat_unix": 1791964231.8681808,
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "original_scene_order_and_generation_batches": true,
+      "pid": 19345,
+      "role": "selector_cal",
+      "route": {
+        "gpu": 4,
+        "host": "training-vlawm-tsinghua-zt5",
+        "scoring_workers": 4
+      },
+      "routing_hash": "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+      "started_unix": 1791964011.90078,
+      "status": "READY_WAITING_DISPATCH"
+    },
+    "runtime/bank_parallel/dev_report/STATUS.json": {
+      "heartbeat_unix": 1791964231.8679416,
+      "host": "training-vlawm-tsinghua-zt6-worker-0",
+      "original_scene_order_and_generation_batches": true,
+      "pid": 9890,
+      "role": "dev_report",
+      "route": {
+        "gpu": 3,
+        "host": "training-vlawm-tsinghua-zt6",
+        "scoring_workers": 4
+      },
+      "routing_hash": "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+      "started_unix": 1791964014.6109366,
+      "status": "READY_WAITING_DISPATCH"
+    },
+    "runtime/bank_parallel/stage_val/STATUS.json": {
+      "heartbeat_unix": 1791964231.8682218,
+      "host": "training-vlawm-tsinghua-zt5-worker-0",
+      "original_scene_order_and_generation_batches": true,
+      "pid": 19362,
+      "role": "stage_val",
+      "route": {
+        "gpu": 1,
+        "host": "training-vlawm-tsinghua-zt5",
+        "scoring_workers": 4
+      },
+      "routing_hash": "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+      "started_unix": 1791964012.7601635,
+      "status": "READY_WAITING_DISPATCH"
+    },
+    "runtime/bank_parallel/scorer_fit/STATUS.json": {
+      "heartbeat_unix": 1791964231.8679423,
+      "host": "training-vlawm-tsinghua-zt6-worker-0",
+      "original_scene_order_and_generation_batches": true,
+      "pid": 9898,
+      "role": "scorer_fit",
+      "route": {
+        "gpu": 2,
+        "host": "training-vlawm-tsinghua-zt6",
+        "scoring_workers": 4
+      },
+      "routing_hash": "8e5a61db2411bc2f7e3c399b67d078a5ad1d77787906d71b5072c240493bc830",
+      "started_unix": 1791964014.6274107,
+      "status": "READY_WAITING_DISPATCH"
+    }
+  },
+  "code_hashes": {
+    "iqe/internal_baseline/score_worker.py": "6bda2f16ac72b86097dba343b9a3952dd85b9f318db3a6c29163de838007923b",
+    "iqe/internal_baseline/bank.py": "8bc4656ded1529370af49de32a8b7e5e59ed753b59f384e10bc83d519a7d22b4",
+    "iqe/specialist_study/bank.py": "3c10960954add31366cb775756943cc1b011612b79efcfa2f11e581d4dcdf2eb",
+    "iqe/specialist_study/bank_parallel.py": "681fd0cf1b7dab9ec373e16d265ddbc5fed65e15250ad4c306ab073ef93c6dac",
+    "iqe/specialist_study/score_assist.py": "71dce9d8c9ccff63ff5ab94d7c149998f4b2765625ab2930c37b53bba01aefb6",
+    "iqe/specialist_study/context.py": "e84592ba40a063993045ab346d6b306a6697f2683af267e9bc7f421f6861a73a",
+    "iqe/specialist_study/training.py": "bd2f0acfdf15c277cca6f1bcd67029eb731e6ecb2919ef51cafca03fec0e0fe4"
+  },
+  "tests": "476 passed, 3 skipped, 4 warnings in 60.20s",
+  "measured_helper_throughput": "WAITING_NEXT_OFFICIAL_JOB",
+  "initial_helper_failure": "configured retry budget is3, first helper bound2 rejected before any work; corrected to accept existing3 without changing retry policy",
+  "frozen_capture_active_trainer_and_scientific_identities_unchanged": true
+}
