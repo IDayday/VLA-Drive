@@ -1,0 +1,21 @@
+{
+  "schema": "cfn_sparse_B1_numerical_repair_registration_v1",
+  "registered_utc": "2026-10-14T18:36:19.890707+00:00",
+  "source_sha256": "d6b6c6fdc49d3346c61d6559390eae4e3130742fa7a839cc0037a817a1fdfd86",
+  "variant": "C_SDE",
+  "native_checkpoint": "/mnt/project/constrained-flow-noise-20261014/C_SDE_ratio_failure_20261014T1609Z/replay_from_update1024/checkpoints/update001850_raw023184",
+  "numerical_change": "On the fresh first-inner group, replace only transitions whose flat current/recorded-old dimension-mean ratio error exceeds original 1e-4 with differentiable original B1 evaluation at the same saved state. Hold the selected indices fixed during inner2 and save per-rank choices in the native checkpoint.",
+  "original_guard_unchanged": 0.0001,
+  "clip_unchanged": 0.02,
+  "max_fallback_transitions_per_G16_K10_group": 8,
+  "excess_action": "Abort; never drop, clamp, alter old density or continue unbounded memory use",
+  "qualification": {
+    "values_gradients": "PASS: actual failure transition159; all359 full-head parameter gradients exactly match original B1",
+    "native": "Two collections/four updates from the recovered boundary; continuous versus first-inner interruption/resume; neither qualification branch initializes formal training",
+    "unit_tests": "5 passed in2.07s on authorized tsinghua-zt2"
+  },
+  "formal_resume": "Only after native qualification PASS, resume original recovered1850 state in a separately named continuation; original failed run and recovery remain untouched",
+  "original_scientific_budget_and_seed_unchanged": true,
+  "not_a_third_algorithm": true,
+  "not_bitwise_old_aborted_update": true
+}
