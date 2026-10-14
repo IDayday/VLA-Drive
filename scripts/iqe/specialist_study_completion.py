@@ -72,7 +72,7 @@ def main():
                 if len(complete) == len(required):
                     break
                 status = read_json(config.root / 'runtime/expert_matrix_driver/STATUS.json')
-                require(status.get('status') != 'FINISHED', 'expert matrix ended with incomplete cells')
+                require(status.get('status') not in ('FINISHED', 'FAILED'), 'expert matrix ended with incomplete cells')
             tick('WAITING_EXPERT_MATRIX', {'dependency': str(matrix_path)})
             time.sleep(30)
         run('evaluate-expert-matrix', args.gpus[0])
@@ -107,15 +107,14 @@ def main():
 
         rich = launch('build-rich-bank', args.gpus[1])
         semantic = launch('train-scorer-cell', args.gpus[0], '--cell', 'S00', *resume_args(config.root / 'scorers/S00'))
-        while not all((config.root / f'SPATIAL_CONTEXT_AUDIT_{shard}.json').exists() for shard in (0, 1)):
+        while not (config.root / 'SPATIAL_CONTEXT_COMPLETE.json').exists():
             require(rich.poll() in (None, 0) and semantic.poll() in (None, 0), 'bank/semantic training failed')
             tick('WAITING_SPATIAL_CACHE', {'semantic_pid': semantic.pid, 'rich_bank_pid': rich.pid})
             time.sleep(30)
-        for shard in (0, 1):
-            audit = read_json(config.root / f'SPATIAL_CONTEXT_AUDIT_{shard}.json')
-            require(audit['status'] == 'COMPLETE' and audit['labels_do_not_affect_context'], 'incomplete spatial cache')
-            require(all(row['world_max_abs'] <= 1e-5 and row['action_max_abs'] <= 1e-5 and row['raw_max_abs'] <= 1e-5
-                        for row in audit['numeric_comparison']), 'spatial extraction exceeds declared FP32 tolerance')
+        from iqe.specialist_study.context_parallel import verify as verify_spatial
+        topology = read_json(config.root / 'runtime/ACTIVE_SPATIAL_TOPOLOGY.json')
+        plan = read_json(topology['plan'])
+        verify_spatial(config, plan['topology'])
         spatial = launch('train-scorer-cell', args.gpus[2], '--cell', 'S10', *resume_args(config.root / 'scorers/S10'))
         wait(rich, 'RICH_BANK')
         semantic_rich = launch('train-scorer-cell', args.gpus[1], '--cell', 'S01', *resume_args(config.root / 'scorers/S01'))

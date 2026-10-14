@@ -147,10 +147,26 @@ def train_scorer(config,cell,device='cuda:0',resume=None,stop_after=None):
               validate=None if diagnostic else validation,seed=config.seed+20,denominator_function=denominators,
               weights={'value':recipe['value_weight'],'components':recipe['components_weight'],'ranking':recipe['ranking_weight']})
         result=read_json(folder/'result.json')
+        import json
+        history={}
+        with open(folder/'steps.jsonl') as stream:
+            for line in stream:
+                row=json.loads(line);history[row['optimizer_step']]=row
+        natural_candidates=pair_candidates=padded_forward_candidates=0
+        for step,row in history.items():
+            phase1=not diagnostic and step<=recipe['phase_switch_step']
+            source=rich if phase1 and CELLS[actual]['rich'] else deploy
+            natural_count=128 if phase1 or sampler.q is None else 64
+            for sid in row['sample_ids'][:natural_count]:natural_candidates+=int(source['valid'][index[sid]].sum())
+            pair_candidates+=(128-natural_count)*2
+            padded_forward_candidates+=len(row['sample_ids'])*max(source['scores'].shape[1],2)
         result.update(external_scorer_weights_loaded=False,training_scene_role='D_S_only',VLM_calls=0,
                       unique_scenes=len(scenes),natural_consumed=sampler.natural_consumed,comparison_consumed=sampler.comparison_consumed,
                       training_phase=1 if sampler.step<recipe['phase_switch_step'] else 2,sampler_identity=sampler.identity,
-                      generation_parameters_present=False,scorer_new_parameters=identity['parameter_count'])
+                      generation_parameters_present=False,scorer_new_parameters=identity['parameter_count'],
+                      natural_seed=config.seed+10,comparison_seed=config.seed+11,training_rng_seed=config.seed+20,
+                      supervised_natural_candidate_exposures=natural_candidates,
+                      ranking_candidate_exposures=pair_candidates,padded_forward_candidate_exposures=padded_forward_candidates)
         atomic_json(folder/'SCORER_TRAINING_REPORT.json',result)
         if diagnostic:
             module.eval();x=fetch(sampler.peek(128),device)
