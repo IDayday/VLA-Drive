@@ -267,6 +267,9 @@ def benchmark(config,device='cuda:0'):
                 'mean_seconds':float(np.mean(elapsed)),'p50_seconds':float(np.median(elapsed)),
                 'p95_seconds':float(np.quantile(elapsed,.95)),'measurements':len(elapsed),'warmup':3,'batch':1,
                 'scorer_p50_seconds':float(np.median(scorer_times[3:])) if scorer_times else 0.,
+                'scorer_mean_seconds':float(np.mean(scorer_times[3:])) if scorer_times else 0.,
+                'scorer_p95_seconds':float(np.quantile(scorer_times[3:],.95)) if scorer_times else 0.,
+                'scorer_measurements':len(scorer_times[3:]) if scorer_times else 0,
                 'GPU_peak_bytes':torch.cuda.max_memory_allocated() if str(device).startswith('cuda') else None,
                 'visual_calls':1,'language_calls':1,'score_context_projection_calls':int(score),'independent_Decoder_calls':n+1,
                 'device':str(device),'online_image_decode_included':True,'timing_hooks_enabled_in_all_conditions':True})
@@ -274,6 +277,11 @@ def benchmark(config,device='cuda:0'):
     # All private weights restored strictly; independent process command is in RUNBOOK.
     result={'rows':rows,'hardware':torch.cuda.get_device_name() if str(device).startswith('cuda') else 'CPU',
         'Base_parameters':sum(p.numel() for p in adapter.parameters()),'expert_parameters':[sum(p.numel() for p in m.parameters()) for m in experts],
+        'original_VLM_parameters':sum(p.numel() for p in adapter.framework.qwen_vl_interface.parameters()),
+        'Base_action_model_parameters':sum(p.numel() for p in adapter.framework.action_model.parameters()),
+        'expert_action_branch_parameters':[sum(p.numel() for p in m.expert.parameters()) for m in experts],
+        'expert_private_reader_parameters':[sum(p.numel() for name,p in m.named_parameters()
+                                                if not name.startswith('expert.')) for m in experts],
         'scorer_parameters':scorer_parameters,'bundle':str(bundle),'runtime':'locked Base original inference precision'}
     atomic_json(config.root/'LATENCY_AND_PARAMETER_REPORT.json',result,immutable=True)
     # Check an independently loaded process against the current in-memory model.
