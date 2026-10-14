@@ -1,0 +1,81 @@
+{
+  "schema": "cfn_live_raw_exposure_speed_v1",
+  "observed_utc": "2026-10-14T18:49:17.182660+00:00",
+  "runs": [
+    {
+      "run": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1",
+      "all_rank_complete_update": 3212,
+      "collection": 1605,
+      "raw_exposure": 40086,
+      "accepted_exposure": 25684,
+      "raw_budget": 203184,
+      "remaining_raw": 163098,
+      "completion_fraction": 0.19728915662650603,
+      "max_rank_log_age_seconds": 5.456243991851807,
+      "windows": [
+        {
+          "collections": 16,
+          "first_collection": 1590,
+          "last_collection": 1605,
+          "raw_scenes": 408,
+          "candidate_scores": 6528,
+          "wall_seconds": 162.0,
+          "raw_scenes_per_second": 2.5185185185185186,
+          "candidate_scores_per_second": 40.2962962962963,
+          "median_critical_rank_update_seconds": 1.9393868679180741,
+          "projected_remaining_training_hours": 17.98875
+        },
+        {
+          "collections": 32,
+          "first_collection": 1574,
+          "last_collection": 1605,
+          "raw_scenes": 800,
+          "candidate_scores": 12800,
+          "wall_seconds": 318.0,
+          "raw_scenes_per_second": 2.5157232704402515,
+          "candidate_scores_per_second": 40.25157232704402,
+          "median_critical_rank_update_seconds": 1.9405391672626138,
+          "projected_remaining_training_hours": 18.0087375
+        },
+        {
+          "collections": 64,
+          "first_collection": 1542,
+          "last_collection": 1605,
+          "raw_scenes": 1600,
+          "candidate_scores": 25600,
+          "wall_seconds": 635.0,
+          "raw_scenes_per_second": 2.5196850393700787,
+          "candidate_scores_per_second": 40.31496062992126,
+          "median_critical_rank_update_seconds": 1.9413723954930902,
+          "projected_remaining_training_hours": 17.980421875
+        }
+      ]
+    },
+    {
+      "run": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1_probability_repair",
+      "all_rank_complete_update": 1888,
+      "collection": 943,
+      "raw_exposure": 23648,
+      "accepted_exposure": 15100,
+      "raw_budget": 203184,
+      "remaining_raw": 179536,
+      "completion_fraction": 0.11638711709583431,
+      "max_rank_log_age_seconds": 5.7634618282318115,
+      "windows": [
+        {
+          "collections": 16,
+          "first_collection": 928,
+          "last_collection": 943,
+          "raw_scenes": 392,
+          "candidate_scores": 6272,
+          "wall_seconds": 270.0,
+          "raw_scenes_per_second": 1.451851851851852,
+          "candidate_scores_per_second": 23.22962962962963,
+          "median_critical_rank_update_seconds": 3.3023092476651073,
+          "projected_remaining_training_hours": 34.349999999999994
+        }
+      ]
+    }
+  ],
+  "limitations": "Read-only throughput, not a matched speed guarantee. Uses archive-to-archive wall intervals, not summed overlapping timers. Intervals contain preceding updates and subsequent collection; boundary work differs by one collection. Future checkpoint/evaluation costs and safety/numerical pauses are not predicted by the pure-training ETA. Process liveness must be inspected separately; old result files are not a live status source."
+}

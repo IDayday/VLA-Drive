@@ -2,7 +2,20 @@
 
 Source start: `6edb05d576b40a9718421e86c06d560f184a11c6`.
 Branch: `feature/ddp-learned-noise-constrained-grpo-20261014`.
-Execution update at 2026-10-14 18:12 UTC: existing batch-PDMS code has been
+Execution update at **2026-10-14 18:49 UTC**: **both formal lines are running**.
+C resumed its complete recovered update1850 state after a targeted numerical
+repair passed real-density/full-head-gradient and eight-rank inner-resume
+qualification. It has now completed update1888 / raw23648; no restart from SFT
+was needed. N is at update3212 / raw40086. Current complete-collection throughput
+is N **2.52 raw scenes/s** (about 2.37x its earlier window) and C **1.45/s**
+(about 1.97x). Remaining pure training is approximately **18h / 34.4h**;
+including saves and evaluation, provision **20–24h / 36–40h** under current
+throughput. C's estimate uses only its first 16 steady-state collections and
+will need a longer observation. These are observed windows, not paired speed
+guarantees or driving-performance results.
+[Measured speed, C recovery, costs and actual commands](progress_speed_recovery_20261014.md).
+
+Earlier execution update at 2026-10-14 18:12 UTC: existing batch-PDMS code has been
 adapted and deployed to N_FLOW_NOISE from its complete native update2722 /
 raw33958 checkpoint. All eight ranks have continued through update2774 /
 raw34606. Batch simulation retains independent canonical reference/candidate
