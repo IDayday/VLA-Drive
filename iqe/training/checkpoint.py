@@ -122,4 +122,9 @@ def load_checkpoint(path, module, optimizer, scheduler, scaler, sampler, depende
         scaler.load_state_dict(state["scaler"])
     sampler.load_state_dict(state["sampler"])
     restore_rng(state["rng_by_rank"][rank])
-    return {"step": state["optimizer_step"], "consumed_ids": state["consumed_sample_ids"], "resume_mode": "EXACT_OPTIMIZER_BOUNDARY", "trainer_state": state.get("trainer_state", {})}
+    changed = state.get('data_transition', {}).get('distribution_changed', False)
+    if changed:
+        require(state['data_transition']['hash'] == dependencies.get('expert_data_transition'), 'unbound data transition')
+    return {"step": state["optimizer_step"], "consumed_ids": state["consumed_sample_ids"],
+            "resume_mode": "STATE_PRESERVING_DATA_TRANSITION" if changed else "EXACT_OPTIMIZER_BOUNDARY",
+            "data_distribution_changed": changed, "trainer_state": state.get("trainer_state", {})}

@@ -175,7 +175,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
             require(entries, "sampling plan exhausted before optimizer budget")
             if resume and step == start_step and rank == 0:
                 from .resume import record_next_batch
-                record_next_batch(output, entries, exact=not non_exact_finetune)
+                record_next_batch(output, entries, exact=not non_exact_finetune and not restored.get('data_distribution_changed', False))
             # True tail counts, including empty ranks, are handled by fetch's padded/masked sentinel.
             mine = entries[rank::world]
             target_local_count = math.ceil(len(entries) / world)
@@ -302,6 +302,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                            "parameter_hash_before": before, "parameter_hash_after": after,
                            "elapsed_seconds": time.perf_counter() - start, "GPU_seconds": (time.perf_counter() - start) * world if device.startswith("cuda") else 0,
                            "actual_global_batch": global_batch, "resume_boundary": "optimizer_step",
+                           "resume_mode": restored.get('resume_mode') if resume else None,
                            "checkpoint": str(resume if step == start_step else output / f"step_{step:06d}.pt"), "best_selection_key": best,
                            "best_checkpoint_hash":file_hash(output / "best.pt")})
                 complete_result(output)

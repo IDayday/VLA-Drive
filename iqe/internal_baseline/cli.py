@@ -7,12 +7,15 @@ from .config import load_config
 def main():
     p = argparse.ArgumentParser(description="Own expert + randomly initialized internal W/A scorer; no navtest or release")
     sub = p.add_subparsers(dest="command", required=True)
-    for name in ("bind-base", "cache-features", "build-hard-set", "revise-hard-set", "train-expert", "build-pair-bank", "train-scorer", "evaluate", "diagnostics", "audit-online", "export-bundle", "benchmark", "run"):
+    for name in ("bind-base", "cache-features", "build-hard-set", "revise-hard-set", "revise-positive-gain", "train-expert", "build-pair-bank", "train-scorer", "evaluate", "diagnostics", "audit-online", "export-bundle", "benchmark", "run"):
         s = sub.add_parser(name)
         s.add_argument("--config", required=True)
         if name == "revise-hard-set":
             s.add_argument("--threshold", type=float, choices=(.8, .85, .9), required=True)
             s.add_argument("--revision-id", required=True)
+        if name == "revise-positive-gain":
+            s.add_argument("--revision-id", required=True)
+            s.add_argument("--parent-checkpoint", required=True)
         if name == "cache-features":
             s.add_argument("--shard", type=int, default=0)
             s.add_argument("--shards", type=int, default=1)
@@ -54,6 +57,9 @@ def main():
         elif args.command == "revise-hard-set":
             from .expert_data_revision import revise
             result = revise(c, args.threshold, args.revision_id)
+        elif args.command == "revise-positive-gain":
+            from .expert_data_transition import revise_positive_gain
+            result = revise_positive_gain(c, args.revision_id, args.parent_checkpoint)
         elif args.command == "benchmark":
             from .latency import benchmark
             result = benchmark(c, args.device)

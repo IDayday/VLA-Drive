@@ -1,3 +1,4 @@
+from .expert_data_revision import training_root, workflow_identity_path
 """One bounded, resumable experiment; no Base training, navtest or ACTIVE writes."""
 from pathlib import Path
 from datetime import datetime, timezone
@@ -57,7 +58,7 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
             # input wait, rather than only the queue launch's earlier commit.
             repo = Path(__file__).resolve().parents[2]
             from .scorer_scope import scope as scorer_fit_scope
-            atomic_json(config.root/"WORKFLOW_CODE_IDENTITY.json", {
+            atomic_json(workflow_identity_path(config), {
                 "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
                 "config_hash": config.identity,
                 "source_hashes": {name: file_hash(Path(__file__).with_name(name))
@@ -81,9 +82,9 @@ def run(config, device="cuda:0", wait_cache_seconds=0, from_stage="beginning"):
         # Receipts are only a readiness hint above. Each consumer verifies the
         # complete content/contract hashes before any record can be used.
         stages = [("build_hard", lambda: build_initial(config)),
-                  ("expert_pause_250", lambda: train_expert(config, device, _resume(config.root/"expert"), 250)
-                   if _step(config.root/"expert") < 250 else {"reused": True}),
-                  ("expert_finish", lambda: train_expert(config, device, _resume(config.root/"expert"))),
+                  ("expert_pause_250", lambda: train_expert(config, device, _resume(training_root(config)), 250)
+                   if _step(training_root(config)) < 250 else {"reused": True}),
+                  ("expert_finish", lambda: train_expert(config, device, _resume(training_root(config)))),
                   ("pair_bank", lambda: build_pair_bank(config, device)),
                   ("scorer_pause_500", lambda: train_scorer(config, device, _resume(config.root/"scorer"), 500)
                    if _step(config.root/"scorer") < 500 else {"reused": True}),

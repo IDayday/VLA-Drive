@@ -1,4 +1,4 @@
-from .expert_data_revision import artifact as expert_artifact
+from .expert_data_revision import artifact as expert_artifact, training_root, continuation_dependencies
 """Cached head training using the existing exact-resume, DDP-aware IQE trainer."""
 from copy import deepcopy
 from pathlib import Path
@@ -113,8 +113,8 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
         metrics["selection_key"] = [metrics["oracle_gain"], metrics["hard_val_expert_minus_base"] or 0.]
         return metrics
     deps = {"experiment_id": config.experiment_id, "base": file_hash(config.root/"BASE_BINDING.json"),
-            "manifest": file_hash(expert_artifact(config, "EXPERT_MANIFEST.json")), "kind": "own_expert_1", **training_dependencies(config)}
-    result = train(expert, loss, fetch, sampler, training_config(config, "expert"), deps, config.root/"expert",
+            "manifest": file_hash(expert_artifact(config, "EXPERT_MANIFEST.json")), "kind": "own_expert_1", **training_dependencies(config), **continuation_dependencies(config)}
+    result = train(expert, loss, fetch, sampler, training_config(config, "expert"), deps, training_root(config),
                    device=device, resume=resume, stop_after=stop_after, validate=validate, seed=config.training_rng_seed,
                    denominator_function=lambda b: {"il": b["mask"].any(-1).sum().float()})
     with torch.no_grad():
@@ -124,13 +124,13 @@ def train_expert(config, device="cuda:0", resume=None, stop_after=None):
              "shared_model_present_in_optimizer": False, "vlm_calls_during_training": 0}
     require(audit["base_hash_before"] == audit["base_hash_after"] and audit["raw_max_abs"] == audit["physical_max_abs"] == 0., "Base drift")
     atomic_json(config.root/"EXPERT_FREEZE_AUDIT.json", audit)
-    return read_json(config.root/"expert/result.json")
+    return read_json(training_root(config)/'result.json')
 
 
 def build_pair_bank(config, device="cuda:0"):
-    result = read_json(config.root/"expert/result.json")
+    result = read_json(training_root(config)/'result.json')
     require(result["status"] == "COMPLETE", "expert final/best checkpoint is not selected")
-    best = config.root/"expert/best.pt"
+    best = training_root(config)/'best.pt'
     require(file_hash(best) == result["best_checkpoint_hash"], "expert best changed")
     expert = load_head(config, device)
     expert.load_state_dict(torch.load(best, weights_only=True, map_location=device), strict=True)
@@ -197,7 +197,7 @@ def load_bank(config):
             and receipt["candidate_ids"] == ["expert_0", "expert_1"], "bank incomplete/corrupt/incorrect candidate identities")
     require(file_hash(config.root/"PAIR_BANK.npz") == manifest["array_hash"], "candidate bank array changed")
     require(manifest["base_binding_hash"] == file_hash(config.root/"BASE_BINDING.json")
-            and manifest["expert_best_hash"] == file_hash(config.root/"expert/best.pt")
+            and manifest["expert_best_hash"] == file_hash(training_root(config)/'best.pt')
             and manifest["score_protocol_hash"] == file_hash(config.root/"SCORE_PROTOCOL.json"), "stale bank dependencies")
     with np.load(config.root/"PAIR_BANK.npz") as data:
         arrays = {k: data[k].copy() for k in data.files}

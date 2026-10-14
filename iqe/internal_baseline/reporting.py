@@ -1,4 +1,4 @@
-from .expert_data_revision import artifact as expert_artifact
+from .expert_data_revision import artifact as expert_artifact, training_root, continuation_dependencies
 from dataclasses import asdict
 from pathlib import Path
 from copy import deepcopy
@@ -39,7 +39,7 @@ def evaluate(config, device="cuda:0"):
     hard_stats = {}
     cache = JointCache(config)
     expert = load_head(config, device).eval()
-    expert.load_state_dict(torch.load(config.root/"expert/best.pt", map_location=device, weights_only=True), strict=True)
+    expert.load_state_dict(torch.load(training_root(config)/'best.pt', map_location=device, weights_only=True), strict=True)
     diagnostic_sets = [("H_train", manifest["hard"]), ("H_val", manifest["hard_val"]), ("ordinary_train", manifest["ordinary"])]
     if config.research_protocol == "two_candidate_v1":
         failures = read_json(expert_artifact(config, "HARD_SETS_BEFORE_EXPERT.json"))
@@ -302,7 +302,7 @@ def diagnostics(config, device="cuda:0"):
 def export_bundle(config, device="cuda:0"):
     require((config.root/"VERDICT.json").exists(), "finish fixed evaluation before diagnostic bundle export")
     path = config.root/"bundle"
-    weights = {"expert_1": torch.load(config.root/"expert/best.pt", weights_only=True, map_location="cpu"),
+    weights = {"expert_1": torch.load(training_root(config)/'best.pt', weights_only=True, map_location="cpu"),
                "internal_scorer": torch.load(config.root/"scorer/best.pt", weights_only=True, map_location="cpu")}
     checked_expert = load_head(config, device)
     checked_expert.load_state_dict(weights["expert_1"], strict=True)

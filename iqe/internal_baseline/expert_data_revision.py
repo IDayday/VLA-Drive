@@ -12,6 +12,33 @@ ARTIFACTS = ('EXPERT_MANIFEST.json', 'EXPERT_TRAIN_MANIFEST.json',
              'HARD_SETS_BEFORE_EXPERT.json', 'TARGET_AUDIT_QUEUE.json')
 
 
+def training_root(config, kind='expert'):
+    if kind != 'expert' or not (config.root/'SELECTED_EXPERT_DATA.json').exists():
+        return config.root/kind
+    selected = read_json(config.root/'SELECTED_EXPERT_DATA.json')
+    if 'training_root' not in selected:
+        return config.root/kind
+    result = Path(selected['training_root'])
+    require(result.resolve().is_relative_to((config.root/'expert_runs').resolve()), 'foreign expert training root')
+    require(file_hash(result/'DATA_TRANSITION.json') == selected['transition_hash'], 'expert data transition changed')
+    transition = read_json(result/'DATA_TRANSITION.json')
+    require(transition['base_binding_hash'] == file_hash(config.root/'BASE_BINDING.json')
+            and transition['partition_hash'] == file_hash(config.root/'DATA_PARTITION.json'), 'expert transition dependencies changed')
+    require(transition['new_manifest_hash'] == selected['artifacts']['EXPERT_MANIFEST.json']
+            and Path(transition['training_root']).resolve() == result.resolve(), 'expert transition selected identity mismatch')
+    return result
+
+
+def continuation_dependencies(config):
+    root = training_root(config)
+    return {'expert_data_transition': file_hash(root/'DATA_TRANSITION.json')} if (root/'DATA_TRANSITION.json').exists() else {}
+
+
+def workflow_identity_path(config):
+    root = training_root(config)
+    return (root if root != config.root/'expert' else config.root)/'WORKFLOW_CODE_IDENTITY.json'
+
+
 def artifact(config, name):
     require(name in ARTIFACTS, 'unsupported expert data artifact')
     pointer = config.root/'SELECTED_EXPERT_DATA.json'

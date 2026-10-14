@@ -104,10 +104,11 @@ def training_dependencies(config):
 
 
 def bind_training_budget(config, kind):
+    from .expert_data_revision import training_root
     require(kind in {"expert", "scorer"}, "unknown head training kind")
     with lock(config.root/"training_budget.lock"):
         budget = training_budget(config)
-        atomic_json(config.root/kind/"TRAINING_BUDGET.json", {
+        atomic_json(training_root(config,kind)/"TRAINING_BUDGET.json", {
             "kind": kind, "budget": budget, "original_config_hash": config.identity,
             "base_binding_hash": file_hash(config.root/"BASE_BINDING.json"),
         }, immutable=True)

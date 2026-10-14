@@ -1,4 +1,4 @@
-from .expert_data_revision import artifact as expert_artifact
+from .expert_data_revision import artifact as expert_artifact, training_root, continuation_dependencies
 """Read-only evidence from the completed, selected own expert/scorer experiment.
 
 The fitting-set result is a diagnostic, never a checkpoint-selection metric.
@@ -55,7 +55,7 @@ def selected_reference_audit(config, bank, arrays, scenes):
     root = config.root/'selected_single_reference'
     atomic_json(root/'FIXED_SCENES.json', {'scene_ids': [r['scene_id'] for r in rows],
                 'rule': 'first eight in pre-score fixed stage_val manifest, not selected by expert wins'}, immutable=True)
-    expert_hash = read_json(config.root/'expert/result.json')['termination']['best_snapshot']['path']
+    expert_hash = read_json(training_root(config)/'result.json')['termination']['best_snapshot']['path']
     from iqe.evaluation.retention import module_hash
     from .binding import load_head
     head = load_head(config)
@@ -103,14 +103,15 @@ def audit(config, device='cuda:0'):
     scenes = {s.scene_id: s for s in load_scenes(config.root/'scenes.json')}
     manifest = read_json(expert_artifact(config, "EXPERT_MANIFEST.json"))
     q = read_json(config.root/'COMPARISON_DISTRIBUTION.json')
-    erows, srows = (read_steps(config.root/k/'steps.jsonl') for k in ('expert', 'scorer'))
+    erows, srows = (read_steps(training_root(config,k)/'steps.jsonl') for k in ('expert', 'scorer'))
     require(len(erows) == budget['expert_updates'] and len(srows) == budget['scorer_updates'], 'fixed budget incomplete')
     es = ExpertSampler(manifest['hard'], manifest['ordinary'], config.natural_seed, manifest['hash'],
                        manifest['sampling']['hard'])
     ss = TwoStreamSampler(q['scene_ids'], q['weights'], natural_seed=config.natural_seed,
                           comparison_seed=config.comparison_seed, pointwise_updates=budget['pointwise_updates'],
                           bank_hash=file_hash(config.root/'PAIR_BANK.json'))
-    ec, sc = replay_consumption(es, erows), replay_consumption(ss, srows)
+    from .expert_data_transition import replay_expert_history
+    ec, sc = replay_expert_history(config, manifest, erows, replay_consumption), replay_consumption(ss, srows)
     require(ss.q_hash == q['q_hash'], 'replayed comparison identity mismatch')
     exposure = {'expert': summarize_counts(ec), 'scorer': summarize_counts(sc),
                 'sampler_sequence_matches_all_actual_updates': True, 'final_scorer_sampler': ss.state_dict()}
@@ -168,7 +169,7 @@ def audit(config, device='cuda:0'):
     selected_reference = selected_reference_audit(config, bank, arrays, scenes)
 
     def training_summary(kind, rows):
-        val = {p.stem: read_json(p) for p in sorted((config.root/kind).glob('validation_*.json'))}
+        val = {p.stem: read_json(p) for p in sorted(training_root(config,kind).glob('validation_*.json'))}
         timings = np.array([r['compute_update_seconds'] for r in rows])
         gradients = {str(r['optimizer_step']): r['gradients'] for r in rows if r['gradients']}
         require(all(np.isfinite(r['loss']) and np.isfinite(r['gradient_norm']) for r in rows), 'nonfinite training history')
@@ -176,7 +177,7 @@ def audit(config, device='cuda:0'):
                 'normal_update_seconds': {'mean': float(timings.mean()), 'p50': float(np.median(timings)), 'p95': float(np.quantile(timings, .95))},
                 'first_loss': rows[0]['loss'], 'last_loss': rows[-1]['loss'], 'last_loss_terms': rows[-1]['losses'],
                 'finite_loss_and_gradient_all_steps': True, 'gradient_evidence': gradients,
-                'validation': val, 'selected_result': read_json(config.root/kind/'result.json')}
+                'validation': val, 'selected_result': read_json(training_root(config,kind)/'result.json')}
     summary = {'expert': training_summary('expert', erows), 'scorer': training_summary('scorer', srows),
                'effective_training_budget': budget,
                'main_scorer_fit': fit, 'exposure_summary': {k: {s: {n: v for n, v in c.items() if n != 'per_scene_exposures'}

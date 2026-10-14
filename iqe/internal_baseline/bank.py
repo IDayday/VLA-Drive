@@ -188,7 +188,7 @@ def build_initial(config):
     return {"hard_candidates": len(target_scenes), "eligible_hard": len(eligible), "ordinary": len(ordinary), "hard_val": len(hard["stage_val"])}
 
 
-def failure_and_target_audit(base, target=None, *, epsilon=1e-8, failure_threshold=.8):
+def failure_and_target_audit(base, target=None, *, epsilon=1e-8, failure_threshold=.8, minimum_gt_gain=.05):
     """Fixed protocol; missing components are unavailable, never implicit failure."""
     protected = COMPONENTS[:2]
     missing = [c for c in protected if not base["component_valid_masks"].get(c, False)]
@@ -201,15 +201,20 @@ def failure_and_target_audit(base, target=None, *, epsilon=1e-8, failure_thresho
     reasons = []
     if not target["score_valid"]: reasons.append("TARGET_SCORE_UNAVAILABLE")
     elif target["total_score_01"] < .8: reasons.append("GT_PDMS_BELOW_0_8")
-    if target["score_valid"] and target["total_score_01"]-base["total_score_01"] < .05-1e-12:
-        reasons.append("GT_GAIN_BELOW_0_05")
+    require(minimum_gt_gain in {0., .05}, "explicit positive-only or historical 0.05 GT gain rule required")
+    if target["score_valid"]:
+        gain = target["total_score_01"]-base["total_score_01"]
+        if minimum_gt_gain == 0. and gain <= 0.:
+            reasons.append("GT_NOT_STRICTLY_BETTER_THAN_BASE")
+        elif minimum_gt_gain > 0 and gain < minimum_gt_gain-1e-12:
+            reasons.append("GT_GAIN_BELOW_0_05")
     if any(not target["component_valid_masks"].get(c, False) or target["named_components"].get(c, 0) < 1-epsilon for c in protected):
         reasons.append("GT_NC_DAC_NOT_FULL")
     if not failed: reasons.append("NOT_BASE_FAILURE")
     return {"failure": failed, "eligible": not reasons, "reasons": reasons}
 
 
-def build_threshold_hard_set(config, *, failure_threshold=.8, output_dir=None, verified_base_scores_hash=None):
+def build_threshold_hard_set(config, *, failure_threshold=.8, minimum_gt_gain=.05, output_dir=None, verified_base_scores_hash=None):
     from .partition import training_ids
     scenes = load_scenes(config.root/"scenes.json")
     expert_ids = training_ids(config, scenes, "expert_fit")
@@ -240,7 +245,7 @@ def build_threshold_hard_set(config, *, failure_threshold=.8, output_dir=None, v
     for role in failures:
         hard[role] = []
         for sid in failures[role]:
-            a = failure_and_target_audit(base[sid], target[sid], failure_threshold=failure_threshold)
+            a = failure_and_target_audit(base[sid], target[sid], failure_threshold=failure_threshold, minimum_gt_gain=minimum_gt_gain)
             a.update(Base=base[sid], GT=target[sid], input_consistency=lookup[sid].input_consistency_status,
                      target_hash=lookup[sid].target_id)
             audits[sid] = a
@@ -253,7 +258,7 @@ def build_threshold_hard_set(config, *, failure_threshold=.8, output_dir=None, v
                             "reasons": [] if legal else ["ORDINARY_GT_PROTECTED_SAFETY_UNAVAILABLE_OR_FAILED"]}
         if legal: ordinary.append(s.scene_id)
     fixed = {"F_train": failures["expert_fit"], "H_train": hard["expert_fit"], "F_val": failures["stage_val"],
-             "H_val": hard["stage_val"], "rules": {"high_quality": .8, "base_failure_threshold": failure_threshold, "target_gain": .05, "safety_epsilon": 1e-8},
+             "H_val": hard["stage_val"], "rules": {"high_quality": .8, "base_failure_threshold": failure_threshold, "target_gain": minimum_gt_gain, "target_gain_strict": minimum_gt_gain == 0., "safety_epsilon": 1e-8},
              "defined_before_expert_training": True, "expert_fit_only": True}
     atomic_json(output_dir/"HARD_SETS_BEFORE_EXPERT.json", fixed, immutable=True)
     manifest = {"schema": "two_candidate_expert_80_20_v1", "hard": hard["expert_fit"], "ordinary": ordinary,
@@ -262,7 +267,8 @@ def build_threshold_hard_set(config, *, failure_threshold=.8, output_dir=None, v
                 "partition_hash": file_hash(config.root/"DATA_PARTITION.json"),
                 "sampling": {"hard": .8, "ordinary": .2}, "seed": config.natural_seed, "source": "resampling_only",
                 "ordinary_rule": "fixed hash max2048 non-failure Base with valid target and full GT NC/DAC; no D_S",
-                "base_failure_threshold": failure_threshold, "gt_minimum": .8, "target_gain_minimum": .05}
+                "base_failure_threshold": failure_threshold, "gt_minimum": .8, "target_gain_minimum": minimum_gt_gain,
+                "target_gain_strict": minimum_gt_gain == 0.}
     manifest["hash"] = digest(manifest)
     atomic_json(output_dir/"EXPERT_MANIFEST.json", manifest, immutable=True)
     atomic_json(output_dir/"EXPERT_TRAIN_MANIFEST.json", manifest, immutable=True)
