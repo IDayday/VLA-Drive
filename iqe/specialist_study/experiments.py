@@ -143,6 +143,11 @@ def freeze_pool(config,device='cuda:0'):
         cell='EXT_'+specialty
         if (config.root/'experts'/cell/'result.json').exists():
             choices=rows_for_cell(config,cell)
+            # Extensions need the same fixed-5000 raw/EMA training-support
+            # evidence as pilot cells. This read-only audit never supplies the
+            # endpoint or pool selection key, which remains stage_val only.
+            from .diagnostics import specialist_learning
+            specialist_learning(config,cell,device)
             items.append(max(choices,key=lambda r:(*r['validation']['selection_key'],-r['step'],r['endpoint']=='raw')))
     val,scores,safety=stage_val_columns(config,items,device)
     successful=(scores>=.8)&np.isfinite(safety).all(-1)&(safety>=1-1e-8).all(-1)
