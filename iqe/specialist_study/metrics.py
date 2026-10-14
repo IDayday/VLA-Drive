@@ -43,3 +43,24 @@ def metrics(scores,components,selected,logs,*,seed=11235,repetitions=2000):
         result['safety'][name]={'valid_denominator':int(valid.sum()),'base_failures':int((valid&(old<1-1e-8)).sum()),
              'selected_failures':int((valid&(now<1-1e-8)).sum()),'new_failures':int((valid&(old>=1-1e-8)&(now<1-1e-8)).sum())}
     return result
+
+
+def report_metrics(scores, components, selected, logs, *, seed=11235, repetitions=2000):
+    """Add full component accounting to locked reports, without changing selection."""
+    result = metrics(scores, components, selected, logs, seed=seed, repetitions=repetitions)
+    c = np.asarray(components, dtype=float)
+    selected = np.asarray(selected, dtype=int)
+    rows = np.arange(len(c))
+    result['components'] = {}
+    for j, name in enumerate(COMPONENTS):
+        base, chosen = c[:, 0, j], c[rows, selected, j]
+        valid = np.isfinite(base) & np.isfinite(chosen)
+        result['components'][name] = {
+            'valid_denominator': int(valid.sum()),
+            'requested_scenes': len(c),
+            'base_mean': float(base[valid].mean()) if valid.any() else None,
+            'selected_mean': float(chosen[valid].mean()) if valid.any() else None,
+            'mean_change': float((chosen[valid]-base[valid]).mean()) if valid.any() else None,
+        }
+    result['direction_compliance_has_zero_PDMS_weight'] = True
+    return result

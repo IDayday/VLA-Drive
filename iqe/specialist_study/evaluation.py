@@ -6,13 +6,13 @@ import numpy as np
 import torch
 from torch import nn
 from iqe.contracts import require
-from iqe.io import atomic_json,atomic_torch,read_json,file_hash,digest
+from iqe.io import atomic_json,atomic_torch,atomic_bytes,complete,read_json,file_hash,digest
 from iqe.data.sources import load_observation
 from .binding import scenes_by_role
 from .bank import load_bank,pool
 from .experiments import load_endpoint
 from .scorer_training import CELLS,selected_scorer,predict,CONTEXT_KEYS
-from .metrics import metrics,select
+from .metrics import report_metrics as metrics,select
 
 
 def evaluate_scorers(config,device='cuda:0'):
@@ -73,6 +73,23 @@ def evaluate_final(config,device='cuda:0'):
         out=metrics(r,bank['components'],select(pred,bank['valid'],expert_ids=ids),meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=cell;rows.append(out);del m
     chosen=selection['selected']['cell'];choice=np.zeros(len(r),int) if margin['selected_delta'] is None else select(predictions[chosen],bank['valid'],margin['selected_delta'],expert_ids=ids)
     out=metrics(r,bank['components'],choice,meta['source_logs'],seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions);out['cell']=chosen+'_margin';rows.append(out)
+    # Preserve the actual common-population predictions and choices. They are
+    # report evidence only and never become training or selection inputs.
+    import io
+    arrays=io.BytesIO()
+    ordered_cells=list(CELLS)
+    np.savez(arrays,scene_ids=np.asarray(meta['scene_ids']),source_logs=np.asarray(meta['source_logs']),
+             expert_ids=np.asarray(ids),true_scores=r,valid=bank['valid'],
+             scorer_cells=np.asarray(ordered_cells),predicted_scores=np.stack([predictions[c] for c in ordered_cells]),
+             raw_argmax=np.stack([select(predictions[c],bank['valid'],expert_ids=ids) for c in ordered_cells]),
+             calibrated_margin_selected=choice)
+    predictions_path=config.root/'FINAL_PREDICTIONS.npz'
+    atomic_bytes(predictions_path,arrays.getvalue(),immutable=True)
+    complete(config.root/'FINAL_PREDICTIONS.COMPLETE.json',
+             {**frozen,'dev_bank_hash':meta['hash'],
+              'scorer_checkpoints':{c:file_hash(config.root/'scorers'/c/'best.pt') for c in ordered_cells}},
+             [predictions_path],requested_scenes=len(r),all_candidates_valid=bool(bank['valid'].all()),
+             schema='locked_dev_candidate_predictions_v1',used_for_training=False)
     subsets=[]
     for count in range(r.shape[1]):
         for group in combinations(range(1,r.shape[1]),count):
