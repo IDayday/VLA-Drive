@@ -224,7 +224,7 @@ def online_cached_system(config, system, device):
         return result
     selected=scenes_by_role(config)['stage_val'][:4]
     layout=OriginalBatchReplay(config)
-    groups=list(dict.fromkeys(layout.batches[s.scene_id] for s in selected))
+    groups=list(dict.fromkeys(layout.batch_for(s.scene_id) for s in selected))
     wanted={s.scene_id for s in selected}
     cache=ReusedContext(config,capacity=16)
     spatial=VerifiedSpatialReader(config,16) if system.scorer.spatial else None
@@ -281,7 +281,8 @@ def online_cached_system(config, system, device):
             'observation_hashes':[s.observation_hash for s in scenes],'differences':differences,
             'selected_exact':True,'online_calls':online['calls'],'cached_VLA_calls':0})
     result={'status':'PASS','dependencies':dependencies,'scenes':len(selected),'batches':rows,
-        'original_batch_plan_hash':layout.plan_hash,'raw_context_score_tolerance':1e-5,'physical_tolerance':1e-4,
+        'original_batch_plan_hash':layout.plan_hash,'original_batch_layout_provenance':layout.provenance,
+        'raw_context_score_tolerance':1e-5,'physical_tolerance':1e-4,
         'batch_shape_invariance_claimed':False,'training_or_selection_uses_this_diagnostic':False,
         'real_images':True,'external_scorer_loaded':False,'extra_VLA_per_candidate':False}
     atomic_json(output,result,immutable=True)
