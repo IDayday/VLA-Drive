@@ -47,6 +47,8 @@ def main():
     parser.add_argument('--adopt-existing', help='Verified local PID/start-time receipt; never kills child processes')
     parser.add_argument('--spatial-reader', choices=('legacy','mmap_v1','ram_mmap_v1'), default='legacy')
     parser.add_argument('--spatial-records', type=int, default=32768)
+    parser.add_argument('--external-S01-receipt', help='Observe one already assigned S01 worker on another allowed host')
+    parser.add_argument('--S11-after-S00', action='store_true', help='Reuse the completed S00 GPU for S11 without changing its recipe')
     args = parser.parse_args()
     require(len(set(args.gpus)) == 4 and 0 < args.deadline_hours <= 36, 'four explicit GPUs and bounded deadline required')
     config = load_config(args.config)
@@ -87,6 +89,9 @@ def main():
             cell=extra[1];result=config.root/'scorers'/cell/'result.json'
             if result.exists() and read_json(result)['status']=='COMPLETE':
                 return FinishedProcess()
+            if cell == 'S01' and args.external_S01_receipt:
+                from iqe.specialist_study.external_worker import ReceiptProcess
+                return ReceiptProcess(args.external_S01_receipt, config, cell)
         if command=='build-rich-bank' and (config.root/'banks/rich/scorer_fit/BANK.json').exists():
             return FinishedProcess()
         if adopted and name in adopted['processes']:
@@ -104,6 +109,14 @@ def main():
         from iqe.specialist_study.capacity import probe
         while True:
             capacity = probe(gpu)
+            if command == 'train-scorer-cell' and extra[1] == 'S11' and args.spatial_reader == 'ram_mmap_v1':
+                from iqe.specialist_study.ram_stage import available_bytes
+                capacity['MemAvailable'] = available_bytes()
+                capacity['reserve_GiB'] = 128
+                capacity['new_private_working_budget_GiB'] = 20
+                if capacity['MemAvailable'] < 148 * 1024**3:
+                    capacity['ready'] = False
+                    capacity['reasons'].append('RAM_READER_SAFETY_RESERVE')
             atomic_json(output / ('CAPACITY_gpu_'+str(gpu)+'.json'), capacity)
             if capacity['ready']:
                 break
@@ -173,7 +186,10 @@ def main():
         spatial = launch('train-scorer-cell', args.gpus[2], '--cell', 'S10', *resume_args(config.root / 'scorers/S10'))
         wait(rich, 'RICH_BANK')
         semantic_rich = launch('train-scorer-cell', args.gpus[1], '--cell', 'S01', *resume_args(config.root / 'scorers/S01'))
-        spatial_rich = launch('train-scorer-cell', args.gpus[3], '--cell', 'S11', *resume_args(config.root / 'scorers/S11'))
+        if args.S11_after_S00:
+            wait(semantic, 'WAITING_S00_GPU_FOR_S11')
+        spatial_rich = launch('train-scorer-cell', args.gpus[0] if args.S11_after_S00 else args.gpus[3],
+                              '--cell', 'S11', *resume_args(config.root / 'scorers/S11'))
         for process in (semantic, semantic_rich, spatial, spatial_rich):
             wait(process, 'SCORER_MATRIX')
         for command in ('evaluate-scorer-matrix', 'calibrate-selection', 'evaluate-final-system', 'benchmark-system'):
