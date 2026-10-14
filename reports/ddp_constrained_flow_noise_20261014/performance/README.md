@@ -41,7 +41,25 @@ C 窗口为 1,664 个 raw scenes / 2,258 秒；N 窗口为 1,592 / 1,479 秒。�
 
 重叠 + 几何的第一套八卡验收已经全部通过：[聚合证据](overlap_geometry_full_acceptance.json)。C/N 两组实际完整动作头学习、原始 replay dropout、KL、dual、全部八分片 FP32 optimizer、每 rank RNG、数据与 inner 游标、最终完整 ODE 导出均与原实现逐值一致。N 另验证第一 inner 更新后中断并原生恢复；所有保存链、请求、模拟反馈、成本、优势、组选择一致。仅时间字段和明确的执行 provenance 不参加相等比较。
 
-加入冻结权重转换后的第二套组合验收与正式接续结果在获得完整证据后补充，不预先记为通过。
+加入冻结权重转换后的第二套组合验收也已全部通过：[完整八卡学习与恢复证据](combined_full_acceptance.json)。执行身份为 `92e9154a1ae7dcfd44167d9f6575890333da94d0440d49837886c4a24e2f8e1b`。
+
+[三项组合的固定场景 ABBA 采集测试](combined_execution_benchmark_v1.json)：C_SDE 从 10.965 秒降至 5.908 秒，约 **1.86×**；N_FLOW_NOISE 从 14.040 秒降至 4.734 秒，约 **2.97×**。原链、均值、std、logprob、请求、模拟结果、全部指标、成本、优势、reference 与 RNG 均逐值一致。范围仍是单 rank 的两个真实场景采集，不是全训练。
+
+正式 N 已在 update2580 / raw32230 的原生完整 checkpoint 无损接续；中断时处于 collection1290 的收集阶段，已评分的首批候选和数据游标保留，补样没有重新生成旧链。[生产吞吐](N_production_throughput.json) 比较切换前 64 个 collection 与排除冷启动边界后的 32 个 collection：**1.063 → 2.316 raw scenes/s，约 2.18×**；完整 collection 间隔中位数 **23 → 10 秒**，包含更新和 IO。两个时间窗场景不同、主机共享负载可能变化，不能把该比值说成任意人口/主机的保证。后窗 776 raw / 512 accepted scenes，12,416 次真实候选评分；没有减少 G16/K10 或训练曝光。
+
+## 复用已有批量 PDMS
+
+找到已有 `DriveVLA-M0/tools/navsim_candidate_relative_audit/score_candidates.py::score_pose_batch` 及其 500 场景 / 6,000 候选历史报告。该版本调用定制 EpisodeDrive scorer，依赖自定义 cache 的 `pdm_progress`。它的历史 batch-vs-single PASS 不能直接证明本轮官方 v1.1 协议等价。[原文件、commit 与 SHA](batch_scoring_reuse_lock.json) 已固定。
+
+新适配复用其批量 trajectory transform / simulator / metric 流程，直接调用本轮锁定的官方 v1.1 `PDMSimulator` 与所有原始分项实现。聚合时，给每条候选建立 `[同一实际官方参考, 该候选]` 的两行视图，调用**未修改的官方 `_aggregate_scores`**。没有复制一套 scorer，也没有使用 G16 的最大进度归一化。参考自身违规造成的乘法 mask、NC=0.5、5 米阈值和阈值下零分处理都继承官方代码；不是简单除以未评分参考的原始进度。
+
+明确的反例：参考进度 10 米、目标候选 6 米、其他候选 12 米，全部通过乘法分项。直接把三条送入原聚合会把目标 EP 从 0.6 改为 0.5，也改变总分；独立 pair 聚合保持 EP=0.6。新增 7 项测试包含此负面对照、参考失败、NC=0.5、零进度、阈值两侧及随机置换。
+
+[真实数据验收](batch_score_qualification_v1.json)：32 个连续 TRAIN 场景、512 条已存策略候选；batch/chunk 1/3/8/16，前四场景另作逆序、chunk5、不同内容干扰候选及重复候选。所有请求、模拟状态/车身、NC/DAC/TTC/EP/Comfort/DDC/PDMS、原始进度、事件时间、几何余量和成本**逐值一致**；共 2,656 次资格测试候选评分。诊断用干扰轨迹不进入 RL 采样或更新。该固定顺序测试的 CPU 评分耗时为 31.213 → 10.361 秒，约 3.01×，含冷缓存差异；另以 warm ABBA 测量排除首轮初始化影响。
+
+[warm ABBA 评分测量](batch_score_warm_benchmark_v1.json) 在固定前 8 个真实 TRAIN 场景、相同已优化几何实现下，排除双方 warmup 后测得 **2.68×** 评分提速，全部反馈再次逐值一致；共 768 次候选评分，仍不是整个训练的加速倍数。G16 的逻辑候选评价仍为 16，实际仿真从 16 次 `[参考, 候选]` 的 32 条 proposal，变成一次 `[参考, 16候选]` 的 17 条 proposal；最后仍分别进行 16 次官方 pair 聚合，不共享 EP 分母。
+
+批量评分的正式接入还需独立八卡学习/恢复验收；这与前三项已部署优化分开登记。新的执行身份保留旧执行 manifest、acceptance、源码和 checkpoint，升级不会重新标注已有链的执行来源。
 
 保留的失败：最初包装入口使用 argparse REMAINDER，torchrun 吞掉 `--` 后在解析参数阶段退出，没有执行任何训练。已改为只解析包装入口选项并保留原生参数的 `parse_known_args`；失败源码和日志保留在私有 `efficient_execution_qualification_v1`。这是启动接口问题，不是算法结果。
 
@@ -70,5 +88,5 @@ $PY -m scripts.analysis.constrained_flow_noise.qualify_efficient_training \
 ## 仍存在的问题
 
 - 零最终优势组和 refill 后超过 16 组的有效 surplus 仍有采样/评分成本。直接丢场景、减少 G/K、跳过零组 reference/dual、改变组选择都会改变本轮实验合同，未作为“无损优化”实施。
-- C_SDE 在原实现 update1850 后触发 fresh-ratio 一致性检查，正在独立从 update1024 精确重放恢复。执行加速不构成该数值故障已修复的证据；未放宽概率检查或 clip。
+- C_SDE 在原实现 update1850 后触发 fresh-ratio 一致性检查。八 rank 已从 update1024 完成全部 826 步历史序列的精确重放并保存完整原生恢复点；故障两组重新生成的真实链及 old 概率也逐值一致。[恢复及故障诊断](C_recovered1850.json) 显示：原 B1 重算 ratio 误差为 0，flat 中一个转移为 0.0001001358，略超过原 0.0001 阈值；最大均值差 2.861e-6，std 相同。确认是该状态下的布局数值差异，尚未部署数值修正；C 仍暂停，未放宽检查或 clip。
 - 当前 DEV 显示平均 PDMS 有收益，但 TTC 安全保持仍未合格；更快执行不能替代最终单候选 ODE 评价。两条正式预算终点仍未完成。

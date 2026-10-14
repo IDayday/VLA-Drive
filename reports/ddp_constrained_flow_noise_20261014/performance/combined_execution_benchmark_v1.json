@@ -1,0 +1,139 @@
+{
+  "status": "PASS",
+  "host": "training-vlawm-tsinghua-zt2",
+  "source_sha256": "011859215eaea60c01e8fd052ff718f83920cb262e007c45b1739f62240aa781",
+  "adapter_sha256": "5770f3e55b21ea45f985faf9ac4e244477a85113d8e5cd9bb68c64798bed5851",
+  "variants": {
+    "C_SDE": {
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_C_SDE_seed42_v1/checkpoints/update001024_raw012760",
+      "identity": "86d20f6c67e548634aa29d7e0091a2fada50253b91473e1bc1a9f0802e4b4cc9",
+      "measurements": [
+        {
+          "iteration": 0,
+          "mode": "serial",
+          "warmup": true,
+          "seconds": 19.535746270790696,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 1,
+          "mode": "overlap",
+          "warmup": true,
+          "seconds": 10.212687069550157,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 2,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 10.724259406328201,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 3,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 5.781073996797204,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 4,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 6.034927569329739,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 5,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 11.204980053007603,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        }
+      ],
+      "serial_median_seconds": 10.964619729667902,
+      "overlap_median_seconds": 5.908000783063471,
+      "collection_speedup": 1.8558934117104882
+    },
+    "N_FLOW_NOISE": {
+      "checkpoint": "/mnt/project/constrained-flow-noise-20261014/formal_N_FLOW_NOISE_seed42_v1/checkpoints/update001024_raw012744",
+      "identity": "eb9d087b349dfa49183d0322e7394bb75259684a87ef41d66c0c395ade3f55b1",
+      "measurements": [
+        {
+          "iteration": 0,
+          "mode": "serial",
+          "warmup": true,
+          "seconds": 19.407737724483013,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 1,
+          "mode": "overlap",
+          "warmup": true,
+          "seconds": 10.218153877183795,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 2,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 14.185142492875457,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 3,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 4.673353658989072,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 4,
+          "mode": "overlap",
+          "warmup": false,
+          "seconds": 4.795072980225086,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        },
+        {
+          "iteration": 5,
+          "mode": "serial",
+          "warmup": false,
+          "seconds": 13.89406699873507,
+          "real_groups": 2,
+          "candidate_scores": 32,
+          "output_and_RNG_exact": true
+        }
+      ],
+      "serial_median_seconds": 14.039604745805264,
+      "overlap_median_seconds": 4.734213319607079,
+      "collection_speedup": 2.9655623433061726
+    }
+  },
+  "scope": "TRAIN-only real full-head execution benchmark; no optimizer or new formal exposure",
+  "vector_geometry": true,
+  "frozen_linear_casts": true,
+  "actual_candidate_score_calls": 384,
+  "limitation": "Paired single-rank collection benchmark; full eight-rank training and restore equivalence still required before deployment"
+}

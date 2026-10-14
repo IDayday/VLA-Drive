@@ -1,6 +1,7 @@
 """Resume a cooperatively stopped native run through the qualified adapter."""
 import argparse
 import fcntl
+import importlib
 import json
 import os
 from pathlib import Path
@@ -10,7 +11,6 @@ import time
 
 from starVLA.rl.constrained_flow_noise.contracts import file_sha, require_dispatch
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from .train_efficient_cast import source_identity
 
 
 def main():
@@ -20,6 +20,9 @@ def main():
     parser.add_argument('--acceptance', required=True)
     parser.add_argument('--source-lock', required=True)
     parser.add_argument('--receipt', required=True)
+    parser.add_argument('--adapter-module', default='scripts.analysis.constrained_flow_noise.train_efficient_cast',
+                        choices=['scripts.analysis.constrained_flow_noise.train_efficient_cast',
+                                 'scripts.analysis.constrained_flow_noise.train_efficient_batch'])
     args = parser.parse_args()
     host = require_dispatch()
     run, checkpoint, receipt = map(Path, (args.run, args.checkpoint, args.receipt))
@@ -31,7 +34,7 @@ def main():
         if file_sha(path) != digest:
             raise ValueError('Frozen scientific source changed: ' + path)
     proof = json.loads(Path(args.acceptance).read_text())
-    execution = source_identity()
+    execution = importlib.import_module(args.adapter_module).source_identity()
     if proof.get('status') != 'PASS' or proof.get('execution_sha256') != execution['sha256']:
         raise ValueError('Missing matching execution qualification')
     if not (checkpoint / 'COMPLETE').is_file():
@@ -55,7 +58,7 @@ def main():
     original = json.loads(run.with_suffix('.launcher.json').read_text())
     command = list(original['args'])
     index = command.index('scripts.analysis.constrained_flow_noise.train')
-    command[index:index + 1] = ['scripts.analysis.constrained_flow_noise.train_efficient_cast',
+    command[index:index + 1] = [args.adapter_module,
                                '--acceptance', str(Path(args.acceptance).resolve()), '--']
     if '--resume' in command:
         index = command.index('--resume')

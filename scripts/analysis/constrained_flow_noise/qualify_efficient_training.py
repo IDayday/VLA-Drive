@@ -18,7 +18,9 @@ from .qualify_collection_overlap import exact
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--run-root',required=True);p.add_argument('--output',required=True)
     p.add_argument('--adapter-module',default='scripts.analysis.constrained_flow_noise.train_efficient',
-                   choices=['scripts.analysis.constrained_flow_noise.train_efficient','scripts.analysis.constrained_flow_noise.train_efficient_cast'])
+                   choices=['scripts.analysis.constrained_flow_noise.train_efficient','scripts.analysis.constrained_flow_noise.train_efficient_cast','scripts.analysis.constrained_flow_noise.train_efficient_batch'])
+    p.add_argument('--interrupted-adapter-module',default=None,
+                   choices=['scripts.analysis.constrained_flow_noise.train_efficient_cast'])
     a=p.parse_args();host=require_dispatch();root=Path(a.run_root);out=Path(a.output)
     if out.exists():raise FileExistsError(out)
     out.mkdir(parents=True)
@@ -36,11 +38,11 @@ def main():
         code=proc.wait();entry.update(returncode=code,finished_unix=time.time())
         atomic_json(out/'status.json',record)
         if code:raise RuntimeError('Bounded qualification failed: '+label)
-    def native_args(letter,target):
+    def native_args(letter,target,module=None):
         old=json.loads((root/f'qualify_replay_{letter}_v3.launch.json').read_text())['args']
         args=list(old)
         i=args.index('scripts.analysis.constrained_flow_noise.train')
-        args[i:i+1]=[a.adapter_module,'--']
+        args[i:i+1]=[module or a.adapter_module,'--']
         args[args.index('--output')+1]=str(target)
         return args
     def compare(left,right,label):
@@ -61,12 +63,19 @@ def main():
             execute(letter+'_continuous',native_args(letter,target))
             compare(root/f'qualify_replay_{letter}_v3',target,letter+'_vs_original')
         target=out/'N_resumed'
-        execute('N_interrupted',native_args('N',target)+['--stop-after-updates','1'])
+        execute('N_interrupted',native_args('N',target,a.interrupted_adapter_module)+['--stop-after-updates','1'])
         cp=json.loads((target/'latest_checkpoint.json').read_text())['path']
         execute('N_resumed',native_args('N',target)+['--resume',cp])
         compare(out/'N_continuous',target,'N_resume')
+        upgraded=a.interrupted_adapter_module is not None and a.interrupted_adapter_module!=a.adapter_module
+        if upgraded:
+            ancestry=json.loads((target/'execution_upgrade.json').read_text())
+            if ancestry['current']!=identity['sha256']:raise ValueError('Upgrade receipt missing current execution')
+            previous=importlib.import_module(a.interrupted_adapter_module).source_identity()
+            if ancestry['previous']!=previous['sha256']:raise ValueError('Upgrade receipt changed parent execution')
         record.update(status='PASS',both_variants_exact_learning=True,all_rank_optimizer_rng_exact=True,
                       saved_chains_feedback_exact=True,resume_exact=True,
+                      parent_execution_upgrade_exact=upgraded,
                       actual_training_candidates=3*32*16,finished_unix=time.time(),
                       scope='Real full-head native training, two inner epochs, original replay, KL, dual, optimizer, ODE export; qualification only')
         atomic_json(out/'acceptance.json',record)
