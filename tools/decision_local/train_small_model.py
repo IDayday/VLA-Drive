@@ -46,6 +46,25 @@ def tensor_hash(state):
     return h.hexdigest()
 
 
+def apply_log_fold(train, heldout, partition, training_fold):
+    """Read-only index views; the frozen S0 base itself is NOT out-of-fold."""
+    if training_fold not in (0,1) or partition['features']!=train.feature_identity['identity']:
+        raise ValueError('Foreign two-fold partition')
+    if heldout is None or heldout.feature_identity!=train.feature_identity or heldout.label_identity!=train.label_identity:
+        raise ValueError('OOF readout check must split the same original training population')
+    log_fold=partition['log_fold'];logs={row['log'] for row in train.index}
+    if set(log_fold)!=logs or set(log_fold.values())!={0,1}:
+        raise ValueError('Exactly two exhaustive log folds required')
+    original=train.index
+    train.index=[row for row in original if log_fold[row['log']]==training_fold]
+    heldout.index=[row for row in original if log_fold[row['log']]!=training_fold]
+    if not train.index or not heldout.index:raise ValueError('Empty fold')
+    return {'partition_identity':identity(partition),'training_fold':training_fold,
+        'training_scenes':len(train.index),'heldout_scenes':len(heldout.index),
+        'training_index_sha256':identity(train.index),'heldout_index_sha256':identity(heldout.index),
+        'scope':'Predictor readout only; shared S0 previously trained on all these logs; half-population fit, not pure full-data overfit decomposition'}
+
+
 def forward(model, kind, batch, predictor=None):
     inputs, queries, targets = inputs_queries_targets(batch)
     if kind.startswith('P_'):
@@ -97,7 +116,8 @@ def main():
     for arg in ('features','labels','output'): p.add_argument('--'+arg,type=Path,required=True)
     p.add_argument('--dev-features',type=Path); p.add_argument('--dev-labels',type=Path)
     p.add_argument('--kind',choices=KINDS,required=True); p.add_argument('--predictor',type=Path)
-    p.add_argument('--scope',choices=('smoke','diagnostic','formal'),required=True)
+    p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control'),required=True)
+    p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
     p.add_argument('--seed',type=int,default=42); p.add_argument('--epochs',type=int,default=24)
     p.add_argument('--batch',type=int,default=128); p.add_argument('--microbatch',type=int,default=16)
     p.add_argument('--lr',type=float,default=1e-4); p.add_argument('--dim',type=int,default=512)
@@ -117,6 +137,14 @@ def main():
     if a.scope=='diagnostic' and len(train.index)!=4096:raise ValueError('Use the fixed 4096 training diagnostic population')
     if a.scope=='formal' and (len(train.index)!=101592 or dev is None or len(dev.index)!=1696):
         raise ValueError('Full common population required')
+    fold_identity=None
+    if a.scope=='fold_control':
+        if a.kind not in ('P_ABS','P_DIFF') or a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed!=42:
+            raise ValueError('Only the matched registered predictor OOF check is supported')
+        if len(train.index)!=101592 or a.fold_partition is None:raise ValueError('Split the complete original training population')
+        fold_identity=apply_log_fold(train,dev,read(a.fold_partition),a.training_fold)
+    elif a.fold_partition is not None or a.training_fold is not None:
+        raise ValueError('Fold inputs cannot alter the primary full-population arms')
     if dev and {r['log'] for r in train.index}&{r['log'] for r in dev.index}: raise ValueError('Train/dev log leakage')
     model = build_model(a.kind,a.seed,a.dim); initial_hash = tensor_hash(model.state_dict()); model=model.cuda().train()
     predictor=payload=None
@@ -148,6 +176,7 @@ def main():
         'trainable_parameters':sum(x.numel() for x in model.parameters()),
         'inactive_memory_projection_parameters':sum(x.numel() for x in model.memory.parameters()) if a.kind=='P_QUERY_ONLY' else 0,
         'frozen_base_optimizer_updates':0}
+    if fold_identity is not None:run_identity['predictor_OOF_control']=fold_identity
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.

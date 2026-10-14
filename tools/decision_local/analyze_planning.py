@@ -77,6 +77,9 @@ def main():
             rec[name+'_max_discrete_jerk_mps3']=float(np.linalg.norm(jerk,axis=-1).max())
         rec['mean_residual_m']=float(np.linalg.norm(qf[:,:2]-q0[:,:2],axis=-1).mean())
         rel=batch['relations'][0,:,0].numpy();mask=batch['valid'][0,:,0].numpy()
+        common=batch['common_valid'][0].numpy()
+        query_kinematic=batch['kinematic_valid'][0].numpy().copy();query_kinematic[0]=True
+        common_obstacle=common[...,1:]&query_kinematic[:,None,None]
         pair=mask[0,:,2]&mask[2,:,2];current=rel[0,:,2]>.5;future=rel[2,:,2]>.5
         state=decode_ego(batch['state'])[0,:2].numpy()/.5
         rawpath=labelroot/'labels'/(token+'.npz');meta=read(labelroot/'records'/(token+'.json'))
@@ -89,8 +92,12 @@ def main():
             'road_boundary_or_outside':bool((mask[0,:,0]&(rel[0,:,0]<=.5)).any()),
             'current_speed_below_0p5_mps':bool(np.linalg.norm(state)<.5),
             'future_relation_support_below_half':bool(mask[2,:,1:].mean()<.5),
+            'oracle_common_q0_obstacle_any_support':bool(common_obstacle[0].any()),
+            'oracle_common_q0_obstacle_no_support':bool(not common_obstacle[0].any()),
+            'oracle_common_all_queries_obstacle_any_support':bool(common_obstacle.any()),
             'reliable_current_stationary_obstacle_near_query':stationary_near_query(frame,q0,meta['ego_body'],known,grid)}
-        rec['groups']=groups;rec['future_relation_support']=float(mask[2,:,1:].mean());rows.append(rec)
+        rec['groups']=groups;rec['future_relation_support']=float(mask[2,:,1:].mean())
+        rec['oracle_common_q0_obstacle_support']=float(common_obstacle[0].mean());rows.append(rec)
     a.output.mkdir(parents=True,exist_ok=False)
     with (a.output/'scenes.jsonl').open('w') as stream:
         for row in rows:stream.write(json.dumps(row)+'\n')
