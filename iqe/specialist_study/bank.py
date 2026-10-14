@@ -9,6 +9,7 @@ import torch
 from iqe.contracts import require,CandidateRecord,ScoreRecord,strict_record
 from iqe.io import read_json,atomic_json,atomic_bytes,file_hash,digest
 from iqe.internal_baseline.bank import save_candidate,score_candidates,COMPONENTS,protocol
+from iqe.evaluation.retention import module_hash
 from .binding import scenes_by_role
 from .data import ReusedContext,admissible_optimized_source,geometry
 from .experiments import load_endpoint,endpoint
@@ -206,22 +207,69 @@ def trajectory_variants(physical,dt,current_speed=None,diagnostics=None):
     return result
 
 
+@torch.no_grad()
+def unscored_rich_column(config,module,scenes,expert_id,device):
+    """Keep the existing 32-scene generation order; screen duplicates before labels."""
+    module.eval();identity=module_hash(module);cache=ReusedContext(config);candidates=[]
+    for start in range(0,len(scenes),32):
+        sub=scenes[start:start+32]
+        physical=module(cache.batch(sub,device)).physical.cpu().numpy()
+        with ThreadPoolExecutor(max_workers=4) as workers:
+            candidates+=list(workers.map(lambda pair:save_candidate(config,pair[0],expert_id,identity,pair[1]),zip(sub,physical)))
+    return candidates
+
+
+def append_unique_rich_column(config,scenes,candidates,rows,hashes,sources,source,job_name):
+    require(len(scenes)==len(candidates)==len(rows)==len(hashes),'rich column scene join')
+    pending=[];counts=Counter()
+    for n,(scene,candidate) in enumerate(zip(scenes,candidates)):
+        require(candidate.scene_id==scene.scene_id,'rich candidate reordered across scenes')
+        if candidate.trajectory_hash in hashes[n]:
+            counts['duplicate_official_requests_avoided']+=1
+        elif len(rows[n])>=config.max_rich_candidates:
+            counts['over_capacity_official_requests_avoided']+=1
+        else:
+            pending.append((n,scene,candidate))
+    if pending:
+        labels=score_candidates(config,[s for _,s,_ in pending],[c for _,_,c in pending],job_name)
+        require(len(labels)==len(pending),'rich official label coverage')
+        for (n,_,candidate),label in zip(pending,labels):
+            rows[n].append((candidate,label));hashes[n].add(candidate.trajectory_hash);sources[source]+=1
+    counts['unique_official_requests']+=len(pending)
+    return counts
+
+
+def deduplicate_rich_rows(rows):
+    unique=[];removed=0
+    for row in rows:
+        seen={};retained=[]
+        for candidate,label in row:
+            previous=seen.get(candidate.trajectory_hash)
+            if previous is None:
+                seen[candidate.trajectory_hash]=label;retained.append((candidate,label))
+            else:
+                require(abs(previous.total_score_01-label.total_score_01)<=1e-8
+                    and previous.named_components==label.named_components
+                    and previous.component_valid_masks==label.component_valid_masks,
+                    'duplicate physical trajectory has inconsistent official labels')
+                removed+=1
+        unique.append(retained)
+    return unique,removed
+
+
 def build_rich(config,device='cuda:0'):
     folder=directory(config,'rich','scorer_fit')
     if (folder/'BANK.json').exists():load_bank(config,'rich','scorer_fit');return read_json(folder/'STATISTICS.json')
     meta,data=load_bank(config,'deploy','scorer_fit');p=pool(config);scenes=scenes_by_role(config)['scorer_fit']
     require(meta['scene_ids']==[s.scene_id for s in scenes],'D_S bank ordering changed')
     rows=[[(strict_record(CandidateRecord,x['candidate']),strict_record(ScoreRecord,x['label'])) for x in row] for row in meta['records']]
-    hashes=[{c.trajectory_hash for c,_ in row} for row in rows];sources=Counter()
-    def append_column(candidates,labels,source):
-        for n,(c,r) in enumerate(zip(candidates,labels)):
-            if len(rows[n])<config.max_rich_candidates and c.trajectory_hash not in hashes[n]:
-                rows[n].append((c,r));hashes[n].add(c.trajectory_hash);sources[source]+=1
+    hashes=[{c.trajectory_hash for c,_ in row} for row in rows];sources=Counter();label_requests=Counter()
     for item in p['experts']:
         for step in (1000,3000):
             early=endpoint(config,item['cell'],step,'raw');model=load_endpoint(config,early,device)
-            candidates,labels=candidate_labels(config,model,scenes,item['cell']+f'_raw_{step}',device)
-            append_column(candidates,labels,'own_intermediate');del model
+            candidates=unscored_rich_column(config,model,scenes,item['cell']+f'_raw_{step}',device)
+            label_requests.update(append_unique_rich_column(config,scenes,candidates,rows,hashes,sources,
+                'own_intermediate',item['cell']+f'_raw_{step}_unique_'+early['model_hash'][:12]));del model
     import pandas as pd
     from .target_rules import verify_target_assets
     verify_target_assets(config)
@@ -262,6 +310,15 @@ def build_rich(config,device='cuda:0'):
     if requests:
         labels=score_candidates(config,[x[1] for x in requests],[x[2] for x in requests],'study_rich_variants')
         for (n,s,c,source),r in zip(requests,labels):rows[n].append((c,r));sources[source]+=1
+    label_requests['unique_official_requests']+=len(requests)
+    # Deployment keeps explicit expert columns, even for exact duplicate outputs.
+    # Rich pointwise supervision retains each physical action only once. Keep
+    # those original columns in the capacity accounting until here so avoiding
+    # duplicates cannot silently expand the original twelve-label budget.
+    require(sum(len(row) for row in rows)<=len(scenes)*config.max_rich_candidates,'rich unique label budget exceeded')
+    rows,removed=deduplicate_rich_rows(rows)
     return save_bank(config,'rich','scorer_fit',scenes,rows,{'additional_sources':dict(sources),'deployment_bank_hash':meta['hash'],
             'label_budget_max':len(scenes)*12,'external_teacher_weights_loaded':False,'GT_added':False,
+            'new_label_requests':dict(label_requests),'duplicates_removed_before_official_scoring':True,
+            'exact_deployment_duplicates_removed_from_rich':removed,'all_unique_deployment_trajectories_retained':True,
             'construction_geometry':dict(construction_counts),'construction_rules_hash':file_hash(config.root/'RICH_CONSTRUCTION_RULES_BEFORE_LABELS.json')})
