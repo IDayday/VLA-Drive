@@ -90,3 +90,36 @@ def test_recording_roles_keep_adjacent_fragments_together_and_exclude_dev():
         for row in group:
             r=recording(row['log']);assert used.setdefault(r,role)==role
     assert set(used)==set(roles)
+
+
+def test_local_only_scene_updates_predictor_but_not_min_trajectory():
+    import torch
+    from starVLA.model.modules.decision_local.natural_error_contract import LocalTrainingTargets,local_prediction_loss,certified_repair_loss
+    truth=torch.zeros(1,7,8,5);valid=torch.zeros_like(truth,dtype=torch.bool)
+    valid[:,:,1,0]=True;truth[:,:,1,0]=-1
+    targets=LocalTrainingTargets(truth,valid,torch.zeros_like(valid),torch.zeros_like(valid),
+        torch.full((1,8,4),float('nan')),torch.zeros(1,8,dtype=torch.bool),torch.tensor([2]))
+    raw=torch.zeros_like(truth,requires_grad=True)
+    loss=local_prediction_loss(raw,targets)['loss'];loss.backward()
+    assert raw.grad[:,:,1,0].abs().sum()>0 and raw.grad[:,:,2:,0].abs().sum()==0
+    output=torch.zeros(1,8,4,requires_grad=True)
+    min_loss,_=certified_repair_loss(output,targets);min_loss.backward()
+    assert min_loss.item()==0 and output.grad.abs().sum()==0
+
+
+def test_empty_local_labels_finite_and_full_data_cache_rejected():
+    import torch
+    from starVLA.model.modules.decision_local.natural_error_contract import LocalTrainingTargets,local_prediction_loss,verify_feature_base
+    truth=torch.full((2,7,8,5),float('nan'));valid=torch.zeros_like(truth,dtype=torch.bool)
+    targets=LocalTrainingTargets(truth,valid,valid,valid,torch.zeros(2,8,4),
+        torch.zeros(2,8,dtype=torch.bool),torch.tensor([2,4]))
+    raw=torch.zeros_like(truth,requires_grad=True);loss=local_prediction_loss(raw,targets,difference_weight=1)['loss']
+    loss.backward();assert loss.item()==0 and raw.grad.abs().sum()==0
+    with pytest.raises(ValueError):verify_feature_base({'anchor_identity':'old_S0','checkpoint_sha256':'old'},
+        {'identity':'S0_A','training_role':'A_train','checkpoint':{'sha256':'new'}})
+
+
+def test_withdrawn_host_rejected_without_connection(monkeypatch):
+    from tools.decision_local import common
+    monkeypatch.setattr(common.socket,'gethostname',lambda:'training-vla-zt2-worker-0')
+    with pytest.raises(RuntimeError):common.check_host()
