@@ -14,9 +14,13 @@ def main():
     for key in ('legacy-source','population-contract','current-root','output'):
         p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--training-run',type=Path);p.add_argument('--tag');p.add_argument('--preflight',action='store_true')
+    p.add_argument('--engineering-scenes',type=int,default=0,
+        help='Explicit small native-checkpoint inference check; never a full learning-curve point')
     p.add_argument('--rank',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     p.add_argument('--max-seconds',type=float,required=True);a=p.parse_args()
     if not 0<=a.rank<a.shards or a.max_seconds<=0:raise ValueError('Bounded shard/time required')
+    if a.engineering_scenes<0 or (a.engineering_scenes and (a.preflight or a.shards!=1)):
+        raise ValueError('Engineering checkpoint inference is separate from CPU preflight and full shards')
     def module(name,path):
         spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec)
         sys.modules[name]=m;spec.loader.exec_module(m);return m
@@ -26,6 +30,8 @@ def main():
         codec['identity']!=contract['action_codec_identity']):raise ValueError('Unverified A-only identities')
     rows=h.read(Path(contract['source_audit']).parent/'A_calibration.json')
     if not rows or any(audit['roles'][r['log'].rsplit('_',2)[0]]!='A_calibration' for r in rows):raise ValueError('Cross-role evaluation')
+    if a.engineering_scenes>=len(rows):raise ValueError('Use full evaluation for the full population')
+    selected=rows[:4] if a.preflight else rows[:a.engineering_scenes] if a.engineering_scenes else rows
     if h.source_sha(a.legacy_source)!='1493deda247107efe076b9294863a6753391298a':raise ValueError('Wrong S0 runtime')
     sys.path.insert(0,str(a.legacy_source))
     adapter=module('_learning_codec',ROOT/'starVLA/dataloader/a_only_codec.py');adapter.install_legacy_codec(codec)
@@ -46,16 +52,18 @@ def main():
             raise ValueError('Only the registered A-only S0 may use this learning curve')
         model=load_student(a.training_run,a.tag,training,precision='fp32',strip=True)
     elif a.training_run or a.tag or a.shards!=1:raise ValueError('Preflight has no checkpoint or GPU shards')
-    declaration=dict(schema='a_internal_base_learning_v1',population_contract_sha256=h.digest(a.population_contract),
+    declaration=dict(schema='a_internal_base_learning_v2',population_contract_sha256=h.digest(a.population_contract),
         role='A_calibration',index_identity=h.identity(rows),scenes=len(rows),checkpoint=checkpoint,
         runtime_source_sha=h.source_sha(a.legacy_source),wrapper_source_sha=h.source_sha(ROOT),tool_sha256=h.digest(__file__),
         action_codec_identity=codec['identity'],preflight=a.preflight,shards=a.shards,
+        engineering_only=bool(a.engineering_scenes),evaluated_scenes=len(selected),
+        selected_index_identity=h.identity(selected),
         checkpoint_selection='Fixed shared terminal; this curve cannot select on B or independent development',
         protocol='FP32 native master, TF32 off, original Euler10, one scene-bound q0 seed42; no optimizer')
     ident=h.identity(declaration);a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'identity.json').exists() and h.read(a.output/'identity.json')['identity']!=ident:raise ValueError('Preserve previous curve version')
     h.atomic_json(a.output/'identity.json',dict(identity=ident,**declaration));records=[]
-    for i in (list(range(min(4,len(data)))) if a.preflight else list(range(len(data)))[a.rank::a.shards]):
+    for i in list(range(len(selected)))[a.rank::a.shards]:
         if time.monotonic()-start>a.max_seconds:raise TimeoutError('Finite A-calibration budget')
         row=rows[i];observation=data[i]
         if model is not None:
@@ -73,6 +81,7 @@ def main():
         if model is not None:
             if prediction.shape!=(8,3) or not np.isfinite(prediction).all():raise ValueError('Invalid q0; retain full population')
             record.update(trajectory_errors(prediction,truth));record['inference_seconds']=latency
+            record['q0']=prediction.tolist()
         records.append(record)
     h.atomic_json(a.output/f'rank_{a.rank:03d}.json',dict(identity=ident,rows=records,wall_seconds=time.monotonic()-start,
         parent_CPU_seconds=time.process_time()-cpu,GPU_process_hours=0. if a.preflight else (time.monotonic()-start)/3600,
@@ -80,11 +89,14 @@ def main():
     files=[a.output/f'rank_{i:03d}.json' for i in range(a.shards)]
     if all(path.exists() for path in files):
         receipts=[h.read(path) for path in files];allrows=[row for receipt in receipts for row in receipt['rows']]
-        expected=rows[:4] if a.preflight else rows
+        expected=selected
         if (any(rec['identity']!=ident for rec in receipts) or len(allrows)!=len(expected) or
             {r['token'] for r in allrows}!={r['token'] for r in expected}):raise ValueError('Incomplete A-calibration population')
         summary=dict(identity=ident,scenes=len(allrows),logs=len({r['log'] for r in allrows}),preflight=a.preflight,
-            scope='Actual current/label contract preflight only' if a.preflight else 'A-internal ego fit; not PDMS or an unseen-B result',
+            engineering_only=bool(a.engineering_scenes),full_population=not(a.preflight or a.engineering_scenes),
+            scope='Actual current/label contract preflight only' if a.preflight else
+                'Native FP32-master checkpoint engineering check only; not a learning-curve point' if a.engineering_scenes else
+                'A-internal ego fit; not PDMS or an unseen-B result',
             GPU_process_hours=sum(rec['GPU_process_hours'] for rec in receipts))
         if not a.preflight:
             summary['metrics']={key:float(np.mean([row[key] for row in allrows])) for key in ('ADE','FDE','yaw_MAE_rad','yaw_endpoint_rad')}
