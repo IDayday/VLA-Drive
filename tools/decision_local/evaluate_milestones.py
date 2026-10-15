@@ -19,8 +19,8 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from tools.decision_local.common import atomic_json,check_host,digest,read,source_sha
 
 
-def eligible_gpus(allowed):
-    rows=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.used,utilization.gpu','--format=csv,noheader,nounits'],text=True)
+def eligible_gpus(allowed,shared=False):
+    rows=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.used,utilization.gpu,memory.total','--format=csv,noheader,nounits'],text=True)
     processes=subprocess.check_output(['nvidia-smi','--query-compute-apps=gpu_uuid,pid','--format=csv,noheader,nounits'],text=True)
     owners={}
     for line in processes.splitlines():
@@ -28,16 +28,17 @@ def eligible_gpus(allowed):
         try:cmd=Path('/proc/'+pid+'/cmdline').read_bytes().replace(b'\0',b' ').decode()
         except OSError:cmd='unknown'
         owners.setdefault(uuid,[]).append(cmd)
-    free=[];shared=[]
+    free=[];shared_devices=[]
     for line in rows.splitlines():
-        idx,uuid,memory,util=[x.strip() for x in line.split(',')];idx=int(idx)
+        idx,uuid,memory,util,total=[x.strip() for x in line.split(',')];idx=int(idx)
         if idx not in allowed:continue
         if int(memory)<512 and int(util)<10 and not owners.get(uuid):free.append(idx)
+        elif shared and int(total)-int(memory)>=8192 and int(util)<95:shared_devices.append(idx)
         elif int(memory)<20000 and owners.get(uuid) and all(
                 '/mnt/project/decision-local-consequence-artifacts/20261014/' in x and
                 any('/decision_local/'+name in x for name in ('train_small_model.py','build_fixed_anchor_cache.py'))
-                for x in owners[uuid]):shared.append(idx)
-    return free+shared
+                for x in owners[uuid]):shared_devices.append(idx)
+    return free+shared_devices
 
 
 def reuse_q0(baseline,predictions,destination,index):
@@ -46,7 +47,8 @@ def reuse_q0(baseline,predictions,destination,index):
     pm=read(predictions/'identity.json')
     if not bd['q0']['valid'] or bm['index_sha256']!=digest(index):raise ValueError('Invalid common canonical q0 bank')
     source=read(Path(read(baseline/'RESEARCH_INPUT.json')['predictions'])/'identity.json')
-    for key in ('base_identity','features','sampling_seed'):
+    keys=('features','sampling_seed','distribution','q0_transport_meaning') if pm.get('schema')=='minimal_repair_planning_export_v1' else ('base_identity','features','sampling_seed')
+    for key in keys:
         if pm[key]!=source[key]:raise ValueError('Different shared S0 input/proposal')
     rows=read(index);bank=destination/'q0/records';bank.mkdir(parents=True,exist_ok=True)
     for row in rows:
@@ -113,7 +115,7 @@ def main():
             for job in registration['jobs']:
                 name=job['id'];claim=state/'claims'/name
                 if claim.exists() or not all(Path(x).exists() for x in job['requires']):continue
-                devices=eligible_gpus(a.gpus)
+                devices=eligible_gpus(a.gpus,shared=registration.get('allow_shared_gpus',False))
                 if not devices:break
                 try:claim.mkdir()
                 except FileExistsError:continue
