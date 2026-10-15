@@ -145,3 +145,26 @@ def test_withdrawn_host_rejected_without_connection(monkeypatch):
     from tools.decision_local import common
     monkeypatch.setattr(common.socket,'gethostname',lambda:'training-vla-zt2-worker-0')
     with pytest.raises(RuntimeError):common.check_host()
+
+
+def test_new_base_cache_requires_explicit_population_role(tmp_path):
+    import json
+    from tools.decision_local.anchor_runtime import selected_index
+    from tools.decision_local.common import digest
+    rows=[dict(token='a',log='recording_a_00000_00010'),dict(token='b',log='recording_b_00000_00010')]
+    (tmp_path/'index.json').write_text(json.dumps(rows))
+    role=tmp_path/'B_predictor.json';role.write_text(json.dumps(rows[1:]))
+    anchor=dict(training_role='A_train',data={'train':{'current_root':str(tmp_path)}},
+        role_indices={'B_predictor':{'path':str(role),'sha256':digest(role)}})
+    with pytest.raises(ValueError):selected_index(anchor,'train')
+    assert selected_index(anchor,'train','B_predictor')==rows[1:]
+    role.write_text(json.dumps(rows))
+    with pytest.raises(ValueError):selected_index(anchor,'train','B_predictor')
+
+
+def test_old_anchor_selection_default_is_unchanged(tmp_path):
+    import json
+    from tools.decision_local.anchor_runtime import selected_index
+    rows=[dict(token='old',log='original_00000_00010')]
+    (tmp_path/'index.json').write_text(json.dumps(rows))
+    assert selected_index({'data':{'train':{'current_root':str(tmp_path)}}},'train')==rows

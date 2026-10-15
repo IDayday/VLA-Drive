@@ -19,7 +19,9 @@ class _ActualPlanAdapter(nn.Module):
 class FrozenVLAMinimalRepairRefiner(FrozenVLAConsequenceRefiner):
     def __init__(self,anchor,refiner,predictor=None,*,mode='R_MIN_DIFF',**kwargs):
         modes={'LOG_NONE':'E_NONE','MIN_NONE':'E_NONE','R_MIN_CURRENT':'R_CURRENT_PRED',
-               'R_MIN_ABS':'R_FUTURE_ABS','R_MIN_DIFF':'R_FUTURE_DIFF'}
+               'R_MIN_ABS':'R_FUTURE_ABS','R_MIN_DIFF':'R_FUTURE_DIFF',
+               'N_NONE':'E_NONE','R_CURRENT':'R_CURRENT_PRED',
+               'R_ABS_FUTURE':'R_FUTURE_ABS','R_DIFF_FUTURE':'R_FUTURE_DIFF'}
         if mode not in modes:raise ValueError('Oracle repair arms cannot enter camera-only deployment')
         super().__init__(anchor,_ActualPlanAdapter(refiner),predictor,mode=modes[mode],**kwargs)
         self.repair_mode=mode

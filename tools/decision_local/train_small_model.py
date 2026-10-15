@@ -300,6 +300,7 @@ def main():
             run_identity.update(schema='natural_local_small_head_v1',plan_exposure=train.label_identity['selection'],
                 target_eligibility='P: each local channel/time independently; N/R: strict complete KEEP/REPAIR only; unknown never KEEP',
                 action_codec_identity=train.label_identity.get('action_codec_identity'),
+                natural_anchor_record=train.label_identity['anchor_record'],
                 source_audit_identity=train.label_identity['source_audit_identity'])
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])

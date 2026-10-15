@@ -38,6 +38,8 @@ def main():
             raise PermissionError('Online deployment cannot open a compact training label/feature cache')
         if '/minimal-repair-artifacts/' in path and any(part.startswith(('targets_','target_review','labels_')) for part in Path(path).parts):
             raise PermissionError('Online repair cannot read offline solver/target/geometry artifacts')
+        if '/natural-error-local-artifacts/' in path and any(part.startswith(('engineering_local_','local_labels_','natural_targets_','anchor_cache_')) for part in Path(path).parts):
+            raise PermissionError('Online natural-error policy cannot read frozen features or label evidence')
     sys.addaudithook(reject_training_open)
     spec=importlib.util.spec_from_file_location('dl_bootstrap',Path(__file__).with_name('verify_current_only.py'))
     bootstrap=importlib.util.module_from_spec(spec);spec.loader.exec_module(bootstrap);runtime=bootstrap.load_runtime(anchor)
@@ -50,16 +52,21 @@ def main():
     from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     rr=torch.load(a.refiner,map_location='cpu',weights_only=False);kind=rr['identity']['kind']
-    repair=rr['identity'].get('protocol')=='minimal_repair_v1'
-    allowed=('LOG_NONE','MIN_NONE','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF') if repair else ('E_NONE','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF')
+    natural=rr['identity'].get('protocol')=='natural_local_v1'
+    repair=rr['identity'].get('protocol') in ('minimal_repair_v1','natural_local_v1')
+    allowed=(('N_NONE','R_CURRENT','R_ABS_FUTURE','R_DIFF_FUTURE') if natural else
+        (('LOG_NONE','MIN_NONE','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF') if repair else
+         ('E_NONE','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF')))
     if kind not in allowed:raise ValueError('Oracle probes are not deployable')
     if rr['identity']['anchor_identity']!=anchor['identity']:raise ValueError('Wrong base policy')
     predictor=None
     if kind.startswith('R_'):
         if a.predictor is None or helpers.digest(a.predictor)!=rr['identity']['predictor_sha256']:raise ValueError('Use the predictor seen during refiner training')
         pp=torch.load(a.predictor,map_location='cpu',weights_only=False)
-        expected='P_DIFF' if kind in ('R_FUTURE_DIFF','R_MIN_DIFF') else 'P_ABS'
+        expected='P_DIFF' if kind in ('R_FUTURE_DIFF','R_MIN_DIFF','R_DIFF_FUTURE') else 'P_ABS'
         if pp['identity']['kind']!=expected or pp['identity']['anchor_identity']!=anchor['identity'] or pp['identity']['query_config']!=rr['identity']['query_config']:raise ValueError('Predictor contract mismatch')
+        if natural and (pp['identity'].get('protocol')!='natural_local_v1' or pp['identity']['repair_label_semantics']!=rr['identity']['repair_label_semantics']):
+            raise ValueError('Local predictor and refiner contracts differ')
         predictor=ConsequenceQueryHead(dim=pp['identity']['dim']).cuda();predictor.load_state_dict(pp['model'],strict=True)
     elif a.predictor is not None:raise ValueError('E_NONE has no predictor')
     if repair:

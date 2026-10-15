@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--split', choices=('train', 'dev', 'navtest'), required=True)
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--diagnostic-train', action='store_true')
+    parser.add_argument('--role', choices=('A_train','A_calibration','B_predictor','B_refiner'))
     parser.add_argument('--rank', type=int, default=0)
     parser.add_argument('--shards', type=int, default=1)
     parser.add_argument('--chunk-size', type=int, default=128)
@@ -39,10 +40,9 @@ def main():
         raise ValueError('Invalid bounded shard request')
     if args.split == 'navtest' and not (args.output.parent/'FINAL_METHOD_LOCK.json').exists():
         raise ValueError('New Navtest extraction waits for the shared final method/endpoint lock')
-    legacy = Path(anchor['source_root'])
-    if helpers.source_sha(legacy) != anchor['training_source_sha']:
-        raise ValueError('Historical source changed')
-    sys.path.insert(0, str(legacy))
+    spec=importlib.util.spec_from_file_location('cache_anchor_runtime',Path(__file__).with_name('anchor_runtime.py'))
+    adapter=importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter)
+    legacy=adapter.activate(anchor)
     import numpy as np
     import torch
     import starVLA
@@ -57,9 +57,9 @@ def main():
     data = ForesightCurrentDataset(anchor['data'][args.split]['current_root'])
     if data.identity != anchor['data'][args.split]['identity']:
         raise ValueError('Current source identity changed')
-    index = data.index
+    index = adapter.selected_index(anchor,args.split,args.role)
     if args.diagnostic_train:
-        if args.split != 'train':
+        if args.split != 'train' or args.role is not None or anchor.get('training_role')=='A_train':
             raise ValueError('Diagnostic subset is training-only')
         index = helpers.read(anchor['diagnostic_train_index'])
     if args.limit:
@@ -74,6 +74,9 @@ def main():
         'encoder_precision': 'FP32 master, FP32 inference, TF32 off, batch1, frozen eval',
         'chunk_size': args.chunk_size, 'model_forward_count_per_scene': 1,
         'ego_target_location': 'separate original label files; never cache-worker model inputs'}
+    if anchor.get('training_role')=='A_train':
+        config.update(data_role=args.role or args.split,action_codec_identity=anchor['action_codec_identity'],
+            source_audit_identity=anchor['source_audit_identity'],runtime_source_sha=anchor['runtime_source_sha'])
     ident = helpers.identity(config)
     args.output.mkdir(parents=True, exist_ok=True)
     existing = args.output/'identity.json'

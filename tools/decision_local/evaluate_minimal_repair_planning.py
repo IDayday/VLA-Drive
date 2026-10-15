@@ -36,9 +36,15 @@ def main():
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     meta=read(a.features/'identity.json');saved=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
     info=saved['identity'];kind=info['kind']
-    if info.get('protocol')!='minimal_repair_v1' or info['anchor_identity']!=meta['anchor_identity']:raise ValueError('Wrong repair protocol/base')
-    camera=kind in ('LOG_NONE','MIN_NONE','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF')
-    oracle=kind in ('LOG_CV','LOG_FUT','MIN_CV','MIN_FUT')
+    natural=info.get('protocol')=='natural_local_v1'
+    if info.get('protocol') not in ('minimal_repair_v1','natural_local_v1') or info['anchor_identity']!=meta['anchor_identity']:raise ValueError('Wrong repair protocol/base')
+    if natural and meta.get('action_codec_identity'):
+        anchor=read(info['natural_anchor_record'])
+        from starVLA.dataloader.a_only_codec import install_legacy_codec
+        if anchor['identity']!=meta['anchor_identity'] or anchor['action_codec_identity']!=meta['action_codec_identity']:raise ValueError('Wrong action codec')
+        install_legacy_codec(read(anchor['action_codec']))
+    camera=kind in (('N_NONE','R_CURRENT','R_ABS_FUTURE','R_DIFF_FUTURE') if natural else ('LOG_NONE','MIN_NONE','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF'))
+    oracle=kind in (('N_CV','N_FUT') if natural else ('LOG_CV','LOG_FUT','MIN_CV','MIN_FUT'))
     if not (camera or oracle) or (a.mode=='camera_only')!=camera:raise ValueError('Incorrect execution mode')
     if (camera and a.oracle_labels is not None) or (oracle and a.oracle_labels is None):raise ValueError('GT data only allowed in explicit oracle probe')
     if meta['split']=='navtest' and (not camera or a.distribution!='NATURAL' or a.relations_ablation!='none' or not (a.output.parent/'FINAL_METHOD_LOCK.json').exists()):raise ValueError('Only locked natural camera-only final Navtest')
@@ -49,7 +55,7 @@ def main():
     predictor=None
     if kind.startswith('R_'):
         if a.predictor is None or digest(a.predictor)!=info['predictor_sha256']:raise ValueError('Predictor differs from R training')
-        predictor,_=load_predictor(a.predictor,'P_DIFF' if kind=='R_MIN_DIFF' else 'P_ABS')
+        predictor,_=load_predictor(a.predictor,'P_DIFF' if kind in ('R_MIN_DIFF','R_DIFF_FUTURE') else 'P_ABS')
     elif a.predictor is not None:raise ValueError('No predictor in this control')
     qcfg=QueryConfig(**info['query_config'])
     if 'recovery_config' in info:rcfg=RecoveryConfig(**info['recovery_config'])
@@ -72,6 +78,7 @@ def main():
         'relations_ablation':a.relations_ablation,
         'predictor_sha256':digest(a.predictor) if a.predictor else None,
         'q0_transport_meaning':'plan_in for recovery; original S0 q0 for natural','main_trajectory':'q_final only; no GT selection'}
+    if natural:declaration.update(schema='natural_local_planning_export_v1',action_codec_identity=meta.get('action_codec_identity'))
     ident=identity(declaration);a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'identity.json').exists() and read(a.output/'identity.json')['identity']!=ident:raise ValueError('Foreign previous export')
     atomic_json(a.output/'identity.json',{'identity':ident,**declaration})
@@ -118,7 +125,7 @@ def main():
                         result=model.oracle_probe(current,plans,queries,privileged)
                     else:
                         relation=predicted_relations(predictor(execution_view(current,plans),queries)) if predictor is not None else None
-                        if kind=='R_MIN_CURRENT':relation=torch.cat((relation[...,:3],relation[...,1:3]),-1)
+                        if kind in ('R_MIN_CURRENT','R_CURRENT'):relation=torch.cat((relation[...,:3],relation[...,1:3]),-1)
                         if a.relations_ablation=='zero':relation=torch.zeros_like(relation)
                         elif a.relations_ablation=='reverse_time':relation=relation.flip(-2)
                         result=model.camera_only(current,plans,queries,relation)

@@ -14,6 +14,7 @@ from tools.decision_local.common import atomic_json,read,digest,check_host,sourc
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=('canonical','geometry'))
+    p.add_argument('--split',choices=('train','dev'),default='dev')
     for name in ('cross-rows','metric-index','proposals','devkit','labels','anchor','output'):p.add_argument('--'+name,type=Path,required=True)
     a=p.parse_args();check_host();start=time.monotonic();cpu=time.process_time()
     with gzip.open(a.cross_rows,'rt') as f:
@@ -56,7 +57,7 @@ def main():
         from starVLA.model.modules.decision_local.local_evidence import extract_local_evidence
         anchor=read(a.anchor)
         for row in selected:
-            scene=load_local_evidence_scene(anchor,'dev',row);metrics={}
+            scene=load_local_evidence_scene(anchor,a.split,row);metrics={}
             with np.load(a.output/(row['token']+'.npz')) as f:
                 for kind in ('linear','simulated'):
                     facts=extract_local_evidence(scene,f[kind],f['times'])
@@ -64,7 +65,7 @@ def main():
                         road_margin_min_m=float(facts.values[:,0].min()),known_overlap=bool(facts.positive_known[:,2].any()),
                         annotated_distance_min_m=float(facts.values[:,1].min()),events=list(facts.events))
             results.append(dict(token=row['token'],log=row['log'],same_checker_geometry_at_canonical_states=metrics))
-    atomic_json(a.output/(a.mode+'.json'),dict(source_sha=source_sha(ROOT),mode=a.mode,selected_scenes=len(selected),
+    atomic_json(a.output/(a.mode+'.json'),dict(source_sha=source_sha(ROOT),mode=a.mode,split=a.split,selected_scenes=len(selected),
         selection='All natural strict KEEP with canonical score zero; fixed before examining mechanism',results=results,
         CPU_process_seconds=time.process_time()-cpu,wall_seconds=time.monotonic()-start,
         official_scores_and_teacher_targets_modified=False))

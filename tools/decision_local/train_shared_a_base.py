@@ -42,6 +42,17 @@ def prepare_runtime(legacy_source,population_contract):
     def scoped_dataset(*args,**kwargs):
         return view(original,*args,population_contract=population_contract,**kwargs)
     data_module.ActionVideoForesightDataset=scoped_dataset
+    # The legacy profile's final current-image timing uses data[0]. Restrict
+    # that reader too: a full-manifest index zero could be a B recording.
+    from starVLA.dataloader import foresight_dataset
+    original_current=foresight_dataset.ForesightCurrentDataset
+    class ACurrentProfileView(original_current):
+        def __init__(self,root):
+            super().__init__(root)
+            rows=helper.read(contract['index']);lookup={r['token']:r for r in self.index}
+            if any(lookup.get(r['token'])!=r for r in rows):raise ValueError('Foreign A profile population')
+            self.index=rows
+    foresight_dataset.ForesightCurrentDataset=ACurrentProfileView
     return helper,contract
 
 

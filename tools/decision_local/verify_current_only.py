@@ -12,11 +12,9 @@ helpers=importlib.util.module_from_spec(spec);spec.loader.exec_module(helpers)
 
 
 def load_runtime(anchor):
-    legacy=Path(anchor['source_root'])
-    if helpers.source_sha(legacy)!=anchor['training_source_sha']:raise ValueError('Pinned S source changed')
-    sys.path.insert(0,str(legacy))
-    import starVLA
-    if Path(starVLA.__file__).parent.resolve()!=(legacy/'starVLA').resolve():raise ValueError('Legacy source shadowed')
+    spec=importlib.util.spec_from_file_location('dl_anchor_runtime',Path(__file__).with_name('anchor_runtime.py'))
+    adapter=importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter)
+    legacy=adapter.activate(anchor)
     import starVLA.model.modules as modules
     modules.__path__.append(str(ROOT/'starVLA/model/modules'))
     import starVLA.model.framework as frameworks
