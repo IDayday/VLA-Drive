@@ -28,6 +28,19 @@ def case_key(token,anchor,plan):
     return f'{token}:{anchor}:{plan}'
 
 
+def relative_execution_states(states,origin):
+    """PDM stores global poses but instantaneous-body velocity/acceleration.
+
+    BatchKinematicBicycleModel.get_state_dot multiplies VELOCITY_X by the
+    heading to integrate global position. Rotating those body components as
+    if they were global would create a false heading/velocity disagreement.
+    """
+    states=np.asarray(states).copy();x,y,yaw=origin;c,s=np.cos(yaw),np.sin(yaw)
+    states[:,:2]=(states[:,:2]-[x,y])@np.array([[c,-s],[s,c]])
+    states[:,2]=np.arctan2(np.sin(states[:,2]-yaw),np.cos(states[:,2]-yaw))
+    return states
+
+
 def prepare(a):
     import torch
     from safetensors import safe_open
@@ -94,20 +107,18 @@ def canonical_case(task):
     with np.load(case['input']) as f:plans={k:f[k].copy() for k in ('plan','target')}
     with lzma.open(metric['cache_path'],'rb') as f:cache=pickle.load(f)
     sampling=TrajectorySampling(num_poses=40,interval_length=.1);results={};arrays={'times':np.arange(41)*.1}
-    origin=cache.ego_state.rear_axle;c,s=np.cos(origin.heading),np.sin(origin.heading);rotation=np.array([[c,-s],[s,c]])
+    origin=cache.ego_state.rear_axle
     for kind,plan in plans.items():
         scorer=PDMScorer(sampling);simulator=PDMSimulator(sampling)
         score=asdict(pdm_score(cache,Trajectory(plan.astype(np.float64),TrajectorySampling(num_poses=8,interval_length=.5)),sampling,simulator,scorer))
-        states=scorer._states[1].copy()
-        states[:,:2]=(states[:,:2]-[origin.x,origin.y])@rotation
-        states[:,2]=np.arctan2(np.sin(states[:,2]-origin.heading),np.cos(states[:,2]-origin.heading))
-        states[:,3:5]=states[:,3:5]@rotation;states[:,5:7]=states[:,5:7]@rotation
+        states=relative_execution_states(scorer._states[1],[origin.x,origin.y,origin.heading])
         arrays[kind]=states;results[kind]=score
     stem=case['key'].replace(':','_');path=Path(output)/'executed'/(stem+'.npz');tmp=path.with_suffix('.tmp')
     with tmp.open('wb') as f:np.savez_compressed(f,**arrays)
     tmp.replace(path)
     receipt=dict(key=case['key'],input_sha256=case['input_sha256'],metric_cache_sha256=digest(metric['cache_path']),
         executed=str(path),executed_sha256=digest(path),canonical_scores=results,
+        state_coordinates='pose_ego0_velocity_acceleration_instantaneous_body_v1',
         wall_seconds=time.monotonic()-start,CPU_seconds=time.process_time()-cpu)
     atomic_json(Path(output)/'executed'/(stem+'.json'),receipt);return receipt
 
@@ -143,6 +154,7 @@ def validate_case(task):
     from starVLA.dataloader.local_evidence_scene import load_local_evidence_scene
     from starVLA.model.modules.decision_local.local_constraint_checker import LocalConstraintChecker,ConstraintConfig
     receipt=read(Path(output)/'executed'/(case['key'].replace(':','_')+'.json'))
+    if receipt.get('state_coordinates')!='pose_ego0_velocity_acceleration_instantaneous_body_v1':raise ValueError('Unknown simulator state coordinates')
     if receipt['input_sha256']!=case['input_sha256'] or digest(receipt['executed'])!=receipt['executed_sha256']:
         raise ValueError('Changed executed states')
     scene=load_local_evidence_scene(read(meta['anchor_record']),meta['split'],case)
@@ -155,10 +167,16 @@ def validate_case(task):
     times=np.linspace(0,4.,81)
     poses=np.column_stack([np.interp(times,base_times,states[:,i] if i<2 else np.unwrap(states[:,2])) for i in range(3)])
     values,valid,support=checker.relations(poses,times)
-    speed=np.linalg.norm(states[:,3:5],axis=-1);acceleration=np.linalg.norm(states[:,5:7],axis=-1)
-    yaw_rate=np.abs(states[:,9]);tangent=np.arctan2(states[:,4],states[:,3])
-    error=np.abs(np.arctan2(np.sin(states[:,2]-tangent),np.cos(states[:,2]-tangent)))
-    error=np.where(speed>=.5,error,0.)
+    speed=np.linalg.norm(states[:,3:5],axis=-1)
+    c,s=np.cos(states[:,2]),np.sin(states[:,2]);vx,vy=states[:,3],states[:,4]
+    ego0_velocity=np.column_stack((vx*c-vy*s,vx*s+vy*c))
+    # Numerical inertial acceleration includes turning; PDM's stored body
+    # command acceleration alone omits this centripetal component.
+    acceleration=np.linalg.norm(np.gradient(ego0_velocity,base_times,axis=0,edge_order=2),axis=-1)
+    yaw_rate=np.abs(states[:,9]);segments=np.diff(states[:,:2],axis=0)
+    tangent=np.arctan2(segments[:,1],segments[:,0]);heading=states[:-1,2]
+    error=np.abs(np.arctan2(np.sin(heading-tangent),np.cos(heading-tangent)))
+    error=np.where(np.linalg.norm(segments,axis=-1)/np.diff(base_times)>=.5,error,0.)
     checks=dict(strict_returned_target=bool(direct['feasible']),full_road_support=bool(valid[:,0].all()),
         full_annotated_object_support=bool(support['constraint_object_support'].all()),
         road_clearance=bool((values[:,0]>=cfg.road_margin_m).all()),
@@ -169,6 +187,7 @@ def validate_case(task):
         admitted=all(checks.values()),checks=checks,rejection_reasons=[k for k,v in checks.items() if not v],
         road_margin_min_m=float(values[:,0].min()),annotated_clearance_min_m=float(values[:,1].min()),
         speed_max_mps=float(speed.max()),acceleration_max_mps2=float(acceleration.max()),yaw_rate_max_rps=float(yaw_rate.max()),
+        heading_tangent_error_max_rad=float(error.max()),
         strict_target_recheck=direct,canonical_scores=receipt['canonical_scores'],
         input_sha256=case['input_sha256'],label_sha256=case['label_sha256'],executed_sha256=receipt['executed_sha256'],
         CPU_seconds=time.process_time()-cpu,wall_seconds=time.monotonic()-start)

@@ -5,6 +5,17 @@ from starVLA.dataloader.natural_local_dataset import NaturalLocalData
 from tools.decision_local.common import atomic_json,digest,identity
 
 
+def test_canonical_body_velocity_is_not_rotated_as_global_velocity():
+    from tools.decision_local.review_repair_execution import relative_execution_states
+    states=np.zeros((2,11));states[:,:3]=[[10,20,2.7],[9,21,2.8]]
+    states[:,3:7]=[5.,.02,.3,.01]
+    result=relative_execution_states(states,[10,20,2.7])
+    np.testing.assert_array_equal(result[:,3:],states[:,3:])
+    np.testing.assert_allclose(result[:,2],[0,.1],rtol=0,atol=1e-15)
+    np.testing.assert_array_equal(result[0,:2],[0.,0.])
+    np.testing.assert_array_equal(states[0,:3],[10,20,2.7])
+
+
 def fixture_bank(tmp_path,admitted=False,omit=False):
     labels=tmp_path/'labels';(labels/'scenes').mkdir(parents=True);(labels/'records').mkdir()
     values=dict(case_status=np.array([[0,1,2]]),target_eligible=np.array([[True,True,False]]),
