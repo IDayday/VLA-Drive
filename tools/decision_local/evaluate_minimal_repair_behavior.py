@@ -10,12 +10,44 @@ for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS'):os.envir
 import numpy as np
 import torch
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-from tools.decision_local.common import read,atomic_json,digest,identity,check_host
+from tools.decision_local.common import read,atomic_json,digest,identity,check_host,source_sha
 from tools.local_interaction_mask_v2.compare_pdms import read as read_scores,compare,METRICS
 from starVLA.dataloader.minimal_repair_scene import load_annotated_scene
 from starVLA.model.modules.decision_local.local_constraint_checker import LocalConstraintChecker,ConstraintConfig
 from starVLA.model.modules.decision_local.minimal_repair_contract import CaseStatus
 from starVLA.dataloader.foresight_dataset import decode_ego
+
+
+def plan_changes(qin,qf,dt=.5):
+    """Physical diagnostics; these tolerances never gate the executed plan."""
+    qin,qf=np.asarray(qin,np.float64),np.asarray(qf,np.float64)
+    if qin.shape!=qf.shape or qin.shape not in ((6,3),(8,3)) or not np.isfinite([qin,qf]).all():
+        raise ValueError('Finite matching six/eight-point plans required')
+    distance=np.linalg.norm(qf[:,:2]-qin[:,:2],axis=-1)
+    heading=np.abs(np.arctan2(np.sin(qf[:,2]-qin[:,2]),np.cos(qf[:,2]-qin[:,2])))
+    changed=(distance>1e-6)|(heading>1e-6);times=np.arange(1,len(qin)+1)*dt
+    return {'physical_times_s':times.tolist(),'xy_change_m':distance.tolist(),
+        'heading_change_rad':heading.tolist(),'xy_displacement_m':(qf[:,:2]-qin[:,:2]).tolist(),
+        'input_xy_m':qin[:,:2].tolist(),'final_xy_m':qf[:,:2].tolist(),
+        'transport_array_equal':bool(np.array_equal(qin,qf)),
+        'numerically_unchanged_pose':bool(not changed.any()),
+        'first_changed_time_s':float(times[changed][0]) if changed.any() else None,
+        'max_xy_change_time_s':float(times[np.argmax(distance)]) if distance.max()>1e-6 else None,
+        'threshold_scope':'Numerical reporting only: 1e-6m/rad; not KEEP acceptability or a deployment gate'}
+
+
+def aggregate_local_changes(rows):
+    output={}
+    for channel in ('road_violation','annotated_overlap'):
+        output[channel]={}
+        for transition in rows[0]['local_fact_transitions']['channels'][channel]['transitions']:
+            selected=[r for r in rows if r['local_fact_transitions']['channels'][channel]['transitions'][transition]['sample_count']]
+            def item(row):return row['local_fact_transitions']['channels'][channel]['transitions'][transition]
+            output[channel][transition]={'samples':sum(item(r)['sample_count'] for r in selected),
+                'scenes':len({r['token'] for r in selected}),'logs':len({r['log'] for r in selected}),
+                'input_log_actor_or_map_pairs':len({(r['log'],actor) for r in selected for actor in item(r)['input_actor_or_map_ids']}),
+                'final_log_actor_or_map_pairs':len({(r['log'],actor) for r in selected for actor in item(r)['final_actor_or_map_ids']})}
+    return output
 
 
 def analyze(task):
@@ -42,7 +74,12 @@ def analyze(task):
     from safetensors import safe_open
     with safe_open(paths['feature_chunk'],framework='pt',device='cpu') as f:state=f.get_slice('state')[paths['feature_offset']]
     velocity=decode_ego(state[None])[0,:2].numpy()/.5
-    scene=load_annotated_scene(anchor,'dev',row);checker=LocalConstraintChecker(scene,ConstraintConfig(**config))
+    natural=paths.get('local_evidence',False)
+    if natural:
+        from starVLA.dataloader.local_evidence_scene import load_local_evidence_scene
+        scene=load_local_evidence_scene(anchor,paths['split'],row)
+    else:scene=load_annotated_scene(anchor,'dev',row)
+    checker=LocalConstraintChecker(scene,ConstraintConfig(**config))
     before=checker.check(qin,velocity);after=checker.check(qf,velocity,reference=qin)
     xy=np.linalg.norm(qf[:,:2]-qin[:,:2],axis=-1);heading=np.abs(np.arctan2(np.sin(qf[:,2]-qin[:,2]),np.cos(qf[:,2]-qin[:,2])))
     gt_in=np.linalg.norm(qin[:,:2]-gt[:,:2],axis=-1);gt_out=np.linalg.norm(qf[:,:2]-gt[:,:2],axis=-1)
@@ -76,15 +113,46 @@ def analyze(task):
         'input_constraint_check':before,'final_constraint_check':after,
         'future_relation_support':float(valid[2,:,1:].mean()),'common_q0_obstacle_support':float(common[:,1:].mean()),
         'CPU_process_seconds':time.process_time()-cpu,'worker_wall_seconds':time.monotonic()-started}
+    if natural:
+        from starVLA.model.modules.decision_local.local_evidence import extract_local_evidence,compare_local_evidence
+        from starVLA.model.modules.decision_local.recovery_plans import PlanCurve
+        c=checker.config;times=np.linspace(0,c.horizon_s,int(round(c.horizon_s/c.validation_dt))+1)
+        facts=[]
+        for plan in (qin,qf):
+            poses=PlanCurve(plan,velocity,velocity_boundary=c.velocity_boundary).poses(times)
+            facts.append(extract_local_evidence(scene,poses,times,'FUTURE',clip_m=c.distance_clip_m,boundary_m=c.uncertain_boundary_m))
+        values['local_fact_transitions']=compare_local_evidence(*facts)
+        values['plan_changes']=plan_changes(qin,qf)
+        values['CPU_process_seconds']=time.process_time()-cpu
+        values['worker_wall_seconds']=time.monotonic()-started
     return values
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('predictions','scores','labels','features','anchor','output'):p.add_argument('--'+key,type=Path,required=True)
-    p.add_argument('--workers',type=int,default=8);a=p.parse_args();host_resource=check_host();started=time.monotonic();before_children=resource.getrusage(resource.RUSAGE_CHILDREN)
+    p.add_argument('--workers',type=int,default=8)
+    p.add_argument('--scope',choices=('dev','engineering'),default='dev')
+    a=p.parse_args();host_resource=check_host();started=time.monotonic();before_children=resource.getrusage(resource.RUSAGE_CHILDREN)
     pm=read(a.predictions/'identity.json');lm=read(a.labels/'identity.json');fm=read(a.features/'identity.json');sm=read(a.scores/'identity.json')
-    if fm['split']!='dev' or pm['features']!=fm['identity'] or lm['feature_identity']!=fm['identity'] or sm['prediction_identity']!=pm['identity']:raise ValueError('Evaluation population/identity mismatch')
+    anchor=read(a.anchor)
+    from starVLA.model.modules.decision_local.natural_error_contract import SCHEMA
+    natural=lm['schema']==SCHEMA
+    if a.scope=='engineering':
+        if not natural or lm['scope']!='engineering_historical_anchor_only':raise ValueError('Explicit historical engineering labels required')
+    elif fm['split']!='dev':raise ValueError('Formal behaviour analysis remains development-only')
+    if pm['features']!=fm['identity'] or lm['feature_identity']!=fm['identity'] or sm['prediction_identity']!=pm['identity']:raise ValueError('Evaluation population/identity mismatch')
+    if natural:
+        if pm['schema']!='natural_local_planning_export_v1' or pm['sampling_seed']!=42:
+            raise ValueError('Natural behaviour analysis requires registered primary-seed plans')
+        if fm['anchor_identity']!=anchor['identity'] or lm['anchor_identity']!=anchor['identity']:
+            raise ValueError('Analysis must retain the exact shared foundation')
+        if a.scope=='dev' and pm['index']!=fm['index']:
+            raise ValueError('Formal natural analysis retains the full development population')
+        for path,meta in ((a.predictions,pm),(a.scores,sm),(a.labels,lm),(a.features,fm)):
+            if read(path/'COMPLETE.json')['identity']!=meta['identity']:raise ValueError('Incomplete analysis input')
+        labelled={r['token']:r for r in lm['index']}
+        if any(labelled.get(r['token'])!=r for r in pm['index']):raise ValueError('Foreign labelled scene')
     original,final=[read_scores(a.scores/v/'scenes.csv') for v in ('q0','q_final')]
     index=pm['index']
     if set(original)!=set(final) or set(final)!={r['token'] for r in index}:raise ValueError('Full export population required')
@@ -96,6 +164,12 @@ def main():
         'KEEP_modification_thresholds':{'max_xy_m':.25,'max_heading_rad':.1},
         'thresholds_origin':'fixed training-side physical scales; not fitted to development scores',
         'counterfactual_limit':'queries use the logged environment, no claimed response of other actors to changed ego actions'}
+    if natural:
+        declaration.update(schema='natural_local_behavior_analysis_v1',analysis_scope=a.scope,
+            label_scope=lm['scope'],source_sha=source_sha(ROOT),tool_sha256=digest(__file__),
+            local_fact_transitions='Known positives, known negatives and unknown counted separately; unknown is never repair',
+            dense_plan_geometry='Original PlanCurve and GEOS at registered validation_dt; not simulated execution',
+            numeric_unchanged_tolerance={'xy_m':1e-6,'heading_rad':1e-6})
     ident=identity(declaration);a.output.mkdir(parents=True,exist_ok=True);(a.output/'records').mkdir(exist_ok=True)
     if (a.output/'identity.json').exists() and read(a.output/'identity.json')['identity']!=ident:raise ValueError('Preserve previous analysis')
     atomic_json(a.output/'identity.json',{'identity':ident,**declaration})
@@ -103,12 +177,13 @@ def main():
     for pth in sorted((a.features/'records').glob('*.json')):
         record=read(pth)
         for offset,t in enumerate(record['tokens']):locations[t]=(str(a.features/'chunks'/(pth.stem+'.safetensors')),offset)
-    tasks=[];rows=[];anchor=read(a.anchor)
+    tasks=[];rows=[]
     for row in index:
         saved=a.output/'records'/(row['token']+'.json')
         if saved.exists():rows.append(read(saved));continue
         chunk,offset=locations[row['token']]
-        tasks.append((row,{'predictions':str(a.predictions),'labels':str(a.labels),'feature_chunk':chunk,'feature_offset':offset},anchor,lm['constraints'],original[row['token']],final[row['token']]))
+        tasks.append((row,{'predictions':str(a.predictions),'labels':str(a.labels),'feature_chunk':chunk,'feature_offset':offset,
+                          'local_evidence':natural,'split':fm['split']},anchor,lm['constraints'],original[row['token']],final[row['token']]))
     with ProcessPoolExecutor(a.workers,mp_context=multiprocessing.get_context('spawn')) as pool:
         for row in pool.map(analyze,tasks,chunksize=4):
             atomic_json(a.output/'records'/(row['token']+'.json'),row);rows.append(row)
@@ -131,6 +206,11 @@ def main():
         'CPU_waited_children_seconds':sum((getattr(resource.getrusage(resource.RUSAGE_CHILDREN),key)-getattr(before_children,key)) for key in ('ru_utime','ru_stime')),
         'CPU_worker_seconds':sum(r['CPU_process_seconds'] for r in rows),
         'CPU_accounting':'worker CPU is contained within waited-child CPU; do not add them'}
+    if natural:
+        total['local_fact_transitions']=aggregate_local_changes(rows)
+        total['unchanged_pose_scenes']=sum(r['plan_changes']['numerically_unchanged_pose'] for r in rows)
+        total['identical_transport_scenes']=sum(r['plan_changes']['transport_array_equal'] for r in rows)
+        total['local_transition_count_scope']='Sample counts are correlated physical times; scene/log counts kept separately, never additional independent trials'
     atomic_json(a.output/'COMPLETE.json',total);print(json.dumps({'scenes':len(rows),'zero_transitions':transitions,'PDMS_delta_pp':paired['delta_percentage_points']}))
 
 

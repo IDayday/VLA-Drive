@@ -203,3 +203,50 @@ def extract_local_evidence(scene, poses, times, source='FUTURE', *, clip_m=10., 
     strict_support=road_valid&frame_valid&(unknown_distance>.05)
     return LocalEvidenceBatch(values.astype(np.float32),valid,positive,negative,reasons,times,identities,
                               strict_support,observed_free,tuple(events),source)
+
+
+def compare_local_evidence(before, after):
+    """Compare fixed plans at the same physical times, without certifying repair.
+
+    A missing positive after refinement is not a confirmed removal: the new
+    footprint must have a known negative. Likewise unknown->positive is newly
+    observed, not a demonstrated new violation. Continuous conditional distances
+    retain their own paired support; they never supply missing negative labels.
+    """
+    if (not isinstance(before,LocalEvidenceBatch) or not isinstance(after,LocalEvidenceBatch) or
+        before.source!=after.source or before.schema!=after.schema or
+        not np.array_equal(before.physical_times,after.physical_times)):
+        raise ValueError('Local transitions require the same source and physical time grid')
+    result={'schema':'local_fact_transitions_v1','source':before.source,
+        'physical_times_s':before.physical_times.tolist(),'channels':{},'continuous':{}}
+    states=('positive','negative','unknown')
+    for channel,name in ((0,'road_violation'),(2,'annotated_overlap')):
+        a=np.where(before.positive_known[:,channel],0,np.where(before.negative_known[:,channel],1,2))
+        b=np.where(after.positive_known[:,channel],0,np.where(after.negative_known[:,channel],1,2))
+        changes={}
+        for i,left in enumerate(states):
+            for j,right in enumerate(states):
+                mask=(a==i)&(b==j)
+                def actors(facts):
+                    return sorted({actor for value in facts.actor_or_map_identity[mask,channel]
+                                   for actor in str(value).split('|') if actor})
+                changes[left+'_to_'+right]={'sample_count':int(mask.sum()),
+                    'physical_times_s':before.physical_times[mask].tolist(),
+                    'input_actor_or_map_ids':actors(before),'final_actor_or_map_ids':actors(after)}
+        result['channels'][name]={'transitions':changes,
+            'input_unknown_reasons':before.unknown_reason[:,channel].astype(int).tolist(),
+            'final_unknown_reasons':after.unknown_reason[:,channel].astype(int).tolist(),
+            'input_positive_samples':int((a==0).sum()),'final_positive_samples':int((b==0).sum())}
+    for channel,name in ((0,'road_margin_m'),(1,'annotated_object_distance_m')):
+        mask=before.label_valid[:,channel]&after.label_valid[:,channel]
+        delta=after.values[:,channel]-before.values[:,channel]
+        result['continuous'][name]={'paired_samples':int(mask.sum()),
+            'mean_change_m':float(delta[mask].mean()) if mask.any() else None,
+            'input_min_m':float(before.values[mask,channel].min()) if mask.any() else None,
+            'final_min_m':float(after.values[mask,channel].min()) if mask.any() else None}
+    result['interpretation']={'positive_to_negative':'confirmed removal at the sampled time only',
+        'positive_to_unknown':'unresolved after change; never counted as repair',
+        'negative_to_positive':'new known violation',
+        'unknown_to_positive':'newly observed positive; input was not proven negative',
+        'limits':'Plan geometry in the fixed logged environment, not tracked execution, canonical responsibility or full-trajectory certification'}
+    return result
