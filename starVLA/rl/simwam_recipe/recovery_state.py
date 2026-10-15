@@ -83,7 +83,10 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
         if v['run'] != identity['sha256'] or v['update'] != u - i:
             raise ValueError('Behavior is not the collection-start policy')
         old = rollout['old_probability']['current'] if 'current' in rollout['old_probability'] else rollout['old_probability']
-        if not torch.equal(old['source_clamped_logprob'].mean((-1, -2)), rollout['old_logp']):
+        # Restore validates CPU tensors. CPU and CUDA FP32 reduction trees differ
+        # by up to 2.384e-7 on the actual eight-rank chain. Payload hashes still
+        # enforce exact stored bits; this check only validates their semantics.
+        if not torch.allclose(old['source_clamped_logprob'].mean((-1, -2)), rollout['old_logp'],atol=5e-7,rtol=0):
             raise ValueError('Old probability/chain audit mismatch')
         summary.update(digests=rollout_digest(rollout), behavior=v,
                        rewards=rollout['rewards'].double().cpu().tolist(),

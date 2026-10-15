@@ -22,7 +22,8 @@ def equal(a,b,path='root'):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--continuous',required=True);p.add_argument('--resumed',required=True);p.add_argument('--output',required=True);a=p.parse_args()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--continuous',required=True);p.add_argument('--resumed',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--interrupted-after',type=int,nargs='*',default=[1]);a=p.parse_args()
     roots=[Path(a.continuous),Path(a.resumed)]
     def read(root,rel):return torch.load(root/rel,map_location='cpu',weights_only=False)
     ck='checkpoints/update000008_inner0/'
@@ -43,7 +44,7 @@ def main():
             for k in ('loss','gradient_norm','ratio_max_abs_from_one','metrics','lr'):
                 equal(metrics[0][i][k],metrics[1][i][k],f'rank{rank}.update{i+1}.{k}')
     out=Path(a.output);out.parent.mkdir(parents=True,exist_ok=True)
-    report=dict(status='PASS',world=world,all_ranks_checked=True,interrupted_after_inner=1,resumed_remaining_inner_updates=True,final_updates=8,
+    report=dict(status='PASS',world=world,all_ranks_checked=True,interrupted_after_inner=a.interrupted_after,resumed_remaining_inner_updates=True,final_updates=8,
                 optimizer_adapters_scheduler_RNG_exact=True,next_fresh_chain_old_probability_advantages_exact=True,
                 losses_gradnorm_ratios_learning_rate_exact=True,continuous=str(roots[0]),resumed=str(roots[1]))
     atomic_json(out,report);print(json.dumps(report))
