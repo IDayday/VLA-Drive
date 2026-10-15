@@ -1,0 +1,164 @@
+{
+  "CPU_process_seconds": 120355.11119932141,
+  "by_plan": {
+    "0": {
+      "KEEP": 16629,
+      "REPAIR": 21,
+      "TASK_UNCERTAIN": 100,
+      "UNCERTAIN": 80971,
+      "UNSOLVED": 41
+    },
+    "1": {
+      "KEEP": 14244,
+      "REPAIR": 648,
+      "TASK_UNCERTAIN": 46,
+      "UNCERTAIN": 81576,
+      "UNSOLVED": 1248
+    },
+    "2": {
+      "KEEP": 13152,
+      "REPAIR": 850,
+      "TASK_UNCERTAIN": 58,
+      "UNCERTAIN": 81959,
+      "UNSOLVED": 1743
+    },
+    "3": {
+      "KEEP": 16279,
+      "REPAIR": 311,
+      "TASK_UNCERTAIN": 100,
+      "UNCERTAIN": 80987,
+      "UNSOLVED": 85
+    },
+    "4": {
+      "KEEP": 16532,
+      "REPAIR": 100,
+      "TASK_UNCERTAIN": 100,
+      "UNCERTAIN": 80967,
+      "UNSOLVED": 63
+    }
+  },
+  "decoder_roundtrip_atol_m": 1e-05,
+  "input_checks": {
+    "annotated_overlap": 10885,
+    "kinematic_ok": 477957,
+    "out_of_range": 0,
+    "repair_new_full_stop": 1,
+    "road_violation": 18537
+  },
+  "label_identity": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+  "label_scope": "annotated planar geometry with unknown support retained; not full free-space/safety GT",
+  "metrics": {
+    "KEEP_endpoint_norm_change_m": {
+      "max": 7.62939453125e-06,
+      "mean": 1.1646938110491368e-08,
+      "n": 76836,
+      "p50": 0.0,
+      "p90": 0.0
+    },
+    "KEEP_input_GT_ADE_m": {
+      "max": 3.8585219383239746,
+      "mean": 0.7570601419332116,
+      "n": 76836,
+      "p50": 0.4366542100906372,
+      "p90": 2.025749444961548
+    },
+    "KEEP_maximum_change_m": {
+      "max": 3.932099843950709e-06,
+      "mean": 5.683119359707656e-07,
+      "n": 76836,
+      "p50": 2.3868037146712595e-07,
+      "p90": 1.9073486328125e-06
+    },
+    "KEEP_target_GT_ADE_m": {
+      "max": 3.8585219383239746,
+      "mean": 0.7570601425907226,
+      "n": 76836,
+      "p50": 0.43665407598018646,
+      "p90": 2.025749444961548
+    },
+    "REPAIR_endpoint_norm_change_m": {
+      "max": 0.45868778228759766,
+      "mean": -0.062295265434010656,
+      "n": 1930,
+      "p50": -0.019310474395751953,
+      "p90": 0.06762723922729494
+    },
+    "REPAIR_input_GT_ADE_m": {
+      "max": 4.232017517089844,
+      "mean": 0.9767619015002343,
+      "n": 1930,
+      "p50": 0.46389707922935486,
+      "p90": 3.101030421257019
+    },
+    "REPAIR_maximum_change_m": {
+      "max": 1.9999994039535522,
+      "mean": 0.39485547919244957,
+      "n": 1930,
+      "p50": 0.3192890137434006,
+      "p90": 0.8043654620647431
+    },
+    "REPAIR_target_GT_ADE_m": {
+      "max": 3.8343710899353027,
+      "mean": 0.8348909304530355,
+      "n": 1930,
+      "p50": 0.3829810172319412,
+      "p90": 2.929680991172791
+    },
+    "eligible_CV_FUT_clearance_absolute_difference": {
+      "max": 12.19736099243164,
+      "mean": 0.4071808310641379,
+      "n": 4030454,
+      "p50": 0.025747627019882202,
+      "p90": 1.0987476944923404
+    },
+    "eligible_CV_FUT_overlap_absolute_difference": {
+      "max": 1.0,
+      "mean": 0.010036957701944198,
+      "n": 4402330,
+      "p50": 0.0,
+      "p90": 0.0
+    },
+    "eligible_CV_FUT_road_absolute_difference": {
+      "max": 0.0,
+      "mean": 0.0,
+      "n": 4410896,
+      "p50": 0.0,
+      "p90": 0.0
+    }
+  },
+  "planning_scores_used_for_target_selection": false,
+  "plans": 488810,
+  "reasons": {
+    "boundary_or_clearance_ambiguity": 2413,
+    "geometry_feasible_but_progress_intent_unknown": 404,
+    "least_change_among_independently_validated_fixed_budget_solutions": 1930,
+    "map_height_object_or_future_support_incomplete": 404047,
+    "no_independently_validated_solution_within_budget": 3180,
+    "verified_annotated_local_constraints": 76836
+  },
+  "relation_support": {
+    "clearance_valid_points": 4030454,
+    "eligible_CV_FUT_clearance_changed_ge_05m_plans": 33560,
+    "eligible_CV_FUT_overlap_changed_plans": 7735,
+    "input_False": 404047,
+    "input_True": 84763,
+    "overlap_valid_points": 4402330,
+    "road_valid_points": 4410896
+  },
+  "repair_causes": {
+    "annotated_overlap": 194,
+    "kinematic_violation": 502,
+    "road_violation": 1255
+  },
+  "scenes": 48881,
+  "scenes_with_any_eligible_plan": 8456,
+  "states": {
+    "KEEP": 76836,
+    "REPAIR": 1930,
+    "TASK_UNCERTAIN": 404,
+    "UNCERTAIN": 406460,
+    "UNSOLVED": 3180
+  },
+  "target_eligible_fraction": 0.16113827458521715,
+  "worker_wall_seconds": 125067.1535205458
+}

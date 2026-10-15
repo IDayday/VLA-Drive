@@ -1,0 +1,220 @@
+{
+  "common_recipe": {
+    "TF32": false,
+    "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+    "batch": 128,
+    "clip": 1.0,
+    "compute_precision": "FP32",
+    "constraint_config": {
+      "distance_clip_m": 10.0,
+      "horizon_s": 4.0,
+      "max_acceleration_mps2": 12.0,
+      "max_heading_change_rad": 0.4,
+      "max_heading_tangent_error_rad": 0.35,
+      "max_plan_change_m": 2.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "min_progress_fraction": 0.65,
+      "obstacle_clearance_m": 0.05,
+      "road_margin_m": 0.02,
+      "sample_dt": 0.1,
+      "uncertain_boundary_m": 0.15,
+      "validation_dt": 0.05,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "annotated_local_constraints_v3_current_velocity"
+    },
+    "dim": 512,
+    "epochs": 24,
+    "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+    "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+    "lr": 0.0001,
+    "microbatch": 16,
+    "query_config": {
+      "dense_dt": 0.025,
+      "dt": 0.5,
+      "kinematics_revision": "heading_transition_v3_current_velocity",
+      "lateral_m": [
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "max_acceleration_mps2": 12.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "stationary_speed_mps": 0.15,
+      "time_shift_s": [
+        -0.5,
+        0.5
+      ],
+      "velocity_boundary": "measured_vector_v2"
+    },
+    "recovery_config": {
+      "dt": 0.5,
+      "lateral_amplitudes_m": [
+        0.25,
+        0.75,
+        1.25
+      ],
+      "lateral_size_probabilities": [
+        0.5,
+        0.4,
+        0.1
+      ],
+      "selection_seed": 17015,
+      "time_amplitude_s": 0.5,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "actual_plan_pool_v2_current_velocity"
+    },
+    "repair_fold": {
+      "fold": 1,
+      "logs": 588,
+      "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+      "scenes": 48881
+    },
+    "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+    "scheduler": "one epoch linear warmup then cosine to0.1LR",
+    "trainable_parameters": 8162308,
+    "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+    "weight_decay": 0.001
+  },
+  "no_training_state_changes": true,
+  "not_checked": "No claim that trained weights match across different targets/information sources",
+  "pending": [
+    "stageA_v5_seed42_LOG_NONE",
+    "stageA_v5_seed42_LOG_CV",
+    "stageA_v5_seed42_LOG_FUT",
+    "stageA_v5_seed42_MIN_NONE",
+    "stageA_v5_seed42_MIN_CV",
+    "stageA_v5_seed42_MIN_FUT",
+    "stageA_v5_seed43_LOG_FUT",
+    "stageA_v5_seed43_MIN_CV",
+    "stageA_v5_seed43_MIN_FUT"
+  ],
+  "registry_sha256": "c3538db15d154d5144d48f7384dad74499b84fca7a4e7226764b2d097292e86e",
+  "runs": [
+    {
+      "completed": null,
+      "identity_sha256": "aaf0e755f3ed3ad7fbec56d71385fe472fa350db4382a4632948c18cb5a6deca",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_LOG_NONE",
+      "kind": "LOG_NONE",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 244
+    },
+    {
+      "completed": null,
+      "identity_sha256": "ba61eecb8844ea35d8a1ffa6d91bc80f074b07e814c60708d9823c1dcf425484",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_LOG_CV",
+      "kind": "LOG_CV",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 387
+    },
+    {
+      "completed": null,
+      "identity_sha256": "6564ac946abe90fcd7df29ec0c2f5c068a896aafa2940f774a728af24d58ca87",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_LOG_FUT",
+      "kind": "LOG_FUT",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 387
+    },
+    {
+      "completed": null,
+      "identity_sha256": "28656fa0ee12f2ee5216f1556ba3306cabd6e3abd2bafadef87def639d917aa7",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_MIN_NONE",
+      "kind": "MIN_NONE",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 244
+    },
+    {
+      "completed": null,
+      "identity_sha256": "fc77937e471d2e1e1c4ff9dacb439cf96749da27e0dae12bd89f113f05c6dce9",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_MIN_CV",
+      "kind": "MIN_CV",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 521
+    },
+    {
+      "completed": null,
+      "identity_sha256": "3e2911ef279f3cf29847f72a2bb4b7a0146262086202a2c0cb970d4df1f17231",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_v5_seed42_MIN_FUT",
+      "kind": "MIN_FUT",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 521
+    },
+    {
+      "completed": null,
+      "identity_sha256": "824673ed2fd27168f5db83c092c8649089c3c2d3193a663563f4a813d0584c65",
+      "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+      "job": "stageA_v5_seed43_LOG_FUT",
+      "kind": "LOG_FUT",
+      "scope": "repair_formal",
+      "seed": 43,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 165
+    },
+    {
+      "completed": null,
+      "identity_sha256": "3f01403b38f62edfd7744f13376373a683ad7934b5f66e232641c4f2486c0a8a",
+      "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+      "job": "stageA_v5_seed43_MIN_CV",
+      "kind": "MIN_CV",
+      "scope": "repair_formal",
+      "seed": 43,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 165
+    },
+    {
+      "completed": null,
+      "identity_sha256": "25ea9e34dbd0ce67689a3dff6f5f11681aacf2d56b029917a0c0fb900de582e9",
+      "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+      "job": "stageA_v5_seed43_MIN_FUT",
+      "kind": "MIN_FUT",
+      "scope": "repair_formal",
+      "seed": 43,
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+      "updates_observed": 165
+    }
+  ],
+  "same_seed_initialization_and_exposure": {
+    "42": {
+      "arms": [
+        "LOG_NONE",
+        "LOG_CV",
+        "LOG_FUT",
+        "MIN_NONE",
+        "MIN_CV",
+        "MIN_FUT"
+      ],
+      "exact_accounting": true,
+      "matched_optimizer_boundaries": 244
+    },
+    "43": {
+      "arms": [
+        "LOG_FUT",
+        "MIN_CV",
+        "MIN_FUT"
+      ],
+      "exact_accounting": true,
+      "matched_optimizer_boundaries": 165
+    }
+  },
+  "tool_sha256": "2f81bef19f7e9d7cd50c026687131da85c2efc47f0637101f06f0aa75ccc73ff"
+}

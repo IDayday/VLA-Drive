@@ -11,18 +11,44 @@ S0训练源码是 `1493deda247107efe076b9294863a6753391298a`，
 ## 当前正确性修复与重跑状态
 
 继承的样条起始导数使用 `[norm(v), 0]`，没有保留合法当前速度的横向分量。
-固定256训练场景的向量误差P95为0.3993m/s，最大0.7251m/s。因此九个已启动
+固定256训练场景的向量误差P95为0.3993m/s，最大0.7251m/s。因此九个旧v4
 小头全部在optimizer边界保存并暂停；旧标签、权重、成本及负结果保留，禁止把它们
 直接恢复后称为修正版本。旧开发评价调度器已停止，未改动G2或无关任务。
 
 修正使用显式版本 `measured_vector_v2`，保留完整初始速度向量与当前车身姿态，
 旧默认分支用于历史复现。23项相关测试通过；真实64场景、640条计划复核中，旧查询
 及有效性mask逐位复现，新版初始速度/姿态误差为零，原生q0不变。
-新目标使用独立 `targets_*_v5`；64、256、4096场景与完整1696开发标签已生成，
-4096场景逐文件哈希核验已完成。40,960条诊断计划中KEEP5914、REPAIR163，
-目标资格14.8364%；没有新增完全停车目标。KEEP仍可与日志GT显著不同。
-完整B折48,881场景已在四台授权主机的96个CPU worker上生成，核验收尾后自动放行
-九组共同随机初始化训练。当前尚未开始这九组新正式头，不能把登记视为完成。
+新目标使用独立 `targets_*_v5`。corrected v5完整B折（fullB）48,881场景与开发集
+dev1696均已COMPLETE，见 [fullB完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_foldB_v5/COMPLETE.json)
+和 [dev1696完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5/COMPLETE.json)。
+fullB收据记录全量身份及SHA256核验完成。另有64、256、4096场景诊断；4096场景的
+40,960条计划中KEEP5914、REPAIR163，目标资格14.8364%，没有新增完全停车目标。
+这些覆盖数值来自固定4096训练诊断集，不是fullB总体统计；KEEP仍可与日志GT显著不同。
+当前9个v5 formal小头均已从对应seed的共同随机初始化启动：seed42六组
+LOG_NONE/CV/FUT、MIN_NONE/CV/FUT，seed43关键三组LOG_FUT/MIN_CV/MIN_FUT。
+实际训练源码仍为 `0471af96e4f769eb2b31b787a68c57be24bebee0`，目前尚无24epoch正式结果。
+
+九组均已在原生optimizer边界保存完整状态，并从字节相同的RAM特征镜像恢复运行。
+rl-zt2的两组迁至tsinghua-zt4；其余保留原主机。共享存储中的原始文件没有改变。
+镜像字节与元数据一致性见 [RAM_CACHE收据](/mnt/project/minimal-repair-artifacts/20261015/RAM_CACHE_training-vla-zt_v10.json)，
+迁移请求见 [RAM_RESUME_REQUESTS_v11.json](/mnt/project/minimal-repair-artifacts/20261015/RAM_RESUME_REQUESTS_v11.json)。
+[resume_RAM_v11/ACCEPTANCE.json](/mnt/project/minimal-repair-artifacts/20261015/resume_RAM_v11/ACCEPTANCE.json)
+已验证真实64场景、48updates及第7步中断后共享存储→RAM恢复的模型、optimizer、scheduler、
+RNG、数据位置和曝光计数逐位一致；该小集验收不代表九组正式迁移或训练全部完成。
+跨主机48步恢复也逐位一致，见 [跨主机恢复验收](evidence/RAM_CROSSHOST_RESUME_ACCEPTANCE_v11.json)。
+三组本地seed43任务进一步使用相同字节的标签RAM镜像；标签位置切换的完整恢复验收见
+[标签RAM验收](evidence/RAM_LABEL_RESUME_ACCEPTANCE_v12.json)。其余已读热的任务不再中断。
+迁移保持原始数据、逻辑特征/标签身份、数值模式及冻结训练源码，逐run进度以原生状态收据为准。
+
+完整B折统计已完成：488,810个预构造计划中KEEP76,836、REPAIR1,930、UNCERTAIN406,460、
+UNSOLVED3,180、TASK_UNCERTAIN404；有效比例16.1138%，8,456个原场景至少有一个有效计划。
+修复原因包括道路1,255、已标注对象交叠194、运动学502，类别可重叠；原生q0仅21项REPAIR。
+这些是计划池统计，不是实际训练曝光，后者由各run逐步计数。
+另有1项目标终点位移从1.0205m变为0.9972m；原计划最后半秒速度已约0.033m/s，目标约0.031m/s。
+这是既有低速计划的阈值跨越，不能称为新增完全停车，见[专项核查](evidence/LOW_PROGRESS_TARGET_AUDIT_v12.json)。
+见 [完整B折目标质量](evidence/TARGET_QUALITY_FOLDB_v5.json)。A折同版本标签已按有限CPU预算并行准备，
+没有提前放行阶段B正式P/R训练。
+
 新版11个真实小集训练链路、48步中断恢复与4图在线/缓存对齐均已通过；在线每场景
 一次S0视觉、一次语言前向和一次原十步proposal，q0/q_final逐位一致。
 此前的v4训练和目标诊断仅为保留的工程历史，不是修正后方法的主结果。
@@ -34,7 +60,7 @@ camera-only部署和失败转移分析。全部query及残差基准由实际输�
 
 ## 已完成的旧v4执行证据（已被正确性修复取代）
 
-- 新几何v4的64、256、4096训练诊断及1696开发场景标签均已生成。完整B折
+- 旧v4几何的64、256、4096训练诊断及1696开发场景标签均已生成。完整B折
   48,881场景的四个CPU分片及全量SHA核验已完成；这些旧标签现有明确hold。
 - 4096诊断场景的40,960个输入中，KEEP 5915、REPAIR 159、UNCERTAIN 34631、
   UNSOLVED 233、TASK_UNCERTAIN 22。共同目标资格约14.8291%；未知场景保留在评价中。
@@ -52,23 +78,39 @@ camera-only部署和失败转移分析。全部query及残差基准由实际输�
 
 沿用原1176训练logs两折：A=52711、B=48881；开发1696场景独立。阶段A六组
 LOG_NONE/CV/FUT、MIN_NONE/CV/FUT共用B、输入分布、目标资格、结构与24epoch配方。
-seed42六组、seed43的LOG_FUT/MIN_CV/MIN_FUT的实验清单不变；6/12/18/24epoch的
-自然输入和恢复输入各自评价，共72项固定开发观察。旧九组已暂停，修正后另建run身份。
-登记和等待不算训练完成。
+seed42六组、seed43的LOG_FUT/MIN_CV/MIN_FUT共9个v5正式头已启动；6/12/18/24epoch的
+自然输入和恢复输入各自评价，共72项固定开发观察。旧v4九组保持正确性hold，v5使用独立run身份。
+已启动及RAM恢复验收均不等于24epoch训练或开发评价完成。
+
+共同目标资格仅控制哪些计划贡献监督loss；关系support是另一条输入通道。CV/FUT的
+`common_valid`是CURRENT、CV、FUTURE有效性mask的交集，包含未来标注支持信息，
+两者使用相同support；NONE不接收该mask。因此FUT−CV只识别共同特权support条件下
+关系数值的增量，FUT−NONE还混有support信息增量，不能解释成纯粹的未来关系价值。
+CV/FUT均为特权探针。局部可接受性不保证导航路线、信号或完整交通正确性。
 
 阶段B正式训练依阶段A的真实效果、机制和标签覆盖证据决定。全部P/R接口已有真实
 smoke；不得把它们写成完整P_A/R_B结果，也不得因区间跨零就直接否定未来信息。
-截至本次记录，尚无六组共同终点或本轮最终Navtest成绩。完成状态以共享产物的
-`COMPLETE.json`和后续共同终点报告为准。
+截至本次记录，尚无24epoch正式结果、六组共同终点或本轮最终Navtest成绩。当前注册与调度见
+[STAGE_A_V5_TASKS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_TASKS.json)、
+[STAGE_A_V5_RUNNERS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_RUNNERS.json)、
+[STAGE_A_V5_EVAL_NATURAL.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_NATURAL.json)、
+[STAGE_A_V5_EVAL_RECOVERY.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_RECOVERY.json)
+及 [STAGE_A_V5_EVALUATION_RUNNERS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVALUATION_RUNNERS.json)。
+完成状态以对应run/评价的 `COMPLETE.json` 和后续共同终点报告为准。
 
 资格低的主要已知原因是消失track之后的保守未知可达区域。固定256训练场景中224个
 受到该项影响，类别可与其他未知原因重叠。没有为了覆盖率把未知区域改为空闲。
-本轮KEEP仅表示所选标注条件下的局部可接受，不是完整交通规则或现实安全保证。
+v5固定4096诊断集仅163项REPAIR，其中17项涉及已标注障碍交叠，未来修复信号稀疏，
+见 [TARGET_QUALITY_4096_v5.json](evidence/TARGET_QUALITY_4096_v5.json)。全部开发场景仍保留在评价分母中；
+低覆盖及区间跨零均不能支持“未来信息无价值”的结论。本轮KEEP仅表示所选标注条件下的
+局部可接受，不是路线、完整交通规则或现实安全保证。
 
 ## 身份、资源和记录
 
 实现及局限见 [METHOD_AND_IMPLEMENTATION_ZH.md](METHOD_AND_IMPLEMENTATION_ZH.md)。
 聚合数值、恢复、真实部署、标签和来源收据在 [evidence](evidence/)。
+修正版本运行命令参见 [CURRENT_VECTOR_COMMANDS_ZH.md](CURRENT_VECTOR_COMMANDS_ZH.md)。
+实际无损承接、临时缓存与终点诊断命令见 [EXECUTION_AND_RESUME_ZH.md](EXECUTION_AND_RESUME_ZH.md)。
 原数据、权重、地图图示和cache均不上传Git。
 
 持久产物只在 `/mnt/project/minimal-repair-artifacts/20261015`。标签和训练使用已授权的
