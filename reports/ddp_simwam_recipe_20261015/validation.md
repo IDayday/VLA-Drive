@@ -26,8 +26,11 @@ iteration at which this FP32 reduction layout is used. The fix explicitly
 uses `find_unused_parameters=True`, `static_graph=False`, bucket25MB; the
 installed Reducer does not rebuild in this mode. All192 adapter gradients
 remain mandatory, so unused detection does not relax the parameter contract.
-The new `eight_gpu_recovery_v3_fixed_buckets/` test is running; no exact
-eight-GPU recovery success is claimed before its result exists.
+The new `eight_gpu_recovery_v3_fixed_buckets/` test **passed**: all eight ranks'
+RNG, saved/next-fresh chains, advantages, old density, losses, grad norms and
+learning rates are exact, as are LoRA/Adam/scheduler states. Its receipt is
+`qualification/eight_gpu_recovery_v3.json`. The reducer reports one 18,874,368
+byte bucket and `has_rebuilt_buckets=0`. The failed v2 evidence is retained.
 Both formal variants and complete evaluations are not yet reported as done.
 
 ## Numerical limits and preserved failures

@@ -1,8 +1,9 @@
 # DDP: SimWAM public recipe transfer
 
-Status at 2026-10-15 01:00 UTC: implementation and bounded real-model acceptance
-are available; full TRAIN single-ODE screening and paired SFT deployment
-evaluation are running. **Neither formal 20,000-update run is complete. No
+Status at 2026-10-15 01:15 UTC: implementation, bounded real-model acceptance,
+exact eight-GPU recovery, full TRAIN single-ODE screening and paired SFT
+deployment evaluation are available. The hard manifest is being sealed.
+**Neither formal 20,000-update run is complete. No
 claim of improved deployment PDMS is supported yet.** This report is updated
 by stage rather than replacing unfinished work with a plan.
 
@@ -132,7 +133,20 @@ The fixed final selection rule is each variant's update20000 endpoint, not
 the best intermediate checkpoint. Full Navtest waits for endpoint identity
 locking. No extra training or inference seeds are scheduled.
 
-Formal learning curves, complete paired DEV results, final Navtest,
+Completed SFT controls (single seed2101):
+
+| Population | E_NATIVE PDMS /100 | E_SHIFT5 PDMS /100 |
+|---|---:|---:|
+| Complete RL_DEV, 1696 scenes | 93.6192 | 93.5747 |
+| Fixed TRAIN diagnostic, 512 scenes | 80.3316 | 79.1099 |
+
+These are **SFT baselines, not RL gains**. The TRAIN diagnostic contains
+directed difficult cases; its mean is not an unbiased full-TRAIN estimate.
+DEV's different difficulty does not replace Navtest. Detailed metrics,
+kinematics and execution costs are in `SFT_DEV_baseline.json` and
+`SFT_TRAIN_DIAGNOSTIC_baseline.json`.
+
+Formal learning curves, complete paired RL-vs-SFT DEV results, final Navtest,
 NC/DAC/TTC added violations/recoveries, zero transitions, positive/negative
 score sums, progress/kinematics, gradient competition and cost accounting
 remain **pending**. Qualification results establish implementation evidence,
