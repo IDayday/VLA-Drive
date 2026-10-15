@@ -1,4 +1,4 @@
-"""Two locked source-recipe variants, four real updates per actual fresh chain.
+"""Locked source recipes and separately registered X1, four updates per chain.
 
 Run with torchrun. Qualification is a separate run identity; its weights can
 never initialize a formal run. SIGUSR1 requests an exact inner-boundary save.

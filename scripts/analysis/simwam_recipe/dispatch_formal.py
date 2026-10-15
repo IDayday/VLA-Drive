@@ -8,28 +8,41 @@ from starVLA.rl.simwam_recipe.contracts import ROOT,file_sha,load_recipe
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--variant',choices=['R_SOURCE','R_CANONICAL'],required=True)
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--variant',choices=['R_SOURCE','R_CANONICAL','R_CANONICAL_X1'],required=True)
     p.add_argument('--host',required=True);p.add_argument('--snapshot',required=True);p.add_argument('--resume')
-    a=p.parse_args();root=Path(ROOT);snapshot=Path(a.snapshot).resolve()
+    p.add_argument('--root',default=ROOT)
+    p.add_argument('--qualification',default='eight_gpu_recovery_v3_fixed_buckets')
+    a=p.parse_args();root=Path(a.root);assets=Path(ROOT);snapshot=Path(a.snapshot).resolve()
+    if a.variant=='R_CANONICAL_X1':
+        authorization=json.loads((root/'AUTHORIZATION.json').read_text())
+        if (authorization['status']!='AUTHORIZED_BY_USER_GO_ON'
+            or authorization['proposed_name']!=a.variant
+            or Path(authorization['output_root']).resolve()!=root.resolve()
+            or authorization['budget']['optimizer_updates']!=20000):
+            raise ValueError('Missing exact X1 registration')
+        if json.loads((root/'qualification/cpu_contract.json').read_text())['status']!='PASS':
+            raise ValueError('X1 contract not qualified')
+    elif root.resolve()!=assets.resolve():
+        raise ValueError('Historical variants retain their original run root')
     policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     if (a.host not in policy['task_authorizations']['flow_safe_improvement_20261013']['allowed_hosts']
         or a.host not in policy['allowed_hosts']
         or policy.get('global_dispatch_prohibitions',{}).get(a.host,{}).get('new_task_dispatch_allowed') is False):raise PermissionError(a.host)
     source=json.loads((snapshot/'SOURCE_IDENTITY.json').read_text())
-    qualification=root/'qualification/eight_gpu_recovery_v3_fixed_buckets'
+    qualification=root/'qualification'/a.qualification
     if json.loads((qualification/'result.json').read_text())['status']!='PASS':raise ValueError('Eight-rank exact recovery not qualified')
     qi=json.loads((qualification/'continuous/identity.json').read_text())
     for relative,sha in qi['source_files'].items():
         if file_sha(snapshot/relative)!=sha:raise ValueError('Formal core differs from qualified core: '+relative)
-    manifest=root/'hard_manifest.json';hard=json.loads(manifest.read_text())
+    manifest=assets/'hard_manifest.json';hard=json.loads(manifest.read_text())
     if hard['status']!='COMPLETE_FIXED_SFT_SINGLE_NATIVE_ODE_HARD_SUBSET' or hard['full_TRAIN_scenes']!=101592:raise ValueError('Incomplete fixed hard population')
     for name in ('math_extended.json','lora.json','source_engine.json','raw_observation_export.json'):
-        if json.loads((root/'qualification'/name).read_text())['status']!='PASS':raise ValueError('Failed acceptance: '+name)
+        if json.loads((assets/'qualification'/name).read_text())['status']!='PASS':raise ValueError('Failed acceptance: '+name)
     for cohort in ('DEV','TRAIN_DIAGNOSTIC'):
-        baseline=root/'evaluations'/('SFT_update000000_'+cohort)
+        baseline=assets/'evaluations'/('SFT_update000000_'+cohort)
         for rank in range(8):
             if json.loads((baseline/f'rank{rank}.json').read_text())['status']!='ASSIGNED_COMPLETE':raise ValueError('SFT baseline incomplete')
-    config='configs/flow_rl/simwam_'+('source' if a.variant=='R_SOURCE' else 'canonical')+'_ddp.yaml'
+    config='configs/flow_rl/simwam_'+{'R_SOURCE':'source','R_CANONICAL':'canonical','R_CANONICAL_X1':'canonical_x1'}[a.variant]+'_ddp.yaml'
     cfg=load_recipe(snapshot/config)
     expected=dict(qi['recipe']);expected['variant']=a.variant
     if a.variant=='R_CANONICAL':
@@ -39,7 +52,7 @@ def main():
     output=root/'runs'/(a.variant+'_seed42_v1')
     python='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
     payload=dict(vars(a),snapshot=str(snapshot),source=source,python=python,config=config,manifest=str(manifest),
-                 hard_manifest_sha256=file_sha(manifest),output=str(output),root=ROOT)
+                 hard_manifest_sha256=file_sha(manifest),output=str(output),root=str(root))
     code='''import json,os,subprocess,time
 from pathlib import Path
 p=json.loads(PAYLOAD);out=Path(p['root'])/'formal_dispatch';out.mkdir(parents=True,exist_ok=True)

@@ -1,0 +1,91 @@
+{
+  "schema": "simwam_next_single_factor_proposal_v1",
+  "status": "AUTHORIZED_BY_USER_GO_ON",
+  "proposed_name": "R_CANONICAL_X1",
+  "scope": "One proposed additional training run; existing R_CANONICAL is the fixed control. Formal R_SOURCE/R_CANONICAL unchanged.",
+  "parent_control_run_identity": "fb41121f52539dcd1c7f55be52754de37d5f0fe3d24b09fb88d8e98a93c49942",
+  "source_recipe_registration": "reports/ddp_simwam_recipe_20261015/experiment_registration.json",
+  "parameter_delta": {
+    "grpo.train.kl_dim_weights": {
+      "from": [
+        0.2,
+        1,
+        0.5,
+        0.5
+      ],
+      "to": [
+        1,
+        1,
+        0.5,
+        0.5
+      ]
+    }
+  },
+  "unchanged": [
+    "F-SFT and LoRA initialization",
+    "hard subset and scene order",
+    "canonical training reward 5:5:2",
+    "G8/K10/shift5/stochastic steps7,8,9",
+    "source clamp and source-rank-mean/global-std semantics",
+    "beta50 and source weighted-average denominator rule",
+    "LoRA-only scope",
+    "AdamW/LR/warmup/zero effective gradient clipping",
+    "seed42/inference seed2101"
+  ],
+  "derived_effective_logical_anchor_multipliers": {
+    "x": 3.6666666666666665,
+    "y": 0.7333333333333333,
+    "heading_pair": 0.7333333333333333
+  },
+  "original_denominator": 2.2,
+  "proposed_denominator": 3.0,
+  "budget": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "new_candidates": 320000,
+    "training_world": 8
+  },
+  "evaluation": {
+    "stage_updates": [
+      5000,
+      10000,
+      15000,
+      20000
+    ],
+    "DEV_scenes": 1696,
+    "TRAIN_diagnostic_scenes": 512,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "new_stage_predictions": 17664,
+    "NAVTEST_scenes": 12146,
+    "final_predictions": 24292,
+    "final_endpoint": "fixed20000, lock checkpoint/source before evaluation",
+    "baseline": "reuse already sealed same-grid SFT and R_CANONICAL; no best-of-two",
+    "seed": 2101
+  },
+  "cost_estimate": {
+    "training_observed_reference_wall_hours": [
+      4.985371893,
+      7.402969369
+    ],
+    "meaning": "Historical shared-load observations, not an ETA guarantee. Evaluation/qualification costs are additional."
+  },
+  "decision": "Report native canonical PDMS and NC/DAC/TTC transitions versus both same-grid SFT and R_CANONICAL. Do not call this successful if the gain is paid for by safety degradation.",
+  "limitations": [
+    "Gradient readouts do not predict Adam dynamics or driving improvements.",
+    "Normalized reweighting weakens y/heading; it is one configuration factor, not a pure longitudinal penalty change.",
+    "Hard-subset/DEV coverage bias remains unchanged.",
+    "Navtest was already observed; no new blind-test claim."
+  ],
+  "authorization_reason": "The user explicitly replied go on after review of this one-factor proposal. This authorizes one new X1 run; the completed original two-variant comparison remains unchanged.",
+  "authorized_utc": "2026-10-15T23:09:57.405191+00:00",
+  "user_instruction": "go on",
+  "proposal_sha256": "7536ce8fde4182e2942928b5c23104ab30da53c90f052ba567a07b9187cf5840",
+  "parent_code": "172994079debbc1993208f8bb96bab37d52da694",
+  "output_root": "/mnt/project/simwam-x-anchor-20261015",
+  "source_branch": "feature/ddp-simwam-x-anchor-20261015",
+  "prior_proposal_status": "NOT_AUTHORIZED_FOR_TRAINING (retained in the parent audit report)"
+}

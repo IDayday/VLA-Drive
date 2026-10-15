@@ -30,6 +30,16 @@ def require_dispatch():
 def load_recipe(path):
     from omegaconf import OmegaConf
     cfg = OmegaConf.to_container(OmegaConf.load(path), resolve=True)
+    if cfg['variant'] == 'R_CANONICAL_X1':
+        # Separately authorized follow-up. Validate against the entire locked
+        # canonical recipe; never relax either original experiment's contract.
+        base_path = Path(__file__).resolve().parents[3] / 'configs/flow_rl/simwam_canonical_ddp.yaml'
+        expected = copy.deepcopy(load_recipe(base_path))
+        expected['variant'] = 'R_CANONICAL_X1'
+        expected['grpo']['train']['kl_dim_weights'] = [1., 1., .5, .5]
+        if cfg != expected:
+            raise ValueError('X1 permits only the registered longitudinal anchor change')
+        return cfg
     if cfg['variant'] not in ('R_SOURCE','R_CANONICAL'):
         raise ValueError('Only the two registered variants are formal')
     # Full resolved configuration, including formerly unchecked optimizer/LoRA/
