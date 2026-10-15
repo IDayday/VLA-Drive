@@ -1,0 +1,563 @@
+{
+  "schema": "simwam_training_analysis_v2",
+  "analysis_identity": "03921fb06724e1faea09fc19b87de5a7c2c03855dc096cb2a201cc476474c98a",
+  "status": "TRAINING_COMPLETE",
+  "captured_utc": "2026-10-15T16:01:43.089503+00:00",
+  "run_identity": "fe3b3c77b4b71b984c6348a00428ca1aa3babc3391b018d906cf7d4137e957c6",
+  "variant": "R_SOURCE",
+  "matched_completed_updates": 20000,
+  "observed_updates_by_rank": [
+    20000,
+    20000,
+    20000,
+    20000,
+    20000,
+    20000,
+    20000,
+    20000
+  ],
+  "cumulative": {
+    "first_optimizer_update": 1,
+    "last_optimizer_update": 20000,
+    "actual_global_optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "new_candidates": 320000,
+    "global_RL_updates": 20000,
+    "global_anchor_only_updates": 0,
+    "local_PG_groups": 39836,
+    "local_PG_group_fraction": 0.9959,
+    "full_score_groups": 31,
+    "zero_score_groups": 67,
+    "other_tied_groups": 66,
+    "canonical_tied_groups": 164,
+    "zero_final_PG_groups": 164,
+    "progress_only_groups": 26344,
+    "safety_differing_groups": 9909,
+    "stochastic_policy_mean": {
+      "canonical_random_mean": 0.8285493202908009,
+      "train_reward_mean": 0.788160805285722,
+      "NC": 0.99743125,
+      "DAC": 0.95196875,
+      "TTC": 0.969609375,
+      "EP": 0.6915692295361123,
+      "safe_fraction": 0.924246875
+    },
+    "finite_best_safe": {
+      "mean_among_groups_with_safe_candidate": 0.9080463591792347,
+      "defined_groups": 39852,
+      "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+    },
+    "positive_candidate_counts": {
+      "positive_safe": 175394,
+      "positive_still_unsafe": 859,
+      "positive_unsafe_with_safe_alternative": 657
+    },
+    "global_raw_reward_std": {
+      "mean": 0.1692667774881504,
+      "min": 0.017527280734379123,
+      "max": 0.3893575986308936
+    },
+    "first_inner": {
+      "ratio_max_abs_from_one": 0.0,
+      "mean_PPO_clip_fraction": 0.0,
+      "policy_loss_rank_mean": -0.0027867893574708424,
+      "beta50_anchor_loss_rank_mean": 0.001108584495838528,
+      "mean_gradient_norm": 0.051808772670850156
+    },
+    "inner_updates": {
+      "1": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0027867893574708424,
+        "beta50_anchor_loss_rank_mean": 0.001108584495838528,
+        "mean_gradient_norm": 0.051808772670850156
+      },
+      "2": {
+        "ratio_max_abs_from_one": 0.06165146827697754,
+        "mean_PPO_clip_fraction": 0.004117708448227495,
+        "policy_loss_rank_mean": -0.002984784978216584,
+        "beta50_anchor_loss_rank_mean": 0.0011060248938784963,
+        "mean_gradient_norm": 0.04414890335891396
+      },
+      "3": {
+        "ratio_max_abs_from_one": 0.11301863193511963,
+        "mean_PPO_clip_fraction": 0.026333334029559046,
+        "policy_loss_rank_mean": -0.003181768055064079,
+        "beta50_anchor_loss_rank_mean": 0.001102342076162779,
+        "mean_gradient_norm": 0.0323154746318236
+      },
+      "4": {
+        "ratio_max_abs_from_one": 0.15141642093658447,
+        "mean_PPO_clip_fraction": 0.06370833497336134,
+        "policy_loss_rank_mean": -0.0033301240117764265,
+        "beta50_anchor_loss_rank_mean": 0.0010975784170023715,
+        "mean_gradient_norm": 0.026022311978414654
+      }
+    },
+    "mean_update_seconds_per_rank": 0.5928383402262698,
+    "source_relative_clamp_hit_rate": 0.0003171793712157523
+  },
+  "windows": [
+    {
+      "first_optimizer_update": 1,
+      "last_optimizer_update": 5000,
+      "actual_global_optimizer_updates": 5000,
+      "fresh_global_rollouts": 1250,
+      "scene_exposures": 10000,
+      "new_candidates": 80000,
+      "global_RL_updates": 5000,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 9957,
+      "local_PG_group_fraction": 0.9957,
+      "full_score_groups": 7,
+      "zero_score_groups": 20,
+      "other_tied_groups": 16,
+      "canonical_tied_groups": 43,
+      "zero_final_PG_groups": 43,
+      "progress_only_groups": 6616,
+      "safety_differing_groups": 2503,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.8220677810010084,
+        "train_reward_mean": 0.7804464269332587,
+        "NC": 0.997425,
+        "DAC": 0.9470375,
+        "TTC": 0.97095,
+        "EP": 0.6809268735180563,
+        "safe_fraction": 0.9208625
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.9055052257230917,
+        "defined_groups": 9958,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 43534,
+        "positive_still_unsafe": 214,
+        "positive_unsafe_with_safe_alternative": 153
+      },
+      "global_raw_reward_std": {
+        "mean": 0.17574632393241846,
+        "min": 0.02950437216438749,
+        "max": 0.3893575986308936
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.002546230735553157,
+        "beta50_anchor_loss_rank_mean": 0.0009286079374209518,
+        "mean_gradient_norm": 0.04921117247417569
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -0.002546230735553157,
+          "beta50_anchor_loss_rank_mean": 0.0009286079374209518,
+          "mean_gradient_norm": 0.04921117247417569
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.03159910440444946,
+          "mean_PPO_clip_fraction": 0.003733333436399698,
+          "policy_loss_rank_mean": -0.002730065771282523,
+          "beta50_anchor_loss_rank_mean": 0.0009265832130576138,
+          "mean_gradient_norm": 0.042619797421991824
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.05076950788497925,
+          "mean_PPO_clip_fraction": 0.025079167341440917,
+          "policy_loss_rank_mean": -0.002919108584122677,
+          "beta50_anchor_loss_rank_mean": 0.0009235700368245039,
+          "mean_gradient_norm": 0.03196420883983374
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.06272858381271362,
+          "mean_PPO_clip_fraction": 0.061695834911987185,
+          "policy_loss_rank_mean": -0.00306206975551171,
+          "beta50_anchor_loss_rank_mean": 0.000919513434190895,
+          "mean_gradient_norm": 0.025640854287147522
+        }
+      },
+      "mean_update_seconds_per_rank": 0.5136091143579687,
+      "source_relative_clamp_hit_rate": 0.00032259115525812374
+    },
+    {
+      "first_optimizer_update": 5001,
+      "last_optimizer_update": 10000,
+      "actual_global_optimizer_updates": 5000,
+      "fresh_global_rollouts": 1250,
+      "scene_exposures": 10000,
+      "new_candidates": 80000,
+      "global_RL_updates": 5000,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 9968,
+      "local_PG_group_fraction": 0.9968,
+      "full_score_groups": 8,
+      "zero_score_groups": 10,
+      "other_tied_groups": 14,
+      "canonical_tied_groups": 32,
+      "zero_final_PG_groups": 32,
+      "progress_only_groups": 6659,
+      "safety_differing_groups": 2447,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.8291420353269021,
+        "train_reward_mean": 0.788833976406604,
+        "NC": 0.99774375,
+        "DAC": 0.9520375,
+        "TTC": 0.9697875,
+        "EP": 0.6923331077664938,
+        "safe_fraction": 0.9245625
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.9082602002484998,
+        "defined_groups": 9971,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 43809,
+        "positive_still_unsafe": 224,
+        "positive_unsafe_with_safe_alternative": 187
+      },
+      "global_raw_reward_std": {
+        "mean": 0.16869971593595295,
+        "min": 0.017527280734379123,
+        "max": 0.3738087417877728
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0029052910699441173,
+        "beta50_anchor_loss_rank_mean": 0.0011008723587801797,
+        "mean_gradient_norm": 0.05115704798027873
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -0.0029052910699441173,
+          "beta50_anchor_loss_rank_mean": 0.0011008723587801797,
+          "mean_gradient_norm": 0.05115704798027873
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.036512136459350586,
+          "mean_PPO_clip_fraction": 0.003920833441615105,
+          "policy_loss_rank_mean": -0.0031010901311384078,
+          "beta50_anchor_loss_rank_mean": 0.0010987199268434778,
+          "mean_gradient_norm": 0.04392639756947756
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.07037287950515747,
+          "mean_PPO_clip_fraction": 0.02629166736342013,
+          "policy_loss_rank_mean": -0.003297735197274582,
+          "beta50_anchor_loss_rank_mean": 0.0010955871994738117,
+          "mean_gradient_norm": 0.03192403974980116
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.10213601589202881,
+          "mean_PPO_clip_fraction": 0.06390000162906945,
+          "policy_loss_rank_mean": -0.0034455816317362823,
+          "beta50_anchor_loss_rank_mean": 0.0010913423517224146,
+          "mean_gradient_norm": 0.025743642543256284
+        }
+      },
+      "mean_update_seconds_per_rank": 0.5431739686846733,
+      "source_relative_clamp_hit_rate": 0.0003198893322027288
+    },
+    {
+      "first_optimizer_update": 10001,
+      "last_optimizer_update": 15000,
+      "actual_global_optimizer_updates": 5000,
+      "fresh_global_rollouts": 1250,
+      "scene_exposures": 10000,
+      "new_candidates": 80000,
+      "global_RL_updates": 5000,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 9952,
+      "local_PG_group_fraction": 0.9952,
+      "full_score_groups": 7,
+      "zero_score_groups": 21,
+      "other_tied_groups": 20,
+      "canonical_tied_groups": 48,
+      "zero_final_PG_groups": 48,
+      "progress_only_groups": 6503,
+      "safety_differing_groups": 2516,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.831414259423614,
+        "train_reward_mean": 0.7915105718240142,
+        "NC": 0.99711875,
+        "DAC": 0.9553375,
+        "TTC": 0.9679125,
+        "EP": 0.6961997091725475,
+        "safe_fraction": 0.9256375
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.9089217260142048,
+        "defined_groups": 9960,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 44013,
+        "positive_still_unsafe": 197,
+        "positive_unsafe_with_safe_alternative": 154
+      },
+      "global_raw_reward_std": {
+        "mean": 0.16492793854254706,
+        "min": 0.025419981530843853,
+        "max": 0.3683722640224786
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0030287961707411654,
+        "beta50_anchor_loss_rank_mean": 0.001156465944046795,
+        "mean_gradient_norm": 0.05231831487864256
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -0.0030287961707411654,
+          "beta50_anchor_loss_rank_mean": 0.001156465944046795,
+          "mean_gradient_norm": 0.05231831487864256
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.028047382831573486,
+          "mean_PPO_clip_fraction": 0.004095833441987634,
+          "policy_loss_rank_mean": -0.003234504730320254,
+          "beta50_anchor_loss_rank_mean": 0.001153981260456203,
+          "mean_gradient_norm": 0.044547098872065545
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.051502525806427,
+          "mean_PPO_clip_fraction": 0.027708334070444107,
+          "policy_loss_rank_mean": -0.003436228634400282,
+          "beta50_anchor_loss_rank_mean": 0.0011503465956673607,
+          "mean_gradient_norm": 0.032380110048502685
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.07067030668258667,
+          "mean_PPO_clip_fraction": 0.06681666839979589,
+          "policy_loss_rank_mean": -0.003585785097616432,
+          "beta50_anchor_loss_rank_mean": 0.0011455141061465837,
+          "mean_gradient_norm": 0.026039007628709077
+        }
+      },
+      "mean_update_seconds_per_rank": 0.6029999847991392,
+      "source_relative_clamp_hit_rate": 0.0003173177175427554
+    },
+    {
+      "first_optimizer_update": 15001,
+      "last_optimizer_update": 20000,
+      "actual_global_optimizer_updates": 5000,
+      "fresh_global_rollouts": 1250,
+      "scene_exposures": 10000,
+      "new_candidates": 80000,
+      "global_RL_updates": 5000,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 9959,
+      "local_PG_group_fraction": 0.9959,
+      "full_score_groups": 9,
+      "zero_score_groups": 16,
+      "other_tied_groups": 16,
+      "canonical_tied_groups": 41,
+      "zero_final_PG_groups": 41,
+      "progress_only_groups": 6566,
+      "safety_differing_groups": 2443,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.831573205411679,
+        "train_reward_mean": 0.791852245979011,
+        "NC": 0.9974375,
+        "DAC": 0.9534625,
+        "TTC": 0.9697875,
+        "EP": 0.6968172276873514,
+        "safe_fraction": 0.925925
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.909497101322999,
+        "defined_groups": 9963,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 44038,
+        "positive_still_unsafe": 224,
+        "positive_unsafe_with_safe_alternative": 163
+      },
+      "global_raw_reward_std": {
+        "mean": 0.1676931315416831,
+        "min": 0.022780825574063062,
+        "max": 0.3792379876238523
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0026668394536449296,
+        "beta50_anchor_loss_rank_mean": 0.0012483917431061855,
+        "mean_gradient_norm": 0.05454855535030365
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -0.0026668394536449296,
+          "beta50_anchor_loss_rank_mean": 0.0012483917431061855,
+          "mean_gradient_norm": 0.05454855535030365
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.06165146827697754,
+          "mean_PPO_clip_fraction": 0.004720833472907543,
+          "policy_loss_rank_mean": -0.0028734792801251513,
+          "beta50_anchor_loss_rank_mean": 0.001244815175156691,
+          "mean_gradient_norm": 0.045502319572120906
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.11301863193511963,
+          "mean_PPO_clip_fraction": 0.026254167342931033,
+          "policy_loss_rank_mean": -0.0030739998044587756,
+          "beta50_anchor_loss_rank_mean": 0.00123986447268544,
+          "mean_gradient_norm": 0.03299353988915682
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.15141642093658447,
+          "mean_PPO_clip_fraction": 0.062420834952592846,
+          "policy_loss_rank_mean": -0.0032270595622412826,
+          "beta50_anchor_loss_rank_mean": 0.0012339437759495923,
+          "mean_gradient_norm": 0.026665743454545737
+        }
+      },
+      "mean_update_seconds_per_rank": 0.7115702930632979,
+      "source_relative_clamp_hit_rate": 0.0003089192798594013
+    }
+  ],
+  "cost": {
+    "checkpoint": "/mnt/project/simwam-recipe-20261015/runs/R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "checkpoint_updates": 20000,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 22002.04072909057,
+      "old_probability": 7146.635698340833,
+      "update": 94854.13443620317,
+      "scoring_wait": 5427.030454237014,
+      "scoring_cpu": 2513.896849984303
+    },
+    "max_rank_wall_seconds_by_phase": {
+      "rollout": 2768.559025740251,
+      "old_probability": 901.0527063459158,
+      "update": 11866.357688710093,
+      "scoring_wait": 682.6379298847169,
+      "scoring_cpu": 318.9140527099371
+    },
+    "all_rank_phase_seconds": {
+      "rollout": [
+        2763.155697695911,
+        2759.4111123755574,
+        2738.659785464406,
+        2732.566203508526,
+        2737.698446895927,
+        2739.194410689175,
+        2762.7960467208177,
+        2768.559025740251
+      ],
+      "old_probability": [
+        901.0527063459158,
+        893.7294945884496,
+        890.0321910902858,
+        887.0348104517907,
+        890.2107746880502,
+        891.4535238780081,
+        895.898460527882,
+        897.2237367704511
+      ],
+      "update": [
+        11851.399179363623,
+        11866.357688710093,
+        11855.723920702934,
+        11853.16395169869,
+        11854.093991247937,
+        11859.764033153653,
+        11854.861341921613,
+        11858.770329404622
+      ],
+      "scoring_wait": [
+        675.5374007411301,
+        682.6379298847169,
+        680.960307655856,
+        676.3703801054507,
+        677.461223334074,
+        682.2874853648245,
+        675.2958197575063,
+        676.4799073934555
+      ],
+      "scoring_cpu": [
+        313.4461697656661,
+        318.9140527099371,
+        312.4305179640651,
+        312.9996419288218,
+        312.6010427866131,
+        317.3947065472603,
+        315.54880459047854,
+        310.5619136914611
+      ]
+    },
+    "invocation_ledger": {
+      "schema": 2,
+      "provenance": "legacy rank summaries; no invocation ledger",
+      "cumulative_logical_updates": 20000,
+      "invocation_start_update": null,
+      "invocation_effective_updates": null,
+      "invocation_updates_per_second": null,
+      "linear_remaining_training_hours": null,
+      "cumulative_worker_wall_seconds": null,
+      "rollback_or_failure_worker_wall_seconds": null,
+      "save_worker_wall_seconds": null,
+      "last_reported_invocation_wall_seconds": 17947.243738479912,
+      "missing": [
+        "invocation start counters",
+        "failed/rolled-back time",
+        "model loading",
+        "checkpoint save time"
+      ],
+      "note": "Do not divide cumulative updates by a possibly resumed invocation wall. Legacy phase timers remain valid lower bounds."
+    },
+    "linear_remaining_training_hours": null,
+    "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+  },
+  "first_behavior_adapter_sha256": [
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+    "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099"
+  ],
+  "source_files": {
+    "scripts/analysis/constrained_flow_noise/batched_canonical_score.py": "5b368a4b23e8de6891e7f44c8f4a19b26484783224aa95bdcb7e52fe94868dca",
+    "scripts/analysis/simwam_recipe/train.py": "752a0b994e7caacff073994ab8cb4d975506ae8f6c93094be2f322f372f57d53",
+    "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "81cdc45976af8746dfc3c88c79cbd6c50a122231dc174d0a6ccece7960281bca",
+    "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "23a23db9646e6a08d131ca5a2201daabc8528a633f1b2ed0ef6ba492cdd98965",
+    "starVLA/rl/constrained_flow_noise/loading.py": "c4674acc28d04fbf4582f31b256fff48f30b0958d62d884f8f0619ea09fd77ca",
+    "starVLA/rl/simwam_recipe/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/simwam_recipe/checkpoint.py": "2e93738c13eea2c6c471a65cad8073dca027726a1bcf6552a3494e5fec75d0bf",
+    "starVLA/rl/simwam_recipe/collection.py": "1e7841817a848130ecb1b3eee1c01cc28ce763703814534d67abfd9142c4d030",
+    "starVLA/rl/simwam_recipe/condition.py": "d5e02e4217d86649676968f18bc8d8de2186be3a11e777d47739bce753df5909",
+    "starVLA/rl/simwam_recipe/contracts.py": "a468b315d48572291f38dd522b70f634622d2eb7a3dc04c2d0508b91c055dd84",
+    "starVLA/rl/simwam_recipe/data_stream.py": "5cd5706830ea3871d72361c9648762752f2eaceb94c8df289681aa19e6fbb38d",
+    "starVLA/rl/simwam_recipe/lora_adapter.py": "2a2d50197c94785f386b552f889e10d553dac0766ba6752f78c3968a5feb33a9",
+    "starVLA/rl/simwam_recipe/reward_readouts.py": "6507e7e4befd75a47612308818bc33a68bf523cc76d87a0b421c372eca671430",
+    "starVLA/rl/simwam_recipe/source_advantages.py": "29c450625f6ccd9025eb9ba1942f08f73ddec14c86e0e9be7f9cbdd19a46db4c",
+    "starVLA/rl/simwam_recipe/trainer_adapter.py": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+    "starVLA/rl/simwam_recipe/vendor/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/simwam_recipe/vendor/action_math.py": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+    "starVLA/rl/simwam_recipe/vendor/lora.py": "22ec50bc327c45b9a5fab543293b39186bf572dd8d269ceb8acdf1dfe1e5b04d",
+    "starVLA/rl/simwam_recipe/vendor/samplers.py": "dd8dabf42f9d5f7b95b380be22d10b6092a3b1a211c30b214380fb2d24437be9",
+    "starVLA/rl/simwam_recipe/vendor/scheduler_continuous.py": "67eb410317eeadd965af5f241572655344941a48b3569fd3a09cd81ea7a565f7",
+    "starVLA/rl/simwam_recipe/vendor/trainer_math.py": "4ffb7898036606d60fec24fe77b98d2e3036d0730bd0b3c4a3baa33f05036ca6"
+  },
+  "limits": [
+    "Stochastic G8 scores are not original single-ODE deployment scores.",
+    "The fixed hard scene list changes training population; do not compare this mean with full-TRAIN or DEV.",
+    "A repeated group across four inner updates contributes only one fresh sample group.",
+    "Global update count uses all ranks, not rank0 local PG activity.",
+    "Window changes also include scene mix; matched fixed-population ODE evaluation determines efficacy."
+  ]
+}

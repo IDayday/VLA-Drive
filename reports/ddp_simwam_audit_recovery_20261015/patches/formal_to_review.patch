@@ -1,0 +1,809 @@
+diff --git a/scripts/analysis/simwam_recipe/build_hard_manifest.py b/scripts/analysis/simwam_recipe/build_hard_manifest.py
+index 9b5cc27..fcdc38f 100644
+--- a/scripts/analysis/simwam_recipe/build_hard_manifest.py
++++ b/scripts/analysis/simwam_recipe/build_hard_manifest.py
+@@ -1,29 +1,40 @@
+ """Freeze the complete SFT single-native-ODE canonical score<0.9 TRAIN list."""
+ import argparse
+ import json
++import time
+ from pathlib import Path
+ from collections import Counter
++from concurrent.futures import ThreadPoolExecutor
+ from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_SHA256,fingerprint,file_sha
+ from starVLA.rl.flow_grpo.transactions import atomic_json
+ 
+ 
+ def main():
+-    p=argparse.ArgumentParser(__doc__);p.add_argument('--root',default=ROOT);a=p.parse_args()
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--root',default=ROOT);p.add_argument('--workers',type=int,default=8);a=p.parse_args()
++    if not 1<=a.workers<=8:raise ValueError('Bounded manifest I/O concurrency only')
+     root=Path(a.root);scores=root/'SFT_NATIVE_TRAIN_seed2101'
+     pop=json.loads(Path(POPULATION).read_text());identity=json.loads((scores/'manifest.json').read_text())
+     if identity['SFT_sha256']!=SFT_SHA256 or identity['scene_population']!=pop['identity_sha256'] or identity['seed']!=2101:raise ValueError('Wrong screen identity')
+-    rows=[];missing=[];types=Counter()
+-    for token in pop['train_tokens']:
++    rows=[];missing=[];types=Counter();started=time.monotonic()
++    def verify(token):
+         path=scores/'scenes'/token[:2]/(token+'.json')
+-        if not path.exists():missing.append(token);continue
++        if not path.exists():return token,None,None
+         seal=json.loads(path.read_text())
+         if seal['identity_sha256']!=identity['sha256']:raise ValueError('Mixed screen protocols')
+         if seal['payload_sha256']!=file_sha(path.with_suffix('.pt')):raise ValueError('Modified score payload')
+-        m=seal['metrics']
+-        if m['score']<.9:
+-            labels=[k for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound') if m[k]<1]
+-            types['+'.join(labels) or 'safe_lower_quality_or_progress']+=1
+-            rows.append(dict(token=token,score=m['score'],metrics=m,score_sha256=file_sha(path)))
++        return token,seal['metrics'],file_sha(path) if seal['metrics']['score']<.9 else None
++    # Every payload is still content-verified. Bounded parallel reads preserve
++    # input ordering and avoid serial metadata latency on this shared filesystem.
++    with ThreadPoolExecutor(max_workers=a.workers) as pool:
++        for start in range(0,len(pop['train_tokens']),256):
++            for token,m,sha in pool.map(verify,pop['train_tokens'][start:start+256]):
++                if m is None:missing.append(token);continue
++                if m['score']<.9:
++                    labels=[k for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound') if m[k]<1]
++                    types['+'.join(labels) or 'safe_lower_quality_or_progress']+=1
++                    rows.append(dict(token=token,score=m['score'],metrics=m,score_sha256=sha))
++            if start%1024==0:atomic_json(root/'hard_manifest_verification.json',dict(checked=min(start+256,len(pop['train_tokens'])),
++                total=len(pop['train_tokens']),missing=len(missing),workers=a.workers,elapsed=time.monotonic()-started,status='VERIFYING'))
+     if missing:
+         print(json.dumps(dict(status='INCOMPLETE',scored=len(pop['train_tokens'])-len(missing),missing=len(missing),hard_so_far=len(rows))));return
+     value=dict(status='COMPLETE_FIXED_SFT_SINGLE_NATIVE_ODE_HARD_SUBSET',population_identity=pop['identity_sha256'],
+@@ -35,6 +46,8 @@ def main():
+     if output.exists():
+         if json.loads(output.read_text())!=value:raise ValueError('Fixed hard list must not change')
+     else:atomic_json(output,value)
++    atomic_json(root/'hard_manifest_verification.json',dict(checked=len(pop['train_tokens']),total=len(pop['train_tokens']),
++                missing=0,workers=a.workers,elapsed=time.monotonic()-started,status='COMPLETE_ALL_PAYLOAD_HASHES_VERIFIED'))
+     print(json.dumps({k:v for k,v in value.items() if k not in ('rows','tokens','screen_identity')}))
+ 
+ 
+diff --git a/scripts/analysis/simwam_recipe/controller_runtime.py b/scripts/analysis/simwam_recipe/controller_runtime.py
+new file mode 100644
+index 0000000..5b503e3
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/controller_runtime.py
+@@ -0,0 +1,53 @@
++"""Administrative queue admission, separate from experiment-worker admission.
++
++SSH aliases and credentials belong to the local control host. No credentials
++are copied to GPU workers. This module does not authorize local GPU work.
++"""
++import json
++import os
++from pathlib import Path
++import shlex
++import socket
++import subprocess
++
++from starVLA.rl.simwam_recipe.contracts import require_dispatch
++
++POLICY = Path('/mnt/project/server_dispatch_policy.json')
++
++
++def require_worker_host(host):
++    policy = json.loads(POLICY.read_text())
++    if (host not in policy['allowed_hosts']
++        or host not in policy['task_authorizations']['flow_safe_improvement_20261013']['allowed_hosts']
++        or policy.get('global_dispatch_prohibitions', {}).get(host, {}).get('new_task_dispatch_allowed') is False):
++        raise PermissionError('Experiment worker host not authorized: ' + host)
++    return host
++
++
++def require_controller_host(administrative_local=False):
++    if not administrative_local:
++        return require_dispatch()
++    host = socket.gethostname().removesuffix('-worker-0')
++    policy = json.loads(POLICY.read_text())
++    if (host != 'training-vla-zt' or host not in policy['allowed_hosts']
++        or policy.get('global_dispatch_prohibitions', {}).get(host, {}).get('new_task_dispatch_allowed') is False
++        or not policy.get('administrative_control')):
++        raise PermissionError('Local administrative control is not authorized: ' + host)
++    if os.environ.get('CUDA_VISIBLE_DEVICES') != '':
++        raise RuntimeError('Administrative local controller requires CUDA_VISIBLE_DEVICES empty')
++    return host
++
++
++def probe_routes(hosts, python):
++    """Fail before waiting for a milestone if a control-to-worker route is broken."""
++    result = {}
++    for host in sorted(set(hosts)):
++        require_worker_host(host)
++        command = [python, '-c', 'import socket; print(socket.gethostname())']
++        actual = subprocess.check_output(
++            ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', host, shlex.join(command)],
++            text=True, timeout=20).strip()
++        if actual.removesuffix('-worker-0') != host:
++            raise RuntimeError('SSH destination identity mismatch: ' + host + ' -> ' + actual)
++        result[host] = actual
++    return result
+diff --git a/scripts/analysis/simwam_recipe/diagnose_saved_batch.py b/scripts/analysis/simwam_recipe/diagnose_saved_batch.py
+new file mode 100644
+index 0000000..afa4639
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/diagnose_saved_batch.py
+@@ -0,0 +1,99 @@
++"""Per-step PG/anchor gradients on a saved real global batch, without new samples."""
++import argparse
++import json
++from pathlib import Path
++import numpy as np
++import torch
++from starVLA.rl.simwam_recipe.contracts import require_dispatch,file_sha
++from starVLA.rl.simwam_recipe.trainer_adapter import make_actor
++from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters
++from starVLA.rl.simwam_recipe.checkpoint import device_tree
++from starVLA.rl.flow_grpo.reproducibility import configure_numerics
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--checkpoint',required=True)
++    p.add_argument('--collection',type=int,required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    require_dispatch();configure_numerics();run=Path(a.run);checkpoint=Path(a.checkpoint)
++    identity=json.loads((run/'identity.json').read_text());cfg=identity['recipe'];world=identity['world']
++    seal=json.loads((checkpoint/'files.json').read_text())
++    if file_sha(checkpoint/'optimizer.pt')!=seal['optimizer.pt']:raise ValueError('Checkpoint changed')
++    actor,_,_=make_actor(cfg);saved=torch.load(checkpoint/'optimizer.pt',map_location='cpu',weights_only=False)
++    restore_adapters(actor,saved['adapters']);parameters=[p for p in actor.parameters() if p.requires_grad]
++    count=sum(p.numel() for p in parameters)
++    pg_gradient=torch.zeros(3,count);anchor_gradient=torch.zeros_like(pg_gradient)
++    per_step=[];batches=[];categories=dict(safe_recovery_vs_single_SFT=0,safe_other_positive=0,
++        positive_still_unsafe=0,positive_unsafe_despite_safe_alternative=0,positive_micro_progress_only=0)
++    clip=[];raw_clip=[];tail=[];innovations=[];density_ratio=[];movement=[]
++    for rank in range(world):
++        path=run/'behavior'/f'collection{a.collection:06}'/f'rank{rank}.pt'
++        row=device_tree(torch.load(path,map_location='cpu',weights_only=False),actor.device)
++        if row['behavior_version']['run']!=identity['sha256']:raise ValueError('Unmatched behavior identity')
++        logp,terms=actor.action_chain_logprobs(row['cond_bg'],row['chain'],row['timesteps'],row['deltas'],stoch_idx=row['stoch_idx'],return_terms=True)
++        raw=actor._probability_audit['current']['raw_gaussian_logprob'].mean((-1,-2))
++        tail.append(actor._probability_audit['current']['source_clamp_hit_rate'])
++        with torch.no_grad():
++            _,reference=actor.action_chain_logprobs(row['cond_bg'],row['chain'],row['timesteps'],row['deltas'],stoch_idx=row['stoch_idx'],return_terms=True,use_ref=True)
++        ratio=(logp-row['old_logp']).exp();unclamped_ratio=(raw-row['old_probability']['raw_gaussian_logprob'].mean((-1,-2))).exp()
++        advantage=row['advantages'].clamp(-5,5)[:,None];mask=row['adv_mask'][:,None]
++        loss=torch.maximum(-ratio*advantage,-ratio.clamp(.995,1.005)*advantage)
++        pg=(loss*mask).sum(0)/mask.sum().clamp_min(1)
++        weights=actor.kl_weight_matrix(8,4,actor.device)
++        d2=(terms['mean']-reference['mean']).square()
++        anchor=(d2*weights).sum((-1,-2)).mean(0)/weights.sum()
++        for step in range(3):
++            for target,scalar in [(pg_gradient,pg[step]),(anchor_gradient,50*anchor[step])]:
++                g=torch.autograd.grad(scalar/world,parameters,retain_graph=True)
++                target[step]+=torch.cat([v.detach().float().flatten().cpu() for v in g])
++        d=d2.detach().mean((0,2));v=(terms['vel']-reference['vel']).detach().square().mean((0,2))
++        movement.append(dict(mean_squared_by_step_channel=d.cpu().tolist(),velocity_squared_by_step_channel=v.cpu().tolist(),
++                             anchor_by_step=anchor.detach().cpu().tolist(),std=terms['std'].detach().cpu().tolist()))
++        clip.append(((ratio-1).abs()>.005).float().mean(0).tolist())
++        raw_clip.append(((unclamped_ratio-1).abs()>.005).float().mean(0).tolist());density_ratio.append(ratio.detach().cpu().tolist())
++        audits=row['noise_audit'][1:] # Exclude the un-clipped root Gaussian.
++        innovations.append(dict(clipped=sum(x['outside_source_clip'] for x in audits),total=sum(x['count'] for x in audits)))
++        metrics=[r['metrics'] for r in row['records']];positive=row['advantages'].cpu().numpy()>0
++        safe=np.array([all(m[k]==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound')) for m in metrics])
++        sft=Path('/mnt/project/simwam-recipe-20261015/SFT_NATIVE_TRAIN_seed2101/scenes')/row['token'][:2]/(row['token']+'.json')
++        base=json.loads(sft.read_text())['metrics'];base_safe=all(base[k]==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound'))
++        categories['safe_recovery_vs_single_SFT']+=int((positive&safe).sum()) if not base_safe else 0
++        categories['safe_other_positive']+=int((positive&safe).sum()) if base_safe else 0
++        categories['positive_still_unsafe']+=int((positive&~safe).sum())
++        categories['positive_unsafe_despite_safe_alternative']+=int((positive&~safe).sum()) if safe.any() else 0
++        constant_safety=all(len({m[k] for m in metrics})==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound','comfort','driving_direction_compliance'))
++        span=np.ptp([m['score'] for m in metrics])
++        if constant_safety and 0<span<.005:categories['positive_micro_progress_only']+=int(positive.sum())
++        batches.append(dict(rank=rank,sha256=file_sha(path),behavior=row['behavior_version'],advantage_mask_fraction=float(row['adv_mask'].mean())))
++    d=np.mean([m['mean_squared_by_step_channel'] for m in movement],axis=0)
++    v=np.mean([m['velocity_squared_by_step_channel'] for m in movement],axis=0)
++    for j,index in enumerate([7,8,9]):
++        pn=float(pg_gradient[j].norm());an=float(anchor_gradient[j].norm());both=pn>0 and an>0
++        per_step.append(dict(step=index,PG_gradient_norm=pn,beta50_anchor_gradient_norm=an,
++            cosine=float(torch.nn.functional.cosine_similarity(pg_gradient[j],anchor_gradient[j],dim=0)) if both else None,
++            x_mean_anchor=float(np.mean([m['anchor_by_step'][j] for m in movement])),
++            x_kl_normalized_diagnostic=float(np.mean([m['anchor_by_step'][j]/(2*m['std'][j]**2) for m in movement])),
++            logical_anchor_contribution=dict(x=.2*d[j,0]/2.2,y=d[j,1]/2.2,heading_pair=.5*(d[j,2]+d[j,3])/2.2),
++            mean_shift_RMS_by_native_channel=np.sqrt(d[j]).tolist(),velocity_shift_RMS_by_native_channel=np.sqrt(v[j]).tolist(),
++            source_PPO_clip_fraction=float(np.mean(clip,axis=0)[j]),raw_density_PPO_clip_fraction_diagnostic=float(np.mean(raw_clip,axis=0)[j])))
++    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
++    effective=[]
++    # ||B A||_F^2 = tr((B^T B)(A A^T)); exact low-rank identity avoids
++    # materializing 96 full projection matrices merely for a norm diagnostic.
++    for name,A in saved['adapters'].items():
++        if not name.endswith('.lora_A'):continue
++        B=saved['adapters'][name[:-len('lora_A')]+'lora_B']
++        aa=A.double()@A.double().T;bb=B.double().T@B.double()
++        norm=float((torch.trace(bb@aa).clamp_min(0).sqrt())*(cfg['grpo']['lora']['alpha']/cfg['grpo']['lora']['r']))
++        effective.append(dict(projection=name[:-len('.lora_A')],effective_weight_update_Frobenius=norm))
++    result=dict(status='COMPLETE_SAVED_BATCH_DIAGNOSTIC',run_identity=identity['sha256'],checkpoint=str(checkpoint),collection=a.collection,
++        new_candidates=0,new_scoring_calls=0,world=world,steps=per_step,batches=batches,positive_candidate_categories=categories,
++        positive_categories_note='Recovery relative to the fixed single SFT_NATIVE seed2101 result, not all-noise safety; micro-progress is an overlapping tag',
++        probability_tail_clamp_fraction=float(np.mean(tail)),innovation_clip_fraction=sum(x['clipped'] for x in innovations)/sum(x['total'] for x in innovations),
++        source_current_velocity_forwards=actor._velocity_calls,reference_velocity_forwards=actor._reference_calls,
++        effective_LoRA_weight_updates=effective,
++        theory='Gradients are source per-random-step proxies; x_kl_normalized is diagnostic only and is not the legacy correlated C_SDE KL')
++    atomic_json(output,result);print(json.dumps(dict(status=result['status'],output=str(output),new_candidates=0)))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/diagnostic_interfaces.py b/scripts/analysis/simwam_recipe/diagnostic_interfaces.py
+new file mode 100644
+index 0000000..886ab2b
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/diagnostic_interfaces.py
+@@ -0,0 +1,92 @@
++"""Explicit, non-formal native-grid / unclipped-math interfaces.
++
++The formal make_actor/train entry never uses this class. These switches are
++named algorithm changes, not silent fixes to either registered source recipe.
++The bounded acceptance performs no scoring or optimizer update.
++"""
++import argparse
++import json
++from pathlib import Path
++import torch
++from starVLA.rl.simwam_recipe.trainer_adapter import RecipeActor
++from starVLA.rl.simwam_recipe.vendor.scheduler_continuous import WanContinuousFlowMatchScheduler
++from starVLA.rl.simwam_recipe.contracts import ROOT,load_recipe,require_dispatch
++from starVLA.rl.simwam_recipe.condition import ProjectedConditions
++from starVLA.rl.flow_grpo.transactions import atomic_json
++from starVLA.rl.flow_grpo.reproducibility import configure_numerics
++
++
++class NativeDDPGrid(WanContinuousFlowMatchScheduler):
++    def build_inference_schedule(self,num_inference_steps,device,dtype,shift_override=None):
++        if num_inference_steps!=10 or shift_override is not None:raise ValueError('Native diagnostic is original K10 only')
++        return (torch.tensor([1000*(1-k/10) for k in range(10)],device=device,dtype=dtype),
++                torch.full((10,),-.1,device=device,dtype=dtype))
++
++
++class DiagnosticActor(RecipeActor):
++    def __init__(self,head,cfg):
++        self.diagnostic_grid='source_shift5';self.diagnostic_probability='source_relative_clamp'
++        super().__init__(head,cfg)
++
++    def set_diagnostic(self,*,grid,probability):
++        if grid not in ('source_shift5','native_ddp_grid'):raise ValueError(grid)
++        if probability not in ('source_relative_clamp','unclipped_math'):raise ValueError(probability)
++        self.diagnostic_grid=grid;self.diagnostic_probability=probability
++        self.infer_action_scheduler=NativeDDPGrid(1000,shift=1) if grid=='native_ddp_grid' else WanContinuousFlowMatchScheduler(1000,shift=5)
++        ts,_=self.infer_action_scheduler.build_inference_schedule(10,self.device,torch.float32)
++        self.grpo_sigma_max_guard=float(ts[1])/1000
++        self.grpo_randn_clip=float('inf') if probability=='unclipped_math' else 5.
++
++    def action_velocity(self,x,t,cond,use_ref=False):
++        if self.diagnostic_grid=='source_shift5':return super().action_velocity(x,t,cond,use_ref=use_ref)
++        index=((1000-t.float())/100).round().long()
++        if ((1000-index*100)-t).abs().max()>1e-4 or (index<0).any() or (index>9).any():raise ValueError('Native grid timestep mismatch')
++        # Match original _euler_sample Python step -> bucket conversion, avoiding
++        # extra subtraction/cast rounding from reversing a FP32 sigma value.
++        table=torch.tensor([int(k/10*1000) for k in range(10)],device=x.device)
++        head=self.ref_action_expert if use_ref else self.action_expert
++        self._reference_calls+=int(use_ref);self._velocity_calls+=int(not use_ref)
++        with torch.autocast(self.device.type,enabled=False):return -head.predict_velocity(x.float(),table[index],cond['context'].float())
++
++    def action_chain_logprobs(self,cond,chain,timesteps,deltas,*,stoch_idx=None,return_terms=False,use_ref=False):
++        logp,terms=super().action_chain_logprobs(cond,chain,timesteps,deltas,stoch_idx=stoch_idx,return_terms=True,use_ref=use_ref)
++        if self.diagnostic_probability=='unclipped_math':
++            idx=self._normalize_stoch_idx(stoch_idx,len(timesteps))
++            nxt=chain[:,torch.tensor(idx,device=chain.device)+1]
++            logp=torch.distributions.Normal(terms['mean'].float(),terms['std'][None,:,None,None]).log_prob(nxt.float()).mean((-1,-2))
++        return (logp,terms) if return_terms else logp
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args();require_dispatch();configure_numerics()
++    from starVLA.rl.constrained_flow_noise.loading import load_action_closure
++    cfg=load_recipe('configs/flow_rl/simwam_source_ddp.yaml');closure,_,_=load_action_closure(dtype=torch.float32)
++    actor=DiagnosticActor(closure.action_model,cfg)
++    token=json.loads(Path(ROOT+'/qualification/real_TRAIN_tokens.json').read_text())['tokens'][0]
++    condition=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert).get(token)
++    root=torch.randn((1,8,4),device='cuda',generator=torch.Generator(device='cuda').manual_seed(42))
++    actor.set_diagnostic(grid='native_ddp_grid',probability='source_relative_clamp')
++    with torch.no_grad():
++        chain,ts,dt,idx=actor.sample_action_chain({'context':condition},8,init_actions=root,deterministic=True)
++        native=actor.action_expert._euler_sample(root,condition)
++    error=float((chain[:,-1]-native).abs().max())
++    if error!=0:raise ValueError('Native diagnostic changed original deterministic ODE')
++    actor.set_diagnostic(grid='source_shift5',probability='unclipped_math')
++    with torch.no_grad():
++        chain,ts,dt,idx=actor.sample_action_chain({'context':condition},8,generator=torch.Generator().manual_seed(42))
++    lp,terms=actor.action_chain_logprobs({'context':condition},chain,ts,dt,stoch_idx=idx,return_terms=True)
++    expected=torch.distributions.Normal(terms['mean'],terms['std'][None,:,None,None]).log_prob(chain[:,idx+1]).mean((-1,-2))
++    if not torch.equal(lp,expected):raise ValueError('Unclipped mathematical density differs')
++    rows=[]
++    for k,(t,delta) in enumerate(zip(ts,dt)):
++        sigma=float(t)/1000;_,std=actor._sde_mean_std(chain[:,k],torch.zeros_like(chain[:,k]),sigma,float(delta))
++        rows.append(dict(step=k,sigma=sigma,t_DDP=1-sigma,bucket=int(((1-t/1000)*1000).long()),delta_DDP=-float(delta),
++                         injected_transition_std=std if k in idx.tolist() else 0.,stochastic=k in idx.tolist()))
++    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
++    result=dict(status='PASS',purpose='diagnostic interfaces only, not a third formal experiment',
++                native_mean_ODE_max_abs=error,unclipped_Normal_exact=True,new_scoring_calls=0,optimizer_updates=0,
++                source_shift5_grid=rows,source_relative_clamp_remains_formal=True)
++    atomic_json(output,result);print(json.dumps(dict(status='PASS',output=str(output))))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/final_navtest.py b/scripts/analysis/simwam_recipe/final_navtest.py
+new file mode 100644
+index 0000000..2532bb1
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/final_navtest.py
+@@ -0,0 +1,230 @@
++"""Finite endpoint lock and final single-ODE evaluation of the registered recipe.
++
++The prepare command only verifies existing input/cache assets. Serve waits for
++both actual 20k endpoints and all DEV stages, then evaluates the two endpoints
++and SFT. It never selects a checkpoint from Navtest or restarts training.
++"""
++import argparse
++from concurrent.futures import ThreadPoolExecutor
++from datetime import datetime,timezone
++import fcntl
++import json
++import os
++from pathlib import Path
++import shlex
++import subprocess
++import sys
++import time
++import traceback
++from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_EXPORT,SFT_SHA256,file_sha,fingerprint
++from starVLA.rl.flow_grpo.transactions import atomic_json
++from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
++
++DATA=Path('/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset')
++DATALIST=Path('/mnt/project/DriveDreamer-Policy/test_meta.json')
++CACHE=Path('/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1')
++ROUTES={'R_SOURCE':['training-vlawm-tsinghua-zt'],
++        'R_CANONICAL':['training-vlawm-tsinghua-zt2'],
++        'SFT':['training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4']}
++
++
++def allowed(host):
++    return require_worker_host(host)
++
++
++def prepare(output):
++    pop=json.loads(Path(POPULATION).read_text());tokens=json.loads(DATALIST.read_text())
++    if len(tokens)!=12146 or len(set(tokens))!=12146 or set(tokens)!=set(pop['navtest_tokens']):
++        raise ValueError('Navtest input membership differs from fixed population')
++    def check(token):
++        log=pop['token_logs'][token]
++        meta=DATA/'meta/test'/(token+'.pkl');cache=CACHE/log/'unknown'/token/'metric_cache.pkl'
++        if not meta.is_file() or not cache.is_file():raise FileNotFoundError((str(meta),str(cache)))
++        return (meta.stat().st_size,cache.stat().st_size)
++    with ThreadPoolExecutor(max_workers=8) as pool:sizes=list(pool.map(check,tokens))
++    if any(min(s)<=0 for s in sizes):raise ValueError('Empty input/cache')
++    value=dict(status='EXISTING_ASSET_MEMBERSHIP_READY_NO_NEW_INFERENCE',population_identity=pop['identity_sha256'],
++        scenes=len(tokens),logs=len({pop['token_logs'][t] for t in tokens}),tokens_sha256=fingerprint(pop['navtest_tokens']),
++        data_root=str(DATA),navtest_datalist=str(DATALIST),navtest_datalist_sha256=file_sha(DATALIST),v1_cache=str(CACHE),
++        metadata_bytes=sum(s[0] for s in sizes),metric_cache_bytes=sum(s[1] for s in sizes),new_candidates=0,
++        limits='Existing assets and exact membership checked; individual payload/score validity remains enforced by the actual evaluation worker.',
++        navtest_scores_read_for_selection=False)
++    value['sha256']=fingerprint(value);atomic_json(output,value);return value
++
++
++def make_lock(snapshot,queue):
++    pop=json.loads(Path(POPULATION).read_text());assets=prepare(queue/'assets.json')
++    models={};root=Path(ROOT)
++    for name in ('R_SOURCE','R_CANONICAL'):
++        run=root/'runs'/(name+'_seed42_v1');identity=json.loads((run/'identity.json').read_text())
++        for rank in range(8):
++            result=json.loads((run/f'result_rank{rank}.json').read_text())
++            if result['status']!='COMPLETE' or result['updates']!=20000 or result['collections']!=5000 or result['new_candidates']!=320000:
++                raise ValueError('Registered formal endpoint is incomplete')
++        ck=run/'checkpoints/update020000_inner0';complete=json.loads((ck/'COMPLETE').read_text())
++        if complete['updates']!=20000 or complete['next_inner']!=0 or file_sha(ck/'files.json')!=complete['files_sha256']:
++            raise ValueError('Endpoint recovery identity changed')
++        export=root/'exports'/(name+'_update020000');seal=json.loads((export/'COMPLETE').read_text())
++        if seal['run_identity']!=identity['sha256'] or seal['updates']!=20000 or not seal['frozen_upstream_identical']:
++            raise ValueError('Wrong endpoint export')
++        sha=file_sha(export/'pytorch_model.pt')
++        if sha!=seal['weight_sha256']:raise ValueError('Changed endpoint weight')
++        models[name]=dict(export=str(export),weight_sha256=sha,run_identity=identity['sha256'],checkpoint=str(ck),
++            checkpoint_files_sha256=complete['files_sha256'],updates=20000,config_sha256=file_sha(export/'config.yaml'))
++    if file_sha(Path(SFT_EXPORT)/'pytorch_model.pt')!=SFT_SHA256:raise ValueError('SFT changed')
++    models['SFT']=dict(export=SFT_EXPORT,weight_sha256=SFT_SHA256,updates=0,config_sha256=file_sha(Path(SFT_EXPORT)/'config.yaml'))
++    value=dict(status='LOCKED_BEFORE_FINAL_NAVTEST',created_utc=datetime.now(timezone.utc).isoformat(),
++        selection_rule='Registered fixed update20000 for both variants plus matched SFT; no score-based selection',
++        formal_budget_complete=True,models=models,weight_sha256=[v['weight_sha256'] for v in models.values()],
++        population_identity=pop['identity_sha256'],sampler_sha256=file_sha(snapshot/'scripts/analysis/simwam_recipe/evaluate_policy.py'),
++        inference_seeds=[2101],training_seeds=[42],modes=['E_NATIVE','E_SHIFT5'],
++        data_root=assets['data_root'],navtest_datalist=assets['navtest_datalist'],v1_cache=assets['v1_cache'],
++        asset_identity=assets['sha256'],historically_observed_Navtest_not_fully_blind=True)
++    value['sha256']=fingerprint(value);atomic_json(queue/'LOCK.json',value);return value
++
++
++def inventory(host):
++    allowed(host)
++    code="""import json,os,subprocess,time
++def gpu():
++ text=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free,utilization.gpu','--format=csv,noheader,nounits'],text=True)
++ return [dict(index=int(a),uuid=b.strip(),free_MiB=int(c),utilization=int(d)) for a,b,c,d in (line.split(',') for line in text.splitlines())]
++first=gpu();time.sleep(2);second=gpu()
++print(json.dumps(dict(first=first,second=second,CPU_affinity=len(os.sched_getaffinity(0)),load=os.getloadavg())))
++"""
++    return json.loads(subprocess.check_output(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',host,
++        shlex.join([sys.executable,'-c',code])],text=True))
++
++
++def dispatch(snapshot,queue,selection,inventories):
++    for name,hosts in ROUTES.items():
++        model=selection['models'][name];shards=8*len(hosts);label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
++        output=Path(ROOT)/'evaluations'/(label+'_NAVTEST')
++        for hi,host in enumerate(hosts):
++            allowed(host)
++            if len(inventories[host]['second'])!=8 or any(min(a['free_MiB'],b['free_MiB'])<14000 for a,b in zip(inventories[host]['first'],inventories[host]['second'])):
++                raise RuntimeError('Insufficient measured free memory; preserve all owners: '+host)
++            for gpu in range(8):
++                rank=hi*8+gpu;record=queue/(label+f'_rank{rank}.json')
++                payload=dict(snapshot=str(snapshot),output=str(output),export=model['export'],weight_sha256=model['weight_sha256'],
++                    final_lock=str(queue/'LOCK.json'),rank=rank,shards=shards,GPU=gpu,host=host,python=sys.executable,receipt=str(record),
++                    log=str(queue/(label+f'_rank{rank}.log')),uuid=inventories[host]['second'][gpu]['uuid'])
++                code="""import json,os,subprocess,time
++from pathlib import Path
++p=json.loads(PAYLOAD);receipt=Path(p['receipt']);complete=Path(p['output'])/('rank'+str(p['rank'])+'.json')
++if complete.exists() and json.loads(complete.read_text())['status']=='ASSIGNED_COMPLETE':
++ print('COMPLETE',p['rank']);raise SystemExit(0)
++if receipt.exists():
++ old=json.loads(receipt.read_text());proc=Path('/proc')/str(old['pid'])
++ if proc.exists() and (proc/'stat').read_text().split()[21]==old['start_ticks']:
++  if p['output'] not in (proc/'cmdline').read_bytes().decode(errors='replace'):raise RuntimeError('PID identity mismatch')
++  print('RUNNING',p['rank'],old['pid']);raise SystemExit(0)
++ raise RuntimeError('Prior worker exited without completion; inspect failure, no automatic restart')
++env=os.environ.copy();env.update(CUDA_VISIBLE_DEVICES=str(p['GPU']),LOCAL_RANK='0',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',NO_ALBUMENTATIONS_UPDATE='1')
++cmd=[p['python'],'-m','scripts.analysis.simwam_recipe.evaluate_policy','--export',p['export'],'--export-sha256',p['weight_sha256'],'--output',p['output'],'--cohort','NAVTEST','--shard',str(p['rank']),'--shards',str(p['shards']),'--final-lock',p['final_lock']]
++with open(p['log'],'ab',buffering=0) as log:
++ child=subprocess.Popen(cmd,cwd=p['snapshot'],env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
++ticks=(Path('/proc')/str(child.pid)/'stat').read_text().split()[21]
++receipt.write_text(json.dumps(dict(p,pid=child.pid,start_ticks=ticks,command=cmd,started=time.time()),indent=2)+'\\n')
++print('STARTED',p['rank'],child.pid)
++""".replace('PAYLOAD',repr(json.dumps(payload)))
++                subprocess.run(['ssh','-o','BatchMode=yes',host,shlex.join([sys.executable,'-c',code])],check=True)
++
++
++def audit_workers(queue):
++    """Recognize only our recorded PID/start identities; never signal a worker."""
++    by_host={}
++    for path in sorted(queue.glob('*_rank*.json')):
++        receipt=json.loads(path.read_text());by_host.setdefault(receipt['host'],[]).append(receipt)
++    checks=[]
++    for host,receipts in by_host.items():
++        code="""import json
++from pathlib import Path
++rows=json.loads(PAYLOAD);result=[]
++for r in rows:
++ p=Path('/proc')/str(r['pid']);live=False
++ try:live=p.exists() and (p/'stat').read_text().split()[21]==r['start_ticks'] and r['output'] in (p/'cmdline').read_bytes().decode(errors='replace')
++ except FileNotFoundError:pass
++ f=Path(r['output'])/('rank'+str(r['rank'])+'.json');state=json.loads(f.read_text()) if f.exists() else {}
++ result.append(dict(host=r['host'],rank=r['rank'],output=r['output'],live=live,status=state.get('status'),pid=r['pid']))
++print(json.dumps(result))
++""".replace('PAYLOAD',repr(json.dumps(receipts)))
++        checks+=json.loads(subprocess.check_output(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',host,
++            shlex.join([sys.executable,'-c',code])],text=True))
++    atomic_json(queue/'worker_status.json',dict(time=time.time(),workers=checks))
++    for row in checks:
++        if not row['live'] and row['status']!='ASSIGNED_COMPLETE':
++            raise RuntimeError('Owned evaluation worker exited without a complete denominator; inspect its log: '+str(row))
++    return checks
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['prepare','serve']);p.add_argument('--snapshot')
++    p.add_argument('--output');p.add_argument('--once',action='store_true')
++    p.add_argument('--administrative-local',action='store_true');a=p.parse_args();require_controller_host(a.administrative_local)
++    queue=Path(ROOT)/'final_navtest_queue';queue.mkdir(exist_ok=True)
++    if a.command=='prepare':
++        result=prepare(Path(a.output) if a.output else queue/'assets.json');print(json.dumps(result));return
++    if not a.snapshot:raise ValueError('Frozen evaluation source is required')
++    snapshot=Path(a.snapshot);guard=(queue/'controller.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    atomic_json(queue/'transport_preflight.json',dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
++        routes=probe_routes([h for hosts in ROUTES.values() for h in hosts],sys.executable)))
++    last_probe=0
++    try:
++        while True:
++            require_controller_host(a.administrative_local);stages=Path(ROOT)/'milestone_queue/progress.json'
++            stage=json.loads(stages.read_text()) if stages.exists() else {}
++            results=[Path(ROOT)/'runs'/(name+'_seed42_v1')/f'result_rank{rank}.json'
++                     for name in ('R_SOURCE','R_CANONICAL') for rank in range(8)]
++            if stage.get('status')!='COMPLETE' or not all(f.exists() for f in results):
++                atomic_json(queue/'progress.json',dict(status='WAITING_FOR_BOTH_ENDPOINTS_AND_DEV_STAGES',pid=os.getpid(),time=time.time(),Navtest_opened=False))
++                if a.once:return
++                time.sleep(20);continue
++            lock=queue/'LOCK.json'
++            if lock.exists():
++                selection=json.loads(lock.read_text());copy=dict(selection);sha=copy.pop('sha256')
++                if fingerprint(copy)!=sha:raise ValueError('Final lock modified')
++            else:selection=make_lock(snapshot,queue)
++            if not (queue/'DISPATCHED.json').exists():
++                hosts=sorted({h for hs in ROUTES.values() for h in hs})
++                with ThreadPoolExecutor(max_workers=4) as pool:inventories=dict(zip(hosts,pool.map(inventory,hosts)))
++                uuids=[g['uuid'] for info in inventories.values() for g in info['second']]
++                if len(uuids)!=len(set(uuids)):raise ValueError('Hosts alias the same physical GPUs')
++                atomic_json(queue/'inventory.json',dict(time=time.time(),hosts=inventories,distinct_GPUs=len(uuids),no_evictions=True))
++                dispatch(snapshot,queue,selection,inventories)
++                atomic_json(queue/'DISPATCHED.json',dict(lock=selection['sha256'],routes=ROUTES,time=time.time()))
++            if time.monotonic()-last_probe>=60:
++                audit_workers(queue);last_probe=time.monotonic()
++            complete=[]
++            for name,hosts in ROUTES.items():
++                label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
++                output=Path(ROOT)/'evaluations'/(label+'_NAVTEST')
++                files=[output/f'rank{rank}.json' for rank in range(8*len(hosts))]
++                if all(f.exists() and json.loads(f.read_text())['status']=='ASSIGNED_COMPLETE' for f in files):complete.append(name)
++            atomic_json(queue/'progress.json',dict(status='FINAL_SCORING' if len(complete)<3 else 'ANALYZING',
++                completed_models=complete,Navtest_opened=True,pid=os.getpid(),time=time.time()))
++            if len(complete)==3:
++                workers=audit_workers(queue)
++                if any(w['live'] for w in workers):
++                    if a.once:return
++                    time.sleep(5);continue
++                for name in ['SFT','R_SOURCE','R_CANONICAL']:
++                    label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
++                    output=Path(ROOT)/'evaluations'/(label+'_NAVTEST');summary=output/'summary.json'
++                    if summary.exists():continue
++                    cmd=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation','--evaluation',str(output),'--output',str(summary)]
++                    if name!='SFT':cmd+=['--reference',str(Path(ROOT)/'evaluations/SFT_final_matched_NAVTEST')]
++                    subprocess.run(cmd,cwd=snapshot,check=True)
++                atomic_json(queue/'COMPLETE.json',dict(status='ALL_THREE_COMPLETE_PAIRED_NAVTEST',scenes_per_model=12146,
++                    modes=['E_NATIVE','E_SHIFT5'],inference_seeds=[2101],lock=selection['sha256'],time=time.time()))
++                atomic_json(queue/'progress.json',dict(status='COMPLETE',completed_models=complete,
++                    Navtest_opened=True,all_owned_workers_exited=True,pid=os.getpid(),time=time.time()))
++                return
++            if a.once:return
++            time.sleep(20)
++    except Exception:
++        atomic_json(queue/'failure.json',dict(error=traceback.format_exc(),pid=os.getpid(),time=time.time()))
++        raise
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/qualify_multirank.py b/scripts/analysis/simwam_recipe/qualify_multirank.py
+index 0a8e9ba..f826878 100644
+--- a/scripts/analysis/simwam_recipe/qualify_multirank.py
++++ b/scripts/analysis/simwam_recipe/qualify_multirank.py
+@@ -12,7 +12,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
+ 
+ 
+ def main():
+-    p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--output',required=True);p.add_argument('--updates',type=int,default=4);a=p.parse_args()
+     require_dispatch();configure_numerics();root=Path(a.run);identity=json.loads((root/'identity.json').read_text());cfg=identity['recipe']
+     if identity['world']!=8 or identity['purpose']!='qualification_not_formal_initialization':raise ValueError('Need eight-rank qualification')
+     actor,_,_=make_actor(cfg)
+@@ -20,14 +20,17 @@ def main():
+     opt=torch.optim.AdamW(params.values(),lr=cfg['learning_rate'],betas=tuple(cfg['optimizer_betas']),eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'])
+     actor._loss.optimizer=opt;actor._loss.learning_rate=cfg['learning_rate']
+     scheduler=actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],100)
+-    rollouts=[torch.load(root/'behavior/collection000001'/f'rank{r}.pt',map_location='cpu',weights_only=False) for r in range(8)]
+     checks=[];initial=adapter_state(actor)
+-    for step in range(1,5):
++    for step in range(1,a.updates+1):
++        if step%4==1:
++            collection=(step-1)//4+1
++            rollouts=[torch.load(root/'behavior'/f'collection{collection:06}'/f'rank{r}.pt',map_location='cpu',weights_only=False) for r in range(8)]
+         opt.zero_grad(set_to_none=True);loss_mean=0.
+         for row in rollouts:
+             total,_=actor(device_tree(row,actor.device));(total/8).backward();loss_mean+=float(total.detach())/8
+         grad=torch.cat([p.grad.flatten() for p in params.values()])
+-        target=torch.load(root/'checkpoints'/f'update{step:06}_inner{step%4}'/'optimizer.pt',map_location='cpu',weights_only=False)
++        target_path=root/'checkpoints'/f'update{step:06}_inner{step%4}'/'optimizer.pt'
++        target=torch.load(target_path,map_location='cpu',weights_only=False) if target_path.exists() else None
+         if step==1:
+             ids=target['optimizer']['param_groups'][0]['params']
+             reference_grad=torch.cat([target['optimizer']['state'][i]['exp_avg'].flatten()/.1 for i in ids]).to(grad)
+@@ -35,6 +38,14 @@ def main():
+             cosine=float(torch.nn.functional.cosine_similarity(grad,reference_grad,dim=0))
+             if relative>2e-5 or cosine<.99999:raise ValueError('DDP averaged gradient differs from explicit rank mean')
+         opt.step();scheduler.step()
++        recorded=[]
++        for rank in range(8):
++            line=(root/f'metrics_rank{rank}.jsonl').read_text().splitlines()[step-1]
++            recorded.append(json.loads(line)['loss'])
++        if abs(loss_mean-sum(recorded)/8)>2e-6:raise ValueError('Rank loss reduction mismatch')
++        if target is None:
++            if step==a.updates:raise ValueError('Final comparison checkpoint missing')
++            continue
+         errors=[];differences=[];changes=[]
+         for name,param in params.items():
+             expected=target['adapters'][name].to(param)
+@@ -62,17 +73,12 @@ def main():
+         # rounding changes near-zero coordinates. Preserve and report their
+         # relative update difference; enforce the policy-probability tolerance.
+         if density_ratio_error>1e-4:raise ValueError('Material distributed probability discrepancy')
+-        recorded=[]
+-        for rank in range(8):
+-            line=(root/f'metrics_rank{rank}.jsonl').read_text().splitlines()[step-1]
+-            recorded.append(json.loads(line)['loss'])
+-        if abs(loss_mean-sum(recorded)/8)>2e-6:raise ValueError('Rank loss reduction mismatch')
+         checks.append(dict(optimizer_step=step,parameter_max_abs=max(errors),update_relative_L2=update_relative,
+                            same_chain_density_ratio_error=density_ratio_error,explicit_equal_rank_mean_loss=loss_mean,
+                            distributed_equal_rank_mean_loss=sum(recorded)/8))
+     result=dict(status='PASS_WITH_MEASURED_FP32_PARAMETER_DIFFERENCES',checks=checks,first_gradient_relative_L2=relative,first_gradient_cosine=cosine,
+                 bitwise_parameter_equivalence=False,parameter_relative_002_threshold_exceeded=any(c['update_relative_L2']>.002 for c in checks),
+-                fresh_rollouts=1,actual_optimizer_updates=4,no_old_probability_refresh=True,
++                fresh_rollouts=(a.updates+3)//4,actual_optimizer_updates=a.updates,no_old_probability_refresh=True,
+                 original_real_DDP_action_model=True,reduction='source_rank_mean; serial per-rank scene losses, not active-only global normalization')
+     out=Path(a.output);out.parent.mkdir(parents=True,exist_ok=True);atomic_json(out,result);print(json.dumps(result))
+ 
+diff --git a/scripts/analysis/simwam_recipe/summarize_training.py b/scripts/analysis/simwam_recipe/summarize_training.py
+new file mode 100644
+index 0000000..5997be0
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/summarize_training.py
+@@ -0,0 +1,128 @@
++"""Aggregate the actual eight-rank journals without counting inner reuse as samples.
++
++Read-only: this script never refreshes a chain, changes training, or interprets
++stochastic rollout scores as single-ODE deployment performance.
++"""
++import argparse
++from datetime import datetime, timezone
++import json
++from pathlib import Path
++import numpy as np
++import torch
++from starVLA.rl.simwam_recipe.contracts import file_sha
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def read_journal(path):
++    content=Path(path).read_text()
++    # A concurrently written final, unterminated line is not a committed row.
++    lines=content.splitlines()
++    if content and not content.endswith('\n'):lines=lines[:-1]
++    rows=[json.loads(line) for line in lines]
++    if [r['updates'] for r in rows]!=list(range(1,len(rows)+1)):
++        raise ValueError('Journal has gaps or duplicate optimizer updates: '+str(path))
++    return rows
++
++
++def summarize_window(ranks, start, end):
++    updates=[row for rows in ranks for row in rows[start:end]]
++    # All ranks, only the first inner row of fully completed fresh collections.
++    fresh=[row for row in updates if row['inner_completed']==1]
++    ex=[r['exploration'] for r in fresh]
++    mean=lambda values:float(np.mean(values)) if values else None
++    count=lambda key:sum(int(e[key]) for e in ex)
++    groups=len(fresh)
++    collections=(end-start)//4
++    by_collection={}
++    for row in fresh:by_collection.setdefault(row['collection'],[]).append(row)
++    if len(by_collection)!=collections or any(len(v)!=8 for v in by_collection.values()):
++        raise ValueError('Incomplete global fresh rollout in window')
++    all_zero=sum(all(row['exploration']['zero_PG'] for row in rows) for rows in by_collection.values())
++    inner={}
++    for i in range(1,5):
++        rows=[r for r in updates if r['inner_completed']==i]
++        inner[str(i)]=dict(ratio_max_abs_from_one=max(r['ratio_max_abs_from_one'] for r in rows),
++            mean_PPO_clip_fraction=mean([r['metrics']['clipfrac'] for r in rows]),
++            policy_loss_rank_mean=mean([r['metrics']['policy_loss'] for r in rows]),
++            beta50_anchor_loss_rank_mean=mean([r['metrics']['kl_loss'] for r in rows]),
++            mean_gradient_norm=mean([r['gradient_norm'] for r in rows]))
++    safe_best=[e['finite_best_safe'] for e in ex if e['finite_best_safe'] is not None]
++    return dict(first_optimizer_update=start+1,last_optimizer_update=end,
++        actual_global_optimizer_updates=end-start,fresh_global_rollouts=collections,
++        scene_exposures=groups,new_candidates=groups*8,
++        global_RL_updates=(collections-all_zero)*4,global_anchor_only_updates=all_zero*4,
++        local_PG_groups=groups-count('zero_PG'),local_PG_group_fraction=1-count('zero_PG')/groups,
++        full_score_groups=count('all_full'),zero_score_groups=count('all_zero'),
++        other_tied_groups=count('tied')-count('all_full')-count('all_zero'),
++        canonical_tied_groups=count('tied'),zero_final_PG_groups=count('zero_PG'),
++        progress_only_groups=count('progress_only'),safety_differing_groups=count('safety_differing'),
++        stochastic_policy_mean={k:mean([e[k] for e in ex]) for k in
++            ['canonical_random_mean','train_reward_mean','NC','DAC','TTC','EP','safe_fraction']},
++        finite_best_safe=dict(mean_among_groups_with_safe_candidate=mean(safe_best),defined_groups=len(safe_best),
++            interpretation='Finite G8 candidate opportunity, never deployment performance'),
++        positive_candidate_counts={k:count(k) for k in ['positive_safe','positive_still_unsafe','positive_unsafe_with_safe_alternative']},
++        global_raw_reward_std=dict(mean=mean([e['global_reward_std'] for e in ex]),
++            min=min(e['global_reward_std'] for e in ex),max=max(e['global_reward_std'] for e in ex)),
++        first_inner=inner['1'],inner_updates=inner,
++        mean_update_seconds_per_rank=mean([r['seconds_update'] for r in updates]),
++        source_relative_clamp_hit_rate=mean([r['source_clamp_hit_rate'] for r in updates]))
++
++
++def checkpoint_cost(run):
++    progress=json.loads((run/'progress.json').read_text())
++    ck=Path(progress['checkpoint']);seal=json.loads((ck/'files.json').read_text())
++    complete=json.loads((ck/'COMPLETE').read_text())
++    if file_sha(ck/'files.json')!=complete['files_sha256']:raise ValueError('Checkpoint seal mismatch')
++    states=[]
++    for rank in range(8):
++        path=ck/f'rank{rank}.pt'
++        if file_sha(path)!=seal[path.name]:raise ValueError('Changed rank recovery state')
++        states.append(torch.load(path,map_location='cpu',weights_only=False)['state'])
++    if len({s['updates'] for s in states})!=1:raise ValueError('Unmatched rank checkpoint')
++    phases=['rollout','old_probability','update','scoring_wait','scoring_cpu']
++    sums={phase:sum(s['seconds_'+phase] for s in states) for phase in phases}
++    wall=progress['wall_seconds_this_invocation'];done=states[0]['updates']
++    return dict(checkpoint=str(ck),checkpoint_updates=done,
++        cumulative_rank_wall_seconds_by_phase=sums,
++        max_rank_wall_seconds_by_phase={phase:max(s['seconds_'+phase] for s in states) for phase in phases},
++        all_rank_phase_seconds={phase:[s['seconds_'+phase] for s in states] for phase in phases},
++        invocation_wall_seconds=wall,observed_optimizer_updates_per_second=done/wall,
++        linear_remaining_training_hours=(20000-done)*wall/done/3600,
++        allocated_eight_GPU_wall_hours=8*wall/3600,
++        note='Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. GPU-wall includes sharing; ETA assumes current throughput and excludes evaluation. Invocation ETA valid for these uninterrupted formal runs only.')
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--output',required=True)
++    p.add_argument('--window-updates',type=int,default=500);a=p.parse_args()
++    if a.window_updates<=0 or a.window_updates%4:raise ValueError('Window must contain whole four-inner collections')
++    run=Path(a.run);identity=json.loads((run/'identity.json').read_text())
++    if identity['world']!=8:raise ValueError('Formal source recipe is eight-rank')
++    ranks=[read_journal(run/f'metrics_rank{rank}.jsonl') for rank in range(8)]
++    end=min(len(rows) for rows in ranks)//4*4
++    if not end:raise ValueError('No complete fresh global rollout yet')
++    for rank,rows in enumerate(ranks):
++        for row in rows[:end]:
++            if row['behavior']['run']!=identity['sha256']:raise ValueError('Mixed run identity')
++            if row['collection']!=(row['updates']-1)//4+1 or row['inner_completed']!=(row['updates']-1)%4+1:
++                raise ValueError('Broken four-inner contract')
++    windows=[summarize_window(ranks,start,min(start+a.window_updates,end)) for start in range(0,end,a.window_updates)]
++    complete=all((run/f'result_rank{rank}.json').exists() and json.loads((run/f'result_rank{rank}.json').read_text())['status']=='COMPLETE' for rank in range(8))
++    result=dict(status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
++        captured_utc=datetime.now(timezone.utc).isoformat(),run_identity=identity['sha256'],variant=identity['recipe']['variant'],
++        matched_completed_updates=end,observed_updates_by_rank=[len(rows) for rows in ranks],
++        cumulative=summarize_window(ranks,0,end),windows=windows,cost=checkpoint_cost(run),
++        first_behavior_adapter_sha256=[rows[0]['behavior']['adapter_sha256'] for rows in ranks],
++        source_files=identity['source_files'],
++        limits=['Stochastic G8 scores are not original single-ODE deployment scores.',
++                'The fixed hard scene list changes training population; do not compare this mean with full-TRAIN or DEV.',
++                'A repeated group across four inner updates contributes only one fresh sample group.',
++                'Global update count uses all ranks, not rank0 local PG activity.',
++                'Window changes also include scene mix; matched fixed-population ODE evaluation determines efficacy.'])
++    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
++    print(json.dumps(dict(status=result['status'],variant=result['variant'],updates=end,
++        scene_exposures=result['cumulative']['scene_exposures'],PG_group_fraction=result['cumulative']['local_PG_group_fraction'],
++        remaining_hours=result['cost']['linear_remaining_training_hours'],output=str(output))))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/watch_evaluations.py b/scripts/analysis/simwam_recipe/watch_evaluations.py
+index 70d10ec..df30cce 100644
+--- a/scripts/analysis/simwam_recipe/watch_evaluations.py
++++ b/scripts/analysis/simwam_recipe/watch_evaluations.py
+@@ -13,20 +13,28 @@ import subprocess
+ import sys
+ import time
+ import traceback
+-from starVLA.rl.simwam_recipe.contracts import ROOT,require_dispatch
++from starVLA.rl.simwam_recipe.contracts import ROOT
+ from starVLA.rl.flow_grpo.transactions import atomic_json
++from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
+ 
+ 
+ def main():
+-    p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True);a=p.parse_args();require_dispatch()
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True)
++    p.add_argument('--administrative-local',action='store_true');p.add_argument('--preflight-only',action='store_true')
++    a=p.parse_args();require_controller_host(a.administrative_local)
+     root=Path(ROOT);queue=root/'milestone_queue';queue.mkdir(exist_ok=True)
+     lock=(queue/'controller.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+     routes={'R_SOURCE':'training-vlawm-tsinghua-zt','R_CANONICAL':'training-vlawm-tsinghua-zt2'}
+     stages=[5000,10000,15000,20000];snapshot=Path(a.snapshot)
++    transport=dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
++                   routes=probe_routes(routes.values(),sys.executable))
++    atomic_json(queue/'transport_preflight.json',transport)
++    if a.preflight_only:print(json.dumps(transport));return
+     while True:
+-        require_dispatch();finished=[]
++        require_controller_host(a.administrative_local);finished=[]
+         try:
+             for variant,host in routes.items():
++                require_worker_host(host)
+                 for step in stages:
+                     label=f'{variant}_update{step:06}';done=queue/(label+'.complete.json')
+                     if done.exists():finished.append(label);continue
+@@ -34,8 +42,7 @@ def main():
+                     if not (ck/'COMPLETE').exists():break
+                     export=root/'exports'/label
+                     if not (export/'COMPLETE').exists():
+-                        policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
+-                        if host not in policy['task_authorizations']['flow_safe_improvement_20261013']['allowed_hosts'] or host not in policy['allowed_hosts']:raise PermissionError(host)
++                        require_worker_host(host)
+                         command=[sys.executable,'-m','scripts.analysis.simwam_recipe.export_policy','--checkpoint',str(ck),'--output',str(export)]
+                         env='CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUBLAS_WORKSPACE_CONFIG=:4096:8 NO_ALBUMENTATIONS_UPDATE=1 '
+                         with (queue/(label+'.export.log')).open('ab',buffering=0) as log:

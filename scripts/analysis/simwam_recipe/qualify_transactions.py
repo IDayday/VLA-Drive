@@ -2,8 +2,12 @@
 import argparse
 import copy
 import json
+import os
 from pathlib import Path
 import tempfile
+# This entry is explicitly CPU-only, including RNG bookkeeping. Do not let
+# the generic checkpoint helper initialize an unrelated local CUDA context.
+os.environ['CUDA_VISIBLE_DEVICES']=''
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -94,10 +98,11 @@ def worker(rank,root,init):
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args()
+    if torch.cuda.is_available():raise RuntimeError('CPU qualification must not acquire a GPU')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
     mp.spawn(worker,args=(str(out),str(out/'gloo-init')),nprocs=2,join=True)
     rows=[json.loads((out/f'result_rank{r}.json').read_text()) for r in range(2)]
-    result=dict(status='PASS',world=2,backend='CPU Gloo',checks=rows[0]['checks'],all_ranks=rows)
+    result=dict(status='PASS',world=2,backend='CPU Gloo',CUDA_visible=False,checks=rows[0]['checks'],all_ranks=rows)
     atomic_json(out/'result.json',result);print(json.dumps(result))
 
 

@@ -10,7 +10,7 @@ def invocation_cost(run, *, done, latest_wall=None):
             cumulative_logical_updates=done,invocation_start_update=None,
             invocation_effective_updates=None,invocation_updates_per_second=None,
             linear_remaining_training_hours=None,cumulative_worker_wall_seconds=None,
-            rollback_or_failure_worker_wall_seconds=None,save_worker_wall_seconds=None,
+            aborted_invocation_worker_wall_seconds=None,rollback_overhead_seconds=None,save_worker_wall_seconds=None,
             last_reported_invocation_wall_seconds=latest_wall,
             missing=['invocation start counters','failed/rolled-back time','model loading','checkpoint save time'],
             note='Do not divide cumulative updates by a possibly resumed invocation wall. Legacy phase timers remain valid lower bounds.')
@@ -24,13 +24,15 @@ def invocation_cost(run, *, done, latest_wall=None):
         invocation_updates_per_second=rate,
         linear_remaining_training_hours=(20000-done)/rate/3600 if rate else None,
         cumulative_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows),
-        rollback_or_failure_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows if r['status'] in ('ABORTED','RUNNING')),
+        aborted_invocation_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows if r['status'] in ('ABORTED','RUNNING')),
+        rollback_overhead_seconds=None,
         save_worker_wall_seconds=sum(r['seconds_save'] for r in rows),
         physical_generated_candidates=sum(r['generated_candidates'] for r in rows),
         physical_scored_candidates=sum(r['scored_candidates'] for r in rows),
         worker_records=len(rows),incomplete_invocations=sum(r['status']=='RUNNING' for r in rows),
-        missing=['unobserved tail after a hard process kill; counters are lower bounds when an invocation is incomplete'],
-        note='Shared GPU worker wall is not exclusive GPU compute; failed attempt work is included. A resumed segment rate uses end-start updates.')
+        missing=['unobserved tail after a hard process kill; counters are lower bounds when an invocation is incomplete',
+                 'exact rollback-only wall inside an aborted invocation; its total wall may include committed work'],
+        note='Shared GPU worker wall is not exclusive GPU compute; ALL failed-attempt wall is included, but not all of that wall is necessarily discarded. A resumed segment rate uses end-start updates.')
 
 
 def evaluation_cost(root,identity,ranks):
@@ -51,13 +53,16 @@ def evaluation_cost(root,identity,ranks):
         return base
     finished=[r for r in rows if 'end_unix' in r]
     complete=len(finished)==len(rows)
-    base.update(provenance='per-worker invocation ledger',worker_invocations=len(rows),complete_cost_accounting=complete,
+    counters_complete=complete and all(r['status'] in ('ASSIGNED_COMPLETE','QUALIFICATION_COMPLETE','STOPPED_AT_SCENE_BOUNDARY') for r in rows)
+    base.update(provenance='per-worker invocation ledger',worker_invocations=len(rows),complete_cost_accounting=counters_complete,
         new_scenes=sum(r.get('new',0) for r in rows),reused_scenes=sum(r.get('reused',0) for r in rows),
         cumulative_physical_predictions=sum(r.get('physical_predictions',0) for r in rows),
+        diagnostic_predictions=sum(r.get('diagnostic_predictions',0) for r in rows),
+        physical_predictions_including_diagnostics=sum(r.get('physical_predictions',0)+r.get('diagnostic_predictions',0) for r in rows),
         cumulative_worker_wall_seconds=sum(r.get('total_worker_wall_seconds',r.get('elapsed',0)) for r in rows),
         job_wall_seconds=max(r['end_unix'] for r in finished)-min(r['start_unix'] for r in rows) if complete else None,
         model_load_seconds=sum(r.get('model_load_seconds',0) for r in rows),
         generation_wall_seconds_sum=sum(r.get('generation_seconds',0) for r in rows),
         scoring_wait_seconds_sum=sum(r.get('scoring_seconds',0) for r in rows),
-        missing=[] if complete else ['unobserved tail of interrupted worker; physical counts are lower bounds'])
+        missing=[] if counters_complete else ['partial failed forwards/scoring may have unobserved counters; total finished-worker wall is retained'])
     return base

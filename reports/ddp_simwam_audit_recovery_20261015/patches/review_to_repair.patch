@@ -1,0 +1,1546 @@
+diff --git a/scripts/analysis/simwam_recipe/analyze_evaluation.py b/scripts/analysis/simwam_recipe/analyze_evaluation.py
+index fd62561..cf68532 100644
+--- a/scripts/analysis/simwam_recipe/analyze_evaluation.py
++++ b/scripts/analysis/simwam_recipe/analyze_evaluation.py
+@@ -1,5 +1,6 @@
+ """Complete-population single-ODE comparison; no best-of-two grid selection."""
+ import argparse
++from scripts.analysis.simwam_recipe.cost_ledger import evaluation_cost
+ import json
+ from pathlib import Path
+ import numpy as np
+@@ -71,15 +72,10 @@ def main():
+         for key in ('population_identity','tokens_sha256','seed','modes','profile','scoring','source_sha256'):
+             if identity[key]!=ref[key]:raise ValueError('Unmatched reference protocol: '+key)
+         if rt!=tokens or rl!=logs:raise ValueError('Unpaired scenes')
+-    result=dict(status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
++    result=dict(schema='simwam_evaluation_analysis_v2',analysis_identity=file_sha(__file__),status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
+                 score_units='raw0to1; mean_percent multiplied100; gain/loss sums remain raw score',modes={},
+                 cohort_caveat='TRAIN diagnostic contains preselected difficult scenes and is not a population-unbiased estimate' if identity['cohort']=='TRAIN_DIAGNOSTIC' else None,
+-                cost=dict(new_candidates=sum(r['new_candidates'] for r in ranks),scene_encoder_calls=sum(r['scene_encoder_calls'] for r in ranks),
+-                          velocity_forward_calls=sum(r['velocity_forward_calls'] for r in ranks),
+-                          summed_worker_wall_seconds=sum(r['elapsed'] for r in ranks),
+-                          generation_wall_seconds_sum=sum(r['generation_seconds'] for r in ranks),
+-                          scoring_wait_seconds_sum=sum(r['scoring_seconds'] for r in ranks),
+-                          note='Shared GPU worker wall time is not exclusive physical GPU time; scoring_wait is not CPU-core time'))
++                cost=evaluation_cost(a.evaluation,identity,ranks))
+     for mode,values in rows.items():
+         ms=motions[mode];movement={}
+         for key in ms[0]:
+@@ -104,7 +100,9 @@ def main():
+                                                        mean_delta=float((values[:,i]-base[:,i]).mean()))
+             item['paired_comparison']=comparison
+         result['modes'][mode]=item
+-    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
++    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
++    if output.exists():raise FileExistsError('Preserve the old summary; select a new analysis output')
++    atomic_json(output,result)
+     print(json.dumps(dict(status=result['status'],scenes=len(tokens),PDMS_percent={m:d['mean_percent']['score'] for m,d in result['modes'].items()},output=str(output))))
+ 
+ 
+diff --git a/scripts/analysis/simwam_recipe/audit_checkpoints.py b/scripts/analysis/simwam_recipe/audit_checkpoints.py
+new file mode 100644
+index 0000000..dee09b1
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/audit_checkpoints.py
+@@ -0,0 +1,71 @@
++"""Read-only classification of legacy checkpoints; COMPLETE alone is insufficient."""
++import argparse
++import json
++from pathlib import Path
++import torch
++from starVLA.rl.simwam_recipe.contracts import file_sha
++from starVLA.rl.simwam_recipe.recovery_state import validate_boundary,validate_ranks
++from starVLA.rl.simwam_recipe.data_stream import SceneStream
++from starVLA.rl.simwam_recipe.invocation import validate_rows
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def inspect(path):
++    path=Path(path)
++    try:
++        if '.incomplete' in path.name:raise ValueError('Unpublished attempt')
++        if 'failure' in path.name.lower():raise ValueError('Historical failure tag: RNG/collection start not committed; not an automatic recovery point')
++        seal=json.loads((path/'COMPLETE').read_text());files=json.loads((path/'files.json').read_text())
++        if file_sha(path/'files.json')!=seal['files_sha256']:raise ValueError('Changed file manifest')
++        for name,sha in files.items():
++            if file_sha(path/name)!=sha:raise ValueError('Changed payload: '+name)
++        identity=json.loads((path/'identity.json').read_text())
++        common=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
++        ranks=[]
++        for rank in range(identity['world']):
++            own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False)
++            if own['identity_sha256']!=identity['sha256']:raise ValueError('Rank identity mismatch')
++            ranks.append(validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],legacy=seal.get('schema')!=2))
++        validate_ranks(ranks)
++        return dict(status='COMMITTED_BOUNDARY',checkpoint=str(path),files_sha256=file_sha(path/'files.json'),
++            legacy=seal.get('schema')!=2,requires_explicit_migration=seal.get('schema')!=2,
++            ranks=ranks,optimizer_parameter_states=len(common['optimizer']['state']),
++            scheduler_last_epoch=common['scheduler']['last_epoch'],automatic_legacy_resume=False)
++    except Exception as exc:
++        return dict(status='REJECTED',checkpoint=str(path),reason=str(exc),automatic_resume=False)
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--run');p.add_argument('--checkpoint');p.add_argument('--output',required=True);a=p.parse_args()
++    if not (bool(a.run)^bool(a.checkpoint)):raise ValueError('Select one run or checkpoint')
++    if a.checkpoint:result=inspect(a.checkpoint)
++    else:
++        run=Path(a.run);identity=json.loads((run/'identity.json').read_text())
++        latest=json.loads((run/'latest.json').read_text());endpoint=inspect(latest['checkpoint'])
++        rows=[[json.loads(l) for l in (run/f'metrics_rank{r}.jsonl').read_text().splitlines()] for r in range(identity['world'])]
++        states=[json.loads((run/f'result_rank{r}.json').read_text()) for r in range(identity['world'])]
++        for r in rows:validate_rows(r,len(r))
++        if endpoint['status']!='COMMITTED_BOUNDARY' or any(len(r)!=20000 for r in rows):raise ValueError('Formal endpoint incomplete')
++        if any(s['status']!='COMPLETE' or s['updates']!=20000 or s['collections']!=5000 or s['raw_scene_exposures']!=40000 or s['new_candidates']!=320000 for s in states):
++            raise ValueError('Endpoint budget mismatch')
++        stream=SceneStream('/mnt/project/simwam-recipe-20261015/hard_manifest.json',8)
++        padding=[]
++        for collection in range(5000):
++            for rank in range(8):
++                token,position=stream.at(collection*8,rank)
++                if rows[rank][collection*4]['token']!=token:raise ValueError('Actual scene stream changed')
++                if position['padding']:padding.append(dict(collection=collection+1,rank=rank,token=token,position=position))
++        suspicious=[inspect(p) for p in (run/'checkpoints').iterdir() if p.is_dir() and ('failure' in p.name or '.incomplete' in p.name)]
++        result=dict(status='PASS',run=str(run),identity=identity['sha256'],endpoint=endpoint,
++            updates_by_rank=[len(r) for r in rows],fresh_global_rollouts=5000,scene_exposures=40000,new_candidates=320000,
++            epoch_padding_exposures=len(padding),padding_records=padding,
++            suspicious_checkpoint_classification=suspicious,
++            progress_status=json.loads((run/'progress.json').read_text())['status'],
++            actual_status='COMPLETE from all eight result files, sealed optimizer and contiguous journals',
++            source_files=identity['source_files'])
++    output=Path(a.output)
++    if output.exists():raise FileExistsError('Read-only audit sidecars are immutable')
++    atomic_json(output,result);print(json.dumps(dict(status=result['status'],output=str(output))))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/audit_evaluations.py b/scripts/analysis/simwam_recipe/audit_evaluations.py
+new file mode 100644
+index 0000000..a90d83a
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/audit_evaluations.py
+@@ -0,0 +1,41 @@
++"""Revalidate sealed predictions/scores and rebuild analysis, with zero inference."""
++import argparse
++from concurrent.futures import ThreadPoolExecutor
++import json
++from pathlib import Path
++import subprocess
++import sys
++from starVLA.rl.simwam_recipe.contracts import file_sha
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
++    def audit(old_path):
++        old=json.loads(old_path.read_text());dest=out/(old_path.parent.name+'.json')
++        cmd=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
++             '--evaluation',str(old_path.parent),'--output',str(dest)]
++        if old.get('reference'):cmd+=['--reference',old['reference']]
++        if not dest.exists():
++            with dest.with_suffix('.log').open('x') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,check=True)
++        else:
++            # A cached analysis is not evidence that its input files are still
++            # intact. Resume must revalidate payload seals, including reference.
++            from scripts.analysis.simwam_recipe.analyze_evaluation import read
++            read(old_path.parent)
++            if old.get('reference'):read(old['reference'])
++        new=json.loads(dest.read_text())
++        if new['identity']!=old['identity'] or new['modes']!=old['modes']:
++            raise ValueError('Derived metric changed: '+str(old_path))
++        return dict(evaluation=old_path.parent.name,scenes=new['scenes'],status='PASS',
++            previous_summary_sha256=file_sha(old_path),new_summary_sha256=file_sha(dest),
++            prediction_and_score_hashes_verified=True,all_metric_and_paired_results_unchanged=True,
++            new_inference=0,new_scoring=0,cost_schema=2,command=cmd)
++    paths=sorted(Path(a.root).glob('*/summary.json'))
++    with ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(audit,paths))
++    result=dict(status='PASS',evaluations=rows,new_inference=0,new_scoring=0)
++    atomic_json(out/'audit.json',result);print(json.dumps(dict(status='PASS',evaluations=len(rows))))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/cost_ledger.py b/scripts/analysis/simwam_recipe/cost_ledger.py
+new file mode 100644
+index 0000000..b9af7a3
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/cost_ledger.py
+@@ -0,0 +1,68 @@
++"""Analysis-only accounting. Logical samples and physical attempts are distinct."""
++import json
++from pathlib import Path
++
++
++def invocation_cost(run, *, done, latest_wall=None):
++    rows=[json.loads(p.read_text()) for p in sorted((Path(run)/'invocations').glob('*/rank*.json'))]
++    if not rows:
++        return dict(schema=2,provenance='legacy rank summaries; no invocation ledger',
++            cumulative_logical_updates=done,invocation_start_update=None,
++            invocation_effective_updates=None,invocation_updates_per_second=None,
++            linear_remaining_training_hours=None,cumulative_worker_wall_seconds=None,
++            aborted_invocation_worker_wall_seconds=None,rollback_overhead_seconds=None,save_worker_wall_seconds=None,
++            last_reported_invocation_wall_seconds=latest_wall,
++            missing=['invocation start counters','failed/rolled-back time','model loading','checkpoint save time'],
++            note='Do not divide cumulative updates by a possibly resumed invocation wall. Legacy phase timers remain valid lower bounds.')
++    rank0=sorted((r for r in rows if r['rank']==0),key=lambda r:r['start_unix'])
++    last=rank0[-1];delta=last.get('end_update',last['start_update'])-last['start_update']
++    wall=last.get('worker_wall_seconds',last.get('observed_worker_wall_seconds',0))
++    rate=delta/wall if delta>=4 and wall>0 and 'end_update' in last else None
++    # Sum worker time explicitly, never relabel it as end-to-end/exclusive GPU time.
++    return dict(schema=2,provenance='immutable per-invocation ledger',cumulative_logical_updates=done,
++        invocation_start_update=last['start_update'],invocation_effective_updates=delta,
++        invocation_updates_per_second=rate,
++        linear_remaining_training_hours=(20000-done)/rate/3600 if rate else None,
++        cumulative_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows),
++        aborted_invocation_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows if r['status'] in ('ABORTED','RUNNING')),
++        rollback_overhead_seconds=None,
++        save_worker_wall_seconds=sum(r['seconds_save'] for r in rows),
++        physical_generated_candidates=sum(r['generated_candidates'] for r in rows),
++        physical_scored_candidates=sum(r['scored_candidates'] for r in rows),
++        worker_records=len(rows),incomplete_invocations=sum(r['status']=='RUNNING' for r in rows),
++        missing=['unobserved tail after a hard process kill; counters are lower bounds when an invocation is incomplete',
++                 'exact rollback-only wall inside an aborted invocation; its total wall may include committed work'],
++        note='Shared GPU worker wall is not exclusive GPU compute; ALL failed-attempt wall is included, but not all of that wall is necessarily discarded. A resumed segment rate uses end-start updates.')
++
++
++def evaluation_cost(root,identity,ranks):
++    rows=[json.loads(p.read_text()) for p in sorted((Path(root)/'invocations').glob('*/rank*.json'))]
++    base=dict(schema=2,logical_scenes=identity['scenes'],logical_single_candidate_evaluations=identity['scenes']*len(identity['modes']),
++        candidate_evaluations_per_grid=identity['scenes'],shared_GPU=True,
++        note='Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.')
++    if not rows:
++        base.update(provenance='legacy last worker summary; prior invocations may have been overwritten',
++            last_invocation_new_scenes=sum(r['new'] for r in ranks),last_invocation_reused_scenes=sum(r['reused'] for r in ranks),
++            last_invocation_new_predictions=sum(r['new_candidates'] for r in ranks),
++            observed_worker_wall_seconds=sum(r['elapsed'] for r in ranks),
++            generation_wall_seconds_lower_bound=sum(r['generation_seconds'] for r in ranks),
++            scoring_wait_seconds_lower_bound=sum(r['scoring_seconds'] for r in ranks),
++            cumulative_physical_predictions=None,cumulative_worker_wall_seconds=None,job_wall_seconds=None,model_load_seconds=None,
++            missing=['previous worker invocations','inference retries','model loading','job start/end'],
++            complete_cost_accounting=False)
++        return base
++    finished=[r for r in rows if 'end_unix' in r]
++    complete=len(finished)==len(rows)
++    counters_complete=complete and all(r['status'] in ('ASSIGNED_COMPLETE','QUALIFICATION_COMPLETE','STOPPED_AT_SCENE_BOUNDARY') for r in rows)
++    base.update(provenance='per-worker invocation ledger',worker_invocations=len(rows),complete_cost_accounting=counters_complete,
++        new_scenes=sum(r.get('new',0) for r in rows),reused_scenes=sum(r.get('reused',0) for r in rows),
++        cumulative_physical_predictions=sum(r.get('physical_predictions',0) for r in rows),
++        diagnostic_predictions=sum(r.get('diagnostic_predictions',0) for r in rows),
++        physical_predictions_including_diagnostics=sum(r.get('physical_predictions',0)+r.get('diagnostic_predictions',0) for r in rows),
++        cumulative_worker_wall_seconds=sum(r.get('total_worker_wall_seconds',r.get('elapsed',0)) for r in rows),
++        job_wall_seconds=max(r['end_unix'] for r in finished)-min(r['start_unix'] for r in rows) if complete else None,
++        model_load_seconds=sum(r.get('model_load_seconds',0) for r in rows),
++        generation_wall_seconds_sum=sum(r.get('generation_seconds',0) for r in rows),
++        scoring_wait_seconds_sum=sum(r.get('scoring_seconds',0) for r in rows),
++        missing=[] if counters_complete else ['partial failed forwards/scoring may have unobserved counters; total finished-worker wall is retained'])
++    return base
+diff --git a/scripts/analysis/simwam_recipe/evaluate_policy.py b/scripts/analysis/simwam_recipe/evaluate_policy.py
+index 63c2101..954fc91 100644
+--- a/scripts/analysis/simwam_recipe/evaluate_policy.py
++++ b/scripts/analysis/simwam_recipe/evaluate_policy.py
+@@ -12,6 +12,8 @@ import os
+ from pathlib import Path
+ import signal
+ import time
++import uuid
++import atexit
+ import numpy as np
+ from omegaconf import OmegaConf
+ import torch
+@@ -45,6 +47,7 @@ def shifted_ode(head,condition,root):
+ 
+ 
+ def main():
++    process_started=time.monotonic();process_started_unix=time.time()
+     p=argparse.ArgumentParser(__doc__)
+     p.add_argument('--export',required=True);p.add_argument('--export-sha256',required=True);p.add_argument('--output',required=True)
+     p.add_argument('--cohort',choices=['DEV','TRAIN_DIAGNOSTIC','NAVTEST'],default='DEV')
+@@ -55,6 +58,19 @@ def main():
+     if not 0<=rank<a.shards:raise ValueError('Invalid shard')
+     for s in (signal.SIGUSR1,signal.SIGTERM):signal.signal(s,stop)
+     export=Path(a.export);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
++    guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    invocation=uuid.uuid4().hex;invocation_path=out/'invocations'/invocation/f'rank{rank}.json'
++    invocation_path.parent.mkdir(parents=True,exist_ok=False)
++    status=dict(schema='simwam_evaluation_invocation_v2',invocation=invocation,rank=rank,
++                status='STARTING',start_unix=process_started_unix,host=host,pid=os.getpid(),
++                new=0,reused=0,scene_encoder_calls=0,new_candidates=0,physical_predictions=0,
++                diagnostic_predictions=0,velocity_forward_calls=0,generation_seconds=0.,scoring_seconds=0.,
++                model_load_seconds=0.,direct_original_check=False)
++    def record_exit():
++        if status['status'] in ('STARTING','RUNNING'):status['status']='ABORTED'
++        status.update(end_unix=time.time(),total_worker_wall_seconds=time.monotonic()-process_started)
++        atomic_json(invocation_path,status)
++    atomic_json(invocation_path,status);atexit.register(record_exit)
+     if file_sha(export/'pytorch_model.pt')!=a.export_sha256:raise ValueError('Export hash changed')
+     if a.export_sha256!=SFT_SHA256 and not (export/'COMPLETE').exists():raise ValueError('Unsealed export')
+     pop=json.loads(Path(POPULATION).read_text());selection=None
+@@ -75,7 +91,9 @@ def main():
+     os.environ['BASE_VLM']='/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction'
+     os.environ['VLM_ATTN_IMPLEMENTATION']=cfg.framework.qwenvl.attn_implementation
+     from infer import VLAAgent
++    load_started=time.monotonic()
+     agent=VLAAgent(str(export),device='cuda',qwen_forward_mode='optimized');model=agent.model.eval().requires_grad_(False)
++    status['model_load_seconds']=time.monotonic()-load_started
+     profile=dict(qwen=str(next(model.qwen_vl_interface.parameters()).dtype),history=str(next(model.action_input_model.parameters()).dtype),
+                  action=str(next(model.action_model.parameters()).dtype),attention=cfg.framework.qwenvl.attn_implementation)
+     if (profile['qwen'],profile['history'],profile['action'])!=('torch.bfloat16','torch.float32','torch.float32'):raise ValueError('Original deployment dtype profile changed')
+@@ -93,7 +111,7 @@ def main():
+         fcntl.flock(guard,fcntl.LOCK_EX)
+         if (out/'manifest.json').exists() and json.loads((out/'manifest.json').read_text())!=identity:raise ValueError('Evaluation identity changed')
+         atomic_json(out/'manifest.json',identity)
+-    guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    status['identity_sha256']=identity['sha256']
+     data_cfg=copy.deepcopy(agent.model_config)
+     data_cfg.datasets.vla_data.data_root=selection['data_root'] if selection else '/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset'
+     data_cfg.datasets.vla_data.datalist_path=selection['navtest_datalist'] if selection else '/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/navtrain_tokens.json'
+@@ -101,8 +119,7 @@ def main():
+     dataset=KeyedDataset(data_cfg,split='test' if selection else 'train')
+     assigned=tokens[rank::a.shards]
+     if a.max_scenes:assigned=assigned[:a.max_scenes]
+-    status=dict(status='RUNNING',host=host,pid=os.getpid(),new=0,reused=0,scene_encoder_calls=0,new_candidates=0,
+-                velocity_forward_calls=0,generation_seconds=0.,scoring_seconds=0.,direct_original_check=False)
++    status['status']='RUNNING';atomic_json(invocation_path,status)
+     begin=time.monotonic()
+     try:
+         for token in assigned:
+@@ -119,27 +136,33 @@ def main():
+                 root=torch.randn((1,8,4),device='cuda',dtype=raw_dtype,generator=torch.Generator(device='cuda').manual_seed(key))
+                 with torch.autocast('cuda',dtype=torch.float32):native=model.action_model._euler_sample(root,condition)
+                 shifted,buckets=shifted_ode(model.action_model,condition,root)
++                status['physical_predictions']+=2
++                status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=20
+                 if not status['direct_original_check']:
+                     direct=model.predict_action_infer_1d(obs.examples(),initial_noise=root)['normalized_actions']
++                    status['diagnostic_predictions']+=1;status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=10
+                     if not np.array_equal(direct,native.float().cpu().numpy()):raise ValueError('Native evaluation differs from original deployment')
+                     status['direct_original_check']=True
+             actions=torch.cat([native,shifted]).float().cpu()
+             if not torch.isfinite(actions).all():raise ValueError('Nonfinite policy output; retain scene in denominator and abort')
+             requested=decode_request(actions.numpy(),act_norm=int(data_cfg.datasets.vla_data.act_norm))
+             torch.cuda.synchronize();status['generation_seconds']+=time.monotonic()-started
++            atomic_json(invocation_path,status)
+             started=time.monotonic();records=service.score((token,pop['token_logs'][token],requested));status['scoring_seconds']+=time.monotonic()-started
+             payload=dict(token=token,log=pop['token_logs'][token],identity_sha256=identity['sha256'],initial_noise=root.cpu(),
+                          noise_key=key,normalized_actions=actions,records=dict(zip(identity['modes'],records)),shift5_buckets=buckets)
+             atomic_torch(path,payload)
+             atomic_json(path.with_suffix('.json'),dict(token=token,log=payload['log'],identity_sha256=identity['sha256'],payload_sha256=file_sha(path),
+                         metrics={k:v['metrics'] for k,v in payload['records'].items()}))
+-            status['new']+=1;status['new_candidates']+=2;status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=20
++            status['new']+=1;status['new_candidates']+=2
+             status['elapsed']=time.monotonic()-begin
+-            if status['new']%8==0:atomic_json(out/f'rank{rank}.json',status)
++            if status['new']%8==0:
++                atomic_json(out/f'rank{rank}.json',status);atomic_json(invocation_path,status)
+         status.update(status='STOPPED_AT_SCENE_BOUNDARY' if STOP else ('QUALIFICATION_COMPLETE' if a.max_scenes else 'ASSIGNED_COMPLETE'),elapsed=time.monotonic()-begin,
+                       peak_GPU_bytes=torch.cuda.max_memory_allocated())
+         atomic_json(out/f'rank{rank}.json',status)
+-    finally:service.close()
++    finally:
++        record_exit();atexit.unregister(record_exit);service.close()
+ 
+ 
+ if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/make_migration_receipt.py b/scripts/analysis/simwam_recipe/make_migration_receipt.py
+new file mode 100644
+index 0000000..13effcb
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/make_migration_receipt.py
+@@ -0,0 +1,44 @@
++"""Explicit execution-only source migration, requiring matching real parity evidence.
++
++Does not edit the checkpoint, identity, source snapshot, or start training.
++"""
++import argparse
++import json
++from pathlib import Path
++from scripts.analysis.simwam_recipe.audit_checkpoints import inspect
++from starVLA.rl.simwam_recipe.lineage import scientific_identity
++from starVLA.rl.simwam_recipe.contracts import file_sha,fingerprint
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--new-identity',required=True)
++    p.add_argument('--parity-evidence',required=True);p.add_argument('--recovery-evidence',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    parent=Path(a.checkpoint);audit=inspect(parent)
++    if audit['status']!='COMMITTED_BOUNDARY':raise ValueError(audit)
++    old=json.loads((parent/'identity.json').read_text());new=json.loads(Path(a.new_identity).read_text())
++    if scientific_identity(old)!=scientific_identity(new):raise ValueError('Not an algorithm-preserving execution migration')
++    parity=json.loads(Path(a.parity_evidence).read_text());recovery=json.loads(Path(a.recovery_evidence).read_text())
++    if parity['status']!='PASS' or parity['source_identities']!=[old['sha256'],new['sha256']]:
++        raise ValueError('Parity evidence is not for these exact old and new sources')
++    if recovery['status']!='PASS' or not recovery['optimizer_adapters_scheduler_RNG_exact']:
++        raise ValueError('Exact inner recovery not demonstrated')
++    # Evidence must belong to the same destination, not an unrelated passing test.
++    recovered=json.loads((Path(recovery['continuous'])/'identity.json').read_text())
++    if recovered!=new:raise ValueError('Recovery evidence source identity differs')
++    changed={k:dict(old=old['source_files'].get(k),new=new['source_files'].get(k)) for k in
++        sorted(set(old['source_files'])|set(new['source_files'])) if old['source_files'].get(k)!=new['source_files'].get(k)}
++    allowed={'scripts/analysis/simwam_recipe/train.py'}|{'starVLA/rl/simwam_recipe/'+n for n in
++        ('checkpoint.py','collection.py','contracts.py','recovery_state.py','invocation.py','lineage.py')}
++    if set(changed)-allowed:raise ValueError('Migration changes actor/sampler/loss/imported dependency outside the audited execution patch')
++    result=dict(schema='simwam_execution_migration_v2',classification='B normal path unchanged; recovery transaction only',
++        parent_checkpoint=str(parent),parent_files_sha256=file_sha(parent/'files.json'),
++        old_identity=old,new_identity=new,scientific_identity=scientific_identity(old),source_diff=changed,
++        evidence=[dict(path=str(Path(p).resolve()),sha256=file_sha(p)) for p in (a.parity_evidence,a.recovery_evidence)],
++        immutable_old_source_files_preserved=True)
++    result['sha256']=fingerprint(result);out=Path(a.output)
++    if out.exists():raise FileExistsError('Migration receipts are immutable')
++    atomic_json(out,result);print(json.dumps(dict(status='RECEIPT_CREATED',output=str(out),sha256=result['sha256'])))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/qualify_accounting.py b/scripts/analysis/simwam_recipe/qualify_accounting.py
+new file mode 100644
+index 0000000..eda3f5a
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/qualify_accounting.py
+@@ -0,0 +1,63 @@
++"""CPU checks for resolved recipe locking and resumed physical cost accounting."""
++import argparse
++import copy
++import json
++from pathlib import Path
++import tempfile
++from omegaconf import OmegaConf
++from scripts.analysis.simwam_recipe.cost_ledger import invocation_cost,evaluation_cost
++from scripts.analysis.simwam_recipe.summarize_training import read_journal
++from starVLA.rl.simwam_recipe.contracts import load_recipe
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args();checks=[]
++    with tempfile.TemporaryDirectory() as temp:
++        root=Path(temp);cfg=load_recipe('configs/flow_rl/simwam_source_ddp.yaml')
++        canonical=load_recipe('configs/flow_rl/simwam_canonical_ddp.yaml');canonical['variant']='R_SOURCE';canonical['grpo']['reward']['progress_weight']=10.
++        assert canonical==cfg;checks.append('exact_two_allowed_variant_differences')
++        for key in ('learning_rate','lr_warmup_steps','max_steps','weight_decay','optimizer_eps',
++                    'gradient_clipping_effective','DDP_bucket_cap_mb','seed','evaluation_seed','action_infer_shift'):
++            changed=copy.deepcopy(cfg);changed[key]+=1
++            path=root/'recipe.yaml';OmegaConf.save(OmegaConf.create(changed),path)
++            try:load_recipe(path)
++            except ValueError:checks.append('locked_'+key)
++            else:raise AssertionError('Unlocked '+key)
++        for group,key in (('lora','r'),('lora','alpha'),('train','kl_beta'),('train','num_inner_epochs'),('train','adv_eps'),('sample','min_std'),('sample','group_size'),('reward','ttc_weight')):
++            changed=copy.deepcopy(cfg);changed['grpo'][group][key]+=1
++            path=root/'recipe.yaml';OmegaConf.save(OmegaConf.create(changed),path)
++            try:load_recipe(path)
++            except ValueError:checks.append('locked_'+group+'.'+key)
++            else:raise AssertionError('Unlocked '+key)
++        log=root/'metrics.jsonl';log.write_text('{"updates":1}\n{"updates":1}\n')
++        try:read_journal(log)
++        except ValueError:checks.append('duplicate_updates_rejected')
++        else:raise AssertionError('Silent deduplication')
++        records=[dict(rank=0,status='ABORTED',start_unix=10,start_update=0,end_update=8,
++                      worker_wall_seconds=20,seconds_save=1,generated_candidates=32,scored_candidates=24),
++                 dict(rank=0,status='COMPLETE',start_unix=40,start_update=4,end_update=12,
++                      worker_wall_seconds=4,seconds_save=1,generated_candidates=16,scored_candidates=16)]
++        for i,r in enumerate(records):
++            folder=root/'invocations'/str(i);folder.mkdir(parents=True)
++            atomic_json(folder/'rank0.json',r)
++        cost=invocation_cost(root,done=12)
++        assert cost['invocation_effective_updates']==8 and cost['invocation_updates_per_second']==2
++        assert cost['cumulative_worker_wall_seconds']==24 and cost['aborted_invocation_worker_wall_seconds']==20
++        assert cost['physical_generated_candidates']==48;checks.append('resumed_delta_rate_and_failed_work_counted')
++        evalroot=root/'eval'
++        for i,r in enumerate([dict(start_unix=0,end_unix=12,status='ABORTED',new=1,reused=0,physical_predictions=4,total_worker_wall_seconds=12,model_load_seconds=3,generation_seconds=6,scoring_seconds=3),
++                              dict(start_unix=20,end_unix=30,status='ASSIGNED_COMPLETE',new=2,reused=1,physical_predictions=4,total_worker_wall_seconds=10,model_load_seconds=2,generation_seconds=4,scoring_seconds=4)]):
++            folder=evalroot/'invocations'/str(i);folder.mkdir(parents=True)
++            atomic_json(folder/'rank0.json',r)
++        cost=evaluation_cost(evalroot,dict(scenes=3,modes=['E_NATIVE','E_SHIFT5']),[])
++        assert cost['logical_single_candidate_evaluations']==6 and cost['cumulative_physical_predictions']==8
++        assert cost['cumulative_worker_wall_seconds']==22 and cost['job_wall_seconds']==30 and cost['model_load_seconds']==5
++        assert not cost['complete_cost_accounting']
++        checks.append('evaluation_resume_preserves_loading_retry_worker_and_job_time')
++        legacy=invocation_cost(root/'absent',done=10000,latest_wall=100)
++        assert legacy['invocation_updates_per_second'] is None;checks.append('missing_legacy_cost_is_unknown_not_fabricated')
++    result=dict(status='PASS',checks=checks);atomic_json(Path(a.output),result);print(json.dumps(result))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/qualify_execution_parity.py b/scripts/analysis/simwam_recipe/qualify_execution_parity.py
+new file mode 100644
+index 0000000..463da0f
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/qualify_execution_parity.py
+@@ -0,0 +1,41 @@
++"""Compare execution repairs with an already qualified unchanged normal path."""
++import argparse
++import json
++from pathlib import Path
++import torch
++from scripts.analysis.simwam_recipe.qualify_recovery import equal
++from starVLA.rl.simwam_recipe.lineage import scientific_identity
++from starVLA.rl.simwam_recipe.contracts import file_sha
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--reference',required=True);p.add_argument('--candidate',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    roots=[Path(a.reference),Path(a.candidate)]
++    ids=[json.loads((r/'identity.json').read_text()) for r in roots]
++    if scientific_identity(ids[0])!=scientific_identity(ids[1]):raise ValueError('Scientific configuration changed')
++    ck='checkpoints/update000008_inner0'
++    def load(root,rel):return torch.load(root/rel,map_location='cpu',weights_only=False)
++    equal(*[load(r,ck+'/optimizer.pt') for r in roots])
++    for rank in range(ids[0]['world']):
++        own=[load(r,ck+f'/rank{rank}.pt') for r in roots]
++        equal(own[0]['rng'],own[1]['rng'],f'rank{rank}.RNG')
++        for k,v in own[0]['state'].items():
++            if not k.startswith('seconds_') and k!='phase':equal(v,own[1]['state'][k],k)
++        for collection in (1,2):
++            rr=[load(r,f'behavior/collection{collection:06}/rank{rank}.pt') for r in roots]
++            for k in ('chain','timesteps','deltas','stoch_idx','old_logp','advantages','adv_mask','global_std','rewards','old_probability','token'):
++                equal(rr[0][k],rr[1][k],f'rank{rank}.{k}')
++        metrics=[[json.loads(l) for l in (r/f'metrics_rank{rank}.jsonl').read_text().splitlines()] for r in roots]
++        for i in range(8):
++            for k in ('loss','gradient_norm','ratio_max_abs_from_one','metrics','lr'):
++                equal(metrics[0][i][k],metrics[1][i][k],f'rank{rank}.update{i+1}.{k}')
++    result=dict(status='PASS',world=ids[0]['world'],scientific_identity=scientific_identity(ids[0])['sha256'],
++        source_identities=[x['sha256'] for x in ids],reference=str(roots[0]),candidate=str(roots[1]),
++        normal_chain_probability_advantages_exact=True,optimizer_adapters_scheduler_RNG_exact=True,
++        loss_gradient_norm_ratio_LR_exact=True,metadata_and_wall_time_excluded=True,
++        checkpoint_seals=[file_sha(r/ck/'files.json') for r in roots])
++    atomic_json(Path(a.output),result);print(json.dumps(result))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/qualify_recovery.py b/scripts/analysis/simwam_recipe/qualify_recovery.py
+index 5fb8ac9..cb71ac3 100644
+--- a/scripts/analysis/simwam_recipe/qualify_recovery.py
++++ b/scripts/analysis/simwam_recipe/qualify_recovery.py
+@@ -22,7 +22,8 @@ def equal(a,b,path='root'):
+ 
+ 
+ def main():
+-    p=argparse.ArgumentParser(__doc__);p.add_argument('--continuous',required=True);p.add_argument('--resumed',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--continuous',required=True);p.add_argument('--resumed',required=True);p.add_argument('--output',required=True)
++    p.add_argument('--interrupted-after',type=int,nargs='*',default=[1]);a=p.parse_args()
+     roots=[Path(a.continuous),Path(a.resumed)]
+     def read(root,rel):return torch.load(root/rel,map_location='cpu',weights_only=False)
+     ck='checkpoints/update000008_inner0/'
+@@ -43,7 +44,7 @@ def main():
+             for k in ('loss','gradient_norm','ratio_max_abs_from_one','metrics','lr'):
+                 equal(metrics[0][i][k],metrics[1][i][k],f'rank{rank}.update{i+1}.{k}')
+     out=Path(a.output);out.parent.mkdir(parents=True,exist_ok=True)
+-    report=dict(status='PASS',world=world,all_ranks_checked=True,interrupted_after_inner=1,resumed_remaining_inner_updates=True,final_updates=8,
++    report=dict(status='PASS',world=world,all_ranks_checked=True,interrupted_after_inner=a.interrupted_after,resumed_remaining_inner_updates=True,final_updates=8,
+                 optimizer_adapters_scheduler_RNG_exact=True,next_fresh_chain_old_probability_advantages_exact=True,
+                 losses_gradnorm_ratios_learning_rate_exact=True,continuous=str(roots[0]),resumed=str(roots[1]))
+     atomic_json(out,report);print(json.dumps(report))
+diff --git a/scripts/analysis/simwam_recipe/qualify_sample_recompute.py b/scripts/analysis/simwam_recipe/qualify_sample_recompute.py
+new file mode 100644
+index 0000000..25c60fb
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/qualify_sample_recompute.py
+@@ -0,0 +1,72 @@
++"""Record actual sampling means/stds without adding or reordering RNG calls."""
++import argparse
++import json
++from pathlib import Path
++import torch
++from starVLA.rl.simwam_recipe.contracts import ROOT,load_recipe,require_dispatch,file_sha
++from starVLA.rl.simwam_recipe.trainer_adapter import make_actor
++from starVLA.rl.simwam_recipe.condition import ProjectedConditions
++from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters
++from starVLA.rl.flow_grpo.reproducibility import configure_numerics
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++@torch.no_grad()
++def qualify(actor,cond):
++    initial=torch.Generator().manual_seed(42);start=initial.get_state().clone()
++    baseline=actor.sample_action_chain(cond,8,generator=initial);end=initial.get_state().clone()
++    initial.set_state(start);captured=[];innovations=[]
++    sde=actor._sde_mean_std;randn=actor._randn
++    def record_sde(x,v,sigma,dt):
++        mean,std=sde(x,v,sigma,dt)
++        captured.append(dict(mean=mean.to(x.dtype).clone(),std=std,sigma=sigma,dt=dt))
++        return mean,std
++    def record_noise(*args,**kwargs):
++        value=randn(*args,**kwargs);innovations.append(value.clone());return value
++    actor._sde_mean_std=record_sde;actor._randn=record_noise
++    try:chain,ts,dt,indices=actor.sample_action_chain(cond,8,generator=initial)
++    finally:del actor._sde_mean_std;del actor._randn
++    if not torch.equal(chain,baseline[0]) or not torch.equal(initial.get_state(),end):
++        raise ValueError('Diagnostic recording changed chain or RNG sequence')
++    lp,terms=actor.action_chain_logprobs(cond,chain,ts,dt,stoch_idx=indices,return_terms=True)
++    rows=[]
++    for j,k in enumerate(indices.tolist()):
++        entry=captured[j];eps=innovations[j+1].clamp(-5,5)
++        reconstructed=entry['mean']+entry['std']*eps
++        if not torch.equal(reconstructed,chain[:,k+1]):raise ValueError('Recorded distribution did not generate the actual next state')
++        error=float((entry['mean']-terms['mean'][:,j]).abs().max())
++        std_error=abs(entry['std']-float(terms['std'][j]))
++        if error>1e-6 or std_error>1e-8:raise ValueError('Sampling/recomputation mean or std differs')
++        rows.append(dict(step=k,sigma=entry['sigma'],delta=entry['dt'],std=entry['std'],
++            mean_max_abs_error=error,std_abs_error=std_error,exact_next_state=True,
++            innovation_clip_hits=int((innovations[j+1].abs()>5).sum())))
++    audit=actor._probability_audit['current']
++    return dict(steps=rows,recording_preserves_RNG_and_chain=True,
++        source_clamp_hit_rate=audit['source_clamp_hit_rate'],
++        raw_gaussian_and_source_clamped_fields_separate=True,
++        ratio_field='source relative-clamped dimension-mean logprob, not joint density',
++        native_shape=list(chain.shape),new_scoring_calls=0)
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++    require_dispatch();configure_numerics();cfg=load_recipe('configs/flow_rl/simwam_source_ddp.yaml')
++    actor,_,_=make_actor(cfg)
++    token=json.loads(Path(ROOT+'/qualification/real_TRAIN_tokens.json').read_text())['tokens'][0]
++    condition=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert).get(token)
++    cond={'context':condition.expand(8,-1,-1).contiguous()}
++    zero=qualify(actor,cond)
++    checkpoint=Path(a.checkpoint);files=json.loads((checkpoint/'files.json').read_text())
++    if file_sha(checkpoint/'optimizer.pt')!=files['optimizer.pt']:raise ValueError('Checkpoint changed')
++    saved=torch.load(checkpoint/'optimizer.pt',map_location='cpu',weights_only=False)
++    restore_adapters(actor,saved['adapters'])
++    if not any(torch.count_nonzero(v) for n,v in saved['adapters'].items() if n.endswith('lora_B')):raise ValueError('Expected trained nonzero adapter')
++    nonzero=qualify(actor,cond)
++    result=dict(status='PASS',zero_LoRA=zero,nonzero_LoRA=nonzero,
++        checkpoint_files_sha256=file_sha(checkpoint/'files.json'),
++        source_3D_oracle='Reuse existing 64 mathematical checks; this is actual DDP 4D sampling instrumentation',
++        heading_mapping='[x_norm,y_norm,sin_norm,cos_norm], weights [.2,1,.5,.5]; not angular MSE')
++    atomic_json(Path(a.output),result);print(json.dumps(result))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/qualify_transactions.py b/scripts/analysis/simwam_recipe/qualify_transactions.py
+new file mode 100644
+index 0000000..36b17f5
+--- /dev/null
++++ b/scripts/analysis/simwam_recipe/qualify_transactions.py
+@@ -0,0 +1,109 @@
++"""Finite CPU/Gloo failure-injection tests of the real checkpoint code."""
++import argparse
++import copy
++import json
++import os
++from pathlib import Path
++import tempfile
++# This entry is explicitly CPU-only, including RNG bookkeeping. Do not let
++# the generic checkpoint helper initialize an unrelated local CUDA context.
++os.environ['CUDA_VISIBLE_DEVICES']=''
++import torch
++import torch.distributed as dist
++import torch.multiprocessing as mp
++from starVLA.rl.simwam_recipe import checkpoint as ck
++from starVLA.rl.simwam_recipe.recovery_state import validate_boundary,validate_ranks,boundary_phase
++from starVLA.rl.simwam_recipe.source_advantages import advantages
++from starVLA.rl.simwam_recipe.invocation import Invocation
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def fixture(rank,world):
++    identity=dict(sha256='qualification-identity',world=world,recipe={'max_steps':20000})
++    state=dict(updates=0,collections=0,next_inner=0,scene_cursor=0,raw_scene_exposures=0,new_candidates=0,phase='READY')
++    model=torch.nn.Linear(2,1);model.device=torch.device('cpu')
++    opt=torch.optim.AdamW(model.parameters(),lr=1e-3)
++    sched=torch.optim.lr_scheduler.LambdaLR(opt,lambda _:1.)
++    gen=torch.Generator().manual_seed(42+rank)
++    return identity,state,model,opt,sched,gen
++
++
++def rollout(rank,world,identity):
++    # Shape/probability contracts match the production payload; policy math is mocked.
++    raw=torch.zeros(8,3,8,4)
++    r=dict(cond_bg={'context':torch.ones(8,1,2)},chain=torch.zeros(8,11,8,4),
++        timesteps=torch.arange(10),deltas=torch.ones(10),stoch_idx=torch.tensor([7,8,9]),
++        old_logp=raw.mean((-1,-2)),old_probability={'source_clamped_logprob':raw},
++        rewards=torch.arange(8).float()[None,:]/8+rank*.01,records=[{}]*8,token='t'+str(rank),log='log',
++        behavior_version=dict(run=identity['sha256'],update=0,adapter_sha256='same-adapter'))
++    stats=advantages(r['rewards'],all_rewards=torch.cat([torch.arange(8).float()[None,:]/8+k*.01 for k in range(world)]))
++    r.update({k:stats[k] for k in ('advantages','adv_mask','global_std','raw_group_std')})
++    r['advantage_statistics']={}
++    return r
++
++
++def worker(rank,root,init):
++    dist.init_process_group('gloo',init_method='file://'+init,world_size=2,rank=rank)
++    ck.init_control_group();root=Path(root)
++    identity,state,model,opt,sched,gen=fixture(rank,2)
++    base=ck.save(root,model,opt,sched,gen,state,None,identity)
++    seal=(root/'latest.json').read_bytes();passed=[]
++    def rejects(name,fn):
++        caught=False
++        try:fn()
++        except (ValueError,RuntimeError,FileExistsError):caught=True
++        if not all(ck.gather(caught)):raise AssertionError('Failure did not reach all ranks: '+name)
++        if (root/'latest.json').read_bytes()!=seal:raise AssertionError('Failure advanced latest: '+name)
++        passed.append(name)
++    for case,bad_rank in [('rank0_before_sampling',0),('nonrank_scoring_after_partial_chain',1),('before_advantage_commit',0)]:
++        s=dict(state,phase='COLLECTING');r=rollout(rank,2,identity) if rank!=bad_rank else None
++        if case=='before_advantage_commit':r=rollout(rank,2,identity);r.pop('advantages')
++        rejects(case,lambda:ck.save(root,model,opt,sched,gen,s,r,identity,tag=case))
++    bad=dict(state,phase='ROLLOUT_COMMITTED',collections=1,scene_cursor=2,raw_scene_exposures=2,new_candidates=16)
++    r=rollout(rank,2,identity);r.pop('advantages')
++    rejects('unfinalized_even_if_phase_forged',lambda:ck.save(root,model,opt,sched,gen,bad,r,identity,tag='unfinalized'))
++    for point in ('rank_write','before_complete'):
++        def fault(p,worker):
++            if p==point and worker==(1 if point=='rank_write' else 0):raise OSError('injected disk/publication fault')
++        rejects(point,lambda:ck.save(root,model,opt,sched,gen,state,None,identity,tag=point,fault=fault))
++        # Same logical checkpoint can be retried despite an orphaned incomplete attempt.
++        path=ck.save(root,model,opt,sched,gen,state,None,identity,tag=point)
++        seal=(root/'latest.json').read_bytes()
++        rejects('duplicate_'+point,lambda:ck.save(root,model,opt,sched,gen,state,None,identity,tag=point))
++        if rank==0 and not list((root/'checkpoints').glob(point+'.incomplete.*')):raise AssertionError('Failure evidence lost')
++    for i in (1,2,3):
++        opt.zero_grad();model(torch.ones(1,2)).sum().backward();opt.step();sched.step()
++        state.update(updates=i,collections=1,next_inner=i,scene_cursor=2,raw_scene_exposures=2,new_candidates=16,phase='INNER_COMMITTED')
++        r=rollout(rank,2,identity)
++        path=ck.save(root,model,opt,sched,gen,state,r,identity)
++        before=copy.deepcopy(opt.state_dict());rng=gen.get_state().clone()
++        with torch.no_grad():
++            for p in model.parameters():p.add_(100)
++        restored,rr=ck.restore(path,model,opt,sched,gen,identity)
++        assert restored==state and torch.equal(rr['chain'],r['chain']) and torch.equal(gen.get_state(),rng)
++        assert all(torch.equal(v['exp_avg'],opt.state_dict()['state'][k]['exp_avg']) for k,v in before['state'].items())
++        passed.append('inner'+str(i)+'_restore')
++    # Same update is never silently deduplicated. Rollback archives the entire old file.
++    logroot=root/'journal';logroot.mkdir(exist_ok=True)
++    rows=[dict(updates=i,collection=1,inner_completed=i,behavior=dict(run=identity['sha256'],update=0)) for i in (1,2,3)]
++    (logroot/f'metrics_rank{rank}.jsonl').write_text(''.join(json.dumps(x)+'\n' for x in rows))
++    rollback=dict(state,updates=1,next_inner=1)
++    inv=Invocation(logroot,rank,rollback,identity,path)
++    assert len((logroot/f'metrics_rank{rank}.jsonl').read_text().splitlines())==1
++    assert (inv.directory/f'aborted_metrics_rank{rank}.jsonl').exists()
++    inv.finish(rollback,'TEST_COMPLETE');passed.append('journal_rollback_preserves_aborted_attempt')
++    atomic_json(root/f'result_rank{rank}.json',dict(status='PASS',checks=passed))
++    dist.destroy_process_group()
++
++
++def main():
++    p=argparse.ArgumentParser(__doc__);p.add_argument('--output',required=True);a=p.parse_args()
++    if torch.cuda.is_available():raise RuntimeError('CPU qualification must not acquire a GPU')
++    out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
++    mp.spawn(worker,args=(str(out),str(out/'gloo-init')),nprocs=2,join=True)
++    rows=[json.loads((out/f'result_rank{r}.json').read_text()) for r in range(2)]
++    result=dict(status='PASS',world=2,backend='CPU Gloo',CUDA_visible=False,checks=rows[0]['checks'],all_ranks=rows)
++    atomic_json(out/'result.json',result);print(json.dumps(result))
++
++
++if __name__=='__main__':main()
+diff --git a/scripts/analysis/simwam_recipe/summarize_training.py b/scripts/analysis/simwam_recipe/summarize_training.py
+index 5997be0..79f47ff 100644
+--- a/scripts/analysis/simwam_recipe/summarize_training.py
++++ b/scripts/analysis/simwam_recipe/summarize_training.py
+@@ -11,6 +11,8 @@ import numpy as np
+ import torch
+ from starVLA.rl.simwam_recipe.contracts import file_sha
+ from starVLA.rl.flow_grpo.transactions import atomic_json
++from scripts.analysis.simwam_recipe.cost_ledger import invocation_cost
++from starVLA.rl.simwam_recipe.invocation import validate_rows
+ 
+ 
+ def read_journal(path):
+@@ -82,14 +84,14 @@ def checkpoint_cost(run):
+     phases=['rollout','old_probability','update','scoring_wait','scoring_cpu']
+     sums={phase:sum(s['seconds_'+phase] for s in states) for phase in phases}
+     wall=progress['wall_seconds_this_invocation'];done=states[0]['updates']
++    ledger=invocation_cost(run,done=done,latest_wall=wall)
+     return dict(checkpoint=str(ck),checkpoint_updates=done,
+         cumulative_rank_wall_seconds_by_phase=sums,
+         max_rank_wall_seconds_by_phase={phase:max(s['seconds_'+phase] for s in states) for phase in phases},
+         all_rank_phase_seconds={phase:[s['seconds_'+phase] for s in states] for phase in phases},
+-        invocation_wall_seconds=wall,observed_optimizer_updates_per_second=done/wall,
+-        linear_remaining_training_hours=(20000-done)*wall/done/3600,
+-        allocated_eight_GPU_wall_hours=8*wall/3600,
+-        note='Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. GPU-wall includes sharing; ETA assumes current throughput and excludes evaluation. Invocation ETA valid for these uninterrupted formal runs only.')
++        invocation_ledger=ledger,
++        linear_remaining_training_hours=ledger['linear_remaining_training_hours'],
++        note='Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated.')
+ 
+ 
+ def main():
+@@ -102,13 +104,14 @@ def main():
+     end=min(len(rows) for rows in ranks)//4*4
+     if not end:raise ValueError('No complete fresh global rollout yet')
+     for rank,rows in enumerate(ranks):
++        validate_rows(rows,len(rows))
+         for row in rows[:end]:
+             if row['behavior']['run']!=identity['sha256']:raise ValueError('Mixed run identity')
+             if row['collection']!=(row['updates']-1)//4+1 or row['inner_completed']!=(row['updates']-1)%4+1:
+                 raise ValueError('Broken four-inner contract')
+     windows=[summarize_window(ranks,start,min(start+a.window_updates,end)) for start in range(0,end,a.window_updates)]
+     complete=all((run/f'result_rank{rank}.json').exists() and json.loads((run/f'result_rank{rank}.json').read_text())['status']=='COMPLETE' for rank in range(8))
+-    result=dict(status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
++    result=dict(schema='simwam_training_analysis_v2',analysis_identity=file_sha(__file__),status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
+         captured_utc=datetime.now(timezone.utc).isoformat(),run_identity=identity['sha256'],variant=identity['recipe']['variant'],
+         matched_completed_updates=end,observed_updates_by_rank=[len(rows) for rows in ranks],
+         cumulative=summarize_window(ranks,0,end),windows=windows,cost=checkpoint_cost(run),
+@@ -119,7 +122,9 @@ def main():
+                 'A repeated group across four inner updates contributes only one fresh sample group.',
+                 'Global update count uses all ranks, not rank0 local PG activity.',
+                 'Window changes also include scene mix; matched fixed-population ODE evaluation determines efficacy.'])
+-    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
++    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
++    if output.exists():raise FileExistsError('Preserve the old summary; select a new analysis output')
++    atomic_json(output,result)
+     print(json.dumps(dict(status=result['status'],variant=result['variant'],updates=end,
+         scene_exposures=result['cumulative']['scene_exposures'],PG_group_fraction=result['cumulative']['local_PG_group_fraction'],
+         remaining_hours=result['cost']['linear_remaining_training_hours'],output=str(output))))
+diff --git a/scripts/analysis/simwam_recipe/train.py b/scripts/analysis/simwam_recipe/train.py
+index 3e84661..5e2b67d 100644
+--- a/scripts/analysis/simwam_recipe/train.py
++++ b/scripts/analysis/simwam_recipe/train.py
+@@ -15,6 +15,7 @@ import shutil
+ import signal
+ import time
+ import traceback
++import sys
+ import numpy as np
+ import torch
+ import torch.distributed as dist
+@@ -26,6 +27,9 @@ from starVLA.rl.simwam_recipe.reward_readouts import RewardService
+ from starVLA.rl.simwam_recipe.collection import collect,finalize_advantages,exploration_summary
+ from starVLA.rl.simwam_recipe.data_stream import SceneStream
+ from starVLA.rl.simwam_recipe import checkpoint
++from starVLA.rl.simwam_recipe.recovery_state import boundary_phase,rollout_digest,validate_boundary,validate_ranks
++from starVLA.rl.simwam_recipe.invocation import Invocation
++from starVLA.rl.simwam_recipe.lineage import scientific_identity,execution_identity,verify_migration
+ from starVLA.rl.flow_grpo.reproducibility import configure_numerics
+ from starVLA.rl.flow_grpo.transactions import atomic_json
+ 
+@@ -36,9 +40,8 @@ def stop(*_):
+ 
+ 
+ def all_ok(error,device):
+-    flag=torch.tensor(int(error is not None),device=device)
+-    if dist.is_initialized():dist.all_reduce(flag,op=dist.ReduceOp.MAX)
+-    return not bool(flag)
++    if error and checkpoint.fatal_device_error(error):raise RuntimeError(error)
++    return not any(e is not None for e in checkpoint.gather(error))
+ 
+ 
+ def stop_requested(device):
+@@ -65,15 +68,21 @@ def source_files():
+ 
+ 
+ def main():
++    process_started=time.monotonic();process_started_unix=time.time()
+     p=argparse.ArgumentParser(__doc__)
+     p.add_argument('--config',required=True);p.add_argument('--manifest',required=True);p.add_argument('--output',required=True)
+     p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
++    p.add_argument('--migration-receipt',help='Explicit audited source migration; never inferred from a dirty worktree')
+     p.add_argument('--stop-after-update',type=int);p.add_argument('--save-every',type=int)
++    p.add_argument('--fault',help='Qualification only: before_collect, after_collect, before_finalize, rank_write, before_complete')
++    p.add_argument('--fault-rank',type=int,default=0);p.add_argument('--fault-at-update',type=int,default=0)
+     a=p.parse_args();cfg=load_recipe(a.config);host=require_dispatch();configure_numerics()
++    if a.fault and not a.qualification:raise ValueError('Fault injection cannot enter formal runs')
+     rank=int(os.environ.get('RANK',0));world=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
+     if world!=8 and not a.qualification:raise ValueError('Formal recipe requires eight GPUs')
+     torch.cuda.set_device(local)
+     if world>1:dist.init_process_group('nccl',timeout=timedelta(minutes=20))
++    checkpoint.init_control_group()
+     device=torch.device('cuda',local)
+     for s in (signal.SIGUSR1,signal.SIGTERM):signal.signal(s,stop)
+     random.seed(42);np.random.seed(42);torch.manual_seed(42)
+@@ -97,18 +106,45 @@ def main():
+                     actual_optimizer=dict(name='torch.optim.AdamW',lr=cfg['learning_rate'],betas=cfg['optimizer_betas'],
+                                           eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'],warmup_updates=warmup,
+                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
++    identity['scientific_identity']=scientific_identity(identity)
++    identity['execution_identity']=execution_identity(identity['source_files'])
+     identity['sha256']=fingerprint(identity)
+-    if rank==0:
+-        if (root/'identity.json').exists():
+-            if json.loads((root/'identity.json').read_text())!=identity:raise ValueError('Existing run identity changed')
+-            if not a.resume:raise ValueError('Existing run requires explicit native resume')
+-        else:
+-            if a.resume:raise ValueError('Resume must preserve the original run directory')
+-            atomic_json(root/'identity.json',identity)
+-            for rel in identity['source_files']:
+-                dest=root/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
+-            shutil.copyfile(a.config,root/'resolved_recipe.yaml')
+-    if world>1:dist.barrier()
++    current_identity=identity;migration=None
++    if (root/'identity.json').exists():
++        previous=json.loads((root/'identity.json').read_text())
++        if previous!=identity:
++            if not (a.resume and a.migration_receipt):raise ValueError('Source identity changed: an explicit tested migration receipt is required')
++            migration=verify_migration(a.migration_receipt,previous,current_identity,a.resume)
++            identity=previous
++    checkpoint.EXECUTION_IDENTITY=current_identity['execution_identity'];checkpoint.MIGRATION_RECEIPT=migration
++    execution=root/'executions'/current_identity['execution_identity']['sha256']
++    error=None
++    try:
++        if rank==0:
++            if (root/'identity.json').exists():
++                if json.loads((root/'identity.json').read_text())!=identity:raise ValueError('Existing run identity changed')
++                if not a.resume:raise ValueError('Existing run requires explicit native resume')
++            else:
++                if a.resume:raise ValueError('Resume must preserve the original run directory')
++                atomic_json(root/'identity.json',identity)
++                for rel in identity['source_files']:
++                    dest=root/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
++                shutil.copyfile(a.config,root/'resolved_recipe.yaml')
++            execution.mkdir(parents=True,exist_ok=True)
++            atomic_json(execution/'identity.json',current_identity)
++            if migration:atomic_json(execution/'migration_receipt.json',migration)
++            for rel in current_identity['source_files']:
++                dest=execution/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
++    except Exception:error=traceback.format_exc()
++    checkpoint.check_errors(error)
++    modules={}
++    for name,module in list(sys.modules.items()):
++        path=getattr(module,'__file__',None)
++        if path and name.startswith(('starVLA.','scripts.analysis.simwam_recipe')) and Path(path).is_file():
++            path=Path(path).resolve()
++            if not path.is_relative_to(Path.cwd().resolve()):raise ValueError('Imported project module from outside the execution snapshot: '+str(path))
++            modules[name]=dict(path=str(path),sha256=file_sha(path))
++    atomic_json(execution/f'runtime_modules_rank{rank}.json',modules)
+     # PyTorch rebuilds reduction buckets after the first backward when unused
+     # detection is disabled. Restarting between inner updates repeats that
+     # transition and changes FP32 reduction order. The installed Reducer
+@@ -119,60 +155,91 @@ def main():
+         bucket_cap_mb=cfg['DDP_bucket_cap_mb']) if world>1 else actor
+     model.eval()
+     state=dict(updates=0,collections=0,raw_scene_exposures=0,new_candidates=0,next_inner=0,
++               phase='READY',
+                RL_updates_local=0,anchor_only_updates_local=0,scene_cursor=0,
+                seconds_rollout=0.,seconds_scoring_wait=0.,seconds_scoring_cpu=0.,seconds_old_probability=0.,seconds_update=0.)
+     rollout=None
+-    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity)
++    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration)
++    if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
++    invocation=Invocation(root,rank,state,identity,a.resume)
++    invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
++    def fault(point,worker=rank):
++        if a.fault==point and worker==a.fault_rank and state['updates']==a.fault_at_update:
++            raise RuntimeError('Qualification injected failure: '+point)
++    def save_boundary():
++        begin=time.monotonic()
++        result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,fault=fault)
++        invocation.saved(result,time.monotonic()-begin)
++        return result
+     frozen_before=parameter_hash(actor,trainable=False) if a.qualification else None
+     first_adapters=checkpoint.cpu_tree({n:p.clone() for n,p in actor.named_parameters() if p.requires_grad}) if a.qualification else None
+     started=time.monotonic();save_every=a.save_every or cfg['save_every_optimizer_updates'];last_saved=None
+     journal=(root/f'metrics_rank{rank}.jsonl').open('a',buffering=1)
+     try:
++        if not a.resume:last_saved=save_boundary()
+         while state['updates']<cfg['max_steps']:
+             require_dispatch()
+             if rollout is None:
++                state['phase']='COLLECTING';invocation.event('collection_start')
+                 token,position=stream.at(state['scene_cursor'],rank)
+                 error=None
+                 try:
++                    fault('before_collect')
+                     version=dict(run=identity['sha256'],update=state['updates'],adapter_sha256=parameter_hash(actor,trainable=True))
+                     rollout=collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
+-                                    act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version)
++                                    act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version,progress=invocation.event)
+                     rollout['stream_position']=position
++                    fault('after_collect')
+                 except Exception:
+-                    error=traceback.format_exc();atomic_json(root/f'failure_rank{rank}_{state["updates"]}.json',dict(error=error,state=state,token=token))
++                    error=traceback.format_exc()
++                    checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
+                 if not all_ok(error,device):
+-                    checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'failure{state["updates"]:06}')
+                     raise RuntimeError('At least one rank failed actual sampling/scoring; no zero replacement or update')
++                error=None
++                try:fault('before_finalize')
++                except Exception:error=traceback.format_exc()
++                if not all_ok(error,device):raise RuntimeError('Collection not committed before advantage finalization')
+                 finalize_advantages(rollout)
+                 state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*8;state['scene_cursor']+=world
+                 for k,v in rollout['seconds'].items():state['seconds_'+k]+=v
+                 state['next_inner']=0
++                state['phase']='ROLLOUT_COMMITTED'
++                rollout['invocation']=invocation.id
++                rollout['chain_identity']=rollout_digest(rollout)
++                # This check is cheap (metadata only), and commits the SAME source advantages.
++                error=None;summary=None
++                try:summary=validate_boundary(state,rollout,identity)
++                except Exception:error=traceback.format_exc()
++                checkpoint.check_errors(error)
++                validate_ranks(checkpoint.gather(summary))
+                 # Every fresh chain remains replayable, including negative candidates.
+-                checkpoint.atomic_torch(root/'behavior'/f'collection{state["collections"]:06}'/f'rank{rank}.pt',rollout)
++                behavior_path=root/'behavior'/f'collection{state["collections"]:06}'/f'rank{rank}.pt'
++                error=None
++                try:
++                    if behavior_path.exists():raise FileExistsError('Behavior must retain its original attempt: '+str(behavior_path))
++                    checkpoint.atomic_torch(behavior_path,rollout)
++                except Exception:error=traceback.format_exc()
++                if not all_ok(error,device):raise RuntimeError('Behavior publication failed; no optimizer update')
+             optimizer.zero_grad(set_to_none=True)
+             begin=time.monotonic();error=None
+             try:total,metrics=model(rollout)
+             except Exception:
+                 error=traceback.format_exc()
+-                atomic_json(root/f'forward_failure_rank{rank}_{state["updates"]}.json',dict(error=error,state=state))
+             if not all_ok(error,device):
+-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'forward_failure{state["updates"]:06}')
+-                raise RuntimeError('At least one rank failed source loss; native state saved without updating')
++                raise RuntimeError('At least one rank failed source loss; last sealed boundary retained')
+             current=actor._probability_audit['current'];old=rollout['old_logp']
+             ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
+             fresh_error=float((ratio-1).abs().max())
+             error=None
+             if state['next_inner']==0 and fresh_error>1e-4:error='Fresh saved-state ratio differs by '+str(fresh_error)
+             if not all_ok(error,device):
+-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'ratio_failure{state["updates"]:06}')
+                 raise ValueError('Fresh probability numerical error exceeds 1e-4; no rewritten old density')
+             total.backward()
+             grads=torch.stack([p.grad.float().norm() for p in trainable if p.grad is not None])
+             grad_norm=float(grads.norm())
+             error=None if np.isfinite(grad_norm) and len(grads)==len(trainable) else 'Missing/nonfinite adapter gradient'
+             if not all_ok(error,device):
+-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'gradient_failure{state["updates"]:06}')
+-                raise ValueError('Invalid LoRA gradient; native state saved and update aborted')
++                raise ValueError('Invalid LoRA gradient; last sealed boundary retained')
+             if cfg['gradient_clipping_effective']>0:torch.nn.utils.clip_grad_norm_(trainable,cfg['gradient_clipping_effective'])
+             lr=optimizer.param_groups[0]['lr'];optimizer.step();scheduler.step()
+             torch.cuda.synchronize();elapsed=time.monotonic()-begin
+@@ -180,6 +247,7 @@ def main():
+             state['RL_updates_local']+=int(bool(rollout['adv_mask'].any()))
+             state['anchor_only_updates_local']+=int(not bool(rollout['adv_mask'].any()))
+             row=dict(updates=state['updates'],collection=state['collections'],inner_completed=state['next_inner'],
++                     invocation=invocation.id,run=identity['sha256'],chain_identity=rollout['chain_identity'],
+                      raw_scene_exposures=state['raw_scene_exposures'],new_candidates=state['new_candidates'],
+                      token=rollout['token'],behavior=rollout['behavior_version'],lr=lr,loss=float(total.detach()),
+                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
+@@ -187,11 +255,12 @@ def main():
+                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
+             journal.write(json.dumps(row,allow_nan=False)+'\n')
+             if state['next_inner']==4:rollout=None;state['next_inner']=0
++            state['phase']=boundary_phase(state,cfg['max_steps'])
+             stop_now=stop_requested(device) or (a.stop_after_update is not None and state['updates']>=a.stop_after_update)
+             milestone=state['updates'] in cfg['evaluate_updates']
+             if state['updates']%save_every==0 or milestone or stop_now or state['updates']==cfg['max_steps']:
+-                last_saved=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity)
+-                if rank==0:atomic_json(root/'progress.json',dict(state,status='PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,wall_seconds_this_invocation=time.monotonic()-started))
++                last_saved=save_boundary()
++                if rank==0:atomic_json(root/'progress.json',dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))
+             if stop_now:break
+         result=dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'STOPPED_AT_SAVED_BOUNDARY',
+                     host=host,rank=rank,checkpoint=last_saved,wall_seconds_this_invocation=time.monotonic()-started,
+@@ -206,6 +275,12 @@ def main():
+             changed={n:bool(torch.count_nonzero(p.detach().cpu()-first_adapters[n])) for n,p in actor.named_parameters() if p.requires_grad}
+             result.update(frozen_SHA_before=frozen_before,frozen_SHA_after=after,changed_adapters=changed)
+         atomic_json(root/f'result_rank{rank}.json',result)
++        invocation.finish(state,result['status'])
++    except BaseException:
++        error=traceback.format_exc()
++        checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
++        invocation.finish(state,'ABORTED',error)
++        raise
+     finally:
+         journal.close();service.close()
+         if dist.is_initialized():dist.destroy_process_group()
+diff --git a/starVLA/rl/simwam_recipe/checkpoint.py b/starVLA/rl/simwam_recipe/checkpoint.py
+index 01fed4f..0d96b0d 100644
+--- a/starVLA/rl/simwam_recipe/checkpoint.py
++++ b/starVLA/rl/simwam_recipe/checkpoint.py
+@@ -11,6 +11,55 @@ import torch.distributed as dist
+ from starVLA.rl.flow_grpo.transactions import atomic_json
+ from .contracts import file_sha
+ from .lora_adapter import adapter_state,restore_adapters
++from .recovery_state import validate_boundary, validate_ranks
++
++CONTROL_GROUP = None
++EXECUTION_IDENTITY = None
++MIGRATION_RECEIPT = None
++
++
++def init_control_group():
++    """CPU control plane, initialized while all workers are healthy."""
++    global CONTROL_GROUP
++    if dist.is_initialized():
++        from datetime import timedelta
++        CONTROL_GROUP = dist.new_group(backend='gloo', timeout=timedelta(seconds=90))
++
++
++def gather(value):
++    if not dist.is_initialized(): return [value]
++    if CONTROL_GROUP is None and dist.get_backend() == 'nccl':
++        raise RuntimeError('Recovery control group must be initialized before training')
++    result = [None] * dist.get_world_size()
++    dist.all_gather_object(result, value, group=CONTROL_GROUP)
++    return result
++
++
++def check_errors(error):
++    errors = gather(error)
++    if any(e is not None for e in errors):
++        raise RuntimeError('Uncommitted distributed transaction: ' + repr(errors))
++
++
++def fatal_device_error(error):
++    text = str(error).lower()
++    return any(x in text for x in ('cuda error', 'device-side assert', 'illegal memory access',
++               'nccl', 'collective', 'processgroup', 'connection closed by peer'))
++
++
++def failure_evidence(root, state, error, invocation, *, rollout=None):
++    """Local only. Never COMPLETE/latest, never a collective after CUDA damage."""
++    rank = dist.get_rank() if dist.is_initialized() else 0
++    target = Path(root)/'failures'/invocation/(f'rank{rank}-' + uuid.uuid4().hex)
++    target.mkdir(parents=True, exist_ok=False)
++    atomic_json(target/'evidence.json', dict(schema='simwam_failure_v2', recoverable=False,
++                state=state, error=str(error), invocation=invocation,
++                latest_unchanged=True, time_unix=time.time()))
++    if rollout is not None and not fatal_device_error(error):
++        try: atomic_torch(target/'partial_rollout.pt', rollout)
++        except Exception as secondary:
++            atomic_json(target/'evidence_write_error.json', dict(error=repr(secondary)))
++    return str(target)
+ 
+ 
+ def cpu_tree(value):
+@@ -37,46 +86,85 @@ def atomic_torch(path,value):
+     os.replace(tmp,path)
+ 
+ 
+-def save(root,actor,optimizer,scheduler,generator,state,rollout,identity,*,tag=None):
++def save(root,actor,optimizer,scheduler,generator,state,rollout,identity,*,tag=None, fault=None):
+     rank=dist.get_rank() if dist.is_initialized() else 0
+     world=dist.get_world_size() if dist.is_initialized() else 1
+     name=tag or f"update{state['updates']:06}_inner{state['next_inner']}"
+     final=Path(root)/'checkpoints'/name
+-    attempt=final.with_name(name+'.incomplete')
+-    if rank==0:
+-        if final.exists():raise FileExistsError('Checkpoint identity must not be overwritten: '+str(final))
+-        attempt.mkdir(parents=True,exist_ok=False)
+-    if world>1:dist.barrier()
++    error=None; summary=None
++    try: summary=validate_boundary(state,rollout,identity,optimizer,scheduler)
++    except Exception as exc: error=repr(exc)
++    check_errors(error)
++    summaries=validate_ranks(gather(summary))
++    attempt_id=gather(uuid.uuid4().hex if rank==0 else None)[0]
++    attempt=final.with_name(name+'.incomplete.'+attempt_id)
++    error=None
++    try:
++        if rank==0:
++            if final.exists():raise FileExistsError('Checkpoint identity must not be overwritten: '+str(final))
++            attempt.mkdir(parents=True,exist_ok=False)
++    except Exception as exc:error=repr(exc)
++    check_errors(error)
+     rng=dict(python=random.getstate(),numpy=np.random.get_state(),torch=torch.get_rng_state(),
+-             cuda=torch.cuda.get_rng_state(),rollout_generator=generator.get_state())
+-    atomic_torch(attempt/f'rank{rank}.pt',dict(state=state,rollout=rollout,rng=rng,identity_sha256=identity['sha256']))
+-    if rank==0:
+-        atomic_torch(attempt/'optimizer.pt',dict(adapters=adapter_state(actor),optimizer=optimizer.state_dict(),scheduler=scheduler.state_dict()))
+-        atomic_json(attempt/'identity.json',identity)
+-    if world>1:dist.barrier()
+-    if rank==0:
+-        files={p.name:file_sha(p) for p in sorted(attempt.iterdir()) if p.is_file()}
+-        atomic_json(attempt/'files.json',files)
+-        atomic_json(attempt/'COMPLETE',dict(world=world,updates=state['updates'],next_inner=state['next_inner'],files_sha256=file_sha(attempt/'files.json')))
+-        os.rename(attempt,final)
+-        atomic_json(Path(root)/'latest.json',dict(checkpoint=str(final),updates=state['updates']))
+-    if world>1:dist.barrier()
++             cuda=torch.cuda.get_rng_state() if torch.cuda.is_available() else None,rollout_generator=generator.get_state())
++    error=None
++    try:
++        if fault: fault('rank_write',rank)
++        atomic_torch(attempt/f'rank{rank}.pt',dict(state=state,rollout=rollout,rng=rng,identity_sha256=identity['sha256']))
++        if rank==0:
++            atomic_torch(attempt/'optimizer.pt',dict(adapters=adapter_state(actor),optimizer=optimizer.state_dict(),scheduler=scheduler.state_dict()))
++            atomic_json(attempt/'identity.json',identity)
++            atomic_json(attempt/'transaction.json',dict(schema='simwam_checkpoint_transaction_v2',attempt=attempt_id,ranks=summaries,
++                execution_identity=EXECUTION_IDENTITY,migration_receipt_sha256=MIGRATION_RECEIPT['sha256'] if MIGRATION_RECEIPT else None))
++    except Exception as exc:
++        if fatal_device_error(exc):raise
++        error=repr(exc)
++    check_errors(error)
++    error=None
++    try:
++        if rank==0:
++            files={p.name:file_sha(p) for p in sorted(attempt.iterdir()) if p.is_file()}
++            required={'optimizer.pt','identity.json','transaction.json'}|{f'rank{r}.pt' for r in range(world)}
++            if not required.issubset(files):raise ValueError('Incomplete checkpoint files')
++            atomic_json(attempt/'files.json',files)
++            if fault:fault('before_complete',rank)
++            atomic_json(attempt/'COMPLETE',dict(schema=2,phase=state['phase'],world=world,updates=state['updates'],next_inner=state['next_inner'],files_sha256=file_sha(attempt/'files.json')))
++            os.rename(attempt,final)
++            atomic_json(Path(root)/'latest.json',dict(checkpoint=str(final),updates=state['updates'],files_sha256=file_sha(final/'files.json')))
++    except Exception as exc:error=repr(exc)
++    check_errors(error)
+     return str(final)
+ 
+ 
+-def restore(path,actor,optimizer,scheduler,generator,identity):
++def restore(path,actor,optimizer,scheduler,generator,identity,*,migration=None):
+     rank=dist.get_rank() if dist.is_initialized() else 0
+     world=dist.get_world_size() if dist.is_initialized() else 1
+-    path=Path(path);complete=json.loads((path/'COMPLETE').read_text())
+-    if complete['world']!=world or file_sha(path/'files.json')!=complete['files_sha256']:raise ValueError('Checkpoint publication changed')
+-    if json.loads((path/'identity.json').read_text())!=identity:raise ValueError('Exact resume identity mismatch')
+-    files=json.loads((path/'files.json').read_text())
+-    for n in ['optimizer.pt',f'rank{rank}.pt','identity.json']:
+-        if file_sha(path/n)!=files[n]:raise ValueError('Checkpoint content changed: '+n)
+-    # These are our sealed local native optimizer/RNG states, never downloads.
+-    common=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
+-    own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False)
++    error=None;summary=None
++    try:
++        path=Path(path);complete=json.loads((path/'COMPLETE').read_text())
++        legacy=complete.get('schema')!=2
++        if '.incomplete' in path.name or (legacy and migration is None):
++            raise ValueError('Unpublished or legacy checkpoint: explicit audited migration required')
++        if complete['world']!=world or file_sha(path/'files.json')!=complete['files_sha256']:raise ValueError('Checkpoint publication changed')
++        if json.loads((path/'identity.json').read_text())!=identity:raise ValueError('Exact resume identity mismatch')
++        files=json.loads((path/'files.json').read_text())
++        for n in ['optimizer.pt',f'rank{rank}.pt','identity.json']+([] if legacy else ['transaction.json']):
++            if file_sha(path/n)!=files[n]:raise ValueError('Checkpoint content changed: '+n)
++        # These are our sealed local native optimizer/RNG states, never downloads.
++        common=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
++        own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False)
++        if own['identity_sha256']!=identity['sha256']:raise ValueError('Rank identity changed')
++        summary=validate_boundary(own['state'],own['rollout'],identity,common['optimizer'],common['scheduler'],legacy=legacy)
++        if not legacy:
++            transaction=json.loads((path/'transaction.json').read_text())
++            if summary!=transaction['ranks'][rank] or complete['phase']!=summary['phase']:
++                raise ValueError('Committed state/digests changed')
++    except Exception as exc:error=repr(exc)
++    check_errors(error)
++    validate_ranks(gather(summary))
++    own['state']['phase']=summary['phase']
+     restore_adapters(actor,common['adapters']);optimizer.load_state_dict(common['optimizer']);scheduler.load_state_dict(common['scheduler'])
+     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch'])
+-    torch.cuda.set_rng_state(rng['cuda']);generator.set_state(rng['rollout_generator'])
++    if rng['cuda'] is not None:torch.cuda.set_rng_state(rng['cuda'])
++    generator.set_state(rng['rollout_generator'])
+     return own['state'],device_tree(own['rollout'],actor.device)
+diff --git a/starVLA/rl/simwam_recipe/collection.py b/starVLA/rl/simwam_recipe/collection.py
+index e663b5d..814821c 100644
+--- a/starVLA/rl/simwam_recipe/collection.py
++++ b/starVLA/rl/simwam_recipe/collection.py
+@@ -10,7 +10,7 @@ from .source_advantages import advantages
+ 
+ 
+ @torch.no_grad()
+-def collect(actor,condition,token,log,service,generator,*,act_norm,variant,version):
++def collect(actor,condition,token,log,service,generator,*,act_norm,variant,version,progress=None):
+     cond={'context':condition.expand(8,-1,-1).contiguous()}
+     actor._noise_audit=[]
+     begin=time.monotonic()
+@@ -18,8 +18,10 @@ def collect(actor,condition,token,log,service,generator,*,act_norm,variant,versi
+     if chain.shape!=(8,11,8,4) or indices.tolist()!=[7,8,9] or not torch.isfinite(chain).all():
+         raise ValueError('Invalid source chain; no replacement candidates allowed')
+     torch.cuda.synchronize();rollout_seconds=time.monotonic()-begin
++    if progress:progress('generated',rollout_seconds,8)
+     requested=decode_request(chain[:,-1].cpu().numpy(),act_norm=act_norm)
+     begin=time.monotonic();records=service.score((token,log,requested));scoring_seconds=time.monotonic()-begin
++    if progress:progress('scored',scoring_seconds,8)
+     key='train_reward_source' if variant=='R_SOURCE' else 'canonical_PDMS'
+     rewards=torch.tensor([[r['readouts'][key] for r in records]],device=actor.device,dtype=torch.float32)
+     begin=time.monotonic()
+diff --git a/starVLA/rl/simwam_recipe/contracts.py b/starVLA/rl/simwam_recipe/contracts.py
+index 9af37fe..1c32bd3 100644
+--- a/starVLA/rl/simwam_recipe/contracts.py
++++ b/starVLA/rl/simwam_recipe/contracts.py
+@@ -2,6 +2,7 @@
+ import json
+ from pathlib import Path
+ import socket
++import copy
+ 
+ from starVLA.rl.safe_flow_improvement.contracts import file_sha, fingerprint, seed_for, SFT_SHA256
+ 
+@@ -31,6 +32,15 @@ def load_recipe(path):
+     cfg = OmegaConf.to_container(OmegaConf.load(path), resolve=True)
+     if cfg['variant'] not in ('R_SOURCE','R_CANONICAL'):
+         raise ValueError('Only the two registered variants are formal')
++    # Full resolved configuration, including formerly unchecked optimizer/LoRA/
++    # numerical/budget fields. Only the registered reward and name may differ.
++    normalized=copy.deepcopy(cfg)
++    expected_progress=10. if cfg['variant']=='R_SOURCE' else 5.
++    if cfg['grpo']['reward']['progress_weight']!=expected_progress:
++        raise ValueError('Reward does not match the registered variant')
++    normalized['variant']='R_SOURCE';normalized['grpo']['reward']['progress_weight']=10.
++    if fingerprint(normalized)!='28c9ef5a16a1a70bb4970085f3ca5ead37a6633dab6a464f65a273d7b62b8fbb':
++        raise ValueError('Resolved recipe differs from the complete immutable 12b8e0d contract')
+     g = cfg['grpo']; s = g['sample']; t = g['train']
+     expected = dict(group_size=8,num_inference_steps=10,train_sde_steps=3,sde_mode='rigorous',
+                     noise_level=.1,min_std=.001,randn_clip=5.,logprob_clamp_mode='relative',
+diff --git a/starVLA/rl/simwam_recipe/invocation.py b/starVLA/rl/simwam_recipe/invocation.py
+new file mode 100644
+index 0000000..84075b9
+--- /dev/null
++++ b/starVLA/rl/simwam_recipe/invocation.py
+@@ -0,0 +1,99 @@
++"""Append-only attempt provenance and rollback receipts, separate from RL data."""
++import json
++import os
++from pathlib import Path
++import time
++import uuid
++from .contracts import file_sha
++from .checkpoint import gather
++from starVLA.rl.flow_grpo.transactions import atomic_json
++
++
++def validate_rows(rows, boundary):
++    if [r['updates'] for r in rows] != list(range(1, boundary+1)):
++        raise ValueError('Effective journal has a gap/duplicate; manual lineage audit required')
++    for r in rows:
++        u=r['updates']; c=(u-1)//4+1; i=(u-1)%4+1
++        if r['collection']!=c or r['inner_completed']!=i or r['behavior']['update']!=(c-1)*4:
++            raise ValueError('Journal behavior/collection/inner ancestry mismatch')
++
++
++class Invocation:
++    def __init__(self, root, rank, state, identity, resume=None):
++        self.root=Path(root);self.rank=rank;self.started=time.monotonic()
++        self.id=gather(uuid.uuid4().hex if rank==0 else None)[0]
++        self.directory=self.root/'invocations'/self.id
++        self.directory.mkdir(parents=True,exist_ok=True)
++        self.path=self.directory/f'rank{rank}.json'
++        self.record=dict(schema='simwam_invocation_v2',invocation=self.id,rank=rank,
++            run=identity['sha256'],start_unix=time.time(),status='RUNNING',
++            start_update=state['updates'],start_collection=state['collections'],start_cursor=state['scene_cursor'],
++            resume_checkpoint=str(resume) if resume else None,
++            resume_files_sha256=file_sha(Path(resume)/'files.json') if resume else None,
++            last_legal_checkpoint=str(resume) if resume else None,
++            attempted_collections=0,generated_candidates=0,scored_candidates=0,
++            seconds_generation=0.,seconds_scoring=0.,seconds_save=0.,
++            GPU_occupancy='worker elapsed time; shared GPU, not exclusive GPU compute')
++        journal=self.root/f'metrics_rank{rank}.jsonl'
++        if journal.exists():
++            raw=journal.read_bytes();rows=[];bad_tail=None
++            lines=raw.splitlines(keepends=True)
++            for idx,line in enumerate(lines):
++                try:rows.append(json.loads(line))
++                except (ValueError,UnicodeDecodeError):
++                    if idx!=len(lines)-1:raise ValueError('Corrupt non-tail journal')
++                    bad_tail=line.hex()
++            prefix=[r for r in rows if r['updates']<=state['updates']]
++            validate_rows(prefix,state['updates'])
++            if any(r['behavior']['run']!=identity['sha256'] for r in rows):
++                raise ValueError('Journal belongs to another scientific run')
++            suffix=[r for r in rows if r['updates']>state['updates']]
++            if suffix or bad_tail:
++                archive=self.directory/f'aborted_metrics_rank{rank}.jsonl'
++                with archive.open('xb') as f:f.write(raw);f.flush();os.fsync(f.fileno())
++                atomic_json(self.directory/f'rollback_rank{rank}.json',dict(
++                    schema=2,original_sha256=file_sha(archive),resume_checkpoint=str(resume),
++                    retained_updates=state['updates'],aborted_updates=[r['updates'] for r in suffix],
++                    incomplete_tail=bad_tail,reason='rollback to sealed checkpoint; original journal retained',
++                    ancestry=[{k:r.get(k) for k in ('updates','collection','inner_completed','behavior','chain_identity','invocation')} for r in suffix]))
++                tmp=journal.with_name(journal.name+'.reconciled-'+self.id)
++                with tmp.open('x') as f:
++                    for row in prefix:f.write(json.dumps(row,allow_nan=False)+'\n')
++                    f.flush();os.fsync(f.fileno())
++                os.replace(tmp,journal)
++        elif state['updates']:
++            raise ValueError('Cannot resume without the effective learning history')
++        # Rollback cannot overwrite old behavior. Preserve every unpublished suffix.
++        for p in sorted((self.root/'behavior').glob(f'collection*/rank{rank}.pt')):
++            collection=int(p.parent.name.removeprefix('collection'))
++            if collection>state['collections']:
++                target=self.directory/'aborted_behavior'/p.parent.name/p.name
++                target.parent.mkdir(parents=True,exist_ok=True)
++                os.rename(p,target)
++                atomic_json(target.with_suffix('.receipt.json'),dict(sha256=file_sha(target),
++                    previous_path=str(p),resume_checkpoint=str(resume),status='UNCOMMITTED_OR_ROLLED_BACK'))
++        atomic_json(self.path,self.record)
++
++    def event(self, kind, seconds=0., candidates=0):
++        if kind=='collection_start':self.record['attempted_collections']+=1
++        elif kind=='generated':
++            self.record['generated_candidates']+=candidates;self.record['seconds_generation']+=seconds
++        elif kind=='scored':
++            self.record['scored_candidates']+=candidates;self.record['seconds_scoring']+=seconds
++        self.record['last_event']=kind;self.record['heartbeat_unix']=time.time()
++        self.record['observed_worker_wall_seconds']=time.monotonic()-self.started
++        atomic_json(self.path,self.record)
++
++    def saved(self, checkpoint, seconds):
++        self.record['last_legal_checkpoint']=checkpoint;self.record['seconds_save']+=seconds
++        self.event('checkpoint_published')
++
++    def finish(self,state,status,error=None):
++        elapsed=time.monotonic()-self.started
++        delta=state['updates']-self.record['start_update']
++        self.record.update(status=status,end_unix=time.time(),end_update=state['updates'],
++            end_collection=state['collections'],end_cursor=state['scene_cursor'],
++            worker_wall_seconds=elapsed,invocation_updates=delta,
++            invocation_updates_per_second=delta/elapsed if delta>0 and elapsed>0 else None,
++            error=error,phase=state['phase'])
++        atomic_json(self.path,self.record)
+diff --git a/starVLA/rl/simwam_recipe/lineage.py b/starVLA/rl/simwam_recipe/lineage.py
+new file mode 100644
+index 0000000..c03e4c9
+--- /dev/null
++++ b/starVLA/rl/simwam_recipe/lineage.py
+@@ -0,0 +1,37 @@
++"""Explicit, evidence-bound execution migrations; never bypass source hashes."""
++import json
++from pathlib import Path
++from .contracts import fingerprint,file_sha
++
++SCIENTIFIC_KEYS=('recipe','upstream_commit','SFT_sha256','hard_manifest_sha256',
++    'projected_condition_identity','policy_ratio','deployment','world','purpose',
++    'score_protocol','parameter_contract','rng_protocol','scene_reduction','actual_optimizer')
++
++
++def scientific_identity(identity):
++    fields={k:identity[k] for k in SCIENTIFIC_KEYS}
++    return dict(schema='simwam_scientific_v2',sha256=fingerprint(fields),fields=fields)
++
++
++def execution_identity(sources):
++    fields=dict(source_files=sources,module_root=str(Path.cwd().resolve()),
++                checkpoint_schema=2,control_backend='Gloo; no post-fatal NCCL save',
++                DDP='find_unused_parameters=True/static_graph=False/bucket25MB unchanged')
++    return dict(schema='simwam_execution_v2',sha256=fingerprint(fields),fields=fields)
++
++
++def verify_migration(path,previous,current,resume):
++    receipt=json.loads(Path(path).read_text());payload=dict(receipt);sha=payload.pop('sha256')
++    if fingerprint(payload)!=sha:raise ValueError('Migration receipt changed')
++    if scientific_identity(previous)!=scientific_identity(current):raise ValueError('Algorithm/config/assets changed: not an execution migration')
++    if receipt['old_identity']!=previous or receipt['new_identity']!=current:
++        raise ValueError('Migration is not bound to these exact source identities')
++    for evidence in receipt['evidence']:
++        if file_sha(evidence['path'])!=evidence['sha256']:raise ValueError('Migration equivalence evidence changed')
++        if json.loads(Path(evidence['path']).read_text())['status']!='PASS':raise ValueError('Migration equivalence not passed')
++    resume=Path(resume)
++    if file_sha(resume/'files.json')!=receipt['parent_files_sha256']:
++        transaction=resume/'transaction.json'
++        if not transaction.exists() or json.loads(transaction.read_text()).get('migration_receipt_sha256')!=sha:
++            raise ValueError('Checkpoint is not the audited parent or its declared execution lineage')
++    return receipt
+diff --git a/starVLA/rl/simwam_recipe/recovery_state.py b/starVLA/rl/simwam_recipe/recovery_state.py
+new file mode 100644
+index 0000000..40b3608
+--- /dev/null
++++ b/starVLA/rl/simwam_recipe/recovery_state.py
+@@ -0,0 +1,126 @@
++"""Pure validation of committed training boundaries; no policy mathematics.
++
++COLLECTING is deliberately not recoverable. A failed collection is replayed
++from the preceding sealed checkpoint, including its RNG and optimizer state.
++"""
++import hashlib
++import json
++import torch
++
++PHASES = {'READY', 'COLLECTING', 'ROLLOUT_COMMITTED', 'INNER_COMMITTED', 'COMPLETE'}
++
++
++def tensor_digest(value):
++    h = hashlib.sha256()
++    def visit(x):
++        if torch.is_tensor(x):
++            y = x.detach().cpu().contiguous()
++            h.update(str((str(y.dtype), tuple(y.shape))).encode())
++            h.update(y.reshape(-1).view(torch.uint8).numpy().tobytes())
++        elif isinstance(x, dict):
++            for k in sorted(x):
++                h.update(str(k).encode()); visit(x[k])
++        elif isinstance(x, (list, tuple)):
++            for y in x: visit(y)
++        else: h.update(json.dumps(x, sort_keys=True, allow_nan=False).encode())
++    visit(value)
++    return h.hexdigest()
++
++
++def rollout_digest(rollout):
++    return {k: tensor_digest(rollout[k]) for k in
++            ('chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version')}
++
++
++def boundary_phase(state, max_steps):
++    """Called only after a completed collection/update, never on exceptions."""
++    if state['updates'] == max_steps: return 'COMPLETE'
++    if state['next_inner']: return 'INNER_COMMITTED'
++    if state['collections'] * 4 == state['updates']: return 'READY'
++    return 'ROLLOUT_COMMITTED'
++
++
++def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, *, legacy=False):
++    world = identity['world']; cfg = identity['recipe']
++    u, c, i = (state[k] for k in ('updates', 'collections', 'next_inner'))
++    if not (0 <= u <= cfg['max_steps'] and 0 <= i < 4 and c >= 0):
++        raise ValueError('Invalid update/collection/inner counters')
++    phase = state.get('phase')
++    # Legacy qualification is an explicit read-only audit, not a permissive load.
++    if phase is None and legacy: phase = boundary_phase(state, cfg['max_steps'])
++    if phase not in PHASES or phase == 'COLLECTING':
++        raise ValueError('Not a committed recovery phase: ' + str(phase))
++    pending = phase in ('ROLLOUT_COMMITTED', 'INNER_COMMITTED')
++    expected_c = u // 4 + int(pending)
++    if c != expected_c or i != u % 4:
++        raise ValueError('Collection/optimizer boundary mismatch')
++    if phase == 'ROLLOUT_COMMITTED' and i != 0: raise ValueError('Uncommitted inner')
++    if phase == 'INNER_COMMITTED' and i == 0: raise ValueError('Missing inner commit')
++    if phase == 'COMPLETE' and u != cfg['max_steps']: raise ValueError('Premature COMPLETE')
++    if any(state[k] != c * world for k in ('scene_cursor', 'raw_scene_exposures')):
++        raise ValueError('Scene cursor/exposure inconsistent with committed collections')
++    if state['new_candidates'] != c * world * 8:
++        raise ValueError('Candidate budget inconsistent with committed collections')
++    if pending != (rollout is not None): raise ValueError('Phase/rollout presence mismatch')
++    summary = dict(phase=phase, updates=u, collections=c, scene_cursor=state['scene_cursor'],
++                   next_inner=i, run=identity['sha256'], pending=pending)
++    if pending:
++        required = ('cond_bg', 'chain', 'timesteps', 'deltas', 'stoch_idx', 'old_logp',
++                    'rewards', 'old_probability', 'records', 'token', 'log', 'behavior_version',
++                    'advantages', 'adv_mask', 'global_std', 'raw_group_std', 'advantage_statistics')
++        missing = set(required) - set(rollout)
++        if missing: raise ValueError('Unfinalized rollout: ' + repr(sorted(missing)))
++        shapes = {'chain': (8, 11, 8, 4), 'old_logp': (8, 3), 'rewards': (1, 8),
++                  'advantages': (8,), 'adv_mask': (8,)}
++        for k, shape in shapes.items():
++            t = rollout[k]
++            if tuple(t.shape) != shape or not torch.isfinite(t).all() or t.requires_grad:
++                raise ValueError('Invalid detached rollout field: ' + k)
++        indices = rollout['stoch_idx']
++        if torch.is_tensor(indices): indices = indices.tolist()
++        if list(indices) != [7, 8, 9]: raise ValueError('Changed stochastic window')
++        v = rollout['behavior_version']
++        if v['run'] != identity['sha256'] or v['update'] != u - i:
++            raise ValueError('Behavior is not the collection-start policy')
++        old = rollout['old_probability']['current'] if 'current' in rollout['old_probability'] else rollout['old_probability']
++        # Restore validates CPU tensors. CPU and CUDA FP32 reduction trees differ
++        # by up to 2.384e-7 on the actual eight-rank chain. Payload hashes still
++        # enforce exact stored bits; this check only validates their semantics.
++        if not torch.allclose(old['source_clamped_logprob'].mean((-1, -2)), rollout['old_logp'],atol=5e-7,rtol=0):
++            raise ValueError('Old probability/chain audit mismatch')
++        summary.update(digests=rollout_digest(rollout), behavior=v,
++                       rewards=rollout['rewards'].double().cpu().tolist(),
++                       advantages=rollout['advantages'].double().cpu().tolist(),
++                       mask=rollout['adv_mask'].cpu().tolist(), global_std=float(rollout['global_std']))
++    if optimizer is not None:
++        opt = optimizer.state_dict() if hasattr(optimizer, 'state_dict') else optimizer
++        steps = [float(v['step']) for v in opt['state'].values()]
++        if (u and not steps) or any(s != u for s in steps):
++            raise ValueError('Adam step does not match committed update')
++        if u and len(steps) != sum(len(g['params']) for g in opt['param_groups']):
++            raise ValueError('Missing optimizer parameter state')
++    if scheduler is not None:
++        sched = scheduler.state_dict() if hasattr(scheduler, 'state_dict') else scheduler
++        if sched['last_epoch'] != u: raise ValueError('Scheduler progress mismatch')
++    return summary
++
++
++def validate_ranks(summaries):
++    common = ('phase', 'updates', 'collections', 'scene_cursor', 'next_inner', 'run', 'pending')
++    for item in summaries:
++        if {k: item[k] for k in common} != {k: summaries[0][k] for k in common}:
++            raise ValueError('Ranks disagree on recovery boundary')
++    if summaries[0]['pending']:
++        if any(s['behavior'] != summaries[0]['behavior'] for s in summaries):
++            raise ValueError('Ranks disagree on collection-start behavior')
++        rewards = torch.tensor([s['rewards'][0] for s in summaries], dtype=torch.float64)
++        std = rewards.std(unbiased=False)
++        offsets = rewards - rewards[:, :1]
++        expected = ((offsets - offsets.mean(1, keepdim=True)) / (std + 1e-8)).float()
++        mask = (offsets.std(1, unbiased=False) > 1e-8).float()
++        for rank, s in enumerate(summaries):
++            if abs(s['global_std'] - float(std)) > 1e-12 or not torch.allclose(
++                    torch.tensor(s['advantages']), expected[rank], atol=1e-7, rtol=1e-6):
++                raise ValueError('Advantage was not globally finalized')
++            if s['mask'] != [float(mask[rank])] * 8: raise ValueError('PG mask mismatch')
++    return summaries

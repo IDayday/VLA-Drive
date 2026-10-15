@@ -1,0 +1,379 @@
+{
+  "CPU_transactions": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/cpu_transactions_v4/result.json",
+    "sha256": "eccc54c85a908d444d4abad6c1c07c6d9c4d735170eb0f46c5980ddfb64764c4",
+    "result": {
+      "status": "PASS",
+      "world": 2,
+      "backend": "CPU Gloo",
+      "CUDA_visible": false,
+      "checks": [
+        "rank0_before_sampling",
+        "nonrank_scoring_after_partial_chain",
+        "before_advantage_commit",
+        "unfinalized_even_if_phase_forged",
+        "rank_write",
+        "duplicate_rank_write",
+        "before_complete",
+        "duplicate_before_complete",
+        "inner1_restore",
+        "inner2_restore",
+        "inner3_restore",
+        "journal_rollback_preserves_aborted_attempt"
+      ],
+      "all_ranks": [
+        {
+          "status": "PASS",
+          "checks": [
+            "rank0_before_sampling",
+            "nonrank_scoring_after_partial_chain",
+            "before_advantage_commit",
+            "unfinalized_even_if_phase_forged",
+            "rank_write",
+            "duplicate_rank_write",
+            "before_complete",
+            "duplicate_before_complete",
+            "inner1_restore",
+            "inner2_restore",
+            "inner3_restore",
+            "journal_rollback_preserves_aborted_attempt"
+          ]
+        },
+        {
+          "status": "PASS",
+          "checks": [
+            "rank0_before_sampling",
+            "nonrank_scoring_after_partial_chain",
+            "before_advantage_commit",
+            "unfinalized_even_if_phase_forged",
+            "rank_write",
+            "duplicate_rank_write",
+            "before_complete",
+            "duplicate_before_complete",
+            "inner1_restore",
+            "inner2_restore",
+            "inner3_restore",
+            "journal_rollback_preserves_aborted_attempt"
+          ]
+        }
+      ]
+    }
+  },
+  "accounting": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/accounting_v3.json",
+    "sha256": "3101e2f5a2201ac7dc4372cb77009a20cb1b8aef27d8f6cca913e15ae270ea89",
+    "result": {
+      "status": "PASS",
+      "checks": [
+        "exact_two_allowed_variant_differences",
+        "locked_learning_rate",
+        "locked_lr_warmup_steps",
+        "locked_max_steps",
+        "locked_weight_decay",
+        "locked_optimizer_eps",
+        "locked_gradient_clipping_effective",
+        "locked_DDP_bucket_cap_mb",
+        "locked_seed",
+        "locked_evaluation_seed",
+        "locked_action_infer_shift",
+        "locked_lora.r",
+        "locked_lora.alpha",
+        "locked_train.kl_beta",
+        "locked_train.num_inner_epochs",
+        "locked_train.adv_eps",
+        "locked_sample.min_std",
+        "locked_sample.group_size",
+        "locked_reward.ttc_weight",
+        "duplicate_updates_rejected",
+        "resumed_delta_rate_and_failed_work_counted",
+        "evaluation_resume_preserves_loading_retry_worker_and_job_time",
+        "missing_legacy_cost_is_unknown_not_fabricated"
+      ]
+    }
+  },
+  "sampling_recompute": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/sample_recompute_v1.json",
+    "sha256": "aefc96482a0beac8223270684a39bdc7c8e69181b6a288405e637bb5d1e2a8d0",
+    "result": {
+      "status": "PASS",
+      "zero_LoRA": {
+        "steps": [
+          {
+            "step": 7,
+            "sigma": 0.6818181762695312,
+            "delta": -0.1262626051902771,
+            "std": 0.052015643655313165,
+            "mean_max_abs_error": 1.1920928955078125e-07,
+            "std_abs_error": 8.846631760484058e-11,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          },
+          {
+            "step": 8,
+            "sigma": 0.5555556030273437,
+            "delta": -0.1984127163887024,
+            "std": 0.04980119909897785,
+            "mean_max_abs_error": 2.384185791015625e-07,
+            "std_abs_error": 1.5293027885721067e-09,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          },
+          {
+            "step": 9,
+            "sigma": 0.3571428527832031,
+            "delta": -0.3571428656578064,
+            "std": 0.04454354042682547,
+            "mean_max_abs_error": 2.384185791015625e-07,
+            "std_abs_error": 1.5410433346074726e-09,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          }
+        ],
+        "recording_preserves_RNG_and_chain": true,
+        "source_clamp_hit_rate": 0.0,
+        "raw_gaussian_and_source_clamped_fields_separate": true,
+        "ratio_field": "source relative-clamped dimension-mean logprob, not joint density",
+        "native_shape": [
+          8,
+          11,
+          8,
+          4
+        ],
+        "new_scoring_calls": 0
+      },
+      "nonzero_LoRA": {
+        "steps": [
+          {
+            "step": 7,
+            "sigma": 0.6818181762695312,
+            "delta": -0.1262626051902771,
+            "std": 0.052015643655313165,
+            "mean_max_abs_error": 2.384185791015625e-07,
+            "std_abs_error": 8.846631760484058e-11,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          },
+          {
+            "step": 8,
+            "sigma": 0.5555556030273437,
+            "delta": -0.1984127163887024,
+            "std": 0.04980119909897785,
+            "mean_max_abs_error": 2.384185791015625e-07,
+            "std_abs_error": 1.5293027885721067e-09,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          },
+          {
+            "step": 9,
+            "sigma": 0.3571428527832031,
+            "delta": -0.3571428656578064,
+            "std": 0.04454354042682547,
+            "mean_max_abs_error": 2.384185791015625e-07,
+            "std_abs_error": 1.5410433346074726e-09,
+            "exact_next_state": true,
+            "innovation_clip_hits": 0
+          }
+        ],
+        "recording_preserves_RNG_and_chain": true,
+        "source_clamp_hit_rate": 0.0,
+        "raw_gaussian_and_source_clamped_fields_separate": true,
+        "ratio_field": "source relative-clamped dimension-mean logprob, not joint density",
+        "native_shape": [
+          8,
+          11,
+          8,
+          4
+        ],
+        "new_scoring_calls": 0
+      },
+      "checkpoint_files_sha256": "b986753138d97f7de198ce35ff8c4318997a071aa21c81048fb10020d2cd122b",
+      "source_3D_oracle": "Reuse existing 64 mathematical checks; this is actual DDP 4D sampling instrumentation",
+      "heading_mapping": "[x_norm,y_norm,sin_norm,cos_norm], weights [.2,1,.5,.5]; not angular MSE"
+    }
+  },
+  "GPU8_inner_recovery": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu8_recovery_v2/result.json",
+    "sha256": "74908ffeaf24cb2f141e6630362b6c0e62981efe9bda452eea8b639834f9c471",
+    "result": {
+      "status": "PASS",
+      "world": 8,
+      "all_ranks_checked": true,
+      "interrupted_after_inner": [
+        2,
+        3
+      ],
+      "resumed_remaining_inner_updates": true,
+      "final_updates": 8,
+      "optimizer_adapters_scheduler_RNG_exact": true,
+      "next_fresh_chain_old_probability_advantages_exact": true,
+      "losses_gradnorm_ratios_learning_rate_exact": true,
+      "continuous": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu8_recovery_v2/continuous",
+      "resumed": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu8_recovery_v2/resumed"
+    }
+  },
+  "normal_path_vs_formal_source": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/normal_path_parity_v2.json",
+    "sha256": "760afbc157260c41344c5d9c7093347befe6eb2c9279390ba37d036a96c6ee75",
+    "result": {
+      "status": "PASS",
+      "world": 8,
+      "scientific_identity": "54d3e0f6114e803eea78a018fb36845be7279167252bc055560ae8f137f8ffb3",
+      "source_identities": [
+        "9a2c6c85d495b7a765cd7fbe837efe163c6e4bb1983cbd1b51e6911be6f30c18",
+        "a602c8850973625154d9b5742d08ba8b262b0877d1534672a2e39db2ef46d503"
+      ],
+      "reference": "/mnt/project/simwam-recipe-20261015/qualification/eight_gpu_recovery_v3_fixed_buckets/continuous",
+      "candidate": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu8_recovery_v2/continuous",
+      "normal_chain_probability_advantages_exact": true,
+      "optimizer_adapters_scheduler_RNG_exact": true,
+      "loss_gradient_norm_ratio_LR_exact": true,
+      "metadata_and_wall_time_excluded": true,
+      "checkpoint_seals": [
+        "250d6f07ca14d8d0be14e1d7d09e120b642c099f4f0389155e1de027c96769ca",
+        "9d9185a52672ffc3fa7710e130244983bfe186d78dd8e6384fabfae69de95ad7"
+      ]
+    }
+  },
+  "GPU2_failures": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu2_faults_v1/result.json",
+    "sha256": "c2d681953e2a938460a845105be99a2fc9a1dc5592a74dd4ea43d503dffc6d53",
+    "result": {
+      "status": "PASS",
+      "world": 2,
+      "faults": [
+        {
+          "fault": "before_collect",
+          "rank": 0,
+          "status": "PASS",
+          "latest_retained_update": 0
+        },
+        {
+          "fault": "after_collect",
+          "rank": 1,
+          "status": "PASS",
+          "latest_retained_update": 0
+        },
+        {
+          "fault": "before_finalize",
+          "rank": 1,
+          "status": "PASS",
+          "latest_retained_update": 0
+        }
+      ],
+      "failed_collection_replay_exact": true
+    }
+  },
+  "GPU2_failure_replay": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu2_faults_v1/resume_result_v2.json",
+    "sha256": "a5bb314cd741b73a35ac81ee70a13f815abec2db01eda43a953790b490d6ae4a",
+    "result": {
+      "status": "PASS",
+      "world": 2,
+      "all_ranks_checked": true,
+      "interrupted_after_inner": [
+        0
+      ],
+      "resumed_remaining_inner_updates": true,
+      "final_updates": 8,
+      "optimizer_adapters_scheduler_RNG_exact": true,
+      "next_fresh_chain_old_probability_advantages_exact": true,
+      "losses_gradnorm_ratios_learning_rate_exact": true,
+      "continuous": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu2_faults_v1/continuous",
+      "resumed": "/mnt/project/simwam-audit-recovery-20261015/qualification/gpu2_faults_v1/after_collect"
+    }
+  },
+  "legacy_migration": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/legacy_migration_parity_v1.json",
+    "sha256": "78729e5ca54750c7ff6d700dc740cfe13868e93c56cf0a91b57f52772973c711",
+    "result": {
+      "status": "PASS",
+      "world": 8,
+      "scientific_identity": "54d3e0f6114e803eea78a018fb36845be7279167252bc055560ae8f137f8ffb3",
+      "source_identities": [
+        "9a2c6c85d495b7a765cd7fbe837efe163c6e4bb1983cbd1b51e6911be6f30c18",
+        "9a2c6c85d495b7a765cd7fbe837efe163c6e4bb1983cbd1b51e6911be6f30c18"
+      ],
+      "reference": "/mnt/project/simwam-recipe-20261015/qualification/eight_gpu_recovery_v3_fixed_buckets/continuous",
+      "candidate": "/mnt/project/simwam-audit-recovery-20261015/qualification/legacy_migration_v1",
+      "normal_chain_probability_advantages_exact": true,
+      "optimizer_adapters_scheduler_RNG_exact": true,
+      "loss_gradient_norm_ratio_LR_exact": true,
+      "metadata_and_wall_time_excluded": true,
+      "checkpoint_seals": [
+        "250d6f07ca14d8d0be14e1d7d09e120b642c099f4f0389155e1de027c96769ca",
+        "0c035817ac3421ceb3fee850bb6f26f66725103dec3408979ca32d030a952c5c"
+      ]
+    }
+  },
+  "evaluation_ledger": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/evaluation_ledger_acceptance.json",
+    "sha256": "0f5b7f87d56b210edd042ddf1fa6b50c238e6d2d9b823780a9d41f392e69d346",
+    "result": {
+      "status": "PASS",
+      "qualification_scenes": 1,
+      "full_population_result": false,
+      "actual_actions_and_metrics_equal_old_SFT": true,
+      "two_invocations_retained": true,
+      "first_new": 1,
+      "second_reused": 1,
+      "new_scoring_calls": 2,
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1,
+        "logical_single_candidate_evaluations": 2,
+        "candidate_evaluations_per_grid": 1,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 2,
+        "complete_cost_accounting": true,
+        "new_scenes": 1,
+        "reused_scenes": 1,
+        "cumulative_physical_predictions": 2,
+        "diagnostic_predictions": 1,
+        "physical_predictions_including_diagnostics": 3,
+        "cumulative_worker_wall_seconds": 67.02001750841737,
+        "job_wall_seconds": 184.7462465763092,
+        "model_load_seconds": 29.953537741675973,
+        "generation_wall_seconds_sum": 1.8417142778635025,
+        "scoring_wait_seconds_sum": 2.7962810583412647,
+        "missing": []
+      },
+      "source_sha256": "e4e8536ec2d9aa7185309d934a2747c479d6e3678fc2113339473802a9c34fe8"
+    }
+  },
+  "cached_analysis_revalidates_payloads": {
+    "path": "/mnt/project/simwam-audit-recovery-20261015/qualification/analysis_resume_output/audit.json",
+    "sha256": "6e3a4b66d8b1a4be2822599c1f8bca3de219392ae72bf2ef4b85dd16477be4c6",
+    "result": {
+      "status": "PASS",
+      "evaluations": [
+        {
+          "evaluation": "R_CANONICAL_update005000_DEV",
+          "scenes": 1696,
+          "status": "PASS",
+          "previous_summary_sha256": "46587b059af74a37c0109e7cee037930d1fe7e4c7085237ab8b2217b95c65c01",
+          "new_summary_sha256": "e59600c4e8dc8f8f37c833b4fdf743eb82a94ddcf87221629801836480523e96",
+          "prediction_and_score_hashes_verified": true,
+          "all_metric_and_paired_results_unchanged": true,
+          "new_inference": 0,
+          "new_scoring": 0,
+          "cost_schema": 2,
+          "command": [
+            "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+            "-m",
+            "scripts.analysis.simwam_recipe.analyze_evaluation",
+            "--evaluation",
+            "/mnt/project/simwam-audit-recovery-20261015/qualification/analysis_resume_inputs/R_CANONICAL_update005000_DEV",
+            "--output",
+            "/mnt/project/simwam-audit-recovery-20261015/qualification/analysis_resume_output/R_CANONICAL_update005000_DEV.json",
+            "--reference",
+            "/mnt/project/simwam-recipe-20261015/evaluations/SFT_update000000_DEV"
+          ]
+        }
+      ],
+      "new_inference": 0,
+      "new_scoring": 0
+    }
+  }
+}

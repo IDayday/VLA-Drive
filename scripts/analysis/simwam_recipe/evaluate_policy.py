@@ -60,6 +60,7 @@ def main():
     export=Path(a.export);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
     invocation=uuid.uuid4().hex;invocation_path=out/'invocations'/invocation/f'rank{rank}.json'
+    invocation_path.parent.mkdir(parents=True,exist_ok=False)
     status=dict(schema='simwam_evaluation_invocation_v2',invocation=invocation,rank=rank,
                 status='STARTING',start_unix=process_started_unix,host=host,pid=os.getpid(),
                 new=0,reused=0,scene_encoder_calls=0,new_candidates=0,physical_predictions=0,

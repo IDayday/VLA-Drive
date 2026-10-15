@@ -19,6 +19,12 @@ def main():
         if old.get('reference'):cmd+=['--reference',old['reference']]
         if not dest.exists():
             with dest.with_suffix('.log').open('x') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,check=True)
+        else:
+            # A cached analysis is not evidence that its input files are still
+            # intact. Resume must revalidate payload seals, including reference.
+            from scripts.analysis.simwam_recipe.analyze_evaluation import read
+            read(old_path.parent)
+            if old.get('reference'):read(old['reference'])
         new=json.loads(dest.read_text())
         if new['identity']!=old['identity'] or new['modes']!=old['modes']:
             raise ValueError('Derived metric changed: '+str(old_path))
