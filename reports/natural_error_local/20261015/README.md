@@ -108,6 +108,16 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 已完成的 16-epoch A 内部教师检查无失败：full-peer ego ADE 从随机时约 9.79m 降到
 0.95m，vehicle-with-peer ADE 从约 7.70m 降到 2.67m。这只说明 GT-MAE 教师在学习，
 不是 VLA 规划成绩；30 epoch 尚未结束，也未提前按这些中间结果冻结教师。
+24 epoch 的同一检查已完成，full-peer ego/vehicle ADE 分别约 0.903/2.187m；
+current-only 的对应误差从 16 epoch 的约 1.108/5.541m 变为 1.152/6.084m，
+并未共同改善。完整分组保留在 `TEACHER_A_INTERIM_LEARNING.json`，不将特权教师
+重建误差当作当前视觉规划增益，也不据此改变既定 30 epoch 预算。
+
+教师首次调用在 7200 秒限额后于 update3990 原生保存退出，随后从相同 checkpoint
+继续。已核对模型、121 项 optimizer 状态、scheduler、全部 RNG 和 mask scheduler，
+并观察到连续的 update3991–4009，曝光和 LR 与原边界一致。恢复点以 hard link 保留；
+未重置 warmup 或数据位置。这是原生恢复边界及实际继续更新的证据，不是长期 CUDA
+逐位重放声明。见 `TEACHER_NATIVE_BOUNDARY_CONTINUED.json`。
 共享 S0_A 保留 S0 的当前 DINO、未来 DINO 序列、A-only MAE、原 FM 与动作结构。
 动作 affine 的均值/尺度已仅在 A_train 的 341656 个原始动作点上重拟合，
 而非继承来源不能限定到 A 的旧经验常数；公式、sin/cos heading 与原始物理轨迹不变。

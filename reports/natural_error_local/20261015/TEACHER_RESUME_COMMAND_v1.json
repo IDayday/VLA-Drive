@@ -1,0 +1,43 @@
+{
+  "GPU": 0,
+  "command": [
+    "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+    "-m",
+    "tools.foresight.train_trajectory_mae",
+    "--data",
+    "/mnt/project/natural-error-local-artifacts/20261015/teacher_input_A_v1",
+    "--output",
+    "/mnt/project/natural-error-local-artifacts/20261015/teacher_A_full30_v1",
+    "--campaign-root",
+    "/mnt/project/natural-error-local-artifacts/20261015",
+    "--run-id",
+    "teacher_A_full30_v1",
+    "--batch",
+    "256",
+    "--epochs",
+    "30",
+    "--lr",
+    "0.0003",
+    "--seed",
+    "42",
+    "--save-every",
+    "200",
+    "--eval-epochs",
+    "0,1,2,4,8,16,24,30",
+    "--max-seconds",
+    "3600",
+    "--campaign-gpu-hours",
+    "5",
+    "--resume",
+    "--acknowledge-stop"
+  ],
+  "continuation_only": true,
+  "cwd": "/mnt/project/VLA-Drive-action-video-source-1493ded",
+  "max_seconds": 3600,
+  "original_identity": "beb699d8e04acd844975ad759e6d14921ef301fe9f748a8063b00d1bb3479def",
+  "resources": {
+    "checked_unix": 1792090035.0228195,
+    "host": "training-vla-zt",
+    "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+  }
+}
