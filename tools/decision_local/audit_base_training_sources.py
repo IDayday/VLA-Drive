@@ -35,7 +35,7 @@ def split_roles(rows, dev_rows):
     calibration=set(A[::20])
     role_by_recording={g:('A_calibration' if g in calibration else 'A_train') for g in A}
     role_by_recording.update({g:('B_predictor' if i%2==0 else 'B_refiner') for i,g in enumerate(B)})
-    role_by_recording.update({g:'excluded_dev_recording' for g in set(groups)&dev_recordings})
+    role_by_recording.update({g:'excluded_dev_recording' for g in dev_recordings})
     return role_by_recording, {role:[r for r in rows if role_by_recording[recording(r['log'])]==role]
                               for role in sorted(set(role_by_recording.values()))}
 
