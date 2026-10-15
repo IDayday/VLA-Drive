@@ -11,6 +11,8 @@ import numpy as np
 import torch
 from starVLA.rl.simwam_recipe.contracts import file_sha
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from scripts.analysis.simwam_recipe.cost_ledger import invocation_cost
+from starVLA.rl.simwam_recipe.invocation import validate_rows
 
 
 def read_journal(path):
@@ -82,14 +84,14 @@ def checkpoint_cost(run):
     phases=['rollout','old_probability','update','scoring_wait','scoring_cpu']
     sums={phase:sum(s['seconds_'+phase] for s in states) for phase in phases}
     wall=progress['wall_seconds_this_invocation'];done=states[0]['updates']
+    ledger=invocation_cost(run,done=done,latest_wall=wall)
     return dict(checkpoint=str(ck),checkpoint_updates=done,
         cumulative_rank_wall_seconds_by_phase=sums,
         max_rank_wall_seconds_by_phase={phase:max(s['seconds_'+phase] for s in states) for phase in phases},
         all_rank_phase_seconds={phase:[s['seconds_'+phase] for s in states] for phase in phases},
-        invocation_wall_seconds=wall,observed_optimizer_updates_per_second=done/wall,
-        linear_remaining_training_hours=(20000-done)*wall/done/3600,
-        allocated_eight_GPU_wall_hours=8*wall/3600,
-        note='Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. GPU-wall includes sharing; ETA assumes current throughput and excludes evaluation. Invocation ETA valid for these uninterrupted formal runs only.')
+        invocation_ledger=ledger,
+        linear_remaining_training_hours=ledger['linear_remaining_training_hours'],
+        note='Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated.')
 
 
 def main():
@@ -102,13 +104,14 @@ def main():
     end=min(len(rows) for rows in ranks)//4*4
     if not end:raise ValueError('No complete fresh global rollout yet')
     for rank,rows in enumerate(ranks):
+        validate_rows(rows,len(rows))
         for row in rows[:end]:
             if row['behavior']['run']!=identity['sha256']:raise ValueError('Mixed run identity')
             if row['collection']!=(row['updates']-1)//4+1 or row['inner_completed']!=(row['updates']-1)%4+1:
                 raise ValueError('Broken four-inner contract')
     windows=[summarize_window(ranks,start,min(start+a.window_updates,end)) for start in range(0,end,a.window_updates)]
     complete=all((run/f'result_rank{rank}.json').exists() and json.loads((run/f'result_rank{rank}.json').read_text())['status']=='COMPLETE' for rank in range(8))
-    result=dict(status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
+    result=dict(schema='simwam_training_analysis_v2',analysis_identity=file_sha(__file__),status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
         captured_utc=datetime.now(timezone.utc).isoformat(),run_identity=identity['sha256'],variant=identity['recipe']['variant'],
         matched_completed_updates=end,observed_updates_by_rank=[len(rows) for rows in ranks],
         cumulative=summarize_window(ranks,0,end),windows=windows,cost=checkpoint_cost(run),
@@ -119,7 +122,9 @@ def main():
                 'A repeated group across four inner updates contributes only one fresh sample group.',
                 'Global update count uses all ranks, not rank0 local PG activity.',
                 'Window changes also include scene mix; matched fixed-population ODE evaluation determines efficacy.'])
-    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
+    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
+    if output.exists():raise FileExistsError('Preserve the old summary; select a new analysis output')
+    atomic_json(output,result)
     print(json.dumps(dict(status=result['status'],variant=result['variant'],updates=end,
         scene_exposures=result['cumulative']['scene_exposures'],PG_group_fraction=result['cumulative']['local_PG_group_fraction'],
         remaining_hours=result['cost']['linear_remaining_training_hours'],output=str(output))))

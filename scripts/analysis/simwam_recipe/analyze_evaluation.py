@@ -1,5 +1,6 @@
 """Complete-population single-ODE comparison; no best-of-two grid selection."""
 import argparse
+from scripts.analysis.simwam_recipe.cost_ledger import evaluation_cost
 import json
 from pathlib import Path
 import numpy as np
@@ -71,15 +72,10 @@ def main():
         for key in ('population_identity','tokens_sha256','seed','modes','profile','scoring','source_sha256'):
             if identity[key]!=ref[key]:raise ValueError('Unmatched reference protocol: '+key)
         if rt!=tokens or rl!=logs:raise ValueError('Unpaired scenes')
-    result=dict(status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
+    result=dict(schema='simwam_evaluation_analysis_v2',analysis_identity=file_sha(__file__),status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
                 score_units='raw0to1; mean_percent multiplied100; gain/loss sums remain raw score',modes={},
                 cohort_caveat='TRAIN diagnostic contains preselected difficult scenes and is not a population-unbiased estimate' if identity['cohort']=='TRAIN_DIAGNOSTIC' else None,
-                cost=dict(new_candidates=sum(r['new_candidates'] for r in ranks),scene_encoder_calls=sum(r['scene_encoder_calls'] for r in ranks),
-                          velocity_forward_calls=sum(r['velocity_forward_calls'] for r in ranks),
-                          summed_worker_wall_seconds=sum(r['elapsed'] for r in ranks),
-                          generation_wall_seconds_sum=sum(r['generation_seconds'] for r in ranks),
-                          scoring_wait_seconds_sum=sum(r['scoring_seconds'] for r in ranks),
-                          note='Shared GPU worker wall time is not exclusive physical GPU time; scoring_wait is not CPU-core time'))
+                cost=evaluation_cost(a.evaluation,identity,ranks))
     for mode,values in rows.items():
         ms=motions[mode];movement={}
         for key in ms[0]:
@@ -104,7 +100,9 @@ def main():
                                                        mean_delta=float((values[:,i]-base[:,i]).mean()))
             item['paired_comparison']=comparison
         result['modes'][mode]=item
-    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
+    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
+    if output.exists():raise FileExistsError('Preserve the old summary; select a new analysis output')
+    atomic_json(output,result)
     print(json.dumps(dict(status=result['status'],scenes=len(tokens),PDMS_percent={m:d['mean_percent']['score'] for m,d in result['modes'].items()},output=str(output))))
 
 

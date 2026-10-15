@@ -15,6 +15,7 @@ import shutil
 import signal
 import time
 import traceback
+import sys
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -26,6 +27,9 @@ from starVLA.rl.simwam_recipe.reward_readouts import RewardService
 from starVLA.rl.simwam_recipe.collection import collect,finalize_advantages,exploration_summary
 from starVLA.rl.simwam_recipe.data_stream import SceneStream
 from starVLA.rl.simwam_recipe import checkpoint
+from starVLA.rl.simwam_recipe.recovery_state import boundary_phase,rollout_digest,validate_boundary,validate_ranks
+from starVLA.rl.simwam_recipe.invocation import Invocation
+from starVLA.rl.simwam_recipe.lineage import scientific_identity,execution_identity,verify_migration
 from starVLA.rl.flow_grpo.reproducibility import configure_numerics
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
@@ -36,9 +40,8 @@ def stop(*_):
 
 
 def all_ok(error,device):
-    flag=torch.tensor(int(error is not None),device=device)
-    if dist.is_initialized():dist.all_reduce(flag,op=dist.ReduceOp.MAX)
-    return not bool(flag)
+    if error and checkpoint.fatal_device_error(error):raise RuntimeError(error)
+    return not any(e is not None for e in checkpoint.gather(error))
 
 
 def stop_requested(device):
@@ -65,15 +68,21 @@ def source_files():
 
 
 def main():
+    process_started=time.monotonic();process_started_unix=time.time()
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--config',required=True);p.add_argument('--manifest',required=True);p.add_argument('--output',required=True)
     p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
+    p.add_argument('--migration-receipt',help='Explicit audited source migration; never inferred from a dirty worktree')
     p.add_argument('--stop-after-update',type=int);p.add_argument('--save-every',type=int)
+    p.add_argument('--fault',help='Qualification only: before_collect, after_collect, before_finalize, rank_write, before_complete')
+    p.add_argument('--fault-rank',type=int,default=0);p.add_argument('--fault-at-update',type=int,default=0)
     a=p.parse_args();cfg=load_recipe(a.config);host=require_dispatch();configure_numerics()
+    if a.fault and not a.qualification:raise ValueError('Fault injection cannot enter formal runs')
     rank=int(os.environ.get('RANK',0));world=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
     if world!=8 and not a.qualification:raise ValueError('Formal recipe requires eight GPUs')
     torch.cuda.set_device(local)
     if world>1:dist.init_process_group('nccl',timeout=timedelta(minutes=20))
+    checkpoint.init_control_group()
     device=torch.device('cuda',local)
     for s in (signal.SIGUSR1,signal.SIGTERM):signal.signal(s,stop)
     random.seed(42);np.random.seed(42);torch.manual_seed(42)
@@ -97,18 +106,45 @@ def main():
                     actual_optimizer=dict(name='torch.optim.AdamW',lr=cfg['learning_rate'],betas=cfg['optimizer_betas'],
                                           eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'],warmup_updates=warmup,
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
+    identity['scientific_identity']=scientific_identity(identity)
+    identity['execution_identity']=execution_identity(identity['source_files'])
     identity['sha256']=fingerprint(identity)
-    if rank==0:
-        if (root/'identity.json').exists():
-            if json.loads((root/'identity.json').read_text())!=identity:raise ValueError('Existing run identity changed')
-            if not a.resume:raise ValueError('Existing run requires explicit native resume')
-        else:
-            if a.resume:raise ValueError('Resume must preserve the original run directory')
-            atomic_json(root/'identity.json',identity)
-            for rel in identity['source_files']:
-                dest=root/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
-            shutil.copyfile(a.config,root/'resolved_recipe.yaml')
-    if world>1:dist.barrier()
+    current_identity=identity;migration=None
+    if (root/'identity.json').exists():
+        previous=json.loads((root/'identity.json').read_text())
+        if previous!=identity:
+            if not (a.resume and a.migration_receipt):raise ValueError('Source identity changed: an explicit tested migration receipt is required')
+            migration=verify_migration(a.migration_receipt,previous,current_identity,a.resume)
+            identity=previous
+    checkpoint.EXECUTION_IDENTITY=current_identity['execution_identity'];checkpoint.MIGRATION_RECEIPT=migration
+    execution=root/'executions'/current_identity['execution_identity']['sha256']
+    error=None
+    try:
+        if rank==0:
+            if (root/'identity.json').exists():
+                if json.loads((root/'identity.json').read_text())!=identity:raise ValueError('Existing run identity changed')
+                if not a.resume:raise ValueError('Existing run requires explicit native resume')
+            else:
+                if a.resume:raise ValueError('Resume must preserve the original run directory')
+                atomic_json(root/'identity.json',identity)
+                for rel in identity['source_files']:
+                    dest=root/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
+                shutil.copyfile(a.config,root/'resolved_recipe.yaml')
+            execution.mkdir(parents=True,exist_ok=True)
+            atomic_json(execution/'identity.json',current_identity)
+            if migration:atomic_json(execution/'migration_receipt.json',migration)
+            for rel in current_identity['source_files']:
+                dest=execution/'source'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(rel,dest)
+    except Exception:error=traceback.format_exc()
+    checkpoint.check_errors(error)
+    modules={}
+    for name,module in list(sys.modules.items()):
+        path=getattr(module,'__file__',None)
+        if path and name.startswith(('starVLA.','scripts.analysis.simwam_recipe')) and Path(path).is_file():
+            path=Path(path).resolve()
+            if not path.is_relative_to(Path.cwd().resolve()):raise ValueError('Imported project module from outside the execution snapshot: '+str(path))
+            modules[name]=dict(path=str(path),sha256=file_sha(path))
+    atomic_json(execution/f'runtime_modules_rank{rank}.json',modules)
     # PyTorch rebuilds reduction buckets after the first backward when unused
     # detection is disabled. Restarting between inner updates repeats that
     # transition and changes FP32 reduction order. The installed Reducer
@@ -119,60 +155,91 @@ def main():
         bucket_cap_mb=cfg['DDP_bucket_cap_mb']) if world>1 else actor
     model.eval()
     state=dict(updates=0,collections=0,raw_scene_exposures=0,new_candidates=0,next_inner=0,
+               phase='READY',
                RL_updates_local=0,anchor_only_updates_local=0,scene_cursor=0,
                seconds_rollout=0.,seconds_scoring_wait=0.,seconds_scoring_cpu=0.,seconds_old_probability=0.,seconds_update=0.)
     rollout=None
-    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity)
+    if a.resume:state,rollout=checkpoint.restore(a.resume,actor,optimizer,scheduler,generator,identity,migration=migration)
+    if rollout is not None and 'chain_identity' not in rollout:rollout['chain_identity']=rollout_digest(rollout)
+    invocation=Invocation(root,rank,state,identity,a.resume)
+    invocation.record.update(process_start_unix=process_started_unix,preparation_seconds=time.monotonic()-process_started)
+    def fault(point,worker=rank):
+        if a.fault==point and worker==a.fault_rank and state['updates']==a.fault_at_update:
+            raise RuntimeError('Qualification injected failure: '+point)
+    def save_boundary():
+        begin=time.monotonic()
+        result=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,fault=fault)
+        invocation.saved(result,time.monotonic()-begin)
+        return result
     frozen_before=parameter_hash(actor,trainable=False) if a.qualification else None
     first_adapters=checkpoint.cpu_tree({n:p.clone() for n,p in actor.named_parameters() if p.requires_grad}) if a.qualification else None
     started=time.monotonic();save_every=a.save_every or cfg['save_every_optimizer_updates'];last_saved=None
     journal=(root/f'metrics_rank{rank}.jsonl').open('a',buffering=1)
     try:
+        if not a.resume:last_saved=save_boundary()
         while state['updates']<cfg['max_steps']:
             require_dispatch()
             if rollout is None:
+                state['phase']='COLLECTING';invocation.event('collection_start')
                 token,position=stream.at(state['scene_cursor'],rank)
                 error=None
                 try:
+                    fault('before_collect')
                     version=dict(run=identity['sha256'],update=state['updates'],adapter_sha256=parameter_hash(actor,trainable=True))
                     rollout=collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
-                                    act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version)
+                                    act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version,progress=invocation.event)
                     rollout['stream_position']=position
+                    fault('after_collect')
                 except Exception:
-                    error=traceback.format_exc();atomic_json(root/f'failure_rank{rank}_{state["updates"]}.json',dict(error=error,state=state,token=token))
+                    error=traceback.format_exc()
+                    checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
                 if not all_ok(error,device):
-                    checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'failure{state["updates"]:06}')
                     raise RuntimeError('At least one rank failed actual sampling/scoring; no zero replacement or update')
+                error=None
+                try:fault('before_finalize')
+                except Exception:error=traceback.format_exc()
+                if not all_ok(error,device):raise RuntimeError('Collection not committed before advantage finalization')
                 finalize_advantages(rollout)
                 state['collections']+=1;state['raw_scene_exposures']+=world;state['new_candidates']+=world*8;state['scene_cursor']+=world
                 for k,v in rollout['seconds'].items():state['seconds_'+k]+=v
                 state['next_inner']=0
+                state['phase']='ROLLOUT_COMMITTED'
+                rollout['invocation']=invocation.id
+                rollout['chain_identity']=rollout_digest(rollout)
+                # This check is cheap (metadata only), and commits the SAME source advantages.
+                error=None;summary=None
+                try:summary=validate_boundary(state,rollout,identity)
+                except Exception:error=traceback.format_exc()
+                checkpoint.check_errors(error)
+                validate_ranks(checkpoint.gather(summary))
                 # Every fresh chain remains replayable, including negative candidates.
-                checkpoint.atomic_torch(root/'behavior'/f'collection{state["collections"]:06}'/f'rank{rank}.pt',rollout)
+                behavior_path=root/'behavior'/f'collection{state["collections"]:06}'/f'rank{rank}.pt'
+                error=None
+                try:
+                    if behavior_path.exists():raise FileExistsError('Behavior must retain its original attempt: '+str(behavior_path))
+                    checkpoint.atomic_torch(behavior_path,rollout)
+                except Exception:error=traceback.format_exc()
+                if not all_ok(error,device):raise RuntimeError('Behavior publication failed; no optimizer update')
             optimizer.zero_grad(set_to_none=True)
             begin=time.monotonic();error=None
             try:total,metrics=model(rollout)
             except Exception:
                 error=traceback.format_exc()
-                atomic_json(root/f'forward_failure_rank{rank}_{state["updates"]}.json',dict(error=error,state=state))
             if not all_ok(error,device):
-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'forward_failure{state["updates"]:06}')
-                raise RuntimeError('At least one rank failed source loss; native state saved without updating')
+                raise RuntimeError('At least one rank failed source loss; last sealed boundary retained')
             current=actor._probability_audit['current'];old=rollout['old_logp']
             ratio=(current['source_clamped_logprob'].mean((-1,-2))-old).exp()
             fresh_error=float((ratio-1).abs().max())
             error=None
             if state['next_inner']==0 and fresh_error>1e-4:error='Fresh saved-state ratio differs by '+str(fresh_error)
             if not all_ok(error,device):
-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'ratio_failure{state["updates"]:06}')
                 raise ValueError('Fresh probability numerical error exceeds 1e-4; no rewritten old density')
             total.backward()
             grads=torch.stack([p.grad.float().norm() for p in trainable if p.grad is not None])
             grad_norm=float(grads.norm())
             error=None if np.isfinite(grad_norm) and len(grads)==len(trainable) else 'Missing/nonfinite adapter gradient'
             if not all_ok(error,device):
-                checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity,tag=f'gradient_failure{state["updates"]:06}')
-                raise ValueError('Invalid LoRA gradient; native state saved and update aborted')
+                raise ValueError('Invalid LoRA gradient; last sealed boundary retained')
             if cfg['gradient_clipping_effective']>0:torch.nn.utils.clip_grad_norm_(trainable,cfg['gradient_clipping_effective'])
             lr=optimizer.param_groups[0]['lr'];optimizer.step();scheduler.step()
             torch.cuda.synchronize();elapsed=time.monotonic()-begin
@@ -180,6 +247,7 @@ def main():
             state['RL_updates_local']+=int(bool(rollout['adv_mask'].any()))
             state['anchor_only_updates_local']+=int(not bool(rollout['adv_mask'].any()))
             row=dict(updates=state['updates'],collection=state['collections'],inner_completed=state['next_inner'],
+                     invocation=invocation.id,run=identity['sha256'],chain_identity=rollout['chain_identity'],
                      raw_scene_exposures=state['raw_scene_exposures'],new_candidates=state['new_candidates'],
                      token=rollout['token'],behavior=rollout['behavior_version'],lr=lr,loss=float(total.detach()),
                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
@@ -187,11 +255,12 @@ def main():
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0
+            state['phase']=boundary_phase(state,cfg['max_steps'])
             stop_now=stop_requested(device) or (a.stop_after_update is not None and state['updates']>=a.stop_after_update)
             milestone=state['updates'] in cfg['evaluate_updates']
             if state['updates']%save_every==0 or milestone or stop_now or state['updates']==cfg['max_steps']:
-                last_saved=checkpoint.save(root,actor,optimizer,scheduler,generator,state,rollout,identity)
-                if rank==0:atomic_json(root/'progress.json',dict(state,status='PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,wall_seconds_this_invocation=time.monotonic()-started))
+                last_saved=save_boundary()
+                if rank==0:atomic_json(root/'progress.json',dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'PAUSED' if stop_now else 'RUNNING',checkpoint=last_saved,host=host,invocation=invocation.id,invocation_start_update=invocation.record['start_update'],wall_seconds_this_invocation=time.monotonic()-started))
             if stop_now:break
         result=dict(state,status='COMPLETE' if state['updates']==cfg['max_steps'] else 'STOPPED_AT_SAVED_BOUNDARY',
                     host=host,rank=rank,checkpoint=last_saved,wall_seconds_this_invocation=time.monotonic()-started,
@@ -206,6 +275,12 @@ def main():
             changed={n:bool(torch.count_nonzero(p.detach().cpu()-first_adapters[n])) for n,p in actor.named_parameters() if p.requires_grad}
             result.update(frozen_SHA_before=frozen_before,frozen_SHA_after=after,changed_adapters=changed)
         atomic_json(root/f'result_rank{rank}.json',result)
+        invocation.finish(state,result['status'])
+    except BaseException:
+        error=traceback.format_exc()
+        checkpoint.failure_evidence(root,state,error,invocation.id,rollout=rollout)
+        invocation.finish(state,'ABORTED',error)
+        raise
     finally:
         journal.close();service.close()
         if dist.is_initialized():dist.destroy_process_group()

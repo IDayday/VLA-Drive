@@ -10,7 +10,7 @@ from .source_advantages import advantages
 
 
 @torch.no_grad()
-def collect(actor,condition,token,log,service,generator,*,act_norm,variant,version):
+def collect(actor,condition,token,log,service,generator,*,act_norm,variant,version,progress=None):
     cond={'context':condition.expand(8,-1,-1).contiguous()}
     actor._noise_audit=[]
     begin=time.monotonic()
@@ -18,8 +18,10 @@ def collect(actor,condition,token,log,service,generator,*,act_norm,variant,versi
     if chain.shape!=(8,11,8,4) or indices.tolist()!=[7,8,9] or not torch.isfinite(chain).all():
         raise ValueError('Invalid source chain; no replacement candidates allowed')
     torch.cuda.synchronize();rollout_seconds=time.monotonic()-begin
+    if progress:progress('generated',rollout_seconds,8)
     requested=decode_request(chain[:,-1].cpu().numpy(),act_norm=act_norm)
     begin=time.monotonic();records=service.score((token,log,requested));scoring_seconds=time.monotonic()-begin
+    if progress:progress('scored',scoring_seconds,8)
     key='train_reward_source' if variant=='R_SOURCE' else 'canonical_PDMS'
     rewards=torch.tensor([[r['readouts'][key] for r in records]],device=actor.device,dtype=torch.float32)
     begin=time.monotonic()

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import socket
+import copy
 
 from starVLA.rl.safe_flow_improvement.contracts import file_sha, fingerprint, seed_for, SFT_SHA256
 
@@ -31,6 +32,15 @@ def load_recipe(path):
     cfg = OmegaConf.to_container(OmegaConf.load(path), resolve=True)
     if cfg['variant'] not in ('R_SOURCE','R_CANONICAL'):
         raise ValueError('Only the two registered variants are formal')
+    # Full resolved configuration, including formerly unchecked optimizer/LoRA/
+    # numerical/budget fields. Only the registered reward and name may differ.
+    normalized=copy.deepcopy(cfg)
+    expected_progress=10. if cfg['variant']=='R_SOURCE' else 5.
+    if cfg['grpo']['reward']['progress_weight']!=expected_progress:
+        raise ValueError('Reward does not match the registered variant')
+    normalized['variant']='R_SOURCE';normalized['grpo']['reward']['progress_weight']=10.
+    if fingerprint(normalized)!='28c9ef5a16a1a70bb4970085f3ca5ead37a6633dab6a464f65a273d7b62b8fbb':
+        raise ValueError('Resolved recipe differs from the complete immutable 12b8e0d contract')
     g = cfg['grpo']; s = g['sample']; t = g['train']
     expected = dict(group_size=8,num_inference_steps=10,train_sde_steps=3,sde_mode='rigorous',
                     noise_level=.1,min_std=.001,randn_clip=5.,logprob_clamp_mode='relative',
