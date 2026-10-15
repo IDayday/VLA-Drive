@@ -1,8 +1,9 @@
 # DDP: SimWAM public recipe transfer
 
-Status at 2026-10-15 01:15 UTC: implementation, bounded real-model acceptance,
-exact eight-GPU recovery, full TRAIN single-ODE screening and paired SFT
-deployment evaluation are available. The hard manifest is being sealed.
+Status at 2026-10-15 01:32 UTC: both formal eight-GPU runs are updating from
+the same SFT/LoRA initialization. Full TRAIN screening and the fixed hard list
+are complete. Implementation, real-model acceptance, exact eight-GPU recovery,
+and paired SFT deployment evaluation are available.
 **Neither formal 20,000-update run is complete. No
 claim of improved deployment PDMS is supported yet.** This report is updated
 by stage rather than replacing unfinished work with a plan.
@@ -98,9 +99,20 @@ acknowledged.
 The hard list uses this DDP SFT's **single original uniform ODE**, seed2101,
 canonical score<0.9 across the complete TRAIN population. Compatible previous
 single-candidate scores are reused only after exact output comparison; G16
-mean/best/worst census statistics do not define membership. The list is fixed
-before training and shared by both variants. Its membership/hash/count are
-published when screening is complete.
+mean/best/worst census statistics do not define membership. The list was fixed
+before training and is shared by both variants: **22,017 scenes / 1,063 logs**,
+from all 101,592 TRAIN scenes. All payload hashes were checked, with no missing
+scene. The manifest identity is
+`8fd5b7b027b9e4d6d5df9e83a2cffd69ebe02dab176e1d4d5017091fe7aff39b`;
+[hard_population.json](hard_population.json) contains the source, actual file
+hash, population counts and verification receipt without publishing tokens.
+
+Of the hard scenes, 20,971 pass NC/DAC/TTC but have lower quality/progress;
+373 fail TTC only, 637 DAC only, 22 NC+TTC, 10 DAC+TTC, and 4 NC only.
+This is a **single fixed-seed SFT census**, not a G8/G16 tie-group census or
+proof of safety across all noise. The difficulty filter still predominantly
+selects low-progress cases, so its high PG availability alone cannot establish
+better safety learning.
 
 The already corrected raw-condition cache is sealed at identity
 `80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0b`.
@@ -117,11 +129,44 @@ Checkpoint interval is 100 updates, separately from evaluation milestones.
 The source 100-update warmup and constant LR5e-5 are preserved.
 
 Only the four permanently authorized Tsinghua hosts are used. The latest
-user explicitly permits sharing GPUs. Screening uses 48 workers on 24 GPUs;
-paired SFT DEV/TRAIN evaluation uses 16 workers on the remaining eight GPUs.
+user explicitly permits sharing GPUs. Completed screening used 48 workers on
+24 GPUs; paired SFT DEV/TRAIN evaluation used 16 workers on the remaining eight.
 The deterministic subpartition changes execution concurrency, not scene
 membership, seeds or scientific budget. Unknown GPU owners are preserved.
 Withdrawn temporary hosts are excluded from tasks and automatic retries.
+
+Formal source is the immutable snapshot at
+`12b8e0d75691d7bed04ab02072020e130f711a3b`. R_SOURCE runs on
+`training-vlawm-tsinghua-zt4`; R_CANONICAL runs on
+`training-vlawm-tsinghua-zt3`. Registered milestone evaluation uses
+`training-vlawm-tsinghua-zt` and `training-vlawm-tsinghua-zt2`, respectively.
+[formal_dispatch.json](formal_dispatch.json) records real commands, live
+admission, PIDs and source archive identity. Both first behavior adapter hashes
+are `7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099`;
+the first source/canonical rollout scores match and only the training readout
+differs. Four-inner updates keep the original behavior chain and probabilities.
+
+Early snapshots are available, with different completed exposure and therefore
+**not a matched efficacy comparison**:
+
+| Run | Completed updates | Fresh scene exposures | Nonzero-PG groups | Progress-only groups |
+|---|---:|---:|---:|---:|
+| R_SOURCE | 500 | 1,000 | 99.40% | 710/1,000 |
+| R_CANONICAL | 304 | 608 | 99.51% | 447/608 |
+
+These counts include all eight ranks, count each fresh group once, and do not
+count four-inner reuse as four sets of candidates. No global collection in
+these snapshots was anchor-only. Nonzero advantage is update availability,
+not evidence of a useful driving improvement. Full/tied/zero categories,
+per-inner ratios and the raw-reward std are in `R_SOURCE_early_training.json`
+and `R_CANONICAL_early_training.json`.
+
+At the first sealed 400/300-update timing points, end-to-end training rates
+were approximately 1.17/0.73 updates/s for source/canonical. Linear remaining
+training estimates were 4.65/7.48 hours, excluding evaluation; these are measured
+host-specific early projections, not promises or algorithm speedup claims.
+Updates dominate the measured time. Scorer time is recorded separately from
+scoring wait, and shared GPU-wall is not exclusive physical GPU compute.
 
 ## Evaluation and results still required
 

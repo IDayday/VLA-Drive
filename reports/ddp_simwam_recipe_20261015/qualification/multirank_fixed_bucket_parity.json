@@ -1,0 +1,30 @@
+{
+  "status": "PASS_WITH_MEASURED_FP32_PARAMETER_DIFFERENCES",
+  "checks": [
+    {
+      "optimizer_step": 1,
+      "parameter_max_abs": 2.402487098152051e-10,
+      "update_relative_L2": 5.416069939201407e-07,
+      "same_chain_density_ratio_error": 3.5762786865234375e-07,
+      "explicit_equal_rank_mean_loss": 4.03573105489663e-09,
+      "distributed_equal_rank_mean_loss": 4.03573105489663e-09
+    },
+    {
+      "optimizer_step": 8,
+      "parameter_max_abs": 2.903034783230396e-06,
+      "update_relative_L2": 0.0013631051406264305,
+      "same_chain_density_ratio_error": 5.960464477539062e-07,
+      "explicit_equal_rank_mean_loss": -7.09963523775059e-05,
+      "distributed_equal_rank_mean_loss": -7.101544767351697e-05
+    }
+  ],
+  "first_gradient_relative_L2": 7.497297360714583e-08,
+  "first_gradient_cosine": 1.0,
+  "bitwise_parameter_equivalence": false,
+  "parameter_relative_002_threshold_exceeded": false,
+  "fresh_rollouts": 2,
+  "actual_optimizer_updates": 8,
+  "no_old_probability_refresh": true,
+  "original_real_DDP_action_model": true,
+  "reduction": "source_rank_mean; serial per-rank scene losses, not active-only global normalization"
+}

@@ -1,0 +1,109 @@
+{
+  "R_SOURCE": {
+    "variant": "R_SOURCE",
+    "host": "training-vlawm-tsinghua-zt4",
+    "snapshot": "/mnt/project/simwam-recipe-20261015/source/12b8e0d75691d7bed04ab02072020e130f711a3b",
+    "resume": null,
+    "source": {
+      "commit": "12b8e0d75691d7bed04ab02072020e130f711a3b",
+      "archive_sha256": "da1ccbd59a72f64be0b002e2310a7720962db40d56fac66ca96ccaf43c90b100",
+      "created": 1792026683.7655697,
+      "source_worktree": "/mnt/project/VLA-Drive-simwam-recipe-20261015",
+      "purpose": "immutable formal SimWAM recipe source"
+    },
+    "python": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "config": "configs/flow_rl/simwam_source_ddp.yaml",
+    "manifest": "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+    "hard_manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+    "output": "/mnt/project/simwam-recipe-20261015/runs/R_SOURCE_seed42_v1",
+    "root": "/mnt/project/simwam-recipe-20261015",
+    "pid": 4110567,
+    "started": 1792027264.1544185,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc_per_node=8",
+      "--module",
+      "scripts.analysis.simwam_recipe.train",
+      "--config",
+      "configs/flow_rl/simwam_source_ddp.yaml",
+      "--manifest",
+      "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+      "--output",
+      "/mnt/project/simwam-recipe-20261015/runs/R_SOURCE_seed42_v1"
+    ],
+    "live_free_MiB": [
+      81153,
+      81153,
+      81153,
+      81153,
+      81153,
+      81153,
+      81153,
+      81153
+    ]
+  },
+  "R_CANONICAL": {
+    "variant": "R_CANONICAL",
+    "host": "training-vlawm-tsinghua-zt3",
+    "snapshot": "/mnt/project/simwam-recipe-20261015/source/12b8e0d75691d7bed04ab02072020e130f711a3b",
+    "resume": null,
+    "source": {
+      "commit": "12b8e0d75691d7bed04ab02072020e130f711a3b",
+      "archive_sha256": "da1ccbd59a72f64be0b002e2310a7720962db40d56fac66ca96ccaf43c90b100",
+      "created": 1792026683.7655697,
+      "source_worktree": "/mnt/project/VLA-Drive-simwam-recipe-20261015",
+      "purpose": "immutable formal SimWAM recipe source"
+    },
+    "python": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "config": "configs/flow_rl/simwam_canonical_ddp.yaml",
+    "manifest": "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+    "hard_manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+    "output": "/mnt/project/simwam-recipe-20261015/runs/R_CANONICAL_seed42_v1",
+    "root": "/mnt/project/simwam-recipe-20261015",
+    "pid": 545085,
+    "started": 1792027264.8763316,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc_per_node=8",
+      "--module",
+      "scripts.analysis.simwam_recipe.train",
+      "--config",
+      "configs/flow_rl/simwam_canonical_ddp.yaml",
+      "--manifest",
+      "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+      "--output",
+      "/mnt/project/simwam-recipe-20261015/runs/R_CANONICAL_seed42_v1"
+    ],
+    "live_free_MiB": [
+      61648,
+      61648,
+      61648,
+      61648,
+      61648,
+      61648,
+      61648,
+      61648
+    ]
+  },
+  "evaluation_queue": {
+    "host": "training-vlawm-tsinghua-zt2",
+    "pid": 1055493,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "scripts.analysis.simwam_recipe.watch_evaluations",
+      "--snapshot",
+      "/mnt/project/simwam-recipe-20261015/source/12b8e0d75691d7bed04ab02072020e130f711a3b"
+    ],
+    "started": 1792027265.7784688,
+    "source_snapshot": "/mnt/project/simwam-recipe-20261015/source/12b8e0d75691d7bed04ab02072020e130f711a3b"
+  },
+  "latest_user_correction": "说错了，按你原计划执行",
+  "routing": "Original four permanent Tsinghua hosts retained; temporary withdrawals remain in force."
+}
