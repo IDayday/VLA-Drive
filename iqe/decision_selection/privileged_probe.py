@@ -17,10 +17,10 @@ from iqe.specialist_study.metrics import report_metrics
 from iqe.specialist_study.training import runtime
 from iqe.training.trainer import train
 from .binding import verify_binding
-from .data import read_split,canonical_bank
+from .data import read_split,canonical_bank,FrozenContexts
 from .models import SetSelector,choose
 from .objectives import fixed_normalizer,cost_ce,denominators
-from .training import recipe,resource,take
+from .training import recipe,resource,take,create,predict
 
 KEYS={'agents','agent_valid','map_points','map_valid','current_ego'}
 
@@ -191,8 +191,28 @@ def run(config,device='cuda:0',resume=None,workers=4):
                                          seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
             preds[role_]=logits
         b=io.BytesIO();np.savez(b,**preds);atomic_bytes(root/'PREDICTIONS.npz',b.getvalue(),immutable=True)
+        # Compare the frozen internally selected main heads on exactly these
+        # probe scenes. Full-D_S refits would have seen inner_val and are excluded.
+        comparators={}
+        for role_,role_ids in [('internal_fit',fit_ids),('internal_val',ids[nf:])]:
+            pm,pb,ps=take(meta,bank,scenes,role_ids);cache=FrozenContexts(config,ps)
+            comparators[role_]={}
+            for kind in ('M_scene','M_set'):
+                main,identity=create(config,kind,'diagnostic',cache.read(ps[0]))
+                result=read_json(config.root/'diagnostic'/kind/'result.json')
+                path=config.root/'diagnostic'/kind/'best.pt'
+                require(file_hash(path)==result['best_checkpoint_hash'],'diagnostic comparator checkpoint changed')
+                main.load_state_dict(torch.load(path,map_location='cpu',weights_only=True),strict=True)
+                logits=predict(main.to(device).eval(),kind,ps,pb,cache,device)
+                chosen=choose(torch.from_numpy(logits),meta['expert_ids']).numpy()
+                stats_=report_metrics(pb['scores'],np.where(pb['component_valid'],pb['components'],np.nan),chosen,pm['source_logs'],
+                    seed=config.bootstrap_seed,repetitions=config.bootstrap_repetitions)
+                comparators[role_][kind]=dict(checkpoint_hash=result['best_checkpoint_hash'],metrics=stats_,
+                    training_scenes=read_split(config)['fit']['scenes'],comparison_not_equal_data_or_parameter_budget=True)
+                del main
         out=dict(status='COMPLETE',plan_hash=plan['hash'],metrics=reports,optimizer_updates=2000,
              checkpoint_hash=state['best_checkpoint_hash'],only_current_privileged_information=True,
              visibility_limitations=plan['visibility'],export_allowed=False,dev_accessed=False,
-             normalization_fit_scenes=nf,main_weights_modified=False)
+             normalization_fit_scenes=nf,main_weights_modified=False,matched_subset_comparators=comparators,
+             interpretation='privileged information diagnostic; extra visibility/annotation precision, model capacity and sample count differ')
         atomic_json(root/'RESULTS.json',out,immutable=True);return out
