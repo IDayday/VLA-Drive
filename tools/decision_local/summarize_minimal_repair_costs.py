@@ -15,7 +15,8 @@ def main():
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();r=a.root
     roots={p for p in r.iterdir() if p.is_dir()}
     for pattern in ('stageA*seed*','stageB*seed*','smoke_v*','resume_v*','resume_RAM_v*',
-                    'runner_smoke_v*','online_formal_v*','cached_formal4_v*'):
+                    'runner_smoke_v*','online_formal_v*','cached_formal4_v*',
+                    'online_balanced_v*','cached_balanced4_v*'):
         for parent in r.glob(pattern):
             if parent.is_dir():roots.update(p for p in parent.iterdir() if p.is_dir())
     # Registered nested outputs are enumerated explicitly; never walk the
@@ -59,7 +60,8 @@ def main():
             if timed is not None and timed['exit_code']!=0:raise ValueError('Failed canonical timing receipt')
             canonical.append({'path':str(path),'job_wall_seconds':d['seconds'],
                               'CPU_process_seconds':(timed['user_seconds']+timed['system_seconds']) if timed is not None else None,
-                              'note':'GNU time child-inclusive user+system seconds where instrumented; otherwise unknown, never inferred from wall'})
+                              'note':(timed.get('mechanism','GNU time child-inclusive user+system seconds') if timed else
+                                      'Unknown child CPU time, never inferred from wall')})
     prereads=[]
     for path in sorted(r.glob('PREREAD_*.json')):
         d=read(path)
