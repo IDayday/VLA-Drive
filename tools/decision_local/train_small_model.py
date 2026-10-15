@@ -213,6 +213,8 @@ def main():
         run_identity['source_files'].update({str(f.relative_to(ROOT)):digest(f) for f in extra})
         run_identity.update(protocol=a.protocol,schema='minimal_repair_small_head_v1',repair_fold=fold_identity,
             repair_label_semantics=label_semantics(train.label_identity),repair_targets=train.label_identity['identity'],
+            recovery_config=train.label_identity['recovery'],constraint_config=train.label_identity['constraints'],
+            training_index_sha256=identity(train.index),training_log_names=sorted({row['log'] for row in train.index}),
             target_eligibility='LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer',
             plan_exposure='one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule')
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'

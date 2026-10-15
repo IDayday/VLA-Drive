@@ -12,6 +12,8 @@ import pickle
 import cv2
 import numpy as np
 import shapely
+from shapely import affinity
+from shapely.geometry import box
 from shapely.geometry import GeometryCollection
 from shapely.ops import unary_union
 from starVLA.dataloader.structured_world.adapters import NAV_CLASSES, pose_matrix, box_container, transform_boxes_to_ego
@@ -38,6 +40,24 @@ class AnnotatedScene:
         self.track_history={}
         for i,frame in enumerate(frames):
             for track,obj in (frame or {}).items():self.track_history.setdefault(track,[]).append((i,obj))
+
+    @staticmethod
+    def interpolate_rectangle(first,second,alpha):
+        # Polygon corner interpolation shrinks a rotating rectangle. Preserve
+        # box extent and interpolate its centre, dimensions and shortest
+        # footprint-equivalent angle using mature GEOS affine geometry.
+        if alpha<=1e-10:return shapely.polygons(first)
+        if alpha>=1-1e-10:return shapely.polygons(second)
+        centers=np.stack((first.mean(0),second.mean(0)))
+        edges=np.stack((first[1]-first[0],second[1]-second[0]))
+        lengths=np.linalg.norm(edges,axis=-1)
+        widths=np.array([np.linalg.norm(first[2]-first[1]),np.linalg.norm(second[2]-second[1])])
+        angles=np.arctan2(edges[:,1],edges[:,0]);delta=(angles[1]-angles[0]+np.pi/2)%np.pi-np.pi/2
+        center=(1-alpha)*centers[0]+alpha*centers[1]
+        length=(1-alpha)*lengths[0]+alpha*lengths[1];width=(1-alpha)*widths[0]+alpha*widths[1]
+        poly=box(-length/2,-width/2,length/2,width/2)
+        poly=affinity.rotate(poly,angles[0]+alpha*delta,origin=(0,0),use_radians=True)
+        return affinity.translate(poly,*center)
 
     @staticmethod
     def unknown_reachable(obj,delta):
@@ -72,7 +92,7 @@ class AnnotatedScene:
                     for track,history in self.track_history.items():
                         if track in a and track in b:
                             obj0,obj1=a[track],b[track];alpha=position-lo
-                            polygon=shapely.polygons((1-alpha)*obj0['corners']+alpha*obj1['corners'])
+                            polygon=self.interpolate_rectangle(obj0['corners'],obj1['corners'],alpha)
                             (yes if obj0['reliable'] and obj1['reliable'] else no).append(polygon)
                         else:
                             previous=[(i,obj) for i,obj in history if i<=position]
@@ -139,5 +159,5 @@ def load_annotated_scene(anchor,split,row):
             'source_label_sha256':meta['label_sha256'],'current_velocity_zero_fallback':velocity_fallback,
             'height_rule':'retain original per-object full-footprint height validity; planar road with valid near-ego ground at all times and <=1m level range',
             'road_layer_limit':'planar vector map; no complete multilevel-road certification',
-            'intermediate_time_rule':'linear matched-box corner interpolation; after disappearance preserve unknown reachable tube from last annotated velocity, acceleration<=12m/s2/yawrate<=1.5rad/s plus0.25m; never empty',
+            'intermediate_time_rule':'matched oriented-box centre/extent/shortest-modulo-pi angle interpolation via GEOS affine; after disappearance retain unknown velocity-centred acceleration/yaw bounded tube; never empty',
             'free_support':'original sensor-supported free cells kept separately, never inferred from empty object set'})

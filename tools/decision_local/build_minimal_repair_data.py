@@ -89,7 +89,10 @@ def main():
     for name in ('anchor','features','index','output'):p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--workers',type=int,default=4);p.add_argument('--max-seconds',type=float,required=True)
     p.add_argument('--solver-seconds',type=float,default=3.)
+    p.add_argument('--rank',type=int,default=0);p.add_argument('--shards',type=int,default=1)
+    p.add_argument('--finalize',action='store_true',help='Verify every existing scene and close a distributed build; no workers')
     a=p.parse_args()
+    if not 0<=a.rank<a.shards or a.workers<1:raise ValueError('Invalid finite shard/worker assignment')
     resources=check_host();anchor=read(a.anchor);features=read(a.features/'identity.json');index=read(a.index)
     if features['anchor_identity']!=anchor['identity'] or features['split'] not in ('train','dev'):raise ValueError('Wrong frozen anchor/split')
     full={r['token']:r for r in features['index']}
@@ -106,7 +109,8 @@ def main():
     if (a.output/'identity.json').exists() and read(a.output/'identity.json')['identity']!=ident:raise ValueError('Preserve old label version')
     atomic_json(a.output/'identity.json',{'identity':ident,**contract})
     for x in ('records','scenes'):(a.output/x).mkdir(exist_ok=True)
-    atomic_json(a.output/'COMMAND.json',{'argv':sys.argv,'cwd':str(ROOT),'resource_check':resources})
+    suffix='' if a.shards==1 else '_rank%03d'%a.rank
+    atomic_json(a.output/('COMMAND'+('_finalize' if a.finalize else suffix)+'.json'),{'argv':sys.argv,'cwd':str(ROOT),'resource_check':resources})
     wanted={r['token'] for r in index};locations={}
     for path in sorted((a.features/'records').glob('*.json')):
         rec=read(path)
@@ -114,7 +118,8 @@ def main():
             if token in wanted:locations[token]=(str(a.features/'chunks'/(path.stem+'.safetensors')),offset)
     if set(locations)!=wanted:raise ValueError('Missing source features')
     tasks=[];done=[];start=time.monotonic();errors=[]
-    for row in index:
+    selected=index if a.finalize else index[a.rank::a.shards]
+    for row in selected:
         saved=a.output/'records'/(row['token']+'.json')
         if saved.exists():
             rec=read(saved)
@@ -122,6 +127,13 @@ def main():
             done.append(rec);continue
         worker_contract={k:v for k,v in contract.items() if k not in ('index','source_files')}
         tasks.append((row,*locations[row['token']],anchor,features['split'],str(a.output),worker_contract,ident))
+    if a.finalize:
+        if tasks:raise ValueError('Cannot close incomplete labels: %d missing scenes'%len(tasks))
+        atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':len(done),'expected':len(index),'errors':[],
+            'CPU_process_seconds':sum(x['cpu_seconds'] for x in done),'worker_wall_seconds':sum(x['wall_seconds'] for x in done),
+            'bytes':sum(x['bytes'] for x in done),'no_frozen_VLA_encoding':True,
+            'closure':'all per-scene identities and SHA256 verified; individual shard wall times retained'})
+        print(json.dumps({'finalized_scenes':len(done),'identity':ident}),flush=True);return
     with ProcessPoolExecutor(a.workers,mp_context=multiprocessing.get_context('spawn')) as pool:
         pending={};it=iter(tasks)
         def fill():
@@ -136,14 +148,14 @@ def main():
                 token=pending.pop(future)
                 try:done.append(future.result())
                 except Exception as e:errors.append({'token':token,'error':repr(e)})
-            atomic_json(a.output/'STATUS.json',{'complete':len(done),'expected':len(index),'errors':errors[-10:],'seconds':time.monotonic()-start})
-            print(json.dumps({'complete':len(done),'expected':len(index),'errors':errors[-2:],'seconds':time.monotonic()-start}),flush=True)
+            atomic_json(a.output/('STATUS'+suffix+'.json'),{'complete':len(done),'expected':len(selected),'errors':errors[-10:],'seconds':time.monotonic()-start})
+            if len(done)%20==0 or not pending:print(json.dumps({'complete':len(done),'expected':len(selected),'errors':errors[-2:],'seconds':time.monotonic()-start}),flush=True)
             fill()
-    summary={'identity':ident,'scenes':len(done),'expected':len(index),'errors':errors,'seconds':time.monotonic()-start,
+    summary={'identity':ident,'scenes':len(done),'expected':len(selected),'errors':errors,'seconds':time.monotonic()-start,
         'CPU_process_seconds':sum(x['cpu_seconds'] for x in done),'worker_wall_seconds':sum(x['wall_seconds'] for x in done),
         'bytes':sum(x['bytes'] for x in done),'max_simultaneous_workers':a.workers,'no_frozen_VLA_encoding':True}
-    complete=len(done)==len(index) and not errors
-    atomic_json(a.output/('COMPLETE.json' if complete else 'INCOMPLETE.json'),summary)
+    complete=len(done)==len(selected) and not errors
+    atomic_json(a.output/(('COMPLETE' if complete else 'INCOMPLETE')+suffix+'.json'),summary)
     print(json.dumps(summary),flush=True)
     if not complete:raise SystemExit(1)
 

@@ -75,6 +75,20 @@ def test_annotated_geometry_is_not_free_support():
     assert not support['observed_free_support_fraction'].any()
 
 
+def test_rotating_box_interpolation_does_not_shrink_or_release():
+    from shapely import affinity
+    a=box(-2,-1,2,1);b=affinity.rotate(a,60,origin=(0,0))
+    aa=np.asarray(a.exterior.coords)[:4];bb=np.asarray(b.exterior.coords)[:4]
+    middle=AnnotatedScene.interpolate_rectangle(aa,bb,.5)
+    assert abs(middle.area-a.area)<1e-10
+    flipped=AnnotatedScene.interpolate_rectangle(aa,np.roll(aa,2,axis=0),.5)
+    assert flipped.symmetric_difference(a).area<1e-10
+    obj={'corners':aa,'velocity':np.zeros(2),'reliable':True,'stationary':True}
+    s=scene({'track':obj});s.frames[1]={};s=AnnotatedScene(road=s.road,body=s.body,frames=s.frames,observed=s.observed,road_height_known=True)
+    known,unknown,valid=s.at_times(np.array([.5]),'FUTURE')
+    assert unknown[0].intersects(a)  # absent frame is not a release target
+
+
 def test_polygon_full_body_and_repair_validation():
     q=straight();b=scene().body
     p=body_polygons(np.zeros((1,3)),b)[0]

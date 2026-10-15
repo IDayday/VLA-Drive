@@ -28,6 +28,7 @@ def main():
         forbidden.append(str(Path(record['current_root']).resolve()/'ego')+'/')
     forbidden.append('/mnt/navsim/trainval_navsim_logs/')
     forbidden.append('/mnt/navsim/test_navsim_logs/')
+    forbidden.append('/mnt/navsim/maps/')
     def reject_training_open(event,args):
         if event!='open' or not args or not isinstance(args[0],(str,bytes)):return
         path=str(Path(args[0].decode() if isinstance(args[0],bytes) else args[0]).absolute())
@@ -35,6 +36,8 @@ def main():
             raise PermissionError('Camera-only deployment attempted to open training annotations: '+path)
         if str(a.anchor.parent)+'/' in path and any(part.startswith(('labels_','anchor_train_','anchor_dev_','anchor_diagnostic','anchor_profile')) for part in Path(path).parts):
             raise PermissionError('Online deployment cannot open a compact training label/feature cache')
+        if '/minimal-repair-artifacts/' in path and any(part.startswith(('targets_','target_review','labels_')) for part in Path(path).parts):
+            raise PermissionError('Online repair cannot read offline solver/target/geometry artifacts')
     sys.addaudithook(reject_training_open)
     spec=importlib.util.spec_from_file_location('dl_bootstrap',Path(__file__).with_name('verify_current_only.py'))
     bootstrap=importlib.util.module_from_spec(spec);spec.loader.exec_module(bootstrap);runtime=bootstrap.load_runtime(anchor)
@@ -47,21 +50,29 @@ def main():
     from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     rr=torch.load(a.refiner,map_location='cpu',weights_only=False);kind=rr['identity']['kind']
-    if kind not in ('E_NONE','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF'):raise ValueError('Oracle probes are not deployable')
+    repair=rr['identity'].get('protocol')=='minimal_repair_v1'
+    allowed=('LOG_NONE','MIN_NONE','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF') if repair else ('E_NONE','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF')
+    if kind not in allowed:raise ValueError('Oracle probes are not deployable')
     if rr['identity']['anchor_identity']!=anchor['identity']:raise ValueError('Wrong base policy')
     predictor=None
     if kind.startswith('R_'):
         if a.predictor is None or helpers.digest(a.predictor)!=rr['identity']['predictor_sha256']:raise ValueError('Use the predictor seen during refiner training')
         pp=torch.load(a.predictor,map_location='cpu',weights_only=False)
-        expected='P_DIFF' if kind=='R_FUTURE_DIFF' else 'P_ABS'
+        expected='P_DIFF' if kind in ('R_FUTURE_DIFF','R_MIN_DIFF') else 'P_ABS'
         if pp['identity']['kind']!=expected or pp['identity']['anchor_identity']!=anchor['identity'] or pp['identity']['query_config']!=rr['identity']['query_config']:raise ValueError('Predictor contract mismatch')
         predictor=ConsequenceQueryHead(dim=pp['identity']['dim']).cuda();predictor.load_state_dict(pp['model'],strict=True)
     elif a.predictor is not None:raise ValueError('E_NONE has no predictor')
-    refiner=ResidualRefiner(dim=rr['identity']['dim']).cuda();refiner.load_state_dict(rr['model'],strict=True)
+    if repair:
+        from starVLA.model.modules.decision_local.minimal_repair_contract import MinimalRepairRefiner
+        from starVLA.model.framework.frozen_vla_minimal_repair import FrozenVLAMinimalRepairRefiner
+        refiner=MinimalRepairRefiner(dim=rr['identity']['dim']).cuda()
+    else:refiner=ResidualRefiner(dim=rr['identity']['dim']).cuda()
+    refiner.load_state_dict(rr['model'],strict=True)
     training,checked=checkpoint_identity(anchor['run'],anchor['tag'])
     if checked['sha256']!=anchor['checkpoint']['sha256']:raise ValueError('S0 checkpoint changed')
     base=load_student(anchor['run'],anchor['tag'],training,precision='fp32',strip=True).requires_grad_(False).eval()
-    policy=runtime.FrozenVLAConsequenceRefiner(base,refiner,predictor,mode=kind,query_config=QueryConfig(**rr['identity']['query_config'])).eval()
+    policy_class=FrozenVLAMinimalRepairRefiner if repair else runtime.FrozenVLAConsequenceRefiner
+    policy=policy_class(base,refiner,predictor,mode=kind,query_config=QueryConfig(**rr['identity']['query_config'])).eval()
     # The pinned S0 invokes Qwen's visual and language submodules directly,
     # bypassing the outer conditional-generation forward. Hook the executed
     # modules instead of a wrapper that is never called on this native path.

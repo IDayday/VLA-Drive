@@ -26,7 +26,7 @@ class ConstraintConfig:
     max_heading_change_rad: float = .4
     min_progress_fraction: float = .65
     distance_clip_m: float = 10.
-    version: str = 'annotated_local_constraints_v1'
+    version: str = 'annotated_local_constraints_v2_half_open'
 
     def to_dict(self):
         return asdict(self)
@@ -77,7 +77,7 @@ class LocalConstraintChecker:
         unknown_distance=np.where(shapely.is_empty(unknown),np.inf,unknown_distance)
         known_object_relation=(unknown_distance>np.maximum(values[...,1],0)+1e-6)&frame_valid
         bounds=shapely.bounds(footprint)
-        in_grid=(bounds[...,0]>=-20)&(bounds[...,1]>=-40)&(bounds[...,2]<=80)&(bounds[...,3]<=40)
+        in_grid=(bounds[...,0]>=-20)&(bounds[...,1]>=-40)&(bounds[...,2]<80)&(bounds[...,3]<40)
         height_known=bool(self.scene.road_height_known)
         overlap_known=((values[...,2]>.5)|(unknown_distance>1e-6))&frame_valid
         valid=np.stack((in_grid&height_known&(~shapely.is_empty(self.scene.road)),

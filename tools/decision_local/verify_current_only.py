@@ -19,6 +19,8 @@ def load_runtime(anchor):
     if Path(starVLA.__file__).parent.resolve()!=(legacy/'starVLA').resolve():raise ValueError('Legacy source shadowed')
     import starVLA.model.modules as modules
     modules.__path__.append(str(ROOT/'starVLA/model/modules'))
+    import starVLA.model.framework as frameworks
+    frameworks.__path__.append(str(ROOT/'starVLA/model/framework'))
     spec=importlib.util.spec_from_file_location('decision_local_deployment',ROOT/'starVLA/model/framework/frozen_vla_consequence_refiner.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return module
