@@ -91,7 +91,8 @@ def run(config, output):
     copy('latency/PLAN.json', 'evidence/LATENCY_PLAN.json')
     copy('current_probe/TRIGGER.json', 'evidence/CURRENT_PROBE_TRIGGER.json')
     if probe['status'] == 'TRIGGERED':
-        for name in ('PLAN.json', 'RESULTS.json', 'FIT_NORMALIZATION.json', 'INITIALIZATION.json'):
+        for name in ('PLAN.json', 'RESULTS.json', 'FIT_NORMALIZATION.json', 'INITIALIZATION.json',
+                     'INPUT_AUDIT_SUMMARY.json'):
             copy('current_probe/'+name, 'evidence/CURRENT_PROBE_'+name)
     evidence = []
     for phase in ('diagnostic', 'refit', 'overfit'):
@@ -194,6 +195,8 @@ def run(config, output):
 
     if probe['status'] == 'TRIGGERED':
         p = probe_result; rows = []
+        input_audit = read_json(root/'current_probe/INPUT_AUDIT_SUMMARY.json')
+        require(input_audit['all_future_reference_removal_equal'], 'current-state input independence failed')
         for role, r in p['metrics'].items():
             rows.append(metric_row('P_current '+role,r))
             rows.extend(metric_row(k+' matched '+role,v['metrics']) for k,v in p['matched_subset_comparators'][role].items())
@@ -205,7 +208,9 @@ def run(config, output):
             'Inputs: t0 timestamp-attested agents, provided current velocity, static map geometry and current ego, '
             'plus the fixed candidate trajectories. No reference future, GT, future velocity differences or simulation outcomes. '
             'The official occupancy t0 can contain future-only one-frame objects; the extractor explicitly rejects mismatched '
-            'object timestamps. A real record rejected three such objects. Deleting future/reference containers leaves inputs identical. '
+            f"object timestamps. Across all {input_audit['scenes']} actual records, "
+            f"{input_audit['fields']['future_only_objects_rejected']['sum']} future-only objects were rejected; "
+            'deleting future/reference containers leaves all extracted inputs identical. '
             'Range is 50 m and current three-camera frusta are enforced; occlusion is not verified, maps/annotations remain privileged. '
             'Current state improving selection would not alone prove W/A discarded the same visible information. '
             'Failure would not prove planning selection is intrinsically impossible.\n\n'
@@ -240,7 +245,16 @@ def run(config, output):
         'selection and CPU trajectory copy. CUDA synchronized wall times and separate CUDA events for the head are retained. '
         'No feature-cache latency is called end-to-end. Model parameter counts and every call are in evidence/BENCHMARK.json. '
         'All modes retain original Base precision and frozen generator weights. Allocated and reserved peaks are both recorded. '
-        'Margin fallback to Base does not constitute learned selection success.')
+        'Modes run sequentially on the same GPU. Small timing differences are not a controlled claim of a speedup: '
+        'storage/page-cache state, GPU clocks and shared-host load can vary. The shared VLM dominates the end-to-end path. '
+        'Margin fallback to Base does not constitute learned selection success.\n\n'+
+        'Parameter inventory (actual loaded tensors):\n\n'+table(
+            ['Module','Parameters'],
+            [[k,v] for k,v in benchmark['modes'][0]['Base_parameter_breakdown'].items()]+
+            [[eid,v] for eid,v in benchmark['modes'][0]['expert_parameters'].items()])+
+        '\n\nThe Base breakdown reports its principal visual/language/planner modules; remaining embeddings '
+        'and other Base parameters are included in entire_Base_adapter. Private expert counts include their '
+        'condition readers and complete action branches. All generator parameters remain frozen.')
 
     current = {r['model']:r for r in dev['results']}
     statuses = {}
@@ -256,6 +270,10 @@ def run(config, output):
         CURRENT_STATE_PROBE=probe_result['status'],CURRENT_STATE_PROBE_DEPLOYABLE=False,
         NEW_NAVTEST=False,ACTIVE_UPDATED=False,EXPERTS_TRAINED=0,EXTERNAL_SCORER_WEIGHTS_LOADED=False,
         R00_RETRAINED=False,PUSHED=False,single_seed=True,dev_is_exploratory=True,
+        CANDIDATE_CONDITIONING_HELPFUL='relative to M_scene, not a gain over Base or R00',
+        ROUTER_SUFFICIENT=False,REPRESENTATION_DIAGNOSTIC_SUPPORTED=False,
+        JOINT_VLM_TRAINING_AUTHORIZED_OR_STARTED=False,
+        PRODUCTION_RELEASE=False,
         source_audit_commit=binding['audit_commit'],report_source_commit=code_commit,binding_hash=binding['hash'],
         pool_hash=binding['pool_hash'],full_population_denominators={r['role']:r['requested_scenes'] for r in (external,dev)})
     atomic_json(out/'VERDICT.json',verdict)

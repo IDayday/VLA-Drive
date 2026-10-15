@@ -143,9 +143,17 @@ the declared scheduler horizon. Do not send signals to unrelated jobs. Preserve
 failed logs/partial immutable current-state records and rerun the same worker
 count to reuse completed records. An incomplete probe never receives COMPLETE.
 
+The completed full-D_S refits also have these explicit terminal recovery paths.
+They restore the registered endpoint and perform zero additional optimizer steps:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 $PY -m iqe.decision_selection.cli resume --config "$CFG" --kind M_scene --phase refit --device cuda:0 --resume /mnt/project/iqe-cost-sensitive-selection-20261015/main_v1/refit/M_scene/step_002524.pt
+CUDA_VISIBLE_DEVICES=1 $PY -m iqe.decision_selection.cli resume --config "$CFG" --kind M_set --phase refit --device cuda:0 --resume /mnt/project/iqe-cost-sensitive-selection-20261015/main_v1/refit/M_set/step_000631.pt
+```
+
 Research bundle locations:
-`.../main_v1/research_bundle/M_scene/bundle.pt` and
-`.../main_v1/research_bundle/M_set/bundle.pt`. Each embeds its own trained head
+`/mnt/project/iqe-cost-sensitive-selection-20261015/main_v1/research_bundle/M_scene/bundle.pt` and
+`/mnt/project/iqe-cost-sensitive-selection-20261015/main_v1/research_bundle/M_set/bundle.pt`. Each embeds its own trained head
 and the fixed expert states, with one strictly verified Base dependency. Load
 with `iqe.decision_selection.bundle.load(path, device)`. No GT, metric cache,
 privileged current-state probe, external scoring weights or ACTIVE dependency.
