@@ -14,7 +14,26 @@ from starVLA.dataloader.decision_local import FrozenConsequenceData,inputs_queri
 from starVLA.model.modules.decision_local.consequence_contract import predicted_relations,CONTINUOUS,CHANNELS
 
 
-def scene_metrics(pred,truth,valid,poses):
+LEGACY_SENSITIVITY = 'any_supported_sample_v1'
+LOCAL_SENSITIVITY = 'local_known_sensitive_complete_insensitive_unknown_v2'
+
+
+def sensitivity_population(rows):
+    """Count pairs and independent scenes/logs separately, never as replicas."""
+    groups=('near_sensitive','near_insensitive','far_sensitive','far_insensitive',
+            'near_unknown','far_unknown','ambiguous_spatial')
+    result={}
+    for group in groups:
+        key=group+'_pairs'
+        if not rows or key not in rows[0]:continue
+        supported=[r for r in rows if r[key]>0]
+        result[group]={'pairs':int(sum(r[key] for r in rows)),
+            'scenes':len({r['token'] for r in supported}),
+            'logs':len({r['log'] for r in supported})}
+    return result
+
+
+def scene_metrics(pred,truth,valid,poses,*,local_evidence=False):
     """All masks loss/evaluation-side; no score-dependent population filtering."""
     B,K,T,C=pred.shape
     def mean(x,m):
@@ -69,18 +88,31 @@ def scene_metrics(pred,truth,valid,poses):
     # from wider temporal reparameterizations. Tiny spatial changes are ambiguous.
     d=(poses[:,1:,:,:2]-poses[:,:1,:,:2]).norm(dim=-1).amax(-1)
     sensitive=torch.zeros_like(d,dtype=torch.bool); supported=torch.zeros_like(d,dtype=torch.bool)
+    complete=torch.ones_like(d,dtype=torch.bool)
     for c in (0,3):
         a,b=truth[:,:1,:,c],truth[:,1:,:,c];pair=valid[:,:1,:,c]&valid[:,1:,:,c]
         if c==0:cross=((a>=.25)&(b<=-.25))|((b>=.25)&(a<=-.25))
         else:cross=((a>=1.)&(b<=0.))|((b>=1.)&(a<=0.))
         sensitive|=(cross&pair).any(-1);supported|=pair.any(-1)
+        complete&=pair.all(-1)
     a,b=truth[:,:1,:,4]>.5,truth[:,1:,:,4]>.5;pair=valid[:,:1,:,4]&valid[:,1:,:,4]
     sensitive|=((a!=b)&pair).any(-1);supported|=pair.any(-1)
+    complete&=pair.all(-1)
     nonambiguous=d>=.5-1e-6
     for near in (True,False):
-        for sens in (True,False):
-            selected=((d<=1.+1e-6)==near)&(sensitive==sens)&supported&nonambiguous
-            name=('near' if near else 'far')+('_sensitive' if sens else '_insensitive')
+        if local_evidence:
+            # A single known crossing proves sensitivity even when later facts
+            # are unknown. Absence of a crossing is only conclusive when both
+            # trajectories have all sampled facts for EVERY defining criterion.
+            # This is not dense 4-second repair qualification or a safety claim.
+            categories={'sensitive':sensitive,'insensitive':~sensitive&complete,
+                        'unknown':~sensitive&~complete}
+        else:
+            # Historical reports retain their original grouping for replay.
+            categories={'sensitive':sensitive&supported,'insensitive':~sensitive&supported}
+        for category,mask in categories.items():
+            selected=((d<=1.+1e-6)==near)&mask&nonambiguous
+            name=('near' if near else 'far')+'_'+category
             out[name+'_pairs']=selected.sum(1)
             for c in CONTINUOUS:
                 m=(valid[:,1:,:,c]&valid[:,:1,:,c])&selected[...,None]
@@ -139,7 +171,8 @@ def main():
         if mean['anchor_identity']!=data.feature_identity['anchor_identity'] or mean['split']!='train':raise ValueError('Mean source must be shared train anchor')
     rng=torch.Generator().manual_seed(812);order=torch.randperm(len(data.index),generator=rng).tolist()
     partner={order[i]:order[(i+len(order)//2)%len(order)] for i in range(len(order))}
-    all_metrics={};predictions=[];scene_count=0
+    all_metrics={};predictions=[];scene_count=0;population_rows=[]
+    sensitivity_protocol=LOCAL_SENSITIVITY if natural else LEGACY_SENSITIVITY
     with torch.no_grad(),(a.output/'metrics.jsonl').open('w') as stream:
         for start in range(0,len(data.index),a.batch):
             if time.monotonic()-started>=a.max_seconds:raise TimeoutError('Finite evaluation budget reached; partial result not complete')
@@ -157,10 +190,16 @@ def main():
                 variants['permuted_W_H_A']=replace(inputs,W=shuffled['W'],H_A=shuffled['H_A'])
                 variants['training_mean_W_H_A']=replace(inputs,W=mean['W'][None].expand(len(ids),-1,-1),H_A=mean['H_A'][None].expand(len(ids),-1,-1))
             for condition,current in variants.items():
-                pred=predicted_relations(model(current,queries));metrics=scene_metrics(pred,target_relations,target_valid,queries.poses)
+                pred=predicted_relations(model(current,queries));metrics=scene_metrics(pred,target_relations,target_valid,queries.poses,local_evidence=natural)
                 if condition=='normal':predictions.append(pred.cpu().numpy())
                 for k,v in metrics.items():all_metrics.setdefault(condition,{}).setdefault(k,[]).append(v)
-                for j,i in enumerate(ids):stream.write(json.dumps({**data.index[i],'condition':condition,**{k:float(v[j]) for k,v in metrics.items()}})+'\n')
+                for j,i in enumerate(ids):
+                    row={**data.index[i],'condition':condition,'sensitivity_protocol':sensitivity_protocol,
+                         **{k:float(v[j]) for k,v in metrics.items()}}
+                    stream.write(json.dumps(row)+'\n')
+                    if condition=='normal':
+                        population_rows.append({k:v for k,v in row.items()
+                            if k in ('token','log') or k.endswith('_pairs')})
             scene_count+=len(ids)
     np.savez_compressed(a.output/'predictions.npz',relations=np.concatenate(predictions),tokens=np.array([r['token'] for r in data.index]))
     result={}
@@ -188,6 +227,9 @@ def main():
         'source_sha':source_sha(ROOT),'precision':'FP32 head; TF32off','query_protocol':'actual plan seed42, seven fixed complete trajectories' if repair else 'q0 seed42, seven fixed complete trajectories',
         'distribution':a.distribution,'repair_protocol':repair,
         'local_evidence_protocol':natural,
+        'sensitivity_protocol':sensitivity_protocol,
+        'sensitivity_population':sensitivity_population(population_rows),
+        'sensitivity_scope':'A known road/clearance/overlap crossing suffices for sensitive. Insensitive requires all defining sampled channel/time pairs supported; otherwise unknown. Not full-trajectory certification.' if natural else 'Historical any-supported grouping retained unchanged',
         'distance_interpretation':'conditional annotated-object distance, not proven free space' if natural else 'registered historical label contract',
         'generalization_only':bool(a.generalization_config),'trained_query_config':trained_query,
         'evaluated_query_config':evaluated_query,
