@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "host": "training-vlawm-tsinghua-zt2",
+  "export_sha256": "e5da77423e3ed7a35db897a925b64ee71de11d7d1456289dd9bf59312367b580",
+  "upstream_hash_before": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+  "upstream_hash_after": "16c390b14076ef49d54c0cca0d4ea4923499584c00f566bfe3664d96db20b2f8",
+  "changed_action_tensors": 96,
+  "noise_head_absent": true,
+  "teacher_cache_search_scorer_not_used": true,
+  "inference_seed": 2101,
+  "checks": [
+    {
+      "shape": [
+        1,
+        8,
+        4
+      ],
+      "finite": true,
+      "input_keys": [
+        "image",
+        "lang",
+        "state",
+        "token"
+      ]
+    },
+    {
+      "shape": [
+        1,
+        8,
+        4
+      ],
+      "finite": true,
+      "input_keys": [
+        "image",
+        "lang",
+        "state",
+        "token"
+      ]
+    }
+  ],
+  "actual_original_inference_entrypoint": "VLAAgent.model.predict_action_infer_1d"
+}

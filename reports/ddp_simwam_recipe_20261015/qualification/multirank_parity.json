@@ -1,0 +1,46 @@
+{
+  "status": "PASS_WITH_MEASURED_FP32_PARAMETER_DIFFERENCES",
+  "checks": [
+    {
+      "optimizer_step": 1,
+      "parameter_max_abs": 2.402487098152051e-10,
+      "update_relative_L2": 5.416069939201407e-07,
+      "same_chain_density_ratio_error": 3.5762786865234375e-07,
+      "explicit_equal_rank_mean_loss": 4.03573105489663e-09,
+      "distributed_equal_rank_mean_loss": 4.03573105489663e-09
+    },
+    {
+      "optimizer_step": 2,
+      "parameter_max_abs": 5.791626733753219e-09,
+      "update_relative_L2": 6.833446605014615e-06,
+      "same_chain_density_ratio_error": 2.384185791015625e-07,
+      "explicit_equal_rank_mean_loss": -9.93674294169633e-06,
+      "distributed_equal_rank_mean_loss": -9.939381952650539e-06
+    },
+    {
+      "optimizer_step": 3,
+      "parameter_max_abs": 1.5136271258597844e-06,
+      "update_relative_L2": 0.003052657935768366,
+      "same_chain_density_ratio_error": 3.5762786865234375e-07,
+      "explicit_equal_rank_mean_loss": -2.9733250750785256e-05,
+      "distributed_equal_rank_mean_loss": -2.9734722876983977e-05
+    },
+    {
+      "optimizer_step": 4,
+      "parameter_max_abs": 2.71725480160967e-06,
+      "update_relative_L2": 0.0032873759046196938,
+      "same_chain_density_ratio_error": 3.5762786865234375e-07,
+      "explicit_equal_rank_mean_loss": -5.944206937580354e-05,
+      "distributed_equal_rank_mean_loss": -5.942430608363303e-05
+    }
+  ],
+  "first_gradient_relative_L2": 7.497297360714583e-08,
+  "first_gradient_cosine": 1.0,
+  "bitwise_parameter_equivalence": false,
+  "parameter_relative_002_threshold_exceeded": true,
+  "fresh_rollouts": 1,
+  "actual_optimizer_updates": 4,
+  "no_old_probability_refresh": true,
+  "original_real_DDP_action_model": true,
+  "reduction": "source_rank_mean; serial per-rank scene losses, not active-only global normalization"
+}

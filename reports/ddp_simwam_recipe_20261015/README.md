@@ -1,0 +1,148 @@
+# DDP: SimWAM public recipe transfer
+
+Status at 2026-10-15 01:00 UTC: implementation and bounded real-model acceptance
+are available; full TRAIN single-ODE screening and paired SFT deployment
+evaluation are running. **Neither formal 20,000-update run is complete. No
+claim of improved deployment PDMS is supported yet.** This report is updated
+by stage rather than replacing unfinished work with a plan.
+
+Branch: `feature/ddp-simwam-recipe-transfer-20261015`, starting from
+`90782b6b5a10a77541c22b29f90b83d7309d7081`. Old C/N experiments were stopped at
+recoverable native boundaries by user instruction: C update 4068 / raw 50812,
+N update 6990 / raw 87700. All 58 checkpoint files were verified; their
+controllers remain stopped. G-series and unrelated jobs were not stopped.
+
+## What is transferred
+
+The source is [SimWAM at the locked commit](https://github.com/H-EmbodVis/SimWAM/tree/1433ee7e06a62bd8b89da74455df0d82bda7b726).
+The actual Hydra result is [resolved_source_recipe.yaml](resolved_source_recipe.yaml).
+[upstream_lock.json](upstream_lock.json) records source and vendor hashes.
+[recipe_delta.json](recipe_delta.json) traces 93 resolved fields, active and
+inactive branches, runtime consumers, and three patch categories. The copied
+LoRA, scheduler and epoch sampler files are unchanged; required action and
+trainer methods are extracted with their function bodies unchanged. The MIT
+license is retained. No Wan/SimWAM model weights were downloaded.
+
+Both variants use the original F-SFT checkpoint
+`9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`.
+All original model weights are frozen. Only attention LoRA A/B train:
+96 actual self/cross-attention q/k/v/o projections, 192 tensors and 4,718,592
+parameters, r16 / alpha32 / dropout0. Original Qwen, history module,
+qwen_proj, action encoding, 24-block DiT topology, time buckets and decoder
+are preserved. Inference merges LoRA into the original deployment class.
+
+The shared recipe is G8/K10, shifted sigma grid (shift5), last three stochastic
+steps `[7,8,9]`, rigorous score-corrected SDE noise level 0.1, std floor 0.001,
+innovation clamp ±5, relative elementwise logprob clamp `[peak-7,peak]`,
+dimension-mean PPO clip 0.005, discount1, global **raw-reward** population std,
+group centering, tied-group PG mask, and four actual AdamW optimizer updates
+per fresh rollout. There is no DAPO resampling, learned noise, cost multiplier,
+GT replay, BC, adaptive KL, or entropy term.
+
+The permanent SFT anchor is the weighted MSE between random-transition means
+at the same saved states, beta50. It is not a final-trajectory KL. The DDP
+channels are `[x_norm,y_norm,sin(relative_heading),cos(relative_heading)]` at
+poses relative to current t0, **not consecutive waypoint displacements**.
+The logical `[.2,1,1]` anchor is mapped to `[.2,1,.5,.5]`, denominator `H*2.2`.
+This preserves logical group weights, not equivalence to heading-angle MSE.
+
+| Configuration | Training readout from one actual simulation | Official evaluation |
+|---|---|---|
+| R_SOURCE | NC×DAC×(10 EP+5 TTC+2 Comfort)/17 | Canonical v1.1 PDMS |
+| R_CANONICAL | NC×DAC×(5 EP+5 TTC+2 Comfort)/12 | Canonical v1.1 PDMS |
+
+The resolved config diff contains only the EP weight and variant name.
+The existing batched simulator is reused, while each candidate's official
+aggregation remains `[fixed official reference, that candidate]`. Both reward
+readouts reuse the same simulated submetrics. Infrastructure failures abort;
+they do not become reward zero. Legal bad trajectories remain in the group.
+
+## Version and execution boundaries
+
+[Paper v1](https://arxiv.org/abs/2608.07468v1) reports 91.5 PDMS; the locked
+GitHub README reports 91.9. The resolved default has 20,000 updates while a
+README command has 170,000. The HF model-card identity and separate license
+metadata are in [version_boundaries.json](version_boundaries.json). There is
+no verified original run identity linking the current default to the released
+91.9 weight. Those versions are not spliced together into a claimed recipe.
+
+An important actual-source detail: YAML declares max_grad_norm=1, but its
+default DeepSpeed JSON omits gradient_clipping. The optional bridge from YAML
+is disabled, and Accelerator's DeepSpeed clipping call does not apply torch
+clipping. A real source-engine update confirmed effective clipping **0.0**.
+The transferred configurations explicitly preserve that effective value;
+adding clipping1 would be a separately named algorithm change.
+
+DDP parameters, latent, velocity, transition means, probabilities and Adam
+state use FP32; small advantage statistics use FP64. Source BF16 latent
+storage is not claimed identical. The platform is native torch DDP with
+FP32 LoRA AdamW instead of source Accelerate/ZeRO1. Four optimizer steps,
+equal rank averaging, exact inner-boundary recovery, and output-level
+numerics are tested. One-card serial vs eight-card Adam parameters are **not
+bitwise equal**; the measured differences are disclosed in
+[validation.md](validation.md).
+
+Source clipped innovations and clipped density proxies are deliberately
+retained. Shared LoRA also changes the deterministic prefix, while gradients
+are computed on the saved stochastic transitions only. This is the public
+empirical estimator, not an unbiased full mixed-chain policy gradient.
+
+## Data, resources and fixed budget
+
+Existing log-isolated manifests: RL_TRAIN 101,592 scenes / 1,176 logs;
+RL_DEV 1,696 / 16; Navtest 12,146 / 136. RL_DEV is unseen by RL updates,
+not necessarily unseen during SFT. Historical Navtest observations remain
+acknowledged.
+
+The hard list uses this DDP SFT's **single original uniform ODE**, seed2101,
+canonical score<0.9 across the complete TRAIN population. Compatible previous
+single-candidate scores are reused only after exact output comparison; G16
+mean/best/worst census statistics do not define membership. The list is fixed
+before training and shared by both variants. Its membership/hash/count are
+published when screening is complete.
+
+The already corrected raw-condition cache is sealed at identity
+`80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0b`.
+This recipe additionally caches the permanently frozen qwen_proj output;
+that separate cache is never valid for old full-head experiments. In this
+installed torch runtime, original CUDA FP32 autocast really casts the BF16
+initial root; disabling autocast is not equivalent. The native baseline
+retains the original execution path and validates exact original outputs.
+
+[experiment_registration.json](experiment_registration.json) fixes, per
+variant, training seed42, 8 GPUs, 20,000 actual optimizer updates, 5,000 fresh
+global rollouts, 40,000 scene exposures and 320,000 newly generated candidates.
+Checkpoint interval is 100 updates, separately from evaluation milestones.
+The source 100-update warmup and constant LR5e-5 are preserved.
+
+Only the four permanently authorized Tsinghua hosts are used. The latest
+user explicitly permits sharing GPUs. Screening uses 48 workers on 24 GPUs;
+paired SFT DEV/TRAIN evaluation uses 16 workers on the remaining eight GPUs.
+The deterministic subpartition changes execution concurrency, not scene
+membership, seeds or scientific budget. Unknown GPU owners are preserved.
+Withdrawn temporary hosts are excluded from tasks and automatic retries.
+
+## Evaluation and results still required
+
+Every fixed stage 0/5k/10k/15k/20k has two separate single-candidate readouts:
+`E_NATIVE` (unchanged original uniform10 ODE) and `E_SHIFT5` (shift5 ODE).
+Both use the same raw observation, seed2101, postprocessing and v1 scorer;
+neither selects between candidates. Both have their own matched SFT baseline.
+The fixed final selection rule is each variant's update20000 endpoint, not
+the best intermediate checkpoint. Full Navtest waits for endpoint identity
+locking. No extra training or inference seeds are scheduled.
+
+Formal learning curves, complete paired DEV results, final Navtest,
+NC/DAC/TTC added violations/recoveries, zero transitions, positive/negative
+score sums, progress/kinematics, gradient competition and cost accounting
+remain **pending**. Qualification results establish implementation evidence,
+not driving efficacy. No 92-point claim is made.
+
+## Executed entries and native recovery
+
+The repository module entries are real; executable commands and receipt
+locations are in [validation.md](validation.md). Private assets remain under
+`/mnt/project/simwam-recipe-20261015/`; the repository receives only code,
+configuration and small aggregated evidence, never weights/data/cache/images.
+Merged exports support original deployment, but exact training continuation
+requires the unmerged native checkpoint with saved optimizer/RNG/inner chain.

@@ -1,0 +1,50 @@
+{
+  "status": "REGISTERED_BEFORE_FORMAL_TRAINING",
+  "variants": [
+    "R_SOURCE",
+    "R_CANONICAL"
+  ],
+  "training_seed": 42,
+  "inference_seeds": [
+    2101
+  ],
+  "per_variant": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "raw_scene_exposures": 40000,
+    "new_candidates": 320000,
+    "world": 8,
+    "scene_per_rank": 1,
+    "G": 8,
+    "K": 10,
+    "inner_updates": 4,
+    "stochastic_steps": [
+      7,
+      8,
+      9
+    ]
+  },
+  "evaluation_updates": [
+    0,
+    5000,
+    10000,
+    15000,
+    20000
+  ],
+  "evaluation_populations": {
+    "DEV": 1696,
+    "TRAIN_diagnostic": 512,
+    "NAVTEST": 12146
+  },
+  "deployment_modes": [
+    "E_NATIVE",
+    "E_SHIFT5"
+  ],
+  "reference": "SFT separately evaluated on each same grid",
+  "final_selection_rule": "Fixed update20000 endpoints for both variants, plus matching SFT; no best-checkpoint selection. Navtest lock created only after endpoint identities exist.",
+  "uncertainty": "Fixed seed log-cluster bootstrap; excludes training/inference seed uncertainty",
+  "history": "Navtest was observed previously; no renewed blind-test claim",
+  "failure_policy": "Preserve native state and abort affected distributed run on implementation, scoring infrastructure or nonfinite failures; no bad-candidate removal/reward replacement",
+  "resource_policy": "Permanent authorized Tsinghua hosts only; capacity-qualified GPU sharing allowed; old C/N remain stopped; no additional seeds or variants",
+  "budget_extras": "Qualification, complete SFT hard screen and stage/final evaluation accounted separately"
+}

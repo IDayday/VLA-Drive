@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "source_json_sha256": "bcbbe9dfab9e1356e396bb5ce822ea1ecc901fc2ded2d0473b37c186d94a27bd",
+  "YAML_max_grad_norm": 1.0,
+  "actual_engine_gradient_clipping": 0.0,
+  "engine_optimizer_steps": 1,
+  "resolved_DS_config": {
+    "train_batch_size": 1,
+    "train_micro_batch_size_per_gpu": 1,
+    "gradient_accumulation_steps": 1,
+    "zero_optimization": {
+      "stage": 1,
+      "offload_optimizer": {
+        "device": "none"
+      },
+      "offload_param": {
+        "device": "none"
+      },
+      "overlap_comm": false,
+      "contiguous_gradients": false,
+      "reduce_bucket_size": 200000000.0,
+      "allgather_bucket_size": 200000000.0
+    },
+    "steps_per_print": "inf"
+  },
+  "scope": "Source DeepSpeed clipping behavior only; formal DDP LoRA equivalence is tested separately"
+}
