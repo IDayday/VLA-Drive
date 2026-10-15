@@ -14,12 +14,13 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();r=a.root
     roots={p for p in r.iterdir() if p.is_dir()}
-    for pattern in ('stageA*seed*','stageB*seed*','smoke_v*','resume_v*','runner_smoke_v*'):
+    for pattern in ('stageA*seed*','stageB*seed*','smoke_v*','resume_v*','resume_RAM_v*',
+                    'runner_smoke_v*','online_formal_v*','cached_formal4_v*'):
         for parent in r.glob(pattern):
             if parent.is_dir():roots.update(p for p in parent.iterdir() if p.is_dir())
     # Registered nested outputs are enumerated explicitly; never walk the
     # hundreds of thousands of private scene or checkpoint tensor files.
-    for registry in list(r.glob('*REGISTRY.json'))+list(r.glob('*EVAL_*.json'))+list(r.glob('*TASKS.json')):
+    for registry in list(r.glob('*REGISTRY.json'))+list(r.glob('*EVAL_*.json'))+list(r.glob('*TASKS.json'))+list(r.glob('*MECHANISM_*.json')):
         value=read(registry)
         if not isinstance(value,dict):continue
         for job in value.get('jobs',[]):
@@ -53,9 +54,12 @@ def main():
                              'worker_wall_seconds':d.get('worker_wall_seconds'),
                              'elapsed_seconds':d.get('elapsed_seconds')})
         if isinstance(d,dict) and all(k in d for k in ('q0','q_final','seconds')):
+            usage=path/'CPU_RESOURCE_USAGE.json'
+            timed=read(usage) if usage.exists() else None
+            if timed is not None and timed['exit_code']!=0:raise ValueError('Failed canonical timing receipt')
             canonical.append({'path':str(path),'job_wall_seconds':d['seconds'],
-                              'CPU_process_seconds':None,
-                              'note':'Original canonical tool does not record child process CPU time; wall is not CPU time'})
+                              'CPU_process_seconds':(timed['user_seconds']+timed['system_seconds']) if timed is not None else None,
+                              'note':'GNU time child-inclusive user+system seconds where instrumented; otherwise unknown, never inferred from wall'})
     prereads=[]
     for path in sorted(r.glob('PREREAD_*.json')):
         d=read(path)
@@ -64,14 +68,22 @@ def main():
                              'CPU_process_seconds':d.get('CPU_process_seconds'),'new_persistent_data_bytes':0})
     # Read-only support attribution is not another label-production pass.
     audits=[]
-    for path in sorted(r.glob('SUPPORT_ATTRIBUTION_*.json')):
+    audit_paths=set(r.glob('SUPPORT_ATTRIBUTION_*.json'))|set(r.glob('LOW_PROGRESS_TARGET_AUDIT_*.json'))|set(r.glob('RAM_LABELS_*.json'))
+    for path in sorted(audit_paths):
         d=read(path)
         if 'CPU_process_seconds' in d:audits.append({'path':str(path),'CPU_process_seconds':d['CPU_process_seconds']})
-    measured_cpu=sum(x['CPU_process_seconds'] for x in labels+geometry+audits)+sum(x['CPU_process_seconds'] or 0 for x in prereads)
-    measured_gpu=sum(x['GPU_process_hours'] for x in gpu)
+    standalone_gpu=[]
+    for path in sorted(r.glob('TRAINING_CONDITIONAL_FIT_*.json')):
+        d=read(path)
+        if 'GPU_process_hours' in d:
+            standalone_gpu.append({'path':str(path),'GPU_process_hours':d['GPU_process_hours'],
+                                   'scope':'Frozen-model training diagnostic, no optimizer updates'})
+    # Acceptance files summarize the same native runs; do not add them again.
+    measured_cpu=sum(x['CPU_process_seconds'] for x in labels+geometry+audits)+sum(x['CPU_process_seconds'] or 0 for x in prereads+canonical)
+    measured_gpu=sum(x['GPU_process_hours'] for x in gpu+standalone_gpu)
     budget=read(r/'RESOURCE_BUDGET.json')
     result={'GPU_process_hours_recorded':measured_gpu,'CPU_process_hours_recorded_lower_bound':measured_cpu/3600,
-            'GPU_runs_and_exports':gpu,'label_versions':labels,'geometry_evaluation':geometry,
+            'GPU_runs_and_exports':gpu,'standalone_GPU_diagnostics':standalone_gpu,'label_versions':labels,'geometry_evaluation':geometry,
             'read_only_audits':audits,'pre_read_IO':prereads,'canonical_job_wall_times':canonical,
             'unmeasured':unmeasured,'budget':budget,'tool_sha256':digest(__file__),
             'exceeds_recorded_cap':measured_gpu>budget['GPU_process_hours_cap'] or measured_cpu/3600>budget['CPU_process_hours_cap'],

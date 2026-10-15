@@ -22,19 +22,19 @@ S0训练源码是 `1493deda247107efe076b9294863a6753391298a`，
 dev1696均已COMPLETE，见 [fullB完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_foldB_v5/COMPLETE.json)
 和 [dev1696完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5/COMPLETE.json)。
 fullB收据记录全量身份及SHA256核验完成。另有64、256、4096场景诊断；4096场景的
-40,960条计划中KEEP5914、REPAIR163，目标资格14.8364%，没有新增完全停车目标。
+40,960条计划中KEEP5914、REPAIR163，目标资格14.8364%，没有新增终点位移低于1m的阈值跨越；这不是完整停车定义。
 这些覆盖数值来自固定4096训练诊断集，不是fullB总体统计；KEEP仍可与日志GT显著不同。
-当前9个v5 formal小头均已从对应seed的共同随机初始化启动：seed42六组
+9个v5 formal小头均已从对应seed的共同随机初始化完成24epoch、9168updates：seed42六组
 LOG_NONE/CV/FUT、MIN_NONE/CV/FUT，seed43关键三组LOG_FUT/MIN_CV/MIN_FUT。
-实际训练源码仍为 `0471af96e4f769eb2b31b787a68c57be24bebee0`，目前尚无24epoch正式结果。
+实际训练源码仍为 `0471af96e4f769eb2b31b787a68c57be24bebee0`，九组共同终点与72项开发评价现已完成，见[阶段A结果](ROUND1_STAGE_A_RESULTS_ZH.md)。
 
-九组均已在原生optimizer边界保存完整状态，并从字节相同的RAM特征镜像恢复运行。
+九组曾在原生optimizer边界保存完整状态，从字节相同的RAM特征镜像恢复并完成训练。
 rl-zt2的两组迁至tsinghua-zt4；其余保留原主机。共享存储中的原始文件没有改变。
 镜像字节与元数据一致性见 [RAM_CACHE收据](/mnt/project/minimal-repair-artifacts/20261015/RAM_CACHE_training-vla-zt_v10.json)，
 迁移请求见 [RAM_RESUME_REQUESTS_v11.json](/mnt/project/minimal-repair-artifacts/20261015/RAM_RESUME_REQUESTS_v11.json)。
 [resume_RAM_v11/ACCEPTANCE.json](/mnt/project/minimal-repair-artifacts/20261015/resume_RAM_v11/ACCEPTANCE.json)
 已验证真实64场景、48updates及第7步中断后共享存储→RAM恢复的模型、optimizer、scheduler、
-RNG、数据位置和曝光计数逐位一致；该小集验收不代表九组正式迁移或训练全部完成。
+RNG、数据位置和曝光计数逐位一致；该小集先验证执行等价；九组实际完成证据另见共同终点审计。
 跨主机48步恢复也逐位一致，见 [跨主机恢复验收](evidence/RAM_CROSSHOST_RESUME_ACCEPTANCE_v11.json)。
 三组本地seed43任务进一步使用相同字节的标签RAM镜像；标签位置切换的完整恢复验收见
 [标签RAM验收](evidence/RAM_LABEL_RESUME_ACCEPTANCE_v12.json)。其余已读热的任务不再中断。
@@ -46,7 +46,7 @@ UNSOLVED3,180、TASK_UNCERTAIN404；有效比例16.1138%，8,456个原场景至�
 这些是计划池统计，不是实际训练曝光，后者由各run逐步计数。
 另有1项目标终点位移从1.0205m变为0.9972m；原计划最后半秒速度已约0.033m/s，目标约0.031m/s。
 这是既有低速计划的阈值跨越，不能称为新增完全停车，见[专项核查](evidence/LOW_PROGRESS_TARGET_AUDIT_v12.json)。
-见 [完整B折目标质量](evidence/TARGET_QUALITY_FOLDB_v5.json)。A折同版本标签已按有限CPU预算并行准备，
+见 [完整B折目标质量](evidence/TARGET_QUALITY_FOLDB_v5.json)。A折同版本52,711场景也已完成并通过SHA核验；其CPU进程成本39.785小时单列，
 没有提前放行阶段B正式P/R训练。
 
 新版11个真实小集训练链路、48步中断恢复与4图在线/缓存对齐均已通过；在线每场景
@@ -78,9 +78,9 @@ camera-only部署和失败转移分析。全部query及残差基准由实际输�
 
 沿用原1176训练logs两折：A=52711、B=48881；开发1696场景独立。阶段A六组
 LOG_NONE/CV/FUT、MIN_NONE/CV/FUT共用B、输入分布、目标资格、结构与24epoch配方。
-seed42六组、seed43的LOG_FUT/MIN_CV/MIN_FUT共9个v5正式头已启动；6/12/18/24epoch的
-自然输入和恢复输入各自评价，共72项固定开发观察。旧v4九组保持正确性hold，v5使用独立run身份。
-已启动及RAM恢复验收均不等于24epoch训练或开发评价完成。
+seed42六组、seed43的LOG_FUT/MIN_CV/MIN_FUT共9个v5正式头已完成；6/12/18/24epoch的
+自然输入和恢复输入各自评价，共72项固定开发观察均已完成。旧v4九组保持正确性hold，v5使用独立run身份。
+[共同终点审计](evidence/STAGE_A_COMMON_ENDPOINT_AUDIT_v13.json)核对九组原生COMPLETE、初始化、9168次更新边界及同seed曝光完全一致。
 
 共同目标资格仅控制哪些计划贡献监督loss；关系support是另一条输入通道。CV/FUT的
 `common_valid`是CURRENT、CV、FUTURE有效性mask的交集，包含未来标注支持信息，
@@ -90,7 +90,9 @@ CV/FUT均为特权探针。局部可接受性不保证导航路线、信号或�
 
 阶段B正式训练依阶段A的真实效果、机制和标签覆盖证据决定。全部P/R接口已有真实
 smoke；不得把它们写成完整P_A/R_B结果，也不得因区间跨零就直接否定未来信息。
-截至本次记录，尚无24epoch正式结果、六组共同终点或本轮最终Navtest成绩。当前注册与调度见
+本轮最终Navtest尚未启动。原六组与关键seed43的共同24epoch结果已经完整；
+另有一次[限定的KEEP/REPAIR平衡学习对照](BOUNDED_REPAIR_BALANCE_ZH.md)正在独立运行，训练源码`d2996601429044e3ef3b71055a4ca546a3ca928e`。
+它不是主六组定义的一部分，也不覆盖原结果。当前注册与调度见
 [STAGE_A_V5_TASKS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_TASKS.json)、
 [STAGE_A_V5_RUNNERS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_RUNNERS.json)、
 [STAGE_A_V5_EVAL_NATURAL.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_NATURAL.json)、

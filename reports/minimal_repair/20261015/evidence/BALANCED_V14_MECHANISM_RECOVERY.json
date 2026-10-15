@@ -1,0 +1,141 @@
+{
+  "allow_shared_gpus": true,
+  "diagnostic_only": true,
+  "dispatch_gpus": [
+    5,
+    6,
+    7
+  ],
+  "dispatch_host": "training-rl-zt2",
+  "distribution": "RECOVERY",
+  "intervention_scope": "All five relation channels zeroed or time-reversed; original support retained; not pure future-only intervention",
+  "jobs": [
+    {
+      "CPU_resource_usage": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/CPU_RESOURCE_USAGE.json",
+      "checkpoint": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_FUT/epoch_24.pt",
+      "commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+          "--checkpoint",
+          "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_FUT/epoch_24.pt",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+          "--distribution",
+          "RECOVERY",
+          "--mode",
+          "oracle_probe",
+          "--max-seconds",
+          "600",
+          "--oracle-labels",
+          "/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5",
+          "--relations-ablation",
+          "zero"
+        ],
+        "score": [
+          "/usr/bin/time",
+          "-f",
+          "{\"user_seconds\": %U, \"system_seconds\": %S, \"max_rss_kb\": %M, \"wall_seconds\": %e, \"exit_code\": %x}",
+          "-o",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero/CPU_RESOURCE_USAGE.json",
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/score_navsim.py",
+          "--predictions",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+          "--population",
+          "dev",
+          "--workers",
+          "16"
+        ]
+      },
+      "epoch": 24,
+      "id": "stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+      "kind": "MIN_FUT",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+      "reference_scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "relations_ablation": "zero",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_zero",
+      "seed": 42
+    },
+    {
+      "CPU_resource_usage": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/CPU_RESOURCE_USAGE.json",
+      "checkpoint": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_FUT/epoch_24.pt",
+      "commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+          "--checkpoint",
+          "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_FUT/epoch_24.pt",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+          "--distribution",
+          "RECOVERY",
+          "--mode",
+          "oracle_probe",
+          "--max-seconds",
+          "600",
+          "--oracle-labels",
+          "/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5",
+          "--relations-ablation",
+          "reverse_time"
+        ],
+        "score": [
+          "/usr/bin/time",
+          "-f",
+          "{\"user_seconds\": %U, \"system_seconds\": %S, \"max_rss_kb\": %M, \"wall_seconds\": %e, \"exit_code\": %x}",
+          "-o",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time/CPU_RESOURCE_USAGE.json",
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/score_navsim.py",
+          "--predictions",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+          "--population",
+          "dev",
+          "--workers",
+          "16"
+        ]
+      },
+      "epoch": 24,
+      "id": "stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+      "kind": "MIN_FUT",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+      "reference_scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "relations_ablation": "reverse_time",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24_reverse_time",
+      "seed": 42
+    }
+  ],
+  "main_endpoint": 24,
+  "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+  "population": "dev",
+  "runtime": "/mnt/project/minimal-repair-artifacts/20261015/mechanism_balanced_v14/recovery/runtime",
+  "selection": "Fixed24 dependence only, not candidate execution selection",
+  "shard_exports": true,
+  "training_source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e"
+}

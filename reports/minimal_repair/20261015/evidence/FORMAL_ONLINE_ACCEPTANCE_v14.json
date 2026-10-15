@@ -1,0 +1,316 @@
+{
+  "elapsed_seconds": 114.99730825424194,
+  "passed": true,
+  "runs": [
+    {
+      "checkpoint_sha256": "ad8fd68ae83c9755b214a719b75cc10952b07f1dcb1e8dd74db913f2d69c1ba9",
+      "commands": [
+        {
+          "argv": [
+            "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+            "-u",
+            "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/predict_current.py",
+            "--anchor",
+            "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+            "--refiner",
+            "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE/epoch_24.pt",
+            "--index",
+            "/mnt/project/minimal-repair-artifacts/20261015/ONLINE_DEV4.json",
+            "--output",
+            "/mnt/project/minimal-repair-artifacts/20261015/online_formal_v14/LOG_NONE",
+            "--split",
+            "dev",
+            "--max-seconds",
+            "900"
+          ],
+          "log": "/mnt/project/minimal-repair-artifacts/20261015/LOG_NONE_predict_current.py_formal_v14.log",
+          "returncode": 0,
+          "seconds": 108.03740549087524
+        },
+        {
+          "argv": [
+            "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+            "-u",
+            "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+            "--features",
+            "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+            "--checkpoint",
+            "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE/epoch_24.pt",
+            "--index",
+            "/mnt/project/minimal-repair-artifacts/20261015/ONLINE_DEV4.json",
+            "--output",
+            "/mnt/project/minimal-repair-artifacts/20261015/cached_formal4_v14/LOG_NONE",
+            "--distribution",
+            "NATURAL",
+            "--mode",
+            "camera_only",
+            "--max-seconds",
+            "300"
+          ],
+          "log": "/mnt/project/minimal-repair-artifacts/20261015/LOG_NONE_evaluate_minimal_repair_planning.py_formal_v14.log",
+          "returncode": 0,
+          "seconds": 6.58245849609375
+        }
+      ],
+      "comparisons": {
+        "015173513fc25684": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "0265d0c659745deb": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "027d63f008ba518b": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "04d3c2f7702750b6": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        }
+      },
+      "fold": {
+        "fold": 1,
+        "logs": 588,
+        "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+        "scenes": 48881
+      },
+      "kind": "LOG_NONE",
+      "online_receipt": {
+        "GPU_hours": 0.029668465364827878,
+        "actual_module_forward_checks": [
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "015173513fc25684"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "0265d0c659745deb"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "027d63f008ba518b"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "04d3c2f7702750b6"
+          }
+        ],
+        "current_image_read_excluded_from_latency": true,
+        "guard_is_not_an_OS_sandbox": true,
+        "identity": "9b1aa13dbb6b165bcd575878c9da948fa42643654600ab626b673082f7c05ceb",
+        "latency_seconds": [
+          1.5410221125930548,
+          1.097758337855339,
+          1.0705244597047567,
+          1.1005765348672867
+        ],
+        "median_latency_excluding_first": 1.097758337855339,
+        "opened_GT_relation_or_feature_cache": false,
+        "peak_allocated_bytes": 12846126080,
+        "peak_reserved_bytes": 13295943680,
+        "precision_diagnostic_never_used_to_select_executed_trajectory": true,
+        "python_training_file_access_guard": true,
+        "q0_and_final_exported": true,
+        "resources": {
+          "checked_unix": 1792038234.3303325,
+          "host": "training-vla-zt",
+          "policy_sha256": "40a18d97b2276df92559fae1fa294269329cd7611907e6ef709fb6821679a127"
+        },
+        "scenes": 4,
+        "seconds": 106.80647602118552,
+        "token_quantization_diagnostic": []
+      },
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "checkpoint_sha256": "9b111049ae8b399dfb0a6d74da8acf9780914e4f99016d08964d323c7326ac5e",
+      "commands": [
+        {
+          "argv": [
+            "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+            "-u",
+            "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/predict_current.py",
+            "--anchor",
+            "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+            "--refiner",
+            "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE/epoch_24.pt",
+            "--index",
+            "/mnt/project/minimal-repair-artifacts/20261015/ONLINE_DEV4.json",
+            "--output",
+            "/mnt/project/minimal-repair-artifacts/20261015/online_formal_v14/MIN_NONE",
+            "--split",
+            "dev",
+            "--max-seconds",
+            "900"
+          ],
+          "log": "/mnt/project/minimal-repair-artifacts/20261015/MIN_NONE_predict_current.py_formal_v14.log",
+          "returncode": 0,
+          "seconds": 108.51940631866455
+        },
+        {
+          "argv": [
+            "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+            "-u",
+            "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+            "--features",
+            "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1",
+            "--checkpoint",
+            "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE/epoch_24.pt",
+            "--index",
+            "/mnt/project/minimal-repair-artifacts/20261015/ONLINE_DEV4.json",
+            "--output",
+            "/mnt/project/minimal-repair-artifacts/20261015/cached_formal4_v14/MIN_NONE",
+            "--distribution",
+            "NATURAL",
+            "--mode",
+            "camera_only",
+            "--max-seconds",
+            "300"
+          ],
+          "log": "/mnt/project/minimal-repair-artifacts/20261015/MIN_NONE_evaluate_minimal_repair_planning.py_formal_v14.log",
+          "returncode": 0,
+          "seconds": 6.326010465621948
+        }
+      ],
+      "comparisons": {
+        "015173513fc25684": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "0265d0c659745deb": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "027d63f008ba518b": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        },
+        "04d3c2f7702750b6": {
+          "q0": {
+            "exact": true,
+            "max_abs": 0.0
+          },
+          "q_final": {
+            "exact": true,
+            "max_abs": 0.0
+          }
+        }
+      },
+      "fold": {
+        "fold": 1,
+        "logs": 588,
+        "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+        "scenes": 48881
+      },
+      "kind": "MIN_NONE",
+      "online_receipt": {
+        "GPU_hours": 0.02981380332933946,
+        "actual_module_forward_checks": [
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "015173513fc25684"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "0265d0c659745deb"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "027d63f008ba518b"
+          },
+          {
+            "proposal": 1,
+            "qwen_language": 1,
+            "qwen_visual": 1,
+            "token": "04d3c2f7702750b6"
+          }
+        ],
+        "current_image_read_excluded_from_latency": true,
+        "guard_is_not_an_OS_sandbox": true,
+        "identity": "c97e1ce189ec2a3b0baf337230d6ed2aa7a091f4e72124117750fb95eb3ebe85",
+        "latency_seconds": [
+          1.4304702952504158,
+          1.057456387206912,
+          1.0767599493265152,
+          1.074677312746644
+        ],
+        "median_latency_excluding_first": 1.074677312746644,
+        "opened_GT_relation_or_feature_cache": false,
+        "peak_allocated_bytes": 12846126080,
+        "peak_reserved_bytes": 13295943680,
+        "precision_diagnostic_never_used_to_select_executed_trajectory": true,
+        "python_training_file_access_guard": true,
+        "q0_and_final_exported": true,
+        "resources": {
+          "checked_unix": 1792038234.3300672,
+          "host": "training-vla-zt",
+          "policy_sha256": "40a18d97b2276df92559fae1fa294269329cd7611907e6ef709fb6821679a127"
+        },
+        "scenes": 4,
+        "seconds": 107.32969326339662,
+        "token_quantization_diagnostic": []
+      },
+      "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    }
+  ],
+  "scope": "Real current camera-only, completed B-fold common24 controls; no test-set selection",
+  "script_sha256": "ad7b61735e41b839c4a53b03b36e9c2a6110e98113f8edaa895846ee20cb9e34"
+}

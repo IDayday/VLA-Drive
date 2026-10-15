@@ -134,9 +134,9 @@ CUDA_VISIBLE_DEVICES=4 /mnt/project/decision-local-consequence-artifacts/2026101
 CUDA_VISIBLE_DEVICES=2 /mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python /mnt/project/minimal-repair-artifacts/20261015/verify_resume_v10.py
 ```
 
-该脚本已运行完成，原产物位于`resume_v10`。重做需独立输出，并保持原输入、源码和seed。正式头原生恢复命令待新run实际启动后按对应身份给出。
+该脚本已运行完成，原产物位于`resume_v10`。重做需独立输出，并保持原输入、源码和seed。正式头已完成；实际执行过的无损恢复命令和状态收据见EXECUTION_AND_RESUME_ZH.md，不应对COMPLETE任务再次续训。
 
-## 正式有限队列（已部署，等待完整B标签核验）
+## 正式有限队列（历史实际启动命令；九组与72项开发观察现已完成）
 
 九个共同24epoch小头的逐run命令在 [STAGE_A_V5_TASKS.json](evidence/STAGE_A_V5_TASKS.json)；登记不等于训练完成。
 
@@ -224,4 +224,4 @@ CUDA_VISIBLE_DEVICES=2 /mnt/project/decision-local-consequence-artifacts/2026101
 /mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python -u /mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_milestones.py --registry /mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_RECOVERY.json --gpus 0 1 2 3 4 5 6 7 --cpu-parallel 1 --max-seconds 21600
 ```
 
-完整B分片收尾：`/mnt/project/minimal-repair-artifacts/20261015/close_foldB_v5.py` 已启动，最长等待6000秒，随后调用固定版本并发SHA核验。它不恢复旧任务、不缩减人口，也不跳过失败。
+完整B分片收尾：`/mnt/project/minimal-repair-artifacts/20261015/close_foldB_v5.py` 已完成全48,881场景及SHA核验。它不恢复旧任务、不缩减人口，也不跳过失败。

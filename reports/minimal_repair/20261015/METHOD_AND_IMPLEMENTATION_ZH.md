@@ -13,8 +13,8 @@
 corrected v5完整B折（fullB）48,881场景及开发集dev1696均已COMPLETE，见
 [fullB完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_foldB_v5/COMPLETE.json)
 和 [dev1696完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5/COMPLETE.json)。
-当前9个v5 formal小头已启动：seed42的LOG_NONE/CV/FUT、MIN_NONE/CV/FUT六组，
-seed43的LOG_FUT/MIN_CV/MIN_FUT关键三组；目前尚无24epoch正式结果。
+9个v5 formal小头已完成共同24epoch与9168updates：seed42的LOG_NONE/CV/FUT、MIN_NONE/CV/FUT六组，
+seed43的LOG_FUT/MIN_CV/MIN_FUT关键三组；共同终点和72项开发评价已完成，见[阶段A结果](ROUND1_STAGE_A_RESULTS_ZH.md)。
 九组正式训练均已通过原生optimizer安全边界迁入字节相同RAM特征镜像并继续运行，
 见 [RAM迁移请求](/mnt/project/minimal-repair-artifacts/20261015/RAM_RESUME_REQUESTS_v11.json)。
 [RAM_CACHE收据](/mnt/project/minimal-repair-artifacts/20261015/RAM_CACHE_training-vla-zt_v10.json)
@@ -87,7 +87,7 @@ KEEP目标对原GT的平均ADE为0.757m，REPAIR为0.835m，目标没有全部�
 [STAGE_A_V5_EVAL_NATURAL.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_NATURAL.json)、
 [STAGE_A_V5_EVAL_RECOVERY.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_RECOVERY.json)
 及 [STAGE_A_V5_EVALUATION_RUNNERS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVALUATION_RUNNERS.json)。
-结合各run原生状态、RAM迁移收据及对应 `COMPLETE.json` 判断实际进度；目前尚无24epoch正式结果。
+结合各run原生状态、RAM迁移收据及对应 `COMPLETE.json` 判断实际进度；共同终点和72项开发评价已完成，见[阶段A结果](ROUND1_STAGE_A_RESULTS_ZH.md)。
 运行命令参见 [CURRENT_VECTOR_COMMANDS_ZH.md](CURRENT_VECTOR_COMMANDS_ZH.md)。旧v4注册、标签、权重、成本及失败验证作为历史保留，不作为corrected v5正式结果。
 
 ## 覆盖不足的具体来源
@@ -95,3 +95,8 @@ KEEP目标对原GT的平均ADE为0.757m，REPAIR为0.835m，目标没有全部�
 对固定前256个训练scene的原生seed42计划进行只读归因：224个scene被已消失track的未知可达区域影响，3个scene路面高度不足，1个缺有效帧，3个受对象首次出现的区间影响；类别可重叠，聚合证据见 [SUPPORT_ATTRIBUTION_TRAIN256_v10.json](evidence/SUPPORT_ATTRIBUTION_TRAIN256_v10.json)。保留的未知区域采用最后提供速度及固定加速度/转向界，消失时间中位3秒、P90为3.75秒，因而较远时间的支持明显减少。本轮没有为了覆盖率把这些区域标为free或修改目标版本。该保守合同及真正的动态修复稀疏性必须和规划结果一起解释，不能把小头无收益直接归因于未来信息没有价值。
 
 历史v4的固定32个分层训练案例（16项REPAIR，另有KEEP和未知/未解案例）经canonical检查，目标使4个原零分变为非零，没有新增零分；6个案例分数轻微下降。该人为分层旧版本诊断仅为历史证据，不作为corrected v5目标质量或正式模型成绩。v5另有固定32训练案例验收，见 [TARGET_REVIEW32_ACCEPTANCE_v5.json](evidence/TARGET_REVIEW32_ACCEPTANCE_v5.json)；同样只说明有限训练案例中的离线目标质量，不代表总体收益或完整驾驶正确性。
+
+
+## 一次限定的训练充分性修复
+
+原配方有效训练曝光中KEEP190062、REPAIR2969。固定训练诊断显示稀少REPAIR仍明显欠拟合。三个MIN组新增一个独立、匹配的固定类别权重对照，权重完全来自上述B训练曝光；详见[登记与实现](BOUNDED_REPAIR_BALANCE_ZH.md)。不改变输入、目标资格、网络、部署或原主六组结果。它只检验稀少修复梯度这一故障假设，不是新增风险loss或在线门控。正式P/R仍等待这一有限复核与原阶段A证据的共同判断。

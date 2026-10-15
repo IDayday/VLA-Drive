@@ -1,0 +1,104 @@
+{
+  "CPU_worker_allocation_hour_upper_bound": 8,
+  "allowed_hosts": [
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-tsinghua-zt5"
+  ],
+  "analysis_source": "/mnt/project/VLA-Drive-minimal-repair-analysis-v11-20261015",
+  "analysis_source_sha": "85e2e7748ea8f1879c7c8fcab42a0f006f64ec23",
+  "jobs": [
+    {
+      "distribution": "NATURAL",
+      "id": "natural_stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "kind": "MIN_NONE",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/natural/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "seed": 42,
+      "workers": 8
+    },
+    {
+      "distribution": "NATURAL",
+      "id": "natural_stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "kind": "MIN_CV",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/natural/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "seed": 42,
+      "workers": 8
+    },
+    {
+      "distribution": "NATURAL",
+      "id": "natural_stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "kind": "MIN_FUT",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/natural/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "seed": 42,
+      "workers": 8
+    },
+    {
+      "distribution": "RECOVERY",
+      "id": "recovery_stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "kind": "MIN_NONE",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/recovery/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "seed": 42,
+      "workers": 8
+    },
+    {
+      "distribution": "RECOVERY",
+      "id": "recovery_stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "kind": "MIN_CV",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/recovery/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24",
+      "seed": 42,
+      "workers": 8
+    },
+    {
+      "distribution": "RECOVERY",
+      "id": "recovery_stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "kind": "MIN_FUT",
+      "max_seconds": 600,
+      "output": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/recovery/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24",
+      "seed": 42,
+      "workers": 8
+    }
+  ],
+  "runtime": "/mnt/project/minimal-repair-artifacts/20261015/behavior_balanced_v14/runtime",
+  "scope": "Six fixed24 complete analyses for bounded class-balance follow-up"
+}
