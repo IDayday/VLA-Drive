@@ -1,0 +1,54 @@
+{
+  "source_sha": "51654686a85bbe78541052b86c52532c5fdae520",
+  "scope": "CPU rescore of existing 32-scene engineering predictions, no training or model execution",
+  "commands": [
+    {
+      "kind": "P_ABS",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/measure_scoring_process.py",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/LOCAL_RELATION_SUPPORT_P_ABS_CPU_v1.json",
+        "--",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/rescore_local_relation_support.py",
+        "--saved-evaluation",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_relations_v1/P_ABS",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_R_32_v1",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_relation_support_v2/P_ABS",
+        "--max-seconds",
+        "120"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-error-local-20261015",
+      "status": "REGISTERED"
+    },
+    {
+      "kind": "P_DIFF",
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/measure_scoring_process.py",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/LOCAL_RELATION_SUPPORT_P_DIFF_CPU_v1.json",
+        "--",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/rescore_local_relation_support.py",
+        "--saved-evaluation",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_relations_v1/P_DIFF",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_R_32_v1",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_relation_support_v2/P_DIFF",
+        "--max-seconds",
+        "120"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-error-local-20261015",
+      "status": "REGISTERED"
+    }
+  ]
+}
