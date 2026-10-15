@@ -1,0 +1,23 @@
+{
+  "schema": "native_A_FP32_repeated_inference_v1",
+  "scenes": 4,
+  "identical_scene_order": true,
+  "q0_bit_exact": true,
+  "q0_max_absolute_error": 0.0,
+  "source_v1": "08aa051a9a4f04bdf14e99edcfacf71ca3930c56",
+  "source_v2": "3e5fe21978ca3a93aeb0d6a846f19be52c452b70",
+  "actual_precision": {
+    "W_retained": 144,
+    "auxiliary_heads_removed": true,
+    "compute_policy": "FP32, autocast disabled",
+    "cudnn_tf32": false,
+    "loading_path": "tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True",
+    "matmul_tf32": false,
+    "parameter_dtype_elements": {
+      "torch.float32": 2951547396
+    },
+    "parameter_source": "FP32 optimizer master tensors; cast only when explicitly requested"
+  },
+  "model_loading_seconds": 386.27911810204387,
+  "scope": "Same 80-update engineering checkpoint, two independent native FP32 restores on real A internal current images; not formal planning or uninterrupted training parity"
+}
