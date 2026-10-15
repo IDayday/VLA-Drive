@@ -82,14 +82,19 @@ def run(config, output):
                  'PROCESS_LABEL_FEASIBILITY.md', 'PROCESS_LABEL_FEASIBILITY.json'):
         copy(name)
     for name in ('ERROR_DECOMPOSITION.md', 'PER_EXPERT_SWITCH_COST.csv', 'SUBPOOL_DIAGNOSTICS.csv',
-                 'ERROR_COHORTS.csv', 'RICH_COVERAGE.json', 'TRAIN_HELDOUT_ERROR_GAP.md'):
+                 'ERROR_COHORTS.csv', 'RICH_COVERAGE.json'):
         copy('existing_audit/'+name)
+    copy('existing_audit/TRAIN_HELDOUT_ERROR_GAP.md', 'EXISTING_TRAIN_HELDOUT_ERROR_GAP.md')
     for role in ('stage_val', 'dev_report'):
         copy(f'evaluation/{role}/RESULTS.json', f'evidence/{role}_RESULTS.json')
     copy('qualification/trained_online/REPORT.json', 'evidence/TRAINED_ONLINE.json')
     copy('latency/BENCHMARK.json', 'evidence/BENCHMARK.json')
     copy('latency/PLAN.json', 'evidence/LATENCY_PLAN.json')
     copy('current_probe/TRIGGER.json', 'evidence/CURRENT_PROBE_TRIGGER.json')
+    copy('runtime/RESOURCE_INVENTORY_CLOSEOUT.json', 'evidence/RESOURCE_INVENTORY_CLOSEOUT.json')
+    copy('runtime/finish_chain/STATUS.json', 'evidence/FINISH_CHAIN_STATUS.json')
+    for p in sorted((root/'runtime/finish_chain').glob('*_EXIT.json')):
+        copy(p.relative_to(root), 'evidence/finish_chain_'+p.name)
     if probe['status'] == 'TRIGGERED':
         for name in ('PLAN.json', 'RESULTS.json', 'FIT_NORMALIZATION.json', 'INITIALIZATION.json',
                      'INPUT_AUDIT_SUMMARY.json'):
@@ -277,6 +282,8 @@ def run(config, output):
         source_audit_commit=binding['audit_commit'],report_source_commit=code_commit,binding_hash=binding['hash'],
         pool_hash=binding['pool_hash'],full_population_denominators={r['role']:r['requested_scenes'] for r in (external,dev)})
     atomic_json(out/'VERDICT.json',verdict)
+    for item in inventory.values():
+        require(file_hash(out/item['archived_as']) == item['checksum'], 'report archive checksum mismatch')
     atomic_json(out/'SOURCE_MANIFEST.json',dict(runtime_root=str(root),report_source_commit=code_commit,
                                                input_artifacts=inventory,weights_images_and_metric_caches_committed=False))
     return verdict
