@@ -71,3 +71,15 @@ print(shlex.join(argv))
 它是选定收据的阶段快照，尚非最终完整成本账本。未计量的早期管理操作没有补造数字，
 运行中的底座 CPU 另列为实时下界。训练过程中的 GPU 分配时间与真正 GPU kernel
 活跃时间、CPU busy time、墙钟时间分别记录。
+
+## 已执行的首个正式保存点检查
+
+`inspect_native_training_checkpoint.py` 的 `c318f248…` 版本已在完整的
+`periodic_002000` 上通过8rank只读核验。完整实际argv在
+[外层执行收据](FIRST_FORMAL_CHECKPOINT_INSPECTION_CPU_v2.json)，结果在
+[检查结果](FIRST_FORMAL_CHECKPOINT_INSPECTION_v2.json)。此前 `efe47942…` 的
+失败与原生padding格式解释见 [失败记录](FIRST_FORMAL_CHECKPOINT_INSPECTION_v1_FAILED.json)。
+
+该命令不恢复、停止或启动训练，不创建新权重。之后的滚动保存可能已按登记策略删除
+该tag；不能将旧报告中的路径当作永久保留承诺。检查器只接受已完成、同一正式身份
+的tag，输出文件已存在时拒绝覆盖。元数据检查不替代实际数值恢复试验。

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_native_checkpoint_inspection.py"
+  ],
+  "coverage": [
+    "zero and nonzero rigid padding",
+    "undeclared padding rejected",
+    "non-FP32 moment rejected",
+    "wrong optimizer step rejected",
+    "wrong partition count rejected",
+    "duplicate group rejected"
+  ],
+  "failed": 0,
+  "passed": 7,
+  "real_check": "FIRST_FORMAL_CHECKPOINT_INSPECTION_v2.json",
+  "schema": "native_checkpoint_metadata_validation_v2",
+  "scope": "CPU metadata only; not payload hash verification or formal numerical resume acceptance",
+  "source_sha": "c318f2484452f1196d2420bf3b803865d0f8f5ec"
+}

@@ -1,0 +1,18 @@
+{
+  "cause": "Inspector incorrectly required unpadded master and rigid optimizer moments to have the same shape; native DeepSpeed 0.16.9 saves them differently.",
+  "checkpoint": "periodic_002000",
+  "correction": "Check exact master + declared padding length, FP32 dtype, all rank parameter inventory and native step. No numeric tolerance change.",
+  "declared_padding": 12,
+  "exit_code": 1,
+  "fixed_inspector_source_sha": "c318f2484452f1196d2420bf3b803865d0f8f5ec",
+  "formal_training_interrupted": false,
+  "group": 5,
+  "inspection_source_sha": "efe47942b5ed1157e5f5925968e33567e516c7fe",
+  "master_elements": 12500726,
+  "moment_elements": 12500738,
+  "original_error": "ValueError: Missing FP32 moment state",
+  "original_failure_cost_receipt": "FIRST_FORMAL_CHECKPOINT_INSPECTION_CPU_v1.json",
+  "rank": 7,
+  "schema": "native_checkpoint_inspector_v1_failure_diagnosis",
+  "training_checkpoint_modified": false
+}
