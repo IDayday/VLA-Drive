@@ -51,7 +51,7 @@ def analyze(task):
         for obj in (scene.frames[0] or {}).values())
     oscore=float(original.get('score') or 0);fscore=float(final.get('score') or 0)
     groups={'all':True,'KEEP':status=='KEEP','REPAIR':status=='REPAIR','unresolved':status not in ('KEEP','REPAIR'),
-        'reasonable_non_GT_KEEP':bool(status=='KEEP' and gt_in.mean()>=.5),
+        'local_geometry_KEEP_non_GT_ADE_ge_0p5':bool(status=='KEEP' and gt_in.mean()>=.5),
         'original_high_ge_0p9':oscore>=.9,'original_low_le_0p5':oscore<=.5,
         'dynamic_enter':bool((pair&~current_occ&future_occ).any()),'space_release':bool((pair&current_occ&~future_occ).any()),
         'road_boundary':bool((valid[0,:,0]&(relation[0,:,0]<=.5)).any()),
@@ -84,6 +84,8 @@ def main():
     if not 1<=a.workers<=24:raise ValueError('Bounded workers required')
     declaration={'predictions':pm['identity'],'scores':sm['identity'],'labels':lm['identity'],
         'scope':'post-execution geometry diagnostics, distinct from canonical responsibility/safety metrics',
+        'KEEP_group_scope':'accepted annotated local geometry and kinematics; not independent navigation/traffic-rule certification',
+        'route_scope_implementation':'bounded relative position, heading and progress; no lane-graph route verification',
         'KEEP_modification_thresholds':{'max_xy_m':.25,'max_heading_rad':.1},
         'thresholds_origin':'fixed training-side physical scales; not fitted to development scores',
         'counterfactual_limit':'queries use the logged environment, no claimed response of other actors to changed ego actions'}

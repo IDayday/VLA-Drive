@@ -1,0 +1,94 @@
+[
+  {
+    "host": "training-vlawm-tsinghua-zt",
+    "pid": 515936,
+    "argv": [
+      "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+      "-u",
+      "/mnt/project/minimal-repair-artifacts/20261015/run_teacher_natural_v10.py"
+    ],
+    "commands": [
+      [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/export_repair_teacher_diagnostic.py",
+        "--labels",
+        "/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5",
+        "--acceptance",
+        "/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_ACCEPTANCE_v5.json",
+        "--output",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_natural_v10",
+        "--distribution",
+        "NATURAL",
+        "--max-seconds",
+        "600"
+      ],
+      [
+        "/root/miniconda3/envs/navsim/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/score_navsim.py",
+        "--predictions",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_natural_v10",
+        "--index",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+        "--devkit",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+        "--output",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_natural_canonical_v10",
+        "--population",
+        "dev",
+        "--workers",
+        "16"
+      ]
+    ],
+    "log": "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_natural_v10.log",
+    "started_unix": 1792032833.3051186,
+    "purpose": "fixed offline teacher dev diagnostic only; no model tuning or camera-only score"
+  },
+  {
+    "host": "training-vlawm-tsinghua-zt2",
+    "pid": 1066589,
+    "argv": [
+      "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+      "-u",
+      "/mnt/project/minimal-repair-artifacts/20261015/run_teacher_recovery_v10.py"
+    ],
+    "commands": [
+      [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/export_repair_teacher_diagnostic.py",
+        "--labels",
+        "/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5",
+        "--acceptance",
+        "/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_ACCEPTANCE_v5.json",
+        "--output",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_recovery_v10",
+        "--distribution",
+        "RECOVERY",
+        "--max-seconds",
+        "600"
+      ],
+      [
+        "/root/miniconda3/envs/navsim/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/score_navsim.py",
+        "--predictions",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_recovery_v10",
+        "--index",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+        "--devkit",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+        "--output",
+        "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_recovery_canonical_v10",
+        "--population",
+        "dev",
+        "--workers",
+        "16"
+      ]
+    ],
+    "log": "/mnt/project/minimal-repair-artifacts/20261015/teacher_dev_recovery_v10.log",
+    "started_unix": 1792032833.6447031,
+    "purpose": "fixed offline teacher dev diagnostic only; no model tuning or camera-only score"
+  }
+]

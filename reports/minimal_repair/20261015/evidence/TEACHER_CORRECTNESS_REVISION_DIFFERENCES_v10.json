@@ -1,0 +1,100 @@
+{
+  "cases": [
+    {
+      "token": "807c9c96f42c597d",
+      "log": "2021.10.11.02.57.41_veh-50_02155_02265",
+      "old_preserved": {
+        "score": 0.8491238925598745,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.637897342143699,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0
+      },
+      "corrected": {
+        "score": 0.849600422784062,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.6390410146817489,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0
+      },
+      "input_max_xy_difference_m": 0.0,
+      "target_max_xy_difference_m": 0.3427737355232239,
+      "target_max_heading_difference_rad": 0.05399894714355469,
+      "v4_target_status": {
+        "status": "UNSOLVED",
+        "reason": "no_independently_validated_solution_within_budget",
+        "target_valid": false,
+        "wall_seconds": 0.7947991192340851,
+        "candidate_road_margin_m": [
+          0.019999953497785473,
+          0.019999940285590507,
+          0.019999906776779625
+        ]
+      },
+      "v5_target_status": {
+        "status": "REPAIR",
+        "reason": "least_change_among_independently_validated_fixed_budget_solutions",
+        "target_valid": true,
+        "wall_seconds": 0.7633748389780521,
+        "candidate_road_margin_m": [
+          0.019999942499452295,
+          0.020000020096072914,
+          0.019999906776779625
+        ]
+      }
+    },
+    {
+      "token": "a0134d1c60475b3c",
+      "log": "2021.06.23.17.31.36_veh-16_00016_00377",
+      "old_preserved": {
+        "score": 0.915937072826746,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 1.0,
+        "ego_progress": 0.7982489747841905,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0
+      },
+      "corrected": {
+        "score": 0.0,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.0,
+        "ego_progress": 0.0,
+        "time_to_collision_within_bound": 1.0,
+        "comfort": 1.0,
+        "driving_direction_compliance": 1.0
+      },
+      "input_max_xy_difference_m": 0.0,
+      "target_max_xy_difference_m": 0.947641134262085,
+      "target_max_heading_difference_rad": 0.160530686378479,
+      "v4_target_status": {
+        "status": "REPAIR",
+        "reason": "least_change_among_independently_validated_fixed_budget_solutions",
+        "target_valid": true,
+        "wall_seconds": 1.8980185966938734,
+        "candidate_road_margin_m": [
+          0.02000020294933028,
+          0.02000070215939495,
+          0.01999980777599813
+        ]
+      },
+      "v5_target_status": {
+        "status": "UNSOLVED",
+        "reason": "no_independently_validated_solution_within_budget",
+        "target_valid": false,
+        "wall_seconds": 3.002231854945421,
+        "candidate_road_margin_m": [
+          0.01999986909937247
+        ]
+      }
+    }
+  ],
+  "no_development_tuning_performed": true,
+  "scope": "preserved superseded target vs corrected target sensitivity only, not a method comparison; no target selection by PDMS",
+  "interpretation": "Largest changed diagnostic score is a formerly REPAIR case now UNSOLVED. Its candidate road margin0.019999869m fails unchanged0.02m independent acceptance and a later start reaches the3s bound. Diagnostic retains input on UNSOLVED only for the all-scene denominator. No failed candidate was accepted or used as a KEEP training target.",
+  "no_acceptance_tolerance_or_target_changes_from_development": true
+}
