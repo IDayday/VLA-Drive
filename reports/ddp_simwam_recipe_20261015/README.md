@@ -1,12 +1,28 @@
 # DDP: SimWAM public recipe transfer
 
-Status at 2026-10-15 01:32 UTC: both formal eight-GPU runs are updating from
+Status at 2026-10-15 05:45 UTC: both formal eight-GPU runs are updating from
 the same SFT/LoRA initialization. Full TRAIN screening and the fixed hard list
 are complete. Implementation, real-model acceptance, exact eight-GPU recovery,
 and paired SFT deployment evaluation are available.
-**Neither formal 20,000-update run is complete. No
-claim of improved deployment PDMS is supported yet.** This report is updated
-by stage rather than replacing unfinished work with a plan.
+**Neither formal 20,000-update run is complete. Fixed5k evaluation now shows
+native single-ODE gains on complete DEV, with a clear TTC cost for source
+reward. Final Navtest is still pending.** This report is updated by stage.
+
+[The complete5k result](interim_ode_update005000.md) is DEV native PDMS
+93.6192 SFT →94.0763 source /94.3121 canonical. Source adds16 TTC violations
+and recovers1; canonical adds1 and recovers1. New joint violations on the
+fixed SFT-safe population are20 /2. These intermediate results do not select
+the final checkpoint or establish safe generalization to Navtest.
+
+The 05:33 analysis uses sealed cost snapshots at source17,600 / canonical11,000
+updates. The [matched first10k analysis](interim_training_10k.md) includes
+20,000 fresh scene groups per variant and shows >99.6% nonzero-PG groups, but
+also a progress/TTC tradeoff in stochastic training samples. These are not
+deployment scores. A missing SSH alias stopped the first milestone controller;
+[the recovered queues](controller_recovery.md) now run from the CPU-only local
+control host, with inference/scoring still on authorized Tsinghua workers.
+Both update5000 DEV1696/TRAIN512 evaluations are complete. The vla-zt2 withdrawal is enforced;
+the current two training hosts are unchanged.
 
 Branch: `feature/ddp-simwam-recipe-transfer-20261015`, starting from
 `90782b6b5a10a77541c22b29f90b83d7309d7081`. Old C/N experiments were stopped at
@@ -178,9 +194,12 @@ The fixed final selection rule is each variant's update20000 endpoint, not
 the best intermediate checkpoint. Full Navtest waits for endpoint identity
 locking. No extra training or inference seeds are scheduled.
 
-The finite final evaluation controller is now running on tsinghua-zt2 from
-analysis commit `a974d3bb719c3dbd957eb0c96d7979fa162c09d9`; its command and
-actual closed gate are in [final_queue_dispatch.json](final_queue_dispatch.json).
+The original final controller dispatch is preserved in
+[final_queue_dispatch.json](final_queue_dispatch.json). Its idle controller was
+replaced by local CPU-only administration from commit
+`62790cbc0df4acaaee3faa77427751443eca5ea2`, after a successful transport check to
+all four worker hosts. [Recovery evidence](controller_recovery.md) records this
+routing-only change; inference retains the original immutable evaluation source.
 It waits for both completed training budgets and all DEV stages, locks the
 actual endpoint weights, then evaluates SFT and both endpoints on all12,146
 Navtest scenes using the same frozen evaluation source. Live GPU inventory and
@@ -200,11 +219,13 @@ DEV's different difficulty does not replace Navtest. Detailed metrics,
 kinematics and execution costs are in `SFT_DEV_baseline.json` and
 `SFT_TRAIN_DIAGNOSTIC_baseline.json`.
 
-Formal learning curves, complete paired RL-vs-SFT DEV results, final Navtest,
-NC/DAC/TTC added violations/recoveries, zero transitions, positive/negative
-score sums, progress/kinematics, gradient competition and cost accounting
-remain **pending**. Qualification results establish implementation evidence,
-not driving efficacy. No 92-point claim is made.
+Complete paired5k DEV/TRAIN results, safety/zero transitions, gain/loss sums,
+kinematics and the matched saved-batch gradients are now available in
+[the interim evaluation](interim_ode_update005000.md) and
+[training analysis](interim_training_10k.md). Later fixed milestones, complete
+20k curves, final Navtest and final cost accounting remain **pending**.
+Qualification results establish implementation evidence, not driving efficacy.
+No Navtest92-point claim is made.
 
 ## Executed entries and native recovery
 

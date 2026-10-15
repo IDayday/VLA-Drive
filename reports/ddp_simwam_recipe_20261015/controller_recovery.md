@@ -33,3 +33,9 @@ The unrelated G2 run saved its complete native update89574 and exited; its
 existing migration owner is recorded in the project AGENTS.md. This task does
 not start a duplicate G2 continuation. The current R_SOURCE/R_CANONICAL runs
 are on tsinghua-zt4/zt3, respectively, and remain authorized.
+
+Recovery has now completed both fixed5000 populations: DEV1696 and TRAIN512
+for both variants, with all32 shard records complete and direct native-path
+parity checks passed. [The completion receipt](recovered_evaluation_receipt.json)
+binds their identities. Both queues remain alive; the milestone queue has moved
+on to the already saved10k checkpoints and the final Navtest gate remains closed.
