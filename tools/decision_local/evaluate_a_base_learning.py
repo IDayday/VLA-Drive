@@ -4,7 +4,7 @@ This monitors learning, not checkpoint selection on B/dev. The formal shared
 anchor remains the exposure-matched terminal checkpoint. Preflight only reads
 real A-calibration current inputs and GT; it is not a model evaluation.
 """
-import argparse,importlib.util,json,sys,time
+import argparse,importlib.util,json,os,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -51,6 +51,9 @@ def main():
             training['data']['population_contract']!=contract or training['config']['foresight']['planner_condition_mode']!='action_only'):
             raise ValueError('Only the registered A-only S0 may use this learning curve')
         model=load_student(a.training_run,a.tag,training,precision='fp32',strip=True)
+        if (not model.inference_fp32 or any(p.dtype!=torch.float32 for p in model.parameters()) or
+                torch.backends.cuda.matmul.allow_tf32 or torch.backends.cudnn.allow_tf32):
+            raise ValueError('Actual deployment state differs from the FP32/TF32-off contract')
     elif a.training_run or a.tag or a.shards!=1:raise ValueError('Preflight has no checkpoint or GPU shards')
     declaration=dict(schema='a_internal_base_learning_v2',population_contract_sha256=h.digest(a.population_contract),
         role='A_calibration',index_identity=h.identity(rows),scenes=len(rows),checkpoint=checkpoint,
@@ -63,6 +66,11 @@ def main():
     ident=h.identity(declaration);a.output.mkdir(parents=True,exist_ok=True)
     if (a.output/'identity.json').exists() and h.read(a.output/'identity.json')['identity']!=ident:raise ValueError('Preserve previous curve version')
     h.atomic_json(a.output/'identity.json',dict(identity=ident,**declaration));records=[]
+    if model is not None:
+        h.atomic_json(a.output/f'ready_{a.rank:03d}.json',dict(identity=ident,pid=os.getpid(),rank=a.rank,
+            model_loading_seconds=time.monotonic()-start,precision=model.deployment_precision,
+            allocated_bytes=torch.cuda.memory_allocated(),reserved_bytes=torch.cuda.memory_reserved(),
+            resources=h.check_host()))
     for i in list(range(len(selected)))[a.rank::a.shards]:
         if time.monotonic()-start>a.max_seconds:raise TimeoutError('Finite A-calibration budget')
         row=rows[i];observation=data[i]
