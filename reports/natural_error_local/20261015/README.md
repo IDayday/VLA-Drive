@@ -98,7 +98,7 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 | 固定旧训练/开发人口漏斗与局部支持 | 已完成；训练/开发 canonical 交叉表及全部 KEEP/零分核验完成 |
 | LocalEvidence、独立全轨迹目标 mask、A-only 数据视图 | 已实现；21 项组合测试通过，执行坐标修复后 5 项针对性测试通过 |
 | 新 A-only GT-MAE | 已完成 30 epoch / 5010 updates / 1,281,210 曝光；冻结 epoch30，源码 `1493deda…` |
-| 新共享 S0_A | 尚未启动；等待已完成 teacher 的标签导出、公共权重校准和完整 8 卡 profile |
+| 新共享 S0_A | 尚未启动；教师/标签/公共权重校准已完成，正在执行完整 8 卡 profile |
 | N_NONE/N_CV/N_FUT | 新协议训练入口已实现；正式训练 NOT_RUN |
 | P_ABS/P_DIFF、三个 R | 录制隔离的真实小集前后向与恢复检查完成；正式 NOT_RUN |
 | 新底座在线部署、关键复跑、最终 Navtest | 尚未执行 |
@@ -118,6 +118,13 @@ current-only 的对应误差从 16 epoch 的约 1.108/5.541m 变为 1.152/6.084m
 并观察到连续的 update3991–4009，曝光和 LR 与原边界一致。恢复点以 hard link 保留；
 未重置 warmup 或数据位置。这是原生恢复边界及实际继续更新的证据，不是长期 CUDA
 逐位重放声明。见 `TEACHER_NATIVE_BOUNDARY_CONTINUED.json`。
+A-only 教师目标已完整导出 42,707 场景，fresh forward 先屏蔽全部 ego future；导出
+约 410 秒、0.114 GPU 分配小时，CPU-process 约 196 秒。随后固定 4 个 A_train 场景
+完成所有原 S0 任务的共享梯度校准与完整反向，未来标签毒化不改变 q0。按原规则得到
+当前 DINO 1.0、未来 DINO 2.69043257、交互 1.55469623；交互加权共享梯度相对 FM
+的中位比例约 0.25165。校准没有 optimizer 更新，不使用 B/开发分数。图像缓存适配
+仅改执行清单合同，经真实像素/标签核验后沿用这一次冻结校准，不再次搜索权重。
+
 共享 S0_A 保留 S0 的当前 DINO、未来 DINO 序列、A-only MAE、原 FM 与动作结构。
 动作 affine 的均值/尺度已仅在 A_train 的 341656 个原始动作点上重拟合，
 而非继承来源不能限定到 A 的旧经验常数；公式、sin/cos heading 与原始物理轨迹不变。
@@ -130,7 +137,10 @@ CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原
 
 8 卡 80-update 完整 profile 已建立有限依赖队列，包含 update4 原生保存/恢复及 19-scene
 尾 batch；只有教师、导出、权重校准和共享图像准备完成且重新核实空闲资源后才启动。
-当前 `QUEUED_BASE_PROFILE_STATUS.json` 仍为未执行，不能据此报告吞吐或恢复成功。
+原 `QUEUED_BASE_PROFILE_STATUS.json` 保留队列登记状态。首次真实启动在数据构造阶段因
+旧读取器要求全量 `local_stage.json` 而退出，未初始化模型或执行更新。修复 A-only
+包装层后，5 个真实场景的原路径/缓存图像像素、当前状态、导航和全部目标逐位一致；
+外来缓存仍被拒绝，原完整标签检查全部保留。v2 重新派发，不将初次失败写成成功 profile。
 图像准备只复制 A_train 当前 JPEG 原始字节到 `/mnt/project`，不产生新的 Qwen/DeepStack 特征缓存。
 当前 42,707 个 A_train 场景的 128,121 张图像已全部完成逐文件字节校验，合计
 26.80 GB；两个有界尝试共约 1079 秒墙钟，第一次到时保留文件，第二次校验后续写。

@@ -1,0 +1,174 @@
+{
+  "action_codec_identity": "bfc16e82c0956b8bd6b15f6d6d0fd5f8362c15b98ef0ae0f6b846d91aef19b82",
+  "future_label_invariance": true,
+  "future_rule": "geometric mean of current/future gradients at W and first Q projection",
+  "initialization": "generic Qwen + random driving/W/heads; no driving checkpoint",
+  "interaction_rule": {
+    "missing_or_zero_scenes": 0,
+    "valid_scenes": 4,
+    "weight": 1.554696225860559,
+    "weighted_shared_gradient_ratio_median": 0.2516548593371353
+  },
+  "interaction_rule_description": "original median 0.25*FM/interaction over W + first/last Q projections",
+  "lambda_cur": 1.0,
+  "lambda_fut": 2.6904325664703204,
+  "lambda_int": 1.554696225860559,
+  "legacy_source_sha": "1493deda247107efe076b9294863a6753391298a",
+  "passed": true,
+  "peak_memory_bytes": 17410074112,
+  "population_contract_sha256": "1541b210cd3ead017de62a96b324f3c611694325dc965672f82ab1fca18603dc",
+  "real_optimizer_updates": 0,
+  "rows": [
+    {
+      "current_dino": {
+        "W": 1.5043846368789673,
+        "first_q": 0.8932141065597534,
+        "language": 0.8934023589739412,
+        "last_q": 0.018339434638619423,
+        "norm": 1.7496688002869756
+      },
+      "ego_fm": {
+        "W": 6.972168445587158,
+        "first_q": 4.3499650955200195,
+        "language": 4.351734670673949,
+        "last_q": 0.12408993393182755,
+        "norm": 8.218803287437105
+      },
+      "future_clip": {
+        "W": 0.37617331743240356,
+        "first_q": 0.21559260785579681,
+        "language": 0.2157951913761439,
+        "last_q": 0.009348371997475624,
+        "norm": 0.4336749120818109
+      },
+      "interaction": {
+        "W": 1.2491412162780762,
+        "first_q": 0.7121366262435913,
+        "language": 0.7128654302786485,
+        "last_q": 0.032226499170064926,
+        "norm": 1.438238818795764
+      },
+      "raw_losses": {
+        "current_dino": 0.5166022777557373,
+        "ego_fm": 1.5476720333099365,
+        "future_clip": 1.9979816675186157,
+        "interaction": 1.9953725337982178
+      },
+      "token": "6a294e9b3261546a"
+    },
+    {
+      "current_dino": {
+        "W": 0.4256081283092499,
+        "first_q": 0.1689092218875885,
+        "language": 0.1699015907095442,
+        "last_q": 0.018336446955800056,
+        "norm": 0.45826720306883884
+      },
+      "ego_fm": {
+        "W": 3.392120122909546,
+        "first_q": 4.855396270751953,
+        "language": 4.860632952340493,
+        "last_q": 0.22556540369987488,
+        "norm": 5.927244859597597
+      },
+      "future_clip": {
+        "W": 0.21448712050914764,
+        "first_q": 0.10708281397819519,
+        "language": 0.10786912684077254,
+        "last_q": 0.013000749051570892,
+        "norm": 0.24008430475500955
+      },
+      "interaction": {
+        "W": 0.5979171395301819,
+        "first_q": 0.3023613691329956,
+        "language": 0.30446759930929157,
+        "last_q": 0.035750824958086014,
+        "norm": 0.6709734903653931
+      },
+      "raw_losses": {
+        "current_dino": 0.5226688981056213,
+        "ego_fm": 2.548772096633911,
+        "future_clip": 1.9761567115783691,
+        "interaction": 1.982230305671692
+      },
+      "token": "517492b4ee70543b"
+    },
+    {
+      "current_dino": {
+        "W": 0.45140212774276733,
+        "first_q": 0.18675018846988678,
+        "language": 0.1875882359872177,
+        "last_q": 0.017711956053972244,
+        "norm": 0.48882842308062824
+      },
+      "ego_fm": {
+        "W": 4.688035011291504,
+        "first_q": 3.0778841972351074,
+        "language": 3.0909287081002006,
+        "last_q": 0.2836708426475525,
+        "norm": 5.615292739087866
+      },
+      "future_clip": {
+        "W": 0.22764045000076294,
+        "first_q": 0.10247814655303955,
+        "language": 0.10363078027018353,
+        "last_q": 0.015413244254887104,
+        "norm": 0.2501189978709273
+      },
+      "interaction": {
+        "W": 0.7757428884506226,
+        "first_q": 0.30675163865089417,
+        "language": 0.3095579759644795,
+        "last_q": 0.041588131338357925,
+        "norm": 0.8352264180837076
+      },
+      "raw_losses": {
+        "current_dino": 0.523255467414856,
+        "ego_fm": 5.347565650939941,
+        "future_clip": 1.9687381982803345,
+        "interaction": 1.9370497465133667
+      },
+      "token": "9f49f6747bca57a5"
+    },
+    {
+      "current_dino": {
+        "W": 0.49588072299957275,
+        "first_q": 0.18457858264446259,
+        "language": 0.18555676608178429,
+        "last_q": 0.01902788132429123,
+        "norm": 0.5294610513355151
+      },
+      "ego_fm": {
+        "W": 1.4688892364501953,
+        "first_q": 0.9061993956565857,
+        "language": 0.9128532175598403,
+        "last_q": 0.1100165992975235,
+        "norm": 1.729432446141968
+      },
+      "future_clip": {
+        "W": 0.25092825293540955,
+        "first_q": 0.10775124281644821,
+        "language": 0.10843222468420685,
+        "last_q": 0.012133302167057991,
+        "norm": 0.2733542307541319
+      },
+      "interaction": {
+        "W": 0.5216205716133118,
+        "first_q": 0.25973695516586304,
+        "language": 0.26133100217820326,
+        "last_q": 0.028820250183343887,
+        "norm": 0.5834225856355427
+      },
+      "raw_losses": {
+        "current_dino": 0.5233996510505676,
+        "ego_fm": 1.3164844512939453,
+        "future_clip": 2.0054595470428467,
+        "interaction": 2.017390727996826
+      },
+      "token": "4058984f590c5213"
+    }
+  ],
+  "source_sha": "f04a18b40941b9e8542fce25ada052802d53a5c9",
+  "teacher_identity": "beb699d8e04acd844975ad759e6d14921ef301fe9f748a8063b00d1bb3479def",
+  "wall_after_model_load_seconds": 5.048918338492513
+}
