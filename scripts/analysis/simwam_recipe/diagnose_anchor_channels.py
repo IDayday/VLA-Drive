@@ -219,11 +219,17 @@ def diagnose(args):
     steps = []
     for j, index in enumerate((7, 8, 9)):
         summary = gradient_summary(basis[j])
-        for got, old_key in [(summary['PG_norm'], 'PG_gradient_norm'),
-                             (summary['original_anchor_norm'], 'beta50_anchor_gradient_norm')]:
+        # Old diagnostics reduced these 4.7M-element vectors in FP32. Compare
+        # like-for-like; the new FP64 norms/Gram matrix avoid that reduction
+        # error and must not be mistaken for a change in the actor gradient.
+        legacy_norms = dict(PG=float(basis[j, 0].norm()),
+                            anchor=float(direct_anchor_gradient[j].norm()))
+        for got, old_key in [(legacy_norms['PG'], 'PG_gradient_norm'),
+                             (legacy_norms['anchor'], 'beta50_anchor_gradient_norm')]:
             torch.testing.assert_close(torch.tensor(got), torch.tensor(previous['steps'][j][old_key]),
                                        atol=1e-7, rtol=3e-4)
         steps.append(dict(step=index, **summary,
+                          old_diagnostic_FP32_norms=legacy_norms,
                           original_beta50_anchor_loss_components=values[j].tolist()))
     ended = time.time()
     return dict(schema='simwam_anchor_channel_diagnostic_v1', status='PASS',
