@@ -41,6 +41,20 @@ class AOnlyBaseView:
         for name in ('future_identity','dino_identity','clip_identity'):setattr(self,name,getattr(self.parent,name,None))
         self.interaction_root=Path(interaction_root) if interaction_root else None
         self.interaction_identity=None
+        self.action_codec=None
+        if contract.get('action_codec'):
+            self.action_codec=json.loads(Path(contract['action_codec']).read_text())
+            if self.action_codec['identity']!=contract['action_codec_identity'] or self.action_codec['index_sha256']!=identity_hash(index):
+                raise ValueError('Action statistics are not fitted on this A population')
+            import importlib.util
+            spec=importlib.util.spec_from_file_location('_a_only_codec_dataset',Path(__file__).with_name('a_only_codec.py'))
+            codec=importlib.util.module_from_spec(spec);spec.loader.exec_module(codec)
+            self.recode_targets=codec.recode_historical_targets
+            from starVLA.dataloader import foresight_dataset as fd
+            if [fd.X_MEAN,fd.Y_MEAN]!=self.action_codec['mean_xy_m'] or [fd.X_STD,fd.Y_STD]!=self.action_codec['std_xy_m']:
+                raise ValueError('Current-input codec was not installed before reading A data')
+        elif contract.get('require_A_teacher',True):
+            raise ValueError('Formal A-only base needs identified A-only normalization')
         if self.interaction_root:
             ident=json.loads((self.interaction_root/'identity.json').read_text())
             complete=json.loads((self.interaction_root/'COMPLETE.json').read_text())
@@ -60,6 +74,8 @@ class AOnlyBaseView:
     def __getitem__(self,index):
         observation,targets=self.parent[self.positions[index]]
         if observation['token']!=self.index[index]['token']:raise ValueError('Delegated index mapping changed')
+        if self.action_codec:
+            targets={**targets,'ego':self.recode_targets(targets['ego'],self.action_codec)}
         if self.interaction_root:
             label=torch.load(self.interaction_root/'targets'/(observation['token']+'.pt'),map_location='cpu',weights_only=True)
             if label['identity']!=self.interaction_identity['identity'] or label['token']!=observation['token']:

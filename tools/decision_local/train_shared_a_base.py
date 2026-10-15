@@ -35,6 +35,11 @@ def main():
     if contract['dataset_adapter_sha256']!=helper.digest(adapter):raise ValueError('A-only data adapter changed')
     # The legacy runtime is imported first, just like frozen S0 cache/export.
     sys.path.insert(0,str(a.legacy_source))
+    codec=ROOT/'starVLA/dataloader/a_only_codec.py'
+    if contract['action_codec_adapter_sha256']!=helper.digest(codec):raise ValueError('Action codec adapter changed')
+    action_codec=helper.read(Path(contract['action_codec']))
+    if action_codec['identity']!=contract['action_codec_identity']:raise ValueError('Action codec identity changed')
+    load_file('_a_only_training_codec',codec).install_legacy_codec(action_codec)
     from starVLA.dataloader import action_video_foresight_dataset as data_module
     original=data_module.ActionVideoForesightDataset
     view=load_file('_a_only_dataset',adapter).AOnlyBaseView
