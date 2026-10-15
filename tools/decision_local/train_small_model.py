@@ -28,7 +28,8 @@ from starVLA.model.modules.structured_world.losses import final_trajectory_loss
 from starVLA.dataloader.foresight_dataset import decode_ego
 
 KINDS = ('E_NONE','E_CURRENT_GT','E_CV_GT','E_FUTURE_GT','E_MASK_ONLY',
-         'P_ABS','P_DIFF','P_QUERY_ONLY','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF')
+         'P_ABS','P_DIFF','P_QUERY_ONLY','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF',
+         'LOG_NONE','LOG_CV','LOG_FUT','MIN_NONE','MIN_CV','MIN_FUT','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF')
 
 
 def build_model(kind, seed, dim=512):
@@ -36,6 +37,9 @@ def build_model(kind, seed, dim=512):
     # Isolate initialization from scene order and anchor/proposal RNG.
     with torch.random.fork_rng(devices=[]):
         torch.manual_seed(seed)
+        if kind.startswith(('LOG_','MIN_','R_MIN_')):
+            from starVLA.model.modules.decision_local.minimal_repair_contract import MinimalRepairRefiner
+            return MinimalRepairRefiner(dim=dim)
         return ConsequenceQueryHead(dim=dim, query_only=kind=='P_QUERY_ONLY') if kind.startswith('P_') else ResidualRefiner(dim=dim)
 
 
@@ -66,6 +70,9 @@ def apply_log_fold(train, heldout, partition, training_fold):
 
 
 def forward(model, kind, batch, predictor=None):
+    if 'plan_in_physical' in batch:
+        from tools.decision_local.minimal_repair_training import repair_forward
+        return repair_forward(model,kind,batch,predictor)
     inputs, queries, targets = inputs_queries_targets(batch)
     if kind.startswith('P_'):
         raw = model(inputs, queries)
@@ -102,10 +109,11 @@ def evaluate(model, kind, data, microbatch, predictor=None):
         output, losses, target = forward(model, kind, batch, predictor)
         row = {'scenes':len(batch['ego']), **{k:float(v) for k,v in losses.items()}}
         if not kind.startswith('P_'):
-            p, gt = decode_ego(output.float()), decode_ego(target.ego.float())
+            target_ego=target.original_ego_GT if 'plan_in_physical' in batch else target.ego
+            p, gt = decode_ego(output.float()), decode_ego(target_ego.float())
             distance = (p[...,:2]-gt[...,:2]).norm(dim=-1)
             row.update(ADE=float(distance.mean()), FDE=float(distance[:,-1].mean()),
-                residual_m=float((p[...,:2]-batch['q0'][...,:2]).norm(dim=-1).mean()))
+                residual_m=float((p[...,:2]-batch.get('plan_in_physical',batch.get('q0'))[...,:2]).norm(dim=-1).mean()))
         metrics.append(row)
     model.train()
     return {k:sum(r[k]*r['scenes'] for r in metrics)/n for k in metrics[0] if k!='scenes'} | {'scenes':n}
@@ -116,7 +124,8 @@ def main():
     for arg in ('features','labels','output'): p.add_argument('--'+arg,type=Path,required=True)
     p.add_argument('--dev-features',type=Path); p.add_argument('--dev-labels',type=Path)
     p.add_argument('--kind',choices=KINDS,required=True); p.add_argument('--predictor',type=Path)
-    p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control'),required=True)
+    p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control','repair_formal'),required=True)
+    p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1'),default='decision_local_v1')
     p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
     p.add_argument('--seed',type=int,default=42); p.add_argument('--epochs',type=int,default=24)
     p.add_argument('--batch',type=int,default=128); p.add_argument('--microbatch',type=int,default=16)
@@ -131,27 +140,49 @@ def main():
     resources = check_host(); start = time.monotonic()
     torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32=False; torch.backends.cudnn.allow_tf32=False
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
-    train = FrozenConsequenceData(a.features,a.labels,reader=a.data_reader)
-    dev = FrozenConsequenceData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
+    repair=a.protocol=='minimal_repair_v1'
+    if repair:
+        from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData
+        from tools.decision_local.minimal_repair_training import REPAIR_KINDS,label_semantics
+        if a.kind not in REPAIR_KINDS+('P_ABS','P_DIFF'):raise ValueError('Wrong kind for repair protocol')
+        if a.scope not in ('smoke','diagnostic','repair_formal'):raise ValueError('Use explicit new scope, preserve legacy formal checks')
+        train=RecoveryPlanData(a.features,a.labels,reader=a.data_reader,fold_partition=a.fold_partition,fold=a.training_fold)
+        dev=RecoveryPlanData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
+    else:
+        if a.kind.startswith(('LOG_','MIN_','R_MIN_')) or a.scope=='repair_formal':raise ValueError('Explicit repair protocol required')
+        train = FrozenConsequenceData(a.features,a.labels,reader=a.data_reader)
+        dev = FrozenConsequenceData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
     if train.feature_identity['split']!='train':raise ValueError('Training must use the registered training split')
     if a.scope=='diagnostic' and len(train.index)!=4096:raise ValueError('Use the fixed 4096 training diagnostic population')
     if a.scope=='formal' and (len(train.index)!=101592 or dev is None or len(dev.index)!=1696):
         raise ValueError('Full common population required')
-    fold_identity=None
+    fold_identity=train.fold_identity if repair else None
+    if a.scope=='repair_formal':
+        if a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed not in (42,43):
+            raise ValueError('Registered common repair recipe required')
+        expected_fold=0 if a.kind.startswith('P_') else 1
+        if a.training_fold!=expected_fold or fold_identity is None or dev is None or len(dev.index)!=1696:
+            raise ValueError('Formal default is P_A/R_B plus entire independent development split')
+        if label_semantics(train.label_identity)!=label_semantics(dev.label_identity):raise ValueError('Train/dev scientific label definition differs')
     if a.scope=='fold_control':
         if a.kind not in ('P_ABS','P_DIFF') or a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed!=42:
             raise ValueError('Only the matched registered predictor OOF check is supported')
         if len(train.index)!=101592 or a.fold_partition is None:raise ValueError('Split the complete original training population')
         fold_identity=apply_log_fold(train,dev,read(a.fold_partition),a.training_fold)
-    elif a.fold_partition is not None or a.training_fold is not None:
+    elif not repair and (a.fold_partition is not None or a.training_fold is not None):
         raise ValueError('Fold inputs cannot alter the primary full-population arms')
     if dev and {r['log'] for r in train.index}&{r['log'] for r in dev.index}: raise ValueError('Train/dev log leakage')
     model = build_model(a.kind,a.seed,a.dim); initial_hash = tensor_hash(model.state_dict()); model=model.cuda().train()
     predictor=payload=None
     if a.kind.startswith('R_'):
         if a.predictor is None: raise ValueError('Frozen corresponding predictor required')
-        predictor,payload=load_predictor(a.predictor,'P_DIFF' if a.kind=='R_FUTURE_DIFF' else 'P_ABS')
-        if payload['identity']['features']!=train.feature_identity['identity'] or payload['identity']['labels']!=train.label_identity['identity']:
+        predictor,payload=load_predictor(a.predictor,'P_DIFF' if a.kind in ('R_FUTURE_DIFF','R_MIN_DIFF') else 'P_ABS')
+        if repair:
+            pi=payload['identity']
+            if pi.get('protocol')!='minimal_repair_v1' or pi.get('repair_label_semantics')!=label_semantics(train.label_identity):raise ValueError('Predictor target/query contract mismatch')
+            if a.scope=='repair_formal' and (pi['repair_fold']['fold']!=0 or pi['repair_fold']['partition_sha256']!=fold_identity['partition_sha256'] or payload['epoch']!=24 or payload['offset']!=0):raise ValueError('R_B requires completed fold-only P_A; full-population P forbidden')
+            if pi['anchor_identity']!=train.feature_identity['anchor_identity']:raise ValueError('Wrong predictor anchor')
+        elif payload['identity']['features']!=train.feature_identity['identity'] or payload['identity']['labels']!=train.label_identity['identity']:
             raise ValueError('Predictor trained on foreign anchor or labels')
         if a.scope=='formal' and (payload['epoch']!=24 or payload['offset']!=0): raise ValueError('Use common completed predictor endpoint')
     optimizer=torch.optim.AdamW(model.parameters(),lr=a.lr,weight_decay=.001)
@@ -177,9 +208,16 @@ def main():
         'inactive_memory_projection_parameters':sum(x.numel() for x in model.memory.parameters()) if a.kind=='P_QUERY_ONLY' else 0,
         'frozen_base_optimizer_updates':0}
     if fold_identity is not None:run_identity['predictor_OOF_control']=fold_identity
+    if repair:
+        extra=[ROOT/'starVLA/dataloader/recovery_plan_dataset.py',ROOT/'tools/decision_local/minimal_repair_training.py']
+        run_identity['source_files'].update({str(f.relative_to(ROOT)):digest(f) for f in extra})
+        run_identity.update(protocol=a.protocol,schema='minimal_repair_small_head_v1',repair_fold=fold_identity,
+            repair_label_semantics=label_semantics(train.label_identity),repair_targets=train.label_identity['identity'],
+            target_eligibility='LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer',
+            plan_exposure='one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule')
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
-    previous_gpu_hours=0.
+    previous_gpu_hours=0.;effective_updates=0;exposure_counts={k:0 for k in ('target_eligible','KEEP','REPAIR','native','lateral','time')}
     if a.resume:
         s=torch.load(saved_path,map_location='cpu',weights_only=False)
         if s['identity']!=run_identity: raise ValueError('Exact resume identity mismatch')
@@ -187,6 +225,7 @@ def main():
         restore_rng(s['rng'],generators)
         completed,epoch,offset,exposure,order=[s[k] for k in ('completed','epoch','offset','exposure','order')]
         previous_gpu_hours=s['GPU_hours']
+        if repair:effective_updates=s['effective_optimizer_updates'];exposure_counts=s['exposure_counts']
     elif (a.output/'identity.json').exists(): raise FileExistsError('Use explicit --resume')
     else: atomic_json(a.output/'identity.json',run_identity)
     def checkpoint(name='latest.pt'):
@@ -194,6 +233,7 @@ def main():
         s={'identity':run_identity,'model':model.state_dict(),'optimizer':optimizer.state_dict(),'scheduler':scheduler.state_dict(),
            'rng':capture_rng(generators),'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'order':order,
            'GPU_hours':previous_gpu_hours+(time.monotonic()-start)/3600.}
+        if repair:s.update(effective_optimizer_updates=effective_updates,exposure_counts=exposure_counts)
         tmp=a.output/(name+'.tmp'); torch.save(s,tmp); tmp.replace(a.output/name)
         atomic_json(a.output/'STATUS.json',{'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,
             'GPU_hours':s['GPU_hours'],'peak_allocated_bytes':torch.cuda.max_memory_allocated(),
@@ -207,20 +247,31 @@ def main():
         if (a.output/'STOP_REQUESTED').exists() or time.monotonic()-start>=a.max_seconds or (a.max_updates and completed>=a.max_updates):
             checkpoint(); atomic_json(a.output/'PAUSED.json',{'reason':'finite session/step budget or explicit STOP','completed':completed}); return
         ids=order[offset:offset+a.batch].tolist(); optimizer.zero_grad(set_to_none=True); losses_sum={}
+        eligible=len(ids)
+        if repair:
+            selected_plans=train.selection(ids,epoch)
+            eligible=sum(row[3] for row in selected_plans)
+            exposure_counts['target_eligible']+=eligible
+            for _,_,plan_index,ok,status in selected_plans:
+                exposure_counts['native' if plan_index==0 else 'lateral' if plan_index<3 else 'time']+=1
+                if ok:exposure_counts['KEEP' if status==0 else 'REPAIR']+=1
         for sub in range(0,len(ids),a.microbatch):
             selected=ids[sub:sub+a.microbatch]; batch=train.batch(selected,'cuda',epoch=epoch)
             output,losses,targets=forward(model,a.kind,batch,predictor)
-            weight=len(selected)/len(ids); (losses['total']*weight).backward()
+            weight=len(selected)/(max(eligible,1) if repair and not a.kind.startswith('P_') else len(ids)); (losses['total']*weight).backward()
             for k,v in losses.items(): losses_sum[k]=losses_sum.get(k,0)+v.detach()*weight
         norm=torch.nn.utils.clip_grad_norm_(model.parameters(),1.,error_if_nonfinite=True)
         if not torch.isfinite(losses_sum['total']): raise FloatingPointError('Nonfinite loss; optimizer not stepped')
-        optimizer.step(); scheduler.step(); completed+=1; offset+=len(ids); exposure+=len(ids)
+        stepped=not repair or a.kind.startswith('P_') or eligible>0
+        if stepped:optimizer.step();effective_updates+=1
+        scheduler.step(); completed+=1; offset+=len(ids); exposure+=len(ids)
         # One packed read/synchronization per optimizer boundary, including work
         # already submitted. Timings include input IO and complete backward.
         names=sorted(losses_sum); values=torch.stack([losses_sum[k] for k in names]+[norm]).tolist()
         now=time.monotonic(); timings.append(now-last); last=now
         row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'seconds':timings[-1],
              'lr_next':optimizer.param_groups[0]['lr'],'grad_norm':values[-1],**dict(zip(names,values[:-1]))}
+        if repair:row.update(effective_optimizer_updates=effective_updates,eligible_this_batch=eligible,exposure_counts=dict(exposure_counts))
         with (a.output/'train.jsonl').open('a') as stream: stream.write(json.dumps(row)+'\n')
         if completed%20==0 or completed==1: print(json.dumps(row),flush=True)
         if offset==len(order):
@@ -234,7 +285,8 @@ def main():
     checkpoint()
     atomic_json(a.output/'COMPLETE.json',{'epoch':epoch,'completed':completed,'exposure':exposure,
         'full_training_population':len(train.index)==101592,'median_update_s':float(np.median(timings[5:] or timings)),
-        'p90_update_s':float(np.percentile(timings[5:] or timings,90)), 'GPU_hours':previous_gpu_hours+(time.monotonic()-start)/3600.})
+        'p90_update_s':float(np.percentile(timings[5:] or timings,90)), 'GPU_hours':previous_gpu_hours+(time.monotonic()-start)/3600.,
+        **({'effective_optimizer_updates':effective_updates,'exposure_counts':exposure_counts,'fold':fold_identity} if repair else {})})
 
 
 if __name__=='__main__': main()

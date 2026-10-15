@@ -1,0 +1,43 @@
+{
+  "schema": "minimal_repair_finite_budget_v1",
+  "UTC": "2026-10-15T00:30:52.760733+00:00",
+  "GPU_process_hours_cap": 64,
+  "CPU_process_hours_cap": 160,
+  "new_shared_storage_GiB_cap": 40,
+  "initial_dispatch_hosts": [
+    "training-vla-zt"
+  ],
+  "excluded_temporary_hosts": [
+    "training-vlawm-zt",
+    "training-vlawm-zt3",
+    "training-vla-zt3"
+  ],
+  "max_new_CPU_workers_local": 24,
+  "max_single_input_solver_seconds": 3,
+  "max_solver_starts": 3,
+  "max_iterations_per_start": 100,
+  "labels_profile": {
+    "scenes": 256,
+    "plans": 2560,
+    "CPU_process_seconds": 452.41123584299993,
+    "wall_seconds": 52.510740011930466,
+    "workers": 16,
+    "stage": "quality validation; not approved for formal training"
+  },
+  "estimated_full_A_B_label_CPU_hours": 49.8712698261307,
+  "head_budget_requires_GPU_profile": true,
+  "pre_registered_stages": [
+    "A: six matched R_B heads seed42,24epochs",
+    "key LOG_FUT/MIN_FUT/MIN_CV seed43",
+    "conditional P_ABS_A/P_DIFF_A and three R_MIN_B",
+    "conditional key fold swap on positive evidence",
+    "locked camera-only final Navtest"
+  ],
+  "retain_checkpoints": [
+    "latest complete native state",
+    "epochs6/12/18/24"
+  ],
+  "no_old_task_resumption": true,
+  "own_workers_exit_at_registered_boundary": true,
+  "cost_reporting": "GPU allocated-process time, CPU process_time, CPU worker wall, total elapsed separately; S0 shared historical483.481GPUh excluded from new cost but disclosed"
+}
