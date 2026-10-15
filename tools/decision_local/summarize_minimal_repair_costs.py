@@ -70,7 +70,7 @@ def main():
                              'CPU_process_seconds':d.get('CPU_process_seconds'),'new_persistent_data_bytes':0})
     # Read-only support attribution is not another label-production pass.
     audits=[]
-    audit_paths=set(r.glob('SUPPORT_ATTRIBUTION_*.json'))|set(r.glob('LOW_PROGRESS_TARGET_AUDIT_*.json'))|set(r.glob('RAM_LABELS_*.json'))
+    audit_paths=set(r.glob('SUPPORT_ATTRIBUTION_*.json'))|set(r.glob('LOW_PROGRESS_TARGET_AUDIT_*.json'))|set(r.glob('RAM_LABELS_*.json'))|set(r.glob('TEMP_RAM_RELEASE_*.json'))
     for path in sorted(audit_paths):
         d=read(path)
         if 'CPU_process_seconds' in d:audits.append({'path':str(path),'CPU_process_seconds':d['CPU_process_seconds']})
@@ -92,7 +92,7 @@ def main():
             'historical_shared_S0_GPU_hours':483.481,'new_full_VLA_encoding_runs':0,
             'historical_S0_cost_source':'Previous decision_local frozen S0 source and training receipts; outside current incremental budget',
             'limits':['Native unfinished-run costs are lower bounds at the last saved checkpoint',
-                      'Uninstrumented failed startup, generic tests, SHA finalization and scorer child CPU are not invented',
+                      'Uninstrumented trainer CPU, failed startup, generic tests, SHA finalization and early scorer child CPU are not invented; the CPU cap cannot be certified from this lower bound',
                       'GPU process-hours under sharing are not exclusive GPU-hours or measured kernel active time',
                       'Label worker busy wall and process CPU time are different quantities',
                       'No historical S0 feature-cache bytes or prior study GPU hours charged again']}

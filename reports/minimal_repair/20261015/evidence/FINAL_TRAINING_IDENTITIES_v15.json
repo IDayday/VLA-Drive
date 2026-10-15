@@ -1,0 +1,1927 @@
+{
+  "runs": [
+    {
+      "run_id": "stageA_v5_seed42_LOG_NONE",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE",
+      "identity_json_sha256": "aaf0e755f3ed3ad7fbec56d71385fe472fa350db4382a4632948c18cb5a6deca",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "LOG_NONE",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7637849849474798,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12353330501355231,
+        "p90_update_s": 0.19260750303510576
+      },
+      "endpoint_checkpoint_sha256": "ad8fd68ae83c9755b214a719b75cc10952b07f1dcb1e8dd74db913f2d69c1ba9",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed42_LOG_CV",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_CV",
+      "identity_json_sha256": "ba61eecb8844ea35d8a1ffa6d91bc80f074b07e814c60708d9823c1dcf425484",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "LOG_CV",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7224279463285994,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.14650585874915123,
+        "p90_update_s": 0.19530663043260574
+      },
+      "endpoint_checkpoint_sha256": "cd2d1531f903dff432f2be1c5928dcad1e14edf6b59c20cb3cf881126365b722",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed42_LOG_FUT",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_FUT",
+      "identity_json_sha256": "6564ac946abe90fcd7df29ec0c2f5c068a896aafa2940f774a728af24d58ca87",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "LOG_FUT",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7200427684591462,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.1451377011835575,
+        "p90_update_s": 0.1957063615322113
+      },
+      "endpoint_checkpoint_sha256": "f9633a0d1f911dd5495f75ea3eb0e04f7f34ecbe11417e7e25851badf9ad58ee",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed42_MIN_NONE",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE",
+      "identity_json_sha256": "28656fa0ee12f2ee5216f1556ba3306cabd6e3abd2bafadef87def639d917aa7",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_NONE",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7646821839975181,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.1243617960717529,
+        "p90_update_s": 0.19327556665521117
+      },
+      "endpoint_checkpoint_sha256": "9b111049ae8b399dfb0a6d74da8acf9780914e4f99016d08964d323c7326ac5e",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed42_MIN_CV",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_CV",
+      "identity_json_sha256": "fc77937e471d2e1e1c4ff9dacb439cf96749da27e0dae12bd89f113f05c6dce9",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_CV",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7422597438692011,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.1401036735624075,
+        "p90_update_s": 0.18365561850368978
+      },
+      "endpoint_checkpoint_sha256": "1ac624e5fcc354e99cab3deb91033d884a3eec1340a4001c4da50dbe3f5fd58d",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed42_MIN_FUT",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_FUT",
+      "identity_json_sha256": "3e2911ef279f3cf29847f72a2bb4b7a0146262086202a2c0cb970d4df1f17231",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_FUT",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.7431017006850905,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.14043459109961987,
+        "p90_update_s": 0.18616531230509284
+      },
+      "endpoint_checkpoint_sha256": "7bcea0c7c74e0f4235aeb7b0ba9bcc55843bf6476e7df597f84a0ee31c20e1ac",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed43_LOG_FUT",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed43/LOG_FUT",
+      "identity_json_sha256": "824673ed2fd27168f5db83c092c8649089c3c2d3193a663563f4a813d0584c65",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "LOG_FUT",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.8292801198813444,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.13504714146256447,
+        "p90_update_s": 0.20036201775074006
+      },
+      "endpoint_checkpoint_sha256": "b87c4c6e0bf81192822379f68a991806b84a62ddaf9f853effcd0e9bc8e2b7b7",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed43_MIN_CV",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed43/MIN_CV",
+      "identity_json_sha256": "3f01403b38f62edfd7744f13376373a683ad7934b5f66e232641c4f2486c0a8a",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "MIN_CV",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.8341012757954498,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.13651170767843723,
+        "p90_update_s": 0.20287621393799785
+      },
+      "endpoint_checkpoint_sha256": "87c9672456ab8144b71214b209f44949c80aca20bc1c1c102e0070249f43ef15",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_v5_seed43_MIN_FUT",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed43/MIN_FUT",
+      "identity_json_sha256": "25ea9e34dbd0ce67689a3dff6f5f11681aacf2d56b029917a0c0fb900de582e9",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "06d5f5f3cdc24b41d78dfe5b13314fdaa7e7eca83121a0635d19ae8b03a734b8",
+        "kind": "MIN_FUT",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 43,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "3b789b59a32edc46087b4db65cf26e6449f222040fdb5566700c8da67fdf9ffe",
+          "tools/decision_local/train_small_model.py": "34dccfe5e03ffc7ca2a953b0184804e7340ebadb836419287c9dd45742f25566"
+        },
+        "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+        "target_acceptance_sha256": "9536b8317ebd0e16e10fe1e2916cc138ca248660bdd5eb1edcad7639e71a728b",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.8170969416832344,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.13032163307070732,
+        "p90_update_s": 0.19338506162166602
+      },
+      "endpoint_checkpoint_sha256": "40e2d97834835c54dc29692465070bf501eefe1d4642e21c993e652281618ec4",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_balanced_v14_seed42_MIN_NONE",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_NONE",
+      "identity_json_sha256": "6e0824fe5bc1f5eed34857f7baeace9d05944982be9fdb8a050eaa93fc675f6a",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_NONE",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_class_balance": {
+          "receipt": {
+            "UTC": "2026-10-15T04:19:25.879578+00:00",
+            "counts": {
+              "KEEP": 190062,
+              "REPAIR": 2969,
+              "target_eligible": 193031
+            },
+            "deployment_changes": false,
+            "fold": {
+              "fold": 1,
+              "logs": 588,
+              "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+              "scenes": 48881
+            },
+            "label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+            "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+            "no_development_statistics_for_weights": true,
+            "sampling_changes": false,
+            "schema": "minimal_repair_class_balance_v1",
+            "scope": "One explicitly post-primary targeted diagnostic; original six arms and losses retained",
+            "training_exposure_source": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_FUT/COMPLETE.json",
+            "training_exposure_source_sha256": "3641e264ef899146ebb509816ad248751d7ef0e85606a6e8ac731f686e7fcaf2",
+            "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+            "weights": {
+              "KEEP": 0.5078106091696394,
+              "REPAIR": 32.507746716066016
+            }
+          },
+          "reduction": "fixed class multipliers; original optimizer-batch eligible-scene denominator",
+          "sha256": "65e21b68c5d0d844030073ad6ca9baefecb6cb87d541eecfdce7fbbe11fdf09a"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "b575bfbe66e58ca478499657545453cbb41c02c8075217565fd6fa40b0599fb1",
+          "tools/decision_local/train_small_model.py": "b8f6fdfc7434a8e67dc8513dd6e7979a24cf9846f03971437c7970396f7759c5"
+        },
+        "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+        "target_acceptance_sha256": "70d06a42f264f62f25d6cca5873a6a8835d18b839cd397c021c07b16c8b61507",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.35473621846694087,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12361659668385983,
+        "p90_update_s": 0.14381582811474802
+      },
+      "endpoint_checkpoint_sha256": "6f9adff1768dadea9ae1c80c0f2ba27bdd698626009b864dcabd1a516adc478f",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_balanced_v14_seed42_MIN_CV",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_CV",
+      "identity_json_sha256": "23d6b94763ec78aff5fa7650426d8f7712174db335e0b96ecff42d2a2e4d8066",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_CV",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_class_balance": {
+          "receipt": {
+            "UTC": "2026-10-15T04:19:25.879578+00:00",
+            "counts": {
+              "KEEP": 190062,
+              "REPAIR": 2969,
+              "target_eligible": 193031
+            },
+            "deployment_changes": false,
+            "fold": {
+              "fold": 1,
+              "logs": 588,
+              "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+              "scenes": 48881
+            },
+            "label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+            "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+            "no_development_statistics_for_weights": true,
+            "sampling_changes": false,
+            "schema": "minimal_repair_class_balance_v1",
+            "scope": "One explicitly post-primary targeted diagnostic; original six arms and losses retained",
+            "training_exposure_source": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_FUT/COMPLETE.json",
+            "training_exposure_source_sha256": "3641e264ef899146ebb509816ad248751d7ef0e85606a6e8ac731f686e7fcaf2",
+            "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+            "weights": {
+              "KEEP": 0.5078106091696394,
+              "REPAIR": 32.507746716066016
+            }
+          },
+          "reduction": "fixed class multipliers; original optimizer-batch eligible-scene denominator",
+          "sha256": "65e21b68c5d0d844030073ad6ca9baefecb6cb87d541eecfdce7fbbe11fdf09a"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "b575bfbe66e58ca478499657545453cbb41c02c8075217565fd6fa40b0599fb1",
+          "tools/decision_local/train_small_model.py": "b8f6fdfc7434a8e67dc8513dd6e7979a24cf9846f03971437c7970396f7759c5"
+        },
+        "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+        "target_acceptance_sha256": "70d06a42f264f62f25d6cca5873a6a8835d18b839cd397c021c07b16c8b61507",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.3614402717144953,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12612654455006123,
+        "p90_update_s": 0.14740189015865326
+      },
+      "endpoint_checkpoint_sha256": "d1c60c953e5eeffaf99b8b63e782f0bea60a9c1184cf3ae36ff7f8ee1aa4d7fd",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    },
+    {
+      "run_id": "stageA_balanced_v14_seed42_MIN_FUT",
+      "run_path": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_FUT",
+      "identity_json_sha256": "c722e81e0527e100489545e8d20e96e2ee67a842a82a2cece77661eee3f46888",
+      "identity_excluding_log_list": {
+        "TF32": false,
+        "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+        "batch": 128,
+        "clip": 1.0,
+        "compute_precision": "FP32",
+        "constraint_config": {
+          "distance_clip_m": 10.0,
+          "horizon_s": 4.0,
+          "max_acceleration_mps2": 12.0,
+          "max_heading_change_rad": 0.4,
+          "max_heading_tangent_error_rad": 0.35,
+          "max_plan_change_m": 2.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "min_progress_fraction": 0.65,
+          "obstacle_clearance_m": 0.05,
+          "road_margin_m": 0.02,
+          "sample_dt": 0.1,
+          "uncertain_boundary_m": 0.15,
+          "validation_dt": 0.05,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "annotated_local_constraints_v3_current_velocity"
+        },
+        "data_reader": "mmap_tensors",
+        "dev_features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+        "dev_labels": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+        "dim": 512,
+        "epochs": 24,
+        "feature_storage_dtype": "float16",
+        "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+        "frozen_base_optimizer_updates": 0,
+        "inactive_memory_projection_parameters": 0,
+        "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+        "kind": "MIN_FUT",
+        "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "lr": 0.0001,
+        "microbatch": 16,
+        "plan_exposure": "one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule",
+        "predictor_OOF_control": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "predictor_sha256": null,
+        "protocol": "minimal_repair_v1",
+        "query_config": {
+          "dense_dt": 0.025,
+          "dt": 0.5,
+          "kinematics_revision": "heading_transition_v3_current_velocity",
+          "lateral_m": [
+            -0.5,
+            0.5,
+            -1.0,
+            1.0
+          ],
+          "max_acceleration_mps2": 12.0,
+          "max_speed_mps": 40.0,
+          "max_yaw_rate_rps": 1.5,
+          "stationary_speed_mps": 0.15,
+          "time_shift_s": [
+            -0.5,
+            0.5
+          ],
+          "velocity_boundary": "measured_vector_v2"
+        },
+        "recovery_config": {
+          "dt": 0.5,
+          "lateral_amplitudes_m": [
+            0.25,
+            0.75,
+            1.25
+          ],
+          "lateral_size_probabilities": [
+            0.5,
+            0.4,
+            0.1
+          ],
+          "selection_seed": 17015,
+          "time_amplitude_s": 0.5,
+          "velocity_boundary": "measured_vector_v2",
+          "version": "actual_plan_pool_v2_current_velocity"
+        },
+        "repair_class_balance": {
+          "receipt": {
+            "UTC": "2026-10-15T04:19:25.879578+00:00",
+            "counts": {
+              "KEEP": 190062,
+              "REPAIR": 2969,
+              "target_eligible": 193031
+            },
+            "deployment_changes": false,
+            "fold": {
+              "fold": 1,
+              "logs": 588,
+              "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+              "scenes": 48881
+            },
+            "label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+            "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+            "no_development_statistics_for_weights": true,
+            "sampling_changes": false,
+            "schema": "minimal_repair_class_balance_v1",
+            "scope": "One explicitly post-primary targeted diagnostic; original six arms and losses retained",
+            "training_exposure_source": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_FUT/COMPLETE.json",
+            "training_exposure_source_sha256": "3641e264ef899146ebb509816ad248751d7ef0e85606a6e8ac731f686e7fcaf2",
+            "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+            "weights": {
+              "KEEP": 0.5078106091696394,
+              "REPAIR": 32.507746716066016
+            }
+          },
+          "reduction": "fixed class multipliers; original optimizer-batch eligible-scene denominator",
+          "sha256": "65e21b68c5d0d844030073ad6ca9baefecb6cb87d541eecfdce7fbbe11fdf09a"
+        },
+        "repair_fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+        "repair_targets": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+        "scheduler": "one epoch linear warmup then cosine to0.1LR",
+        "schema": "minimal_repair_small_head_v1",
+        "scope": "repair_formal",
+        "seed": 42,
+        "source_files": {
+          "starVLA/dataloader/decision_local.py": "c0b556b9e454550f2dd8dad1876b8919d38f6b3e3a2042669f62333e8bbd7529",
+          "starVLA/dataloader/recovery_plan_dataset.py": "dc200957d8d69fd018d90c8d3ec745fef208d97fa04012a4924a706adb9ac01b",
+          "starVLA/model/modules/decision_local/__init__.py": "9e14e3d96bf39261afe05adb8791ab6cded1e67b8f9569e6dba8f7fac67b7d62",
+          "starVLA/model/modules/decision_local/consequence_contract.py": "e21bdfd8cc08463f76ca5a1cdd08966054db03632e21d351ae566c17cbb1dee9",
+          "starVLA/model/modules/decision_local/consequence_geometry.py": "a2669311e5ce783135a9d48756bb22e0812970b01dcce1fe5f3d4005d3d11f29",
+          "starVLA/model/modules/decision_local/consequence_head.py": "431d93f4064ef418ecd846f560fc9004df7cbb445f08bb71256a050af62cac37",
+          "starVLA/model/modules/decision_local/consequence_losses.py": "dcb98611cd6910b31dd7b9789c011b56b6cf6dc648a656285e01e3aeb5a5df41",
+          "starVLA/model/modules/decision_local/local_constraint_checker.py": "d084efcebed013a0be39100724c34896a68665368ef3888ee2c3d89cd0143328",
+          "starVLA/model/modules/decision_local/minimal_repair_contract.py": "c3a5dbabc6c37aecbd3cc2acd9c880495fa2ef53b707c93871a0f650efbf1d08",
+          "starVLA/model/modules/decision_local/minimal_repair_targets.py": "2608006ad7ee2d64b25a8c0cef58f06c22cdd4dd707c1482579dbff692c0881e",
+          "starVLA/model/modules/decision_local/recovery_plans.py": "fee89da096d7892080b849a73efa0d30534e3b13cc9d6b9184fba40af9d2ac62",
+          "starVLA/model/modules/decision_local/residual_refiner.py": "1bae2add43530d84cfb08312579e4a1eaf61ac3a194543b5cb335dae7fd47219",
+          "starVLA/model/modules/decision_local/trajectory_queries.py": "d8b9b01670246f32b8c632578c9440829672d95e4111dbbcf50b1e8265521fcb",
+          "tools/decision_local/minimal_repair_training.py": "b575bfbe66e58ca478499657545453cbb41c02c8075217565fd6fa40b0599fb1",
+          "tools/decision_local/train_small_model.py": "b8f6fdfc7434a8e67dc8513dd6e7979a24cf9846f03971437c7970396f7759c5"
+        },
+        "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+        "target_acceptance_sha256": "70d06a42f264f62f25d6cca5873a6a8835d18b839cd397c021c07b16c8b61507",
+        "target_eligibility": "LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer",
+        "trainable_parameters": 8162308,
+        "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+        "weight_decay": 0.001
+      },
+      "training_logs_count": 588,
+      "complete": {
+        "GPU_hours": 0.35747788794235225,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12492278404533863,
+        "p90_update_s": 0.1454169183969498
+      },
+      "endpoint_checkpoint_sha256": "d7b0b362bbd5a4f6d8c72224088652b05c3ee75bdf52575e922ffe009eb8ed75",
+      "evaluation_source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0"
+    }
+  ],
+  "heads": 12,
+  "all_common24": true,
+  "full_AB_training_per_head": false
+}

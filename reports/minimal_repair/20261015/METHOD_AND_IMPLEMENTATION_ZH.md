@@ -8,14 +8,14 @@
 新目标单独使用v5路径。新模式的实际速度向量
 与t=0车身heading分别精确保留，曲线、query、求解器与密集验收共用同一模式。
 真实64场景验证初始误差为零、原生q0不变、旧模式逐位复现。不能将旧头承接到
-新输入分布后混作公平主比较；全部对照须从共同随机头起点重新训练。
+新输入分布后混作公平主比较；全部对照已从共同随机头起点重新训练并完成共同24epoch。
 
 corrected v5完整B折（fullB）48,881场景及开发集dev1696均已COMPLETE，见
 [fullB完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_foldB_v5/COMPLETE.json)
 和 [dev1696完成收据](/mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v5/COMPLETE.json)。
 9个v5 formal小头已完成共同24epoch与9168updates：seed42的LOG_NONE/CV/FUT、MIN_NONE/CV/FUT六组，
 seed43的LOG_FUT/MIN_CV/MIN_FUT关键三组；共同终点和72项开发评价已完成，见[阶段A结果](ROUND1_STAGE_A_RESULTS_ZH.md)。
-九组正式训练均已通过原生optimizer安全边界迁入字节相同RAM特征镜像并继续运行，
+九组正式训练曾通过原生optimizer安全边界迁入字节相同RAM特征镜像，现均已完成，
 见 [RAM迁移请求](/mnt/project/minimal-repair-artifacts/20261015/RAM_RESUME_REQUESTS_v11.json)。
 [RAM_CACHE收据](/mnt/project/minimal-repair-artifacts/20261015/RAM_CACHE_training-vla-zt_v10.json)
 记录镜像字节及元数据完全相同；
@@ -59,13 +59,13 @@ CV和FUT使用完全相同的support，NONE则不接收GT关系或support mask�
 
 旧v4头源码为58efe649，现已暂停；修正版本的执行源码为上述0471af96完整SHA。配方保持FP32、TF32关闭、batch128/micro16、lr1e-4、AdamW wd0.001、clip1，一epoch warmup后cosine到0.1LR。每组计划9168个数据更新边界，模型有效更新及KEEP/REPAIR曝光另记。全无资格batch不调用AdamW，避免制造有效监督；scheduler仍按共同数据曝光前进。
 
-阶段B的P_ABS_A/P_DIFF_A只可从A折随机小头起点训练，R_B第一步开始读取相应冻结P_A的真实预测。入口拒绝全量P、错误标签版本、同fold以及未完成24epoch的P。正式B是否启动，依阶段A自然/恢复结果和覆盖证据判断；不能把已完成的小集P→R链路当正式结果。
+阶段B的P_ABS_A/P_DIFF_A只可从A折随机小头起点训练，R_B第一步开始读取相应冻结P_A的真实预测。入口拒绝全量P、错误标签版本、同fold以及未完成24epoch的P。正式B在完成阶段A和一次有限训练修复后记为NOT_RUN，依据见[处置记录](evidence/STAGE_B_DISPOSITION_v15.json)；已完成的小集P→R链路不作为正式结果。
 
 ## 截至当前的corrected v5执行证据
 
-固定4096训练诊断场景共40960个输入计划：KEEP5914、REPAIR163、UNCERTAIN34631、UNSOLVED230、TASK_UNCERTAIN22；资格比例14.8364%，653场景至少有一个有效计划。163项修复中，道路违反109、障碍交叠17、运动学违反39，原因可重叠。修复输入包括5个原生、113个横向、45个时间扰动。未发现新增完全停车。KEEP与日志GT的平均ADE约0.756m，说明目标不是把所有可接受计划复制成GT；REPAIR目标对GT平均ADE约0.901m。数值见 [TARGET_QUALITY_4096_v5.json](evidence/TARGET_QUALITY_4096_v5.json)，仅描述固定4096诊断集，不代表fullB总体覆盖统计。
+固定4096训练诊断场景共40960个输入计划：KEEP5914、REPAIR163、UNCERTAIN34631、UNSOLVED230、TASK_UNCERTAIN22；资格比例14.8364%，653场景至少有一个有效计划。163项修复中，道路违反109、障碍交叠17、运动学违反39，原因可重叠。修复输入包括5个原生、113个横向、45个时间扰动。没有新增终点位移跨1m阈值的情况；该指标不是基于速度的完整停车检测。KEEP与日志GT的平均ADE约0.756m，说明目标不是把所有可接受计划复制成GT；REPAIR目标对GT平均ADE约0.901m。数值见 [TARGET_QUALITY_4096_v5.json](evidence/TARGET_QUALITY_4096_v5.json)，仅描述固定4096诊断集，不代表fullB总体覆盖统计。
 
-覆盖不足和修复信号稀疏是本研究的实质限制，尤其仅17项修复涉及已标注障碍交叠。阶段A只能检验这一有限局部约束合同，不能把FUT无增益或置信区间跨零外推为未来信息没有价值。全部1696开发场景保留在评价分母中，未知或未解场景不伪造KEEP。正式结果尚待24epoch完整训练和canonical评价，本文这些目标诊断数值不是部署收益，也不证明路线、信号或完整交通正确性。
+覆盖不足和修复信号稀疏是本研究的实质限制，尤其仅17项修复涉及已标注障碍交叠。阶段A只能检验这一有限局部约束合同，不能把FUT无增益或置信区间跨零外推为未来信息没有价值。全部1696开发场景保留在评价分母中，未知或未解场景不伪造KEEP。正式24epoch训练和canonical评价已完成，见[最终报告](FINAL_REPORT_ZH.md)；本文这些目标诊断数值仍不是部署收益，也不证明路线、信号或完整交通正确性。
 
 完整B折的488,810条计划中，KEEP76,836、REPAIR1,930，目标资格16.1138%；8,456个scene至少有
 一个合格目标。修复原因道路1,255、已标注对象交叠194、运动学502，可重叠。原生q0的97,762条
@@ -99,4 +99,6 @@ KEEP目标对原GT的平均ADE为0.757m，REPAIR为0.835m，目标没有全部�
 
 ## 一次限定的训练充分性修复
 
-原配方有效训练曝光中KEEP190062、REPAIR2969。固定训练诊断显示稀少REPAIR仍明显欠拟合。三个MIN组新增一个独立、匹配的固定类别权重对照，权重完全来自上述B训练曝光；详见[登记与实现](BOUNDED_REPAIR_BALANCE_ZH.md)。不改变输入、目标资格、网络、部署或原主六组结果。它只检验稀少修复梯度这一故障假设，不是新增风险loss或在线门控。正式P/R仍等待这一有限复核与原阶段A证据的共同判断。
+原配方有效训练曝光中KEEP190062、REPAIR2969。固定训练诊断显示稀少REPAIR仍明显欠拟合。三个MIN组新增一个独立、匹配的固定类别权重对照，权重完全来自上述B训练曝光；详见[登记与实现](BOUNDED_REPAIR_BALANCE_ZH.md)。不改变输入、目标资格、网络、部署或原主六组结果。它只检验稀少修复梯度这一故障假设，不是新增风险loss或在线门控。这一有限复核已完成，见[结果](BOUNDED_REPAIR_RESULTS_ZH.md)；正式P/R按条件规则NOT_RUN。原六组、平衡对照及最终Navtest保持独立身份。
+
+最终三组正式camera-only权重均完成真实当前图像与缓存逐位一致性验证；全部新研究队列已退出，RAM副本已释放，持久原件保留。完整成本、计时缺口、时延边界和最终结论见[完成报告](FINAL_REPORT_ZH.md)。

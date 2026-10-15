@@ -1,0 +1,124 @@
+{
+  "registry": "STAGE_A_V5_EVAL_NATURAL.json",
+  "id": "stageA_v5_seed42_LOG_NONE_epoch24",
+  "population": "dev",
+  "distribution": "NATURAL",
+  "complete": {
+    "identity": "525914792762cb64f9ab624a76ef85b21aa38860c21f31fa7ff63aeb4996dc97",
+    "seconds": 32.32745821401477,
+    "q0": {
+      "identity": "525914792762cb64f9ab624a76ef85b21aa38860c21f31fa7ff63aeb4996dc97",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.9138836301424383,
+        "no_at_fault_collisions": 0.9911556603773585,
+        "drivable_area_compliance": 0.9834905660377359,
+        "ego_progress": 0.8543107168672595,
+        "time_to_collision_within_bound": 0.9640330188679245,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.9873231132075472
+      },
+      "zero_fraction": 0.024764150943396228,
+      "main_result": false
+    },
+    "q_final": {
+      "identity": "525914792762cb64f9ab624a76ef85b21aa38860c21f31fa7ff63aeb4996dc97",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.9121919649413245,
+        "no_at_fault_collisions": 0.9905660377358491,
+        "drivable_area_compliance": 0.9829009433962265,
+        "ego_progress": 0.853081479433788,
+        "time_to_collision_within_bound": 0.9610849056603774,
+        "comfort": 1.0,
+        "driving_direction_compliance": 0.9870283018867925
+      },
+      "zero_fraction": 0.025943396226415096,
+      "main_result": true
+    }
+  },
+  "scoring_identity": {
+    "identity": "525914792762cb64f9ab624a76ef85b21aa38860c21f31fa7ff63aeb4996dc97",
+    "prediction_identity": "50bc9357e58192faa0b8c4f5e503337af4c69710eb86f6549be234c0d6f0937d",
+    "population": "dev",
+    "index_sha256": "ae54da4e46ee2b2c62d633b57da95d62b8fcc2921c1d1f15c17d0754e9b12069",
+    "adapter_sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+    "canonical_adapter_sha256": "7bb032ec7aca4fdd83fd01ceaa4bf388cc94c47952bdc2b578012b654bb525e3",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+    "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark"
+  },
+  "prediction_identity": {
+    "TF32": false,
+    "checkpoint_sha256": "ad8fd68ae83c9755b214a719b75cc10952b07f1dcb1e8dd74db913f2d69c1ba9",
+    "distribution": "NATURAL",
+    "features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+    "head_inference_batch": 1,
+    "head_precision": "FP32",
+    "identity": "50bc9357e58192faa0b8c4f5e503337af4c69710eb86f6549be234c0d6f0937d",
+    "kind": "LOG_NONE",
+    "main_trajectory": "q_final only; no GT selection",
+    "mode": "camera_only",
+    "oracle_labels": null,
+    "predictor_sha256": null,
+    "q0_transport_meaning": "plan_in for recovery; original S0 q0 for natural",
+    "query_config": {
+      "dense_dt": 0.025,
+      "dt": 0.5,
+      "kinematics_revision": "heading_transition_v3_current_velocity",
+      "lateral_m": [
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "max_acceleration_mps2": 12.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "stationary_speed_mps": 0.15,
+      "time_shift_s": [
+        -0.5,
+        0.5
+      ],
+      "velocity_boundary": "measured_vector_v2"
+    },
+    "recovery": {
+      "dt": 0.5,
+      "lateral_amplitudes_m": [
+        0.25,
+        0.75,
+        1.25
+      ],
+      "lateral_size_probabilities": [
+        0.5,
+        0.4,
+        0.1
+      ],
+      "selection_seed": 17015,
+      "time_amplitude_s": 0.5,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "actual_plan_pool_v2_current_velocity"
+    },
+    "relations_ablation": "none",
+    "sampling_seed": 42,
+    "schema": "minimal_repair_planning_export_v1",
+    "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+    "writer_sha256": "d5b0c19960a7324ca1d031bdcbcb6bf2d582591568b0ff4dc02259e28d81aae3"
+  },
+  "prediction_identity_json_sha256": "178e7d4182e666766d581b05f66d2aa7f9485347262c723a3770eab76a6f41ec",
+  "prediction_index_summary": {
+    "scenes": 1696,
+    "canonical_json_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+    "omitted_duplicate_token_log_list": "Same population is present in score_rows; full identity retained in shared artifacts"
+  }
+}

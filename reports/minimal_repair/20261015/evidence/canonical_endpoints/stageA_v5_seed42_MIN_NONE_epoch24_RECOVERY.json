@@ -1,0 +1,124 @@
+{
+  "registry": "STAGE_A_V5_EVAL_RECOVERY.json",
+  "id": "stageA_v5_seed42_MIN_NONE_epoch24",
+  "population": "dev",
+  "distribution": "RECOVERY",
+  "complete": {
+    "identity": "e31caf5f9a26d755172369fd10a4895e099c210fcfb9945c793927c17cd4c46a",
+    "seconds": 48.58545598201454,
+    "q0": {
+      "identity": "e31caf5f9a26d755172369fd10a4895e099c210fcfb9945c793927c17cd4c46a",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.8210776316684983,
+        "no_at_fault_collisions": 0.9655070754716981,
+        "drivable_area_compliance": 0.9221698113207547,
+        "ego_progress": 0.7825575880061784,
+        "time_to_collision_within_bound": 0.9198113207547169,
+        "comfort": 0.9451650943396226,
+        "driving_direction_compliance": 0.9837853773584906
+      },
+      "zero_fraction": 0.10672169811320754,
+      "main_result": false
+    },
+    "q_final": {
+      "identity": "e31caf5f9a26d755172369fd10a4895e099c210fcfb9945c793927c17cd4c46a",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.8229532755266511,
+        "no_at_fault_collisions": 0.9663915094339622,
+        "drivable_area_compliance": 0.9233490566037735,
+        "ego_progress": 0.7839929702940509,
+        "time_to_collision_within_bound": 0.9209905660377359,
+        "comfort": 0.9451650943396226,
+        "driving_direction_compliance": 0.9837853773584906
+      },
+      "zero_fraction": 0.10495283018867925,
+      "main_result": true
+    }
+  },
+  "scoring_identity": {
+    "identity": "e31caf5f9a26d755172369fd10a4895e099c210fcfb9945c793927c17cd4c46a",
+    "prediction_identity": "c470da9b689aad1c370453566a0143cb7f59233c29d5420c34cd7b0ab5e6e349",
+    "population": "dev",
+    "index_sha256": "ae54da4e46ee2b2c62d633b57da95d62b8fcc2921c1d1f15c17d0754e9b12069",
+    "adapter_sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+    "canonical_adapter_sha256": "7bb032ec7aca4fdd83fd01ceaa4bf388cc94c47952bdc2b578012b654bb525e3",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+    "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark"
+  },
+  "prediction_identity": {
+    "TF32": false,
+    "checkpoint_sha256": "9b111049ae8b399dfb0a6d74da8acf9780914e4f99016d08964d323c7326ac5e",
+    "distribution": "RECOVERY",
+    "features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+    "head_inference_batch": 1,
+    "head_precision": "FP32",
+    "identity": "c470da9b689aad1c370453566a0143cb7f59233c29d5420c34cd7b0ab5e6e349",
+    "kind": "MIN_NONE",
+    "main_trajectory": "q_final only; no GT selection",
+    "mode": "camera_only",
+    "oracle_labels": null,
+    "predictor_sha256": null,
+    "q0_transport_meaning": "plan_in for recovery; original S0 q0 for natural",
+    "query_config": {
+      "dense_dt": 0.025,
+      "dt": 0.5,
+      "kinematics_revision": "heading_transition_v3_current_velocity",
+      "lateral_m": [
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "max_acceleration_mps2": 12.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "stationary_speed_mps": 0.15,
+      "time_shift_s": [
+        -0.5,
+        0.5
+      ],
+      "velocity_boundary": "measured_vector_v2"
+    },
+    "recovery": {
+      "dt": 0.5,
+      "lateral_amplitudes_m": [
+        0.25,
+        0.75,
+        1.25
+      ],
+      "lateral_size_probabilities": [
+        0.5,
+        0.4,
+        0.1
+      ],
+      "selection_seed": 17015,
+      "time_amplitude_s": 0.5,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "actual_plan_pool_v2_current_velocity"
+    },
+    "relations_ablation": "none",
+    "sampling_seed": 42,
+    "schema": "minimal_repair_planning_export_v1",
+    "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+    "writer_sha256": "d5b0c19960a7324ca1d031bdcbcb6bf2d582591568b0ff4dc02259e28d81aae3"
+  },
+  "prediction_identity_json_sha256": "5c989dd8e00ee898f1c717753646c94c80c6ac67f5be51c47f5ffc8fadbc5202",
+  "prediction_index_summary": {
+    "scenes": 1696,
+    "canonical_json_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+    "omitted_duplicate_token_log_list": "Same population is present in score_rows; full identity retained in shared artifacts"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "registry": "BALANCED_V15_EVAL_RECOVERY.json",
+  "id": "stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+  "population": "dev",
+  "distribution": "RECOVERY",
+  "complete": {
+    "identity": "957d12f74346bd1caf3775d6cc6a2d3db606c1dc2a91b0188ee37e82c34c567e",
+    "seconds": 26.46627343632281,
+    "q0": {
+      "identity": "957d12f74346bd1caf3775d6cc6a2d3db606c1dc2a91b0188ee37e82c34c567e",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.8210776316684983,
+        "no_at_fault_collisions": 0.9655070754716981,
+        "drivable_area_compliance": 0.9221698113207547,
+        "ego_progress": 0.7825575880061784,
+        "time_to_collision_within_bound": 0.9198113207547169,
+        "comfort": 0.9451650943396226,
+        "driving_direction_compliance": 0.9837853773584906
+      },
+      "zero_fraction": 0.10672169811320754,
+      "main_result": false
+    },
+    "q_final": {
+      "identity": "957d12f74346bd1caf3775d6cc6a2d3db606c1dc2a91b0188ee37e82c34c567e",
+      "scenes": 1696,
+      "failed": 0,
+      "valid": true,
+      "metrics": {
+        "score": 0.8421944764864822,
+        "no_at_fault_collisions": 0.9772995283018868,
+        "drivable_area_compliance": 0.9351415094339622,
+        "ego_progress": 0.8019570406414874,
+        "time_to_collision_within_bound": 0.9339622641509434,
+        "comfort": 0.9457547169811321,
+        "driving_direction_compliance": 0.9849646226415094
+      },
+      "zero_fraction": 0.08372641509433962,
+      "main_result": true
+    }
+  },
+  "scoring_identity": {
+    "identity": "957d12f74346bd1caf3775d6cc6a2d3db606c1dc2a91b0188ee37e82c34c567e",
+    "prediction_identity": "077be53325de0464f1600a2b968ab276085ddad12ca61348c81ba39a83086e13",
+    "population": "dev",
+    "index_sha256": "ae54da4e46ee2b2c62d633b57da95d62b8fcc2921c1d1f15c17d0754e9b12069",
+    "adapter_sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+    "canonical_adapter_sha256": "7bb032ec7aca4fdd83fd01ceaa4bf388cc94c47952bdc2b578012b654bb525e3",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+    "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark"
+  },
+  "prediction_identity": {
+    "TF32": false,
+    "checkpoint_sha256": "6f9adff1768dadea9ae1c80c0f2ba27bdd698626009b864dcabd1a516adc478f",
+    "distribution": "RECOVERY",
+    "features": "989bc9f48c9d20783d807d7f6f4cdbc9d4832a96ac0d12d56b934bf9866e4d73",
+    "head_inference_batch": 1,
+    "head_precision": "FP32",
+    "identity": "077be53325de0464f1600a2b968ab276085ddad12ca61348c81ba39a83086e13",
+    "kind": "MIN_NONE",
+    "main_trajectory": "q_final only; no GT selection",
+    "mode": "camera_only",
+    "oracle_labels": null,
+    "predictor_sha256": null,
+    "q0_transport_meaning": "plan_in for recovery; original S0 q0 for natural",
+    "query_config": {
+      "dense_dt": 0.025,
+      "dt": 0.5,
+      "kinematics_revision": "heading_transition_v3_current_velocity",
+      "lateral_m": [
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "max_acceleration_mps2": 12.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "stationary_speed_mps": 0.15,
+      "time_shift_s": [
+        -0.5,
+        0.5
+      ],
+      "velocity_boundary": "measured_vector_v2"
+    },
+    "recovery": {
+      "dt": 0.5,
+      "lateral_amplitudes_m": [
+        0.25,
+        0.75,
+        1.25
+      ],
+      "lateral_size_probabilities": [
+        0.5,
+        0.4,
+        0.1
+      ],
+      "selection_seed": 17015,
+      "time_amplitude_s": 0.5,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "actual_plan_pool_v2_current_velocity"
+    },
+    "relations_ablation": "none",
+    "sampling_seed": 42,
+    "schema": "minimal_repair_planning_export_v1",
+    "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+    "writer_sha256": "d5b0c19960a7324ca1d031bdcbcb6bf2d582591568b0ff4dc02259e28d81aae3"
+  },
+  "CPU_resource_usage": {
+    "user_seconds": 340.868753,
+    "system_seconds": 17.151006,
+    "max_rss_kb": 352940,
+    "wall_seconds": 64.37068275734782,
+    "exit_code": 0,
+    "mechanism": "Linux resource.RUSAGE_CHILDREN after subprocess wait; includes waited scorer descendants",
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-u",
+      "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/score_navsim.py",
+      "--predictions",
+      "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/predictions/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "--index",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+      "--devkit",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+      "--output",
+      "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24",
+      "--population",
+      "dev",
+      "--workers",
+      "16"
+    ],
+    "startup_error": null,
+    "scorer_semantics_changed": false
+  },
+  "prediction_identity_json_sha256": "5bc8cc28963a4e78569f4220dc4249b7822a77b8bed45c75c7c3a103e3017e89",
+  "prediction_index_summary": {
+    "scenes": 1696,
+    "canonical_json_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+    "omitted_duplicate_token_log_list": "Same population is present in score_rows; full identity retained in shared artifacts"
+  }
+}

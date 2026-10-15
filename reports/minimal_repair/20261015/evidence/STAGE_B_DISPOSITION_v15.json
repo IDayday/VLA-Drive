@@ -1,0 +1,42 @@
+{
+  "DIFF_deployment_claim": "NOT_TESTED_FORMALLY in this study",
+  "balanced_common24": {
+    "NATURAL": {
+      "MIN_CV": 91.33142248983714,
+      "MIN_FUT": 91.33712806443074,
+      "MIN_NONE": 91.05623164238669
+    },
+    "RECOVERY": {
+      "MIN_CV": 84.44177058306438,
+      "MIN_FUT": 83.95653645379932,
+      "MIN_NONE": 84.21944764864821
+    }
+  },
+  "completed_bounded_followup_heads": 3,
+  "completed_primary_heads": 9,
+  "evidence": [
+    "/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_RESULTS_v13/SUMMARY.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/TRAINING_CONDITIONAL_FIT_v13.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/TRAINING_CONDITIONAL_FIT_balanced_v14.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/BALANCED_MATCHING_AUDIT_v14.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/natural/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_NONE_epoch24/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_CV_epoch24/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/development_balanced_v14/recovery/scores/stageA_balanced_v14_seed42_MIN_FUT_epoch24/COMPLETE.json"
+  ],
+  "full_training_A_labels_ready": 52711,
+  "full_training_B_labels_ready": 48881,
+  "implementation_and_real_smoke": "All two predictors and three R_MIN paths completed true A/B-disjoint small-set24epoch smoke; not formal results",
+  "next_minimal_question": "Verify task/annotation coverage and genuinely held-out base-policy errors before predicting further future relationships; current geometry may suffice for the observed correction value",
+  "no_Navtest_used_for_this_decision": true,
+  "no_unregistered_task_resumption": true,
+  "reasons": [
+    "Original six arms and three critical seed43 repeats did not show a stable future-over-CV benefit on natural or recovery inputs",
+    "One permitted learning correction improved rare REPAIR fit, but balanced future is only0.00571pp above CV on natural and0.48523pp below CV on recovery; natural future remains below unchanged S0",
+    "Only16.1138percent of B plan pool eligible;1930 repairs and21 native repairs; these constraints limit identifiability rather than proving future information useless",
+    "Proceeding to full P/R future training would not test a currently supported privileged-information premise; no further weight/target search this round"
+  ],
+  "status": "NOT_RUN"
+}

@@ -8,7 +8,17 @@ S0训练源码是 `1493deda247107efe076b9294863a6753391298a`，
 现已因正确性问题保存并暂停，不再作为正式结果。修正源码冻结为
 `0471af96e4f769eb2b31b787a68c57be24bebee0`。报告提交不替代实际执行身份。
 
-## 当前正确性修复与重跑状态
+## 最终状态
+
+[完整结论与交付](FINAL_REPORT_ZH.md)汇总了12个共同24epoch正式小头、78项开发观察、12项关系干预、24项局部行为评价和最终Navtest。原六组及关键seed43共9头；另3头是保留独立身份的一次限定KEEP/REPAIR平衡对照。
+
+最终12,146场景Navtest：S0 **89.52787**，LOG_NONE **89.29093**，原MIN_NONE **89.53612**，平衡MIN_NONE **89.58957**。最后一项相对S0的95% log-cluster区间为[−0.19539,+0.34547]pp，且自然开发下降；没有稳定净收益结论。[最终Navtest](FINAL_NAVTEST_ZH.md)、[限定对照](BOUNDED_REPAIR_RESULTS_ZH.md)、[数值结果](final_navtest_results/SUMMARY.json)与[逐场景评分索引](score_rows/INDEX.json)均已归档。
+
+未来GT未显示稳定超过CV的价值；一次训练充分性修复后结论未改变。正式阶段B按条件规则记为 **NOT_RUN**，其P_A/R_B代码和真实小集链路已完成，不将smoke当正式DIFF结果。全部新研究队列退出、临时RAM镜像释放；共享原数据和权重保留。最终源码身份见[SOURCE_VERSIONS_FINAL.json](SOURCE_VERSIONS_FINAL.json)，最终命令见[FINAL_COMMANDS_ZH.md](FINAL_COMMANDS_ZH.md)。
+
+以下保留实现演进与验证细节。
+
+## 正确性修复与重跑证据
 
 继承的样条起始导数使用 `[norm(v), 0]`，没有保留合法当前速度的横向分量。
 固定256训练场景的向量误差P95为0.3993m/s，最大0.7251m/s。因此九个旧v4
@@ -88,11 +98,9 @@ seed42六组、seed43的LOG_FUT/MIN_CV/MIN_FUT共9个v5正式头已完成；6/12
 关系数值的增量，FUT−NONE还混有support信息增量，不能解释成纯粹的未来关系价值。
 CV/FUT均为特权探针。局部可接受性不保证导航路线、信号或完整交通正确性。
 
-阶段B正式训练依阶段A的真实效果、机制和标签覆盖证据决定。全部P/R接口已有真实
-smoke；不得把它们写成完整P_A/R_B结果，也不得因区间跨零就直接否定未来信息。
-本轮最终Navtest尚未启动。原六组与关键seed43的共同24epoch结果已经完整；
-另有一次[限定的KEEP/REPAIR平衡学习对照](BOUNDED_REPAIR_BALANCE_ZH.md)正在独立运行，训练源码`d2996601429044e3ef3b71055a4ca546a3ca928e`。
-它不是主六组定义的一部分，也不覆盖原结果。当前注册与调度见
+正式阶段B依据完整阶段A与一次有限复核，记为NOT_RUN；具体证据见[阶段B处置](evidence/STAGE_B_DISPOSITION_v15.json)。全部P/R接口已有真实smoke，不作为完整P_A/R_B结果，也不由区间跨零直接否定未来信息。最终三组camera-only Navtest均已完成。
+[限定的KEEP/REPAIR平衡学习对照](BOUNDED_REPAIR_RESULTS_ZH.md)亦已完成，训练源码`d2996601429044e3ef3b71055a4ca546a3ca928e`。
+它不是主六组定义的一部分，也不覆盖原结果。历史实际注册与调度见
 [STAGE_A_V5_TASKS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_TASKS.json)、
 [STAGE_A_V5_RUNNERS.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_RUNNERS.json)、
 [STAGE_A_V5_EVAL_NATURAL.json](/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_V5_EVAL_NATURAL.json)、
@@ -126,3 +134,5 @@ CPU标签和GPU导出/CPU评分并行；等待必要依赖的评价进程不占G
 历史失败均保留：早期空框、时间/heading连续性、旋转框顶点插值问题已有对应修复；
 不合格v3标签有明确hold。B折收尾等待脚本曾因缺少右括号退出，未放行任何训练，
 原脚本和日志保留；修正版本先通过语法校验，再调用不变的全量SHA核验入口。
+
+最新资源变更：用户撤销vla-zt2，已更新全局禁用和任务派发记录；既有G2按原生89,574步检查点退出并单独迁移，不改变本轮实验结论或计入小头成本。见[撤销记录](evidence/VLA_ZT2_WITHDRAWAL_REQUEST_v16.json)。

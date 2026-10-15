@@ -1,0 +1,207 @@
+{
+  "allow_shared_gpus": true,
+  "comparison_pairs": [
+    [
+      "primary_seed42_MIN_NONE_epoch24",
+      "primary_seed42_LOG_NONE_epoch24"
+    ],
+    [
+      "balanced_seed42_MIN_NONE_epoch24",
+      "primary_seed42_MIN_NONE_epoch24"
+    ]
+  ],
+  "distribution": "NATURAL",
+  "final_readiness": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/FINAL_READINESS.json",
+  "jobs": [
+    {
+      "analysis_label": "primary LOG_NONE",
+      "checkpoint": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE/epoch_24.pt",
+      "commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/features",
+          "--checkpoint",
+          "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE/epoch_24.pt",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_LOG_NONE_epoch24",
+          "--distribution",
+          "NATURAL",
+          "--mode",
+          "camera_only",
+          "--max-seconds",
+          "600"
+        ],
+        "score": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-scoring-v15-20261015/tools/decision_local/measure_scoring_process.py",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_LOG_NONE_epoch24/CPU_RESOURCE_USAGE.json",
+          "--",
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/stream_navsim_navtest_pdms.py",
+          "--predictions",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_LOG_NONE_epoch24",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_LOG_NONE_epoch24",
+          "--workers",
+          "16",
+          "--population",
+          "navtest",
+          "--research-scope",
+          "decision_local",
+          "--max-seconds",
+          "7200"
+        ]
+      },
+      "epoch": 24,
+      "id": "primary_seed42_LOG_NONE_epoch24",
+      "kind": "LOG_NONE",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_LOG_NONE_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/LOG_NONE/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/LOG_NONE_FORMAL_ONLINE_ACCEPTANCE_v14.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_LOG_NONE_epoch24",
+      "seed": 42
+    },
+    {
+      "analysis_label": "primary MIN_NONE",
+      "checkpoint": "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE/epoch_24.pt",
+      "commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/features",
+          "--checkpoint",
+          "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE/epoch_24.pt",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_MIN_NONE_epoch24",
+          "--distribution",
+          "NATURAL",
+          "--mode",
+          "camera_only",
+          "--max-seconds",
+          "600"
+        ],
+        "score": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-scoring-v15-20261015/tools/decision_local/measure_scoring_process.py",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_MIN_NONE_epoch24/CPU_RESOURCE_USAGE.json",
+          "--",
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/stream_navsim_navtest_pdms.py",
+          "--predictions",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_MIN_NONE_epoch24",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_MIN_NONE_epoch24",
+          "--workers",
+          "16",
+          "--population",
+          "navtest",
+          "--research-scope",
+          "decision_local",
+          "--max-seconds",
+          "7200"
+        ]
+      },
+      "epoch": 24,
+      "id": "primary_seed42_MIN_NONE_epoch24",
+      "kind": "MIN_NONE",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/primary_seed42_MIN_NONE_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/stageA_v5_seed42/MIN_NONE/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/MIN_NONE_FORMAL_ONLINE_ACCEPTANCE_v14.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/primary_seed42_MIN_NONE_epoch24",
+      "seed": 42
+    },
+    {
+      "analysis_label": "balanced MIN_NONE",
+      "checkpoint": "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_NONE/epoch_24.pt",
+      "commands": {
+        "export": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+          "--features",
+          "/mnt/project/decision-local-consequence-artifacts/20261014/final_navtest_v1/features",
+          "--checkpoint",
+          "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_NONE/epoch_24.pt",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/balanced_seed42_MIN_NONE_epoch24",
+          "--distribution",
+          "NATURAL",
+          "--mode",
+          "camera_only",
+          "--max-seconds",
+          "600"
+        ],
+        "score": [
+          "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-scoring-v15-20261015/tools/decision_local/measure_scoring_process.py",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/balanced_seed42_MIN_NONE_epoch24/CPU_RESOURCE_USAGE.json",
+          "--",
+          "/root/miniconda3/envs/navsim/bin/python",
+          "-u",
+          "/mnt/project/VLA-Drive-minimal-repair-current-vector-v10-20261015/tools/structured_world/stream_navsim_navtest_pdms.py",
+          "--predictions",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/balanced_seed42_MIN_NONE_epoch24",
+          "--index",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+          "--devkit",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+          "--output",
+          "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/balanced_seed42_MIN_NONE_epoch24",
+          "--workers",
+          "16",
+          "--population",
+          "navtest",
+          "--research-scope",
+          "decision_local",
+          "--max-seconds",
+          "7200"
+        ]
+      },
+      "epoch": 24,
+      "id": "balanced_seed42_MIN_NONE_epoch24",
+      "kind": "MIN_NONE",
+      "predictions": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/predictions/balanced_seed42_MIN_NONE_epoch24",
+      "requires": [
+        "/mnt/project/minimal-repair-artifacts/20261015/stageA_balanced_v14_seed42/MIN_NONE/COMPLETE.json",
+        "/mnt/project/minimal-repair-artifacts/20261015/MIN_NONE_BALANCED_ONLINE_ACCEPTANCE_v14.json"
+      ],
+      "scores": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/scores/balanced_seed42_MIN_NONE_epoch24",
+      "seed": 42
+    }
+  ],
+  "main_endpoint": 24,
+  "method_lock": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/FINAL_METHOD_LOCK.json",
+  "method_lock_sha256": "9fe5d6a0f7dd0f3422713fa61e38104ec6985a7f1657a5fd471e850f11988af1",
+  "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+  "no_selection": true,
+  "population": "navtest",
+  "runtime": "/mnt/project/minimal-repair-artifacts/20261015/final_navtest_v15/runtime",
+  "shard_exports": true,
+  "source_sha": "0471af96e4f769eb2b31b787a68c57be24bebee0",
+  "streaming": true
+}

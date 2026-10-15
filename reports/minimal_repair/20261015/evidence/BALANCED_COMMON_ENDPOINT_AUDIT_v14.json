@@ -1,0 +1,201 @@
+{
+  "common_recipe": {
+    "TF32": false,
+    "anchor_identity": "63d6a4038b76272938b27c5e4f6f8a04d3c83a74b2e984c6ce9d528bae1231f8",
+    "batch": 128,
+    "clip": 1.0,
+    "compute_precision": "FP32",
+    "constraint_config": {
+      "distance_clip_m": 10.0,
+      "horizon_s": 4.0,
+      "max_acceleration_mps2": 12.0,
+      "max_heading_change_rad": 0.4,
+      "max_heading_tangent_error_rad": 0.35,
+      "max_plan_change_m": 2.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "min_progress_fraction": 0.65,
+      "obstacle_clearance_m": 0.05,
+      "road_margin_m": 0.02,
+      "sample_dt": 0.1,
+      "uncertain_boundary_m": 0.15,
+      "validation_dt": 0.05,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "annotated_local_constraints_v3_current_velocity"
+    },
+    "dim": 512,
+    "epochs": 24,
+    "features": "5d52bdfa28303a289d1fdb1805167f26b1c90f6f28b060e62e1d7eec5222be2c",
+    "labels": "32ca8dc56d9eb72e2ea9bc8502340575317ef9e6a631bbeee5949e4cd546fd3f",
+    "lr": 0.0001,
+    "microbatch": 16,
+    "query_config": {
+      "dense_dt": 0.025,
+      "dt": 0.5,
+      "kinematics_revision": "heading_transition_v3_current_velocity",
+      "lateral_m": [
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "max_acceleration_mps2": 12.0,
+      "max_speed_mps": 40.0,
+      "max_yaw_rate_rps": 1.5,
+      "stationary_speed_mps": 0.15,
+      "time_shift_s": [
+        -0.5,
+        0.5
+      ],
+      "velocity_boundary": "measured_vector_v2"
+    },
+    "recovery_config": {
+      "dt": 0.5,
+      "lateral_amplitudes_m": [
+        0.25,
+        0.75,
+        1.25
+      ],
+      "lateral_size_probabilities": [
+        0.5,
+        0.4,
+        0.1
+      ],
+      "selection_seed": 17015,
+      "time_amplitude_s": 0.5,
+      "velocity_boundary": "measured_vector_v2",
+      "version": "actual_plan_pool_v2_current_velocity"
+    },
+    "repair_fold": {
+      "fold": 1,
+      "logs": 588,
+      "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+      "scenes": 48881
+    },
+    "repair_label_semantics": "dfe7d8bdabd0fccf0098fb9ba2a89f0b0ce50f857e3662eea7370448b5e97fe6",
+    "scheduler": "one epoch linear warmup then cosine to0.1LR",
+    "trainable_parameters": 8162308,
+    "training_index_sha256": "4edde8ce1d97bd6ee46f71a0fe0a6a06959faf8c0df59a6b8bfed3321ff1418d",
+    "weight_decay": 0.001
+  },
+  "no_training_state_changes": true,
+  "not_checked": "No claim that trained weights match across different targets/information sources",
+  "pending": [],
+  "registry_sha256": "bf39906341aa755d56b98f6ef5a4ef67d88917ad95921ab03afb4cd0fb64404c",
+  "runs": [
+    {
+      "completed": {
+        "GPU_hours": 0.35473621846694087,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12361659668385983,
+        "p90_update_s": 0.14381582811474802
+      },
+      "identity_sha256": "6e0824fe5bc1f5eed34857f7baeace9d05944982be9fdb8a050eaa93fc675f6a",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_balanced_v14_seed42_MIN_NONE",
+      "kind": "MIN_NONE",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+      "updates_observed": 9168
+    },
+    {
+      "completed": {
+        "GPU_hours": 0.3614402717144953,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12612654455006123,
+        "p90_update_s": 0.14740189015865326
+      },
+      "identity_sha256": "23d6b94763ec78aff5fa7650426d8f7712174db335e0b96ecff42d2a2e4d8066",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_balanced_v14_seed42_MIN_CV",
+      "kind": "MIN_CV",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+      "updates_observed": 9168
+    },
+    {
+      "completed": {
+        "GPU_hours": 0.35747788794235225,
+        "completed": 9168,
+        "effective_optimizer_updates": 9168,
+        "epoch": 24,
+        "exposure": 1173144,
+        "exposure_counts": {
+          "KEEP": 190062,
+          "REPAIR": 2969,
+          "lateral": 293286,
+          "native": 586572,
+          "target_eligible": 193031,
+          "time": 293286
+        },
+        "fold": {
+          "fold": 1,
+          "logs": 588,
+          "partition_sha256": "35e04ff557db82540fe89ee8d85fa72467144740aa11a4837d15b27c7747e848",
+          "scenes": 48881
+        },
+        "full_training_population": false,
+        "median_update_s": 0.12492278404533863,
+        "p90_update_s": 0.1454169183969498
+      },
+      "identity_sha256": "c722e81e0527e100489545e8d20e96e2ee67a842a82a2cece77661eee3f46888",
+      "initial_model_sha256": "103d12a7d2b0981f40fcf01f28684e19f1dd9d04a988bf786bb3ea6bdf17fe47",
+      "job": "stageA_balanced_v14_seed42_MIN_FUT",
+      "kind": "MIN_FUT",
+      "scope": "repair_formal",
+      "seed": 42,
+      "source_sha": "d2996601429044e3ef3b71055a4ca546a3ca928e",
+      "updates_observed": 9168
+    }
+  ],
+  "same_seed_initialization_and_exposure": {
+    "42": {
+      "arms": [
+        "MIN_NONE",
+        "MIN_CV",
+        "MIN_FUT"
+      ],
+      "exact_accounting": true,
+      "matched_optimizer_boundaries": 9168
+    }
+  },
+  "tool_sha256": "2f81bef19f7e9d7cd50c026687131da85c2efc47f0637101f06f0aa75ccc73ff"
+}
