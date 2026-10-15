@@ -1,0 +1,249 @@
+{
+  "commands": [
+    {
+      "GPU": 2,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--checkpoint",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_heads_v1/N_CV/latest.pt",
+        "--index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_INDEX.json",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_N_CV_4_v1",
+        "--mode",
+        "oracle_probe",
+        "--distribution",
+        "NATURAL",
+        "--max-seconds",
+        "300",
+        "--oracle-labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_R_32_v1"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_N_CV_EXPORT_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086914.9706416,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "GPU": 3,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--checkpoint",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_heads_v1/N_FUT/latest.pt",
+        "--index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_INDEX.json",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_N_FUT_4_v1",
+        "--mode",
+        "oracle_probe",
+        "--distribution",
+        "NATURAL",
+        "--max-seconds",
+        "300",
+        "--oracle-labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_R_32_v1"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_N_FUT_EXPORT_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086917.3332536,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "GPU": 1,
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/evaluate_minimal_repair_planning.py",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--checkpoint",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_heads_v1/N_NONE/latest.pt",
+        "--index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_INDEX.json",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_N_NONE_4_v1",
+        "--mode",
+        "camera_only",
+        "--distribution",
+        "NATURAL",
+        "--max-seconds",
+        "300"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_N_NONE_EXPORT_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086910.820219,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/root/miniconda3/envs/navsim/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015/tools/decision_local/review_repair_execution.py",
+        "canonical",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v2",
+        "--metric-index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_METRIC_INDEX.json",
+        "--devkit",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+        "--workers",
+        "2"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_V2_canonical_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792087084.014167,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015/tools/decision_local/review_repair_execution.py",
+        "prepare",
+        "--labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_lineage_4_v1",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--anchor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v2"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_V2_prepare_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792087076.516645,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015/tools/decision_local/review_repair_execution.py",
+        "validate",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v2",
+        "--workers",
+        "2"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-v2-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_V2_validate_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792087086.5715532,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/root/miniconda3/envs/navsim/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/review_repair_execution.py",
+        "canonical",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v1",
+        "--metric-index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_METRIC_INDEX.json",
+        "--devkit",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+        "--workers",
+        "2"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_canonical_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086878.3335426,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/review_repair_execution.py",
+        "prepare",
+        "--labels",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_lineage_4_v1",
+        "--features",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+        "--anchor",
+        "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v1"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_prepare_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086869.9411292,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-execution-review-20261015/tools/decision_local/review_repair_execution.py",
+        "validate",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_repair_execution_4_v1",
+        "--workers",
+        "2"
+      ],
+      "cwd": "/mnt/project/VLA-Drive-natural-execution-review-20261015",
+      "receipt": "ENGINEERING_REPAIR_REVIEW_validate_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086880.8704584,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      }
+    },
+    {
+      "command": [
+        "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+        "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/measure_scoring_process.py",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_R_DIFF_CANONICAL_CPU.json",
+        "--",
+        "timeout",
+        "600",
+        "/root/miniconda3/envs/navsim/bin/python",
+        "/mnt/project/VLA-Drive-decision-local-evaluation-frozen-20261014/tools/structured_world/score_navsim.py",
+        "--predictions",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_R_DIFF_v1",
+        "--index",
+        "/mnt/project/natural-error-local-artifacts/20261015/ENGINEERING_ONLINE_4_METRIC_INDEX.json",
+        "--devkit",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+        "--output",
+        "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_R_DIFF_scores_v1",
+        "--population",
+        "debug",
+        "--workers",
+        "2"
+      ],
+      "receipt": "ENGINEERING_R_DIFF_CANONICAL_COMMAND.json",
+      "resources": {
+        "checked_unix": 1792086466.0896618,
+        "host": "training-vla-zt",
+        "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+      },
+      "scope": "Four real scenes engineering chain; not formal scientific comparison"
+    }
+  ],
+  "scope": "Actually invoked commands; only engineering, formal N/P/R not run"
+}

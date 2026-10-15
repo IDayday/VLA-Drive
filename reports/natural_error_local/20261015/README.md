@@ -62,6 +62,14 @@ LocalEvidence 与 strict repair target 使用不同 schema：
 阈值去消除差异。局部 KEEP 不是 canonical 执行通过，更不是现实安全保证。
 这项检查不覆盖所有 checker/评分不一致，其他未知场景不能据此统一归因。
 
+训练诊断集的交叉表已补齐：15 个原生 canonical 零分都没有被旧 checker 判为已知违反，
+其中 11 个 UNCERTAIN、4 个 KEEP。43 个 checker 已知违反的原生 seed42 计划则均为
+canonical 正常分组。这再次说明两种定义不能互相替代。
+对训练集这 4 个 KEEP/零分案例全部重跑官方链路，均为 DAC 失败；模拟执行后的最小
+道路余量分别约 −0.022、−0.024、−0.231、−0.023 米。第三例超出了既有边界模糊带，
+其余三个落在带内。输入到执行的最大位置偏差约为 0.23–1.44 米。
+完整交叉表和原样评分保存在 `LOCAL_TRAIN_CANONICAL_CROSS.json` 与 `KEEP_TRAIN_*`。
+
 ## 基础策略真正未见过的数据
 
 锁定合法 navtrain logs 中没有足够未被旧 S0 使用的训练 logs。
@@ -87,12 +95,12 @@ LocalEvidence 与 strict repair target 使用不同 schema：
 
 | 阶段 | 当前状态 |
 |---|---|
-| 固定旧训练/开发人口漏斗与局部支持 | 已完成；训练 canonical 交叉汇总继续补齐 |
-| LocalEvidence、独立全轨迹目标 mask、A-only 数据视图 | 已实现；15 项单元测试通过 |
+| 固定旧训练/开发人口漏斗与局部支持 | 已完成；训练/开发 canonical 交叉表及全部 KEEP/零分核验完成 |
+| LocalEvidence、独立全轨迹目标 mask、A-only 数据视图 | 已实现；21 项组合测试通过，执行坐标修复后 5 项针对性测试通过 |
 | 新 A-only GT-MAE | 已真实启动 30 epoch / 5010 updates；只读原训练源码 `1493deda…` |
 | 新共享 S0_A | 尚未启动；等待新 teacher、公共权重校准和完整 8 卡 profile |
 | N_NONE/N_CV/N_FUT | 新协议训练入口已实现；正式训练 NOT_RUN |
-| P_ABS/P_DIFF、三个 R | 新局部 mask/录制隔离入口已实现；工程真实样本检查在进行，正式 NOT_RUN |
+| P_ABS/P_DIFF、三个 R | 录制隔离的真实小集前后向与恢复检查完成；正式 NOT_RUN |
 | 新底座在线部署、关键复跑、最终 Navtest | 尚未执行 |
 
 40-update MAE profile 是成本探针，没有作为正式初始化。正式 teacher 从随机参数开始；
@@ -105,6 +113,51 @@ LocalEvidence 与 strict repair target 使用不同 schema：
 新标签/小头工程 smoke 明确标为 `engineering_historical_anchor_only`，仍可复用旧 S0
 验证代码；正式人口检查拒绝该模式。它不构成未见场景或正式 N/P/R 效果证据。
 不恢复旧大矩阵，不将旧 smoke 或旧负结果改名成新方法成绩。
+
+工程验证采用 P/R 各 32 个真实场景，父录制无交集；P、N、R 八个小头各完成 6 个
+optimizer updates。共同计划采样在这一很小窗口内没有抽中 REPAIR，因此另外明确选取
+真实 REPAIR 验证六个修正器的非零反向和更新，未将其算作正式训练样本或效果成绩。
+一个没有完整目标的真实 UNKNOWN 场景仍提供 217 个有效局部关系元素，并产生 P 的
+非零梯度；同类场景的整轨迹 MIN loss/梯度均为零。四个 camera-only 模式在替换
+GT 关系、原 GT、目标与资格字段后输出逐位一致，三个 R 的 P 权重保持冻结。
+
+实际当前图像部署验证了 4 个训练场景：一次 Qwen visual、一次 language、一次原
+10 步 proposal；禁止读取 GT 地图/框/LiDAR/目标/紧凑特征文件。在线和缓存导出的
+q0/q_final 均逐位一致。FP32 底座、FP16 token 往返、FP32 小头、TF32 关闭下，
+排除首个样本后，其余 3 个样本不含图像读取的中位时延约 1.05 秒；只有 4 场景，不能当作全面时延基准。
+这是旧 S0 上的新接口工程验证，新 S0_A 完成后仍需复核。
+
+小头第 2 update 中断、恢复到第 6 update：模型与 optimizer tensor 的严格逐位比较
+**未通过，原结果保留**。数据顺序、曝光、scheduler、全部 RNG 和身份一致；独立 A/A
+连续运行的参数归一化 L2 差异约 3.46e-8，恢复对比约 2.41e-8，最大参数绝对差分别
+约 5.96e-7/5.94e-7。未观察到超过 A/A 的短期差异，但不宣称长期逐位一致。
+见 `ENGINEERING_RESUME_*`；没有通过放大旧阈值改写失败记录。
+
+当前额外执行入口已接入同一 A-only action codec、显式录制角色与原模型 runtime。
+缓存、训练 wrapper 和报告 SHA 分别登记；原训练源码未热修改。正式局部标签保留
+每个 query/channel 的 actor/map 索引、物理时间及覆盖语义，ID 始终只在标签侧。
+
+这 4 个真实图像部署案例还完成了未修改的 canonical 评分，q0 与 q_final 均无评分异常。
+N_NONE/N_CV/N_FUT 的同样 4 场景导出、评分和 oracle/camera-only 分表也实际跑通。
+`ENGINEERING_PLANNING_TABLES_4.json` 只验证接口和统计流程：小头仅训练 6 步，
+不能拿其中的微小分差支持任何方法结论。没有新增 Navtest。
+
+完整 REPAIR 的执行复核已实现并实际运行。局部事实和旧 strict teacher 文件保持原样，
+执行不合格只通过独立收据取消该目标的完整轨迹 loss，所有场景仍进入评价。
+首版新增复核器错误地把 PDM 的车身坐标速度当全局速度旋转，造成虚假的航向不一致；
+该记录保留并加 correctness hold，数据入口拒绝读取。固定官方源码表明速度是瞬时
+车身分量，修复只发生在本地复核包装层，canonical scorer 没有修改。
+
+修复版在同一真实场景的两个采样 seed 上复核了两条原 strict REPAIR：一条通过，
+另一条执行道路余量约 0.00157m，小于既定 0.02m，因此不进入完整轨迹监督。
+两条目标的 canonical PDMS 都是 1.0，说明本轮局部约束和官方指标并不等价；
+没有按 PDMS 选目标，也没有改变阈值让目标通过。这只是有限工程案例，不能推算全池覆盖。
+真实反向复核中，通过项的三个 AdamW update loss 从约 0.00482 降至 0.00316；
+拒绝项的完整轨迹 loss/梯度为零、optimizer 不执行，局部事实仍然存在。
+详见 `ENGINEERING_EXECUTION_REVIEW_V2.json`、原失败 hold 与对应 backward 收据。
+
+新增命令的实际 argv、worktree 与资源核验见 `EXECUTED_ENGINEERING_COMMANDS.json`。
+该文件只列已执行的工程命令，不把尚未启动的 S0_A/N/P/R 正式命令写成已通过验证。
 
 ## 成本与执行边界
 
