@@ -98,7 +98,7 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 | 固定旧训练/开发人口漏斗与局部支持 | 已完成；训练/开发 canonical 交叉表及全部 KEEP/零分核验完成 |
 | LocalEvidence、独立全轨迹目标 mask、A-only 数据视图 | 已实现；21 项组合测试通过，执行坐标修复后 5 项针对性测试通过 |
 | 新 A-only GT-MAE | 已完成 30 epoch / 5010 updates / 1,281,210 曝光；冻结 epoch30，源码 `1493deda…` |
-| 新共享 S0_A | 尚未启动；教师/标签/公共权重校准已完成，正在执行完整 8 卡 profile |
+| 新共享 S0_A | 8 卡 80-update profile 与原生恢复通过；正式 42,047 updates 已在 tsinghua-zt2 启动，运行中 |
 | N_NONE/N_CV/N_FUT | 新协议训练入口已实现；正式训练 NOT_RUN |
 | P_ABS/P_DIFF、三个 R | 录制隔离的真实小集前后向与恢复检查完成；正式 NOT_RUN |
 | 新底座在线部署、关键复跑、最终 Navtest | 尚未执行 |
@@ -132,7 +132,7 @@ A-only 教师目标已完整导出 42,707 场景，fresh forward 先屏蔽全部
 
 A 内部基础策略学习曲线入口复用原 `checkpoint_identity/load_student/predict_action`，
 只允许固定的 A_calibration 角色。真实当前图像、当前状态与 A-only codec 的 4 场景
-CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原始 ego GT 在当前前向后
+CPU preflight 已通过；正式 A 内部曲线将在固定 10680/21360/32040/42047 检查点执行。原始 ego GT 在当前前向后
 才加载，不从 B 或旧开发集选择共享底座。该入口与已核验的终点 anchor 注册分别保存。
 
 8 卡 80-update 完整 profile 已建立有限依赖队列，包含 update4 原生保存/恢复及 19-scene
@@ -140,7 +140,7 @@ CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原
 原 `QUEUED_BASE_PROFILE_STATUS.json` 保留队列登记状态。首次真实启动在数据构造阶段因
 旧读取器要求全量 `local_stage.json` 而退出，未初始化模型或执行更新。修复 A-only
 包装层后，5 个真实场景的原路径/缓存图像像素、当前状态、导航和全部目标逐位一致；
-外来缓存仍被拒绝，原完整标签检查全部保留。v2 重新派发，不将初次失败写成成功 profile。
+外来缓存仍被拒绝，原完整标签检查全部保留。v2 已完成 80 次真实更新及 update4 原生保存/恢复，不将初次失败写成成功 profile。
 图像准备只复制 A_train 当前 JPEG 原始字节到 `/mnt/project`，不产生新的 Qwen/DeepStack 特征缓存。
 当前 42,707 个 A_train 场景的 128,121 张图像已全部完成逐文件字节校验，合计
 26.80 GB；两个有界尝试共约 1079 秒墙钟，第一次到时保留文件，第二次校验后续写。
@@ -222,9 +222,11 @@ current-only 其他汽车 ADE 5.90770m，仍劣于其静态保持参考 4.36462m
 
 ## 成本与执行边界
 
-总上限暂登记为 400 GPU-process hours、80 CPU-process hours、新增存储 600 GiB，
-分阶段额度见 `FINITE_BUDGET.json`。这不是已经消耗的成本，也不是吞吐承诺。
-共享基础 VLA 最多一个；完整 profile 后才能确定实际承接预算，不能偷偷减少遍历次数。
+完整 profile 后，总上限登记为 400 GPU-process hours、500 CPU-process hours、新增存储 600 GiB。
+先前未包含完整 VLA 实测的 80 CPU-hour 暂定值保留在 `FINITE_BUDGET_PROVISIONAL_v2.json`；
+单底座实测投影已约 201 CPU-hour，因此在正式启动前修订预算，不扩大实验矩阵。
+分阶段额度见 `FINITE_BUDGET.json`。上限不是实际消耗，也不是吞吐承诺。
+共享基础 VLA 仍最多一个，不能通过缩短遍历次数形成所谓完整终点。
 原 S0 实际曝光 3,199,752 / 101,592；新 A 总曝光按该遍历数及尾 batch 计算，不能机械跑 100k。
 
 4096/1696 密集标签审计分别约 1005/743 秒墙钟；worker CPU 与 waited-child CPU 有包含关系，
@@ -236,3 +238,35 @@ current-only 其他汽车 ADE 5.90770m，仍劣于其静态保持参考 4.36462m
 
 当前还不能回答未来知识是否增加自然规划净收益、DIFF 是否减少关键误判，或收益是否稳定。
 这些需要新 S0_A 的自然纠偏池、匹配 N 探针和条件 P/R 的真实结果。
+
+## 完整 profile 与唯一正式 S0_A（2026-10-15 19:54 UTC）
+
+实际训练包装层为 `dce4131704e0b22bb9b8ef203b337abe7331e70e`，原始模型/训练器仍为
+`1493deda247107efe076b9294863a6753391298a`。80-update profile 使用 275 个 A 场景，
+保留 19-scene 尾 batch；update4 保存后严格恢复 8 份 ZeRO optimizer 与 RNG，完成
+80 updates / 2456 曝光。四项损失均有限、FP32 master 更新均有实测证据。
+这验证了边界和实际继续运行，不声称 CUDA 长期逐位重放。
+
+去掉恢复后的 20 步预热，56 步稳定段端到端中位 1.723 秒、P90 1.808 秒；
+全 batch 段平均 1.776 秒，混合尾 batch 总吞吐 17.64 scenes/s。每卡峰值 allocated
+最高 13.37 GB、reserved 15.71 GB。两个完整 checkpoint 各约 37.60 GB，保存耗时
+12.12/11.91 秒。两次调用含启动、保存和末尾 BF16 时延测量共 0.718 GPU 分配小时、
+2540 CPU-process 秒。末尾 BF16 时延不是 FP32 canonical 推理或规划成绩。
+
+正式 run `formal_S0_A_seed42_exposurematched_v1` 已在授权 tsinghua-zt2 的 8 卡运行。
+从通用 Qwen 与新随机驾驶模块开始，未加载旧 S0 或 profile 权重。A_train 42,707 场景，
+global32/micro4；42,047 updates 对应 1,345,101 次曝光、31.49603 遍，匹配旧 S0
+31.49610 遍而不机械运行 100k。scheduler/warmup 从起点按该终点定义。
+
+19:54 快照已到 update221 / 7072 曝光，全部四项损失有限且每步 FP32 master 更新。
+完整人口早期 update21–220 的 199 个端到端间隔中位 2.523 秒、P90 2.731 秒，
+最慢 rank 数据阶段中位约 1.091 秒。它慢于反复访问 275 场景的 profile，不能以
+小集热缓存的 1.72 秒承诺全程吞吐。按当前早期均值粗略外推约 30 小时 / 239 GPU-hour，
+仍在单底座 300 GPU-hour 上限内；共享 IO 与后续负载会改变时间。原始 profile 投影
+166 GPU-hour 也保留，不回改旧数据。
+
+每 2000 步原生滚动恢复点、固定四个 milestone；控制器仅监测本任务 CPU、磁盘和当前
+主机授权，达到边界后交给原生 STOP_REQUESTED 保存退出，不热修改训练源码或自动重试。
+vla-zt2 与其它撤销主机不连接、不派发。G2、SimWAM 及其它任务保持原状。
+
+此时尚无新底座共同终点、N/P/R 正式结果或新的 Navtest 结论。
