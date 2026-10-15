@@ -4,7 +4,7 @@ This is CPU work over frozen q0, existing annotations, and map APIs. It never
 re-encodes a VLM or changes an old cache. No valid/failed scene is silently dropped.
 """
 import argparse
-from concurrent.futures import ProcessPoolExecutor,wait,FIRST_COMPLETED
+from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor,wait,FIRST_COMPLETED
 from dataclasses import asdict
 import json
 import multiprocessing
@@ -91,18 +91,23 @@ def main():
     p.add_argument('--solver-seconds',type=float,default=3.)
     p.add_argument('--rank',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     p.add_argument('--finalize',action='store_true',help='Verify every existing scene and close a distributed build; no workers')
+    p.add_argument('--verify-threads',type=int,default=1,help='Bounded read-only SHA verification; no scientific identity change')
     a=p.parse_args()
     if not 0<=a.rank<a.shards or a.workers<1:raise ValueError('Invalid finite shard/worker assignment')
+    if not 1<=a.verify_threads<=16:raise ValueError('Bounded verification concurrency required')
     resources=check_host();anchor=read(a.anchor);features=read(a.features/'identity.json');index=read(a.index)
     if features['anchor_identity']!=anchor['identity'] or features['split'] not in ('train','dev'):raise ValueError('Wrong frozen anchor/split')
     full={r['token']:r for r in features['index']}
     if len({r['token'] for r in index})!=len(index) or any(full.get(r['token'])!=r for r in index):raise ValueError('Foreign/duplicate row')
-    files=[Path(__file__),ROOT/'starVLA/dataloader/minimal_repair_scene.py']+sorted((ROOT/'starVLA/model/modules/decision_local').glob('*repair*.py'))+[ROOT/'starVLA/model/modules/decision_local/recovery_plans.py',ROOT/'starVLA/model/modules/decision_local/local_constraint_checker.py']
+    files=[Path(__file__),ROOT/'starVLA/dataloader/minimal_repair_scene.py']+sorted((ROOT/'starVLA/model/modules/decision_local').glob('*repair*.py'))+[ROOT/'starVLA/model/modules/decision_local/recovery_plans.py',ROOT/'starVLA/model/modules/decision_local/local_constraint_checker.py',ROOT/'starVLA/model/modules/decision_local/trajectory_queries.py']
     contract={'schema':SCHEMA,'feature_identity':features['identity'],'anchor_identity':anchor['identity'],
         'split':features['split'],'index':index,'index_sha256':digest(a.index),'source_sha':source_sha(ROOT),
-        'source_files':{str(f.relative_to(ROOT)):digest(f) for f in files},'recovery':RecoveryConfig().to_dict(),
-        'constraints':ConstraintConfig().to_dict(),'solver':SolverConfig(max_seconds=a.solver_seconds).to_dict(),
-        'query_config':QueryConfig().to_dict(),'target':'same TRUE_FUTURE local constraints for all LOG/MIN input sources',
+        'source_files':{str(f.relative_to(ROOT)):digest(f) for f in files},
+        'recovery':RecoveryConfig(velocity_boundary='measured_vector_v2',version='actual_plan_pool_v2_current_velocity').to_dict(),
+        'constraints':ConstraintConfig(velocity_boundary='measured_vector_v2',version='annotated_local_constraints_v3_current_velocity').to_dict(),
+        'solver':SolverConfig(max_seconds=a.solver_seconds).to_dict(),
+        'query_config':QueryConfig(velocity_boundary='measured_vector_v2',kinematics_revision='heading_transition_v3_current_velocity').to_dict(),
+        'target':'same TRUE_FUTURE local constraints for all LOG/MIN input sources',
         'observed_free_support':'separate from annotated object geometry; empty object set not proof of observed free',
         'resource_scope':'CPU immutable labels; no model calls or old task restart'}
     ident=identity(contract);a.output.mkdir(parents=True,exist_ok=True)
@@ -119,21 +124,28 @@ def main():
     if set(locations)!=wanted:raise ValueError('Missing source features')
     tasks=[];done=[];start=time.monotonic();errors=[]
     selected=index if a.finalize else index[a.rank::a.shards]
-    for row in selected:
+    def existing_record(row):
         saved=a.output/'records'/(row['token']+'.json')
         if saved.exists():
             rec=read(saved)
             if rec['identity']!=ident or digest(a.output/'scenes'/(row['token']+'.npz'))!=rec['sha256']:raise ValueError('Changed existing label')
-            done.append(rec);continue
-        worker_contract={k:v for k,v in contract.items() if k not in ('index','source_files')}
-        tasks.append((row,*locations[row['token']],anchor,features['split'],str(a.output),worker_contract,ident))
+            return rec
+        return None
     if a.finalize:
-        if tasks:raise ValueError('Cannot close incomplete labels: %d missing scenes'%len(tasks))
+        with ThreadPoolExecutor(a.verify_threads) as verifier:
+            done=list(verifier.map(existing_record,selected))
+        if any(rec is None for rec in done):raise ValueError('Cannot close incomplete labels')
         atomic_json(a.output/'COMPLETE.json',{'identity':ident,'scenes':len(done),'expected':len(index),'errors':[],
             'CPU_process_seconds':sum(x['cpu_seconds'] for x in done),'worker_wall_seconds':sum(x['wall_seconds'] for x in done),
             'bytes':sum(x['bytes'] for x in done),'no_frozen_VLA_encoding':True,
+            'verification_threads':a.verify_threads,'verification_wall_seconds':time.monotonic()-start,
             'closure':'all per-scene identities and SHA256 verified; individual shard wall times retained'})
         print(json.dumps({'finalized_scenes':len(done),'identity':ident}),flush=True);return
+    for row in selected:
+        rec=existing_record(row)
+        if rec is not None:done.append(rec);continue
+        worker_contract={k:v for k,v in contract.items() if k not in ('index','source_files')}
+        tasks.append((row,*locations[row['token']],anchor,features['split'],str(a.output),worker_contract,ident))
     with ProcessPoolExecutor(a.workers,mp_context=multiprocessing.get_context('spawn')) as pool:
         pending={};it=iter(tasks)
         def fill():

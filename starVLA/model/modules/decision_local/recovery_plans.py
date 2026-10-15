@@ -3,7 +3,7 @@ from dataclasses import dataclass, asdict
 import hashlib
 import numpy as np
 from scipy.interpolate import CubicHermiteSpline
-from .trajectory_queries import smooth_offset, QueryConfig, trajectory_queries
+from .trajectory_queries import smooth_offset, QueryConfig, trajectory_queries, initial_derivative
 
 
 @dataclass(frozen=True)
@@ -14,9 +14,12 @@ class RecoveryConfig:
     time_amplitude_s: float = .5
     selection_seed: int = 17015
     version: str = 'actual_plan_pool_v1'
+    velocity_boundary: str = 'body_aligned_speed_v1'
 
     def to_dict(self):
-        return asdict(self)
+        values=asdict(self)
+        if self.velocity_boundary=='body_aligned_speed_v1':values.pop('velocity_boundary')
+        return values
 
 
 class PlanCurve:
@@ -25,16 +28,17 @@ class PlanCurve:
     Two smooth normal offsets, an endpoint-preserving time warp, and a limited
     endpoint delay. No environment or logged future ego is accepted here.
     """
-    def __init__(self, plan, velocity, dt=.5):
+    def __init__(self, plan, velocity, dt=.5, *, velocity_boundary='body_aligned_speed_v1'):
         self.plan = np.asarray(plan, np.float64).copy()
         self.velocity = np.asarray(velocity, np.float64)
+        self.velocity_boundary=velocity_boundary
         if self.plan.shape not in ((8, 3), (6, 3)) or self.velocity.shape != (2,) or not np.isfinite(self.plan).all():
             raise ValueError('Finite actual plan and legal current velocity required')
         self.times = np.arange(len(plan)+1)*dt
         self.horizon = self.times[-1]
         xy = np.vstack((np.zeros(2), self.plan[:, :2]))
         derivative = np.gradient(xy, dt, axis=0, edge_order=2)
-        derivative[0] = [np.linalg.norm(self.velocity), 0.]
+        derivative[0] = initial_derivative(self.velocity,velocity_boundary)
         self.spline = CubicHermiteSpline(self.times, xy, derivative, axis=0)
         self.yaws = np.unwrap(np.r_[0., self.plan[:, 2]])
 
@@ -71,6 +75,7 @@ class PlanCurve:
         moving=(np.linalg.norm(v,axis=-1)>=.15)&(np.linalg.norm(base_v,axis=-1)>=.15)
         yaw=np.interp(phi,self.times,self.yaws)+np.where(moving,delta,0.)
         if not np.any(c):yaw=np.interp(t,self.times,self.yaws)
+        if self.velocity_boundary=='measured_vector_v2':yaw=np.where(t==0.,0.,yaw)
         return np.column_stack((xy, yaw))
 
 
@@ -83,7 +88,7 @@ def build_plan_pool(q0, velocity, token, config=RecoveryConfig()):
     u = stable_number(token, config.selection_seed, 'size')/2**64
     size = min(int(np.searchsorted(np.cumsum(config.lateral_size_probabilities), u)), 2)
     amplitude = config.lateral_amplitudes_m[size]
-    curve = PlanCurve(q0, velocity, config.dt)
+    curve = PlanCurve(q0, velocity, config.dt,velocity_boundary=config.velocity_boundary)
     coefficients = np.array([[0,0,0,0],[-amplitude,0,0,0],[amplitude,0,0,0],
                              [0,0,-config.time_amplitude_s,0],[0,0,config.time_amplitude_s,0]], np.float64)
     plans = np.stack([curve.poses(curve.times[1:], c) for c in coefficients]).astype(np.float32)

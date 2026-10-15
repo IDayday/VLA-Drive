@@ -27,9 +27,12 @@ class ConstraintConfig:
     min_progress_fraction: float = .65
     distance_clip_m: float = 10.
     version: str = 'annotated_local_constraints_v2_half_open'
+    velocity_boundary: str = 'body_aligned_speed_v1'
 
     def to_dict(self):
-        return asdict(self)
+        values=asdict(self)
+        if self.velocity_boundary=='body_aligned_speed_v1':values.pop('velocity_boundary')
+        return values
 
 
 def body_polygons(poses, body):
@@ -89,7 +92,7 @@ class LocalConstraintChecker:
 
     def check(self, plan, velocity, reference=None, *, dt=None):
         c=self.config;dt=c.validation_dt if dt is None else dt
-        curve=PlanCurve(plan,velocity)
+        curve=PlanCurve(plan,velocity,velocity_boundary=c.velocity_boundary)
         times=np.linspace(0,curve.horizon,int(round(curve.horizon/dt))+1)
         poses=curve.poses(times)
         relations,valid,support=self.relations(poses,times)
@@ -99,8 +102,12 @@ class LocalConstraintChecker:
         tangent=np.arctan2(v[:,1],v[:,0])
         yaw_error=np.abs(np.arctan2(np.sin(poses[:,2]-tangent),np.cos(poses[:,2]-tangent)))
         yaw_error=np.where(speed>=.5,yaw_error,0.)
+        velocity_error=float(np.linalg.norm(curve.spline(0.,1)-np.asarray(velocity)))
+        current_heading_error=float(abs(poses[0,2]))
         physical_ok=bool(speed.max()<=c.max_speed_mps and np.linalg.norm(a,axis=-1).max()<=c.max_acceleration_mps2
                          and yawrate.max()<=c.max_yaw_rate_rps and yaw_error.max()<=c.max_heading_tangent_error_rad)
+        if c.velocity_boundary=='measured_vector_v2':
+            physical_ok=physical_ok and velocity_error<=1e-9 and current_heading_error<=1e-9
         road_violation=bool(((relations[:,0]<-c.uncertain_boundary_m)&valid[:,0]).any())
         overlap_violation=bool(((relations[:,2]>.5)&valid[:,2]).any())
         clear=bool((relations[:,0]>=c.road_margin_m).all() and (relations[:,1]>=c.obstacle_clearance_m).all())
@@ -123,6 +130,7 @@ class LocalConstraintChecker:
             'annotated_clearance_min_m':float(relations[:,1].min()),
             'speed_max_mps':float(speed.max()),'acceleration_max_mps2':float(np.linalg.norm(a,axis=-1).max()),
             'yaw_rate_max_rps':float(yawrate.max()),'heading_tangent_error_max_rad':float(yaw_error.max()),
+            'initial_velocity_error_mps':velocity_error,'initial_body_heading_error_rad':current_heading_error,
             'maximum_change_m':change,'maximum_heading_change_rad':heading_change,'progress_ratio':progress_ratio,
             'observed_free_support_fraction':float(support['observed_free_support_fraction'].mean()),
             'out_of_range':bool((~support['in_grid']).any()),'sample_dt':dt,

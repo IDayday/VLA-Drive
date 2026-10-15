@@ -14,12 +14,12 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();r=a.root
     roots={p for p in r.iterdir() if p.is_dir()}
-    for pattern in ('stageA_seed*','stageB_seed*','smoke_v*','resume_v*','runner_smoke_v*'):
+    for pattern in ('stageA*seed*','stageB*seed*','smoke_v*','resume_v*','runner_smoke_v*'):
         for parent in r.glob(pattern):
             if parent.is_dir():roots.update(p for p in parent.iterdir() if p.is_dir())
     # Registered nested outputs are enumerated explicitly; never walk the
     # hundreds of thousands of private scene or checkpoint tensor files.
-    for registry in list(r.glob('*REGISTRY.json'))+list(r.glob('STAGE_A_EVAL_*.json'))+list(r.glob('STAGE_A_TASKS.json')):
+    for registry in list(r.glob('*REGISTRY.json'))+list(r.glob('*EVAL_*.json'))+list(r.glob('*TASKS.json')):
         value=read(registry)
         if not isinstance(value,dict):continue
         for job in value.get('jobs',[]):

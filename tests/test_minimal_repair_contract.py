@@ -1,10 +1,11 @@
 import numpy as np
+import pytest
 import torch
 from shapely.geometry import box
 from starVLA.model.modules.decision_local.minimal_repair_contract import CurrentFeatures,PlanInputs,MinimalRepairRefiner,CaseStatus
 from starVLA.model.modules.decision_local.residual_refiner import ResidualRefiner
 from starVLA.model.modules.decision_local.consequence_contract import ModelInputs,PredictionQueries
-from starVLA.model.modules.decision_local.recovery_plans import PlanCurve,build_plan_pool,select_plan
+from starVLA.model.modules.decision_local.recovery_plans import PlanCurve,RecoveryConfig,build_plan_pool,select_plan
 from starVLA.model.modules.decision_local.local_constraint_checker import LocalConstraintChecker,body_polygons
 from starVLA.model.modules.decision_local.minimal_repair_targets import solve_minimal_repair,SolverConfig
 from starVLA.dataloader.minimal_repair_scene import AnnotatedScene
@@ -137,3 +138,34 @@ def test_scene_target_mask_reduction_matches_microbatches_and_empty():
     torch.testing.assert_close(full_grad,micro_grad,rtol=1e-6,atol=1e-7)
     empty=final_trajectory_loss(pred,target,torch.zeros_like(mask))[0]
     assert empty.item()==0 and torch.autograd.grad(empty,pred)[0].count_nonzero()==0
+
+
+def test_measured_vector_boundary_preserves_current_state_and_all_perturbations():
+    from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig,trajectory_queries
+    for T in (6,8):
+        t=np.arange(1,T+1)*.5;plan=np.column_stack((6*t,.1*t*t,np.zeros(T))).astype(np.float32)
+        velocity=np.array([6.,.7]);before=velocity.copy()
+        curve=PlanCurve(plan,velocity,velocity_boundary='measured_vector_v2')
+        np.testing.assert_array_equal(curve.spline(0.,1),velocity)
+        for coefficient in (np.zeros(4),[-1.,.2,-.5,0.],[.8,-.2,.4,.5]):
+            x0=curve.xy(np.array([0.]),coefficient)[0]
+            x1=curve.xy(np.array([1e-6]),coefficient)[0]
+            np.testing.assert_array_equal(x0,np.zeros(2))
+            np.testing.assert_allclose((x1-x0)/1e-6,velocity,rtol=0,atol=1e-5)
+            assert curve.poses(np.array([0.]),coefficient)[0,2]==0.
+        cfg=QueryConfig(velocity_boundary='measured_vector_v2',kinematics_revision='heading_transition_v3_current_velocity')
+        queries=trajectory_queries(plan,velocity,cfg)
+        np.testing.assert_array_equal(queries['poses'][0],plan)
+        assert all(x['initial_velocity_error_mps']==0 and x['initial_body_heading_error_rad']==0 for x in queries['kinematics'])
+        np.testing.assert_array_equal(velocity,before)
+
+
+def test_legacy_boundary_remains_explicit_and_new_configuration_is_identifiable():
+    from starVLA.model.modules.decision_local.trajectory_queries import QueryConfig,initial_derivative
+    velocity=np.array([4.,.8]);plan=np.column_stack((np.arange(1,9)*2.,np.zeros((8,2))))
+    legacy=PlanCurve(plan,velocity)
+    np.testing.assert_array_equal(legacy.spline(0.,1),[np.linalg.norm(velocity),0.])
+    assert 'velocity_boundary' not in RecoveryConfig().to_dict()
+    assert 'velocity_boundary' not in QueryConfig().to_dict()
+    assert RecoveryConfig(velocity_boundary='measured_vector_v2').to_dict()['velocity_boundary']=='measured_vector_v2'
+    with pytest.raises(ValueError):initial_derivative(velocity,'unknown')

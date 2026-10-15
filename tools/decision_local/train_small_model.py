@@ -160,6 +160,8 @@ def main():
     fold_identity=train.fold_identity if repair else None
     acceptance=None
     if a.scope=='repair_formal':
+        if any(train.label_identity[k].get('velocity_boundary')!='measured_vector_v2' for k in ('recovery','constraints','query_config')):
+            raise ValueError('Corrected formal repair must preserve the complete legal current velocity vector')
         if a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed not in (42,43):
             raise ValueError('Registered common repair recipe required')
         if a.target_acceptance is None:raise ValueError('Formal repair requires actual target-quality evidence')

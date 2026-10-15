@@ -39,7 +39,8 @@ def solve_minimal_repair(plan,velocity,checker,config=SolverConfig()):
             return finish(CaseStatus.TASK_UNCERTAIN,'geometry_feasible_but_progress_intent_unknown')
         return finish(CaseStatus.KEEP,'verified_annotated_local_constraints',plan.copy())
     if not initial['known_violation']:return finish(CaseStatus.UNCERTAIN,'boundary_or_clearance_ambiguity')
-    curve=PlanCurve(plan,velocity);ts=curve.times[1:];cfg=checker.config
+    cfg=checker.config
+    curve=PlanCurve(plan,velocity,velocity_boundary=cfg.velocity_boundary);ts=curve.times[1:]
     starts=[np.zeros(4),np.array([-.75,0.,0.,0.]),np.array([.75,0.,0.,0.])][:config.starts]
     bounds=[(-config.lateral_bound_m,config.lateral_bound_m),(-.75,.75),
             (-config.temporal_bound_s,config.temporal_bound_s),(0,config.endpoint_delay_s)]
@@ -58,7 +59,7 @@ def solve_minimal_repair(plan,velocity,checker,config=SolverConfig()):
     def constraints(coefficients):
         # Optimization uses 0.1s polygons; acceptance reconstructs the returned
         # eight-point trajectory independently at 0.05s, including its dynamics.
-        target=generate(coefficients);reconstructed=PlanCurve(target,velocity)
+        target=generate(coefficients);reconstructed=PlanCurve(target,velocity,velocity_boundary=cfg.velocity_boundary)
         poses=reconstructed.poses(dense)
         value,valid,support=checker.relations(poses,dense)
         v=reconstructed.spline(dense,1);a=reconstructed.spline(dense,2)

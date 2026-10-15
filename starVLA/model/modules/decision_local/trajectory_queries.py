@@ -22,9 +22,32 @@ class QueryConfig:
     max_acceleration_mps2: float = 12.
     max_yaw_rate_rps: float = 1.5
     kinematics_revision: str = 'heading_transition_v2'
+    velocity_boundary: str = 'body_aligned_speed_v1'
 
     def to_dict(self):
-        return asdict(self)
+        values=asdict(self)
+        if self.velocity_boundary=='body_aligned_speed_v1':values.pop('velocity_boundary')
+        return values
+
+
+def initial_derivative(velocity, mode):
+    velocity=np.asarray(velocity,np.float64)
+    if velocity.shape!=(2,) or not np.isfinite(velocity).all():
+        raise ValueError('Finite legal current velocity vector required')
+    if mode=='measured_vector_v2':return velocity.copy()
+    if mode=='body_aligned_speed_v1':return np.array([np.linalg.norm(velocity),0.])
+    raise ValueError('Unsupported velocity boundary; no silent projection')
+
+
+def current_body_heading_offset(t,velocity,transition_s,stationary_speed_mps=.15):
+    """Join legal body heading0 to the moving tangent without an initial jump.
+
+    Body orientation and velocity direction need not coincide (e.g. a measured
+    lateral component). This deterministic correction ends at the first knot;
+    the measured position derivative is never changed by a heading convention.
+    """
+    angle=np.arctan2(velocity[1],velocity[0]) if np.linalg.norm(velocity)>=stationary_speed_mps else 0.
+    return -angle*(1-smooth_offset(np.clip(np.asarray(t)/transition_s,0,1)))
 
 
 def time_warp(t, horizon, amplitude):
@@ -50,7 +73,7 @@ def trajectory_queries(q0, current_velocity, config=QueryConfig()):
     derivatives = np.gradient(points, config.dt, axis=0, edge_order=2)
     # Current vehicle heading is zero in ego(t0). Do not estimate initial speed
     # from the first GT future displacement or from a privileged future label.
-    derivatives[0] = [np.linalg.norm(velocity), 0.]
+    derivatives[0] = initial_derivative(velocity,config.velocity_boundary)
     curve = CubicHermiteSpline(ts, points, derivatives, axis=0)
     fallback_yaw = np.unwrap(np.r_[0., q0[:, 2]])
 
@@ -78,6 +101,8 @@ def trajectory_queries(q0, current_velocity, config=QueryConfig()):
         v = (function(hi)-function(lo))/(hi-lo)[:, None]
         heading = np.where(np.linalg.norm(v, axis=-1) >= config.stationary_speed_mps,
                            np.arctan2(v[:, 1], v[:, 0]), np.interp(ts[1:], ts, fallback_yaw))
+        if config.velocity_boundary=='measured_vector_v2':
+            heading+=current_body_heading_offset(ts[1:],velocity,config.dt,config.stationary_speed_mps)
         poses = np.column_stack((xy, heading))
         if k == 0:
             poses = q0.copy()  # exact original query, including its own heading
@@ -93,9 +118,15 @@ def trajectory_queries(q0, current_velocity, config=QueryConfig()):
         # physically invalid variants are masked, never whole scenes or q0.
         actual_heading = (np.interp(dense,ts,fallback_yaw) if k==0 else
             np.where(speed>=config.stationary_speed_mps,np.arctan2(dv[:,1],dv[:,0]),np.interp(dense,ts,fallback_yaw)))
+        if k!=0 and config.velocity_boundary=='measured_vector_v2':
+            actual_heading+=current_body_heading_offset(dense,velocity,config.dt,config.stationary_speed_mps)
+            actual_heading[0]=0.
         heading_rate = np.abs(np.gradient(np.unwrap(actual_heading),dense,edge_order=2))
         stats = dict(speed_max_mps=float(speed.max()), acceleration_max_mps2=float(np.linalg.norm(da, axis=-1).max()),
                      yaw_rate_max_rps=float(max(rate.max(),heading_rate.max())), initial_position_error_m=float(np.linalg.norm(dense_xy[0])))
+        if config.velocity_boundary=='measured_vector_v2':
+            stats['initial_velocity_error_mps']=float(np.linalg.norm(curve(0,1)-velocity))
+            stats['initial_body_heading_error_rad']=float(abs(actual_heading[0]))
         stats['valid'] = (stats['speed_max_mps'] <= config.max_speed_mps and
                           stats['acceleration_max_mps2'] <= config.max_acceleration_mps2 and
                           stats['yaw_rate_max_rps'] <= config.max_yaw_rate_rps)

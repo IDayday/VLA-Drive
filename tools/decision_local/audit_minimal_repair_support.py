@@ -15,13 +15,13 @@ from starVLA.dataloader.foresight_dataset import decode_ego
 
 
 def one(task):
-    row,anchor,root=task;start=time.monotonic();cpu=time.process_time()
+    row,anchor,root,velocity_boundary=task;start=time.monotonic();cpu=time.process_time()
     scene=load_annotated_scene(anchor,'train',row);rec=read(Path(root)/'records'/(row['token']+'.json'))
     with np.load(Path(root)/'scenes'/(row['token']+'.npz')) as data:plan=data['plan_in_physical'][0,0].copy()
     with safe_open(rec['source_feature_chunk'],framework='pt',device='cpu') as f:
         state=f.get_slice('state')[rec['source_feature_offset']]
     velocity=decode_ego(state[None])[0,:2].numpy()/.5;times=np.linspace(0,4,81)
-    bodies=body_polygons(PlanCurve(plan,velocity).poses(times),scene.body)
+    bodies=body_polygons(PlanCurve(plan,velocity,velocity_boundary=velocity_boundary).poses(times),scene.body)
     counts={key:0 for key in ('missing_frame','unreliable_height_or_original_support','disappeared_track_tube','appearance_interval')}
     ages=[]
     for t,body in zip(times,bodies):
@@ -55,7 +55,7 @@ def main():
     p.add_argument('--limit',type=int,default=256);p.add_argument('--workers',type=int,default=8);a=p.parse_args();resource=check_host()
     meta=read(a.labels/'identity.json');anchor=read(a.anchor)
     if meta['split']!='train' or not 1<=a.workers<=16 or not 1<=a.limit<=4096:raise ValueError('Bounded train-only support audit')
-    started=time.monotonic();tasks=[(r,anchor,str(a.labels)) for r in meta['index'][:a.limit]]
+    started=time.monotonic();tasks=[(r,anchor,str(a.labels),meta['constraints'].get('velocity_boundary','body_aligned_speed_v1')) for r in meta['index'][:a.limit]]
     with ProcessPoolExecutor(a.workers,mp_context=multiprocessing.get_context('spawn')) as pool:rows=list(pool.map(one,tasks,chunksize=2))
     ages=[age for row in rows for age in row['disappearance_ages_s']]
     result={'scenes':len(rows),'labels':meta['identity'],'tool_sha256':digest(__file__),
