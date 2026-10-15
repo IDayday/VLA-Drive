@@ -48,3 +48,9 @@ def test_review_cannot_silently_omit_a_strict_repair(tmp_path):
     data,review,_,_,_=fixture_bank(tmp_path,omit=True)
     data.bind_repair_execution_review(review)
     with pytest.raises(ValueError,match='omitted'):data._scene_labels('scene')
+
+
+def test_preserved_failed_execution_review_is_not_usable(tmp_path):
+    data,review,_,_,_=fixture_bank(tmp_path)
+    atomic_json(review.parent/'CORRECTNESS_HOLD.json',dict(reason='known coordinate error'))
+    with pytest.raises(ValueError,match='correctness hold'):data.bind_repair_execution_review(review)

@@ -24,6 +24,7 @@ class NaturalLocalData(RecoveryPlanData):
     def bind_repair_execution_review(self,path):
         """Label-only overlay; preserve old bytes, local facts and scene order."""
         if self.repair_review is not None:raise ValueError('Execution review already bound')
+        if (Path(path).parent/'CORRECTNESS_HOLD.json').exists():raise ValueError('Preserved execution review has a correctness hold')
         review=read(path);payload={k:v for k,v in review.items() if k!='identity'}
         actual=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
         if (review.get('schema')!='natural_repair_execution_review_v1' or review['identity']!=actual or
