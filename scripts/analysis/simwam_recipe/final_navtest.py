@@ -16,8 +16,9 @@ import subprocess
 import sys
 import time
 import traceback
-from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_EXPORT,SFT_SHA256,require_dispatch,file_sha,fingerprint
+from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_EXPORT,SFT_SHA256,file_sha,fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
 
 DATA=Path('/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset')
 DATALIST=Path('/mnt/project/DriveDreamer-Policy/test_meta.json')
@@ -28,10 +29,7 @@ ROUTES={'R_SOURCE':['training-vlawm-tsinghua-zt'],
 
 
 def allowed(host):
-    policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
-    if (host not in policy['allowed_hosts'] or host not in policy['task_authorizations']['flow_safe_improvement_20261013']['allowed_hosts']
-        or policy.get('global_dispatch_prohibitions',{}).get(host,{}).get('new_task_dispatch_allowed') is False):
-        raise PermissionError('Final evaluation host withdrawn: '+host)
+    return require_worker_host(host)
 
 
 def prepare(output):
@@ -162,16 +160,19 @@ print(json.dumps(result))
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['prepare','serve']);p.add_argument('--snapshot')
-    p.add_argument('--output');p.add_argument('--once',action='store_true');a=p.parse_args();require_dispatch()
+    p.add_argument('--output');p.add_argument('--once',action='store_true')
+    p.add_argument('--administrative-local',action='store_true');a=p.parse_args();require_controller_host(a.administrative_local)
     queue=Path(ROOT)/'final_navtest_queue';queue.mkdir(exist_ok=True)
     if a.command=='prepare':
         result=prepare(Path(a.output) if a.output else queue/'assets.json');print(json.dumps(result));return
     if not a.snapshot:raise ValueError('Frozen evaluation source is required')
     snapshot=Path(a.snapshot);guard=(queue/'controller.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    atomic_json(queue/'transport_preflight.json',dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
+        routes=probe_routes([h for hosts in ROUTES.values() for h in hosts],sys.executable)))
     last_probe=0
     try:
         while True:
-            require_dispatch();stages=Path(ROOT)/'milestone_queue/progress.json'
+            require_controller_host(a.administrative_local);stages=Path(ROOT)/'milestone_queue/progress.json'
             stage=json.loads(stages.read_text()) if stages.exists() else {}
             results=[Path(ROOT)/'runs'/(name+'_seed42_v1')/f'result_rank{rank}.json'
                      for name in ('R_SOURCE','R_CANONICAL') for rank in range(8)]

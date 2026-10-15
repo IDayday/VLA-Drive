@@ -13,20 +13,28 @@ import subprocess
 import sys
 import time
 import traceback
-from starVLA.rl.simwam_recipe.contracts import ROOT,require_dispatch
+from starVLA.rl.simwam_recipe.contracts import ROOT
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True);a=p.parse_args();require_dispatch()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True)
+    p.add_argument('--administrative-local',action='store_true');p.add_argument('--preflight-only',action='store_true')
+    a=p.parse_args();require_controller_host(a.administrative_local)
     root=Path(ROOT);queue=root/'milestone_queue';queue.mkdir(exist_ok=True)
     lock=(queue/'controller.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     routes={'R_SOURCE':'training-vlawm-tsinghua-zt','R_CANONICAL':'training-vlawm-tsinghua-zt2'}
     stages=[5000,10000,15000,20000];snapshot=Path(a.snapshot)
+    transport=dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
+                   routes=probe_routes(routes.values(),sys.executable))
+    atomic_json(queue/'transport_preflight.json',transport)
+    if a.preflight_only:print(json.dumps(transport));return
     while True:
-        require_dispatch();finished=[]
+        require_controller_host(a.administrative_local);finished=[]
         try:
             for variant,host in routes.items():
+                require_worker_host(host)
                 for step in stages:
                     label=f'{variant}_update{step:06}';done=queue/(label+'.complete.json')
                     if done.exists():finished.append(label);continue
@@ -34,8 +42,7 @@ def main():
                     if not (ck/'COMPLETE').exists():break
                     export=root/'exports'/label
                     if not (export/'COMPLETE').exists():
-                        policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
-                        if host not in policy['task_authorizations']['flow_safe_improvement_20261013']['allowed_hosts'] or host not in policy['allowed_hosts']:raise PermissionError(host)
+                        require_worker_host(host)
                         command=[sys.executable,'-m','scripts.analysis.simwam_recipe.export_policy','--checkpoint',str(ck),'--output',str(export)]
                         env='CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUBLAS_WORKSPACE_CONFIG=:4096:8 NO_ALBUMENTATIONS_UPDATE=1 '
                         with (queue/(label+'.export.log')).open('ab',buffering=0) as log:
