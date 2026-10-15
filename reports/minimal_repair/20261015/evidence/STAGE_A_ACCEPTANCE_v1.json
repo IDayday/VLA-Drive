@@ -1,0 +1,75 @@
+{
+  "schema": "minimal_repair_target_acceptance_v1",
+  "accepted": true,
+  "stage_a_training_allowed": true,
+  "stage_b_training_allowed": false,
+  "training_source_sha": "58efe6493ecde48aa14543278f96a41b79980819",
+  "label_semantics": "8688376d46483afe097c4930e249467eccbbafb13cae749120617af6f7a2df30",
+  "predictor_training_fold": 0,
+  "kinds": [
+    "LOG_NONE",
+    "LOG_CV",
+    "LOG_FUT",
+    "MIN_NONE",
+    "MIN_CV",
+    "MIN_FUT"
+  ],
+  "seeds": [
+    42,
+    43
+  ],
+  "registered_runs": [
+    [
+      "LOG_NONE",
+      42
+    ],
+    [
+      "LOG_CV",
+      42
+    ],
+    [
+      "LOG_FUT",
+      42
+    ],
+    [
+      "MIN_NONE",
+      42
+    ],
+    [
+      "MIN_CV",
+      42
+    ],
+    [
+      "MIN_FUT",
+      42
+    ],
+    [
+      "LOG_FUT",
+      43
+    ],
+    [
+      "MIN_CV",
+      43
+    ],
+    [
+      "MIN_FUT",
+      43
+    ]
+  ],
+  "evidence": [
+    "/mnt/project/minimal-repair-artifacts/20261015/TARGET_QUALITY_4096_v4.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/target_review32_canonical_v4/COMPLETE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/ONLINE_CACHE_PARITY_v4.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/resume_v4/ACCEPTANCE.json",
+    "/mnt/project/minimal-repair-artifacts/20261015/REAL_INPUT_LEAKAGE_AND_MATCHING.json"
+  ],
+  "qualified_scope": "Finite information-value comparison under partial reliable annotated local geometry; not full safety coverage",
+  "limitations": [
+    "Only14.8291% diagnostic input plans eligible; all groups share this filter and all scenes remain in evaluation",
+    "Only159 diagnostic repairs including15 annotated conflicts; future information effect may be weakly identified",
+    "KEEP is annotated local feasibility, not route/signal/all-obstacle correctness",
+    "Base S0 saw both training folds; only new P/R are log-disjoint"
+  ],
+  "budget": "/mnt/project/minimal-repair-artifacts/20261015/RESOURCE_BUDGET.json",
+  "no_dev_PDMS_target_tuning": true
+}

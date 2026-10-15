@@ -1,0 +1,64 @@
+[
+  {
+    "host": "training-vlawm-tsinghua-zt4",
+    "distribution": "NATURAL",
+    "gpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "pid": 4113299,
+    "command": [
+      "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+      "-u",
+      "/mnt/project/VLA-Drive-minimal-repair-evaluation-v6-20261015/tools/decision_local/evaluate_milestones.py",
+      "--registry",
+      "/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_EVAL_NATURAL.json",
+      "--gpus",
+      "0",
+      "1",
+      "2",
+      "3",
+      "--cpu-parallel",
+      "2",
+      "--max-seconds",
+      "21600"
+    ],
+    "log": "/mnt/project/minimal-repair-artifacts/20261015/eval_runner_NATURAL_tsg4.log",
+    "started_unix": 1792028009.3341286,
+    "shared": true,
+    "scope": "same immutable72 registered dev observations; no extra experiments"
+  },
+  {
+    "host": "training-vlawm-tsinghua-zt4",
+    "distribution": "RECOVERY",
+    "gpus": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "pid": 4113300,
+    "command": [
+      "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+      "-u",
+      "/mnt/project/VLA-Drive-minimal-repair-evaluation-v6-20261015/tools/decision_local/evaluate_milestones.py",
+      "--registry",
+      "/mnt/project/minimal-repair-artifacts/20261015/STAGE_A_EVAL_RECOVERY.json",
+      "--gpus",
+      "4",
+      "5",
+      "6",
+      "7",
+      "--cpu-parallel",
+      "2",
+      "--max-seconds",
+      "21600"
+    ],
+    "log": "/mnt/project/minimal-repair-artifacts/20261015/eval_runner_RECOVERY_tsg4.log",
+    "started_unix": 1792028009.3548512,
+    "shared": true,
+    "scope": "same immutable72 registered dev observations; no extra experiments"
+  }
+]
