@@ -13,6 +13,7 @@ from starVLA.model.modules.decision_local.local_constraint_checker import body_p
 def main():
     p=argparse.ArgumentParser()
     for k in ('labels','anchor','output'):p.add_argument('--'+k,type=Path,required=True)
+    p.add_argument('--stratified',action='store_true',help='Training-only fixed road/object/time repair and non-GT KEEP coverage')
     a=p.parse_args();check_host();meta=read(a.labels/'identity.json')
     if meta['split']!='train':raise ValueError('Target quality calibration is training-only')
     if a.output.exists():raise FileExistsError('Preserve previous review')
@@ -20,6 +21,21 @@ def main():
     rows=[read(a.labels/'records'/(r['token']+'.json')) for r in meta['index']]
     # Fixed class priority and token order; no PDMS or preference for a larger gain.
     selected={}
+    if a.stratified:
+        criteria=[('road_repair',lambda c:c['status']==1 and c['input_check']['road_violation']),
+                  ('object_repair',lambda c:c['status']==1 and c['input_check']['annotated_overlap']),
+                  ('time_repair',lambda c:c['status']==1 and c['plan_index'] in (3,4)),
+                  ('native_repair',lambda c:c['status']==1 and c['plan_index']==0),
+                  ('non_native_keep',lambda c:c['status']==0 and c['plan_index']!=0),
+                  ('uncertain',lambda c:c['status']==2),('unsolved',lambda c:c['status']==4),
+                  ('task_uncertain',lambda c:c['status']==6)]
+        for group,predicate in criteria:
+            count=0
+            for row in rows:
+                candidates=[c for c in row['cases'] if predicate(c)]
+                if candidates and row['token'] not in selected:
+                    selected[row['token']]=(row,{**candidates[0],'review_stratum':group});count+=1
+                    if count==4:break
     for status in (1,0,2,3,4,5,6):
         for row in rows:
             candidates=[c for c in row['cases'] if c['status']==status]
@@ -31,6 +47,7 @@ def main():
         if row['token'] not in selected:selected[row['token']]=(row,row['cases'][0])
     values=list(selected.values())[:32];index=[{'token':r['token'],'log':r['log']} for r,_ in values]
     contract={'schema':'minimal_repair_training_target_quality_export_v1','labels':meta['identity'],'index':index,
+              'fixed_stratified_training_cases':a.stratified,
               'purpose':'official simulator check only, no score input to solver or target selection',
               'unresolved_output':'input retained solely for this target diagnostic, not a deployable GT gate'}
     ident=identity(contract);atomic_json(a.output/'identity.json',{'identity':ident,**contract});atomic_json(a.output/'index.json',index)

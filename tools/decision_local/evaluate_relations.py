@@ -95,12 +95,23 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('features','labels','checkpoint','output'):p.add_argument('--'+k,type=Path,required=True)
     p.add_argument('--batch',type=int,default=32);p.add_argument('--controls',action='store_true')
+    p.add_argument('--distribution',choices=('NATURAL','RECOVERY'),default='NATURAL')
     p.add_argument('--mean-features',type=Path);p.add_argument('--max-seconds',type=float,required=True)
     p.add_argument('--generalization-config',type=Path,
         help='Explicit preregistered query-only amplitude check; never changes trained weights')
     a=p.parse_args();resources=check_host();started=time.monotonic()
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
-    data=FrozenConsequenceData(a.features,a.labels);s=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
+    s=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
+    repair=s['identity'].get('protocol')=='minimal_repair_v1'
+    if repair:
+        from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData,repair_inputs_targets
+        from starVLA.model.modules.decision_local.minimal_repair_contract import execution_view
+        from tools.decision_local.minimal_repair_training import label_semantics
+        data=RecoveryPlanData(a.features,a.labels)
+        if s['identity']['repair_label_semantics']!=label_semantics(data.label_identity):raise ValueError('Predictor and labels have different consequence definitions')
+    else:
+        if a.distribution!='NATURAL':raise ValueError('Recovery inputs require the versioned plan contract')
+        data=FrozenConsequenceData(a.features,a.labels)
     if not s['identity']['kind'].startswith('P_'):raise ValueError('Predictor checkpoint required')
     if s['identity']['anchor_identity']!=data.feature_identity['anchor_identity']:
         raise ValueError('Evaluation must retain the trained foundation')
@@ -129,14 +140,20 @@ def main():
         for start in range(0,len(data.index),a.batch):
             if time.monotonic()-started>=a.max_seconds:raise TimeoutError('Finite evaluation budget reached; partial result not complete')
             ids=list(range(start,min(len(data.index),start+a.batch)))
-            batch=data.batch(ids,'cuda',evaluation=True);inputs,queries,targets=inputs_queries_targets(batch)
+            kwargs={'distribution':a.distribution} if repair else {}
+            batch=data.batch(ids,'cuda',evaluation=True,**kwargs)
+            if repair:
+                current,plan,queries,targets=repair_inputs_targets(batch);inputs=execution_view(current,plan)
+                target_relations,target_valid=targets.relations,targets.relation_validity
+            else:
+                inputs,queries,targets=inputs_queries_targets(batch);target_relations,target_valid=targets.relations,targets.valid
             variants={'normal':inputs}
             if a.controls:
-                shuffled=data.batch([partner[i] for i in ids],'cuda',evaluation=True)
+                shuffled=data.batch([partner[i] for i in ids],'cuda',evaluation=True,**kwargs)
                 variants['permuted_W_H_A']=replace(inputs,W=shuffled['W'],H_A=shuffled['H_A'])
                 variants['training_mean_W_H_A']=replace(inputs,W=mean['W'][None].expand(len(ids),-1,-1),H_A=mean['H_A'][None].expand(len(ids),-1,-1))
             for condition,current in variants.items():
-                pred=predicted_relations(model(current,queries));metrics=scene_metrics(pred,targets.relations,targets.valid,queries.poses)
+                pred=predicted_relations(model(current,queries));metrics=scene_metrics(pred,target_relations,target_valid,queries.poses)
                 if condition=='normal':predictions.append(pred.cpu().numpy())
                 for k,v in metrics.items():all_metrics.setdefault(condition,{}).setdefault(k,[]).append(v)
                 for j,i in enumerate(ids):stream.write(json.dumps({**data.index[i],'condition':condition,**{k:float(v[j]) for k,v in metrics.items()}})+'\n')
@@ -164,7 +181,8 @@ def main():
             result[condition][c+'_recall']=counts['TP']/max(1,counts['TP']+counts['FN'])
     atomic_json(a.output/'COMPLETE.json',{'scenes':scene_count,'results':result,'resource_check':resources,'GPU_hours':(time.monotonic()-started)/3600.,
         'checkpoint_sha256':digest(a.checkpoint),'features':data.feature_identity['identity'],'labels':data.label_identity['identity'],
-        'source_sha':source_sha(ROOT),'precision':'FP32 head; TF32off','query_protocol':'q0 seed42, seven fixed complete trajectories',
+        'source_sha':source_sha(ROOT),'precision':'FP32 head; TF32off','query_protocol':'actual plan seed42, seven fixed complete trajectories' if repair else 'q0 seed42, seven fixed complete trajectories',
+        'distribution':a.distribution,'repair_protocol':repair,
         'generalization_only':bool(a.generalization_config),'trained_query_config':trained_query,
         'evaluated_query_config':evaluated_query,
         'generalization_config_sha256':digest(a.generalization_config) if a.generalization_config else None,

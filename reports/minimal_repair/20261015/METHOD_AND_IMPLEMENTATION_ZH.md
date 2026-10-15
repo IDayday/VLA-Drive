@@ -1,0 +1,39 @@
+# 场景条件下的局部保持与必要修正：实际实现
+
+本轮冻结原始GT训练的S0 100k。共享基础训练源码为1493deda247107efe076b9294863a6753391298a，重核17个checkpoint文件；不从旧E/P/R继续训练，不更新S0，不恢复G或nuScenes。
+
+## 输入与目标
+
+`CurrentFeatures`仅含原HA/W、合法当前状态和车身；`PlanInputs`显式提供真正待修复的物理计划和编码计划。所有query及残差基准使用它。旧ModelInputs的q0字段仅在受检包装中承载plan_in，原始干净q0不另传。线上plan_in就是原S0的十步采样结果。
+
+每scene有原生、左右平滑法向偏移、两种时间偏移共5种输入，两个场景绑定q0种子。24epoch每原始scene恰好12次原生、6次横向、6次时间输入；新增变体不增加统计独立场景数。偏移幅度0.25/0.75/1.25m的训练侧预登记概率0.5/0.4/0.1。训练输入时间warp固定首尾，最大中间偏移0.5s；不声称它覆盖任意终点进度错误。求解器另允许0至0.8s的受限终点延迟，始终不越过4s日志范围。
+
+复用CubicHermiteSpline、原query生成、原动作编码及两层512维CrossReadout。日志框经过原坐标与类别转换到ego(t0)，道路使用原地图提取。与已标注可靠对象的距离/重叠、传感器支持的已观测空闲分别保存。缺轨迹和高度不可靠对象保留unknown；未把无回波当空闲。中间时刻的框采用中心、尺寸、模π方向插值，修复了直接插值顶点导致旋转框缩小的错误。
+
+目标求解仅含位置、姿态和时间改动代价，不读取ego未来GT或PDMS。SLSQP最多3起点、每起点100迭代、每输入3秒；只在明确违反且标签充分时运行。求解内0.1秒车身多边形检查，返回8点计划重新样条后在0.05秒独立检查。KEEP原物理轨迹直接返回，不调用求解器。REPAIR必须通过独立验证，成功status本身不够。无解、歧义或不确定不伪造KEEP。
+
+这里的KEEP只是本轮已标注局部约束可接受，不是交通规则、路线、未标注障碍或连续时间安全认证。负道路距离使用多边形Hausdorff代理，负障碍距离使用交叠面积平方根代理；符号和可行性用精确GEOS covers/intersects核验，不宣称精确穿透深度。
+
+## 固定比较与真实人口
+
+沿用1176个训练logs的原两折清单，A为52711 scenes，B为48881 scenes。阶段A六组在完整B折遍历24epoch，仅共同target_eligible计划贡献目标loss；其余scene仍计曝光，最终开发评价保留全部1696场景。LOG和MIN共用同一个有效人口与final_trajectory_loss，只替换目标。CV/FUT共用真实未来生成的MIN目标和共同关系支持，NONE不给GT支持mask。
+
+六组是LOG_NONE、LOG_CV、LOG_FUT、MIN_NONE、MIN_CV、MIN_FUT。seed42全部比较；seed43确认LOG_FUT、MIN_CV、MIN_FUT。只将新增头seed称为头复跑，S0仍是同一个底座训练seed。
+
+正式头源码冻结在58efe649，FP32、TF32关闭、batch128/micro16、lr1e-4、AdamW wd0.001、clip1，一epoch warmup后cosine到0.1LR。每组9168个数据更新边界，模型有效更新及KEEP/REPAIR曝光另记。全无资格batch不调用AdamW，避免制造有效监督；scheduler仍按共同数据曝光前进。
+
+阶段B的P_ABS_A/P_DIFF_A只可从A折随机小头起点训练，R_B第一步开始读取相应冻结P_A的真实预测。入口拒绝全量P、错误标签版本、同fold以及未完成24epoch的P。正式B是否启动，依阶段A自然/恢复结果和覆盖证据判断；不能把已完成的小集P→R链路当正式结果。
+
+## 截至当前的执行证据
+
+4096训练诊断场景共40960个输入计划：KEEP5915、REPAIR159、UNCERTAIN34631、UNSOLVED233、TASK_UNCERTAIN22；资格比例14.8291%，652场景至少有一个有效计划。159项修复中，道路违反107、障碍交叠15、运动学违反38，原因可重叠。输入类型包括6个原生、111个横向、42个时间扰动。未发现新增完全停车。KEEP与日志GT的平均ADE约0.756m，说明目标不是把所有可接受计划复制成GT；REPAIR目标对GT平均ADE仍约0.884m。
+
+覆盖不足是本研究的实质限制。阶段A只能检验这一有限局部约束合同，不能把FUT无增益外推为未来信息没有价值。正式结果尚待完整训练和canonical评价，本文这些数据不是部署收益。
+
+21项相关测试通过。真实小集连续/中断恢复48updates结果逐位相同；4图在线与缓存q0/q_final逐位相同，每场景一次视觉、一次语言前向、一次原十步proposal。标签替换不改变camera-only输出。4图热运行模型时延中位1.048秒，图像读取不在此计时内；这是smoke小头、非最终24epoch部署性能。
+
+## 资源与成本
+
+代码与产物均在/mnt/project。允许共享GPU；只从当前授权清单派发。完整B标签分布在vla-zt、rl-zt2、tsinghua-zt5、tsinghua-zt4，未使用撤销限时授权主机，未干扰vla-zt2的G2。固定有限上限64 GPU-process hours、160 CPU-process hours、40GiB新存储。100步真实训练profile读热后中位0.113秒/batch128、P90约0.130秒；首次读入、checkpoint和完整评价成本独立记录，不能将其当完整B折实际耗时。
+
+正式训练与评价状态以共享目录STAGE_A_TASKS.json、STAGE_A_RUNNERS.json、STAGE_A_EVAL_NATURAL/RECOVERY.json及对应COMPLETE为准。登记任务不是完成结果。历史错误版本和失败验证均保留。
