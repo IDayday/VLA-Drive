@@ -122,6 +122,15 @@ CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原
 尾 batch；只有教师、导出、权重校准和共享图像准备完成且重新核实空闲资源后才启动。
 当前 `QUEUED_BASE_PROFILE_STATUS.json` 仍为未执行，不能据此报告吞吐或恢复成功。
 图像准备只复制 A_train 当前 JPEG 原始字节到 `/mnt/project`，不产生新的 Qwen/DeepStack 特征缓存。
+当前 42,707 个 A_train 场景的 128,121 张图像已全部完成逐文件字节校验，合计
+26.80 GB；两个有界尝试共约 1079 秒墙钟，第一次到时保留文件，第二次校验后续写。
+没有改相机、ROI 或图像精度。见 `A_CURRENT_IMAGE_STAGE_COMPLETE.json`。
+
+B_predictor/B_refiner 的 46,767 个场景已建立独立官方评分缓存人口：复用 1,917 个
+已验证缓存，剩余 44,850 个由原固定版本官方生成器以 16 个 CPU worker 构建。
+这项准备不依赖新底座，也不向模型提供地图或未来状态。当前仍在生成，不能称作
+新底座的自然错误评分或研究成绩。其有限预算、原生成器 SHA、复用及新建人口身份
+见 `B_METRIC_PREPARATION.json`；不会把旧诊断缓存整体当成新 B 池。
 
 新标签/小头工程 smoke 明确标为 `engineering_historical_anchor_only`，仍可复用旧 S0
 验证代码；正式人口检查拒绝该模式。它不构成未见场景或正式 N/P/R 效果证据。

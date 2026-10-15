@@ -1,0 +1,89 @@
+{
+  "cost": "Estimated CPU/storage in registration; actual waited-child CPU will be reported only after process completion.",
+  "initial_prepare_v1": "Before committed tool; engineering preparation only, preserved but not used by builder. Actual builder consumes v2 from committed a4281b54.",
+  "official_q0_scores_available": false,
+  "population": {
+    "identity": "cef4c7516cb6dd54989b6d3583fa4edbf38827955496e773653580deda6bcfca",
+    "missing_index_sha256": "293cec1da15ae55abe5134f0f6ff680c8399e8af35ced5a540219ddf13dd9873",
+    "missing_scenes": 44850,
+    "original_caches_modified": false,
+    "population_identity": "1ef52497a2af38abf5c9c4ea8db3d8f332f376e1f4fd9721aa005796fa05caa7",
+    "population_sha256": "0ef8a31bbc2626795b53e524472a925c8e3274ae50098beba2b24403c168d0db",
+    "protocol": {
+      "code_sha": "a75044fa12bbf7bf4c96eac7e3f4e92f235dd956",
+      "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+      "numerical_versions": {
+        "numpy": "1.26.4",
+        "scipy": "1.13.1",
+        "shapely": "2.0.7"
+      },
+      "nuplan_python_tree_sha256": "ffbee2e824a071b5845fa3af657146e7b26ce9550e0c24b95ef624d81724cc36"
+    },
+    "purpose": "offline official scoring and independent target execution only; never a model input",
+    "recording_proof": "/mnt/project/natural-error-local-artifacts/20261015/recording_frame_audit_v3/COMPLETE.json",
+    "recording_proof_sha256": "f6571f4f142189dc359d23dbd666949d01b8b52282b0d04ea88ecf85f9365a2c",
+    "reuse_bank": "/mnt/project/natural-error-local-artifacts/20261015/train_canonical_4096_v1",
+    "reuse_identity_sha256": "831191f4b373bd250ae8395e6f0bc85199ffdf88b42bec69fea6e961bea228ca",
+    "reused_bytes": 694983056,
+    "reused_records_sha256": "b35116fb7fff90cc34aa128ff8b2cb4c40d9a3044eca32c2fda5732595eb3dd6",
+    "reused_scenes": 1917,
+    "roles": {
+      "B_predictor": {
+        "index_sha256": "9cf4f8c98b6b2b56ef8d392bbd93f28f355ba4a429196810d254e71d8cfa2b63",
+        "scenes": 25002
+      },
+      "B_refiner": {
+        "index_sha256": "35a04f50c550b70fcfb9f381ce84f116a3ac49d23dd156afce83cb2e2074c349",
+        "scenes": 21765
+      }
+    },
+    "scenes": 46767,
+    "schema": "natural_b_metric_population_v1",
+    "source_audit": "/mnt/project/natural-error-local-artifacts/20261015/base_sources_v2/SOURCE_AUDIT.json",
+    "source_audit_identity": "e937d99592f41665a6ccfb2836c2b073bc8891ec72a224f375e270bed1d5a036",
+    "source_audit_sha256": "1ebbb714881ac96f9758258610e88f4f7baf25497b6f9b6ba361c7201bb318e9",
+    "source_sha": "a4281b54eb03199e9c299f92ee676c1a67113de2",
+    "tool_sha256": "5bb200c690e4d7c68107538891288d7d9b10b81a1e1b77198984bc3f76feb185"
+  },
+  "registration": {
+    "CPU_workers": 16,
+    "GPUs": 0,
+    "canonical_semantics_changed": false,
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-m",
+      "tools.local_interaction_mask_v2.prepare_metric_cache",
+      "--devkit",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+      "--raw-log-root",
+      "/mnt/navsim/trainval_navsim_logs/trainval",
+      "--map-root",
+      "/mnt/navsim/maps",
+      "--index",
+      "/mnt/project/natural-error-local-artifacts/20261015/B_metric_population_v2/missing_index.json",
+      "--output",
+      "/mnt/project/natural-error-local-artifacts/20261015/B_metric_missing_v1",
+      "--workers",
+      "16"
+    ],
+    "cwd": "/mnt/project/VLA-Drive-local-v2-runs-metriccache",
+    "estimated_CPU_process_hours": 11.13878956214396,
+    "estimated_new_bytes": 16259775723.317684,
+    "estimation_source": "/mnt/project/natural-error-local-artifacts/20261015/TRAIN_CANONICAL_4096_CPU.json",
+    "max_wall_seconds": 3600,
+    "missing_scenes": 44850,
+    "population_identity": "cef4c7516cb6dd54989b6d3583fa4edbf38827955496e773653580deda6bcfca",
+    "prediction_or_formal_training_started": false,
+    "resources": {
+      "checked_unix": 1792088950.8723102,
+      "host": "training-vla-zt",
+      "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+    },
+    "reused_scenes": 1917,
+    "schema": "bounded_native_metric_build_v1",
+    "source_sha": "a75044fa12bbf7bf4c96eac7e3f4e92f235dd956",
+    "total_budget": "/mnt/project/natural-error-local-artifacts/20261015/TOTAL_BUDGET_v2.json",
+    "wrapper_source_sha": "a4281b54eb03199e9c299f92ee676c1a67113de2"
+  },
+  "status": "RUNNING_NATIVE_CACHE_BUILD"
+}
