@@ -128,6 +128,7 @@ def main():
     p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1'),default='decision_local_v1')
     p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
     p.add_argument('--target-acceptance',type=Path,help='Immutable target-quality and finite-budget receipt for formal repair runs')
+    p.add_argument('--repair-class-balance',type=Path,help='Explicit separate MIN diagnostic: fixed training-exposure class weights')
     p.add_argument('--seed',type=int,default=42); p.add_argument('--epochs',type=int,default=24)
     p.add_argument('--batch',type=int,default=128); p.add_argument('--microbatch',type=int,default=16)
     p.add_argument('--lr',type=float,default=1e-4); p.add_argument('--dim',type=int,default=512)
@@ -142,6 +143,8 @@ def main():
     torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32=False; torch.backends.cudnn.allow_tf32=False
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
     repair=a.protocol=='minimal_repair_v1'
+    if a.repair_class_balance is not None and not repair:
+        raise ValueError('Class balance cannot alter the legacy protocol')
     if repair:
         from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData
         from tools.decision_local.minimal_repair_training import REPAIR_KINDS,label_semantics
@@ -184,7 +187,18 @@ def main():
     elif not repair and (a.fold_partition is not None or a.training_fold is not None):
         raise ValueError('Fold inputs cannot alter the primary full-population arms')
     if dev and {r['log'] for r in train.index}&{r['log'] for r in dev.index}: raise ValueError('Train/dev log leakage')
+    balance_receipt=class_weights=None
+    if a.repair_class_balance is not None:
+        from tools.decision_local.minimal_repair_training import load_repair_class_balance
+        balance_receipt,class_weights=load_repair_class_balance(a.repair_class_balance,a.kind,train)
+    if a.scope=='repair_formal':
+        expected_balance=acceptance.get('repair_class_balance_sha256')
+        actual_balance=digest(a.repair_class_balance) if a.repair_class_balance is not None else None
+        if actual_balance!=expected_balance:
+            raise ValueError('Formal acceptance must explicitly cover this loss weighting')
     model = build_model(a.kind,a.seed,a.dim); initial_hash = tensor_hash(model.state_dict()); model=model.cuda().train()
+    if class_weights is not None:
+        model.repair_class_weights=class_weights  # Loss-only Python metadata; no state_dict/forward change.
     predictor=payload=None
     if a.kind.startswith('R_'):
         if a.predictor is None: raise ValueError('Frozen corresponding predictor required')
@@ -231,6 +245,9 @@ def main():
             target_eligibility='LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer',
             plan_exposure='one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule')
         if acceptance is not None:run_identity['target_acceptance_sha256']=digest(a.target_acceptance)
+        if balance_receipt is not None:
+            run_identity['repair_class_balance']={'receipt':balance_receipt,'sha256':digest(a.repair_class_balance),
+                'reduction':'fixed class multipliers; original optimizer-batch eligible-scene denominator'}
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.;effective_updates=0;exposure_counts={k:0 for k in ('target_eligible','KEEP','REPAIR','native','lateral','time')}
