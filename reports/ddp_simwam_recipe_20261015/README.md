@@ -178,6 +178,15 @@ The fixed final selection rule is each variant's update20000 endpoint, not
 the best intermediate checkpoint. Full Navtest waits for endpoint identity
 locking. No extra training or inference seeds are scheduled.
 
+The finite final evaluation controller is now running on tsinghua-zt2 from
+analysis commit `a974d3bb719c3dbd957eb0c96d7979fa162c09d9`; its command and
+actual closed gate are in [final_queue_dispatch.json](final_queue_dispatch.json).
+It waits for both completed training budgets and all DEV stages, locks the
+actual endpoint weights, then evaluates SFT and both endpoints on all12,146
+Navtest scenes using the same frozen evaluation source. Live GPU inventory and
+physical UUID checks precede admission. It neither restarts training nor
+extends the experiment. No Navtest candidate has been generated yet.
+
 Completed SFT controls (single seed2101):
 
 | Population | E_NATIVE PDMS /100 | E_SHIFT5 PDMS /100 |
