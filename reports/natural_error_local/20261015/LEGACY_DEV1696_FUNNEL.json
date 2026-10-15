@@ -1,0 +1,241 @@
+{
+  "CPU_process_seconds": 0.848286954,
+  "canonical": "Separate plan-key join required; no official error is inferred from geometry",
+  "counts": {
+    "NATURAL": {
+      "KEEP": {
+        "plans": 287,
+        "unique_logs": 15,
+        "unique_scenes": 287
+      },
+      "REPAIR": {
+        "plans": 10,
+        "unique_logs": 3,
+        "unique_scenes": 10
+      },
+      "any_known_violation": {
+        "plans": 37,
+        "unique_logs": 8,
+        "unique_scenes": 37
+      },
+      "full_4s_annotation_support": {
+        "plans": 308,
+        "unique_logs": 15,
+        "unique_scenes": 308
+      },
+      "kinematic_violation": {
+        "plans": 2,
+        "unique_logs": 2,
+        "unique_scenes": 2
+      },
+      "known_annotated_overlap": {
+        "plans": 14,
+        "unique_logs": 4,
+        "unique_scenes": 14
+      },
+      "known_road_violation": {
+        "plans": 24,
+        "unique_logs": 5,
+        "unique_scenes": 24
+      },
+      "known_violation_filtered_by_incomplete_support": {
+        "plans": 23,
+        "unique_logs": 6,
+        "unique_scenes": 23
+      },
+      "known_violation_without_full_target": {
+        "plans": 27,
+        "unique_logs": 8,
+        "unique_scenes": 27
+      },
+      "population": {
+        "plans": 1696,
+        "unique_logs": 16,
+        "unique_scenes": 1696
+      },
+      "solver_unsolved": {
+        "plans": 4,
+        "unique_logs": 2,
+        "unique_scenes": 4
+      },
+      "target_eligible": {
+        "plans": 297,
+        "unique_logs": 15,
+        "unique_scenes": 297
+      },
+      "uncertain_incomplete_support": {
+        "plans": 1388,
+        "unique_logs": 16,
+        "unique_scenes": 1388
+      }
+    },
+    "SYNTHETIC": {
+      "KEEP": {
+        "plans": 1061,
+        "unique_logs": 15,
+        "unique_scenes": 305
+      },
+      "REPAIR": {
+        "plans": 65,
+        "unique_logs": 7,
+        "unique_scenes": 45
+      },
+      "any_known_violation": {
+        "plans": 735,
+        "unique_logs": 15,
+        "unique_scenes": 520
+      },
+      "full_4s_annotation_support": {
+        "plans": 1235,
+        "unique_logs": 15,
+        "unique_scenes": 313
+      },
+      "kinematic_violation": {
+        "plans": 184,
+        "unique_logs": 12,
+        "unique_scenes": 120
+      },
+      "known_annotated_overlap": {
+        "plans": 274,
+        "unique_logs": 13,
+        "unique_scenes": 197
+      },
+      "known_road_violation": {
+        "plans": 377,
+        "unique_logs": 11,
+        "unique_scenes": 321
+      },
+      "known_violation_filtered_by_incomplete_support": {
+        "plans": 607,
+        "unique_logs": 15,
+        "unique_scenes": 431
+      },
+      "known_violation_without_full_target": {
+        "plans": 670,
+        "unique_logs": 15,
+        "unique_scenes": 485
+      },
+      "population": {
+        "plans": 6784,
+        "unique_logs": 16,
+        "unique_scenes": 1696
+      },
+      "solver_unsolved": {
+        "plans": 63,
+        "unique_logs": 9,
+        "unique_scenes": 54
+      },
+      "target_eligible": {
+        "plans": 1126,
+        "unique_logs": 15,
+        "unique_scenes": 311
+      },
+      "uncertain_incomplete_support": {
+        "plans": 5549,
+        "unique_logs": 16,
+        "unique_scenes": 1390
+      }
+    }
+  },
+  "cross_table": [
+    {
+      "complete_annotations": "True",
+      "distribution": "NATURAL",
+      "known_violation": "False",
+      "plans": 287,
+      "status": "KEEP"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "NATURAL",
+      "known_violation": "True",
+      "plans": 10,
+      "status": "REPAIR"
+    },
+    {
+      "complete_annotations": "False",
+      "distribution": "NATURAL",
+      "known_violation": "False",
+      "plans": 1365,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "NATURAL",
+      "known_violation": "False",
+      "plans": 7,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "False",
+      "distribution": "NATURAL",
+      "known_violation": "True",
+      "plans": 23,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "NATURAL",
+      "known_violation": "True",
+      "plans": 4,
+      "status": "UNSOLVED"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "SYNTHETIC",
+      "known_violation": "False",
+      "plans": 1061,
+      "status": "KEEP"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "SYNTHETIC",
+      "known_violation": "True",
+      "plans": 65,
+      "status": "REPAIR"
+    },
+    {
+      "complete_annotations": "False",
+      "distribution": "SYNTHETIC",
+      "known_violation": "False",
+      "plans": 4942,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "SYNTHETIC",
+      "known_violation": "False",
+      "plans": 46,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "False",
+      "distribution": "SYNTHETIC",
+      "known_violation": "True",
+      "plans": 607,
+      "status": "UNCERTAIN"
+    },
+    {
+      "complete_annotations": "True",
+      "distribution": "SYNTHETIC",
+      "known_violation": "True",
+      "plans": 63,
+      "status": "UNSOLVED"
+    }
+  ],
+  "independence": "scene/log counts deduplicate q0 sampling seeds and synthetic variants",
+  "index_scenes": 1696,
+  "object_time_support": "Not in old receipts; added by the bounded local evidence audit",
+  "resource": {
+    "checked_unix": 1792079210.672008,
+    "host": "training-vla-zt",
+    "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70"
+  },
+  "row_file_sha256": "be553906bd42282fb67b1cf18b91785c35561d5046d14835eba0c93fd265c3e0",
+  "schema": "natural_error_legacy_eligibility_audit_v1",
+  "source_identity_file_sha256": "4713ec4c67b7aad34677c3302df3b3eb7f76a05895dfcf3e465a59749ca2e5d0",
+  "source_label_identity": "ca8a00bc6244be026511abe08ffea0d7c3c2ea44f204789b43a8f3d73403e9d0",
+  "source_sha": "7ffd77d9d0d6acbe6f7d39852e57eccd02160ae9",
+  "split": "dev",
+  "wall_seconds": 0.5893481224775314
+}

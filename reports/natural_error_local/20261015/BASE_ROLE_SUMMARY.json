@@ -1,0 +1,47 @@
+{
+  "identity": "e937d99592f41665a6ccfb2836c2b073bc8891ec72a224f375e270bed1d5a036",
+  "source_sha": "ec266c5550843617cf90df1a592508a598b4b192",
+  "legal_navtrain_logs": 1192,
+  "raw_trainval_logs": 1310,
+  "S0_training_logs": 1176,
+  "fixed_development_logs": 16,
+  "legal_available_unseen_log_names": [],
+  "old_fold_recordings": 162,
+  "old_fold_shared_recordings": 134,
+  "role_populations": {
+    "A_calibration": {
+      "logs": 8,
+      "recordings": 4,
+      "scenes": 1416
+    },
+    "A_train": {
+      "logs": 468,
+      "recordings": 70,
+      "scenes": 42707
+    },
+    "B_predictor": {
+      "logs": 276,
+      "recordings": 37,
+      "scenes": 25002
+    },
+    "B_refiner": {
+      "logs": 289,
+      "recordings": 36,
+      "scenes": 21765
+    },
+    "excluded_dev_recording": {
+      "logs": 135,
+      "recordings": 15,
+      "scenes": 10702
+    }
+  },
+  "role_rule": "SHA256(natural-error-recording-v1:parent recording) sort; alternating A/B; every twentieth A recording calibration; B alternates predictor/refiner; exclude all dev parent recordings",
+  "index_sha256": {
+    "A_calibration": "ee42df52bc2001df47554242728ecc0acdc3cb9ac9fd56eac0116aa7a57d4bc6",
+    "A_train": "25ff85b24a53dc4f574b549da4d9e80a3c05b9c812281bee02876c540eeec9b5",
+    "B_predictor": "9cf4f8c98b6b2b56ef8d392bbd93f28f355ba4a429196810d254e71d8cfa2b63",
+    "B_refiner": "35a04f50c550b70fcfb9f381ce84f116a3ac49d23dd156afce83cb2e2074c349",
+    "excluded_dev_recording": "a6bf27b4654469d5cf8f494456e35404c759522dc119e9586cb64a0b979c0f6f"
+  },
+  "unseen_decision": "A-only shared base necessary"
+}

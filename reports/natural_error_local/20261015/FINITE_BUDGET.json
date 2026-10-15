@@ -1,0 +1,33 @@
+{
+  "schema": "natural_error_budget_v2",
+  "utc": "2026-10-15T16:43:55.088381+00:00",
+  "scope": "one shared A-only S0 plus fixed N probes and conditional P/R comparisons",
+  "GPU_process_hours_total_cap": 400,
+  "CPU_process_hours_total_cap": 80,
+  "new_storage_GiB_cap": 600,
+  "phase_GPU_caps": {
+    "A_only_MAE_train_and_export": 5,
+    "base_calibration_and_full_training_profile": 5,
+    "one_S0_A_formal": 300,
+    "compact_base_features_and_q0": 50,
+    "all_small_heads_and_key_seed": 20,
+    "canonical_inference_and_deployment": 20
+  },
+  "base_formal_status": "NOT_STARTED; requires real complete S0 profile, source and finite exposure registration",
+  "base_limit": "At most one random-driving/generic-Qwen base; no old S0 driving init",
+  "CPU_train_metric_profile_seconds": 55.325877999999996,
+  "train_metric_estimated_CPU_hours": 1.9671423288888887,
+  "train_metric_subset_scenes": 4096,
+  "teacher_profile_completed_updates": 40,
+  "teacher_profile_GPU_hours": 0.02658352611111111,
+  "teacher_full_target_epochs": 30,
+  "teacher_full_updates": 5010,
+  "teacher_max_invocation_seconds": 7200,
+  "notes": [
+    "Caps are limits, not measured costs or promises. Record each phase actual before subsequent admission.",
+    "No base formal launch before full-model profile; do not lower exposure to fit budget.",
+    "P/R formal conditional on natural N evidence; engineering smoke is separate.",
+    "G2 and all unrelated runs untouched.",
+    "Initial audit/failed attempts included in total costs; overlapping CPU measurements are not summed."
+  ]
+}
