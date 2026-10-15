@@ -29,7 +29,8 @@ from starVLA.dataloader.foresight_dataset import decode_ego
 
 KINDS = ('E_NONE','E_CURRENT_GT','E_CV_GT','E_FUTURE_GT','E_MASK_ONLY',
          'P_ABS','P_DIFF','P_QUERY_ONLY','R_CURRENT_PRED','R_FUTURE_ABS','R_FUTURE_DIFF',
-         'LOG_NONE','LOG_CV','LOG_FUT','MIN_NONE','MIN_CV','MIN_FUT','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF')
+         'LOG_NONE','LOG_CV','LOG_FUT','MIN_NONE','MIN_CV','MIN_FUT','R_MIN_CURRENT','R_MIN_ABS','R_MIN_DIFF',
+         'N_NONE','N_CV','N_FUT','R_CURRENT','R_ABS_FUTURE','R_DIFF_FUTURE')
 
 
 def build_model(kind, seed, dim=512):
@@ -37,7 +38,7 @@ def build_model(kind, seed, dim=512):
     # Isolate initialization from scene order and anchor/proposal RNG.
     with torch.random.fork_rng(devices=[]):
         torch.manual_seed(seed)
-        if kind.startswith(('LOG_','MIN_','R_MIN_')):
+        if kind.startswith(('LOG_','MIN_','R_MIN_','N_')) or kind in ('R_CURRENT','R_ABS_FUTURE','R_DIFF_FUTURE'):
             from starVLA.model.modules.decision_local.minimal_repair_contract import MinimalRepairRefiner
             return MinimalRepairRefiner(dim=dim)
         return ConsequenceQueryHead(dim=dim, query_only=kind=='P_QUERY_ONLY') if kind.startswith('P_') else ResidualRefiner(dim=dim)
@@ -70,6 +71,9 @@ def apply_log_fold(train, heldout, partition, training_fold):
 
 
 def forward(model, kind, batch, predictor=None):
+    if batch.get('local_evidence_protocol',False):
+        from tools.decision_local.natural_local_training import natural_forward
+        return natural_forward(model,kind,batch,predictor)
     if 'plan_in_physical' in batch:
         from tools.decision_local.minimal_repair_training import repair_forward
         return repair_forward(model,kind,batch,predictor)
@@ -124,8 +128,8 @@ def main():
     for arg in ('features','labels','output'): p.add_argument('--'+arg,type=Path,required=True)
     p.add_argument('--dev-features',type=Path); p.add_argument('--dev-labels',type=Path)
     p.add_argument('--kind',choices=KINDS,required=True); p.add_argument('--predictor',type=Path)
-    p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control','repair_formal'),required=True)
-    p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1'),default='decision_local_v1')
+    p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control','repair_formal','natural_formal'),required=True)
+    p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1','natural_local_v1'),default='decision_local_v1')
     p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
     p.add_argument('--target-acceptance',type=Path,help='Immutable target-quality and finite-budget receipt for formal repair runs')
     p.add_argument('--repair-class-balance',type=Path,help='Explicit separate MIN diagnostic: fixed training-exposure class weights')
@@ -142,10 +146,25 @@ def main():
     resources = check_host(); start = time.monotonic()
     torch.set_num_threads(2); torch.backends.cuda.matmul.allow_tf32=False; torch.backends.cudnn.allow_tf32=False
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
-    repair=a.protocol=='minimal_repair_v1'
+    natural=a.protocol=='natural_local_v1'
+    repair=a.protocol in ('minimal_repair_v1','natural_local_v1')
     if a.repair_class_balance is not None and not repair:
         raise ValueError('Class balance cannot alter the legacy protocol')
-    if repair:
+    if natural:
+        from starVLA.dataloader.natural_local_dataset import NaturalLocalData
+        from tools.decision_local.natural_local_training import NATURAL_KINDS
+        from tools.decision_local.minimal_repair_training import label_semantics
+        if a.kind not in NATURAL_KINDS or a.scope not in ('smoke','diagnostic','natural_formal'):
+            raise ValueError('Use the versioned natural-error experiment and scope')
+        if a.fold_partition is not None or a.training_fold is not None or a.repair_class_balance is not None:
+            raise ValueError('Old folds/repair reweighting cannot enter the natural-error study')
+        train=NaturalLocalData(a.features,a.labels,reader=a.data_reader)
+        dev=NaturalLocalData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
+        codec_path=train.label_identity.get('action_codec')
+        if codec_path:
+            from starVLA.dataloader.a_only_codec import install_legacy_codec
+            install_legacy_codec(read(codec_path))
+    elif repair:
         from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData
         from tools.decision_local.minimal_repair_training import REPAIR_KINDS,label_semantics
         if a.kind not in REPAIR_KINDS+('P_ABS','P_DIFF'):raise ValueError('Wrong kind for repair protocol')
@@ -153,6 +172,8 @@ def main():
         train=RecoveryPlanData(a.features,a.labels,reader=a.data_reader,fold_partition=a.fold_partition,fold=a.training_fold)
         dev=RecoveryPlanData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
     else:
+        if a.kind.startswith('N_') or a.kind in ('R_CURRENT','R_ABS_FUTURE','R_DIFF_FUTURE'):
+            raise ValueError('Natural-error kinds require their separate local-supervision protocol')
         if a.kind.startswith(('LOG_','MIN_','R_MIN_')) or a.scope=='repair_formal':raise ValueError('Explicit repair protocol required')
         train = FrozenConsequenceData(a.features,a.labels,reader=a.data_reader)
         dev = FrozenConsequenceData(a.dev_features,a.dev_labels,reader=a.data_reader) if a.dev_features else None
@@ -162,6 +183,22 @@ def main():
         raise ValueError('Full common population required')
     fold_identity=train.fold_identity if repair else None
     acceptance=None
+    if a.scope=='natural_formal':
+        if not natural:raise ValueError('Explicit local-supervision protocol required')
+        if (a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or
+            a.seed not in (42,43) or dev is None or len(dev.index)!=1696):
+            raise ValueError('Same registered small-head recipe and full independent development population required')
+        if a.target_acceptance is None:raise ValueError('Finite population and training receipt required')
+        acceptance=read(a.target_acceptance)
+        stage='stage_P_R_training_allowed' if a.kind.startswith(('P_','R_')) else 'stage_N_training_allowed'
+        if acceptance.get(stage) is not True or a.kind not in acceptance['kinds'] or a.seed not in acceptance['seeds']:
+            raise ValueError('Conditional formal stage has not been registered')
+        role='B_predictor' if a.kind.startswith('P_') else 'B_refiner'
+        if (train.label_identity['role']!=role or train.label_identity['scope']=='engineering_historical_anchor_only' or
+            acceptance['anchor_identity']!=train.feature_identity['anchor_identity'] or
+            acceptance['source_audit_identity']!=train.label_identity['source_audit_identity']):
+            raise ValueError('Wrong natural correction/base population')
+        if label_semantics(train.label_identity)!=label_semantics(dev.label_identity):raise ValueError('Train/dev local-label semantics differ')
     if a.scope=='repair_formal':
         if any(train.label_identity[k].get('velocity_boundary')!='measured_vector_v2' for k in ('recovery','constraints','query_config')):
             raise ValueError('Corrected formal repair must preserve the complete legal current velocity vector')
@@ -202,8 +239,17 @@ def main():
     predictor=payload=None
     if a.kind.startswith('R_'):
         if a.predictor is None: raise ValueError('Frozen corresponding predictor required')
-        predictor,payload=load_predictor(a.predictor,'P_DIFF' if a.kind in ('R_FUTURE_DIFF','R_MIN_DIFF') else 'P_ABS')
-        if repair:
+        predictor,payload=load_predictor(a.predictor,'P_DIFF' if a.kind in ('R_FUTURE_DIFF','R_MIN_DIFF','R_DIFF_FUTURE') else 'P_ABS')
+        if natural:
+            pi=payload['identity']
+            if pi.get('protocol')!='natural_local_v1' or pi.get('repair_label_semantics')!=label_semantics(train.label_identity):
+                raise ValueError('Predictor local supervision contract changed')
+            if pi['anchor_identity']!=train.feature_identity['anchor_identity']:raise ValueError('Wrong shared base')
+            if {r.rsplit('_',2)[0] for r in pi['training_log_names']}&{r['log'].rsplit('_',2)[0] for r in train.index}:
+                raise ValueError('P and R share a recording')
+            if a.scope=='natural_formal' and (pi['repair_fold']['role']!='B_predictor' or payload['epoch']!=24 or payload['offset']!=0):
+                raise ValueError('R must use the completed held-out P endpoint')
+        elif repair:
             pi=payload['identity']
             if pi.get('protocol')!='minimal_repair_v1' or pi.get('repair_label_semantics')!=label_semantics(train.label_identity):raise ValueError('Predictor target/query contract mismatch')
             if a.scope=='repair_formal' and (pi['repair_fold']['fold']!=acceptance['predictor_training_fold'] or pi['repair_fold']['partition_sha256']!=fold_identity['partition_sha256'] or payload['epoch']!=24 or payload['offset']!=0):raise ValueError('R requires completed opposite-fold P; full-population P forbidden')
@@ -248,6 +294,13 @@ def main():
         if balance_receipt is not None:
             run_identity['repair_class_balance']={'receipt':balance_receipt,'sha256':digest(a.repair_class_balance),
                 'reduction':'fixed class multipliers; original optimizer-batch eligible-scene denominator'}
+        if natural:
+            extra=[ROOT/'starVLA/dataloader/natural_local_dataset.py',ROOT/'tools/decision_local/natural_local_training.py']
+            run_identity['source_files'].update({str(f.relative_to(ROOT)):digest(f) for f in extra})
+            run_identity.update(schema='natural_local_small_head_v1',plan_exposure=train.label_identity['selection'],
+                target_eligibility='P: each local channel/time independently; N/R: strict complete KEEP/REPAIR only; unknown never KEEP',
+                action_codec_identity=train.label_identity.get('action_codec_identity'),
+                source_audit_identity=train.label_identity['source_audit_identity'])
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.;effective_updates=0;exposure_counts={k:0 for k in ('target_eligible','KEEP','REPAIR','native','lateral','time')}
