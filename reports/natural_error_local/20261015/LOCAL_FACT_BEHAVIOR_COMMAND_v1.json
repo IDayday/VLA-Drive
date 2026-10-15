@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+    "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/measure_scoring_process.py",
+    "--output",
+    "/mnt/project/natural-error-local-artifacts/20261015/LOCAL_FACT_BEHAVIOR_CPU_v1.json",
+    "--",
+    "timeout",
+    "180",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python",
+    "/mnt/project/VLA-Drive-natural-error-local-20261015/tools/decision_local/evaluate_minimal_repair_behavior.py",
+    "--predictions",
+    "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_R_DIFF_v1",
+    "--scores",
+    "/mnt/project/natural-error-local-artifacts/20261015/engineering_cached_R_DIFF_scores_v1",
+    "--labels",
+    "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_lineage_4_v1",
+    "--features",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/anchor_diagnostic4096_v1",
+    "--anchor",
+    "/mnt/project/decision-local-consequence-artifacts/20261014/ANCHOR.json",
+    "--output",
+    "/mnt/project/natural-error-local-artifacts/20261015/engineering_local_behavior_4_v1",
+    "--workers",
+    "2",
+    "--scope",
+    "engineering"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-natural-error-local-20261015",
+  "source_sha": "f662f0dad7a14123a8519efd9832c80c9d326bca",
+  "scope": "Four immutable old-anchor engineering predictions; no training, inference, canonical scoring or solver invocation"
+}
