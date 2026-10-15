@@ -66,6 +66,7 @@ def lock_final(config):
                     selection='max selected mean among feasible; ties fewer switches then larger gamma'),
         bootstrap_repetitions=config.bootstrap_repetitions,bootstrap_seed=config.bootstrap_seed,
         primary_comparisons=['M_scene-R00','M_set-R00','M_set-M_scene'],
+        evaluation_code=file_hash(__file__),deployment_code=file_hash(Path(__file__).with_name('deployment.py')),
         single_seed=True,ACTIVE_updated=False)
     rules['hash']=digest(rules)
     atomic_json(config.root/'FINAL_EVALUATION_LOCK.json',rules,immutable=True)
