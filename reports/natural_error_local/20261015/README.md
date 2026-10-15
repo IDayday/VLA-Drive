@@ -97,8 +97,8 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 |---|---|
 | 固定旧训练/开发人口漏斗与局部支持 | 已完成；训练/开发 canonical 交叉表及全部 KEEP/零分核验完成 |
 | LocalEvidence、独立全轨迹目标 mask、A-only 数据视图 | 已实现；21 项组合测试通过，执行坐标修复后 5 项针对性测试通过 |
-| 新 A-only GT-MAE | 已真实启动 30 epoch / 5010 updates；只读原训练源码 `1493deda…` |
-| 新共享 S0_A | 尚未启动；等待新 teacher、公共权重校准和完整 8 卡 profile |
+| 新 A-only GT-MAE | 已完成 30 epoch / 5010 updates / 1,281,210 曝光；冻结 epoch30，源码 `1493deda…` |
+| 新共享 S0_A | 尚未启动；等待已完成 teacher 的标签导出、公共权重校准和完整 8 卡 profile |
 | N_NONE/N_CV/N_FUT | 新协议训练入口已实现；正式训练 NOT_RUN |
 | P_ABS/P_DIFF、三个 R | 录制隔离的真实小集前后向与恢复检查完成；正式 NOT_RUN |
 | 新底座在线部署、关键复跑、最终 Navtest | 尚未执行 |
@@ -107,7 +107,7 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 校准只用 A_calibration，原训练器的指标字段名仍为 `FIXED_LOG_DISJOINT_DEV`，不表示用了旧 1696 开发集。
 已完成的 16-epoch A 内部教师检查无失败：full-peer ego ADE 从随机时约 9.79m 降到
 0.95m，vehicle-with-peer ADE 从约 7.70m 降到 2.67m。这只说明 GT-MAE 教师在学习，
-不是 VLA 规划成绩；30 epoch 尚未结束，也未提前按这些中间结果冻结教师。
+不是 VLA 规划成绩；当时未提前按这些中间结果冻结教师，现已按完整 30 epoch 规则冻结。
 24 epoch 的同一检查已完成，full-peer ego/vehicle ADE 分别约 0.903/2.187m；
 current-only 的对应误差从 16 epoch 的约 1.108/5.541m 变为 1.152/6.084m，
 并未共同改善。完整分组保留在 `TEACHER_A_INTERIM_LEARNING.json`，不将特权教师
@@ -138,8 +138,12 @@ CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原
 
 B_predictor/B_refiner 的 46,767 个场景已建立独立官方评分缓存人口：复用 1,917 个
 已验证缓存，剩余 44,850 个由原固定版本官方生成器以 16 个 CPU worker 构建。
-这项准备不依赖新底座，也不向模型提供地图或未来状态。当前仍在生成，不能称作
-新底座的自然错误评分或研究成绩。其有限预算、原生成器 SHA、复用及新建人口身份
+全部 44,850 个新增场景已零失败完成，合并后 46,767 个缓存逐文件哈希核验通过，
+合计 16.867 GB。新建阶段实际约 2928 秒墙钟、12.331 CPU-process hours；核验合并
+另约 57 秒墙钟、0.033 CPU-process hours。首次合并因完整树哈希不一致而拒绝，原错误
+记录保留；仅在上述运行源码逐字节核验后才重新执行。没有改变标签、评分器或环境。
+这项准备不依赖新底座，也不向模型提供地图或未来状态；尚未生成新 q0 分数，
+不能称作新底座的自然错误评分或研究成绩。其有限预算、原生成器 SHA、复用及新建人口身份
 见 `B_METRIC_PREPARATION.json`；不会把旧诊断缓存整体当成新 B 池。
 
 新标签/小头工程 smoke 明确标为 `engineering_historical_anchor_only`，仍可复用旧 S0
@@ -196,6 +200,15 @@ N_NONE/N_CV/N_FUT 的同样 4 场景导出、评分和 oracle/camera-only 分表
 测试目录内。旧完整树哈希与安装包哈希均原样保留，只有这一明确差异可由独立收据
 解释；任何运行文件、数值库或 NAVSIM 源码变化仍拒绝合并。3 项针对性测试通过。
 这项核验不修改缓存或 scorer，也不产生新的规划结果。
+
+A-only 教师现已完成全部 30 epoch / 5010 updates，最终曝光 1,281,210；原生中断后
+从 3990 继续到 5010，scheduler/数据位置未重置。固定 1416 个 A 内部校准场景零失败，
+原预登记 full-peer 规则选择第 30 epoch：ego-with-peer ADE 0.79252m、其他汽车
+with-peer ADE 2.06914m。全部 ego 的 full-peer/current-only ADE 分别 0.87853/1.12115m；
+current-only 其他汽车 ADE 5.90770m，仍劣于其静态保持参考 4.36462m，不能省略这一限制。
+两次正式教师调用合计约 2.509 GPU 分配小时、1.514 CPU-process 小时；额外 40 步探针
+和导出成本另计。它们都是教师重建诊断，不是学生规划分数。完整学习曲线与冻结身份
+见 `TEACHER_A_COMPLETED_LEARNING.json`、`FROZEN_A_TEACHER_v1.json`。
 
 ## 成本与执行边界
 

@@ -1,0 +1,90 @@
+{
+  "all_milestones": [
+    {
+      "completed": 167,
+      "ego_with_peer_ADE": 1.4990664003001657,
+      "epoch": 1,
+      "failures": 0,
+      "metrics_sha256": "ba54963d754cf7e5107c1c44434d8f35fbf69a3e0e7bc380d8bfd186d8e6ef47",
+      "query_csv_sha256": "27e136cf8746df4eef857e28e39437eef0fff585a5a4d440403950f2322c7b6a",
+      "vehicle_with_peer_ADE": 4.485038441534712
+    },
+    {
+      "completed": 334,
+      "ego_with_peer_ADE": 1.3758522668841537,
+      "epoch": 2,
+      "failures": 0,
+      "metrics_sha256": "503a4c692021071b3fc26255fb62b5f7e8eec4dd0ef7d4bca1ebdeb3a32431d2",
+      "query_csv_sha256": "9b839937b8c8bcfddd64e37248540c3404321e134e0d9ab4a0c37d3e8558b874",
+      "vehicle_with_peer_ADE": 3.9878534542108888
+    },
+    {
+      "completed": 668,
+      "ego_with_peer_ADE": 1.3235811677201792,
+      "epoch": 4,
+      "failures": 0,
+      "metrics_sha256": "721712dd764c9c1216a7f284057bdf486c8d543b98e3f9cf0721276c0031762b",
+      "query_csv_sha256": "dcac6bc3f8e6c888ba8fd0b897a0ee037a28ba4f59fdc03638204a4ec2642fa8",
+      "vehicle_with_peer_ADE": 3.401424480206847
+    },
+    {
+      "completed": 1336,
+      "ego_with_peer_ADE": 1.102385511934251,
+      "epoch": 8,
+      "failures": 0,
+      "metrics_sha256": "3f3029f00cfa7518293ea19342830d75ebab20fd0fb9c9697f6709c67b7c0a51",
+      "query_csv_sha256": "4312e9eae8d332d116f86ceff2ecb36a416972693688cb467a6db6e7048fa914",
+      "vehicle_with_peer_ADE": 3.42822752721886
+    },
+    {
+      "completed": 2672,
+      "ego_with_peer_ADE": 0.8627121265416059,
+      "epoch": 16,
+      "failures": 0,
+      "metrics_sha256": "925f95ac7c9b9cc3cf24348f59530fd92cdeba81a1778eb7720f9e0471024592",
+      "query_csv_sha256": "201f674b3f08c522b368600589f65138727b777d01d2c041c675f2f7b58fece1",
+      "vehicle_with_peer_ADE": 2.672649852384407
+    },
+    {
+      "completed": 4008,
+      "ego_with_peer_ADE": 0.8169663926020992,
+      "epoch": 24,
+      "failures": 0,
+      "metrics_sha256": "69561013e2875588fb2fd6849a6184894d2649345133a544ac2f8b69459a4c5d",
+      "query_csv_sha256": "ecbfa0bfe8f1e08280e788058ba99ae9d690b529200c3fba86e54aa0c59c235c",
+      "vehicle_with_peer_ADE": 2.1867772187896906
+    },
+    {
+      "completed": 5010,
+      "ego_with_peer_ADE": 0.7925152119739484,
+      "epoch": 30,
+      "failures": 0,
+      "metrics_sha256": "3bf39a843f3403d0c93c6f176945f04a0b943cf056fb07cce6fb06ee75841669",
+      "query_csv_sha256": "fed7ec967491ec2a3e9e51dbf1051470da28e26717fff85bf05f3f5589bb532b",
+      "vehicle_with_peer_ADE": 2.069139922467805
+    }
+  ],
+  "checkpoint": "milestone_030.pt",
+  "checkpoint_sha256": "2eaa178ae637cd87fd2f64a04306c41e6a5efe57cbc519964ff56da3fa3f26f2",
+  "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+  "ego_export_policy": "fresh encoder, all ego future masked before encoding; no reuse of full-GT hidden",
+  "full_training_completed": 5010,
+  "identity": "3bdec6b468b03028ce797349ce3ae036641e8e30e17a7c9bc7ff46ea5daadeed",
+  "registration_sha256": "24e55bd48052122642cfd019b7e9a4cff8519096a9e96f73b86b6d77ca3dbf47",
+  "schema": "foresight_frozen_teacher_v1",
+  "selected": {
+    "completed": 5010,
+    "ego_with_peer_ADE": 0.7925152119739484,
+    "epoch": 30,
+    "failures": 0,
+    "metrics_sha256": "3bf39a843f3403d0c93c6f176945f04a0b943cf056fb07cce6fb06ee75841669",
+    "query_csv_sha256": "fed7ec967491ec2a3e9e51dbf1051470da28e26717fff85bf05f3f5589bb532b",
+    "vehicle_with_peer_ADE": 2.069139922467805
+  },
+  "selection": "minimum0.5*(ego_with_peer_ADE+vehicle_with_peer_ADE), equal score chooses later fixed epoch",
+  "source_sha": "1493deda247107efe076b9294863a6753391298a",
+  "student_target": "raw8x512ego-time latent; nonaffine LayerNorm eps1e-5 in loss",
+  "teacher_run_identity": "beb699d8e04acd844975ad759e6d14921ef301fe9f748a8063b00d1bb3479def",
+  "teacher_source_sha": "1493deda247107efe076b9294863a6753391298a",
+  "trainable_after_freeze": false
+}

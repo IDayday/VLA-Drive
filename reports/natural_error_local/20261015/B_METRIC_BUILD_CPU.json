@@ -1,0 +1,31 @@
+{
+  "user_seconds": 43282.217653,
+  "system_seconds": 1108.000668,
+  "max_rss_kb": 1057988,
+  "wall_seconds": 2927.817962968722,
+  "exit_code": 0,
+  "mechanism": "Linux resource.RUSAGE_CHILDREN after subprocess wait; includes waited scorer descendants",
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=30",
+    "3600",
+    "/root/miniconda3/envs/navsim/bin/python",
+    "-m",
+    "tools.local_interaction_mask_v2.prepare_metric_cache",
+    "--devkit",
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+    "--raw-log-root",
+    "/mnt/navsim/trainval_navsim_logs/trainval",
+    "--map-root",
+    "/mnt/navsim/maps",
+    "--index",
+    "/mnt/project/natural-error-local-artifacts/20261015/B_metric_population_v2/missing_index.json",
+    "--output",
+    "/mnt/project/natural-error-local-artifacts/20261015/B_metric_missing_v1",
+    "--workers",
+    "16"
+  ],
+  "startup_error": null,
+  "scorer_semantics_changed": false
+}
