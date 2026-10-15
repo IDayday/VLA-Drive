@@ -14,6 +14,7 @@ from .decision_local import FrozenConsequenceData,read
 class RecoveryPlanData(FrozenConsequenceData):
     def __init__(self,features,labels,*,fold_partition=None,fold=None,require_complete=True,reader='mmap_tensors'):
         self.features,self.labels=Path(features),Path(labels);self.reader=reader
+        if (self.labels/'CORRECTNESS_HOLD.json').exists():raise ValueError('This preserved label version has a correctness hold')
         self.feature_identity=read(self.features/'identity.json');self.label_identity=read(self.labels/'identity.json')
         if self.label_identity['schema']!=SCHEMA or self.label_identity['feature_identity']!=self.feature_identity['identity']:
             raise ValueError('Foreign versioned repair labels or frozen feature identity')

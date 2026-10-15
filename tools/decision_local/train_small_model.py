@@ -127,6 +127,7 @@ def main():
     p.add_argument('--scope',choices=('smoke','diagnostic','formal','fold_control','repair_formal'),required=True)
     p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1'),default='decision_local_v1')
     p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
+    p.add_argument('--target-acceptance',type=Path,help='Immutable target-quality and finite-budget receipt for formal repair runs')
     p.add_argument('--seed',type=int,default=42); p.add_argument('--epochs',type=int,default=24)
     p.add_argument('--batch',type=int,default=128); p.add_argument('--microbatch',type=int,default=16)
     p.add_argument('--lr',type=float,default=1e-4); p.add_argument('--dim',type=int,default=512)
@@ -157,12 +158,21 @@ def main():
     if a.scope=='formal' and (len(train.index)!=101592 or dev is None or len(dev.index)!=1696):
         raise ValueError('Full common population required')
     fold_identity=train.fold_identity if repair else None
+    acceptance=None
     if a.scope=='repair_formal':
         if a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed not in (42,43):
             raise ValueError('Registered common repair recipe required')
-        expected_fold=0 if a.kind.startswith('P_') else 1
+        if a.target_acceptance is None:raise ValueError('Formal repair requires actual target-quality evidence')
+        acceptance=read(a.target_acceptance)
+        stage='stage_b_training_allowed' if a.kind.startswith(('P_','R_MIN_')) else 'stage_a_training_allowed'
+        if acceptance.get(stage) is not True or a.kind not in acceptance['kinds'] or a.seed not in acceptance['seeds']:
+            raise ValueError('This arm/seed is outside the registered accepted stage')
+        if acceptance['label_semantics']!=label_semantics(train.label_identity):raise ValueError('Target quality receipt covers another label version')
+        p_fold=acceptance['predictor_training_fold']
+        if p_fold not in (0,1):raise ValueError('Invalid registered predictor fold')
+        expected_fold=p_fold if a.kind.startswith('P_') else 1-p_fold
         if a.training_fold!=expected_fold or fold_identity is None or dev is None or len(dev.index)!=1696:
-            raise ValueError('Formal default is P_A/R_B plus entire independent development split')
+            raise ValueError('Use the registered complete P/R folds and entire independent development split')
         if label_semantics(train.label_identity)!=label_semantics(dev.label_identity):raise ValueError('Train/dev scientific label definition differs')
     if a.scope=='fold_control':
         if a.kind not in ('P_ABS','P_DIFF') or a.epochs!=24 or a.batch!=128 or a.microbatch!=16 or a.dim!=512 or a.lr!=1e-4 or a.seed!=42:
@@ -180,7 +190,8 @@ def main():
         if repair:
             pi=payload['identity']
             if pi.get('protocol')!='minimal_repair_v1' or pi.get('repair_label_semantics')!=label_semantics(train.label_identity):raise ValueError('Predictor target/query contract mismatch')
-            if a.scope=='repair_formal' and (pi['repair_fold']['fold']!=0 or pi['repair_fold']['partition_sha256']!=fold_identity['partition_sha256'] or payload['epoch']!=24 or payload['offset']!=0):raise ValueError('R_B requires completed fold-only P_A; full-population P forbidden')
+            if a.scope=='repair_formal' and (pi['repair_fold']['fold']!=acceptance['predictor_training_fold'] or pi['repair_fold']['partition_sha256']!=fold_identity['partition_sha256'] or payload['epoch']!=24 or payload['offset']!=0):raise ValueError('R requires completed opposite-fold P; full-population P forbidden')
+            if set(pi.get('training_log_names',[]))&{row['log'] for row in train.index}:raise ValueError('P saw R training logs')
             if pi['anchor_identity']!=train.feature_identity['anchor_identity']:raise ValueError('Wrong predictor anchor')
         elif payload['identity']['features']!=train.feature_identity['identity'] or payload['identity']['labels']!=train.label_identity['identity']:
             raise ValueError('Predictor trained on foreign anchor or labels')
@@ -217,6 +228,7 @@ def main():
             training_index_sha256=identity(train.index),training_log_names=sorted({row['log'] for row in train.index}),
             target_eligibility='LOG and MIN both require valid GT and validated KEEP/REPAIR; all scenes counted, no-target batches skip optimizer',
             plan_exposure='one plan per original scene/epoch; 50%native25%lateral25%time; common deterministic plan/anchor schedule')
+        if acceptance is not None:run_identity['target_acceptance_sha256']=digest(a.target_acceptance)
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.;effective_updates=0;exposure_counts={k:0 for k in ('target_eligible','KEEP','REPAIR','native','lateral','time')}

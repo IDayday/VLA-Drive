@@ -27,6 +27,8 @@ def main():
     p.add_argument('--predictor',type=Path);p.add_argument('--oracle-labels',type=Path);p.add_argument('--index',type=Path)
     p.add_argument('--distribution',choices=('NATURAL','RECOVERY'),required=True)
     p.add_argument('--mode',choices=('camera_only','oracle_probe'),required=True)
+    p.add_argument('--relations-ablation',choices=('none','zero','reverse_time'),default='none',
+        help='Development-only dependence diagnostic; never the selected execution policy')
     p.add_argument('--rank',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     p.add_argument('--max-seconds',type=float,required=True)
     a=p.parse_args();resources=check_host();start=time.monotonic()
@@ -39,7 +41,8 @@ def main():
     oracle=kind in ('LOG_CV','LOG_FUT','MIN_CV','MIN_FUT')
     if not (camera or oracle) or (a.mode=='camera_only')!=camera:raise ValueError('Incorrect execution mode')
     if (camera and a.oracle_labels is not None) or (oracle and a.oracle_labels is None):raise ValueError('GT data only allowed in explicit oracle probe')
-    if meta['split']=='navtest' and (not camera or a.distribution!='NATURAL' or not (a.output.parent/'FINAL_METHOD_LOCK.json').exists()):raise ValueError('Only locked natural camera-only final Navtest')
+    if meta['split']=='navtest' and (not camera or a.distribution!='NATURAL' or a.relations_ablation!='none' or not (a.output.parent/'FINAL_METHOD_LOCK.json').exists()):raise ValueError('Only locked natural camera-only final Navtest')
+    if a.relations_ablation!='none' and (meta['split']!='dev' or kind.endswith('_NONE')):raise ValueError('Relation intervention requires development relation model')
     index=read(a.index) if a.index else meta['index'];lookup={r['token']:r for r in meta['index']}
     if len({r['token'] for r in index})!=len(index) or any(lookup.get(r['token'])!=r for r in index):raise ValueError('Foreign/duplicate export rows')
     model=build_model(kind,info['seed'],info['dim']).cuda().eval();model.load_state_dict(saved['model'],strict=True)
@@ -66,6 +69,7 @@ def main():
         'kind':kind,'mode':a.mode,'distribution':a.distribution,'sampling_seed':42,'head_inference_batch':1,'head_precision':'FP32','TF32':False,
         'source_sha':source_sha(ROOT),'writer_sha256':digest(__file__),'recovery':rcfg.to_dict(),'query_config':qcfg.to_dict(),
         'oracle_labels':read(a.oracle_labels/'identity.json')['identity'] if oracle else None,
+        'relations_ablation':a.relations_ablation,
         'predictor_sha256':digest(a.predictor) if a.predictor else None,
         'q0_transport_meaning':'plan_in for recovery; original S0 q0 for natural','main_trajectory':'q_final only; no GT selection'}
     ident=identity(declaration);a.output.mkdir(parents=True,exist_ok=True)
@@ -107,11 +111,16 @@ def main():
                             values=np.concatenate((l['relations'][0,plan_index,0],l['relations'][0,plan_index,source,...,1:]),-1)
                             support=np.concatenate((l['common_valid'][0,plan_index],l['common_valid'][0,plan_index,...,1:]),-1)
                         kin=queries.kinematic_valid.clone();kin[:,0]=True
-                        privileged=OracleRelations(torch.from_numpy(values)[None].cuda(),torch.from_numpy(support)[None].cuda()&kin[...,None,None],'CV' if source==1 else 'FUTURE')
+                        values=torch.from_numpy(values)[None].cuda()
+                        if a.relations_ablation=='zero':values=torch.zeros_like(values)
+                        elif a.relations_ablation=='reverse_time':values=values.flip(-2)
+                        privileged=OracleRelations(values,torch.from_numpy(support)[None].cuda()&kin[...,None,None],'CV' if source==1 else 'FUTURE')
                         result=model.oracle_probe(current,plans,queries,privileged)
                     else:
                         relation=predicted_relations(predictor(execution_view(current,plans),queries)) if predictor is not None else None
                         if kind=='R_MIN_CURRENT':relation=torch.cat((relation[...,:3],relation[...,1:3]),-1)
+                        if a.relations_ablation=='zero':relation=torch.zeros_like(relation)
+                        elif a.relations_ablation=='reverse_time':relation=relation.flip(-2)
                         result=model.camera_only(current,plans,queries,relation)
                     final=decode_ego(result.float())[0].cpu().numpy()
                     if not np.isfinite(final).all():raise FloatingPointError('Nonfinite trajectory; retain failure')

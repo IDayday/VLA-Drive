@@ -102,3 +102,38 @@ def test_polygon_full_body_and_repair_validation():
     if out['target_valid']:
         assert checker.check(out['target'],[5.,0.],reference=q)['feasible']
         assert not np.array_equal(out['target'],q)
+
+
+def test_current_cv_does_not_use_future_boxes_or_velocity():
+    from copy import deepcopy
+    from shapely import equals_exact
+    obj={'track':{'corners':np.array([[10.,0.],[12.,0.],[12.,1.],[10.,1.]]),
+                  'velocity':np.array([1.,0.]),'reliable':True,'stationary':False}}
+    s=scene(obj);changed=deepcopy(s.frames)
+    # Distinct dicts: modify future only, preserving the actual current frame.
+    changed=[deepcopy(frame) for frame in changed]
+    for frame in changed[1:]:
+        frame['track']['corners']+=40;frame['track']['velocity'][:]=100
+    other=AnnotatedScene(road=s.road,body=s.body,frames=changed,observed=s.observed,road_height_known=True)
+    t=np.arange(1,9)*.5
+    for source in ('CURRENT','CV'):
+        a,_,_=s.at_times(t,source);b,_,_=other.at_times(t,source)
+        assert equals_exact(a,b,0).all()
+    a,_,_=s.at_times(t,'FUTURE');b,_,_=other.at_times(t,'FUTURE')
+    assert not equals_exact(a,b,0).any()
+
+
+def test_scene_target_mask_reduction_matches_microbatches_and_empty():
+    from starVLA.model.modules.structured_world.losses import final_trajectory_loss
+    torch.manual_seed(12)
+    pred=torch.randn(5,8,4,requires_grad=True);target=torch.randn(5,8,4)
+    target[...,2:]=torch.nn.functional.normalize(target[...,2:],dim=-1)
+    mask=torch.tensor([True,False,True,False,False])[:,None].expand(5,8)
+    full=final_trajectory_loss(pred,target,mask)[0]*5/2
+    full_grad=torch.autograd.grad(full,pred)[0]
+    micro=sum(final_trajectory_loss(pred[s:s+2],target[s:s+2],mask[s:s+2])[0]*len(pred[s:s+2])/2 for s in range(0,5,2))
+    micro_grad=torch.autograd.grad(micro,pred)[0]
+    torch.testing.assert_close(full,micro,rtol=1e-6,atol=1e-7)
+    torch.testing.assert_close(full_grad,micro_grad,rtol=1e-6,atol=1e-7)
+    empty=final_trajectory_loss(pred,target,torch.zeros_like(mask))[0]
+    assert empty.item()==0 and torch.autograd.grad(empty,pred)[0].count_nonzero()==0
