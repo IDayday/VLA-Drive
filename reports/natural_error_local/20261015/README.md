@@ -191,6 +191,12 @@ N_NONE/N_CV/N_FUT 的同样 4 场景导出、评分和 oracle/camera-only 分表
 新增命令的实际 argv、worktree 与资源核验见 `EXECUTED_ENGINEERING_COMMANDS.json`。
 该文件只列已执行的工程命令，不把尚未启动的 S0_A/N/P/R 正式命令写成已通过验证。
 
+评分缓存的源码身份核验发现一个打包差异：锁定 nuPlan 源码树含 861 个 Python 文件，
+当前 canonical 安装包含 529 个；共同的 529 个文件逐字节一致，额外的 332 个全部在
+测试目录内。旧完整树哈希与安装包哈希均原样保留，只有这一明确差异可由独立收据
+解释；任何运行文件、数值库或 NAVSIM 源码变化仍拒绝合并。3 项针对性测试通过。
+这项核验不修改缓存或 scorer，也不产生新的规划结果。
+
 ## 成本与执行边界
 
 总上限暂登记为 400 GPU-process hours、80 CPU-process hours、新增存储 600 GiB，
