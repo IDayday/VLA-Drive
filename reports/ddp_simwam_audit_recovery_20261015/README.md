@@ -110,4 +110,6 @@ DEV完整1,696场景/16 logs；TRAIN诊断512场景有定向难例偏好，不�
 
 这是待检验的单因素假设，本轮未启动。没有加LR、噪声、seed或预算。只有安全转移与固定人口净收益共同成立，才能称为改进。
 
+补充的[八份已有batch通道梯度复核](anchor_channel_supplement/README.md)进一步限定了该建议：源实现按权重和归一化，0.2→1会令纵向系数变为3.6667倍，同时横向/朝向系数降至0.7333倍。它是配置上的单因素，不是只加强纵向且其余保持强度不变。各阶段PG与纵向anchor的方向关系不同，不能据此承诺安全或92分。补充只做已保存链的只读分析，没有新增训练或评分。
+
 源码差异和hash见[source_audit.json](source_audit.json)、[正式→审阅diff](patches/formal_to_review.patch)、[审阅→修复diff](patches/review_to_repair.patch)。可执行入口见[commands.md](commands.md)。不上传权重、缓存、原始数据或场景图。

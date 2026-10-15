@@ -1,0 +1,34 @@
+{
+  "schema": "simwam_anchor_readonly_cost_v1",
+  "new_candidates": 0,
+  "new_scoring_calls": 0,
+  "optimizer_updates": 0,
+  "completed_saved_batch_readouts": 8,
+  "successful_worker_wall_seconds": 376.0940990447998,
+  "loading_seconds": 146.3931221961975,
+  "analysis_seconds": 229.7009768486023,
+  "successful_job_span_seconds": 117.40456581115723,
+  "current_velocity_calls": 216,
+  "reference_velocity_calls": 216,
+  "autograd_calls": 968,
+  "GPU_hours_semantics": "Not exclusive GPU-hours. Worker wall is additive; job span includes the pilot-to-parallel-dispatch gap.",
+  "failed_attempts": [
+    {
+      "path": "/mnt/project/simwam-audit-recovery-20261015/anchor_channels/R_CANONICAL_update020000_startup_attempt1.log",
+      "sha256": "5236bd5e7f0fdf467a789b23f0310457cf6b6c113e197e3887776248c06cc7a7",
+      "reason": "Archive not ready; Python module not found before actor load.",
+      "exact_worker_wall_seconds": null,
+      "new_candidates": 0,
+      "optimizer_updates": 0
+    },
+    {
+      "path": "/mnt/project/simwam-audit-recovery-20261015/anchor_channels/R_CANONICAL_update020000_precision_attempt2.log",
+      "sha256": "d028802557bca1fd3ee7240379bd85b769da7721deb9f2166c0c9cebdcdf313b",
+      "reason": "Diagnostic compared new FP64 gradient norm against legacy FP32 norm. No optimizer updates; corrected comparison precision, retained both norm readouts.",
+      "exact_worker_wall_seconds": null,
+      "new_candidates": 0,
+      "optimizer_updates": 0
+    }
+  ],
+  "failure_worker_wall_seconds": null
+}
