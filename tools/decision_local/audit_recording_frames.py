@@ -21,7 +21,7 @@ from tools.decision_local.audit_base_training_sources import recording
 
 
 def scan(task):
-    log,role,root,sensors=task
+    log,role,root,sensors,fallbacks=task
     cpu=time.process_time()
     with (Path(root)/(log+'.pkl')).open('rb') as stream:frames=pickle.load(stream)
     images=[];missing=[];times=[]
@@ -29,6 +29,8 @@ def scan(task):
         times.append((frame['vehicle_name'],int(frame['timestamp']),frame['token']))
         for camera in ('CAM_F0','CAM_L0','CAM_R0'):
             relative=frame['cams'][camera]['data_path'];path=Path(sensors)/relative
+            if not path.exists():
+                path=next((Path(root)/relative for root in fallbacks if (Path(root)/relative).exists()),path)
             try:stat=path.stat();images.append((relative,stat.st_size,stat.st_ino,stat.st_dev))
             except FileNotFoundError:missing.append(relative)
     return dict(log=log,role=role,times=times,images=images,missing=missing,cpu=time.process_time()-cpu)
@@ -39,11 +41,14 @@ def main():
     for name in ('source-audit','raw-logs','sensors','output'):p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--workers',type=int,default=8);p.add_argument('--hash-workers',type=int,default=32)
     p.add_argument('--max-seconds',type=float,default=1800)
+    p.add_argument('--fallback-sensor-root',action='append',default=[])
+    p.add_argument('--reuse-complete-audit',type=Path,
+        help='Reuse prior identified hashes on immutable original sensor files; re-audit metadata and hash new fallback files')
     a=p.parse_args();check_host();start=time.monotonic();cpu=time.process_time();before=resource.getrusage(resource.RUSAGE_CHILDREN)
     source=read(a.source_audit);roles=source['roles'];tasks=[]
     for log in sorted(p.stem for p in a.raw_logs.glob('*.pkl')):
         r=recording(log)
-        if r in roles:tasks.append((log,roles[r],str(a.raw_logs),str(a.sensors)))
+        if r in roles:tasks.append((log,roles[r],str(a.raw_logs),str(a.sensors),a.fallback_sensor_root))
     a.output.mkdir(parents=True,exist_ok=True)
     atomic_json(a.output/'COMMAND.json',dict(argv=sys.argv,source_sha=source_sha(ROOT),source_audit_sha256=digest(a.source_audit)))
     images=defaultdict(list);time_roles=defaultdict(set);token_roles=defaultdict(set);missing=[];worker_cpu=0.
@@ -58,10 +63,26 @@ def main():
     conflicts=lambda values:[sorted(v) for v in values if len({x[0] for x in v})>1]
     time_conflicts=conflicts(time_roles.values());token_conflicts=conflicts(token_roles.values())
     candidates=[x for values in images.values() if len({x[0] for x in values})>1 for x in values]
-    image_roles=defaultdict(set);bytes_hashed=0
+    image_roles=defaultdict(set);bytes_hashed=0;prior_hashes={};reused_from=None
+    if a.reuse_complete_audit:
+        previous=read(a.reuse_complete_audit/'COMPLETE.json')
+        command=read(a.reuse_complete_audit/'COMMAND.json')['argv']
+        if (not previous['hash_complete'] or previous['source_audit_identity']!=source['identity'] or
+            command[command.index('--sensors')+1]!=str(a.sensors)):
+            raise ValueError('Prior hash bank belongs to a different immutable data source')
+        for path in sorted((a.reuse_complete_audit/'hash_chunks').glob('*.json')):
+            for sha,role,log,relative in read(path)['rows']:
+                prior_hashes[(role,log,relative)]=sha
+        reused_from=dict(report=str(a.reuse_complete_audit/'COMPLETE.json'),sha256=digest(a.reuse_complete_audit/'COMPLETE.json'),
+            contract='Existing original sensor bytes are immutable; current stat and all roles rechecked; no missing file hash is invented')
     def hashed(item):
         role,log,path,_,_=item
-        return digest(a.sensors/path),role,log,path
+        old=prior_hashes.get((role,log,path))
+        if old:return old,role,log,path
+        resolved=a.sensors/path
+        if not resolved.exists():
+            resolved=next(Path(root)/path for root in a.fallback_sensor_root if (Path(root)/path).exists())
+        return digest(resolved),role,log,path
     # Bound the number of queued futures to chunks, not millions of images.
     # Atomic chunk receipts make an interrupted finite audit recoverable.
     bank=a.output/'hash_chunks';bank.mkdir(exist_ok=True)
@@ -104,6 +125,8 @@ def main():
         exact_image_content_cross_role_conflicts=image_conflicts,missing_images=missing,
         population_ready=not (time_conflicts or token_conflicts or image_conflicts or missing or timed_out),
         hash_complete=not timed_out,hashed_images_this_invocation=completed,
+        hash_bank_reuse=reused_from,prior_hash_records_available=len(prior_hashes),
+        fallback_sensor_roots=a.fallback_sensor_root,
         CPU_parent_seconds=time.process_time()-cpu,CPU_waited_children_seconds=after.ru_utime+after.ru_stime-before.ru_utime-before.ru_stime,
         worker_CPU_seconds=worker_cpu,wall_seconds=time.monotonic()-start,
         image_scope='All three forward camera frames in selected parent recordings; equal-size pruning is exact for byte duplicate detection',
