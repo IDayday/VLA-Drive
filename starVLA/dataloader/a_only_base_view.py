@@ -23,13 +23,43 @@ class AOnlyBaseView:
         if any(roles.get(row['log'].rsplit('_',2)[0])!='A_train' for row in index):
             raise ValueError('Correction/calibration recording in base gradients')
         interaction_root=kwargs.pop('interaction_root',None);expected=kwargs.pop('expected_interaction',None)
+        image_root=kwargs.pop('image_root',None)
         # The delegated dataset checks every original generic cache identity.
+        # Its optional local_stage.json describes all 101592 original rows.
+        # An A-only image cache has a different, explicitly verified population;
+        # do not write a fictitious full-population stage into the original root.
         self.parent=original_class(*args,interaction_root=None,expected_interaction=None,**kwargs)
         full={row['token']:(i,row) for i,row in enumerate(self.parent.index)}
         if any(row['token'] not in full or full[row['token']][1]!=row for row in index):
             raise ValueError('A-only scene is not a legal original training scene')
         self.index=index;self.positions=[full[row['token']][0] for row in index]
         self.root=self.parent.root
+        if image_root:
+            from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+            stage=contract.get('current_image_stage')
+            if not stage or Path(image_root)!=Path(stage['root'])/'images':
+                raise ValueError('An explicit A-only image stage is required')
+            stage_root=Path(stage['root'])
+            image_identity=json.loads((stage_root/'identity.json').read_text())
+            complete=json.loads((stage_root/'COMPLETE.json').read_text())
+            original_contract=Path(stage['population_contract'])
+            original=json.loads(original_contract.read_text())
+            same_population_keys=('schema','role','source_audit','source_audit_identity','index',
+                'index_identity','recording_frame_audit','teacher_input_view','teacher_training_identity',
+                'require_A_teacher','action_codec','action_codec_identity','no_B_teacher_or_normalization_fit')
+            if (any(original[k]!=contract[k] for k in same_population_keys) or
+                file_sha256(original_contract)!=image_identity['population_contract_sha256'] or
+                file_sha256(stage_root/'identity.json')!=stage['identity_file_sha256'] or
+                file_sha256(stage_root/'COMPLETE.json')!=stage['complete_file_sha256'] or
+                identity_hash({k:v for k,v in image_identity.items() if k!='identity'})!=image_identity['identity'] or
+                image_identity['schema']!='a_only_current_image_bytes_v1' or image_identity['future_inputs'] or
+                image_identity['source_current_identity']!=self.parent.identity['identity'] or
+                image_identity['source_audit_identity']!=audit['identity'] or
+                image_identity['index_identity']!=identity_hash(index) or
+                complete['identity']!=image_identity['identity'] or not complete['complete'] or
+                complete['scenes']!=len(index) or complete['expected_images']!=complete['completed_images']):
+                raise ValueError('Incomplete or foreign A-only current-image staging')
+            self.parent.local_image_root=str(image_root)
         self.identity={**self.parent.identity,'schema':'a_only_current_input_view_v1',
             'parent_current_identity':self.parent.identity['identity'],
             'index_sha256':identity_hash(index),'population_contract':contract,
