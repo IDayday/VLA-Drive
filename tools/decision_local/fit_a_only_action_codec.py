@@ -16,7 +16,7 @@ def main():
     if not 1<=a.workers<=16:raise ValueError('Bounded CPU threads required')
     torch.set_num_threads(1);start=time.monotonic();cpu=time.process_time()
     audit,index=read(a.source_audit),read(a.index);source=read(a.teacher_data/'identity.json')
-    if identity(index)!=audit['index_sha256']['A_train']:raise ValueError('A-only fit population changed')
+    if digest(a.index)!=audit['index_sha256']['A_train']:raise ValueError('A-only fit population changed')
     if any(audit['roles'][r['log'].rsplit('_',2)[0]]!='A_train' for r in index):raise ValueError('Non-A fit scene')
     def one(row):
         item=torch.load(a.teacher_data/'records'/(row['token']+'.pt'),weights_only=True,map_location='cpu')
@@ -30,7 +30,7 @@ def main():
             for x,x2,n in pool.map(one,index[begin:begin+256]):total+=x;squares+=x2;count+=n
     mean=total/count;std=np.sqrt(squares/count-mean*mean)
     result=dict(schema='a_only_action_affine_v1',fit_role='A_train',mean_xy_m=mean.tolist(),std_xy_m=std.tolist(),
-        samples=count,scenes=len(index),logs=len({r['log'] for r in index}),index_sha256=identity(index),
+        samples=count,scenes=len(index),logs=len({r['log'] for r in index}),index_identity=identity(index),index_file_sha256=digest(a.index),
         source_audit_identity=audit['identity'],raw_GT_identity=source['identity'],source_sha=source_sha(ROOT),
         formula='population mean/std over eight physical ego future xy points; unchanged sin/cos heading',
         inherited_statistics_reused=False,CPU_process_seconds=time.process_time()-cpu,wall_seconds=time.monotonic()-start)

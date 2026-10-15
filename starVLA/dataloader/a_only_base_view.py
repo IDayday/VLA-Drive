@@ -44,7 +44,7 @@ class AOnlyBaseView:
         self.action_codec=None
         if contract.get('action_codec'):
             self.action_codec=json.loads(Path(contract['action_codec']).read_text())
-            if self.action_codec['identity']!=contract['action_codec_identity'] or self.action_codec['index_sha256']!=identity_hash(index):
+            if self.action_codec['identity']!=contract['action_codec_identity'] or self.action_codec['index_identity']!=identity_hash(index):
                 raise ValueError('Action statistics are not fitted on this A population')
             import importlib.util
             spec=importlib.util.spec_from_file_location('_a_only_codec_dataset',Path(__file__).with_name('a_only_codec.py'))
