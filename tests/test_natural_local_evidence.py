@@ -31,6 +31,28 @@ def test_early_road_positive_survives_late_unknown_and_strict_target_does_not():
     assert teacher['status_name']=='UNCERTAIN' and not teacher['target_valid'] and teacher['target'] is None
 
 
+def test_a_only_codec_preserves_physical_targets_and_legal_current_state(monkeypatch):
+    import torch
+    from starVLA.dataloader import foresight_dataset as fd
+    from starVLA.dataloader.a_only_codec import install_legacy_codec,recode_historical_targets
+    raw=np.array([[0.,0.,0.],[3.,-.7,.2],[20.,2.,-.5]],np.float32)
+    old=torch.from_numpy(fd.encode_ego(raw))
+    codec=dict(schema='a_only_action_affine_v1',fit_role='A_train',mean_xy_m=[10.4,.3],std_xy_m=[8.9,2.3])
+    for key in ('X_MEAN','Y_MEAN','X_STD','Y_STD'):monkeypatch.setattr(fd,key,getattr(fd,key))
+    install_legacy_codec(codec)
+    new=recode_historical_targets(old,codec)
+    torch.testing.assert_close(fd.decode_ego(new),torch.from_numpy(raw),rtol=1e-6,atol=2e-6)
+    assert torch.equal(new[:,2:],old[:,2:])
+    current=np.array([[1.5,-.1,.02]],np.float32)
+    torch.testing.assert_close(fd.decode_ego(torch.from_numpy(fd.encode_ego(current))),torch.from_numpy(current),rtol=1e-6,atol=2e-6)
+
+
+def test_a_only_codec_rejects_statistics_from_correction_pool():
+    from starVLA.dataloader.a_only_codec import validate_codec
+    with pytest.raises(ValueError):
+        validate_codec(dict(schema='a_only_action_affine_v1',fit_role='B_predictor',mean_xy_m=[1.,0.],std_xy_m=[1.,1.]))
+
+
 def test_known_collision_survives_unknown_other_actor():
     frames=[dict(known=obj(4),unknown=obj(4,reliable=False)) for _ in range(9)]
     facts=extract_local_evidence(scene(frames,False),np.array([[4.,0.,0.]]),[1.])

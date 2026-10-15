@@ -18,15 +18,11 @@ def load_file(name,path):
     sys.modules[name]=module;spec.loader.exec_module(module);return module
 
 
-def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--legacy-source',required=True,type=Path)
-    p.add_argument('--population-contract',required=True,type=Path)
-    p.add_argument('trainer_args',nargs=argparse.REMAINDER);a=p.parse_args()
+def prepare_runtime(legacy_source,population_contract):
     helper=load_file('_a_only_helpers',ROOT/'tools/decision_local/common.py');resource=helper.check_host()
-    if helper.source_sha(a.legacy_source)!='1493deda247107efe076b9294863a6753391298a':
+    if helper.source_sha(legacy_source)!='1493deda247107efe076b9294863a6753391298a':
         raise ValueError('Require the real original S0 training implementation')
-    contract=helper.read(a.population_contract)
+    contract=helper.read(population_contract)
     proof=helper.read(Path(contract['recording_frame_audit']))
     if not proof['population_ready'] or proof['source_audit_identity']!=contract['source_audit_identity']:
         raise ValueError('Recording/duplicate-image isolation is not complete')
@@ -34,7 +30,7 @@ def main():
     adapter=ROOT/'starVLA/dataloader/a_only_base_view.py'
     if contract['dataset_adapter_sha256']!=helper.digest(adapter):raise ValueError('A-only data adapter changed')
     # The legacy runtime is imported first, just like frozen S0 cache/export.
-    sys.path.insert(0,str(a.legacy_source))
+    sys.path.insert(0,str(legacy_source))
     codec=ROOT/'starVLA/dataloader/a_only_codec.py'
     if contract['action_codec_adapter_sha256']!=helper.digest(codec):raise ValueError('Action codec adapter changed')
     action_codec=helper.read(Path(contract['action_codec']))
@@ -44,8 +40,17 @@ def main():
     original=data_module.ActionVideoForesightDataset
     view=load_file('_a_only_dataset',adapter).AOnlyBaseView
     def scoped_dataset(*args,**kwargs):
-        return view(original,*args,population_contract=a.population_contract,**kwargs)
+        return view(original,*args,population_contract=population_contract,**kwargs)
     data_module.ActionVideoForesightDataset=scoped_dataset
+    return helper,contract
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--legacy-source',required=True,type=Path)
+    p.add_argument('--population-contract',required=True,type=Path)
+    p.add_argument('trainer_args',nargs=argparse.REMAINDER);a=p.parse_args()
+    helper,contract=prepare_runtime(a.legacy_source,a.population_contract)
     from tools.foresight import train_student
     args=a.trainer_args[1:] if a.trainer_args[:1]==['--'] else a.trainer_args
     if not args:raise ValueError('Explicit finite registered trainer arguments required')
