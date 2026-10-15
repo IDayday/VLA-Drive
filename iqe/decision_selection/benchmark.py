@@ -32,6 +32,14 @@ def run(config,device='cuda:0',samples=100,warmup=10):
         shared_GPU_workloads_allowed=True,each_mode_uses_same_sequence=True)
     folder=config.root/'latency';atomic_json(folder/'PLAN.json',identity,immutable=True)
     models=systems(config,device);adapter=models['M_scene'].adapter
+    shared=adapter.framework.qwen_vl_interface.model.model
+    parameter_breakdown=dict(
+        shared_visual=sum(p.numel() for p in shared.visual.parameters()),
+        shared_language=sum(p.numel() for p in shared.language_model.parameters()),
+        Base_planner_and_action=sum(p.numel() for p in adapter.framework.action_model.parameters()),
+        entire_Base_adapter=sum(p.numel() for p in adapter.parameters()),
+        generator_trainable=sum(p.numel() for p in adapter.parameters() if p.requires_grad))
+    require(parameter_breakdown['generator_trainable']==0,'benchmark generator unexpectedly trainable')
     from iqe.robust_scorer.config import Config as ReferenceConfig
     from iqe.robust_scorer.evaluation import chosen_endpoint
     ref=ReferenceConfig(**read_json(Path(config.reference_run)/'resolved_config.json'))
@@ -89,6 +97,7 @@ def run(config,device='cuda:0',samples=100,warmup=10):
             calls=calls,invalid_fallbacks=fallbacks,selected_counts=dict(selected_counts),
             wall_seconds=elapsed,head_cuda_ms=head_ms,inactive_heads_and_experts_on_CPU=True,
             Base_parameters=sum(p.numel() for p in adapter.parameters()),
+            Base_parameter_breakdown=parameter_breakdown,
             expert_parameters={eid:sum(p.numel() for p in m.parameters()) for eid,m in models['M_set'].experts.items()},
             decision_parameters=0 if base_only else sum(p.numel() for p in head.parameters()),
             input_to_CPU_trajectory=True,score_labels_read_by_inference=False)
