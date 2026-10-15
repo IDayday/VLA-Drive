@@ -1,0 +1,57 @@
+{
+  "failures": [
+    {
+      "name": "sampler_transfer_train64",
+      "invocations": [],
+      "physical_scores": 0,
+      "scope": "new diagnostic adapter only; formal training and existing results unaffected",
+      "missing_initial_invocation_cost": true
+    },
+    {
+      "name": "sampler_transfer_train64_v2",
+      "invocations": [
+        {
+          "status": "FAILED",
+          "error": "RuntimeError(\"Expected a 'cpu' device type for generator but found 'cuda'\")",
+          "worker_wall_seconds": 17.851340770721436,
+          "model_load_seconds": 16.11661458015442,
+          "physical_scored_candidates": 0
+        },
+        {
+          "status": "FAILED",
+          "error": "RuntimeError(\"Expected a 'cpu' device type for generator but found 'cuda'\")",
+          "worker_wall_seconds": 17.544134378433228,
+          "model_load_seconds": 15.867333173751831,
+          "physical_scored_candidates": 0
+        }
+      ],
+      "physical_scores": 0,
+      "scope": "new diagnostic adapter only; formal training and existing results unaffected",
+      "missing_initial_invocation_cost": false
+    },
+    {
+      "name": "sampler_transfer_train64_v3",
+      "invocations": [
+        {
+          "status": "FAILED",
+          "error": "AttributeError(\"'dict' object has no attribute 'datasets'\")",
+          "worker_wall_seconds": 17.778149604797363,
+          "model_load_seconds": 15.805488586425781,
+          "physical_scored_candidates": 0
+        },
+        {
+          "status": "FAILED",
+          "error": "AttributeError(\"'dict' object has no attribute 'datasets'\")",
+          "worker_wall_seconds": 17.331657648086548,
+          "model_load_seconds": 15.346390962600708,
+          "physical_scored_candidates": 0
+        }
+      ],
+      "physical_scores": 0,
+      "scope": "new diagnostic adapter only; formal training and existing results unaffected",
+      "missing_initial_invocation_cost": false
+    }
+  ],
+  "valid_run": "sampler_transfer_train64_v4",
+  "old_data_deleted": false
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "Exact affine XY scaling of transition-mean MSE; not a final-trajectory KL or a measured parameter-gradient ratio",
+  "rows": [
+    {
+      "name": "SimWAM_locked_absolute_action",
+      "decode_x_scale_m": 33.37,
+      "decode_y_scale_m": 21,
+      "normalized_x_anchor_weight": 0.2,
+      "physical_XY_anchor_coefficient_ratio": 0.07920565172736123,
+      "physical_Y_over_X_anchor_strength": 12.625361678004532,
+      "final_innovation_std_X_m": 1.4864179440431657,
+      "final_innovation_std_Y_m": 0.9354143489633349
+    },
+    {
+      "name": "DDP_R_CANONICAL",
+      "decode_x_scale_m": 8.805105,
+      "decode_y_scale_m": 2.277741,
+      "normalized_x_anchor_weight": 0.2,
+      "physical_XY_anchor_coefficient_ratio": 0.013383496686702629,
+      "physical_Y_over_X_anchor_strength": 74.718888748526,
+      "final_innovation_std_X_m": 0.392210550529943,
+      "final_innovation_std_Y_m": 0.10145864831533787
+    },
+    {
+      "name": "DDP_registered_X1",
+      "decode_x_scale_m": 8.805105,
+      "decode_y_scale_m": 2.277741,
+      "normalized_x_anchor_weight": 1,
+      "physical_XY_anchor_coefficient_ratio": 0.06691748343351314,
+      "physical_Y_over_X_anchor_strength": 14.9437777497052,
+      "final_innovation_std_X_m": 0.392210550529943,
+      "final_innovation_std_Y_m": 0.10145864831533787
+    }
+  ],
+  "caveats": [
+    "Source fixed bounds are active; pretrained_norm_stats paths are ignored by the locked NavSimVideoDataset.",
+    "Equal normalized sigma is not equal physical exploration. Source absolute noise is larger, not smaller, than DDP at this step.",
+    "This physical coefficient analysis was performed after X1 was already registered and started. It did not select or alter the running weight.",
+    "Population, velocity Jacobians, occupancy, heading representation and absolute beta scaling also differ."
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "status": "COMPLETE",
+  "registration_sha256": "64222e730fafe74985fa45097fa5a1e15be3e5c8adb12833ae946796039328cc",
+  "scenes": 64,
+  "logs": 60,
+  "G": 8,
+  "models": {
+    "SFT": {
+      "counterfactual_metrics_0_100": {
+        "score": 85.96094455378925,
+        "no_at_fault_collisions": 99.8046875,
+        "drivable_area_compliance": 95.3125,
+        "time_to_collision_within_bound": 95.8984375,
+        "ego_progress": 77.67345442909419,
+        "comfort": 98.4375
+      },
+      "joint_safe_fraction": 0.912109375,
+      "delta_PDMS_vs_actual_SDE_points": 7.444331338105673,
+      "log_cluster_95_percent_interval": [
+        2.993994516833629,
+        12.068306576297239
+      ],
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failures": 1,
+          "recoveries": 5,
+          "denominator": 512
+        },
+        "drivable_area_compliance": {
+          "new_failures": 8,
+          "recoveries": 44,
+          "denominator": 512
+        },
+        "time_to_collision_within_bound": {
+          "new_failures": 11,
+          "recoveries": 20,
+          "denominator": 512
+        }
+      },
+      "requested_jerk_RMS_m_s3": 3.190894842147827
+    },
+    "R_CANONICAL_20000": {
+      "counterfactual_metrics_0_100": {
+        "score": 88.8202191100018,
+        "no_at_fault_collisions": 99.90234375,
+        "drivable_area_compliance": 96.875,
+        "time_to_collision_within_bound": 96.2890625,
+        "ego_progress": 82.01618211400432,
+        "comfort": 98.4375
+      },
+      "joint_safe_fraction": 0.931640625,
+      "delta_PDMS_vs_actual_SDE_points": 8.78322040135286,
+      "log_cluster_95_percent_interval": [
+        4.698415952224896,
+        13.064441101567184
+      ],
+      "safety_transitions": {
+        "no_at_fault_collisions": {
+          "new_failures": 1,
+          "recoveries": 4,
+          "denominator": 512
+        },
+        "drivable_area_compliance": {
+          "new_failures": 4,
+          "recoveries": 44,
+          "denominator": 512
+        },
+        "time_to_collision_within_bound": {
+          "new_failures": 8,
+          "recoveries": 22,
+          "denominator": 512
+        }
+      },
+      "requested_jerk_RMS_m_s3": 3.5357074700295925
+    }
+  },
+  "costs": {
+    "actual_scores": 1024,
+    "new_actor_rollouts": 0,
+    "new_velocity_forwards": 0,
+    "optimizer_updates": 0,
+    "cumulative_worker_wall_seconds": 136.14009761810303,
+    "elapsed_job_wall_seconds": 49.28963017463684
+  },
+  "interpretation": "Conditional counterfactual of only the final innovation on fixed saved chains, not a trained/deployed policy improvement"
+}

@@ -86,7 +86,8 @@ def register(root):
         models=list(MODELS), modes=list(MODES), checkpoint=str(CHECKPOINT),
         checkpoint_files_sha256=complete['files_sha256'], adapters_file_sha256=files['optimizer.pt'],
         SFT_sha256=SFT_SHA256, condition_identity=CONDITION_SHA,
-        G=8, seed=2101, root_dtype='float32', step_rng='independent from initial root; shared across models',
+        G=8, seed=2101, root_dtype='float32', root_rng_backend='source CPU generator then transfer',
+        step_rng='source CPU generator, independent from initial root; shared across models',
         candidate_budget=64*8*3*2, optimizer_updates=0, selection='all candidates; score every requested trajectory',
         no_DEV_or_Navtest=True, source_script_sha256=file_sha(__file__),
         scoring_identity=protocol_identity(REPO)['sha256'], grid=grid_audit())
@@ -142,11 +143,14 @@ def worker(args):
         start_unix=beg,new_scenes=0,reused_scenes=0,physical_scored_candidates=0,
         generation_seconds=0.,scoring_wait_seconds=0.,scoring_cpu_seconds=0.,velocity_forward_calls=0,
         GPU_ownership='shared resources; worker wall is not exclusive GPU compute time')
-    invoke=output/'invocations'/(invocation+'.json');atomic_json(invoke,status)
+    invoke=output/'invocations'/(invocation+'.json')
+    invoke.parent.mkdir(parents=True,exist_ok=True)
+    status['source_module']=str(Path(__file__).resolve())
+    atomic_json(invoke,status)
     service=None
     try:
         cfg=load_recipe(REPO/'configs/flow_rl/simwam_canonical_ddp.yaml')
-        actor,oldcfg,_=make_actor(cfg)
+        actor,_,sft=make_actor(cfg)
         if args.model=='R_CANONICAL_20000':
             ck=Path(reg['checkpoint'])
             if file_sha(ck/'optimizer.pt')!=reg['adapters_file_sha256']:raise ValueError('Changed adapter state')
@@ -173,19 +177,19 @@ def worker(args):
                 cond={'context':condition.expand(8,-1,-1).contiguous()}
                 root_key=seed_for('sampler_transfer_root_fp32',2101,token)
                 step_key=seed_for('sampler_transfer_innovations',2101,token)
-                roots=torch.randn((8,8,4),device='cuda',dtype=torch.float32,
-                    generator=torch.Generator(device='cuda').manual_seed(root_key))
+                roots=actor._randn((8,8,4),actor.device,torch.float32,
+                    torch.Generator(device='cpu').manual_seed(root_key))
                 native=actor.action_expert._euler_sample(roots.clone(),cond['context'])
                 ode,times,deltas,indices=actor.sample_action_chain(cond,8,deterministic=True,init_actions=roots.clone())
                 if len(indices):raise ValueError('ODE path became stochastic')
                 chain,ts,ds,indices=actor.sample_action_chain(cond,8,init_actions=roots.clone(),
-                    generator=torch.Generator(device='cuda').manual_seed(step_key))
+                    generator=torch.Generator(device='cpu').manual_seed(step_key))
                 if indices.tolist()!=[7,8,9] or not torch.equal(ts,times) or not torch.equal(ds,deltas):
                     raise ValueError('Changed source sampler')
                 logp,terms=actor.action_chain_logprobs(cond,chain,ts,ds,stoch_idx=indices,return_terms=True)
                 outputs=torch.stack([native,ode[:,-1],chain[:,-1]]).float().cpu()
                 if not torch.isfinite(outputs).all():raise ValueError('Nonfinite sample: abort without dropping candidate')
-                act_norm=int(oldcfg.datasets.vla_data.act_norm)
+                act_norm=int(sft.datasets.vla_data.act_norm)
                 requested=decode_request(outputs.flatten(0,1).numpy(),act_norm=act_norm).reshape(3,8,8,3)
                 endpoint_mean=terms['mean'][:,-1].cpu()
                 mean_request=decode_request(endpoint_mean.numpy(),act_norm=act_norm)

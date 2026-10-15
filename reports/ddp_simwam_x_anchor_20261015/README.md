@@ -10,6 +10,8 @@ See [registration](registration.json), [CPU evidence](cpu_contract.json), and th
 
 Budget: 20,000 AdamW updates, 5,000 fresh global rollouts, 40,000 scene exposures, 320,000 candidates. Seed 42. Fixed 5k/10k/15k/20k DEV and TRAIN diagnostic readouts use seed 2101; original uniform ODE and shift5 ODE are reported separately. Final Navtest uses the fixed 20k endpoint after weight/code lock, with the same two grids and seed; reuse existing matched SFT and canonical controls.
 
+The user-requested [multi-source Flow design review and completed TRAIN sampler probes](flow_design_review/README.md) are read-only diagnostics, separate from this formal control. They scored 3072 matched sampler outputs plus 1024 saved-chain final-innovation counterfactuals; no additional training algorithm was launched.
+
 ```bash
 CUDA_VISIBLE_DEVICES='' python -m scripts.analysis.simwam_recipe.qualify_x_anchor --output /path/to/new_cpu_contract.json
 python -m scripts.analysis.simwam_recipe.qualify_recovery_run --name eight_gpu_x1 --root /mnt/project/simwam-x-anchor-20261015 --config configs/flow_rl/simwam_canonical_x1_ddp.yaml --interrupted-after 2
