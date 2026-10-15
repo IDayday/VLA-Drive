@@ -3,7 +3,7 @@
 Labels only enter this analysis, after the single executed trajectory is fixed.
 All scenes, including unknown, failed and outside-scope inputs, remain present.
 """
-import argparse,json,os,sys,time,multiprocessing
+import argparse,json,os,sys,time,multiprocessing,resource
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS'):os.environ[key]='1'
@@ -21,6 +21,11 @@ from starVLA.dataloader.foresight_dataset import decode_ego
 def analyze(task):
     row,paths,anchor,config,original,final=task
     started=time.monotonic();cpu=time.process_time();token=row['token'];torch.set_num_threads(1)
+    if anchor.get('action_codec'):
+        from starVLA.dataloader.a_only_codec import install_legacy_codec
+        codec=read(anchor['action_codec'])
+        if codec['identity']!=anchor['action_codec_identity']:raise ValueError('Wrong analysis action codec')
+        install_legacy_codec(codec)
     prediction=Path(paths['predictions'])/'predictions'/(token+'.npz')
     rec=read(Path(paths['predictions'])/'records'/(token+'.json'))
     if digest(prediction)!=rec['sha256']:raise ValueError('Prediction changed after canonical scoring')
@@ -54,6 +59,8 @@ def analyze(task):
         'local_geometry_KEEP_non_GT_ADE_ge_0p5':bool(status=='KEEP' and gt_in.mean()>=.5),
         'original_high_ge_0p9':oscore>=.9,'original_low_le_0p5':oscore<=.5,
         'dynamic_enter':bool((pair&~current_occ&future_occ).any()),'space_release':bool((pair&current_occ&~future_occ).any()),
+        'CV_future_clearance_difference_ge_0p5':bool((common[:,1]&(np.abs(relation[1,:,1]-relation[2,:,1])>=.5)).any()),
+        'CV_future_overlap_difference_known':bool((common[:,2]&((relation[1,:,2]>.5)!=(relation[2,:,2]>.5))).any()),
         'road_boundary':bool((valid[0,:,0]&(relation[0,:,0]<=.5)).any()),
         'low_speed':bool(np.linalg.norm(velocity)<.5),'label_support_below_half':bool(valid[2,:,1:].mean()<.5),
         'static_annotated_obstacle_near_input':bool(near_static)}
@@ -75,7 +82,7 @@ def analyze(task):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('predictions','scores','labels','features','anchor','output'):p.add_argument('--'+key,type=Path,required=True)
-    p.add_argument('--workers',type=int,default=8);a=p.parse_args();resource=check_host();started=time.monotonic()
+    p.add_argument('--workers',type=int,default=8);a=p.parse_args();host_resource=check_host();started=time.monotonic();before_children=resource.getrusage(resource.RUSAGE_CHILDREN)
     pm=read(a.predictions/'identity.json');lm=read(a.labels/'identity.json');fm=read(a.features/'identity.json');sm=read(a.scores/'identity.json')
     if fm['split']!='dev' or pm['features']!=fm['identity'] or lm['feature_identity']!=fm['identity'] or sm['prediction_identity']!=pm['identity']:raise ValueError('Evaluation population/identity mismatch')
     original,final=[read_scores(a.scores/v/'scenes.csv') for v in ('q0','q_final')]
@@ -120,7 +127,10 @@ def main():
         'KEEP_unnecessary_modifications':sum(r['KEEP_unnecessary_modification'] for r in rows),
         'REPAIR_successes':sum(r['REPAIR_success'] for r in rows),'new_out_of_range':sum(r['new_out_of_range'] for r in rows),
         'CPU_process_seconds':sum(r['CPU_process_seconds'] for r in rows),'worker_wall_seconds':sum(r['worker_wall_seconds'] for r in rows),
-        'elapsed_seconds':time.monotonic()-started,'resource_check':resource}
+        'elapsed_seconds':time.monotonic()-started,'resource_check':host_resource,
+        'CPU_waited_children_seconds':sum((getattr(resource.getrusage(resource.RUSAGE_CHILDREN),key)-getattr(before_children,key)) for key in ('ru_utime','ru_stime')),
+        'CPU_worker_seconds':sum(r['CPU_process_seconds'] for r in rows),
+        'CPU_accounting':'worker CPU is contained within waited-child CPU; do not add them'}
     atomic_json(a.output/'COMPLETE.json',total);print(json.dumps({'scenes':len(rows),'zero_transitions':transitions,'PDMS_delta_pp':paired['delta_percentage_points']}))
 
 

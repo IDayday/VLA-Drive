@@ -1,5 +1,5 @@
 """Local facts and strict repair targets over one registered natural-error pool."""
-import hashlib
+import hashlib,json
 from pathlib import Path
 import torch
 from .recovery_plan_dataset import RecoveryPlanData
@@ -10,6 +10,7 @@ from starVLA.model.modules.decision_local.natural_error_contract import SCHEMA,v
 class NaturalLocalData(RecoveryPlanData):
     def __init__(self,features,labels,*,reader='mmap_tensors',require_complete=True):
         super().__init__(features,labels,reader=reader,require_complete=require_complete,label_schema=SCHEMA)
+        self.repair_review=None
         meta=self.label_identity
         if meta['selection']!='80%native10%lateral10%time_hash_v1':raise ValueError('Changed registered plan exposure')
         self.fold_identity={'role':meta['role'],'source_audit_identity':meta['source_audit_identity'],
@@ -19,6 +20,38 @@ class NaturalLocalData(RecoveryPlanData):
             source=read(meta['source_audit']);registered=read(Path(meta['source_audit']).parent/(meta['role']+'.json')) if meta['role']!='dev' else None
             if source['identity']!=meta['source_audit_identity']:raise ValueError('Population roles changed')
             if registered is not None and registered!=self.index:raise ValueError('The entire registered role population is required')
+
+    def bind_repair_execution_review(self,path):
+        """Label-only overlay; preserve old bytes, local facts and scene order."""
+        if self.repair_review is not None:raise ValueError('Execution review already bound')
+        review=read(path);payload={k:v for k,v in review.items() if k!='identity'}
+        actual=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+        if (review.get('schema')!='natural_repair_execution_review_v1' or review['identity']!=actual or
+            review['labels_identity']!=self.label_identity['identity'] or
+            review.get('all_label_repairs_checked') is not True or
+            review.get('all_admitted_repairs_independently_checked') is not True):
+            raise ValueError('Complete independent review for these exact labels required')
+        wanted={r['token'] for r in self.index}
+        if any(r['token'] not in wanted for r in review['cases'].values()):raise ValueError('Foreign review scene')
+        self.repair_review=review;self._review_by_token={}
+        for key,row in review['cases'].items():self._review_by_token.setdefault(row['token'],{})[key]=row
+        self._labels.clear()
+
+    def _scene_labels(self,token):
+        fresh=token not in self._labels
+        result=super()._scene_labels(token)
+        if fresh and self.repair_review is not None:
+            reviewed=self._review_by_token.get(token,{})
+            expected={f'{token}:{a}:{p}' for a,p in torch.nonzero((result['case_status']==1)&result['target_eligible']).tolist()}
+            if set(reviewed)!=expected:raise ValueError('Review omitted or invented a strict REPAIR')
+            record=read(self.labels/'records'/(token+'.json'))
+            for key,row in reviewed.items():
+                a,p=row['anchor_index'],row['plan_index']
+                if key!=f'{token}:{a}:{p}' or row['label_sha256']!=record['sha256'] or type(row['admitted']) is not bool:
+                    raise ValueError('Review target identity mismatch')
+                if row['admitted']!=all(row['checks'].values()):raise ValueError('Review checks disagree with admission')
+                if not row['admitted']:result['target_eligible'][a,p]=False
+        return result
 
     def selection(self,ids,epoch=0,evaluation=False,distribution='NATURAL'):
         if evaluation:return super().selection(ids,epoch,evaluation,distribution)

@@ -39,6 +39,12 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--bootstrap',type=int,default=10000);a=p.parse_args();registry=read(a.registry)
+    natural=registry.get('research_protocol')=='natural_error_local_v1'
+    if registry.get('research_protocol','decision_local_v1') not in ('decision_local_v1','natural_error_local_v1'):
+        raise ValueError('Unknown research comparison protocol')
+    primary=([('N_FUT','N_CV'),('R_ABS_FUTURE','R_CURRENT'),('R_DIFF_FUTURE','R_ABS_FUTURE'),
+              ('R_DIFF_FUTURE','N_NONE')] if natural else COMPARISONS)
+    secondary=([('N_CV','N_NONE'),('N_FUT','N_NONE'),('N_FUT','R_DIFF_FUTURE')] if natural else SECONDARY)
     expected={'debug':None,'dev':1696,'navtest':12146}[registry['population']]
     a.output.mkdir(parents=True,exist_ok=False);tables={'camera_only':[],'oracle_probe':[]};runs={};baseline=None;protocol=None
     for name,item in registry['runs'].items():
@@ -57,7 +63,8 @@ def main():
         if export['identity']!=meta['prediction_identity']:raise ValueError('Scorer not bound to declared export')
         mode=export['mode']
         if mode not in tables:raise ValueError('Unknown information regime')
-        if (name.startswith(('E_CURRENT_GT','E_CV_GT','E_FUTURE_GT','E_MASK_ONLY')))!=(mode=='oracle_probe'):raise ValueError('Privileged probe cannot be reported camera-only')
+        privileged=export['kind'] in (('N_CV','N_FUT') if natural else ('E_CURRENT_GT','E_CV_GT','E_FUTURE_GT','E_MASK_ONLY'))
+        if privileged!=(mode=='oracle_probe'):raise ValueError('Privileged probe cannot be reported camera-only')
         paired,_=compare(final,original,bootstrap=a.bootstrap)
         row={'run':name,'mode':mode,'scenes':len(final),'PDMS':paired['PDMS_first_percent'],
             'PDMS_q0':paired['PDMS_baseline_percent'],'delta_percentage_points':paired['delta_percentage_points'],
@@ -66,15 +73,17 @@ def main():
         tables[mode].append(row);runs[name]=final
         atomic_json(a.output/(name+'_versus_q0.json'),{'paired':paired,'transitions':transitions(final,original)})
     comparisons={};pending=[]
-    for first,base in COMPARISONS+SECONDARY:
+    for first,base in primary+secondary:
         if first not in runs or base not in runs:pending.append(first+' minus '+base);continue
         result,rows=compare(runs[first],runs[base],bootstrap=a.bootstrap)
         comparisons[first+'_minus_'+base]={'paired':result,'transitions':transitions(runs[first],runs[base]),
-            'primary_preregistered_comparison':(first,base) in COMPARISONS}
+            'primary_preregistered_comparison':(first,base) in primary}
         with (a.output/(first+'_minus_'+base+'.csv')).open('w') as stream:
             w=csv.DictWriter(stream,list(rows[0]));w.writeheader();w.writerows(rows)
     atomic_json(a.output/'summary.json',{'registry_sha256':digest(a.registry),'source_sha':source_sha(ROOT),'tool_sha256':digest(__file__),
         'population':registry['population'],'scope':registry['scope'],'protocol':protocol,'tables':tables,'comparisons':comparisons,
+        'research_protocol':registry.get('research_protocol','decision_local_v1'),
+        'foundation_identity':registry.get('foundation_identity'),
         'not_yet_available':pending,'base_training_seeds':1,
         'interpretation':'Frozen mature S0 incremental probes; privileged rows are not deployable; no causal upper bound or from-scratch gain claim. Internal q0 is a shared frozen trained baseline here.',
         'group_thresholds_fixed_before_formal_training':{'baseline_high_PDMS_fraction':.9,'baseline_low_PDMS_fraction':.5},

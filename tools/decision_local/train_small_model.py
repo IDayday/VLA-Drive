@@ -132,6 +132,8 @@ def main():
     p.add_argument('--protocol',choices=('decision_local_v1','minimal_repair_v1','natural_local_v1'),default='decision_local_v1')
     p.add_argument('--fold-partition',type=Path);p.add_argument('--training-fold',type=int)
     p.add_argument('--target-acceptance',type=Path,help='Immutable target-quality and finite-budget receipt for formal repair runs')
+    p.add_argument('--repair-execution-review',type=Path,help='Natural protocol: immutable independent full-REPAIR eligibility overlay')
+    p.add_argument('--dev-repair-execution-review',type=Path)
     p.add_argument('--repair-class-balance',type=Path,help='Explicit separate MIN diagnostic: fixed training-exposure class weights')
     p.add_argument('--seed',type=int,default=42); p.add_argument('--epochs',type=int,default=24)
     p.add_argument('--batch',type=int,default=128); p.add_argument('--microbatch',type=int,default=16)
@@ -148,6 +150,8 @@ def main():
     torch.manual_seed(a.seed+1000); torch.cuda.manual_seed_all(a.seed+1000); np.random.seed(a.seed+1000); random.seed(a.seed+1000)
     natural=a.protocol=='natural_local_v1'
     repair=a.protocol in ('minimal_repair_v1','natural_local_v1')
+    if (a.repair_execution_review or a.dev_repair_execution_review) and (not natural or a.kind.startswith('P_')):
+        raise ValueError('Execution qualification only changes natural N/R full-target losses')
     if a.repair_class_balance is not None and not repair:
         raise ValueError('Class balance cannot alter the legacy protocol')
     if natural:
@@ -164,6 +168,10 @@ def main():
         if codec_path:
             from starVLA.dataloader.a_only_codec import install_legacy_codec
             install_legacy_codec(read(codec_path))
+        if a.repair_execution_review:train.bind_repair_execution_review(a.repair_execution_review)
+        if a.dev_repair_execution_review:
+            if dev is None:raise ValueError('No development population for execution review')
+            dev.bind_repair_execution_review(a.dev_repair_execution_review)
     elif repair:
         from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData
         from tools.decision_local.minimal_repair_training import REPAIR_KINDS,label_semantics
@@ -203,11 +211,10 @@ def main():
         if acceptance.get('label_semantics')!=label_semantics(train.label_identity):
             raise ValueError('Formal population receipt covers another local-label version')
         if not a.kind.startswith('P_'):
-            review=read(acceptance['complete_repair_execution_review'])
-            if (digest(acceptance['complete_repair_execution_review'])!=acceptance['complete_repair_execution_review_sha256'] or
-                review.get('labels_identity')!=train.label_identity['identity'] or
-                review.get('all_admitted_repairs_independently_checked') is not True):
-                raise ValueError('Full REPAIR targets need their independent execution review')
+            for supplied,data,prefix in ((a.repair_execution_review,train,''),(a.dev_repair_execution_review,dev,'dev_')):
+                if supplied is None or data.repair_review is None:raise ValueError('Explicit train/dev full-REPAIR execution reviews required')
+                if digest(supplied)!=acceptance[prefix+'complete_repair_execution_review_sha256']:
+                    raise ValueError('Formal population receipt covers another execution qualification')
         if label_semantics(train.label_identity)!=label_semantics(dev.label_identity):raise ValueError('Train/dev local-label semantics differ')
     if a.scope=='repair_formal':
         if any(train.label_identity[k].get('velocity_boundary')!='measured_vector_v2' for k in ('recovery','constraints','query_config')):
@@ -312,9 +319,13 @@ def main():
                 action_codec_identity=train.label_identity.get('action_codec_identity'),
                 natural_anchor_record=train.label_identity['anchor_record'],
                 source_audit_identity=train.label_identity['source_audit_identity'])
+            run_identity.update(repair_execution_review_sha256=digest(a.repair_execution_review) if a.repair_execution_review else None,
+                dev_repair_execution_review_sha256=digest(a.dev_repair_execution_review) if a.dev_repair_execution_review else None,
+                execution_review_policy='Rejected REPAIR keeps local facts and full evaluation membership; only full-target loss disabled')
     a.output.mkdir(parents=True,exist_ok=True); saved_path=a.output/'latest.pt'
     completed=epoch=offset=exposure=0; order=torch.randperm(len(train.index),generator=generators['shuffle'])
     previous_gpu_hours=0.;effective_updates=0;exposure_counts={k:0 for k in ('target_eligible','KEEP','REPAIR','native','lateral','time')}
+    if natural:exposure_counts['execution_review_excluded']=0
     if a.resume:
         s=torch.load(saved_path,map_location='cpu',weights_only=False)
         if s['identity']!=run_identity: raise ValueError('Exact resume identity mismatch')
@@ -349,9 +360,12 @@ def main():
             selected_plans=train.selection(ids,epoch)
             eligible=sum(row[3] for row in selected_plans)
             exposure_counts['target_eligible']+=eligible
-            for _,_,plan_index,ok,status in selected_plans:
+            for token,anchor_index,plan_index,ok,status in selected_plans:
                 exposure_counts['native' if plan_index==0 else 'lateral' if plan_index<3 else 'time']+=1
                 if ok:exposure_counts['KEEP' if status==0 else 'REPAIR']+=1
+                if natural and train.repair_review is not None:
+                    review=train.repair_review['cases'].get(f'{token}:{anchor_index}:{plan_index}')
+                    if review is not None and not review['admitted']:exposure_counts['execution_review_excluded']+=1
         for sub in range(0,len(ids),a.microbatch):
             selected=ids[sub:sub+a.microbatch]; batch=train.batch(selected,'cuda',epoch=epoch)
             output,losses,targets=forward(model,a.kind,batch,predictor)
