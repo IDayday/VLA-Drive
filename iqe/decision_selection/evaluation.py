@@ -178,6 +178,17 @@ def evaluate_role(config,role,device='cuda:0'):
     return result
 
 
+def calibrated_margin(rows, base_metrics):
+    """Always-Base competes explicitly; a safe but worse rule is not selected."""
+    eligible=[r for r in rows if r['feasible']]
+    best=max(eligible,key=lambda r:(r['metrics']['selected_01'],-r['metrics']['switch_count'],r['gamma'])) if eligible else None
+    # An exact mean tie prefers zero switches. This is the already declared
+    # optimization/tie rule, not a new PDMS improvement threshold.
+    useful=best is not None and best['metrics']['switch_count']>0 and best['metrics']['selected_01']>base_metrics['selected_01']
+    return dict(gamma=best['gamma'] if useful else None,always_Base=not useful,
+                status='NONTRIVIAL_EMPIRICAL_RULE' if useful else 'NO_NONTRIVIAL_RULE')
+
+
 def calibrate(config,device='cuda:0'):
     resource(config,'calibrate-decision')
     frozen=_final_lock(config);rule=frozen['margin'];out={}
@@ -190,11 +201,8 @@ def calibrate(config,device='cuda:0'):
             r=statistics(config,meta,bank,selected,kind=kind,rule='logit_margin',failures=failure)
             feasible=all(r['safety'][name]['new_failures']==0 for name in ('no_at_fault_collisions','drivable_area_compliance'))
             rows.append(dict(gamma=gamma,feasible=feasible,metrics=r))
-        eligible=[r for r in rows if r['feasible']]
-        best=max(eligible,key=lambda r:(r['metrics']['selected_01'],-r['metrics']['switch_count'],r['gamma'])) if eligible else None
-        nontrivial=best is not None and best['metrics']['switch_count']>0
-        out[kind]=dict(rows=rows,gamma=best['gamma'] if best else None,always_Base=not nontrivial,
-            status='NONTRIVIAL_EMPIRICAL_RULE' if nontrivial else 'NO_NONTRIVIAL_RULE',
+        base=statistics(config,meta,bank,np.zeros(len(logits),dtype=int),kind=kind,rule='always_Base_reference')
+        out[kind]=dict(rows=rows,always_Base_reference=base,**calibrated_margin(rows,base),
             rule_is_safety_probability=False,unknown_scene_safety_guarantee=False,
             checkpoint_hash=frozen['models'][kind]['weights_hash'],bank_hash=meta['hash'])
     r=dict(schema='decision_logit_margin_v1',models=out,rules=rule,final_lock_hash=frozen['hash'],
