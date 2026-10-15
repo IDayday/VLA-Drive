@@ -1,5 +1,7 @@
 # Query 专家与自训 Scorer 当前结果汇总
 
+**当前统一入口：[2026-10-15结果汇总](../iqe_results_summary_20261015/README.md)**，已合并Base 100k与完整Navtest曲线、最终几何Scorer结果、专家数据/曝光及未完成项。本页保留原时间点快照。
+
 **最新补充（2026-10-14 23:50 UTC）：** 几何 Scorer 的 6000 步训练、完整开发评估及最终权重新进程研究包检查已全部完成。开发集原始选轨 **90.5824**，同一 Base **90.5302**，差值 **+0.0523 分**，95% CI **[-1.7163,+1.5967]**，18 个高分转零分；仍未证明可靠改善。完整结果、训练/留出差异及风险见 [GEOMETRIC_FINAL_UPDATE.md](GEOMETRIC_FINAL_UPDATE.md) 和 [新结果 CSV](GEOMETRIC_FINAL_RESULTS.csv)。下文保留 23:32 快照，不将当时待完成状态篡改成已完成。
 
 证据截止：**2026-10-14T23:32:50.243106+00:00**。本次整理代码 HEAD：`b6a5bbdfc9b4d238b1ce12935d236884d01be675`；分支 `research/iqe-robust-scorer-20261014`。本页和 CSV 是既有真实产物的快照，未启动新训练或 Navtest，未更改 Base、候选池、训练规则或正式 ACTIVE。每个原始文件的实际路径、SHA256 和归档副本见 [SOURCE_MANIFEST.json](SOURCE_MANIFEST.json)。
