@@ -1,0 +1,27 @@
+--- /mnt/project/structured-world-fgtr-round1-artifacts/20261008/G2_vla_zt2_migration_20261014T0700Z/continue_registered_navsim.py
++++ continue_registered_navsim.py
+@@ -12,7 +12,7 @@
+ import time
+ 
+ ROOT = Path(__file__).resolve().parent
+-ART = ROOT.parent
++ART = Path('/mnt/project/structured-world-fgtr-round1-artifacts/20261008')
+ POLICY = Path('/mnt/project/server_dispatch_policy.json')
+ NAVTEST = Path('/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_navsim_navtest.py')
+ 
+@@ -100,9 +100,13 @@
+     for p in Path('/proc').glob('[0-9]*'):
+         row = process(int(p.name))
+         assert not (row and m['run'] in row['argv'] and any(a.endswith('/train_vla.py') for a in row['argv'])), 'Same run already active'
+-    raw = subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.used','--format=csv,noheader,nounits'],text=True)
++    raw = subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free','--format=csv,noheader,nounits'],text=True)
+     rows = [line.split(',') for line in raw.splitlines() if line.strip()]
+-    assert len(rows) == 8 and all(int(x[2]) <= 64 for x in rows), 'Full host must be physically idle after owned filler release'
++    assert host == m['destination_host']
++    assert len(rows) == 8 and all(int(x[2]) >= m['minimum_free_MiB_per_GPU'] for x in rows), 'Insufficient measured headroom; preserve other jobs'
++    assert read(ROOT/'SOURCE_NATIVE_BOUNDARY_VERIFIED.json')['passed']
++    assert read(ROOT/'ENVIRONMENT_AND_DATA_ACCEPTED.json')['passed']
++    assert read(ROOT/'ROLLBACK_CHECKPOINT_PIN.json')['same_inode_all_files']
+     uuids = sorted(x[1].strip() for x in rows)
+     lock_root = ART/'physical_gpu_locks'
+     paths = [run/'HOST_MIGRATION_RUNTIME.lock',

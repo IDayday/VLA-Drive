@@ -135,4 +135,6 @@ CPU标签和GPU导出/CPU评分并行；等待必要依赖的评价进程不占G
 不合格v3标签有明确hold。B折收尾等待脚本曾因缺少右括号退出，未放行任何训练，
 原脚本和日志保留；修正版本先通过语法校验，再调用不变的全量SHA核验入口。
 
-最新资源变更：用户撤销vla-zt2，已更新全局禁用和任务派发记录；既有G2按原生89,574步检查点退出并单独迁移，不改变本轮实验结论或计入小头成本。见[撤销记录](evidence/VLA_ZT2_WITHDRAWAL_REQUEST_v16.json)。
+最新资源变更：用户撤销vla-zt2，已更新全局禁用和任务派发记录；既有G2已从原生89,574步检查点无损迁入tsinghua-zt4共享8卡，连续16步验证至89,590；不改变本轮实验结论或计入小头成本。见[撤销记录](evidence/VLA_ZT2_WITHDRAWAL_REQUEST_v16.json)。
+
+迁移完整证据见[G2_RESOURCE_WITHDRAWAL_v16](evidence/G2_RESOURCE_WITHDRAWAL_v16/MIGRATION_COMPLETE.json)，原100k终点与源码不变。

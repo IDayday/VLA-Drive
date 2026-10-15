@@ -117,4 +117,4 @@ P_ABS/P_DIFF在A、R三个分支在B的代码已经完成，并用真实A34/B30�
 
 实际训练/标签/恢复命令见 [CURRENT_VECTOR_COMMANDS_ZH.md](CURRENT_VECTOR_COMMANDS_ZH.md)、[EXECUTION_AND_RESUME_ZH.md](EXECUTION_AND_RESUME_ZH.md)；最终部署、评分和复核命令见 [FINAL_COMMANDS_ZH.md](FINAL_COMMANDS_ZH.md)。所有完整run已结束，旧RAM路径属于历史执行记录，恢复应使用相同身份的共享原件，不重启COMPLETE run。Git只包含代码、聚合/逐场景数值结果和身份收据，不包含模型、数据、缓存、私有场景图片或密钥。
 
-资源收尾后用户另行撤销vla-zt2使用权限，已从全局当前授权、各任务派发和占卡入口移除；[撤销记录](evidence/VLA_ZT2_WITHDRAWAL_REQUEST_v16.json)。共享记录显示G2已按原生机制在89,574步保存并安全退出，后续资源迁移独立于本轮研究，不计入上述小头实验成本。原100k终点、训练源码与评价合同保持不变；迁移结果另存该撤销记录目录。没有重新连接已撤销主机。
+资源收尾后用户另行撤销vla-zt2使用权限，已从全局当前授权、各任务派发和占卡入口移除；[撤销记录](evidence/VLA_ZT2_WITHDRAWAL_REQUEST_v16.json)。共享记录显示G2已按原生机制在89,574步保存并安全退出，现已迁入training-vlawm-tsinghua-zt4的8卡共享资源，16个连续optimizer更新核验至89,590步。完整FP32主权重、optimizer、RNG、数据位置在恢复边界逐位一致，原100k终点、训练源码和既有评价队列不变。迁移独立于本轮研究，不计入上述小头成本；已有SimWAM任务保留。没有重新连接已撤销主机，也不声称旧主机所有其它GPU进程已清空。见[G2迁移证据](evidence/G2_RESOURCE_WITHDRAWAL_v16/MIGRATION_COMPLETE.json)。
