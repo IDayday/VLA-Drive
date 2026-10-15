@@ -2,6 +2,13 @@
 
 本轮冻结原始GT训练的S0 100k。共享基础训练源码为1493deda247107efe076b9294863a6753391298a，重核17个checkpoint文件；不从旧E/P/R继续训练，不更新S0，不恢复G或nuScenes。
 
+**版本状态：** 下文v4的覆盖、smoke及性能数值保留为历史，九个v4正式头已安全暂停。
+样条起始速度曾把实际向量投成 `[norm(v),0]`，不满足本轮边界合同；现已在
+0471af96中增加 `measured_vector_v2`，新目标单独使用v5路径。新模式的实际速度向量
+与t=0车身heading分别精确保留，曲线、query、求解器与密集验收共用同一模式。
+真实64场景验证初始误差为零、原生q0不变、旧模式逐位复现。不能将旧头承接到
+新输入分布后混作公平主比较；全部对照须从共同随机头起点重新训练。
+
 ## 输入与目标
 
 `CurrentFeatures`仅含原HA/W、合法当前状态和车身；`PlanInputs`显式提供真正待修复的物理计划和编码计划。所有query及残差基准使用它。旧ModelInputs的q0字段仅在受检包装中承载plan_in，原始干净q0不另传。线上plan_in就是原S0的十步采样结果。
@@ -20,7 +27,7 @@
 
 六组是LOG_NONE、LOG_CV、LOG_FUT、MIN_NONE、MIN_CV、MIN_FUT。seed42全部比较；seed43确认LOG_FUT、MIN_CV、MIN_FUT。只将新增头seed称为头复跑，S0仍是同一个底座训练seed。
 
-正式头源码冻结在58efe649，FP32、TF32关闭、batch128/micro16、lr1e-4、AdamW wd0.001、clip1，一epoch warmup后cosine到0.1LR。每组9168个数据更新边界，模型有效更新及KEEP/REPAIR曝光另记。全无资格batch不调用AdamW，避免制造有效监督；scheduler仍按共同数据曝光前进。
+旧v4头源码为58efe649，现已暂停；修正版本的执行源码为0471af96。配方保持FP32、TF32关闭、batch128/micro16、lr1e-4、AdamW wd0.001、clip1，一epoch warmup后cosine到0.1LR。每组9168个数据更新边界，模型有效更新及KEEP/REPAIR曝光另记。全无资格batch不调用AdamW，避免制造有效监督；scheduler仍按共同数据曝光前进。
 
 阶段B的P_ABS_A/P_DIFF_A只可从A折随机小头起点训练，R_B第一步开始读取相应冻结P_A的真实预测。入口拒绝全量P、错误标签版本、同fold以及未完成24epoch的P。正式B是否启动，依阶段A自然/恢复结果和覆盖证据判断；不能把已完成的小集P→R链路当正式结果。
 

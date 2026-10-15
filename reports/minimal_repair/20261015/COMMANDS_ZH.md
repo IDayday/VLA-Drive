@@ -1,6 +1,8 @@
 # 实际执行、评价与恢复命令
 
-下列入口均已有真实执行收据。正式九组正在等待或执行各自原生状态；不能重复启动已有输出。代码路径指向不可热修改的冻结worktree，训练身份不由当前报告分支替代。
+**当前状态：旧v4九组已因初始速度向量边界错误安全暂停。下文v4命令是历史执行收据，
+不要重新运行或恢复这些旧正式任务。** 新版源码0471af96与独立v5标签正在验证，
+后续实际运行命令另行记录。不可热修改冻结worktree，训练身份不由报告分支替代。
 
 ## 标签生成和核验
 
@@ -83,7 +85,7 @@
 
 在某个run输出目录创建 `STOP_REQUESTED`，训练器在完成当前optimizer边界后保存latest并退出。只对本任务run操作；不要停止G2或旧任务。检查PAUSED、latest及进程退出后，把STOP_REQUESTED改名留档，再以完全相同命令追加 `--resume`。恢复器核对源码、目标版本、fold、plan pool、模型、optimizer、scheduler、全部RNG和数据位置，不重置epoch或warmup。
 
-例如LOG_NONE的原生恢复命令（该恢复入口已在真实48updates连续/中断对照中通过，不表示本正式run已中断）：
+下面保留旧LOG_NONE的原生恢复语法作为历史记录（目前有CORRECTNESS_HOLD，禁止据此恢复旧run）：
 ```bash
 /mnt/project/decision-local-consequence-artifacts/20261014/envs/qwen/bin/python -u /mnt/project/VLA-Drive-minimal-repair-training-v5-20261015/tools/decision_local/train_small_model.py --protocol minimal_repair_v1 --features /mnt/project/decision-local-consequence-artifacts/20261014/anchor_train_full_v1 --labels /mnt/project/minimal-repair-artifacts/20261015/targets_foldB_v4 --dev-features /mnt/project/decision-local-consequence-artifacts/20261014/anchor_dev_full_v1 --dev-labels /mnt/project/minimal-repair-artifacts/20261015/targets_dev1696_v4 --output /mnt/project/minimal-repair-artifacts/20261015/stageA_seed42/LOG_NONE --kind LOG_NONE --scope repair_formal --fold-partition /mnt/project/decision-local-consequence-artifacts/20261014/conditional_oof_v1/PARTITION.json --training-fold 1 --target-acceptance /mnt/project/minimal-repair-artifacts/20261015/STAGE_A_ACCEPTANCE_v1.json --seed 42 --epochs 24 --batch 128 --microbatch 16 --lr 0.0001 --data-reader mmap_tensors --max-seconds 7200 --resume
 ```

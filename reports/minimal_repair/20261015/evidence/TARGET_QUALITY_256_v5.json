@@ -1,0 +1,154 @@
+{
+  "CPU_process_seconds": 663.5360222659999,
+  "by_plan": {
+    "0": {
+      "KEEP": 50,
+      "UNCERTAIN": 458,
+      "UNSOLVED": 4
+    },
+    "1": {
+      "KEEP": 46,
+      "REPAIR": 4,
+      "UNCERTAIN": 454,
+      "UNSOLVED": 8
+    },
+    "2": {
+      "KEEP": 48,
+      "REPAIR": 1,
+      "UNCERTAIN": 458,
+      "UNSOLVED": 5
+    },
+    "3": {
+      "KEEP": 50,
+      "UNCERTAIN": 458,
+      "UNSOLVED": 4
+    },
+    "4": {
+      "KEEP": 52,
+      "UNCERTAIN": 458,
+      "UNSOLVED": 2
+    }
+  },
+  "decoder_roundtrip_atol_m": 1e-05,
+  "input_checks": {
+    "annotated_overlap": 50,
+    "kinematic_ok": 2517,
+    "out_of_range": 0,
+    "repair_new_full_stop": 0,
+    "road_violation": 94
+  },
+  "label_identity": "663e63ddfedf031cd3fdcb8fda7e84b684f2d23741c443c2f20ef483389dc826",
+  "label_scope": "annotated planar geometry with unknown support retained; not full free-space/safety GT",
+  "metrics": {
+    "KEEP_endpoint_norm_change_m": {
+      "max": 1.9073486328125e-06,
+      "mean": -7.753449726880082e-09,
+      "n": 246,
+      "p50": 0.0,
+      "p90": 0.0
+    },
+    "KEEP_input_GT_ADE_m": {
+      "max": 2.4317328929901123,
+      "mean": 0.6973433207447935,
+      "n": 246,
+      "p50": 0.4371369630098343,
+      "p90": 1.794430673122406
+    },
+    "KEEP_maximum_change_m": {
+      "max": 3.82214057026431e-06,
+      "mean": 5.14471103594044e-07,
+      "n": 246,
+      "p50": 2.387748452292726e-07,
+      "p90": 1.9073486328125e-06
+    },
+    "KEEP_target_GT_ADE_m": {
+      "max": 2.4317331314086914,
+      "mean": 0.6973433292251292,
+      "n": 246,
+      "p50": 0.4371369630098343,
+      "p90": 1.7944307923316956
+    },
+    "REPAIR_endpoint_norm_change_m": {
+      "max": 0.10183906555175781,
+      "mean": 0.022327613830566407,
+      "n": 5,
+      "p50": -0.020104408264160156,
+      "p90": 0.09132957458496094
+    },
+    "REPAIR_input_GT_ADE_m": {
+      "max": 0.7042685151100159,
+      "mean": 0.5476140022277832,
+      "n": 5,
+      "p50": 0.451535165309906,
+      "p90": 0.7021849513053894
+    },
+    "REPAIR_maximum_change_m": {
+      "max": 0.5752934813499451,
+      "mean": 0.39651288986206057,
+      "n": 5,
+      "p50": 0.3045498728752136,
+      "p90": 0.5600427746772766
+    },
+    "REPAIR_target_GT_ADE_m": {
+      "max": 0.6166330575942993,
+      "mean": 0.4077217519283295,
+      "n": 5,
+      "p50": 0.2993159294128418,
+      "p90": 0.6151301145553589
+    },
+    "eligible_CV_FUT_clearance_absolute_difference": {
+      "max": 5.900876998901367,
+      "mean": 0.34060931922907633,
+      "n": 13359,
+      "p50": 0.07214391231536865,
+      "p90": 0.8744115829467773
+    },
+    "eligible_CV_FUT_overlap_absolute_difference": {
+      "max": 1.0,
+      "mean": 0.0055074744295830055,
+      "n": 13981,
+      "p50": 0.0,
+      "p90": 0.0
+    },
+    "eligible_CV_FUT_road_absolute_difference": {
+      "max": 0.0,
+      "mean": 0.0,
+      "n": 14056,
+      "p50": 0.0,
+      "p90": 0.0
+    }
+  },
+  "planning_scores_used_for_target_selection": false,
+  "plans": 2560,
+  "reasons": {
+    "boundary_or_clearance_ambiguity": 16,
+    "least_change_among_independently_validated_fixed_budget_solutions": 5,
+    "map_height_object_or_future_support_incomplete": 2270,
+    "no_independently_validated_solution_within_budget": 23,
+    "verified_annotated_local_constraints": 246
+  },
+  "relation_support": {
+    "clearance_valid_points": 13359,
+    "eligible_CV_FUT_clearance_changed_ge_05m_plans": 125,
+    "eligible_CV_FUT_overlap_changed_plans": 17,
+    "input_False": 2270,
+    "input_True": 290,
+    "overlap_valid_points": 13981,
+    "road_valid_points": 14056
+  },
+  "repair_causes": {
+    "annotated_overlap": 3,
+    "kinematic_violation": 0,
+    "road_violation": 2
+  },
+  "scenes": 256,
+  "scenes_with_any_eligible_plan": 28,
+  "states": {
+    "KEEP": 246,
+    "REPAIR": 5,
+    "UNCERTAIN": 2286,
+    "UNSOLVED": 23
+  },
+  "target_eligible_fraction": 0.098046875,
+  "worker_wall_seconds": 692.6150262206793
+}
