@@ -127,8 +127,14 @@ def assemble(args):
         raise ValueError('Changed reused native identity')
     old_meta, _ = load_bank(old_root)
     new_meta, fresh = load_bank(args.new_bank)
-    if any(new_meta[k] != registration['protocol'][k] for k in PROTOCOL_KEYS):
-        raise ValueError('Native builder/evaluator environment changed')
+    differences = [k for k in PROTOCOL_KEYS if new_meta[k] != registration['protocol'][k]]
+    equivalence = None
+    if differences:
+        if differences != ['nuplan_python_tree_sha256'] or args.runtime_equivalence is None:
+            raise ValueError('Native builder/evaluator environment changed')
+        from tools.decision_local.verify_nuplan_runtime_sources import verify_receipt
+        equivalence = verify_receipt(args.runtime_equivalence,
+            registration['protocol']['nuplan_python_tree_sha256'], new_meta['nuplan_python_tree_sha256'])
     missing = read(args.output / 'missing_index.json')
     if (set(fresh) != {r['token'] for r in missing} or
             any(fresh[r['token']]['log'] != r['log'] for r in missing) or
@@ -154,6 +160,8 @@ def assemble(args):
     atomic_json(args.output / 'COMPLETE.json', dict(identity=registration['identity'], scenes=len(population),
         role_scenes={k: len(v) for k, v in roles.items()}, verified_bytes=total_bytes,
         new_bank=str(args.new_bank), new_bank_identity_sha256=digest(args.new_bank / 'identity.json'),
+        runtime_equivalence=equivalence,
+        runtime_equivalence_receipt_sha256=digest(args.runtime_equivalence) if equivalence else None,
         index_sha256={k: digest(args.output / (k + '_metric_index.json')) for k in (*ROLES, 'B_all')},
         q0_scored=False, original_caches_modified=False, resources=check_host()))
     print({'scenes': len(population), 'verified_bytes': total_bytes, 'q0_scored': False})
@@ -167,6 +175,8 @@ def main():
     parser.add_argument('--recording-proof', type=Path)
     parser.add_argument('--reuse-bank', type=Path)
     parser.add_argument('--new-bank', type=Path)
+    parser.add_argument('--runtime-equivalence', type=Path,
+        help='Optional exact source audit for nuPlan test-only packaging differences')
     args = parser.parse_args()
     check_host()
     required = ('source_audit', 'recording_proof', 'reuse_bank') if args.phase == 'prepare' else ('new_bank',)
