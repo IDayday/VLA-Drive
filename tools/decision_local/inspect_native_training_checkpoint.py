@@ -15,6 +15,45 @@ sys.path.insert(0,str(ROOT))
 from tools.decision_local.common import atomic_json,check_host,digest,read,source_sha
 
 
+def inspect_rigid_partition(state, completed, world):
+    """Validate the actual DeepSpeed 0.16.9 non-elastic ZeRO format.
+
+    stage_1_and_2.state_dict strips padding from FP32 masters, but saves
+    optimizer.state_dict unchanged for a rigid checkpoint. Its load_state_dict
+    restores the original optimizer and pads saved masters to their runtime
+    length. Therefore padded moments must match master.numel() + saved padding,
+    not just master.shape. No tensor values or checkpoint files are changed.
+    """
+    if state['ds_version']!='0.16.9' or not isinstance(state['base_optimizer_state'],dict):
+        raise ValueError('Require the registered DeepSpeed rigid checkpoint format')
+    masters=state['single_partition_of_fp32_groups'];base=state['base_optimizer_state']
+    padding=state['group_paddings'];groups=base['param_groups']
+    count=len(masters)
+    if (state['overflow'] or state['partition_count']!=[world]*count or
+        len(base['state'])!=count or len(groups)!=count or len(padding)!=count):
+        raise ValueError('Invalid optimizer partition or group inventory')
+    ids=[];steps=[];moment_elements=[]
+    for group,(master,amount,param_group) in enumerate(zip(masters,padding,groups)):
+        if (not isinstance(master,torch.Tensor) or master.dtype!=torch.float32 or master.ndim!=1 or
+            type(amount) is not int or amount<0 or len(param_group['params'])!=1):
+            raise ValueError(f'Invalid FP32 master/padding for group {group}')
+        parameter_id=param_group['params'][0];ids.append(parameter_id)
+        value=base['state'][parameter_id]
+        if value['step']!=completed:raise ValueError('Optimizer step differs')
+        for key in ('exp_avg','exp_avg_sq'):
+            moment=value[key]
+            if (not isinstance(moment,torch.Tensor) or moment.dtype!=torch.float32 or
+                moment.shape!=(master.numel()+amount,)):
+                raise ValueError(f'Invalid FP32 {key}/declared padding for group {group}')
+        steps.append(int(value['step']));moment_elements.append(value['exp_avg'].numel())
+    if len(set(ids))!=count or set(ids)!=set(base['state']):
+        raise ValueError('Duplicate or missing flattened optimizer parameter')
+    return dict(master_groups=count,master_elements=[x.numel() for x in masters],
+        group_padding=padding,moment_elements=moment_elements,optimizer_steps=steps,
+        actual_group_LR=[group['lr'] for group in groups],
+        all_FP32_masters_and_moments_present=True)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('run','registration','output'):p.add_argument('--'+key,type=Path,required=True)
@@ -46,16 +85,7 @@ def main():
     for rank in range(world):
         optimizer_path=folder/f'bf16_zero_pp_rank_{rank}_mp_rank_00_optim_states.pt'
         state=torch.load(optimizer_path,map_location='cpu',weights_only=False,mmap=True)['optimizer_state_dict']
-        masters=state['single_partition_of_fp32_groups'];base=state['base_optimizer_state']
-        if state['overflow'] or any(x!=world for x in state['partition_count']):raise ValueError('Invalid optimizer partition')
-        if len(base['state'])!=len(masters) or any(x.dtype!=torch.float32 for x in masters):
-            raise ValueError('Incomplete FP32 master/optimizer groups')
-        for group,master in enumerate(masters):
-            value=base['state'][group]
-            if int(value['step'])!=complete['completed']:raise ValueError('Optimizer step differs')
-            for key in ('exp_avg','exp_avg_sq'):
-                if value[key].dtype!=torch.float32 or value[key].shape!=master.shape:
-                    raise ValueError('Missing FP32 moment state')
+        partition=inspect_rigid_partition(state,complete['completed'],world)
         rng_path=folder/f'rng_rank{rank}.pt';rng=torch.load(rng_path,map_location='cpu',weights_only=False)
         if (set(rng)!= {'python','numpy','torch','cuda','generators'} or
             set(rng['generators'])!= {'noise','time','horizon'} or
@@ -63,16 +93,25 @@ def main():
                 for x in [rng['torch'],rng['cuda'],*rng['generators'].values()])):
             raise ValueError('Missing native random state')
         ranks.append(dict(rank=rank,optimizer_file=optimizer_path.name,optimizer_bytes=optimizer_path.stat().st_size,
-            master_groups=len(masters),master_elements=[x.numel() for x in masters],
-            optimizer_steps=[int(value['step']) for value in base['state'].values()],
-            actual_group_LR=[group['lr'] for group in base['param_groups']],
-            rng_file=rng_path.name,rng_sha256=digest(rng_path),all_FP32_masters_and_moments_present=True))
-        del state,masters,base,rng
+            rng_file=rng_path.name,rng_sha256=digest(rng_path),**partition))
+        del state,rng
+    shapes=model['param_shapes']
+    expected_elements=[sum(shape.numel() for shape in group.values()) for group in shapes]
+    if (any(row['master_groups']!=len(shapes) for row in ranks) or
+        [sum(row['master_elements'][group] for row in ranks) for group in range(len(shapes))]!=expected_elements or
+        any(row['moment_elements']!=ranks[0]['moment_elements'] for row in ranks)):
+        raise ValueError('Rank partitions do not cover the saved model parameter inventory')
     if digest(folder/'COMPLETE.json')!=complete_hash:raise ValueError('Checkpoint changed during inspection')
     observed=read(a.run/'status.json')
-    atomic_json(a.output,dict(schema='native_A_checkpoint_metadata_inspection_v1',passed=True,
+    import importlib.util
+    deepspeed_root=Path(importlib.util.find_spec('deepspeed').origin).parent
+    serialization=deepspeed_root/'runtime/zero/stage_1_and_2.py'
+    atomic_json(a.output,dict(schema='native_A_checkpoint_metadata_inspection_v2',passed=True,
         inspection_source_sha=source_sha(ROOT),training_source_sha=meta['source_sha'],training_identity=meta['identity'],
         checkpoint=str(folder),complete_sha256=complete_hash,complete=complete,rank_states=ranks,
+        parameter_group_elements=expected_elements,
+        native_serialization_source=dict(path=str(serialization),sha256=digest(serialization),
+            version='0.16.9',format='rigid optimizer moments padded, FP32 master groups unpadded'),
         model_bytes=model_path.stat().st_size,model_tensor_count=len(model['module']),
         observed_training_status=observed,resources=resources,
         scope='CPU mmap metadata, native step/exposure/scheduler and all FP32 master/moment/RNG partitions',
