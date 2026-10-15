@@ -105,10 +105,23 @@ canonical 正常分组。这再次说明两种定义不能互相替代。
 
 40-update MAE profile 是成本探针，没有作为正式初始化。正式 teacher 从随机参数开始；
 校准只用 A_calibration，原训练器的指标字段名仍为 `FIXED_LOG_DISJOINT_DEV`，不表示用了旧 1696 开发集。
+已完成的 16-epoch A 内部教师检查无失败：full-peer ego ADE 从随机时约 9.79m 降到
+0.95m，vehicle-with-peer ADE 从约 7.70m 降到 2.67m。这只说明 GT-MAE 教师在学习，
+不是 VLA 规划成绩；30 epoch 尚未结束，也未提前按这些中间结果冻结教师。
 共享 S0_A 保留 S0 的当前 DINO、未来 DINO 序列、A-only MAE、原 FM 与动作结构。
 动作 affine 的均值/尺度已仅在 A_train 的 341656 个原始动作点上重拟合，
 而非继承来源不能限定到 A 的旧经验常数；公式、sin/cos heading 与原始物理轨迹不变。
 新旧 codec 和基座身份必须分别登记，旧 S0 紧凑缓存不得冒充新底座缓存。
+
+A 内部基础策略学习曲线入口复用原 `checkpoint_identity/load_student/predict_action`，
+只允许固定的 A_calibration 角色。真实当前图像、当前状态与 A-only codec 的 4 场景
+CPU preflight 已通过；尚无 S0_A 权重，故模型曲线仍未运行。原始 ego GT 在当前前向后
+才加载，不从 B 或旧开发集选择共享底座。该入口与已核验的终点 anchor 注册分别保存。
+
+8 卡 80-update 完整 profile 已建立有限依赖队列，包含 update4 原生保存/恢复及 19-scene
+尾 batch；只有教师、导出、权重校准和共享图像准备完成且重新核实空闲资源后才启动。
+当前 `QUEUED_BASE_PROFILE_STATUS.json` 仍为未执行，不能据此报告吞吐或恢复成功。
+图像准备只复制 A_train 当前 JPEG 原始字节到 `/mnt/project`，不产生新的 Qwen/DeepStack 特征缓存。
 
 新标签/小头工程 smoke 明确标为 `engineering_historical_anchor_only`，仍可复用旧 S0
 验证代码；正式人口检查拒绝该模式。它不构成未见场景或正式 N/P/R 效果证据。
