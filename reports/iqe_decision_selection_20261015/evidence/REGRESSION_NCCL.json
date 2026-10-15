@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "tests/iqe/test_closeout_terminal.py::test_nccl_terminal_resume_all_ranks",
+    "tests/iqe/test_internal_ddp.py::test_global_gap_stream_objective_two_process_nccl",
+    "tests/iqe/test_training_resume_ddp.py::test_nccl_uneven_labels_and_exact_resume"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 7.593588829040527,
+  "host": "training-vla-zt-worker-0",
+  "devices": [
+    0,
+    1
+  ],
+  "log": "/mnt/project/iqe-cost-sensitive-selection-20261015/main_v1/regression_nccl.log",
+  "source_commit": "4ec3f1da21668a920c36066618a82a6b0a308d11"
+}
