@@ -52,10 +52,10 @@ def prepare(output):
     value['sha256']=fingerprint(value);atomic_json(output,value);return value
 
 
-def make_lock(snapshot,queue):
+def make_lock(snapshot,queue,root=Path(ROOT),names=('R_SOURCE','R_CANONICAL'),include_sft=True):
     pop=json.loads(Path(POPULATION).read_text());assets=prepare(queue/'assets.json')
-    models={};root=Path(ROOT)
-    for name in ('R_SOURCE','R_CANONICAL'):
+    models={}
+    for name in names:
         run=root/'runs'/(name+'_seed42_v1');identity=json.loads((run/'identity.json').read_text())
         for rank in range(8):
             result=json.loads((run/f'result_rank{rank}.json').read_text())
@@ -72,9 +72,9 @@ def make_lock(snapshot,queue):
         models[name]=dict(export=str(export),weight_sha256=sha,run_identity=identity['sha256'],checkpoint=str(ck),
             checkpoint_files_sha256=complete['files_sha256'],updates=20000,config_sha256=file_sha(export/'config.yaml'))
     if file_sha(Path(SFT_EXPORT)/'pytorch_model.pt')!=SFT_SHA256:raise ValueError('SFT changed')
-    models['SFT']=dict(export=SFT_EXPORT,weight_sha256=SFT_SHA256,updates=0,config_sha256=file_sha(Path(SFT_EXPORT)/'config.yaml'))
+    if include_sft:models['SFT']=dict(export=SFT_EXPORT,weight_sha256=SFT_SHA256,updates=0,config_sha256=file_sha(Path(SFT_EXPORT)/'config.yaml'))
     value=dict(status='LOCKED_BEFORE_FINAL_NAVTEST',created_utc=datetime.now(timezone.utc).isoformat(),
-        selection_rule='Registered fixed update20000 for both variants plus matched SFT; no score-based selection',
+        selection_rule='Registered fixed update20000 for named variants; no score-based selection',
         formal_budget_complete=True,models=models,weight_sha256=[v['weight_sha256'] for v in models.values()],
         population_identity=pop['identity_sha256'],sampler_sha256=file_sha(snapshot/'scripts/analysis/simwam_recipe/evaluate_policy.py'),
         inference_seeds=[2101],training_seeds=[42],modes=['E_NATIVE','E_SHIFT5'],
@@ -96,10 +96,10 @@ print(json.dumps(dict(first=first,second=second,CPU_affinity=len(os.sched_getaff
         shlex.join([sys.executable,'-c',code])],text=True))
 
 
-def dispatch(snapshot,queue,selection,inventories):
-    for name,hosts in ROUTES.items():
+def dispatch(snapshot,queue,selection,inventories,root=Path(ROOT),routes=ROUTES):
+    for name,hosts in routes.items():
         model=selection['models'][name];shards=8*len(hosts);label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
-        output=Path(ROOT)/'evaluations'/(label+'_NAVTEST')
+        output=root/'evaluations'/(label+'_NAVTEST')
         for hi,host in enumerate(hosts):
             allowed(host)
             if len(inventories[host]['second'])!=8 or any(min(a['free_MiB'],b['free_MiB'])<14000 for a,b in zip(inventories[host]['first'],inventories[host]['second'])):
@@ -161,61 +161,76 @@ print(json.dumps(result))
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['prepare','serve']);p.add_argument('--snapshot')
     p.add_argument('--output');p.add_argument('--once',action='store_true')
-    p.add_argument('--administrative-local',action='store_true');a=p.parse_args();require_controller_host(a.administrative_local)
-    queue=Path(ROOT)/'final_navtest_queue';queue.mkdir(exist_ok=True)
+    p.add_argument('--administrative-local',action='store_true');p.add_argument('--followup-x1',action='store_true')
+    a=p.parse_args();require_controller_host(a.administrative_local)
+    root=Path('/mnt/project/simwam-x-anchor-20261015') if a.followup_x1 else Path(ROOT)
+    routes={'R_CANONICAL_X1':['training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4']} if a.followup_x1 else ROUTES
+    names=('R_CANONICAL_X1',) if a.followup_x1 else ('R_SOURCE','R_CANONICAL')
+    if a.followup_x1:
+        registration=json.loads((root/'AUTHORIZATION.json').read_text())
+        if registration['status']!='AUTHORIZED_BY_USER_GO_ON' or registration['proposed_name']!='R_CANONICAL_X1':
+            raise ValueError('X1 registration required')
+    queue=root/'final_navtest_queue';queue.mkdir(exist_ok=True)
     if a.command=='prepare':
         result=prepare(Path(a.output) if a.output else queue/'assets.json');print(json.dumps(result));return
     if not a.snapshot:raise ValueError('Frozen evaluation source is required')
     snapshot=Path(a.snapshot);guard=(queue/'controller.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
     atomic_json(queue/'transport_preflight.json',dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
-        routes=probe_routes([h for hosts in ROUTES.values() for h in hosts],sys.executable)))
+        routes=probe_routes([h for hosts in routes.values() for h in hosts],sys.executable)))
     last_probe=0
     try:
         while True:
-            require_controller_host(a.administrative_local);stages=Path(ROOT)/'milestone_queue/progress.json'
+            require_controller_host(a.administrative_local);stages=root/'milestone_queue/progress.json'
             stage=json.loads(stages.read_text()) if stages.exists() else {}
-            results=[Path(ROOT)/'runs'/(name+'_seed42_v1')/f'result_rank{rank}.json'
-                     for name in ('R_SOURCE','R_CANONICAL') for rank in range(8)]
+            results=[root/'runs'/(name+'_seed42_v1')/f'result_rank{rank}.json'
+                     for name in names for rank in range(8)]
             if stage.get('status')!='COMPLETE' or not all(f.exists() for f in results):
-                atomic_json(queue/'progress.json',dict(status='WAITING_FOR_BOTH_ENDPOINTS_AND_DEV_STAGES',pid=os.getpid(),time=time.time(),Navtest_opened=False))
+                atomic_json(queue/'progress.json',dict(status='WAITING_FOR_REGISTERED_ENDPOINTS_AND_DEV_STAGES',pid=os.getpid(),time=time.time(),Navtest_opened=False))
                 if a.once:return
                 time.sleep(20);continue
             lock=queue/'LOCK.json'
             if lock.exists():
                 selection=json.loads(lock.read_text());copy=dict(selection);sha=copy.pop('sha256')
                 if fingerprint(copy)!=sha:raise ValueError('Final lock modified')
-            else:selection=make_lock(snapshot,queue)
+            else:selection=make_lock(snapshot,queue,root,names,include_sft=not a.followup_x1)
             if not (queue/'DISPATCHED.json').exists():
-                hosts=sorted({h for hs in ROUTES.values() for h in hs})
+                hosts=sorted({h for hs in routes.values() for h in hs})
                 with ThreadPoolExecutor(max_workers=4) as pool:inventories=dict(zip(hosts,pool.map(inventory,hosts)))
                 uuids=[g['uuid'] for info in inventories.values() for g in info['second']]
                 if len(uuids)!=len(set(uuids)):raise ValueError('Hosts alias the same physical GPUs')
                 atomic_json(queue/'inventory.json',dict(time=time.time(),hosts=inventories,distinct_GPUs=len(uuids),no_evictions=True))
-                dispatch(snapshot,queue,selection,inventories)
-                atomic_json(queue/'DISPATCHED.json',dict(lock=selection['sha256'],routes=ROUTES,time=time.time()))
+                dispatch(snapshot,queue,selection,inventories,root,routes)
+                atomic_json(queue/'DISPATCHED.json',dict(lock=selection['sha256'],routes=routes,time=time.time()))
             if time.monotonic()-last_probe>=60:
                 audit_workers(queue);last_probe=time.monotonic()
             complete=[]
-            for name,hosts in ROUTES.items():
+            for name,hosts in routes.items():
                 label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
-                output=Path(ROOT)/'evaluations'/(label+'_NAVTEST')
+                output=root/'evaluations'/(label+'_NAVTEST')
                 files=[output/f'rank{rank}.json' for rank in range(8*len(hosts))]
                 if all(f.exists() and json.loads(f.read_text())['status']=='ASSIGNED_COMPLETE' for f in files):complete.append(name)
-            atomic_json(queue/'progress.json',dict(status='FINAL_SCORING' if len(complete)<3 else 'ANALYZING',
+            atomic_json(queue/'progress.json',dict(status='FINAL_SCORING' if len(complete)<len(routes) else 'ANALYZING',
                 completed_models=complete,Navtest_opened=True,pid=os.getpid(),time=time.time()))
-            if len(complete)==3:
+            if len(complete)==len(routes):
                 workers=audit_workers(queue)
                 if any(w['live'] for w in workers):
                     if a.once:return
                     time.sleep(5);continue
-                for name in ['SFT','R_SOURCE','R_CANONICAL']:
+                for name in (names if a.followup_x1 else ['SFT','R_SOURCE','R_CANONICAL']):
                     label=name+'_final20000' if name!='SFT' else 'SFT_final_matched'
-                    output=Path(ROOT)/'evaluations'/(label+'_NAVTEST');summary=output/'summary.json'
+                    output=root/'evaluations'/(label+'_NAVTEST');summary=output/'summary.json'
                     if summary.exists():continue
                     cmd=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation','--evaluation',str(output),'--output',str(summary)]
                     if name!='SFT':cmd+=['--reference',str(Path(ROOT)/'evaluations/SFT_final_matched_NAVTEST')]
                     subprocess.run(cmd,cwd=snapshot,check=True)
-                atomic_json(queue/'COMPLETE.json',dict(status='ALL_THREE_COMPLETE_PAIRED_NAVTEST',scenes_per_model=12146,
+                if a.followup_x1:
+                    output=root/'evaluations/R_CANONICAL_X1_final20000_NAVTEST'
+                    control=output/'versus_R_CANONICAL.json'
+                    if not control.exists():
+                        subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
+                            '--evaluation',str(output),'--reference',str(Path(ROOT)/'evaluations/R_CANONICAL_final20000_NAVTEST'),
+                            '--output',str(control)],cwd=snapshot,check=True)
+                atomic_json(queue/'COMPLETE.json',dict(status='REGISTERED_MODELS_COMPLETE_PAIRED_NAVTEST',scenes_per_model=12146,
                     modes=['E_NATIVE','E_SHIFT5'],inference_seeds=[2101],lock=selection['sha256'],time=time.time()))
                 atomic_json(queue/'progress.json',dict(status='COMPLETE',completed_models=complete,
                     Navtest_opened=True,all_owned_workers_exited=True,pid=os.getpid(),time=time.time()))

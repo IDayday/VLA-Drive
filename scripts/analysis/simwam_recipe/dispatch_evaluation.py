@@ -17,6 +17,7 @@ def main():
     p.add_argument('--export-sha256',required=True);p.add_argument('--label',required=True)
     p.add_argument('--cohorts',nargs='+',choices=['DEV','TRAIN_DIAGNOSTIC','NAVTEST'],default=['DEV','TRAIN_DIAGNOSTIC'])
     p.add_argument('--final-lock');p.add_argument('--repo',default=str(Path.cwd()))
+    p.add_argument('--root',default=ROOT)
     a=p.parse_args()
     if not a.label.replace('_','').replace('-','').isalnum():raise ValueError('Unsafe run label')
     policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
@@ -27,7 +28,7 @@ def main():
     if 'NAVTEST' in a.cohorts and not a.final_lock:raise ValueError('Navtest needs final lock')
     if len(a.cohorts)>2:raise ValueError('At most two registered cohorts per GPU')
     python='/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
-    payload=dict(vars(a),python=python,root=ROOT,
+    payload=dict(vars(a),python=python,
                  evaluation_source_sha256=file_sha(Path(a.repo)/'scripts/analysis/simwam_recipe/evaluate_policy.py'))
     code='''import json,os,subprocess,time
 from pathlib import Path

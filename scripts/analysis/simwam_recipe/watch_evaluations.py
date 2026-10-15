@@ -21,13 +21,23 @@ from scripts.analysis.simwam_recipe.controller_runtime import require_controller
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True)
     p.add_argument('--administrative-local',action='store_true');p.add_argument('--preflight-only',action='store_true')
+    p.add_argument('--followup-x1',action='store_true')
     a=p.parse_args();require_controller_host(a.administrative_local)
-    root=Path(ROOT);queue=root/'milestone_queue';queue.mkdir(exist_ok=True)
+    root=Path('/mnt/project/simwam-x-anchor-20261015') if a.followup_x1 else Path(ROOT)
+    baseline_root=Path(ROOT)
+    if a.followup_x1:
+        authorization=json.loads((root/'AUTHORIZATION.json').read_text())
+        if authorization['status']!='AUTHORIZED_BY_USER_GO_ON' or authorization['proposed_name']!='R_CANONICAL_X1':
+            raise ValueError('X1 registration required')
+    queue=root/'milestone_queue';queue.mkdir(exist_ok=True)
     lock=(queue/'controller.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     routes={'R_SOURCE':'training-vlawm-tsinghua-zt','R_CANONICAL':'training-vlawm-tsinghua-zt2'}
+    if a.followup_x1:routes={'R_CANONICAL_X1':'training-vlawm-tsinghua-zt3'}
+    cohort_hosts={'DEV':'training-vlawm-tsinghua-zt3','TRAIN_DIAGNOSTIC':'training-vlawm-tsinghua-zt4'} if a.followup_x1 else {}
+    expected=len(routes)*4
     stages=[5000,10000,15000,20000];snapshot=Path(a.snapshot)
     transport=dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
-                   routes=probe_routes(routes.values(),sys.executable))
+                   routes=probe_routes(sorted(set(routes.values())|set(cohort_hosts.values())),sys.executable))
     atomic_json(queue/'transport_preflight.json',transport)
     if a.preflight_only:print(json.dumps(transport));return
     while True:
@@ -50,8 +60,12 @@ def main():
                     meta=json.loads((export/'COMPLETE').read_text())
                     dispatched=queue/(label+'.dispatched.json')
                     if not dispatched.exists():
-                        subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.dispatch_evaluation','--host',host,
-                                        '--repo',str(snapshot),'--export',str(export),'--export-sha256',meta['weight_sha256'],'--label',label],check=True)
+                        assignments=[(cohort_hosts[c],[c]) for c in ('DEV','TRAIN_DIAGNOSTIC')] if cohort_hosts else [(host,['DEV','TRAIN_DIAGNOSTIC'])]
+                        for target,cohorts in assignments:
+                            require_worker_host(target)
+                            subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.dispatch_evaluation','--host',target,
+                                            '--repo',str(snapshot),'--root',str(root),'--export',str(export),
+                                            '--export-sha256',meta['weight_sha256'],'--label',label,'--cohorts',*cohorts],check=True)
                         atomic_json(dispatched,dict(host=host,export=meta,time=time.time()))
                     complete=True;results={}
                     for cohort in ('DEV','TRAIN_DIAGNOSTIC'):
@@ -62,15 +76,15 @@ def main():
                         summary=evaluation/'summary.json'
                         if not summary.exists():
                             subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
-                                            '--evaluation',str(evaluation),'--reference',str(root/'evaluations'/('SFT_update000000_'+cohort)),
+                                            '--evaluation',str(evaluation),'--reference',str(baseline_root/'evaluations'/('SFT_update000000_'+cohort)),
                                             '--output',str(summary)],check=True)
                         results[cohort]=str(summary)
                     if complete:
                         atomic_json(done,dict(status='COMPLETE',label=label,results=results,time=time.time()));finished.append(label)
                     else:break
-            atomic_json(queue/'progress.json',dict(status='COMPLETE' if len(finished)==8 else 'WAITING_FOR_REGISTERED_STAGES',
+            atomic_json(queue/'progress.json',dict(status='COMPLETE' if len(finished)==expected else 'WAITING_FOR_REGISTERED_STAGES',
                         finished=finished,pid=os.getpid(),time=time.time(),Navtest_opened=False))
-            if len(finished)==8:return
+            if len(finished)==expected:return
         except Exception:
             atomic_json(queue/'failure.json',dict(error=traceback.format_exc(),time=time.time(),pid=os.getpid()))
             raise
