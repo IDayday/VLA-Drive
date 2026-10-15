@@ -64,3 +64,7 @@ def verify_feature_base(feature_identity, registered_base):
     role=registered_base.get('training_role')
     if role not in ('A_train','historical_S0_new_unseen_logs'):
         raise ValueError('Unregistered natural-error base provenance')
+    if role=='A_train':
+        for key in ('source_audit_identity','action_codec_identity'):
+            if not registered_base.get(key) or feature_identity.get(key)!=registered_base[key]:
+                raise ValueError('Feature/base role or action normalization differs: '+key)

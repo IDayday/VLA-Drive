@@ -198,6 +198,16 @@ def main():
             acceptance['anchor_identity']!=train.feature_identity['anchor_identity'] or
             acceptance['source_audit_identity']!=train.label_identity['source_audit_identity']):
             raise ValueError('Wrong natural correction/base population')
+        if train.label_identity.get('local_fact_identity_layout')!='per_query_channel_int32_lookup_v1':
+            raise ValueError('Formal local evidence must preserve per-fact actor/map and time identity')
+        if acceptance.get('label_semantics')!=label_semantics(train.label_identity):
+            raise ValueError('Formal population receipt covers another local-label version')
+        if not a.kind.startswith('P_'):
+            review=read(acceptance['complete_repair_execution_review'])
+            if (digest(acceptance['complete_repair_execution_review'])!=acceptance['complete_repair_execution_review_sha256'] or
+                review.get('labels_identity')!=train.label_identity['identity'] or
+                review.get('all_admitted_repairs_independently_checked') is not True):
+                raise ValueError('Full REPAIR targets need their independent execution review')
         if label_semantics(train.label_identity)!=label_semantics(dev.label_identity):raise ValueError('Train/dev local-label semantics differ')
     if a.scope=='repair_formal':
         if any(train.label_identity[k].get('velocity_boundary')!='measured_vector_v2' for k in ('recovery','constraints','query_config')):

@@ -48,7 +48,8 @@ def build_scene(task):
     velocity=decode_ego(state[None])[0,:2].numpy()/.5
     data={k:[] for k in ('plan_in_physical','plan_in_encoded','poses','in_grid','kinematic_valid',
                          'relations','valid','common_valid','repair_target','target_eligible','case_status')}
-    if local:data.update({k:[] for k in ('positive_known','negative_known','unknown_reason','observed_free')})
+    if local:data.update({k:[] for k in ('positive_known','negative_known','unknown_reason','observed_free','actor_identity_index')})
+    actor_lookup=[''];actor_positions={'':0}
     cases=[];events=[];old_arrays=old_cases=None
     if contract.get('reuse_strict_labels'):
         old=Path(contract['reuse_strict_labels']);receipt=read(old/'records'/(row['token']+'.json'))
@@ -84,6 +85,15 @@ def build_scene(task):
                 valid=[f.label_valid.reshape(7,len(plan),3) for f in facts]
                 for key in ('positive_known','negative_known','unknown_reason'):
                     per[key].append(np.stack([getattr(f,key).reshape(7,len(plan),3) for f in facts]))
+                actor_indices=[]
+                for fact in facts:
+                    encoded=[]
+                    for actor in fact.actor_or_map_identity.ravel():
+                        if actor not in actor_positions:
+                            actor_positions[actor]=len(actor_lookup);actor_lookup.append(actor)
+                        encoded.append(actor_positions[actor])
+                    actor_indices.append(np.asarray(encoded,np.int32).reshape(7,len(plan),3))
+                per['actor_identity_index'].append(np.stack(actor_indices))
                 per['observed_free'].append(np.stack([f.observed_free_support.reshape(7,len(plan)) for f in facts]))
             else:
                 for source_kind in ('CURRENT','CV','FUTURE'):
@@ -122,7 +132,10 @@ def build_scene(task):
         'geometry_quality':scene.quality,'cases':cases,'source_feature_chunk':source,
         'source_feature_offset':offset,'bytes':path.stat().st_size}
     if local:receipt.update(local_events=events,local_facts_before_strict_qualification=True,
-        local_only_no_repair_target=int((~arrays['target_eligible']).sum()))
+        local_only_no_repair_target=int((~arrays['target_eligible']).sum()),
+        actor_or_map_identity_lookup=actor_lookup,physical_times_s=[.5*(i+1) for i in range(len(q0[0]))],
+        coverage_scope_by_channel=['annotated_planar_road_with_local_height_support',
+            'conditional_on_reliable_annotated_objects','known_positive_or_full_footprint_supported_negative'])
     atomic_json(root/'records'/(row['token']+'.json'),receipt)
     return {k:receipt[k] for k in ('token','wall_seconds','cpu_seconds','bytes')}|{'case_counts':np.bincount(arrays['case_status'].ravel(),minlength=7).tolist()}
 
@@ -176,6 +189,7 @@ def main():
             selection='80%native10%lateral10%time_hash_v1',reuse_strict_labels=str(a.reuse_strict_labels) if a.reuse_strict_labels else None,
             action_codec=anchor.get('action_codec'),action_codec_identity=anchor.get('action_codec_identity'),
             evidence_semantics='Per-channel/time local facts; annotated-object distance is conditional; unsupported no-conflict is unknown; future endpoint enter/release',
+            local_fact_identity_layout='per_query_channel_int32_lookup_v1',
             repair_execution_review='Engineering only' if a.local_role=='engineering' else 'Required before formal N admission; local facts never certify the full plan')
         for f in [ROOT/'starVLA/model/modules/decision_local/local_evidence.py',ROOT/'starVLA/dataloader/local_evidence_scene.py']:
             contract['source_files'][str(f.relative_to(ROOT))]=digest(f)

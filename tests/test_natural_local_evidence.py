@@ -168,3 +168,14 @@ def test_old_anchor_selection_default_is_unchanged(tmp_path):
     rows=[dict(token='old',log='original_00000_00010')]
     (tmp_path/'index.json').write_text(json.dumps(rows))
     assert selected_index({'data':{'train':{'current_root':str(tmp_path)}}},'train')==rows
+
+
+def test_relation_evaluation_does_not_turn_unknown_nan_into_metrics():
+    import torch
+    from tools.decision_local.evaluate_relations import scene_metrics
+    from starVLA.model.modules.decision_local.consequence_contract import CHANNELS
+    raw=torch.zeros(1,7,8,5);truth=torch.full_like(raw,float('nan'))
+    valid=torch.zeros_like(raw,dtype=torch.bool);poses=torch.zeros(1,7,8,3)
+    metrics=scene_metrics(raw,truth,valid,poses)
+    assert all(np.isfinite(v).all() for v in metrics.values())
+    assert metrics[CHANNELS[0]+'_valid_points'][0]==0

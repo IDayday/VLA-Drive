@@ -18,7 +18,7 @@ def scene_metrics(pred,truth,valid,poses):
     """All masks loss/evaluation-side; no score-dependent population filtering."""
     B,K,T,C=pred.shape
     def mean(x,m):
-        return (x*m).flatten(1).sum(1)/m.flatten(1).sum(1).clamp_min(1)
+        return torch.where(m,x,torch.zeros_like(x)).flatten(1).sum(1)/m.flatten(1).sum(1).clamp_min(1)
     out={}
     for c,name in enumerate(CHANNELS):
         m=valid[...,c]
@@ -85,7 +85,7 @@ def scene_metrics(pred,truth,valid,poses):
             for c in CONTINUOUS:
                 m=(valid[:,1:,:,c]&valid[:,:1,:,c])&selected[...,None]
                 error=((pred[:,1:,:,c]-pred[:,:1,:,c])-(truth[:,1:,:,c]-truth[:,:1,:,c])).abs()
-                out[name+'_'+CHANNELS[c]+'_pair_abs_error_sum']=(error*m).sum((1,2))
+                out[name+'_'+CHANNELS[c]+'_pair_abs_error_sum']=torch.where(m,error,torch.zeros_like(error)).sum((1,2))
                 out[name+'_'+CHANNELS[c]+'_valid_times']=m.sum((1,2))
     out['ambiguous_spatial_pairs']=(~nonambiguous).sum(1)
     return {k:v.detach().cpu().numpy() for k,v in out.items()}
@@ -102,12 +102,16 @@ def main():
     a=p.parse_args();resources=check_host();started=time.monotonic()
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     s=torch.load(a.checkpoint,map_location='cpu',weights_only=False)
-    repair=s['identity'].get('protocol')=='minimal_repair_v1'
+    natural=s['identity'].get('protocol')=='natural_local_v1'
+    repair=s['identity'].get('protocol') in ('minimal_repair_v1','natural_local_v1')
     if repair:
         from starVLA.dataloader.recovery_plan_dataset import RecoveryPlanData,repair_inputs_targets
         from starVLA.model.modules.decision_local.minimal_repair_contract import execution_view
         from tools.decision_local.minimal_repair_training import label_semantics
-        data=RecoveryPlanData(a.features,a.labels)
+        if natural:
+            from starVLA.dataloader.natural_local_dataset import NaturalLocalData
+            data=NaturalLocalData(a.features,a.labels)
+        else:data=RecoveryPlanData(a.features,a.labels)
         if s['identity']['repair_label_semantics']!=label_semantics(data.label_identity):raise ValueError('Predictor and labels have different consequence definitions')
     else:
         if a.distribution!='NATURAL':raise ValueError('Recovery inputs require the versioned plan contract')
@@ -183,6 +187,8 @@ def main():
         'checkpoint_sha256':digest(a.checkpoint),'features':data.feature_identity['identity'],'labels':data.label_identity['identity'],
         'source_sha':source_sha(ROOT),'precision':'FP32 head; TF32off','query_protocol':'actual plan seed42, seven fixed complete trajectories' if repair else 'q0 seed42, seven fixed complete trajectories',
         'distribution':a.distribution,'repair_protocol':repair,
+        'local_evidence_protocol':natural,
+        'distance_interpretation':'conditional annotated-object distance, not proven free space' if natural else 'registered historical label contract',
         'generalization_only':bool(a.generalization_config),'trained_query_config':trained_query,
         'evaluated_query_config':evaluated_query,
         'generalization_config_sha256':digest(a.generalization_config) if a.generalization_config else None,
