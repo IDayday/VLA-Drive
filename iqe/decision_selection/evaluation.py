@@ -77,6 +77,9 @@ def _final_lock(config):
     p=config.root/'FINAL_EVALUATION_LOCK.json'
     r=read_json(p) if p.exists() else lock_final(config)
     require(r['hash']==digest({k:v for k,v in r.items() if k!='hash'}) and r['binding_hash']==verify_binding(config)['hash'],'external lock corrupted')
+    require(r['evaluation_code']==file_hash(__file__) and
+            r['deployment_code']==file_hash(Path(__file__).with_name('deployment.py')),
+            'locked evaluation/deployment code changed; use an explicit new evaluation version')
     for kind,row in r['models'].items():
         require(file_hash(row['weights'])==row['weights_hash'],'final selected model changed')
     return r

@@ -57,3 +57,14 @@ def test_wrong_checkpoint_hash_is_rejected(tmp_path,monkeypatch):
     c,root,result=setup_endpoint(tmp_path,monkeypatch)
     with open(root/'step_000008.pt','ab') as f:f.write(b'corrupt')
     with pytest.raises(ValueError,match='incomplete'):ev.final_endpoint(c,'M_set')
+
+
+@pytest.mark.parametrize('field',['evaluation_code','deployment_code'])
+def test_external_lock_cannot_silently_reuse_changed_execution_code(tmp_path,monkeypatch,field):
+    path=Path(ev.__file__)
+    record=dict(binding_hash='fixed',models={},evaluation_code=file_hash(path),
+                deployment_code=file_hash(path.with_name('deployment.py')))
+    record[field]='wrong-source-hash';record['hash']=digest(record)
+    atomic_json(tmp_path/'FINAL_EVALUATION_LOCK.json',record)
+    monkeypatch.setattr(ev,'verify_binding',lambda _:dict(hash='fixed'))
+    with pytest.raises(ValueError,match='code changed'):ev._final_lock(SimpleNamespace(root=tmp_path))
