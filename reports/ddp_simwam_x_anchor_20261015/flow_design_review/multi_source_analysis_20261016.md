@@ -2,6 +2,8 @@
 
 整理日期：2026-10-16。证据基础提交：`e96a7459b69bd2509be8db63cb02e605357b39b3`。本报告汇总已收集的论文、锁定源码、正式实验和有限诊断；本次文档整理没有新增训练、评分或修改正在运行的配方。
 
+12:13 UTC 状态补充：X1 的四个阶段评价已完成，固定20k Navtest 正在运行；此前提出的末步 ODE 对照已另立配置并完成验收、开始正式训练。新增证据集中在第13.3节，原论文核对、已完成 Navtest 和保存链诊断保持各自口径。本文中的历史状态均保留时间标记。
+
 本报告要回答三个问题：其他工作中的 Flow-GRPO 为什么能有效；我们的迁移是否漏掉关键实现；DDP 原始动作表达、时间网格及探索方式是否限制了强化学习收益。结论按证据强度区分，不把实现通过验收、候选变好或训练集提分当成最终部署成功。
 
 ## 1. 当前结论与证据强度
@@ -485,7 +487,7 @@ X1 的评价仍分别报告原十步 ODE 与 shift5，固定5k/10k/15k/20k观察
 
 ### 13.2 若下一轮只改变一个采样因素
 
-优先候选是保持 G8、K10、shift5 和三个随机步骤，将窗口 [7,8,9] 前移为 [6,7,8]，第9步保留 ODE。上游已有 `sde_exclude_last_step` 接口，但须另建配置和 run 身份；当前未启动。
+优先候选是保持 G8、K10、shift5 和三个随机步骤，将窗口 [7,8,9] 前移为 [6,7,8]，第9步保留 ODE。上游已有 `sde_exclude_last_step` 接口，但须另建配置和 run 身份；原分析记录时尚未启动，后续登记与执行见第13.3节。
 
 这项对照同时移除了末端创新并把一个随机步骤前移，不能把将来的所有差异都归于“只删除一个 epsilon”。应保留实际 stochastic indices，只对真实随机转移计算源概率；不能把本次反事实均值塞回旧 on-policy buffer，也不能沿用不匹配的 old logprob。
 
@@ -494,6 +496,31 @@ X1 的评价仍分别报告原十步 ODE 与 shift5，固定5k/10k/15k/20k观察
 主要判断应是：训练候选是否更安全且保留有用行为差异；单位真实评分是否更有效；固定终点原 ODE 的 PDMS、TTC/NC 新违规和恢复是否改善。候选均分变高但部署不变，仍不能宣布完成。
 
 本次只整理这一优先级，不同时启动 CPS、GRPO-Guard、更大 LR、新 reward、课程或多 seed 矩阵。
+
+### 13.3 2026-10-16 12:13 UTC：已执行的后续与证据边界
+
+**X1 阶段评价已经齐备。** 下表均为完整 DEV1696、相同 seed2101 的单候选评价。每列使用自己的固定网格；不会选择两个网格中较高者作为主结果。
+
+| 更新数 | Canonical 原ODE | X1 原ODE | Canonical shift5 | X1 shift5 |
+|---|---:|---:|---:|---:|
+| 5k | 94.3121 | 94.0615 | 94.3214 | 94.0246 |
+| 10k | 94.5018 | 94.2228 | 94.3856 | 94.1951 |
+| 15k | 94.6291 | 94.2898 | 94.4625 | 94.2050 |
+| 20k | 94.6719 | 94.5538 | 94.5781 | 94.4742 |
+
+20k 原ODE的 DEV TTC 为99.9410（X1）/99.1156（Canonical），EP为87.2830/88.3917；定向 TRAIN512 PDMS为86.4722/85.6523。加强纵向保持呈现更保守的安全/进度权衡，但其 DEV 均分尚未超过匹配 Canonical。DEV 的 TTC 难度和 Navtest 不同，不能由这组安全读出推断最终测试集。完整分项、安全转移、来源哈希见[已完成阶段记录](../../ddp_simwam_terminal_ode_20261016/parent_X1_stages.json)。
+
+X1 已锁定20k，Navtest 在两台仍授权的 Tsinghua 主机运行；12:12 UTC 的实际 PID/start-time 检查确认 controller 存活，controller 最近一次审计记录16个评价 worker存活。完整分母与结果尚未产生，不提前报告部分场景均分。[运行时间点记录](../../ddp_simwam_terminal_ode_20261016/formal_launch.json)
+
+**末步 ODE 对照已经独立登记并启动。** `R_CANONICAL_LAST_ODE` 与原 Canonical 的唯一科学配置差异为 `sde_exclude_last_step=true`，随机步骤为[6,7,8]，最后一步调用上游普通 Euler ODE。保持原 anchor、奖励、LoRA、G8/K10、四次 inner 和20k预算，不叠加X1。正式源码为 `8b4dda71ea299e3eef53a8c0b613385d752b2907`。
+
+源函数52项对照、真实八卡连续/inner恢复和实际采样 mean/std 核验均通过。初次八卡资格验收因旧窗口断言拒绝新窗口，在评分和更新前停止；失败保留，补齐按变体验证窗口后用新 attempt重验。没有放宽旧变体合同，也没有修改源 kernel或正常 loss。详见[实现、失败、验收与成本](../../ddp_simwam_terminal_ode_20261016/README.md)。
+
+首100次更新的匹配 TRAIN记录：相同200次 scene曝光，各1600条新候选；初始LoRA、输入顺序、第一批root和共同六步ODE前缀一致。随机策略 PDMS由78.9342升至82.5614，NC/DAC/TTC联合通过率由90.50%升至95.375%。有PG的group比例为98.50%/97.00%，因此不能解释为单纯消除了零优势组。[匹配记录](../../ddp_simwam_terminal_ode_20261016/matched_first100.json)
+
+这是早期候选质量的正信号，**尚无该新变体的单候选ODE部署结果**。同时PG梯度量级下降，后续需要检验候选改善是否被速度网络吸收；未据此调整LR、anchor或预算。12:12 UTC 的合法checkpoint为800更新，共同日志边界为812更新，训练与既定阶段controller存活。仍按5k/10k/15k/20k与固定20k Navtest完成评价。
+
+这次文档补充另记录一项分析问题：旧成本脚本将未关闭的`RUNNING`记录计入`ABORTED`，并遗漏已有 preparation时间。schema3分开两类、用相同invocation的已封存窗口计算吞吐；7项回归验收通过。该修正只重算派生统计，不改变任何轨迹、score或正在运行的源码，旧摘要保留。[更正说明](../../ddp_simwam_terminal_ode_20261016/README.md#成本汇总更正)
 
 ## 14. 实际成本和失败证据
 
@@ -576,6 +603,7 @@ python -m scripts.analysis.simwam_recipe.probe_last_innovation summarize --root 
 | 保留的失败记录 | [probe_smoke_failures.json](probe_smoke_failures.json) |
 | 两组20k与正式Navtest | [最终报告](../../ddp_simwam_audit_recovery_20261015/README.md)、[机器可读结果](../../ddp_simwam_audit_recovery_20261015/results.json) |
 | X1运行时间点快照 | [documentation_snapshot_20261016.json](documentation_snapshot_20261016.json) |
+| 后续X1完整阶段与LAST_ODE登记、验收、早期结果 | [后续报告](../../ddp_simwam_terminal_ode_20261016/README.md)、[实际运行核查](../../ddp_simwam_terminal_ode_20261016/formal_launch.json) |
 
 关键身份：
 

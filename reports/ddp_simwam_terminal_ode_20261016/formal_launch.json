@@ -1,0 +1,106 @@
+{
+  "schema": "simwam_terminal_ode_formal_launch_public_v1",
+  "observed_utc": "2026-10-16T12:12:55.485255+00:00",
+  "status": "FORMAL_TRAINING_ACTIVE_NO_DEPLOYMENT_RESULT_YET",
+  "branch": "feature/ddp-simwam-terminal-ode-20261016",
+  "source_commit": "8b4dda71ea299e3eef53a8c0b613385d752b2907",
+  "archive_sha256": "8cf3a95eed0df53e5c4aae587c3d47edf05760b11f8a59194edb6a55bd48397b",
+  "run": "R_CANONICAL_LAST_ODE_seed42_v1",
+  "run_identity": "40c07f3aa5a19a2806a1a2763b94b770d3405808e5ded1d3d4328c242f39ab35",
+  "host": "training-vlawm-tsinghua-zt2",
+  "GPU_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "fresh_SFT_initialization": true,
+  "qualification_weights_used": false,
+  "resource_policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70",
+  "actual_launcher_verification": {
+    "live": true,
+    "pid": 1366390,
+    "start_ticks": "1359038482",
+    "state": "S",
+    "command_matches": true
+  },
+  "controllers": {
+    "milestone_queue": {
+      "pid": 4120420,
+      "start_ticks": "1359032445",
+      "live": true,
+      "command_matches": true,
+      "snapshot": "/mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907",
+      "administrative_only": true
+    },
+    "final_navtest_queue": {
+      "pid": 4120423,
+      "start_ticks": "1359032453",
+      "live": true,
+      "command_matches": true,
+      "snapshot": "/mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907",
+      "administrative_only": true
+    }
+  },
+  "checkpoint": {
+    "updates": 800,
+    "collections": 200,
+    "raw_scene_exposures": 1600,
+    "new_candidates": 12800,
+    "phase": "READY",
+    "next_inner": 0,
+    "files_sha256": "0f35447e153e8dc42af000d3e510d3d23a2ce6017e2274e07a6ea8f85d726fe8"
+  },
+  "journals": {
+    "observed_updates_by_rank": [
+      812,
+      812,
+      812,
+      812,
+      812,
+      812,
+      812,
+      812
+    ],
+    "common_complete_updates": 812,
+    "fresh_global_rollouts": 203,
+    "scene_exposures": 1624,
+    "candidate_trajectories": 12992
+  },
+  "evidence_sha256": {
+    "cpu_contract.json": "046a60c2e6bb545e6acbd7e06ac5fa6eae5e29f418433987c09e4765df4c5ede",
+    "eight_gpu_recovery.json": "474a16aa18151520a02ecf4efb12821e971fc44f0e5c6aa8aeed85526c934d39",
+    "optimizer_gradient_evidence.json": "99c33d1c3e04313945960f055fd9210ddbdb2e6c9bf74ca75e43fc6a48ea5a46",
+    "sampling_recompute.json": "c8df47d1e5746799d1a8f4fc2e08fd1e6a341e97e249ee8e45ae0457052d6616",
+    "matched_first100.json": "364b6b9fc78358dc99745f278dfa107e4b4e4d7b20f52d46bcc03248e0e7a1d6",
+    "cost_window_tests.json": "1aef3a7f21734afc6930ff1508bd9fb7e084d8690f79704308cccf51a4286d3c"
+  },
+  "X1_context": {
+    "controller": {
+      "pid": 4094221,
+      "start_ticks": "1358889313",
+      "live": true,
+      "command_matches": true,
+      "snapshot": "/mnt/project/simwam-x-anchor-20261015/source/31bdfb2350521d7f28d8ff06cf60766c49d53516",
+      "administrative_only": true
+    },
+    "state": "FINAL_SCORING",
+    "Navtest_opened": true,
+    "worker_audit_unix": 1792152744.6012237,
+    "workers": 16,
+    "live_workers": 16,
+    "observed_worker_states": [
+      "RUNNING"
+    ]
+  },
+  "limits": [
+    "Point-in-time observation, not a continuously updated status page.",
+    "Checkpoint seal digest verified; all-rank exact recovery qualification is recorded separately.",
+    "The first100 training comparison is not ODE or Navtest evidence.",
+    "Original R_SOURCE/R_CANONICAL and X1 immutable training snapshots remain unchanged."
+  ]
+}

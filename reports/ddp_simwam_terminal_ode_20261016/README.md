@@ -59,12 +59,82 @@ Euler、概率重算、loss 与 LoRA 梯度。旧/current ratio=1；末端确定
 评分和更新前拒绝新窗口。原生 `latest` 保持在合法 READY/update0，失败
 仅写 evidence，没有把未完成链发布为恢复点。已补齐 collector 和恢复
 校验的变体映射；新增四个变体的正确/错误窗口边界测试均通过。
-[失败与实际成本记录](eight_gpu_v1_failure.json)保留；需用新 attempt
-完成真实八卡验收，不能将第一次失败目录改写成成功。
+[失败与实际成本记录](eight_gpu_v1_failure.json)保留；后续使用新 attempt
+完成真实八卡验收，没有将第一次失败目录改写成成功。
 
-正式派发仍必须通过真实八卡学习/中断恢复及零/非零 LoRA 的实际采样
-记录验收；CPU PASS 不代替驾驶效果。验收权重不作为正式初始化。
-资格验收、失败重算及评价成本与20k科学预算分别计数。
+真实八卡第二次验收已通过：连续路径与 inner1 后恢复路径均达到8更新，
+所有 rank 的 LoRA、Adam、scheduler、RNG、后续 fresh chain、old probability、
+优势、loss、梯度范数及 LR 完全一致。192个 LoRA 张量均更新，全部192个
+Adam 一阶/二阶梯度矩均非零；冻结参数哈希不变。只读核对 gradient moments
+避免把 AdamW weight decay 引起的参数变化误判为任务梯度。
+
+零/非零 LoRA 的真实 DDP 采样记录核验通过：实际 `[6,7,8]` 三步的
+mean 最大误差2.3842e-7，std 最大误差1.5293e-9；记录没有改变 RNG 或链。
+这些误差与源 FP32 布局合同一致，不通过放宽 PPO clip 解决。
+
+- [八卡恢复](eight_gpu_recovery.json)
+- [真实学习与验收成本](real_learning_and_cost.json)
+- [192个梯度状态](optimizer_gradient_evidence.json)
+- [实际采样与重算](sampling_recompute.json)
+
+两条资格验收路径实际共16次 optimizer updates、256次候选评分，约178.52秒
+job 跨度、1317.43秒累计 worker elapsed（含加载）。失败 v1 的约280.53秒
+累计 worker elapsed 另列。共享 worker 时间不是独占 GPU 计算时间。
+验收权重不作为正式初始化；这仍不是驾驶效果验收。
+
+## 正式启动与早期证据
+
+正式源码锁定 `8b4dda71ea299e3eef53a8c0b613385d752b2907`，独立 run 为
+`R_CANONICAL_LAST_ODE_seed42_v1`，训练位于当前授权的 tsinghua-zt2 八卡，
+共享现有资源且无抢占。阶段评价和最终固定20k评价 controller 已启动，
+分别有自己的单 owner 锁。运行记录见[formal_launch.json](formal_launch.json)。
+后续文档/只读分析提交不改变这份训练快照。
+
+2026-10-16 12:12 UTC 实际核查：launcher的PID、start ticks与完整命令
+匹配；两名行政controller也匹配单owner记录。合法checkpoint为800更新，
+八rank共同完整日志边界为812更新。下列440更新profile保留为更早的计时证据。
+
+最新发布的[训练快照](initial_training_profile_v3.json)已检查八个 rank 的
+共同完成边界：440 updates、110 fresh rollouts、880次场景曝光、7040条
+候选；98.18%的 scene group 有 PG 信号。按最近已封存 checkpoint 的同一
+invocation 计时线性外推，剩余训练约7.78小时，不含评价，也不是共享负载下
+的完成时间保证。这是时间点快照，不代表读者阅读时的即时进度。
+
+固定最初100次更新的比较使用相同200场景、各1600条候选，原始输入顺序、
+初始 LoRA、第一批初始噪声及共同六步 ODE 前缀均核对一致。没有增加评分：
+
+| TRAIN 随机策略读出 | R_CANONICAL | LAST_ODE |
+|---|---:|---:|
+| canonical PDMS | 78.9342 | 82.5614 |
+| NC | 99.7500 | 100.0000 |
+| DAC | 92.6250 | 96.2500 |
+| TTC | 97.8125 | 99.1250 |
+| EP | 62.3922 | 64.4723 |
+| NC/DAC/TTC 联合通过率 | 90.5000 | 95.3750 |
+| 有 PG 的 group 比例 | 98.5000 | 97.0000 |
+
+这是早期候选质量的正信号，不能当作单候选 ODE、DEV 或 Navtest 提升。
+PG 梯度量级也降低，尚需验证更干净的候选能否转化为充分更新和部署收益；
+不据此调大 LR、减小 anchor 或更换预算。[完整匹配记录](matched_first100.json)
+
+同时，[X1 全部阶段评价](parent_X1_stages.json)已完成：20k DEV 原 ODE
+94.5538，对照94.6719；TTC99.9410，对照99.1156；EP87.2830，对照88.3917。
+TRAIN诊断原ODE为86.4722，对照85.6523。它表现为不同的安全/进度权衡，
+不能仅根据容易的 DEV TTC 宣布解决 Navtest 安全问题。X1 固定20k Navtest
+已在另外两台授权主机启动，完整结果尚未产生。
+
+## 成本汇总更正
+
+本次只读 profile 暴露了旧成本汇总将 `RUNNING` 和 `ABORTED` 合并的问题。
+训练没有停止或失败。schema3 将未关闭记录单列，不能仅凭状态文件推断
+进程存活；失败时间只计明确 `ABORTED`，累计时间补入已有 preparation
+字段。运行中的吞吐仅使用同一 invocation 的已封存 checkpoint 窗口，
+以 `checkpoint_update − invocation_start_update` 为分子；不足100更新不外推。
+
+[7项回归验收](cost_window_tests.json)覆盖恢复后计数、旧记录、短窗口、
+失败和完成状态。原错误派生账本保留在[更正前快照](previous_cost_classification.json)，
+原私有文件也保留。新旧快照时间不同，不把其总成本之差全部归因于补丁。
+此修改仅用于分析，不热改正式8b4dda7训练或正在执行的X1评价代码。
 
 ## 实际入口
 
@@ -86,3 +156,20 @@ python -m scripts.analysis.simwam_recipe.qualify_recovery_run \
 `final_navtest serve`，使用 `--followup-last-ode` 及明确主机参数。
 恢复命令必须指向同一不可变源码和通过阶段合法性校验的原生 checkpoint；
 合并权重只用于部署，不可作为 exact resume。
+
+新增只读分析入口已实际执行；再次运行须指定新输出文件，保留旧摘要：
+
+```bash
+python -m scripts.analysis.simwam_recipe.compare_training_prefix \
+  --control /mnt/project/simwam-recipe-20261015/runs/R_CANONICAL_seed42_v1 \
+  --candidate /mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1 \
+  --updates 100 --output "$NEW_PREFIX_SUMMARY"
+python -m scripts.analysis.simwam_recipe.summarize_training \
+  --run /mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1 \
+  --window-updates 100 --output "$NEW_TRAINING_SUMMARY"
+python -m scripts.analysis.simwam_recipe.qualify_cost_window \
+  --output "$NEW_COST_CHECK"
+```
+
+这些变量表示尚未存在的新文件；不是任意终端已预设的路径。分析不触发
+新的模型采样或评分，也不改变运行中的immutable源码。
