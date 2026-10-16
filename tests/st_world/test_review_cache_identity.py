@@ -51,7 +51,8 @@ def test_verify_rejects_a_different_valid_scene_manifest(tmp_path, monkeypatch):
     args = SimpleNamespace(
         requests=str(requests), command="verify", output=str(writer.root),
         teacher_root="unused_fixture_teacher", variant="SP2", storage_dtype="float32",
-        legacy_c1_root=None, max_scenes=1, images_per_shard=1, batch_size=1,
+        legacy_c1_root=None, source_cache=None, source_cache_identity=None,
+        max_scenes=1, images_per_shard=1, batch_size=1,
         workers=1, cpu_threads=1, max_seconds=10., min_free_gib=0.,
         mode="smoke", registration=None, rank=0, world_size=1,
     )
