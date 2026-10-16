@@ -1,0 +1,103 @@
+{
+  "schema": "simwam_single_window_followup_v1",
+  "status": "REGISTERED_UNDER_ACTIVE_USER_GOAL",
+  "proposed_name": "R_CANONICAL_LAST_ODE",
+  "registered_utc": "2026-10-16T11:39:23.370883+00:00",
+  "user_goal": "继续修改完善强化学习部分，要能实现强化学习提升到92以上。允许使用的服务器都尽可能用上，加速开发迭代。",
+  "authorization_boundary": "One finite, separately named single-factor follow-up under the active improvement goal; not a claim of explicit user approval of this exact hyperparameter. Existing SOURCE/CANONICAL/X1 lineages and budgets are immutable.",
+  "parent_code": "fb925fc2b3f208b7880d8361408bf44f120912cd",
+  "source_branch": "feature/ddp-simwam-terminal-ode-20261016",
+  "output_root": "/mnt/project/simwam-terminal-ode-20261016",
+  "parent_control_run_identity": "fb41121f52539dcd1c7f55be52754de37d5f0fe3d24b09fb88d8e98a93c49942",
+  "parameter_delta": {
+    "grpo.sample.sde_exclude_last_step": {
+      "from": false,
+      "to": true
+    }
+  },
+  "derived_sampling_change": {
+    "stochastic_steps_before": [
+      7,
+      8,
+      9
+    ],
+    "stochastic_steps_after": [
+      6,
+      7,
+      8
+    ],
+    "last_step": "source scheduler Euler ODE, not score-corrected SDE mean",
+    "total_steps": 10,
+    "source_innovation_clamp": 5,
+    "source_logprob_clamp": "relative per-dimension then mean",
+    "probability_steps": [
+      6,
+      7,
+      8
+    ],
+    "deterministic_steps_have_no_Gaussian_probability": true
+  },
+  "unchanged": [
+    "F-SFT initialization and LoRA initialization seed42",
+    "native anchor [.2,1,.5,.5], beta50, heading-pair normalization",
+    "canonical train reward 5:5:2 and v1.1 scoring",
+    "G8/K10/shift5, four inner optimizer updates, source global raw reward std",
+    "LR5e-5/warmup100/AdamW and zero effective gradient clipping",
+    "96 attention LoRA modules; frozen upstream and qwen_proj",
+    "fixed difficult TRAIN population and epoch-padding stream",
+    "no BC/replay/dual/learned-noise/external candidates",
+    "fixed seed2101, single trajectory, native and shift5 ODE deployment"
+  ],
+  "budget": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "new_candidates": 320000,
+    "training_world": 8
+  },
+  "evaluation": {
+    "stage_updates": [
+      5000,
+      10000,
+      15000,
+      20000
+    ],
+    "DEV_scenes": 1696,
+    "TRAIN_diagnostic_scenes": 512,
+    "NAVTEST_scenes": 12146,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "seed": 2101,
+    "final_endpoint": "fixed20000; checkpoint/source lock before Navtest",
+    "baseline": "Reuse sealed same-grid SFT and R_CANONICAL. X1 is context, not the matched control.",
+    "new_stage_predictions": 17664,
+    "final_predictions": 24292,
+    "selection": "No best-of-two, checkpoint selection, extra seeds or search"
+  },
+  "rationale": {
+    "evidence": "reports/ddp_simwam_x_anchor_20261015/flow_design_review/multi_source_analysis_20261016.md sections 9-13",
+    "training_only_probe": "TRAIN64/60logs fixed population, G8; saved-chain last-innovation removal improved finite candidate means and safety",
+    "limitation": "The counterfactual did not train a deployable policy. Moving a window also changes one earlier random transition and sampled update states; not solely deletion of epsilon."
+  },
+  "cost": {
+    "historical_shared_training_wall_hours": [
+      4.985371893,
+      7.402969369
+    ],
+    "X1_shared_training_wall_hours": 6.310450194444444,
+    "forecast_is_not_guarantee": true,
+    "qualification_and_evaluation_separate": true
+  },
+  "decision": {
+    "primary": "canonical v1.1 E_NATIVE single-candidate PDMS versus fixed SFT and R_CANONICAL, seed2101",
+    "target": "At least92 E_NATIVE canonical Navtest with safety assessment; target is not a promised outcome",
+    "safety": "NC/DAC/TTC new/recovered failures, SFT-safe transitions, zero transitions, G+/G-; do not claim safety from candidate mean",
+    "other": "Same-grid E_SHIFT5, training candidate quality and useful advantages, actual score/compute budgets",
+    "uncertainty": "log-cluster paired bootstrap, one training/inference seed; historically observed Navtest"
+  },
+  "failure_policy": "Existing numerical/infrastructure abort and atomic native recovery rules; retain legal bad trajectories. No new score-driven early-stop or tuning rule.",
+  "implementation": "Reuse the locked upstream partial-window selector and existing sampler/loss/trainer. Add only a strict recipe identity, registry and finite acceptance.",
+  "resource_policy": "Current Flow authorized Tsinghua1-4 only, sharing by measured capacity; no eviction; no withdrawn host; old C/N remain stopped"
+}

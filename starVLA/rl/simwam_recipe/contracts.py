@@ -30,6 +30,16 @@ def require_dispatch():
 def load_recipe(path):
     from omegaconf import OmegaConf
     cfg = OmegaConf.to_container(OmegaConf.load(path), resolve=True)
+    if cfg['variant'] == 'R_CANONICAL_LAST_ODE':
+        # A separate single-window follow-up; the source and X1 contracts stay
+        # immutable. The existing upstream kernel, not a new transition, is used.
+        base_path = Path(__file__).resolve().parents[3] / 'configs/flow_rl/simwam_canonical_ddp.yaml'
+        expected = copy.deepcopy(load_recipe(base_path))
+        expected['variant'] = 'R_CANONICAL_LAST_ODE'
+        expected['grpo']['sample']['sde_exclude_last_step'] = True
+        if cfg != expected:
+            raise ValueError('LAST_ODE permits only the registered stochastic-window change')
+        return cfg
     if cfg['variant'] == 'R_CANONICAL_X1':
         # Separately authorized follow-up. Validate against the entire locked
         # canonical recipe; never relax either original experiment's contract.

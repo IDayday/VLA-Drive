@@ -49,8 +49,9 @@ def qualify(actor,cond):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True);a=p.parse_args()
-    require_dispatch();configure_numerics();cfg=load_recipe('configs/flow_rl/simwam_source_ddp.yaml')
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--config',default='configs/flow_rl/simwam_source_ddp.yaml');a=p.parse_args()
+    require_dispatch();configure_numerics();cfg=load_recipe(a.config)
     actor,_,_=make_actor(cfg)
     token=json.loads(Path(ROOT+'/qualification/real_TRAIN_tokens.json').read_text())['tokens'][0]
     condition=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert).get(token)
@@ -62,7 +63,7 @@ def main():
     restore_adapters(actor,saved['adapters'])
     if not any(torch.count_nonzero(v) for n,v in saved['adapters'].items() if n.endswith('lora_B')):raise ValueError('Expected trained nonzero adapter')
     nonzero=qualify(actor,cond)
-    result=dict(status='PASS',zero_LoRA=zero,nonzero_LoRA=nonzero,
+    result=dict(status='PASS',recipe_variant=cfg['variant'],zero_LoRA=zero,nonzero_LoRA=nonzero,
         checkpoint_files_sha256=file_sha(checkpoint/'files.json'),
         source_3D_oracle='Reuse existing 64 mathematical checks; this is actual DDP 4D sampling instrumentation',
         heading_mapping='[x_norm,y_norm,sin_norm,cos_norm], weights [.2,1,.5,.5]; not angular MSE')

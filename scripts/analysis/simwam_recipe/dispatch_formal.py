@@ -5,23 +5,19 @@ from pathlib import Path
 import shlex
 import subprocess
 from starVLA.rl.simwam_recipe.contracts import ROOT,file_sha,load_recipe
+from scripts.analysis.simwam_recipe.registered_followup import FOLLOWUPS,require_registration
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--variant',choices=['R_SOURCE','R_CANONICAL','R_CANONICAL_X1'],required=True)
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--variant',choices=['R_SOURCE','R_CANONICAL',*FOLLOWUPS],required=True)
     p.add_argument('--host',required=True);p.add_argument('--snapshot',required=True);p.add_argument('--resume')
     p.add_argument('--root',default=ROOT)
     p.add_argument('--qualification',default='eight_gpu_recovery_v3_fixed_buckets')
     a=p.parse_args();root=Path(a.root);assets=Path(ROOT);snapshot=Path(a.snapshot).resolve()
-    if a.variant=='R_CANONICAL_X1':
-        authorization=json.loads((root/'AUTHORIZATION.json').read_text())
-        if (authorization['status']!='AUTHORIZED_BY_USER_GO_ON'
-            or authorization['proposed_name']!=a.variant
-            or Path(authorization['output_root']).resolve()!=root.resolve()
-            or authorization['budget']['optimizer_updates']!=20000):
-            raise ValueError('Missing exact X1 registration')
+    if a.variant in FOLLOWUPS:
+        require_registration(a.variant,root)
         if json.loads((root/'qualification/cpu_contract.json').read_text())['status']!='PASS':
-            raise ValueError('X1 contract not qualified')
+            raise ValueError('Follow-up contract not qualified')
     elif root.resolve()!=assets.resolve():
         raise ValueError('Historical variants retain their original run root')
     policy=json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
@@ -42,7 +38,8 @@ def main():
         baseline=assets/'evaluations'/('SFT_update000000_'+cohort)
         for rank in range(8):
             if json.loads((baseline/f'rank{rank}.json').read_text())['status']!='ASSIGNED_COMPLETE':raise ValueError('SFT baseline incomplete')
-    config='configs/flow_rl/simwam_'+{'R_SOURCE':'source','R_CANONICAL':'canonical','R_CANONICAL_X1':'canonical_x1'}[a.variant]+'_ddp.yaml'
+    config_name=FOLLOWUPS[a.variant]['config'] if a.variant in FOLLOWUPS else {'R_SOURCE':'source','R_CANONICAL':'canonical'}[a.variant]
+    config='configs/flow_rl/simwam_'+config_name+'_ddp.yaml'
     cfg=load_recipe(snapshot/config)
     expected=dict(qi['recipe']);expected['variant']=a.variant
     if a.variant=='R_CANONICAL':

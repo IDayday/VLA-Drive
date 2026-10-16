@@ -1,0 +1,13 @@
+{
+  "status": "FAILED_TEST_HARNESS_STRIDE_ASSUMPTION",
+  "utc": "2026-10-16T11:41:15.691084+00:00",
+  "check": "D3_B8_terminal_is_Euler_ODE",
+  "observed_max_abs": 1.1920928955078125e-07,
+  "unequal_elements": 7,
+  "total_elements": 192,
+  "reason": "Saved chain slice is strided; original live x was contiguous. Recompute the exact Euler path with the live layout. Sampling/recompute mean check retains the already used 1e-6 FP32 tolerance.",
+  "affected_formal_runs": [],
+  "new_real_scoring_calls": 0,
+  "real_DDP_optimizer_updates": 0,
+  "source_kernel_changed": false
+}
