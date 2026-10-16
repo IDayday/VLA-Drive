@@ -1,0 +1,42 @@
+{
+  "schema": "simwam_reference_reuse_native_recovery_v1",
+  "created_utc": "2026-10-16T14:32:58.679782+00:00",
+  "scope": "Additional bounded real process-level recovery qualification, separate from the 96 saved-chain replay updates and their zero new scores",
+  "host": "training-vlawm-tsinghua-zt",
+  "world": 8,
+  "config": "configs/flow_rl/simwam_canonical_x1_safety25_ddp.yaml",
+  "TRAIN_manifest_sha256": "8dd569a43d9d23b1521e86e58d5117147b3f3bd07bf4bbd869b4010ba5bf7545",
+  "seed": 42,
+  "reuse_frozen_reference": true,
+  "interrupted_after_inner": 2,
+  "paths": [
+    {
+      "name": "continuous",
+      "updates": 8,
+      "fresh_rollouts": 2,
+      "new_candidates": 128
+    },
+    {
+      "name": "resumed",
+      "updates": 8,
+      "fresh_rollouts": 2,
+      "new_candidates": 128,
+      "invocations": [
+        2,
+        6
+      ]
+    }
+  ],
+  "total_logical_qualification_updates": 16,
+  "total_physical_new_candidates_and_scores": 256,
+  "extra_evaluation_or_Navtest": false,
+  "acceptance": [
+    "all rank final LoRA/Adam/scheduler/RNG/state exact",
+    "next fresh chain/old-probability/advantage exact",
+    "all eight losses/gradient norms/ratios/LR exact",
+    "same committed score metrics, frozen parameter hashes unchanged",
+    "resume cache is cold and disposable, execution option is identity-bound"
+  ],
+  "formal_weights_or_snapshots_modified": false,
+  "qualification_weights_never_formal_initialization": true
+}

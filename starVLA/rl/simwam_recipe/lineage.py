@@ -14,10 +14,11 @@ def scientific_identity(identity):
     return dict(schema='simwam_scientific_v2',sha256=fingerprint(fields),fields=fields)
 
 
-def execution_identity(sources):
+def execution_identity(sources,options=None):
     fields=dict(source_files=sources,module_root=str(Path.cwd().resolve()),
                 checkpoint_schema=2,control_backend='Gloo; no post-fatal NCCL save',
                 DDP='find_unused_parameters=True/static_graph=False/bucket25MB unchanged')
+    if options is not None:fields['options']=options
     return dict(schema='simwam_execution_v2',sha256=fingerprint(fields),fields=fields)
 
 

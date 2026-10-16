@@ -72,6 +72,8 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--config',required=True);p.add_argument('--manifest',required=True);p.add_argument('--output',required=True)
     p.add_argument('--resume');p.add_argument('--qualification',action='store_true')
+    p.add_argument('--reuse-frozen-reference',action='store_true',
+                   help='Execution-only one-chain reuse; bound to execution identity, default disabled')
     p.add_argument('--migration-receipt',help='Explicit audited source migration; never inferred from a dirty worktree')
     p.add_argument('--stop-after-update',type=int);p.add_argument('--save-every',type=int)
     p.add_argument('--fault',help='Qualification only: before_collect, after_collect, before_finalize, rank_write, before_complete')
@@ -90,6 +92,7 @@ def main():
     lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     stream=make_scene_stream(cfg,a.manifest,world,qualification=a.qualification)
     actor,oldcfg,sft=make_actor(cfg,device=device)
+    if a.reuse_frozen_reference:actor.enable_frozen_reference_reuse()
     conditions=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert)
     service=RewardService(Path.cwd(),workers=1)
     trainable=[p for p in actor.parameters() if p.requires_grad]
@@ -108,7 +111,8 @@ def main():
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
     if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
     identity['scientific_identity']=scientific_identity(identity)
-    identity['execution_identity']=execution_identity(identity['source_files'])
+    identity['execution_identity']=execution_identity(identity['source_files'],
+        options={'frozen_reference_reuse':'exact_saved_inputs_v1'} if a.reuse_frozen_reference else None)
     identity['sha256']=fingerprint(identity)
     current_identity=identity;migration=None
     if (root/'identity.json').exists():
@@ -254,6 +258,10 @@ def main():
                      gradient_norm=grad_norm,ratio_max_abs_from_one=fresh_error,
                      source_clamp_hit_rate=current['source_clamp_hit_rate'],seconds_update=elapsed,
                      metrics={k:float(v) for k,v in metrics.items()},exploration=exploration_summary(rollout))
+            if a.reuse_frozen_reference:
+                reuse=actor._frozen_reference_reuse
+                row['frozen_reference_reuse']=dict(hits=reuse.hits,misses=reuse.misses,
+                    reference_velocity_calls=actor._reference_calls,current_velocity_calls=actor._velocity_calls)
             journal.write(json.dumps(row,allow_nan=False)+'\n')
             if state['next_inner']==4:rollout=None;state['next_inner']=0
             state['phase']=boundary_phase(state,cfg['max_steps'])
