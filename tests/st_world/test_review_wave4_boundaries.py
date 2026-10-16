@@ -14,14 +14,16 @@ from tools.st_world_policy import checkpoints as checkpoint_reader
 from tools.st_world_policy.training_state import checkpoint_receipt, verify_checkpoint
 
 
-def test_history_deployment_protects_called_pixel_and_causal_reader(tmp_path):
-    """The adapter AST is unchanged when its actual image loader changes."""
+@pytest.mark.parametrize('changed_dependency', ['history_pixels', 'actual_language_block'])
+def test_history_deployment_protects_called_pixel_and_causal_reader(tmp_path, changed_dependency):
+    """Wrapper AST is unchanged when its real pixels/language function changes."""
+    from tools.st_world_policy.flow_checkpoints import INFERENCE_SOURCES
     repo = Path(__file__).resolve().parents[2]
     files = ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
              "starVLA/model/framework/ddp_action_video_foresight.py", "starVLA/model/modules/st_world/config.py",
              "starVLA/dataloader/st_world_schema.py", "starVLA/model/modules/st_world/history_adapter.py",
              "starVLA/dataloader/st_world_history.py"]
-    for name in files:
+    for name in sorted(set(files) | set(INFERENCE_SOURCES)):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes((repo / name).read_bytes())
@@ -31,10 +33,15 @@ def test_history_deployment_protects_called_pixel_and_causal_reader(tmp_path):
                     "commit", "-qm", "actual history source dependency fixture"], cwd=tmp_path, check=True)
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True).strip()
     checkpoint_reader.inference_source_contract(tmp_path, sha, history=True)
-    helper = tmp_path / "starVLA/dataloader/st_world_history.py"
+    if changed_dependency == 'history_pixels':
+        helper = tmp_path / "starVLA/dataloader/st_world_history.py"
+        before, after = 'Image.Resampling.LANCZOS', 'Image.Resampling.BILINEAR'
+    else:
+        helper = tmp_path / 'starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py'
+        before, after = 'hidden_states = residual + hidden_states', 'hidden_states = residual + 2 * hidden_states'
     original = helper.read_text()
-    assert "Image.Resampling.LANCZOS" in original
-    helper.write_text(original.replace("Image.Resampling.LANCZOS", "Image.Resampling.BILINEAR"))
+    assert before in original
+    helper.write_text(original.replace(before, after, 1))
     with pytest.raises(ValueError, match="compatibility review"):
         checkpoint_reader.inference_source_contract(tmp_path, sha, history=True)
 
