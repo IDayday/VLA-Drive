@@ -123,6 +123,12 @@ TRAIN诊断原ODE为86.4722，对照85.6523。它表现为不同的安全/进度
 不能仅根据容易的 DEV TTC 宣布解决 Navtest 安全问题。X1 固定20k Navtest
 已在另外两台授权主机启动，完整结果尚未产生。
 
+后续12:31 UTC更新：X1完整Navtest已经完成，原ODE89.3817，相对SFT
++0.4701分、相对Canonical+0.4300分；相对SFT仍有NC/TTC净退化。
+见[最终报告](../ddp_simwam_x_anchor_20261015/final_navtest_20261016/README.md)。
+四阶段[保存batch梯度诊断](X1_saved_gradient/README.md)进一步确认方向保持
+改变了行为，但不把单batch冲突当全程结论。LAST_ODE配置与预算不变。
+
 ## 成本汇总更正
 
 本次只读 profile 暴露了旧成本汇总将 `RUNNING` 和 `ABORTED` 合并的问题。

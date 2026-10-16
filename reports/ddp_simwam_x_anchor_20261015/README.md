@@ -1,6 +1,6 @@
 # DDP SimWAM longitudinal-anchor follow-up
 
-Status (2026-10-15): CPU contract, source-form anchor arithmetic and real eight-GPU interruption/resume qualification PASS. Formal training started from fresh F-SFT on `training-vlawm-tsinghua-zt`, immutable source `368aba3b3b00b877b7329b15f72645c41fcb6804`. No new policy improvement is claimed before evaluation.
+Completed (2026-10-16): registered20k training, all four DEV/TRAIN stages and the fixed-endpoint full Navtest are complete. Native single-ODE PDMS is **89.3817**, +0.4701 versus SFT and +0.4300 versus the canonical control. NC/TTC still regress relative to SFT; the92 target is not reached. See the [full endpoint report](final_navtest_20261016/README.md) and [results/costs](final_navtest_20261016/results.json). All recorded X1 evaluation workers and controllers have exited; do not relaunch completed work.
 
 This is the user-approved follow-up to the completed R_SOURCE/R_CANONICAL comparison. One new R_CANONICAL_X1 run starts from the same F-SFT, LoRA initialization and hard population. The only scientific configuration change is native anchor weights `[0.2,1,0.5,0.5]` to `[1,1,0.5,0.5]`. The source weighted-average denominator remains active: longitudinal effective weight is multiplied by 11/3, lateral and heading-pair weights by 11/15. This is not a pure longitudinal coefficient change at fixed other effective coefficients.
 
@@ -12,7 +12,7 @@ Budget: 20,000 AdamW updates, 5,000 fresh global rollouts, 40,000 scene exposure
 
 The user-requested [multi-source Flow design review and completed TRAIN sampler probes](flow_design_review/README.md) are read-only diagnostics, separate from this formal control. They scored 3072 matched sampler outputs plus 1024 saved-chain final-innovation counterfactuals; no additional training algorithm was launched.
 
-The [detailed Chinese report assembled on 2026-10-16](flow_design_review/multi_source_analysis_20261016.md) consolidates source versions, sampling and loss semantics, LoRA and action-scale checks, completed 20k results, diagnostic evidence, costs, limitations, and the next single-factor hypothesis. Its X1 progress is explicitly timestamped: training has reached its registered 20k endpoint; final evaluation is pending. The [evaluation recovery record](evaluation_recovery_20261016/README.md) explains the source-hash comparison failure, preserved completed results, and the qualified controller restart.
+The [detailed Chinese report assembled on 2026-10-16](flow_design_review/multi_source_analysis_20261016.md) consolidates source versions, sampling and loss semantics, LoRA and action-scale checks, completed20k results, diagnostics, costs and limitations. Its dated updates now include full Navtest. The [evaluation recovery record](evaluation_recovery_20261016/README.md) preserves the earlier source-hash comparison failure and qualified controller restart; it is historical, not a current fault.
 
 ```bash
 CUDA_VISIBLE_DEVICES='' python -m scripts.analysis.simwam_recipe.qualify_x_anchor --output /path/to/new_cpu_contract.json
@@ -23,7 +23,7 @@ The second command must run on an authorized eight-GPU host from the frozen sour
 
 The qualification interrupted after inner 2 and resumed the remaining inner updates. At update 8, all eight ranks matched uninterrupted adapters, Adam/scheduler states, RNG, next fresh chain, old probability, advantages, losses and gradient norms exactly. A merged update-8 qualification export also ran from two real TRAIN observations, with native ODE identical to the original deployment entry; these weights do not initialize formal training.
 
-The finite milestone controller uses Tsinghua zt3 for DEV and zt4 for the fixed TRAIN diagnostic cohort, eight workers per host. Its final controller waits for all four registered milestones and the complete 20k checkpoint before locking the two-grid, seed2101 Navtest. Existing SFT and R_CANONICAL results are reused as matched controls. Controller changes do not alter actor, sampler, scoring or the running source snapshot.
+The original finite controller registration used Tsinghua zt3/zt4. Its qualified recovery used currently authorized zt/zt4 and completed the remaining stages and fixed20k, two-grid, seed2101 Navtest. Existing SFT and R_CANONICAL results were reused as matched controls. Controller changes did not alter actor, sampler, scoring or the immutable training source. The commands below are historical interfaces, not instructions to restart this completed run.
 
 ```bash
 python -m scripts.analysis.simwam_recipe.watch_evaluations --snapshot /path/to/frozen/controller/source --administrative-local --followup-x1

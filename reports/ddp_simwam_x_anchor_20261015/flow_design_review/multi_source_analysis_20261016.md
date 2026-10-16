@@ -4,6 +4,8 @@
 
 12:13 UTC 状态补充：X1 的四个阶段评价已完成，固定20k Navtest 正在运行；此前提出的末步 ODE 对照已另立配置并完成验收、开始正式训练。新增证据集中在第13.3节，原论文核对、已完成 Navtest 和保存链诊断保持各自口径。本文中的历史状态均保留时间标记。
 
+12:31 UTC 最终结果补充：X1完整Navtest及与SFT/Canonical的配对汇总已经完成，原单候选ODE为89.3817，相对SFT+0.4701分。安全仍未完全保持，92目标仍未达到；详见第13.4节与[完整终点报告](../final_navtest_20261016/README.md)。
+
 本报告要回答三个问题：其他工作中的 Flow-GRPO 为什么能有效；我们的迁移是否漏掉关键实现；DDP 原始动作表达、时间网格及探索方式是否限制了强化学习收益。结论按证据强度区分，不把实现通过验收、候选变好或训练集提分当成最终部署成功。
 
 ## 1. 当前结论与证据强度
@@ -14,7 +16,7 @@
 | 当前末步随机创新损害了本批 DDP 候选质量 | 固定已保存链，只移除最后一次创新，SFT / RL 的 PDMS 分别提高 7.4443 / 8.7832 分 | 这不是重新训练后的 ODE 收益，也不是 Navtest 新成绩 |
 | 归一化空间中照搬 anchor 权重改变了物理方向平衡 | 相同米级偏移的纵向∶横向系数比，源模型约 1∶12.63，DDP 原移植约 1∶74.72 | 尚未证明这是全部安全退化的原因，也不是实际参数梯度之比 |
 | ODE 能吸收部分 RL 更新 | 固定 TRAIN64 探针中，原 ODE 均分提高 3.5231 分；既有 TRAIN/DEV 也有改善 | 不能把训练人口的收益外推到完整 Navtest |
-| 泛化和安全保持仍未解决 | R_CANONICAL 20k 原 ODE Navtest 仅 +0.0401 分，TTC 新增违规 219、恢复 39 | 不能宣称稳定全面提升或已达到 92 |
+| 已有原ODE测试集增益，安全保持和92目标仍未解决 | 原R_CANONICAL为+0.0401分；后续X1为+0.4701分，但相对SFT仍有TTC新增87、恢复37 | 不能宣称所有安全分项不退化，或将单训练seed的区间当作训练重复 |
 | 当前主要瓶颈已不是无优势组过多 | 两组正式训练有效 PG 组约 99.6% | 有梯度不等于梯度指向安全改善；progress-only 仍占多数 |
 
 最值得优先检验的具体设计是末端随机窗口和方向保持。现有证据不足以否定 Flow Matching 整体，也不足以用一个新超参数解释全部结果。
@@ -522,6 +524,25 @@ X1 已锁定20k，Navtest 在两台仍授权的 Tsinghua 主机运行；12:12 UT
 
 这次文档补充另记录一项分析问题：旧成本脚本将未关闭的`RUNNING`记录计入`ABORTED`，并遗漏已有 preparation时间。schema3分开两类、用相同invocation的已封存窗口计算吞吐；7项回归验收通过。该修正只重算派生统计，不改变任何轨迹、score或正在运行的源码，旧摘要保留。[更正说明](../../ddp_simwam_terminal_ode_20261016/README.md#成本汇总更正)
 
+### 13.4 X1固定20k完整Navtest：真实正收益与未解决问题
+
+12146场景/136 logs、seed2101、固定20k、原观测单候选部署，所有记录通过完整人口、身份和payload校验；16个worker及最终controller均已退出。
+
+| 读出 | SFT | Canonical | X1 | X1−SFT | X1−Canonical |
+|---|---:|---:|---:|---:|---:|
+| 原10步ODE | 88.9116 | 88.9517 | **89.3817** | +0.4701 | +0.4300 |
+| Shift5十步ODE | 88.7641 | 89.1116 | 89.2677 | +0.5036 | +0.1562 |
+
+原ODE相对SFT的log-cluster95%区间为[+0.2011,+0.7291]分，相对Canonical为[+0.2591,+0.6161]分；shift5相对Canonical的区间跨零。没有挑选较高网格。区间仍不含训练seed/推理seed不确定性。
+
+X1原ODE相对SFT的NC/DAC/TTC新增与恢复分别为24/10、13/73、87/37，固定SFT-safe人口新增联合违规101个（原Canonical为242个）。相对Canonical三项均值都改善，但相对SFT的NC/TTC仍净下降。PDMS正收益并不等于全部安全保持。
+
+原ODE p05由SFT49.3745、Canonical46.1177提高到X1的55.8101；零分场景为569/588/529。相对Canonical有大量小进度下降和较少但更大的安全/失败恢复，必须同时保留G+、G−与场景转移，不只展示均分。距离92仍有2.6183分。
+
+补充四阶段真实保存batch诊断已完成：X1纵向转移均值偏移明显减少，但PG/anchor cosine随batch变化，20k末步为正。分析脚本原先写死旧通道权重，首次X1诊断前已改为读取actor实际权重；真实Canonical回归的梯度摘要不变。没有修改训练loss、概率或任何已评轨迹。[梯度、匹配与成本证据](../../ddp_simwam_terminal_ode_20261016/X1_saved_gradient/README.md)
+
+因此，当前不能再将证据概括成“Flow-RL没有任何原ODE泛化收益”；也不能据此宣布92或全面安全成功。已有源码/LoRA/概率验收和这次部署结果共同支持继续做明确的设计适配。已在Navtest之前锁定的LAST_ODE训练继续完成，不中途混入X1、更换reward或扩大预算。[完整终点与成本](../final_navtest_20261016/README.md)
+
 ## 14. 实际成本和失败证据
 
 | 工作 | 实际评分候选 | 新 actor rollout | optimizer updates | job 跨度 | 累计 worker wall |
@@ -604,6 +625,7 @@ python -m scripts.analysis.simwam_recipe.probe_last_innovation summarize --root 
 | 两组20k与正式Navtest | [最终报告](../../ddp_simwam_audit_recovery_20261015/README.md)、[机器可读结果](../../ddp_simwam_audit_recovery_20261015/results.json) |
 | X1运行时间点快照 | [documentation_snapshot_20261016.json](documentation_snapshot_20261016.json) |
 | 后续X1完整阶段与LAST_ODE登记、验收、早期结果 | [后续报告](../../ddp_simwam_terminal_ode_20261016/README.md)、[实际运行核查](../../ddp_simwam_terminal_ode_20261016/formal_launch.json) |
+| X1固定20k完整Navtest与安全转移 | [终点报告](../final_navtest_20261016/README.md)、[结果与成本](../final_navtest_20261016/results.json) |
 
 关键身份：
 
