@@ -103,6 +103,7 @@ SFT共同 AdamW(.9,.95), eps1e−8, wd.01, warmup3%+cosine(min ratio.1), FMrepea
 
 ```bash
 python -m scripts.analysis.fm_transfer.prepare_data --help
+python -m scripts.analysis.fm_transfer.analyze_sft_training --run COMPLETED_FORMAL_SFT_RUN --output NEW_BUDGET_JSON
 python -m scripts.analysis.fm_transfer.qualify_math --help
 python -m scripts.analysis.fm_transfer.qualify_deployment --checkpoint NATIVE_QUAL_SFT --output QUAL_JSON
 python -m scripts.analysis.fm_transfer.dispatch_sft --variant A_DDP_TIME --output NEW_FORMAL_RUN
@@ -115,3 +116,5 @@ torchrun --standalone --nproc_per_node=8 -m scripts.analysis.fm_transfer.train_r
 ```
 
 这些 CLI 已实现；完整 RL/evaluation 路径的执行状态单列，不把 `--help` 通过当作真实学习验收。SFT完整初始状态、rolling里程碑和资格权重分开保存。中断时向已识别 rank0 发送 SIGUSR1，由全部rank在原生边界保存退出；不能用SIGKILL代替无损停止。旧实验停止回执与所有资格失败证据保存在项目私有资产目录，仓库只提交代码和汇总，不上传权重/缓存/场景数据。
+
+SFT终点核算入口要求全部rank正式完成，逐rank检查更新日志连续、无重叠、cursor及TRAIN人口匹配；FM repeat不算独立场景，八rank的更新不乘成八倍逻辑更新。7项针对性核算测试及CLI smoke通过，正式全量核算待各自SFT终点执行。重复/回滚日志须明确审计祖先，不静默去重。累计worker wall、rank0训练wall和派发至最后训练边界分别报告；未单独记录的模型加载、逐次保存和退出时间明确列为统计限制，不补造精确成本。
