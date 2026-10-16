@@ -76,6 +76,13 @@ class SpaceTimeStudent(nn.Module):
         if self._deployment_only:
             raise RuntimeError("Deployment export cannot silently drop registered training losses")
         cfg = self.st_config
+        if cfg.future:
+            actual_times = targets.get("future_times_s")
+            if not isinstance(actual_times, torch.Tensor) or not actual_times.is_floating_point():
+                raise ValueError("Future physical time table must accompany real teacher targets")
+            expected_times = actual_times.new_tensor(cfg.future_times_s).expand(len(observations), -1)
+            if actual_times.shape != expected_times.shape or not torch.equal(actual_times, expected_times):
+                raise ValueError("Teacher physical time table differs from the registered horizon table")
         encoded = self.encode_inputs(observations)
         condition = self.base.build_planner_condition(encoded)
         device = condition.device

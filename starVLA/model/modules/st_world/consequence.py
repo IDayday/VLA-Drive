@@ -173,9 +173,13 @@ class ConsequenceRequest:
     reference_sha256: Optional[str] = None
     repetition: int = 0
     observe: bool = True
+    generator_identity: Optional[Dict[str, Any]] = None
 
     def identity(self):
-        return {k: v for k, v in vars(self).items() if k not in ("trajectory", "observe")}
+        # Preserve the identity of existing file-backed requests. New in-memory
+        # optimizer-boundary snapshots have an explicit typed provenance.
+        return {k: v for k, v in vars(self).items() if k not in ("trajectory", "observe")
+                and not (k == "generator_identity" and v is None)}
 
 
 def _validate_request(request: ConsequenceRequest, spec: ConsequenceSpec, policy_version: str) -> np.ndarray:
@@ -191,8 +195,27 @@ def _validate_request(request: ConsequenceRequest, spec: ConsequenceSpec, policy
         _sha(getattr(request, key), key)
     if request.generator_kind == "policy":
         _sha(request.generator_checkpoint_sha256, "generator_checkpoint_sha256")
-    elif request.generator_kind == "engineering_control" and spec.allow_engineering_controls:
+        if request.generator_identity is not None:
+            raise ContractMismatch("File-backed policy identity cannot also be an in-memory snapshot")
+    elif request.generator_kind == "policy_snapshot":
         if request.generator_checkpoint_sha256 is not None:
+            raise ContractMismatch("In-memory snapshots must not pretend to be checkpoint files")
+        origin = request.generator_identity
+        required = {"kind", "state_sha256", "optimizer_step", "policy_version",
+                    "parent_checkpoint_sha256", "parent_receipt_sha256", "numeric_execution_hash"}
+        if not isinstance(origin, dict) or set(origin) != required:
+            raise ContractMismatch("Complete typed optimizer-boundary provenance is required")
+        if (origin["kind"] != "in_memory_parameter_snapshot"
+                or type(origin["optimizer_step"]) is not int or origin["optimizer_step"] < 0
+                or origin["policy_version"] != request.policy_version
+                or origin["numeric_execution_hash"] != request.inference_runtime_hash):
+            raise ContractMismatch("In-memory policy version/step/numeric execution mismatch")
+        for key in ("state_sha256", "parent_checkpoint_sha256", "parent_receipt_sha256", "numeric_execution_hash"):
+            _sha(origin[key], key)
+        if _sha(request.generator_source_hash, "generator_source_hash") != fingerprint(origin):
+            raise ContractMismatch("In-memory generator provenance checksum mismatch")
+    elif request.generator_kind == "engineering_control" and spec.allow_engineering_controls:
+        if request.generator_checkpoint_sha256 is not None or request.generator_identity is not None:
             raise ContractMismatch("Engineering controls must not pretend to originate from policy checkpoints")
         _sha(request.generator_source_hash, "generator_source_hash")
     else:

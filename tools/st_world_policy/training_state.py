@@ -18,16 +18,32 @@ from starVLA.model.modules.vehicle_joint.initialization import file_sha256, iden
 TERMINATIONS = {"RUNNING_CHECKPOINT", "OPERATOR_PAUSED", "BUDGET_PAUSED", "MAX_STEPS"}
 
 
+def require_native_inventory(names, world_size):
+    """Exact installed ZeRO2 layout, not 'some optimizer file exists'."""
+    if type(world_size) is not int or world_size < 1:
+        raise ValueError("A positive native data-parallel world size is required")
+    names = set(names)
+    optimizer_names = {name for name in names if name.endswith("_optim_states.pt")}
+    expected_optimizer = {f"bf16_zero_pp_rank_{rank}_mp_rank_00_optim_states.pt"
+                          for rank in range(world_size)}
+    if optimizer_names != expected_optimizer:
+        raise ValueError("Missing or foreign native optimizer rank shards: " +
+                         str(sorted(optimizer_names.symmetric_difference(expected_optimizer))))
+    model_names = {name for name in names if name.endswith("_model_states.pt")}
+    if model_names != {"mp_rank_00_model_states.pt"}:
+        raise ValueError("Missing or foreign native ZeRO2 model shard")
+    rng_names = {name for name in names if name.startswith("rng_rank") and name.endswith(".pt")}
+    if rng_names != {f"rng_rank{rank}.pt" for rank in range(world_size)}:
+        raise ValueError("Missing or foreign consumed-cursor rank RNG inventory")
+
+
 def checkpoint_receipt(folder, state, *, world_size):
     folder = Path(folder)
     if state["termination_reason"] not in TERMINATIONS or state["completed"] < 0:
         raise ValueError("Explicit native optimizer-boundary progress is required")
     files = sorted(folder.glob("*.pt"))
     names = {p.name for p in files}
-    if not any("model_states" in n for n in names) or not any("optim_states" in n for n in names):
-        raise ValueError("Native model and FP32 optimizer state are both required")
-    if any(f"rng_rank{rank}.pt" not in names for rank in range(world_size)):
-        raise ValueError("A rank's consumed-cursor RNG state is missing")
+    require_native_inventory(names, world_size)
     result = {"schema": "st_native_checkpoint_v1", "state": state, "world_size": world_size,
               "files": {p.name: {"sha256": file_sha256(p), "bytes": p.stat().st_size} for p in files}}
     result["receipt_identity"] = identity_hash(result)
@@ -43,17 +59,13 @@ def verify_checkpoint(folder, *, identity, world_size):
             or receipt["state"]["identity"] != identity or receipt["world_size"] != world_size
             or receipt["state"]["tag"] != folder.name):
         raise ValueError("Foreign checkpoint/receipt/source or world size")
+    require_native_inventory(receipt["files"], world_size)
     for name, info in receipt["files"].items():
         if Path(name).name != name:
             raise ValueError("Unsafe checkpoint record")
         p = folder / name
         if p.stat().st_size != info["bytes"] or file_sha256(p) != info["sha256"]:
             raise ValueError("Incomplete or corrupt checkpoint: " + name)
-    names = set(receipt["files"])
-    if any(f"rng_rank{rank}.pt" not in names for rank in range(world_size)):
-        raise ValueError("Incomplete rank RNG inventory")
-    if not any("model_states" in n for n in names) or not any("optim_states" in n for n in names):
-        raise ValueError("Missing native weights or optimizer")
     if receipt["state"]["termination_reason"] not in TERMINATIONS:
         raise ValueError("Unknown saved terminal status")
     return receipt

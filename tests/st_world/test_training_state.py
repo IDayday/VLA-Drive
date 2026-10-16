@@ -11,7 +11,7 @@ from tools.st_world_policy.training_state import (
 def saved(root, step, reason="RUNNING_CHECKPOINT"):
     folder = root / ("step_" + str(step))
     folder.mkdir(parents=True)
-    for name in ("mp_rank_00_model_states.pt", "zero_00_optim_states.pt", "rng_rank0.pt"):
+    for name in ("mp_rank_00_model_states.pt", "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt", "rng_rank0.pt"):
         (folder / name).write_bytes((name + str(step)).encode())
     state = {"identity": "test identity", "completed": step, "tag": folder.name,
              "epoch": 0, "offset": step, "termination_reason": reason}
@@ -31,7 +31,7 @@ def test_newer_native_complete_beats_stale_pointer_and_result(tmp_path):
 def test_partial_and_corrupt_newer_are_reported_never_selected(tmp_path):
     valid = saved(tmp_path, 2)
     corrupt = saved(tmp_path, 4)
-    (corrupt / "zero_00_optim_states.pt").write_bytes(b"broken")
+    (corrupt / "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt").write_bytes(b"broken")
     partial = tmp_path / "step_6"
     partial.mkdir()
     (partial / "mp_rank_00_model_states.pt").write_bytes(b"partial")
