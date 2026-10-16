@@ -1,0 +1,104 @@
+{
+  "allocation": {
+    "cache_cap_bytes": 824633720832,
+    "cache_cap_gib": 768,
+    "enumerated_diagnostic_reserved_gib": 20,
+    "exact_legacy_root_count": 13,
+    "full_dev_reserved_gib": 15,
+    "ledger_metadata_and_staging_reserved_bytes": 16777216,
+    "new_guarded_claims_declared": 0,
+    "policy_path": "reports/st_world_policy/20261016/systems/CACHE_STORAGE_BUDGET_POLICY.json",
+    "separate_minimum_free_disk_bytes": 1099511627776,
+    "separate_minimum_free_disk_gib": 1024,
+    "total_reserved_bytes": 692580253696,
+    "total_reserved_gib": 645.015625,
+    "train_legacy_parent_reserved_gib": 610,
+    "unclaimed_capacity_bytes": 132053467136,
+    "unclaimed_capacity_gib": 122.984375,
+    "unclaimed_capacity_is_not_launch_authorization": true
+  },
+  "api": {
+    "admit": "StorageBudget(policy_path).reserve(root, cache_identity, *, output_bytes, staging_bytes, metadata_bytes, free_reserve_bytes=0) -> CacheReservation",
+    "cli": "--storage-budget ABSOLUTE_POLICY_JSON is mandatory for new registered build and derive-pooled invocations. It is optional and honored for finalize. Existing unbudgeted smoke fixtures, read/verify, and legacy CPU finalization remain usable.",
+    "declare": "Append a claim with claim_id, canonical absolute root, exact cache_identity, output_bytes, staging_bytes, metadata_bytes. All processes must share the same canonical state_dir.",
+    "initialize_legacy_envelope": "StorageBudget(absolute_policy_path).initialize() -> STORAGE_BUDGET_READY receipt; no cache/model job is launched.",
+    "module": "tools.st_world_policy.cache_storage_budget",
+    "new_build_sequence": [
+      "run metadata-only plan",
+      "declare exact claim and sufficient component allowances",
+      "lead dispatches registered build/derive with --storage-budget",
+      "rank retries reuse the same claim",
+      "pass the same policy to the CPU finalizer for a guarded cache"
+    ],
+    "plan": "cache_teacher plan ... returns cache_identity and storage_requirements {output_bytes, staging_bytes, metadata_bytes}; plan does not reserve a build.",
+    "source_hash_receipt": "Resource receipt records policy_sha256 and guard_source_sha256 outside teacher/cache scientific identity.",
+    "write": "with reservation.writing(maximum_new_bytes): bounded cache IO; the production entry point supplies known serialization bounds."
+  },
+  "base_commit": "6640360df24d6036584a295e4f67fefd9a796f12",
+  "branch": "agent/st-cache-budget-20261016",
+  "date": "2026-10-16",
+  "enforcement": [
+    "Exclusive flock on shared state_dir/CLAIMS.lock serializes admission and bounded writes; fsync+atomic replacement makes the claim durable before output/model work.",
+    "The aggregate cap counts immutable legacy bounds, new full output+staging+metadata reservations, and a separate 16 MiB ledger allowance.",
+    "Root reservations are idempotent across ranks/retries. Canonical roots, disjoint namespaces, claim IDs, exact cache identities and previously admitted claims are checked. Changed envelopes/claims, symlinks, nested roots, duplicate identities and unknown output are rejected.",
+    "Live disk checks preserve the larger of policy free reserve and CLI min-free-gib, in addition to outstanding reservations on the same filesystem. Legacy reservations count their full conservative bounds because old writers are uninstrumented.",
+    "Every guarded shard/JSON write is precharged before IO and held under the same flock through commit. Safetensors bounds retain the existing dtype/math. Capacity failure occurs before that write.",
+    "Admission/resume performs one stat-only inventory, counting physical allocation or logical length, whichever is larger. Interrupted tensor, temporary and orphan files remain charged and are preserved.",
+    "Conservative precharges survive interruption; resumed census reconciles them without reading tensor payloads or releasing the root claim. The normal writer checksum checks are unchanged.",
+    "Per-shard operations do not scan or hash the complete cache for accounting. The small ledger itself is inventoried to bound interrupted metadata remnants.",
+    "No eviction, deletion, claim release, automatic dtype change or job dispatch API is introduced."
+  ],
+  "identity_and_compatibility": {
+    "current_writer_source_sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877",
+    "guard_source_sha256": "5809b5ef59ba7dc04b918f62b7e5e12ee784be25ac53d400307a657686471669",
+    "immutable_target_io_unchanged": true,
+    "legacy_finalize": "The CPU-only finalizer retains the existing cache execution provenance after checking the teacher/transform/batch/format/optimizer contract; it still performs full checksum and coverage verification.",
+    "old_execution": "The old production runtime/source remains untouched. Its train parent is one exact 610 GiB prebounded reservation bound to the real stage plan. Old SP1 can be derived once in that legacy namespace under the lead fixed plan; no duplicate new-namespace copy is implied.",
+    "original_source_sha256": "f762bff633b8992fd19787a2d90befdc4df8537b23c7fb4f0285a7091e174832",
+    "policy_only_changes": "Resource policy/claim fields stay outside execution, teacher, transform, precision and contract hashes. A change of policy path alone leaves the computed namespace unchanged.",
+    "writer_hash_rule": "execution.writer_sha256 remains the actual full cache_teacher.py SHA256. This code migration therefore creates a new writer cache namespace; it does not pretend to be the old writer."
+  },
+  "remaining_boundaries": [
+    "Only the lead activates the runtime policy or dispatches workers; this branch did neither.",
+    "Unmodified old writers are explicitly legacy prebounded executions, not falsely reported as having the new per-shard guard. Their 610 GiB parent scope is conservative and immutable in the ledger.",
+    "This is cooperative application enforcement, not a filesystem quota against arbitrary external processes. All new registered writers must use the shared ledger and a filesystem with coherent flock.",
+    "Protected IO and publication checks serialize under the campaign lock; GPU forward computation remains outside it. Cross-host flock behavior and throughput have not been profiled here.",
+    "Stat accounting and disk checks are intentionally conservative; low headroom may block before every reserved byte is materialized. No user files are removed to make progress.",
+    "The previous identity-review test fixture omitted defer_finalize. Optional-attribute compatibility was restored with getattr(...,False); no test file outside owned paths was changed.",
+    "No GPU/real-data job was launched, no running process was signaled, and no production cache was altered or tensor-rehashed by this task."
+  ],
+  "schema": "st_cache_storage_budget_report_v1",
+  "scope": "Aggregate storage admission and bounded IO only; no teacher precision, pooling, transform, label, training, or deployment changes.",
+  "size_interpretation": {
+    "current_train_three_variant_logical_gib": 586.1144696474075,
+    "current_train_three_variant_logical_tensor_bytes": 629335619712,
+    "current_train_three_variant_logical_tib": 0.5723774117650464,
+    "future_labels": "New time horizons or representations need a new exact claim and must fit the remaining cap. No multi-TB prebuild or silent storage-dtype reduction is authorized.",
+    "historical_cache_boundary": "Existing external shared source caches, including the old C1 source bank, remain read-only inputs; this policy bounds this campaign outputs and exact listed reservations, not every project file.",
+    "meaning": "DINO current-only teacher feature/mask labels for SP0, SP1, SP2. This is planned population size, not a claim that all three outputs are complete.",
+    "old_qwen_visual_pool": "The earlier multi-TB Qwen visual dynamic pool belongs to the older Base workflow. It is a different cache type and is not a size estimate or authorization for this campaign.",
+    "stage_plan_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/FULL_CACHE_STAGE_PLAN.json",
+    "stage_plan_sha256": "1b2f9a2f0e3eeaf8d562a3093a14a102255fe438fab9ad0dba9ea5dec48fcd29"
+  },
+  "status": "IMPLEMENTED_AND_CPU_UNIT_TESTED; lead activation and independent review remain separate",
+  "user_decision": "/mnt/project/st-world-policy-20261016/resources/OFFICIAL_RUNTIME_AND_STORAGE_DECISION_20261016.json",
+  "validation": {
+    "command": "/root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_cache_storage_budget.py tests/st_world/test_teacher_cache.py tests/st_world/test_review_cache_identity.py",
+    "coverage": [
+      "multiprocess distinct and identical claims",
+      "idempotent resume",
+      "aggregate and component limits",
+      "disk reserve at admission and each write",
+      "unknown/changed identities and paths",
+      "symlink and duplicate/nested roots",
+      "interrupted tensor and ledger files",
+      "real writer receipt-failure recovery",
+      "registered build and pooled derivation integration",
+      "metadata-only plan namespace stability",
+      "guarded and legacy CPU finalization",
+      "existing reader/teacher-cache regressions"
+    ],
+    "log_path": "reports/st_world_policy/20261016/systems/CACHE_STORAGE_BUDGET_TESTS.txt",
+    "result": "42 passed, 1 warning in 5.44s"
+  }
+}

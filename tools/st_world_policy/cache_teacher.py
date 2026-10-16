@@ -6,6 +6,7 @@ and storage choices are explicit; no teacher or student weights are trained.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import importlib.metadata
 import inspect
 import json
@@ -24,6 +25,8 @@ from starVLA.dataloader.st_world_targets import (
     atomic_json, TeacherCacheReader, TeacherCacheWriter, LegacyC1Reader,
     unique_image_records, validate_target_manifest, payload_key)
 from starVLA.model.modules.foresight import dinov3_target_encoder as dino
+from tools.st_world_policy.cache_storage_budget import (
+    StorageBudget, json_write_bound, teacher_storage_requirements)
 
 
 def teacher_descriptor(root):
@@ -96,9 +99,9 @@ def validate_budget(args, manifest):
                 registration['max_scenes'] < args.max_scenes or registration['storage_dtype'] != args.storage_dtype or
                 registration['variant'] != args.variant):
             raise ValueError('Teacher cache scope differs from registration')
-        if args.command in ('build', 'derive-pooled') and bool(registration.get('defer_finalize', False)) != args.defer_finalize:
+        if args.command in ('build', 'derive-pooled') and bool(registration.get('defer_finalize', False)) != getattr(args,'defer_finalize',False):
             raise ValueError('Deferred cache publication differs from registration')
-    if args.defer_finalize and (args.mode != 'registered' or args.command not in ('build', 'derive-pooled')):
+    if getattr(args,'defer_finalize',False) and (args.mode != 'registered' or args.command not in ('build', 'derive-pooled')):
         raise ValueError('Deferred publication requires an explicitly registered builder')
     if args.command == 'finalize' and (args.rank != 0 or args.world_size != 1 or args.device != 'cpu'):
         raise ValueError('Complete publication requires one CPU finalizer')
@@ -133,6 +136,10 @@ def finish_assigned(writer, args):
 def run(args):
     manifest = validate_target_manifest(json.loads(Path(args.requests).read_text()))
     validate_budget(args,manifest)
+    storage_policy = getattr(args, 'storage_budget', None)
+    building = args.command in ('build', 'derive-pooled')
+    if building and args.mode == 'registered' and not storage_policy:
+        raise ValueError('New registered cache builds require --storage-budget and a declared cache claim')
     contract, teacher, transform = make_contract(args.teacher_root,args.variant,args.storage_dtype,legacy_root=args.legacy_c1_root)
     source_reader=None
     if args.source_cache:
@@ -160,17 +167,57 @@ def run(args):
     bytes_per = pixel_values * (4 if args.storage_dtype=='float32' else 2) + int(np.prod(contract.output_grid_hw))
     requested_bytes = len(records) * bytes_per
     out = Path(args.output)
+    if args.command == 'finalize' and (out/'identity.json').exists():
+        # Publication of an existing cache keeps its truthful original writer
+        # provenance. This CPU-only branch never generates any tensor payload.
+        original_execution = json.loads((out/'identity.json').read_text())['execution']
+        if any(original_execution.get(k) != v for k,v in execution.items() if k != 'writer_sha256'):
+            raise ValueError('Finalizer execution contract differs from original cache')
+        execution = original_execution
+    cache_identity = {'schema':'st_teacher_cache_v1','contract':contract.to_dict(),
+                      'request_manifest_identity':manifest['identity'],'images_per_shard':args.images_per_shard,
+                      'records':records,'execution':execution,
+                      'shards':(len(records)+args.images_per_shard-1)//args.images_per_shard}
+    cache_identity['identity'] = identity_hash(cache_identity)
+    storage_requirements = teacher_storage_requirements(cache_identity,manifest,bytes_per,args.world_size)
+    storage = None
+    if storage_policy and args.command in ('build','derive-pooled','finalize'):
+        storage = StorageBudget(storage_policy).reserve(out,cache_identity['identity'],
+            **storage_requirements,free_reserve_bytes=int(args.min_free_gib*(1<<30)))
+
+    def writing(bound):
+        return storage.writing(bound) if storage else nullcontext()
+
+    def write_json(path, value, **kwargs):
+        with writing(json_write_bound(value)):
+            atomic_json(path,value,**kwargs)
+
+    def create_writer():
+        with writing(json_write_bound(cache_identity)+json_write_bound(manifest)):
+            result = TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
+        if result.identity != cache_identity:
+            raise ValueError('Reserved cache identity differs from writer identity')
+        return result
+
+    def finish(writer):
+        with writing((1<<20)+writer.shard_count*256):
+            return finish_assigned(writer,args)
+
+    # No cache directory, plans, immutable metadata, or models precede admission.
     out.mkdir(parents=True,exist_ok=True)
     plan = {'status':'PLAN_ONLY','request_identity':manifest['identity'],'contract':contract.to_dict(),
             'contract_identity':contract.identity,'scenes':len(manifest['scenes']),'unique_images':len(records),
             'logical_tensor_bytes':requested_bytes,'bytes_per_unique_image':bytes_per,
             'shards':(len(records)+args.images_per_shard-1)//args.images_per_shard,
             'temporary_shard_bytes':args.images_per_shard*bytes_per,'disk_free_bytes':shutil.disk_usage(out).free,
-            'teacher':teacher,'transform':transform,'mode':args.mode,'gpu_work_started':False}
-    atomic_json(out / ('PLAN_rank%d.json'%args.rank),plan)
+            'teacher':teacher,'transform':transform,'mode':args.mode,'gpu_work_started':False,
+            'cache_identity':cache_identity['identity'],'storage_requirements':storage_requirements}
+    if storage:
+        plan['storage_reservation'] = storage.receipt
+    write_json(out / ('PLAN_rank%d.json'%args.rank),plan)
     resolved = vars(args).copy()
-    resolved.update(contract=contract.to_dict(),request_identity=manifest['identity'])
-    atomic_json(out / ('resolved_config_%s_rank%d.json'%(args.command,args.rank)),resolved)
+    resolved.update(contract=contract.to_dict(),request_identity=manifest['identity'],cache_identity=cache_identity['identity'])
+    write_json(out / ('resolved_config_%s_rank%d.json'%(args.command,args.rank)),resolved)
     if args.command == 'plan':
         return plan
     if args.command == 'verify':
@@ -186,13 +233,13 @@ def run(args):
                   'request_scene_tokens_hash':identity_hash(sorted(reader.scenes)),
                   'contract_identity':contract.identity,'all_record_hashes_verified':True,
                   'exact_requested_population':True}
-        atomic_json(out/'VERIFICATION.json',result)
+        write_json(out/'VERIFICATION.json',result)
         return result
     if args.command=='derive-pooled':
-        if shutil.disk_usage(out).free < requested_bytes + args.min_free_gib*1024**3:
+        if not storage and shutil.disk_usage(out).free < requested_bytes + args.min_free_gib*1024**3:
             raise ValueError('Insufficient declared derived-cache disk reserve')
         torch.set_num_threads(args.cpu_threads)
-        writer=TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
+        writer=create_writer()
         started=time.monotonic()
         for shard in range(args.rank,writer.shard_count,args.world_size):
             if time.monotonic()-started>=args.max_seconds:
@@ -205,20 +252,22 @@ def run(args):
                     pooled=torch.nn.functional.avg_pool2d(raw.permute(2,0,1)[None],3,3)[0].permute(1,2,0).contiguous()
                     mask=torch.nn.functional.avg_pool2d(valid.float()[None,None],3,3)[0,0]==1
                     features.append(torch.where(mask[...,None],pooled,torch.zeros_like(pooled)));masks.append(mask)
-                writer.commit_shard(shard,torch.stack(features),torch.stack(masks),metrics={'teacher_forward_calls':0})
-        return {**finish_assigned(writer,args),'teacher_forward_calls':0,'elapsed_s_this_invocation':time.monotonic()-started}
-    writer = TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
+                with writing(len(writer.rows(shard))*bytes_per+32768+len(writer.rows(shard))*512):
+                    writer.commit_shard(shard,torch.stack(features),torch.stack(masks),metrics={'teacher_forward_calls':0})
+        return {**finish(writer),'teacher_forward_calls':0,'elapsed_s_this_invocation':time.monotonic()-started}
+    writer = create_writer()
     if args.command == 'finalize':
         # Original full coverage + full shard checksum logic, unchanged. Missing
         # ranks cannot create COMPLETE and corrupt shards remain hard failures.
-        return writer.finalize()
+        with writing((1<<20)+writer.shard_count*256):
+            return writer.finalize()
     pending = [i for i in range(args.rank,writer.shard_count,args.world_size) if not writer.committed(i)]
     reserve = int(args.min_free_gib * (1<<30)) + args.images_per_shard*bytes_per
     remaining_bytes = sum(len(writer.rows(i))*bytes_per for i in pending)
-    if shutil.disk_usage(out).free < reserve + remaining_bytes:
+    if not storage and shutil.disk_usage(out).free < reserve + remaining_bytes:
         raise ValueError('BLOCKED_STORAGE: remaining cache + atomic shard + requested reserve do not fit')
     if not pending:
-        return finish_assigned(writer,args)
+        return finish(writer)
     started = time.monotonic()
     torch.set_num_threads(args.cpu_threads)
     if args.variant == 'SP0':
@@ -270,12 +319,13 @@ def run(args):
                     timings['elements']+=z.numel()
                     timings['max_abs_storage_error']=max(timings['max_abs_storage_error'],float(error.abs().max()))
                     features.append(stored);masks.append(mask)
-                writer.commit_shard(shard,torch.cat(features),torch.cat(masks),metrics=timings)
-                atomic_json(out/('progress_rank%d.json'%args.rank),{'status':'RUNNING','last_committed_shard':shard,
+                with writing(len(writer.rows(shard))*bytes_per+32768+len(writer.rows(shard))*512):
+                    writer.commit_shard(shard,torch.cat(features),torch.cat(masks),metrics=timings)
+                write_json(out/('progress_rank%d.json'%args.rank),{'status':'RUNNING','last_committed_shard':shard,
                     'elapsed_s':time.monotonic()-started,'identity':writer.identity['identity'],'metrics':timings})
-    result=finish_assigned(writer,args)
+    result=finish(writer)
     result={**result,'elapsed_s_this_invocation':time.monotonic()-started,'rank':args.rank}
-    atomic_json(out/('RESULT_rank%d.json'%args.rank),result)
+    write_json(out/('RESULT_rank%d.json'%args.rank),result)
     return result
 
 
@@ -289,6 +339,7 @@ def parser():
     p.add_argument('--source-cache');p.add_argument('--source-cache-identity')
     p.add_argument('--mode',choices=['smoke','registered'],default='smoke')
     p.add_argument('--registration')
+    p.add_argument('--storage-budget',help='Campaign byte-budget policy with an exact per-root claim; required for new registered build/derive')
     p.add_argument('--max-scenes',type=int,required=True)
     p.add_argument('--images-per-shard',type=int,default=32)
     p.add_argument('--batch-size',type=int,default=8)
