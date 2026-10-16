@@ -24,7 +24,8 @@ def anchor_channel_contributions(squared_mean_difference, weights):
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--checkpoint',required=True)
-    p.add_argument('--collection',type=int,required=True);p.add_argument('--output',required=True);a=p.parse_args()
+    p.add_argument('--collection',type=int,required=True);p.add_argument('--output',required=True)
+    p.add_argument('--gradient-strata-registration');a=p.parse_args()
     output=Path(a.output)
     if output.exists():raise FileExistsError('Preserve the previous diagnostic: '+str(output))
     started=time.monotonic()
@@ -42,13 +43,19 @@ def main():
         raise ValueError('Diagnostic requires the completed four-inner checkpoint for the requested collection')
     restore_adapters(actor,saved['adapters']);parameters=[p for p in actor.parameters() if p.requires_grad]
     count=sum(p.numel() for p in parameters)
+    strata=None
+    if a.gradient_strata_registration:
+        from scripts.analysis.simwam_recipe.saved_gradient_strata import SavedGradientStrata
+        strata=SavedGradientStrata(a.gradient_strata_registration,run,checkpoint,a.collection,identity,count)
     pg_gradient=torch.zeros(3,count);anchor_gradient=torch.zeros_like(pg_gradient)
     per_step=[];batches=[];categories=dict(safe_recovery_vs_single_SFT=0,safe_other_positive=0,
         positive_still_unsafe=0,positive_unsafe_despite_safe_alternative=0,positive_micro_progress_only=0)
     clip=[];raw_clip=[];tail=[];innovations=[];density_ratio=[];movement=[]
     for rank in range(world):
         path=run/'behavior'/f'collection{a.collection:06}'/f'rank{rank}.pt'
-        row=device_tree(torch.load(path,map_location='cpu',weights_only=False),actor.device)
+        cpu_row=torch.load(path,map_location='cpu',weights_only=False)
+        if strata is not None:strata.validate(rank,cpu_row)
+        row=device_tree(cpu_row,actor.device)
         if row['behavior_version']['run']!=identity['sha256']:raise ValueError('Unmatched behavior identity')
         if row['stoch_idx'].tolist()!=registered_stochastic_steps(cfg['variant']):
             raise ValueError('Saved batch window differs from registered recipe')
@@ -64,10 +71,23 @@ def main():
         weights=actor.kl_weight_matrix(8,4,actor.device)
         d2=(terms['mean']-reference['mean']).square()
         anchor=(d2*weights).sum((-1,-2)).mean(0)/weights.sum()
+        rank_basis=torch.zeros(2,3,count) if strata is not None else None
         for step in range(3):
-            for target,scalar in [(pg_gradient,pg[step]),(anchor_gradient,50*anchor[step])]:
+            for kind,(target,scalar) in enumerate([(pg_gradient,pg[step]),(anchor_gradient,50*anchor[step])]):
                 g=torch.autograd.grad(scalar/world,parameters,retain_graph=True)
-                target[step]+=torch.cat([v.detach().float().flatten().cpu() for v in g])
+                flat=torch.cat([v.detach().float().flatten().cpu() for v in g])
+                target[step]+=flat
+                if strata is not None:
+                    strata.add(rank,kind,step,flat);rank_basis[kind,step]=flat
+        if strata is not None:
+            actual,metrics=actor(row)
+            torch.testing.assert_close(actual,pg.mean()+50*anchor.mean(),atol=1e-7,rtol=2e-5)
+            actual_g=torch.autograd.grad(actual/world,parameters)
+            flat=torch.cat([v.detach().float().flatten().cpu() for v in actual_g])
+            reconstructed=rank_basis.sum(0).mean(0)
+            torch.testing.assert_close(flat,reconstructed,atol=1e-7,rtol=3e-4)
+            strata.oracle+=flat
+            strata.oracle_max_abs.append(float((flat-reconstructed).abs().max()))
         d=d2.detach().mean((0,2));v=(terms['vel']-reference['vel']).detach().square().mean((0,2))
         channel_anchor=anchor_channel_contributions(d2,weights)
         torch.testing.assert_close(channel_anchor.sum(-1),anchor.detach(),rtol=1e-5,atol=1e-9)
@@ -124,6 +144,14 @@ def main():
         source_current_velocity_forwards=actor._velocity_calls,reference_velocity_forwards=actor._reference_calls,
         effective_LoRA_weight_updates=effective,
         theory='Gradients are source per-random-step proxies; x_kl_normalized is diagnostic only and is not the legacy correlated C_SDE KL')
+    if strata is not None:
+        result['gradient_strata']=strata.finish(pg_gradient,anchor_gradient)
+        for name,param in actor.named_parameters():
+            if param.grad is not None:raise ValueError('Diagnostic unexpectedly retained parameter gradients')
+            if param.requires_grad and not torch.equal(param.detach().cpu(),saved['adapters'][name]):
+                raise ValueError('Read-only diagnostic changed an adapter')
+        result['adapters_unchanged']=True
+        result['cumulative_worker_wall_seconds']=time.monotonic()-started
     atomic_json(output,result);print(json.dumps(dict(status=result['status'],output=str(output),new_candidates=0)))
 
 
