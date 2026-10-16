@@ -302,7 +302,12 @@ def load_flow_checkpoint(registration_path, tag, *, device="cuda", strip=True):
         base = load_student(binding["run"], binding["tag"], binding["parent_identity"],
                             device="cpu", precision="fp32", strip=strip)
     folder = Path(record["run"]) / "checkpoints" / tag
-    receipt = json.loads((folder / "COMPLETE.json").read_text())
+    # Parent reconstruction can take minutes. Recheck immutable native bytes
+    # immediately before consuming them, rather than trusting an earlier read.
+    receipt = verify_checkpoint(folder, identity=record["run_identity"], world_size=cfg["execution"]["world_size"])
+    if (receipt["receipt_identity"] != record["receipt_identity"]
+            or file_sha256(folder / "COMPLETE.json") != record["native_receipt_sha256"]):
+        raise ValueError("Native Flow checkpoint changed during parent reconstruction")
     state = _canonical_native_state(folder, receipt, base.action_model)
     audit = restore_action_masters(base.action_model, state)
     del state

@@ -261,6 +261,17 @@ def test_loader_preserves_record_parent_freeze_and_real_ten_step_forward(tmp_pat
             model.predict_raw(observations(), initial_noise=noise)
 
 
+def test_native_changed_while_loading_parent_is_rechecked(tmp_path, monkeypatch):
+    f = native_fixture(tmp_path, monkeypatch)
+    import tools.foresight.checkpoints
+    def load_student(*a, **kw):
+        (f.folder / "stale_model_states.pt").write_bytes(b"changed during parent load")
+        return deepcopy(f.parent)
+    monkeypatch.setattr(tools.foresight.checkpoints, "load_student", load_student)
+    with pytest.raises(ValueError, match="inventory"):
+        fc.load_flow_checkpoint(f.reg, f.tag, device="cpu")
+
+
 def test_flow_source_contract_covers_module_globals(tmp_path, monkeypatch):
     monkeypatch.setattr(fc, "INFERENCE_SOURCES", ("source.py",))
     (tmp_path / "source.py").write_text("SCALE = 1\ndef predict(x):\n    return SCALE*x\n")
