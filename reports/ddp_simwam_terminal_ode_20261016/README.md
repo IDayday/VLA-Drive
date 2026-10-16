@@ -15,6 +15,14 @@ score-corrected SDE mean，也不是只删除同一条链中的一个 epsilon。
 均值、安全比例及请求轨迹平滑性。诊断没有训练学生，也没有证明原 ODE
 部署会提升；具体数据与限制见[多来源分析](../ddp_simwam_x_anchor_20261015/flow_design_review/multi_source_analysis_20261016.md)。
 
+## 5k完整阶段更新（2026-10-16）
+
+[完整5k报告](stage005000/README.md)已包括全部DEV1696与定向TRAIN512，seed2101、原始观测、两种单候选ODE网格分别报告。原ODE为93.5608/79.6007，对照Canonical同期为94.3121/84.4715；shift5也低于匹配控制。
+
+前5k相同10,000次scene曝光的随机候选PDMS提高1.4318分、联合安全比例提高3.5275个百分点，但安全分项有差异的组从23.25%降到5.15%，progress-only从70.44%增到92.88%。候选质量改善尚未转化为本阶段部署改善。完整新增/恢复、G+/G−、梯度与成本均保留，不将候选或DEV分数当Navtest结果。
+
+14:03 UTC实际核查确认训练继续、合法checkpoint为5400；既定controller存活，最终Navtest仍等待20k及DEV阶段。配方、种子和终点不因本次负结果改变。下面早期profile为带日期历史记录，当前证据以该阶段报告为准。
+
 ## 固定合同
 
 - 20,000 AdamW updates；每份 fresh rollout 四次 inner；5,000 份全局 rollout、

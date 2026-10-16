@@ -2,9 +2,11 @@
 
 完整整理见 [2026-10-16 多来源分析详细报告](multi_source_analysis_20261016.md)：包含来源版本、配方与公式、LoRA/动作编码核查、20k正式结果、4096次诊断评分、两组各40,000次训练曝光的安全信号、成本和失败证据，以及后续单因素研究的边界。读者可直接从主文阅读索引定位问题，无需按开发记录顺序阅读。
 
+14:03 UTC增补：[LAST_ODE固定5k完整结果](../../ddp_simwam_terminal_ode_20261016/stage005000/README.md)已完成DEV1696和定向TRAIN512。随机候选更安全，但原ODE分别为93.5608/79.6007，低于同期Canonical94.3121/84.4715。主文第13.5节同时保留这一反面证据；它不是Navtest或20k终点。当前文档的数字、链接和源码保护核验见[阶段交付校验](../../ddp_simwam_terminal_ode_20261016/stage005000/validation.json)。
+
 2026-10-16最终补充：[X1完整Navtest](../final_navtest_20261016/README.md)原单候选ODE89.3817，相对SFT+0.4701分、相对Canonical+0.4300分；相对SFT的NC/TTC仍退化，92目标未完成。详细报告第13.4节已加入这一证据。下文的原SOURCE/CANONICAL及TRAIN采样诊断保持其原始比较口径。
 
-初版[文档校验记录](documentation_validation_20261016.json)核对了124个JSON表格数值、53处本地链接、三个实际CLI帮助入口和既有源码hash；它绑定初版文档，不代表后续增补版本。先前整合见[历史校验](consolidation_validation_20261016.json)，包含最新第8.4节的交付版见[本次校验](delivery_validation_20261016.json)。这些都是文档复核，不是新增算法验收或效果实验。
+初版[文档校验记录](documentation_validation_20261016.json)核对了124个JSON表格数值、53处本地链接、三个实际CLI帮助入口和既有源码hash；它绑定初版文档，不代表后续增补版本。先前整合见[历史校验](consolidation_validation_20261016.json)，含第8.4节的`b9207db`交付版见[当时校验](delivery_validation_20261016.json)。这些都是文档复核，不是新增算法验收或效果实验。
 
 后续[完整TRAIN安全信号分析](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/README.md)核对两组各40,000次实际曝光及全部违规正优势组：有安全替代的340/270条违规正优势全部低于组内最好安全候选，固定SFT的TTC失败人口占曝光1.84%。此次新增证据及当前文档hash见[后续校验](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/validation.json)；前述校验保留为对应历史文档版本。
 
