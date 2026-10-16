@@ -17,7 +17,8 @@ def run(a):
     root=Path(a.metadata_root);output=Path(a.output);runtime=Path(a.cache_runtime)
     started=time.monotonic()
     if not 0<=a.wait_seconds<=7200 or a.world_size not in (1,8):raise ValueError('Stage-plan budget unsupported')
-    while not all((root/role/'COMPLETE.json').exists() for role in ('train','dev')):
+    if not a.roles or len(set(a.roles))!=len(a.roles):raise ValueError('Roles must be unique')
+    while not all((root/role/'COMPLETE.json').exists() for role in a.roles):
         if time.monotonic()-started>=a.wait_seconds:raise TimeoutError('Fixed metadata is not yet complete')
         time.sleep(min(10.,a.wait_seconds))
     source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=runtime,text=True).strip()
@@ -25,7 +26,8 @@ def run(a):
         raise ValueError('Cache execution runtime must be immutable/clean')
     if (output/'FULL_CACHE_STAGE_PLAN.json').exists():
         old=json.loads((output/'FULL_CACHE_STAGE_PLAN.json').read_text())
-        if old['identity']!=identity_hash({k:v for k,v in old.items() if k!='identity'}) or old['cache_execution_source_commit']!=source_sha:
+        if (old['identity']!=identity_hash({k:v for k,v in old.items() if k!='identity'}) or
+                old['cache_execution_source_commit']!=source_sha or set(old['roles'])!=set(a.roles)):
             raise ValueError('Existing stage plan changed')
         for role,item in old['roles'].items():
             if item['requests_sha256']!=file_sha256(root/role/'TEACHER_REQUESTS.json') or item['manifest_sha256']!=file_sha256(root/role/'SELECTED_SCENES.json'):
@@ -43,7 +45,7 @@ def run(a):
     pilot_seconds=measurements[0]['elapsed_s_this_invocation']
     if pilot_seconds<=0:raise ValueError('Actual measured teacher pilot elapsed required')
     roles={};commands=[];budgets=[];legacy_source=LegacyC1Reader(a.legacy_c1_root)
-    for role in ('train','dev'):
+    for role in a.roles:
         directory=root/role;done=json.loads((directory/'COMPLETE.json').read_text())
         registration=json.loads((directory/'REGISTRATION.json').read_text())
         requests=json.loads((directory/'TEACHER_REQUESTS.json').read_text())
@@ -126,6 +128,7 @@ def main():
     for name in ['metadata-root','output','cache-runtime','teacher-root','legacy-c1-root','pilot-complete','pilot-log','python']:
         p.add_argument('--'+name,required=True)
     p.add_argument('--world-size',type=int,default=8)
+    p.add_argument('--roles',nargs='+',choices=('train','dev'),default=['train','dev'])
     p.add_argument('--wait-seconds',type=float,default=0.)
     print(json.dumps(run(p.parse_args()),sort_keys=True))
 
