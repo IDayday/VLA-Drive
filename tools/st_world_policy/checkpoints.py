@@ -23,15 +23,20 @@ def inference_source_contract(repo, source_sha, *, history):
     selecting a handful of methods permits unreviewed changes to those inputs.
     """
     repo = Path(repo)
+    # These same original VLM/action dependencies are used by both ST and
+    # action-only Flow deployment. Protect their full executable modules too,
+    # including the vendored language implementation behind QWen3 imports.
+    from tools.st_world_policy.flow_checkpoints import INFERENCE_SOURCES
     methods = {"__init__", "train", "encode_inputs", "predict_raw", "predict_action", "strip_auxiliary_heads"}
-    files = ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
+    files = list(INFERENCE_SOURCES) + ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
              "starVLA/model/framework/ddp_action_video_foresight.py",
              "starVLA/model/modules/st_world/config.py",
              "starVLA/dataloader/st_world_schema.py"]
     if history:
-        files.append("starVLA/model/modules/st_world/history_adapter.py")
+        files.extend(("starVLA/model/modules/st_world/history_adapter.py",
+                      "starVLA/dataloader/st_world_history.py"))
     result = {}
-    for name in files:
+    for name in dict.fromkeys(files):
         old = subprocess.check_output(["git", "show", source_sha + ":" + name], cwd=repo).decode()
         new = (repo / name).read_text()
         def representation(code):
@@ -114,6 +119,17 @@ def load_world_checkpoint(registration_path, tag, *, device="cuda", strip=True):
             history = build_history_encoder(parent, initialization_seed=cfg["execution"]["seed"] + 3700)
         model = SpaceTimeStudent(parent, options, initialization_seed_value=cfg["execution"]["seed"],
                                   history_encoder=history)
+    # Parent/model construction can take minutes. DeepSpeed reconstructs by
+    # globbing native shards, so revalidate the exact immutable inventory at the
+    # consumption boundary, not only before expensive model construction.
+    folder = Path(record["run"]) / "checkpoints" / tag
+    receipt = verify_checkpoint(folder, identity=record["run_identity"],
+                                world_size=cfg["execution"]["world_size"])
+    if (receipt["receipt_identity"] != record["receipt_identity"]
+            or file_sha256(folder / "COMPLETE.json") != record["native_receipt_sha256"]
+            or identity_hash({k: v["sha256"] for k, v in receipt["files"].items()})
+               != record["native_checkpoint_sha256"]):
+        raise ValueError("Native ST checkpoint changed during parent reconstruction")
     state = get_fp32_state_dict_from_zero_checkpoint(str(Path(record["run"]) / "checkpoints"), tag=tag)
     model.float().load_state_dict(state, strict=True)
     del state
