@@ -1,0 +1,70 @@
+{
+  "schema": "simwam_TRAIN_safety_signal_matched_comparison_v1",
+  "captured_utc": "2026-10-16T13:06:37.680849+00:00",
+  "analysis_commit": "d1b3bd642cc063b7e4669fa73f9da4e57d45bdd0",
+  "registration_sha256": "4de5b18234741c2b444b4eff95d28a78902ebdb49a265ca0f1d7726fa5946936",
+  "model_results_sha256": {
+    "R_CANONICAL": "8327c5506fa67c7665cca81d933770f030d27146a9cffaaa8c38f8baa86ab102",
+    "R_CANONICAL_X1": "4ac0fb64f427b4592eb57b58d40d0b4eb3053594f92cf52040fb7698f1f46344"
+  },
+  "matched_scene_order_sha256": "28c2e3599b8eb6a686468313d356cd6d0095165936a79e3d8ce97319eb7eecb7",
+  "population_and_exposure_fields_exactly_matched": true,
+  "population_counts": {
+    "hard_scenes": 22017,
+    "hard_logs": 1063,
+    "unique_scenes_visited_both": 22017,
+    "scene_exposures_per_run": 40000,
+    "candidates_per_run": 320000,
+    "SFT_single_seed_safe_scenes": 20971,
+    "SFT_single_seed_safe_exposures": 38098,
+    "SFT_NC_failure_scenes": 26,
+    "SFT_NC_failure_exposures": 48,
+    "SFT_TTC_failure_scenes": 405,
+    "SFT_TTC_failure_exposures": 736
+  },
+  "run_checks": {
+    "R_CANONICAL": {
+      "raw_unsafe_positive_all_reconciled": true,
+      "masked_positives": 0,
+      "all_with_safe_alternative_strictly_below_best_safe": true,
+      "unsafe_positive_with_safe_alternative_but_not_all_safe_Comfort_one": 2,
+      "no_selected_positive_advantage_affected_by_source_clip5": true
+    },
+    "R_CANONICAL_X1": {
+      "raw_unsafe_positive_all_reconciled": true,
+      "masked_positives": 0,
+      "all_with_safe_alternative_strictly_below_best_safe": true,
+      "unsafe_positive_with_safe_alternative_but_not_all_safe_Comfort_one": 2,
+      "no_selected_positive_advantage_affected_by_source_clip5": true
+    }
+  },
+  "cost": {
+    "measured_analysis_body_seconds_by_run": {
+      "R_CANONICAL": 8.809772165492177,
+      "R_CANONICAL_X1": 8.374877776950598
+    },
+    "measured_analysis_body_seconds_sum": 17.184649942442775,
+    "selected_saved_groups": 363,
+    "selected_existing_candidate_records": 2904,
+    "selected_serialized_file_bytes": 184492130,
+    "new_scores": 0,
+    "new_rollout_candidates": 0,
+    "new_optimizer_updates": 0,
+    "GPU_used": false,
+    "processes": 2,
+    "CPU_threads_each": 1,
+    "hosts": [
+      "training-vlawm-tsinghua-zt",
+      "training-vlawm-tsinghua-zt4"
+    ],
+    "process_exit_codes": [
+      0,
+      0
+    ],
+    "missing": [
+      "Python import/SSH/administrative snapshot construction wall was not independently timed",
+      "File byte sums describe selected serialized file sizes, not measured physical disk traffic"
+    ],
+    "note": "The per-run legacy field worker_wall_seconds measures analyze() after module imports. Concurrent analysis body times are not end-to-end elapsed time or GPU-hours."
+  }
+}

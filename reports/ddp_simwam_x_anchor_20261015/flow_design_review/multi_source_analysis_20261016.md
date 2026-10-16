@@ -496,6 +496,8 @@ $$
 
 这里有三种不同层次的判断。符号、重算、LoRA接入与恢复属于实现正确性，已有针对性验收；末次创新和归一化权重属于具体设计的适配，有有限反事实或正式配置对照；“Flow Matching本身导致RL无法提升”则是更宽泛的命题，现有实验不支持。X1已经给出反例，但仍不足以说明FM表达、少步离散和训练人口没有进一步限制。
 
+后续[完整TRAIN安全信号复查](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/README.md)进一步核对了Canonical/X1各40,000次scene曝光及全部违规正优势组。340/270条与安全候选同组的违规正优势样本，全部低于本组最好安全候选；它们仅高于组均值，不能直接称为reward排序错误。固定SFT的TTC失败场景占实际曝光1.84%，同时这类场景仍能产生安全候选。该分析没有新rollout或评分，支持继续检查安全场景覆盖和泛化，但计数不是梯度作用的因果证明，现有正式配方未改。
+
 ## 13. 已登记后续、历史进展与固定终点结果
 
 ### 13.1 X1登记与评价恢复历史
@@ -651,7 +653,8 @@ python -m scripts.analysis.simwam_recipe.probe_last_innovation summarize --root 
 | X1运行时间点快照 | [documentation_snapshot_20261016.json](documentation_snapshot_20261016.json) |
 | 后续X1完整阶段与LAST_ODE登记、验收、早期结果 | [后续报告](../../ddp_simwam_terminal_ode_20261016/README.md)、[实际运行核查](../../ddp_simwam_terminal_ode_20261016/formal_launch.json) |
 | X1固定20k完整Navtest与安全转移 | [终点报告](../final_navtest_20261016/README.md)、[结果与成本](../final_navtest_20261016/results.json) |
-| 本次整合的链接、数字与文档边界复核 | [consolidation_validation_20261016.json](consolidation_validation_20261016.json)；旧版校验保留，分别绑定各自文档hash |
+| 多来源整合版的链接、数字与文档边界复核 | [consolidation_validation_20261016.json](consolidation_validation_20261016.json)，绑定`0d5fc67`文档；旧版校验保留 |
+| 后续完整TRAIN安全分层与本次增补 | [报告](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/README.md)、[校验](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/validation.json)；各校验分别绑定自己的文档hash |
 
 关键身份：
 

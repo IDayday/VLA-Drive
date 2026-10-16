@@ -1,0 +1,360 @@
+{
+  "schema": "simwam_TRAIN_safety_signal_audit_v1",
+  "status": "COMPLETE_READ_ONLY",
+  "captured_utc": "2026-10-16T13:03:01.499603+00:00",
+  "host": "training-vlawm-tsinghua-zt",
+  "registration_sha256": "4de5b18234741c2b444b4eff95d28a78902ebdb49a265ca0f1d7726fa5946936",
+  "analysis_source_sha256": "c698e3f33f04cbe8c45f10eefef19a8e68940f8674430dfae021a2ae32f57983",
+  "run_identity": "fb41121f52539dcd1c7f55be52754de37d5f0fe3d24b09fb88d8e98a93c49942",
+  "variant": "R_CANONICAL",
+  "hard_manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+  "population_sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9",
+  "hard_scene_count": 22017,
+  "hard_log_count": 1063,
+  "full_TRAIN_count": 101592,
+  "journal_sha256": {
+    "0": "31972fdcb52ca8b7a58b05aaccc4ea7f396925cb40c3fbc7ec82661b5d77c91f",
+    "1": "e0fe2ef01d108c12b1dd462d978a28841a256b990a5517946a0e2f5b1ef2a72f",
+    "2": "a77ef4cac9d9ed5b1f63db163efc4a758d35351f831092ff84385cf0203baf57",
+    "3": "58e36aebddc9f067ee8691ab6f9f18c145219ae4327f78236e012d36fb0bf9e1",
+    "4": "b35fc776b08ed4097b3f766d3848180e727a48addc61dfe1fa43f6ceb5d7d9ef",
+    "5": "935973cb332536c116f0d2d6042bb236fc4eb2dd402f12b211ffdec249f06f6d",
+    "6": "6700a994c5852fc8d994943ea85c2583a12dfdba380bb336de327a93afa14d1b",
+    "7": "1b952885933566a985c7ea3cb96a11166e8a3e729805bad109f06ae1d5c8fedb"
+  },
+  "optimizer_updates": 20000,
+  "fresh_global_rollouts": 5000,
+  "overall": {
+    "hard_population_scenes": 22017,
+    "scene_exposures": 40000,
+    "unique_scenes": 22017,
+    "unique_logs": 1063,
+    "candidates": 320000,
+    "groups": {
+      "all_full": 28,
+      "all_zero": 59,
+      "tied": 146,
+      "zero_PG": 146,
+      "progress_only": 28221,
+      "safety_differing": 9068
+    },
+    "raw_positive_candidate_counts": {
+      "positive_safe": 177055,
+      "positive_still_unsafe": 460,
+      "positive_unsafe_with_safe_alternative": 340
+    },
+    "active_PG_positive_candidate_counts": {
+      "positive_safe": 177055,
+      "positive_still_unsafe": 460,
+      "positive_unsafe_with_safe_alternative": 340
+    },
+    "active_positive_unsafe_fraction": 0.002591330310114638,
+    "unsafe_candidates": 22190,
+    "groups_with_unsafe_candidates": 9147,
+    "groups_with_only_unsafe_candidates": 115,
+    "groups_with_safe_and_unsafe_candidates": 9032,
+    "stochastic_mean": {
+      "canonical_random_mean": 0.8274070597652113,
+      "train_reward_mean": 0.8274070595383645,
+      "NC": 0.997715625,
+      "DAC": 0.953309375,
+      "TTC": 0.974996875,
+      "EP": 0.679603600035781,
+      "safe_fraction": 0.93065625
+    }
+  },
+  "by_SFT_single_seed_safety": {
+    "DAC": {
+      "hard_population_scenes": 637,
+      "scene_exposures": 1158,
+      "unique_scenes": 637,
+      "unique_logs": 323,
+      "candidates": 9264,
+      "groups": {
+        "all_full": 19,
+        "all_zero": 48,
+        "tied": 67,
+        "zero_PG": 67,
+        "progress_only": 13,
+        "safety_differing": 1079
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 4256,
+        "positive_still_unsafe": 40,
+        "positive_unsafe_with_safe_alternative": 39
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 4256,
+        "positive_still_unsafe": 40,
+        "positive_unsafe_with_safe_alternative": 39
+      },
+      "active_positive_unsafe_fraction": 0.00931098696461825,
+      "unsafe_candidates": 4791,
+      "groups_with_unsafe_candidates": 1121,
+      "groups_with_only_unsafe_candidates": 49,
+      "groups_with_safe_and_unsafe_candidates": 1072,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.4690056356480025,
+        "train_reward_mean": 0.46900563558405955,
+        "NC": 0.9988665803108808,
+        "DAC": 0.48877374784110533,
+        "TTC": 0.9749568221070811,
+        "EP": 0.44829194572435127,
+        "safe_fraction": 0.48283678756476683
+      }
+    },
+    "DAC+TTC": {
+      "hard_population_scenes": 10,
+      "scene_exposures": 20,
+      "unique_scenes": 10,
+      "unique_logs": 10,
+      "candidates": 160,
+      "groups": {
+        "all_full": 0,
+        "all_zero": 1,
+        "tied": 1,
+        "zero_PG": 1,
+        "progress_only": 0,
+        "safety_differing": 20
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 54,
+        "positive_still_unsafe": 11,
+        "positive_unsafe_with_safe_alternative": 9
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 54,
+        "positive_still_unsafe": 11,
+        "positive_unsafe_with_safe_alternative": 9
+      },
+      "active_positive_unsafe_fraction": 0.16923076923076924,
+      "unsafe_candidates": 106,
+      "groups_with_unsafe_candidates": 20,
+      "groups_with_only_unsafe_candidates": 2,
+      "groups_with_safe_and_unsafe_candidates": 18,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.380122559856952,
+        "train_reward_mean": 0.38012255653738974,
+        "NC": 0.984375,
+        "DAC": 0.43125,
+        "TTC": 0.5,
+        "EP": 0.4022941436566847,
+        "safe_fraction": 0.3375
+      }
+    },
+    "NC": {
+      "hard_population_scenes": 4,
+      "scene_exposures": 8,
+      "unique_scenes": 4,
+      "unique_logs": 4,
+      "candidates": 64,
+      "groups": {
+        "all_full": 0,
+        "all_zero": 0,
+        "tied": 0,
+        "zero_PG": 0,
+        "progress_only": 0,
+        "safety_differing": 8
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 27,
+        "positive_still_unsafe": 5,
+        "positive_unsafe_with_safe_alternative": 4
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 27,
+        "positive_still_unsafe": 5,
+        "positive_unsafe_with_safe_alternative": 4
+      },
+      "active_positive_unsafe_fraction": 0.15625,
+      "unsafe_candidates": 37,
+      "groups_with_unsafe_candidates": 8,
+      "groups_with_only_unsafe_candidates": 1,
+      "groups_with_safe_and_unsafe_candidates": 7,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.45030341641620186,
+        "train_reward_mean": 0.45030339900404215,
+        "NC": 0.515625,
+        "DAC": 1.0,
+        "TTC": 0.625,
+        "EP": 0.45885319939888436,
+        "safe_fraction": 0.421875
+      }
+    },
+    "NC+TTC": {
+      "hard_population_scenes": 22,
+      "scene_exposures": 40,
+      "unique_scenes": 22,
+      "unique_logs": 16,
+      "candidates": 320,
+      "groups": {
+        "all_full": 0,
+        "all_zero": 3,
+        "tied": 4,
+        "zero_PG": 4,
+        "progress_only": 1,
+        "safety_differing": 35
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 102,
+        "positive_still_unsafe": 22,
+        "positive_unsafe_with_safe_alternative": 14
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 102,
+        "positive_still_unsafe": 22,
+        "positive_unsafe_with_safe_alternative": 14
+      },
+      "active_positive_unsafe_fraction": 0.1774193548387097,
+      "unsafe_candidates": 218,
+      "groups_with_unsafe_candidates": 40,
+      "groups_with_only_unsafe_candidates": 7,
+      "groups_with_safe_and_unsafe_candidates": 33,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.4230138575769201,
+        "train_reward_mean": 0.4230138536542654,
+        "NC": 0.5484375,
+        "DAC": 0.978125,
+        "TTC": 0.321875,
+        "EP": 0.5730634708326665,
+        "safe_fraction": 0.31875
+      }
+    },
+    "SFT_single_seed_safe": {
+      "hard_population_scenes": 20971,
+      "scene_exposures": 38098,
+      "unique_scenes": 20971,
+      "unique_logs": 1044,
+      "candidates": 304784,
+      "groups": {
+        "all_full": 0,
+        "all_zero": 5,
+        "tied": 44,
+        "zero_PG": 44,
+        "progress_only": 28202,
+        "safety_differing": 7286
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 170355,
+        "positive_still_unsafe": 95,
+        "positive_unsafe_with_safe_alternative": 74
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 170355,
+        "positive_still_unsafe": 95,
+        "positive_unsafe_with_safe_alternative": 74
+      },
+      "active_positive_unsafe_fraction": 0.000557348195951892,
+      "unsafe_candidates": 13973,
+      "groups_with_unsafe_candidates": 7294,
+      "groups_with_only_unsafe_candidates": 10,
+      "groups_with_safe_and_unsafe_candidates": 7284,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.8414107053677089,
+        "train_reward_mean": 0.8414107054015133,
+        "NC": 0.9991928710168513,
+        "DAC": 0.9675836001889863,
+        "TTC": 0.9854519922305632,
+        "EP": 0.6834001305929667,
+        "safe_fraction": 0.9541544175547273
+      }
+    },
+    "TTC": {
+      "hard_population_scenes": 373,
+      "scene_exposures": 676,
+      "unique_scenes": 373,
+      "unique_logs": 237,
+      "candidates": 5408,
+      "groups": {
+        "all_full": 9,
+        "all_zero": 2,
+        "tied": 30,
+        "zero_PG": 30,
+        "progress_only": 5,
+        "safety_differing": 640
+      },
+      "raw_positive_candidate_counts": {
+        "positive_safe": 2261,
+        "positive_still_unsafe": 287,
+        "positive_unsafe_with_safe_alternative": 200
+      },
+      "active_PG_positive_candidate_counts": {
+        "positive_safe": 2261,
+        "positive_still_unsafe": 287,
+        "positive_unsafe_with_safe_alternative": 200
+      },
+      "active_positive_unsafe_fraction": 0.11263736263736264,
+      "unsafe_candidates": 3065,
+      "groups_with_unsafe_candidates": 664,
+      "groups_with_only_unsafe_candidates": 46,
+      "groups_with_safe_and_unsafe_candidates": 618,
+      "stochastic_mean": {
+        "canonical_random_mean": 0.6937623943750673,
+        "train_reward_mean": 0.6937623796929445,
+        "NC": 0.9451738165680473,
+        "DAC": 0.9580251479289941,
+        "TTC": 0.4426775147928994,
+        "EP": 0.879000748002906,
+        "safe_fraction": 0.43324704142011833
+      }
+    }
+  },
+  "matched_scene_order_digest": "28c2e3599b8eb6a686468313d356cd6d0095165936a79e3d8ce97319eb7eecb7",
+  "selected_unsafe_positive_groups": {
+    "groups": 200,
+    "candidate_records": 1600,
+    "preexisting_chain_digest_verified": 0,
+    "legacy_without_preexisting_chain_digest": 200,
+    "counters": {
+      "raw_positive_unsafe": 460,
+      "masked_positive_unsafe": 0,
+      "active_positive_unsafe": 460,
+      "active_positive_safe": 348,
+      "active_positive_unsafe_with_safe_alternative": 340,
+      "active_positive_unsafe_without_safe_alternative": 120,
+      "unsafe_positive_score_above_best_safe": 0,
+      "unsafe_positive_score_equal_best_safe": 0,
+      "unsafe_positive_score_below_best_safe": 340,
+      "unsafe_positive_advantage_sum": 225.90318289459537,
+      "unsafe_positive_clipped_advantage_sum": 225.90318289459537,
+      "selected_group_positive_advantage_sum": 932.5505364245255,
+      "selected_group_positive_clipped_advantage_sum": 932.5505364245255,
+      "selected_group_safe_positive_advantage_sum": 706.6473535299301,
+      "selected_group_unsafe_positive_with_nonunit_comfort": 0
+    },
+    "unsafe_positive_types": {
+      "TTC": 446,
+      "NC+TTC": 14
+    },
+    "unique_positive_unsafe_scenes": 163,
+    "active_unsafe_positive_counts_in_top1_top10_top50_scenes": [
+      10,
+      77,
+      265
+    ],
+    "score_gap_to_best_safe_quantiles": {
+      "0": -0.7083333333333333,
+      "0.05": -0.43420771963904997,
+      "0.5": -0.41666666666666663,
+      "0.95": -0.37448706169099305,
+      "1": -0.31324967848947904
+    },
+    "private_evidence_sha256": "003194d93b541cddca20b824035cf7e4669efa38c2f0f8fcadeba503f04078de"
+  },
+  "cost": {
+    "worker_wall_seconds": 8.809772165492177,
+    "saved_file_bytes_read_and_hashed": 101598384,
+    "new_scores": 0,
+    "new_rollout_candidates": 0,
+    "optimizer_updates": 0,
+    "GPU_used": false
+  },
+  "limitations": [
+    "SFT safety is defined by one fixed seed; not safety for every root noise.",
+    "Counts or advantage sums are not gradient norms, causal attribution, or deployment metrics.",
+    "Selected-group advantage sums exclude groups with no unsafe positives; no global advantage-mass fraction is claimed.",
+    "Global raw std is checked for saved-value and rank consistency; unselected chains are not reread to independently reconstruct it.",
+    "Legacy canonical journals lack committed chain digests; file hashes, behavior/order, recomputed readouts/advantages and journal statistics are checked, without inventing historical hashes.",
+    "No DEV/Navtest samples, parameter fitting, new reward, curriculum, or policy update are used."
+  ]
+}

@@ -6,6 +6,8 @@
 
 初版[文档校验记录](documentation_validation_20261016.json)核对了124个JSON表格数值、53处本地链接、三个实际CLI帮助入口和既有源码hash；它绑定初版文档，不代表后续增补版本。最新整合的数字、链接和文档范围另见[校验记录](consolidation_validation_20261016.json)。这些都是文档复核，不是新增算法验收或效果实验。
 
+后续[完整TRAIN安全信号分析](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/README.md)核对两组各40,000次实际曝光及全部违规正优势组：有安全替代的340/270条违规正优势全部低于组内最好安全候选，固定SFT的TTC失败人口占曝光1.84%。此次新增证据及当前文档hash见[后续校验](../../ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/validation.json)；前述校验保留为对应历史文档版本。
+
 这是已有实验的源码分析与有限TRAIN诊断，不是新的算法训练矩阵。已经完成的正式X1使用锁定源码`368aba3`；以下检查不改变其actor、loss、随机窗口、奖励或部署。R_SOURCE/R_CANONICAL/X1均已完成20k及完整Navtest；本报告不把工程验收当作提分证据。
 
 ## 多来源对照的实际边界
