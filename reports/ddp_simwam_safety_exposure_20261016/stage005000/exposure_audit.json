@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "checked_optimizer_updates": 5000,
+  "fresh_global_rollouts": 1250,
+  "scene_exposures": 10000,
+  "new_candidates": 80000,
+  "actual_exposures": {
+    "unsafe": 2500,
+    "safe": 7500
+  },
+  "per_rank_exposures": {
+    "0": {
+      "unsafe": 313,
+      "safe": 937
+    },
+    "1": {
+      "unsafe": 314,
+      "safe": 936
+    },
+    "2": {
+      "safe": 937,
+      "unsafe": 313
+    },
+    "3": {
+      "safe": 938,
+      "unsafe": 312
+    },
+    "4": {
+      "safe": 938,
+      "unsafe": 312
+    },
+    "5": {
+      "safe": 938,
+      "unsafe": 312
+    },
+    "6": {
+      "safe": 938,
+      "unsafe": 312
+    },
+    "7": {
+      "safe": 938,
+      "unsafe": 312
+    }
+  },
+  "SFT_single_seed_safety_types": {
+    "DAC": 1526,
+    "TTC": 891,
+    "SFT_single_seed_safe": 7500,
+    "NC+TTC": 51,
+    "DAC+TTC": 23,
+    "NC": 9
+  },
+  "unique_scenes": 8546,
+  "all_hard_members_visited": false,
+  "actual_input_order_sha256": "5e10c24341d8ad093ac6c541a2e1cb7ced1189316c9f9f4893c642da9be80e6c",
+  "all_four_inner_identities_fixed": true,
+  "no_new_actor_rollout_or_scoring": true,
+  "schema": "simwam_observed_static_safety_exposure_v1",
+  "captured_utc": "2026-10-16T15:27:05.798870+00:00",
+  "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+  "scientific_identity": "c8ae95efda7b64c9872832c2c4b2cbd4ee8f7f7789004214910314000498e366",
+  "manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+  "analysis_sha256": "09cb7a558a071f66a748cb968005ff1908aea99b856fa2909a56b79cb974c41a",
+  "checked_row_prefix_sha256": [
+    "e64826eb0e50dbe3e62fe59ca22f695195ce0574f9fbb633b847a6f4f790cba3",
+    "f239f1b098ba1f1b00de41c8c20bbc17e57cb0fc047b48e7b800b5c3a10a05e9",
+    "5fe5998a5eef5a5363cb2a7216a83d9d47fe8a1221159078338e10c0041410db",
+    "7e748d6a9c48094ba8ceadbf386f605ce0816cb646fb63e1a4e2b47e5bf0bff8",
+    "71b7e269b5149d68a15c5ca4aab933394c0f1b31e7565cb5c85bcdb6ce3de30c",
+    "8fab81b5904f44ef5b3afa716ff2b4bde6c712154e5edba1f753019030688c3d",
+    "c4d211de717baf543354b73791ac4d058e7813ff47f3c001167a0481c2e910f2",
+    "1126b3e366be51fc8494632673b6fa9b63bec08c849c25c29591f717c2c7fa1e"
+  ],
+  "measured_analysis_body_seconds": 2.8678555097430944,
+  "limits": [
+    "This audits actual data exposure and inner reuse, not driving efficacy.",
+    "SFT safety labels use a fixed single seed; no current-policy rejection sampling.",
+    "Counts reflect committed learning rows; physical failed work is in the invocation cost ledger."
+  ]
+}

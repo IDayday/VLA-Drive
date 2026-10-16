@@ -1,0 +1,132 @@
+{
+  "status": "PASS_COMPLETE_FIXED_5K_STAGE",
+  "captured_utc": "2026-10-16T15:30:35.971661+00:00",
+  "checks": [
+    "controller completion marker and sealed5000 export",
+    "source summaries hashes unchanged",
+    "both complete scene populations and both grids",
+    "paired differences and positive/negative gain sums",
+    "4416 official evaluations and4432 physical trajectories including16 entry checks",
+    "no missing cost invocations",
+    "actual10000 exposure budget and8546 independent TRAIN scenes",
+    "local report links",
+    "all16 evaluation processes exited; two formal trainers and four controllers live",
+    "Navtest remains closed pending20k and allDEV gates"
+  ],
+  "supplementary_Canonical5k_DEV": {
+    "summary_sha256": "46587b059af74a37c0109e7cee037930d1fe7e4c7085237ab8b2217b95c65c01",
+    "native_PDMS": 94.31209164524127,
+    "SAFETY25_minus_Canonical": -0.03487979004134445,
+    "not_single_factor_control": true
+  },
+  "runs": [
+    {
+      "name": "R_CANONICAL_LAST_ODE_seed42_v1",
+      "host": "training-vlawm-tsinghua-zt2",
+      "pid": 1366390,
+      "start_ticks": 1359038482,
+      "sealed_updates": 9500,
+      "live": true,
+      "checkpoint": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1/checkpoints/update009500_inner0"
+    },
+    {
+      "name": "R_CANONICAL_X1_SAFETY25_seed42_v1",
+      "host": "training-vlawm-tsinghua-zt4",
+      "pid": 183059,
+      "start_ticks": 1359705890,
+      "sealed_updates": 5800,
+      "live": true,
+      "checkpoint": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1/checkpoints/update005800_inner0"
+    }
+  ],
+  "evaluation_processes": [
+    {
+      "host": "training-vlawm-tsinghua-zt",
+      "cohort": "DEV",
+      "workers": [
+        {
+          "pid": 1222488,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222495,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222502,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222507,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222513,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222519,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222525,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 1222531,
+          "same_evaluator_live": false
+        }
+      ]
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt4",
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "workers": [
+        {
+          "pid": 190618,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190619,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190620,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190621,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190622,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190623,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190624,
+          "same_evaluator_live": false
+        },
+        {
+          "pid": 190625,
+          "same_evaluator_live": false
+        }
+      ]
+    }
+  ],
+  "final_queue": {
+    "status": "WAITING_FOR_REGISTERED_ENDPOINTS_AND_DEV_STAGES",
+    "pid": 42720,
+    "time": 1792164626.1611698,
+    "Navtest_opened": false
+  },
+  "files_sha256": {
+    "README.md": "379b5899d63467ef21fdd3ec9f82e377979fe85a18b233b0d82bbec7ecddee6b",
+    "results.json": "d8647a107e1be72b0a0da92dd871cec3a6f30768e1495e79e12a120de90dbc66",
+    "exposure_audit.json": "8cd419dc5dfc4be2426281ce59b61cb12707ccc72ec7bb0a11c0fba07bee7e82"
+  },
+  "new_scores_or_inference_from_validation": 0
+}
