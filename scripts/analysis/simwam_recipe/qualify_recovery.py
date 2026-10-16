@@ -37,7 +37,7 @@ def main():
             if not k.startswith('seconds_'):equal(ranks[0]['state'][k],ranks[1]['state'][k],k)
         for collection in (1,2):
             rows=[read(r,f'behavior/collection{collection:06}/rank{rank}.pt') for r in roots]
-            for key in ('chain','timesteps','deltas','stoch_idx','old_logp','advantages','adv_mask','global_std','rewards','old_probability','behavior_version','token'):
+            for key in ('chain','timesteps','deltas','stoch_idx','old_logp','advantages','adv_mask','global_std','rewards','old_probability','behavior_version','token','log','stream_position'):
                 equal(rows[0][key],rows[1][key],f'rank{rank}.collection{collection}.{key}')
         metrics=[[json.loads(l) for l in (r/f'metrics_rank{rank}.jsonl').read_text().splitlines()] for r in roots]
         for i in range(8):

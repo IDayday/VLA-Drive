@@ -14,6 +14,10 @@ FOLLOWUPS = {
     'R_CANONICAL_LAST_ODE': dict(
         root='/mnt/project/simwam-terminal-ode-20261016',
         status='REGISTERED_UNDER_ACTIVE_USER_GOAL', config='canonical_last_ode'),
+    'R_CANONICAL_X1_SAFETY25': dict(
+        root='/mnt/project/simwam-safety-exposure-20261016',
+        status='REGISTERED_UNDER_ACTIVE_USER_GOAL', config='canonical_x1_safety25',
+        matched_control='R_CANONICAL_X1',control_root='/mnt/project/simwam-x-anchor-20261015'),
 }
 
 
@@ -37,6 +41,7 @@ def add_arguments(parser):
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--followup-x1', action='store_true')
     group.add_argument('--followup-last-ode', action='store_true')
+    group.add_argument('--followup-safety25', action='store_true')
 
 
 def selected_variant(args):
@@ -44,4 +49,12 @@ def selected_variant(args):
         return 'R_CANONICAL_X1'
     if args.followup_last_ode:
         return 'R_CANONICAL_LAST_ODE'
+    if args.followup_safety25:
+        return 'R_CANONICAL_X1_SAFETY25'
     return None
+
+
+def matched_control(variant):
+    from starVLA.rl.simwam_recipe.contracts import ROOT
+    spec=FOLLOWUPS[variant]
+    return spec.get('matched_control','R_CANONICAL'),Path(spec.get('control_root',ROOT))

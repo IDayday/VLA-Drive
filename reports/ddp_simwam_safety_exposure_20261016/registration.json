@@ -1,0 +1,113 @@
+{
+  "schema": "simwam_fixed_safety_exposure_followup_v1",
+  "status": "REGISTERED_UNDER_ACTIVE_USER_GOAL",
+  "proposed_name": "R_CANONICAL_X1_SAFETY25",
+  "registered_utc": "2026-10-16T13:25:39.158478+00:00",
+  "user_goal": "继续修改完善强化学习部分，要能实现强化学习提升到92以上。允许使用的服务器都尽可能用上，加速开发迭代。",
+  "authorization_boundary": "One finite independently named data-exposure follow-up under the active improvement goal; not a claim that the user selected this exact quota. Original SOURCE/CANONICAL/X1 budgets are completed; running LAST_ODE recipe and budget remain immutable.",
+  "parent_code": "8bc2d08fd17e7892e8834797926079cd3dfc5810",
+  "source_branch": "feature/ddp-simwam-safety-exposure-20261016",
+  "output_root": "/mnt/project/simwam-safety-exposure-20261016",
+  "parent_control": "R_CANONICAL_X1",
+  "parent_control_run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+  "initialization": "Same original F-SFT and zero-B attention LoRA seed42 as X1; never initialize from trained X1 or LAST_ODE",
+  "scientific_factor": "Fixed training exposure across SFT safety strata; data membership, model, loss, sampler and update count unchanged",
+  "scene_sampling": {
+    "schema": "fixed_SFT_safety_6plus2_v1",
+    "safe_groups": 6,
+    "unsafe_groups": 2,
+    "rotate_ranks": true,
+    "stratum_permutation_seed": 42,
+    "reference_metrics": [
+      "no_at_fault_collisions",
+      "drivable_area_compliance",
+      "time_to_collision_within_bound"
+    ],
+    "reference_pass_value": 1.0,
+    "reference_population": "same fixed hard TRAIN manifest",
+    "importance_correction": false
+  },
+  "data_order": "fixed SFT single-seed NC/DAC/TTC strata; 6 safe + 2 unsafe per global8; rotating ranks; independent source epoch permutations",
+  "hard_manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+  "hard_cohort_sizes": {
+    "safe": 20971,
+    "unsafe": 1046
+  },
+  "observed_control_exposures": {
+    "safe": 38098,
+    "unsafe": 1902
+  },
+  "registered_new_exposures": {
+    "safe": 30000,
+    "unsafe": 10000
+  },
+  "quota_rationale": "Two of eight scene groups increases safety-failure coverage while retaining six ordinary hard groups. This is a single engineering test, not a fitted optimum; no quota sweep or DEV/Navtest tuning.",
+  "derived_changes": [
+    "Scene order differs by design; compare equal320000 new scores and40000 raw exposures, not paired current rollouts",
+    "Equal-rank source loss reduction is unchanged; rank slots rotate so each rank has3750 safe and1250 unsafe exposures",
+    "Raw global reward std changes with the new mixture; its calculation and loss coefficient are unchanged",
+    "No importance correction: this explicitly optimizes a reweighted TRAIN population, not an unbiased uniform-population estimator",
+    "Each stratum cycles source epoch permutations without padding at its own boundary; raw cursor reconstructs its position"
+  ],
+  "unchanged": [
+    "F-SFT, condition cache, frozen upstream/qwen_proj and96 attention LoRA projections192 tensors",
+    "X1 anchor [1,1,.5,.5], beta50, source weighted denominator3",
+    "G8/K10/shift5 stochastic[7,8,9], source rigorous SDE and both clamps",
+    "Canonical5:5:2 training reward and independent v1.1 scoring",
+    "Global raw reward std, source rank mean, tied-group PG mask, four inner updates",
+    "LR5e-5, warmup100, constant AdamW(.9,.95), effective clipping0",
+    "No GT replay, BC, extra costs/duals, learned noise, external candidates or dynamic reward-based sampling",
+    "Trainseed42, evalseed2101, original native10ODE and shift5 independently"
+  ],
+  "budget": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "new_candidates": 320000,
+    "training_world": 8
+  },
+  "qualification": {
+    "CPU": "Full40000 planned data order, stratum/rank budgets, cohort boundary resume, frozen original stream, RNG and strict recipe guards",
+    "real": "Eight-GPU continuous8 updates and interrupted-after-inner2 then exact resume to8; qualification weights discarded",
+    "native_export": "Original merged deployment from qualification checkpoint on2 TRAIN scenes",
+    "manifest_sha256": "8dd569a43d9d23b1521e86e58d5117147b3f3bd07bf4bbd869b4010ba5bf7545",
+    "manifest_scenes": 32,
+    "new_candidate_scoring_budget": 256,
+    "formal_scoring_not_included": true
+  },
+  "evaluation": {
+    "stage_updates": [
+      5000,
+      10000,
+      15000,
+      20000
+    ],
+    "DEV_scenes": 1696,
+    "TRAIN_diagnostic_scenes": 512,
+    "NAVTEST_scenes": 12146,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "seed": 2101,
+    "final_endpoint": "Fixed20000, lock checkpoint/source before Navtest",
+    "matched_control": "Reuse same-stage/endpoint X1, plus same-grid SFT; Canonical is historical context",
+    "new_stage_predictions": 17664,
+    "final_predictions": 24292,
+    "selection": "No best-of-two, new seeds or checkpoint selection"
+  },
+  "rationale": {
+    "evidence": "reports/ddp_simwam_terminal_ode_20261016/TRAIN_safety_signal/README.md",
+    "data_only": "Both complete runs coveredall22017 scenes; only1.84% exposure from SFT TTC failures and0.12% from NC failures; unsafe positives do not outrank best safe candidates; true TTC-failure groups often contain safe candidates",
+    "parallel_reason": "This comparison uses completed X1 as control and does not depend on LAST_ODE results. Run independently on capacity-qualified authorized resources to shorten iteration; do not combine factors."
+  },
+  "failure_policy": "Existing numerical/infrastructure abort, failure-evidence and atomic native-recovery rules; preserve legal poor trajectories. No new score-selected early stopping or unregistered hyperparameter change.",
+  "target": "Canonical E_NATIVE single-candidate Navtest>=92 and explicit NC/DAC/TTC safety accounting; not a promised result",
+  "resource_policy": "Only currently allowed Flow Tsinghua1-4, measured memory, GPU sharing, no eviction or revoked hosts; old C/N remain stopped",
+  "limits": [
+    "SFT safety labels use one fixed seed, not all-noise safety",
+    "More safety exposure may overfit1046 failure scenes or lose progress; full DEV and fixed Navtest decide",
+    "Static6+2 is an active algorithm/data modification, not an original SimWAM design",
+    "No Navtest scene or DEV statistic selects the strata or quota"
+  ]
+}

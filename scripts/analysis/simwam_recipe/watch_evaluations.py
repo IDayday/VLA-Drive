@@ -16,7 +16,7 @@ import traceback
 from starVLA.rl.simwam_recipe.contracts import ROOT
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes,preflight_analysis_compatibility
-from scripts.analysis.simwam_recipe.registered_followup import add_arguments,selected_variant,require_registration
+from scripts.analysis.simwam_recipe.registered_followup import add_arguments,selected_variant,require_registration,FOLLOWUPS,matched_control
 
 
 def main():
@@ -83,6 +83,16 @@ def main():
                             if a.source_compatibility:command+=['--source-compatibility',a.source_compatibility]
                             subprocess.run(command,check=True)
                         results[cohort]=str(summary)
+                        if variant in FOLLOWUPS and 'matched_control' in FOLLOWUPS[variant]:
+                            control_name,control_root=matched_control(variant)
+                            paired=evaluation/('versus_'+control_name+'.json')
+                            if not paired.exists():
+                                reference=control_root/'evaluations'/f'{control_name}_update{step:06}_{cohort}'
+                                command=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
+                                    '--evaluation',str(evaluation),'--reference',str(reference),'--output',str(paired)]
+                                if a.source_compatibility:command+=['--source-compatibility',a.source_compatibility]
+                                subprocess.run(command,check=True)
+                            results[cohort+'_matched_control']=str(paired)
                     if complete:
                         atomic_json(done,dict(status='COMPLETE',label=label,results=results,time=time.time()));finished.append(label)
                     else:break

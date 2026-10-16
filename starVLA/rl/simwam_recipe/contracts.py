@@ -14,12 +14,19 @@ CONDITION_SHA = '80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0
 ROOT = '/mnt/project/simwam-recipe-20261015'
 CACHE_ROOTS = ['/mnt/project/flow-safe-improvement-20261013/metric_cache_v1',
                '/mnt/project/constrained-flow-noise-20261014/metric_cache_v1']
+SAFETY25_VARIANT = 'R_CANONICAL_X1_SAFETY25'
+SAFETY25_DATA_ORDER = 'fixed SFT single-seed NC/DAC/TTC strata; 6 safe + 2 unsafe per global8; rotating ranks; independent source epoch permutations'
+SAFETY25_SAMPLING = dict(schema='fixed_SFT_safety_6plus2_v1', safe_groups=6,
+    unsafe_groups=2, rotate_ranks=True, stratum_permutation_seed=42,
+    reference_metrics=['no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound'],
+    reference_pass_value=1., reference_population='same fixed hard TRAIN manifest',
+    importance_correction=False)
 
 
 def registered_stochastic_steps(variant):
     if variant == 'R_CANONICAL_LAST_ODE':
         return [6, 7, 8]
-    if variant in ('R_SOURCE', 'R_CANONICAL', 'R_CANONICAL_X1'):
+    if variant in ('R_SOURCE', 'R_CANONICAL', 'R_CANONICAL_X1', SAFETY25_VARIANT):
         return [7, 8, 9]
     raise ValueError('Unknown registered sampler variant: ' + str(variant))
 
@@ -38,6 +45,14 @@ def require_dispatch():
 def load_recipe(path):
     from omegaconf import OmegaConf
     cfg = OmegaConf.to_container(OmegaConf.load(path), resolve=True)
+    if cfg['variant'] == SAFETY25_VARIANT:
+        base_path = Path(__file__).resolve().parents[3] / 'configs/flow_rl/simwam_canonical_x1_ddp.yaml'
+        expected = copy.deepcopy(load_recipe(base_path))
+        expected.update(variant=SAFETY25_VARIANT, data_order=SAFETY25_DATA_ORDER,
+                        scene_sampling=copy.deepcopy(SAFETY25_SAMPLING))
+        if cfg != expected:
+            raise ValueError('SAFETY25 permits only the registered static TRAIN exposure change relative to X1')
+        return cfg
     if cfg['variant'] == 'R_CANONICAL_LAST_ODE':
         # A separate single-window follow-up; the source and X1 contracts stay
         # immutable. The existing upstream kernel, not a new transition, is used.

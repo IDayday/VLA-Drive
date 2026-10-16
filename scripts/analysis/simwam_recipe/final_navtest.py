@@ -19,7 +19,7 @@ import traceback
 from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_EXPORT,SFT_SHA256,file_sha,fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes,preflight_analysis_compatibility
-from scripts.analysis.simwam_recipe.registered_followup import add_arguments,selected_variant,require_registration
+from scripts.analysis.simwam_recipe.registered_followup import add_arguments,selected_variant,require_registration,matched_control
 
 DATA=Path('/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset')
 DATALIST=Path('/mnt/project/DriveDreamer-Policy/test_meta.json')
@@ -228,10 +228,11 @@ def main():
                     subprocess.run(cmd,cwd=snapshot,check=True)
                 if variant:
                     output=root/'evaluations'/(variant+'_final20000_NAVTEST')
-                    control=output/'versus_R_CANONICAL.json'
+                    control_name,control_root=matched_control(variant)
+                    control=output/('versus_'+control_name+'.json')
                     if not control.exists():
                         command=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
-                            '--evaluation',str(output),'--reference',str(Path(ROOT)/'evaluations/R_CANONICAL_final20000_NAVTEST'),
+                            '--evaluation',str(output),'--reference',str(control_root/'evaluations'/(control_name+'_final20000_NAVTEST')),
                             '--output',str(control)]
                         if a.source_compatibility:command+=['--source-compatibility',a.source_compatibility]
                         subprocess.run(command,cwd=snapshot,check=True)

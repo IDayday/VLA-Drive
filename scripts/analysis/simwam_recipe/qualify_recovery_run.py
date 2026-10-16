@@ -11,12 +11,13 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--name',required=True)
     p.add_argument('--root',default=ROOT)
     p.add_argument('--config',default='configs/flow_rl/simwam_source_ddp.yaml')
+    p.add_argument('--manifest',default=ROOT+'/qualification/real_TRAIN_tokens.json')
     p.add_argument('--interrupted-after',type=int,choices=[1,2,3],default=1)
     a=p.parse_args();require_dispatch();load_recipe(a.config)
     root=Path(a.root)/'qualification'/a.name;root.mkdir(parents=True,exist_ok=False)
     env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',NO_ALBUMENTATIONS_UPDATE='1')
     common=[sys.executable,'-m','torch.distributed.run','--standalone','--nproc_per_node=8','--module','scripts.analysis.simwam_recipe.train',
-            '--config',a.config,'--manifest',ROOT+'/qualification/real_TRAIN_tokens.json','--qualification','--save-every','100']
+            '--config',a.config,'--manifest',a.manifest,'--qualification','--save-every','100']
     boundary=a.interrupted_after
     tasks=[('continuous',8,None),('resumed',boundary,None),
            ('resumed',8,root/f'resumed/checkpoints/update{boundary:06}_inner{boundary}')]

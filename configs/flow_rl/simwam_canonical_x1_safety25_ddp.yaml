@@ -1,0 +1,133 @@
+batch_size: 1
+learning_rate: 5.0e-05
+lr_warmup_steps: 100
+lr_scheduler_type: constant
+max_steps: 20000
+gradient_accumulation_steps: 1
+seed: 42
+weight_decay: 0.01
+max_grad_norm: 1.0
+grpo:
+  target: action
+  sample:
+    group_size: 8
+    num_inference_steps: 10
+    infer_shift: null
+    sample_noise_std: 0.1
+    logprob_noise_std: null
+    anneal_noise: true
+    min_std: 0.001
+    randn_clip: 5.0
+    logprob_clamp_mode: relative
+    logprob_clamp_width: 7.0
+    final_action_clip: null
+    sde_mode: rigorous
+    noise_level: 0.1
+    train_sde_steps: 3
+    sde_exclude_last_step: false
+    sde_step_indices: null
+    merge_sde_window: false
+  train:
+    denoising_discount: 1.0
+    adv_clip_lower_quantile: 0.0
+    adv_clip_upper_quantile: 1.0
+    adv_eps: 1.0e-08
+    adv_global_std: true
+    drop_zero_adv: true
+    use_bc_loss: false
+    bc_coeff: 0.1
+    kl_beta: 50
+    kl_type: x
+    kl_dim_weights:
+    - 1.0
+    - 1
+    - 0.5
+    - 0.5
+    kl_horizon_weights: null
+    ppo_clip_range: 0.005
+    adv_clip_max: 5.0
+    num_inner_epochs: 4
+    rollout_buffer_batches: 1
+    kl_gate:
+      enabled: false
+      delta: 0.0001
+      asymmetric: false
+  lora:
+    enabled: true
+    r: 16
+    alpha: 32.0
+    dropout: 0.0
+    target_modules:
+    - q
+    - k
+    - v
+    - o
+  reward:
+    name: pdm
+    metric_cache_path: ./data/metric_cache_navtrain
+    proposal_time_horizon: 4.0
+    proposal_interval: 0.1
+    model_trajectory_interval: 0.5
+    progress_weight: 5.0
+    ttc_weight: 5.0
+    comfortable_weight: 2.0
+  eval:
+    enabled: true
+    num_batches: 8
+  vis:
+    enabled: true
+    every: 100
+    num_conditions: 2
+    max_samples: 0
+    plot_mode: bev_camera
+    dpi: 150
+evaluation_seed: 2101
+world_size: 8
+action_infer_shift: 5.0
+action_shape:
+- 8
+- 4
+model_storage_dtype: float32
+latent_dtype: float32
+velocity_compute_dtype: float32
+autocast: false
+probability_dtype: float32
+advantage_statistics_dtype: float64
+optimizer: AdamW
+optimizer_betas:
+- 0.9
+- 0.95
+optimizer_eps: 1.0e-08
+distributed_platform: torch_DDP_FP32_LoRA_optimizer
+DDP_find_unused_parameters: true
+DDP_static_graph: false
+DDP_bucket_cap_mb: 25
+gradient_clipping_effective: 0.0
+gradient_clipping_reason: source DS JSON omits gradient_clipping; source Accelerate
+  DeepSpeed path does not call torch clip
+data_order: fixed SFT single-seed NC/DAC/TTC strata; 6 safe + 2 unsafe per global8;
+  rotating ranks; independent source epoch permutations
+save_every_optimizer_updates: 100
+evaluate_updates:
+- 0
+- 5000
+- 10000
+- 15000
+- 20000
+anchor_mapping: heading_pair_average
+PG_reduction: source_rank_mean
+probability_mode: source_relative_clamp
+variant: R_CANONICAL_X1_SAFETY25
+scene_sampling:
+  schema: fixed_SFT_safety_6plus2_v1
+  safe_groups: 6
+  unsafe_groups: 2
+  rotate_ranks: true
+  stratum_permutation_seed: 42
+  reference_metrics:
+  - no_at_fault_collisions
+  - drivable_area_compliance
+  - time_to_collision_within_bound
+  reference_pass_value: 1.0
+  reference_population: same fixed hard TRAIN manifest
+  importance_correction: false

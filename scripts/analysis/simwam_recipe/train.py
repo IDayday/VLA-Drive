@@ -25,7 +25,7 @@ from starVLA.rl.simwam_recipe.trainer_adapter import make_actor
 from starVLA.rl.simwam_recipe.condition import ProjectedConditions
 from starVLA.rl.simwam_recipe.reward_readouts import RewardService
 from starVLA.rl.simwam_recipe.collection import collect,finalize_advantages,exploration_summary
-from starVLA.rl.simwam_recipe.data_stream import SceneStream
+from starVLA.rl.simwam_recipe.data_stream import make_scene_stream
 from starVLA.rl.simwam_recipe import checkpoint
 from starVLA.rl.simwam_recipe.recovery_state import boundary_phase,rollout_digest,validate_boundary,validate_ranks
 from starVLA.rl.simwam_recipe.invocation import Invocation
@@ -88,7 +88,7 @@ def main():
     random.seed(42);np.random.seed(42);torch.manual_seed(42)
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
     lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    stream=SceneStream(a.manifest,world,qualification=a.qualification)
+    stream=make_scene_stream(cfg,a.manifest,world,qualification=a.qualification)
     actor,oldcfg,sft=make_actor(cfg,device=device)
     conditions=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert)
     service=RewardService(Path.cwd(),workers=1)
@@ -106,6 +106,7 @@ def main():
                     actual_optimizer=dict(name='torch.optim.AdamW',lr=cfg['learning_rate'],betas=cfg['optimizer_betas'],
                                           eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'],warmup_updates=warmup,
                                           max_grad_norm_effective=cfg['gradient_clipping_effective'],FP32_master_and_moments=True))
+    if hasattr(stream,'identity'):identity['data_stream_identity']=stream.identity
     identity['scientific_identity']=scientific_identity(identity)
     identity['execution_identity']=execution_identity(identity['source_files'])
     identity['sha256']=fingerprint(identity)

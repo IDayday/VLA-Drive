@@ -1,0 +1,147 @@
+{
+  "status": "PASS",
+  "checks": [
+    "complete_recipe_only_exposure_change",
+    "source_random_window_unchanged",
+    "original_X1_all40000_scene_positions_exact",
+    "every_collection_has_exact6plus2",
+    "all_hard_scenes_visited",
+    "all_ranks_have_identical_stratum_exposure",
+    "fixed40000_budget_exact",
+    "cursor_only_recovery_and_rank_call_order_at_cohort_boundaries",
+    "data_sampling_does_not_consume_actor_rng",
+    "TRAIN_only_log_isolation",
+    "duplicate_score_row_rejected",
+    "unknown_label_rejected",
+    "DEV_member_rejected",
+    "empty_unsafe_cohort_rejected",
+    "NC_half_is_not_fully_safe",
+    "wrong_world_rejected",
+    "learning_rate_rejected",
+    "max_steps_rejected",
+    "seed_rejected",
+    "gradient_clipping_effective_rejected",
+    "unregistered_quota_rejected",
+    "terminal_ODE_not_combined_rejected",
+    "X1_anchor_unchanged_rejected",
+    "historical_X1_contract_not_relaxed_rejected",
+    "legacy_scientific_identity_exact",
+    "new_data_contract_changes_scientific_identity",
+    "new_X1_comparator_and_old_comparators_correct",
+    "actor_sampler_advantage_reward_collection_and_evaluation_unchanged"
+  ],
+  "registered_config_identity": "3251e27b3484744b25730d597fc45e7dcd69b42f6a3f4f85c8e9f7d6453ba794",
+  "control_config_identity": "9342e4c86812d138e5e3ab5851c7e78e0718846411f968f8382549b579ce3070",
+  "data_stream_identity": {
+    "schema": "fixed_SFT_safety_6plus2_v1",
+    "manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+    "reference_population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+    "reference_screen_identity": {
+      "schema": "simwam_SFT_hard_screen_native_v1",
+      "SFT_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+      "scene_population": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+      "tokens_sha256": "9cd301e72bf2a9e46f5f9199dc0322c9fa7db92071e3aea4bed1558c77b89c3a",
+      "seed": 2101,
+      "root_namespace": "original_ode_initial",
+      "root_dtype": "bfloat16",
+      "sampler": "unchanged_original_10_step_uniform_ODE",
+      "condition": "3941b5691deb642396d4bea6ff247aa53dbaf9b05fba9b4c50dd1fc5803408d8",
+      "score": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "no_group_aggregation": true,
+      "hard_threshold": 0.9,
+      "shards": 24,
+      "sha256": "669a1eab06e021d94503e6ebd8621e12ed487e41f8ded4fcbf8cf048a0993987"
+    },
+    "cohort_sizes": {
+      "safe": 20971,
+      "unsafe": 1046
+    },
+    "cohort_token_sha256": {
+      "safe": "101acd5726504feef49a7cc68a631f3ced5265008a4171e52b385b6c63cd0841",
+      "unsafe": "c65515999488e68e8610c32241c04546b9dd10b70a332cfb82f30127dc98e977"
+    },
+    "safe_groups": 6,
+    "unsafe_groups": 2,
+    "rank_rotation": "slot=(rank-collection_zero_based)%8",
+    "permutation": "unchanged source ResumableEpochSampler seed42+stratum_epoch",
+    "cursor": "stratum cursor = collection*quota + within-stratum slot",
+    "padding": "none; each stratum continues across its own permutation boundary",
+    "actor_input": "unchanged; stratum and score are not actor features",
+    "importance_correction": false
+  },
+  "expected_formal_exposures": {
+    "unsafe": 10000,
+    "safe": 30000
+  },
+  "expected_formal_safety_types": {
+    "DAC": 6096,
+    "TTC": 3559,
+    "SFT_single_seed_safe": 30000,
+    "NC+TTC": 209,
+    "DAC+TTC": 97,
+    "NC": 39
+  },
+  "expected_rank_exposures": {
+    "0": {
+      "unsafe": 1250,
+      "safe": 3750
+    },
+    "1": {
+      "unsafe": 1250,
+      "safe": 3750
+    },
+    "2": {
+      "safe": 3750,
+      "unsafe": 1250
+    },
+    "3": {
+      "safe": 3750,
+      "unsafe": 1250
+    },
+    "4": {
+      "safe": 3750,
+      "unsafe": 1250
+    },
+    "5": {
+      "safe": 3750,
+      "unsafe": 1250
+    },
+    "6": {
+      "safe": 3750,
+      "unsafe": 1250
+    },
+    "7": {
+      "safe": 3750,
+      "unsafe": 1250
+    }
+  },
+  "unique_expected_formal_scenes": 22017,
+  "expected_formal_stream_sha256": "90e68c614c773a3659c54a31be10d11cd334541994a6e9b2cebe38f39fd844bb",
+  "original_X1_stream_sha256": "066d6d2c704b758e155cad41463e96b7bf0ece525dbd31a85baa8cb8a8b72da8",
+  "cursor_boundaries_tested": [
+    0,
+    8,
+    16,
+    4176,
+    4184,
+    4192,
+    4200,
+    27952,
+    27960,
+    27968,
+    27976,
+    39992
+  ],
+  "unchanged_files": {
+    "starVLA/rl/simwam_recipe/vendor/action_math.py": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+    "starVLA/rl/simwam_recipe/trainer_adapter.py": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+    "starVLA/rl/simwam_recipe/source_advantages.py": "29c450625f6ccd9025eb9ba1942f08f73ddec14c86e0e9be7f9cbdd19a46db4c",
+    "starVLA/rl/simwam_recipe/reward_readouts.py": "6507e7e4befd75a47612308818bc33a68bf523cc76d87a0b421c372eca671430",
+    "starVLA/rl/simwam_recipe/collection.py": "06e8783d685a7a6900feddcb92ed7094151e4f7f0637d82a9e7bfcaac32d614d",
+    "scripts/analysis/simwam_recipe/evaluate_policy.py": "e4e8536ec2d9aa7185309d934a2747c479d6e3678fc2113339473802a9c34fe8"
+  },
+  "new_rollout_candidates": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "note": "These are predetermined future data exposures, not observed formal training counts or driving effects."
+}
