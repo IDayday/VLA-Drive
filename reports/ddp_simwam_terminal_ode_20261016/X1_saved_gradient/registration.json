@@ -1,0 +1,53 @@
+{
+  "status": "REGISTERED_READ_ONLY_SAVED_BATCH_DIAGNOSTIC",
+  "created_utc": "2026-10-16T12:21:22.966808+00:00",
+  "question": "Compare X1 against the original canonical control: step/channel PG and actual weighted anchor, without new trajectories.",
+  "X1_run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+  "control_run_identity": "fb41121f52539dcd1c7f55be52754de37d5f0fe3d24b09fb88d8e98a93c49942",
+  "paired_batches": [
+    {
+      "updates": 5000,
+      "collection": 1250,
+      "eight_scene_order_and_condition_exact": true,
+      "scene_order_sha256": "a8201ace6ac46a425b9f683ef02cf3f75b635d41146b0a5630092ec6ba898ab4"
+    },
+    {
+      "updates": 10000,
+      "collection": 2500,
+      "eight_scene_order_and_condition_exact": true,
+      "scene_order_sha256": "08873b3acfd14034b9a8c17a7944a75197666d84828d3b017a0d3946c1feadeb"
+    },
+    {
+      "updates": 15000,
+      "collection": 3750,
+      "eight_scene_order_and_condition_exact": true,
+      "scene_order_sha256": "bbba2255df8d3bde80894b0697254904540dbd31df3802aac3a90b9ebce53651"
+    },
+    {
+      "updates": 20000,
+      "collection": 5000,
+      "eight_scene_order_and_condition_exact": true,
+      "scene_order_sha256": "62a34e507c8f9267eb92a34233d2e495cdd70c1d264cb4d2e4ccaeb448f98beb"
+    }
+  ],
+  "tasks": [
+    "CANONICAL_20000_analysis_parity",
+    "X1_5000",
+    "X1_10000",
+    "X1_15000",
+    "X1_20000"
+  ],
+  "new_candidate_budget": 0,
+  "new_score_budget": 0,
+  "optimizer_update_budget": 0,
+  "saved_global_batches": 5,
+  "saved_scene_group_exposures": 40,
+  "comparison_existing_control": "/mnt/project/simwam-audit-recovery-20261015/gradient_diagnostics",
+  "qualification": "/mnt/project/simwam-terminal-ode-20261016/X1_saved_gradient_v1/qualification.json",
+  "sampling_and_formal_training_unchanged": true,
+  "limits": [
+    "One saved global batch per milestone is not a population estimate.",
+    "Checkpoints follow inner4; clipping is not first-inner numerical noise.",
+    "Different trained policies yield different chains/rewards; same scene condition does not make identical behavior data."
+  ]
+}

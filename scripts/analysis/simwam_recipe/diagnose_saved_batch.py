@@ -2,6 +2,7 @@
 import argparse
 import json
 from pathlib import Path
+import time
 import numpy as np
 import torch
 from starVLA.rl.simwam_recipe.contracts import require_dispatch,file_sha,registered_stochastic_steps
@@ -12,14 +13,33 @@ from starVLA.rl.flow_grpo.reproducibility import configure_numerics
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+def anchor_channel_contributions(squared_mean_difference, weights):
+    """Diagnostic contributions with the actor's actual horizon/channel weights."""
+    if squared_mean_difference.ndim != 4 or tuple(weights.shape) != tuple(squared_mean_difference.shape[-2:]):
+        raise ValueError('Expected candidate, step, horizon, channel and horizon/channel weights')
+    if not torch.isfinite(weights).all() or (weights < 0).any() or weights.sum() <= 0:
+        raise ValueError('Invalid anchor diagnostic weights')
+    return (squared_mean_difference.detach()*weights).sum(2).mean(0)/weights.sum()
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--checkpoint',required=True)
     p.add_argument('--collection',type=int,required=True);p.add_argument('--output',required=True);a=p.parse_args()
+    output=Path(a.output)
+    if output.exists():raise FileExistsError('Preserve the previous diagnostic: '+str(output))
+    started=time.monotonic()
     require_dispatch();configure_numerics();run=Path(a.run);checkpoint=Path(a.checkpoint)
     identity=json.loads((run/'identity.json').read_text());cfg=identity['recipe'];world=identity['world']
+    if json.loads((checkpoint/'identity.json').read_text())['sha256']!=identity['sha256']:
+        raise ValueError('Checkpoint and run identities differ')
+    if file_sha(checkpoint/'files.json')!=json.loads((checkpoint/'COMPLETE').read_text())['files_sha256']:
+        raise ValueError('Checkpoint seal changed')
     seal=json.loads((checkpoint/'files.json').read_text())
     if file_sha(checkpoint/'optimizer.pt')!=seal['optimizer.pt']:raise ValueError('Checkpoint changed')
     actor,_,_=make_actor(cfg);saved=torch.load(checkpoint/'optimizer.pt',map_location='cpu',weights_only=False)
+    optimizer_steps={int(v['step']) for v in saved['optimizer']['state'].values()}
+    if optimizer_steps!={a.collection*cfg['grpo']['train']['num_inner_epochs']}:
+        raise ValueError('Diagnostic requires the completed four-inner checkpoint for the requested collection')
     restore_adapters(actor,saved['adapters']);parameters=[p for p in actor.parameters() if p.requires_grad]
     count=sum(p.numel() for p in parameters)
     pg_gradient=torch.zeros(3,count);anchor_gradient=torch.zeros_like(pg_gradient)
@@ -49,7 +69,10 @@ def main():
                 g=torch.autograd.grad(scalar/world,parameters,retain_graph=True)
                 target[step]+=torch.cat([v.detach().float().flatten().cpu() for v in g])
         d=d2.detach().mean((0,2));v=(terms['vel']-reference['vel']).detach().square().mean((0,2))
+        channel_anchor=anchor_channel_contributions(d2,weights)
+        torch.testing.assert_close(channel_anchor.sum(-1),anchor.detach(),rtol=1e-5,atol=1e-9)
         movement.append(dict(mean_squared_by_step_channel=d.cpu().tolist(),velocity_squared_by_step_channel=v.cpu().tolist(),
+                             weighted_anchor_by_step_channel=channel_anchor.cpu().tolist(),
                              anchor_by_step=anchor.detach().cpu().tolist(),std=terms['std'].detach().cpu().tolist()))
         clip.append(((ratio-1).abs()>.005).float().mean(0).tolist())
         raw_clip.append(((unclamped_ratio-1).abs()>.005).float().mean(0).tolist());density_ratio.append(ratio.detach().cpu().tolist())
@@ -69,16 +92,17 @@ def main():
         batches.append(dict(rank=rank,sha256=file_sha(path),behavior=row['behavior_version'],advantage_mask_fraction=float(row['adv_mask'].mean())))
     d=np.mean([m['mean_squared_by_step_channel'] for m in movement],axis=0)
     v=np.mean([m['velocity_squared_by_step_channel'] for m in movement],axis=0)
+    channel_anchor=np.mean([m['weighted_anchor_by_step_channel'] for m in movement],axis=0)
     for j,index in enumerate(registered_stochastic_steps(cfg['variant'])):
         pn=float(pg_gradient[j].norm());an=float(anchor_gradient[j].norm());both=pn>0 and an>0
         per_step.append(dict(step=index,PG_gradient_norm=pn,beta50_anchor_gradient_norm=an,
             cosine=float(torch.nn.functional.cosine_similarity(pg_gradient[j],anchor_gradient[j],dim=0)) if both else None,
             x_mean_anchor=float(np.mean([m['anchor_by_step'][j] for m in movement])),
             x_kl_normalized_diagnostic=float(np.mean([m['anchor_by_step'][j]/(2*m['std'][j]**2) for m in movement])),
-            logical_anchor_contribution=dict(x=.2*d[j,0]/2.2,y=d[j,1]/2.2,heading_pair=.5*(d[j,2]+d[j,3])/2.2),
+            logical_anchor_contribution=dict(x=channel_anchor[j,0],y=channel_anchor[j,1],heading_pair=channel_anchor[j,2]+channel_anchor[j,3]),
             mean_shift_RMS_by_native_channel=np.sqrt(d[j]).tolist(),velocity_shift_RMS_by_native_channel=np.sqrt(v[j]).tolist(),
             source_PPO_clip_fraction=float(np.mean(clip,axis=0)[j]),raw_density_PPO_clip_fraction_diagnostic=float(np.mean(raw_clip,axis=0)[j])))
-    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
+    output.parent.mkdir(parents=True,exist_ok=True)
     effective=[]
     # ||B A||_F^2 = tr((B^T B)(A A^T)); exact low-rank identity avoids
     # materializing 96 full projection matrices merely for a norm diagnostic.
@@ -88,7 +112,12 @@ def main():
         aa=A.double()@A.double().T;bb=B.double().T@B.double()
         norm=float((torch.trace(bb@aa).clamp_min(0).sqrt())*(cfg['grpo']['lora']['alpha']/cfg['grpo']['lora']['r']))
         effective.append(dict(projection=name[:-len('.lora_A')],effective_weight_update_Frobenius=norm))
+    torch.cuda.synchronize(actor.device)
     result=dict(status='COMPLETE_SAVED_BATCH_DIAGNOSTIC',run_identity=identity['sha256'],checkpoint=str(checkpoint),collection=a.collection,
+        analysis_source_sha256=file_sha(__file__),variant=cfg['variant'],optimizer_updates=next(iter(optimizer_steps)),
+        anchor_weights_actual=weights.detach().cpu().tolist(),
+        probability_checkpoint_relation='Checkpoint after four inner updates; saved old behavior precedes them, so clipping can be a real update effect.',
+        cumulative_worker_wall_seconds=time.monotonic()-started,peak_GPU_bytes=torch.cuda.max_memory_allocated(actor.device),
         new_candidates=0,new_scoring_calls=0,world=world,steps=per_step,batches=batches,positive_candidate_categories=categories,
         positive_categories_note='Recovery relative to the fixed single SFT_NATIVE seed2101 result, not all-noise safety; micro-progress is an overlapping tag',
         probability_tail_clamp_fraction=float(np.mean(tail)),innovation_clip_fraction=sum(x['clipped'] for x in innovations)/sum(x['total'] for x in innovations),
