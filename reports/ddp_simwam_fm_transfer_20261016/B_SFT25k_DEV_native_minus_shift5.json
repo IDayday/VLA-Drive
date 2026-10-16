@@ -1,0 +1,141 @@
+{
+  "schema": "fm_transfer_fixed_weight_grid_contrast_v1",
+  "evaluation": "/mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update025000_DEV",
+  "evaluation_identity": {
+    "schema": "fm_transfer_raw_observation_dual_grid_v1",
+    "weight_sha256": "250721a234e0eedafcfbea849747ebf92d3e39ddd5de161332019835b624839e",
+    "config_sha256": "db68a8c6bf74ab69b644c462fa1189a388ea6ba5b9930c78f78fc971f2bcdfab",
+    "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+    "tokens_sha256": "f5daa55cc9c3d54ed0c2a60a5356857c24920e40e911d2b03449366729eedc65",
+    "scenes": 1696,
+    "cohort": "DEV",
+    "seed": 2101,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "profile": {
+      "qwen": "torch.bfloat16",
+      "history": "torch.float32",
+      "action": "torch.float32",
+      "attention": "flash_attention_2"
+    },
+    "feature_cache": false,
+    "actor": "original VLAAgent observation entry; new supervised velocity head",
+    "scoring": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "source_sha256": "59ce27486ff9f6550c70786299f3be2525e90179e6f46952f8e6b9c7dfe66cf3",
+    "shards": 8,
+    "final_lock": null,
+    "qualification_only": false,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update025000",
+      "model_sha256": "aa553abfad647e55d924e115c4fe8041a559d1127a1fe829ad470350c3acb5b1",
+      "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "architecture": "source_action_dit",
+        "initialization": "source_random_initialization_seed42",
+        "max_updates": 100000,
+        "learning_rate": 0.0001,
+        "milestones": [
+          0,
+          10000,
+          25000,
+          50000,
+          75000,
+          100000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 25000,
+      "qualification": false
+    },
+    "architecture": "source_action_dit",
+    "stage": "SFT",
+    "shift5_time_field": "source continuous sigma*1000",
+    "transfer_evaluation_sha256": "4609c7b02514ab7b2dbebbe2441106bf3f3f38f7a712eac59548696d02caef0b",
+    "export_receipt_sha256": "4e6782a266613e890998a186ca41a8886c6e0f6bfe5ab7d36d1c9d3acbb1a6f7",
+    "sha256": "99b811f9cd5e06274473abb8a0350c9e3730060115c6170f8d8e0e5954383289"
+  },
+  "analysis_sha256": "ab8c4eb8f307632f8b9e3ba1511212cc06633f969e9478b05ecc4814626a0265",
+  "scenes": 1696,
+  "logs": 16,
+  "contrast": "E_NATIVE minus E_SHIFT5 at the same weight and fixed root",
+  "PDMS_raw_difference": {
+    "mean": -0.002944747077273516,
+    "CI95": [
+      -0.005770059474497083,
+      0.0011213579270981874
+    ],
+    "scenes": 1696,
+    "logs": 16,
+    "bootstrap_repeats": 2000,
+    "seed": 42,
+    "training_seed_uncertainty_included": false
+  },
+  "metric_mean_raw_difference": {
+    "score": -0.002944747077273516,
+    "no_at_fault_collisions": 0.0,
+    "drivable_area_compliance": -0.0023584905660377358,
+    "time_to_collision_within_bound": 0.0,
+    "ego_progress": -0.0035296571363998353,
+    "comfort": -0.0005896226415094339,
+    "driving_direction_compliance": 0.0
+  },
+  "native_nonzero_shift_zero": 4,
+  "native_zero_shift_nonzero": 8,
+  "safety": {
+    "no_at_fault_collisions": {
+      "native_pass_shift_fail": 0,
+      "native_fail_shift_pass": 0
+    },
+    "drivable_area_compliance": {
+      "native_pass_shift_fail": 4,
+      "native_fail_shift_pass": 8
+    },
+    "time_to_collision_within_bound": {
+      "native_pass_shift_fail": 2,
+      "native_fail_shift_pass": 2
+    }
+  },
+  "additional_model_inferences": 0,
+  "additional_scores": 0,
+  "best_of_two_used": false,
+  "interpretation": "Grid/time-bucket implementation contrast at fixed weights; no claim of an isolated SFT time-weighting or RL effect."
+}

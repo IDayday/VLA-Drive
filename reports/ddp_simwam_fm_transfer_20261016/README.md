@@ -2,6 +2,8 @@
 
 ## 状态与研究范围
 
+B的[25k完整DEV与TRAIN诊断结果](interim_B_SFT_update025000.md)已完成：DEV native/shift5为92.867093/93.161568，相对10k +1.178021/+1.473688个百分点，两个配对区间均跨零；零分从45降至26/22，但两个网格均有新增DAC/TTC违规。这是SFT中期结果，继续既定100k；尚无B正式RL或新Navtest结论。
+
 20:40–20:43 UTC，[里程碑评价已改为两台主机并行](parallel_evaluation_execution_20261016.md)。B已封存25k SFT checkpoint，完整DEV与固定TRAIN诊断各8个实际worker已分别启动；A的RL和B的SFT持续运行。只是调度变化，没有新增方法/seed，也没有热修改训练或数值推理源码。
 
 最新现场状态见[20:27–20:30 UTC进度与资源](progress_20261016T2030.md)：A完成20k SFT并已进入正式RL（本次匹配汇总1,696/20,000），B继续SFT（23,137/100,000）。旧RL没有活动进程，三台授权八卡空闲。当前只有SFT完整部署评价，新RL尚未到5k观察点；不能提前宣称RL提分。[最终评价准入](final_evaluation_lock.md)已完成CPU测试和既有资产/证据核查，真实Navtest仍关闭。
