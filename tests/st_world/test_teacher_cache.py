@@ -203,3 +203,76 @@ def test_reader_lru_lookup_eviction_is_atomic_across_threads(tmp_path):
         assert not second.done();release.set()
         first.result(timeout=3);second.result(timeout=3)
     assert list(r.verified)==[1] and set(r.verified_versions)=={0,1}
+
+
+def current_population_fixture(tmp_path):
+    import json
+    from types import SimpleNamespace
+    from starVLA.dataloader.st_world_history import file_sha256
+    data=tmp_path/'current_data';(data/'current').mkdir(parents=True);(data/'ego').mkdir()
+    rows=[{'token':'a','log':'log_a'},{'token':'b','log':'log_b'}]
+    partition=tmp_path/'partition.json'
+    partition.write_text(json.dumps({'train_tokens':['a','b'],'dev_tokens':['c'],
+                                    'token_logs':{'a':'log_a','b':'log_b','c':'log_c'}}))
+    source={'schema':'ddpolicy_current_cameras_v1','split':'train','index_sha256':identity_hash(rows),
+            'partition_sha256':file_sha256(partition)};source['identity']=identity_hash(source)
+    (data/'identity.json').write_text(json.dumps(source));(data/'index.json').write_text(json.dumps(rows))
+    ego={'schema':'foresight_ego_labels_v1','index_sha256':source['index_sha256']};ego['identity']=identity_hash(ego)
+    (data/'ego_identity.json').write_text(json.dumps(ego))
+    for row in rows:
+        image=tmp_path/(row['token']+'.png');Image.new('RGB',(32,18),'blue').save(image)
+        record=dict(row,identity=source['identity'],timestamp=1000000,image_paths=[str(image)]*3)
+        (data/'current'/(row['token']+'.json')).write_text(json.dumps(record))
+        # Raw bytes deliberately are NOT a loadable torch label; metadata must
+        # pin them without reading targets or invoking torch.load.
+        (data/'ego'/(row['token']+'.pt')).write_bytes(b'opaque-supervised-bytes')
+    return SimpleNamespace(student_root=str(data),partition=str(partition),split='train',output=str(tmp_path/'out'),
+                           workers=1,read_mib_per_second=128.,max_seconds=60.)
+
+
+def test_current_population_is_full_ordered_and_never_decodes_gt_or_history(tmp_path,monkeypatch):
+    import json
+    from tools.st_world_policy import prepare_current_teacher as prepare
+    a=current_population_fixture(tmp_path)
+    monkeypatch.setattr(torch,'load',lambda *a,**k:(_ for _ in ()).throw(AssertionError('No GT decode')))
+    monkeypatch.setattr(Image.Image,'load',lambda *a,**k:(_ for _ in ()).throw(AssertionError('No image decode')))
+    reg=prepare.plan(a);assert reg['max_scenes']==2 and reg['gpu_work_authorized'] is False
+    result=prepare.build(a);assert result['scenes']==2 and result['logs']==2 and result['unique_image_contents']==1
+    requests=json.loads((Path(a.output)/'TEACHER_REQUESTS.json').read_text())
+    assert requests['times_s']==[0.] and [r['token'] for r in requests['scenes']]==['a','b']
+    assert all(r['frames'][0]['timestamp_us']==r['timestamp_us'] for r in requests['scenes'])
+    assert prepare.build(a)['reused'] is True
+
+
+def test_current_population_partial_resume_matches_continuous_and_preserves_evidence(tmp_path,monkeypatch):
+    import json
+    import shutil
+    from types import SimpleNamespace
+    from tools.st_world_policy import prepare_current_teacher as prepare
+    a=current_population_fixture(tmp_path);prepare.plan(a)
+    uninterrupted=Path(tmp_path/'continuous');uninterrupted.mkdir()
+    for name in ['REGISTRATION.json','SOURCE_POPULATION.json']:shutil.copyfile(Path(a.output)/name,uninterrupted/name)
+    old=prepare.build_log
+    def failure(*args,**kwargs):
+        if args[2]=='log_b':raise RuntimeError('Injected second-log interruption')
+        return old(*args,**kwargs)
+    monkeypatch.setattr(prepare,'build_log',failure)
+    with pytest.raises(RuntimeError,match='Injected'):prepare.build(a)
+    assert len(list((Path(a.output)/'log_shards').glob('*.json')))==1
+    assert not (Path(a.output)/'COMPLETE.json').exists()
+    monkeypatch.setattr(prepare,'build_log',old)
+    prepare.build(a);prepare.build(SimpleNamespace(**dict(vars(a),output=str(uninterrupted))))
+    for name in ['SELECTED_SCENES.json','TEACHER_REQUESTS.json']:
+        assert (Path(a.output)/name).read_bytes()==(uninterrupted/name).read_bytes()
+
+
+def test_current_population_registration_and_resume_refuse_changed_sources(tmp_path,monkeypatch):
+    from tools.st_world_policy import prepare_current_teacher as prepare
+    a=current_population_fixture(tmp_path);prepare.plan(a);old=prepare.build_log
+    monkeypatch.setattr(prepare,'build_log',lambda *args,**kwargs:old(*args,**kwargs) if args[2]=='log_a' else (_ for _ in ()).throw(RuntimeError('pause')))
+    with pytest.raises(RuntimeError):prepare.build(a)
+    (Path(a.student_root)/'ego/a.pt').write_bytes(b'changed')
+    monkeypatch.setattr(prepare,'build_log',old)
+    with pytest.raises(ValueError,match='Previously pinned'):prepare.build(a)
+    a.split='dev'
+    with pytest.raises(ValueError,match='role identity mismatch'):prepare.plan(a)
