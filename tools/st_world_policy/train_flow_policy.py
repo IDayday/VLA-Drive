@@ -366,6 +366,8 @@ class OfficialFeedbackLedger:
     Admissions are committed BEFORE CPU calls, so a worker/process failure may
     overcount the budget but never silently undercounts it. Unfinished attempts
     remain evidence. Replay reuses only checksum-verified matching records.
+    The caller holds its run lock: this is a single-writer ledger. On restart
+    scan admissions once, then maintain the count without an O(updates^2) walk.
     """
     def __init__(self, root, *, identity, max_calls, retry_attempts):
         self.root = Path(root)
@@ -373,10 +375,11 @@ class OfficialFeedbackLedger:
         self.max_calls, self.retry_attempts = max_calls, retry_attempts
         atomic_json(self.root / "IDENTITY.json", {"schema": "st_flow_feedback_ledger_v1", "identity": identity,
                     "max_calls": max_calls, "retry_attempts": retry_attempts}, immutable=True)
+        self._admitted_calls = sum(read_json(p)["calls"] for p in self.root.glob("*/attempt_*/ADMITTED.json"))
 
     @property
     def admitted_calls(self):
-        return sum(read_json(p)["calls"] for p in self.root.glob("*/attempt_*/ADMITTED.json"))
+        return self._admitted_calls
 
     def score(self, requests, *, policy_version, service):
         identities = [r.identity() for r in requests]
@@ -418,6 +421,7 @@ class OfficialFeedbackLedger:
                 admission = {"calls": len(pending), "indices": pending, "request_hash": key,
                              "time_unix": time.time(), "policy_version": policy_version}
                 atomic_json(path / "ADMITTED.json", admission, immutable=True)
+                self._admitted_calls += len(pending)
                 saved = service.score([requests[i] for i in pending], expected_policy_version=policy_version,
                                       require_valid=False)
                 if len(saved) != len(pending):
