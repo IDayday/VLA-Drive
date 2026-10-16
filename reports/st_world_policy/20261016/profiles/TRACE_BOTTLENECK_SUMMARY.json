@@ -1,0 +1,181 @@
+{
+  "all_collective_logical_sizes_equal": true,
+  "analyzer_commit": "0c54ed2c8eb3dd14762ca5aa88c8c911d541f626",
+  "attention_kernel_family": "pytorch_flash BF16 forward and backward; exact names retained per trace",
+  "collective_logical_input_bytes_per_rank_per_update": {
+    "nccl:_all_gather_base": 638168420,
+    "nccl:all_gather": 232,
+    "nccl:all_reduce": 5105347388
+  },
+  "cpu_region_inclusive_ms_not_additive": {
+    "st.backward": {
+      "max": 874.715573,
+      "mean": 872.9244776875,
+      "min": 871.295583
+    },
+    "st.data": {
+      "max": 838.333186,
+      "mean": 819.679287,
+      "min": 808.043181
+    },
+    "st.optimizer": {
+      "max": 60.637522,
+      "mean": 44.37121275,
+      "min": 27.560947
+    },
+    "st_profile.DiT": {
+      "max": 77.31835400000001,
+      "mean": 72.480438125,
+      "min": 67.804743
+    },
+    "st_profile.action_projection": {
+      "max": 0.559022,
+      "mean": 0.4733928125,
+      "min": 0.450249
+    },
+    "st_profile.frozen_visual": {
+      "max": 279.980684,
+      "mean": 246.8062776875,
+      "min": 240.543541
+    },
+    "st_profile.language": {
+      "max": 385.15367200000003,
+      "mean": 107.6739539375,
+      "min": 86.459476
+    },
+    "st_profile.sparse_readout": {
+      "max": 7.27809,
+      "mean": 6.4987378125,
+      "min": 6.010461
+    }
+  },
+  "cuda_launch_counts_per_rank_per_update": {
+    "max": 16246,
+    "mean": 16077.875,
+    "min": 15996
+  },
+  "eligible_for_throughput": false,
+  "gpu_per_device_interval_stats": {
+    "all_activity_union_ms": {
+      "max": 1772.1825537109376,
+      "mean": 1454.1820370025634,
+      "min": 1170.1413151855468
+    },
+    "compute_nccl_overlap_ms": {
+      "max": 195.39667431640626,
+      "mean": 125.02402365112304,
+      "min": 56.67628857421875
+    },
+    "compute_union_ms": {
+      "max": 1090.5759077148437,
+      "mean": 1055.8228679504393,
+      "min": 1043.7738115234374
+    },
+    "gpu_activity_span_ms": {
+      "max": 2196.955761962891,
+      "mean": 1985.4075655822753,
+      "min": 1798.319406982422
+    },
+    "kernel_count": {
+      "max": 16246,
+      "mean": 16077.875,
+      "min": 15996
+    },
+    "nccl_after_last_compute_ms": {
+      "max": 0.262720947265625,
+      "mean": 0.16094541931152345,
+      "min": 0.012159912109375
+    },
+    "nccl_union_ms": {
+      "max": 883.6316018066407,
+      "mean": 490.7388244476318,
+      "min": 159.57855297851563
+    },
+    "nccl_without_compute_ms": {
+      "max": 688.2349274902343,
+      "mean": 365.71480079650877,
+      "min": 92.31271801757812
+    },
+    "transfer_union_ms": {
+      "max": 41.6773701171875,
+      "mean": 39.05405871582031,
+      "min": 35.964904052734376
+    }
+  },
+  "nccl_without_compute_is_not_proven_critical_wait": true,
+  "network_wire_bytes": "NOT_MEASURED",
+  "ranks": 8,
+  "samples_are_two_updates_on_eight_ranks_not_sixteen_independent_updates": true,
+  "schema": "st_trace_bottleneck_summary_v1",
+  "source_sha": "ab2184bf66894c24b3d911f0e01c9b3c986d956d",
+  "trace_evidence": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank0_step0002.json",
+      "sha256": "b7e44f833adfeb03207e5ad509e9ef7d94dd96401f4f3223aad7c1fa77cfd6fb"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank0_step0003.json",
+      "sha256": "052eae0bfd360efb73fa1271b296ba70e9b0e2f725785fd44c36cb6d688b641e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank1_step0002.json",
+      "sha256": "749eae0b9459b1574516f66ef65f680b866382cfbf137486d227451dc4e54e7f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank1_step0003.json",
+      "sha256": "ae3144c137ab7ac933a7d00e02ce37fe9f4e15d1d36e9cd65a0c112eeaca0efe"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank2_step0002.json",
+      "sha256": "7ba554dd8250d2f5138b1dda007704ac58fed3885d4cf9e2b6d3b004db66db6d"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank2_step0003.json",
+      "sha256": "01186f7717f6ea88ae0cc83e8fc14dc49f9c9a9d111ff5129386cb555e04db08"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank3_step0002.json",
+      "sha256": "d9bad620a162227248137f6b30e934d1e5354f7d2836b9c40a744f923cb7b575"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank3_step0003.json",
+      "sha256": "7c42f6b003d53b73374aede8451ad9f2682e062859cc1ba641a98a072afeae33"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank4_step0002.json",
+      "sha256": "8891cc2bb29b4f1586eba6700feea39c1d79aadf2fd22d57ceb4b15bf7750142"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank4_step0003.json",
+      "sha256": "39e37505c9ca3e8efd8e77a9709a87a0305e0882e9d9ab0cf1bf6e11d605d5e5"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank5_step0002.json",
+      "sha256": "4bdffb6e5cf40732c8779d42694895cf1b41b896d1f7190cfe190007bf544f09"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank5_step0003.json",
+      "sha256": "77a8d25c58fb994291ee0dfc522320957a204049ceabfca39fa8a1d5b7cde793"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank6_step0002.json",
+      "sha256": "bb28ae7a970425b863d9da1f63936882b9127b8ddb38771048a2abf66642d667"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank6_step0003.json",
+      "sha256": "d4e850d26981600adcc949404e3e72d9f1b248e62105e61f6cc582512fd4a305"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank7_step0002.json",
+      "sha256": "d6d145489c264e2a87a3ac165aa4e822429e6c24d025623c5f94a9e12f7e7e4c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/systems/trace_sp2_pca384_v3/trace_rank7_step0003.json",
+      "sha256": "4786896d65e1d06bb2960d411867a79df7882c230afd44acace54ffbbc8a51f9"
+    }
+  ],
+  "traced_updates": [
+    2,
+    3
+  ]
+}

@@ -1,0 +1,13 @@
+# Four-GPU microbatch4 short screen
+
+This is an explicitly authorized initial screen, not the mandatory long timing windows and not a concurrent2×4 measurement. Runtime source `ab2184bf66894c24b3d911f0e01c9b3c986d956d`; registration SHA256 `8154484e6dc2ee6568213a458ad1862ff41e6d9e81c95393daed5dac19ff0857`. Fresh real S0 initialization; the 32 diagnostic updates cannot initialize a formal run.
+
+Single task: four GPUs0–3; microbatch4; two accumulation microbatches; actual global32. GPUs4–7 were idle and held only for node isolation. Original20k scheduler, current objective, repeat8, precision and recomputation unchanged. `profile_mode=none` deliberately preserves the existing timing-mode requirement of240 updates.
+
+After20 warmup updates, the12 recorded completion intervals have whole-status mean/p50/p95 **3.741802/3.719201/3.890620s**, versus inner slow-rank **3.717091/3.683277/3.863547s**. Whole-status means first rank0 completion timestamps after slow-rank collectives and intervening reductions/logging; an external50ms observer independently recorded3.742882s mean. This avoids silently substituting the inner timer for the whole interval, but is not the full profiler barrier instrumentation.
+
+Single-job short throughput8.552028 scenes/s. Peak allocated19,560,413,696bytes; reserved21,325,938,688bytes. All32 losses and gradient norms finite; all32 master-update checks pass; exactly1024 presentations and113,246,208 current target scalars. Final state is BUDGET_PAUSED with native complete receipt and exit0. Complete allocation303.646727s; active-GPU allocation1214.586906GPU-s; intentionally reserved node cost2429.173812GPU-s. CPU peak RSS was not instrumented in this mode. Save cost is `{'step': 32, 'tag': 'step_000032_1792189770878326542', 'seconds': 48.476155798882246}`.
+
+Compared with the previously measured concurrent microbatch2 jobs at about4.54s/update, this is a promising isolated screening result. **Do not multiply8.552 by2 and call it measured node throughput.** Concurrent CPU/IO/communication interaction may remove part of that benefit. Lead has declined further automatic topology expansion; the measured8-card topology remains the complete long-window evidence. No long2×4 micro4 experiment was started.
+
+The64-scene workset is cyclic and possibly OS-warm. This result does not qualify complete-population I/O, convergence or scientific quality. Full evidence: `/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_4gpu_micro4_screen_v1` including `STATUS_OBSERVATIONS.jsonl`, `SHORT_SCREEN_RESULT.json`, `SYSTEMS_LAUNCH.json`, `PROCESS_EXIT.json` and the native checkpoint receipt. No processes were killed or existing training changed.

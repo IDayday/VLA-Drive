@@ -1,0 +1,66 @@
+{
+  "cell": "C1",
+  "data": {
+    "root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+  },
+  "execution": {
+    "family": "consequence",
+    "global_batch": 32,
+    "max_updates": 4096,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 64,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 240,
+    "world_size": 8
+  },
+  "feedback": {
+    "cache_roots": [
+      "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1"
+    ],
+    "campaign_id": "st-world-policy-20261016",
+    "maps_root": "/mnt/navsim/maps",
+    "max_calls": 61440,
+    "navsim_root": "/mnt/project/VLA-Drive-st-flow-smoke-runtime-20261016/navsim_v1.1/navsim",
+    "retry_attempts": 1,
+    "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+    "workers": 4
+  },
+  "fpo": {
+    "advantage": "within_scene_center_only",
+    "coordinate_reduction": "mean",
+    "interpolation_time": "uniform_0_1",
+    "log_ratio_clip": 3.0,
+    "mc_samples": 50,
+    "policy_loss_mode": "eval_with_grad",
+    "ratio_clip": 0.2
+  },
+  "loss": {
+    "bc_weight": 1.0,
+    "policy_weight": 1.0
+  },
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "clip": 1.0,
+    "eps": 1e-08,
+    "lr": 1e-05,
+    "minimum_lr": 5e-07,
+    "warmup": 100,
+    "weight_decay": 0.001
+  },
+  "runtime": {
+    "checkpoint_velocity": true,
+    "deterministic": true,
+    "gradient_checkpointing": false,
+    "loader_workers": 2,
+    "max_seconds": 10800,
+    "mc_chunk": 5,
+    "output_root": "/mnt/project/st-world-policy-20261016/audits/systems/flow_pipeline_profile_candidate_v1/runs_long_window",
+    "save_every": 512
+  },
+  "schema": "st_flow_training_v1"
+}

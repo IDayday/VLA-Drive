@@ -1,0 +1,580 @@
+{
+  "all_rank_dtype_inventories_match": true,
+  "evidence": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank0.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank1.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank2.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank3.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank4.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank5.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank6.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp2_pca384_8gpu_trace_v2/runs/sp2_pca384_8gpu_trace_v2/profile/after_backward_dtypes_rank7.json",
+      "sha256": "1b8293ff6889c9b5ca3df3d4ae793d0d60e0eaf8694a3228211630cbc2354215"
+    }
+  ],
+  "gradient_note": "Captured ZeRO2 averaged_gradients are BF16. Empty final param.grad does not mean no gradient; FP32 master/Adam updates are a separate state.",
+  "gradient_storage_after_backward_rank0": {
+    "averaged_gradients:torch.bfloat16": 319084210
+  },
+  "input_layout": {
+    "W_tokens": 144,
+    "action_horizon": 8,
+    "action_training_batch_after_repeat8": 32,
+    "language_padded_length": 1930,
+    "microbatch": 4,
+    "padding_fraction": "NOT_MEASURED; tensor shape is not actual valid-token count",
+    "sampled_teacher_positions_per_scene": 288,
+    "teacher_channels_after_PCA": 384,
+    "views": 3,
+    "visual_merged_tokens_per_scene": 1728
+  },
+  "module_call_counts_all_ranks": [
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 0,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 0,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 1,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 1,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 2,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 2,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 3,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 3,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 4,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 4,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 5,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 5,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 6,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 6,
+      "step": 3
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 7,
+      "step": 2
+    },
+    {
+      "calls": {
+        "DiT": 1,
+        "action_projection": 1,
+        "frozen_visual": 1,
+        "language": 1,
+        "sparse_readout": 1
+      },
+      "rank": 7,
+      "step": 3
+    }
+  ],
+  "module_cuda_inclusive_ms_not_additive": {
+    "DiT": {
+      "max": 77.40998077392578,
+      "mean": 72.54645013809204,
+      "min": 67.86109161376953,
+      "samples": 16
+    },
+    "action_projection": {
+      "max": 0.6421120166778564,
+      "mean": 0.5402700044214725,
+      "min": 0.5102400183677673,
+      "samples": 16
+    },
+    "frozen_visual": {
+      "max": 285.16485595703125,
+      "mean": 250.81296730041504,
+      "min": 244.47853088378906,
+      "samples": 16
+    },
+    "language": {
+      "max": 412.4468994140625,
+      "mean": 201.36322212219238,
+      "min": 186.11878967285156,
+      "samples": 16
+    },
+    "sparse_readout": {
+      "max": 7.349376201629639,
+      "mean": 6.559178024530411,
+      "min": 6.065023899078369,
+      "samples": 16
+    }
+  },
+  "optimizer_rank0": {
+    "exp_avg:torch.float32": 319084210,
+    "exp_avg_sq:torch.float32": 319084210,
+    "zero_master:torch.float32": 319084210
+  },
+  "precision_scope": "Original S0 BF16 execution, including frozen Qwen visual; FP32 DINO teacher and PCA targets; FP32 master and moments. Not legacy Query FP32-vision configuration.",
+  "profile_identity": {
+    "data_manifest_sha256": "58387c3779b083cd83b55f2339e49dc99ff12b136e20ea672b9dc0c50e5b40c1",
+    "data_working_set_scenes": 64,
+    "global_batch": 32,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "registration_sha256": "1cd9bbf7db4b356eb2224b1da5fc9f6eac484e634f717876164b3f39f153a59a",
+    "run_identity": "5a88db8f086efd3142adfe29fbfb63d5f221f68b82d7a71fd577b34819b1615b",
+    "sample_order_sha256": "02e08ff23c2a3b456759d8e2e4b9966073e21289146fdbc661b6b8b7d8a25aa6",
+    "scientific_config_sha256": "d5ff3d339376eaffb8c0d2a7f4183bfa28370896b508f796776007a9d4fa1b13",
+    "setup_in_window": false,
+    "source_sha": "ab2184bf66894c24b3d911f0e01c9b3c986d956d",
+    "teacher_identity": "fae6ed77041cdd318e647a9f44d907ffe63c62487805b0d683e9b247b6d7714d"
+  },
+  "recompute_note": "Top-level language/DiT module hooks do not count internal checkpoint layer re-execution. Backward includes recomputation.",
+  "representative_rank0_step2_calls": [
+    {
+      "grad_enabled": false,
+      "inputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            27648,
+            1536
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            12,
+            3
+          ]
+        }
+      ],
+      "module": "frozen_visual",
+      "outputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      ],
+      "step": 2,
+      "training": false
+    },
+    {
+      "grad_enabled": true,
+      "inputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            4,
+            1930
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            3,
+            4,
+            1930
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bool",
+          "requires_grad": false,
+          "shape": [
+            4,
+            1930
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      ],
+      "module": "language",
+      "outputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      ],
+      "step": 2,
+      "training": true
+    },
+    {
+      "grad_enabled": true,
+      "inputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            32,
+            8,
+            2048
+          ]
+        }
+      ],
+      "module": "action_projection",
+      "outputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            32,
+            8,
+            1536
+          ]
+        }
+      ],
+      "step": 2,
+      "training": true
+    },
+    {
+      "grad_enabled": true,
+      "inputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            32,
+            8,
+            1536
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            32,
+            8,
+            1536
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            32
+          ]
+        }
+      ],
+      "module": "DiT",
+      "outputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            32,
+            8,
+            1536
+          ]
+        }
+      ],
+      "step": 2,
+      "training": true
+    },
+    {
+      "grad_enabled": true,
+      "inputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            144,
+            2048
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            4,
+            288
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            4,
+            288,
+            2
+          ]
+        },
+        {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            4,
+            288
+          ]
+        }
+      ],
+      "module": "sparse_readout",
+      "outputs": [
+        {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            288,
+            384
+          ]
+        }
+      ],
+      "step": 2,
+      "training": true
+    }
+  ],
+  "schema": "st_actual_dtype_and_calls_v1",
+  "source_sha": "ab2184bf66894c24b3d911f0e01c9b3c986d956d",
+  "trace_is_throughput_evidence": false,
+  "unique_model_tensors": {
+    "buffer:torch.bfloat16": 181,
+    "buffer:torch.int64": 3,
+    "parameter:torch.bfloat16:trainable=False": 406957056,
+    "parameter:torch.bfloat16:trainable=True": 2552673668
+  },
+  "unique_total_parameters": 2959630724
+}

@@ -1,0 +1,96 @@
+{
+  "actual_dispatches": 0,
+  "candidate_count": 1,
+  "candidate_total_new_updates_max": 256,
+  "cost_estimate_not_measurement": {
+    "confidence": "Low: extrapolates single-GPU G2/chunk1 and CPU feedback; chunk5 and multiGPU have not run",
+    "estimated_long_GPU_hours_range": [
+      13.3333333333,
+      26.6666666667
+    ],
+    "estimated_long_minutes_range": [
+      100,
+      200
+    ],
+    "long_wall_cap_seconds": 10800,
+    "short_wall_cap_seconds": 1800,
+    "stop_rule": "If short projection plus setup/save cannot fit long cap, record BLOCKED_COST and seek Lead budget decision; no silent workload reduction"
+  },
+  "data_candidate": {
+    "base_binding": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+    "current_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "no_guarantee_of_nonzero_advantage_for_new_rollout_noise": true,
+    "official_available_scene_count": 256,
+    "official_train_receipt": "/mnt/project/flow-safe-improvement-20261013/cache_builds/diagnostic_random_v1/receipt.json",
+    "selector": "same seeded_hash_before_any_scores seed42; first64 contains earlier first32; all currently legal train observations"
+  },
+  "feedback_budget": {
+    "long_including_one_retry_upper_bound": 61440,
+    "long_primary_calls": 30720,
+    "short_including_one_retry_upper_bound": 4096,
+    "short_primary_calls": 2048
+  },
+  "formal_approval": false,
+  "launch_allowed": false,
+  "long_updates": 240,
+  "mathematics": {
+    "BC_repeat": 8,
+    "BC_weight": 1.0,
+    "Euler_steps": 10,
+    "LR_horizon": 4096,
+    "feedback_max_reuse": 1,
+    "old_refresh_updates": 1,
+    "policy_MC_samples_per_action_old_and_current": 50,
+    "policy_weight": 1.0,
+    "rollouts_per_scene": 4
+  },
+  "observed_smoke": {
+    "actual_scenes_exposed": 4,
+    "current_plus_BC_backward_seconds": [
+      15.802380224689841,
+      15.723245657980442
+    ],
+    "feedback_seconds": [
+      6.934648599475622,
+      1.2283489126712084
+    ],
+    "nonzero_advantage_scene_groups": 1,
+    "not_formal_throughput": true,
+    "old_CFM_seconds": [
+      4.971751872450113,
+      5.114075507968664
+    ],
+    "rollouts": 16,
+    "source_sha": "73d1be9b42b88f76a1f85e6e823158b80d0d1e6c",
+    "zero_advantage_scene_groups": 3
+  },
+  "pipeline_gap": "Official CPU feedback is synchronous before oldCFM; no same-update GPU/CPU overlap currently measured. Safe future overlap must retain fixed old policy and validate all feedback before any backward/optimizer commit.",
+  "required_before_registration": [
+    "Final clean source containing validated fresh FP32 master and native restore fixes",
+    "Actual prepare --scope PROFILE --max-scenes64 manifest from existing256-context train receipt, seed42 before new rewards",
+    "Fresh allowed-host/UUID/CPU/RAM/storage lease with no protected-job interference",
+    "Short-screen old/current matching chunk5, all losses/gradients/master finite and update/recovery checks",
+    "At least one actual nonzero within-scene advantage group; if absent, report not evidenced rather than fabricate rewards",
+    "Record fresh/new run identities: neither SMOKE nor short PROFILE weights initialize long or formal runs"
+  ],
+  "schema": "st_flow_single_topology_proposal_v1",
+  "scope": "Action-only C1 FPO pipeline, not whole-model ST topology",
+  "short_updates": 16,
+  "source_reviewed_for_proposal": "f29965c76a79e750e0b109fec902e680f757db16; current Lead master/checkpoint edits remain uncommitted and not eligible for registration",
+  "status": "WAITING_FIXED_MASTER_SOURCE_AND_PROFILE64_MANIFEST_AND_LEASE",
+  "topology": {
+    "BC_noise_presentations_per_update": 256,
+    "BLAS_threads_per_process": 1,
+    "CPU_scoring_workers_global": 4,
+    "MC_chunk": 5,
+    "accumulation_per_rank": 4,
+    "candidate_trajectories_per_update": 128,
+    "current_MC_points_per_update": 6400,
+    "global_scene_batch": 32,
+    "gpu_count": 8,
+    "old_MC_points_per_update": 6400,
+    "ordered_data_threads_per_rank": 2,
+    "scene_microbatch_per_rank": 1,
+    "torch_threads_per_rank": 2
+  }
+}
