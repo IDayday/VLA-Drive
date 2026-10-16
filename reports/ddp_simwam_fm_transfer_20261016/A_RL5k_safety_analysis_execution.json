@@ -1,0 +1,69 @@
+{
+  "schema": "fm_transfer_saved_safety_analysis_execution_v1",
+  "observed_unix": 1792187786.879436,
+  "checks": [
+    {
+      "cohort": "DEV",
+      "grid": "E_NATIVE",
+      "matches_preexisting_paired_analysis": true,
+      "scenes": 1696
+    },
+    {
+      "cohort": "DEV",
+      "grid": "E_SHIFT5",
+      "matches_preexisting_paired_analysis": true,
+      "scenes": 1696
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "grid": "E_NATIVE",
+      "matches_preexisting_paired_analysis": true,
+      "scenes": 512
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "grid": "E_SHIFT5",
+      "matches_preexisting_paired_analysis": true,
+      "scenes": 512
+    }
+  ],
+  "tests": {
+    "result": "8 passed",
+    "command": "python -m pytest -q tests/rl/test_fm_transfer_safety_transitions.py"
+  },
+  "source_files": {
+    "scripts/analysis/fm_transfer/analyze_safety_transitions.py": "c85c8a96d137886d79390062a18b5172429919dacd3c7121283d199b2f5170db",
+    "tests/rl/test_fm_transfer_safety_transitions.py": "e274f091586c9f8288ce4af0909ecc12979e537bbd3bdb604cb8e1bee76b3daf",
+    "scripts/analysis/simwam_recipe/analyze_evaluation.py": "5aa223e6b7673b1e940553dd4e000d99c35b7add95edbdf130ef54353daa7e52",
+    "scripts/analysis/fm_transfer/analyze_evaluation.py": "8e30d6d6b77af89d350310a0e9702acaf5810b7849d82490a91c0bf1d4b2012a",
+    "starVLA/rl/simwam_recipe/reward_readouts.py": "6507e7e4befd75a47612308818bc33a68bf523cc76d87a0b421c372eca671430"
+  },
+  "artifacts": {
+    "DEV": {
+      "path": "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_update005000_DEV_safety_transitions.json",
+      "sha256": "69127d4dc95a9732a6604d3829ee99ed904bcbfa7db5e54c86b92c8fd3af6b04",
+      "successful_analysis_main_wall_seconds": 23.041890116408467
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "path": "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_update005000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+      "sha256": "49fd1d3df9f51c7624eacfeb585eec24ae8371c240e9b7ab6ac81ff24e852edb",
+      "successful_analysis_main_wall_seconds": 9.26172473281622
+    }
+  },
+  "failed_analysis_attempt": {
+    "cause": "numpy.int64 count could not be JSON serialized; fixed integer conversion only",
+    "partial_unpublished_files": [
+      {
+        "path": "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_update005000_DEV_safety_transitions.json.writing-f32ac4f787cc4494b3d322a955de2ca5",
+        "sha256": "3cf0f8fd8d19b90002317347bd42a48cc9dafa6448c393f8b4f5bc04c46eead3",
+        "bytes": 113474
+      }
+    ],
+    "physical_analysis_wall_seconds": null,
+    "no_valid_result_published_before_failure": true
+  },
+  "new_inferences": 0,
+  "new_scoring_calls": 0,
+  "training_changes": false,
+  "source_scores_or_trajectories_changed": false
+}
