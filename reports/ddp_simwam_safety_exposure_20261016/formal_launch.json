@@ -1,0 +1,174 @@
+{
+  "schema": "simwam_safety25_formal_launch_v1",
+  "captured_utc": "2026-10-16T13:49:43.621016+00:00",
+  "status": "FORMAL_TRAINING_RUNNING_ENDPOINT_NOT_COMPLETE",
+  "source": {
+    "commit": "12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+    "archive_sha256": "b42c46cca35b02d69824bf67483df329c00fcdc0a3c366ef97de186c23a74778",
+    "files_verified": 3626,
+    "created_utc": "2026-10-16T13:37:42.653123+00:00",
+    "source_worktree": "/mnt/project/VLA-Drive-simwam-safety-exposure-20261016",
+    "branch": "feature/ddp-simwam-safety-exposure-20261016",
+    "immutable_execution_snapshot": true
+  },
+  "policy_sha256": "999292e4266793ee6f10e26994ea3f075a827e5e13f50f21a14520a9fe5e1f70",
+  "training": {
+    "host": "training-vlawm-tsinghua-zt4-worker-0",
+    "pid": 183059,
+    "start_ticks": "1359705890",
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m torch.distributed.run --standalone --nproc_per_node=8 --module scripts.analysis.simwam_recipe.train --config configs/flow_rl/simwam_canonical_x1_safety25_ddp.yaml --manifest /mnt/project/simwam-recipe-20261015/hard_manifest.json --output /mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1 ",
+    "cwd": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+    "live": true,
+    "gpus": [
+      "0, GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42, 65225, 15929, 100",
+      "1, GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f, 65129, 16025, 100",
+      "2, GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59, 65127, 16027, 100",
+      "3, GPU-4fe15b93-9f87-08ea-699d-40375083da94, 65127, 16027, 100",
+      "4, GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f, 65129, 16025, 100",
+      "5, GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f, 65127, 16027, 100",
+      "6, GPU-af5442fd-0c84-7903-61fa-9e9c49eca2ce, 65127, 16027, 100",
+      "7, GPU-568199b4-3db3-da75-7c8c-c9b94d0c28b7, 65223, 15931, 100"
+    ]
+  },
+  "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+  "scientific_identity": "c8ae95efda7b64c9872832c2c4b2cbd4ee8f7f7789004214910314000498e366",
+  "execution_identity": "9f4bc60ece7fe674b802f2c5e62a95593221504a3badc2c894fac4779e3c645a",
+  "qualified_core_files_match": true,
+  "verified_runtime_module_count": 58,
+  "qualified_initialization_not_reused": true,
+  "progress": {
+    "updates": 200,
+    "collections": 50,
+    "raw_scene_exposures": 400,
+    "new_candidates": 3200,
+    "next_inner": 0,
+    "phase": "READY",
+    "RL_updates_local": 200,
+    "anchor_only_updates_local": 0,
+    "scene_cursor": 400,
+    "seconds_rollout": 31.933422692120075,
+    "seconds_scoring_wait": 9.335300082340837,
+    "seconds_scoring_cpu": 3.3075087685137987,
+    "seconds_old_probability": 12.438253816217184,
+    "seconds_update": 147.7487136721611,
+    "status": "RUNNING",
+    "checkpoint": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1/checkpoints/update000200_inner0",
+    "host": "training-vlawm-tsinghua-zt4",
+    "invocation": "0ed7b56e4f704092998b19fe84bea0ab",
+    "invocation_start_update": 0,
+    "wall_seconds_this_invocation": 234.5214100293815
+  },
+  "controllers": {
+    "milestone_queue": {
+      "owner": {
+        "pid": 42719,
+        "start_ticks": "1359690712",
+        "snapshot": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "scripts.analysis.simwam_recipe.watch_evaluations",
+          "--snapshot",
+          "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+          "--administrative-local",
+          "--followup-safety25",
+          "--source-compatibility",
+          "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json",
+          "--followup-dev-host",
+          "training-vlawm-tsinghua-zt",
+          "--followup-train-host",
+          "training-vlawm-tsinghua-zt4"
+        ],
+        "started": 1792158293.954812,
+        "administrative_only": true
+      },
+      "live_verified": true,
+      "progress": {
+        "status": "WAITING_FOR_REGISTERED_STAGES",
+        "finished": [],
+        "pid": 42719,
+        "time": 1792158577.1924,
+        "Navtest_opened": false
+      },
+      "transport": {
+        "time": 1792158294.0907857,
+        "pid": 42719,
+        "administrative_local": true,
+        "routes": {
+          "training-vlawm-tsinghua-zt": "training-vlawm-tsinghua-zt-worker-0",
+          "training-vlawm-tsinghua-zt4": "training-vlawm-tsinghua-zt4-worker-0"
+        },
+        "analysis_compatibility": {
+          "mode": "explicit_logging_only_source_compatibility",
+          "receipt": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json",
+          "receipt_sha256": "f29b85862ce8f86a3ed8e4e0d83097373313cb17daa9b03b7f4a8dfa170d104a",
+          "receipt_identity": "94b0fafcebc0a3eca065b9af23ee98b2317ed2479abdee0264758fad3757f103",
+          "original_reference_source": "f9bfa2d205bd9548beca787730c8cf7508f2412998e72f7665848e062b218163",
+          "original_evaluation_source": "e4e8536ec2d9aa7185309d934a2747c479d6e3678fc2113339473802a9c34fe8",
+          "prediction_score_and_population_mutations": false
+        }
+      }
+    },
+    "final_navtest_queue": {
+      "owner": {
+        "pid": 42720,
+        "start_ticks": "1359690713",
+        "snapshot": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "scripts.analysis.simwam_recipe.final_navtest",
+          "serve",
+          "--snapshot",
+          "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+          "--administrative-local",
+          "--followup-safety25",
+          "--source-compatibility",
+          "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json",
+          "--followup-hosts",
+          "training-vlawm-tsinghua-zt",
+          "training-vlawm-tsinghua-zt4"
+        ],
+        "started": 1792158293.9587765,
+        "administrative_only": true
+      },
+      "live_verified": true,
+      "progress": {
+        "status": "WAITING_FOR_REGISTERED_ENDPOINTS_AND_DEV_STAGES",
+        "pid": 42720,
+        "time": 1792158577.1941998,
+        "Navtest_opened": false
+      },
+      "transport": {
+        "time": 1792158294.090937,
+        "pid": 42720,
+        "administrative_local": true,
+        "routes": {
+          "training-vlawm-tsinghua-zt": "training-vlawm-tsinghua-zt-worker-0",
+          "training-vlawm-tsinghua-zt4": "training-vlawm-tsinghua-zt4-worker-0"
+        },
+        "analysis_compatibility": {
+          "mode": "explicit_logging_only_source_compatibility",
+          "receipt": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json",
+          "receipt_sha256": "f29b85862ce8f86a3ed8e4e0d83097373313cb17daa9b03b7f4a8dfa170d104a",
+          "receipt_identity": "94b0fafcebc0a3eca065b9af23ee98b2317ed2479abdee0264758fad3757f103",
+          "original_reference_source": "f9bfa2d205bd9548beca787730c8cf7508f2412998e72f7665848e062b218163",
+          "original_evaluation_source": "e4e8536ec2d9aa7185309d934a2747c479d6e3678fc2113339473802a9c34fe8",
+          "prediction_score_and_population_mutations": false
+        }
+      }
+    }
+  },
+  "resource_routing": {
+    "new_training": "training-vlawm-tsinghua-zt4",
+    "existing_LAST_ODE": "training-vlawm-tsinghua-zt2",
+    "DEV": "training-vlawm-tsinghua-zt",
+    "TRAIN_DIAGNOSTIC": "training-vlawm-tsinghua-zt4",
+    "GPU_sharing": true,
+    "no_unknown_process_signals": true,
+    "zt3_not_admitted": "Observed free9.8-10.5GiB/GPU is below existing14GiB evaluation and12GiB formal admission thresholds"
+  },
+  "deployment_results_available": false,
+  "goal92_verified": false,
+  "note": "PID/start ticks checked live at this timestamp; state is a snapshot, not a claim of future liveness. Fixed20k plan; no multi-seed or best-of-N."
+}

@@ -1,0 +1,313 @@
+{
+  "schema": "simwam_safety25_first100_execution_profile_v1",
+  "status": "REAL_FORMAL_TRAINING_NOT_DEPLOYMENT_RESULT",
+  "captured_utc": "2026-10-16T13:47:50.054811+00:00",
+  "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+  "source_commit": "12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+  "profile": {
+    "first_optimizer_update": 1,
+    "last_optimizer_update": 100,
+    "actual_global_optimizer_updates": 100,
+    "fresh_global_rollouts": 25,
+    "scene_exposures": 200,
+    "new_candidates": 1600,
+    "global_RL_updates": 100,
+    "global_anchor_only_updates": 0,
+    "local_PG_groups": 200,
+    "local_PG_group_fraction": 1.0,
+    "full_score_groups": 0,
+    "zero_score_groups": 0,
+    "other_tied_groups": 0,
+    "canonical_tied_groups": 0,
+    "zero_final_PG_groups": 0,
+    "progress_only_groups": 113,
+    "safety_differing_groups": 78,
+    "stochastic_policy_mean": {
+      "canonical_random_mean": 0.7538728524410101,
+      "train_reward_mean": 0.7538728503882886,
+      "NC": 0.988125,
+      "DAC": 0.895,
+      "TTC": 0.9175,
+      "EP": 0.6388171852225639,
+      "safe_fraction": 0.82
+    },
+    "finite_best_safe": {
+      "mean_among_groups_with_safe_candidate": 0.9090592075423848,
+      "defined_groups": 199,
+      "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+    },
+    "positive_candidate_counts": {
+      "positive_safe": 836,
+      "positive_still_unsafe": 10,
+      "positive_unsafe_with_safe_alternative": 9
+    },
+    "global_raw_reward_std": {
+      "mean": 0.277277022062973,
+      "min": 0.14301068744562986,
+      "max": 0.3789482347983809
+    },
+    "first_inner": {
+      "ratio_max_abs_from_one": 0.0,
+      "mean_PPO_clip_fraction": 0.0,
+      "policy_loss_rank_mean": -0.0006990142841823232,
+      "beta50_anchor_loss_rank_mean": 0.00013385378198054186,
+      "mean_gradient_norm": 0.0853018931299448
+    },
+    "inner_updates": {
+      "1": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0006990142841823232,
+        "beta50_anchor_loss_rank_mean": 0.00013385378198054186,
+        "mean_gradient_norm": 0.0853018931299448
+      },
+      "2": {
+        "ratio_max_abs_from_one": 0.021073222160339355,
+        "mean_PPO_clip_fraction": 0.0031250001303851603,
+        "policy_loss_rank_mean": -0.0008126602271989647,
+        "beta50_anchor_loss_rank_mean": 0.000133357506877571,
+        "mean_gradient_norm": 0.07178793214261532
+      },
+      "3": {
+        "ratio_max_abs_from_one": 0.04451406002044678,
+        "mean_PPO_clip_fraction": 0.011458333618938922,
+        "policy_loss_rank_mean": -0.0009436905659379246,
+        "beta50_anchor_loss_rank_mean": 0.0001339548928999705,
+        "mean_gradient_norm": 0.06268766440451146
+      },
+      "4": {
+        "ratio_max_abs_from_one": 0.06845855712890625,
+        "mean_PPO_clip_fraction": 0.024375000689178705,
+        "policy_loss_rank_mean": -0.0010695377084464753,
+        "beta50_anchor_loss_rank_mean": 0.00013666145668616737,
+        "mean_gradient_norm": 0.05452494665980339
+      }
+    },
+    "mean_update_seconds_per_rank": 0.7389941632142291,
+    "source_relative_clamp_hit_rate": 0.00026855469550355335
+  },
+  "cost": {
+    "checkpoint": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1/checkpoints/update000100_inner0",
+    "checkpoint_updates": 100,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 129.35624396428466,
+      "old_probability": 50.4676922429353,
+      "update": 591.1953305713832,
+      "scoring_wait": 49.749030562117696,
+      "scoring_cpu": 12.599237263202667
+    },
+    "max_rank_wall_seconds_by_phase": {
+      "rollout": 16.411476131528616,
+      "old_probability": 6.428860183805227,
+      "update": 74.07299462147057,
+      "scoring_wait": 6.570464808493853,
+      "scoring_cpu": 1.735883792862296
+    },
+    "all_rank_phase_seconds": {
+      "rollout": [
+        16.048816960304976,
+        16.411476131528616,
+        16.090026911348104,
+        16.358811685815454,
+        16.11940105445683,
+        16.3207277841866,
+        15.866673678159714,
+        16.140309758484364
+      ],
+      "old_probability": [
+        6.214418705552816,
+        6.295309517532587,
+        6.331031387671828,
+        6.297275461256504,
+        6.342710178345442,
+        6.366811830550432,
+        6.191274978220463,
+        6.428860183805227
+      ],
+      "update": [
+        74.07299462147057,
+        73.99680691026151,
+        73.95761136710644,
+        73.92545485123992,
+        73.8746427744627,
+        73.83791334182024,
+        73.78613241575658,
+        73.74377428926528
+      ],
+      "scoring_wait": [
+        6.113531306385994,
+        6.134704813361168,
+        6.224263111129403,
+        6.171272790059447,
+        6.203074878081679,
+        6.3039866257458925,
+        6.570464808493853,
+        6.027732228860259
+      ],
+      "scoring_cpu": [
+        1.6900471672415733,
+        1.4628646336495876,
+        1.5170198120176792,
+        1.5975452773272991,
+        1.5333733521401882,
+        1.5835294760763645,
+        1.735883792862296,
+        1.478973751887679
+      ]
+    },
+    "invocation_ledger": {
+      "schema": 3,
+      "provenance": "per-invocation records; RUNNING records are unclosed observations",
+      "cumulative_logical_updates": 100,
+      "invocation_start_update": 0,
+      "invocation_effective_updates": 100,
+      "invocation_updates_per_second": 0.8251708703650074,
+      "rate_basis": "last sealed checkpoint in matching invocation",
+      "rate_window_seconds": 121.18702149018645,
+      "linear_remaining_training_hours": 6.698949243485306,
+      "cumulative_worker_wall_seconds": 1623.161291897297,
+      "invocation_worker_wall_seconds": 1445.8199097756296,
+      "preparation_worker_wall_seconds_observed": 177.34138212166727,
+      "workers_missing_preparation_seconds": 0,
+      "aborted_invocation_worker_wall_seconds": 0,
+      "unclosed_invocation_worker_wall_seconds": 1623.161291897297,
+      "rollback_overhead_seconds": null,
+      "save_worker_wall_seconds": 7.029146883636713,
+      "physical_generated_candidates": 2496,
+      "physical_scored_candidates": 2496,
+      "worker_records": 8,
+      "incomplete_invocations": 8,
+      "missing": [
+        "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+        "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+      ],
+      "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+    },
+    "linear_remaining_training_hours": 6.698949243485306,
+    "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+  },
+  "actual_exposure": {
+    "status": "PASS",
+    "checked_optimizer_updates": 100,
+    "fresh_global_rollouts": 25,
+    "scene_exposures": 200,
+    "new_candidates": 1600,
+    "actual_exposures": {
+      "unsafe": 50,
+      "safe": 150
+    },
+    "per_rank_exposures": {
+      "0": {
+        "unsafe": 7,
+        "safe": 18
+      },
+      "1": {
+        "unsafe": 7,
+        "safe": 18
+      },
+      "2": {
+        "safe": 19,
+        "unsafe": 6
+      },
+      "3": {
+        "safe": 19,
+        "unsafe": 6
+      },
+      "4": {
+        "safe": 19,
+        "unsafe": 6
+      },
+      "5": {
+        "safe": 19,
+        "unsafe": 6
+      },
+      "6": {
+        "safe": 19,
+        "unsafe": 6
+      },
+      "7": {
+        "safe": 19,
+        "unsafe": 6
+      }
+    },
+    "SFT_single_seed_safety_types": {
+      "DAC": 26,
+      "TTC": 22,
+      "SFT_single_seed_safe": 150,
+      "NC+TTC": 2
+    },
+    "unique_scenes": 200,
+    "all_hard_members_visited": false,
+    "actual_input_order_sha256": "c27480409df02f6c8a6cac857407ffc193312df807a2c6e9e292f70d936d8f73",
+    "all_four_inner_identities_fixed": true,
+    "no_new_actor_rollout_or_scoring": true,
+    "schema": "simwam_observed_static_safety_exposure_v1",
+    "captured_utc": "2026-10-16T13:47:48.104784+00:00",
+    "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+    "scientific_identity": "c8ae95efda7b64c9872832c2c4b2cbd4ee8f7f7789004214910314000498e366",
+    "manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+    "analysis_sha256": "09cb7a558a071f66a748cb968005ff1908aea99b856fa2909a56b79cb974c41a",
+    "checked_row_prefix_sha256": [
+      "4b6a22939976c8a31c2ee6beb0c1eb64f08e1ead053074f64a3725141adbdadb",
+      "a3dafc7fc7c0aa83413b8e2dd2999cdba0346cc6da1f2981c35a6c3316246b4e",
+      "95fd7933e58b76ac2c2c445b336cc184a5624aef01696db73f1a853c749cd7f4",
+      "012c281a1f1ca5e8a9d2a8df3d1c9f12eb7217b50bcda5fb6edb852fe565fb72",
+      "6e75284d9b6e2671250e04e614407077ae34b217f97230122ee8f3450ca3a1ce",
+      "17c43d2a41fbc2a6504d91ebb7211cbfc51bb9ed20f53ee45acd8949863b8580",
+      "0ea2c9b386d9c515e8ddb5fabea7150273c84333563ff6f416678df38f1c027b",
+      "15a39582ee9adc0e61e07e8b5752fc37d02be2472c2425ebfbbc75ff2a87d4fc"
+    ],
+    "measured_analysis_body_seconds": 0.342446381226182,
+    "limits": [
+      "This audits actual data exposure and inner reuse, not driving efficacy.",
+      "SFT safety labels use a fixed single seed; no current-policy rejection sampling.",
+      "Counts reflect committed learning rows; physical failed work is in the invocation cost ledger."
+    ]
+  },
+  "initial_LoRA_matches_X1": "7b7f31eb8e320cd5248abb75f758a902c8a04907d9fee2e63741ea978a0d5099",
+  "all192_adapters_changed": true,
+  "all192_Adam_steps100": true,
+  "scientific_identity": "c8ae95efda7b64c9872832c2c4b2cbd4ee8f7f7789004214910314000498e366",
+  "current_data_stream_identity": {
+    "schema": "fixed_SFT_safety_6plus2_v1",
+    "manifest_sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f",
+    "reference_population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+    "reference_screen_identity": {
+      "schema": "simwam_SFT_hard_screen_native_v1",
+      "SFT_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+      "scene_population": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+      "tokens_sha256": "9cd301e72bf2a9e46f5f9199dc0322c9fa7db92071e3aea4bed1558c77b89c3a",
+      "seed": 2101,
+      "root_namespace": "original_ode_initial",
+      "root_dtype": "bfloat16",
+      "sampler": "unchanged_original_10_step_uniform_ODE",
+      "condition": "3941b5691deb642396d4bea6ff247aa53dbaf9b05fba9b4c50dd1fc5803408d8",
+      "score": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+      "no_group_aggregation": true,
+      "hard_threshold": 0.9,
+      "shards": 24,
+      "sha256": "669a1eab06e021d94503e6ebd8621e12ed487e41f8ded4fcbf8cf048a0993987"
+    },
+    "cohort_sizes": {
+      "safe": 20971,
+      "unsafe": 1046
+    },
+    "cohort_token_sha256": {
+      "safe": "101acd5726504feef49a7cc68a631f3ced5265008a4171e52b385b6c63cd0841",
+      "unsafe": "c65515999488e68e8610c32241c04546b9dd10b70a332cfb82f30127dc98e977"
+    },
+    "safe_groups": 6,
+    "unsafe_groups": 2,
+    "rank_rotation": "slot=(rank-collection_zero_based)%8",
+    "permutation": "unchanged source ResumableEpochSampler seed42+stratum_epoch",
+    "cursor": "stratum cursor = collection*quota + within-stratum slot",
+    "padding": "none; each stratum continues across its own permutation boundary",
+    "actor_input": "unchanged; stratum and score are not actor features",
+    "importance_correction": false
+  },
+  "limits": [
+    "The scene population intentionally differs from X1; these stochastic means are not matched deployment improvements.",
+    "No single-ODE efficacy conclusion before registered milestone evaluation.",
+    "ETA extrapolates a first sealed execution window on shared GPUs; model loading/evaluation and changing contention remain separate."
+  ]
+}

@@ -2,7 +2,7 @@
 
 2026-10-16。基于已完成X1和完整TRAIN信号分析，登记一个有限、独立命名的数据曝光对照。目标仍是canonical v1.1、原十步均匀ODE、seed2101、单候选Navtest的真实提升及NC/DAC/TTC保持。92尚未达到，也不是预设结果。
 
-本提交状态：代码、登记和CPU数据合同验收完成；真实八卡恢复、合并部署和正式训练尚待执行。后续执行证据单独补充，资格权重不会作为正式初始化。
+状态更新：真实八卡恢复、合并部署已通过，2026-10-16 13:44:23 UTC在授权的Tsinghua zt4启动正式训练，首100次实际更新已验证。正式训练与控制器使用不可变源码`12c46a5bafd1e37a14435cd1e34aeb175731ca2f`；本报告及后续只读审计补充不热修改运行源码。资格权重未作为正式初始化，尚无本变体的单候选ODE部署收益结论。
 
 ## 为什么比较这一项
 
@@ -49,7 +49,7 @@
 
 ## 入口与资源
 
-CPU检查已实际执行；下列GPU入口在首次真实执行后记录具体源码、host、PID/start-time、结果和成本。所有新attempt使用独立输出目录，保留失败证据；不覆盖正式run或原始资格目录。
+CPU和下列GPU资格入口均已实际执行，结果见[qualification.json](qualification.json)。所有新attempt使用独立输出目录，保留失败证据；不覆盖正式run或原始资格目录。
 
 ```bash
 CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
@@ -67,3 +67,48 @@ python -m scripts.analysis.simwam_recipe.qualify_recovery_run \
 正式调度复用`dispatch_formal --variant R_CANONICAL_X1_SAFETY25`和登记root；阶段与终点评价复用`watch_evaluations --followup-safety25`、`final_navtest serve --followup-safety25`。调度器要求CPU和真实八卡资格PASS，且正式source_files与已验收源码一致。
 
 只使用当前Flow授权的Tsinghua zt/zt2/zt3/zt4，实时检查显存并允许共享。保留未知GPU占用，不发信号或reset；不使用已撤销主机，不恢复旧C/N。研究登记见[registration.json](registration.json)。本分支不合并、不上传权重/cache/原始数据/私有scene清单。
+
+## 真实学习、恢复和部署验收
+
+八卡连续8更新与inner2中断后恢复到8更新完全一致：192个LoRA张量、Adam及scheduler、全部rank RNG、下一份fresh链、old probability、advantage、scene/分层位置、loss、gradient norm和ratio均通过比较。192个张量均实际改变，192份Adam一/二阶状态均为非零FP32，冻结SFT/reference hash前后相同，DDP没有重建bucket。正式起始adapter hash与原X1完全相同。
+
+真实采样仍是[7,8,9]，每次collection实际6安全+2失败。首inner未更新时ratio误差和PPO clip fraction均为0，后续inner的真实clipping不被清零。新增实际曝光审计在连续与恢复日志上均通过，并通过错scene、错曝光、错behavior版本、错old-prob摘要、错collection五类内存故障注入；没有改动原始记录。
+
+非零LoRA资格权重合并后，从2个原始TRAIN观测完成两个网格的4次独立canonical评分，另有1次原部署前向一致性检查；四个评分status均为OK。推理不依赖teacher、训练condition cache、LoRA wrapper或搜索。该结果明确为两场景资格验收，不能写成完整TRAIN512评价或新模型效果。
+
+八卡资格任务端到端181.69秒；24份worker invocation包含连续8rank和两段恢复各8rank，累计worker wall含加载1,285.85秒，其中准备563.04秒、保存36.85秒。训练资格共256条新评分、16次逻辑optimizer更新，未因恢复把old collection重算计入新候选。合并导出43.33秒，原观测评价worker总35.97秒，二者单列。共享worker时间不是独占GPU计算时间；每rank测得6.63GiB仅是torch tensor峰值，不是NVML总显存占用。
+
+一次管理用检查最初把tensor类型的`stoch_idx`直接与Python列表比较而失败；实际保存值为tensor([7,8,9])，转换成值列表后通过。训练、采样和已保存状态没有因此改动，完整披露在资格记录中。
+
+## 首100更新：真实执行证据
+
+[first100_profile.json](first100_profile.json)核对八个rank的前100次完整更新、25次fresh rollout、200次scene曝光、1,600条候选。实际人口为150次安全困难/50次安全失败，与登记吻合；四次inner中的behavior、chain/old-prob/advantage身份和探索统计固定。192个正式LoRA张量均变化，全部192份Adam状态计数为100。
+
+此窗口PG组比例100%，随机策略PDMS75.3873、联合安全候选比例82.0%。这是新75:25人口上的随机训练读出，不能与原X1的95.245:4.755人口均分直接比较，也不能用来判断部署提升。两组真正匹配的比较仍是固定DEV/20k Navtest。
+
+首个封存100更新窗口实测121.19秒，即0.8252 updates/s，按当前共享负载线性外推剩余训练约6.70小时，另计正式评价；它不是完成时间承诺。更新、rollout、评分、保存和加载分别保留，后续用完整新窗口刷新估计，不把累计update除以一次恢复的wall。
+
+正式训练命令已执行：
+
+```bash
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+python -m scripts.analysis.simwam_recipe.dispatch_formal \
+  --variant R_CANONICAL_X1_SAFETY25 \
+  --root /mnt/project/simwam-safety-exposure-20261016 \
+  --host training-vlawm-tsinghua-zt4 \
+  --snapshot /mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f \
+  --qualification eight_gpu_safety25_v1
+```
+
+`dispatch_formal`在已有正式identity时拒绝无`--resume`重启。需要恢复时，先检查最后合法checkpoint与当前PID/start-time，确认旧进程已停止，再向同一入口显式传入合法未合并checkpoint；不得把上述命令作为重复启动操作。阶段/终点controller已分别持有独立队列的单owner锁，完成兼容性与SSH路由预检，等待登记的观察点；不重复启动controller。
+
+只读曝光审计已执行于首100窗口，可对后续已提交窗口使用新输出路径：
+
+```bash
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+python -m scripts.analysis.simwam_recipe.audit_safety_exposure \
+  --run /mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1 \
+  --limit-updates 100 --output "$NEW_EXPOSURE_AUDIT_OUTPUT"
+```
+
+正式运行与controller身份见[formal_launch.json](formal_launch.json)。LAST_ODE仍独立在zt2运行，其配方、权重和队列均未修改。zt留给已登记的阶段评价；zt3本次实测每卡约9.8—10.5GiB空余，未达到现有worker准入阈值，因此没有强行加入或停止其真实任务。
