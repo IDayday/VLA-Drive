@@ -49,8 +49,18 @@ def validate_config(cfg):
             or any(not isinstance(x, (float, int)) or isinstance(x, bool) or not 0 <= x < 1 for x in opt["betas"])):
         raise ValueError("Adam betas must be resolved")
     runtime = cfg["runtime"]
-    exact_fields(runtime, {"output_root", "loader_workers", "save_every", "max_seconds",
-                           "deterministic", "gradient_checkpointing"}, "Runtime")
+    runtime_keys = {"output_root", "loader_workers", "save_every", "max_seconds",
+                    "deterministic", "gradient_checkpointing"}
+    exact_fields(runtime, runtime_keys | ({"profile_mode"} if "profile_mode" in runtime else set()), "Runtime")
+    profile = runtime.get("profile_mode", "none")
+    if profile not in ("none", "timing", "trace"):
+        raise ValueError("Unknown profiling mode")
+    if profile != "none" and execution["scope"] not in ("SMOKE", "PROFILE"):
+        raise ValueError("Profiling must be a separately registered diagnostic run")
+    if profile == "timing" and (execution["scope"] != "PROFILE" or execution["stop_after"] != 240):
+        raise ValueError("Complete timing requires the two registered 20+100 update windows")
+    if profile == "trace" and execution["stop_after"] > 4:
+        raise ValueError("Trace diagnostics are limited to four optimizer updates")
     if type(runtime["loader_workers"]) is not int or not 0 <= runtime["loader_workers"] <= 8:
         raise ValueError("Bounded loader worker count required")
     if type(runtime["save_every"]) is not int or runtime["save_every"] < 1:

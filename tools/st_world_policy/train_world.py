@@ -90,7 +90,7 @@ def run(args):
     torch.set_num_threads(2)
     torch.cuda.set_device(local)
     dist.init_process_group("nccl", timeout=timedelta(minutes=10))
-    lock, pool = None, None
+    lock, pool, profiler = None, None, None
     out = Path(cfg["runtime"]["output_root"]) / registration["run_id"]
     started = time.perf_counter()
     status = {"status": "STARTING"}
@@ -181,6 +181,33 @@ def run(args):
                              "eps": opt["eps"], "weight_decay": opt["weight_decay"]}}}
         import deepspeed
         engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds)
+        profile_mode = cfg["runtime"].get("profile_mode", "none")
+        if profile_mode != "none":
+            if args.resume:
+                raise ValueError("A timing/trace run requires its complete separately registered measurement window")
+            from tools.st_world_policy.profile_pipeline import PipelineProfiler, dtype_inventory
+            scientific = {key: cfg[key] for key in ("space_time", "optimizer")}
+            scientific.update(precision_policy=execution["precision_policy"], seed=execution["seed"],
+                max_updates=execution["max_updates"], global_batch=execution["global_batch"],
+                deterministic=cfg["runtime"]["deterministic"],
+                gradient_checkpointing=cfg["runtime"]["gradient_checkpointing"])
+            profile_identity = {"run_identity": signature, "source_sha": registration["source_sha"],
+                "scientific_config_sha256": identity_hash(scientific),
+                "data_manifest_sha256": registration["artifacts"]["data_manifest"]["sha256"],
+                "teacher_identity": teacher["identity"], "precision_policy": execution["precision_policy"],
+                "global_batch": execution["global_batch"],
+                "sample_order_sha256": identity_hash({"manifest": data.identity["data_manifest_sha256"],
+                    "seed": execution["seed"], "global_batch": execution["global_batch"],
+                    "algorithm": "tools.ddpolicy_vehicle.training_state.epoch_batches"}),
+                "registration_sha256": file_sha256(args.registration),
+                "data_working_set_scenes": len(data), "setup_in_window": False}
+            profiler = PipelineProfiler(out / "profile", identity=profile_identity, rank=rank,
+                world_size=world, gpu_uuids=lease["gpu_uuids_by_host"][socket.gethostname()], mode=profile_mode)
+            profiler.attach_modules({"frozen_visual": model.base.qwen_vl_interface.model.model.visual,
+                "language": model.base.qwen_vl_interface.model.model.language_model,
+                "action_projection": model.base.action_model.qwen_proj,
+                "DiT": model.base.action_model.model, "sparse_readout": model.sparse_readout})
+            atomic_json(out / "profile" / f"initial_dtypes_rank{rank}.json", dtype_inventory(model, engine.optimizer))
         if rank == 0 and not args.resume:
             atomic_json(out / "initialization.json", {"base": binding["binding_sha256"],
                 "world_migration": model.migration, "groups": group_records,
@@ -240,7 +267,7 @@ def run(args):
                         if all(saved_state[k] == state[k] for k in keys):
                             status["pause_reason"] = reason
                             write_status()
-                            return
+                            return 0.
                 stamp = [time.time_ns() if rank == 0 else None]
                 dist.broadcast_object_list(stamp, 0)
                 tag = f"step_{state['completed']:06d}_{stamp[0]}"
@@ -263,6 +290,7 @@ def run(args):
                         stream.write(json.dumps({"step": state["completed"], "tag": tag,
                             "seconds": time.perf_counter() - checkpoint_start}) + "\n")
                 write_status()
+                return time.perf_counter() - checkpoint_start
 
         model.train()
         write_status()
@@ -292,6 +320,8 @@ def run(args):
                 save("OPERATOR_PAUSED" if operator.item() else "BUDGET_PAUSED")
                 break
             torch.cuda.synchronize()
+            if profiler:
+                profiler.begin_update(state["completed"] + 1)
             tick = time.perf_counter()
             ids = batches[state["offset"]][rank::world]
             with record_function("st.data"):
@@ -331,6 +361,9 @@ def run(args):
                     logs[name] = logs.get(name, torch.zeros((), device="cuda")) + value.detach().float()
                 if boundary:
                     before = capture_master_samples(engine.optimizer)
+                    if profiler and profile_mode == "trace" and state["completed"] == 1:
+                        atomic_json(out / "profile" / f"after_backward_dtypes_rank{rank}.json",
+                                    dtype_inventory(model, engine.optimizer))
                 with record_function("st.optimizer"):
                     engine.step()
                 if boundary:
@@ -362,15 +395,28 @@ def run(args):
                         "profile_fields": ["update_seconds", "data_seconds", "peak_allocated", "peak_reserved", "max_sequence"],
                         "gradient_norm": float(engine.get_global_grad_norm()), **update_evidence}) + "\n")
             write_status()
+            checkpoint_seconds = 0.
             if state["completed"] == execution["max_updates"]:
                 status["status"] = "COMPLETE"
-                save("MAX_STEPS")
+                checkpoint_seconds = save("MAX_STEPS")
+            elif state["completed"] % cfg["runtime"]["save_every"] == 0:
+                checkpoint_seconds = save("RUNNING_CHECKPOINT")
+            # The complete-window boundary follows reductions, ID collection,
+            # log/status I/O, and native checkpoint work. The old internal
+            # step timer remains a diagnostic, never the throughput denominator.
+            if profiler:
+                profiler.end_update(local_scenes=len(ids), checkpoint_seconds=checkpoint_seconds,
+                    metadata={"counts": counts, "losses": logs, "sample_ids": all_ids[rank]})
+            if status["status"] == "COMPLETE":
                 break
-            if state["completed"] % cfg["runtime"]["save_every"] == 0:
-                save("RUNNING_CHECKPOINT")
+        if profiler:
+            atomic_json(out / "profile" / f"final_dtypes_rank{rank}.json", dtype_inventory(model, engine.optimizer))
+            profiler.finish()
+            profiler = None
         if rank == 0:
             atomic_json(out / "RESULT.json", {**status, **state,
                 "new_optimizer_updates": state["completed"] - initial_step,
+                "allocation_wall_seconds": time.perf_counter() - started,
                 "scientific_result": "NOT_EVALUATED", "formal_launch_approval": approval["formal_launch_allowed"]})
         write_status()
     except BaseException as error:
