@@ -1,4 +1,4 @@
-"""Finite registered SFT milestone queue; never launch/restart a trainer.
+"""Finite registered SFT/RL milestone queue; never launch/restart a trainer.
 
 One owner, immutable evaluation source, existing dispatch receipts and current
 host admission. A failed worker stops the queue for inspection; it is never
@@ -50,14 +50,33 @@ print(json.dumps(result))"""
     return json.loads(remote(host,[PYTHON,'-c',program,json.dumps(expected)]))
 
 
-def jobs(root):
+def jobs(root,include_rl=False):
     for variant,cfg in CONFIGS.items():
         for update in cfg['milestones']:
             for cohort in ('DEV','TRAIN_DIAGNOSTIC'):
-                yield dict(variant=variant,update=update,cohort=cohort,
+                yield dict(variant=variant,stage='SFT',update=update,cohort=cohort,
                     checkpoint=str(root/'runs'/f'{variant}_SFT_seed42_v1'/'checkpoints'/f'update{update:06d}'),
                     export=str(root/'exports'/variant/f'SFT_update{update:06d}'),
                     output=str(root/'evaluations'/f'{variant}_SFT_update{update:06d}_{cohort}'))
+    if include_rl:
+        # RL step0 is exactly the own complete SFT and is already evaluated.
+        # No separate root/sample selection is introduced for the RL baseline.
+        for variant in CONFIGS:
+            for update in (5000,10000,15000,20000):
+                for cohort in ('DEV','TRAIN_DIAGNOSTIC'):
+                    yield dict(variant=variant,stage='RL',update=update,cohort=cohort,
+                        checkpoint=str(root/'runs'/f'{variant}_R_SOURCE_seed42_v1'/'checkpoints'/f'update{update:06d}_inner0'),
+                        export=str(root/'exports'/variant/f'RL_update{update:06d}'),
+                        output=str(root/'evaluations'/f'{variant}_RL_update{update:06d}_{cohort}'))
+
+
+def reference_for(root,job):
+    if job['stage']=='SFT' and job['update']==0:return None
+    if job['stage']=='SFT' and job['variant']=='A_DDP_TIME':
+        proof=json.loads((root/'qualification/A_DDP_TIME/initial_baseline_reuse.json').read_text())
+        return proof['reuse'][job['cohort']]['path']
+    update=CONFIGS[job['variant']]['max_updates'] if job['stage']=='RL' else 0
+    return str(root/'evaluations'/f"{job['variant']}_SFT_update{update:06d}_{job['cohort']}")
 
 
 def initial_A_reused(root, job):
@@ -75,19 +94,21 @@ def initial_A_reused(root, job):
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation-source',required=True)
     p.add_argument('--dispatch-source',required=True);p.add_argument('--host',required=True)
-    p.add_argument('--root',default=str(ROOT));p.add_argument('--once',action='store_true');a=p.parse_args()
+    p.add_argument('--root',default=str(ROOT));p.add_argument('--once',action='store_true')
+    p.add_argument('--include-rl',action='store_true');p.add_argument('--control-dir');a=p.parse_args()
     require_dispatch();worker_allowed(a.host)
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Controller must be CPU-only')
-    root=Path(a.root);control=root/'milestone_controller';control.mkdir(parents=True,exist_ok=True)
+    root=Path(a.root);control=Path(a.control_dir) if a.control_dir else root/'milestone_controller';control.mkdir(parents=True,exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     evaluation=Path(a.evaluation_source).resolve();dispatcher=Path(a.dispatch_source).resolve()
     for source in (evaluation,dispatcher):
         if not json.loads((source/'SOURCE_COMPLETE.json').read_text())['git_archive_extraction_complete']:
             raise ValueError('Incomplete source snapshot')
     env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
-    identity=dict(schema='fm_transfer_finite_SFT_evaluation_queue_v1',host=a.host,
+    analysis_source=Path(__file__).resolve().parents[3]
+    identity=dict(schema='fm_transfer_finite_SFT_RL_evaluation_queue_v2',host=a.host,
         evaluation_source=str(evaluation),dispatch_source=str(dispatcher),
-        jobs=list(jobs(root)),script_sha256=file_sha(__file__))
+        analysis_source=str(analysis_source),jobs=list(jobs(root,a.include_rl)),script_sha256=file_sha(__file__))
     path=control/'identity.json'
     if path.exists() and json.loads(path.read_text())!=identity:raise ValueError('Changed queue; use explicit migration')
     atomic_json(path,identity)
@@ -112,6 +133,13 @@ def main():
                             require_dispatch()
                             subprocess.run([PYTHON,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
                                 '--evaluation',str(output),'--output',str(analysis)],cwd=evaluation,env=env,check=True)
+                        reference=reference_for(root,job);paired=root/'analysis'/(output.name+'_paired_initial.json' if job['stage']=='SFT' else output.name+'_paired_own_SFT.json')
+                        if reference and not paired.exists():
+                            require_dispatch()
+                            analysis_env=dict(env);analysis_env['PYTHONPATH']=str(analysis_source)
+                            subprocess.run([PYTHON,'-m','scripts.analysis.fm_transfer.analyze_evaluation',
+                                '--evaluation',str(output),'--reference',reference,'--output',str(paired)],
+                                cwd=analysis_source,env=analysis_env,check=True)
                         complete.append(job);continue
                     alive=live_workers(a.host,receipts)
                     if any(not alive[i] and not (statuses[i] and statuses[i]['status']=='ASSIGNED_COMPLETE') for i in range(8)):
@@ -137,10 +165,13 @@ def main():
                     atomic_json(control/(Path(job['output']).name+'.dispatch.json'),json.loads(response))
                     status['last_dispatched']=job
                 else:status['status']='WAITING_FOR_AUTHORIZED_MEMORY_HEADROOM'
-            elif not active and pending:status['status']='WAITING_FOR_SEALED_SFT_MILESTONE'
-            elif not active and not ready and not pending:status['status']='ALL_REGISTERED_SFT_EVALUATIONS_COMPLETE'
+            elif not active and pending:status['status']='WAITING_FOR_SEALED_REGISTERED_MILESTONE'
+            elif not active and not ready and not pending:status['status']='ALL_REGISTERED_EVALUATIONS_COMPLETE'
             atomic_json(control/'status.json',status)
-            if a.once or status['status']=='ALL_REGISTERED_SFT_EVALUATIONS_COMPLETE':break
+            if (control/'STOP_AFTER_TICK').exists():
+                status.update(status='STOPPED_CONTROLLER_ONLY',active_workers_preserved=True)
+                atomic_json(control/'status.json',status);break
+            if a.once or status['status']=='ALL_REGISTERED_EVALUATIONS_COMPLETE':break
             time.sleep(30)
     except BaseException:
         import traceback
