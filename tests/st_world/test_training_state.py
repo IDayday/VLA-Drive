@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from tools.st_world_policy.training_state import (
-    checkpoint_receipt, resolve_latest, terminal, verify_checkpoint,
+    checkpoint_receipt, resolve_latest, terminal, verify_checkpoint, can_reuse_just_saved_boundary,
 )
 
 
@@ -71,3 +71,16 @@ def test_receipt_cannot_commit_incomplete_native_state(tmp_path):
     with pytest.raises(ValueError, match="optimizer"):
         checkpoint_receipt(tmp_path, {"completed": 1, "termination_reason": "RUNNING_CHECKPOINT"}, world_size=1)
     assert not (tmp_path / "COMPLETE.json").exists()
+
+
+def test_same_native_pause_boundary_needs_no_new_checkpoint(tmp_path):
+    folder = saved(tmp_path, 2)
+    state = json.loads((folder / "COMPLETE.json").read_text())["state"]
+    assert can_reuse_just_saved_boundary(tmp_path, state, world_size=1)
+    assert can_reuse_just_saved_boundary(tmp_path, {**state, "termination_reason":"BUDGET_PAUSED"}, world_size=1)
+    assert not can_reuse_just_saved_boundary(tmp_path, {**state, "epoch":1, "offset":0}, world_size=1)
+    assert not can_reuse_just_saved_boundary(tmp_path, {**state, "completed":3}, world_size=1)
+    assert not can_reuse_just_saved_boundary(tmp_path, {**state, "pending_feedback":"unconsumed"}, world_size=1)
+    (folder / "rng_rank0.pt").write_bytes(b"corrupt-size")
+    with pytest.raises(ValueError, match="size changed"):
+        can_reuse_just_saved_boundary(tmp_path, state, world_size=1)

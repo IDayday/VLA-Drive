@@ -81,7 +81,12 @@ def validate_config(cfg):
     r = cfg["runtime"]
     exact_fields(r, {"output_root", "loader_workers", "save_every", "max_seconds", "deterministic",
                      "gradient_checkpointing", "mc_chunk", "checkpoint_velocity"}
-                     | ({"official_execution"} if "official_execution" in r else set()), "Runtime")
+                     | (set(r) & {"official_execution", "profile_mode"}), "Runtime")
+    profile_mode = r.get("profile_mode", "none")
+    if profile_mode not in ("none", "timing"):
+        raise ValueError("Flow supports complete-window timing only; no implicit trace mode")
+    if profile_mode != "none" and (e["scope"] != "PROFILE" or e["stop_after"] != 240):
+        raise ValueError("Flow complete-window timing requires PROFILE and two120-update windows")
     _absolute(r["output_root"], "output_root")
     for k, low, high in (("loader_workers", 0, 8), ("mc_chunk", 1, 50), ("save_every", 1, 4096)):
         if type(r[k]) is not int or not low <= r[k] <= high:

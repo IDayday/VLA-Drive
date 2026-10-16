@@ -235,6 +235,24 @@ def numeric_execution(cfg, binding):
     return value
 
 
+def flow_profile_identity(cfg, registration, numeric, run_identity, population):
+    """The same identity consumed by the shared complete-window summarizer."""
+    return {"run_identity": run_identity, "source_sha": registration["source_sha"],
+        "scientific_config_sha256": fingerprint({"cell": cfg["cell"], "fpo": cfg["fpo"],
+            "loss": cfg["loss"], "optimizer": cfg["optimizer"], "numeric": numeric}),
+        "data_manifest_sha256": registration["artifacts"]["data_manifest"]["sha256"],
+        "environment_sha256": registration["artifacts"]["environment"]["sha256"],
+        "resource_lease_sha256": registration["artifacts"]["resource_lease"]["sha256"],
+        "teacher_identity": fingerprint(NO_TEACHER),
+        "precision_policy": cfg["execution"]["precision_policy"],
+        "global_batch": cfg["execution"]["global_batch"],
+        "sample_order_sha256": fingerprint({"manifest": registration["artifacts"]["data_manifest"]["sha256"],
+            "seed": cfg["execution"]["seed"], "global_batch": cfg["execution"]["global_batch"],
+            "algorithm": "tools.ddpolicy_vehicle.training_state.epoch_batches"}),
+        "data_working_set_scenes": population, "setup_in_window": False,
+        "scope": "PROFILE", "cuda_synchronization": "complete_update_boundaries"}
+
+
 class MatchedOldMicrobatches:
     """Same action-batch shapes as current CFM; does not resample MC draws."""
     def __init__(self, old, scene_microbatch):
@@ -470,6 +488,18 @@ def encode_conditions(encoder, observations, micro_batch):
 def _native_checkpoint(engine, out, state, reason, generators, world, rank):
     """Same native save/receipt helpers as ST; all RNG and cursors are consumed."""
     tick = time.perf_counter()
+    if reason in ("OPERATOR_PAUSED", "BUDGET_PAUSED") and state.get("tag"):
+        from tools.st_world_policy.training_state import can_reuse_just_saved_boundary
+        reuse = collective_call(lambda: can_reuse_just_saved_boundary(
+            out / "checkpoints", state, world_size=world) if rank == 0 else None,
+            "already committed Flow pause boundary")
+        decision = [reuse]
+        dist.broadcast_object_list(decision, 0)
+        if decision[0]:
+            if rank == 0:
+                atomic_json(out / "PAUSE_INTENT.json", {"reason":reason,
+                    "completed":state["completed"], "reused_native_tag":state["tag"]})
+            return
     stamp = [time.time_ns() if rank == 0 else None]
     dist.broadcast_object_list(stamp, 0)
     tag = f"step_{state['completed']:06d}_{stamp[0]}"
@@ -516,7 +546,7 @@ def run(args):
     torch.set_num_threads(2)
     torch.cuda.set_device(local)
     dist.init_process_group("nccl", timeout=timedelta(minutes=30))
-    lock = pool = service = ledger = None
+    lock = pool = service = ledger = profiler = None
     out = Path(runtime["output_root"]) / registration["run_id"]
     started = time.perf_counter()
     try:
@@ -673,6 +703,12 @@ def run(args):
                     or state["rng_stream_base_seed"] != execution["seed"] or state["frozen_encoder_hash"] != frozen_before):
                 raise ValueError("Native optimizer boundary/policy/RNG/frozen encoder differs from resume")
             guard.load_state_dict(state["reuse_guard"])
+            if official_policy is not None:
+                engine_check = collective_call(lambda: verify_official_engine(
+                    engine, client_optimizer, official_policy, require_moments=state["completed"] > 0),
+                    "restored official optimizer state")
+                atomic_json(out / "official_runtime" / f"restored_step{state['completed']}_rank{rank}.json",
+                            engine_check, immutable=True)
             # Restore LAST: initialization/strict load must not override saved RNG.
             restore_rng(torch.load(folder / f"rng_rank{rank}.pt", map_location="cpu", weights_only=False), streams.generators)
             if rank == 0:
@@ -711,12 +747,14 @@ def run(args):
         hooks.append(encoder.qwen_vl_interface.model.model.visual.register_forward_hook(count("visual")))
         hooks.append(encoder.qwen_vl_interface.model.model.language_model.register_forward_hook(count("language")))
         initial_step = state["completed"]
+        if runtime.get("profile_mode", "none") == "timing":
+            if args.resume:
+                raise ValueError("A throughput window must start as one uninterrupted bounded run")
+            from tools.st_world_policy.profile_pipeline import PipelineProfiler, dtype_inventory
+            profiler = PipelineProfiler(out / "profile", rank=rank, world_size=world,
+                gpu_uuids=lease["gpu_uuids_by_host"][socket.gethostname()], mode="timing",
+                identity=flow_profile_identity(cfg, registration, numeric, signature, len(data)))
         while state["completed"] < execution["max_updates"]:
-            batches = epoch_batches(len(data), execution["global_batch"], execution["seed"], state["epoch"])
-            if state["offset"] == len(batches):
-                state["epoch"] += 1
-                state["offset"] = 0
-                continue
             operator = pause[0] or (out / "STOP_REQUESTED").exists()
             stop = (operator or time.perf_counter()-started >= runtime["max_seconds"]
                     or time.time() >= lease["valid_until_unix"] or state["completed"] >= execution["stop_after"])
@@ -727,7 +765,14 @@ def run(args):
                 _native_checkpoint(engine, out, state, "OPERATOR_PAUSED" if flags[1].item() else "BUDGET_PAUSED",
                                    streams.generators, world, rank)
                 break
+            batches = epoch_batches(len(data), execution["global_batch"], execution["seed"], state["epoch"])
+            if state["offset"] == len(batches):
+                state["epoch"] += 1
+                state["offset"] = 0
+                continue
             torch.cuda.synchronize()
+            if profiler:
+                profiler.begin_update(state["completed"] + 1)
             tick = time.perf_counter()
             torch.cuda.reset_peak_memory_stats()
             global_ids = batches[state["offset"]]
@@ -893,12 +938,25 @@ def run(args):
                         "gradient_norm": float(engine.get_global_grad_norm()), "old_policy": state["last_completed_policy"],
                         "official_admitted_calls": ledger.admitted_calls if ledger else 0, **update_evidence}) + "\n")
             write_status()
+            checkpoint_seconds = 0.
             if state["completed"] == execution["max_updates"]:
                 status["status"] = "COMPLETE"
+                checkpoint_started = time.perf_counter()
                 _native_checkpoint(engine, out, state, "MAX_STEPS", streams.generators, world, rank)
-                break
-            if state["completed"] % runtime["save_every"] == 0:
+                checkpoint_seconds = time.perf_counter() - checkpoint_started
+            elif state["completed"] % runtime["save_every"] == 0:
+                checkpoint_started = time.perf_counter()
                 _native_checkpoint(engine, out, state, "RUNNING_CHECKPOINT", streams.generators, world, rank)
+                checkpoint_seconds = time.perf_counter() - checkpoint_started
+            if profiler:
+                profiler.end_update(local_scenes=len(ids), checkpoint_seconds=checkpoint_seconds,
+                    metadata={"global_scenes": len(global_ids), "actual_rollouts": counts["actual_rollouts"]})
+            if status["status"] == "COMPLETE":
+                break
+        if profiler:
+            profiler.finish()
+            atomic_json(out / "profile" / f"final_dtypes_rank{rank}.json",
+                        dtype_inventory(model, engine.optimizer))
         for hook in hooks:
             hook.remove()
         frozen_after = collective_call(lambda: frozen_encoder_hash(encoder), "final frozen encoder hash")
@@ -906,6 +964,9 @@ def run(args):
             raise ValueError("Shared encoder changed during action-only training")
         result = {**status, **state, "new_optimizer_updates": state["completed"]-initial_step,
                   "frozen_encoder_unchanged": True, "scientific_result": "NOT_EVALUATED",
+                  "allocation_wall_seconds": time.perf_counter()-started,
+                  "allocation_wall_scope": "NCCL-ready through final frozen hash; launcher/import/setup and final cleanup excluded",
+                  "profile_cpu_scope": "self_and_waited_children; live official scorer CPU not included",
                   "formal_launch_approval": approval["formal_launch_allowed"]}
         if rank == 0:
             atomic_json(out / "RESULT.json", result)

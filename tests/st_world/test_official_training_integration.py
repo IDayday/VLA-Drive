@@ -7,7 +7,7 @@ import pytest
 from tools.st_world_policy.official_runtime import REFERENCE_RECIPE, SCHEMA, PRESET
 from tools.st_world_policy.training_config import official_runtime_policy, validate_config as validate_world
 from tools.st_world_policy.flow_training_config import validate_config as validate_flow
-from tools.st_world_policy.train_flow_policy import numeric_execution
+from tools.st_world_policy.train_flow_policy import numeric_execution, flow_profile_identity
 from tools.st_world_policy import flow_checkpoints
 from test_training_config import config as world_config
 from test_flow_training import config as flow_config
@@ -58,6 +58,39 @@ def test_official_flow_execution_cannot_reuse_legacy_numeric_identity():
     assert new["encoder"] == "frozen_BF16_execution_eval_official_FA2"
     assert new["official_execution"]["backend"]["master_dtype"] == "float32"
     assert new["standalone_evaluation_contract"] == old["standalone_evaluation_contract"]
+
+
+def test_flow_timing_has_complete_bounded_windows_only():
+    cfg = enable_official(flow_config())
+    cfg["runtime"]["profile_mode"] = "timing"
+    with pytest.raises(ValueError, match="PROFILE"):
+        validate_flow(cfg)
+    cfg["execution"].update(scope="PROFILE", stop_after=240, max_updates=4096)
+    cfg = enable_official(cfg)
+    validate_flow(cfg)
+    cfg["execution"]["stop_after"] = 241
+    with pytest.raises(ValueError, match="windows"):
+        validate_flow(cfg)
+    cfg["execution"]["stop_after"] = 240
+    cfg["runtime"]["profile_mode"] = "trace"
+    with pytest.raises(ValueError, match="timing"):
+        validate_flow(cfg)
+
+
+def test_actual_flow_profile_identity_is_summarizable():
+    from test_profile_pipeline import fake_ranks
+    from tools.st_world_policy.profile_pipeline import summarize_ranks
+    cfg = enable_official(flow_config())
+    cfg["execution"]["global_batch"] = 32
+    reg = {"source_sha": "a"*40, "artifacts": {k:{"sha256":"b"*64}
+           for k in ("data_manifest", "environment", "resource_lease")}}
+    identity = flow_profile_identity(cfg, reg, {"schema":"test_numeric"}, "r", 64)
+    rows = fake_ranks(world=8)
+    for row in rows:
+        row["identity"] = identity
+    summary = summarize_ranks(rows)
+    assert [w["scenes"] for w in summary["windows"]] == [3200, 3200]
+    assert summary["identity"]["data_working_set_scenes"] == 64
 
 
 def test_official_native_reader_retains_strict_canonical_deployment(tmp_path, monkeypatch):

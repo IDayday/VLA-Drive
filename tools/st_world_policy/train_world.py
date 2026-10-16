@@ -36,7 +36,8 @@ from tools.st_world_policy.fp32_master_init import (
     SCHEMA as MASTER_INIT_SCHEMA, capture_fp32_master_initialization, restore_fp32_master_initialization)
 from tools.st_world_policy.check_formal_approval import check_formal_approval, read_json
 from tools.st_world_policy.training_config import validate_config, environment_record, official_runtime_policy
-from tools.st_world_policy.training_state import checkpoint_receipt, resolve_latest, update_latest, terminal
+from tools.st_world_policy.training_state import (
+    checkpoint_receipt, resolve_latest, update_latest, terminal, can_reuse_just_saved_boundary)
 
 
 def collective_call(function, description):
@@ -282,6 +283,12 @@ def run(args):
             state = dict(receipt["state"])
             if engine.global_steps != state["completed"]:
                 raise ValueError("DeepSpeed optimizer step and consumed cursor disagree")
+            if official_policy is not None:
+                engine_check = collective_call(lambda: verify_official_engine(
+                    engine, client_optimizer, official_policy, require_moments=state["completed"] > 0),
+                    "restored official optimizer state")
+                atomic_json(out / "official_runtime" / f"restored_step{state['completed']}_rank{rank}.json",
+                            engine_check, immutable=True)
             if not args.resume:
                 state.update(identity=signature, termination_reason="RUNNING_CHECKPOINT",
                              budget_extension_parent=resolution["parent_identity"])
@@ -309,14 +316,15 @@ def run(args):
                 # contains the needed native state. Do not duplicate tens of GB
                 # merely to annotate an immediately following operator pause.
                 if reason in ("OPERATOR_PAUSED", "BUDGET_PAUSED") and state.get("tag"):
-                    previous = out / "checkpoints" / state["tag"] / "COMPLETE.json"
-                    if previous.exists():
-                        saved_state = read_json(previous)["state"]
-                        keys = ("identity", "completed", "epoch", "offset", "exposure", "counts")
-                        if all(saved_state[k] == state[k] for k in keys):
-                            status["pause_reason"] = reason
-                            write_status()
-                            return 0.
+                    reuse = collective_call(lambda: can_reuse_just_saved_boundary(
+                        out / "checkpoints", state, world_size=world) if rank == 0 else None,
+                        "already committed native pause boundary")
+                    decision = [reuse]
+                    dist.broadcast_object_list(decision, 0)
+                    if decision[0]:
+                        status["pause_reason"] = reason
+                        write_status()
+                        return 0.
                 stamp = [time.time_ns() if rank == 0 else None]
                 dist.broadcast_object_list(stamp, 0)
                 tag = f"step_{state['completed']:06d}_{stamp[0]}"
@@ -351,11 +359,6 @@ def run(args):
             return
         initial_step = state["completed"]
         while state["completed"] < execution["max_updates"]:
-            batches = epoch_batches(len(data), execution["global_batch"], execution["seed"], state["epoch"])
-            if state["offset"] == len(batches):
-                state["epoch"] += 1
-                state["offset"] = 0
-                continue
             stop = (pause[0] or (out / "STOP_REQUESTED").exists()
                     or time.perf_counter() - started >= cfg["runtime"]["max_seconds"]
                     or time.time() >= lease["valid_until_unix"]
@@ -368,6 +371,14 @@ def run(args):
                 status["status"] = "PAUSED"
                 save("OPERATOR_PAUSED" if operator.item() else "BUDGET_PAUSED")
                 break
+            # Do not advance an unconsumed epoch merely to annotate a pause.
+            # Otherwise a just-saved end-of-epoch boundary looks different and
+            # causes a second identical multi-GB native checkpoint.
+            batches = epoch_batches(len(data), execution["global_batch"], execution["seed"], state["epoch"])
+            if state["offset"] == len(batches):
+                state["epoch"] += 1
+                state["offset"] = 0
+                continue
             torch.cuda.synchronize()
             if profiler:
                 profiler.begin_update(state["completed"] + 1)

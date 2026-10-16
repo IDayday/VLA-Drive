@@ -130,6 +130,40 @@ def update_latest(root, tag):
     temporary.replace(root / "latest")
 
 
+def can_reuse_just_saved_boundary(root, state, *, world_size):
+    """Avoid rewriting an identical in-process pause boundary; NOT a resume validator.
+
+    The save path just hashed and committed these files. Recheck the immutable
+    receipt, exact client state and inventory/sizes here; actual new-process
+    resume still uses verify_checkpoint and rehashes every file.
+    """
+    tag = state.get("tag")
+    if not tag:
+        return False
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", tag):
+        raise ValueError("Unsafe just-saved checkpoint tag")
+    folder = Path(root) / tag
+    path = folder / "COMPLETE.json"
+    if not path.exists():
+        return False
+    receipt = json.loads(path.read_text())
+    body = {k:v for k,v in receipt.items() if k != "receipt_identity"}
+    if (receipt.get("schema") != "st_native_checkpoint_v1"
+            or identity_hash(body) != receipt.get("receipt_identity")
+            or receipt["world_size"] != world_size):
+        raise ValueError("Invalid just-saved receipt")
+    wanted = {k:v for k,v in state.items() if k != "termination_reason"}
+    saved = {k:v for k,v in receipt["state"].items() if k != "termination_reason"}
+    if wanted != saved:
+        return False
+    require_native_inventory(receipt["files"], world_size)
+    if {p.name for p in folder.glob("*.pt")} != set(receipt["files"]):
+        raise ValueError("Just-saved native inventory changed")
+    if any((folder/name).stat().st_size != ref["bytes"] for name,ref in receipt["files"].items()):
+        raise ValueError("Just-saved native file size changed")
+    return True
+
+
 def terminal(state, max_updates):
     """Read before consuming sampler or RNG; an operator pause can resume."""
     if state["completed"] > max_updates:
