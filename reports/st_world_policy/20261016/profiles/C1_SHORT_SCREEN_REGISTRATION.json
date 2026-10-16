@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/flow_C1_profile64_8gpu_screen_v1/CONFIG.json",
+      "sha256": "40467d8c45d1e8e0b233c6737e538b088b581c13af1f28760eef2cf60c0a4f0e"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/profile64_fp32_master_v1/TRAINING_MANIFEST.json",
+      "sha256": "8af7104481c0294f95fb2ea279f32b08d930763399eb735ae98e73f68d78b1a0"
+    },
+    "environment": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/flow_C1_profile64_8gpu_screen_v1/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    "resource_lease": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/flow_C1_profile64_8gpu_screen_v1/RESOURCE_LEASE.json",
+      "sha256": "cce3c2ace0766ffc6a3caa0373b98f2f00334f7904e456214868748e5b25852c"
+    },
+    "target_contract": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/flow_C1_profile64_8gpu_screen_v1/TARGET_CONTRACT.json",
+      "sha256": "765832d4bb97d1b925e7bd20d0248a8d6db576fb148cbbfa5d655b8d81c738d6"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/profile64_fp32_master_v1/NO_TEACHER.json",
+      "sha256": "211f1d4177be892089e496dc90ba514c90e7610aefe8b2cc26faa9e2149ce020"
+    }
+  },
+  "execution": {
+    "family": "consequence",
+    "global_batch": 32,
+    "max_updates": 4096,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 64,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 16,
+    "world_size": 8
+  },
+  "implementer_agents": [
+    "/root",
+    "/root/st_flow_policy",
+    "/root/st_consequence"
+  ],
+  "run_id": "C1_profile64_8gpu_screen_v1",
+  "schema": "st_world_run_v1",
+  "source_fingerprint": "66b468ca5a47d0c86aa894c696d6370c185aba649dd849263df3b75273402370",
+  "source_sha": "2d3e4f5a99c248d5ff0b66791952e2d28def1d8b",
+  "weights_usable_for_formal_init": false
+}
