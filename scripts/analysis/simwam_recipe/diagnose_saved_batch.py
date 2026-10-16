@@ -22,22 +22,28 @@ def anchor_channel_contributions(squared_mean_difference, weights):
     return (squared_mean_difference.detach()*weights).sum(2).mean(0)/weights.sum()
 
 
-def main():
+def main(runtime=None):
     p=argparse.ArgumentParser(__doc__);p.add_argument('--run',required=True);p.add_argument('--checkpoint',required=True)
     p.add_argument('--collection',type=int,required=True);p.add_argument('--output',required=True)
-    p.add_argument('--gradient-strata-registration');a=p.parse_args()
+    p.add_argument('--gradient-strata-registration')
+    if runtime is not None:runtime.add_arguments(p)
+    a=p.parse_args()
     output=Path(a.output)
     if output.exists():raise FileExistsError('Preserve the previous diagnostic: '+str(output))
     started=time.monotonic()
-    require_dispatch();configure_numerics();run=Path(a.run);checkpoint=Path(a.checkpoint)
+    (require_dispatch if runtime is None else runtime.require_dispatch)()
+    configure_numerics();run=Path(a.run);checkpoint=Path(a.checkpoint)
     identity=json.loads((run/'identity.json').read_text());cfg=identity['recipe'];world=identity['world']
+    if runtime is not None:runtime.prepare(a,identity)
     if json.loads((checkpoint/'identity.json').read_text())['sha256']!=identity['sha256']:
         raise ValueError('Checkpoint and run identities differ')
     if file_sha(checkpoint/'files.json')!=json.loads((checkpoint/'COMPLETE').read_text())['files_sha256']:
         raise ValueError('Checkpoint seal changed')
     seal=json.loads((checkpoint/'files.json').read_text())
     if file_sha(checkpoint/'optimizer.pt')!=seal['optimizer.pt']:raise ValueError('Checkpoint changed')
-    actor,_,_=make_actor(cfg);saved=torch.load(checkpoint/'optimizer.pt',map_location='cpu',weights_only=False)
+    if runtime is None:actor,_,_=make_actor(cfg)
+    else:actor=runtime.make_actor(cfg)
+    saved=torch.load(checkpoint/'optimizer.pt',map_location='cpu',weights_only=False)
     optimizer_steps={int(v['step']) for v in saved['optimizer']['state'].values()}
     if optimizer_steps!={a.collection*cfg['grpo']['train']['num_inner_epochs']}:
         raise ValueError('Diagnostic requires the completed four-inner checkpoint for the requested collection')
@@ -50,13 +56,14 @@ def main():
     pg_gradient=torch.zeros(3,count);anchor_gradient=torch.zeros_like(pg_gradient)
     per_step=[];batches=[];categories=dict(safe_recovery_vs_single_SFT=0,safe_other_positive=0,
         positive_still_unsafe=0,positive_unsafe_despite_safe_alternative=0,positive_micro_progress_only=0)
-    clip=[];raw_clip=[];tail=[];innovations=[];density_ratio=[];movement=[]
+    clip=[];raw_clip=[];tail=[];innovations=[];density_ratio=[];movement=[];oracle_errors=[]
     for rank in range(world):
         path=run/'behavior'/f'collection{a.collection:06}'/f'rank{rank}.pt'
         cpu_row=torch.load(path,map_location='cpu',weights_only=False)
         if strata is not None:strata.validate(rank,cpu_row)
         row=device_tree(cpu_row,actor.device)
         if row['behavior_version']['run']!=identity['sha256']:raise ValueError('Unmatched behavior identity')
+        if runtime is not None:runtime.validate_batch(rank,cpu_row)
         if row['stoch_idx'].tolist()!=registered_stochastic_steps(cfg['variant']):
             raise ValueError('Saved batch window differs from registered recipe')
         logp,terms=actor.action_chain_logprobs(row['cond_bg'],row['chain'],row['timesteps'],row['deltas'],stoch_idx=row['stoch_idx'],return_terms=True)
@@ -71,23 +78,25 @@ def main():
         weights=actor.kl_weight_matrix(8,4,actor.device)
         d2=(terms['mean']-reference['mean']).square()
         anchor=(d2*weights).sum((-1,-2)).mean(0)/weights.sum()
-        rank_basis=torch.zeros(2,3,count) if strata is not None else None
+        rank_basis=torch.zeros(2,3,count) if strata is not None or runtime is not None else None
         for step in range(3):
             for kind,(target,scalar) in enumerate([(pg_gradient,pg[step]),(anchor_gradient,50*anchor[step])]):
                 g=torch.autograd.grad(scalar/world,parameters,retain_graph=True)
                 flat=torch.cat([v.detach().float().flatten().cpu() for v in g])
                 target[step]+=flat
-                if strata is not None:
-                    strata.add(rank,kind,step,flat);rank_basis[kind,step]=flat
-        if strata is not None:
+                if strata is not None:strata.add(rank,kind,step,flat)
+                if rank_basis is not None:rank_basis[kind,step]=flat
+        if rank_basis is not None:
             actual,metrics=actor(row)
             torch.testing.assert_close(actual,pg.mean()+50*anchor.mean(),atol=1e-7,rtol=2e-5)
             actual_g=torch.autograd.grad(actual/world,parameters)
             flat=torch.cat([v.detach().float().flatten().cpu() for v in actual_g])
             reconstructed=rank_basis.sum(0).mean(0)
             torch.testing.assert_close(flat,reconstructed,atol=1e-7,rtol=3e-4)
-            strata.oracle+=flat
-            strata.oracle_max_abs.append(float((flat-reconstructed).abs().max()))
+            error=float((flat-reconstructed).abs().max());oracle_errors.append(error)
+            if strata is not None:
+                strata.oracle+=flat
+                strata.oracle_max_abs.append(error)
         d=d2.detach().mean((0,2));v=(terms['vel']-reference['vel']).detach().square().mean((0,2))
         channel_anchor=anchor_channel_contributions(d2,weights)
         torch.testing.assert_close(channel_anchor.sum(-1),anchor.detach(),rtol=1e-5,atol=1e-9)
@@ -100,8 +109,11 @@ def main():
         innovations.append(dict(clipped=sum(x['outside_source_clip'] for x in audits),total=sum(x['count'] for x in audits)))
         metrics=[r['metrics'] for r in row['records']];positive=row['advantages'].cpu().numpy()>0
         safe=np.array([all(m[k]==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound')) for m in metrics])
-        sft=Path('/mnt/project/simwam-recipe-20261015/SFT_NATIVE_TRAIN_seed2101/scenes')/row['token'][:2]/(row['token']+'.json')
-        base=json.loads(sft.read_text())['metrics'];base_safe=all(base[k]==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound'))
+        if runtime is None:
+            sft=Path('/mnt/project/simwam-recipe-20261015/SFT_NATIVE_TRAIN_seed2101/scenes')/row['token'][:2]/(row['token']+'.json')
+            base=json.loads(sft.read_text())['metrics']
+        else:base=runtime.baseline_metrics(row['token'])
+        base_safe=all(base[k]==1 for k in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound'))
         categories['safe_recovery_vs_single_SFT']+=int((positive&safe).sum()) if not base_safe else 0
         categories['safe_other_positive']+=int((positive&safe).sum()) if base_safe else 0
         categories['positive_still_unsafe']+=int((positive&~safe).sum())
@@ -146,6 +158,10 @@ def main():
         theory='Gradients are source per-random-step proxies; x_kl_normalized is diagnostic only and is not the legacy correlated C_SDE KL')
     if strata is not None:
         result['gradient_strata']=strata.finish(pg_gradient,anchor_gradient)
+    if runtime is not None:
+        result['transfer_diagnostic_identity']=runtime.evidence
+        result['source_total_loss_gradient_max_abs_by_rank']=oracle_errors
+    if strata is not None or runtime is not None:
         for name,param in actor.named_parameters():
             if param.grad is not None:raise ValueError('Diagnostic unexpectedly retained parameter gradients')
             if param.requires_grad and not torch.equal(param.detach().cpu(),saved['adapters'][name]):
