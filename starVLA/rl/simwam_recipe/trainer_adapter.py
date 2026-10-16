@@ -33,6 +33,7 @@ class RecipeActor(ActionGRPOMixin,nn.Module):
         self.infer_action_scheduler=WanContinuousFlowMatchScheduler(1000,shift=cfg['action_infer_shift'])
         self._velocity_calls=0;self._reference_calls=0
         self._noise_audit=[];self._probability_audit={}
+        self._frozen_reference_reuse=None
         self._loss=SourceLoss(cfg)
         with torch.random.fork_rng(devices=[self.device.index] if self.device.type=='cuda' else []):
             torch.manual_seed(cfg['seed'])
@@ -61,7 +62,32 @@ class RecipeActor(ActionGRPOMixin,nn.Module):
                                      count=value.numel(),outside_source_clip=int((value.abs()>self.grpo_randn_clip).sum())))
         return value
 
+    def enable_frozen_reference_reuse(self, enabled=True):
+        """Execution-only opt-in; reset after load/resume or for qualification."""
+        from .reference_reuse import FrozenReferenceReuse
+        self._frozen_reference_reuse=FrozenReferenceReuse() if enabled else None
+
     def action_chain_logprobs(self,*args,return_terms=False,use_ref=False,**kwargs):
+        cache=self._frozen_reference_reuse
+        if not use_ref or cache is None:
+            return self._uncached_action_chain_logprobs(*args,return_terms=return_terms,use_ref=use_ref,**kwargs)
+        # The source loss calls reference under no_grad on the very same saved
+        # states for all four inner updates. Current probabilities always use
+        # the uncached path above and retain the complete LoRA autograd graph.
+        def produce():
+            logp,terms=self._uncached_action_chain_logprobs(*args,return_terms=True,use_ref=True,**kwargs)
+            return logp,terms,self._probability_audit['reference']
+        sampler={k:v for k,v in vars(self).items()
+                 if k.startswith('grpo_') and isinstance(v,(str,int,float,bool,type(None)))}
+        sampler['num_train_timesteps']=self.infer_action_scheduler.num_train_timesteps
+        sampler['action_dtype']=str(self.grpo_action_dtype)
+        sampler['velocity_dtype']=str(self.torch_dtype)
+        sampler['DDP_time_buckets']=self.action_expert.num_timestep_buckets
+        logp,terms,audit=cache.get(self.ref_action_expert,(args,kwargs),sampler,produce)
+        self._probability_audit['reference']=audit
+        return (logp,terms) if return_terms else logp
+
+    def _uncached_action_chain_logprobs(self,*args,return_terms=False,use_ref=False,**kwargs):
         # This calls the unchanged source ordering and cast path. Diagnostics
         # reconstruct raw density from returned means without another DiT pass.
         logp,terms=super().action_chain_logprobs(*args,return_terms=True,use_ref=use_ref,**kwargs)

@@ -1,0 +1,81 @@
+{
+  "schema": "simwam_reference_reuse_profile_v1",
+  "created_utc": "2026-10-16T14:21:52.656791+00:00",
+  "scope": "Execution-only reuse of fixed SFT reference terms across the four inner updates; no CURRENT caching or algorithm changes",
+  "base_commit": "d640aaab4725294bf5c2dd753a673da407be161d",
+  "source_vendor_commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "reference_calls_per_ordinary_collection": {
+    "uncached": 12,
+    "reused": 3
+  },
+  "qualification": {
+    "world": 8,
+    "zero_LoRA": {
+      "collections": 1,
+      "arms": [
+        "uncached",
+        "reused"
+      ]
+    },
+    "nonzero_LoRA": {
+      "collections": 2,
+      "arms": [
+        "AB_uncached",
+        "AB_reused",
+        "BA_reused",
+        "BA_uncached",
+        "cold_reused"
+      ]
+    },
+    "optimizer_updates_per_variant": 48,
+    "variants": [
+      {
+        "run": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1",
+        "start_update": 4900,
+        "stochastic_steps": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "run": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1",
+        "start_update": 1000,
+        "stochastic_steps": [
+          7,
+          8,
+          9
+        ]
+      }
+    ],
+    "new_actor_samples": 0,
+    "new_scores": 0,
+    "required_exact": [
+      "loss and metrics",
+      "all192 reduced gradients",
+      "all LoRA parameters",
+      "Adam and scheduler",
+      "Python/Numpy/Torch/CUDA/rollout RNG",
+      "pre-next-collection original behavior identity"
+    ],
+    "cold_cache": "Clear ephemeral cache mid-inner and require exact continuation; not a process fault test"
+  },
+  "timing": "Current forward/backward, frozen reference forward/reuse, gradient norm and actual optimizer step; evidence hashes and checkpoint/chain loading excluded. AB/BA repeated order; report shared GPU conditions and measured bounds, no paper speed multiplier.",
+  "resource": {
+    "host": "training-vlawm-tsinghua-zt",
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "minimum_free_MiB": 14000,
+    "unknown_owners_preserved": true
+  },
+  "formal_running_snapshots_changed": false,
+  "adoption_rule": "Only after parity and timing evidence; no hot modification or interruption of currently healthy formal runs. Cross-source continuation remains an explicit lineage migration."
+}
