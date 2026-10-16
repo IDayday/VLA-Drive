@@ -743,6 +743,9 @@ def get_action_model(config=None):
     Returns:
         FlowmatchingActionHead: Initialized FlowMatchingActionHead.
     """
+    if config.framework.action_model.get("standalone_source_action", False):
+        from starVLA.rl.fm_transfer.deployment import SourceActionHead
+        return SourceActionHead(config)
     return FlowmatchingActionHead(
         full_config=config
     )
