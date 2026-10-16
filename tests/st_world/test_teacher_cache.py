@@ -27,6 +27,54 @@ def fixture(tmp_path):
     return c,m
 
 
+def test_deferred_rank_completion_cannot_publish_incomplete_cache(tmp_path):
+    from types import SimpleNamespace
+    from tools.st_world_policy.cache_teacher import finish_assigned
+    c,m=fixture(tmp_path)
+    p=tmp_path/'future.png';Image.new('RGB',(32,18),'red').save(p)
+    m['scenes'][0]['frames'][1]={'requested_s':.5,'timestamp_us':500000,'views':[image_reference(p)]*3}
+    m['identity']=identity_hash({k:v for k,v in m.items() if k!='identity'})
+    w=TeacherCacheWriter(tmp_path/'cache',c,m,images_per_shard=1)
+    z=torch.zeros(1,2,2,8);valid=torch.ones(1,2,2,dtype=torch.bool)
+    args=SimpleNamespace(defer_finalize=True,rank=0,world_size=2)
+    assert finish_assigned(w,args)['status']=='PARTIAL'
+    w.commit_shard(0,z,valid)
+    first=finish_assigned(w,args)
+    assert first['status']=='SHARDS_COMMITTED' and not first['global_cache_complete']
+    assert not (w.root/'COMPLETE.json').exists()
+    assert finish_assigned(w,args)==first  # Crash/retry does not duplicate publication.
+    assert w.finalize()['status']=='PARTIAL'
+    with pytest.raises(FileNotFoundError):TeacherCacheReader(w.root,expected_identity=w.identity['identity'])
+    w.commit_shard(1,z+1,valid);args.rank=1
+    assert finish_assigned(w,args)['status']=='SHARDS_COMMITTED'
+    assert not (w.root/'COMPLETE.json').exists()
+    assert w.finalize()['status']=='COMPLETE'
+    # The full finalizer still detects corruption, even after all ranks claimed completion.
+    with w.paths(1)[0].open('r+b') as f:f.seek(-1,2);f.write(b'\xff')
+    with pytest.raises(ValueError,match='Corrupt'):w.finalize()
+
+
+def test_deferred_publication_is_explicit_and_cpu_finalizer_has_bounded_role(tmp_path,monkeypatch):
+    from tools.st_world_policy import cache_teacher
+    c,m=fixture(tmp_path);requests=tmp_path/'requests.json';requests.write_text(json.dumps(m))
+    args=cache_teacher.parser().parse_args(['build','--requests',str(requests),'--teacher-root',str(tmp_path),
+        '--output',str(tmp_path/'cache'),'--variant','SP2','--storage-dtype','float32','--max-scenes','1',
+        '--defer-finalize'])
+    with pytest.raises(ValueError,match='explicitly registered'):cache_teacher.validate_budget(args,m)
+    reg=tmp_path/'reg.json';reg.write_text(json.dumps({'phase':'teacher_cache','request_manifest_identity':m['identity'],
+        'max_scenes':1,'storage_dtype':'float32','variant':'SP2'}))
+    args.mode='registered';args.registration=str(reg)
+    with pytest.raises(ValueError,match='differs from registration'):cache_teacher.validate_budget(args,m)
+    value=json.loads(reg.read_text());value['defer_finalize']=True;reg.write_text(json.dumps(value))
+    cache_teacher.validate_budget(args,m)
+    args.command='finalize';args.defer_finalize=False
+    with pytest.raises(ValueError,match='one CPU'):cache_teacher.validate_budget(args,m)
+    args.device='cpu';cache_teacher.validate_budget(args,m)
+    monkeypatch.setattr(cache_teacher,'make_contract',lambda *a,**kw:(c,{},{}))
+    monkeypatch.setattr(cache_teacher.dino,'DINOv3TargetEncoder',lambda *a,**k:(_ for _ in ()).throw(AssertionError('No teacher forward')))
+    assert cache_teacher.run(args)['status']=='PARTIAL'
+
+
 def test_atomic_roundtrip_dedup_lossless_and_population(tmp_path):
     c,m=fixture(tmp_path);w=TeacherCacheWriter(tmp_path/'cache',c,m,images_per_shard=2)
     assert len(w.records)==1

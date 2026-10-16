@@ -96,10 +96,38 @@ def validate_budget(args, manifest):
                 registration['max_scenes'] < args.max_scenes or registration['storage_dtype'] != args.storage_dtype or
                 registration['variant'] != args.variant):
             raise ValueError('Teacher cache scope differs from registration')
+        if args.command in ('build', 'derive-pooled') and bool(registration.get('defer_finalize', False)) != args.defer_finalize:
+            raise ValueError('Deferred cache publication differs from registration')
+    if args.defer_finalize and (args.mode != 'registered' or args.command not in ('build', 'derive-pooled')):
+        raise ValueError('Deferred publication requires an explicitly registered builder')
+    if args.command == 'finalize' and (args.rank != 0 or args.world_size != 1 or args.device != 'cpu'):
+        raise ValueError('Complete publication requires one CPU finalizer')
     if not 0 <= args.rank < args.world_size or args.world_size < 1:
         raise ValueError('Invalid deterministic shard assignment')
     if args.min_free_gib < 0:
         raise ValueError('Disk safety reserve must be nonnegative')
+
+
+def finish_assigned(writer, args):
+    """A rank commits only its shards; a single later CPU job publishes all.
+
+    Retain full checksum verification, but avoid every GPU worker serially
+    hashing the entire full-population cache under the finalization lock.
+    """
+    if not args.defer_finalize:
+        return writer.finalize()
+    assigned = list(range(args.rank, writer.shard_count, args.world_size))
+    receipts = []
+    for shard in assigned:
+        if not writer.committed(shard):
+            return {'status': 'PARTIAL', 'identity': writer.identity['identity'],
+                    'rank': args.rank, 'missing_assigned_shard': shard}
+        receipts.append({'shard': shard, 'receipt_sha256': file_sha256(writer.paths(shard)[1])})
+    result = {'status': 'SHARDS_COMMITTED', 'identity': writer.identity['identity'],
+              'rank': args.rank, 'world_size': args.world_size, 'shards': receipts,
+              'global_cache_complete': False, 'requires_separate_full_checksum_finalizer': True}
+    atomic_json(writer.root / f'RANK_COMMIT_world{args.world_size}_rank{args.rank}.json', result, immutable=True)
+    return result
 
 
 def run(args):
@@ -108,7 +136,7 @@ def run(args):
     contract, teacher, transform = make_contract(args.teacher_root,args.variant,args.storage_dtype,legacy_root=args.legacy_c1_root)
     source_reader=None
     if args.source_cache:
-        if args.command not in ('plan','derive-pooled','verify') or args.variant!='SP1' or args.storage_dtype!='float32' or not args.source_cache_identity:
+        if args.command not in ('plan','derive-pooled','verify','finalize') or args.variant!='SP1' or args.storage_dtype!='float32' or not args.source_cache_identity:
             raise ValueError('Source-cache derivation only supports explicit FP32 SP1 pool3')
         source_reader=TeacherCacheReader(args.source_cache,expected_identity=args.source_cache_identity)
         source_reader.verify_population(manifest)
@@ -178,15 +206,19 @@ def run(args):
                     mask=torch.nn.functional.avg_pool2d(valid.float()[None,None],3,3)[0,0]==1
                     features.append(torch.where(mask[...,None],pooled,torch.zeros_like(pooled)));masks.append(mask)
                 writer.commit_shard(shard,torch.stack(features),torch.stack(masks),metrics={'teacher_forward_calls':0})
-        return {**writer.finalize(),'teacher_forward_calls':0,'elapsed_s_this_invocation':time.monotonic()-started}
+        return {**finish_assigned(writer,args),'teacher_forward_calls':0,'elapsed_s_this_invocation':time.monotonic()-started}
     writer = TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
+    if args.command == 'finalize':
+        # Original full coverage + full shard checksum logic, unchanged. Missing
+        # ranks cannot create COMPLETE and corrupt shards remain hard failures.
+        return writer.finalize()
     pending = [i for i in range(args.rank,writer.shard_count,args.world_size) if not writer.committed(i)]
     reserve = int(args.min_free_gib * (1<<30)) + args.images_per_shard*bytes_per
     remaining_bytes = sum(len(writer.rows(i))*bytes_per for i in pending)
     if shutil.disk_usage(out).free < reserve + remaining_bytes:
         raise ValueError('BLOCKED_STORAGE: remaining cache + atomic shard + requested reserve do not fit')
     if not pending:
-        return writer.finalize()
+        return finish_assigned(writer,args)
     started = time.monotonic()
     torch.set_num_threads(args.cpu_threads)
     if args.variant == 'SP0':
@@ -241,7 +273,7 @@ def run(args):
                 writer.commit_shard(shard,torch.cat(features),torch.cat(masks),metrics=timings)
                 atomic_json(out/('progress_rank%d.json'%args.rank),{'status':'RUNNING','last_committed_shard':shard,
                     'elapsed_s':time.monotonic()-started,'identity':writer.identity['identity'],'metrics':timings})
-    result=writer.finalize()
+    result=finish_assigned(writer,args)
     result={**result,'elapsed_s_this_invocation':time.monotonic()-started,'rank':args.rank}
     atomic_json(out/('RESULT_rank%d.json'%args.rank),result)
     return result
@@ -249,7 +281,7 @@ def run(args):
 
 def parser():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['plan','build','verify','derive-pooled'])
+    p.add_argument('command',choices=['plan','build','verify','derive-pooled','finalize'])
     for key in ('requests','teacher-root','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--variant',choices=['SP0','SP1','SP2','SP3'],required=True)
     p.add_argument('--storage-dtype',choices=['float16','float32'],required=True)
@@ -267,6 +299,8 @@ def parser():
     p.add_argument('--device',default='cuda:0')
     p.add_argument('--rank',type=int,default=0)
     p.add_argument('--world-size',type=int,default=1)
+    p.add_argument('--defer-finalize',action='store_true',
+                   help='Registered builders commit assigned shards; a separate CPU finalize verifies and publishes the full cache')
     return p
 
 
