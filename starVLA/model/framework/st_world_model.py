@@ -40,6 +40,8 @@ class SpaceTimeStudent(nn.Module):
         self.migration = expand_world_queries(parent, self.st_config.world_queries_per_view,
                                               seed=initialization_seed_value + 3500)
         self.migration["removed_auxiliary_modules"] = removed
+        if history_encoder is not None:
+            self.migration["history_encoder"] = history_encoder.migration
         hidden = parent.qwen_vl_interface.model.config.hidden_size
         with initialization_seed(initialization_seed_value + 3600):
             self.sparse_readout = SparseFeatureReadout(

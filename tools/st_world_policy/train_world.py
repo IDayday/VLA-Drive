@@ -117,7 +117,7 @@ def run(args):
                     "base_binding": binding["binding_sha256"], "approval": approval,
                     "source_sha": registration["source_sha"],
                     "registration_sha256": file_sha256(args.registration),
-                    "new_optimizer_from_common_S0": True,
+                    "new_optimizer_from_common_S0": "continuation" not in cfg,
                     "weights_usable_for_formal_init": registration["weights_usable_for_formal_init"]}
         signature = identity_hash(identity)
 
@@ -213,22 +213,30 @@ def run(args):
                 "world_migration": model.migration, "groups": group_records,
                 "model_parameters": sum(p.numel() for p in model.parameters()),
                 "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
-                "teacher_instantiated": False, "optimizer_reset_for_common_control": True}, immutable=True)
+                "teacher_instantiated": False,
+                "optimizer_reset_for_common_control": "continuation" not in cfg,
+                "native_parent_state_restored_next": "continuation" in cfg}, immutable=True)
         generators = {name: torch.Generator(device="cpu" if name in ("patch", "horizon") else "cuda").manual_seed(
             execution["seed"] + offset + rank) for name, offset in
             (("noise", 9000), ("time", 10000), ("horizon", 11000), ("patch", 12000))}
         state = {"identity": signature, "completed": 0, "epoch": 0, "offset": 0, "exposure": 0,
                  "termination_reason": "RUNNING_CHECKPOINT", "counts": {}}
-        if args.resume:
-            resolution = collective_call(lambda: resolve_latest(out / "checkpoints", identity=signature,
+        if args.resume or "continuation" in cfg:
+            if args.resume:
+                resolution = collective_call(lambda: resolve_latest(out / "checkpoints", identity=signature,
                                                                  world_size=world) if rank == 0 else None,
                                          "latest native checkpoint")
+            else:
+                from tools.st_world_policy.budget_extension import resolve_extension
+                resolution = collective_call(lambda: resolve_extension(cfg, registration, repo=repo,
+                    data_identity=data.identity, base_binding=binding["binding_sha256"])
+                    if rank == 0 else None, "explicit reviewed phase-budget parent")
             resolutions = [resolution]
             dist.broadcast_object_list(resolutions, 0)
             resolution = resolutions[0]
             receipt = resolution["selected"]["receipt"]
             folder = Path(resolution["selected"]["folder"])
-            location, restored = engine.load_checkpoint(str(out / "checkpoints"), tag=folder.name,
+            location, restored = engine.load_checkpoint(str(folder.parent), tag=folder.name,
                 load_module_strict=True, load_optimizer_states=True, load_lr_scheduler_states=True)
             if not location or any(restored.get(k) != v for k, v in receipt["state"].items()):
                 raise ValueError("Native model/optimizer progress differs from complete receipt")
@@ -237,6 +245,10 @@ def run(args):
             state = dict(receipt["state"])
             if engine.global_steps != state["completed"]:
                 raise ValueError("DeepSpeed optimizer step and consumed cursor disagree")
+            if not args.resume:
+                state.update(identity=signature, termination_reason="RUNNING_CHECKPOINT",
+                             budget_extension_parent=resolution["parent_identity"])
+                state.pop("tag", None)
             restore_rng(torch.load(folder / f"rng_rank{rank}.pt", map_location="cpu", weights_only=False), generators)
             if rank == 0:
                 atomic_json(out / "RESUME_RESOLUTION.json", resolution)

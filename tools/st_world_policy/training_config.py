@@ -26,7 +26,11 @@ def environment_record():
 
 
 def validate_config(cfg):
-    exact_fields(cfg, {"schema", "execution", "space_time", "optimizer", "runtime", "data"}, "ST run")
+    fields = {"schema", "execution", "space_time", "optimizer", "runtime", "data"}
+    exact_fields(cfg, fields | ({"continuation"} if "continuation" in cfg else set()), "ST run")
+    if "continuation" in cfg:
+        from tools.st_world_policy.budget_extension import validate_extension_config
+        validate_extension_config(cfg["continuation"])
     if cfg["schema"] != "st_training_v1":
         raise ValueError("Unknown ST training configuration")
     validate_execution(cfg["execution"])
