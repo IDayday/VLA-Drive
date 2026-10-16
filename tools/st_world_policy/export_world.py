@@ -1,4 +1,4 @@
-"""Export one original ten-step Flow trajectory from a complete ST checkpoint.
+"""Export one original ten-step Flow trajectory from a complete ST/Flow checkpoint.
 
 Only fixed train/dev observations are admitted. No teacher, future label, metric
 cache, optimizer or scorer is read by the inference loop. Shards are resumable
@@ -28,6 +28,22 @@ from tools.st_world_policy.checkpoints import checkpoint_identity, load_world_ch
 from tools.st_world_policy.training_config import environment_record
 
 
+def deployment_adapter(registration_path):
+    """Select the strict reader from the verified registered schema, never paths."""
+    registration = json.loads(Path(registration_path).read_text())
+    ref = registration["artifacts"]["config"]
+    path = Path(ref["path"])
+    if not path.is_absolute() or file_sha256(path) != ref["sha256"]:
+        raise ValueError("Registered deployment configuration changed")
+    schema = json.loads(path.read_text()).get("schema")
+    if schema == "st_training_v1":
+        return checkpoint_identity, load_world_checkpoint
+    if schema == "st_flow_training_v1":
+        from tools.st_world_policy.flow_checkpoints import flow_checkpoint_identity, load_flow_checkpoint
+        return flow_checkpoint_identity, load_flow_checkpoint
+    raise ValueError("Unknown trained single-policy checkpoint schema")
+
+
 def validate_prediction(raw, physical):
     if (raw.shape != (8, 4) or physical.shape != (8, 3)
             or not torch.isfinite(raw).all() or not torch.isfinite(physical).all()):
@@ -51,13 +67,14 @@ def run(args):
     repo = Path(__file__).resolve().parents[2]
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=repo).strip():
         raise ValueError("Commit clean inference source before execution")
-    cfg, _, checkpoint = checkpoint_identity(args.registration, args.checkpoint_tag)
+    identity_reader, model_reader = deployment_adapter(args.registration)
+    cfg, _, checkpoint = identity_reader(args.registration, args.checkpoint_tag)
     data = STObservationDataset(args.current_root, args.manifest, history_root=args.history_root)
     if len(data) != args.max_scenes:
         raise ValueError("Scene budget must equal the complete preselected manifest; no implicit prefix")
     if cfg["execution"]["scope"] != "FORMAL" and len(data) > 64:
         raise ValueError("Diagnostic model export is limited to 64 fixed scenes")
-    if bool(args.history_root) != bool(cfg["data"]["history_root"]):
+    if bool(args.history_root) != bool(cfg["data"].get("history_root")):
         raise ValueError("Checkpoint current/history input contract changed")
     if not torch.cuda.is_available() or not args.device.startswith("cuda"):
         raise ValueError("Use an allocated real CUDA device for this image deployment audit")
@@ -100,9 +117,11 @@ def run(args):
         calls = {"visual": 0, "language": 0, "DiT": 0}; handles = []
         try:
             if pending:
-                model, loaded = load_world_checkpoint(args.registration, args.checkpoint_tag, device=args.device)
+                model, loaded = model_reader(args.registration, args.checkpoint_tag, device=args.device)
                 if loaded != checkpoint:
                     raise ValueError("Checkpoint changed during deployment load")
+                if hasattr(model, "load_audit"):
+                    immutable_json(attempt / "LOAD_AUDIT.json", model.load_audit)
                 load_seconds = time.perf_counter() - started
                 def count(name):
                     def hook(*_):

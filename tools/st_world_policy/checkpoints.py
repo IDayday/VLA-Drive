@@ -84,6 +84,8 @@ def checkpoint_identity(registration_path, tag):
     record = {"schema": "st_world_deployment_checkpoint_v1", "run": str(run), "tag": tag,
         "run_identity": identity["identity"], "completed": receipt["state"]["completed"],
         "receipt_identity": receipt["receipt_identity"], "base_binding": binding["binding_sha256"],
+        "native_checkpoint_sha256": identity_hash({k: v["sha256"] for k, v in receipt["files"].items()}),
+        "native_receipt_sha256": file_sha256(run / "checkpoints" / tag / "COMPLETE.json"),
         "training_source_sha": identity["source_sha"], "scope": cfg["execution"]["scope"],
         "weights_usable_for_formal_init": identity["weights_usable_for_formal_init"],
         "inference_contract": binding["inference_contract"],

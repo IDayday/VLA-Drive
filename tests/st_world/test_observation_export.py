@@ -15,6 +15,23 @@ from starVLA.model.modules.vehicle_joint.initialization import file_sha256
 from test_dataset import setup_data
 
 
+@pytest.mark.parametrize("schema,name", [("st_training_v1", "load_world_checkpoint"),
+                                        ("st_flow_training_v1", "load_flow_checkpoint")])
+def test_registered_schema_dispatches_strict_native_reader(tmp_path, schema, name):
+    from tools.st_world_policy.export_world import deployment_adapter
+    cfg = tmp_path / "config.json"; cfg.write_text(json.dumps({"schema": schema}))
+    reg = tmp_path / "reg.json"
+    reg.write_text(json.dumps({"artifacts": {"config": {"path": str(cfg), "sha256": file_sha256(cfg)}}}))
+    _, reader = deployment_adapter(reg)
+    assert reader.__name__ == name
+    cfg.write_text(json.dumps({"schema": "different"}))
+    with pytest.raises(ValueError, match="configuration changed"):
+        deployment_adapter(reg)
+    reg.write_text(json.dumps({"artifacts": {"config": {"path": str(cfg), "sha256": file_sha256(cfg)}}}))
+    with pytest.raises(ValueError, match="Unknown"):
+        deployment_adapter(reg)
+
+
 def test_deployment_works_with_all_training_targets_removed(tmp_path):
     args = setup_data(tmp_path)
     dataset = STObservationDataset(args["data_root"], args["manifest_path"])

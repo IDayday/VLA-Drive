@@ -15,6 +15,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import time
 
 import numpy as np
@@ -75,6 +76,7 @@ def make_requests(root, export, scenes, entries, spec):
     root = Path(root)
     requests = []
     contexts = join_fixed_contexts(scenes, entries)
+    checkpoint_hash = native_snapshot_hash(export["checkpoint"])
     runtime = fingerprint({k: export[k] for k in ("environment", "seed", "solver", "precision", "scene_noise")})
     for row, context in zip(scenes, contexts):
         path = root / "predictions" / (row["token"] + ".npz")
@@ -89,11 +91,33 @@ def make_requests(root, export, scenes, entries, spec):
         if context.get("sha256", cache_hash) != cache_hash:
             raise ValueError("Metric context changed after its original cache receipt")
         requests.append(ConsequenceRequest(spec.campaign_id, row["token"], row["log"], "single_policy",
-            export["checkpoint"]["sha256"], export["checkpoint"]["sha256"], runtime,
+            export["checkpoint"]["sha256"], checkpoint_hash, runtime,
             trajectory_sha256(physical), cache_hash, spec.score_protocol_hash, str(cache_path),
             physical.tolist(), "policy", fingerprint(export["checkpoint"]["deployment_source_contract"]),
             observe=True))
     return requests
+
+
+def native_snapshot_hash(checkpoint):
+    """Separate native byte identity from deployment-metadata identity.
+
+    Legacy exports remain immutable. Their hashes can be resolved only from a
+    fully verified original receipt, in a new scoring output namespace.
+    """
+    present = {k for k in ("native_checkpoint_sha256", "native_receipt_sha256") if k in checkpoint}
+    if present:
+        if len(present) != 2 or any(not isinstance(checkpoint[k], str) or
+                not re.fullmatch(r"[0-9a-f]{64}", checkpoint[k]) for k in present):
+            raise ValueError("Incomplete or invalid native checkpoint byte identity")
+        return checkpoint["native_checkpoint_sha256"]
+    from tools.st_world_policy.training_state import verify_checkpoint
+    folder = Path(checkpoint["run"]) / "checkpoints" / checkpoint["tag"]
+    receipt = json.loads((folder / "COMPLETE.json").read_text())
+    receipt = verify_checkpoint(folder, identity=checkpoint["run_identity"],
+                                world_size=receipt["world_size"])
+    if receipt["receipt_identity"] != checkpoint["receipt_identity"]:
+        raise ValueError("Legacy export native checkpoint changed")
+    return fingerprint({k: v["sha256"] for k, v in receipt["files"].items()})
 
 
 def summarize(records, requests):
