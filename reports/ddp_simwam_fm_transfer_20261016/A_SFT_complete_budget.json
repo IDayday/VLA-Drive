@@ -1,0 +1,268 @@
+{
+  "schema": "fm_transfer_completed_SFT_budget_v1",
+  "status": "COMPLETE_UNAMBIGUOUS_LOGICAL_EXPOSURE",
+  "run": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1",
+  "identity": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+  "variant": "A_DDP_TIME",
+  "source_sha256": "c10239eba6ca803e539e94fc040d8e05fa20bf6456fe0ec449b7d853cb3bae96",
+  "endpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/checkpoints/update020000",
+  "endpoint_files_sha256": "25abe375f069f60cbdfd8ea0f94d7acef1cff85e962402ce2bf7ae8ff6c71fbf",
+  "logical_optimizer_updates": 20000,
+  "logical_scene_exposures": 640000,
+  "unique_TRAIN_scenes": 101592,
+  "TRAIN_population": 101592,
+  "no_DEV_or_Navtest": true,
+  "FM_noise_repeats": 8,
+  "FM_interpolated_training_examples": 5120000,
+  "RL_candidates_or_reward_calls": 0,
+  "shared_GPU_time_is_not_exclusive_compute": true,
+  "cumulative_training_worker_wall_seconds": 48648.0455388315,
+  "rank0_training_wall_seconds": 6081.058859530836,
+  "elapsed_dispatch_to_final_training_boundary_seconds_approx": 6104.693324565887,
+  "initial_dispatch_to_rank0_start_seconds_approx": 23.634464979171753,
+  "non_data_update_wall_by_rank": {
+    "0": 256.8830620441586,
+    "1": 264.26531099528074,
+    "2": 256.2536795195192,
+    "3": 260.1789400652051,
+    "4": 264.28975311666727,
+    "5": 263.5868521258235,
+    "6": 263.83810292743146,
+    "7": 261.9234472066164
+  },
+  "non_data_update_note": "Includes checkpoint writes/hashing, synchronization and logging; not isolated checkpoint time.",
+  "cost_limitations": [
+    "Per-save durations were overwritten in progress.json; do not reconstruct exact checkpoint seconds.",
+    "Model loading is included with rendezvous/setup before recorded loop start; not separately instrumented.",
+    "Final process teardown after the last recorded boundary is not measured.",
+    "These are SFT costs only; screening, evaluation, qualification and RL have separate ledgers."
+  ],
+  "ranks": [
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1031.5445831380785,
+      "update_seconds_sum": 4792.631214348599,
+      "data_seconds_median": 0.048680029809474945,
+      "update_seconds_median": 0.23484010994434357,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/e51d1b2dbe964c7995fef0eb6c7ffbee/metrics_rank0.jsonl",
+          "rows": 20000,
+          "sha256": "d0e5be93d705e83f44ed0df63a64c4758a41934e96f1a7fc645d5fe6bcc28683"
+        }
+      ],
+      "rank": 0,
+      "peak_GPU_allocated_bytes": 16553866240,
+      "cumulative_training_worker_wall_seconds": 6081.058859530836
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1002.0594865512103,
+      "update_seconds_sum": 4814.657171489671,
+      "data_seconds_median": 0.04712693300098181,
+      "update_seconds_median": 0.23582490347325802,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/a3b7685c1c814c21b05214c5135d2bb6/metrics_rank1.jsonl",
+          "rows": 20000,
+          "sha256": "505b18b69381f49753018c0c19e788551a805d51cafee0c4bf38d4b126400a87"
+        }
+      ],
+      "rank": 1,
+      "peak_GPU_allocated_bytes": 16553866240,
+      "cumulative_training_worker_wall_seconds": 6080.981969036162
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1031.2082098405808,
+      "update_seconds_sum": 4793.56951475516,
+      "data_seconds_median": 0.048573948442935944,
+      "update_seconds_median": 0.2341997241601348,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/af1173ce24184c39b58c1e8d8c859075/metrics_rank2.jsonl",
+          "rows": 20000,
+          "sha256": "3000db66e0532f128b984b462ecaa767f8dcb1b9f6003764c2da7d8667abc586"
+        }
+      ],
+      "rank": 2,
+      "peak_GPU_allocated_bytes": 16549677568,
+      "cumulative_training_worker_wall_seconds": 6081.03140411526
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1017.4822318609804,
+      "update_seconds_sum": 4803.320623664185,
+      "data_seconds_median": 0.04796319082379341,
+      "update_seconds_median": 0.23531908076256514,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/033e2e778e594173a0d3d7bb88c9080a/metrics_rank3.jsonl",
+          "rows": 20000,
+          "sha256": "fd6cf3e287c9f7945b5b72f23f3ec71f8828ea29978d27bc8619c8a6cb188222"
+        }
+      ],
+      "rank": 3,
+      "peak_GPU_allocated_bytes": 16551670784,
+      "cumulative_training_worker_wall_seconds": 6080.981795590371
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1002.7461697533727,
+      "update_seconds_sum": 4814.005374172702,
+      "data_seconds_median": 0.04703300818800926,
+      "update_seconds_median": 0.23593838419765234,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/491419b0432a4facbbe207cfc03ac3c7/metrics_rank4.jsonl",
+          "rows": 20000,
+          "sha256": "12332959d61b4492e69e06613ae9681efad8c14ea0d0b49c215520bc5a0dba99"
+        }
+      ],
+      "rank": 4,
+      "peak_GPU_allocated_bytes": 16549677568,
+      "cumulative_training_worker_wall_seconds": 6081.041297042742
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1003.7401273045689,
+      "update_seconds_sum": 4813.683591727167,
+      "data_seconds_median": 0.047078956849873066,
+      "update_seconds_median": 0.23615535628050566,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/15b98daa29394b8a85e7cd4fe43db33e/metrics_rank5.jsonl",
+          "rows": 20000,
+          "sha256": "43540dd9473bae5d4f1b6907b061a84172eba0260d590df72ef12d53fbe08da5"
+        }
+      ],
+      "rank": 5,
+      "peak_GPU_allocated_bytes": 16547617280,
+      "cumulative_training_worker_wall_seconds": 6081.01057115756
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1003.0720669161528,
+      "update_seconds_sum": 4814.071819130331,
+      "data_seconds_median": 0.04717371612787247,
+      "update_seconds_median": 0.236152620986104,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/860281fcc7844c8b8121d9c71cd46d7e/metrics_rank6.jsonl",
+          "rows": 20000,
+          "sha256": "917061f192284d89496fd40a877c86cc7704b88ba86911d45c4ab59506f21eb9"
+        }
+      ],
+      "rank": 6,
+      "peak_GPU_allocated_bytes": 16549677568,
+      "cumulative_training_worker_wall_seconds": 6080.981988973916
+    },
+    {
+      "updates": 20000,
+      "rank_scene_exposures": 80000,
+      "data_seconds_sum": 1002.6341718826443,
+      "update_seconds_sum": 4816.400034295395,
+      "data_seconds_median": 0.04705438669770956,
+      "update_seconds_median": 0.2363863280043006,
+      "journals": [
+        {
+          "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/87b540cc0f84490db77fabe270e49829/metrics_rank7.jsonl",
+          "rows": 20000,
+          "sha256": "d385960a8c619587a37267cd60149c4f3123a5cd253119055fcf0f6391016039"
+        }
+      ],
+      "rank": 7,
+      "peak_GPU_allocated_bytes": 16551670784,
+      "cumulative_training_worker_wall_seconds": 6080.957653384656
+    }
+  ],
+  "invocations": [
+    {
+      "rank": 0,
+      "invocation": "e51d1b2dbe964c7995fef0eb6c7ffbee",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6081.058859530836,
+      "start_unix": 1792172400.5129044
+    },
+    {
+      "rank": 1,
+      "invocation": "a3b7685c1c814c21b05214c5135d2bb6",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6080.981969036162,
+      "start_unix": 1792172400.5135958
+    },
+    {
+      "rank": 2,
+      "invocation": "af1173ce24184c39b58c1e8d8c859075",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6081.03140411526,
+      "start_unix": 1792172400.5114527
+    },
+    {
+      "rank": 3,
+      "invocation": "033e2e778e594173a0d3d7bb88c9080a",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6080.981795590371,
+      "start_unix": 1792172400.514279
+    },
+    {
+      "rank": 4,
+      "invocation": "491419b0432a4facbbe207cfc03ac3c7",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6081.041297042742,
+      "start_unix": 1792172400.50355
+    },
+    {
+      "rank": 5,
+      "invocation": "15b98daa29394b8a85e7cd4fe43db33e",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6081.01057115756,
+      "start_unix": 1792172400.5110774
+    },
+    {
+      "rank": 6,
+      "invocation": "860281fcc7844c8b8121d9c71cd46d7e",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6080.981988973916,
+      "start_unix": 1792172400.512567
+    },
+    {
+      "rank": 7,
+      "invocation": "87b540cc0f84490db77fabe270e49829",
+      "status": "COMPLETE",
+      "start_update": 0,
+      "end_update": 20000,
+      "updates_this_invocation": 20000,
+      "wall_seconds": 6080.957653384656,
+      "start_unix": 1792172400.5139337
+    }
+  ]
+}

@@ -23,6 +23,8 @@ A的[10k完整结果与配对曲线](interim_A_SFT_update010000.md)已完成：D
 
 B的[10k完整DEV与TRAIN诊断](interim_B_SFT_update010000.md)已完成：DEV native/shift5为91.689072/91.687880，独立ActionDiT已从随机初始化学到有效监督策略；仍低于原F-SFT的DEV水平，不能称为架构优越或RL成功。B继续既定100k SFT预算。
 
+19:21 UTC左右，[A组20k SFT正式完成](A_SFT_complete_training.md)：八rank与640000次场景曝光已实际核算，覆盖全部101592个TRAIN场景。自己的单候选TRAIN筛选已在三台主机24卡启动，终点双网格评价并行进行；正式RL仍等待完整筛选与终点八卡验收。
+
 ## 旧实验资源调整
 
 2026-10-16 18:51–18:52 UTC重新核对了全部八台允许主机，见[实际进程与资源快照](resources_20261016T1852.md)。旧追加线保持暂停；新A/B训练活跃；vla-zt、rl-zt2、tsinghua-zt在该快照时八卡空闲。新评价控制器继续等待已登记里程碑，不恢复旧实验。
