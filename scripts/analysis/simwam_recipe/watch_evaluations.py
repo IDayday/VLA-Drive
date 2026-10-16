@@ -15,13 +15,16 @@ import time
 import traceback
 from starVLA.rl.simwam_recipe.contracts import ROOT
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
+from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes,preflight_analysis_compatibility
 
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--snapshot',required=True)
     p.add_argument('--administrative-local',action='store_true');p.add_argument('--preflight-only',action='store_true')
     p.add_argument('--followup-x1',action='store_true')
+    p.add_argument('--source-compatibility')
+    p.add_argument('--x1-dev-host',default='training-vlawm-tsinghua-zt3')
+    p.add_argument('--x1-train-host',default='training-vlawm-tsinghua-zt4')
     a=p.parse_args();require_controller_host(a.administrative_local)
     root=Path('/mnt/project/simwam-x-anchor-20261015') if a.followup_x1 else Path(ROOT)
     baseline_root=Path(ROOT)
@@ -32,12 +35,13 @@ def main():
     queue=root/'milestone_queue';queue.mkdir(exist_ok=True)
     lock=(queue/'controller.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     routes={'R_SOURCE':'training-vlawm-tsinghua-zt','R_CANONICAL':'training-vlawm-tsinghua-zt2'}
-    if a.followup_x1:routes={'R_CANONICAL_X1':'training-vlawm-tsinghua-zt3'}
-    cohort_hosts={'DEV':'training-vlawm-tsinghua-zt3','TRAIN_DIAGNOSTIC':'training-vlawm-tsinghua-zt4'} if a.followup_x1 else {}
+    if a.followup_x1:routes={'R_CANONICAL_X1':a.x1_dev_host}
+    cohort_hosts={'DEV':a.x1_dev_host,'TRAIN_DIAGNOSTIC':a.x1_train_host} if a.followup_x1 else {}
     expected=len(routes)*4
     stages=[5000,10000,15000,20000];snapshot=Path(a.snapshot)
     transport=dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
-                   routes=probe_routes(sorted(set(routes.values())|set(cohort_hosts.values())),sys.executable))
+                   routes=probe_routes(sorted(set(routes.values())|set(cohort_hosts.values())),sys.executable),
+                   analysis_compatibility=preflight_analysis_compatibility(snapshot,a.source_compatibility))
     atomic_json(queue/'transport_preflight.json',transport)
     if a.preflight_only:print(json.dumps(transport));return
     while True:
@@ -75,9 +79,11 @@ def main():
                             complete=False;continue
                         summary=evaluation/'summary.json'
                         if not summary.exists():
-                            subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
+                            command=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
                                             '--evaluation',str(evaluation),'--reference',str(baseline_root/'evaluations'/('SFT_update000000_'+cohort)),
-                                            '--output',str(summary)],check=True)
+                                            '--output',str(summary)]
+                            if a.source_compatibility:command+=['--source-compatibility',a.source_compatibility]
+                            subprocess.run(command,check=True)
                         results[cohort]=str(summary)
                     if complete:
                         atomic_json(done,dict(status='COMPLETE',label=label,results=results,time=time.time()));finished.append(label)

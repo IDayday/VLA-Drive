@@ -1,0 +1,107 @@
+diff --git a/scripts/analysis/simwam_recipe/evaluate_policy.py b/scripts/analysis/simwam_recipe/evaluate_policy.py
+index 63c2101..954fc91 100644
+--- a/scripts/analysis/simwam_recipe/evaluate_policy.py
++++ b/scripts/analysis/simwam_recipe/evaluate_policy.py
+@@ -12,6 +12,8 @@ import os
+ from pathlib import Path
+ import signal
+ import time
++import uuid
++import atexit
+ import numpy as np
+ from omegaconf import OmegaConf
+ import torch
+@@ -45,6 +47,7 @@ def shifted_ode(head,condition,root):
+ 
+ 
+ def main():
++    process_started=time.monotonic();process_started_unix=time.time()
+     p=argparse.ArgumentParser(__doc__)
+     p.add_argument('--export',required=True);p.add_argument('--export-sha256',required=True);p.add_argument('--output',required=True)
+     p.add_argument('--cohort',choices=['DEV','TRAIN_DIAGNOSTIC','NAVTEST'],default='DEV')
+@@ -55,6 +58,19 @@ def main():
+     if not 0<=rank<a.shards:raise ValueError('Invalid shard')
+     for s in (signal.SIGUSR1,signal.SIGTERM):signal.signal(s,stop)
+     export=Path(a.export);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
++    guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    invocation=uuid.uuid4().hex;invocation_path=out/'invocations'/invocation/f'rank{rank}.json'
++    invocation_path.parent.mkdir(parents=True,exist_ok=False)
++    status=dict(schema='simwam_evaluation_invocation_v2',invocation=invocation,rank=rank,
++                status='STARTING',start_unix=process_started_unix,host=host,pid=os.getpid(),
++                new=0,reused=0,scene_encoder_calls=0,new_candidates=0,physical_predictions=0,
++                diagnostic_predictions=0,velocity_forward_calls=0,generation_seconds=0.,scoring_seconds=0.,
++                model_load_seconds=0.,direct_original_check=False)
++    def record_exit():
++        if status['status'] in ('STARTING','RUNNING'):status['status']='ABORTED'
++        status.update(end_unix=time.time(),total_worker_wall_seconds=time.monotonic()-process_started)
++        atomic_json(invocation_path,status)
++    atomic_json(invocation_path,status);atexit.register(record_exit)
+     if file_sha(export/'pytorch_model.pt')!=a.export_sha256:raise ValueError('Export hash changed')
+     if a.export_sha256!=SFT_SHA256 and not (export/'COMPLETE').exists():raise ValueError('Unsealed export')
+     pop=json.loads(Path(POPULATION).read_text());selection=None
+@@ -75,7 +91,9 @@ def main():
+     os.environ['BASE_VLM']='/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction'
+     os.environ['VLM_ATTN_IMPLEMENTATION']=cfg.framework.qwenvl.attn_implementation
+     from infer import VLAAgent
++    load_started=time.monotonic()
+     agent=VLAAgent(str(export),device='cuda',qwen_forward_mode='optimized');model=agent.model.eval().requires_grad_(False)
++    status['model_load_seconds']=time.monotonic()-load_started
+     profile=dict(qwen=str(next(model.qwen_vl_interface.parameters()).dtype),history=str(next(model.action_input_model.parameters()).dtype),
+                  action=str(next(model.action_model.parameters()).dtype),attention=cfg.framework.qwenvl.attn_implementation)
+     if (profile['qwen'],profile['history'],profile['action'])!=('torch.bfloat16','torch.float32','torch.float32'):raise ValueError('Original deployment dtype profile changed')
+@@ -93,7 +111,7 @@ def main():
+         fcntl.flock(guard,fcntl.LOCK_EX)
+         if (out/'manifest.json').exists() and json.loads((out/'manifest.json').read_text())!=identity:raise ValueError('Evaluation identity changed')
+         atomic_json(out/'manifest.json',identity)
+-    guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
++    status['identity_sha256']=identity['sha256']
+     data_cfg=copy.deepcopy(agent.model_config)
+     data_cfg.datasets.vla_data.data_root=selection['data_root'] if selection else '/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset'
+     data_cfg.datasets.vla_data.datalist_path=selection['navtest_datalist'] if selection else '/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/navtrain_tokens.json'
+@@ -101,8 +119,7 @@ def main():
+     dataset=KeyedDataset(data_cfg,split='test' if selection else 'train')
+     assigned=tokens[rank::a.shards]
+     if a.max_scenes:assigned=assigned[:a.max_scenes]
+-    status=dict(status='RUNNING',host=host,pid=os.getpid(),new=0,reused=0,scene_encoder_calls=0,new_candidates=0,
+-                velocity_forward_calls=0,generation_seconds=0.,scoring_seconds=0.,direct_original_check=False)
++    status['status']='RUNNING';atomic_json(invocation_path,status)
+     begin=time.monotonic()
+     try:
+         for token in assigned:
+@@ -119,27 +136,33 @@ def main():
+                 root=torch.randn((1,8,4),device='cuda',dtype=raw_dtype,generator=torch.Generator(device='cuda').manual_seed(key))
+                 with torch.autocast('cuda',dtype=torch.float32):native=model.action_model._euler_sample(root,condition)
+                 shifted,buckets=shifted_ode(model.action_model,condition,root)
++                status['physical_predictions']+=2
++                status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=20
+                 if not status['direct_original_check']:
+                     direct=model.predict_action_infer_1d(obs.examples(),initial_noise=root)['normalized_actions']
++                    status['diagnostic_predictions']+=1;status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=10
+                     if not np.array_equal(direct,native.float().cpu().numpy()):raise ValueError('Native evaluation differs from original deployment')
+                     status['direct_original_check']=True
+             actions=torch.cat([native,shifted]).float().cpu()
+             if not torch.isfinite(actions).all():raise ValueError('Nonfinite policy output; retain scene in denominator and abort')
+             requested=decode_request(actions.numpy(),act_norm=int(data_cfg.datasets.vla_data.act_norm))
+             torch.cuda.synchronize();status['generation_seconds']+=time.monotonic()-started
++            atomic_json(invocation_path,status)
+             started=time.monotonic();records=service.score((token,pop['token_logs'][token],requested));status['scoring_seconds']+=time.monotonic()-started
+             payload=dict(token=token,log=pop['token_logs'][token],identity_sha256=identity['sha256'],initial_noise=root.cpu(),
+                          noise_key=key,normalized_actions=actions,records=dict(zip(identity['modes'],records)),shift5_buckets=buckets)
+             atomic_torch(path,payload)
+             atomic_json(path.with_suffix('.json'),dict(token=token,log=payload['log'],identity_sha256=identity['sha256'],payload_sha256=file_sha(path),
+                         metrics={k:v['metrics'] for k,v in payload['records'].items()}))
+-            status['new']+=1;status['new_candidates']+=2;status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=20
++            status['new']+=1;status['new_candidates']+=2
+             status['elapsed']=time.monotonic()-begin
+-            if status['new']%8==0:atomic_json(out/f'rank{rank}.json',status)
++            if status['new']%8==0:
++                atomic_json(out/f'rank{rank}.json',status);atomic_json(invocation_path,status)
+         status.update(status='STOPPED_AT_SCENE_BOUNDARY' if STOP else ('QUALIFICATION_COMPLETE' if a.max_scenes else 'ASSIGNED_COMPLETE'),elapsed=time.monotonic()-begin,
+                       peak_GPU_bytes=torch.cuda.max_memory_allocated())
+         atomic_json(out/f'rank{rank}.json',status)
+-    finally:service.close()
++    finally:
++        record_exit();atexit.unregister(record_exit);service.close()
+ 
+ 
+ if __name__=='__main__':main()

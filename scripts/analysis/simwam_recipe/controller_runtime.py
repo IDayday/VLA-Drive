@@ -15,6 +15,16 @@ from starVLA.rl.simwam_recipe.contracts import require_dispatch
 POLICY = Path('/mnt/project/server_dispatch_policy.json')
 
 
+def preflight_analysis_compatibility(snapshot, receipt=None):
+    """Check the evaluator/reference source pair before launching any workers."""
+    from starVLA.rl.simwam_recipe.contracts import ROOT, file_sha
+    from scripts.analysis.simwam_recipe.evaluation_compatibility import match_protocol
+    reference = json.loads((Path(ROOT)/'evaluations/SFT_update000000_DEV/manifest.json').read_text())
+    candidate = dict(reference)
+    candidate['source_sha256'] = file_sha(Path(snapshot)/'scripts/analysis/simwam_recipe/evaluate_policy.py')
+    return match_protocol(candidate, reference, receipt)
+
+
 def require_worker_host(host):
     policy = json.loads(POLICY.read_text())
     if (host not in policy['allowed_hosts']

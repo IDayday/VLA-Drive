@@ -8,6 +8,7 @@ import torch
 from starVLA.rl.simwam_recipe.contracts import POPULATION,file_sha,fingerprint
 from starVLA.rl.safe_flow_improvement.diagnostics import log_bootstrap_difference
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from scripts.analysis.simwam_recipe.evaluation_compatibility import match_protocol
 
 METRICS=['score','no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound','ego_progress','comfort','driving_direction_compliance']
 SAFETY=METRICS[1:4]
@@ -65,17 +66,17 @@ def read(root):
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation',required=True);p.add_argument('--reference');p.add_argument('--output',required=True)
+    p.add_argument('--source-compatibility',help='Explicit qualified receipt for an exact logging-only evaluator source pair')
     a=p.parse_args();identity,tokens,logs,rows,motions,ranks=read(a.evaluation)
-    baseline=None
+    baseline=None;compatibility=None
     if a.reference:
         ref,rt,rl,baseline,_,_=read(a.reference)
-        for key in ('population_identity','tokens_sha256','seed','modes','profile','scoring','source_sha256'):
-            if identity[key]!=ref[key]:raise ValueError('Unmatched reference protocol: '+key)
+        compatibility=match_protocol(identity,ref,a.source_compatibility)
         if rt!=tokens or rl!=logs:raise ValueError('Unpaired scenes')
     result=dict(schema='simwam_evaluation_analysis_v2',analysis_identity=file_sha(__file__),status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
                 score_units='raw0to1; mean_percent multiplied100; gain/loss sums remain raw score',modes={},
                 cohort_caveat='TRAIN diagnostic contains preselected difficult scenes and is not a population-unbiased estimate' if identity['cohort']=='TRAIN_DIAGNOSTIC' else None,
-                cost=evaluation_cost(a.evaluation,identity,ranks))
+                cost=evaluation_cost(a.evaluation,identity,ranks),source_compatibility=compatibility)
     for mode,values in rows.items():
         ms=motions[mode];movement={}
         for key in ms[0]:

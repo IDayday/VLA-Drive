@@ -18,7 +18,7 @@ import time
 import traceback
 from starVLA.rl.simwam_recipe.contracts import ROOT,POPULATION,SFT_EXPORT,SFT_SHA256,file_sha,fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes
+from scripts.analysis.simwam_recipe.controller_runtime import require_controller_host,require_worker_host,probe_routes,preflight_analysis_compatibility
 
 DATA=Path('/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset')
 DATALIST=Path('/mnt/project/DriveDreamer-Policy/test_meta.json')
@@ -162,9 +162,12 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('command',choices=['prepare','serve']);p.add_argument('--snapshot')
     p.add_argument('--output');p.add_argument('--once',action='store_true')
     p.add_argument('--administrative-local',action='store_true');p.add_argument('--followup-x1',action='store_true')
+    p.add_argument('--source-compatibility')
+    p.add_argument('--x1-hosts',nargs='+',default=['training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4'])
     a=p.parse_args();require_controller_host(a.administrative_local)
     root=Path('/mnt/project/simwam-x-anchor-20261015') if a.followup_x1 else Path(ROOT)
-    routes={'R_CANONICAL_X1':['training-vlawm-tsinghua-zt3','training-vlawm-tsinghua-zt4']} if a.followup_x1 else ROUTES
+    if len(a.x1_hosts)!=len(set(a.x1_hosts)):raise ValueError('Duplicate X1 hosts')
+    routes={'R_CANONICAL_X1':a.x1_hosts} if a.followup_x1 else ROUTES
     names=('R_CANONICAL_X1',) if a.followup_x1 else ('R_SOURCE','R_CANONICAL')
     if a.followup_x1:
         registration=json.loads((root/'AUTHORIZATION.json').read_text())
@@ -176,7 +179,8 @@ def main():
     if not a.snapshot:raise ValueError('Frozen evaluation source is required')
     snapshot=Path(a.snapshot);guard=(queue/'controller.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
     atomic_json(queue/'transport_preflight.json',dict(time=time.time(),pid=os.getpid(),administrative_local=a.administrative_local,
-        routes=probe_routes([h for hosts in routes.values() for h in hosts],sys.executable)))
+        routes=probe_routes([h for hosts in routes.values() for h in hosts],sys.executable),
+        analysis_compatibility=preflight_analysis_compatibility(snapshot,a.source_compatibility)))
     last_probe=0
     try:
         while True:
@@ -222,14 +226,17 @@ def main():
                     if summary.exists():continue
                     cmd=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation','--evaluation',str(output),'--output',str(summary)]
                     if name!='SFT':cmd+=['--reference',str(Path(ROOT)/'evaluations/SFT_final_matched_NAVTEST')]
+                    if a.source_compatibility:cmd+=['--source-compatibility',a.source_compatibility]
                     subprocess.run(cmd,cwd=snapshot,check=True)
                 if a.followup_x1:
                     output=root/'evaluations/R_CANONICAL_X1_final20000_NAVTEST'
                     control=output/'versus_R_CANONICAL.json'
                     if not control.exists():
-                        subprocess.run([sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
+                        command=[sys.executable,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
                             '--evaluation',str(output),'--reference',str(Path(ROOT)/'evaluations/R_CANONICAL_final20000_NAVTEST'),
-                            '--output',str(control)],cwd=snapshot,check=True)
+                            '--output',str(control)]
+                        if a.source_compatibility:command+=['--source-compatibility',a.source_compatibility]
+                        subprocess.run(command,cwd=snapshot,check=True)
                 atomic_json(queue/'COMPLETE.json',dict(status='REGISTERED_MODELS_COMPLETE_PAIRED_NAVTEST',scenes_per_model=12146,
                     modes=['E_NATIVE','E_SHIFT5'],inference_seeds=[2101],lock=selection['sha256'],time=time.time()))
                 atomic_json(queue/'progress.json',dict(status='COMPLETE',completed_models=complete,
