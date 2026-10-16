@@ -1,0 +1,354 @@
+{
+  "schema": "simwam_evaluation_analysis_v2",
+  "analysis_identity": "5aa223e6b7673b1e940553dd4e000d99c35b7add95edbdf130ef54353daa7e52",
+  "status": "COMPLETE_POPULATION",
+  "identity": {
+    "schema": "fm_transfer_raw_observation_dual_grid_v1",
+    "weight_sha256": "784265307a62423db5c332662c3a0a3b8930a4a7b298b45320b74ef7d1bc7b9a",
+    "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+    "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+    "tokens_sha256": "351c1a5d99e186a643720e9a7c70012c0961767a69f3e3745d7aed6d90f2ebc2",
+    "scenes": 512,
+    "cohort": "TRAIN_DIAGNOSTIC",
+    "seed": 2101,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "profile": {
+      "qwen": "torch.bfloat16",
+      "history": "torch.float32",
+      "action": "torch.float32",
+      "attention": "flash_attention_2"
+    },
+    "feature_cache": false,
+    "actor": "original VLAAgent observation entry; new supervised velocity head",
+    "scoring": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "source_sha256": "59ce27486ff9f6550c70786299f3be2525e90179e6f46952f8e6b9c7dfe66cf3",
+    "shards": 8,
+    "final_lock": null,
+    "qualification_only": false,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/checkpoints/update005000",
+      "model_sha256": "837afda922220c5b7499c72dd9ae8402e41fc8afd1f40fa9163a12ccc20e6342",
+      "identity_sha256": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "A_DDP_TIME",
+        "architecture": "ddp",
+        "initialization": "original_F_SFT_step100000",
+        "max_updates": 20000,
+        "learning_rate": 1e-05,
+        "milestones": [
+          0,
+          5000,
+          10000,
+          20000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 5000,
+      "qualification": false
+    },
+    "architecture": "ddp",
+    "stage": "SFT",
+    "shift5_time_field": "DDP integer t buckets",
+    "transfer_evaluation_sha256": "4609c7b02514ab7b2dbebbe2441106bf3f3f38f7a712eac59548696d02caef0b",
+    "export_receipt_sha256": "10053ecea3c5ea0987460d054c0fd6c5074ca0ec57f4703976d1ed178c776446",
+    "sha256": "eeb0340bfd79af54b2f9ebc2f608d72b6946a229e8d46229c9214479b99be951"
+  },
+  "reference": "/mnt/project/simwam-recipe-20261015/evaluations/SFT_update000000_TRAIN_DIAGNOSTIC",
+  "scenes": 512,
+  "logs": 343,
+  "seed": 2101,
+  "score_units": "raw0to1; mean_percent multiplied100; gain/loss sums remain raw score",
+  "modes": {
+    "E_NATIVE": {
+      "mean": {
+        "score": 0.8097372184338738,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.896484375,
+        "time_to_collision_within_bound": 0.947265625,
+        "ego_progress": 0.7379005742412972,
+        "comfort": 0.998046875,
+        "driving_direction_compliance": 0.9892578125
+      },
+      "mean_percent": {
+        "score": 80.97372184338738,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 89.6484375,
+        "time_to_collision_within_bound": 94.7265625,
+        "ego_progress": 73.79005742412971,
+        "comfort": 99.8046875,
+        "driving_direction_compliance": 98.92578125
+      },
+      "score_quantiles": {
+        "p01": 0.0,
+        "p05": 0.0,
+        "p10": 0.0,
+        "p50": 0.9194513482235449
+      },
+      "zero_scenes": 53,
+      "fully_safe_scenes": 434,
+      "motion": {
+        "request_final_forward_m": {
+          "mean": 16.077905599959195,
+          "defined_scenes": 512
+        },
+        "request_final_lateral_m": {
+          "mean": 0.174781818583142,
+          "defined_scenes": 512
+        },
+        "request_mean_segment_speed_mps": {
+          "mean": 4.230101691384389,
+          "defined_scenes": 512
+        },
+        "request_segment_jerk_RMS_mps3": {
+          "mean": 1.0974302878548412,
+          "defined_scenes": 512
+        },
+        "simulated_final_forward_m": {
+          "mean": 16.11308880081115,
+          "defined_scenes": 512
+        },
+        "simulated_abs_final_lateral_m": {
+          "mean": 2.754562166200741,
+          "defined_scenes": 512
+        },
+        "simulated_mean_segment_speed_mps": {
+          "mean": 4.254010980679656,
+          "defined_scenes": 512
+        },
+        "simulated_time_to_90percent_own_path_s": {
+          "mean": 3.5250000000000004,
+          "defined_scenes": 512
+        },
+        "raw_progress_meters": {
+          "mean": 16.87655438848026,
+          "defined_scenes": 512
+        }
+      },
+      "paired_comparison": {
+        "PDMS_log_cluster_bootstrap": {
+          "mean": 0.006421291624843123,
+          "CI95": [
+            -0.017794995520766646,
+            0.0313947355518791
+          ],
+          "scenes": 512,
+          "logs": 343,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "positive_gain_sum": 22.974017664349493,
+        "negative_degradation_sum": 19.686316352429817,
+        "any_improved_scenes": 241,
+        "any_degraded_scenes": 106,
+        "practical_improved_ge005": 67,
+        "practical_degraded_le_minus005": 37,
+        "nonzero_to_zero": 17,
+        "zero_to_nonzero": 22,
+        "reference_safe_population": 434,
+        "reference_safe_new_joint_violation": 25,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_violation": 0,
+            "recovery": 0,
+            "mean_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "new_violation": 17,
+            "recovery": 22,
+            "mean_delta": 0.009765625
+          },
+          "time_to_collision_within_bound": {
+            "new_violation": 9,
+            "recovery": 3,
+            "mean_delta": -0.01171875
+          }
+        }
+      }
+    },
+    "E_SHIFT5": {
+      "mean": {
+        "score": 0.7987748690409249,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.8828125,
+        "time_to_collision_within_bound": 0.951171875,
+        "ego_progress": 0.7276065606982199,
+        "comfort": 0.99609375,
+        "driving_direction_compliance": 0.9892578125
+      },
+      "mean_percent": {
+        "score": 79.87748690409249,
+        "no_at_fault_collisions": 100.0,
+        "drivable_area_compliance": 88.28125,
+        "time_to_collision_within_bound": 95.1171875,
+        "ego_progress": 72.76065606982199,
+        "comfort": 99.609375,
+        "driving_direction_compliance": 98.92578125
+      },
+      "score_quantiles": {
+        "p01": 0.0,
+        "p05": 0.0,
+        "p10": 0.0,
+        "p50": 0.9150932800196728
+      },
+      "zero_scenes": 60,
+      "fully_safe_scenes": 429,
+      "motion": {
+        "request_final_forward_m": {
+          "mean": 16.076532092876732,
+          "defined_scenes": 512
+        },
+        "request_final_lateral_m": {
+          "mean": 0.1613660974544473,
+          "defined_scenes": 512
+        },
+        "request_mean_segment_speed_mps": {
+          "mean": 4.236837827177944,
+          "defined_scenes": 512
+        },
+        "request_segment_jerk_RMS_mps3": {
+          "mean": 2.7619086974374296,
+          "defined_scenes": 512
+        },
+        "simulated_final_forward_m": {
+          "mean": 16.160528307343725,
+          "defined_scenes": 512
+        },
+        "simulated_abs_final_lateral_m": {
+          "mean": 2.7594829559860656,
+          "defined_scenes": 512
+        },
+        "simulated_mean_segment_speed_mps": {
+          "mean": 4.266452795077959,
+          "defined_scenes": 512
+        },
+        "simulated_time_to_90percent_own_path_s": {
+          "mean": 3.525390625,
+          "defined_scenes": 512
+        },
+        "raw_progress_meters": {
+          "mean": 16.92175742560979,
+          "defined_scenes": 512
+        }
+      },
+      "paired_comparison": {
+        "PDMS_log_cluster_bootstrap": {
+          "mean": 0.007675491170472781,
+          "CI95": [
+            -0.016538839735393603,
+            0.031645239798054774
+          ],
+          "scenes": 512,
+          "logs": 343,
+          "bootstrap_repeats": 2000,
+          "seed": 42,
+          "training_seed_uncertainty_included": false
+        },
+        "positive_gain_sum": 23.450053575469237,
+        "negative_degradation_sum": 19.520202096187177,
+        "any_improved_scenes": 210,
+        "any_degraded_scenes": 127,
+        "practical_improved_ge005": 64,
+        "practical_degraded_le_minus005": 46,
+        "nonzero_to_zero": 18,
+        "zero_to_nonzero": 22,
+        "reference_safe_population": 425,
+        "reference_safe_new_joint_violation": 22,
+        "safety_transitions": {
+          "no_at_fault_collisions": {
+            "new_violation": 0,
+            "recovery": 0,
+            "mean_delta": 0.0
+          },
+          "drivable_area_compliance": {
+            "new_violation": 18,
+            "recovery": 22,
+            "mean_delta": 0.0078125
+          },
+          "time_to_collision_within_bound": {
+            "new_violation": 5,
+            "recovery": 4,
+            "mean_delta": -0.001953125
+          }
+        }
+      }
+    }
+  },
+  "cohort_caveat": "TRAIN diagnostic contains preselected difficult scenes and is not a population-unbiased estimate",
+  "cost": {
+    "schema": 2,
+    "logical_scenes": 512,
+    "logical_single_candidate_evaluations": 1024,
+    "candidate_evaluations_per_grid": 512,
+    "shared_GPU": true,
+    "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+    "provenance": "per-worker invocation ledger",
+    "worker_invocations": 8,
+    "complete_cost_accounting": true,
+    "new_scenes": 512,
+    "reused_scenes": 0,
+    "cumulative_physical_predictions": 1024,
+    "diagnostic_predictions": 8,
+    "physical_predictions_including_diagnostics": 1032,
+    "cumulative_worker_wall_seconds": 1459.1032400410622,
+    "job_wall_seconds": 185.59242725372314,
+    "model_load_seconds": 734.316791171208,
+    "generation_wall_seconds_sum": 490.1475550197065,
+    "scoring_wait_seconds_sum": 76.24347034655511,
+    "missing": []
+  },
+  "source_compatibility": {
+    "mode": "qualified_exact_initial_A_baseline_reuse",
+    "qualification": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/initial_baseline_reuse.json",
+    "qualification_sha256": "985f724ea736ba16cde846424b1f08d0f8f3bd5e4a582f430279b9da0c8c05d1",
+    "all_initial_model_tensors_equal": true,
+    "actual_raw_observation_dual_grid_smoke_exact": true,
+    "reference_manifest_sha256": "f8b8f363ddb1e64a304a01c6a70d4b43cec4ce86e2699ee73af72486d8e56bce",
+    "metadata_differences": [
+      "schema",
+      "actor",
+      "source_sha256"
+    ],
+    "not_applicable_to_RL_parent": true,
+    "prediction_score_and_population_mutations": false
+  }
+}
