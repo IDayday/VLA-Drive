@@ -1,0 +1,78 @@
+{
+  "schema": "simwam_TRAIN_safety_signal_registration_v1",
+  "created_utc": "2026-10-16T13:01:47.294727+00:00",
+  "scope": "Read-only completed TRAIN journals and every group with a recorded raw positive unsafe candidate; no new policy, reward, data membership, rollouts or scores",
+  "optimizer_updates": 20000,
+  "maximum_selected_groups_per_run": 1000,
+  "selection": "All first-inner rows with exploration.positive_still_unsafe > 0; retain all eight candidates when reading selected groups; no outcome-dependent downsampling",
+  "runs": {
+    "/mnt/project/simwam-recipe-20261015/runs/R_CANONICAL_seed42_v1": {
+      "variant": "R_CANONICAL",
+      "run_identity": "fb41121f52539dcd1c7f55be52754de37d5f0fe3d24b09fb88d8e98a93c49942",
+      "identity_file_sha256": "46c9eb01288583fff31a3c2ebcc79b34eaa723a222eac17cd6abb16272b4b486",
+      "journal_sha256": {
+        "0": "31972fdcb52ca8b7a58b05aaccc4ea7f396925cb40c3fbc7ec82661b5d77c91f",
+        "1": "e0fe2ef01d108c12b1dd462d978a28841a256b990a5517946a0e2f5b1ef2a72f",
+        "2": "a77ef4cac9d9ed5b1f63db163efc4a758d35351f831092ff84385cf0203baf57",
+        "3": "58e36aebddc9f067ee8691ab6f9f18c145219ae4327f78236e012d36fb0bf9e1",
+        "4": "b35fc776b08ed4097b3f766d3848180e727a48addc61dfe1fa43f6ceb5d7d9ef",
+        "5": "935973cb332536c116f0d2d6042bb236fc4eb2dd402f12b211ffdec249f06f6d",
+        "6": "6700a994c5852fc8d994943ea85c2583a12dfdba380bb336de327a93afa14d1b",
+        "7": "1b952885933566a985c7ea3cb96a11166e8a3e729805bad109f06ae1d5c8fedb"
+      },
+      "host": "training-vlawm-tsinghua-zt"
+    },
+    "/mnt/project/simwam-x-anchor-20261015/runs/R_CANONICAL_X1_seed42_v1": {
+      "variant": "R_CANONICAL_X1",
+      "run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+      "identity_file_sha256": "cacd728e090ad4f10413c01569949d0acf571659efdcb9fd3dc414f03d8d3b99",
+      "journal_sha256": {
+        "0": "dafe71d431a969edbaae0fd3324f9ae83e8abdbc2179dfc71479867ec7de9ac8",
+        "1": "f9e3bfdba16b422380dba46c34e02df3cca411b2c1db688d1b75c0e6a539c0e5",
+        "2": "7a179bdecee4a6ea0f8bffc2f618adc53c0486d14c78d74c0623122fa4956d07",
+        "3": "b8d6ce8cc8bcaebdc92ce199c43b7223f31678a1189959ffd0ebffd478de4c16",
+        "4": "e02d0f52119af1d2c64d24bc34ecc80ac569ab7d4759a0c48116903f9ec3e63e",
+        "5": "afb79f63ae6e7fa671560eace5c38b1a4246f6809cc84ed3782af40d9f15c549",
+        "6": "b22f0ea4ee96f8b21b44eacd1ccd22fae389981defcc96dc372913cab5146961",
+        "7": "7bca6772d0af3be756d3d6943550a160f4c2772570a7b13eb680041e9e83374f"
+      },
+      "host": "training-vlawm-tsinghua-zt4"
+    }
+  },
+  "hard_manifest": {
+    "path": "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+    "sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f"
+  },
+  "population": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+    "sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9"
+  },
+  "analysis_source_sha256": "c698e3f33f04cbe8c45f10eefef19a8e68940f8674430dfae021a2ae32f57983",
+  "output": "Aggregate summary plus private per-group evidence; never publish scene tokens or saved chains",
+  "questions": [
+    "How much fixed-SFT safety-failure coverage exists in the hard population and actual scene exposures?",
+    "How many unsafe positives survive the actual whole-group PG mask?",
+    "Do unsafe positives outrank a safe alternative or only the group mean?",
+    "Are unsafe positives concentrated in a few TRAIN scenes?",
+    "How does X1 change these signals under the matched scene stream?"
+  ],
+  "prohibited_inferences": [
+    "Counts are not gradient norms or a causal attribution of deployment failures",
+    "Selected-group advantage masses do not estimate the global advantage-mass share",
+    "Single SFT seed does not establish all-noise safety",
+    "No unseen-data or Navtest-directed curriculum claims"
+  ],
+  "resources": {
+    "processes": 2,
+    "CPU_threads_each": 1,
+    "GPU": false,
+    "additional_scores": 0,
+    "additional_optimizer_updates": 0,
+    "stop_after_finite_completed_journals": true
+  },
+  "baseline_screen_evidence": {
+    "path": "/mnt/project/simwam-recipe-20261015/hard_manifest_verification.json",
+    "sha256": "e37d3e77f5e6451c5ca59ba1851b0010bf6636af49ff064e8da33001ada56342",
+    "reuse": "Prior complete TRAIN SFT screen; do not rescore"
+  }
+}
