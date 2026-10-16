@@ -259,6 +259,17 @@ def verify(args):
     root = Path(args.output).resolve()
     registration = read_registration(root)
     if (root / "RESULT.json").exists():
+        # A former PASS is not proof that its underlying evidence is intact.
+        # Legacy results remain preserved, but require explicit re-auditing if
+        # they predate this complete evidence receipt.
+        receipt = json.loads((root / "EVIDENCE_COMPLETE.json").read_text())
+        names = {"REGISTRATION.json", "RESULT.json", "PER_SCENE_PARITY.json", "NEGATIVE_REQUESTS.json"}
+        names |= {f"phase_{i}{suffix}" for i in range(3) for suffix in (".json.gz", "_receipt.json")}
+        if receipt.get("schema") != "st_consequence_evidence_complete_v1" or set(receipt["files"]) != names:
+            raise ContractMismatch("Incomplete or legacy consequence verification evidence")
+        for name, expected in receipt["files"].items():
+            if file_sha256(root / name) != expected:
+                raise ContractMismatch("Changed consequence verification evidence: " + name)
         return json.loads((root / "RESULT.json").read_text())
     phases = []
     receipts = []
@@ -269,7 +280,10 @@ def verify(args):
             raise ContractMismatch("Phase result was changed")
         receipts.append(receipt)
         rows = load_records(path)
-        phases.append({(r["identity"]["scene_id"], r["identity"]["candidate_id"]): r for r in rows})
+        indexed = {(r["identity"]["scene_id"], r["identity"]["candidate_id"]): r for r in rows}
+        if len(indexed) != len(rows):
+            raise ContractMismatch("Duplicate scene/candidate record in a scoring phase")
+        phases.append(indexed)
     expected = {(r["scene_id"], r["candidate_id"]) for r in registration["requests"]}
     if any(set(rows) != expected or not all(r["valid"] for r in rows.values()) for rows in phases):
         raise ContractMismatch("Requested denominator is incomplete or contains failed scoring")
@@ -329,6 +343,10 @@ def verify(args):
     atomic_json(root / "PER_SCENE_PARITY.json", detailed)
     atomic_json(root / "NEGATIVE_REQUESTS.json", bad)
     atomic_json(root / "RESULT.json", summary)
+    names = {"REGISTRATION.json", "RESULT.json", "PER_SCENE_PARITY.json", "NEGATIVE_REQUESTS.json"}
+    names |= {f"phase_{i}{suffix}" for i in range(3) for suffix in (".json.gz", "_receipt.json")}
+    atomic_json(root / "EVIDENCE_COMPLETE.json", {"schema": "st_consequence_evidence_complete_v1",
+        "files": {name: file_sha256(root / name) for name in sorted(names)}})
     return summary
 
 
