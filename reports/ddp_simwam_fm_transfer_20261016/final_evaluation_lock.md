@@ -16,6 +16,19 @@ CUDA_VISIBLE_DEVICES='' python -m scripts.analysis.fm_transfer.final_lock prepar
 CUDA_VISIBLE_DEVICES='' python -m scripts.analysis.fm_transfer.final_lock lock
 ```
 
-前两项和实际`prepare`已执行；真实终点`lock`尚未执行成功。该入口不是最终Navtest自动派发器，后续派发仍需现有worker入口、单一owner、即时主机授权及GPU身份检查。仅实现准入不代表完成最终评价。
+前两项和实际`prepare`已执行；真实终点`lock`尚未执行成功。仅实现准入不代表完成最终评价。
+
+后续新增`dispatch_final_evaluation`作为显式派发/续跑入口，仍调用同一个不可变worker。四个模型共用一把准入锁，记录global shard、主机、GPU UUID、PID/start、尝试及祖先；两次资源检查排除身份不明占用，已启动但尚未分配显存的worker也占用调度名额。失败续跑必须显式`--retry`且证明旧PID/start已经退出；SSH观察超时不解释成死亡，原轨迹、评分、尝试日志均保留。各worker自己的scene原子记录和累计实际成本逻辑继续复用。
+
+```bash
+# 示例须在真实LOCK已发布且主机/GPU刚核实后执行；其他主机使用不重叠global ranks。
+python -m scripts.analysis.fm_transfer.dispatch_final_evaluation --model A_DDP_TIME_SFT --shards 24 --ranks 0,1,2,3,4,5,6,7 --gpus 0,1,2,3,4,5,6,7
+# 只重试已确认退出且未完成的原分片，shards与LOCK不变：
+python -m scripts.analysis.fm_transfer.dispatch_final_evaluation --model A_DDP_TIME_SFT --shards 24 --ranks 3 --gpus 3 --retry
+```
+
+CLI help和CPU测试已执行；正式Navtest派发尚未发生。准入/派发共30项测试通过；包括GPU别名、未知所有者、观察超时、保留旧记录、提交启动记录后才创建child，以及不完整LOCK在GPU查询前拒绝。跨本机/rl-zt2的实际共享文件锁验证通过：本机持锁时远端拒绝、本机释放后远端取得；对已结束的真实评价worker做PID/start检查得到已退出。没有生成新Navtest候选。
+
+另有4项里程碑并行路由测试通过。CPU控制器允许两个独立的已登记评价在两台主机并行，仍只有36个原定任务；原worker、每任务8个shards、场景、seed、网格、评分与对照均不改。训练进程和训练源码不在这次调度更改范围内。控制器替换必须先确认旧owner退出，使用新的control目录和源码快照；不同时启动两个owner。
 
 私有证据：`/mnt/project/fm-transfer-20261016/final_navtest/assets.json`与`resources/final_lock_validation_v2.json`。后者记录实际验证的19份证据hash、实现hash和仍缺失的终点文件。没有上传原始Navtest清单、数据或缓存。

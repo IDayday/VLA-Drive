@@ -91,12 +91,47 @@ def initial_A_reused(root, job):
     return True
 
 
+def dispatch_plan(ready,active,hosts):
+    """Keep one existing eight-shard job per host, never change a job's identity."""
+    if len(set(hosts))!=len(hosts):raise ValueError('Duplicate evaluation host')
+    occupied={job['host'] for job in active}
+    outputs=[job['output'] for job in ready+active]
+    if len(set(outputs))!=len(outputs):raise ValueError('A milestone is already active or duplicated')
+    return list(zip(ready,[host for host in hosts if host not in occupied]))
+
+
+def resource_probe(host):
+    program="""import json,subprocess
+from pathlib import Path
+rows=subprocess.check_output(['nvidia-smi','--query-gpu=uuid,memory.used,memory.free','--format=csv,noheader,nounits'],text=True)
+gpus=[dict(uuid=a.strip(),used=int(b),free=int(c)) for a,b,c in (line.split(',') for line in rows.splitlines())]
+rows=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid','--format=csv,noheader,nounits'],text=True)
+owners=[dict(uuid=u.strip(),visible=(Path('/proc')/p.strip()/'cmdline').exists()) for p,u in (line.split(',') for line in rows.splitlines())]
+print(json.dumps(dict(gpus=gpus,owners=owners)))"""
+    return json.loads(remote(host,[PYTHON,'-c',program]))
+
+
+def capacity_available(first,second,expected):
+    if (len(first['gpus'])!=8 or len(second['gpus'])!=8 or
+            [g['uuid'] for g in first['gpus']]!=expected or [g['uuid'] for g in second['gpus']]!=expected):
+        raise ValueError('Host physical GPU identity changed')
+    for sample in (first,second):
+        for gpu in sample['gpus']:
+            owners=[o for o in sample['owners'] if o['uuid']==gpu['uuid']]
+            if gpu['free']<24000 or (gpu['used']>0 and not owners) or any(not o['visible'] for o in owners):return False
+    return True
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation-source',required=True)
     p.add_argument('--dispatch-source',required=True);p.add_argument('--host',required=True)
+    p.add_argument('--additional-hosts',nargs='*',default=[],help='Independent registered milestones may use these authorized hosts')
     p.add_argument('--root',default=str(ROOT));p.add_argument('--once',action='store_true')
     p.add_argument('--include-rl',action='store_true');p.add_argument('--control-dir');a=p.parse_args()
-    require_dispatch();worker_allowed(a.host)
+    hosts=[a.host]+a.additional_hosts
+    if len(set(hosts))!=len(hosts):raise ValueError('Duplicate evaluation host')
+    require_dispatch()
+    for host in hosts:worker_allowed(host)
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Controller must be CPU-only')
     root=Path(a.root);control=Path(a.control_dir) if a.control_dir else root/'milestone_controller';control.mkdir(parents=True,exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -106,7 +141,13 @@ def main():
             raise ValueError('Incomplete source snapshot')
     env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
     analysis_source=Path(__file__).resolve().parents[3]
-    identity=dict(schema='fm_transfer_finite_SFT_RL_evaluation_queue_v2',host=a.host,
+    resources={host:resource_probe(host) for host in hosts}
+    host_uuids={host:[g['uuid'] for g in value['gpus']] for host,value in resources.items()}
+    all_uuids=[u for values in host_uuids.values() for u in values]
+    if any(len(values)!=8 for values in host_uuids.values()) or len(set(all_uuids))!=len(all_uuids):
+        raise ValueError('Hosts must have eight distinct physical GPUs each')
+    identity=dict(schema='fm_transfer_finite_SFT_RL_evaluation_queue_v3',host=a.host,hosts=hosts,
+        host_GPU_uuids=host_uuids,
         evaluation_source=str(evaluation),dispatch_source=str(dispatcher),
         analysis_source=str(analysis_source),jobs=list(jobs(root,a.include_rl)),script_sha256=file_sha(__file__))
     path=control/'identity.json'
@@ -117,15 +158,19 @@ def main():
     atomic_json(control/'owner.json',invocation)
     try:
         while True:
-            require_dispatch();worker_allowed(a.host);ready=[];active=[];complete=[];pending=[]
+            require_dispatch()
+            for host in hosts:worker_allowed(host)
+            ready=[];active=[];complete=[];pending=[]
             for job in identity['jobs']:
                 if initial_A_reused(root,job):complete.append(dict(**job,reused=True));continue
                 output=Path(job['output']);receipts=[json.loads(q.read_text()) for q in sorted(output.glob('dispatches/*.json'))]
                 if receipts:
                     if len(receipts)!=8 or {r['rank'] for r in receipts}!=set(range(8)):
                         raise ValueError('Partial dispatch needs explicit recovery, never duplicate all workers: '+str(output))
-                    if any(r['host']!=a.host or r['source']!=str(evaluation) for r in receipts):
-                        raise ValueError('Foreign source/host in evaluation receipts')
+                    receipt_hosts={r['host'] for r in receipts}
+                    if len(receipt_hosts)!=1 or any(r['source']!=str(evaluation) for r in receipts):
+                        raise ValueError('Foreign source/mixed host in evaluation receipts')
+                    receipt_host=next(iter(receipt_hosts))
                     statuses=[json.loads(q.read_text()) if q.exists() else None for q in (output/f'rank{i}.json' for i in range(8))]
                     if all(r and r['status']=='ASSIGNED_COMPLETE' for r in statuses):
                         analysis=root/'analysis'/(output.name+'.json')
@@ -141,31 +186,33 @@ def main():
                                 '--evaluation',str(output),'--reference',reference,'--output',str(paired)],
                                 cwd=analysis_source,env=analysis_env,check=True)
                         complete.append(job);continue
-                    alive=live_workers(a.host,receipts)
+                    alive=live_workers(receipt_host,receipts)
                     if any(not alive[i] and not (statuses[i] and statuses[i]['status']=='ASSIGNED_COMPLETE') for i in range(8)):
                         raise RuntimeError('Evaluation worker failed; inspect preserved evidence: '+str(output))
-                    active.append(job);continue
+                    active.append(dict(**job,host=receipt_host));continue
                 if (Path(job['checkpoint'])/'COMPLETE').exists():ready.append(job)
                 else:pending.append(job)
             status=dict(**invocation,status='RUNNING',complete=complete,active=active,ready=ready,pending=pending,
                 observed_unix=time.time())
-            if not active and ready:
-                job=ready[0];export=Path(job['export'])
+            planned=dispatch_plan(ready,active,hosts)
+            for job,host in planned:
+                export=Path(job['export'])
                 # Export only a sealed model; this does not load/modify a trainer.
                 if not export.exists():
                     require_dispatch()
                     subprocess.run([PYTHON,'-m','scripts.analysis.fm_transfer.export_policy','--checkpoint',job['checkpoint'],
                         '--output',str(export)],cwd=evaluation,env=env,check=True)
-                free=json.loads(remote(a.host,[PYTHON,'-c',"import subprocess,json; print(json.dumps([int(x) for x in subprocess.check_output(['nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True).splitlines()]))"]))
-                if len(free)==8 and min(free)>=24000:
+                first=resource_probe(host);time.sleep(2);second=resource_probe(host)
+                if capacity_available(first,second,host_uuids[host]):
+                    atomic_json(control/(Path(job['output']).name+'.admission.json'),dict(host=host,time=time.time(),first=first,second=second))
                     command=['env','CUDA_VISIBLE_DEVICES=','OMP_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1',
                         'PYTHONPATH='+str(dispatcher),PYTHON,'-m','scripts.analysis.fm_transfer.dispatch_evaluation',
                         '--source',str(evaluation),'--export',str(export),'--output',job['output'],'--cohort',job['cohort']]
-                    response=remote(a.host,command)
+                    response=remote(host,command)
                     atomic_json(control/(Path(job['output']).name+'.dispatch.json'),json.loads(response))
-                    status['last_dispatched']=job
+                    status.setdefault('launched_this_tick',[]).append(dict(**job,host=host))
                 else:status['status']='WAITING_FOR_AUTHORIZED_MEMORY_HEADROOM'
-            elif not active and pending:status['status']='WAITING_FOR_SEALED_REGISTERED_MILESTONE'
+            if not active and not ready and pending:status['status']='WAITING_FOR_SEALED_REGISTERED_MILESTONE'
             elif not active and not ready and not pending:status['status']='ALL_REGISTERED_EVALUATIONS_COMPLETE'
             atomic_json(control/'status.json',status)
             if (control/'STOP_AFTER_TICK').exists():
