@@ -84,7 +84,7 @@ def checkpoint_cost(run):
     phases=['rollout','old_probability','update','scoring_wait','scoring_cpu']
     sums={phase:sum(s['seconds_'+phase] for s in states) for phase in phases}
     wall=progress['wall_seconds_this_invocation'];done=states[0]['updates']
-    ledger=invocation_cost(run,done=done,latest_wall=wall)
+    ledger=invocation_cost(run,done=done,latest_wall=wall,latest_invocation=progress.get('invocation'))
     return dict(checkpoint=str(ck),checkpoint_updates=done,
         cumulative_rank_wall_seconds_by_phase=sums,
         max_rank_wall_seconds_by_phase={phase:max(s['seconds_'+phase] for s in states) for phase in phases},
@@ -111,7 +111,8 @@ def main():
                 raise ValueError('Broken four-inner contract')
     windows=[summarize_window(ranks,start,min(start+a.window_updates,end)) for start in range(0,end,a.window_updates)]
     complete=all((run/f'result_rank{rank}.json').exists() and json.loads((run/f'result_rank{rank}.json').read_text())['status']=='COMPLETE' for rank in range(8))
-    result=dict(schema='simwam_training_analysis_v2',analysis_identity=file_sha(__file__),status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
+    result=dict(schema='simwam_training_analysis_v3',analysis_identity=file_sha(__file__),
+        cost_analysis_identity=file_sha(Path(__file__).with_name('cost_ledger.py')),status='TRAINING_COMPLETE' if complete else 'INTERIM_TRAINING_ONLY',
         captured_utc=datetime.now(timezone.utc).isoformat(),run_identity=identity['sha256'],variant=identity['recipe']['variant'],
         matched_completed_updates=end,observed_updates_by_rank=[len(rows) for rows in ranks],
         cumulative=summarize_window(ranks,0,end),windows=windows,cost=checkpoint_cost(run),

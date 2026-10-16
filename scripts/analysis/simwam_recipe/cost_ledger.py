@@ -3,10 +3,10 @@ import json
 from pathlib import Path
 
 
-def invocation_cost(run, *, done, latest_wall=None):
+def invocation_cost(run, *, done, latest_wall=None, latest_invocation=None):
     rows=[json.loads(p.read_text()) for p in sorted((Path(run)/'invocations').glob('*/rank*.json'))]
     if not rows:
-        return dict(schema=2,provenance='legacy rank summaries; no invocation ledger',
+        return dict(schema=3,provenance='legacy rank summaries; no invocation ledger',
             cumulative_logical_updates=done,invocation_start_update=None,
             invocation_effective_updates=None,invocation_updates_per_second=None,
             linear_remaining_training_hours=None,cumulative_worker_wall_seconds=None,
@@ -15,24 +15,45 @@ def invocation_cost(run, *, done, latest_wall=None):
             missing=['invocation start counters','failed/rolled-back time','model loading','checkpoint save time'],
             note='Do not divide cumulative updates by a possibly resumed invocation wall. Legacy phase timers remain valid lower bounds.')
     rank0=sorted((r for r in rows if r['rank']==0),key=lambda r:r['start_unix'])
-    last=rank0[-1];delta=last.get('end_update',last['start_update'])-last['start_update']
+    last=rank0[-1]
+    delta=last['end_update']-last['start_update'] if 'end_update' in last else None
     wall=last.get('worker_wall_seconds',last.get('observed_worker_wall_seconds',0))
-    rate=delta/wall if delta>=4 and wall>0 and 'end_update' in last else None
+    rate=delta/wall if delta is not None and delta>=4 and wall>0 and 'end_update' in last else None
+    rate_basis='finished invocation end-start updates / invocation wall' if rate else None
+    # A committed checkpoint is a measured, completed timing window. Its
+    # invocation identity is essential after resume; cumulative done/wall is
+    # invalid. This does not infer that a RUNNING record is a live process.
+    if (last['status']=='RUNNING' and latest_invocation==last['invocation']
+        and done>=last['start_update'] and latest_wall is not None and latest_wall>0):
+        delta=done-last['start_update'];wall=latest_wall
+        rate=delta/wall if delta>=100 else None
+        rate_basis='last sealed checkpoint in matching invocation' if rate else None
+    def worker_wall(row):
+        return row.get('worker_wall_seconds',row.get('observed_worker_wall_seconds',0))
+    def elapsed(row):
+        return worker_wall(row)+row.get('preparation_seconds',0)
+    preparation_missing=sum('preparation_seconds' not in r for r in rows)
     # Sum worker time explicitly, never relabel it as end-to-end/exclusive GPU time.
-    return dict(schema=2,provenance='immutable per-invocation ledger',cumulative_logical_updates=done,
+    return dict(schema=3,provenance='per-invocation records; RUNNING records are unclosed observations',cumulative_logical_updates=done,
         invocation_start_update=last['start_update'],invocation_effective_updates=delta,
         invocation_updates_per_second=rate,
-        linear_remaining_training_hours=(20000-done)/rate/3600 if rate else None,
-        cumulative_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows),
-        aborted_invocation_worker_wall_seconds=sum(r.get('worker_wall_seconds',r.get('observed_worker_wall_seconds',0)) for r in rows if r['status'] in ('ABORTED','RUNNING')),
+        rate_basis=rate_basis,rate_window_seconds=wall if rate else None,
+        linear_remaining_training_hours=(20000-done)/rate/3600 if rate and last['status']!='ABORTED' else None,
+        cumulative_worker_wall_seconds=sum(elapsed(r) for r in rows),
+        invocation_worker_wall_seconds=sum(worker_wall(r) for r in rows),
+        preparation_worker_wall_seconds_observed=sum(r.get('preparation_seconds',0) for r in rows),
+        workers_missing_preparation_seconds=preparation_missing,
+        aborted_invocation_worker_wall_seconds=sum(elapsed(r) for r in rows if r['status']=='ABORTED'),
+        unclosed_invocation_worker_wall_seconds=sum(elapsed(r) for r in rows if r['status']=='RUNNING'),
         rollback_overhead_seconds=None,
         save_worker_wall_seconds=sum(r['seconds_save'] for r in rows),
         physical_generated_candidates=sum(r['generated_candidates'] for r in rows),
         physical_scored_candidates=sum(r['scored_candidates'] for r in rows),
         worker_records=len(rows),incomplete_invocations=sum(r['status']=='RUNNING' for r in rows),
-        missing=['unobserved tail after a hard process kill; counters are lower bounds when an invocation is incomplete',
-                 'exact rollback-only wall inside an aborted invocation; its total wall may include committed work'],
-        note='Shared GPU worker wall is not exclusive GPU compute; ALL failed-attempt wall is included, but not all of that wall is necessarily discarded. A resumed segment rate uses end-start updates.')
+        missing=['unobserved tail after a hard process kill; counters are lower bounds for unclosed records',
+                 'exact rollback-only wall inside an aborted invocation; its total wall may include committed work']
+                +(['preparation/model loading absent for some old records'] if preparation_missing else []),
+        note='RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work.')
 
 
 def evaluation_cost(root,identity,ranks):
