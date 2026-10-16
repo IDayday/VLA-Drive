@@ -1,0 +1,47 @@
+{
+  "schema": "simwam_safety_exposure_prefix_registration_v1",
+  "created_utc": "2026-10-16T14:48:13.883251+00:00",
+  "scope": "Read already committed first2500 update prefixes, fixed before inspecting their aggregated signal results; retain final20k and existing ODE milestones",
+  "optimizer_updates": 2500,
+  "runs": [
+    {
+      "run": "/mnt/project/simwam-x-anchor-20261015/runs/R_CANONICAL_X1_seed42_v1",
+      "run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+      "identity_file_sha256": "cacd728e090ad4f10413c01569949d0acf571659efdcb9fd3dc414f03d8d3b99",
+      "sealed_2500_files_sha256": "b7f73b463410d5ac3e5897a5fe1bf98d1ca3ea165aa9492fe94ed7d69c478a12"
+    },
+    {
+      "run": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1",
+      "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+      "identity_file_sha256": "0ba71f224366872043a7f9ea4a6c1ac001091d433337caa553b80f125b98d574",
+      "sealed_2500_files_sha256": "de9addd413b7a7a6b4fa606481385e4cb90dffc68aae8a99df7999b04e5d5b74"
+    }
+  ],
+  "hard_manifest": {
+    "path": "/mnt/project/simwam-recipe-20261015/hard_manifest.json",
+    "sha256": "66d9eccf82ecfbdde64e4b678f8af70ddff4525124f374c5de0f18d7f61e391f"
+  },
+  "population": {
+    "path": "/mnt/project/flow-safe-improvement-20261013/population/manifest.json",
+    "sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9"
+  },
+  "maximum_selected_groups_per_run": 500,
+  "new_candidates": 0,
+  "new_scores": 0,
+  "optimizer_updates_executed": 0,
+  "GPU_used": false,
+  "host": "training-vlawm-tsinghua-zt",
+  "selection": "all saved groups with any positive-advantage unsafe candidate; preserve their full G8 and reject rather than truncate over budget",
+  "analysis": [
+    "actual static SFT safety exposure and repeated/unique population",
+    "raw and per-stratum random policy readouts",
+    "fixed hard-population safe/unsafe standardized means, descriptive only",
+    "global reward std and four inner ratios/clipping/total gradient norm",
+    "unsafe positive ranking versus existing safe alternatives"
+  ],
+  "not_used_for": [
+    "checkpoint or hyperparameter selection",
+    "changing ongoing formal recipe",
+    "substituting training mean for single ODE evaluation"
+  ]
+}
