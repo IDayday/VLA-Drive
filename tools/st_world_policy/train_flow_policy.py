@@ -216,7 +216,9 @@ class FlowTrainingModule(nn.Module):
 
 
 def numeric_execution(cfg, binding):
-    return {"schema": "st_flow_numeric_execution_v2", "precision": cfg["execution"]["precision_policy"],
+    from tools.st_world_policy.training_config import official_runtime_policy
+    official = official_runtime_policy(cfg)
+    value = {"schema": "st_flow_numeric_execution_v2", "precision": cfg["execution"]["precision_policy"],
             "master_initialization": MASTER_INIT_SCHEMA,
             "encoder": "frozen_BF16_execution_eval_original_S0_AMP",
             "policy_rollout_old_current": "BF16_execution_cuda_autocast_eval",
@@ -226,6 +228,11 @@ def numeric_execution(cfg, binding):
             "gradient_checkpointing": cfg["runtime"]["gradient_checkpointing"],
             "base_binding": binding["binding_sha256"],
             "standalone_evaluation_contract": binding["inference_contract"]}
+    if official is not None:
+        value.update(schema="st_flow_numeric_execution_v3",
+            encoder="frozen_BF16_execution_eval_official_FA2",
+            official_execution=official)
+    return value
 
 
 class MatchedOldMicrobatches:
@@ -580,6 +587,20 @@ def run(args):
         encoder.requires_grad_(False).eval()
         encoder.inference_fp32 = False
         encoder.qwen_vl_interface.model.model.language_model.gradient_checkpointing_disable()
+        from tools.st_world_policy.training_config import official_runtime_policy
+        official_policy = official_runtime_policy(cfg)
+        official_receipt = None
+        if official_policy is not None:
+            from tools.st_world_policy.official_runtime import (
+                apply_official_model_runtime, build_official_optimizer, official_deepspeed_config,
+                verify_official_engine)
+            official_receipt = {"policy": official_policy, "model": apply_official_model_runtime(
+                vlm=encoder.qwen_vl_interface.model,
+                language=encoder.qwen_vl_interface.model.model.language_model,
+                action_transformer=action_head.model, policy=official_policy, training_copy=True)}
+            # The consequence encoder is frozen/eval in either backend; only
+            # the action module participates in training/recomputation.
+            encoder.qwen_vl_interface.model.model.language_model.gradient_checkpointing_disable()
         encoder.bfloat16().cuda(local)
         action_head.model.gradient_checkpointing = runtime["gradient_checkpointing"]
         model = FlowTrainingModule(action_head, cfg)
@@ -595,13 +616,25 @@ def run(args):
             "optimizer": {"type": "AdamW", "params": {"lr": opt["lr"], "betas": opt["betas"],
                            "eps": opt["eps"], "weight_decay": opt["weight_decay"]}}}
         import deepspeed
+        client_optimizer = None
+        if official_policy is not None:
+            client_optimizer, optimizer_receipt = build_official_optimizer(model, groups, official_policy)
+            official_receipt["optimizer"] = optimizer_receipt
+            ds_config = official_deepspeed_config(official_policy, accumulation_owner="caller_global_valid_counts")
         fresh_master_initialization = not args.resume
         master_source = capture_fp32_master_initialization(
             model, groups, is_fresh_run=fresh_master_initialization)
-        engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds_config)
+        engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds_config,
+            **({"optimizer": client_optimizer} if client_optimizer is not None else {}))
         master_initialization = restore_fp32_master_initialization(
             engine, master_source, is_fresh_run=fresh_master_initialization)
         del master_source
+        if official_policy is not None:
+            engine_check = collective_call(lambda: verify_official_engine(
+                engine, client_optimizer, official_policy), "official optimizer execution")
+            atomic_json(out / "official_runtime" / f"initial_engine_rank{rank}.json", engine_check, immutable=True)
+            if rank == 0:
+                atomic_json(out / "OFFICIAL_EXECUTION.json", official_receipt, immutable=True)
         frozen_before = collective_call(lambda: frozen_encoder_hash(encoder), "frozen encoder state hash")
         if rank == 0 and not args.resume:
             atomic_json(out / "initialization.json", {"base_binding": binding["binding_sha256"],
@@ -823,6 +856,12 @@ def run(args):
                                        expected_context_hashes=expected_contexts)
                 state["last_completed_policy"] = old_identity.__dict__
             state["completed"] += 1
+            if official_policy is not None and state["completed"] == initial_step + 1:
+                engine_check = collective_call(lambda: verify_official_engine(
+                    engine, client_optimizer, official_policy, require_moments=True),
+                    "official FP32 Adam update state")
+                atomic_json(out / "official_runtime" / f"updated_engine_rank{rank}.json",
+                            engine_check, immutable=True)
             state["policy_version"] = state["completed"]
             state["offset"] += 1
             state["exposure"] += len(global_ids)

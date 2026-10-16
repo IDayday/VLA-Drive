@@ -35,7 +35,7 @@ from tools.st_world_policy.base_binding import read_binding
 from tools.st_world_policy.fp32_master_init import (
     SCHEMA as MASTER_INIT_SCHEMA, capture_fp32_master_initialization, restore_fp32_master_initialization)
 from tools.st_world_policy.check_formal_approval import check_formal_approval, read_json
-from tools.st_world_policy.training_config import validate_config, environment_record
+from tools.st_world_policy.training_config import validate_config, environment_record, official_runtime_policy
 from tools.st_world_policy.training_state import checkpoint_receipt, resolve_latest, update_latest, terminal
 
 
@@ -82,6 +82,7 @@ def run(args):
     registration = read_json(args.registration)
     cfg = read_json(registration["artifacts"]["config"]["path"])
     st = validate_config(cfg)
+    official_policy = official_runtime_policy(cfg)
     execution = cfg["execution"]
     rank, world, local = (int(os.environ[k]) for k in ("RANK", "WORLD_SIZE", "LOCAL_RANK"))
     if world != execution["world_size"]:
@@ -168,6 +169,14 @@ def run(args):
         else:
             language.gradient_checkpointing_disable()
         parent.action_model.model.gradient_checkpointing = checkpointing
+        official_receipt = None
+        if official_policy is not None:
+            from tools.st_world_policy.official_runtime import (
+                apply_official_model_runtime, build_official_optimizer, official_deepspeed_config,
+                verify_official_engine)
+            official_receipt = {"policy": official_policy, "model": apply_official_model_runtime(
+                vlm=parent.qwen_vl_interface.model, language=language,
+                action_transformer=parent.action_model.model, policy=official_policy, training_copy=True)}
         # Temporal history implementation is injected explicitly; current-only
         # controls cannot silently replace it with repeated-current inputs.
         history_encoder = None
@@ -186,13 +195,25 @@ def run(args):
               "optimizer": {"type": "AdamW", "params": {"lr": opt["lr"], "betas": opt["betas"],
                              "eps": opt["eps"], "weight_decay": opt["weight_decay"]}}}
         import deepspeed
+        client_optimizer = None
+        if official_policy is not None:
+            client_optimizer, optimizer_receipt = build_official_optimizer(model, groups, official_policy)
+            official_receipt["optimizer"] = optimizer_receipt
+            ds = official_deepspeed_config(official_policy, accumulation_owner="caller_global_valid_counts")
         fresh_master_initialization = not args.resume and "continuation" not in cfg
         master_source = capture_fp32_master_initialization(
             model, groups, is_fresh_run=fresh_master_initialization)
-        engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds)
+        engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds,
+            **({"optimizer": client_optimizer} if client_optimizer is not None else {}))
         master_initialization = restore_fp32_master_initialization(
             engine, master_source, is_fresh_run=fresh_master_initialization)
         del master_source
+        if official_policy is not None:
+            engine_check = collective_call(lambda: verify_official_engine(
+                engine, client_optimizer, official_policy), "official optimizer execution")
+            atomic_json(out / "official_runtime" / f"initial_engine_rank{rank}.json", engine_check, immutable=True)
+            if rank == 0:
+                atomic_json(out / "OFFICIAL_EXECUTION.json", official_receipt, immutable=True)
         profile_mode = cfg["runtime"].get("profile_mode", "none")
         if profile_mode != "none":
             if args.resume:
@@ -204,6 +225,8 @@ def run(args):
                 max_updates=execution["max_updates"], global_batch=execution["global_batch"],
                 deterministic=cfg["runtime"]["deterministic"],
                 gradient_checkpointing=cfg["runtime"]["gradient_checkpointing"])
+            if official_policy is not None:
+                scientific["official_execution"] = official_policy
             profile_identity = {"run_identity": signature, "source_sha": registration["source_sha"],
                 "scientific_config_sha256": identity_hash(scientific),
                 "data_manifest_sha256": registration["artifacts"]["data_manifest"]["sha256"],
@@ -398,6 +421,12 @@ def run(args):
             dist.all_reduce(values)
             logs = dict(zip(sorted(logs), (values / world).cpu().tolist()))
             state["completed"] += 1
+            if official_policy is not None and state["completed"] == initial_step + 1:
+                engine_check = collective_call(lambda: verify_official_engine(
+                    engine, client_optimizer, official_policy, require_moments=True),
+                    "official FP32 Adam update state")
+                atomic_json(out / "official_runtime" / f"updated_engine_rank{rank}.json",
+                            engine_check, immutable=True)
             state["offset"] += 1
             state["exposure"] += counts["ego_scenes"]
             state["termination_reason"] = "RUNNING_CHECKPOINT"

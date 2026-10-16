@@ -11,7 +11,7 @@ from pathlib import Path
 
 from starVLA.model.modules.flow_posttraining.fpo_objective import FPOConfig
 from tools.st_world_policy.check_formal_approval import validate_execution
-from tools.st_world_policy.training_config import PRECISION, exact_fields
+from tools.st_world_policy.training_config import PRECISION, exact_fields, official_runtime_policy
 
 
 REWARDS = {"C0": None, "C1": "C1-PDMS", "C2": "C2-D", "C3": "C3-C", "C4": "C4-T"}
@@ -80,7 +80,8 @@ def validate_config(cfg):
         raise ValueError("Resolved Adam betas required")
     r = cfg["runtime"]
     exact_fields(r, {"output_root", "loader_workers", "save_every", "max_seconds", "deterministic",
-                     "gradient_checkpointing", "mc_chunk", "checkpoint_velocity"}, "Runtime")
+                     "gradient_checkpointing", "mc_chunk", "checkpoint_velocity"}
+                     | ({"official_execution"} if "official_execution" in r else set()), "Runtime")
     _absolute(r["output_root"], "output_root")
     for k, low, high in (("loader_workers", 0, 8), ("mc_chunk", 1, 50), ("save_every", 1, 4096)):
         if type(r[k]) is not int or not low <= r[k] <= high:
@@ -90,6 +91,7 @@ def validate_config(cfg):
         raise ValueError("Finite invocation wall budget required")
     if any(type(r[k]) is not bool for k in ("deterministic", "gradient_checkpointing", "checkpoint_velocity")):
         raise ValueError("Backend flags must be resolved booleans")
+    official_runtime_policy(cfg)
     exact_fields(cfg["data"], {"root"}, "Data")
     _absolute(cfg["data"]["root"], "data root")
     feedback = cfg["feedback"]

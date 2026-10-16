@@ -115,7 +115,7 @@ def flow_checkpoint_identity(registration_path, tag):
         raise ValueError("Flow parent binding or original FP32 inference precision differs")
     numeric = identity["numeric_execution"]
     numeric_schema = numeric.get("schema")
-    if numeric_schema not in ("st_flow_numeric_execution_v1", "st_flow_numeric_execution_v2"):
+    if numeric_schema not in ("st_flow_numeric_execution_v1", "st_flow_numeric_execution_v2", "st_flow_numeric_execution_v3"):
         raise ValueError("Unsupported Flow numeric execution schema")
     expected = {
         "schema": numeric_schema, "precision": cfg["execution"]["precision_policy"],
@@ -128,8 +128,14 @@ def flow_checkpoint_identity(registration_path, tag):
         "base_binding": binding["binding_sha256"], "standalone_evaluation_contract": INFERENCE_CONTRACT,
         "environment_sha256": registration["artifacts"]["environment"]["sha256"],
         "source_fingerprint": registration["source_fingerprint"]}
-    if numeric_schema == "st_flow_numeric_execution_v2":
+    if numeric_schema in ("st_flow_numeric_execution_v2", "st_flow_numeric_execution_v3"):
         expected["master_initialization"] = MASTER_INIT_SCHEMA
+    from tools.st_world_policy.training_config import official_runtime_policy
+    official = official_runtime_policy(cfg)
+    if (numeric_schema == "st_flow_numeric_execution_v3") != (official is not None):
+        raise ValueError("Official runtime and numeric checkpoint version disagree")
+    if official is not None:
+        expected.update(encoder="frozen_BF16_execution_eval_official_FA2", official_execution=official)
     if numeric != expected or identity_hash(numeric) != identity["numeric_execution_hash"]:
         raise ValueError("Flow numeric execution identity changed or precision was relabeled")
     repo = Path(__file__).resolve().parents[2]

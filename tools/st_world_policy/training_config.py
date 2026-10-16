@@ -17,6 +17,16 @@ def exact_fields(value, names, description):
         raise ValueError(description + " has missing or unknown fields")
 
 
+def official_runtime_policy(cfg):
+    """Explicit opt-in; old registered experiments retain their actual backend."""
+    if "official_execution" not in cfg["runtime"]:
+        return None
+    from tools.st_world_policy.official_runtime import resolve_official_execution
+    return resolve_official_execution(cfg["runtime"]["official_execution"],
+        execution=cfg["execution"], optimizer=cfg["optimizer"],
+        gradient_checkpointing=cfg["runtime"]["gradient_checkpointing"])
+
+
 def environment_record():
     import torch
     return {"schema": "st_training_environment_v1", "python": platform.python_version(),
@@ -55,7 +65,8 @@ def validate_config(cfg):
     runtime = cfg["runtime"]
     runtime_keys = {"output_root", "loader_workers", "save_every", "max_seconds",
                     "deterministic", "gradient_checkpointing"}
-    exact_fields(runtime, runtime_keys | ({"profile_mode"} if "profile_mode" in runtime else set()), "Runtime")
+    optional = {key for key in ("profile_mode", "official_execution") if key in runtime}
+    exact_fields(runtime, runtime_keys | optional, "Runtime")
     profile = runtime.get("profile_mode", "none")
     if profile not in ("none", "timing", "trace"):
         raise ValueError("Unknown profiling mode")
@@ -74,6 +85,7 @@ def validate_config(cfg):
         raise ValueError("Explicit finite invocation wall budget required")
     if any(type(runtime[k]) is not bool for k in ("deterministic", "gradient_checkpointing")):
         raise ValueError("Backend flags must be booleans")
+    official_runtime_policy(cfg)
     from pathlib import Path
     if not isinstance(runtime["output_root"], str) or not Path(runtime["output_root"]).is_absolute():
         raise ValueError("An isolated absolute run output root is required")

@@ -448,6 +448,14 @@ def execute(data, *, device):
     encoder.requires_grad_(False).eval()
     encoder.inference_fp32 = False
     encoder.qwen_vl_interface.model.model.language_model.gradient_checkpointing_disable()
+    from tools.st_world_policy.training_config import official_runtime_policy
+    official = official_runtime_policy(cfg)
+    if official is not None:
+        from tools.st_world_policy.official_runtime import apply_official_model_runtime
+        apply_official_model_runtime(vlm=encoder.qwen_vl_interface.model,
+            language=encoder.qwen_vl_interface.model.model.language_model,
+            action_transformer=action.model, policy=official, training_copy=True)
+        encoder.qwen_vl_interface.model.model.language_model.gradient_checkpointing_disable()
     encoder.bfloat16().to(device)
     require(frozen_encoder_hash(encoder) == data["frozen_encoder_hash"], "Original frozen training encoder identity changed")
     before_rng = rng_identity(device)
