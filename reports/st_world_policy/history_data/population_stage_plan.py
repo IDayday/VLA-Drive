@@ -16,7 +16,7 @@ from starVLA.dataloader.st_world_targets import atomic_json,LegacyC1Reader
 def run(a):
     root=Path(a.metadata_root);output=Path(a.output);runtime=Path(a.cache_runtime)
     started=time.monotonic()
-    if not 0<=a.wait_seconds<=7200 or a.world_size not in (1,8):raise ValueError('Stage-plan budget unsupported')
+    if not 0<=a.wait_seconds<=7200 or a.world_size not in (1,8) or a.min_free_gib < 100:raise ValueError('Stage-plan budget unsupported')
     if not a.roles or len(set(a.roles))!=len(a.roles):raise ValueError('Roles must be unique')
     while not all((root/role/'COMPLETE.json').exists() for role in a.roles):
         if time.monotonic()-started>=a.wait_seconds:raise TimeoutError('Fixed metadata is not yet complete')
@@ -27,7 +27,9 @@ def run(a):
     if (output/'FULL_CACHE_STAGE_PLAN.json').exists():
         old=json.loads((output/'FULL_CACHE_STAGE_PLAN.json').read_text())
         if (old['identity']!=identity_hash({k:v for k,v in old.items() if k!='identity'}) or
-                old['cache_execution_source_commit']!=source_sha or set(old['roles'])!=set(a.roles)):
+                old['cache_execution_source_commit']!=source_sha or set(old['roles'])!=set(a.roles)
+                or old.get('defer_finalize',False)!=a.defer_finalize
+                or old['required_free_reserve_gib']!=a.min_free_gib):
             raise ValueError('Existing stage plan changed')
         for role,item in old['roles'].items():
             if item['requests_sha256']!=file_sha256(root/role/'TEACHER_REQUESTS.json') or item['manifest_sha256']!=file_sha256(root/role/'SELECTED_SCENES.json'):
@@ -79,7 +81,8 @@ def run(a):
             budget={'phase':'teacher_cache','request_manifest_identity':requests['identity'],
                 'max_scenes':len(selection['scenes']),'variant':variant,'storage_dtype':dtype,
                 'images_per_shard':32,'batch_size':8,'workers':2,'cpu_threads':2,
-                'world_size':a.world_size,'max_seconds':7200,'min_free_gib':100,
+                'world_size':a.world_size,'max_seconds':7200,'min_free_gib':a.min_free_gib,
+                'defer_finalize':a.defer_finalize,
                 'execution_runtime':str(runtime),'execution_source_commit':source_sha,
                 'execution_status':'NOT_STARTED','resource_dispatch':'LEAD_REQUIRED',
                 'formal_training_approved':False,'current_only':True}
@@ -89,7 +92,8 @@ def run(a):
                 '--output',str(target),'--variant',variant,'--storage-dtype',dtype,
                 '--mode','registered','--registration',str(budget_path),'--max-scenes',str(len(selection['scenes'])),
                 '--images-per-shard','32','--batch-size','8','--workers','2','--cpu-threads','2',
-                '--max-seconds','7200','--min-free-gib','100','--world-size',str(a.world_size)]
+                '--max-seconds','7200','--min-free-gib',str(a.min_free_gib),'--world-size',str(a.world_size)]
+            if a.defer_finalize:argv+=['--defer-finalize']
             if variant=='SP0':argv+=['--legacy-c1-root',a.legacy_c1_root]
             if variant=='SP1':argv+=['--source-cache',str(output/'cache'/role/'native384')]
             commands.append({'role':role,'variant':variant,'working_directory':str(runtime),'argv_prefix':argv,
@@ -99,6 +103,13 @@ def run(a):
                 'preconditions':['Lead resource assignment; no duplicate rank/output owner',
                     'Exact complete native cache required before SP1' if variant=='SP1' else
                     'Legacy C1 image SHA coverage must pass before SP0' if variant=='SP0' else 'Fixed current-only population complete'],
+                'completion': ('Workers publish SHARDS_COMMITTED only; after all exit, one CPU finalize command must verify the complete cache'
+                               if a.defer_finalize else 'Each worker attempts the existing full finalizer'),
+                'finalizer_command': ([*argv[:3],'finalize',*argv[4:argv.index('--world-size')],
+                    '--world-size','1','--rank','0','--device','cpu'] +
+                    (['--legacy-c1-root',a.legacy_c1_root] if variant=='SP0' else
+                     ['--source-cache',str(output/'cache'/role/'native384'),
+                      '--source-cache-identity','<exact COMPLETE native cache identity>'] if variant=='SP1' else [])) if a.defer_finalize else None,
                 'shell_prefix':shlex.join(argv),'executed':False})
     native=sum(x['native_fp32_logical_tensor_bytes'] for x in roles.values())
     total=native+sum(x['pool3_fp32_logical_tensor_bytes']+x['sp0_exact_legacy_logical_tensor_bytes'] for x in roles.values())
@@ -108,7 +119,8 @@ def run(a):
         'pilot_complete_sha256':file_sha256(a.pilot_complete),'pilot_log_sha256':file_sha256(a.pilot_log),
         'pilot_actual_elapsed_s':pilot_seconds,'legacy_c1_identity':legacy_source.IDENTITY,
         'all_variants_logical_tensor_bytes':total,'temporary_native_shard_bytes_per_worker':32*(18*24*1024*4+18*24),
-        'free_bytes_snapshot':shutil.disk_usage(output).free,'required_free_reserve_gib':100,
+        'free_bytes_snapshot':shutil.disk_usage(output).free,'required_free_reserve_gib':a.min_free_gib,
+        'defer_finalize':a.defer_finalize,
         'teacher_gpu_seconds_linear_pilot_estimate':sum(x['teacher_gpu_seconds_linear_pilot_estimate'] for x in roles.values()),
         'parallel_scaling_measured':False,'cache_started_by_this_script':False,'formal_training_approved':False,
         'cost_boundaries':['current-only; future teacher requests are separate',
@@ -130,6 +142,8 @@ def main():
     p.add_argument('--world-size',type=int,default=8)
     p.add_argument('--roles',nargs='+',choices=('train','dev'),default=['train','dev'])
     p.add_argument('--wait-seconds',type=float,default=0.)
+    p.add_argument('--defer-finalize',action='store_true')
+    p.add_argument('--min-free-gib',type=int,default=1024)
     print(json.dumps(run(p.parse_args()),sort_keys=True))
 
 
