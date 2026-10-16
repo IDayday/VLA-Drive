@@ -1,0 +1,434 @@
+{
+  "REQUEST.json": {
+    "sha256": "f87dd885d1616959d0ad6f9ae098892588b5676a431735e040917b61d50efbd5",
+    "record": {
+      "time": 1792192749.244907,
+      "reason": "rl-zt2 now has invisible GPU owners; add currently free authorized local vla-zt without self-SSH",
+      "old_pid": 193325,
+      "old_start_ticks": 1362183928,
+      "old_control": "/mnt/project/fm-transfer-20261016/milestone_controller_v3",
+      "new_control": "/mnt/project/fm-transfer-20261016/milestone_controller_v4",
+      "new_source": "/mnt/project/fm-transfer-20261016/source/a28249336531a2908eaca35d40cbbaeacc01b6f3",
+      "evaluation_source_unchanged": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+      "dispatcher_source_unchanged": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "new_hosts": [
+        "training-vlawm-tsinghua-zt",
+        "training-vla-zt",
+        "training-rl-zt2"
+      ],
+      "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+      "training_signals": 0,
+      "policy_or_scoring_changes": 0,
+      "qualification": {
+        "cpu_tests_passed": 7,
+        "actual_local_dispatch_import": "225b9af660cb0210208e2c46fc4216d0f151275b",
+        "new_workers_during_qualification": 0
+      }
+    }
+  },
+  "OLD_OWNER_EXITED.json": {
+    "sha256": "fe493cd4b812d4163215d292bb9ec12dd2cfc1626561f38772fd84cf2a63ecb5",
+    "record": {
+      "time": 1792192778.8826683,
+      "old_pid": 193325,
+      "old_start_ticks": 1362183928,
+      "final_status": "STOPPED_CONTROLLER_ONLY",
+      "complete_jobs": 18,
+      "active_jobs": 0,
+      "old_owner_lock_released": true,
+      "training_signals": 0
+    }
+  },
+  "NEW_OWNER_LAUNCHED.json": {
+    "sha256": "6ffad4232749df628fa694b224e5c043dbf3a5cb01bac0900a05c78d4623abe2",
+    "record": {
+      "time": 1792192855.4327831,
+      "pid": 322120,
+      "start_ticks": 1363146860,
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "scripts.analysis.fm_transfer.milestone_controller",
+        "--evaluation-source",
+        "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+        "--dispatch-source",
+        "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "--host",
+        "training-vlawm-tsinghua-zt",
+        "--additional-hosts",
+        "training-vla-zt",
+        "training-rl-zt2",
+        "--include-rl",
+        "--control-dir",
+        "/mnt/project/fm-transfer-20261016/milestone_controller_v4"
+      ],
+      "source": "/mnt/project/fm-transfer-20261016/source/a28249336531a2908eaca35d40cbbaeacc01b6f3",
+      "old_owner_exited": true,
+      "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+      "resources_first": {
+        "training-vlawm-tsinghua-zt": {
+          "gpus": [
+            {
+              "uuid": "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-91fd88e4-a388-6b59-e684-13a463606f9e",
+              "used": 0,
+              "free": 81153
+            }
+          ],
+          "owners": []
+        },
+        "training-vla-zt": {
+          "gpus": [
+            {
+              "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+              "used": 0,
+              "free": 81153
+            }
+          ],
+          "owners": []
+        },
+        "training-rl-zt2": {
+          "gpus": [
+            {
+              "uuid": "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+              "used": 0,
+              "free": 81221
+            },
+            {
+              "uuid": "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e",
+              "used": 1942,
+              "free": 79279
+            }
+          ],
+          "owners": [
+            {
+              "uuid": "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e",
+              "visible": false
+            }
+          ]
+        }
+      },
+      "resources_second": {
+        "training-vlawm-tsinghua-zt": {
+          "gpus": [
+            {
+              "uuid": "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-91fd88e4-a388-6b59-e684-13a463606f9e",
+              "used": 0,
+              "free": 81153
+            }
+          ],
+          "owners": []
+        },
+        "training-vla-zt": {
+          "gpus": [
+            {
+              "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+              "used": 0,
+              "free": 81153
+            },
+            {
+              "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+              "used": 0,
+              "free": 81153
+            }
+          ],
+          "owners": []
+        },
+        "training-rl-zt2": {
+          "gpus": [
+            {
+              "uuid": "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+              "used": 0,
+              "free": 81221
+            },
+            {
+              "uuid": "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+              "used": 0,
+              "free": 81221
+            },
+            {
+              "uuid": "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+              "used": 1942,
+              "free": 79279
+            },
+            {
+              "uuid": "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e",
+              "used": 1942,
+              "free": 79279
+            }
+          ],
+          "owners": [
+            {
+              "uuid": "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+              "visible": false
+            },
+            {
+              "uuid": "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e",
+              "visible": false
+            }
+          ]
+        }
+      },
+      "capacity_by_host": {
+        "training-vlawm-tsinghua-zt": true,
+        "training-vla-zt": true,
+        "training-rl-zt2": false
+      },
+      "unique_GPU_UUIDs": 24,
+      "training_signals": 0,
+      "pressure_signals": 0,
+      "numerical_evaluation_source_unchanged": true,
+      "existing_job_population_unchanged": true
+    }
+  },
+  "COMPLETE.json": {
+    "sha256": "ac17d6cf115efa92ac34bdb06ff8a5e48a3b760cf24ba495db86ec79f550af91",
+    "record": {
+      "status": "COMPLETE_CONTROLLER_HANDOFF_NOT_NEW_EVALUATION",
+      "time": 1792192881.7888048,
+      "new_owner_pid": 322120,
+      "new_owner_start_ticks": 1363146860,
+      "single_owner_lock_held": true,
+      "old_owner_status": "STOPPED_CONTROLLER_ONLY",
+      "controller_status": "WAITING_FOR_SEALED_REGISTERED_MILESTONE",
+      "complete_jobs": 18,
+      "pending_jobs": 18,
+      "active_evaluators": 0,
+      "training_signals": 0,
+      "pressure_signals": 0,
+      "new_candidates": 0,
+      "new_optimizer_updates": 0,
+      "resource_hosts": {
+        "training-vlawm-tsinghua-zt": true,
+        "training-vla-zt": true,
+        "training-rl-zt2": false
+      },
+      "controller_source": "/mnt/project/fm-transfer-20261016/source/a28249336531a2908eaca35d40cbbaeacc01b6f3",
+      "numerical_sources_unchanged": true
+    }
+  }
+}

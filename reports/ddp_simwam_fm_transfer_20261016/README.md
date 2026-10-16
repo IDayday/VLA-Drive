@@ -2,6 +2,8 @@
 
 ## 状态与研究范围
 
+23:21 UTC，[空闲本机接入原里程碑队列](local_evaluation_handoff_20261016.md)：rl-zt2出现不可见GPU进程，改用仍授权且实际空闲的vla-zt与tsinghua-zt承接下一阶段评价。旧controller已在空闲边界退出，新owner锁核验通过；7项测试和实际本机模块路径检查通过。18/36项已完成，A RL13,931/B SFT46,774，训练及数值评价源码不变。
+
 23:04 UTC，[A组跨epoch人口核算](A_RL_epoch_population_accounting.md)完成：12k已提交前缀为24,000次场景曝光、21,367个独立困难场景、192,000条fresh候选；重复曝光2,633次中仅1次来自源末批补齐，其余为正常下一epoch重访。逐rank日志顺序、原生恢复点和56份边界behavior核验通过，14项CPU测试通过；没有新增策略评价或改变正式配方。
 
 22:46 UTC，[完整RL终点预算汇总等待任务](RL_endpoint_summary_handoff.md)已启动，只在八rank正式20k和对应成本账本全部关闭后调用现有汇总器。实际等待和11项有限准入检查通过，尚未生成A/B最终摘要；训练与Navtest准入不变。
