@@ -1,0 +1,198 @@
+{
+  "schema": "fm_transfer_parallel_evaluation_execution_v1",
+  "captured_unix": 1792183556.5567405,
+  "migration": {
+    "status": "COMPLETE_CONTROLLER_ONLY_HANDOFF",
+    "time": 1792183285.4374595,
+    "old_pid": 157060,
+    "new_owner": {
+      "start_unix": 1792183227.0209594,
+      "pid": 193325,
+      "start_ticks": 1362183928
+    },
+    "old_owner_exited": true,
+    "same_36_registered_jobs": true,
+    "worker_and_dispatch_source_unchanged": true,
+    "hosts": [
+      "training-vlawm-tsinghua-zt",
+      "training-rl-zt2"
+    ],
+    "unique_GPUs": 16,
+    "old_identity_sha256": "98cc2c9e806b6b60032de6aa4298a3498a21b848465d2c6f77cb5180edfc214f",
+    "new_identity_sha256": "6b10e38487f29074431744546fa3177f3f173de14e50915e47472f3997fef427",
+    "training_signals": 0
+  },
+  "B25k_actual_process_audit": {
+    "time": 1792183434.0157769,
+    "jobs": [
+      {
+        "cohort": "DEV",
+        "receipts": 8,
+        "live": {
+          "training-vlawm-tsinghua-zt": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "worker_statuses": [
+          {
+            "rank": 7,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 1,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 3,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 4,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 0,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 6,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 2,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 5,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          }
+        ]
+      },
+      {
+        "cohort": "TRAIN_DIAGNOSTIC",
+        "receipts": 8,
+        "live": {
+          "training-rl-zt2": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "worker_statuses": [
+          {
+            "rank": 1,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 0,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 5,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 3,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 2,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 6,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 7,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          },
+          {
+            "rank": 4,
+            "status": "STARTING",
+            "new": 0,
+            "reused": 0
+          }
+        ]
+      }
+    ]
+  },
+  "CPU_tests_passed": 34,
+  "shared_lock_and_remote_exit": {
+    "status": "PASS_SHARED_FILESYSTEM_AND_REMOTE_EXIT_PROBE",
+    "time": 1792182948.4062083,
+    "lock_host": "training-rl-zt2",
+    "remote_cannot_acquire_while_held": true,
+    "remote_acquires_after_release": true,
+    "existing_finished_worker_receipt": "/mnt/project/fm-transfer-20261016/evaluations/A_DDP_TIME_SFT_update020000_DEV/dispatches/7357189af9034fc0a7e79a36216c3b4a_rank3.json",
+    "existing_worker_pid": 2875189,
+    "existing_worker_alive": false,
+    "new_GPU_workers": 0,
+    "new_predictions": 0,
+    "implementation_sha256": "89c938ebf66310159f5a6bd8f6814c4c7c1a93feed92af890179aa19c2d0921a"
+  },
+  "real_premature_final_CLI": {
+    "status": "PASS_PREMATURE_REAL_CLI_REFUSED_BEFORE_GPU_OR_OUTPUT",
+    "time": 1792183253.2335207,
+    "returncode": 1,
+    "source": "/mnt/project/fm-transfer-20261016/source/d58485b08078a6319b2835793d8c79ffbbd3e9d5",
+    "new_GPU_workers": 0,
+    "new_predictions": 0
+  },
+  "numerical_worker_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "dispatcher_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "controller_source": "d58485b08078a6319b2835793d8c79ffbbd3e9d5",
+  "Navtest_opened": false,
+  "limitations": [
+    "B25k audit records live STARTING workers; full numerical result still pending",
+    "Training and inference snapshots were not hot-modified",
+    "No new algorithm, seed or evaluation population"
+  ],
+  "B25k_export": {
+    "weight_sha256": "250721a234e0eedafcfbea849747ebf92d3e39ddd5de161332019835b624839e",
+    "receipt_sha256": "4e6782a266613e890998a186ca41a8886c6e0f6bfe5ab7d36d1c9d3acbb1a6f7",
+    "SFT_model_sha256": "aa553abfad647e55d924e115c4fe8041a559d1127a1fe829ad470350c3acb5b1"
+  }
+}
