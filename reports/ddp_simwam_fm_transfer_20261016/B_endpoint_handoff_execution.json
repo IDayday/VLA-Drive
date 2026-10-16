@@ -1,0 +1,40 @@
+{
+  "schema": "fm_transfer_B_handoff_execution_v1",
+  "observed_unix": 1792187110.3158166,
+  "controller_source": "/mnt/project/fm-transfer-20261016/source/5ccffc509a7a0919a9d3e8f2f1c70ad719ec65ab",
+  "controller_source_sha256": "495dff6150d1533741e98a806c5ef0bba7b09dcf7ab26e0d245374204f516716",
+  "test_source_sha256": "d7dc2c63e45dde46f7026751a0f856c91aa514fbf42ffaad501417fe3b5fb5d7",
+  "tests": {
+    "command": "python -m pytest -q tests/rl/test_fm_transfer_endpoint_handoff.py tests/rl/test_fm_transfer_screen_partition.py",
+    "result": "27 passed",
+    "scope": "CPU/mock dependency, immutable plan, no retry, process and GPU admission; not B endpoint numerical qualification"
+  },
+  "actual_pending_gate": {
+    "status": "WAITING_FOR_COMPLETE_B100K_SFT",
+    "pid": 243018,
+    "start_ticks": 1362559202,
+    "start_unix": 1792186979.0660655,
+    "plan_sha256": "7b397717c8f2ed928787cecaa88fbb7aa63186c9c0e303e7602a24094e27bf67",
+    "source_sha256": "495dff6150d1533741e98a806c5ef0bba7b09dcf7ab26e0d245374204f516716",
+    "observed_unix": 1792186979.1127648
+  },
+  "actual_owner": {
+    "status": "WAITING_FOR_COMPLETE_B100K_SFT",
+    "pid": 243861,
+    "start_ticks": 1362569325,
+    "start_unix": 1792187080.2440193,
+    "plan_sha256": "841e10fe97bc1581112308837ea4e528d07f25f96367800b2633a795d1616535",
+    "source_sha256": "495dff6150d1533741e98a806c5ef0bba7b09dcf7ab26e0d245374204f516716",
+    "observed_unix": 1792187080.277496
+  },
+  "actual_PID_start_verified": true,
+  "duplicate_owner": {
+    "returncode": 1,
+    "error": "BlockingIOError: shared B endpoint owner lock already held",
+    "stderr_sha256": "36e3fe7e505a7ff17f370af617f0b3ccdcba1b393897d9b5503d7f5a1a53cf52"
+  },
+  "stage_intents": [],
+  "B_formal_dispatches": [],
+  "scientific_worker_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "no_GPUTask_before_endpoint": true
+}
