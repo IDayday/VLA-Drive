@@ -1,0 +1,232 @@
+{
+  "status": "SFT_GATES_PASS_RL_LEARNING_GATE_PENDING",
+  "math": {
+    "status": "PASS",
+    "scope": "small exact source ActionDiT oracle; does not qualify full-model training",
+    "cases": [
+      {
+        "dim": 3,
+        "batch": 1,
+        "forward_exact": true,
+        "input_gradients_exact": true,
+        "parameter_gradients_exact": true,
+        "parameter_tensors": 68
+      },
+      {
+        "dim": 3,
+        "batch": 2,
+        "forward_exact": true,
+        "input_gradients_exact": true,
+        "parameter_gradients_exact": true,
+        "parameter_tensors": 68
+      },
+      {
+        "dim": 4,
+        "batch": 1,
+        "forward_exact": true,
+        "input_gradients_exact": true,
+        "parameter_gradients_exact": true,
+        "parameter_tensors": 68
+      },
+      {
+        "dim": 4,
+        "batch": 2,
+        "forward_exact": true,
+        "input_gradients_exact": true,
+        "parameter_gradients_exact": true,
+        "parameter_tensors": 68
+      }
+    ],
+    "source_action_sha256": "23c75e386d8b3bbc2fbe7675034b12a4cddad72f97890627dc71d1f34674de41",
+    "adapter_action_sha256": "6786e04cd09a87a04ec3cb9b98ffd25df4f222f09db25485a4f903b3d93f6e34",
+    "FM_sign_and_interpolation": "PASS",
+    "full_adapter_weighted_loss_and_gradients": "EXACT",
+    "no_Wan_video_VAE_or_MoT_instantiated": true
+  },
+  "groups": {
+    "A_DDP_TIME": {
+      "SFT_resume": {
+        "status": "PASS",
+        "scope": "Full model eight-GPU SFT: continuous8 versus saved4/resumed8",
+        "model_Adam_scheduler_RNG_cursor_exact": true,
+        "loss_and_data_continuation_exact": true,
+        "qualification_only": true,
+        "source": "/mnt/project/fm-transfer-20261016/source/dd52ce652c49a88b66e16d70606331027ebae2ef",
+        "limits": [
+          "This is optimizer/numerical acceptance, not driving performance.",
+          "Original-observation deployment and final SFT planning evaluation are separate gates."
+        ]
+      },
+      "parameters_per_rank": 359,
+      "all_ranks_gradient_and_update_checks": true,
+      "peak_GPU_bytes": 16553309696,
+      "initial_save_patch": {
+        "status": "PASS",
+        "scope": "initial-state publication patch; full model/Adam/scheduler/eight-rank RNG/cursor",
+        "left": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/continuous/checkpoints/update000004",
+        "right": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/initial_save_patch/checkpoints/update000004",
+        "old_identity": "2df8cbf0d5e665a9ea0a867ddbc1b637298c4ba770e0229cb0d8cdbee1709a8f",
+        "new_identity": "1c46acb823eeed715ffdacfe9e13d68389b6c0b0c9be91f950a23c6d42c117af",
+        "declared_change": "save initial update0; completion status label; no SFT forward/optimizer changes",
+        "full_numeric_state_exact": true,
+        "qualification_only": true
+      },
+      "deployment_and_LoRA": {
+        "status": "PASS",
+        "host": "training-vlawm-tsinghua-zt4",
+        "architecture": "ddp",
+        "original_observation_cache_raw_exact": true,
+        "original_VLAAgent_native_ODE_exact": true,
+        "source_chain_shape": [
+          8,
+          11,
+          8,
+          4
+        ],
+        "stochastic_steps": [
+          7,
+          8,
+          9
+        ],
+        "source_recipe": "R_SOURCE",
+        "LoRA_tensors": 192,
+        "all_adapters_updated": true,
+        "permanent_reference_frozen": true,
+        "four_inner_test": [
+          {
+            "inner": 1,
+            "loss": 4.967053879312289e-09,
+            "ratio_max_error": 0.0,
+            "gradient_tensors": 192,
+            "positive_gradients": 96
+          },
+          {
+            "inner": 2,
+            "loss": -0.0014771467540413141,
+            "ratio_max_error": 0.010488033294677734,
+            "gradient_tensors": 192,
+            "positive_gradients": 192
+          },
+          {
+            "inner": 3,
+            "loss": -0.0019973348826169968,
+            "ratio_max_error": 0.016252994537353516,
+            "gradient_tensors": 192,
+            "positive_gradients": 192
+          },
+          {
+            "inner": 4,
+            "loss": -0.002342874649912119,
+            "ratio_max_error": 0.02139359712600708,
+            "gradient_tensors": 192,
+            "positive_gradients": 192
+          }
+        ],
+        "merge_velocity_max_error": 9.5367431640625e-07,
+        "wall_seconds": 81.6327722016722,
+        "qualification_only": true,
+        "driving_scores_computed": 0,
+        "reward_scope": "synthetic arithmetic test on real model generated chains; not a driving learning result"
+      }
+    },
+    "B_SOURCE_ACTION_DIT": {
+      "SFT_resume": {
+        "status": "PASS",
+        "scope": "Full model eight-GPU SFT: continuous8 versus saved4/resumed8",
+        "model_Adam_scheduler_RNG_cursor_exact": true,
+        "loss_and_data_continuation_exact": true,
+        "qualification_only": true,
+        "source": "/mnt/project/fm-transfer-20261016/source/dd52ce652c49a88b66e16d70606331027ebae2ef",
+        "limits": [
+          "This is optimizer/numerical acceptance, not driving performance.",
+          "Original-observation deployment and final SFT planning evaluation are separate gates."
+        ]
+      },
+      "parameters_per_rank": 824,
+      "all_ranks_gradient_and_update_checks": true,
+      "peak_GPU_bytes": 20522189824,
+      "initial_save_patch": {
+        "status": "PASS",
+        "scope": "initial-state publication patch; full model/Adam/scheduler/eight-rank RNG/cursor",
+        "left": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/continuous/checkpoints/update000004",
+        "right": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/initial_save_patch/checkpoints/update000004",
+        "old_identity": "335b921145dbfd51e374538b27bf8d0845855e4b7f1c4649f29f9c3f380ff417",
+        "new_identity": "df620143bfee38824bf6a59b9b49fddd51c0436c9bddb86564b22f8417fec939",
+        "declared_change": "save initial update0; completion status label; no SFT forward/optimizer changes",
+        "full_numeric_state_exact": true,
+        "qualification_only": true
+      },
+      "deployment_and_LoRA": {
+        "status": "PASS",
+        "host": "training-vlawm-tsinghua-zt6",
+        "architecture": "source_action_dit",
+        "original_observation_cache_raw_exact": true,
+        "original_VLAAgent_native_ODE_exact": true,
+        "source_chain_shape": [
+          8,
+          11,
+          8,
+          4
+        ],
+        "stochastic_steps": [
+          7,
+          8,
+          9
+        ],
+        "source_recipe": "R_SOURCE",
+        "LoRA_tensors": 480,
+        "all_adapters_updated": true,
+        "permanent_reference_frozen": true,
+        "four_inner_test": [
+          {
+            "inner": 1,
+            "loss": 4.967053879312289e-09,
+            "ratio_max_error": 0.0,
+            "gradient_tensors": 480,
+            "positive_gradients": 240
+          },
+          {
+            "inner": 2,
+            "loss": 0.011383835226297379,
+            "ratio_max_error": 0.20496314764022827,
+            "gradient_tensors": 480,
+            "positive_gradients": 480
+          },
+          {
+            "inner": 3,
+            "loss": 0.003161920700222254,
+            "ratio_max_error": 0.19934242963790894,
+            "gradient_tensors": 480,
+            "positive_gradients": 480
+          },
+          {
+            "inner": 4,
+            "loss": 0.002939639613032341,
+            "ratio_max_error": 0.16260218620300293,
+            "gradient_tensors": 480,
+            "positive_gradients": 480
+          }
+        ],
+        "merge_velocity_max_error": 5.587935447692871e-07,
+        "wall_seconds": 65.90560216270387,
+        "qualification_only": true,
+        "driving_scores_computed": 0,
+        "reward_scope": "synthetic arithmetic test on real model generated chains; not a driving learning result"
+      }
+    }
+  },
+  "preserved_failures": [
+    {
+      "kind": "dispatch",
+      "reason": "snapshot extraction not yet published; module import failed; seal admission added"
+    },
+    {
+      "kind": "qualification_harness",
+      "reason": "local time variable shadowed time module; fixed before model load"
+    },
+    {
+      "kind": "qualification_execution",
+      "reason": "missing attention backend env used SDPA; raw feature mismatch rejected; rerun matched locked FlashAttention2 exactly"
+    }
+  ]
+}

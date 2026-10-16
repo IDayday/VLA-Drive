@@ -1,0 +1,203 @@
+{
+  "schema": "fm_transfer_two_routes_registration_v1",
+  "registered_utc": "2026-10-16T17:39:29.919522+00:00",
+  "status": "SFT_FORMAL_AUTHORIZED_AFTER_EXECUTED_GATES_RL_NOT_STARTED",
+  "SFT_source_commit": "4e0ce1f45b6778895648689228a5628432bd2616",
+  "SFT": {
+    "A_DDP_TIME": {
+      "schema": "fm_transfer_SFT_v1",
+      "variant": "A_DDP_TIME",
+      "architecture": "ddp",
+      "initialization": "original_F_SFT_step100000",
+      "max_updates": 20000,
+      "learning_rate": 1e-05,
+      "milestones": [
+        0,
+        5000,
+        10000,
+        20000
+      ],
+      "seed": 42,
+      "evaluation_seed": 2101,
+      "global_batch": 32,
+      "per_rank_batch": 4,
+      "world": 8,
+      "FM_repeats": 8,
+      "time_sampling": "source continuous uniform quantile shifted5",
+      "objective": "source time-weighted velocity MSE",
+      "train_shift": 5.0,
+      "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.01,
+      "gradient_clip": 1.0,
+      "warmup_fraction": 0.03,
+      "scheduler": "warmup_cosine_min0.1",
+      "parameter_storage": "float32",
+      "operator_autocast": "bfloat16",
+      "loss_statistics": "float32",
+      "optimizer_states": "float32",
+      "upstream_frozen": true,
+      "condition_boundary": "before qwen_proj",
+      "save_every": 2000,
+      "inference_grids": [
+        "native_uniform10",
+        "shift5_10"
+      ],
+      "ddp": {
+        "find_unused_parameters": true,
+        "static_graph": false,
+        "bucket_cap_mb": 25,
+        "broadcast_buffers": false
+      }
+    },
+    "B_SOURCE_ACTION_DIT": {
+      "schema": "fm_transfer_SFT_v1",
+      "variant": "B_SOURCE_ACTION_DIT",
+      "architecture": "source_action_dit",
+      "initialization": "source_random_initialization_seed42",
+      "max_updates": 100000,
+      "learning_rate": 0.0001,
+      "milestones": [
+        0,
+        10000,
+        25000,
+        50000,
+        75000,
+        100000
+      ],
+      "seed": 42,
+      "evaluation_seed": 2101,
+      "global_batch": 32,
+      "per_rank_batch": 4,
+      "world": 8,
+      "FM_repeats": 8,
+      "time_sampling": "source continuous uniform quantile shifted5",
+      "objective": "source time-weighted velocity MSE",
+      "train_shift": 5.0,
+      "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.01,
+      "gradient_clip": 1.0,
+      "warmup_fraction": 0.03,
+      "scheduler": "warmup_cosine_min0.1",
+      "parameter_storage": "float32",
+      "operator_autocast": "bfloat16",
+      "loss_statistics": "float32",
+      "optimizer_states": "float32",
+      "upstream_frozen": true,
+      "condition_boundary": "before qwen_proj",
+      "save_every": 2000,
+      "inference_grids": [
+        "native_uniform10",
+        "shift5_10"
+      ],
+      "ddp": {
+        "find_unused_parameters": true,
+        "static_graph": false,
+        "bucket_cap_mb": 25,
+        "broadcast_buffers": false
+      }
+    }
+  },
+  "SFT_acceptance": {
+    "A_DDP_TIME": [
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/math.json",
+        "sha256": "5036fa7bc236b3a62a8c9c8fc9f59791d4cc758b03cef81d51e859105a8cfe9d"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/validation.json",
+        "sha256": "b36e023043041a00e19c2a5efd3f47e74abae4757b4b0691cf9d0367a9de8c1a"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/initial_save_patch_validation.json",
+        "sha256": "42b8d166ecf73d729c65214f3b2f808d165c0b2a9bd21bd168e25e5d4a6cd32b"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/deployment_c1612e25_attempt3_flash.json",
+        "sha256": "e415cdf9c7f21b9066c514a02758bdfa2fe46ac069f79208c12792a9b179a98e"
+      }
+    ],
+    "B_SOURCE_ACTION_DIT": [
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/math.json",
+        "sha256": "5036fa7bc236b3a62a8c9c8fc9f59791d4cc758b03cef81d51e859105a8cfe9d"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/validation.json",
+        "sha256": "254c90c491d81f59256eca32ed19b99d90351ece8f0079aece28c8d801ad7775"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/initial_save_patch_validation.json",
+        "sha256": "fdc46b563151c52979587e70afe6d3dd8674a08fffd82bd64446a30477b0f443"
+      },
+      {
+        "path": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/deployment_c1612e25_attempt3_flash.json",
+        "sha256": "24c4360120b64f91101ecc379ebec298807c12d07d64dc0fca503c38307f810e"
+      }
+    ]
+  },
+  "seeds": {
+    "training": 42,
+    "single_candidate_evaluation": 2101
+  },
+  "assets": {
+    "original_F_SFT": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "condition": "80a2dd4b417a3154cbbf575044daea586d945b54e014eee22269d7bd48d39e0b",
+    "population": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb"
+  },
+  "RL": {
+    "recipe": "same R_SOURCE for both",
+    "config": "configs/flow_rl/simwam_source_ddp.yaml",
+    "optimizer_updates": 20000,
+    "fresh_collections": 5000,
+    "scene_exposures": 40000,
+    "new_candidates": 320000,
+    "new_SFT_reference": true,
+    "own_complete_SFT_hard_screen": "TRAIN native single seed2101 canonical<0.9",
+    "frozen_membership": true,
+    "required_before_launch": [
+      "own formal SFT endpoint",
+      "own full TRAIN screen and baseline",
+      "real-scoring multirank four-inner/recovery/export gate"
+    ]
+  },
+  "evaluation": {
+    "SFT_milestones": "as in SFT config; full RL_DEV and fixed TRAIN diagnostic; no seed selection",
+    "RL_milestones": [
+      0,
+      5000,
+      10000,
+      15000,
+      20000
+    ],
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "score": "canonical NAVSIM v1.1",
+    "Navtest": "own SFT and locked RL endpoint; lock after DEV, no intermediate Navtest tuning",
+    "no_best_of_N": true
+  },
+  "budget_limits": {
+    "no_extra_method_or_seed": true,
+    "no_Wan_MoT": true,
+    "no_automatic_epoch_extension": true
+  },
+  "limitations": [
+    "B is randomly initialized standalone source ActionDiT, not published SimWAM weights.",
+    "A SFT change also adds supervised exposure; not a pure time-weighting causal effect.",
+    "A and B differ in SFT knowledge and budget; compare within-route IL-to-RL gains separately.",
+    "PG arithmetic qualification used explicit synthetic rewards; it is not driving evidence.",
+    "RL >92 remains a research objective, not achieved."
+  ],
+  "sha256": "55a07ec271523ef6a1799a07f4e274122b9734c8d19a3e669d263ca930aec210"
+}

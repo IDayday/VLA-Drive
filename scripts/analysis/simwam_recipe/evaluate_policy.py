@@ -46,18 +46,22 @@ def shifted_ode(head,condition,root):
     return action,buckets
 
 
-def main():
+def main(runtime=None):
     process_started=time.monotonic();process_started_unix=time.time()
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--export',required=True);p.add_argument('--export-sha256',required=True);p.add_argument('--output',required=True)
     p.add_argument('--cohort',choices=['DEV','TRAIN_DIAGNOSTIC','NAVTEST'],default='DEV')
     p.add_argument('--shard',type=int);p.add_argument('--shards',type=int,default=8)
     p.add_argument('--max-scenes',type=int);p.add_argument('--final-lock')
-    a=p.parse_args();host=require_dispatch();configure_numerics()
+    a=p.parse_args()
+    dispatch=runtime.require_dispatch if runtime is not None else require_dispatch
+    run_shifted=runtime.shifted_ode if runtime is not None else shifted_ode
+    host=dispatch();configure_numerics()
     rank=a.shard if a.shard is not None else int(os.environ.get('RANK',0));torch.cuda.set_device(int(os.environ.get('LOCAL_RANK',0)))
     if not 0<=rank<a.shards:raise ValueError('Invalid shard')
     for s in (signal.SIGUSR1,signal.SIGTERM):signal.signal(s,stop)
     export=Path(a.export);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
+    if runtime is not None:runtime.validate_export(export,a)
     guard=(out/f'rank{rank}.lock').open('a');fcntl.flock(guard,fcntl.LOCK_EX|fcntl.LOCK_NB)
     invocation=uuid.uuid4().hex;invocation_path=out/'invocations'/invocation/f'rank{rank}.json'
     invocation_path.parent.mkdir(parents=True,exist_ok=False)
@@ -106,6 +110,7 @@ def main():
                   seed=2101,modes=['E_NATIVE','E_SHIFT5'],profile=profile,feature_cache=False,actor='unchanged VLAAgent raw observation',
                   scoring=service.protocol['sha256'],source_sha256=file_sha(__file__),shards=a.shards,final_lock=selection,
                   qualification_only=a.max_scenes is not None)
+    if runtime is not None:identity.update(runtime.identity_fields(export,model))
     identity['sha256']=fingerprint(identity)
     with (out/'manifest.lock').open('a') as guard:
         fcntl.flock(guard,fcntl.LOCK_EX)
@@ -124,7 +129,7 @@ def main():
     try:
         for token in assigned:
             if STOP:break
-            require_dispatch();path=out/'scenes'/token[:2]/(token+'.pt')
+            dispatch();path=out/'scenes'/token[:2]/(token+'.pt')
             if path.with_suffix('.json').exists():
                 seal=json.loads(path.with_suffix('.json').read_text())
                 if seal['identity_sha256']!=identity['sha256'] or seal['payload_sha256']!=file_sha(path):raise ValueError('Changed evaluation record')
@@ -135,7 +140,7 @@ def main():
                 condition,raw_dtype=model.encode_policy_condition(obs,return_raw_dtype=True,feature_output='normalized')
                 root=torch.randn((1,8,4),device='cuda',dtype=raw_dtype,generator=torch.Generator(device='cuda').manual_seed(key))
                 with torch.autocast('cuda',dtype=torch.float32):native=model.action_model._euler_sample(root,condition)
-                shifted,buckets=shifted_ode(model.action_model,condition,root)
+                shifted,buckets=run_shifted(model.action_model,condition,root)
                 status['physical_predictions']+=2
                 status['scene_encoder_calls']+=1;status['velocity_forward_calls']+=20
                 if not status['direct_original_check']:
