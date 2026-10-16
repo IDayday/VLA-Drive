@@ -1,0 +1,30 @@
+{
+  "cpu_tool_tests": {
+    "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_profile_pipeline.py",
+    "log_sha256": "430ee810fdfab634d5b6bf4fb5884cea8fe9cd9b1a13a66e24f9e17f97e3f5bf",
+    "passed": 17
+  },
+  "formal_launch_allowed": false,
+  "implementation_author_of_model_or_trainer": false,
+  "missing": [
+    "final integrated source/config/data/teacher bindings",
+    "complete model8GPU and two concurrent4GPU measurements",
+    "coupled rollout/CPU simulation/update measurements for consequence family",
+    "final PCA dimension contract and affected-cost verification"
+  ],
+  "observed_limits": [
+    "read-only container cgroupv1 quota=-1; hidden ancestor limits not observable",
+    "Lustre shared mount verified; lfs quota tool unavailable",
+    "64scene timing is warm-working-set compute evidence only"
+  ],
+  "processes_signalled": 0,
+  "real_gpu_profile": "NOT_RUN",
+  "real_two_by_four_concurrency": "NOT_RUN",
+  "resource_inventory_root": "/mnt/project/st-world-policy-20261016/audits/systems/resource_20261016T2130Z",
+  "resource_queries_read_only": true,
+  "reviewed_base_source_sha": "b2df6b4bb775630156ab5af57151c639c321431d",
+  "reviewer_agent": "/root/st_systems",
+  "schema": "st_systems_preliminary_review_v1",
+  "status": "WAITING_ACTUAL_INTEGRATED_PROFILE",
+  "utc": "2026-10-16T21:24:20.532965+00:00"
+}
