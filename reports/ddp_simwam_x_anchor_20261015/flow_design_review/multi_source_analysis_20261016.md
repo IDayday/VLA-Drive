@@ -475,6 +475,12 @@ $$
 
 2026-10-16 00:23:56 UTC 的只读快照：八个 rank 均记录 update4063、collection1016、8,128 次场景曝光、65,024 条候选；训练 launcher 存在，milestone 与最终评价 controller 存在，尚未开放 X1 Navtest。它是时间点快照，不代表读者阅读时的即时进度，也没有新策略收益结论。[本次记录](documentation_snapshot_20261016.json)
 
+2026-10-16 11:33 UTC 补充核查：X1 已完成固定 20,000 optimizer updates；八个 rank 的原生状态、192 个 Adam 参数状态及数据账本共同确认 5,000 次 fresh rollout、40,000 次场景曝光和 320,000 条候选。有效 PG 组占比为 99.65%。原始训练源码与配方未改。[终点核查](../evaluation_recovery_20261016/endpoint.json)
+
+5k DEV 与 TRAIN 诊断推理和评分已完整保存。旧 controller 在汇总时因新旧 evaluator 的源码哈希不同退出；差异来自已验收的日志归属与成本统计补丁。显式兼容记录绑定这两个哈希、实际 diff、既有原始观测验收及 325 个未改变的数值依赖，不修改旧 manifest、轨迹或分数。重建汇总没有重复推理或评分：DEV 原 ODE / shift5 为 94.0615 / 94.0246，TRAIN 诊断为 85.1628 / 83.8297。与匹配 5k canonical 对照相比，DEV 原 ODE 较低，TRAIN 原 ODE 较高；这不是最终 Navtest 结论。[恢复原因、验收及完整分项](../evaluation_recovery_20261016/README.md)
+
+评价 controller 已从不可变源码 `31bdfb2350521d7f28d8ff06cf60766c49d53516` 恢复，复用完成的 5k 结果；10k 导出已完成，继续既定 10k/15k/20k 阶段。最终 Navtest controller 等待这些阶段完成，固定选择 20k，仍只使用 seed2101；此时间点尚未开放 X1 Navtest。详细派发与单 owner 记录另见[恢复执行记录](../evaluation_recovery_20261016/controller_restart.json)。
+
 X1 的评价仍分别报告原十步 ODE 与 shift5，固定5k/10k/15k/20k观察及20k终点。不会从两种部署网格中挑较高者，也不增加训练 seed。
 
 ### 13.2 若下一轮只改变一个采样因素
@@ -574,7 +580,7 @@ python -m scripts.analysis.simwam_recipe.probe_last_innovation summarize --root 
 关键身份：
 
 - 原两组正式训练源码：`12b8e0d75691d7bed04ab02072020e130f711a3b`。
-- X1正式源码：`368aba3b3b00b877b7329b15f72645c41fcb6804`；评价控制器源码：`4438222e365c8577d0dd0aa63f8101fee10bbbd9`。
+- X1正式训练源码：`368aba3b3b00b877b7329b15f72645c41fcb6804`；原评价控制器源码：`4438222e365c8577d0dd0aa63f8101fee10bbbd9`；11:31 UTC 恢复后的评价控制器源码：`31bdfb2350521d7f28d8ff06cf60766c49d53516`。此次控制与汇总修复未改变训练源码及评价数值路径。
 - SFT权重SHA256：`9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4`。
 - 评分协议身份：`2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1`。
 - TRAIN64私有完整登记SHA256：`794e68dd655e468b6b17d15a2a8eb1ce222a93642697f0db55c72bea39436825`；公开摘要有单独SHA，不冒充原私有文件。

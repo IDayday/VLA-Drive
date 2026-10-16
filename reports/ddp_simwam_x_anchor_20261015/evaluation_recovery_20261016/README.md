@@ -62,3 +62,48 @@ python -m scripts.analysis.simwam_recipe.analyze_evaluation --evaluation /path/t
 
 Use a new summary destination; never overwrite prior evidence or change source
 hashes in an existing evaluation manifest to make the comparison pass.
+
+## Verified restart
+
+At 2026-10-16 11:33 UTC, both replacement administrative controllers were
+live under immutable source `31bdfb2350521d7f28d8ff06cf60766c49d53516`.
+The 5k stage was committed using existing summaries; the 10k merged export
+completed. All 16 recorded 10k evaluation workers were checked live: eight DEV
+workers on `training-vlawm-tsinghua-zt` and eight TRAIN diagnostic workers on
+`training-vlawm-tsinghua-zt4`. Two observations confirmed sufficient memory and
+16 distinct physical GPU UUIDs. Existing GPU occupancy was preserved and shared;
+this is not exclusive GPU compute time. No training or evaluation worker was
+signalled. Only the old waiting administrative final controller was stopped
+after checking its PID/start identity and that it had opened no Navtest work.
+
+The final controller still waits for all registered milestones, then selects
+the fixed 20k checkpoint and evaluates both ODE grids with seed2101. X1 Navtest
+was not open at this snapshot. Full lineage, commands, preflight receipts and
+worker observations are in [controller_restart.json](controller_restart.json).
+These are timestamped observations, not a live-status guarantee.
+
+The actual restart commands below run from that immutable source with the
+project evaluation Python. They are recovery references: do not launch another
+copy while the recorded owner is alive. The controllers enforce their locks.
+
+```bash
+export CUDA_VISIBLE_DEVICES=''
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export CUBLAS_WORKSPACE_CONFIG=:4096:8 NO_ALBUMENTATIONS_UPDATE=1
+SIMWAM_RECOVERY_SOURCE=/mnt/project/simwam-x-anchor-20261015/source/31bdfb2350521d7f28d8ff06cf60766c49d53516
+SIMWAM_RECOVERY_RECEIPT="$SIMWAM_RECOVERY_SOURCE/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json"
+cd "$SIMWAM_RECOVERY_SOURCE"
+/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.watch_evaluations \
+  --snapshot "$SIMWAM_RECOVERY_SOURCE" --administrative-local --followup-x1 \
+  --source-compatibility "$SIMWAM_RECOVERY_RECEIPT" \
+  --x1-dev-host training-vlawm-tsinghua-zt --x1-train-host training-vlawm-tsinghua-zt4
+```
+
+The separate final controller uses the same environment and source:
+
+```bash
+/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.final_navtest serve \
+  --snapshot "$SIMWAM_RECOVERY_SOURCE" --administrative-local --followup-x1 \
+  --source-compatibility "$SIMWAM_RECOVERY_RECEIPT" \
+  --x1-hosts training-vlawm-tsinghua-zt training-vlawm-tsinghua-zt4
+```
