@@ -83,3 +83,43 @@ def test_bad_masks_nonfinite_and_fake_native_refused(tmp_path):
     with pytest.raises(ValueError):w.commit_shard(0,torch.zeros(1,2,2,8),torch.ones(1,2,2))
     fake=tmp_path/'old';fake.mkdir();(fake/'identity.json').write_text(json.dumps({'identity':'x'}))
     with pytest.raises(ValueError):LegacyC1Reader(fake)
+
+
+def test_verify_rejects_other_valid_scene_population(tmp_path, monkeypatch):
+    from tools.st_world_policy import cache_teacher
+    c,m=fixture(tmp_path);w=TeacherCacheWriter(tmp_path/'cache',c,m)
+    w.commit_shard(0,torch.zeros(1,2,2,8),torch.ones(1,2,2,dtype=torch.bool));w.finalize()
+    other=copy.deepcopy(m);other['scenes'][0]['token']='different'
+    other['identity']=identity_hash({k:v for k,v in other.items() if k!='identity'})
+    requests=tmp_path/'other.json';requests.write_text(json.dumps(other))
+    monkeypatch.setattr(cache_teacher,'make_contract',lambda *a,**kw:(c,{},{}))
+    args=cache_teacher.parser().parse_args(['verify','--requests',str(requests),
+        '--teacher-root',str(tmp_path),'--output',str(w.root),'--variant','SP2',
+        '--storage-dtype','float32','--mode','smoke','--max-scenes','1'])
+    with pytest.raises(ValueError,match='Requested manifest'):
+        cache_teacher.run(args)
+    assert not (w.root/'VERIFICATION.json').exists()
+    requests.write_text(json.dumps(m))
+    result=cache_teacher.run(args)
+    assert result['exact_requested_population'] and result['images_verified']==1
+
+
+def test_current_only_never_loads_future_and_lru_does_not_rehash(tmp_path,monkeypatch):
+    c,m=fixture(tmp_path)
+    p=tmp_path/'future.png';Image.new('RGB',(32,18),'red').save(p)
+    m['scenes'][0]['frames'][1]={'requested_s':.5,'timestamp_us':500000,'views':[image_reference(p)]*3}
+    m['identity']=identity_hash({k:v for k,v in m.items() if k!='identity'})
+    w=TeacherCacheWriter(tmp_path/'cache',c,m,images_per_shard=1)
+    for i in range(2):w.commit_shard(i,torch.ones(1,2,2,8)*i,torch.ones(1,2,2,dtype=torch.bool))
+    w.finalize();r=TeacherCacheReader(w.root,expected_identity=w.identity['identity'],max_verified_shards=1)
+    hashes=[];original=target_io.file_sha256
+    def track(path):
+        if str(path).endswith('.safetensors'):hashes.append(str(path))
+        return original(path)
+    monkeypatch.setattr(target_io,'file_sha256',track)
+    current=r.read_scene('a',need_future=False)
+    assert current['future_dense_features'].shape==(0,3,2,2,8)
+    assert len(hashes)==1
+    r.read_scene('a',need_future=True)
+    r.read_scene('a',need_future=False)
+    assert len(hashes)==2

@@ -129,12 +129,16 @@ def run(args):
     if args.command == 'verify':
         identity = json.loads((out/'identity.json').read_text())['identity']
         reader = TeacherCacheReader(out,expected_identity=identity,expected_contract=contract)
+        reader.verify_population(manifest)
         count = 0
         for key in reader.locations:
             reader.read_image(key)
             count += 1
         result = {'status':'VERIFIED','identity':identity,'images_verified':count,'scenes':len(reader.scenes),
-                  'contract_identity':contract.identity,'all_record_hashes_verified':True}
+                  'request_manifest_identity':manifest['identity'],
+                  'request_scene_tokens_hash':identity_hash(sorted(reader.scenes)),
+                  'contract_identity':contract.identity,'all_record_hashes_verified':True,
+                  'exact_requested_population':True}
         atomic_json(out/'VERIFICATION.json',result)
         return result
     writer = TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)

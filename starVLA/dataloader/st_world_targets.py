@@ -241,6 +241,9 @@ class TeacherCacheReader:
         self.manifest = validate_target_manifest(json.loads((self.root / 'requests.json').read_text()))
         if self.manifest['identity'] != self.identity['request_manifest_identity']:
             raise ValueError('Teacher request population changed')
+        expected_records = unique_image_records(self.manifest, self.contract)
+        if self.identity['records'] != expected_records or done['scenes'] != len(self.manifest['scenes']):
+            raise ValueError('Teacher records do not exactly cover the declared request population')
         self.locations = {r['key']: divmod(i, self.identity['images_per_shard']) for i, r in enumerate(self.identity['records'])}
         if len(self.locations) != len(self.identity['records']) or len(self.locations) != done['unique_images']:
             raise ValueError('Teacher record coverage mismatch')
@@ -249,7 +252,18 @@ class TeacherCacheReader:
             raise ValueError('Incomplete teacher shard receipt list')
         self.scenes = {s['token']: s for s in self.manifest['scenes']}
         self.verified = OrderedDict()
+        # Only tiny immutable version stamps scale with declared shard count.
+        # Receipt objects remain LRU-bounded; evicting a receipt must not force
+        # rereading gigabytes of unchanged tensor data on the next access.
+        self.verified_versions = {}
         self.max_verified_shards = max_verified_shards
+
+    def verify_population(self, requested_manifest):
+        requested_manifest = validate_target_manifest(requested_manifest)
+        if (requested_manifest['identity'] != self.manifest['identity'] or
+                requested_manifest != self.manifest or
+                unique_image_records(requested_manifest, self.contract) != self.identity['records']):
+            raise ValueError('Requested manifest/scene/record coverage differs from this cache')
 
     def _verify(self, shard):
         path = self.root / f'shard_{shard:06d}.safetensors'
@@ -265,8 +279,12 @@ class TeacherCacheReader:
         receipt = json.loads(receipt_path.read_text())
         begin = shard * self.identity['images_per_shard']
         expected = [r['key'] for r in self.identity['records'][begin:begin + self.identity['images_per_shard']]]
-        if receipt['identity'] != self.identity['identity'] or receipt['keys'] != expected or file_sha256(path) != receipt['sha256']:
+        if receipt['identity'] != self.identity['identity'] or receipt['keys'] != expected:
             raise ValueError('Changed teacher shard')
+        if self.verified_versions.get(shard) != version:
+            if file_sha256(path) != receipt['sha256']:
+                raise ValueError('Changed teacher shard')
+            self.verified_versions[shard] = version
         self.verified[shard] = (version, receipt)
         self.verified.move_to_end(shard)
         while len(self.verified) > self.max_verified_shards:
@@ -288,20 +306,23 @@ class TeacherCacheReader:
             raise ValueError('Teacher record dtype/grid mismatch')
         return z, valid
 
-    def read_scene(self, token, *, expected_split=None):
+    def read_scene(self, token, *, expected_split=None, need_future=True):
         scene = self.scenes[token]
         if expected_split is not None and scene['split'] != expected_split:
             raise ValueError('Teacher scene role mismatch')
-        shape = (len(self.manifest['times_s']), len(self.contract.view_names), *self.contract.output_grid_hw, self.contract.channels)
+        if type(need_future) is not bool:
+            raise ValueError('need_future must be an explicit bool')
+        times = self.manifest['times_s'] if need_future else self.manifest['times_s'][:1]
+        shape = (len(times), len(self.contract.view_names), *self.contract.output_grid_hw, self.contract.channels)
         features = torch.zeros(shape, dtype=getattr(torch, self.contract.storage_dtype))
         valid = torch.zeros(shape[:-1], dtype=torch.bool)
-        for t, frame in enumerate(scene['frames']):
+        for t, frame in enumerate(scene['frames'][:len(times)]):
             for v, ref in enumerate(frame['views']):
                 if ref is not None:
                     features[t,v], valid[t,v] = self.read_image(payload_key(ref, self.contract))
         return {'current_dense_features': features[0], 'current_valid': valid[0],
                 'future_dense_features': features[1:], 'future_valid': valid[1:],
-                'future_times_s': self.manifest['times_s'][1:], 'teacher_contract': self.contract,
+                'future_times_s': times[1:], 'teacher_contract': self.contract,
                 'cache_identity': self.identity['identity']}
 
 
