@@ -55,7 +55,7 @@ def _json(path, value):
     return {"path": str(path), "sha256": file_sha256(path)}
 
 
-def native_fixture(tmp_path, monkeypatch):
+def native_fixture(tmp_path, monkeypatch, *, numeric_schema="st_flow_numeric_execution_v2"):
     parent = ParentFixture().eval()
     cfg = config()
     cfg["runtime"]["output_root"] = str(tmp_path / "runs")
@@ -73,6 +73,9 @@ def native_fixture(tmp_path, monkeypatch):
     _json(reg, registration)
     numeric = {**numeric_execution(cfg, binding), "environment_sha256": "f"*64,
                "source_fingerprint": registration["source_fingerprint"]}
+    numeric["schema"] = numeric_schema
+    if numeric_schema == "st_flow_numeric_execution_v1":
+        numeric.pop("master_initialization")
     body = {"schema": "st_flow_training_run_v1", "config": cfg, "base_binding": binding["binding_sha256"],
         "source_sha": registration["source_sha"], "registration_sha256": file_sha256(reg),
         "numeric_execution": numeric, "numeric_execution_hash": identity_hash(numeric),
@@ -111,20 +114,24 @@ def native_fixture(tmp_path, monkeypatch):
         native=native, optimizer=optimizer, receipt=receipt, binding_checks=calls)
 
 
-def test_native_flow_identity_metadata_and_exact_inventory(tmp_path, monkeypatch):
-    f = native_fixture(tmp_path, monkeypatch)
+@pytest.mark.parametrize("numeric_schema", ["st_flow_numeric_execution_v1", "st_flow_numeric_execution_v2"])
+def test_native_flow_identity_metadata_and_exact_inventory(tmp_path, monkeypatch, numeric_schema):
+    f = native_fixture(tmp_path, monkeypatch, numeric_schema=numeric_schema)
     cfg, binding, record = fc.flow_checkpoint_identity(f.reg, f.tag)
     assert cfg == f.cfg and binding == f.binding
     assert record["native_checkpoint_sha256"] == identity_hash({k: v["sha256"] for k, v in f.receipt["files"].items()})
     assert record["native_receipt_sha256"] == file_sha256(f.folder / "COMPLETE.json")
     assert record["sha256"] == identity_hash({k: v for k, v in record.items() if k != "sha256"})
     assert record["scope"] == "SMOKE" and not record["weights_usable_for_formal_init"]
+    expected_init = ("legacy_BF16_roundtrip_before_FP32_master" if numeric_schema.endswith("_v1")
+                     else "st_fp32_master_initialization_v1")
+    assert record["master_initialization"] == expected_init
     (f.folder / "stale_model_states.pt").write_bytes(b"unreceipted file")
     with pytest.raises(ValueError, match="inventory"):
         fc.flow_checkpoint_identity(f.reg, f.tag)
 
 
-@pytest.mark.parametrize("mutation", ["schema", "config", "parent", "numeric", "scope", "registration"])
+@pytest.mark.parametrize("mutation", ["schema", "config", "parent", "numeric", "numeric_schema", "master_init", "scope", "registration"])
 def test_wrong_schema_lineage_or_precision_rejected(tmp_path, monkeypatch, mutation):
     f = native_fixture(tmp_path, monkeypatch)
     identity = deepcopy(f.identity)
@@ -136,6 +143,12 @@ def test_wrong_schema_lineage_or_precision_rejected(tmp_path, monkeypatch, mutat
         identity["base_binding"] = "0"*64
     elif mutation == "numeric":
         identity["numeric_execution"]["encoder"] = "BF16_values_cast_to_float32"
+        identity["numeric_execution_hash"] = identity_hash(identity["numeric_execution"])
+    elif mutation == "numeric_schema":
+        identity["numeric_execution"]["schema"] = "st_flow_numeric_execution_unknown"
+        identity["numeric_execution_hash"] = identity_hash(identity["numeric_execution"])
+    elif mutation == "master_init":
+        identity["numeric_execution"].pop("master_initialization")
         identity["numeric_execution_hash"] = identity_hash(identity["numeric_execution"])
     elif mutation == "scope":
         identity["weights_usable_for_formal_init"] = True

@@ -32,6 +32,8 @@ from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups, ca
 from tools.ddpolicy_vehicle.training_state import epoch_batches
 from tools.foresight.student_state import capture_rng, restore_rng, learning_rate, validate_rank_batches
 from tools.st_world_policy.base_binding import read_binding
+from tools.st_world_policy.fp32_master_init import (
+    SCHEMA as MASTER_INIT_SCHEMA, capture_fp32_master_initialization, restore_fp32_master_initialization)
 from tools.st_world_policy.check_formal_approval import check_formal_approval, read_json
 from tools.st_world_policy.training_config import validate_config, environment_record
 from tools.st_world_policy.training_state import checkpoint_receipt, resolve_latest, update_latest, terminal
@@ -113,7 +115,11 @@ def run(args):
         validate_rank_batches(len(data), execution["global_batch"], world, execution["micro_batch"])
         binding = collective_call(lambda: read_binding(
             registration["artifacts"]["base_binding"]["path"], verify_files=rank == 0), "bound S0 byte identity")
+        master_initialization_policy = {"schema": MASTER_INIT_SCHEMA,
+            "new_run_source": "native_parent_unmodified" if "continuation" in cfg else "canonical_FP32_source",
+            "native_resume": "do_not_apply"}
         identity = {"schema": "st_world_training_v1", "config": cfg, "data": data.identity,
+                    "master_initialization": master_initialization_policy,
                     "base_binding": binding["binding_sha256"], "approval": approval,
                     "source_sha": registration["source_sha"],
                     "registration_sha256": file_sha256(args.registration),
@@ -180,7 +186,13 @@ def run(args):
               "optimizer": {"type": "AdamW", "params": {"lr": opt["lr"], "betas": opt["betas"],
                              "eps": opt["eps"], "weight_decay": opt["weight_decay"]}}}
         import deepspeed
+        fresh_master_initialization = not args.resume and "continuation" not in cfg
+        master_source = capture_fp32_master_initialization(
+            model, groups, is_fresh_run=fresh_master_initialization)
         engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds)
+        master_initialization = restore_fp32_master_initialization(
+            engine, master_source, is_fresh_run=fresh_master_initialization)
+        del master_source
         profile_mode = cfg["runtime"].get("profile_mode", "none")
         if profile_mode != "none":
             if args.resume:
@@ -188,6 +200,7 @@ def run(args):
             from tools.st_world_policy.profile_pipeline import PipelineProfiler, dtype_inventory
             scientific = {key: cfg[key] for key in ("space_time", "optimizer")}
             scientific.update(precision_policy=execution["precision_policy"], seed=execution["seed"],
+                master_initialization=master_initialization_policy,
                 max_updates=execution["max_updates"], global_batch=execution["global_batch"],
                 deterministic=cfg["runtime"]["deterministic"],
                 gradient_checkpointing=cfg["runtime"]["gradient_checkpointing"])
@@ -211,6 +224,7 @@ def run(args):
         if rank == 0 and not args.resume:
             atomic_json(out / "initialization.json", {"base": binding["binding_sha256"],
                 "world_migration": model.migration, "groups": group_records,
+                "master_initialization": master_initialization,
                 "model_parameters": sum(p.numel() for p in model.parameters()),
                 "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
                 "teacher_instantiated": False,

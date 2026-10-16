@@ -24,6 +24,7 @@ from starVLA.model.modules.vehicle_joint.initialization import (
     file_sha256, identity_hash, initialization_seed)
 from tools.st_world_policy.base_binding import read_binding
 from tools.st_world_policy.flow_training_config import validate_config
+from tools.st_world_policy.fp32_master_init import SCHEMA as MASTER_INIT_SCHEMA
 from tools.st_world_policy.training_state import verify_checkpoint
 
 
@@ -113,8 +114,11 @@ def flow_checkpoint_identity(registration_path, tag):
             or binding["inference_contract"] != INFERENCE_CONTRACT):
         raise ValueError("Flow parent binding or original FP32 inference precision differs")
     numeric = identity["numeric_execution"]
+    numeric_schema = numeric.get("schema")
+    if numeric_schema not in ("st_flow_numeric_execution_v1", "st_flow_numeric_execution_v2"):
+        raise ValueError("Unsupported Flow numeric execution schema")
     expected = {
-        "schema": "st_flow_numeric_execution_v1", "precision": cfg["execution"]["precision_policy"],
+        "schema": numeric_schema, "precision": cfg["execution"]["precision_policy"],
         "encoder": "frozen_BF16_execution_eval_original_S0_AMP",
         "policy_rollout_old_current": "BF16_execution_cuda_autocast_eval",
         "BC": "BF16_execution_cuda_autocast_train_original_dropout",
@@ -124,6 +128,8 @@ def flow_checkpoint_identity(registration_path, tag):
         "base_binding": binding["binding_sha256"], "standalone_evaluation_contract": INFERENCE_CONTRACT,
         "environment_sha256": registration["artifacts"]["environment"]["sha256"],
         "source_fingerprint": registration["source_fingerprint"]}
+    if numeric_schema == "st_flow_numeric_execution_v2":
+        expected["master_initialization"] = MASTER_INIT_SCHEMA
     if numeric != expected or identity_hash(numeric) != identity["numeric_execution_hash"]:
         raise ValueError("Flow numeric execution identity changed or precision was relabeled")
     repo = Path(__file__).resolve().parents[2]
@@ -145,6 +151,7 @@ def flow_checkpoint_identity(registration_path, tag):
         "parent_checkpoint_sha256": binding["checkpoint"]["sha256"],
         "parent_receipt_sha256": binding["complete_sha256"],
         "training_numeric_execution_hash": identity["numeric_execution_hash"],
+        "master_initialization": numeric.get("master_initialization", "legacy_BF16_roundtrip_before_FP32_master"),
         "restoration": {"encoder": "original_bound_parent_FP32_masters",
                         "action": "native_Flow_ZeRO2_FP32_masters_strict_prefix_load",
                         "prefix": ACTION_PREFIX, "training_BF16_encoder_reused": False,

@@ -42,6 +42,8 @@ from tools.ddpolicy_vehicle.optimizer_safety import (
 from tools.ddpolicy_vehicle.training_state import epoch_batches
 from tools.foresight.student_state import capture_rng, restore_rng, learning_rate, validate_rank_batches
 from tools.st_world_policy.base_binding import read_binding
+from tools.st_world_policy.fp32_master_init import (
+    SCHEMA as MASTER_INIT_SCHEMA, capture_fp32_master_initialization, restore_fp32_master_initialization)
 from tools.st_world_policy.check_formal_approval import check_formal_approval, read_json
 from tools.st_world_policy.flow_training_config import NO_TEACHER, REWARDS, target_contract, validate_config
 from tools.st_world_policy.train_world import collective_call, verified_runtime
@@ -214,7 +216,8 @@ class FlowTrainingModule(nn.Module):
 
 
 def numeric_execution(cfg, binding):
-    return {"schema": "st_flow_numeric_execution_v1", "precision": cfg["execution"]["precision_policy"],
+    return {"schema": "st_flow_numeric_execution_v2", "precision": cfg["execution"]["precision_policy"],
+            "master_initialization": MASTER_INIT_SCHEMA,
             "encoder": "frozen_BF16_execution_eval_original_S0_AMP",
             "policy_rollout_old_current": "BF16_execution_cuda_autocast_eval",
             "BC": "BF16_execution_cuda_autocast_train_original_dropout",
@@ -592,11 +595,18 @@ def run(args):
             "optimizer": {"type": "AdamW", "params": {"lr": opt["lr"], "betas": opt["betas"],
                            "eps": opt["eps"], "weight_decay": opt["weight_decay"]}}}
         import deepspeed
+        fresh_master_initialization = not args.resume
+        master_source = capture_fp32_master_initialization(
+            model, groups, is_fresh_run=fresh_master_initialization)
         engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds_config)
+        master_initialization = restore_fp32_master_initialization(
+            engine, master_source, is_fresh_run=fresh_master_initialization)
+        del master_source
         frozen_before = collective_call(lambda: frozen_encoder_hash(encoder), "frozen encoder state hash")
         if rank == 0 and not args.resume:
             atomic_json(out / "initialization.json", {"base_binding": binding["binding_sha256"],
                 "parent_checkpoint": binding["checkpoint"], "groups": group_records,
+                "master_initialization": master_initialization,
                 "trainable_parameters": sum(p.numel() for p in model.parameters()),
                 "frozen_parameters": sum(p.numel() for p in encoder.parameters()),
                 "frozen_execution_state_sha256": frozen_before,
