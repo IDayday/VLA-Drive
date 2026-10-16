@@ -1,0 +1,81 @@
+{
+  "schema": "simwam_reference_reuse_profile_results_v1",
+  "status": "PASS",
+  "qualification_source_commit": "94b400f6553f844e5d92e0b014adc75d15cabe9e",
+  "variants": {
+    "LAST_ODE": {
+      "variant": "R_CANONICAL_LAST_ODE",
+      "source_summary_sha256": "ce34ea791583e33c13a8c33546ae97b29c589bec4232f3018b2954329d7e949d",
+      "per_trial_sum_max_rank_update_seconds": {
+        "AB_uncached": 5.966287083923817,
+        "AB_reused": 4.695504684001207,
+        "BA_uncached": 5.906943740323186,
+        "BA_reused": 4.755717163905501
+      },
+      "uncached_seconds_per_update": 0.7420769265154377,
+      "reused_seconds_per_update": 0.5907013654941693,
+      "update_time_reduction_fraction": 0.20398904158370867,
+      "update_throughput_multiplier": 1.2562641122297569,
+      "per_order_reduction_fraction": {
+        "AB": 0.21299384056572424,
+        "BA": 0.19489377705749023
+      },
+      "max_allocated_GiB": 6.630324840545654,
+      "job_wall_seconds": 92.07195115089417,
+      "cumulative_worker_wall_seconds": 691.1499710809439,
+      "global_qualification_updates": 48,
+      "new_candidates": 0,
+      "new_scores": 0
+    },
+    "SAFETY25": {
+      "variant": "R_CANONICAL_X1_SAFETY25",
+      "source_summary_sha256": "c58646a8e77534633f9af37b2b2e22bc8b9d9cbb2f660f20218e45d2414a6695",
+      "per_trial_sum_max_rank_update_seconds": {
+        "AB_uncached": 5.969517448917031,
+        "AB_reused": 4.703531123697758,
+        "BA_uncached": 5.942310195416212,
+        "BA_reused": 4.693005345761776
+      },
+      "uncached_seconds_per_update": 0.7444892277708277,
+      "reused_seconds_per_update": 0.5872835293412209,
+      "update_time_reduction_fraction": 0.21115913107341655,
+      "update_throughput_multiplier": 1.2676827981298073,
+      "per_order_reduction_fraction": {
+        "AB": 0.21207515281640466,
+        "BA": 0.21023891526533345
+      },
+      "max_allocated_GiB": 6.630324840545654,
+      "job_wall_seconds": 91.97146320343018,
+      "cumulative_worker_wall_seconds": 690.7299560643733,
+      "global_qualification_updates": 48,
+      "new_candidates": 0,
+      "new_scores": 0
+    }
+  },
+  "failures": [
+    {
+      "attempt": "LAST_ODE_v1",
+      "exit_code": 2,
+      "job_wall_seconds": 1.3841955661773682,
+      "new_candidates": 0,
+      "new_scores": 0,
+      "optimizer_updates": 0,
+      "reason": "torchrun interpreted --run as an ambiguous launcher option"
+    },
+    {
+      "attempt": "LAST_ODE_v2",
+      "exit_code": 1,
+      "job_wall_seconds": 9.03863525390625,
+      "new_candidates": 0,
+      "new_scores": 0,
+      "optimizer_updates": 0,
+      "reason": "administrative attempt-name replacement changed the formal run path; identity missing before model load"
+    }
+  ],
+  "timing_scope": "sum over update of slowest rank timed forward/reference/backward/Adam/scheduler; loading and evidence hashes excluded; shared GPU, AB and BA order, not end-to-end formal throughput",
+  "global_qualification_updates": 96,
+  "new_candidates": 0,
+  "new_scores": 0,
+  "process_recovery": "separately registered native recovery not included here",
+  "formal_snapshots_changed": false
+}

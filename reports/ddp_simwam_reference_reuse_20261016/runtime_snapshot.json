@@ -1,0 +1,94 @@
+{
+  "status": "PASS_LIVE_PROCESS_IDENTITY",
+  "captured_utc": "2026-10-16T14:40:42.439753+00:00",
+  "trainers": {
+    "training-vlawm-tsinghua-zt2": [
+      {
+        "pid": 1366390,
+        "start_ticks": "1359038482",
+        "state": "S",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m torch.distributed.run --standalone --nproc_per_node=8 --module scripts.analysis.simwam_recipe.train --config configs/flow_rl/simwam_canonical_last_ode_ddp.yaml --manifest /mnt/project/simwam-recipe-20261015/hard_manifest.json --output /mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1 ",
+        "cwd": "/mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907"
+      }
+    ],
+    "training-vlawm-tsinghua-zt4": [
+      {
+        "pid": 183059,
+        "start_ticks": "1359705890",
+        "state": "S",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m torch.distributed.run --standalone --nproc_per_node=8 --module scripts.analysis.simwam_recipe.train --config configs/flow_rl/simwam_canonical_x1_safety25_ddp.yaml --manifest /mnt/project/simwam-recipe-20261015/hard_manifest.json --output /mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1 ",
+        "cwd": "/mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f"
+      }
+    ]
+  },
+  "controllers": [
+    {
+      "pid": 4120420,
+      "start_ticks": "1359032445",
+      "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.watch_evaluations --snapshot /mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907 --administrative-local --followup-last-ode --source-compatibility /mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json --followup-dev-host training-vlawm-tsinghua-zt --followup-train-host training-vlawm-tsinghua-zt4 "
+    },
+    {
+      "pid": 4120423,
+      "start_ticks": "1359032453",
+      "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.final_navtest serve --snapshot /mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907 --administrative-local --followup-last-ode --source-compatibility /mnt/project/simwam-terminal-ode-20261016/source/8b4dda71ea299e3eef53a8c0b613385d752b2907/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json --followup-hosts training-vlawm-tsinghua-zt training-vlawm-tsinghua-zt4 "
+    },
+    {
+      "pid": 42719,
+      "start_ticks": "1359690712",
+      "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.watch_evaluations --snapshot /mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f --administrative-local --followup-safety25 --source-compatibility /mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json --followup-dev-host training-vlawm-tsinghua-zt --followup-train-host training-vlawm-tsinghua-zt4 "
+    },
+    {
+      "pid": 42720,
+      "start_ticks": "1359690713",
+      "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m scripts.analysis.simwam_recipe.final_navtest serve --snapshot /mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f --administrative-local --followup-safety25 --source-compatibility /mnt/project/simwam-safety-exposure-20261016/source/12c46a5bafd1e37a14435cd1e34aeb175731ca2f/reports/ddp_simwam_x_anchor_20261015/evaluation_recovery_20261016/compatibility.json --followup-hosts training-vlawm-tsinghua-zt training-vlawm-tsinghua-zt4 "
+    }
+  ],
+  "progress": {
+    "LAST_ODE": {
+      "updates": 7100,
+      "collections": 1775,
+      "raw_scene_exposures": 14200,
+      "new_candidates": 113600,
+      "next_inner": 0,
+      "phase": "READY",
+      "RL_updates_local": 6956,
+      "anchor_only_updates_local": 144,
+      "scene_cursor": 14200,
+      "seconds_rollout": 1282.2986533213407,
+      "seconds_scoring_wait": 237.13911841996014,
+      "seconds_scoring_cpu": 109.35171962343156,
+      "seconds_old_probability": 549.5507222339511,
+      "seconds_update": 6591.037704566494,
+      "status": "RUNNING",
+      "checkpoint": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1/checkpoints/update007100_inner0",
+      "host": "training-vlawm-tsinghua-zt2",
+      "invocation": "38172f8c0187477d9448a11d21d34e64",
+      "invocation_start_update": 0,
+      "wall_seconds_this_invocation": 10014.059002814814
+    },
+    "SAFETY25": {
+      "updates": 2800,
+      "collections": 700,
+      "raw_scene_exposures": 5600,
+      "new_candidates": 44800,
+      "next_inner": 0,
+      "phase": "READY",
+      "RL_updates_local": 2764,
+      "anchor_only_updates_local": 36,
+      "scene_cursor": 5600,
+      "seconds_rollout": 443.13021354563534,
+      "seconds_scoring_wait": 93.48869420774281,
+      "seconds_scoring_cpu": 42.96890421397984,
+      "seconds_old_probability": 174.19359725527465,
+      "seconds_update": 2087.6269685849547,
+      "status": "RUNNING",
+      "checkpoint": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1/checkpoints/update002800_inner0",
+      "host": "training-vlawm-tsinghua-zt4",
+      "invocation": "0ed7b56e4f704092998b19fe84bea0ab",
+      "invocation_start_update": 0,
+      "wall_seconds_this_invocation": 3250.3465064018965
+    }
+  },
+  "formal_experiment_config_or_budget_changed": false,
+  "new_formal_run_dispatched": false
+}
