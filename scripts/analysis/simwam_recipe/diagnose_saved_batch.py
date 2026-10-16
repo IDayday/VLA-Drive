@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import numpy as np
 import torch
-from starVLA.rl.simwam_recipe.contracts import require_dispatch,file_sha
+from starVLA.rl.simwam_recipe.contracts import require_dispatch,file_sha,registered_stochastic_steps
 from starVLA.rl.simwam_recipe.trainer_adapter import make_actor
 from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters
 from starVLA.rl.simwam_recipe.checkpoint import device_tree
@@ -30,6 +30,8 @@ def main():
         path=run/'behavior'/f'collection{a.collection:06}'/f'rank{rank}.pt'
         row=device_tree(torch.load(path,map_location='cpu',weights_only=False),actor.device)
         if row['behavior_version']['run']!=identity['sha256']:raise ValueError('Unmatched behavior identity')
+        if row['stoch_idx'].tolist()!=registered_stochastic_steps(cfg['variant']):
+            raise ValueError('Saved batch window differs from registered recipe')
         logp,terms=actor.action_chain_logprobs(row['cond_bg'],row['chain'],row['timesteps'],row['deltas'],stoch_idx=row['stoch_idx'],return_terms=True)
         raw=actor._probability_audit['current']['raw_gaussian_logprob'].mean((-1,-2))
         tail.append(actor._probability_audit['current']['source_clamp_hit_rate'])
@@ -67,7 +69,7 @@ def main():
         batches.append(dict(rank=rank,sha256=file_sha(path),behavior=row['behavior_version'],advantage_mask_fraction=float(row['adv_mask'].mean())))
     d=np.mean([m['mean_squared_by_step_channel'] for m in movement],axis=0)
     v=np.mean([m['velocity_squared_by_step_channel'] for m in movement],axis=0)
-    for j,index in enumerate([7,8,9]):
+    for j,index in enumerate(registered_stochastic_steps(cfg['variant'])):
         pn=float(pg_gradient[j].norm());an=float(anchor_gradient[j].norm());both=pn>0 and an>0
         per_step.append(dict(step=index,PG_gradient_norm=pn,beta50_anchor_gradient_norm=an,
             cosine=float(torch.nn.functional.cosine_similarity(pg_gradient[j],anchor_gradient[j],dim=0)) if both else None,

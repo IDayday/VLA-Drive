@@ -19,7 +19,7 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
 def fixture(rank,world):
-    identity=dict(sha256='qualification-identity',world=world,recipe={'max_steps':20000})
+    identity=dict(sha256='qualification-identity',world=world,recipe={'max_steps':20000,'variant':'R_SOURCE'})
     state=dict(updates=0,collections=0,next_inner=0,scene_cursor=0,raw_scene_exposures=0,new_candidates=0,phase='READY')
     model=torch.nn.Linear(2,1);model.device=torch.device('cpu')
     opt=torch.optim.AdamW(model.parameters(),lr=1e-3)

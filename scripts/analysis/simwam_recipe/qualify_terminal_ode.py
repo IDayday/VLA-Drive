@@ -16,7 +16,8 @@ import torch
 from scripts.analysis.simwam_recipe.qualify_math import original_class, actor_class
 from scripts.analysis.simwam_recipe.registered_followup import require_registration
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from starVLA.rl.simwam_recipe.contracts import ROOT, file_sha, fingerprint, load_recipe
+from starVLA.rl.simwam_recipe.contracts import ROOT, file_sha, fingerprint, load_recipe, registered_stochastic_steps
+from starVLA.rl.simwam_recipe.recovery_state import validate_boundary, validate_ranks
 from starVLA.rl.simwam_recipe.source_advantages import advantages
 from starVLA.rl.simwam_recipe.trainer_adapter import SourceLoss
 from starVLA.rl.simwam_recipe.vendor import action_math, trainer_math
@@ -32,6 +33,27 @@ def run(source):
     expected['grpo']['sample']['sde_exclude_last_step'] = True
     assert candidate == expected
     require_registration(candidate['variant'])
+    # Exercise the actual checkpoint contract for all historical names and the
+    # new name. A LAST_ODE chain must never be admitted as an old source chain.
+    from scripts.analysis.simwam_recipe.qualify_transactions import fixture, rollout as mock_rollout
+    recovery_checks = []
+    for variant in ('R_SOURCE','R_CANONICAL','R_CANONICAL_X1','R_CANONICAL_LAST_ODE'):
+        identity, state, *_ = fixture(0, 1)
+        identity['recipe']['variant'] = variant
+        state.update(updates=1, collections=1, next_inner=1, scene_cursor=1,
+                     raw_scene_exposures=1, new_candidates=8, phase='INNER_COMMITTED')
+        row = mock_rollout(0, 1, identity)
+        expected_steps = registered_stochastic_steps(variant)
+        row['stoch_idx'] = torch.tensor(expected_steps)
+        validate_ranks([validate_boundary(state, row, identity)])
+        row['stoch_idx'] = torch.tensor([7,8,9] if expected_steps == [6,7,8] else [6,7,8])
+        try:
+            validate_boundary(state, row, identity)
+        except ValueError as error:
+            assert 'stochastic window' in str(error)
+        else:
+            raise AssertionError('Mismatched chain/recipe accepted: '+variant)
+        recovery_checks.append(dict(variant=variant, accepted=expected_steps, other_window_rejected=True))
     rejected = []
     mutations = [('learning_rate', 1e-4), ('seed', 43), ('max_steps', 100),
                  ('gradient_clipping_effective', 1.), ('DDP_static_graph', True)]
@@ -163,6 +185,7 @@ def run(source):
     return dict(status='PASS', upstream_commit=lock['simwam']['commit'],
         control_identity=fingerprint(control), candidate_identity=fingerprint(candidate),
         only_registered_diff=True, rejected_mutations=rejected, checks=checks,
+        recovery_window_checks=recovery_checks,
         stochastic_steps=[6,7,8], terminal_step='Euler ODE; excluded from Gaussian proxy',
         estimator_caveat='Shared adapters affect deterministic prefix/suffix; only saved stochastic transitions optimized; source empirical proxy, not full-chain unbiased gradient',
         new_scoring_calls=0, real_DDP_optimizer_updates=0,

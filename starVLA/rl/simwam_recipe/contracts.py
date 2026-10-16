@@ -16,6 +16,14 @@ CACHE_ROOTS = ['/mnt/project/flow-safe-improvement-20261013/metric_cache_v1',
                '/mnt/project/constrained-flow-noise-20261014/metric_cache_v1']
 
 
+def registered_stochastic_steps(variant):
+    if variant == 'R_CANONICAL_LAST_ODE':
+        return [6, 7, 8]
+    if variant in ('R_SOURCE', 'R_CANONICAL', 'R_CANONICAL_X1'):
+        return [7, 8, 9]
+    raise ValueError('Unknown registered sampler variant: ' + str(variant))
+
+
 def require_dispatch():
     p = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     host = socket.gethostname().removesuffix('-worker-0')

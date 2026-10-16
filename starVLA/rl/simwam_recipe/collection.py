@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.distributed as dist
 from starVLA.rl.safe_flow_improvement.policy_adapter import decode_request
-from .contracts import fingerprint
+from .contracts import fingerprint,registered_stochastic_steps
 from .source_advantages import advantages
 
 
@@ -15,7 +15,7 @@ def collect(actor,condition,token,log,service,generator,*,act_norm,variant,versi
     actor._noise_audit=[]
     begin=time.monotonic()
     chain,times,deltas,indices=actor.sample_action_chain(cond,8,generator=generator)
-    if chain.shape!=(8,11,8,4) or indices.tolist()!=[7,8,9] or not torch.isfinite(chain).all():
+    if chain.shape!=(8,11,8,4) or indices.tolist()!=registered_stochastic_steps(variant) or not torch.isfinite(chain).all():
         raise ValueError('Invalid source chain; no replacement candidates allowed')
     torch.cuda.synchronize();rollout_seconds=time.monotonic()-begin
     if progress:progress('generated',rollout_seconds,8)

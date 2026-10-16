@@ -1,0 +1,21 @@
+{
+  "status": "FAILED_QUALIFICATION_INTERFACE_GUARD",
+  "source_commit": "8faf0e93a318fcbca6ab3c46e14d7cf3fb4726cd",
+  "run_identity": "ad4bfe01f86435e6d10f6a586c66998785df604ffb2321cecceae36285d0f760",
+  "cause": "Collector asserted [7,8,9] for the new [6,7,8] variant; rejected before scoring. Recovery validation also needed the same strict registered-window mapping.",
+  "ranks": 8,
+  "optimizer_updates": 0,
+  "actual_scoring_calls": 0,
+  "valid_collections": 0,
+  "physical_generated_candidates_inferred_from_eight_post_rollout_guards": 64,
+  "generated_counter_limitation": "Generation progress callback was after the guard, so legacy invocation field remains0; 64 is a code-path inference, not a callback measurement.",
+  "failure_phase": "COLLECTING",
+  "latest_legal_update": 0,
+  "latest_files_sha256": "13a16bcd477baf91cde1c674a6016fd31ec69ed656e2a69f93319ea3c6ad8a32",
+  "failure_did_not_advance_latest": true,
+  "worker_elapsed_with_preparation_sum_seconds": 280.52942992560565,
+  "process_span_seconds": 35.59633755683899,
+  "cost_semantics": "Shared worker elapsed, not exclusive GPU computation; eight workers overlap",
+  "formal_runs_affected": [],
+  "correction": "Variant-exact window assertions in collection/recovery; historical variants still strictly require[7,8,9]. Native source kernels unchanged; new qualification attempt required."
+}

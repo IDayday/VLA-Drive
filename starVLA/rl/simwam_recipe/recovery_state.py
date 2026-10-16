@@ -6,6 +6,7 @@ from the preceding sealed checkpoint, including its RNG and optimizer state.
 import hashlib
 import json
 import torch
+from .contracts import registered_stochastic_steps
 
 PHASES = {'READY', 'COLLECTING', 'ROLLOUT_COMMITTED', 'INNER_COMMITTED', 'COMPLETE'}
 
@@ -78,7 +79,8 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
                 raise ValueError('Invalid detached rollout field: ' + k)
         indices = rollout['stoch_idx']
         if torch.is_tensor(indices): indices = indices.tolist()
-        if list(indices) != [7, 8, 9]: raise ValueError('Changed stochastic window')
+        if list(indices) != registered_stochastic_steps(cfg['variant']):
+            raise ValueError('Changed registered stochastic window')
         v = rollout['behavior_version']
         if v['run'] != identity['sha256'] or v['update'] != u - i:
             raise ValueError('Behavior is not the collection-start policy')

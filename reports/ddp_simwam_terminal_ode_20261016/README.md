@@ -40,7 +40,8 @@ NC/DAC/TTC 新违规、恢复、SFT-safe 退化与 G+/G−；不是保证训练�
 
 源 sampler、概率、loss、actor 和 optimizer 实现均未修改。新增完整配置
 校验，只允许上述一个布尔值和变体名变化；原 SOURCE/CANONICAL/X1
-校验不放宽。现有训练和评价 controller 共用有限 follow-up 注册入口，
+校验不放宽。collector 与恢复边界按同一变体表验证窗口：历史变体仍
+严格要求 `[7,8,9]`，新变体严格要求 `[6,7,8]`。现有训练和评价 controller 共用有限 follow-up 注册入口，
 保留旧 CLI 别名，不修改运行中的不可变快照。
 
 [CPU 验收](cpu_contract.json)直接抽取锁定上游类方法进行52项对照，覆盖
@@ -53,6 +54,13 @@ Euler、概率重算、loss 与 LoRA 梯度。旧/current ratio=1；末端确定
 验证末步 Euler；采样与保存状态重算保留已有1e-6容差。未修改 kernel，
 没有正式训练或真实评分受到影响。失败记录保留于
 [cpu_harness_failure.json](cpu_harness_failure.json)。
+
+首次八卡验收发现 collector 中仍有历史窗口的硬编码断言，在所有 rank
+评分和更新前拒绝新窗口。原生 `latest` 保持在合法 READY/update0，失败
+仅写 evidence，没有把未完成链发布为恢复点。已补齐 collector 和恢复
+校验的变体映射；新增四个变体的正确/错误窗口边界测试均通过。
+[失败与实际成本记录](eight_gpu_v1_failure.json)保留；需用新 attempt
+完成真实八卡验收，不能将第一次失败目录改写成成功。
 
 正式派发仍必须通过真实八卡学习/中断恢复及零/非零 LoRA 的实际采样
 记录验收；CPU PASS 不代替驾驶效果。验收权重不作为正式初始化。
@@ -68,7 +76,7 @@ Euler、概率重算、loss 与 LoRA 梯度。旧/current ratio=1；末端确定
 python -m scripts.analysis.simwam_recipe.qualify_terminal_ode \
   --output /mnt/project/simwam-terminal-ode-20261016/qualification/cpu_contract.json
 python -m scripts.analysis.simwam_recipe.qualify_recovery_run \
-  --name eight_gpu_window_recovery_v1 \
+  --name eight_gpu_window_recovery_v2 \
   --root /mnt/project/simwam-terminal-ode-20261016 \
   --config configs/flow_rl/simwam_canonical_last_ode_ddp.yaml
 ```
