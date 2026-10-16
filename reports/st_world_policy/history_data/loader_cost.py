@@ -41,9 +41,9 @@ def interval(before,after):
 def run(a):
     init_start=snapshot()
     if (not 0<=a.shard_index<a.shard_count or a.shard_count>8 or not 1<=a.workers<=2 or
-            not a.workers<=a.prefetch_records<=4 or a.max_scenes<1):
+            not a.workers<=a.prefetch_records<=4 or a.max_scenes<1 or a.torch_threads not in (1,2)):
         raise ValueError('Unregistered/unbounded CPU IO benchmark')
-    torch.set_num_threads(1)
+    torch.set_num_threads(a.torch_threads)
     cache=Path(a.teacher_root);pca=Path(a.pca_root);out=Path(a.output)
     ident=json.loads((cache/'identity.json').read_text());p=json.loads((pca/'PCA.json').read_text())
     selection=json.loads(Path(a.manifest).read_text())
@@ -57,7 +57,7 @@ def run(a):
     registration={'source_sha256':file_sha256(__file__),'manifest_sha256':file_sha256(a.manifest),
         'cache_identity':ident['identity'],'pca_identity':p['identity'],'scope_identity':scope['identity'],
         'dataset_identity':ds.identity['identity'],'scenes':len(ds),'cycles':1,'workers':a.workers,
-        'prefetch_records':a.prefetch_records,'torch_threads':1,'shard_count':a.shard_count,
+        'prefetch_records':a.prefetch_records,'torch_threads':a.torch_threads,'shard_count':a.shard_count,
         'shard_index':a.shard_index,'selected_indices':indices,'command':vars(a),
         'cache_state':'May be OS warm; no physical cold-read claim','gpu_used':False}
     atomic_json(out/'REGISTRATION.json',registration,immutable=True)
@@ -107,6 +107,7 @@ def main():
     for name in ['data-root','manifest','teacher-root','pca-root','output']:p.add_argument('--'+name,required=True)
     p.add_argument('--max-scenes',type=int,required=True)
     p.add_argument('--workers',type=int,default=2);p.add_argument('--prefetch-records',type=int,default=4)
+    p.add_argument('--torch-threads',type=int,choices=[1,2],default=1)
     p.add_argument('--shard-count',type=int,default=1);p.add_argument('--shard-index',type=int,default=0)
     p.add_argument('--stage',choices=['reader','full','both'],default='both')
     print(json.dumps(run(p.parse_args()),sort_keys=True))
