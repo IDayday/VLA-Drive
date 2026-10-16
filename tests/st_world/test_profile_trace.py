@@ -41,3 +41,19 @@ def test_interval_empty_invalid_and_touching():
         interval_measure([(0, float("nan"))])
     with pytest.raises(ValueError):
         summarize_trace({"traceEvents": [{"ph": "X", "ts": 1, "dur": -1}]})
+
+
+def test_cpu_and_gpu_annotations_do_not_double_count_and_collective_bytes_are_logical():
+    events = [
+        {"ph": "X", "cat": "user_annotation", "name": "st_profile.language", "ts": 0, "dur": 100},
+        {"ph": "X", "cat": "gpu_user_annotation", "name": "st_profile.language", "ts": 1, "dur": 90},
+        {"ph": "X", "cat": "user_annotation", "name": "nccl:all_reduce", "ts": 0, "dur": 10,
+         "args": {"Input Dims": [[3, 4]], "Input type": ["c10::BFloat16"]}},
+        {"ph": "X", "cat": "user_annotation", "name": "nccl:all_gather", "ts": 0, "dur": 10},
+    ]
+    result = summarize_trace({"traceEvents": events})
+    assert result["cpu_region_inclusive_ms_not_additive"]["st_profile.language"] == .1
+    assert result["gpu_annotation_inclusive_ms_not_additive"]["st_profile.language"] == .09
+    assert result["collective_logical_input_bytes"] == {"nccl:all_reduce": 24}
+    assert result["collective_input_records_without_complete_size"] == {"nccl:all_gather": 1}
+    assert "wire bytes NOT_MEASURED" in result["communication_bytes"]

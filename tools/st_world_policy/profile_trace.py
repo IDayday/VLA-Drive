@@ -50,6 +50,7 @@ def summarize_trace(document):
         raise ValueError("Expected Kineto traceEvents")
     device_intervals = defaultdict(lambda: defaultdict(list))
     kernel_work, kernel_count, cpu_regions, launch_count = Counter(), Counter(), Counter(), Counter()
+    gpu_regions, collective_input_bytes, unknown_collective_inputs = Counter(), Counter(), Counter()
     attention, communication, graphs = set(), [], Counter()
     for event in document["traceEvents"]:
         if event.get("ph") != "X" or "dur" not in event or "ts" not in event:
@@ -73,14 +74,28 @@ def summarize_trace(document):
             device_intervals[device]["transfer"].append((start, end))
         elif category in ("cuda_runtime", "cuda_driver") and "launch" in lower:
             launch_count[name] += 1
-        if name.startswith(("st.", "st_profile.")):
+        if name.startswith(("st.", "st_profile.")) and category == "user_annotation":
             cpu_regions[name] += duration
+        elif name.startswith(("st.", "st_profile.")) and category == "gpu_user_annotation":
+            # Kineto emits a second, GPU-side annotation with the same name.
+            # Adding it to CPU wall double-counts overlapping execution.
+            gpu_regions[name] += duration
         if category == "user_annotation" and any(x in lower for x in ("c10d", "nccl", "collective")):
             # Keep only small structured metadata; no tensor contents.
             communication.append({"name": name, "duration_us": duration,
                 "metadata": {k: v for k, v in args.items() if k in (
                     "Collective name", "In msg nelems", "Out msg nelems", "dtype",
                     "Process Group Size", "Rank", "Input Dims", "Input type")}})
+            dims, types = args.get("Input Dims"), args.get("Input type")
+            item_bytes = {"c10::BFloat16": 2, "c10::Half": 2, "float": 4,
+                          "double": 8, "long int": 8, "int": 4, "unsigned char": 1}
+            if (isinstance(dims, list) and isinstance(types, list) and len(dims) == len(types)
+                    and all(isinstance(shape, list) and all(type(n) is int and n >= 0 for n in shape)
+                            and dtype in item_bytes for shape, dtype in zip(dims, types))):
+                collective_input_bytes[name] += sum(math.prod(shape) * item_bytes[dtype]
+                                                    for shape, dtype in zip(dims, types))
+            else:
+                unknown_collective_inputs[name] += 1
         if "torch-compiled" in lower or "graph break" in lower:
             graphs[name] += 1
     devices = {}
@@ -108,9 +123,12 @@ def summarize_trace(document):
         "top_kernel_work": [{"name": name, "inclusive_work_ms": total / 1000,
                              "calls": kernel_count[name]} for name, total in kernel_work.most_common(30)],
         "cpu_region_inclusive_ms_not_additive": {name: value / 1000 for name, value in cpu_regions.items()},
+        "gpu_annotation_inclusive_ms_not_additive": {name: value / 1000 for name, value in gpu_regions.items()},
         "cuda_launch_calls": dict(launch_count), "observed_attention_kernel_names": sorted(attention),
         "communication_metadata": communication,
-        "communication_bytes": "NOT_AVAILABLE unless trace records message element counts and dtype",
+        "collective_logical_input_bytes": dict(collective_input_bytes),
+        "collective_input_records_without_complete_size": dict(unknown_collective_inputs),
+        "communication_bytes": "Logical input tensor bytes where metadata permits; network wire bytes NOT_MEASURED",
         "observed_compile_or_graph_break_events": dict(graphs),
         "missing_graph_break_events_do_not_prove_zero_graph_breaks": True}
 
