@@ -150,3 +150,56 @@ def test_sp1_derivation_reuses_native_fp32_without_encoder(tmp_path,monkeypatch)
     assert r.contract.source_cache_identity==w.identity['identity'] and r.contract.identity!=native.identity
     assert cache_teacher.run(args)['identity']==result['identity']
     args.command='verify';assert cache_teacher.run(args)['exact_requested_population']
+
+
+def test_reader_concurrent_first_hash_is_single_and_spawn_pickle_safe(tmp_path,monkeypatch):
+    import pickle
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier,Lock
+    c,m=fixture(tmp_path);w=TeacherCacheWriter(tmp_path/'cache',c,m)
+    z=torch.randn(1,2,2,8);v=torch.ones(1,2,2,dtype=torch.bool)
+    w.commit_shard(0,z,v);w.finalize();r=TeacherCacheReader(w.root,expected_identity=w.identity['identity'],max_verified_shards=1)
+    calls=[];guard=Lock();old=target_io.file_sha256
+    def count(path):
+        if str(path).endswith('.safetensors'):
+            with guard:calls.append(str(path))
+            time.sleep(.025)
+        return old(path)
+    monkeypatch.setattr(target_io,'file_sha256',count)
+    barrier=Barrier(8)
+    def read(_):
+        barrier.wait();return r.read_image(w.records[0]['key'])[0]
+    with ThreadPoolExecutor(max_workers=8) as pool:values=list(pool.map(read,range(8)))
+    assert len(calls)==1 and all(torch.equal(x,z[0]) for x in values)
+    child=pickle.loads(pickle.dumps(r))
+    assert torch.equal(child.read_image(w.records[0]['key'])[0],z[0])
+    assert len(calls)==1  # unchanged verified shard stays verified after spawn.
+
+
+def test_reader_lru_lookup_eviction_is_atomic_across_threads(tmp_path):
+    from collections import OrderedDict
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event,current_thread
+    c,m=fixture(tmp_path);p=tmp_path/'second.png';Image.new('RGB',(32,18),'red').save(p)
+    m['scenes'][0]['frames'][1]={'requested_s':.5,'timestamp_us':500000,'views':[image_reference(p)]*3}
+    m['identity']=identity_hash({k:v for k,v in m.items() if k!='identity'})
+    w=TeacherCacheWriter(tmp_path/'cache',c,m,images_per_shard=1)
+    for i in range(2):w.commit_shard(i,torch.full((1,2,2,8),float(i)),torch.ones(1,2,2,dtype=torch.bool))
+    w.finalize();r=TeacherCacheReader(w.root,expected_identity=w.identity['identity'],max_verified_shards=1)
+    entered=Event();release=Event()
+    class PausedLookup(OrderedDict):
+        def __getitem__(self,key):
+            value=super().__getitem__(key)
+            if key==0 and current_thread().name.startswith('reader_a') and not entered.is_set():
+                entered.set();assert release.wait(3)
+            return value
+    r._verify(0);r.verified=PausedLookup(r.verified)
+    with ThreadPoolExecutor(max_workers=1,thread_name_prefix='reader_a') as a, ThreadPoolExecutor(max_workers=1) as b:
+        first=a.submit(r._verify,0);assert entered.wait(3)
+        second=b.submit(r._verify,1)
+        # With the original unguarded check/read/move_to_end, second evicts0
+        # here and first raises KeyError. The lock holds that eviction back.
+        assert not second.done();release.set()
+        first.result(timeout=3);second.result(timeout=3)
+    assert list(r.verified)==[1] and set(r.verified_versions)=={0,1}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from collections import OrderedDict
+import threading
 import fcntl
 import hashlib
 import json
@@ -257,6 +258,19 @@ class TeacherCacheReader:
         # rereading gigabytes of unchanged tensor data on the next access.
         self.verified_versions = {}
         self.max_verified_shards = max_verified_shards
+        self._verification_lock = threading.RLock()
+
+    def __getstate__(self):
+        with self._verification_lock:
+            state = dict(self.__dict__)
+            state.pop('_verification_lock')
+            state['verified'] = self.verified.copy()
+            state['verified_versions'] = self.verified_versions.copy()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._verification_lock = threading.RLock()
 
     def verify_population(self, requested_manifest):
         requested_manifest = validate_target_manifest(requested_manifest)
@@ -266,6 +280,13 @@ class TeacherCacheReader:
             raise ValueError('Requested manifest/scene/record coverage differs from this cache')
 
     def _verify(self, shard):
+        # Shared prefetch threads may verify/evict the same LRU entry. Keep the
+        # immutable receipt local after this short metadata/first-hash section;
+        # independent mmap reads and tensor digest checks need no shared lock.
+        with self._verification_lock:
+            return self._verify_locked(shard)
+
+    def _verify_locked(self, shard):
         path = self.root / f'shard_{shard:06d}.safetensors'
         receipt_path = path.with_suffix('.json')
         stat = path.stat()
