@@ -2,7 +2,7 @@
 
 ## 状态与研究范围
 
-2026-10-16 开始新实验。只有两条新方法路线，训练 seed42，正式单候选评价 seed2101。92 分是目标，不是已取得的结果。正式评价保留 native uniform10 和 shift5_10 两个独立读出，不取二者最好值。
+2026-10-16 开始新实验。两条正式 SFT 已于17:39 UTC在 tsinghua-zt4/zt6各8卡启动；tsinghua-zt承担新路线的有限验收和评价。只有两条新方法路线，训练 seed42，正式单候选评价 seed2101。92 分是目标，不是已取得的结果。正式评价保留 native uniform10 和 shift5_10 两个独立读出，不取二者最好值。
 
 | 路线 | SFT 初始化及动作专家 | SFT 变化 | 后续 RL |
 |---|---|---|---|
@@ -61,6 +61,8 @@ LAST_ODE 的15k DEV native 为93.36988078，低于原 SFT 的93.6192366；没有
 4. 实际原始观测→原 VLAAgent：与 cache 路径同 root 的 native ODE 逐位相同。包括 B 的新头，仍无搜索/teacher/scorer。
 5. 实际全模型 G8/K10链、随机步骤[7,8,9]、四次 source PPO更新：A192个、B480个 LoRA 张量实际更新；永久 reference 冻结。第一 inner ratio误差为0；后续真实参数更新会产生 clipping，不强制ratio=1。merge velocity最大误差分别约9.54e−7、5.59e−7。
 6. 第5项使用**明确标记的人工 reward 向量做算术测试**，未进行驾驶评分，不能作为 RL 提升证据。正式 RL 前仍需各自完成 SFT、自己的单候选 TRAIN screen，以及真实 reward 的多卡有限验收。
+7. 随后两组均完成**真实 canonical 评分的两卡短训**：连续4次 optimizer 更新，与保存 inner2后恢复至inner4的全部 LoRA/Adam/scheduler/RNG、实际链、old logprob、优势和真实 score逐位一致。每组16个逻辑候选、32次实际资格评分；A两rank均有PG，B一rank全零组，验证了该rank仍保留anchor且正确同步另一rank梯度。原完整冻结头和reference hash不变，所有LoRA张量实际更新。该验收使用8步SFT资格模型，仍不能代表正式SFT终点的RL效果；正式RL启动资格与规划结果单列。
+8. 两组正式step0 export均从原 VLAAgent成功加载，分别通过2个固定DEV场景×2种网格的原入口一致性和真实评分 smoke。B的step0完整DEV基线随后已派发；不将2场景smoke当完整DEV结果。
 
 短训练实测每卡峰值约15.42GiB/19.11GiB。仅7个稳定 update 的数据+更新中位时间约0.301/0.435秒；粗算 A约1.7小时、B约12.1小时，尚不包含长期 I/O波动、checkpoint及评价开销。正式 ETA 应由正式进程近期完整窗口重新估计。
 

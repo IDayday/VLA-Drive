@@ -1,5 +1,5 @@
 {
-  "status": "SFT_GATES_PASS_RL_LEARNING_GATE_PENDING",
+  "status": "SFT_GATES_AND_TWO_GPU_REAL_REWARD_ADAPTER_GATES_PASS",
   "math": {
     "status": "PASS",
     "scope": "small exact source ActionDiT oracle; does not qualify full-model training",
@@ -127,6 +127,67 @@
         "qualification_only": true,
         "driving_scores_computed": 0,
         "reward_scope": "synthetic arithmetic test on real model generated chains; not a driving learning result"
+      },
+      "real_reward_two_gpu_resume": {
+        "status": "PASS",
+        "scope": "two-GPU real-scored source update; continuous4 versus split2/resume4",
+        "full_adapter_Adam_scheduler_RNG_equal": true,
+        "actual_chains_probabilities_advantages_scores_equal": true,
+        "four_optimizer_updates_per_fresh_collection": true,
+        "ranks": [
+          {
+            "rank": 0,
+            "RL_updates": 4,
+            "anchor_only_updates": 0,
+            "canonical_rewards": [
+              0.8601749757753773,
+              0.8826572430958298,
+              0.8135094696222659,
+              0.873251940572627,
+              0.8448221433102742,
+              0.8763957204227868,
+              0.8725905776621459,
+              0.8305559302912796
+            ],
+            "all_adapters_changed": true,
+            "frozen_head_and_reference_unchanged": true
+          },
+          {
+            "rank": 1,
+            "RL_updates": 4,
+            "anchor_only_updates": 0,
+            "canonical_rewards": [
+              0.5833333333333334,
+              0.5833333333333334,
+              1.0,
+              0.19999050689132894,
+              1.0,
+              0.5833333333333334,
+              0.5833333333333334,
+              0.5833333333333334
+            ],
+            "all_adapters_changed": true,
+            "frozen_head_and_reference_unchanged": true
+          }
+        ],
+        "logical_candidates_per_continuous_trial": 16,
+        "physical_qualification_candidates": 32,
+        "qualification_only": true,
+        "driving_effect_claim": false,
+        "note": "A tied local rank retains anchor; gradients still synchronize from the other rank. Endpoint formal RL acceptance is separate."
+      },
+      "export_original_entry_scoring_smoke": {
+        "status": "PASS",
+        "actual_DEV_scenes": 2,
+        "actual_single_grid_candidates": 4,
+        "grids": [
+          "E_NATIVE",
+          "E_SHIFT5"
+        ],
+        "seed": 2101,
+        "scoring_protocol": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+        "direct_original_entry_exact": true,
+        "qualification_only": true
       }
     },
     "B_SOURCE_ACTION_DIT": {
@@ -212,6 +273,67 @@
         "qualification_only": true,
         "driving_scores_computed": 0,
         "reward_scope": "synthetic arithmetic test on real model generated chains; not a driving learning result"
+      },
+      "real_reward_two_gpu_resume": {
+        "status": "PASS",
+        "scope": "two-GPU real-scored source update; continuous4 versus split2/resume4",
+        "full_adapter_Adam_scheduler_RNG_equal": true,
+        "actual_chains_probabilities_advantages_scores_equal": true,
+        "four_optimizer_updates_per_fresh_collection": true,
+        "ranks": [
+          {
+            "rank": 0,
+            "RL_updates": 4,
+            "anchor_only_updates": 0,
+            "canonical_rewards": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.4166666666666667,
+              0.0,
+              0.0
+            ],
+            "all_adapters_changed": true,
+            "frozen_head_and_reference_unchanged": true
+          },
+          {
+            "rank": 1,
+            "RL_updates": 0,
+            "anchor_only_updates": 4,
+            "canonical_rewards": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "all_adapters_changed": true,
+            "frozen_head_and_reference_unchanged": true
+          }
+        ],
+        "logical_candidates_per_continuous_trial": 16,
+        "physical_qualification_candidates": 32,
+        "qualification_only": true,
+        "driving_effect_claim": false,
+        "note": "A tied local rank retains anchor; gradients still synchronize from the other rank. Endpoint formal RL acceptance is separate."
+      },
+      "export_original_entry_scoring_smoke": {
+        "status": "PASS",
+        "actual_DEV_scenes": 2,
+        "actual_single_grid_candidates": 4,
+        "grids": [
+          "E_NATIVE",
+          "E_SHIFT5"
+        ],
+        "seed": 2101,
+        "scoring_protocol": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+        "direct_original_entry_exact": true,
+        "qualification_only": true
       }
     }
   },

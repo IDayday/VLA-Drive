@@ -1,0 +1,141 @@
+{
+  "status": "TWO_FORMAL_SFT_RUNS_ACTIVE",
+  "runs": {
+    "A_DDP_TIME": {
+      "dispatch": {
+        "schema": "fm_transfer_SFT_dispatch_v1",
+        "host": "training-vlawm-tsinghua-zt4",
+        "pid": 213190,
+        "start_ticks": 1361117182,
+        "attempt": "c74199f5596843db98a9030460b188e2",
+        "start_unix": 1792172376.8784394,
+        "source": "/mnt/project/fm-transfer-20261016/source/4e0ce1f45b6778895648689228a5628432bd2616",
+        "source_commit": "4e0ce1f45b6778895648689228a5628432bd2616",
+        "variant": "A_DDP_TIME",
+        "qualification": false,
+        "resume": null,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nproc_per_node=8",
+          "--module",
+          "scripts.analysis.fm_transfer.train_sft",
+          "--variant",
+          "A_DDP_TIME",
+          "--output",
+          "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1"
+        ],
+        "live_GPU_resources": "0, 81153, 0\n1, 81153, 0\n2, 81153, 0\n3, 81153, 0\n4, 81153, 0\n5, 81153, 0\n6, 81153, 0\n7, 81153, 0\n",
+        "live_GPU_processes": "",
+        "dispatch_policy_sha256": "cccf749b7f307dcfce09c579897fb379c41273856f4e909ea9cc678d5c5d3213",
+        "log": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/dispatches/c74199f5596843db98a9030460b188e2.log",
+        "output": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1",
+        "config_sha256": "4f6f33d79bae7dee17f52ccfd2a795833df5829cb46dba3b12f8b0be7ca1b45c"
+      },
+      "progress": {
+        "schema": "fm_transfer_SFT_progress_v1",
+        "snapshot_unix": 1792172620.7471316,
+        "run": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1",
+        "identity": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+        "variant": "A_DDP_TIME",
+        "registered_updates": 20000,
+        "logical_updates": 727,
+        "logical_scene_exposures": 23264,
+        "physical_completed_updates": 727,
+        "rolled_back_completed_updates": 0,
+        "original_scene_count": 101592,
+        "FM_repeats": 8,
+        "RL_candidates": 0,
+        "accumulated_recorded_wall_seconds": 219.96538352407515,
+        "eight_GPU_residency_hours": 0.4888119633868337,
+        "GPU_cost_label": "allocated/shared device residency; not measured exclusive GPU compute",
+        "recent_updates_per_second": 3.4005162184884785,
+        "ETA_seconds_excluding_future_eval_and_unobserved_failures": 5667.66889544988,
+        "current_invocation_updates": 727,
+        "segments": [
+          {
+            "record": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/invocations/e51d1b2dbe964c7995fef0eb6c7ffbee/rank0.json",
+            "start_update": 0,
+            "executed_updates": 727,
+            "wall_seconds": 219.96538352407515,
+            "status": "RUNNING",
+            "resume": null
+          }
+        ],
+        "rollback_receipts": [],
+        "latest_loss": 0.0031221574172377586,
+        "loss_is_not_planning_score": true
+      }
+    },
+    "B_SOURCE_ACTION_DIT": {
+      "dispatch": {
+        "schema": "fm_transfer_SFT_dispatch_v1",
+        "host": "training-vlawm-tsinghua-zt6",
+        "pid": 286180,
+        "start_ticks": 1361098950,
+        "attempt": "72a5575c368a4c1a9d546be107510ae5",
+        "start_unix": 1792172377.6500125,
+        "source": "/mnt/project/fm-transfer-20261016/source/4e0ce1f45b6778895648689228a5628432bd2616",
+        "source_commit": "4e0ce1f45b6778895648689228a5628432bd2616",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "qualification": false,
+        "resume": null,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--nproc_per_node=8",
+          "--module",
+          "scripts.analysis.fm_transfer.train_sft",
+          "--variant",
+          "B_SOURCE_ACTION_DIT",
+          "--output",
+          "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1"
+        ],
+        "live_GPU_resources": "0, 81153, 0\n1, 81153, 0\n2, 81153, 0\n3, 81153, 0\n4, 81153, 0\n5, 81153, 0\n6, 81153, 0\n7, 81153, 0\n",
+        "live_GPU_processes": "",
+        "dispatch_policy_sha256": "cccf749b7f307dcfce09c579897fb379c41273856f4e909ea9cc678d5c5d3213",
+        "log": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/dispatches/72a5575c368a4c1a9d546be107510ae5.log",
+        "output": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1",
+        "config_sha256": "d6419530eb6a2da1c77cda342c5d4c524ecf756d58ef5b2a7e4bf1022ec1fd3c"
+      },
+      "progress": {
+        "schema": "fm_transfer_SFT_progress_v1",
+        "snapshot_unix": 1792172620.8450043,
+        "run": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1",
+        "identity": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "registered_updates": 100000,
+        "logical_updates": 516,
+        "logical_scene_exposures": 16512,
+        "physical_completed_updates": 516,
+        "rolled_back_completed_updates": 0,
+        "original_scene_count": 101592,
+        "FM_repeats": 8,
+        "RL_candidates": 0,
+        "accumulated_recorded_wall_seconds": 227.58833492733538,
+        "eight_GPU_residency_hours": 0.5057518553940786,
+        "GPU_cost_label": "allocated/shared device residency; not measured exclusive GPU compute",
+        "recent_updates_per_second": 2.3620785272710316,
+        "ETA_seconds_excluding_future_eval_and_unobserved_failures": 42117.143376658336,
+        "current_invocation_updates": 516,
+        "segments": [
+          {
+            "record": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/invocations/86894010f24243b4afd49a6d4bd2937d/rank0.json",
+            "start_update": 0,
+            "executed_updates": 516,
+            "wall_seconds": 227.58833492733538,
+            "status": "RUNNING",
+            "resume": null
+          }
+        ],
+        "rollback_receipts": [],
+        "latest_loss": 0.029972413554787636,
+        "loss_is_not_planning_score": true
+      }
+    }
+  }
+}
