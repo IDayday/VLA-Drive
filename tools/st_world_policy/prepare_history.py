@@ -81,7 +81,68 @@ def stable_selection(index, max_scenes, seed):
     return selected
 
 
+def pin_source_records(student, selected):
+    """Pin supervised payload bytes without decoding GT or using its values."""
+    student=Path(student)
+    rows=[]
+    for original in selected:
+        row=dict(original)
+        for key,relative in [('current_record_sha256','current/'+row['token']+'.json'),
+                             ('ego_record_sha256','ego/'+row['token']+'.pt')]:
+            actual=file_sha256(student/relative)
+            if key in row and row[key]!=actual:
+                raise ValueError('Previously pinned source record changed: '+relative)
+            row[key]=actual
+        rows.append(row)
+    return rows
+
+
+def upgrade_selection(args):
+    """Explicit new manifest version; never rewrites old smoke evidence."""
+    old_path=Path(args.pin_selection).resolve();out=Path(args.output).resolve()
+    if out==old_path.parent:
+        raise ValueError('Selection pin upgrade requires a new output namespace')
+    source=Path(args.student_root)
+    ident=json.loads((source/'identity.json').read_text());index=json.loads((source/'index.json').read_text())
+    old=json.loads(old_path.read_text())
+    if (args.max_scenes<1 or len(old['scenes'])>args.max_scenes or
+            old['schema']!='st_fixed_scene_list_v1' or old['split']!=args.split or ident['split']!=args.split or
+            old['source_index_hash']!=identity_hash(index) or ident['index_sha256']!=old['source_index_hash']):
+        raise ValueError('Pinned selection source/role/budget mismatch')
+    lookup={r['token']:r['log'] for r in index}
+    if any(lookup.get(r['token'])!=r['log'] for r in old['scenes']):
+        raise ValueError('Selection outside original source population')
+    # Existing history receipts already pin current JSON; retain that binding.
+    hp=old_path.parent/'HISTORY_MANIFEST.json'
+    pins={}
+    if hp.exists():
+        history=json.loads(hp.read_text());complete=json.loads((hp.parent/'COMPLETE.json').read_text())
+        if (complete['history_manifest_sha256']!=file_sha256(hp) or
+                history['identity']!=identity_hash({k:v for k,v in history.items() if k!='identity'})):
+            raise ValueError('Legacy history receipt mismatch')
+        pins={r['token']:r['current_record_sha256'] for r in history['scenes']}
+    rows=[dict(r,**({'current_record_sha256':pins[r['token']]} if r['token'] in pins else {})) for r in old['scenes']]
+    rows=pin_source_records(source,rows)
+    value={**old,'scenes':rows,'source_student_identity':ident['identity'],
+           'ego_identity_sha256':file_sha256(source/'ego_identity.json'),
+           'pin_upgrade':{'source_manifest':str(old_path),'source_sha256':file_sha256(old_path),
+                          'history_manifest_sha256':file_sha256(hp) if hp.exists() else None,
+                          'writer_sha256':file_sha256(__file__)}}
+    with file_lock(out/'PIN_SELECTION.lock',blocking=False):
+        atomic_json(out/'SELECTED_SCENES.json',value,immutable=True)
+        result={'status':'COMPLETE','schema':'st_selection_content_pin_upgrade_v1',
+                'manifest_sha256':file_sha256(out/'SELECTED_SCENES.json'),'scenes':len(rows),
+                'source_manifest_sha256':file_sha256(old_path),'old_evidence_modified':False,
+                'gt_values_decoded':False}
+        atomic_json(out/'COMPLETE.json',result,immutable=True)
+    return result
+
+
 def run(args):
+    if args.pin_selection:
+        return upgrade_selection(args)
+    if not args.raw_log_root or not args.sensor_root or not args.partition:
+        raise ValueError('History preparation requires raw-log-root, sensor-root and partition')
     if args.max_scenes < 1 or not 0 <= args.tolerance <= .05:
         raise ValueError('Positive explicit sample budget and tolerance<=.05 required')
     if args.mode == 'smoke' and args.max_scenes > 64:
@@ -120,6 +181,7 @@ def run(args):
         selected = [by_token[r['token']] for r in selected]
     else:
         selected = stable_selection(index, args.max_scenes, args.seed)
+    selected = pin_source_records(student,selected)
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
     config = {**vars(args), 'student_root': str(student), 'source_identity': identity['identity'],
@@ -185,8 +247,11 @@ def run(args):
 
 def parser():
     p = argparse.ArgumentParser(__doc__)
-    for key in ('student-root', 'raw-log-root', 'sensor-root', 'partition', 'output'):
+    for key in ('student-root', 'output'):
         p.add_argument('--' + key, required=True)
+    for key in ('raw-log-root','sensor-root','partition'):
+        p.add_argument('--' + key)
+    p.add_argument('--pin-selection',help='Explicitly upgrade an old selected manifest into a NEW output directory with current/ego content pins')
     p.add_argument('--fallback-sensor-root', action='append', default=[])
     p.add_argument('--split', choices=['train', 'dev'], required=True)
     p.add_argument('--mode', choices=['smoke', 'registered'], default='smoke')

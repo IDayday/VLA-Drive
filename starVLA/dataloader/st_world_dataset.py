@@ -86,7 +86,13 @@ class STWorldTrainingDataset(Dataset):
                 self.ego_identity['index_sha256']!=self.source['index_sha256'] or
                 self.ego_identity['identity']!=identity_hash({k:v for k,v in self.ego_identity.items() if k!='identity'})):
             raise ValueError('Original ego target contract changed')
-        self.ego_pins={r['token']:file_sha256(self.root/'ego'/(r['token']+'.pt')) for r in self.rows}
+        self.ego_pins={}
+        for row in self.rows:
+            if 'ego_record_sha256' not in row or 'current_record_sha256' not in row:
+                raise ValueError('Unpinned legacy selection: run explicit prepare_history --pin-selection into a new output')
+            self.ego_pins[row['token']]=row['ego_record_sha256']
+            if file_sha256(self.root/'ego'/(row['token']+'.pt'))!=row['ego_record_sha256']:
+                raise ValueError('Ego target differs from fixed manifest content pin')
         self.history=None
         if history_root is not None:
             history_identity=json.loads((Path(history_root)/'HISTORY_MANIFEST.json').read_text())['identity']

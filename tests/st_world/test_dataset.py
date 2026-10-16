@@ -26,7 +26,7 @@ def setup_data(tmp_path):
     ego['identity']=identity_hash(ego);(data/'ego_identity.json').write_text(json.dumps(ego))
     torch.save({'identity':ego['identity'],'token':'a','ego':torch.zeros(8,4)},data/'ego/a.pt')
     selection={'schema':'st_fixed_scene_list_v1','split':'train','seed':1,'source_index_hash':source['index_sha256'],
-        'scenes':[dict(index[0],current_record_sha256=file_sha256(data/'current/a.json'))]}
+        'scenes':[dict(index[0],current_record_sha256=file_sha256(data/'current/a.json'),ego_record_sha256=file_sha256(data/'ego/a.pt'))]}
     manifest=tmp_path/'SELECTED_SCENES.json';manifest.write_text(json.dumps(selection))
     c=TeacherFeatureContract(image_hw=(32,32),patch_hw=(16,16),native_grid_hw=(2,2),output_grid_hw=(2,2),
         channels=8,storage_dtype='float32',compute_dtype='float32',view_names=['CAM_F0','CAM_L0','CAM_R0'],
@@ -61,7 +61,11 @@ def test_target_changes_cannot_change_inputs_and_are_pinned(tmp_path):
     with pytest.raises(ValueError,match='Ego target changed'):ds[0]
     # A newly registered dataset records the different supervised label identity,
     # but its original visual/history input remains bitwise unchanged.
-    changed=STWorldTrainingDataset(**args);new=changed[0][0]
+    with pytest.raises(ValueError,match='fixed manifest'):STWorldTrainingDataset(**args)
+    new_manifest=json.loads(args['manifest_path'].read_text())
+    new_manifest['scenes'][0]['ego_record_sha256']=file_sha256(path)
+    new_path=tmp_path/'NEW_SELECTION.json';new_path.write_text(json.dumps(new_manifest))
+    changed=STWorldTrainingDataset(**dict(args,manifest_path=new_path));new=changed[0][0]
     assert np.array_equal(old.current['state'],new.current['state'])
     assert old.current['lang']==new.current['lang']
     assert all(a.tobytes()==b.tobytes() for a,b in zip(old.current['image'],new.current['image']))
@@ -85,3 +89,22 @@ def test_manifest_never_silently_shrinks_and_pca_contract_is_new(tmp_path):
     c=args['expected_contract'];p=projected_teacher_contract(c,pca_identity='e'*64,dimension=4)
     assert p.channels==4 and p.transform_identity!=c.transform_identity and p.identity!=c.identity
     with pytest.raises(ValueError):STWorldTrainingDataset(**dict(args,expected_contract=p))
+
+
+def test_legacy_pin_upgrade_is_explicit_preserves_prior_and_refuses_changed_pin(tmp_path):
+    from types import SimpleNamespace
+    from tools.st_world_policy.prepare_history import upgrade_selection
+    args=setup_data(tmp_path);old=args['manifest_path'];value=json.loads(old.read_text())
+    del value['scenes'][0]['ego_record_sha256'];old.write_text(json.dumps(value));old_hash=file_sha256(old)
+    with pytest.raises(ValueError,match='Unpinned legacy'):STWorldTrainingDataset(**args)
+    upgrade=SimpleNamespace(pin_selection=str(old),output=str(tmp_path/'upgraded'),student_root=str(args['data_root']),
+        max_scenes=1,split='train')
+    receipt=upgrade_selection(upgrade)
+    assert receipt['old_evidence_modified'] is False and file_sha256(old)==old_hash
+    assert upgrade_selection(upgrade)==receipt
+    upgraded=tmp_path/'upgraded/SELECTED_SCENES.json'
+    assert len(STWorldTrainingDataset(**dict(args,manifest_path=upgraded)))==1
+    with pytest.raises(ValueError,match='new output namespace'):
+        upgrade_selection(SimpleNamespace(**dict(vars(upgrade),output=str(old.parent))))
+    value=json.loads(upgraded.read_text());value['scenes'][0]['ego_record_sha256']='a'*64;upgraded.write_text(json.dumps(value))
+    with pytest.raises(ValueError,match='fixed manifest'):STWorldTrainingDataset(**dict(args,manifest_path=upgraded))
