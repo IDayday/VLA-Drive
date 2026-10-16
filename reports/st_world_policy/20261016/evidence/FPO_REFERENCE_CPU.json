@@ -1,0 +1,32 @@
+{
+  "status": "REFERENCE_EXECUTED",
+  "upstream_sha": "418c2554f7cd22d52e14c07d951280929d73bf2f",
+  "device": "cpu",
+  "dtype": "float64",
+  "torch_version": "2.5.1+cu124",
+  "scenes": 3,
+  "mc_draws_per_action": 4,
+  "action_dim": 32,
+  "checks": {
+    "upstream_cfm_equals_manual_mean": true,
+    "old_equals_current_ratio_is_exact_one": true,
+    "positive_and_negative_advantage_gradient_sign": {
+      "1": {
+        "cfm_change": -1.878047986614284e-05,
+        "gradient_norm": 0.433366300190459
+      },
+      "-1": {
+        "cfm_change": 1.8780790162598038e-05,
+        "gradient_norm": 0.433366300190459
+      }
+    },
+    "detached_reward_has_no_additional_gradient": true,
+    "mean_then_exp": 1.0,
+    "exp_then_mean": 1.5430806348152437,
+    "l2_sum_to_mean_factor": 32
+  },
+  "limits": [
+    "No real VLA, PDMS, dropout, DDP, or optimizer resume exercised",
+    "Not an implementation approval or scientific result"
+  ]
+}

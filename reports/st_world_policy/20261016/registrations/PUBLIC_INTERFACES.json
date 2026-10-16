@@ -1,0 +1,116 @@
+{
+  "status": "LOCKED_IMPLEMENTATION_INTERFACE_NOT_FORMAL_APPROVAL",
+  "base_sha": "1493deda247107efe076b9294863a6753391298a",
+  "legacy_protection": {
+    "framework": "DDPActionVideoForesight",
+    "default_behavior_change": false,
+    "shared_source_owner": "Lead",
+    "new_framework_suggestion": "DDPSpaceTimeForesight",
+    "strict_configuration": "Separate ST schema, no pretending changed objectives are old C1 FULL"
+  },
+  "ModelInputs": {
+    "current_images": "B lists of 3 original current views, unchanged preprocessing",
+    "current_state": "float32 B,1,4 normalized original ego delta x/y/sin/cos",
+    "navigation": "original text prompt or validated navigation enum",
+    "scene_id": "B immutable IDs",
+    "history_images": "optional B,2,3 real images, times -1.0,-0.5 only",
+    "history_valid": "bool B,2,3 based only on available current/past files",
+    "history_times_s": "float B,2 physical timestamps verified against each scene t0",
+    "history_ego_relative": "legal <=t0 motion/calibration supplied by HistoryData",
+    "forbidden": [
+      "GT trajectory",
+      "future frame",
+      "future_valid input branch",
+      "teacher feature label",
+      "PDMS score",
+      "future actors"
+    ]
+  },
+  "TrainingTargets": {
+    "ego": "float32 B,8,4 original FM normalization",
+    "current_dense_features": "detached B,3,H,W,C (native grid and optional fixed PCA metadata)",
+    "current_valid": "bool B,3,H,W",
+    "future_dense_features": "detached B,4,3,H,W,C at .5,1,2,4 seconds",
+    "future_valid": "bool B,4,3,H,W only loss-side",
+    "teacher_identity": "exact weights/layer/norm/preprocess/grid/dtype/partition/PCA",
+    "metadata_only_not_model_input": [
+      "source paths",
+      "timestamps",
+      "split/log",
+      "target hashes"
+    ]
+  },
+  "SampledRequests": {
+    "built": "once per full optimizer batch before microbatch slicing, independently of label success",
+    "patch_indices": "B,3,K valid native-grid addresses sampled uniformly with own RNG; same addresses in paired future endpoints",
+    "physical_times_s": "B,2 adjacent pair from (.5,1),(1,2),(2,4) using dedicated recoverable RNG",
+    "world_count": "independent 144 or 288",
+    "separate_counts": [
+      "ego scenes",
+      "current valid elements",
+      "future-a valid elements",
+      "future-b valid elements",
+      "delta paired valid elements"
+    ]
+  },
+  "SparseFeatureReadout": {
+    "input": "W[B,Nw,2048], request(view_id,xy_normalized,physical_time), optional actual W-valid mask",
+    "output": "B,Q,C with Q independent of Nw",
+    "reuse": "DINOFeatureHead coordinate/time/view encoders and CrossReadout; memory projection once per scene forward, flatten requested times/positions",
+    "constraints": [
+      "No target tensor enters query construction except requested fixed coordinates/time chosen independently of validity",
+      "Cross-attention from output queries to all W; no query geometry implies physical correspondence of W",
+      "Use same new head initialization in all matching groups; share current/future predictor where declared"
+    ]
+  },
+  "LossContract": {
+    "current": "FP32 squared error / complete optimizer-batch valid element count",
+    "future": "0.5*(FP32 MSE at a / valid_a + FP32 MSE at b / valid_b)",
+    "delta": "MSE((pred_b-pred_a)-(target_b-target_a)) / paired-valid elements; no L2 or per-token delta norm",
+    "distributed": "local numerator * world_size / global denominator, one reduction per complete optimizer batch, no extra accumulation mean",
+    "all_invalid": "Graph-connected zero; same collective order; report counts",
+    "repeat": "FM repeat8 only; no auxiliary multiplication"
+  },
+  "CheckpointMigration": {
+    "source_load": "Reconstruct all FP32 master tensors and strict-load original S0 before mapping",
+    "common_unchanged": [
+      "original Qwen/visual/input embedding rows",
+      "action-input model",
+      "action_model including qwen_proj",
+      "legacy query geometry view/position parameters"
+    ],
+    "W_expansion": "Explicit per-view old48->new96 row map, new rows seeded independently; no claim same initial function after longer W sequence",
+    "readout": "Enumerate changed/new/dropped auxiliary keys; PCA output map or explicit new output initialization recorded",
+    "target_load": "strict=True against complete transformed state, never blanket strict=False",
+    "training_state": "new experiment fresh optimizer/schedule; same-run resume strict native model/master/optimizer/RNG/consumed-cursor restoration"
+  },
+  "OwnerBoundary": {
+    "SpaceTime": [
+      "st_world/sparse_feature_readout.py",
+      "st_world/temporal_losses.py",
+      "st_world/teacher_adapters.py (adapter contract coordinated with HistoryData)",
+      "matching unit tests/config fragments"
+    ],
+    "HistoryData": [
+      "real history input/calibration",
+      "cache builder/readers",
+      "PCA provenance/statistics",
+      "ModelInputs/TrainingTargets schema implementation"
+    ],
+    "Lead": [
+      "DDPForesight/new framework integration",
+      "trainer/control entry",
+      "exact W/token state migration",
+      "registered approvals/launch"
+    ],
+    "FlowPolicy": "Separate original DiT/FPO code; reuse H_A only on frozen-Qwen C line"
+  },
+  "evidence": {
+    "DINOv3": "Official SHA6876159a11b4df116f30f667f8c9888617df0751; inspected by Evidence agent",
+    "DINO_Foresight": "Official SHAd98f765d2b743ec90fb38bc657a39c07c7ca4ab0; standardized channels then non-whiten PCA; not equivalent to raw-centered PCA",
+    "sparse_and_delta_claim": "New project adaptation supported by existing local coordinate-time cross-readout, not an established DINO-Foresight result"
+  },
+  "locked_utc": "2026-10-16T20:44:51.503964+00:00",
+  "owner": "Lead",
+  "source_sha": "1493deda247107efe076b9294863a6753391298a"
+}
