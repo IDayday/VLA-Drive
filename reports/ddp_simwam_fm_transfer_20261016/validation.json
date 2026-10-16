@@ -188,6 +188,35 @@
         "scoring_protocol": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
         "direct_original_entry_exact": true,
         "qualification_only": true
+      },
+      "full_merged_ODE": {
+        "status": "PASS",
+        "host": "training-vlawm-tsinghua-zt",
+        "architecture": "ddp",
+        "checkpoint": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/real_reward_two_gpu/continuous/checkpoints/update000004_inner0",
+        "updates": 4,
+        "checks": [
+          {
+            "grid": "native",
+            "max_abs": 2.384185791015625e-07
+          },
+          {
+            "grid": "shift5",
+            "max_abs": 2.384185791015625e-07
+          },
+          {
+            "grid": "native",
+            "max_abs": 5.960464477539063e-08
+          },
+          {
+            "grid": "shift5",
+            "max_abs": 3.5762786865234375e-07
+          }
+        ],
+        "scope": "actual nonzero real-reward LoRA, complete ODE before/after merge",
+        "uses_training_only_conditions": true,
+        "qualification_only": true,
+        "driving_effect_claim": false
       }
     },
     "B_SOURCE_ACTION_DIT": {
@@ -334,6 +363,35 @@
         "scoring_protocol": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
         "direct_original_entry_exact": true,
         "qualification_only": true
+      },
+      "full_merged_ODE": {
+        "status": "PASS",
+        "host": "training-vlawm-tsinghua-zt",
+        "architecture": "source_action_dit",
+        "checkpoint": "/mnt/project/fm-transfer-20261016/qualification/B_SOURCE_ACTION_DIT/real_reward_two_gpu/continuous/checkpoints/update000004_inner0",
+        "updates": 4,
+        "checks": [
+          {
+            "grid": "native",
+            "max_abs": 4.76837158203125e-07
+          },
+          {
+            "grid": "shift5",
+            "max_abs": 4.76837158203125e-07
+          },
+          {
+            "grid": "native",
+            "max_abs": 4.76837158203125e-07
+          },
+          {
+            "grid": "shift5",
+            "max_abs": 3.5762786865234375e-07
+          }
+        ],
+        "scope": "actual nonzero real-reward LoRA, complete ODE before/after merge",
+        "uses_training_only_conditions": true,
+        "qualification_only": true,
+        "driving_effect_claim": false
       }
     }
   },
@@ -350,5 +408,37 @@
       "kind": "qualification_execution",
       "reason": "missing attention backend env used SDPA; raw feature mismatch rejected; rerun matched locked FlashAttention2 exactly"
     }
-  ]
+  ],
+  "A_initial_baseline_reuse": {
+    "status": "PASS",
+    "scope": "A initial SFT exactly equals original F-SFT; reuse existing initial baselines only",
+    "all_model_tensors_equal": true,
+    "original_config_equal": true,
+    "actual_raw_observation_smoke_both_grids_equal": true,
+    "export_sha256": "26258e8d347cd76375d0573144fec8c313992806ce8673f6009d83cd0b278695",
+    "original_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "reuse": {
+      "DEV": {
+        "path": "/mnt/project/simwam-recipe-20261015/evaluations/SFT_update000000_DEV",
+        "manifest_sha256": "a320dea69b1e1b24017863918e0a63cd90825ac2989d4d16f6e8092b6fa08c4c",
+        "scenes": 1696,
+        "modes": [
+          "E_NATIVE",
+          "E_SHIFT5"
+        ],
+        "all_scene_payload_hashes_verified": true
+      },
+      "TRAIN_DIAGNOSTIC": {
+        "path": "/mnt/project/simwam-recipe-20261015/evaluations/SFT_update000000_TRAIN_DIAGNOSTIC",
+        "manifest_sha256": "f8b8f363ddb1e64a304a01c6a70d4b43cec4ce86e2699ee73af72486d8e56bce",
+        "scenes": 512,
+        "modes": [
+          "E_NATIVE",
+          "E_SHIFT5"
+        ],
+        "all_scene_payload_hashes_verified": true
+      }
+    },
+    "not_applicable_to_new_SFT_or_RL_checkpoints": true
+  }
 }

@@ -63,6 +63,9 @@ LAST_ODE 的15k DEV native 为93.36988078，低于原 SFT 的93.6192366；没有
 6. 第5项使用**明确标记的人工 reward 向量做算术测试**，未进行驾驶评分，不能作为 RL 提升证据。正式 RL 前仍需各自完成 SFT、自己的单候选 TRAIN screen，以及真实 reward 的多卡有限验收。
 7. 随后两组均完成**真实 canonical 评分的两卡短训**：连续4次 optimizer 更新，与保存 inner2后恢复至inner4的全部 LoRA/Adam/scheduler/RNG、实际链、old logprob、优势和真实 score逐位一致。每组16个逻辑候选、32次实际资格评分；A两rank均有PG，B一rank全零组，验证了该rank仍保留anchor且正确同步另一rank梯度。原完整冻结头和reference hash不变，所有LoRA张量实际更新。该验收使用8步SFT资格模型，仍不能代表正式SFT终点的RL效果；正式RL启动资格与规划结果单列。
 8. 两组正式step0 export均从原 VLAAgent成功加载，分别通过2个固定DEV场景×2种网格的原入口一致性和真实评分 smoke。B的step0完整DEV基线随后已派发；不将2场景smoke当完整DEV结果。
+9. 对真实reward更新后的非零LoRA做完整10步ODE合并检查：A的native/shift5最大误差3.58e−7，B为4.77e−7；不是只比较某一层或单步velocity。
+
+A的step0全模型张量与原F-SFT全部相同，resolved配置相同，实际raw-observation双网格输出及score也与历史原始记录相同。因此复用已有完整1696 DEV、512 TRAIN诊断的起点结果，并重新验证全部既有payload hash；不重新花GPU/评分预算。这只适用于A的初始化，后续新SFT和RL必须重新评价。B没有可复用的旧基线。
 
 短训练实测每卡峰值约15.42GiB/19.11GiB。仅7个稳定 update 的数据+更新中位时间约0.301/0.435秒；粗算 A约1.7小时、B约12.1小时，尚不包含长期 I/O波动、checkpoint及评价开销。正式 ETA 应由正式进程近期完整窗口重新估计。
 
