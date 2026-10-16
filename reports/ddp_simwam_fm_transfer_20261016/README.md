@@ -2,6 +2,8 @@
 
 ## 状态与研究范围
 
+A的[首个5k RL完整ODE评价](interim_A_RL_update005000.md)已完成：DEV原生94.332347、shift5 94.384140，相对自己的20k SFT分别+0.612255/+0.923830个百分点，按log配对区间均高于零。但原生TTC新增28/恢复3、固定SFT-safe人口新增31个联合违规；shift5相应为8/2和10个。真实部署均分有积极增量，安全保持仍未解决。继续固定20k，不把DEV成绩当Navtest目标完成；梯度、训练预算与完整成本已随报告保存。
+
 B的[25k完整DEV与TRAIN诊断结果](interim_B_SFT_update025000.md)已完成：DEV native/shift5为92.867093/93.161568，相对10k +1.178021/+1.473688个百分点，两个配对区间均跨零；零分从45降至26/22，但两个网格均有新增DAC/TTC违规。这是SFT中期结果，继续既定100k；尚无B正式RL或新Navtest结论。
 
 20:40–20:43 UTC，[里程碑评价已改为两台主机并行](parallel_evaluation_execution_20261016.md)。B已封存25k SFT checkpoint，完整DEV与固定TRAIN诊断各8个实际worker已分别启动；A的RL和B的SFT持续运行。只是调度变化，没有新增方法/seed，也没有热修改训练或数值推理源码。
