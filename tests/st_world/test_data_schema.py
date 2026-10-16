@@ -32,3 +32,10 @@ def test_no_labels_allowed_in_current():
     assert ModelInputs(obs).legacy_current() is not obs
     for key in ['ego','future','score','metric_cache','teacher_features']:
         with pytest.raises(ValueError): ModelInputs({**obs,key:torch.zeros(1)})
+
+
+def test_contract_spawn_pickle_preserves_identity():
+    import pickle
+    c=contract()
+    restored=pickle.loads(pickle.dumps(c))
+    assert restored.identity == c.identity and restored.pooling == c.pooling

@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 import hashlib
 import json
+import math
 from types import MappingProxyType
 from typing import Mapping, Optional, Tuple
 
@@ -111,6 +112,10 @@ class TeacherFeatureContract:
     def identity(self):
         return identity_hash(self.to_dict())
 
+    def __reduce__(self):
+        # MappingProxy protects nested identity, and this supports spawn workers.
+        return (type(self).from_dict, (self.to_dict(),))
+
     def validate(self):
         # Construction does full validation. Return self for explicit call sites.
         return self
@@ -171,7 +176,7 @@ class TrainingTargets:
         self.teacher_contract.validate_targets(self.future_dense_features, self.future_valid, future=True)
         if self.future_dense_features.shape[0] != len(self.future_times_s):
             raise ValueError('Future time/feature mismatch')
-        if tuple(sorted(set(self.future_times_s))) != tuple(self.future_times_s) or any(t <= 0 for t in self.future_times_s):
+        if tuple(sorted(set(self.future_times_s))) != tuple(self.future_times_s) or any(not math.isfinite(t) or t <= 0 for t in self.future_times_s):
             raise ValueError('Future labels require distinct increasing positive physical times')
         if self.ego.shape[-1] != 4 or not torch.isfinite(self.ego).all() or self.ego.requires_grad:
             raise ValueError('Original normalized xy/sincos ego labels required')

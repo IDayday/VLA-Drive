@@ -153,6 +153,8 @@ def build_history_record(frames, token, log, current_record, sensor_roots, *,
                 distortion = np.asarray(meta['distortion'], dtype=float)
                 if not np.isfinite(distortion).all():
                     raise ValueError('Invalid camera distortion')
+                if 'timestamp' in meta and int(meta['timestamp']) > t0:
+                    raise ValueError('History sensor exposure timestamp is after current decision')
                 view.update(valid=True, image=ref, intrinsics=(affine @ k).tolist(),
                             distortion=distortion.tolist(), camera_to_current_planar_ego=c2e0.tolist(),
                             crop_xyxy=crop, resize_affine=affine.tolist(),
@@ -178,10 +180,14 @@ def validate_history_record(record):
         raise ValueError('History schema/whitelist changed')
     if identity_hash({k: v for k, v in record.items() if k != 'identity'}) != record['identity']:
         raise ValueError('History record content hash changed')
+    for name in ('source_raw_sha256', 'current_record_identity'):
+        require_hash(record[name], name)
+    if not 0 <= record['timestamp_tolerance_s'] <= .05:
+        raise ValueError('History tolerance exceeds registered50ms')
     if record['view_names'] != list(VIEWS) or len(record['frames']) != len(record['offsets_s']):
         raise ValueError('History layout mismatch')
     offsets = record['offsets_s']
-    if tuple(sorted(set(offsets))) != tuple(offsets) or any(x >= 0 for x in offsets):
+    if not offsets or tuple(sorted(set(offsets))) != tuple(offsets) or any(not math.isfinite(x) or x >= 0 for x in offsets):
         raise ValueError('Noncausal history offsets')
     previous_tokens = set()
     for expected, frame in zip(offsets, record['frames']):
@@ -207,7 +213,11 @@ def validate_history_record(record):
             if view['valid']:
                 if frame['token'] is None or view['image'] is None:
                     raise ValueError('Valid view lacks real history source')
+                if set(view['image']) != {'path','sha256','bytes','mtime_ns','original_wh'}:
+                    raise ValueError('Undeclared history image metadata')
                 require_hash(view['image']['sha256'], 'history image hash')
+                if view['sensor_timestamp_us'] is not None and view['sensor_timestamp_us'] > record['current_timestamp_us']:
+                    raise ValueError('History exposure is noncausal')
                 _matrix(view['intrinsics'], (3, 3), 'history intrinsics')
                 _matrix(view['camera_to_current_planar_ego'], (4, 4), 'history camera transform')
             elif view['image'] is not None:
@@ -263,3 +273,38 @@ class HistoryReader:
         if current_record is not None and record['current_record_identity'] != identity_hash(current_record):
             raise ValueError('History attached to changed current input')
         return record
+
+
+def collate_history_inputs(records, *, verify_images=True):
+    """Separate explicit new-framework kwargs; does not modify legacy inputs.
+
+    Missing history images remain None. Metadata zero/identity fillers are only
+    meaningful under history_valid=False and must never create valid tokens.
+    """
+    import torch
+    if not records:
+        raise ValueError('Cannot collate empty history batch')
+    times=records[0]['offsets_s']
+    b,t,v=len(records),len(times),len(VIEWS)
+    valid=torch.zeros(b,t,v,dtype=torch.bool)
+    offsets=torch.zeros(b,t,dtype=torch.float32)
+    ego=torch.eye(4,dtype=torch.float32).expand(b,t,4,4).clone()
+    cameras=torch.zeros(b,t,v,4,4,dtype=torch.float32)
+    intrinsics=torch.zeros(b,t,v,3,3,dtype=torch.float32)
+    images=[]
+    for i,record in enumerate(records):
+        if record['offsets_s']!=times:
+            raise ValueError('Mixed history time layout')
+        rgb,mask=load_history_images(record,verify_images=verify_images)
+        images.append(rgb);valid[i]=torch.from_numpy(mask)
+        for ti,frame in enumerate(record['frames']):
+            offsets[i,ti]=frame['actual_offset_s'] if frame['actual_offset_s'] is not None else times[ti]
+            if frame['relative_ego_planar'] is not None:
+                ego[i,ti]=torch.tensor(frame['relative_ego_planar'],dtype=torch.float32)
+            for vi,view in enumerate(frame['views']):
+                if view['valid']:
+                    cameras[i,ti,vi]=torch.tensor(view['camera_to_current_planar_ego'],dtype=torch.float32)
+                    intrinsics[i,ti,vi]=torch.tensor(view['intrinsics'],dtype=torch.float32)
+    return {'history_images':images,'history_valid':valid,'history_times_s':offsets,
+            'history_ego_relative':ego,'history_camera_to_current_ego':cameras,
+            'history_intrinsics':intrinsics}

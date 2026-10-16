@@ -95,3 +95,16 @@ def test_fixed_selection_is_score_free():
     index=[{'token':str(i),'log':str(i//4)} for i in range(20)]
     a=stable_selection(index,5,42);b=stable_selection(list(reversed(index)),5,42)
     assert a==b and len({r['log'] for r in a})==5
+
+
+def test_collation_and_actual_sensor_time_guard(tmp_path):
+    import torch
+    from starVLA.dataloader.st_world_history import collate_history_inputs
+    frames,current,r=make(tmp_path)
+    batch=collate_history_inputs([r,r])
+    assert batch['history_valid'].shape==(2,2,3) and batch['history_valid'].all()
+    assert torch.equal(batch['history_times_s'][0],torch.tensor([-1.,-.5]))
+    assert batch['history_ego_relative'].shape==(2,2,4,4)
+    frames[0]['cams']['CAM_F0']['timestamp']=1000001
+    with pytest.raises(ValueError,match='after current'):
+        build_history_record(frames,'t2','log',current,[tmp_path],raw_log_sha256='a'*64)
