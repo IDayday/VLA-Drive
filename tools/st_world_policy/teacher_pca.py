@@ -10,8 +10,10 @@ from __future__ import annotations
 import argparse
 from collections import OrderedDict
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 
 import torch
 from safetensors import safe_open
@@ -95,6 +97,48 @@ def register_channel_scope(pca_root, fit_cache_root, target_cache_roots, output)
     scope['identity']=identity_hash(scope)
     atomic_json(output,scope,immutable=True)
     return scope
+
+
+def clone_basis_namespace(source, output, fit_cache_root, target_cache_roots):
+    """Copy a validated fixed basis byte-for-byte; register a NEW application scope.
+
+    No fitting, reconstruction probe, or width selection is executed. An existing
+    scope is immutable, so adding a population requires a new namespace.
+    """
+    source,output=Path(source).resolve(),Path(output).resolve()
+    if source==output:raise ValueError('PCA scope versioning requires a new namespace')
+    receipt=json.loads((source/'PCA.json').read_text())
+    TeacherPCA.load(source,dimension=receipt['dimensions'][0],expected_identity=receipt['identity'],
+                    expected_teacher_contract=receipt['teacher_contract_identity'])
+    names=['PCA.json','COMPLETE.json','statistics.safetensors']
+    names += [name for name in ['FIT_PATCHES.json','RECONSTRUCTION_PROBES.json','PROBE_TRAIN_PATCHES.json',
+        'PROBE_DEV_PATCHES.json','resolved_config.json','DIMENSION_SELECTION.json'] if (source/name).is_file()]
+    hashes={name:file_sha256(source/name) for name in names}
+    with file_lock(output/'CLONE.lock',blocking=False):
+        provenance={'schema':'st_pca_namespace_clone_v1','source_namespace':str(source),
+            'source_files_sha256':hashes,'pca_identity':receipt['identity'],'statistics_refitted':False,
+            'prior_channel_scope_sha256':file_sha256(source/'CHANNEL_SCOPE.json') if (source/'CHANNEL_SCOPE.json').exists() else None}
+        atomic_json(output/'CLONED_FROM.json',provenance,immutable=True)
+        for name in names:
+            target=output/name
+            if target.exists():
+                if file_sha256(target)!=hashes[name]:raise ValueError('Conflicting fixed PCA clone: '+name)
+                continue
+            content=(source/name).read_bytes()
+            fd,tmp=tempfile.mkstemp(prefix=name+'.',suffix='.tmp',dir=output)
+            try:
+                with os.fdopen(fd,'wb') as f:f.write(content);f.flush();os.fsync(f.fileno())
+                if file_sha256(tmp)!=hashes[name] or file_sha256(source/name)!=hashes[name]:
+                    raise ValueError('PCA source changed during namespace copy')
+                os.replace(tmp,target)
+            finally:
+                if os.path.exists(tmp):os.unlink(tmp)
+        scope=register_channel_scope(output,fit_cache_root,target_cache_roots,output/'CHANNEL_SCOPE.json')
+        result={'status':'COMPLETE','schema':'st_pca_namespace_v1','pca_identity':receipt['identity'],
+                'channel_scope_identity':scope['identity'],'source_files_sha256':hashes,
+                'statistics_refitted':False,'old_namespace_modified':False}
+        atomic_json(output/'NAMESPACE_COMPLETE.json',result,immutable=True)
+    return result
 
 
 def validate_channel_scope(path, receipt, expected_contract, target_cache_identity):
@@ -203,7 +247,10 @@ class TeacherPCA:
         if receipt['fit_role']!='train' or receipt['whiten'] is not False or receipt['standardize_channels'] is not True:
             raise ValueError('PCA normalization/provenance changed')
         scope_identity=None
-        if receipt['teacher_contract_identity']!=expected_teacher_contract:
+        if channel_scope is not None:
+            if target_cache_identity is None:raise ValueError('Explicit PCA scope requires the target cache identity')
+            scope_identity=validate_channel_scope(channel_scope,receipt,expected_teacher_contract,target_cache_identity)
+        elif receipt['teacher_contract_identity']!=expected_teacher_contract:
             if channel_scope is None or target_cache_identity is None:
                 raise ValueError('PCA exact teacher contract mismatch; explicit registered channel scope required')
             scope_identity=validate_channel_scope(channel_scope,receipt,expected_teacher_contract,target_cache_identity)
@@ -293,6 +340,11 @@ def reconstruction_probe(reader, plan, tensors, dimensions):
 
 
 def run(args):
+    if args.clone_basis_from:
+        if args.register_channel_scope:raise ValueError('Choose namespace clone or standalone scope registration')
+        actual=json.loads((Path(args.cache_root)/'identity.json').read_text())['identity']
+        if actual!=args.cache_identity:raise ValueError('PCA fitted cache identity mismatch')
+        return clone_basis_namespace(args.clone_basis_from,args.output,args.cache_root,args.scope_cache_root)
     if args.register_channel_scope:
         actual=json.loads((Path(args.cache_root)/'identity.json').read_text())['identity']
         if actual!=args.cache_identity:raise ValueError('Channel scope fitted cache identity mismatch')
@@ -361,6 +413,7 @@ def parser():
     for key in ('cache-root','cache-identity','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--probe-cache-root');p.add_argument('--probe-cache-identity')
     p.add_argument('--register-channel-scope',help='Existing fitted PCA root; register exact compatible cache identities without refitting')
+    p.add_argument('--clone-basis-from',help='Copy validated fixed basis/selection to a NEW namespace and register supplied caches; never refit')
     p.add_argument('--scope-cache-root',action='append',default=[],help='Actual complete additional teacher cache admitted by the explicit scope')
     p.add_argument('--dimensions',nargs='+',type=int,default=[256,384])
     p.add_argument('--max-patches',type=int,default=32768)

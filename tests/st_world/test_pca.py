@@ -131,6 +131,39 @@ def test_linear_pooling_and_one_common_pca_commute_without_refit():
     assert torch.allclose(pca.transform(pooled),pca.transform(grid).mean((1,3)),atol=2e-7)
 
 
+def test_namespace_clone_preserves_old_scope_and_all_fixed_statistics(tmp_path,monkeypatch):
+    from tools.st_world_policy.teacher_pca import register_channel_scope,clone_basis_namespace
+    from starVLA.dataloader.st_world_history import file_sha256
+    readers,source,receipt=scoped_fixture(tmp_path);fit,pooled=readers
+    register_channel_scope(source,fit.root,[],source/'CHANNEL_SCOPE.json')
+    old_scope=file_sha256(source/'CHANNEL_SCOPE.json')
+    monkeypatch.setattr(StreamingCovariance,'update',lambda *a:(_ for _ in ()).throw(AssertionError('No refit allowed')))
+    target=tmp_path/'new_pca'
+    result=clone_basis_namespace(source,target,fit.root,[pooled.root])
+    assert result['statistics_refitted'] is False and result['old_namespace_modified'] is False
+    assert file_sha256(source/'CHANNEL_SCOPE.json')==old_scope
+    for name in ['PCA.json','COMPLETE.json','statistics.safetensors']:
+        assert (source/name).read_bytes()==(target/name).read_bytes()
+    assert clone_basis_namespace(source,target,fit.root,[pooled.root])==result
+    with pytest.raises(ValueError,match='new namespace'):clone_basis_namespace(source,source,fit.root,[])
+    with pytest.raises(ValueError,match='Immutable artifact conflict'):clone_basis_namespace(source,target,fit.root,[])
+    loaded=TeacherPCA.load(target,dimension=2,expected_identity=receipt['identity'],
+        expected_teacher_contract=pooled.contract.identity,channel_scope=target/'CHANNEL_SCOPE.json',
+        target_cache_identity=pooled.identity['identity'])
+    assert loaded.channel_scope_identity==result['channel_scope_identity']
+
+
+def test_explicit_scope_is_checked_even_for_same_grid_contract(tmp_path):
+    from tools.st_world_policy.teacher_pca import register_channel_scope
+    readers,root,receipt=scoped_fixture(tmp_path);fit,_=readers
+    scope=register_channel_scope(root,fit.root,[],root/'CHANNEL_SCOPE.json')
+    kwargs=dict(dimension=2,expected_identity=receipt['identity'],expected_teacher_contract=fit.contract.identity,
+        channel_scope=root/'CHANNEL_SCOPE.json')
+    assert TeacherPCA.load(root,**kwargs,target_cache_identity=fit.identity['identity']).channel_scope_identity==scope['identity']
+    with pytest.raises(ValueError,match='not explicitly admitted'):
+        TeacherPCA.load(root,**kwargs,target_cache_identity='f'*64)
+
+
 def test_probe_raw_distortion_and_full_field_resize_projection():
     import cv2
     import numpy as np
