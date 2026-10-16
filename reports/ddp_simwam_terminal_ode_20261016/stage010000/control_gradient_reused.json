@@ -1,0 +1,105 @@
+{
+  "status": "REUSED_EXISTING_NO_NEW_GPU_WORK",
+  "source_path": "reports/ddp_simwam_audit_recovery_20261015/gradients.json",
+  "source_sha256": "3457d48abb35562a2bb2258c37519fd706fba58a36d163a909dd29ea35a33cf4",
+  "key": "R_CANONICAL_10000",
+  "data": {
+    "status": "COMPLETE_SAVED_BATCH_DIAGNOSTIC",
+    "steps": [
+      {
+        "step": 7,
+        "PG_gradient_norm": 0.013355725444853306,
+        "beta50_anchor_gradient_norm": 0.0009067279170267284,
+        "cosine": 0.08126095682382584,
+        "x_mean_anchor": 1.5789650191777582e-06,
+        "x_kl_normalized_diagnostic": 0.00029179279269784386,
+        "logical_anchor_contribution": {
+          "x": 4.43085318899896e-07,
+          "y": 6.070702841430953e-07,
+          "heading_pair": 5.288094818599699e-07
+        },
+        "mean_shift_RMS_by_native_channel": [
+          0.002207699822869689,
+          0.0011556619856665745,
+          0.001349934577093497,
+          0.0007102382401358498
+        ],
+        "velocity_shift_RMS_by_native_channel": [
+          0.017397998253616,
+          0.009107332900056246,
+          0.010638298896257252,
+          0.005597114999689529
+        ],
+        "source_PPO_clip_fraction": 0.0,
+        "raw_density_PPO_clip_fraction_diagnostic": 0.0
+      },
+      {
+        "step": 8,
+        "PG_gradient_norm": 0.023930270224809647,
+        "beta50_anchor_gradient_norm": 0.0022467533126473427,
+        "cosine": -0.18005505204200745,
+        "x_mean_anchor": 4.2661553720790835e-06,
+        "x_kl_normalized_diagnostic": 0.0008600566269141482,
+        "logical_anchor_contribution": {
+          "x": 1.2846714463938207e-06,
+          "y": 1.4609870323635152e-06,
+          "heading_pair": 1.5204970817770591e-06
+        },
+        "mean_shift_RMS_by_native_channel": [
+          0.0037591735674655977,
+          0.0017928110528440341,
+          0.0023112494796621664,
+          0.0011611688088217086
+        ],
+        "velocity_shift_RMS_by_native_channel": [
+          0.018851975011186687,
+          0.008990813414249808,
+          0.011590738739343283,
+          0.005823171542783491
+        ],
+        "source_PPO_clip_fraction": 0.0,
+        "raw_density_PPO_clip_fraction_diagnostic": 0.0
+      },
+      {
+        "step": 9,
+        "PG_gradient_norm": 0.03374633193016052,
+        "beta50_anchor_gradient_norm": 0.015696879476308823,
+        "cosine": -0.04024766385555267,
+        "x_mean_anchor": 2.8571916914188478e-05,
+        "x_kl_normalized_diagnostic": 0.007200122529236535,
+        "logical_anchor_contribution": {
+          "x": 1.366101684073907e-05,
+          "y": 5.602875577634139e-06,
+          "heading_pair": 9.308024870465074e-06
+        },
+        "mean_shift_RMS_by_native_channel": [
+          0.012258514805967718,
+          0.003510886821131537,
+          0.005583343543031849,
+          0.003127552447286998
+        ],
+        "velocity_shift_RMS_by_native_channel": [
+          0.03415307297743641,
+          0.009781578911667541,
+          0.015555587055291737,
+          0.008713576911707368
+        ],
+        "source_PPO_clip_fraction": 0.3125,
+        "raw_density_PPO_clip_fraction_diagnostic": 0.3125
+      }
+    ],
+    "positive_candidate_categories": {
+      "safe_recovery_vs_single_SFT": 0,
+      "safe_other_positive": 33,
+      "positive_still_unsafe": 0,
+      "positive_unsafe_despite_safe_alternative": 0,
+      "positive_micro_progress_only": 0
+    },
+    "probability_tail_clamp_fraction": 0.00032552084303461015,
+    "innovation_clip_fraction": 0.0,
+    "new_candidates": 0,
+    "new_scoring_calls": 0,
+    "saved_batch_scope": "one fixed global batch (8 scenes, G8), not population estimate",
+    "source_sha256": "3614f36c6a8019bc2252388ae9b2fa3d5f84ac4d855b2f686a634966d24915c0"
+  }
+}

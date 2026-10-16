@@ -1,5 +1,7 @@
 # DDP SimWAM：末步 ODE 单因素对照
 
+2026-10-16补充：[固定10k完整阶段](stage010000/README.md)已完成。原ODE DEV为93.4190，相对同期Canonical−1.0828分；定向TRAIN为80.5337，相对同期−6.2177分。训练随机候选更安全仍未转化为部署收益。保留既定20k终点；新增[DDP与SimWAM的FM源码对照](fm_design_comparison/README.md)，区分已复用的GRPO与尚未迁移的SFT设计。下文各运行状态按所注时间理解。
+
 本轮沿用正在执行的强化学习改进目标，登记一个有限对照
 `R_CANONICAL_LAST_ODE`。对照是已完成的 `R_CANONICAL`；从同一 F-SFT
 重新初始化，同一 LoRA 初始化、困难 TRAIN 清单与数据顺序、seed42。

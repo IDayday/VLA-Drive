@@ -1,0 +1,83 @@
+{
+  "schema": "ddp_simwam_FM_design_source_check_v1",
+  "upstream_commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "source_files_sha256": {
+    "configs/model/simwam_navsim.yaml": "86e4c6a050a2b8e68a5fd525cf18466e715dd18eab7108a36806ffb59a6f06de",
+    "configs/data/navsim.yaml": "af1931de27f9a2475260a33fb8d928d72243d65f3d144df8aa0ccaa3871bf20e",
+    "configs/task/navsim_uncond_front_384x672_1e-4.yaml": "88f3f9e9751bf24f22a8de255101de8fe223918374c0128ae72d5c784f52adc5",
+    "src/simwam/models/wan22/simwam.py": "47cb20aefc910e156e43de46c43d53427db7ef9467eecb183ac24d80b4f0caee",
+    "src/simwam/models/wan22/action_dit.py": "23c75e386d8b3bbc2fbe7675034b12a4cddad72f97890627dc71d1f34674de41",
+    "src/simwam/models/wan22/mot.py": "9860f83bff92e772a4ed15867a7c36419a715eb5afa27fffad95315da5f2c2d0",
+    "src/simwam/models/wan22/schedulers/scheduler_continuous.py": "67eb410317eeadd965af5f241572655344941a48b3569fd3a09cd81ea7a565f7",
+    "src/simwam/datasets/navsim/navsim_dataset.py": "c7e746f8fad459790a9af21a0cd7cee7411a7ca0ff38088ffcb96cad26dbd836",
+    "src/simwam/models/wan22/simwam_grpo.py": "bf8c9d02dfa58d061dc6443bacef1e16ac7fb3c32b0c84556e7ce67d37ccd645"
+  },
+  "quadrature_points": 100000,
+  "method": "Deterministic midpoint quadrature in uniform base quantile; executes the pinned upstream training_weight. Source weighting mass is not actual gradient norm.",
+  "time_mass": [
+    {
+      "DDP_generation_time_interval": [
+        -1.0,
+        0.0
+      ],
+      "DDP_sample_mass": 0.0015,
+      "SimWAM_sample_mass": 0.0,
+      "SimWAM_normalized_loss_weight_mass": 0.0
+    },
+    {
+      "DDP_generation_time_interval": [
+        0.0,
+        0.25
+      ],
+      "DDP_sample_mass": 0.34995,
+      "SimWAM_sample_mass": 0.625,
+      "SimWAM_normalized_loss_weight_mass": 0.37223433759213603
+    },
+    {
+      "DDP_generation_time_interval": [
+        0.25,
+        0.5
+      ],
+      "DDP_sample_mass": 0.29553,
+      "SimWAM_sample_mass": 0.20833,
+      "SimWAM_normalized_loss_weight_mass": 0.3793126962709825
+    },
+    {
+      "DDP_generation_time_interval": [
+        0.5,
+        0.75
+      ],
+      "DDP_sample_mass": 0.22821,
+      "SimWAM_sample_mass": 0.10417,
+      "SimWAM_normalized_loss_weight_mass": 0.1972697595420357
+    },
+    {
+      "DDP_generation_time_interval": [
+        0.75,
+        1.000001
+      ],
+      "DDP_sample_mass": 0.12481,
+      "SimWAM_sample_mass": 0.0625,
+      "SimWAM_normalized_loss_weight_mass": 0.051183206594845806
+    }
+  ],
+  "DDP_mean_generation_time": 0.39939939913535144,
+  "SimWAM_mean_generation_time": 0.25294934761565635,
+  "SimWAM_weighted_mean_generation_time": 0.35487438332211096,
+  "DDP_analytic_negative_time_probability": 0.0014996249374765735,
+  "source_loss_weight_mean_under_sampling": 1.000002767951347,
+  "new_training": 0,
+  "new_rollout": 0,
+  "new_scores": 0,
+  "analysis_body_seconds": 0.0329597033560276,
+  "limits": [
+    "This verifies source-design differences; it does not show that adopting the source schedule improves DDP.",
+    "The pinned public SFT defaults are not proof of the exact training history of released SimWAM weights.",
+    "DDP keeps its original eight-by-four representation; no source design has been installed in live runs."
+  ],
+  "DDP_source_files_sha256": {
+    "/mnt/project/VLA-Drive-simwam-window10k-20261016/starVLA/model/modules/action_model/GR00T_ActionHeader.py": "81cdc45976af8746dfc3c88c79cbd6c50a122231dc174d0a6ccece7960281bca",
+    "/mnt/project/VLA-Drive-simwam-window10k-20261016/starVLA/rl/simwam_recipe/trainer_adapter.py": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+    "/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-source/checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml": "7a926ca0f32f7643c22f48651e5cccdb5c5abc605581bee7215393eb4f186994"
+  }
+}

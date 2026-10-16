@@ -1,0 +1,62 @@
+{
+  "schema": "simwam_LAST_ODE_fixed10k_readonly_v1",
+  "status": "REGISTERED_BEFORE_10K_DEPLOYMENT_RESULTS",
+  "created_utc": "2026-10-16T15:40:08.346194+00:00",
+  "optimizer_update": 10000,
+  "collection": 2500,
+  "analysis_repository": "/mnt/project/VLA-Drive-simwam-window10k-20261016",
+  "analysis_parent_commit": "ee6b46b37163b5379bf2d3a55db4b8179b1c4773",
+  "control_run": "/mnt/project/simwam-recipe-20261015/runs/R_CANONICAL_seed42_v1",
+  "candidate_run": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1",
+  "run_identity": "40c07f3aa5a19a2806a1a2763b94b770d3405808e5ded1d3d4328c242f39ab35",
+  "checkpoint": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1/checkpoints/update010000_inner0",
+  "checkpoint_seal": {
+    "schema": 2,
+    "phase": "READY",
+    "world": 8,
+    "updates": 10000,
+    "next_inner": 0,
+    "files_sha256": "ff6a9377e9c73fb626d78c4d1b017ca4539aa6e2fc61c9454071aba274d25c3c"
+  },
+  "gradient_source": "/mnt/project/simwam-terminal-ode-20261016/source/361ab35f6a1dee1d511ec34a61fc0875e2e2dee4",
+  "gradient_source_commit": "361ab35f6a1dee1d511ec34a61fc0875e2e2dee4",
+  "gradient_source_sha256": "ce849ae3c94a8b663e16435fd5bb5852f914a3b76a34f22a321523c1e768b996",
+  "all_24_training_dependency_hashes_match": true,
+  "saved_group_sha256": {
+    "rank0": "dbf18c4f7f806cdd0b65812e63b0837e019fe5d5cdbc71f5fd9288562e074ad9",
+    "rank1": "1fb3f67442d7adf359520317e171d4bb7056196d24b4394257272d70dc53ddfa",
+    "rank2": "7276b15a0485e3bec573b99f497f1e465b5e092a1b3a464ea7367b04cac75ecb",
+    "rank3": "95edc50cb6680c88b3c6959ecc48af0bf3340f9f95c867684fa00a57d5c73d40",
+    "rank4": "06a16b32da2813ad88da4ae50e0a590045dd315745b11b9ba9d781428991a788",
+    "rank5": "0dbbae1f7f9970433877e910e5684272b25307a33965959b74796ecfec69dee9",
+    "rank6": "9b41935d4074f617c48a59a3a53475fe8e8d4de724583711f6df78ecbfff1f35",
+    "rank7": "0691308ba32f3a097c90eb0286e823c7c012aefda554d77b38b4d6e81f57317c"
+  },
+  "reuse_control": {
+    "path": "/mnt/project/VLA-Drive-simwam-window10k-20261016/reports/ddp_simwam_audit_recovery_20261015/gradients.json",
+    "sha256": "3457d48abb35562a2bb2258c37519fd706fba58a36d163a909dd29ea35a33cf4",
+    "key": "R_CANONICAL_10000"
+  },
+  "allowed_host": "training-vlawm-tsinghua-zt",
+  "gpu": 7,
+  "min_free_MiB": 20000,
+  "budget": {
+    "saved_global_batches": 1,
+    "scene_groups": 8,
+    "candidate_records": 64,
+    "new_rollouts": 0,
+    "new_scores": 0,
+    "optimizer_updates": 0
+  },
+  "scope": [
+    "Compare already committed first10000 training updates and two fixed5000-update windows.",
+    "Recompute the saved10k batch PG/anchor gradients; reuse existing Canonical10k result.",
+    "Wait for already registered complete1696 DEV and512 TRAIN evaluations, both grids; no new Navtest."
+  ],
+  "limits": [
+    "A single saved batch is not full-population gradient evidence.",
+    "Checkpoints are after inner4; clipping there can be a real update effect.",
+    "Window shift changes sampling states and optimized transition times; not solely epsilon removal.",
+    "No changes to reward, LR, anchor, sampler, seed, training budget or live sources."
+  ]
+}
