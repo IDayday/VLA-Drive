@@ -1,0 +1,47 @@
+{
+  "status": "PASS_BOUNDED_ANALYSIS_VALIDATION",
+  "captured_utc": "2026-10-16T15:18:44.277780+00:00",
+  "checks": [
+    "Six registered jobs, all groups retained, source gradient equivalence and table numbers verified",
+    "Local report/code/evidence links resolve",
+    "ALL_ANALYSIS_WORKERS_EXITED",
+    "Two formal trainers/four controllers live; both formal24-file snapshots and archived source hashes unchanged"
+  ],
+  "runs": [
+    {
+      "variant": "R_CANONICAL_LAST_ODE",
+      "source_commit": "8b4dda71ea299e3eef53a8c0b613385d752b2907",
+      "verified_source_files": 24,
+      "pid": 1366390,
+      "start_ticks": 1359038482,
+      "host": "training-vlawm-tsinghua-zt2",
+      "sealed_updates": 8800,
+      "formal_process_live": true,
+      "checkpoint": "/mnt/project/simwam-terminal-ode-20261016/runs/R_CANONICAL_LAST_ODE_seed42_v1/checkpoints/update008800_inner0"
+    },
+    {
+      "variant": "R_CANONICAL_X1_SAFETY25",
+      "source_commit": "12c46a5bafd1e37a14435cd1e34aeb175731ca2f",
+      "verified_source_files": 24,
+      "pid": 183059,
+      "start_ticks": 1359705890,
+      "host": "training-vlawm-tsinghua-zt4",
+      "sealed_updates": 4900,
+      "formal_process_live": true,
+      "checkpoint": "/mnt/project/simwam-safety-exposure-20261016/runs/R_CANONICAL_X1_SAFETY25_seed42_v1/checkpoints/update004900_inner0"
+    }
+  ],
+  "policy_sha256": "bfbcb4dfd6b689b51be8292389f6411a4c1b1068c1e9c9c798e15dcebe4dd02b",
+  "files_sha256": {
+    "reward_mean_reproduction.json": "4ccdfc7fc66eb61582d770f7c74f4d6180267ada92a5f99d5c7144c7bded4ccf",
+    "dispatch_failure.json": "265241f82a7c33bf4cce196bd55db2d04159eb26e75c02acfbc47cfad54875f0",
+    "retry_registration.json": "91deb9b12d6167f96bedf861edba4e8b254a0d175ac377fe57fb4f7509ff7282",
+    "registration.json": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+    "cpu_qualification.json": "ff57b930c2b6cdb56f07911b0152db4cdde5cfefc7576c0a3884c4fb0f04fe97",
+    "README.md": "8eb5f81482eb75a6b4236c0ddf220e6c201ce0222540b08c26decd71ae4d2906",
+    "results.json": "e495e5a2cd5ca3d4779a3251ccef4ea183437adbf57e97570ea8311f5a1ed366",
+    "source_compatibility.json": "3e82bb26a5c4e2c2cda8d14e06f4441f512cd5daca8164dc500dcd883d81226a",
+    "cpu_qualification_v2.json": "1c576451179ddc835a3ec12e571d82445b3f553ce9ba647e6314ee974ab3acd1"
+  },
+  "scope": "Analysis correctness and provenance, not a new policy outcome or safety guarantee"
+}

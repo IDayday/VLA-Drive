@@ -1,0 +1,2896 @@
+{
+  "schema": "simwam_safety_gradient_strata_v1",
+  "captured_utc": "2026-10-16T15:15:09.414007+00:00",
+  "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+  "same_scene_order": false,
+  "scope": "Post-inner4 saved-state source loss gradients, not executed optimizer displacement or policy evaluation. Three batches per evolving variant are not representative population estimates.",
+  "jobs": [
+    {
+      "variant": "R_CANONICAL_X1",
+      "update": 1000,
+      "collection": 250,
+      "run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+      "checkpoint_files_sha256": "ed0d57599590c3e9c8989fa083eaff917887bc6407c194e68a5789e1338e1daa",
+      "result_sha256": "98202966c539bddc830cfd8bb6e15b0bb1d93920e428ee1b0cea3789e61fa54a",
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.006190943531692028,
+          "beta50_anchor_gradient_norm": 0.0008443668484687805,
+          "cosine": 0.00799538940191269,
+          "x_mean_anchor": 1.066875498167974e-06,
+          "x_kl_normalized_diagnostic": 0.00019715863067913222,
+          "logical_anchor_contribution": {
+            "x": 6.395526401803409e-07,
+            "y": 2.0196046524034728e-07,
+            "heading_pair": 2.253623940795535e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0013851562987819716,
+            0.0007783838408617227,
+            0.000990464182995323,
+            0.0006092249495442528
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.010915840513289553,
+            0.006134109246763567,
+            0.007805453549752809,
+            0.004801051994447218
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.013405891135334969,
+          "beta50_anchor_gradient_norm": 0.0022613757755607367,
+          "cosine": 0.15800756216049194,
+          "x_mean_anchor": 3.212524077866874e-06,
+          "x_kl_normalized_diagnostic": 0.0006476446311293536,
+          "logical_anchor_contribution": {
+            "x": 1.797273025516688e-06,
+            "y": 6.891567991829106e-07,
+            "heading_pair": 7.260943828413247e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0023220290822439102,
+            0.0014378700832246459,
+            0.0018414300591750254,
+            0.0009827011692418672
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.011644802194586842,
+            0.007210805371267775,
+            0.009234630171712659,
+            0.00492817503118823
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.03204520791769028,
+          "beta50_anchor_gradient_norm": 0.016411762684583664,
+          "cosine": -0.3909279704093933,
+          "x_mean_anchor": 2.1002700918870687e-05,
+          "x_kl_normalized_diagnostic": 0.005292680239654576,
+          "logical_anchor_contribution": {
+            "x": 1.1701204954306377e-05,
+            "y": 4.339081812076984e-06,
+            "heading_pair": 4.962413505893437e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.005924830416119522,
+            0.003607942030025751,
+            0.0050894660500394534,
+            0.0019676933774647326
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.01650698499352063,
+            0.01005197754083346,
+            0.014179607628268236,
+            0.005482135549061851
+          ],
+          "source_PPO_clip_fraction": 0.0625,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0625
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "b635b11b29f92b9135c2301336fc7a59cd222d11d4ed0092cea0cb3acbc17f73",
+        "all_steps_mean": {
+          "PG_norm": 0.011766756278324086,
+          "beta50_anchor_norm": 0.006227285729605953,
+          "cosine": -0.2721724481552969,
+          "total_norm": 0.011719590177586682,
+          "anchor_to_PG": 0.5292270513903167
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 8,
+            "PG_norm": 0.011766756278324086,
+            "beta50_anchor_norm": 0.006227285729605953,
+            "cosine": -0.2721724481552969,
+            "total_norm": 0.011719590177586682,
+            "anchor_to_PG": 0.5292270513903167,
+            "dot_fraction_of_total_PG": 1.0,
+            "mean_per_scene_PG_norm": 0.011766756278324086
+          },
+          "SFT_unsafe": {
+            "groups": 0,
+            "PG_norm": 0.0,
+            "beta50_anchor_norm": 0.0,
+            "cosine": null,
+            "total_norm": 0.0,
+            "anchor_to_PG": null,
+            "dot_fraction_of_total_PG": 0.0,
+            "mean_per_scene_PG_norm": null
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.006198240200028142,
+            "beta50_anchor_norm": 0.0008453416131748577,
+            "cosine": 0.007976766616447176,
+            "total_norm": 0.0062622978719822035,
+            "anchor_to_PG": 0.13638413257540738
+          },
+          {
+            "PG_norm": 0.013420955350845212,
+            "beta50_anchor_norm": 0.00226421950347812,
+            "cosine": 0.1576319645748652,
+            "total_norm": 0.013958114817426755,
+            "anchor_to_PG": 0.1687077740956441
+          },
+          {
+            "PG_norm": 0.03208590945911865,
+            "beta50_anchor_norm": 0.01643006662764053,
+            "cosine": -0.3899970786062961,
+            "total_norm": 0.029803696478756674,
+            "anchor_to_PG": 0.5120648566491293
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "50d0c1272a42a69ae112c924b4587fb601aa1a10a7deb06924a91e51a15c4ad2",
+              "old_logp": "3bc843cc1cc80da5930ab6cd2d13692cb84a1edcf10e26ee38da16d1a9af6820",
+              "advantages": "f117cabb843f86dd3c9d929128490d332add1eb9ef96122c491f708ffe9620ed",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8589896774893375,
+              "train_reward_mean": 0.8589896559715271,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6615752259744101,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8781503367796649,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "1137dc724397a52491baf27e026a7127890ec139ce23ce8bd99015f91bbb6bff",
+              "old_logp": "dbff153f12db8dfe68193e9ad1c50af953f5d484666ac89c9651413518313181",
+              "advantages": "54cf96db91d638b2ebf4b1780941adcf3a14dfc3ec98471554e2dde922b51d93",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8013793091250163,
+              "train_reward_mean": 0.8013793230056763,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.5233103419000391,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8164626942843555,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "9f59b6d320837b89944e860b09f5b15cc0a331f95e1617556831874a71a8556b",
+              "old_logp": "d5f0afa0a41c868e5cc0d6c54f3cdb49061137f564f11f0541592d00545df976",
+              "advantages": "bc084cbf047068cb9faa180ebddb94e6469efdf0f561deb5fcfbe7f7f9445c3f",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.9140369575967565,
+              "train_reward_mean": 0.9140369892120361,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7936886982322156,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9361705265510457,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "57c0e0347b79331adc573d3d1b5cb611ed2591fed2329d23affacfb64cba20ea",
+              "old_logp": "41b1d54b61cc8e9229984ea5a704348c0f1e019409554ceaa4f3160fded920af",
+              "advantages": "9f0046e086c587f4acbc327afd87e141af2d29f8e2aa0f4207569fee08eab515",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8552252234529638,
+              "train_reward_mean": 0.8552252054214478,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6525405362871128,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8600281571065244,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "eb4e513ab4c6a31edeb12518aa5b28df3ef775e752ec1449b616f84a29d2fd08",
+              "old_logp": "7b017e0721488f1ebe9cbc67ee35a220322de8877aa40906cb2733dafc7492cb",
+              "advantages": "b448d9be0b6187bec3ce12221518182a2d37fde54bc12d93d39f763a9ec0e219",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.894101479995114,
+              "train_reward_mean": 0.8941015005111694,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7458435519882736,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9051654556477295,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "033e69413983c7a69b336581f718ad780540785b2ce677d2154843b70f3f8b7a",
+              "old_logp": "5d0f8239b40ce81e1cfb70829d699d078d0bf4b642f5407ca75467c44885fd80",
+              "advantages": "3b5ee69ff669519b1defdd02a8123a29f12a84caca5ae5f94f2af54766439ac6",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8862559549793194,
+              "train_reward_mean": 0.8862559795379639,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7270142919503666,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8999099435539972,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "3befc12c986f8df343f7f12507da6496b33b954c29d7c77f574f649a626ed22c",
+              "old_logp": "97474c515a9abd79a12f9363fb477420b976c8c202e90b32a05f95a298ab7737",
+              "advantages": "60e675428078d42ed08e576e79ab500994c39972c2c710212905484e76e872f3",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8848066008486402,
+              "train_reward_mean": 0.8848066329956055,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7235358420367366,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9018010107972776,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "17447eda954884f4803fc2c04b1516712b477480e77c7e907c8549849161e4d8",
+              "old_logp": "a8cda29a85332aac0b92b60dc416dafae97899cef712a346c66405b0022a5d15",
+              "advantages": "8d436bfed887f8d9faf6f6a7806693d7191584ab07dcae678e5f277c90b11c46",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5e21b7c2ffb8e10ecc25ec3076290101e8ad7e07558de620b9d5ba9425ad492a"
+            },
+            "global_std": 0.03573965179366082,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8323492140724627,
+              "train_reward_mean": 0.8323491811752319,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.5976381137739102,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8475895289816369,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03573965179366082
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          5.093170329928398e-11,
+          6.548361852765083e-11,
+          7.275957614183426e-11,
+          2.1827872842550278e-11,
+          6.048139766789973e-11,
+          4.3655745685100555e-11,
+          2.0372681319713593e-10,
+          7.275957614183426e-11
+        ],
+        "summed_source_gradient_max_abs": 2.1032064978498966e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 0,
+        "safe_other_positive": 29,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.03573965179366082,
+      "worker_wall_seconds": 41.723054729402065,
+      "job_wall_seconds": 43.96304488182068,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    },
+    {
+      "variant": "R_CANONICAL_X1",
+      "update": 2000,
+      "collection": 500,
+      "run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+      "checkpoint_files_sha256": "5f7125bf5637e28732e1de968d8a7e2ef98c12ceae3654960b0ec94c9b824ef4",
+      "result_sha256": "294c77b9992425ab76c465369e38d404761a132471677fd6c742c5452f07c5f0",
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.01144392043352127,
+          "beta50_anchor_gradient_norm": 0.0014036354841664433,
+          "cosine": -0.12547165155410767,
+          "x_mean_anchor": 1.8830736365771372e-06,
+          "x_kl_normalized_diagnostic": 0.0003479920762010682,
+          "logical_anchor_contribution": {
+            "x": 5.605256170326811e-07,
+            "y": 8.732619818374587e-07,
+            "heading_pair": 4.492859846383368e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0012967562736823273,
+            0.0016185753199356035,
+            0.0013349255115297808,
+            0.0009558712160181374
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.010219227064794003,
+            0.012755350594134827,
+            0.010520001841440403,
+            0.007532841915152198
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.01833401992917061,
+          "beta50_anchor_gradient_norm": 0.003185142297297716,
+          "cosine": -0.08488283306360245,
+          "x_mean_anchor": 5.267205267500685e-06,
+          "x_kl_normalized_diagnostic": 0.0010618682163522236,
+          "logical_anchor_contribution": {
+            "x": 1.5868619342995771e-06,
+            "y": 2.2571537527937835e-06,
+            "heading_pair": 1.4231894196470307e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.002181876694380354,
+            0.0026022031710930026,
+            0.002398260656957347,
+            0.0016695753621069093
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.010941942984750316,
+            0.013049865927619574,
+            0.012027096663066339,
+            0.008372787584970523
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.03063409961760044,
+          "beta50_anchor_gradient_norm": 0.018199283629655838,
+          "cosine": -0.030666954815387726,
+          "x_mean_anchor": 2.9150759814910998e-05,
+          "x_kl_normalized_diagnostic": 0.0073459909294176645,
+          "logical_anchor_contribution": {
+            "x": 1.1735611622043507e-05,
+            "y": 9.298806901369971e-06,
+            "heading_pair": 8.116341028596707e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.005933534918434079,
+            0.005281706257292904,
+            0.005782383488868012,
+            0.003906672506561061
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.01653124577004148,
+            0.014715214047570655,
+            0.016110123192558775,
+            0.010884260782395263
+          ],
+          "source_PPO_clip_fraction": 0.296875,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.296875
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "f4520b933b6da68f53187dbb1ac1d0bd9b51647deb2e089bdd8d1268dc46a298",
+        "all_steps_mean": {
+          "PG_norm": 0.012464167003549001,
+          "beta50_anchor_norm": 0.006940043968542199,
+          "cosine": -0.15217391322712692,
+          "total_norm": 0.013311386635548348,
+          "anchor_to_PG": 0.5567996615069516
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 8,
+            "PG_norm": 0.012464167003549001,
+            "beta50_anchor_norm": 0.006940043968542199,
+            "cosine": -0.15217391322712692,
+            "total_norm": 0.013311386635548348,
+            "anchor_to_PG": 0.5567996615069516,
+            "dot_fraction_of_total_PG": 1.0,
+            "mean_per_scene_PG_norm": 0.012464167003549001
+          },
+          "SFT_unsafe": {
+            "groups": 0,
+            "PG_norm": 0.0,
+            "beta50_anchor_norm": 0.0,
+            "cosine": null,
+            "total_norm": 0.0,
+            "anchor_to_PG": null,
+            "dot_fraction_of_total_PG": 0.0,
+            "mean_per_scene_PG_norm": null
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.01145405093327222,
+            "beta50_anchor_norm": 0.0014053465915132028,
+            "cosine": -0.125208034783443,
+            "total_norm": 0.01136394986480317,
+            "anchor_to_PG": 0.12269428516603602
+          },
+          {
+            "PG_norm": 0.01835312745502297,
+            "beta50_anchor_norm": 0.003188645033702088,
+            "cosine": -0.08470132265727444,
+            "total_norm": 0.01836003892172573,
+            "anchor_to_PG": 0.17373851086232198
+          },
+          {
+            "PG_norm": 0.030670569847318634,
+            "beta50_anchor_norm": 0.018220649001514717,
+            "cosine": -0.030594574077374048,
+            "total_norm": 0.03519206022270383,
+            "anchor_to_PG": 0.5940759852920585
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "ee7dde2ee02827e6398b6ece88f7925a49a237115c3b27b9f06145031762b6e2",
+              "old_logp": "7709f491c71b7b7d510d676b49fcb779946a036e351f1d7afa80b48f1620421e",
+              "advantages": "3dc4063c54c83ea27b65b49b190e79ef5d3f7877faee675a43448c112062a923",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8637347350978613,
+              "train_reward_mean": 0.8637347221374512,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6729633642348667,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9133853104148205,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "799a11acf5e16fb9c7cdb6920c4d6dbee78dcb5d96843a9aa862a6cb4f7ffc1c",
+              "old_logp": "44100f6fe5cded598ed9950fba3225db4e41e792bada6960ec83e6bb3db80098",
+              "advantages": "4a435e8a79c7abddcbbcb4a2b38e6237ed89bb9a4bf8bb6954cdb573804cb7fd",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8398994370023934,
+              "train_reward_mean": 0.8398994207382202,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6657586488057441,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": false,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8915725410745202,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "c08876992abc70d56cdc511d5d8147d793a6e75437a0de2bd3043a80fde933d3",
+              "old_logp": "a43bac978eea52de4209aa4b6eeebafb74d120af09a6f29800e7b6e941654eae",
+              "advantages": "920352c8bff656ae03255a63fccd61c514b6d33c480e02b219eb2940d7e68abc",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8392358859073294,
+              "train_reward_mean": 0.8392359018325806,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6141661261775906,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8768545295248233,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "eb6978745b0bafdc968bd116f19725331ef3b2ac1af635eb7d3f624e026d22dc",
+              "old_logp": "a39102e413c593ddb53e4c3614dbba9d929edfa35e84b2ca814acd9eed24b805",
+              "advantages": "e8227eb63b12368bf1eadae836a627477c89024ddc3cd471f5a362e807e72c14",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8695591502294971,
+              "train_reward_mean": 0.8695591688156128,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6869419605507929,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8832786063909176,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 2,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "2e47aec9570deaaffef9415e715059584f0ca819884dfe45ad3c9415bedab0ed",
+              "old_logp": "7c78441927c1c6d3791d0bacd09d9c6dd57fa9423a8f54065473b8e4335dd5d5",
+              "advantages": "bd735598f669707e8dfd7f9ee687cc048887e27a211ae0d313668818a67767d8",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8486072587618967,
+              "train_reward_mean": 0.8486072421073914,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.636657421028552,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.861017003183019,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "ba56fd5f66839432baaa4ac66530e3ed355c799b446fc7bdc21ee923a02f19dc",
+              "old_logp": "3c40b894572aaecfc2d67bddd237dbc1aae40c933ad7a1ddd346bdc09b8a8781",
+              "advantages": "b4adb13a0eeefecb0dff3b3ec411bb855bf4ffa9a5fc3ba5976a89ef486c4b25",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.9054969743653898,
+              "train_reward_mean": 0.9054969549179077,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7731927384769355,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9112029518285106,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "9cd348e4788e04b55bad23aded9e48543571713efd5778eaa9169d74709dbf09",
+              "old_logp": "5b990911b5fe7a38e61e1dd34fcce9815c005a4cdcf2b5611bac638dfba450d0",
+              "advantages": "e7c8f0f362866b86d94e6375d64acc3fe53576efe05fe79c782b01458a9d19f9",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8911013465210147,
+              "train_reward_mean": 0.8911013007164001,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7386432316504352,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9175877942504874,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "e4031623fd62db9fa6b563ba47802a8ebb45054acb9752a872e47adb197696c8",
+              "old_logp": "524e44b07b6371db4e1edc9a7d3e3775c7cba1e452c78c464b1ea092d2a6fff1",
+              "advantages": "9d7103a511734d1a8310febe940c9ae7f040e34031bf34a789ecb50902c2ae9a",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "086252960bc601d97b62694a07fa87730cf443d725a3d88a3ce44763a672bf1e"
+            },
+            "global_std": 0.03349511407366806,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8922464545905782,
+              "train_reward_mean": 0.8922464847564697,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7413914910173878,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8988235405452315,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.03349511407366806
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          1.0913936421275139e-10,
+          8.526512829121202e-11,
+          6.548361852765083e-11,
+          8.731149137020111e-11,
+          6.821210263296962e-11,
+          9.458744898438454e-11,
+          2.1827872842550278e-11,
+          5.820766091346741e-11
+        ],
+        "summed_source_gradient_max_abs": 1.964508555829525e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 0,
+        "safe_other_positive": 32,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.03349511407366806,
+      "worker_wall_seconds": 42.82134820520878,
+      "job_wall_seconds": 44.74169898033142,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    },
+    {
+      "variant": "R_CANONICAL_X1",
+      "update": 2500,
+      "collection": 625,
+      "run_identity": "a9c5ff198b822277032b0bc49535a2f5f7183d3eaff12d12eba99801bac42a78",
+      "checkpoint_files_sha256": "b7f73b463410d5ac3e5897a5fe1bf98d1ca3ea165aa9492fe94ed7d69c478a12",
+      "result_sha256": "5e7da3cff967d665b6cabfc07d4da8ed5e4b950666af28ba23c77e8dca96c729",
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.02383027970790863,
+          "beta50_anchor_gradient_norm": 0.0008278432069346309,
+          "cosine": 0.2632107138633728,
+          "x_mean_anchor": 1.3434441115123263e-06,
+          "x_kl_normalized_diagnostic": 0.00024826852043612215,
+          "logical_anchor_contribution": {
+            "x": 5.166413039603412e-07,
+            "y": 3.919099818006089e-07,
+            "heading_pair": 4.3489279111241785e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0012449594088341162,
+            0.0010843108453532468,
+            0.0014451537760739764,
+            0.000721725229308856
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.009811018332662175,
+            0.008545020740971652,
+            0.011388686029922638,
+            0.005687618488680894
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.03050517849624157,
+          "beta50_anchor_gradient_norm": 0.002333205658942461,
+          "cosine": -0.05838946998119354,
+          "x_mean_anchor": 4.072899471907476e-06,
+          "x_kl_normalized_diagnostic": 0.000821096250852681,
+          "logical_anchor_contribution": {
+            "x": 1.5651003124617091e-06,
+            "y": 1.1535181485555768e-06,
+            "heading_pair": 1.3542809833566594e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0021668642951131667,
+            0.0018602565269851218,
+            0.0025574167068601575,
+            0.001259089176502499
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.010866662702574598,
+            0.009329057095617098,
+            0.012825252325339294,
+            0.006314238299474926
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.05785286799073219,
+          "beta50_anchor_gradient_norm": 0.016662830486893654,
+          "cosine": -0.11331455409526825,
+          "x_mean_anchor": 2.3860867827352195e-05,
+          "x_kl_normalized_diagnostic": 0.006012938247259823,
+          "logical_anchor_contribution": {
+            "x": 1.031856476174653e-05,
+            "y": 5.892564999498973e-06,
+            "heading_pair": 7.649737785442312e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.00556378424616653,
+            0.004204485130388707,
+            0.006041145190341115,
+            0.003066429585125191
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.01550108488438031,
+            0.011713982181615831,
+            0.016831052854315562,
+            0.008543285650672361
+          ],
+          "source_PPO_clip_fraction": 0.171875,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.171875
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "b635b11b29f92b9135c2301336fc7a59cd222d11d4ed0092cea0cb3acbc17f73",
+        "all_steps_mean": {
+          "PG_norm": 0.019057519141737613,
+          "beta50_anchor_norm": 0.006363528399852066,
+          "cosine": -0.1670692573966034,
+          "total_norm": 0.019056797421062227,
+          "anchor_to_PG": 0.33391168874207705
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 6,
+            "PG_norm": 0.0031111694463357405,
+            "beta50_anchor_norm": 0.0048698738705919295,
+            "cosine": -0.5881884690524695,
+            "total_norm": 0.003946106506877432,
+            "anchor_to_PG": 1.565287251174168,
+            "dot_fraction_of_total_PG": 0.033621788921605424,
+            "mean_per_scene_PG_norm": 0.004148225928447654
+          },
+          "SFT_unsafe": {
+            "groups": 2,
+            "PG_norm": 0.0186667158589389,
+            "beta50_anchor_norm": 0.0024149154677182484,
+            "cosine": -0.1582343304870982,
+            "total_norm": 0.0184394184347061,
+            "anchor_to_PG": 0.12937013055576252,
+            "dot_fraction_of_total_PG": 0.966378211078392,
+            "mean_per_scene_PG_norm": 0.0746668634357556
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.023858879670350244,
+            "beta50_anchor_norm": 0.000828891474822172,
+            "cosine": 0.26256272816957366,
+            "total_norm": 0.02408979665348997,
+            "anchor_to_PG": 0.034741424839501024
+          },
+          {
+            "PG_norm": 0.030538353050791403,
+            "beta50_anchor_norm": 0.0023358350467622972,
+            "cosine": -0.05826036983132827,
+            "total_norm": 0.030491562936520673,
+            "anchor_to_PG": 0.07648857300448833
+          },
+          {
+            "PG_norm": 0.057929578570530674,
+            "beta50_anchor_norm": 0.016681531920543672,
+            "cosine": -0.11303763715039569,
+            "total_norm": 0.05844348388970116,
+            "anchor_to_PG": 0.28796225231007855
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "e0c98ca5c090b7533563912aa471cfe5305013046ee64d356c5178bdeef7ab59",
+              "old_logp": "ff2cccfbf658372501bd79063f7cb1801be2549432100a78a3ab9bfa60433418",
+              "advantages": "ab2c9f655dcc8e87f0f1203a33cc082253dd8be81329e9b2b0cefb7ea87a4293",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8941014101375235,
+              "train_reward_mean": 0.8941013813018799,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7458433843300564,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9153848489419237,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "27008f53c69f2161824d6efc518261d0d0a4ce2825f412311c9d68b10cf64ca8",
+              "old_logp": "20e54bfcfa3745b64dffef1eaa3ce97f0850360e0993b60ef29f9767132e4e2d",
+              "advantages": "95796429b19d456b9b43bd9b2f9b64e3014b8911dbb24c4b91fb1f9723149bf8",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8515823488032244,
+              "train_reward_mean": 0.851582407951355,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6437976371277385,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.864400832713503,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "5ea215f2078816ed838e7ad769ff22c58005a8a88075e1339a43746ebfc59fa5",
+              "old_logp": "b943dd18ded178e1dff8ebb377b7bb27a3ce6bd05d94b04e4ce61b9b0635dc92",
+              "advantages": "97c5f4930dcd5729c7a4b4f4198b84c76c2888972431168b4f750013c5d16b05",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8279172543934317,
+              "train_reward_mean": 0.827917218208313,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.587001410544236,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8646397196938826,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "4d07e1fa5f064c349a0111f94e71e27ab7d1f1d45d101525ed10e7a963191330",
+              "old_logp": "c75bc4835db10272c29d6d510ef421a749e854057ffbff72649c1a1a3ab9f414",
+              "advantages": "66e1c6a6fc93c6076edfc6c0d8b57ecd853a73ea245a9b3f0354f5dfebee595c",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 1.1920928955078125e-07,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8968751094614842,
+              "train_reward_mean": 0.8968751430511475,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.752500262707562,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.924087032154686,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "047019440506eb72ceaedb6c04ff8558c41b8ce9e7ebc37aa8a31eaf249f4c6b",
+              "old_logp": "4deb8b9494a3447223468dc0686804113ada3cab4f37ba961449e7d3760102fc",
+              "advantages": "2eb3c280c9ddb6b1a575131d08d274113e7c843cb266c65b023d64536ce04c9e",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.45509968521886557,
+              "train_reward_mean": 0.4550996720790863,
+              "NC": 1.0,
+              "DAC": 0.5,
+              "TTC": 1.0,
+              "EP": 0.3922392445252774,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.5,
+              "finite_best_safe": 0.9151694469982936,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "5447a22f665022e4e5bb380a8a63fec8464cc8366d826f06ee78982846742e3b",
+              "old_logp": "ee7e071a49cd834aa1817b0e41928688cd24d14be632f42ed0c4c085d0c5f42f",
+              "advantages": "9f1b4c93afab428333c3339bb33dc2110c21c076fe39ae111c4c377b98242ffb",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.6875,
+              "train_reward_mean": 0.6875,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 0.25,
+              "EP": 1.0,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.25,
+              "finite_best_safe": 1.0,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 2,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "9bf6fd6142a2c4e968da5b83749c76ba3766767ccca5f95b561bfb550613e1fd",
+              "old_logp": "b95372f282eca208cec1ffe6f1e3d216725700dbc6fa0ad0711295ce687025a2",
+              "advantages": "e7cae97ec47deb4becf449bace846eba7b240286793d5d1c943eac5ed22f18e3",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8873977661736705,
+              "train_reward_mean": 0.8873977661132812,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7297546388168094,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8971282796640853,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "079ea6369e43a75f47382981b5f0abeff18126aa08a80c5e3aed84c2981ecdda",
+              "old_logp": "e66b06997fa09ee41365e3bb5d27965686b85cb123463fe1b6777ae9379803c1",
+              "advantages": "1f9871322c9d0cb2a8913d0fd1d7cc57ac5134abcf818d2997c18a168a4efec1",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "7c74fc115bb83a3072e8507b3bb5e64443271a15c2915e67279b825a79eab356"
+            },
+            "global_std": 0.22488139534426543,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8507129179131987,
+              "train_reward_mean": 0.8507128953933716,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6417110029916767,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8915790622016763,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.22488139534426543
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          1.432454155292362e-11,
+          2.1827872842550278e-11,
+          2.7966962079517543e-11,
+          2.1827872842550278e-11,
+          2.9103830456733704e-10,
+          2.0372681319713593e-10,
+          6.366462912410498e-12,
+          1.8189894035458565e-11
+        ],
+        "summed_source_gradient_max_abs": 2.9672264645341784e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 6,
+        "safe_other_positive": 24,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.22488139534426543,
+      "worker_wall_seconds": 41.782784229144454,
+      "job_wall_seconds": 44.125449419021606,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    },
+    {
+      "variant": "R_CANONICAL_X1_SAFETY25",
+      "update": 1000,
+      "collection": 250,
+      "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+      "checkpoint_files_sha256": "a2c7e524189d4658eef1d8128b548047bf82b85b2fa5aa7a773dc5cca284935a",
+      "result_sha256": "1bfd00a254a57d31edcc61cdcda819271c5a96d49f6807083de6b5e24b6b02e3",
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.02566627599298954,
+          "beta50_anchor_gradient_norm": 0.000876484380569309,
+          "cosine": 0.20850901305675507,
+          "x_mean_anchor": 1.7036871220454941e-06,
+          "x_kl_normalized_diagnostic": 0.0003148414418223672,
+          "logical_anchor_contribution": {
+            "x": 4.0843722093342194e-07,
+            "y": 6.166070969371162e-07,
+            "heading_pair": 6.786428630167762e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0011069379674075888,
+            0.0013600813463197296,
+            0.001701721912795349,
+            0.0010844351860546538
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.008723324877831026,
+            0.010718261678709451,
+            0.013410591482333038,
+            0.008545994757774523
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.049820683896541595,
+          "beta50_anchor_gradient_norm": 0.0028143110685050488,
+          "cosine": 0.238941490650177,
+          "x_mean_anchor": 5.8962818840768705e-06,
+          "x_kl_normalized_diagnostic": 0.0011886900185922593,
+          "logical_anchor_contribution": {
+            "x": 1.3946173211820678e-06,
+            "y": 1.7539556580459248e-06,
+            "heading_pair": 2.7477090966954165e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.002045446618999295,
+            0.002293875971829727,
+            0.0034009186218831927,
+            0.002218108710432522
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.01025776906975736,
+            0.01150361376816685,
+            0.017055349017516885,
+            0.011123640935431953
+          ],
+          "source_PPO_clip_fraction": 0.015625,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.015625
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.021073604002594948,
+          "beta50_anchor_gradient_norm": 0.02097758650779724,
+          "cosine": -0.2168881893157959,
+          "x_mean_anchor": 4.064869602871113e-05,
+          "x_kl_normalized_diagnostic": 0.010243470640749043,
+          "logical_anchor_contribution": {
+            "x": 8.659924532139485e-06,
+            "y": 9.258639259712709e-06,
+            "heading_pair": 2.273013195974727e-05
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.005097035801904935,
+            0.005270286243641011,
+            0.009766660133463884,
+            0.006402588976605626
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.014200690266491796,
+            0.014683390454287763,
+            0.02721059048878596,
+            0.017838062492103752
+          ],
+          "source_PPO_clip_fraction": 0.25,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.265625
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "b635b11b29f92b9135c2301336fc7a59cd222d11d4ed0092cea0cb3acbc17f73",
+        "all_steps_mean": {
+          "PG_norm": 0.019743160278203647,
+          "beta50_anchor_norm": 0.007836411346181706,
+          "cosine": 0.04562549695500523,
+          "total_norm": 0.021571269457462693,
+          "anchor_to_PG": 0.3969177799175883
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 6,
+            "PG_norm": 0.0031730579125102704,
+            "beta50_anchor_norm": 0.00529453240625051,
+            "cosine": -0.19237480331940768,
+            "total_norm": 0.005624644982678502,
+            "anchor_to_PG": 1.6685899067193193,
+            "dot_fraction_of_total_PG": 0.029837366955053984,
+            "mean_per_scene_PG_norm": 0.004230743883347027
+          },
+          "SFT_unsafe": {
+            "groups": 2,
+            "PG_norm": 0.01940618246496033,
+            "beta50_anchor_norm": 0.005412067344432224,
+            "cosine": 0.15478141307090926,
+            "total_norm": 0.020938075868645625,
+            "anchor_to_PG": 0.27888366783133234,
+            "dot_fraction_of_total_PG": 0.9701626330449461,
+            "mean_per_scene_PG_norm": 0.07762472985984133
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.025693316847762285,
+            "beta50_anchor_norm": 0.0008773613119107778,
+            "cosine": 0.20808137673138585,
+            "total_norm": 0.025890105607697226,
+            "anchor_to_PG": 0.034147452316464544
+          },
+          {
+            "PG_norm": 0.04987663952930359,
+            "beta50_anchor_norm": 0.002817320045255388,
+            "cosine": 0.23841851743021997,
+            "total_norm": 0.05062233565369986,
+            "anchor_to_PG": 0.05648576311160964
+          },
+          {
+            "PG_norm": 0.02109852902003654,
+            "beta50_anchor_norm": 0.02100042781347788,
+            "cosine": -0.2163963426634567,
+            "total_norm": 0.02635156388183158,
+            "anchor_to_PG": 0.9953503295672653
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "3886ee349e0d89317d26b5ef0590702c9de648f5309c12ba36eb97d60e54cd6e",
+              "old_logp": "cff1c23f7f51b1e00c9ba50daa4e578453cd2b1cdf7375954c2136d82bdc584b",
+              "advantages": "8d4eec16acfd1d7b07337e87f3099e8150224f2fefa0d61f1d01d3d8ff303166",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8988146065942826,
+              "train_reward_mean": 0.8988146185874939,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7571550558262782,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9031618714426836,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "e6cebb197d3ca921160f23972af43a5886144a443d2f523011fa6aca8404c949",
+              "old_logp": "b84fe0f8e8f9a6b982497a14d2e62ffbc739598f28e03bbecb8a3d182a5f6b1d",
+              "advantages": "2c6dfcad4a564da29f2eaccb6f9913e828d775208c4d91b7235c25f5d4ac8475",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.7395833333333334,
+              "train_reward_mean": 0.7395833134651184,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 0.375,
+              "EP": 1.0,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.375,
+              "finite_best_safe": 1.0,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "2da6d8564eea9d65d237145ecf0ce5e875ddf8360159be34de771f84badc5109",
+              "old_logp": "34f9b1a0763b08ca3915fed25fc1fb7fda0f7a20db6d2ae2dfbc4c8520ee4087",
+              "advantages": "e980087e1f2cae0d7458cfa0c188b097a084b626f0d9ed2ec4bfcdf74e7962e0",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.3688080845506488,
+              "train_reward_mean": 0.3688080906867981,
+              "NC": 1.0,
+              "DAC": 0.375,
+              "TTC": 1.0,
+              "EP": 0.3601394029215571,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.375,
+              "finite_best_safe": 0.9918989663314971,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "d5cadf0e28e925e9ef5e105b16d5033a3b4d3c0176960adf08353edc89194760",
+              "old_logp": "2ac068cb126aa894670c9e3ea8a04ba5fadbe17511e35d838c8e4b0666aa6166",
+              "advantages": "57004aa69bb7fbc39155e9b73c996d7623195d897bea592736c297f95aa5abb3",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8314999628828814,
+              "train_reward_mean": 0.8314999341964722,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.5955999109189155,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8448497522477657,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "3511d036febe02fbd73975124e7315122a24953159937325fcd9b145ee1484c6",
+              "old_logp": "35b16fefa0796779349303e49275f485edc205743db3fd074e1a243f8252a62e",
+              "advantages": "a1c4e0ffb6917128ea23dba4185fdf40f47e0f6c0185ccdbb6fb9e8cc723d594",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8109407714034306,
+              "train_reward_mean": 0.8109408020973206,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 0.875,
+              "EP": 0.6712578513682333,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.875,
+              "finite_best_safe": 0.9031942925999085,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 6,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "79c376b0aeb123afd805b18c010c72b367377d05bf92f4f4d754ee31376c533c",
+              "old_logp": "c49ec92b3df1808f7e213077191114437b1be91ed0200c88ba38ca1a92f80f00",
+              "advantages": "8ae5dd4a50bf521a7f8700318c14a1ecd451a89c2b1ce7960350d30970b7925c",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 1.1920928955078125e-07,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8441256702908175,
+              "train_reward_mean": 0.8441256284713745,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.625901608697962,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8623405942060346,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "ba5176f71a3233e27859564ce73b71d1b2c61378caf43008b9d5190e3c346bba",
+              "old_logp": "f7d93deea9fd4e85d9fd2f4882bfa301a2675845a4f2f53188380ab095699992",
+              "advantages": "1b4147f8842c2c5fd850ccf7f7779281c8244f4c3ec04ff73eb275d9ffec156d",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8983234727943467,
+              "train_reward_mean": 0.8983234167098999,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.755976334706432,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9078914730640989,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "1a200c004b4046ecab8aa709b83398111d5dbacc476d7c6e985c683fdd5a88f6",
+              "old_logp": "fbafc30df82cd27b6497960359a0eb95886d42132c3f95bddb99d4d564afd5dc",
+              "advantages": "f72bb90dc218735eb15de35ba689af28fdbf5065cc0950a4568074bb5b51d4a8",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "67c90d0c6fe7e69af7942ae729d5e0dcc86a260addf31c5043003f9d4c0d0182"
+            },
+            "global_std": 0.2506387988082643,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8912502178752635,
+              "train_reward_mean": 0.8912502527236938,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7390005229006322,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8975903666162273,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 2,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.2506387988082643
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          1.0913936421275139e-11,
+          6.375522332291439e-10,
+          7.391918188659474e-10,
+          2.1827872842550278e-11,
+          4.729372449219227e-11,
+          8.185452315956354e-12,
+          1.0913936421275139e-11,
+          1.4551915228366852e-11
+        ],
+        "summed_source_gradient_max_abs": 8.07090986635727e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 6,
+        "safe_other_positive": 24,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.2506387988082643,
+      "worker_wall_seconds": 41.60942203365266,
+      "job_wall_seconds": 43.94538354873657,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    },
+    {
+      "variant": "R_CANONICAL_X1_SAFETY25",
+      "update": 2000,
+      "collection": 500,
+      "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+      "checkpoint_files_sha256": "04e414acea6c3cb148978edf8893a0db0465ddb915e85aeae7214b7d51b105bf",
+      "result_sha256": "c739351ffa199bedd8f5d3fdff1456001d5e0d4258c3703908e89dfa77707f7c",
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.01973089762032032,
+          "beta50_anchor_gradient_norm": 0.0009311287431046367,
+          "cosine": -0.00864311121404171,
+          "x_mean_anchor": 1.719671615774132e-06,
+          "x_kl_normalized_diagnostic": 0.0003177953768420102,
+          "logical_anchor_contribution": {
+            "x": 5.854278182226835e-07,
+            "y": 4.1703559006123214e-07,
+            "heading_pair": 7.172081826212207e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0013252484575384253,
+            0.0011185288486591346,
+            0.0016844908637493438,
+            0.0012106773813017168
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.010443753917716942,
+            0.008814676955036183,
+            0.013274786967583278,
+            0.009540854438086664
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.04268179088830948,
+          "beta50_anchor_gradient_norm": 0.003129817545413971,
+          "cosine": 0.019741851836442947,
+          "x_mean_anchor": 5.88252264321909e-06,
+          "x_kl_normalized_diagnostic": 0.0011859161565903054,
+          "logical_anchor_contribution": {
+            "x": 1.8161576917918865e-06,
+            "y": 1.5850902688185897e-06,
+            "heading_pair": 2.481274661292332e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.002334196457840978,
+            0.002180658326555963,
+            0.003241788002185421,
+            0.0020924766661430333
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.011705815250488194,
+            0.010935840381366671,
+            0.01625733051908236,
+            0.010493619040143403
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.03786409646272659,
+          "beta50_anchor_gradient_norm": 0.027869369834661484,
+          "cosine": 0.2216382771730423,
+          "x_mean_anchor": 4.4718519575326354e-05,
+          "x_kl_normalized_diagnostic": 0.011269066098555025,
+          "logical_anchor_contribution": {
+            "x": 1.0572277574283362e-05,
+            "y": 1.4427570519615074e-05,
+            "heading_pair": 1.9718671737223303e-05
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.005631769854998386,
+            0.00657895968598946,
+            0.009372497529182493,
+            0.005519811128085011
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.015690508374650684,
+            0.018329437361440312,
+            0.026112434222106396,
+            0.015378577997683033
+          ],
+          "source_PPO_clip_fraction": 0.140625,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.15625
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "f4520b933b6da68f53187dbb1ac1d0bd9b51647deb2e089bdd8d1268dc46a298",
+        "all_steps_mean": {
+          "PG_norm": 0.02161162750409373,
+          "beta50_anchor_norm": 0.010113019559458907,
+          "cosine": 0.10875024793860825,
+          "total_norm": 0.024836913211996034,
+          "anchor_to_PG": 0.4679434511604123
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 6,
+            "PG_norm": 0.0031984046190344597,
+            "beta50_anchor_norm": 0.00941246008041697,
+            "cosine": 0.26916994832342317,
+            "total_norm": 0.010725243206156119,
+            "anchor_to_PG": 2.9428609577416194,
+            "dot_fraction_of_total_PG": 0.02892926750614703,
+            "mean_per_scene_PG_norm": 0.004264539492045946
+          },
+          "SFT_unsafe": {
+            "groups": 2,
+            "PG_norm": 0.021219535497975152,
+            "beta50_anchor_norm": 0.0033300169032903027,
+            "cosine": 0.14137458657828775,
+            "total_norm": 0.021939397327899405,
+            "anchor_to_PG": 0.15693165873532272,
+            "dot_fraction_of_total_PG": 0.9710707324938529,
+            "mean_per_scene_PG_norm": 0.08487814199190061
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.019750185520325547,
+            "beta50_anchor_norm": 0.000932188073130183,
+            "cosine": -0.008624859035808195,
+            "total_norm": 0.019764139750419647,
+            "anchor_to_PG": 0.04719895274760019
+          },
+          {
+            "PG_norm": 0.04273369525826961,
+            "beta50_anchor_norm": 0.0031330394449194015,
+            "cosine": 0.0196975951365963,
+            "total_norm": 0.04290989541977913,
+            "anchor_to_PG": 0.07331543471689618
+          },
+          {
+            "PG_norm": 0.03790949149059747,
+            "beta50_anchor_norm": 0.027900144643110185,
+            "cosine": 0.22112871396566425,
+            "total_norm": 0.05180071991233117,
+            "anchor_to_PG": 0.7359672616560985
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "fa7beeedfe5ffa0c11bab9276dc9e2010f358405f205a7695bf24b8e4a94091b",
+              "old_logp": "d02d0157636f30832d436c7f8868cbaf7fa1701f5dc7aacb41875c6105c8076c",
+              "advantages": "0596a6004e76a95860758df29aede9faa1a3d5dc32a9fa0c6d38aa5cd6211fc4",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8791712415835831,
+              "train_reward_mean": 0.8791712522506714,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7100109798005995,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8902966037271581,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "973ae639bb385014ce8fd76bf35df903b25ea4f6bc34ead3ee05030d0c9d6a3a",
+              "old_logp": "2e4802688ad825023c37963393a83d32090098606ac8d0cfd130906770d6da39",
+              "advantages": "79247b15b27df2ed41c1c84d9b7a7375150d51296bbc9ca61ba260391b7ad8ac",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.7896610099410051,
+              "train_reward_mean": 0.7896610498428345,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.5451864238584121,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": false,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8152669860849171,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 7,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "e6635980a66fe5da9524e27c29171b4dd15cae481cc203fac4cddf95dae6eb6b",
+              "old_logp": "9b0ad42ec5b44d13892f27cc25481a62c08d8ef4e49916a1c7cf751541972ff8",
+              "advantages": "da7feae985ee6ebd4608443fd2569e36b25e0003914f7e51cc7d9d61229cb23b",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8406156168688032,
+              "train_reward_mean": 0.8406156301498413,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6174774804851275,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8503099929828405,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "7c9ec3b85b9289fb213b4e5621e7a7e50dc76360793fd0b6f845e005b28b9e11",
+              "old_logp": "e61ee69b1345bf420da9f0b2693f34b5e92152207e953de57207f8ab08f2bbf4",
+              "advantages": "6c820b06a87b61fa6be4000291f20f3d3951291815a3babffe2cbe63d463f8a2",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8736723711694157,
+              "train_reward_mean": 0.873672366142273,
+              "NC": 1.0,
+              "DAC": 0.875,
+              "TTC": 1.0,
+              "EP": 0.8718136908065975,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.875,
+              "finite_best_safe": 1.0,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 7,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "667f289183e782b0a336e1998599b9a6a1a17182f6ecbe0a6d4fe6e1728e0fc3",
+              "old_logp": "73dcad45bb5b0045224ccc491d8a30726a8f56d772e8ac92ac811ab0aef3ef29",
+              "advantages": "d07935b07ff4885cc9b8e3cf56cce00eb990e4949100fcb7fdff8cf454999647",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.4249621671825096,
+              "train_reward_mean": 0.4249621629714966,
+              "NC": 1.0,
+              "DAC": 0.5,
+              "TTC": 0.75,
+              "EP": 0.31990920123802313,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.5,
+              "finite_best_safe": 0.8628206787229812,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "978ee323578480d7bdb1bda880cc0564eafa823df9506828f8c5b4f54b0c75e4",
+              "old_logp": "62f088a8ac7d150a751a3dbe83cc74e2c14257324935bfd0f9105f75225000f6",
+              "advantages": "6347794259ff8f5c8d2ef7fba13965cf8848774b0c745ab7aa1f6814ff45fcf1",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8652537335302476,
+              "train_reward_mean": 0.8652536869049072,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6766089604725943,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9009798327908936,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "b1e4e23a9780590a4083b0102839d22828e0270f7811fa427a6deb92bb2d14ee",
+              "old_logp": "307abcbdb29080d6e4dcfec46aac597458abade0114b47da548b4b28da599836",
+              "advantages": "482c7d9b00debe18473272666b4a1bf4674bc1dba7575624019b05df0a80c4bc",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8284305995189702,
+              "train_reward_mean": 0.8284305930137634,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.5882334388455287,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8566409465348773,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "d1c3d27e260013c7c5af7077addca991c7184efc9c055e0d477330fc7b0f77a7",
+              "old_logp": "a9279fd635b861698ed10cfcf4a54e52b79b51e8cae63b1006e542ed368add76",
+              "advantages": "bf16ae6cd22c1db03dce1d152f6d3a6f7f5b420fae2d592f1ed3fb71f713236a",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "5ba1b507f7e1d6c6ff8b6fe7b578ecd838e5e632ac95dc3e8dbcda5828ae79da"
+            },
+            "global_std": 0.23830712697719933,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8470756825451426,
+              "train_reward_mean": 0.8470757007598877,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6329816381083423,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8491461121985102,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.23830712697719933
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          5.820766091346741e-11,
+          2.913225216616411e-11,
+          4.3655745685100555e-11,
+          6.366178695316194e-10,
+          3.0541968953912146e-10,
+          2.0804691303055733e-11,
+          1.1823431123048067e-11,
+          3.2741809263825417e-11
+        ],
+        "summed_source_gradient_max_abs": 8.488834820259451e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 11,
+        "safe_other_positive": 26,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.23830712697719933,
+      "worker_wall_seconds": 40.736377608031034,
+      "job_wall_seconds": 42.859347105026245,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    },
+    {
+      "variant": "R_CANONICAL_X1_SAFETY25",
+      "update": 2500,
+      "collection": 625,
+      "run_identity": "be1ac3fa996d638abfeaab15f4eeabf183114629174d196b3a41550771c1c49b",
+      "checkpoint_files_sha256": "de9addd413b7a7a6b4fa606481385e4cb90dffc68aae8a99df7999b04e5d5b74",
+      "result_sha256": "2249fde919ca1c145e34d0cb4e38c99c45de4ab37dca6b4c5944f7700c922b4a",
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "steps": [
+        {
+          "step": 7,
+          "PG_gradient_norm": 0.029131827875971794,
+          "beta50_anchor_gradient_norm": 0.0011988494079560041,
+          "cosine": -0.2903542220592499,
+          "x_mean_anchor": 1.875050731570127e-06,
+          "x_kl_normalized_diagnostic": 0.00034650944306536765,
+          "logical_anchor_contribution": {
+            "x": 5.313231197234813e-07,
+            "y": 7.512285744581959e-07,
+            "heading_pair": 5.924990265082641e-07
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0012625249523290892,
+            0.0015012280770628423,
+            0.0017578623533057662,
+            0.0006818461048982243
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.009949438557244363,
+            0.011830601483433047,
+            0.013853025119542868,
+            0.00537335301265106
+          ],
+          "source_PPO_clip_fraction": 0.0,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.0
+        },
+        {
+          "step": 8,
+          "PG_gradient_norm": 0.03936421498656273,
+          "beta50_anchor_gradient_norm": 0.0034639108926057816,
+          "cosine": -0.04001050814986229,
+          "x_mean_anchor": 5.966515573163633e-06,
+          "x_kl_normalized_diagnostic": 0.0012028491254375076,
+          "logical_anchor_contribution": {
+            "x": 1.536815869229713e-06,
+            "y": 2.506184387129906e-06,
+            "heading_pair": 1.9235152057817118e-06
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.0021471952282782858,
+            0.0027419981065159526,
+            0.003126673321565159,
+            0.0013285349109834416
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.0107680356758765,
+            0.013750903044795511,
+            0.015680030890222966,
+            0.006662500217314029
+          ],
+          "source_PPO_clip_fraction": 0.03125,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.03125
+        },
+        {
+          "step": 9,
+          "PG_gradient_norm": 0.05179143324494362,
+          "beta50_anchor_gradient_norm": 0.018815943971276283,
+          "cosine": 0.07808929681777954,
+          "x_mean_anchor": 3.374490637497729e-05,
+          "x_kl_normalized_diagnostic": 0.008503715776829688,
+          "logical_anchor_contribution": {
+            "x": 7.229783989259886e-06,
+            "y": 1.2594555244049843e-05,
+            "heading_pair": 1.392056815419096e-05
+          },
+          "mean_shift_RMS_by_native_channel": [
+            0.004657182829880768,
+            0.006146841843753959,
+            0.007982385214430607,
+            0.004450273809872467
+          ],
+          "velocity_shift_RMS_by_native_channel": [
+            0.012975231814605151,
+            0.017125534729008435,
+            0.022239481236356454,
+            0.012398772620646108
+          ],
+          "source_PPO_clip_fraction": 0.28125,
+          "raw_density_PPO_clip_fraction_diagnostic": 0.28125
+        }
+      ],
+      "gradient_strata": {
+        "registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+        "helper_sha256": "b635b11b29f92b9135c2301336fc7a59cd222d11d4ed0092cea0cb3acbc17f73",
+        "all_steps_mean": {
+          "PG_norm": 0.022439335628136475,
+          "beta50_anchor_norm": 0.007144171494160663,
+          "cosine": -0.041889369899113425,
+          "total_norm": 0.023262251853423805,
+          "anchor_to_PG": 0.31837713970473586
+        },
+        "strata": {
+          "SFT_safe": {
+            "groups": 6,
+            "PG_norm": 0.010986640242167122,
+            "beta50_anchor_norm": 0.0033115765719079655,
+            "cosine": -0.060217403417511604,
+            "total_norm": 0.011282331830347608,
+            "anchor_to_PG": 0.3014184954557823,
+            "dot_fraction_of_total_PG": 0.28782388957904215,
+            "mean_per_scene_PG_norm": 0.01464885365622283
+          },
+          "SFT_unsafe": {
+            "groups": 2,
+            "PG_norm": 0.01828599736292722,
+            "beta50_anchor_norm": 0.006318464083012053,
+            "cosine": -0.12050051783295365,
+            "total_norm": 0.0186133169702,
+            "anchor_to_PG": 0.34553565537650244,
+            "dot_fraction_of_total_PG": 0.712176110420952,
+            "mean_per_scene_PG_norm": 0.07314398945170889
+          }
+        },
+        "step_summaries": [
+          {
+            "PG_norm": 0.02916428971075496,
+            "beta50_anchor_norm": 0.001200230495795885,
+            "cosine": -0.28969730817740563,
+            "total_norm": 0.028839474575740747,
+            "anchor_to_PG": 0.04115411373633674
+          },
+          {
+            "PG_norm": 0.039409404021320746,
+            "beta50_anchor_norm": 0.0034674532774280026,
+            "cosine": -0.03992380395719142,
+            "total_norm": 0.03942351025207114,
+            "anchor_to_PG": 0.08798542793370048
+          },
+          {
+            "PG_norm": 0.05185153887727162,
+            "beta50_anchor_norm": 0.01883677686607666,
+            "cosine": 0.07791250857558815,
+            "total_norm": 0.05652966489839938,
+            "anchor_to_PG": 0.36328288945602527
+          }
+        ],
+        "interpretation": "Raw source loss gradients at the checkpoint after inner4; not optimizer displacement. Stratum contributions use divisor8 including tied ranks. Dot fractions may be negative or exceed1 under cancellation; they are not causal safety percentages.",
+        "evidence": [
+          {
+            "rank": 0,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "4efc74df666fdedf64f4b468f6516ee43792c3e0bbdc4ba64d35547138f9c885",
+              "old_logp": "587289dc0376b0582f2cb0227608447b8844e6ee41a77165bb54d49ef915f19e",
+              "advantages": "bc00fa07d1887aa3b7360dbbad3dd81b0941bec4e5e0ad837dedf623fe5d7841",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.7708333333333334,
+              "train_reward_mean": 0.7708333134651184,
+              "NC": 0.875,
+              "DAC": 1.0,
+              "TTC": 0.625,
+              "EP": 0.875,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.625,
+              "finite_best_safe": 1.0,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 1,
+            "SFT_stratum": "SFT_unsafe",
+            "chain_identity": {
+              "chain": "527cf8e172cc45cb4c2c56d225bd37398f0d492bf6d181ab596a66bf0c36ce6b",
+              "old_logp": "88621feadf2ae48ee5f23d4c2f9542fb0d9815c32317d2542ffc5e87ef9543e1",
+              "advantages": "af411897e9720b875ed2d5b20e2ebdc3796a1da6db7cd2eb9190e2e9b840c0af",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.3741271128074092,
+              "train_reward_mean": 0.3741271197795868,
+              "NC": 1.0,
+              "DAC": 0.375,
+              "TTC": 1.0,
+              "EP": 0.372905070737782,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.375,
+              "finite_best_safe": 1.0,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 2,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "fc33024bde2855e29a1040f7ee29990c78f90270f25bbdaff593dcda242340c4",
+              "old_logp": "f7353c65bfbacfefe51189e8c39e718f47ea07e09e283f0598ff24b95b812277",
+              "advantages": "a1c383febb1e47c70e50f068b7d2a50e5ea1c20d2e6661332374141bccaf07ab",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 1.1920928955078125e-07,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8968389485287118,
+              "train_reward_mean": 0.896838903427124,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7524134764689085,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9035887350106964,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 3,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "cc36ee7788eba6806e39cf0a6919ffda092ea155e25fa93714bb877b525070c5",
+              "old_logp": "dd2a336e0039d5c8a5c835e473df438b33c9dca3e36470730d83c658062f5807",
+              "advantages": "318126642c708a214dea9eb7efd6aca0928e00459824a8a34289e8530f22a0c4",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8567873483148389,
+              "train_reward_mean": 0.8567873239517212,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6562896359556136,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9384718090600668,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 3,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 4,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "73ed89b2bfbf82b0c580a517af0d0bac490599435c5a03b2a21d1698cc8b64da",
+              "old_logp": "c1e732298eea630d45de240b90f9b98cfce056162d8b2e3e03468e9b15a1c04a",
+              "advantages": "3e4f1ac004550fbd77d3c897dcc5cfbe38df6fba6e8af32b77cd3fa1e70ff68e",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.449744605170021,
+              "train_reward_mean": 0.4497446119785309,
+              "NC": 1.0,
+              "DAC": 0.5,
+              "TTC": 1.0,
+              "EP": 0.3793870524080505,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": true,
+              "progress_only": false,
+              "safe_fraction": 0.5,
+              "finite_best_safe": 0.9160296184456899,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 5,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "97a7be329bd5adfec36f5bd4a6ead120cd0d9351735bf98f9bde9636086fccb2",
+              "old_logp": "54c81d63cd4d5184797844f193ec6929e4994c2f37f431cbc39f4a0e0d62beaa",
+              "advantages": "bb6f60199671ce1fbabff05ffbcb3196c8111f8293f156e6c0113bea740268ea",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8483529607207114,
+              "train_reward_mean": 0.8483529090881348,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6360471057297075,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8826356327268058,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 4,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 6,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "a6fe4dbfe7e44b6f9b854af20545b5bdaecfc3b7bd0e7484973f8bc1e6c3b1e9",
+              "old_logp": "d7d678bc3e4dce521df0842da465ff8ef8155ccc9bd26c9745e0a734a50e5645",
+              "advantages": "e0207eb951b607b45f32fbe582ec90082de1a5a5c119944a1d0329b920d8f841",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 0.0,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8500122973074964,
+              "train_reward_mean": 0.8500123023986816,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.6400295135379913,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.8830521154419341,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 5,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          },
+          {
+            "rank": 7,
+            "SFT_stratum": "SFT_safe",
+            "chain_identity": {
+              "chain": "b2091381973f8f73da9aea2bcf62058ffb935b4a1fbddd0693eda31564b7b33c",
+              "old_logp": "3341461b1177a2b53462f22b71070eedcd88bd88ebd792c98318d27b9476a91b",
+              "advantages": "5b0fc4c49ba38c0ab1bc0030ce6afd76223a88194fee9e9153d2489d22c9b314",
+              "adv_mask": "b89eb6acf78345bb7f92d45109d37081fdc0beb6f6b3c816a03f9bc61b5d6a59",
+              "behavior_version": "41df7cc7df2eb1d1818f693b57aa5ceed87b6fcdbc06ec896d22f55b5ce5d7ee"
+            },
+            "global_std": 0.32809356966532854,
+            "reward_summary_backend": "Exact CUDA FP32 reproduction of journal",
+            "CPU_vs_logged_reward_mean_abs_error": 5.960464477539063e-08,
+            "PG_mask_fraction": 1.0,
+            "exploration": {
+              "canonical_random_mean": 0.8995597060562149,
+              "train_reward_mean": 0.899559736251831,
+              "NC": 1.0,
+              "DAC": 1.0,
+              "TTC": 1.0,
+              "EP": 0.7589432945349159,
+              "all_full": false,
+              "all_zero": false,
+              "tied": false,
+              "safety_differing": false,
+              "progress_only": true,
+              "safe_fraction": 1.0,
+              "finite_best_safe": 0.9094224735032266,
+              "positive_unsafe_with_safe_alternative": 0,
+              "positive_safe": 6,
+              "positive_still_unsafe": 0,
+              "zero_PG": false,
+              "global_reward_std": 0.32809356966532854
+            }
+          }
+        ],
+        "source_loss_gradient_oracle_max_abs_by_rank": [
+          1.6007106751203537e-10,
+          3.552997895894805e-10,
+          1.876476751760947e-11,
+          3.2741809263825417e-11,
+          1.7462298274040222e-10,
+          1.6370904631912708e-11,
+          2.1827872842550278e-11,
+          1.4551915228366852e-11
+        ],
+        "summed_source_gradient_max_abs": 4.5489656486097374e-10,
+        "source_loss_oracle": "Unchanged actor.forward/_policy_loss evaluated on all8 saved groups; no optimizer step"
+      },
+      "positive_candidate_categories": {
+        "safe_recovery_vs_single_SFT": 8,
+        "safe_other_positive": 26,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_despite_safe_alternative": 0,
+        "positive_micro_progress_only": 0
+      },
+      "raw_global_std": 0.32809356966532854,
+      "worker_wall_seconds": 41.60004449635744,
+      "job_wall_seconds": 44.03593635559082,
+      "peak_allocated_GiB": 6.880609035491943,
+      "adapters_unchanged": true
+    }
+  ],
+  "parity": {
+    "status": "PASS_EXACT_NUMERICAL_RESULTS",
+    "parent_result_sha256": "e193bce8521d290f5182ed11b8722441352c49426bd11c935bbb24308a534798",
+    "corrected_result_sha256": "98202966c539bddc830cfd8bb6e15b0bb1d93920e428ee1b0cea3789e61fa54a",
+    "exact_fields": [
+      "steps",
+      "effective_LoRA_weight_updates",
+      "batches",
+      "positive_candidate_categories",
+      "probability_tail_clamp_fraction",
+      "innovation_clip_fraction"
+    ],
+    "exact_gradient_fields": [
+      "all_steps_mean",
+      "strata",
+      "step_summaries",
+      "source_loss_gradient_oracle_max_abs_by_rank",
+      "summed_source_gradient_max_abs"
+    ],
+    "scope": "Metadata validation uses CUDA mean; actual gradient paths and outputs unchanged."
+  },
+  "cost": {
+    "unique_saved_global_batches": 6,
+    "unique_saved_groups": 48,
+    "unique_saved_candidate_records": 384,
+    "actual_worker_invocations": 10,
+    "complete_invocations": 7,
+    "failed_invocations": 3,
+    "cumulative_job_wall_seconds": 394.16445541381836,
+    "failed_job_wall_seconds": 86.96406316757202,
+    "successful_worker_body_seconds": 291.6925190705806,
+    "first_start_to_last_end_wall_seconds": 397.7312295436859,
+    "completed_invocation_current_velocity_forwards": 336,
+    "completed_invocation_reference_velocity_forwards": 336,
+    "failed_invocation_velocity_forwards": null,
+    "new_candidates": 0,
+    "new_scores": 0,
+    "optimizer_updates": 0,
+    "note": "Shared worker wall is not exclusive GPU compute. End-to-end span includes diagnosis/source preparation. Failed partial forward counts not instrumented. Tiny GPU reduction reproduction adds separately recorded4.4589s body; its import/SSH wall and failed SSH-environment dispatch wall were not separately captured."
+  },
+  "invocations": [
+    {
+      "attempt": "R_CANONICAL_X1_1000",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 0,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163223.9884007,
+      "end_unix": 1792163267.5179327,
+      "job_wall_seconds": 43.529531955718994,
+      "invocation_sha256": "e020be8722545e302c1c0c2d7fe629aa91967a104ee5d1aa741c0d836402995d",
+      "log_sha256": "f70e4db774a15afdeb10c2f788d5dc7cdd3d2fbb241dd7ae434db2fcaeb300d2",
+      "worker_wall_seconds": 41.419487768784165
+    },
+    {
+      "attempt": "R_CANONICAL_X1_1000_v2",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 0,
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163577.5938218,
+      "end_unix": 1792163621.5568666,
+      "job_wall_seconds": 43.96304488182068,
+      "invocation_sha256": "8ed92c916fc5457ea707da2224fa2e26883bd2dae7beab958c582cf22daf2862",
+      "log_sha256": "7638970ab24053eeb92f63bc62952c8c1678db30cac1c10256cb81eba48f45df",
+      "worker_wall_seconds": 41.723054729402065
+    },
+    {
+      "attempt": "R_CANONICAL_X1_2000",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 1,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163294.412419,
+      "end_unix": 1792163339.154118,
+      "job_wall_seconds": 44.74169898033142,
+      "invocation_sha256": "21df2a25b3ecb453b84772ef4f8f2460fb0cf4e251e5249cc4017cf4b1c4cf52",
+      "log_sha256": "cd73f0c3e52fb44fcf4611c0f01e84e5f8275a442fbc15f580a2571bcb46a01b",
+      "worker_wall_seconds": 42.82134820520878
+    },
+    {
+      "attempt": "R_CANONICAL_X1_2500",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 2,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "FAILED",
+      "exit_code": 1,
+      "start_unix": 1792163294.41682,
+      "end_unix": 1792163322.5725398,
+      "job_wall_seconds": 28.155719757080078,
+      "invocation_sha256": "442359a7c201e998d4fd4cf490847496e83033e9bd0514ab59e6fc2d96c22823",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "worker_wall_seconds": null
+    },
+    {
+      "attempt": "R_CANONICAL_X1_2500_v2",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 2,
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163577.5941808,
+      "end_unix": 1792163621.7196302,
+      "job_wall_seconds": 44.125449419021606,
+      "invocation_sha256": "7224f06923035b515367bee0deb7f615a2e649df1e8586201ddbc18ce75d7c7f",
+      "log_sha256": "39f9072e2e5c533ad04f688b7a3340904d35c467edf4c742616611346b0bc06e",
+      "worker_wall_seconds": 41.782784229144454
+    },
+    {
+      "attempt": "R_CANONICAL_X1_SAFETY25_1000",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 3,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "FAILED",
+      "exit_code": 1,
+      "start_unix": 1792163294.4017825,
+      "end_unix": 1792163327.9032688,
+      "job_wall_seconds": 33.50148630142212,
+      "invocation_sha256": "7f311a94485caa22e2a8cdc094e2f4952b8640a611aafd42e5eb8dee262aa2ed",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "worker_wall_seconds": null
+    },
+    {
+      "attempt": "R_CANONICAL_X1_SAFETY25_1000_v2",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 3,
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163577.606216,
+      "end_unix": 1792163621.5515995,
+      "job_wall_seconds": 43.94538354873657,
+      "invocation_sha256": "8a7f158d4f023e1e2d3a2104c032096f97fe3862388d80474e2dfaae0e9f0eaa",
+      "log_sha256": "ed828eb05aa9116c2184693216f61cea7e9ece16cb59457e2ddf5ed7d7942d72",
+      "worker_wall_seconds": 41.60942203365266
+    },
+    {
+      "attempt": "R_CANONICAL_X1_SAFETY25_2000",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 4,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163294.4170008,
+      "end_unix": 1792163337.2763479,
+      "job_wall_seconds": 42.859347105026245,
+      "invocation_sha256": "fa002b178e35b6b9db8779bea585575f33a03e49fc3d318c81211417a2bec0f3",
+      "log_sha256": "09312403e258e8ebf9ec07a8ec099faff8be83bea8b1778f7b05864b472b50fd",
+      "worker_wall_seconds": 40.736377608031034
+    },
+    {
+      "attempt": "R_CANONICAL_X1_SAFETY25_2500",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 5,
+      "source_commit": "35b54d3a9eec4723da07a4f2790467c5279876db",
+      "status": "FAILED",
+      "exit_code": 1,
+      "start_unix": 1792163294.4140294,
+      "end_unix": 1792163319.7208865,
+      "job_wall_seconds": 25.306857109069824,
+      "invocation_sha256": "5f312fd49ad858f6edacde6e3b02212b60b14e8b7820d235cde04e7b0e5da8c8",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "worker_wall_seconds": null
+    },
+    {
+      "attempt": "R_CANONICAL_X1_SAFETY25_2500_v2",
+      "host": "training-vlawm-tsinghua-zt",
+      "gpu": 5,
+      "source_commit": "c84a2d05ab6d585adb4e0b31e9e077ea1685d86b",
+      "status": "COMPLETE",
+      "exit_code": 0,
+      "start_unix": 1792163577.5982192,
+      "end_unix": 1792163621.6341555,
+      "job_wall_seconds": 44.03593635559082,
+      "invocation_sha256": "73623d945eb2b8d08c795bece501329a32543c1691e5793de29ed020c9c224d9",
+      "log_sha256": "e9a109fe317d28abdcf6e2058d3634b6ebe2e3e9cb8a656fb7f8ff08bae77af7",
+      "worker_wall_seconds": 41.60004449635744
+    }
+  ],
+  "limits": [
+    "No SGD or Adam updates; no performance or safety gain inferred from raw gradient norms.",
+    "The fixedSFT labels define strata, not labels of every current candidate.",
+    "Post-inner4 clipping reflects updates already performed; this is not an on-policy ratio1 test.",
+    "Within-batch summed gradients and their norms are not estimates of fulltraining gradient contributions.",
+    "No change to live recipe, checkpoint selection, evaluation seeds or final20k budget."
+  ]
+}
