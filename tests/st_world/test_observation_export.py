@@ -86,7 +86,8 @@ def test_prediction_receipt_checks_full_payload_and_invalid_is_not_zero(tmp_path
 
 def test_deployment_methods_must_match_even_if_strict_state_load_would_work(tmp_path):
     files = ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
-             "starVLA/model/framework/ddp_action_video_foresight.py", "starVLA/model/modules/st_world/config.py"]
+             "starVLA/model/framework/ddp_action_video_foresight.py", "starVLA/model/modules/st_world/config.py",
+             "starVLA/dataloader/st_world_schema.py"]
     model = "class SpaceTimeStudent:\n" + "\n".join(
         "    def " + name + "(self):\n        return 1\n" for name in
         ("__init__", "train", "encode_inputs", "predict_raw", "predict_action", "strip_auxiliary_heads", "forward"))

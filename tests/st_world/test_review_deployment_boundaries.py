@@ -28,7 +28,8 @@ def test_native_reader_rejects_unreceipted_model_shard(tmp_path):
 def test_deployment_source_contract_rejects_changed_module_global(tmp_path):
     """Identical method AST is not sufficient when their module globals change."""
     files = ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
-             "starVLA/model/framework/ddp_action_video_foresight.py", "starVLA/model/modules/st_world/config.py"]
+             "starVLA/model/framework/ddp_action_video_foresight.py", "starVLA/model/modules/st_world/config.py",
+             "starVLA/dataloader/st_world_schema.py"]
     model = "INPUT_SCALE = 1\nclass SpaceTimeStudent:\n" + "\n".join(
         "    def " + name + "(self):\n        return INPUT_SCALE\n" for name in
         ("__init__", "train", "encode_inputs", "predict_raw", "predict_action", "strip_auxiliary_heads", "forward"))

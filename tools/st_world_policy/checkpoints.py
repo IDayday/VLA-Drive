@@ -17,12 +17,17 @@ from tools.st_world_policy.training_state import verify_checkpoint
 
 
 def inference_source_contract(repo, source_sha, *, history):
-    """Compare deployment methods, allowing unrelated loss-only audit fixes."""
+    """Bind the complete inference module, exempting only its loss forward.
+
+    Imports, globals, properties and helpers are executable dependencies too;
+    selecting a handful of methods permits unreviewed changes to those inputs.
+    """
     repo = Path(repo)
     methods = {"__init__", "train", "encode_inputs", "predict_raw", "predict_action", "strip_auxiliary_heads"}
     files = ["starVLA/model/framework/st_world_model.py", "tools/st_world_policy/world_expansion.py",
              "starVLA/model/framework/ddp_action_video_foresight.py",
-             "starVLA/model/modules/st_world/config.py"]
+             "starVLA/model/modules/st_world/config.py",
+             "starVLA/dataloader/st_world_schema.py"]
     if history:
         files.append("starVLA/model/modules/st_world/history_adapter.py")
     result = {}
@@ -33,11 +38,12 @@ def inference_source_contract(repo, source_sha, *, history):
             tree = ast.parse(code)
             if name.endswith("st_world_model.py"):
                 cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "SpaceTimeStudent")
-                found = {node.name: ast.dump(node, include_attributes=False) for node in cls.body
+                found = {node.name for node in cls.body
                          if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in methods}
                 if set(found) != methods:
                     raise ValueError("Incomplete deployment method contract")
-                return json.dumps(found, sort_keys=True)
+                cls.body = [node for node in cls.body if not
+                            (isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "forward")]
             return ast.dump(tree, include_attributes=False)
         before, after = representation(old), representation(new)
         if before != after:

@@ -60,6 +60,14 @@ def verify_checkpoint(folder, *, identity, world_size):
             or receipt["state"]["tag"] != folder.name):
         raise ValueError("Foreign checkpoint/receipt/source or world size")
     require_native_inventory(receipt["files"], world_size)
+    # DeepSpeed discovers shards with a glob, not from this receipt. A stale
+    # extra model shard could otherwise override frozen tensors during strict
+    # zero_to_fp32 reconstruction while all declared checksums still pass.
+    actual_files = {p.name for p in folder.glob("*.pt")}
+    if actual_files != set(receipt["files"]):
+        raise ValueError("Native checkpoint inventory differs from complete receipt: " +
+                         str(sorted(actual_files.symmetric_difference(receipt["files"]))))
+    require_native_inventory(actual_files, world_size)
     for name, info in receipt["files"].items():
         if Path(name).name != name:
             raise ValueError("Unsafe checkpoint record")

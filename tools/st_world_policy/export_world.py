@@ -73,7 +73,8 @@ def run(args):
         "seed": args.seed, "solver": "original_Euler_10", "precision": "FP32_master_eval_TF32_off",
         "scene_noise": "foresight-action-v1", "candidates_per_scene": 1,
         "targets_read": False, "teacher_cache_read": False, "scorer": None,
-        "world_size": args.world_size, "requested_scenes": len(data)}
+        "world_size": args.world_size, "requested_scenes": len(data),
+        "selected_scenes_sha256": identity_hash(data.rows)}
     signature["identity"] = identity_hash(signature)
     out = Path(args.output); (out / "predictions").mkdir(parents=True, exist_ok=True)
     immutable_json(out / "IDENTITY.json", signature)
