@@ -1,0 +1,48 @@
+{
+  "schema": "st_evaluation_validation_v1",
+  "task_id": "ST-EVALUATION-20261016",
+  "agent": "/root/st_evaluation",
+  "base_sha": "9250884e51b7cfc45a68331ca037b32a26ec375c",
+  "implementation_status": "IMPLEMENTED",
+  "independent_review_status": "NEEDS_REVIEW",
+  "formal_training_or_scientific_results": "NOT_RUN",
+  "test_command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_evaluate_campaign.py tests/st_world/test_score_world.py",
+  "test_result": {
+    "passed": 27,
+    "failed": 0,
+    "elapsed_seconds": 3.88,
+    "warnings": [
+      "pre-existing pynvml deprecation warning"
+    ]
+  },
+  "real_analysis": {
+    "scope": "SMOKE",
+    "comparison": "same immutable real export A/A",
+    "artifact": "smoke_dev16_aa_v2/ANALYSIS.json",
+    "scenes": 16,
+    "logs": 16,
+    "all_deltas_exactly_zero": true,
+    "all_delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "scientific_result": false,
+    "new_inference_or_scoring_calls": 0
+  },
+  "no_navtest_reads": true,
+  "no_model_or_image_or_metric_cache_payload_reads": true,
+  "existing_local_score_ledger_and_ego_labels_read": true,
+  "owned_paths": [
+    "reports/st_world_policy/20261016/evaluation/",
+    "tools/st_world_policy/evaluate_campaign.py",
+    "tests/st_world/test_evaluate_campaign.py"
+  ],
+  "approval_issued": false,
+  "known_limits": [
+    "No formal trained predictions exist; formal run binding map remains empty.",
+    "Full train target/PCA/flow-context identities and final approvals remain owner/lead dependencies.",
+    "Analysis consumes trusted local score/cache/native-weight receipts and does not revalidate large source bytes.",
+    "16 dev clusters; single training/inference seed; dev-based selected endpoint intervals are exploratory.",
+    "Initial development A/A artifacts are preserved locally in smoke_dev16_aa; final validated output is smoke_dev16_aa_v2."
+  ]
+}

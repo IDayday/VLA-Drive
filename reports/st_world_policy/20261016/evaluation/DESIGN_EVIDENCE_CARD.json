@@ -1,0 +1,33 @@
+{
+  "design_id": "EVAL-PAIRED-LOG-001",
+  "question": "How to compare actual direct single-trajectory policies without population, context or checkpoint selection bias?",
+  "claim_type": "new_hypothesis",
+  "paper": null,
+  "code": {
+    "commit": "9250884e51b7cfc45a68331ca037b32a26ec375c",
+    "status": "inspected",
+    "paths_and_symbols": [
+      "tools/st_world_policy/export_world.py:read receipt interface and validate_cached_prediction",
+      "tools/st_world_policy/score_world.py:read_complete_export, summarize, run",
+      "tools/st_world_policy/train_flow_policy.py:OfficialFeedbackLedger",
+      "starVLA/model/modules/st_world/consequence.py:METRICS, ConsequenceRequest.identity, ConsequenceEngine.score",
+      "starVLA/dataloader/foresight_dataset.py:decode_ego"
+    ]
+  },
+  "mapping": "Plan sections 5.2, 9.3, 12.2, 14, 15 A8 -> fixed seven contrasts and common endpoints; reuse existing score semantics and immutable local per-scene records.",
+  "new_adaptation": "Fixed scene-weighted paired log bootstrap and exploratory safety/progress thresholds; these are registered analysis choices, not literature-proven optimal thresholds. No new learning/scoring method.",
+  "risks": [
+    "16 dev log clusters only",
+    "conditional on one S0/training/inference seed",
+    "dev used for shortlist selection",
+    "stopping proxy is a diagnostic; it cannot establish an inappropriate stop without scene context"
+  ],
+  "control": "Matched continued-training controls; SMOKE only same-export A/A",
+  "acceptance_evidence": [
+    "exact population/hash/context join",
+    "whole-log weighting with unequal log sizes",
+    "negative fixtures for missing/duplicate/foreign/invalid records",
+    "real dev16 A/A delta exactly zero; no scoring"
+  ],
+  "formal_approval_status": "NOT_ISSUED; Evidence/Correctness/Systems must sign their own final run reviews"
+}
