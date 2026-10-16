@@ -105,6 +105,10 @@ def main():
     if a.save_every and not a.qualification:raise ValueError('Formal save cadence is registered')
     start=time.monotonic();last_checkpoint=None
     try:
+        # Preserve the actual initialization for the pre-SFT planning readout.
+        # Saving does not draw training RNGs; resume never overwrites this file.
+        if not a.resume:
+            last_checkpoint=checkpoint.save(out,model,optimizer,scheduler,state,identity)
         with (invdir/f'metrics_rank{rank}.jsonl').open('x',buffering=1) as journal:
             while state['updates']<stop_at:
                 begin=time.monotonic();raw,target,tokens=data.batch(state['cursor'],rank,world,cfg['per_rank_batch'],device)
@@ -134,7 +138,7 @@ def main():
                 stop=bool(flag.item()) or state['updates']==stop_at
                 if stop or state['updates']%save_every==0 or state['updates'] in cfg['milestones']:
                     save_start=time.monotonic();last_checkpoint=checkpoint.save(out,model,optimizer,scheduler,state,identity)
-                    if rank==0:atomic_json(out/'progress.json',dict(state,status='STOPPED' if stop else 'RUNNING',
+                    if rank==0:atomic_json(out/'progress.json',dict(state,status='COMPLETE' if state['updates']==cfg['max_updates'] else 'STOPPED' if stop else 'RUNNING',
                         checkpoint=last_checkpoint,save_seconds=time.monotonic()-save_start,
                         invocation=invocation,invocation_updates=state['updates']-start_update,invocation_wall=time.monotonic()-start))
                 if stop:break

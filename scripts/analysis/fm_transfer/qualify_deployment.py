@@ -32,6 +32,12 @@ def main():
     if out.exists():raise FileExistsError(out)
     out.parent.mkdir(parents=True,exist_ok=True)
     os.environ['BASE_VLM']='/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction'
+    from starVLA.rl.constrained_flow_noise.condition_cache import ConditionStore
+    from starVLA.rl.simwam_recipe.contracts import RAW_CONDITION
+    cache=ConditionStore(RAW_CONDITION)
+    # VLAAgent has an environment-selected backend. Pin the already validated
+    # original execution, not its unrelated fallback default (SDPA).
+    os.environ['VLM_ATTN_IMPLEMENTATION']=cache.identity['execution']['attention']
     from infer import VLAAgent
     from starVLA.model.framework.baseline_qwen import extract_baseline_action_conditions
     agent=VLAAgent(SFT_EXPORT,device='cuda',qwen_forward_mode='optimized')
@@ -49,9 +55,6 @@ def main():
         deployment=SourceActionHead(cfg).to('cuda').eval()
         deployment.policy.load_state_dict(policy.state_dict(),strict=True)
         model.action_model=deployment.requires_grad_(False)
-    from starVLA.rl.constrained_flow_noise.condition_cache import ConditionStore
-    from starVLA.rl.simwam_recipe.contracts import RAW_CONDITION
-    cache=ConditionStore(RAW_CONDITION)
     with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
         hidden,pos=model.encode_policy_features(obs.examples(),feature_output='normalized')
         raw=extract_baseline_action_conditions(hidden,pos['action'])

@@ -67,7 +67,7 @@ def source_files():
     return {str(p):file_sha(p) for p in sorted(paths)}
 
 
-def main():
+def main(runtime=None):
     process_started=time.monotonic();process_started_unix=time.time()
     p=argparse.ArgumentParser(__doc__)
     p.add_argument('--config',required=True);p.add_argument('--manifest',required=True);p.add_argument('--output',required=True)
@@ -76,7 +76,14 @@ def main():
     p.add_argument('--stop-after-update',type=int);p.add_argument('--save-every',type=int)
     p.add_argument('--fault',help='Qualification only: before_collect, after_collect, before_finalize, rank_write, before_complete')
     p.add_argument('--fault-rank',type=int,default=0);p.add_argument('--fault-at-update',type=int,default=0)
-    a=p.parse_args();cfg=load_recipe(a.config);host=require_dispatch();configure_numerics()
+    # Explicit interfaces for a separately identified supervised base. The
+    # default historical entry and its strict recipe/asset assertions remain
+    # unchanged; no global monkeypatching or implicit checkpoint substitution.
+    if runtime is not None:runtime.add_arguments(p)
+    a=p.parse_args()
+    dispatch=runtime.require_dispatch if runtime is not None else require_dispatch
+    cfg=runtime.load_recipe(a) if runtime is not None else load_recipe(a.config)
+    host=dispatch();configure_numerics()
     if a.fault and not a.qualification:raise ValueError('Fault injection cannot enter formal runs')
     rank=int(os.environ.get('RANK',0));world=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
     if world!=8 and not a.qualification:raise ValueError('Formal recipe requires eight GPUs')
@@ -88,9 +95,11 @@ def main():
     random.seed(42);np.random.seed(42);torch.manual_seed(42)
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
     lock=(root/f'rank{rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    stream=make_scene_stream(cfg,a.manifest,world,qualification=a.qualification)
-    actor,oldcfg,sft=make_actor(cfg,device=device)
-    conditions=ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert)
+    stream=(runtime.make_scene_stream(cfg,a,world) if runtime is not None else
+            make_scene_stream(cfg,a.manifest,world,qualification=a.qualification))
+    actor,oldcfg,sft=(runtime.make_actor(cfg,a,device) if runtime is not None else make_actor(cfg,device=device))
+    conditions=(runtime.make_conditions(actor) if runtime is not None else
+                ProjectedConditions(Path(ROOT)/'projected_condition',actor.action_expert))
     service=RewardService(Path.cwd(),workers=1)
     trainable=[p for p in actor.parameters() if p.requires_grad]
     optimizer=torch.optim.AdamW(trainable,lr=cfg['learning_rate'],betas=tuple(cfg['optimizer_betas']),eps=cfg['optimizer_eps'],weight_decay=cfg['weight_decay'])
@@ -98,9 +107,10 @@ def main():
     warmup=min(int(cfg['max_steps']*.05),cfg['lr_warmup_steps'])
     scheduler=actor._loss._build_scheduler(cfg['lr_scheduler_type'],cfg['max_steps'],warmup)
     generator=torch.Generator(device='cpu').manual_seed(seed_for('simwam_source_rank_rollout',42,rank))
-    identity=recipe_identity(cfg,a.manifest,conditions.sha)
+    identity=(runtime.recipe_identity(cfg,a,conditions.sha) if runtime is not None else
+              recipe_identity(cfg,a.manifest,conditions.sha))
     identity.update(world=world,purpose='qualification_not_formal_initialization' if a.qualification else 'formal',
-                    score_protocol=service.protocol,source_files=source_files(),parameter_contract=actor.closure,
+                    score_protocol=service.protocol,source_files=runtime.source_files() if runtime is not None else source_files(),parameter_contract=actor.closure,
                     rng_protocol='independent persistent CPU FP32 generator per rank; source _randn; no repeated candidate seeds',
                     scene_reduction='source local effective mean, then equal mean across ranks',
                     actual_optimizer=dict(name='torch.optim.AdamW',lr=cfg['learning_rate'],betas=cfg['optimizer_betas'],
@@ -141,7 +151,7 @@ def main():
     modules={}
     for name,module in list(sys.modules.items()):
         path=getattr(module,'__file__',None)
-        if path and name.startswith(('starVLA.','scripts.analysis.simwam_recipe')) and Path(path).is_file():
+        if path and name.startswith(('starVLA.','scripts.analysis.simwam_recipe','scripts.analysis.fm_transfer')) and Path(path).is_file():
             path=Path(path).resolve()
             if not path.is_relative_to(Path.cwd().resolve()):raise ValueError('Imported project module from outside the execution snapshot: '+str(path))
             modules[name]=dict(path=str(path),sha256=file_sha(path))
@@ -179,7 +189,7 @@ def main():
     try:
         if not a.resume:last_saved=save_boundary()
         while state['updates']<cfg['max_steps']:
-            require_dispatch()
+            dispatch()
             if rollout is None:
                 state['phase']='COLLECTING';invocation.event('collection_start')
                 token,position=stream.at(state['scene_cursor'],rank)

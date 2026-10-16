@@ -12,7 +12,7 @@ from starVLA.rl.constrained_flow_noise.condition_cache import ConditionStore
 from .model import make_policy
 
 
-def load_supervised_policy(checkpoint, *, device='cuda', qualification=False):
+def load_supervised_policy(checkpoint, *, device='cuda', qualification=False, require_endpoint=True):
     checkpoint=Path(checkpoint)
     if '.incomplete' in checkpoint.name:raise ValueError('Unpublished SFT checkpoint')
     seal=json.loads((checkpoint/'COMPLETE').read_text())
@@ -22,7 +22,8 @@ def load_supervised_policy(checkpoint, *, device='cuda', qualification=False):
         file_sha(checkpoint/'identity.json')!=files['identity.json'] or
         file_sha(checkpoint/'model.pt')!=files['model.pt']):
         raise ValueError('SFT publication/weight identity changed')
-    if not qualification and (identity['qualification'] or seal['updates']!=identity['config']['max_updates']):
+    if not qualification and (identity['qualification'] or
+            (require_endpoint and seal['updates']!=identity['config']['max_updates'])):
         raise ValueError('Formal RL requires the registered complete new SFT endpoint')
     policy=make_policy(identity['config']['architecture'],device=device)
     policy.load_state_dict(torch.load(checkpoint/'model.pt',map_location='cpu',weights_only=True,mmap=True),strict=True)
