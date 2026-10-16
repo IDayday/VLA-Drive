@@ -129,3 +129,37 @@ def test_linear_pooling_and_one_common_pca_commute_without_refit():
     grid=x[:36].reshape(2,3,2,3,8)
     pooled=grid.mean((1,3))
     assert torch.allclose(pca.transform(pooled),pca.transform(grid).mean((1,3)),atol=2e-7)
+
+
+def test_probe_raw_distortion_and_full_field_resize_projection():
+    import cv2
+    import numpy as np
+    from reports.st_world_policy.history_data.spatial_probes import project
+    camera={'sensor2lidar_rotation':np.eye(3),'sensor2lidar_translation':[1.,2.,0.],
+            'cam_intrinsic':[[200.,0.,384.],[0.,200.,288.],[0.,0.,1.]],
+            'distortion':[.1,-.05,.001,.002,0.]}
+    xyz=np.array([[2.,3.,10.],[0.,0.,-1.]])
+    uv,z,valid=project(xyz,camera,(768,576))
+    expected=cv2.projectPoints(xyz[:1]-[1.,2.,0.],np.zeros(3),np.zeros(3),
+        np.asarray(camera['cam_intrinsic']),np.asarray(camera['distortion']))[0].reshape(-1,2)
+    assert np.allclose(uv[0],(expected[0]+.5)*.5-.5)
+    assert valid.tolist()==[True,False] and np.isnan(uv[1]).all() and z.tolist()==[10.,-1.]
+
+
+def test_probe_requires_lidar_visibility_and_never_makes_missing_depth_negative():
+    import numpy as np
+    from reports.st_world_policy.history_data.spatial_probes import current_labels
+    camera={'sensor2lidar_rotation':np.eye(3),'sensor2lidar_translation':[0.,0.,0.],
+            'cam_intrinsic':[[100.,0.,192.],[0.,100.,144.],[0.,0.,1.]],'distortion':[0.]*5}
+    pixel=np.array([[x,y] for y in range(142,147) for x in range(190,195)])
+    def points(depth):return np.c_[(pixel[:,0]-192)*depth/100,(pixel[:,1]-144)*depth/100,np.full(len(pixel),depth)]
+    box=np.array([[0.,0.,10.,.8,.8,2.,0.]])
+    visible=current_labels(points(10),box,camera,(384,288))
+    assert visible['small_vehicle'].sum()>0 and visible['statistics']['supported_small_boxes']==1
+    occluded=current_labels(np.r_[points(10),points(5)],box,camera,(384,288))
+    assert occluded['small_vehicle'].sum()==0 and occluded['statistics']['supported_small_boxes']==0
+    # The foreground pixels are not mislabeled as background inside an
+    # occluded projected box; absent LiDAR elsewhere is never a negative.
+    assert not occluded['small_valid'].any()
+    missing=current_labels(np.empty((0,3)),np.empty((0,7)),camera,(384,288))
+    assert not missing['depth_valid'].any() and not missing['small_valid'].any()
