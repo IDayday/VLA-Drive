@@ -3,10 +3,27 @@ import json
 
 import pytest
 import torch
+from types import SimpleNamespace
 
 from tools.st_world_policy.profile_pipeline import (
     PipelineProfiler, TimingPlan, aggregate_concurrent, dtype_inventory, summarize_ranks,
 )
+
+
+def test_zero_partition_dtype_and_tied_parameter_inventory():
+    model = torch.nn.ModuleDict({"input": torch.nn.Linear(2, 2, bias=False),
+                                "output": torch.nn.Linear(2, 2, bias=False)})
+    model["output"].weight = model["input"].weight
+    gradient = torch.ones(4, dtype=torch.float32)
+    optimizer = SimpleNamespace(single_partition_of_fp32_groups=[torch.zeros(4)],
+        optimizer=SimpleNamespace(state={}), averaged_gradients={0: [gradient, gradient]})
+    before = dtype_inventory(model, optimizer)
+    assert before["unique_model_tensors"]["parameter:torch.float32:trainable=True"] == 4
+    assert before["partition_gradient_tensors"] == {"averaged_gradients:torch.float32": 4}
+    assert before["optimizer"]["zero_master:torch.float32"] == 4
+    assert not before["optimizer_states_created"]
+    optimizer.optimizer.state[0] = {"exp_avg": torch.zeros(4)}
+    assert dtype_inventory(model, optimizer)["optimizer_states_created"]
 from tools.st_world_policy.profile_resources import cgroup_paths, parse_mounts
 
 

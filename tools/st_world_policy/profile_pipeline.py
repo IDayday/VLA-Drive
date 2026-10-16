@@ -76,7 +76,11 @@ def _tensor_summary(value, limit=12):
 
 def dtype_inventory(model, optimizer=None):
     """Actual parameter/gradient/master/moment dtypes; uncreated states stay absent."""
-    modules = {}
+    modules, unique = {}, Counter()
+    for parameter in model.parameters():
+        unique[f"parameter:{parameter.dtype}:trainable={parameter.requires_grad}"] += parameter.numel()
+    for buffer in model.buffers():
+        unique[f"buffer:{buffer.dtype}"] += buffer.numel()
     for name, module in model.named_modules():
         counts = Counter()
         for parameter in module.parameters(recurse=False):
@@ -87,17 +91,41 @@ def dtype_inventory(model, optimizer=None):
             counts[f"buffer:{buffer.dtype}"] += buffer.numel()
         if counts:
             modules[name] = dict(counts)
-    opt = Counter()
+    opt, gradients = Counter(), Counter()
+    optimizer_states_created = False
     if optimizer is not None:
         for master in getattr(optimizer, "single_partition_of_fp32_groups", ()):
             opt[f"zero_master:{master.dtype}"] += master.numel()
         inner = getattr(optimizer, "optimizer", optimizer)
-        for state in getattr(inner, "state", {}).values():
+        states = getattr(inner, "state", {})
+        optimizer_states_created = bool(states)
+        for state in states.values():
             for key, value in state.items():
                 if isinstance(value, torch.Tensor):
                     opt[f"{key}:{value.dtype}"] += value.numel()
-    return {"modules": modules, "optimizer": dict(opt),
-            "optimizer_states_created": bool(opt), "count_unit": "tensor_elements"}
+        # ZeRO2 moves .grad to partitioned accumulation buffers before step.
+        # Observe those tensors directly; an empty model.grad is not evidence
+        # that the update had no gradients or that their dtype is BF16.
+        seen = set()
+        def visit(value, label):
+            if isinstance(value, torch.Tensor):
+                if id(value) not in seen:
+                    seen.add(id(value))
+                    gradients[f"{label}:{value.dtype}"] += value.numel()
+            elif isinstance(value, dict):
+                for child in value.values():
+                    visit(child, label)
+            elif isinstance(value, (list, tuple)):
+                for child in value:
+                    visit(child, label)
+        for name in ("averaged_gradients", "ipg_buffer", "grads_in_partition"):
+            visit(getattr(optimizer, name, None), name)
+        for parameter in model.parameters():
+            visit(getattr(parameter, "grad_accum", None), "parameter_grad_accum")
+    return {"modules": modules, "optimizer": dict(opt), "unique_model_tensors": dict(unique),
+            "module_counts_may_repeat_tied_parameters": True,
+            "partition_gradient_tensors": dict(gradients),
+            "optimizer_states_created": optimizer_states_created, "count_unit": "tensor_elements"}
 
 
 class PipelineProfiler:
