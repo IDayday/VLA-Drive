@@ -1,0 +1,37 @@
+{
+  "schema": "design_evidence_cards_v1",
+  "implementation_approval": "NOT_GRANTED",
+  "cards": [
+    {
+      "id": "ST_S0_COMPOSITION_AND_W_EXPANSION",
+      "claim_type": "new_hypothesis",
+      "question": "Retain the exact audited original S0 current/DiT path while replacing only newly registered supervision and comparing W capacity.",
+      "code": {
+        "repository": "IDayday/VLA-Drive",
+        "commit": "1493deda247107efe076b9294863a6753391298a",
+        "path_and_symbol": [
+          "tools/foresight/checkpoints.py::load_student",
+          "starVLA/model/framework/DDPForesight.py::encode_current",
+          "starVLA/model/modules/foresight/queries.py::SpatialViewEncoding",
+          "starVLA/model/modules/vehicle_joint/initialization.py::add_random_driving_tokens"
+        ],
+        "status": "inspected"
+      },
+      "mapping": "Strict reconstruct/load the complete FP32 S0 first; composition owns that model and uses its unchanged current encoder/action head. Remove old auxiliary-only modules after strict load. New readout and loss are explicitly registered ST adaptations.",
+      "new_adaptation": "W48 retains every original current/planning parameter. W96 adds 48 independent learned slots per view after the original 48 slots; original token names and embedding rows stay at their original vocabulary IDs. Sequence order becomes old48/new48 within each view. New slots receive independent random query values and repeat that view's original memory-position encoding; these coordinates are a memory initialization prior, not physical patch correspondence.",
+      "risks": [
+        "Longer W changes causal sequence and numerical outputs; no initial-function-equivalence claim for W96.",
+        "Wrapper must not call the old four-task forward or retain old auxiliary losses.",
+        "Original input-processing and normalizer hashes remain enforced.",
+        "New run has fresh optimizer by design; parent native checkpoint is immutable."
+      ],
+      "control": [
+        "W48 pre/post wrapping raw/physical equality at fixed inference runtime/noise",
+        "SP2/SP3 same teacher/request/GT/parameter source",
+        "Exact old parameter copy and explicit new/dropped key inventory",
+        "Same-cell strict checkpoint roundtrip",
+        "Original repeat8 Beta BC and independent RNG preserved"
+      ]
+    }
+  ]
+}
