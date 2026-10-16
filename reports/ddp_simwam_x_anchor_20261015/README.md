@@ -12,6 +12,8 @@ Budget: 20,000 AdamW updates, 5,000 fresh global rollouts, 40,000 scene exposure
 
 The user-requested [multi-source Flow design review and completed TRAIN sampler probes](flow_design_review/README.md) are read-only diagnostics, separate from this formal control. They scored 3072 matched sampler outputs plus 1024 saved-chain final-innovation counterfactuals; no additional training algorithm was launched.
 
+The [detailed Chinese report assembled on 2026-10-16](flow_design_review/multi_source_analysis_20261016.md) consolidates source versions, sampling and loss semantics, LoRA and action-scale checks, completed 20k results, diagnostic evidence, costs, limitations, and the next single-factor hypothesis. Its X1 progress is explicitly timestamped; it does not claim a completed X1 result.
+
 ```bash
 CUDA_VISIBLE_DEVICES='' python -m scripts.analysis.simwam_recipe.qualify_x_anchor --output /path/to/new_cpu_contract.json
 python -m scripts.analysis.simwam_recipe.qualify_recovery_run --name eight_gpu_x1 --root /mnt/project/simwam-x-anchor-20261015 --config configs/flow_rl/simwam_canonical_x1_ddp.yaml --interrupted-after 2
