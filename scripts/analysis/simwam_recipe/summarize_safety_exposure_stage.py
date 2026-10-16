@@ -73,7 +73,7 @@ def summarize(update, output):
                 'Cost retains evaluator invocations; aggregation does not repeat inference or scoring.'])
     lines = [f'# SAFETY25 固定{update}更新：完整单候选ODE阶段评价', '',
         result['captured_utc']+'。DEV1696/16 logs、固定定向TRAIN512/343 logs；canonical v1.1、原始观测、单候选、seed2101。没有搜索或GT选择。', '',
-        '这是已登记20k计划中的固定观察点，不是Navtest。主目标仍是原十步均匀ODE的完整Navtest提升及安全保持；不能把DEV超过92写成目标已实现。两组训练seed均42，按log聚类的区间不包含训练或推理seed重复的不确定性。', '',
+        '这是已登记20k计划中的固定观察点，不是Navtest。主目标仍是原十步均匀ODE的完整Navtest提升及安全保持；不能把DEV超过92写成目标已实现。两组训练seed均42，按log聚类的区间不包含训练或推理seed重复的不确定性。DEV仅保证RL更新未见，SFT可能见过；TRAIN是固定定向诊断集，不是总体无偏估计。', '',
         '只改变固定困难场景中安全失败人口的曝光配额；SFT、LoRA、X1 anchor、源SDE、reward和optimizer共同设置不变。训练场景顺序不同，训练随机均分不可直接比较；下表部署评价人口相同。', '',
         '| 人口 / 网格 | SFT | 同阶段X1 | SAFETY25 | 对SFT差值 / 95%区间 | 对X1差值 / 95%区间 |',
         '|---|---:|---:|---:|---|---|']
