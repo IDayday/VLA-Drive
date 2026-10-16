@@ -105,9 +105,9 @@ def main():
     plain.head.load_state_dict(merged,strict=True)
     with torch.no_grad():
         # Merge changes the FP32 matmul order; measure rather than assert bits.
-        x=chain[:,7];time=times[7].reshape(1).expand(8)
-        actual=actor.action_velocity(x,time,cond)
-        expected=plain.velocity_sigma(x,time/1000,plain.project(cached.float()).expand(8,-1,-1).contiguous())
+        x=chain[:,7];step_time=times[7].reshape(1).expand(8)
+        actual=actor.action_velocity(x,step_time,cond)
+        expected=plain.velocity_sigma(x,step_time/1000,plain.project(cached.float()).expand(8,-1,-1).contiguous())
         merge_error=float((actual-expected).abs().max())
         torch.testing.assert_close(actual,expected,rtol=5e-4,atol=5e-4)
     result=dict(status='PASS',host=host,architecture=architecture,SFT=sft_id,
