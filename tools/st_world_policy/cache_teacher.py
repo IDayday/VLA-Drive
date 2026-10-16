@@ -22,7 +22,7 @@ from starVLA.dataloader.st_world_history import file_sha256
 from starVLA.dataloader.st_world_schema import TeacherFeatureContract, identity_hash
 from starVLA.dataloader.st_world_targets import (
     atomic_json, TeacherCacheReader, TeacherCacheWriter, LegacyC1Reader,
-    unique_image_records, validate_target_manifest)
+    unique_image_records, validate_target_manifest, payload_key)
 from starVLA.model.modules.foresight import dinov3_target_encoder as dino
 
 
@@ -106,6 +106,25 @@ def run(args):
     manifest = validate_target_manifest(json.loads(Path(args.requests).read_text()))
     validate_budget(args,manifest)
     contract, teacher, transform = make_contract(args.teacher_root,args.variant,args.storage_dtype,legacy_root=args.legacy_c1_root)
+    source_reader=None
+    if args.source_cache:
+        if args.command not in ('plan','derive-pooled','verify') or args.variant!='SP1' or args.storage_dtype!='float32' or not args.source_cache_identity:
+            raise ValueError('Source-cache derivation only supports explicit FP32 SP1 pool3')
+        source_reader=TeacherCacheReader(args.source_cache,expected_identity=args.source_cache_identity)
+        source_reader.verify_population(manifest)
+        source_contract=source_reader.contract
+        if (source_contract.image_hw!=(288,384) or source_contract.output_grid_hw!=(18,24) or
+                source_contract.storage_dtype!='float32' or source_contract.pooling['kind']!='none' or
+                source_reader.identity['execution']['teacher']!=teacher or
+                source_reader.identity['execution']['transform']!=transform):
+            raise ValueError('SP1 derivation requires the identical registered native FP32 source')
+        transform={**transform,'pool_derivation':{'source_cache_identity':source_reader.identity['identity'],
+            'source_contract_identity':source_contract.identity,'kernel_hw':[3,3],'stride_hw':[3,3],
+            'compute_device':'cpu','compute_dtype':'float32','mask_rule':'all_source_patches_valid'}}
+        value=contract.to_dict();value.update(transform_identity=identity_hash(transform),source_cache_identity=source_reader.identity['identity'])
+        contract=TeacherFeatureContract.from_dict(value)
+    elif args.command=='derive-pooled':
+        raise ValueError('derive-pooled requires source-cache and source-cache-identity')
     execution = {'teacher':teacher,'transform':transform,'batch_size':args.batch_size,
                  'writer_sha256':file_sha256(__file__),'format':'safetensors_uncompressed','optimizer_updates':0}
     records = unique_image_records(manifest,contract)
@@ -141,6 +160,25 @@ def run(args):
                   'exact_requested_population':True}
         atomic_json(out/'VERIFICATION.json',result)
         return result
+    if args.command=='derive-pooled':
+        if shutil.disk_usage(out).free < requested_bytes + args.min_free_gib*1024**3:
+            raise ValueError('Insufficient declared derived-cache disk reserve')
+        torch.set_num_threads(args.cpu_threads)
+        writer=TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
+        started=time.monotonic()
+        for shard in range(args.rank,writer.shard_count,args.world_size):
+            if time.monotonic()-started>=args.max_seconds:
+                return {'status':'PARTIAL','reason':'TIME_BUDGET','identity':writer.identity['identity']}
+            with writer.shard_lock(shard):
+                if writer.committed(shard):continue
+                features=[];masks=[]
+                for row in writer.rows(shard):
+                    raw,valid=source_reader.read_image(payload_key(row['image'],source_reader.contract))
+                    pooled=torch.nn.functional.avg_pool2d(raw.permute(2,0,1)[None],3,3)[0].permute(1,2,0).contiguous()
+                    mask=torch.nn.functional.avg_pool2d(valid.float()[None,None],3,3)[0,0]==1
+                    features.append(torch.where(mask[...,None],pooled,torch.zeros_like(pooled)));masks.append(mask)
+                writer.commit_shard(shard,torch.stack(features),torch.stack(masks),metrics={'teacher_forward_calls':0})
+        return {**writer.finalize(),'teacher_forward_calls':0,'elapsed_s_this_invocation':time.monotonic()-started}
     writer = TeacherCacheWriter(out,contract,manifest,images_per_shard=args.images_per_shard,execution=execution)
     pending = [i for i in range(args.rank,writer.shard_count,args.world_size) if not writer.committed(i)]
     reserve = int(args.min_free_gib * (1<<30)) + args.images_per_shard*bytes_per
@@ -211,11 +249,12 @@ def run(args):
 
 def parser():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['plan','build','verify'])
+    p.add_argument('command',choices=['plan','build','verify','derive-pooled'])
     for key in ('requests','teacher-root','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--variant',choices=['SP0','SP1','SP2','SP3'],required=True)
     p.add_argument('--storage-dtype',choices=['float16','float32'],required=True)
     p.add_argument('--legacy-c1-root')
+    p.add_argument('--source-cache');p.add_argument('--source-cache-identity')
     p.add_argument('--mode',choices=['smoke','registered'],default='smoke')
     p.add_argument('--registration')
     p.add_argument('--max-scenes',type=int,required=True)

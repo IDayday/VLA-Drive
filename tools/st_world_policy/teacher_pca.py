@@ -18,9 +18,104 @@ from safetensors import safe_open
 from safetensors.torch import save_file
 
 from starVLA.dataloader.st_world_history import file_sha256
-from starVLA.dataloader.st_world_schema import identity_hash
+from starVLA.dataloader.st_world_schema import TeacherFeatureContract, identity_hash
 from starVLA.dataloader.st_world_targets import (
-    TeacherCacheReader, atomic_json, file_lock, payload_key, tensor_digest)
+    TeacherCacheReader, LegacyC1Reader, atomic_json, file_lock, payload_key, tensor_digest)
+
+
+def teacher_channel_family(cache_identity):
+    """Audited DINO channel coordinates across only the registered SP grids.
+
+    This permits a common linear basis, NOT equal features at different image
+    resolutions. Exact transforms and storage precision remain in each cache
+    contract and are never collapsed into this family identifier.
+    """
+    contract=TeacherFeatureContract.from_dict(cache_identity['contract'])
+    execution=cache_identity['execution'];teacher=execution['teacher'];transform=execution['transform']
+    if (contract.teacher_identity!=identity_hash(teacher) or contract.transform_identity!=identity_hash(transform) or
+            contract.channels!=1024 or contract.patch_hw!=(16,16) or contract.compute_dtype!='float32' or
+            contract.feature_layer!='last_block_post_norm_dense_patch' or
+            contract.view_names!=('CAM_F0','CAM_L0','CAM_R0')):
+        raise ValueError('PCA channel source does not match its complete teacher contract')
+    if contract.source_cache_identity==LegacyC1Reader.IDENTITY:
+        if (contract.image_hw!=(192,256) or contract.output_grid_hw!=(6,8) or contract.storage_dtype!='float16' or
+                dict(contract.pooling)!={'kind':'avg','kernel_hw':(2,2),'stride_hw':(2,2)} or
+                transform.get('legacy_recipe')!=teacher or
+                teacher.get('precision')!='FP32 model/input/output; TF32 disabled; FP16 storage' or
+                teacher.get('normalization')!='ImageNet RGB once; last post-norm patches; no extra L2' or
+                teacher.get('source_rgb_range')!='full original16:9 image resized anisotropically to4:3; no crop' or
+                teacher.get('interpolation')!='PIL bicubic antialias'):
+            raise ValueError('Only the exact audited legacy C1 channel mapping is supported')
+        encoder=teacher['encoder_implementation'];mean=teacher['mean'];std=teacher['std']
+    else:
+        allowed_pool={'kind':'none','kernel_hw':(1,1),'stride_hw':(1,1)}
+        pooled={'kind':'avg','kernel_hw':(3,3),'stride_hw':(3,3)}
+        if (contract.image_hw!=(288,384) or contract.storage_dtype!='float32' or
+                dict(contract.pooling) not in (allowed_pool,pooled) or
+                teacher.get('compute_dtype')!='float32' or teacher.get('tf32') is not False or
+                teacher.get('autocast') is not False or transform.get('normalization')!='ImageNet_once' or
+                transform.get('source')!='complete original16:9 RGB' or transform.get('crop')!='none' or
+                transform.get('resize')!='PIL_BICUBIC' or transform.get('augmentation')!='none' or
+                transform.get('padding')!='none' or transform.get('image_hw')!=[288,384]):
+            raise ValueError('Unregistered PCA precision/preprocessing/grid family')
+        encoder=teacher['encoder_source_sha256'];mean=transform['mean'];std=transform['std']
+    if (teacher.get('feature')!='last_block_post_norm_dense_patch' or teacher.get('extra_norm')!='none' or
+            teacher.get('prefix_tokens_excluded')!=5 or mean!=[.485,.456,.406] or std!=[.229,.224,.225]):
+        raise ValueError('PCA feature normalization/channel interpretation changed')
+    return {'schema':'st_dino_pca_channel_family_v1','repository':teacher['repository'],
+        'revision':teacher['revision'],'weight_sha256':teacher['weight_sha256'],'config_sha256':teacher['config_sha256'],
+        'encoder_source_sha256':encoder,'timm':teacher['timm'],'torch':teacher['torch'],'channels':1024,
+        'feature':'last_block_post_norm_dense_patch','prefix_tokens_excluded':5,'extra_norm':'none',
+        'compute_dtype':'float32','tf32':False,'autocast':False,'mean':mean,'std':std,
+        'source_field':'full16:9_no_crop','resize':'PIL_BICUBIC','normalization':'ImageNet_once',
+        'allowed_spatial_changes':'registered192x256_pool2_or288x384_native_or_pool3',
+        'numerical_equality_across_resolutions_claimed':False}
+
+
+def register_channel_scope(pca_root, fit_cache_root, target_cache_roots, output):
+    """Register exact real cache identities; never rewrites fitted statistics."""
+    pca_root=Path(pca_root);receipt=json.loads((pca_root/'PCA.json').read_text())
+    fit=TeacherCacheReader(fit_cache_root,expected_identity=receipt['fit_cache_identity'])
+    TeacherPCA.load(pca_root,dimension=receipt['dimensions'][0],expected_identity=receipt['identity'],
+                    expected_teacher_contract=fit.contract.identity)
+    family=teacher_channel_family(fit.identity)
+    entries=[]
+    for root in [fit_cache_root,*target_cache_roots]:
+        root=Path(root).resolve();identity=json.loads((root/'identity.json').read_text())['identity']
+        reader=TeacherCacheReader(root,expected_identity=identity)
+        candidate=teacher_channel_family(reader.identity)
+        if candidate!=family:raise ValueError('PCA channel source/model/software differs from fitted teacher')
+        entry={'cache_root':str(root),'cache_identity':identity,'identity_sha256':file_sha256(root/'identity.json'),
+               'teacher_contract_identity':reader.contract.identity,'contract':reader.contract.to_dict(),
+               'channel_family_identity':identity_hash(candidate)}
+        if entry not in entries:entries.append(entry)
+    scope={'schema':'st_pca_channel_scope_v1','pca_identity':receipt['identity'],
+           'fit_cache_identity':fit.identity['identity'],'fit_contract_identity':fit.contract.identity,
+           'channel_family':family,'allowed_caches':entries,'statistics_refitted':False}
+    scope['identity']=identity_hash(scope)
+    atomic_json(output,scope,immutable=True)
+    return scope
+
+
+def validate_channel_scope(path, receipt, expected_contract, target_cache_identity):
+    scope=json.loads(Path(path).read_text())
+    if (scope.get('schema')!='st_pca_channel_scope_v1' or scope.get('identity')!=identity_hash({k:v for k,v in scope.items() if k!='identity'}) or
+            scope['pca_identity']!=receipt['identity'] or scope['fit_cache_identity']!=receipt['fit_cache_identity'] or
+            scope['fit_contract_identity']!=receipt['teacher_contract_identity'] or scope['statistics_refitted'] is not False):
+        raise ValueError('Invalid PCA channel scope/basis binding')
+    matches=[r for r in scope['allowed_caches'] if r['cache_identity']==target_cache_identity and r['teacher_contract_identity']==expected_contract]
+    if len(matches)!=1:raise ValueError('Target cache is not explicitly admitted by PCA channel scope')
+    fit=[r for r in scope['allowed_caches'] if r['cache_identity']==scope['fit_cache_identity']]
+    if len(fit)!=1:raise ValueError('PCA scope has no unique original fitted source')
+    for entry in [fit[0],matches[0]]:
+        path=Path(entry['cache_root'])/'identity.json'
+        if file_sha256(path)!=entry['identity_sha256']:raise ValueError('PCA scoped cache identity file changed')
+        cache=json.loads(path.read_text())
+        if (cache['identity']!=entry['cache_identity'] or identity_hash({k:v for k,v in cache.items() if k!='identity'})!=entry['cache_identity'] or
+                cache['contract']!=entry['contract'] or TeacherFeatureContract.from_dict(entry['contract']).identity!=entry['teacher_contract_identity'] or
+                teacher_channel_family(cache)!=scope['channel_family']):
+            raise ValueError('PCA admitted channel mapping changed')
+    return scope['identity']
 
 
 class StreamingCovariance:
@@ -95,22 +190,31 @@ class TeacherPCA:
         return (z.float() @ p['components'][:self.dimension] + p['pca_mean']) * p['channel_std'] + p['channel_mean']
 
     @classmethod
-    def load(cls, root, *, dimension, expected_identity, expected_teacher_contract):
+    def load(cls, root, *, dimension, expected_identity, expected_teacher_contract,
+             channel_scope=None, target_cache_identity=None):
         root=Path(root)
         receipt=json.loads((root/'PCA.json').read_text())
         done=json.loads((root/'COMPLETE.json').read_text())
         if (receipt['identity']!=expected_identity or identity_hash({k:v for k,v in receipt.items() if k!='identity'})!=expected_identity or
-                receipt['teacher_contract_identity']!=expected_teacher_contract or done['identity']!=expected_identity or
+                done['identity']!=expected_identity or
                 done['pca_json_sha256']!=file_sha256(root/'PCA.json') or
                 receipt['tensor_sha256']!=file_sha256(root/'statistics.safetensors')):
             raise ValueError('PCA source/statistics/checksum mismatch')
         if receipt['fit_role']!='train' or receipt['whiten'] is not False or receipt['standardize_channels'] is not True:
             raise ValueError('PCA normalization/provenance changed')
+        scope_identity=None
+        if receipt['teacher_contract_identity']!=expected_teacher_contract:
+            if channel_scope is None or target_cache_identity is None:
+                raise ValueError('PCA exact teacher contract mismatch; explicit registered channel scope required')
+            scope_identity=validate_channel_scope(channel_scope,receipt,expected_teacher_contract,target_cache_identity)
         with safe_open(str(root/'statistics.safetensors'),framework='pt',device='cpu') as f:
             tensors={k:f.get_tensor(k) for k in f.keys()}
         if {k:tensor_digest(v) for k,v in tensors.items()}!=receipt['tensor_hashes']:
             raise ValueError('PCA tensor identity mismatch')
-        return cls(tensors,dimension=dimension,identity=expected_identity,teacher_contract_identity=expected_teacher_contract)
+        result=cls(tensors,dimension=dimension,identity=expected_identity,teacher_contract_identity=expected_teacher_contract)
+        result.channel_scope_identity=scope_identity
+        result.fit_teacher_contract_identity=receipt['teacher_contract_identity']
+        return result
 
 
 def make_patch_plan(reader, *, seed, max_patches, purpose):
@@ -189,6 +293,10 @@ def reconstruction_probe(reader, plan, tensors, dimensions):
 
 
 def run(args):
+    if args.register_channel_scope:
+        actual=json.loads((Path(args.cache_root)/'identity.json').read_text())['identity']
+        if actual!=args.cache_identity:raise ValueError('Channel scope fitted cache identity mismatch')
+        return register_channel_scope(args.register_channel_scope,args.cache_root,args.scope_cache_root,args.output)
     if min(args.max_patches,args.probe_patches,args.cpu_threads) <= 0 or args.max_patches>1000000:
         raise ValueError('Explicit bounded PCA patch/CPU budgets required')
     dims=sorted(set(args.dimensions))
@@ -252,6 +360,8 @@ def parser():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('cache-root','cache-identity','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--probe-cache-root');p.add_argument('--probe-cache-identity')
+    p.add_argument('--register-channel-scope',help='Existing fitted PCA root; register exact compatible cache identities without refitting')
+    p.add_argument('--scope-cache-root',action='append',default=[],help='Actual complete additional teacher cache admitted by the explicit scope')
     p.add_argument('--dimensions',nargs='+',type=int,default=[256,384])
     p.add_argument('--max-patches',type=int,default=32768)
     p.add_argument('--probe-patches',type=int,default=4096)

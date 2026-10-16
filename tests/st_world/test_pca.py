@@ -51,3 +51,81 @@ def test_role_guard_precedes_any_cache_read():
     class Reader:
         manifest={'split':'dev','scenes':[]}
     with pytest.raises(ValueError,match='train-only'):make_patch_plan(Reader(),seed=1,max_patches=32,purpose='fit')
+
+
+def scoped_fixture(tmp_path):
+    import json
+    from PIL import Image
+    from safetensors.torch import save_file
+    from starVLA.dataloader.st_world_history import image_reference,file_sha256
+    from starVLA.dataloader.st_world_schema import TeacherFeatureContract,identity_hash
+    from starVLA.dataloader.st_world_targets import TeacherCacheWriter,tensor_digest
+    image=tmp_path/'input.png';Image.new('RGB',(32,18),'blue').save(image);ref=image_reference(image)
+    teacher={'repository':'registered','revision':'same','weight_sha256':'a'*64,'config_sha256':'b'*64,
+        'encoder_source_sha256':'c'*64,'timm':'1.0','torch':'2.5','feature':'last_block_post_norm_dense_patch',
+        'extra_norm':'none','prefix_tokens_excluded':5,'compute_dtype':'float32','tf32':False,'autocast':False}
+    transform={'source':'complete original16:9 RGB','crop':'none','resize':'PIL_BICUBIC','augmentation':'none',
+        'padding':'none','image_hw':[288,384],'normalization':'ImageNet_once','mean':[.485,.456,.406],'std':[.229,.224,.225]}
+    m={'schema':'st_teacher_requests_v1','split':'train','times_s':[0.],'timestamp_tolerance_s':.05,
+        'view_names':['CAM_F0','CAM_L0','CAM_R0'],'scenes':[{'token':'a','log':'l','split':'train','timestamp_us':0,
+        'frames':[{'requested_s':0.,'timestamp_us':0,'views':[ref]*3}]}]};m['identity']=identity_hash(m)
+    readers=[]
+    for name,pool in [('fit',1),('pooled',3)]:
+        c=TeacherFeatureContract(image_hw=[288,384],patch_hw=[16,16],native_grid_hw=[18,24],
+            output_grid_hw=[18//pool,24//pool],channels=1024,storage_dtype='float32',compute_dtype='float32',
+            view_names=m['view_names'],teacher_identity=identity_hash(teacher),transform_identity=identity_hash(transform),
+            pooling={'kind':'none' if pool==1 else 'avg','kernel_hw':[pool,pool],'stride_hw':[pool,pool]})
+        writer=TeacherCacheWriter(tmp_path/name,c,m,execution={'teacher':teacher,'transform':transform})
+        writer.commit_shard(0,torch.zeros(1,*c.output_grid_hw,1024),torch.ones(1,*c.output_grid_hw,dtype=torch.bool));writer.finalize()
+        readers.append(writer)
+    pca=tmp_path/'pca';pca.mkdir()
+    t={'channel_mean':torch.zeros(1024),'channel_std':torch.ones(1024),'pca_mean':torch.zeros(1024),
+       'components':torch.eye(1024)[:4].contiguous(),'eigenvalues':torch.ones(1024),'constant_channels':torch.zeros(1024,dtype=torch.bool)}
+    save_file(t,str(pca/'statistics.safetensors'))
+    receipt={'schema':'st_teacher_pca_v1','fit_role':'train','fit_cache_identity':readers[0].identity['identity'],
+        'teacher_contract_identity':readers[0].contract.identity,'dimensions':[2,4],'whiten':False,'standardize_channels':True,
+        'tensor_sha256':file_sha256(pca/'statistics.safetensors'),'tensor_hashes':{k:tensor_digest(v) for k,v in t.items()}}
+    receipt['identity']=identity_hash(receipt);(pca/'PCA.json').write_text(json.dumps(receipt))
+    (pca/'COMPLETE.json').write_text(json.dumps({'identity':receipt['identity'],'pca_json_sha256':file_sha256(pca/'PCA.json')}))
+    return readers,pca,receipt
+
+
+def test_cross_grid_pca_requires_explicit_exact_cache_scope(tmp_path):
+    from tools.st_world_policy.teacher_pca import register_channel_scope
+    readers,pca,receipt=scoped_fixture(tmp_path);fit,pooled=readers
+    kwargs=dict(dimension=2,expected_identity=receipt['identity'],expected_teacher_contract=pooled.contract.identity)
+    with pytest.raises(ValueError,match='exact teacher contract mismatch'):TeacherPCA.load(pca,**kwargs)
+    scope=register_channel_scope(pca,fit.root,[pooled.root],pca/'CHANNEL_SCOPE.json')
+    loaded=TeacherPCA.load(pca,**kwargs,channel_scope=pca/'CHANNEL_SCOPE.json',target_cache_identity=pooled.identity['identity'])
+    assert loaded.channel_scope_identity==scope['identity']
+    assert loaded.fit_teacher_contract_identity==fit.contract.identity
+    assert loaded.teacher_contract_identity==pooled.contract.identity
+    with pytest.raises(ValueError,match='not explicitly admitted'):
+        TeacherPCA.load(pca,**kwargs,channel_scope=pca/'CHANNEL_SCOPE.json',target_cache_identity='f'*64)
+    # Original fitted tensors/receipt are immutable; no refit or edited source.
+    assert scope['statistics_refitted'] is False
+
+
+def test_family_does_not_admit_precision_normalization_or_teacher_changes(tmp_path):
+    import copy
+    from tools.st_world_policy.teacher_pca import teacher_channel_family
+    from starVLA.dataloader.st_world_schema import identity_hash
+    readers,_,_=scoped_fixture(tmp_path);source=readers[0].identity
+    original=teacher_channel_family(source)
+    changed=copy.deepcopy(source);changed['execution']['teacher']['tf32']=True
+    changed['contract']['teacher_identity']=identity_hash(changed['execution']['teacher'])
+    with pytest.raises(ValueError,match='precision/preprocessing'):teacher_channel_family(changed)
+    changed=copy.deepcopy(source);changed['execution']['transform']['augmentation']='random_crop'
+    changed['contract']['transform_identity']=identity_hash(changed['execution']['transform'])
+    with pytest.raises(ValueError,match='precision/preprocessing'):teacher_channel_family(changed)
+    changed=copy.deepcopy(source);changed['execution']['teacher']['weight_sha256']='f'*64
+    changed['contract']['teacher_identity']=identity_hash(changed['execution']['teacher'])
+    assert teacher_channel_family(changed)!=original
+
+
+def test_linear_pooling_and_one_common_pca_commute_without_refit():
+    x=torch.randn(40,8,generator=torch.Generator().manual_seed(41));p,_=fit(x,4)
+    pca=TeacherPCA(p,dimension=4,identity='x',teacher_contract_identity='a'*64)
+    grid=x[:36].reshape(2,3,2,3,8)
+    pooled=grid.mean((1,3))
+    assert torch.allclose(pca.transform(pooled),pca.transform(grid).mean((1,3)),atol=2e-7)

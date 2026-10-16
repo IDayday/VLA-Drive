@@ -106,8 +106,11 @@ class STWorldTrainingDataset(Dataset):
         if pca_path is not None:
             from tools.st_world_policy.teacher_pca import TeacherPCA
             receipt=json.loads((Path(pca_path)/'PCA.json').read_text())
+            scope_path=Path(pca_path)/'CHANNEL_SCOPE.json'
             self.pca=TeacherPCA.load(pca_path,dimension=expected_contract.channels,
-                expected_identity=receipt['identity'],expected_teacher_contract=self.teacher.contract.identity)
+                expected_identity=receipt['identity'],expected_teacher_contract=self.teacher.contract.identity,
+                channel_scope=scope_path if scope_path.exists() else None,
+                target_cache_identity=expected_teacher_identity)
             effective=projected_teacher_contract(self.teacher.contract,pca_identity=receipt['identity'],dimension=expected_contract.channels)
         else:
             effective=self.teacher.contract
@@ -121,6 +124,7 @@ class STWorldTrainingDataset(Dataset):
             'ego_identity':self.ego_identity['identity'],'ego_record_pins':self.ego_pins,
             'teacher_cache_identity':expected_teacher_identity,'raw_teacher_contract_identity':self.teacher.contract.identity,
             'effective_target_contract':effective.to_dict(),'pca_identity':self.pca.identity if self.pca else None,
+            'pca_channel_scope_identity':self.pca.channel_scope_identity if self.pca else None,
             'history_identity':self.history.manifest['identity'] if self.history else None,
             'split':require_split,'need_future':need_future,'scenes':len(self.rows)}
         self.identity['identity']=identity_hash(self.identity)

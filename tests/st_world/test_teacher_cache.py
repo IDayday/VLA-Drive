@@ -123,3 +123,30 @@ def test_current_only_never_loads_future_and_lru_does_not_rehash(tmp_path,monkey
     r.read_scene('a',need_future=True)
     r.read_scene('a',need_future=False)
     assert len(hashes)==2
+
+
+def test_sp1_derivation_reuses_native_fp32_without_encoder(tmp_path,monkeypatch):
+    from tools.st_world_policy import cache_teacher
+    from starVLA.dataloader.st_world_schema import identity_hash
+    c,m=fixture(tmp_path)
+    teacher={'registered':'teacher'};transform={'registered':'transform'}
+    value=c.to_dict();value.update(image_hw=[288,384],native_grid_hw=[18,24],output_grid_hw=[18,24],
+        teacher_identity=identity_hash(teacher),transform_identity=identity_hash(transform))
+    native=TeacherFeatureContract.from_dict(value)
+    w=TeacherCacheWriter(tmp_path/'native',native,m,execution={'teacher':teacher,'transform':transform})
+    z=torch.arange(18*24*8,dtype=torch.float32).reshape(1,18,24,8)
+    w.commit_shard(0,z,torch.ones(1,18,24,dtype=torch.bool));w.finalize()
+    p=native.to_dict();p.update(output_grid_hw=[6,8],pooling={'kind':'avg','kernel_hw':[3,3],'stride_hw':[3,3]})
+    monkeypatch.setattr(cache_teacher,'make_contract',lambda *a,**kw:(TeacherFeatureContract.from_dict(p),teacher,transform))
+    requests=tmp_path/'requests.json';requests.write_text(json.dumps(m))
+    args=cache_teacher.parser().parse_args(['derive-pooled','--requests',str(requests),'--teacher-root',str(tmp_path),
+        '--output',str(tmp_path/'pooled'),'--variant','SP1','--storage-dtype','float32','--max-scenes','1',
+        '--source-cache',str(w.root),'--source-cache-identity',w.identity['identity'],'--min-free-gib','0'])
+    result=cache_teacher.run(args)
+    assert result['status']=='COMPLETE' and result['teacher_forward_calls']==0
+    r=TeacherCacheReader(args.output,expected_identity=result['identity'])
+    expected=torch.nn.functional.avg_pool2d(z.permute(0,3,1,2),3,3).permute(0,2,3,1)
+    assert torch.equal(r.read_scene('a')['current_dense_features'][0],expected[0])
+    assert r.contract.source_cache_identity==w.identity['identity'] and r.contract.identity!=native.identity
+    assert cache_teacher.run(args)['identity']==result['identity']
+    args.command='verify';assert cache_teacher.run(args)['exact_requested_population']
