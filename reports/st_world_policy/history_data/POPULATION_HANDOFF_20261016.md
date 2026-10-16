@@ -2,6 +2,8 @@
 
 Status: **NEEDS_REVIEW**. Full train metadata is running; full train teacher cache is not started by this agent. This document is not formal training approval. Read the final receipts before launching a cache or claiming complete coverage.
 
+Latest Lead decision: no plan-waiting helper remains running. Lead will generate the plan after metadata COMPLETE and after implementing/testing deferred worker finalization plus one CPU finalizer. The 8e4e runtime command below documents the available pre-fix plan interface; it is **not the approved source for the upcoming full train cache**. Use the actual newly frozen runtime when Lead registers it. Existing dev artifacts from 8e4e remain immutable.
+
 ## Live CPU preparation
 
 - Host: `training-vlawm-tsinghua-zt-worker-0` (SSH alias `training-vlawm-tsinghua-zt`).
