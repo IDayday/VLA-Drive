@@ -29,6 +29,11 @@ def worker_allowed(host):
 
 def remote(host, args):
     worker_allowed(host)
+    if host == require_dispatch():
+        # The controller's own authorized host may not have a self-SSH alias.
+        # A neutral cwd keeps the explicit dispatch PYTHONPATH authoritative,
+        # exactly as on a remote host without a checkout in its login directory.
+        return subprocess.check_output(args,cwd='/',text=True,timeout=60)
     return subprocess.check_output(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',host,
         shlex.join(args)],text=True,timeout=60)
 

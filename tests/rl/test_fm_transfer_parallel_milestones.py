@@ -39,3 +39,37 @@ def test_repeated_capacity_and_physical_identity_precede_milestone_admission():
     assert capacity_available(first,second,uuids)
     second['gpus'][0]['uuid']='aliased-or-changed'
     with pytest.raises(ValueError):capacity_available(first,second,uuids)
+
+
+def test_local_transport_keeps_argv_and_neutral_module_search_directory(monkeypatch):
+    from scripts.analysis.fm_transfer import milestone_controller as m
+    calls = []
+    monkeypatch.setattr(m, 'worker_allowed', lambda host: calls.append(('authorized', host)))
+    monkeypatch.setattr(m, 'require_dispatch', lambda: 'training-vla-zt')
+    monkeypatch.setattr(m.subprocess, 'check_output', lambda args, **kw: calls.append((args, kw)) or 'ok')
+    args = ['env', 'PYTHONPATH=/frozen/source', '/python', '-m', 'scripts.analysis.fm_transfer.dispatch_evaluation']
+    assert m.remote('training-vla-zt', args) == 'ok'
+    assert calls == [('authorized', 'training-vla-zt'),
+                     (args, dict(cwd='/', text=True, timeout=60))]
+
+
+def test_other_host_keeps_existing_ssh_transport(monkeypatch):
+    import shlex
+    from scripts.analysis.fm_transfer import milestone_controller as m
+    calls = []
+    monkeypatch.setattr(m, 'worker_allowed', lambda host: None)
+    monkeypatch.setattr(m, 'require_dispatch', lambda: 'training-vla-zt')
+    monkeypatch.setattr(m.subprocess, 'check_output', lambda args, **kw: calls.append((args, kw)) or 'ok')
+    args = ['/python', '-c', 'print("actual argv")']
+    assert m.remote('training-vlawm-tsinghua-zt', args) == 'ok'
+    assert calls == [(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10',
+                      'training-vlawm-tsinghua-zt', shlex.join(args)], dict(text=True, timeout=60))]
+
+
+def test_local_transport_does_not_bypass_host_withdrawal(monkeypatch):
+    from scripts.analysis.fm_transfer import milestone_controller as m
+    def withdrawn(host):
+        raise PermissionError('withdrawn')
+    monkeypatch.setattr(m, 'worker_allowed', withdrawn)
+    monkeypatch.setattr(m.subprocess, 'check_output', lambda *a, **k: pytest.fail('Must not execute'))
+    with pytest.raises(PermissionError): m.remote('training-vla-zt', ['/python'])
