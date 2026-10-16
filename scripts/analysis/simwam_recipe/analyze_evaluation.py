@@ -64,14 +64,14 @@ def read(root):
     return identity,tokens,[pop['token_logs'][t] for t in tokens],arrays,motions,ranks
 
 
-def main():
+def main(protocol_matcher=match_protocol):
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation',required=True);p.add_argument('--reference');p.add_argument('--output',required=True)
     p.add_argument('--source-compatibility',help='Explicit qualified receipt for an exact logging-only evaluator source pair')
     a=p.parse_args();identity,tokens,logs,rows,motions,ranks=read(a.evaluation)
     baseline=None;compatibility=None
     if a.reference:
         ref,rt,rl,baseline,_,_=read(a.reference)
-        compatibility=match_protocol(identity,ref,a.source_compatibility)
+        compatibility=protocol_matcher(identity,ref,a.source_compatibility)
         if rt!=tokens or rl!=logs:raise ValueError('Unpaired scenes')
     result=dict(schema='simwam_evaluation_analysis_v2',analysis_identity=file_sha(__file__),status='COMPLETE_POPULATION',identity=identity,reference=a.reference,scenes=len(tokens),logs=len(set(logs)),seed=2101,
                 score_units='raw0to1; mean_percent multiplied100; gain/loss sums remain raw score',modes={},
