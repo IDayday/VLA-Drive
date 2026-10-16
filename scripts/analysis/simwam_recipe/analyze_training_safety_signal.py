@@ -105,7 +105,7 @@ def aggregate(rows, population_count, logs):
         stochastic_mean={k: float(np.mean([e[k] for e in ex])) if n else None for k in MEANS})
 
 
-def validate_saved(rollout, row, rank, identity, population, stream):
+def validate_saved(rollout, row, rank, identity, population, stream, *, reward_summary_device=None):
     from starVLA.rl.simwam_recipe.collection import exploration_summary
     from starVLA.rl.simwam_recipe.reward_readouts import readouts
     if rollout['token'] != row['token'] or rollout['behavior_version'] != row['behavior']:
@@ -141,6 +141,17 @@ def validate_saved(rollout, row, rank, identity, population, stream):
     if not torch.equal(expected_a, rollout['advantages']) or not torch.equal(expected_mask, rollout['adv_mask']):
         raise ValueError('Saved advantage or whole-group mask is inconsistent')
     actual = exploration_summary(rollout)
+    if reward_summary_device is not None:
+        # The journal used a CUDA FP32 reduction. CPU and CUDA means of eight
+        # identical FP32 rewards can differ by two ULPs. GPU diagnostics can
+        # reproduce the original operation exactly, without relaxing tolerances
+        # or changing any reward/advantage/chain field. Legacy CPU calls retain
+        # their original behavior and may conservatively reject such a summary.
+        if torch.device(reward_summary_device).type != 'cuda':
+            raise ValueError('Explicit journal reduction replay requires CUDA')
+        actual['train_reward_mean'] = float(rollout['rewards'].to(reward_summary_device).mean())
+        if actual['train_reward_mean'] != row['exploration']['train_reward_mean']:
+            raise ValueError('CUDA reward summary does not exactly reproduce journal')
     for key, value in actual.items():
         old = row['exploration'][key]
         if value is None or isinstance(value, bool):

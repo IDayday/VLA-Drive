@@ -1,0 +1,57 @@
+{
+  "schema": "saved_gradient_reward_summary_device_fix_v1",
+  "created_utc": "2026-10-16T15:11:31.147783+00:00",
+  "parent_registration_sha256": "5d65775f258c3b0226f88b21c418e989d578da5a3eaf0b81426482bd2009c3eb",
+  "failed_attempts": [
+    {
+      "job": "R_CANONICAL_X1_2500",
+      "invocation_sha256": "442359a7c201e998d4fd4cf490847496e83033e9bd0514ab59e6fc2d96c22823",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "job_wall_seconds": 28.155719757080078,
+      "cause": "CPU FP32 reward-mean reconstruction differs from logged CUDA mean by1.1920928955078125e-7; raw reward/advantage/chain unchanged",
+      "new_scores": 0,
+      "optimizer_updates": 0
+    },
+    {
+      "job": "R_CANONICAL_X1_SAFETY25_2500",
+      "invocation_sha256": "5f312fd49ad858f6edacde6e3b02212b60b14e8b7820d235cde04e7b0e5da8c8",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "job_wall_seconds": 25.306857109069824,
+      "cause": "CPU FP32 reward-mean reconstruction differs from logged CUDA mean by1.1920928955078125e-7; raw reward/advantage/chain unchanged",
+      "new_scores": 0,
+      "optimizer_updates": 0
+    },
+    {
+      "job": "R_CANONICAL_X1_SAFETY25_1000",
+      "invocation_sha256": "7f311a94485caa22e2a8cdc094e2f4952b8640a611aafd42e5eb8dee262aa2ed",
+      "log_sha256": "99a8c68527c787a699876249f3e68d6a749c22e3256699e96d0015b2f9b8c3c9",
+      "job_wall_seconds": 33.50148630142212,
+      "cause": "CPU FP32 reward-mean reconstruction differs from logged CUDA mean by1.1920928955078125e-7; raw reward/advantage/chain unchanged",
+      "new_scores": 0,
+      "optimizer_updates": 0
+    }
+  ],
+  "correction": "Optional exact CUDA replay of only derived train_reward_mean; no tolerance relaxation and no gradient or actor path change. CPU-only audit default still uses old conservative tolerance.",
+  "bounded_new_attempts": [
+    {
+      "job_index": 0,
+      "purpose": "unchanged successful batch parity"
+    },
+    {
+      "job_index": 2,
+      "purpose": "finish original failed batch"
+    },
+    {
+      "job_index": 3,
+      "purpose": "finish original failed batch"
+    },
+    {
+      "job_index": 5,
+      "purpose": "finish original failed batch"
+    }
+  ],
+  "additional_unique_groups": 0,
+  "new_candidates": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0
+}

@@ -84,7 +84,8 @@ class SavedGradientStrata:
             row = json.loads(next(itertools.islice(f, self.collection*4-1, None)))
         if row['updates'] != self.collection*4 or row['inner_completed'] != 4:
             raise ValueError('Expected completed inner4 journal')
-        digest = validate_saved(saved, row, rank, self.identity, self.population, self.stream)
+        digest = validate_saved(saved, row, rank, self.identity, self.population, self.stream,
+                                reward_summary_device=torch.device('cuda'))
         if saved['behavior_version']['update'] != self.collection*4-4:
             raise ValueError('Wrong old behavior boundary')
         stratum = int(self.types[saved['token']] != 'SFT_single_seed_safe')
@@ -92,6 +93,8 @@ class SavedGradientStrata:
         self.counts[stratum] += 1
         self.evidence.append(dict(rank=rank, SFT_stratum=('SFT_safe', 'SFT_unsafe')[stratum],
             chain_identity=digest, global_std=float(saved['global_std']),
+            reward_summary_backend='Exact CUDA FP32 reproduction of journal',
+            CPU_vs_logged_reward_mean_abs_error=abs(float(saved['rewards'].mean())-row['exploration']['train_reward_mean']),
             PG_mask_fraction=float(saved['adv_mask'].mean()), exploration=row['exploration']))
 
     def add(self, rank, kind, step, gradient):
