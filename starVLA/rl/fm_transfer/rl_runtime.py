@@ -78,7 +78,10 @@ class TransferRuntime:
             SFT_identity=self.loaded_sft,
             action='original DDP normalized eight-by-four',
             condition='same frozen original Qwen normalized action queries',
-            source_action_forward='standalone ActionDiT.forward; no Wan/MoT',
+            source_action_forward=(
+                'original DDP predict_velocity; v_sigma=-v_DDP; no Wan/MoT'
+                if self.sft_identity['config']['architecture'] == 'ddp'
+                else 'standalone ActionDiT.forward; no Wan/MoT'),
             permanent_reference='this new frozen SFT, cloned before LoRA insertion')
         return dict(schema='fm_transfer_source_RL_v1', recipe=resolved,
             upstream_commit=UPSTREAM_COMMIT, SFT_sha256=self.sft_files['model.pt'],

@@ -1,0 +1,150 @@
+{
+  "schema": "fm_transfer_own_SFT_RL8_gate_and_dispatch_v1",
+  "status": "PASS",
+  "qualification_source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+  "world": 8,
+  "SFT_identity": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+  "SFT_model_sha256": "ac52e9346080ce0e6bf27441935ac9aa6acbff239330b316bee36b560486579a",
+  "hard_manifest_sha256": "e490778ca017a4e90571d2e66c61f0bea1c4d8d64ef6f14d74d8c0874b294d10",
+  "evidence": {
+    "validation.json": "1349ae13c6654699fd383aaa5b73f223866b89c847039112b78d75e49b80c466",
+    "merged_ODE.json": "5f23de13742fc01b8925c92c8ab572b9413951f3aa688719f5588bf48fd5d67f",
+    "export/export.json": "6b5c26bd1e84c11d37f698df3920122da91989edc76d751acf81b08e1013cbc1",
+    "raw_deployment/rank0.json": "dd59783fbe1e19e9b0fcfd9bab8bcc9cfd1397a99493755f3ce775cc708666e2"
+  },
+  "gate_receipt_sha256": "fdfa9a607cd5cc2744ee2c7743a8c3ae1ae7f07021f523285ffd6c1c5730e987",
+  "full_adapter_Adam_scheduler_RNG_equal": true,
+  "actual_chains_probabilities_advantages_scores_equal": true,
+  "four_optimizer_updates_per_fresh_collection": true,
+  "all_ranks_adapters_updated": true,
+  "all_ranks_frozen_head_and_reference_unchanged": true,
+  "first_inner_ratio_max_error": 0.0,
+  "nonzero_LoRA_merge_full_ODE": {
+    "status": "PASS",
+    "host": "training-vlawm-tsinghua-zt4",
+    "architecture": "ddp",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/qualification/A_DDP_TIME/own_SFT_update020000_RL8_v1/continuous/checkpoints/update000004_inner0",
+    "updates": 4,
+    "checks": [
+      {
+        "grid": "native",
+        "max_abs": 2.384185791015625e-07
+      },
+      {
+        "grid": "shift5",
+        "max_abs": 2.384185791015625e-07
+      },
+      {
+        "grid": "native",
+        "max_abs": 1.1920928955078125e-07
+      },
+      {
+        "grid": "shift5",
+        "max_abs": 2.384185791015625e-07
+      }
+    ],
+    "scope": "actual nonzero real-reward LoRA, complete ODE before/after merge",
+    "uses_training_only_conditions": true,
+    "qualification_only": true,
+    "driving_effect_claim": false
+  },
+  "raw_deployment": {
+    "schema": "simwam_evaluation_invocation_v2",
+    "invocation": "9ba10622218940b298f6ede934198772",
+    "rank": 0,
+    "status": "QUALIFICATION_COMPLETE",
+    "start_unix": 1792180879.8388672,
+    "host": "training-vlawm-tsinghua-zt4",
+    "pid": 230973,
+    "new": 2,
+    "reused": 0,
+    "scene_encoder_calls": 3,
+    "new_candidates": 4,
+    "physical_predictions": 4,
+    "diagnostic_predictions": 1,
+    "velocity_forward_calls": 50,
+    "generation_seconds": 2.904490699991584,
+    "scoring_seconds": 2.826830379664898,
+    "model_load_seconds": 15.58793118223548,
+    "direct_original_check": true,
+    "identity_sha256": "57bff81894ea70908aaf018227ad8ba5a3e05f1e1fedf07b8d26b52029fd93ae",
+    "elapsed": 6.3312226086854935,
+    "peak_GPU_bytes": 7950648320
+  },
+  "qualification_cost": {
+    "job_wall_seconds": 354.2904098033905,
+    "physical_optimizer_updates": 8,
+    "matched_logical_updates_per_path": 4,
+    "physical_scored_training_candidates": 128,
+    "unique_matched_behavior_candidates": 64,
+    "raw_scored_candidates": 4,
+    "raw_extra_diagnostic_predictions": 1,
+    "phases": [
+      {
+        "phase": "continuous",
+        "start_unix": 1792180563.0875626,
+        "end_unix": 1792180627.0603452,
+        "exit_code": 0
+      },
+      {
+        "phase": "split2",
+        "start_unix": 1792180627.312821,
+        "end_unix": 1792180706.2763546,
+        "exit_code": 0
+      },
+      {
+        "phase": "resume4",
+        "start_unix": 1792180706.6024954,
+        "end_unix": 1792180784.9471428,
+        "exit_code": 0
+      },
+      {
+        "phase": "compare",
+        "start_unix": 1792180785.2099793,
+        "end_unix": 1792180787.163526,
+        "exit_code": 0
+      },
+      {
+        "phase": "merge_ODE",
+        "start_unix": 1792180787.3179748,
+        "end_unix": 1792180828.0150666,
+        "exit_code": 0
+      },
+      {
+        "phase": "export",
+        "start_unix": 1792180828.2968955,
+        "end_unix": 1792180878.3078232,
+        "exit_code": 0
+      },
+      {
+        "phase": "raw_deployment",
+        "start_unix": 1792180878.6337101,
+        "end_unix": 1792180917.2702153,
+        "exit_code": 0
+      }
+    ],
+    "not_formal_training_exposure": true
+  },
+  "formal_dispatch": {
+    "source_commit": "225b9af660cb0210208e2c46fc4216d0f151275b",
+    "host": "training-vlawm-tsinghua-zt4",
+    "run": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1",
+    "identity_sha256": "78f81211d3da81bc86acf27d509b4cc7b6e58b849a13ed92fc1f5ceae80e72eb",
+    "qualification_weights_used": false,
+    "train_seed": 42,
+    "optimizer_updates_target": 20000,
+    "first_observed_updates": 118,
+    "first_observed_collections": 30,
+    "first_observed_raw_scene_exposures": 240,
+    "first_observed_new_candidates": 1920,
+    "observed_unix": 1792181116.6050596
+  },
+  "metadata_clarification": {
+    "field": "recipe.supervised_transfer.source_action_forward",
+    "immutable_A_value": "standalone ActionDiT.forward; no Wan/MoT",
+    "actual_A_path": "TransferPolicy.velocity_sigma -> -head.predict_velocity; architecture=ddp",
+    "effect": "Descriptive metadata only; not used in actor/sampler/loss. The worktree label is corrected, while qualified and active source225b is unchanged. Resume only from the qualified immutable source.",
+    "qualified_runtime_sha256": "6e67ef6883991f1a3d0657eeabb3bdae61c5ac2f6962bcc98c4179829d1b91e2",
+    "worktree_runtime_sha256": "8a87917620147ada4f5c6f8b7209f58ce1613fb1e4fa5c65565ee7ebba157d9d"
+  }
+}
