@@ -20,7 +20,26 @@ from starVLA.dataloader.st_world_history import file_sha256
 from starVLA.dataloader.st_world_targets import atomic_json
 
 
+def snapshot():
+    usage=resource.getrusage(resource.RUSAGE_SELF)
+    io={}
+    path=Path('/proc/self/io')
+    if path.is_file():
+        io={key:int(value) for key,value in (line.split(':',1) for line in path.read_text().splitlines())}
+    return {'time_ns':time.perf_counter_ns(),'utime_s':usage.ru_utime,'stime_s':usage.ru_stime,
+            'maxrss_kib':usage.ru_maxrss,'process_io':io}
+
+
+def interval(before,after):
+    return {'start_ns':before['time_ns'],'end_ns':after['time_ns'],
+        'elapsed_s':(after['time_ns']-before['time_ns'])/1e9,
+        'cpu_utime_s':after['utime_s']-before['utime_s'],'cpu_stime_s':after['stime_s']-before['stime_s'],
+        'maxrss_kib':after['maxrss_kib'],'process_io_start':before['process_io'],'process_io_end':after['process_io'],
+        'process_io_delta':{key:after['process_io'][key]-value for key,value in before['process_io'].items()}}
+
+
 def run(a):
+    init_start=snapshot()
     if (not 0<=a.shard_index<a.shard_count or a.shard_count>8 or not 1<=a.workers<=2 or
             not a.workers<=a.prefetch_records<=4 or a.max_scenes<1):
         raise ValueError('Unregistered/unbounded CPU IO benchmark')
@@ -42,8 +61,9 @@ def run(a):
         'shard_index':a.shard_index,'selected_indices':indices,'command':vars(a),
         'cache_state':'May be OS warm; no physical cold-read claim','gpu_used':False}
     atomic_json(out/'REGISTRATION.json',registration,immutable=True)
+    init_cost=interval(init_start,snapshot())
     def consume(fn):
-        start=time.monotonic();times=[];tokens=[]
+        start=snapshot();times=[];tokens=[]
         def timed(i):
             t=time.monotonic();token=fn(i);return token,time.monotonic()-t
         with ThreadPoolExecutor(max_workers=a.workers) as pool:
@@ -53,13 +73,14 @@ def run(a):
                 token,elapsed=pending.popleft().result();tokens.append(token);times.append(elapsed)
                 try:pending.append(pool.submit(timed,next(iterator)))
                 except StopIteration:pass
-        total=time.monotonic()-start
+        cost=interval(start,snapshot());total=cost['elapsed_s']
         if tokens!=[ds.rows[i]['token'] for i in indices] or len(set(tokens))!=len(indices):
             raise ValueError('CPU benchmark repeated or reordered scenes')
         return {'scenes':len(tokens),'unique_scenes':len(set(tokens)),'scene_ids':tokens,
             'consumption_order_sha256':identity_hash(tokens),'wall_s':total,'scenes_per_s':len(tokens)/total,
             'individual_task_mean_s':float(np.mean(times)),'individual_task_p50_s':float(np.percentile(times,50)),
-            'individual_task_p95_s':float(np.percentile(times,95)),'worker_seconds_sum':sum(times)}
+            'individual_task_p95_s':float(np.percentile(times,95)),'worker_seconds_sum':sum(times),
+            'resource_interval':cost}
     def heads(i):
         item=ds.teacher.read_scene(ds.rows[i]['token'],expected_split='train',need_future=False)
         value=ds.pca.transform(item['current_dense_features'])
@@ -72,7 +93,8 @@ def run(a):
         if not torch.isfinite(targets['current_dense_features']).all():raise ValueError('Nonfinite PCA target')
         return obs.current['token']
     # Each separately reported stage sees each assigned observation exactly once.
-    result={'registration':registration,'reader_pca':consume(heads) if a.stage in ('reader','both') else None,
+    result={'registration':registration,'initialization':init_cost,
+            'reader_pca':consume(heads) if a.stage in ('reader','both') else None,
             'image_ego_reader_pca':consume(full) if a.stage in ('full','both') else None,
             'process_maxrss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
             'not_training_throughput':True,'gpu_used':False}
