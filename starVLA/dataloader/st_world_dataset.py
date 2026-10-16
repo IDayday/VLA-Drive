@@ -54,6 +54,8 @@ class STWorldTrainingDataset(Dataset):
             if row['token'] not in lookup or lookup[row['token']]['log']!=row['log']:
                 raise ValueError('Selected scene/log outside original role')
         self.teacher=TeacherCacheReader(teacher_root,expected_identity=expected_teacher_identity)
+        if need_future and self.teacher.manifest['times_s'] != [0., .5, 1., 2., 4.]:
+            raise ValueError('ST future supervision requires exact times [0, 0.5, 1, 2, 4] seconds')
         if (self.teacher.manifest['split']!=require_split or
                 self.teacher.manifest.get('source_student_identity')!=self.source['identity'] or
                 self.teacher.manifest.get('source_index_sha256')!=self.source['index_sha256'] or

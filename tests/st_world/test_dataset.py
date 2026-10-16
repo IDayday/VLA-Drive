@@ -12,7 +12,7 @@ from starVLA.dataloader.st_world_schema import TeacherFeatureContract,identity_h
 from starVLA.dataloader.st_world_targets import TeacherCacheWriter
 
 
-def setup_data(tmp_path):
+def setup_data(tmp_path, times=(0., .5, 1., 2., 4.)):
     data=tmp_path/'data';(data/'current').mkdir(parents=True);(data/'ego').mkdir()
     index=[{'token':'a','log':'log_a'}]
     source={'schema':'ddpolicy_current_cameras_v1','split':'train','index_sha256':identity_hash(index),
@@ -32,12 +32,12 @@ def setup_data(tmp_path):
         channels=8,storage_dtype='float32',compute_dtype='float32',view_names=['CAM_F0','CAM_L0','CAM_R0'],
         teacher_identity='a'*64,transform_identity='b'*64,pooling={'kind':'none','kernel_hw':[1,1],'stride_hw':[1,1]})
     ref=image_reference(image)
-    m={'schema':'st_teacher_requests_v1','split':'train','times_s':[0.,.5],
+    m={'schema':'st_teacher_requests_v1','split':'train','times_s':list(times),
        'view_names':list(c.view_names),'timestamp_tolerance_s':.05,'source_student_identity':source['identity'],
        'source_index_sha256':source['index_sha256'],'partition_sha256':source['partition_sha256'],
        'scenes':[{'token':'a','log':'log_a','split':'train','timestamp_us':1000000,'frames':[
         {'requested_s':0.,'timestamp_us':1000000,'views':[ref]*3},
-        {'requested_s':.5,'timestamp_us':None,'views':[None]*3}]}]}
+        *[{'requested_s':t,'timestamp_us':None,'views':[None]*3} for t in times[1:]]]}]}
     m['identity']=identity_hash(m)
     w=TeacherCacheWriter(tmp_path/'cache',c,m);w.commit_shard(0,torch.arange(32,dtype=torch.float32).reshape(1,2,2,8),torch.ones(1,2,2,dtype=torch.bool));w.finalize()
     return {'data_root':data,'manifest_path':manifest,'teacher_root':w.root,'expected_teacher_identity':w.identity['identity'],'expected_contract':c}
@@ -52,7 +52,22 @@ def test_original_inputs_targets_and_current_only(tmp_path):
     images,batched=collate_st_world([ds[0],ds[0]])
     assert len(images)==2 and batched['current_dense_features'].shape==(2,3,2,2,8)
     future=STWorldTrainingDataset(**args,need_future=True)[0][1]
-    assert future['future_dense_features'].shape==(1,3,2,2,8) and not future['future_valid'].any()
+    assert future['future_dense_features'].shape==(4,3,2,2,8) and not future['future_valid'].any()
+    assert torch.equal(future['future_times_s'],torch.tensor([.5,1.,2.,4.]))
+
+
+def test_future_time_contract_refused_even_with_matching_shape(tmp_path):
+    args=setup_data(tmp_path,times=(0.,.5,1.,3.,4.))
+    with pytest.raises(ValueError,match='exact times'):STWorldTrainingDataset(**args,need_future=True)
+    # Current-only SP0 does not require or read the four future horizons.
+    current=STWorldTrainingDataset(**args,need_future=False)[0][1]
+    assert current['future_times_s'].numel()==0
+
+
+def test_current_only_cache_is_legal_for_sp0_not_future_supervision(tmp_path):
+    args=setup_data(tmp_path,times=(0.,))
+    assert STWorldTrainingDataset(**args)[0][1]['future_dense_features'].shape[0]==0
+    with pytest.raises(ValueError,match='exact times'):STWorldTrainingDataset(**args,need_future=True)
 
 
 def test_target_changes_cannot_change_inputs_and_are_pinned(tmp_path):
