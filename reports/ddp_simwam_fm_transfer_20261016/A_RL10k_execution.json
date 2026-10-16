@@ -1,0 +1,362 @@
+{
+  "schema": "fm_transfer_A10k_execution_v1",
+  "observed_unix": 1792190242.9922197,
+  "training_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "evaluation_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "diagnostic_source": "fd440275edc3fdf40b2aaa46c38da1d038068902",
+  "analysis_source": "487bf3e13d784b90fbf4c2e5789d38d47c88a9d8",
+  "cohorts": {
+    "DEV": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 2867.5778929814696,
+        "job_wall_seconds": 362.51861691474915,
+        "model_load_seconds": 861.2299155108631,
+        "generation_wall_seconds_sum": 1610.1506818421185,
+        "scoring_wait_seconds_sum": 204.7098490856588,
+        "missing": []
+      },
+      "original_entry_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "rank_record_sha256": [
+        "bd68d49b9609374c933d03e49e35607efbb225a11f9a174ad2b74b7086bb985d",
+        "521c0d83c27fd2a765b7e375f52654f8ce94891f9cb9e6d2af97e358d369f5d6",
+        "2cab3116f97d50af4362deea761bddb2f7286b8e0981e6abf1abe97a5cdf3f32",
+        "e9a79c35dae9fa466906436c916e497a35fceedfceb38db43c7475f2f282a4fa",
+        "e68f45da12d7aaf71adf6f7037e037b4ba1525161f9b5cd2af23e5e5a64bebe8",
+        "34cd1fb8419595419e270e8691f8bd72f62de57a5b11102baea0b8286b7a5f66",
+        "0f5e500dff5825e75b2d99df906d30acedad18d87350d46a3593f0dcffd694aa",
+        "03a9f7a10d252e2fda7a8a08ba80e2e01af8d01963941e306cacad02f86d99d2"
+      ],
+      "all_recorded_workers_exited_verified": true,
+      "exit_verification_sha256": "35c9533eb6282e23937e7d4c1b8aca3ca26083c3fc7c8b0cf1f56f812a89a575"
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 1496.311735270545,
+        "job_wall_seconds": 188.29425168037415,
+        "model_load_seconds": 811.0416316296905,
+        "generation_wall_seconds_sum": 487.4063629526645,
+        "scoring_wait_seconds_sum": 75.917281428352,
+        "missing": []
+      },
+      "original_entry_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "rank_record_sha256": [
+        "b568bfc4ce8035a07253366f409b3b190337a762910e715bf237568f041434b4",
+        "fcd66909fc32a7f8f5228e3fed2b5afa29e06dcfc51f001276b0511fb0049abd",
+        "2862e70e1c1fe8bfe89729dad2f0e488ecf9768c30a0a07b91f742167434df7a",
+        "833f58c575a2b7a042f8788beebf6cb4e4cf75c8b1d3b1ba54cc89c7c1bd2eec",
+        "5fe5552c9a569593f865030eed6074f1e6b66a746c77c22b6515f22f7d8d3349",
+        "f83868e2556a6353c69718beafc28edde182e4b926de3ced2a8b88b3e8b0daf5",
+        "cde5d12baeade4df0c14a8e2367d7f5d5968bf6810f1ed9e2e4b4fcf0a1118d7",
+        "abc4a57f3bb2e251fb1d0c3628ab2d1cccd4286c187cb452e211c05e5bbdc810"
+      ],
+      "all_recorded_workers_exited_verified": true,
+      "exit_verification_sha256": "35c9533eb6282e23937e7d4c1b8aca3ca26083c3fc7c8b0cf1f56f812a89a575"
+    }
+  },
+  "checks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true
+    }
+  ],
+  "diagnostic_training_coverage": {
+    "TRAIN_diagnostic_scenes": 512,
+    "in_fixed_hard_population": 224,
+    "seen_by_10k_RL": 210,
+    "not_yet_seen_by_10k_RL": 302,
+    "not_a_base_model_unseen_claim": true
+  },
+  "gradient_diagnostic": {
+    "worker_wall_seconds": 38.80261013843119,
+    "peak_GPU_bytes": 7387997696,
+    "new_candidates": 0,
+    "new_scoring_calls": 0,
+    "adapters_unchanged": true,
+    "source_loss_gradient_max_abs": 3.4924596548080444e-10
+  },
+  "resource_release": {
+    "manually_released_known_pressure_workers": 3,
+    "host": "training-rl-zt2",
+    "GPU_indices": [
+      5,
+      6,
+      7
+    ],
+    "receipt_sha256": "15ce227abc72dce979f36daf9e7eadeddc6e80a27fd2eb1a5191d2a214fd7298",
+    "other_real_and_unknown_workloads_preserved": true,
+    "pressure_agent_left_running": true
+  },
+  "exact_cost_capture_sha256": "81b0c1865d38423ddfe0d86800c150eabf5244dcfc6553816bc7f0805e0aa05f",
+  "export": {
+    "schema": "fm_transfer_original_entry_export_v1",
+    "stage": "RL",
+    "architecture": "ddp",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1/checkpoints/update010000_inner0",
+    "run_identity": "78f81211d3da81bc86acf27d509b4cc7b6e58b849a13ed92fc1f5ceae80e72eb",
+    "updates": 10000,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/checkpoints/update020000",
+      "model_sha256": "ac52e9346080ce0e6bf27441935ac9aa6acbff239330b316bee36b560486579a",
+      "identity_sha256": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "A_DDP_TIME",
+        "architecture": "ddp",
+        "initialization": "original_F_SFT_step100000",
+        "max_updates": 20000,
+        "learning_rate": 1e-05,
+        "milestones": [
+          0,
+          5000,
+          10000,
+          20000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 20000,
+      "qualification": false
+    },
+    "original_frozen_prefix_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "qualification": false,
+    "weight_sha256": "289aa5a4b1442fd46f84cc35626c73a1fcd5710a6d40305610ab8a047c14e129",
+    "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+    "changed_attention_from_own_SFT": [
+      "model.transformer_blocks.0.attn1.to_q.weight",
+      "model.transformer_blocks.0.attn1.to_k.weight",
+      "model.transformer_blocks.0.attn1.to_v.weight",
+      "model.transformer_blocks.0.attn1.to_out.0.weight",
+      "model.transformer_blocks.1.attn1.to_q.weight",
+      "model.transformer_blocks.1.attn1.to_k.weight",
+      "model.transformer_blocks.1.attn1.to_v.weight",
+      "model.transformer_blocks.1.attn1.to_out.0.weight",
+      "model.transformer_blocks.2.attn1.to_q.weight",
+      "model.transformer_blocks.2.attn1.to_k.weight",
+      "model.transformer_blocks.2.attn1.to_v.weight",
+      "model.transformer_blocks.2.attn1.to_out.0.weight",
+      "model.transformer_blocks.3.attn1.to_q.weight",
+      "model.transformer_blocks.3.attn1.to_k.weight",
+      "model.transformer_blocks.3.attn1.to_v.weight",
+      "model.transformer_blocks.3.attn1.to_out.0.weight",
+      "model.transformer_blocks.4.attn1.to_q.weight",
+      "model.transformer_blocks.4.attn1.to_k.weight",
+      "model.transformer_blocks.4.attn1.to_v.weight",
+      "model.transformer_blocks.4.attn1.to_out.0.weight",
+      "model.transformer_blocks.5.attn1.to_q.weight",
+      "model.transformer_blocks.5.attn1.to_k.weight",
+      "model.transformer_blocks.5.attn1.to_v.weight",
+      "model.transformer_blocks.5.attn1.to_out.0.weight",
+      "model.transformer_blocks.6.attn1.to_q.weight",
+      "model.transformer_blocks.6.attn1.to_k.weight",
+      "model.transformer_blocks.6.attn1.to_v.weight",
+      "model.transformer_blocks.6.attn1.to_out.0.weight",
+      "model.transformer_blocks.7.attn1.to_q.weight",
+      "model.transformer_blocks.7.attn1.to_k.weight",
+      "model.transformer_blocks.7.attn1.to_v.weight",
+      "model.transformer_blocks.7.attn1.to_out.0.weight",
+      "model.transformer_blocks.8.attn1.to_q.weight",
+      "model.transformer_blocks.8.attn1.to_k.weight",
+      "model.transformer_blocks.8.attn1.to_v.weight",
+      "model.transformer_blocks.8.attn1.to_out.0.weight",
+      "model.transformer_blocks.9.attn1.to_q.weight",
+      "model.transformer_blocks.9.attn1.to_k.weight",
+      "model.transformer_blocks.9.attn1.to_v.weight",
+      "model.transformer_blocks.9.attn1.to_out.0.weight",
+      "model.transformer_blocks.10.attn1.to_q.weight",
+      "model.transformer_blocks.10.attn1.to_k.weight",
+      "model.transformer_blocks.10.attn1.to_v.weight",
+      "model.transformer_blocks.10.attn1.to_out.0.weight",
+      "model.transformer_blocks.11.attn1.to_q.weight",
+      "model.transformer_blocks.11.attn1.to_k.weight",
+      "model.transformer_blocks.11.attn1.to_v.weight",
+      "model.transformer_blocks.11.attn1.to_out.0.weight",
+      "model.transformer_blocks.12.attn1.to_q.weight",
+      "model.transformer_blocks.12.attn1.to_k.weight",
+      "model.transformer_blocks.12.attn1.to_v.weight",
+      "model.transformer_blocks.12.attn1.to_out.0.weight",
+      "model.transformer_blocks.13.attn1.to_q.weight",
+      "model.transformer_blocks.13.attn1.to_k.weight",
+      "model.transformer_blocks.13.attn1.to_v.weight",
+      "model.transformer_blocks.13.attn1.to_out.0.weight",
+      "model.transformer_blocks.14.attn1.to_q.weight",
+      "model.transformer_blocks.14.attn1.to_k.weight",
+      "model.transformer_blocks.14.attn1.to_v.weight",
+      "model.transformer_blocks.14.attn1.to_out.0.weight",
+      "model.transformer_blocks.15.attn1.to_q.weight",
+      "model.transformer_blocks.15.attn1.to_k.weight",
+      "model.transformer_blocks.15.attn1.to_v.weight",
+      "model.transformer_blocks.15.attn1.to_out.0.weight",
+      "model.transformer_blocks.16.attn1.to_q.weight",
+      "model.transformer_blocks.16.attn1.to_k.weight",
+      "model.transformer_blocks.16.attn1.to_v.weight",
+      "model.transformer_blocks.16.attn1.to_out.0.weight",
+      "model.transformer_blocks.17.attn1.to_q.weight",
+      "model.transformer_blocks.17.attn1.to_k.weight",
+      "model.transformer_blocks.17.attn1.to_v.weight",
+      "model.transformer_blocks.17.attn1.to_out.0.weight",
+      "model.transformer_blocks.18.attn1.to_q.weight",
+      "model.transformer_blocks.18.attn1.to_k.weight",
+      "model.transformer_blocks.18.attn1.to_v.weight",
+      "model.transformer_blocks.18.attn1.to_out.0.weight",
+      "model.transformer_blocks.19.attn1.to_q.weight",
+      "model.transformer_blocks.19.attn1.to_k.weight",
+      "model.transformer_blocks.19.attn1.to_v.weight",
+      "model.transformer_blocks.19.attn1.to_out.0.weight",
+      "model.transformer_blocks.20.attn1.to_q.weight",
+      "model.transformer_blocks.20.attn1.to_k.weight",
+      "model.transformer_blocks.20.attn1.to_v.weight",
+      "model.transformer_blocks.20.attn1.to_out.0.weight",
+      "model.transformer_blocks.21.attn1.to_q.weight",
+      "model.transformer_blocks.21.attn1.to_k.weight",
+      "model.transformer_blocks.21.attn1.to_v.weight",
+      "model.transformer_blocks.21.attn1.to_out.0.weight",
+      "model.transformer_blocks.22.attn1.to_q.weight",
+      "model.transformer_blocks.22.attn1.to_k.weight",
+      "model.transformer_blocks.22.attn1.to_v.weight",
+      "model.transformer_blocks.22.attn1.to_out.0.weight",
+      "model.transformer_blocks.23.attn1.to_q.weight",
+      "model.transformer_blocks.23.attn1.to_k.weight",
+      "model.transformer_blocks.23.attn1.to_v.weight",
+      "model.transformer_blocks.23.attn1.to_out.0.weight"
+    ],
+    "frozen_upstream_exact": true,
+    "deployment": "original VLAAgent observation/encoding/decoding; no cache, reference, scorer or LoRA wrapper",
+    "not_exact_resume_use_native_checkpoint": true,
+    "sha256": "183f58f62ccb507a9f9a009b0455a39328406707753e9e9dc74f60d99302218d"
+  },
+  "copied_analysis": [
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_DEV.json",
+      "sha256": "6ab10e10a9912345bf0cae0a2c3ae59900c3b39bdbe6b889e53e7c4bc5a49c62"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_DEV_vs_own_SFT.json",
+      "sha256": "1bf0c4ff943d5a52bf2bb9c5f4a4e1d723e838f3cb1f7c2f2681a3550dfea0be"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_DEV_vs5k.json",
+      "sha256": "a9994bb7468ecaf2b3b4ed9aa389d93b5dd0d46462ec38b8c7241b8cc47e6333"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_DEV_safety_transitions.json",
+      "sha256": "c7df4442c836106abceb417d29007b4efcc466de65879e9bd687e91b96e11db5"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_TRAIN_DIAGNOSTIC.json",
+      "sha256": "15bf9fbe1d0a6996f266886de80572aef41fdd4fdadd765ed54cfcc4dcb278ec"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+      "sha256": "7b29fb5c9b4166d3092e36dd4c1c5f14f2a86ada001dfdf8661e98dec4e26517"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_TRAIN_DIAGNOSTIC_vs5k.json",
+      "sha256": "eb4ec247d5868a069cdb1d96911cc4e6719aefa7e134307dda29d9c6a5d27869"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update010000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+      "sha256": "88cc2239e99c25228c1a79c83a2147db5186ce80eea7de111999090e5619650e"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL10k_DEV_native_minus_shift5.json",
+      "sha256": "df539dfcf21302778e4cf017440e7854a8da30eb90858f93b30bbc71d85c6f48"
+    }
+  ],
+  "new_algorithms_or_training_changes": false
+}
