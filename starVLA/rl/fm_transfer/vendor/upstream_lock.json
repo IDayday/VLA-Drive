@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/H-EmbodVis/SimWAM",
+  "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "files": {
+    "src/simwam/models/wan22/action_dit.py": "23c75e386d8b3bbc2fbe7675034b12a4cddad72f97890627dc71d1f34674de41",
+    "src/simwam/models/wan22/wan_video_dit.py": "aa71cc998c9896e9db2a500d6c8eee41cf785138e8ce2565f0d2327a5dd26190",
+    "src/simwam/models/wan22/helpers/gradient.py": "2653b2fd6310faaec6b4f7ba743e975c996a8ef0dc84788479b0111b5c309abf",
+    "LICENSE": "f40411b8b2691648c72ac603ea142c064902997081101d19cbb8886827790097"
+  },
+  "patches": {
+    "action_dit.py": "Only logger and local import paths; source class/body unchanged.",
+    "action_blocks.py": "Exact AST-selected ActionDiT dependencies; no WanVideoDiT, VAE or MoT imported.",
+    "gradient.py": "Byte-identical."
+  },
+  "adaptation_boundary": "Qwen normalized action-query features enter native text_embedding/cross-attention; text_dim2048 and action_dim4. Standalone source ActionDiT forward, not MoT multimodal self-attention."
+}
