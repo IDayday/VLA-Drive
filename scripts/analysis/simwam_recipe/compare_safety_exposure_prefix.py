@@ -116,6 +116,8 @@ def analyze(registration, output):
         if hasattr(stream,'identity') and stream.identity != identity['data_stream_identity']:
             raise ValueError('Changed static exposure stream identity')
         ranks, prefix_identity = locked_prefix(run,identity,stream,updates)
+        if prefix_identity['checkpoint_files_sha256'] != locked['sealed_2500_files_sha256']:
+            raise ValueError('Checkpoint changed after registering the analysis window')
         initial.append([rows[0]['behavior']['adapter_sha256'] for rows in ranks])
         fresh = [(rank,row) for rank,rows in enumerate(ranks) for row in rows[::4]]
         all_rows = [row for _,row in fresh]
