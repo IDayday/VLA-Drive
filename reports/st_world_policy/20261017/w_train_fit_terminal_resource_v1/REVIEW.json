@@ -1,0 +1,73 @@
+{
+  "status": "PASS_ACTUAL_CPU_FIT_TERMINAL_RESOURCE_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "checked_unix": 1792250166.4945426,
+  "result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/fit/RESULT.json",
+    "sha256": "996176a20ec4d750e6687b0a7f273cfc136c4d6b3fd4a42c75a3807d0ca1498f",
+    "bytes": 4107
+  },
+  "fit_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/fit/RESULT.json",
+    "sha256": "ef91d3f867c78e9bba018fdafbbe11c3210cd06b67e9daa225daaf1f92798431",
+    "bytes": 336655
+  },
+  "admission": {
+    "path": "reports/st_world_policy/20261017/w_train_fit_actual_resource_v1/ADMISSION.json",
+    "sha256": "e2a61b5bdc2c095db380d6f3a57c92b65e276b82d66e787e51744a3c568d6592",
+    "bytes": 5191
+  },
+  "completed_updates": 300,
+  "frozen_W_unchanged_receipt": true,
+  "actual_resources": {
+    "wall_seconds": 10.825969623401761,
+    "sampled_tree_rss_peak_bytes": 793411584,
+    "charged_logical_read_bytes": 312542045,
+    "hash_admitted_bytes": 173933668,
+    "rchar_bytes": 312542045,
+    "physical_read_bytes_separate": 1350967296,
+    "cleanup": {
+      "live_owned_remaining": 0,
+      "method": "unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped",
+      "verified_processes": 1
+    },
+    "gpu_peak_bytes": 0,
+    "native_load_calls": 0,
+    "torch_load_calls": 0
+  },
+  "terminal_output_stat_only": {
+    "fit": {
+      "file_count": 6,
+      "logical_bytes": 12454544,
+      "allocated_bytes": 12468224,
+      "limit_bytes": 67108864
+    },
+    "stages/fit": {
+      "file_count": 7,
+      "logical_bytes": 8504,
+      "allocated_bytes": 28672,
+      "limit_bytes": 33554432
+    }
+  },
+  "recorded_child_pid_absent": true,
+  "upstream_failed_receipt_retained": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_extract/RESULT.json",
+    "sha256": "4d24e4ed9a97744fe0d977c21284cb5fd64ec14c1348d71f6edadeff61245b27"
+  },
+  "upstream_status_retained": "STOPPED_NO_AUTO_RETRY",
+  "upstream_artifact_reconciliation": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/controls_581399eb_v2_metadata_only/TRAIN_ARTIFACT_RECONCILIATION.json",
+    "sha256": "d50972ff00e23ddc20ac5b0ee1713690032d689620aeaa3970988e1178980a32"
+  },
+  "independent_payload_or_tensor_reads": false,
+  "historical_peak_remeasured": false,
+  "reviewer_dispatch_or_ledger_mutation": false,
+  "scientific_PASS": false,
+  "review_explicit_JSON_bytes_this_script": 345953,
+  "notes": [
+    "Resource limits use the original supervisor accounting contract: max(admitted hash plus nominal torch.load, child proc rchar), not the sum of overlapping counters. Physical I/O is reported separately.",
+    "Receipt RSS is sampled and is not a newly measured exact peak. Terminal stat is not an assertion about historical temporary disk peak.",
+    "This is the original fixed TRAIN64/DEV16 300-update capacity probe. It is not full-population training or untouched test evidence.",
+    "The upstream extraction STOPPED_NO_AUTO_RETRY remains unchanged; only independently reconciled artifacts were consumed."
+  ]
+}
