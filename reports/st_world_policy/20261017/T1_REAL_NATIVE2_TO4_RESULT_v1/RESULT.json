@@ -1,0 +1,434 @@
+{
+  "schema": "st_actual_t1_native2_to4_summary_v1",
+  "recorded_unix": 1792238473.4084744,
+  "source_sha": "e85d11810bdf0240e7295d0994534f1df4ed21a4",
+  "adapter_source_sha": "59c256ec7c387d4b822a45787074db55386e2116",
+  "scope": "SMOKE",
+  "formal_initialization_allowed": false,
+  "scientific_result": "NOT_EVALUATED",
+  "phases": [
+    {
+      "phase": 2,
+      "adapter_result": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/phase2/RESULT.json",
+        "sha256": "448ca76c9a72b05398e92e7c51982e9dd084825c433d931fbc44f9af9628a364"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase2_v1/checkpoints/step_000002_1792237318909171081/COMPLETE.json",
+        "sha256": "aae3d44721e0c77efb82b23cc3afced80895d4ef7e2e6b85fd7b4a7f25b703ef"
+      },
+      "new_optimizer_updates": 2,
+      "completed": 2,
+      "cumulative_read_bytes": 100837881487,
+      "adapter_wall_seconds": 347.85452868789434,
+      "native_result": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase2_v1/RESULT.json",
+        "sha256": "101d8340bfdc69c8cd9f563a2582a171ba10fddca5a162cbdbcbdaef08d6e877"
+      },
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase2_v1/steps.jsonl",
+        "sha256": "2223a24c7b10abcf16821cf8fc4aa4b56d37b074e05551210a49ed92f1c49617"
+      },
+      "checkpoint_costs": [
+        {
+          "step": 2,
+          "tag": "step_000002_1792237318909171081",
+          "seconds": 54.055985655635595
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "adapter_result": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/phase4/RESULT.json",
+        "sha256": "6f8ba140cd0fea6058ea79c551361f0bcb650c29a10ffece584adcb4e3bbadc2"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase4_v1/checkpoints/step_000004_1792238277291450606/COMPLETE.json",
+        "sha256": "c53c2199fb64ea6ca93bee8f2aeff34b2c1d5948fceb294628d5346679b91f60"
+      },
+      "new_optimizer_updates": 2,
+      "completed": 4,
+      "cumulative_read_bytes": 299957970206,
+      "adapter_wall_seconds": 447.53030811809003,
+      "native_result": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase4_v1/RESULT.json",
+        "sha256": "f09330f5f68772e2338791778ccec56a10bcafd5ee668508f7d6ee506c5e5104"
+      },
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs/T1_official_real64_phase4_v1/steps.jsonl",
+        "sha256": "85409df52e131be19bb35388cb367889697e22879fe35372c0022462601c3945"
+      },
+      "checkpoint_costs": [
+        {
+          "step": 4,
+          "tag": "step_000004_1792238277291450606",
+          "seconds": 56.71047053299844
+        }
+      ]
+    }
+  ],
+  "optimizer_updates_total": 4,
+  "exposures_total": 16,
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_pinned_v2/SELECTED_SCENES.json",
+    "sha256": "58387c3779b083cd83b55f2339e49dc99ff12b136e20ea672b9dc0c50e5b40c1"
+  },
+  "sample_sequence_check": "MATCHES_ORIGINAL_EPOCH_BATCHES_STEPS1_4",
+  "finite_losses_gradients_and_actual_FP32_master_updates": true,
+  "live_restore_audits": [
+    {
+      "rank": 0,
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/phase4/LIVE_RESTORE/rank0.json",
+        "sha256": "e9e2ce068e82f0626343220b9ac195cd22dd8a993bb64f0512d4e7b0271a1c76"
+      },
+      "status": "LIVE_MODEL_OPTIMIZER_AND_RNG_MATCH",
+      "sections": {
+        "all_actual_restored_rng": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.uint8": 30432
+          },
+          "tensor_elements": 30432,
+          "tensor_leaves": 12
+        },
+        "all_frozen_parameter_fragments": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.bfloat16": 406957056
+          },
+          "tensor_elements": 406957056,
+          "tensor_leaves": 315
+        },
+        "engine_and_parameter_metadata": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {},
+          "tensor_elements": 0,
+          "tensor_leaves": 0
+        },
+        "full_fp32_master_adam_and_options": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.float32": 3842827596
+          },
+          "tensor_elements": 3842827596,
+          "tensor_leaves": 24
+        },
+        "full_serialized_model_buffers": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.bfloat16": 3280007140,
+            "torch.int64": 3,
+            "torch.uint8": 32
+          },
+          "tensor_elements": 3280007175,
+          "tensor_leaves": 1084
+        }
+      },
+      "nonpersistent_buffers": [
+        "base.qwen_vl_interface.model.model.visual.rotary_pos_emb.inv_freq",
+        "base.qwen_vl_interface.model.model.language_model.rotary_emb.inv_freq",
+        "sparse_readout.allowed_times_s"
+      ],
+      "nonpersistent_buffer_scope": "Not serialized by native state_dict; rebuilt by unchanged source, not falsely claimed as compared with unavailable serialized values."
+    },
+    {
+      "rank": 1,
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/phase4/LIVE_RESTORE/rank1.json",
+        "sha256": "8734d695a4438ba5544fe0149aabb86cb3b8687821dfbf24e26c0d9d91961d46"
+      },
+      "status": "LIVE_MODEL_OPTIMIZER_AND_RNG_MATCH",
+      "sections": {
+        "all_actual_restored_rng": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.uint8": 30432
+          },
+          "tensor_elements": 30432,
+          "tensor_leaves": 12
+        },
+        "all_frozen_parameter_fragments": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.bfloat16": 406957056
+          },
+          "tensor_elements": 406957056,
+          "tensor_leaves": 315
+        },
+        "engine_and_parameter_metadata": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {},
+          "tensor_elements": 0,
+          "tensor_leaves": 0
+        },
+        "full_fp32_master_adam_and_options": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.float32": 3842827596
+          },
+          "tensor_elements": 3842827596,
+          "tensor_leaves": 24
+        },
+        "full_serialized_model_buffers": {
+          "differences": [],
+          "nonfinite_paths": [],
+          "tensor_dtypes": {
+            "torch.bfloat16": 3280007140,
+            "torch.int64": 3,
+            "torch.uint8": 32
+          },
+          "tensor_elements": 3280007175,
+          "tensor_leaves": 1084
+        }
+      },
+      "nonpersistent_buffers": [
+        "base.qwen_vl_interface.model.model.visual.rotary_pos_emb.inv_freq",
+        "base.qwen_vl_interface.model.model.language_model.rotary_emb.inv_freq",
+        "sparse_readout.allowed_times_s"
+      ],
+      "nonpersistent_buffer_scope": "Not serialized by native state_dict; rebuilt by unchanged source, not falsely claimed as compared with unavailable serialized values."
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "lr": 1e-08,
+      "losses": {
+        "current": 2.73051118850708,
+        "ego_fm": 0.04768973961472511
+      },
+      "counts": {
+        "current": 442368,
+        "ego_scenes": 4
+      },
+      "sample_ids_by_rank": [
+        [
+          "220df5f9bc30511e",
+          "958b4be1f3025616"
+        ],
+        [
+          "5e881a2df38c5ab0",
+          "64b3688f386956b5"
+        ]
+      ],
+      "epoch": 0,
+      "offset": 1,
+      "exposure": 4,
+      "slowest_rank_seconds": 3.237962644547224,
+      "per_rank_profile": [
+        [
+          3.237962644547224,
+          0.7882417440414429,
+          25724090368.0,
+          33390854144.0,
+          2026.0
+        ],
+        [
+          3.2379469331353903,
+          0.7883204892277718,
+          26082614784.0,
+          33160167424.0,
+          2026.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "gradient_norm": 18.87553596496582,
+      "sampled_changed_elements": 5445,
+      "maximum_sampled_change": 1.4901161193847656e-08,
+      "fp32_master_update_verified": true
+    },
+    {
+      "step": 2,
+      "lr": 2e-08,
+      "losses": {
+        "current": 2.703677177429199,
+        "ego_fm": 0.02851688861846924
+      },
+      "counts": {
+        "current": 442368,
+        "ego_scenes": 4
+      },
+      "sample_ids_by_rank": [
+        [
+          "7e4585015c93572a",
+          "32350aecd62c5741"
+        ],
+        [
+          "0a3f453bc459559d",
+          "63e6e03dba54560b"
+        ]
+      ],
+      "epoch": 0,
+      "offset": 2,
+      "exposure": 8,
+      "slowest_rank_seconds": 2.717748813331127,
+      "per_rank_profile": [
+        [
+          2.717742523178458,
+          0.6984198093414307,
+          35638521856.0,
+          39709573120.0,
+          2026.0
+        ],
+        [
+          2.717748813331127,
+          0.6983870826661587,
+          36364001792.0,
+          38491127808.0,
+          2026.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "gradient_norm": 9.097043991088867,
+      "sampled_changed_elements": 5356,
+      "maximum_sampled_change": 2.2351741790771484e-08,
+      "fp32_master_update_verified": true
+    },
+    {
+      "step": 3,
+      "lr": 3.0000000000000004e-08,
+      "losses": {
+        "current": 2.8155531883239746,
+        "ego_fm": 0.008787469938397408
+      },
+      "counts": {
+        "current": 442368,
+        "ego_scenes": 4
+      },
+      "sample_ids_by_rank": [
+        [
+          "ddc3950f5be25531",
+          "47d826558636530e"
+        ],
+        [
+          "77f58efd44735e54",
+          "b9edef7b9bcf5d07"
+        ]
+      ],
+      "epoch": 0,
+      "offset": 3,
+      "exposure": 12,
+      "slowest_rank_seconds": 3.4561688397079706,
+      "per_rank_profile": [
+        [
+          3.4561688397079706,
+          0.7427284028381109,
+          35655512576.0,
+          40349204480.0,
+          2026.0
+        ],
+        [
+          3.4561496693640947,
+          0.7427088506519794,
+          36372738560.0,
+          39118176256.0,
+          2026.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "gradient_norm": 4.161230564117432,
+      "sampled_changed_elements": 5377,
+      "maximum_sampled_change": 2.991873770952225e-08,
+      "fp32_master_update_verified": true
+    },
+    {
+      "step": 4,
+      "lr": 4e-08,
+      "losses": {
+        "current": 2.839771270751953,
+        "ego_fm": 0.04685074836015701
+      },
+      "counts": {
+        "current": 442368,
+        "ego_scenes": 4
+      },
+      "sample_ids_by_rank": [
+        [
+          "b592d94aa1d15728",
+          "58dc73f8555157a7"
+        ],
+        [
+          "389c4f5676d75b76",
+          "4ca39debdedb577b"
+        ]
+      ],
+      "epoch": 0,
+      "offset": 4,
+      "exposure": 16,
+      "slowest_rank_seconds": 2.7611681558191776,
+      "per_rank_profile": [
+        [
+          2.7611681558191776,
+          0.7351531852036715,
+          35655552000.0,
+          40349204480.0,
+          2026.0
+        ],
+        [
+          2.7610360998660326,
+          0.7350849248468876,
+          36372777984.0,
+          39118176256.0,
+          2026.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "gradient_norm": 15.710287094116211,
+      "sampled_changed_elements": 5374,
+      "maximum_sampled_change": 4.470348358154297e-08,
+      "fp32_master_update_verified": true
+    }
+  ],
+  "native_checkpoint_bytes_stat_only": 74989884642,
+  "last_native_checkpoint_reload": "NOT_RUN_OUTSIDE_TWO_INVOCATION_BUDGET",
+  "continuous_vs_interrupted_training_comparison": "NOT_RUN",
+  "resource_qualification": "FAIL_LIVE_DESCENDANT_SCOPE",
+  "aggregate_peak_RSS": "NOT_MEASURED; original ~430MB field excludes torchrun ranks",
+  "actual_recorded_processes_exited": [
+    512027,
+    512052,
+    512056,
+    512057,
+    514989,
+    515014,
+    515018,
+    515019
+  ],
+  "no_new_teacher_tensor_bank": true,
+  "new_navtest_started": false
+}
