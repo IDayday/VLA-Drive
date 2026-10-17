@@ -1,0 +1,128 @@
+{
+  "status": "CHANGES_REQUESTED",
+  "reviewer": "/root/temporal_narrow_review",
+  "proposal": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/ADMISSION_PROPOSAL.json",
+    "sha256": "aac62135ac5dcb5f866c755adad4e3a666a24d659ab2488d13cf9d956ef667d5"
+  },
+  "approved": false,
+  "findings": [
+    {
+      "id": "H32_SOURCE_COMPAT_NOT_INSTALLED",
+      "severity": "BLOCKING_DISPATCH",
+      "location": "run_history32_once.make_controller -> original controls -> metadata_storage.validate_package -> spatial_w_storage.validate_package:351",
+      "trigger": "Actual current policy contains admitted SP0 source581399eb and SP1 source2a1e140; original common-source equality rejects mixed package.",
+      "evidence": [
+        {
+          "claim_id": "SP0-frozen-W-dev16-native5000-v1",
+          "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/SIGNATURE.json",
+          "signature_sha256": "3de51e64aec7f555f8d5c053695656346e1549796dad08c2c5bdafa88a26cff4",
+          "source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "environment": {
+            "base": {
+              "cuda_runtime": "12.4",
+              "cudnn": 90100,
+              "packages": {
+                "deepspeed": "0.16.9",
+                "numpy": "1.26.4",
+                "safetensors": "0.6.2",
+                "timm": "1.0.20",
+                "torch": "2.5.1+cu124",
+                "transformers": "4.57.0"
+              },
+              "python": "3.10.20",
+              "schema": "st_training_environment_v1"
+            },
+            "scikit_learn": "1.2.2"
+          }
+        },
+        {
+          "claim_id": "SP0-frozen-W-train64-native5000-v1",
+          "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+          "signature_sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29",
+          "source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "environment": {
+            "base": {
+              "cuda_runtime": "12.4",
+              "cudnn": 90100,
+              "packages": {
+                "deepspeed": "0.16.9",
+                "numpy": "1.26.4",
+                "safetensors": "0.6.2",
+                "timm": "1.0.20",
+                "torch": "2.5.1+cu124",
+                "transformers": "4.57.0"
+              },
+              "python": "3.10.20",
+              "schema": "st_training_environment_v1"
+            },
+            "scikit_learn": "1.2.2"
+          }
+        },
+        {
+          "claim_id": "SP1-frozen-W-dev16-native5000-v1",
+          "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/stages/dev_plan/SIGNATURE.json",
+          "signature_sha256": "4582329a1e78f01c7aceda8543ffef91a37f28964f5ba0e4a04afda6b315ade1",
+          "source_sha": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "environment": {
+            "base": {
+              "cuda_runtime": "12.4",
+              "cudnn": 90100,
+              "packages": {
+                "deepspeed": "0.16.9",
+                "numpy": "1.26.4",
+                "safetensors": "0.6.2",
+                "timm": "1.0.20",
+                "torch": "2.5.1+cu124",
+                "transformers": "4.57.0"
+              },
+              "python": "3.10.20",
+              "schema": "st_training_environment_v1"
+            },
+            "scikit_learn": "1.2.2"
+          }
+        }
+      ],
+      "minimal_fix": "Reuse reviewed w_storage_source_compat_v1 compat.verify/common_source/patched_source and pinned COMPATIBILITY proof at current-wrapper import seam. Keep current metadata_storage/cache_storage_budget and no old-root PYTHONPATH. Pin actual current0d2c16be source and adapter/proof; install in parent and child before any ledger/package validation. No policy/signature/source relabeling or guard removal."
+    }
+  ],
+  "passed": {
+    "all_control_pins": true,
+    "old16_claims_preserved": true,
+    "nonclaim_core_unchanged": true,
+    "new31MiB_exact_declaration": true,
+    "separate1MiB_control_empty_adopted": true,
+    "exact32_builder_argv_and_budget": true,
+    "currentCP2703GiB_and_lease": true,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "actual_free_bytes": 6098712313856,
+    "metadata_output_absent": true
+  },
+  "remaining": {
+    "quota": "Not independently verified; original sampled/free-space guards retained",
+    "actual_signed_admission": "Not emitted until specific storage-source wiring corrected"
+  },
+  "existing_compatibility": {
+    "adapter": {
+      "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/compat.py",
+      "sha256": "776ec07ac8fc150eddd7cf685db602abe27dc94a9050628bef3a1ebbdc717e32"
+    },
+    "proof": {
+      "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/COMPATIBILITY.json",
+      "sha256": "bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f"
+    }
+  },
+  "tests_rerun": false,
+  "real_builder": false,
+  "ledger_accessed": false,
+  "gpu": false,
+  "ssh": false,
+  "small_metadata_bytes": 249098,
+  "check_wall_seconds": 0.056900493800640106
+}
