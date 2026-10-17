@@ -22,7 +22,7 @@ import subprocess
 import sys
 import time
 
-from prepare_bindings import BASE, JOB, ROOTS, TAG, read, write_once, append_log, check_ancestry
+from prepare_bindings import BASE, JOB, ROOTS, TAG, read, write_once, append_log, check_ancestry, control_lock
 
 STAGES = ('dev_plan', 'dev_extract', 'train_plan', 'train_extract', 'fit')
 PREVIOUS = dict(zip(STAGES[1:], STAGES[:-1]))
@@ -340,6 +340,29 @@ def own_group_signal(child, sig):
     owner.send(sig)
 
 
+def read_counter_snapshot(path, on_error=None):
+    """Serialize this mutable snapshot with its writer; immutable read stays strict.
+
+    The existing control lock can add up to two seconds of waiting per sample,
+    plus filesystem I/O/scheduling. Timeout fails closed, without a retry.
+    """
+    path = Path(path); operation = 'counter_lock'
+    try:
+        with control_lock(path.parent):
+            operation = 'counter_exists'
+            if not path.exists():
+                return None, None
+            operation = 'counter_read'
+            value, _ = read(path, limit=65536)
+            operation = 'counter_freshness'
+            modified = path.stat().st_mtime
+            return value, modified
+    except Exception as exc:
+        if on_error is not None:
+            on_error(operation, exc)
+        raise
+
+
 def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_reader, popen=subprocess.Popen):
     """Only small fake children are used by tests; real argv is fixed by main."""
     with lifetime_scope() as stopped:
@@ -350,6 +373,12 @@ def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_read
 
 def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_reader, popen, stopped):
     started = time.monotonic(); maximum_rss = 0; emitted = 0; reason = None; term_at = None
+    first_monitor_error = None
+    def remember_monitor_error(operation, exc):
+        nonlocal first_monitor_error
+        if first_monitor_error is None:
+            first_monitor_error = dict(operation=operation[:64], exception_class=type(exc).__name__[:128],
+                message=str(exc)[:1024], time_unix=time.time(), elapsed_seconds=time.monotonic() - started)
     log = Path(attempt) / 'CHILD.log'
     child = popen(['taskset', '-c', ','.join(map(str, cpus)), *argv], cwd=cwd, env=env,
                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True,
@@ -386,18 +415,24 @@ def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_rea
                 now = time.monotonic()
                 if now >= next_sample:
                     next_sample = now + 1
+                    operation = 'rss'
                     try:
                         if not done:
                             maximum_rss = max(maximum_rss, rss_reader(child.pid))
                         counter = Path(attempt) / 'COUNTERS.json'
-                        if counter.exists():
-                            final_counters, _ = read(counter, limit=65536)
+                        operation = 'counter_snapshot'
+                        snapshot, modified = read_counter_snapshot(counter, remember_monitor_error)
+                        if snapshot is not None:
+                            final_counters = snapshot
+                            operation = 'counter_status'
                             if final_counters.get('limit_exceeded'):
                                 reason = reason or final_counters['limit_exceeded']
-                            if not done and time.time() - counter.stat().st_mtime > 15:
+                            if not done and time.time() - modified > 15:
                                 reason = reason or 'STALE_OBSERVER'
-                    except Exception:
+                    except Exception as exc:
+                        remember_monitor_error(operation, exc)
                         reason = reason or 'MONITOR_UNREADABLE'
+                    now = time.monotonic()  # include the bounded lock wait in wall enforcement
                     if maximum_rss > rss:
                         reason = reason or 'RSS_LIMIT'
                     if now - started >= wall:
@@ -432,15 +467,20 @@ def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_rea
         if leader_fd is not None: os.close(leader_fd)
         child.stdout.close()
     counter = Path(attempt) / 'COUNTERS.json'
-    if counter.exists():
-        final_counters, _ = read(counter, limit=65536)
-        reason = reason or final_counters.get('limit_exceeded')
+    try:
+        snapshot, _ = read_counter_snapshot(counter, remember_monitor_error)
+        if snapshot is not None:
+            final_counters = snapshot
+            reason = reason or final_counters.get('limit_exceeded')
+    except Exception as exc:
+        remember_monitor_error('final_counter_snapshot', exc)
+        reason = reason or 'MONITOR_UNREADABLE'
     return dict(exit_code=code, limit_reason=reason, wall_seconds=time.monotonic() - started,
                 sampled_tree_rss_peak_bytes=maximum_rss, log_bytes_stored=log.stat().st_size,
-                log_bytes_received=emitted, counters=final_counters,
+                log_bytes_received=emitted, counters=final_counters, first_monitor_error=first_monitor_error,
                 process_cleanup=dict(verified_processes=owner.verified, live_owned_remaining=0,
                                      method='unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped'),
-                monitoring='RSS/wall sampled at <=1s between reads; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace')
+                monitoring='RSS/wall use a 1s sampling schedule; each counter snapshot may add <=2s control-lock waiting plus I/O/scheduling; thresholds unchanged; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace')
 
 
 def main():
