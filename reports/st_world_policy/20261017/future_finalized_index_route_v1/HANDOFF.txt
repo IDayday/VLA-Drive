@@ -1,0 +1,50 @@
+Implemented a thin explicit TRAIN finalization branch in the existing
+full_future_index_preparation_v1/prepare_index_controls.py. No index preparation,
+live ledger access, policy migration, dispatch, request-body read or real shard
+read was performed. No PROFILE runtime was created or modified.
+
+DEV keeps its existing COMPLETE.json / BUILD_COMPLETE attempt2 route and exact
+prior-failure pins. TRAIN requires the new FINALIZATION_COMPLETE.json schema,
+the separate finite controller's terminal FINALIZATION_COMPLETE status, actual
+zero cleanup, completed wait-boundary read accounting, exact CLI artifact,
+approved admission, original failed terminal lineage, and matching worker argv.
+The existing reviewed finalize_future_metadata.validate_completion performs the
+full original PLAN/registration/manifest/provenance/shard-receipt validation.
+Its semantic request identity and new-root request file are passed to the same
+index builder; the helper never fabricates an old BUILD_COMPLETE.
+
+Source identity and budget
+  Original TRAIN PLAN code pins are checked in its original frozen source tree.
+  A new --train-index-source-pins/--train-index-source-pins-sha256 pair supplies
+  separately pinned index callback code at immutable runtime3df052ea. The supplied
+  TRAIN_INDEX_RUNTIME_SOURCE_PINS.json binds those three callback files plus
+  metadata_storage.py and the compatible teacher_provider.py. Lead must include
+  this new helper's own source SHA in any future preparation controller admission.
+  Current policy and ledger pins remain required at actual preparation time.
+  The metadata plan now derives existing nonbaseline declarations plus the two
+  new index claims once, then retains128MiB administration,4MiB existing build
+  monitor,1MiB history controls,1MiB finalization controls. On the current draft
+  policy that is7701MiB/8192MiB. No history claim is removed or replaced.
+
+Validation and execution limits
+  9 author adapter tests passed under DDP Python 3.10, CPU 10/11, 0.049 s,
+  25772032-byte peak RSS; no real payload or live ledger was accessed. Tests
+  exercised the actual unchanged DEV validator and the new terminal-binding
+  branch, malformed schema/path/lineage/cleanup/argv/read-budget cases, source
+  pin mismatch, exact request argv and dynamic7701MiB package count.
+  The full shared finalizer validator is mocked at this adapter boundary; its
+  actual semantics were covered by the preceding independent writer reviews.
+  This report does not claim a new independent full integration PASS.
+  Actual TRAIN receipt validation lazily imports the original writer/Torch chain
+  and performs its own bounded metadata reads. helper.READ_BYTES explicitly
+  reports only helper reads, not that import/internal IO. Lead must give the
+  later preparation invocation a finite outer whole-process read/RSS allowance
+  that covers those imports; a32MiB total-process claim would be false. This
+  code-only task kept its own source/control reads below32MiB and used no such
+  import. Actual index preparation remains a later separately admitted action.
+
+PROFILE dependency
+  Frozen profile bccebb00319512049e93df58d18cb5ead49575f0 cannot read the new
+  receipt. Lead must create/register its next immutable PROFILE runtime with
+  the already reviewed provider branch. No trainer, data, math or teacher-cache
+  changes are included here.
