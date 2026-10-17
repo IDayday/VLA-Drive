@@ -22,11 +22,20 @@ import time
 HERE = Path(__file__).resolve().parent
 RUNTIME = HERE.parents[3]
 BASE = Path('/mnt/project/st-world-policy-20261016')
-ROOT = BASE / 'audits/loss_scale_calibration_real4_v1'
+ROOT = BASE / 'audits/loss_scale_calibration_real4_v2'
 PYTHON = '/root/miniconda3/envs/ddp/bin/python'
-LIMITS = dict(wall_seconds=3600, cleanup_seconds=40, read_bytes=256 << 30,
+LIMITS = dict(wall_seconds=3000, cleanup_seconds=40, read_bytes=208 << 30,
               rss_bytes=96 << 30, cpu_affinity=[2, 3], max_disk_bytes=16 << 20,
               max_invocations=1, optimizer_updates=0, new_tensor_bytes=0)
+RUNTIME_ENVIRONMENT = {'CUBLAS_WORKSPACE_CONFIG': ':4096:8'}
+
+
+def child_runtime_environment(parent_environment):
+    """Bind before starting child Python; reject conflicting caller intent."""
+    for key, value in RUNTIME_ENVIRONMENT.items():
+        if key in parent_environment and parent_environment[key] != value:
+            raise ValueError('Incompatible inherited deterministic runtime environment: ' + key)
+    return {**parent_environment, **RUNTIME_ENVIRONMENT}
 
 
 def load(name, path):
@@ -97,15 +106,17 @@ def controls(args):
     control = pin_read({'path': args.control, 'sha256': args.control_sha256})
     if (control.get('schema') != 'st_loss_scale_owned_control_v1' or control.get('limits') != LIMITS
             or control.get('host') != socket.gethostname() or control.get('runtime') != str(RUNTIME)
-            or control.get('output_root') != str(ROOT)):
+            or control.get('output_root') != str(ROOT)
+            or control.get('runtime_environment') != RUNTIME_ENVIRONMENT):
         raise ValueError('Exact one-shot resource controls required')
+    child_runtime_environment(os.environ)  # Fail before imports, locks, output or device inspection.
     now = time.time()
     if any(type(control.get(key)) not in (int, float) or not math.isfinite(control[key])
            for key in ('issued_at_unix', 'latest_start_unix', 'valid_until_unix')):
         raise ValueError('Finite absolute resource times required')
     if not control['issued_at_unix'] <= now <= control['latest_start_unix']:
         raise ValueError('Not in launch window')
-    if control['valid_until_unix'] < now + (0 if args.child else 3640):
+    if control['valid_until_unix'] < now + (0 if args.child else LIMITS['wall_seconds'] + LIMITS['cleanup_seconds']):
         raise ValueError('Insufficient absolute resource lease')
     for source in control['sources']:
         pin_read(source, decode=False)
@@ -132,6 +143,7 @@ def controls(args):
     admission = pin_read(control['admission'])
     cfg = pin_read(admission['config'])
     if (cfg['output_root'] != str(ROOT / 'result') or len(cfg['batch']['scene_indices']) != 4
+            or cfg.get('runtime_environment') != control['runtime_environment']
             or cfg['purpose'] != 'DIAGNOSTIC' or admission['source_sha'] != control['source_sha']
             or admission['valid_until_unix'] > control['valid_until_unix']
             or admission['max_seconds'] != LIMITS['wall_seconds']):
@@ -184,8 +196,9 @@ def main():
         if ROOT.exists():
             raise ValueError('One attempt only; preserve prior output without automatic retry')
         ROOT.mkdir()
-        publish(write, ROOT / 'START.json', {'control': args.control, 'sha256': args.control_sha256, 'automatic_retry': False})
-        env = dict(os.environ, CUDA_VISIBLE_DEVICES=admission['cuda_visible_devices'], PYTHONDONTWRITEBYTECODE='1',
+        publish(write, ROOT / 'START.json', {'control': args.control, 'sha256': args.control_sha256,
+                'runtime_environment': RUNTIME_ENVIRONMENT, 'automatic_retry': False})
+        env = dict(child_runtime_environment(os.environ), CUDA_VISIBLE_DEVICES=admission['cuda_visible_devices'], PYTHONDONTWRITEBYTECODE='1',
                    PYTHONPATH=str(RUNTIME), OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2',
                    ST_PROBE_SUPERVISOR_LOCK_FD=str(lock.fileno()), ST_CALIBRATION_CONTROLLER_TOKEN=admission['controller_token'])
         command = [PYTHON, str(Path(__file__).resolve()), '--child', '--control', args.control,

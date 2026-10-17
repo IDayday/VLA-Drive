@@ -1,0 +1,56 @@
+{
+  "actual_post_state_or_rng_verification_claimed": false,
+  "admission_max_seconds": 3000,
+  "automatic_retry": false,
+  "failure_detail": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/result/FAILED.json",
+    "sha256": "63f20488d25ffed20b96349d40d76ec3304db07301fb6881b0fcfaa46c406620"
+  },
+  "failure_error": "RuntimeError('Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility')",
+  "formal_scientific_weight_selection": false,
+  "fresh_admission_required": true,
+  "fresh_frozen_runtime_required": true,
+  "fresh_independent_resource_review_required": true,
+  "measurement_exists": false,
+  "new_limits": {
+    "cleanup_seconds": 40,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "gpu_index": 0,
+    "max_disk_bytes": 16777216,
+    "max_invocations": 1,
+    "max_scene_exposures": 4,
+    "new_tensor_bytes": 0,
+    "optimizer_updates": 0,
+    "read_bytes": 223338299392,
+    "rss_bytes": 103079215104,
+    "wall_seconds": 3000
+  },
+  "old_resolved_config": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/result/RESOLVED_CONFIG.json",
+    "sha256": "7ea353ce534a3e023071da351ae24819901bbfa04083c7cad0fa038a3d28733e"
+  },
+  "previous_attempt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/RESULT.json",
+    "sha256": "72bcfe8e153d5ccc2e7a993dde6817e3f48d0ccff9be27928420804c9c20f582"
+  },
+  "previous_charged_logical_read_bytes": 51404923553,
+  "previous_status": "FAILED_NO_AUTO_RETRY",
+  "previous_wall_seconds": 416.6046734880656,
+  "proposal_config": {
+    "path": "/mnt/project/VLA-Drive-st-calibration-cublas-preflight-20261017/reports/st_world_policy/20261017/temporal_scale_cublas_preflight_fix_v1/PROPOSED_CALIBRATION_CONFIG.json",
+    "sha256": "d5358c65585a4852bc959e5795a0f0ae647b9bdf6dd99c64220e361b38eed560"
+  },
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "scope_changes": [
+    "runtime_environment",
+    "output_root",
+    "training_config.runtime.output_root (unused by no-update measurement)",
+    "training_config.runtime.max_seconds (3000; no optimizer/scheduler change)"
+  ],
+  "status": "PROPOSAL_ONLY_NOT_LAUNCHED"
+}

@@ -22,6 +22,27 @@ from tools.st_world_policy.base_binding import immutable_json
 
 SCHEMA = "st_temporal_scale_calibration_v1"
 GROUPS = "last_language_block_and_world_queries_v1"
+RUNTIME_ENVIRONMENT = {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
+
+
+def runtime_preflight(cfg, training):
+    """Require the registered environment before the first CUDA context.
+
+    Never repair this in-process: PyTorch caches its cuBLAS determinism check.
+    The owned launcher sets the child environment before starting Python.
+    """
+    if cfg.get("runtime_environment") != RUNTIME_ENVIRONMENT:
+        raise ValueError("Exact registered deterministic runtime environment required")
+    if training["runtime"]["deterministic"] is not True:
+        raise ValueError("Calibration must retain deterministic=True")
+    observed = {key: os.environ.get(key) for key in RUNTIME_ENVIRONMENT}
+    if observed != RUNTIME_ENVIRONMENT:
+        raise ValueError("Set CUBLAS_WORKSPACE_CONFIG=:4096:8 before starting the calibration process")
+    import torch
+    if torch.cuda.is_initialized():
+        raise ValueError("Calibration runtime preflight requires an uninitialized CUDA context")
+    return {"schema": "st_calibration_runtime_preflight_v1", "runtime_environment": observed,
+            "deterministic_algorithms": True, "cuda_initialized_at_check": False}
 
 
 def exact(value, keys, label):
@@ -41,7 +62,9 @@ def pinned(pin):
 
 def validate(cfg):
     exact(cfg, {"schema", "purpose", "source", "training_config", "data_manifest", "teacher_manifest",
-                "teacher_requests", "batch", "parameter_groups", "output_root"}, "Calibration config")
+                "teacher_requests", "batch", "parameter_groups", "output_root", "runtime_environment"}, "Calibration config")
+    if cfg["runtime_environment"] != RUNTIME_ENVIRONMENT:
+        raise ValueError("Exact registered deterministic runtime environment required")
     if cfg["schema"] != SCHEMA or cfg["purpose"] not in {"DIAGNOSTIC", "SCIENTIFIC_CALIBRATION"}:
         raise ValueError("Explicit calibration purpose required")
     source = cfg["source"]
@@ -65,6 +88,8 @@ def validate(cfg):
         raise ValueError("No arbitrary checkpoint loaders")
     from tools.st_world_policy.training_config import validate_config, official_runtime_policy
     training = pinned(cfg["training_config"])
+    if training["runtime"]["deterministic"] is not True:
+        raise ValueError("Calibration must retain deterministic=True")
     st = validate_config(training)
     if st.cell != "T4" or not all((st.current, st.future, st.delta)) or official_runtime_policy(training) is None:
         raise ValueError("All four original objectives and explicit official execution are required")
@@ -163,6 +188,7 @@ def wall_limit(seconds):
 
 
 def execute(cfg, training, st, teacher):
+    preflight = runtime_preflight(cfg, training)
     import numpy as np
     import torch
     from starVLA.dataloader.st_world_dataset import STWorldTrainingDataset, collate_st_world
@@ -216,6 +242,7 @@ def execute(cfg, training, st, teacher):
         runtime = apply_official_model_runtime(vlm=model.base.qwen_vl_interface.model,
             language=model.base.qwen_vl_interface.model.model.language_model,
             action_transformer=model.base.action_model.model, policy=policy, training_copy=True)
+        runtime = {**runtime, "calibration_preflight": preflight}
         # Match DS's BF16 execution casting, without creating Adam/ZeRO states.
         # This is a gradient probe, not a backend throughput/resume qualification.
         model.to(device="cuda", dtype=torch.bfloat16).train()
@@ -270,14 +297,17 @@ def main():
             if args.admission or args.admission_sha256:
                 raise ValueError("Validate is metadata-only and accepts no launch admission")
             print(json.dumps({"status": "CONFIG_VALID_ONLY", "config_sha256": file_sha256(args.config),
+                              "runtime_environment": cfg["runtime_environment"],
                               "payload_reads": 0, "GPU_calls": 0, "optimizer_steps": 0}))
             return 0
         if not args.admission or not args.admission_sha256:
             raise ValueError("measure requires independent resource admission and its checksum")
+        preflight = runtime_preflight(cfg, training)
         admission = admission_check(args.admission, args.admission_sha256, args.config, cfg)
         output = Path(cfg["output_root"])
         output.mkdir(parents=True, exist_ok=False)  # one attempt; failed evidence is never overwritten
         immutable_json(output / "RESOLVED_CONFIG.json", cfg)
+        immutable_json(output / "RUNTIME_PREFLIGHT.json", preflight)
         started = time.monotonic()
         try:
             with wall_limit(admission["max_seconds"]):
@@ -290,6 +320,7 @@ def main():
             return 0 if result["status"] == "MEASURED" else 3
         except Exception as error:
             immutable_json(output / "FAILED.json", {"status": "FAILED", "error": repr(error),
+                "runtime_preflight_sha256": identity_hash(preflight),
                 "elapsed_seconds": time.monotonic() - started, "optimizer_steps": 0})
             raise
     except (OSError, ValueError, RuntimeError, KeyError, TypeError, TimeoutError) as error:

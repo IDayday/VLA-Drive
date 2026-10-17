@@ -1,0 +1,53 @@
+{
+  "batch": {
+    "dropout_seed": 42,
+    "horizon_seed": 11042,
+    "micro_batch": 1,
+    "noise_seed": 9042,
+    "patch_seed": 12042,
+    "scene_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "scene_tokens": [
+      "b9edef7b9bcf5d07",
+      "5cf7db9a67955b8c",
+      "21b6823ff25e5bca",
+      "178d436846405921"
+    ],
+    "time_seed": 10042
+  },
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_pinned_v2/SELECTED_SCENES.json",
+    "sha256": "58387c3779b083cd83b55f2339e49dc99ff12b136e20ea672b9dc0c50e5b40c1"
+  },
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2/result",
+  "parameter_groups": "last_language_block_and_world_queries_v1",
+  "purpose": "DIAGNOSTIC",
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "schema": "st_temporal_scale_calibration_v1",
+  "source": {
+    "binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "initialization_reference": "COMMON_S0_WITH_REGISTERED_INITIALIZATION",
+    "kind": "common_s0"
+  },
+  "teacher_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/identity.json",
+    "sha256": "db5931bf5ca6711407a36703bc82c1b3c56dbe3c49dfabc1fd09dba02cb29626"
+  },
+  "teacher_requests": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/requests.json",
+    "sha256": "d71f653111b5034c32c092b678a1d468727477ca1ea6c7611807f37aef889cb5"
+  },
+  "training_config": {
+    "path": "/mnt/project/VLA-Drive-st-calibration-cublas-preflight-20261017/reports/st_world_policy/20261017/temporal_scale_cublas_preflight_fix_v1/PROPOSED_TRAINING_CONFIG.json",
+    "sha256": "716d1cc229e4bcab14431c29954ab1858e8bb81c6fa213c1e4c1155f345f9c95"
+  }
+}

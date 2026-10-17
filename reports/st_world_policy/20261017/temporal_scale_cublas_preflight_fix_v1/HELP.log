@@ -1,0 +1,17 @@
+usage: calibrate_temporal_scale [-h] --config CONFIG [--admission ADMISSION]
+                                [--admission-sha256 ADMISSION_SHA256]
+                                {validate,measure}
+
+Bounded one-shot ST loss/shared-gradient measurement, without optimizer
+updates. validate reads controls only. measure needs a separate Lead-owned GPU
+admission; this tool neither launches workers nor allocates a cache/checkpoint
+bank.
+
+positional arguments:
+  {validate,measure}
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256

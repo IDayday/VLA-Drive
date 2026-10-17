@@ -9,7 +9,7 @@ from torch import nn
 
 from tools.st_world_policy.calibration_measurement import (
     OBJECTIVES, measure, model_identity, preserved_rng, propose_weights, validate_groups)
-from tools.st_world_policy.calibrate_temporal_scale import pinned, validate, wall_limit
+from tools.st_world_policy.calibrate_temporal_scale import RUNTIME_ENVIRONMENT, pinned, validate, wall_limit
 
 
 class Tiny(nn.Module):
@@ -180,7 +180,8 @@ def test_missing_common_initialization_and_unknown_config_rejected():
     with pytest.raises(ValueError): validate({'schema': 'bogus'})
     cfg = dict(schema='st_temporal_scale_calibration_v1', purpose='SCIENTIFIC_CALIBRATION',
                source={'kind': 'common_s0', 'binding': {}, 'initialization_reference': 'unregistered'}, training_config={}, data_manifest={},
-               teacher_manifest={}, teacher_requests={}, batch={}, parameter_groups='', output_root='')
+               teacher_manifest={}, teacher_requests={}, batch={}, parameter_groups='', output_root='',
+               runtime_environment=RUNTIME_ENVIRONMENT)
     with pytest.raises(ValueError, match='registered'): validate(cfg)
 
 
@@ -197,7 +198,7 @@ def test_diagnostic_learned_native_weights_rejected_before_payload(tmp_path, sco
     cfg = dict(schema=SCHEMA, purpose='SCIENTIFIC_CALIBRATION',
                source={'kind': 'native_st', 'registration': reg, 'tag': 'step4', 'receipt': receipt},
                training_config={}, data_manifest={}, teacher_manifest={}, teacher_requests={},
-               batch={}, parameter_groups='', output_root='')
+               batch={}, parameter_groups='', output_root='', runtime_environment=RUNTIME_ENVIRONMENT)
     with pytest.raises(ValueError, match='SMOKE/PROFILE'):
         validate(cfg)
 
