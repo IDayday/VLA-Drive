@@ -1,0 +1,20 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+test_actual_bind_route_calls_unmocked_validator (independent_route.RealSharedValidatorAdapterTests) ... ok
+test_actual_shared_validator_accepts_original_ordered_two_scene_receipt (independent_route.RealSharedValidatorAdapterTests) ... ERROR
+test_actual_shared_validator_rejects_changed_failed_source (independent_route.RealSharedValidatorAdapterTests) ... ok
+test_actual_shared_validator_rejects_self_consistent_wrong_time (independent_route.RealSharedValidatorAdapterTests) ... ok
+
+======================================================================
+ERROR: test_actual_shared_validator_accepts_original_ordered_two_scene_receipt (independent_route.RealSharedValidatorAdapterTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-future-indexprep-correctness-20261017/reports/st_world_policy/20261017/future_finalization_indexprep_correctness_v1/test_narrow.py", line 73, in test_actual_shared_validator_accepts_original_ordered_two_scene_receipt
+    self.assertEqual([v['token'] for v in manifest['scenes']],[v['token'] for v in self.case.plan['selected_rows']])
+TypeError: 'NoneType' object is not iterable
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.119s
+
+FAILED (errors=1)
+{"status": "FAIL", "source_commit": "99ff3af1b255cf3b37b13954850e8b657c6b493f", "tests": 4, "failures": 0, "errors": 1, "bounds_pass": true, "cost": {"wall_seconds": 3.464207859709859, "startup_seconds": 3.345434419810772, "startup_read_bytes": 136956246, "test_read_bytes": 2221981, "total_read_bytes": 139178227, "test_write_bytes": 70539, "RSS_bytes": 624078848, "cpu_affinity": [6, 7]}, "torch_imported": true, "CUDA_initialized": false, "actual_payload_or_ledger_access": false, "launch": false}
