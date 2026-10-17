@@ -1,0 +1,197 @@
+{
+  "actions": {
+    "dispatches": 0,
+    "gpu_queries": 0,
+    "helper_or_resource_edits": 0,
+    "new_locks_acquired": 0,
+    "payload_rehashes": 0,
+    "remote_queries": 0
+  },
+  "author_agent": "/root/st_evaluation",
+  "candidates": [
+    {
+      "authorization_scope": "Currently named in campaign authorization and dispatch allowed-host map; no fresh admission claimed",
+      "canonical_host": "training-vla-zt",
+      "environment": {
+        "cuda_runtime": "12.4",
+        "cudnn": 90100,
+        "packages": {
+          "deepspeed": "0.16.9",
+          "numpy": "1.26.4",
+          "safetensors": "0.6.2",
+          "timm": "1.0.20",
+          "torch": "2.5.1+cu124",
+          "transformers": "4.57.0"
+        },
+        "python": "3.10.20",
+        "schema": "st_training_environment_v1"
+      },
+      "export_latency_on_this_host_measured_here": false,
+      "fresh_inventory_performed_this_task": false,
+      "future_admission_status": "PENDING_NATURAL_RELEASE_FRESH_INVENTORY_ENVIRONMENT_AND_ROUTE_REVIEW",
+      "historical_cpu_affinity_count": 128,
+      "historical_gpu_count": 8,
+      "historical_gpu_model": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "historical_inventory": {
+        "path": "/mnt/project/st-world-policy-20261016/resources/training-vla-zt_inventory.json",
+        "sha256": "427b0b665ae796ab9ec5ab499fa687c0ff691115d6ed48b88b03d89825b09fd1"
+      },
+      "historical_inventory_utc": "2026-10-16T20:35:06.778328+00:00",
+      "historical_mount": {
+        "options": "rw,checksum,flock,nouser_xattr,lruresize,lazystatfs,nouser_fid2path,verbose,encrypt",
+        "same_shared_mountpoint": "/mnt/project",
+        "type": "lustre"
+      },
+      "historical_training_environment": {
+        "path": "/mnt/project/st-world-policy-20261016/profiles/world_official_runtime_8gpu_v1/ENVIRONMENT.json",
+        "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+      },
+      "hostname": "training-vla-zt-worker-0",
+      "profile_launch": {
+        "path": "/mnt/project/st-world-policy-20261016/profiles/world_official_runtime_8gpu_v1/LAUNCH.json",
+        "sha256": "0fd15a60c87c9fe47c0e307e1b54466cb380cab1d0ab691eefd5e87fafcfe90b"
+      }
+    },
+    {
+      "authorization_scope": "Currently named in campaign authorization and dispatch allowed-host map; no fresh admission claimed",
+      "canonical_host": "training-vlawm-tsinghua-zt",
+      "environment": {
+        "cuda_runtime": "12.4",
+        "cudnn": 90100,
+        "packages": {
+          "deepspeed": "0.16.9",
+          "numpy": "1.26.4",
+          "safetensors": "0.6.2",
+          "timm": "1.0.20",
+          "torch": "2.5.1+cu124",
+          "transformers": "4.57.0"
+        },
+        "python": "3.10.20",
+        "schema": "st_training_environment_v1"
+      },
+      "export_latency_on_this_host_measured_here": false,
+      "fresh_inventory_performed_this_task": false,
+      "future_admission_status": "PENDING_NATURAL_RELEASE_FRESH_INVENTORY_ENVIRONMENT_AND_ROUTE_REVIEW",
+      "historical_cpu_affinity_count": 128,
+      "historical_gpu_count": 8,
+      "historical_gpu_model": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "historical_inventory": {
+        "path": "/mnt/project/st-world-policy-20261016/resources/training-vlawm-tsinghua-zt_inventory.json",
+        "sha256": "ccf1922fc029c4bd60d306a1066b0e1d4209882c5d6ed500e7930b9dd9233af8"
+      },
+      "historical_inventory_utc": "2026-10-16T20:35:06.905883+00:00",
+      "historical_mount": {
+        "options": "rw,checksum,flock,nouser_xattr,lruresize,lazystatfs,nouser_fid2path,verbose,encrypt",
+        "same_shared_mountpoint": "/mnt/project",
+        "type": "lustre"
+      },
+      "historical_training_environment": {
+        "path": "/mnt/project/st-world-policy-20261016/profiles/sp1_official_tsinghua_4gpu_v1/ENVIRONMENT.json",
+        "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+      },
+      "hostname": "training-vlawm-tsinghua-zt-worker-0",
+      "profile_launch": {
+        "path": "/mnt/project/st-world-policy-20261016/profiles/sp1_official_tsinghua_4gpu_v1/LAUNCH.json",
+        "sha256": "e1cb14e9451221e25d809642888d5aa05a3e7c2d5228fe6fa8a2819b76f92f26"
+      }
+    }
+  ],
+  "created_at_utc": "2026-10-17T04:53:53.658380+00:00",
+  "current_helper_boundary": {
+    "C3": "Current deployed v2 still pins old C3-null plan and rejects C3; this preparation is not a launcher patch.",
+    "export": "v1/v2 hard-code training-rl-zt2-worker-0 and GPU indices 0-3; GPU local flock plus per-job shared DISPATCH lock. No cross-host shared four-export slot gate yet.",
+    "score": "v1/v2 hard-code rl-zt2, require completed export INVOCATION and LAUNCH host equal local hostname, scan local /proc for exact output, hold rank_0 lock through scoring. Existing two score-slot locks live under shared campaign resources.",
+    "training_protection": "C2/C3 real training occupies rl-zt2 GPUs 4-7/0-3. No sharing, stop, migration or preemption is authorized here."
+  },
+  "evidence": [
+    {
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_runtime_fdf25f99/SP1_SP3_NEW_NODE_COMPLETE_REVIEW_v2.json",
+      "sha256": "862813b76a1284600a14b925a754847b3748de35845b28994a0b1e1f4c9f3823"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/sp1_official_tsinghua_4gpu_v1/HARDWARE.json",
+      "sha256": "95b0cfd555263fe6dcffae5e5f163505b4e3342e93506f08a7781db940e4ebfa"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_NATIVE_DEPLOYMENT_REVIEW.json",
+      "sha256": "fb2db98d4bfb6224455ac06b8ded37fb80fdb3e8cfef6089d5b69891e881490a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/official_flow_export_dev16_v1/LAUNCH.json",
+      "sha256": "0dee171fdf7415137e97be09344af674305f2af28827847c11f266efffd3ea16"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/official_world_export_dev16_v1/LAUNCH.json",
+      "sha256": "7c104b6d8fd1af1d46af7c34de24fa47d931691eca7b9d0fb8fd52b783979ef7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v1.py",
+      "sha256": "ee73eadc58676579913ab2e58a5c0ae40998d0d48bfc34c3791a62204d625318"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v1.py",
+      "sha256": "80980a84be7a6364efd1aa128b02b96e31a228a04c8d63ba73067a09978b8ec1"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v2.py",
+      "sha256": "69ae3fc0f8ac00d89ca69348bc03c7fd7aa445a8de5e4eae979cae954cd304b1"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v2.py",
+      "sha256": "1d588070d0882d6595c24ac89e46f44d222cb9d1e2b54fe8afb903a681bf5fc7"
+    }
+  ],
+  "execution_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "inheritance_judgment": {
+    "basis": "Single-GPU world1 execution and identical native reader/inference remain unchanged. Both candidate hosts have recorded same A800-SXM4-80GB hardware and identical base package environment; native 6714 world1 deployment was already executed on tsinghua-zt4. Existing W training profiles establish host hardware/environment only, not FP32 export speed.",
+    "eligible_after_bounded_fresh_metadata_checks": true,
+    "new_gpu_smoke_or_profile_required_by_this_proposal": false,
+    "numeric_limit": "Same seeds/source/environment define the same protocol; FA2/host/run floating-point outputs are not guaranteed bitwise identical. Each endpoint is pinned to one route before first invocation.",
+    "performance_limit": "Do not claim the vla-zt/tsinghua-zt FP32 export latency or cold-load cost equals rl-zt2 or warm dev16. Record initial native/shared-read load and complete1696 end-to-end timing in the first already-declared endpoint; do not create another candidate or benchmark."
+  },
+  "lead_only_future_admission": true,
+  "minimum_future_changes": [
+    {
+      "change": "A new reviewed helper version may use a literal canonical map for rl-zt2, vla-zt, tsinghua-zt only, plus one immutable per-job route record selected by Lead before first export. Bind hostname, GPU index+UUID, source/environment, exact job/intent/native receipt, validity window and controller slot. Check live authorization/prohibitions and socket hostname. No wildcard tsinghua family or automatic host fallback.",
+      "id": "exact_host_route"
+    },
+    {
+      "change": "Keep export attempts, explicit same-identity resume and CPU scoring on the one recorded host. Retain both exporter-host equality checks, local /proc exit check, and rank_0 lock. Do not relax the checks to permit remote exporter liveness guesses or migrate an existing partial job.",
+      "id": "same_job_same_host"
+    },
+    {
+      "change": "Retain the existing two shared dev_score_slot_0/1 locks (2 workers each) and add exactly four shared dev_export_slot_0..3 locks under the same campaign root, held across the child process via pass_fds. Keep host-local /tmp/foresight_gpu_N.lock. All admitted export launchers must participate; otherwise Lead must serialize admission and reject an unaccounted legacy active export. Do not make four slots per host.",
+      "id": "global_limits"
+    },
+    {
+      "change": "Lead fresh admission must confirm prior scientific processes/descendants naturally exited, no active training lease on the selected slot, expected GPU UUID/model, GPU memory/utilization free, host memory, CPU quota and disk headroom. Preserve existing 64 GiB export /16 GiB score MemAvailable checks and existing independent disk reservations; account simultaneous loads before additional admission. No pressure/process stop is part of this proposal.",
+      "id": "natural_release"
+    },
+    {
+      "change": "Before the first endpoint on the chosen host, read-only confirm clean 6714 SHA/source pins, exact Python/package/CUDA/cuDNN environment and relevant FA2 extension, same shared mount with global flock semantics, and reachability of immutable base/native receipts, dev manifest/current inputs/maps/metric index. Check small metadata and stat only; frozen runtime retains full payload verification at actual use. Fail closed on mismatches.",
+      "id": "environment_and_shared_paths"
+    },
+    {
+      "change": "Retain world1/rank0/seed42/FP32 master/TF32 off/Euler10, full1696, 1728 total admitted calls with retry1, at most two export and two score invocations,1 GiB/job reservation,7800 s export and4200 s score outer limits. Never duplicate an endpoint because its host changes. Separately pin the new C3 plan in a reviewed adapter; leave deployed v1/v2 and old C3-null evidence unchanged.",
+      "id": "unchanged_endpoint_controller"
+    }
+  ],
+  "schema": "st_fixed_dev_host_routing_proposal_v1",
+  "scientific_policy_unchanged": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/POLICY.json",
+    "sha256": "70c172ffb691ba893e0c99ad1e9bcfc78dce338174b17539ec225d1fa759b39d"
+  },
+  "status": "CONDITIONAL_FEASIBILITY_PROPOSAL_NOT_IMPLEMENTED_NOT_ADMISSION"
+}

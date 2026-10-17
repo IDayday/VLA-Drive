@@ -1,0 +1,11 @@
+- Task: bind the already launched C3 to its existing full-dev 512/1024/4096 intents; give a conditional host-routing proposal.
+- Agent: `/root/st_evaluation`.
+- Parent SHA: `2806226b8bf9c584d43ef6f8f359d9eb45353600`.
+- Worktree: `/mnt/project/VLA-Drive-st-evaluation-agent-20261016`.
+- Owned committed paths: `reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/` only.
+- Private builder and duplicate evidence: `/mnt/project/st-world-policy-20261016/audits/evaluation/C3_PREPARATION_v1/`.
+- Scientific authority: original research contracts, v4 fixed evaluation rules, and Lead's explicit delegation of this actual execution binding.
+- Forbidden changes preserved: no old preparation rewrites, no helper/runtime/trainer edits, no full train/native payload rereads, no GPU/export/score/analysis dispatch, no new comparisons or Navtest.
+- Result: actual C3 runtime bound; all three future checkpoint receipts unresolved; 45 metadata checks passed. Helper adaptation, exact endpoint qualification, fresh resource admission and Lead dispatch remain pending.
+- Host routing: proposal only, no deployed allowlist change or active-slot claim. The same job must keep export/resume/score on one host and share campaign-wide concurrency limits.
+- Final commit and exact file hashes are recorded after commit in private `HANDOFF.json`; `MANIFEST.json` seals the committed preparation files without self-reference.
