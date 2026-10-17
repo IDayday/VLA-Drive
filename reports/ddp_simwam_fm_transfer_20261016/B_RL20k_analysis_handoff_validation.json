@@ -1,0 +1,134 @@
+{
+  "status": "PASS_ENDPOINT_HANDOFF_QUALIFICATION_NOT_B20K_RESULTS",
+  "observed_unix": 1792245256.0076692,
+  "checks": [
+    {
+      "name": "compile run.py",
+      "status": "PASS"
+    },
+    {
+      "name": "compile verify_B_RL20k_completion.py",
+      "status": "PASS"
+    },
+    {
+      "name": "stage execution and refusal semantics unchanged from qualified 15k helper",
+      "status": "PASS"
+    },
+    {
+      "name": "actual A20k COMPLETE checkpoint accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "actual B10k READY checkpoint rejected by final gate",
+      "status": "PASS"
+    },
+    {
+      "name": "actual completed A full-budget ledger accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong actual update count rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "unclosed ledger rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "different scientific run identity rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "seven existing analysis jobs and audit only; no duplicate budget summary or output",
+      "status": "PASS"
+    },
+    {
+      "name": "stage comparison is fixed 20k versus 15k",
+      "status": "PASS"
+    },
+    {
+      "name": "actual missing B20k evidence waits without a worker",
+      "status": "PASS"
+    },
+    {
+      "name": "endpoint audit refuses a currently live pinned owner",
+      "status": "PASS"
+    },
+    {
+      "name": "actual --once invocation",
+      "status": "PASS"
+    }
+  ],
+  "script_sha256": "9fd169990376953b73fe1d112f980d727605e35874606285fd38e6397d01d537",
+  "audit_sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63",
+  "actual_command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "/mnt/project/fm-transfer-20261016/resources/B_RL_20k_analysis_handoff_20261017/run.py",
+    "--once"
+  ],
+  "new_candidates": 0,
+  "new_scoring_calls": 0,
+  "optimizer_updates": 0,
+  "launch_receipt": {
+    "status": "LAUNCHED_CPU_WAITING_FOR_EXISTING_REGISTERED_ENDPOINT",
+    "pid": 538976,
+    "start_ticks": 1368390701,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "/mnt/project/fm-transfer-20261016/resources/B_RL_20k_analysis_handoff_20261017/run.py"
+    ],
+    "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+    "script_sha256": "9fd169990376953b73fe1d112f980d727605e35874606285fd38e6397d01d537",
+    "audit_sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63",
+    "qualification_sha256": "84e33da2d86dbed74947ded9de1afcbb0b7b758562d3d479194f71b8465c064b",
+    "resources": {
+      "host": "training-vla-zt",
+      "observed_unix": 1792245293.7912366,
+      "cpu_affinity": 128,
+      "load_average": [
+        14.42724609375,
+        13.677734375,
+        13.337890625
+      ],
+      "memory_kB": {
+        "MemTotal": 1055924592,
+        "MemAvailable": 900665032
+      },
+      "CUDA_VISIBLE_DEVICES": "",
+      "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+    },
+    "new_inference_or_training": false
+  },
+  "owner_status": {
+    "status": "WAITING_FOR_REGISTERED_20K_EVIDENCE",
+    "pid": 538976,
+    "start_ticks": 1368390701,
+    "start_unix": 1792245294.953039,
+    "deadline_unix": 1792266894.9530392,
+    "script_sha256": "9fd169990376953b73fe1d112f980d727605e35874606285fd38e6397d01d537",
+    "new_candidates": 0,
+    "optimizer_updates": 0,
+    "missing": [
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0/COMPLETE",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_progress_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_invocation_cost_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_saved_batch.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_complete_training.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank0.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank1.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank2.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank3.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank4.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank5.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank6.json",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/result_rank7.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_DEV.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_DEV_paired_own_SFT.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_TRAIN_DIAGNOSTIC.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_TRAIN_DIAGNOSTIC_paired_own_SFT.json"
+    ],
+    "observed_unix": 1792245355.1959276
+  },
+  "owner_identity_live_at_publication": true,
+  "formal_results_complete": false
+}
