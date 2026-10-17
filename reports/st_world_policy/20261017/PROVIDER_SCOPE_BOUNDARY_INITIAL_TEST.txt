@@ -1,0 +1,78 @@
+..F....                                                                  [100%]
+=================================== FAILURES ===================================
+__ test_profile_general_256_limit_is_distinct_from_complete_240_timing_window __
+
+    def test_profile_general_256_limit_is_distinct_from_complete_240_timing_window():
+        cfg=config();cfg['execution']['stop_after']=256
+        validate_execution(cfg['execution'])
+        with pytest.raises(ValueError,match='240'):
+>           validate_config(cfg)
+
+tests/st_world/test_provider_scope_boundaries.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cfg = {'data': {'history_root': None, 'pca_path': '/test-pca', 'root': '/test-data', 'teacher_root': '/test-teacher'}, 'exec...'runtime': {'deterministic': True, 'gradient_checkpointing': True, 'loader_workers': 2, 'max_seconds': 3600, ...}, ...}
+
+    def validate_config(cfg):
+        fields = {"schema", "execution", "space_time", "optimizer", "runtime", "data"}
+        exact_fields(cfg, fields | ({"continuation"} if "continuation" in cfg else set()), "ST run")
+        if "continuation" in cfg:
+            from tools.st_world_policy.budget_extension import validate_extension_config
+            validate_extension_config(cfg["continuation"])
+        if cfg["schema"] != "st_training_v1":
+            raise ValueError("Unknown ST training configuration")
+        validate_execution(cfg["execution"])
+        execution = cfg["execution"]
+        if execution["precision_policy"] != PRECISION:
+            raise ValueError("This runner preserves the original S0 training precision")
+        st = SpaceTimeConfig.from_dict(cfg["space_time"])
+        if execution["family"] != ("temporal" if st.cell.startswith("T") else "spatial"):
+            raise ValueError("Cell and registered experiment family disagree")
+        opt = cfg["optimizer"]
+        exact_fields(opt, {"lr", "minimum_lr", "warmup", "betas", "eps", "weight_decay", "clip"}, "Optimizer")
+        if any(isinstance(opt[k], bool) or not isinstance(opt[k], (int, float)) or not math.isfinite(opt[k])
+               for k in ("lr", "minimum_lr", "eps", "weight_decay", "clip")):
+            raise ValueError("Optimizer constants must be finite numbers")
+        if not (0 < opt["minimum_lr"] <= opt["lr"] and opt["eps"] > 0 and opt["weight_decay"] >= 0
+                and opt["clip"] == 1. and type(opt["warmup"]) is int
+                and 0 <= opt["warmup"] < execution["max_updates"]):
+            raise ValueError("Invalid fixed cosine/AdamW recipe")
+        if (not isinstance(opt["betas"], list) or len(opt["betas"]) != 2
+                or any(not isinstance(x, (float, int)) or isinstance(x, bool) or not 0 <= x < 1 for x in opt["betas"])):
+            raise ValueError("Adam betas must be resolved")
+        runtime = cfg["runtime"]
+        runtime_keys = {"output_root", "loader_workers", "save_every", "max_seconds",
+                        "deterministic", "gradient_checkpointing"}
+        optional = {key for key in ("profile_mode", "official_execution") if key in runtime}
+        exact_fields(runtime, runtime_keys | optional, "Runtime")
+        profile = runtime.get("profile_mode", "none")
+        if profile not in ("none", "timing", "trace"):
+            raise ValueError("Unknown profiling mode")
+        if profile != "none" and execution["scope"] not in ("SMOKE", "PROFILE"):
+            raise ValueError("Profiling must be a separately registered diagnostic run")
+        if profile == "timing" and (execution["scope"] != "PROFILE" or execution["stop_after"] != 240):
+>           raise ValueError("Complete timing requires the two registered 20+100 update windows")
+E           ValueError: Complete timing requires the two registered 20+100 update windows
+
+tools/st_world_policy/training_config.py:76: ValueError
+
+During handling of the above exception, another exception occurred:
+
+    def test_profile_general_256_limit_is_distinct_from_complete_240_timing_window():
+        cfg=config();cfg['execution']['stop_after']=256
+        validate_execution(cfg['execution'])
+>       with pytest.raises(ValueError,match='240'):
+E       AssertionError: Regex pattern did not match.
+E        Regex: '240'
+E        Input: 'Complete timing requires the two registered 20+100 update windows'
+
+tests/st_world/test_provider_scope_boundaries.py:33: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_provider_scope_boundaries.py::test_profile_general_256_limit_is_distinct_from_complete_240_timing_window
+1 failed, 6 passed, 1 warning in 4.14s
