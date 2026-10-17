@@ -1,0 +1,182 @@
+{
+  "allowed_local": true,
+  "cgroup": {
+    "/sys/fs/cgroup/cpu/cpu.cfs_period_us": "100000",
+    "/sys/fs/cgroup/cpu/cpu.cfs_quota_us": "-1",
+    "/sys/fs/cgroup/memory/memory.limit_in_bytes": "9223372036854771712",
+    "/sys/fs/cgroup/memory/memory.usage_in_bytes": "488520720384"
+  },
+  "default_new_task_dispatch_allowed": false,
+  "gpu": {
+    "compute_app_rows": 0,
+    "devices": [
+      {
+        "index": 0,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c"
+      },
+      {
+        "index": 1,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907"
+      },
+      {
+        "index": 2,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-b8a35758-a506-a8a1-dca7-499c485068fc"
+      },
+      {
+        "index": 3,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006"
+      },
+      {
+        "index": 4,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76"
+      },
+      {
+        "index": 5,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0"
+      },
+      {
+        "index": 6,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac"
+      },
+      {
+        "index": 7,
+        "memory_total_MiB": 81920,
+        "memory_used_MiB": 0,
+        "name": "NVIDIA A800-SXM4-80GB",
+        "utilization_percent": 0,
+        "uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900"
+      }
+    ],
+    "query_returncodes": [
+      0,
+      0
+    ]
+  },
+  "host": "training-vla-zt-worker-0",
+  "host_memory": {
+    "MemAvailable": 919842217984,
+    "MemFree": 295473631232,
+    "MemTotal": 1081266782208,
+    "SwapTotal": 0
+  },
+  "known_gpu_lock_files": [
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_0.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_1.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_2.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_3.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_4.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_5.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_6.lock"
+    },
+    {
+      "bytes": 0,
+      "exists": true,
+      "path": "/tmp/foresight_gpu_7.lock"
+    }
+  ],
+  "known_lock_readonly_check": {
+    "fuser_exit": 1,
+    "fuser_reported_owners": [],
+    "reason": "One unrelated process /proc fd visibility denied; zero NVML consumers does not reserve device or prove every lock unowned. Lead fresh cooperative lock acquisition required.",
+    "visibility_incomplete": true
+  },
+  "mount": {
+    "filesystem": "lustre",
+    "mount_options": "rw",
+    "mountpoint": "/mnt/project",
+    "source_sha256": "e3b9b6df52a9c3c50f55ff2a1163a2733709c0d7a6ab9d5e81be8ba4367561bd",
+    "super_options": [
+      "rw,checksum,flock,nouser_xattr,lruresize,lazystatfs,nouser_fid2path,verbose,encrypt"
+    ]
+  },
+  "observed_unix": 1792235259.5416465,
+  "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+  "protected_active_metadata_processes": [
+    {
+      "contains_expected_metadata_controller": true,
+      "cpu_affinity": [
+        0,
+        1
+      ],
+      "expected_start_ticks": 1366936766,
+      "identity_matches": true,
+      "pid": 480124,
+      "protected": true,
+      "start_ticks": 1366936766
+    },
+    {
+      "contains_expected_metadata_controller": true,
+      "cpu_affinity": [
+        0,
+        1
+      ],
+      "expected_start_ticks": 1366936849,
+      "identity_matches": true,
+      "pid": 480140,
+      "protected": true,
+      "start_ticks": 1366936849
+    }
+  ],
+  "quota": "NOT_VERIFIED",
+  "resource_claim_created": false,
+  "statvfs": {
+    "block_bytes": 4096,
+    "free_bytes": 7180291960832,
+    "total_bytes": 432814591836160
+  }
+}
