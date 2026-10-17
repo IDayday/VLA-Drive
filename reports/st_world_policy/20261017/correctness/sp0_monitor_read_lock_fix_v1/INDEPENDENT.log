@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project/VLA-Drive-st-monitor-lock-correctness-20261017
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 3 items
+
+reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v1/test_independent.py::test_final_real_control_lock_wait_is_included_in_wall_admission FAILED [ 33%]
+reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v1/test_independent.py::test_first_freshness_failure_survives_later_final_failure PASSED [ 66%]
+reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v1/test_independent.py::test_final_valid_limit_is_not_lost PASSED [100%]
+
+=================================== FAILURES ===================================
+_______ test_final_real_control_lock_wait_is_included_in_wall_admission ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-591/test_final_real_control_lock_w0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd93ee104f0>
+
+    def test_final_real_control_lock_wait_is_included_in_wall_admission(tmp_path, monkeypatch):
+        b.write_control(tmp_path/'COUNTERS.json', {'limit_exceeded':None}, replace=True)
+        finish=s.OwnedSession.finish
+        ready=threading.Event(); threads=[]
+        def finished_then_hold(self, **kwargs):
+            code=finish(self, **kwargs)
+            def holder():
+                with b.control_lock(tmp_path):
+                    ready.set(); time.sleep(.65)
+            thread=threading.Thread(target=holder);threads.append(thread);thread.start()
+            assert ready.wait(1)
+            return code
+        monkeypatch.setattr(s.OwnedSession, 'finish', finished_then_hold)
+        try: result=child(tmp_path, wall=.5)
+        finally:
+            for thread in threads: thread.join(2)
+        assert result['exit_code']==0 and result['process_cleanup']['live_owned_remaining']==0
+        assert result['wall_seconds']>.5
+>       assert result['limit_reason']=='WALL_LIMIT', result
+E       AssertionError: {'counters': {'limit_exceeded': None}, 'exit_code': 0, 'first_monitor_error': None, 'limit_reason': None, ...}
+E       assert None == 'WALL_LIMIT'
+
+reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v1/test_independent.py:42: AssertionError
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v1/test_independent.py::test_final_real_control_lock_wait_is_included_in_wall_admission - AssertionError: {'counters': {'limit_exceeded': None}, 'exit_code': 0, 'first_monitor_error': None, 'limit_reason': None, ...}
+assert None == 'WALL_LIMIT'
+========================= 1 failed, 2 passed in 0.91s ==========================
