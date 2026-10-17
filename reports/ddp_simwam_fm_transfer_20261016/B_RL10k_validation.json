@@ -1,0 +1,127 @@
+{
+  "schema": "fm_transfer_B_RL10k_publication_validation_v1",
+  "status": "PASS_10K_EVIDENCE_NOT_FINAL_GOAL",
+  "observed_unix": 1792239237.612334,
+  "report_sha256": "6562f01a3a60fa3fcadd30160af115f066b561e551f677ad5926b19f223cfcf7",
+  "public_evidence_files": [
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_DEV_vs5k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_DEV.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_DEV_vs_own_SFT.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_DEV_safety_transitions.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_TRAIN_DIAGNOSTIC_vs5k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_TRAIN_DIAGNOSTIC.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_training_prefix.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL10k_DEV_native_minus_shift5.json",
+    "reports/ddp_simwam_fm_transfer_20261016/reproduce_B_RL10k_completion.py",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_10k.png",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_10k.pdf",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_10k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_population.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update010000_saved_batch.json"
+  ],
+  "pairwise_analysis_crosschecks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    }
+  ],
+  "markdown_links_checked": 16,
+  "math_and_source_parity": "Reused qualified numerical paths; no new actor or evaluator implementation",
+  "formal_source_files_checked": 64,
+  "formal_source_files_all_match": true,
+  "formal_training_live": {
+    "pid": 354490,
+    "start_ticks": 1365925566,
+    "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+    "progress": {
+      "updates": 10500,
+      "collections": 2625,
+      "raw_scene_exposures": 21000,
+      "new_candidates": 168000,
+      "next_inner": 0,
+      "phase": "READY",
+      "RL_updates_local": 10468,
+      "anchor_only_updates_local": 32,
+      "scene_cursor": 21000,
+      "seconds_rollout": 3092.7744743470103,
+      "seconds_scoring_wait": 337.40422938764095,
+      "seconds_scoring_cpu": 159.86562306247652,
+      "seconds_old_probability": 949.6420253366232,
+      "seconds_update": 12802.46064748615,
+      "status": "RUNNING",
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update010500_inner0",
+      "host": "training-vlawm-tsinghua-zt6",
+      "invocation": "1b4cd4c1775e4b3bb72a3ddcca512034",
+      "invocation_start_update": 0,
+      "wall_seconds_this_invocation": 18566.40150531009
+    }
+  },
+  "CPU_owners": {
+    "milestone_controller": {
+      "pid": 378345,
+      "start_ticks": 1364278483,
+      "live": true
+    },
+    "final_handoff": {
+      "pid": 398934,
+      "start_ticks": 1364944372,
+      "live": true
+    },
+    "endpoint_summary_waiter": {
+      "pid": 299256,
+      "start_ticks": 1362937948,
+      "live": true
+    },
+    "B15k_saved_batch": {
+      "pid": 519912,
+      "start_ticks": 1367756249,
+      "live": true
+    },
+    "B15k_cost_capture": {
+      "pid": 519913,
+      "start_ticks": 1367756249,
+      "live": true
+    },
+    "B20k_saved_batch": {
+      "pid": 519914,
+      "start_ticks": 1367756251,
+      "live": true
+    },
+    "B20k_cost_capture": {
+      "pid": 519915,
+      "start_ticks": 1367756251,
+      "live": true
+    }
+  },
+  "milestones_complete": 32,
+  "milestones_pending": 4,
+  "final_Navtest_opened": false,
+  "figure_visually_inspected": true,
+  "private_individual_scene_records_omitted": true,
+  "new_training_variants": 0,
+  "new_seeds": 0,
+  "analysis_extra_rollouts": 0,
+  "analysis_optimizer_updates": 0
+}
