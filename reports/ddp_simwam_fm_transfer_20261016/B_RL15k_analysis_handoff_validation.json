@@ -1,0 +1,117 @@
+{
+  "status": "PASS_FINITE_15K_CPU_HANDOFF_PRECHECK_NOT_15K_RESULTS",
+  "checks": [
+    "actual_10k_complete_closed_workers_accepted",
+    "actual_unavailable_15k_waits_without_dispatch",
+    "three_auxiliary_scripts_compile",
+    "all_six_distinct_existing_CLI_help_paths_execute",
+    "stage_success_publishes_closed_execution_receipt",
+    "existing_output_refused_unchanged",
+    "nonzero_exit_retained_no_false_complete",
+    "failed_attempt_not_reused_or_retried",
+    "actual_once_entry_waits_before_15k"
+  ],
+  "CLI_checks": [
+    {
+      "module": "scripts.analysis.fm_transfer.analyze_evaluation",
+      "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+      "exit_code": 0,
+      "seconds": 1.3352043628692627
+    },
+    {
+      "module": "scripts.analysis.fm_transfer.analyze_grid_gap",
+      "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+      "exit_code": 0,
+      "seconds": 1.270552158355713
+    },
+    {
+      "module": "scripts.analysis.fm_transfer.analyze_rl_population",
+      "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+      "exit_code": 0,
+      "seconds": 1.3737902641296387
+    },
+    {
+      "module": "scripts.analysis.fm_transfer.analyze_safety_transitions",
+      "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+      "exit_code": 0,
+      "seconds": 1.315173625946045
+    },
+    {
+      "module": "scripts.analysis.fm_transfer.plot_rl_progress",
+      "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+      "exit_code": 0,
+      "seconds": 1.6099460124969482
+    },
+    {
+      "module": "scripts.analysis.fm_transfer.summarize_rl_prefix",
+      "source": "/mnt/project/fm-transfer-20261016/source/e935ada1164672bc13b4d6162531c67c25714407",
+      "exit_code": 0,
+      "seconds": 1.3730294704437256
+    }
+  ],
+  "once": {
+    "status": "PREREQUISITE_CHECK_ONLY",
+    "pending": [
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update015000_inner0/COMPLETE",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_progress_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_invocation_cost_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_saved_batch.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_DEV.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_DEV_paired_own_SFT.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_TRAIN_DIAGNOSTIC.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_TRAIN_DIAGNOSTIC_paired_own_SFT.json"
+    ],
+    "analysis_jobs": 9
+  },
+  "script_sha256": "a18e6f8134b462301b9310d6564ffb5a7318cf8e2a5d17d87b5d140ea25b40bb",
+  "new_model_inferences": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "observed_unix": 1792240034.992266,
+  "waiter_launch": {
+    "pid": 523312,
+    "start_ticks": 1367860889,
+    "start_unix": 1792239995.7226117,
+    "resource": {
+      "host": "training-vla-zt-worker-0",
+      "load": [
+        9.79052734375,
+        12.74462890625,
+        14.701171875
+      ],
+      "CPU_affinity": 128,
+      "MemAvailable_kB": 899492688
+    },
+    "source": "/mnt/project/fm-transfer-20261016/source/8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+    "script_sha256": "a18e6f8134b462301b9310d6564ffb5a7318cf8e2a5d17d87b5d140ea25b40bb",
+    "qualification_sha256": "3085efd73776882dd3b68d54641a6f66e6eccfac4df4e8b5972039a0d012e5f6",
+    "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+    "new_training": false,
+    "new_evaluation": false,
+    "scope": "nine CPU analyses after existing registered B15k evaluation and saved-batch complete"
+  },
+  "live_wait_status": {
+    "status": "WAITING_FOR_REGISTERED_15K_EVIDENCE",
+    "pid": 523312,
+    "start_ticks": 1367860889,
+    "start_unix": 1792239995.8233488,
+    "deadline_unix": 1792254395.823349,
+    "script_sha256": "a18e6f8134b462301b9310d6564ffb5a7318cf8e2a5d17d87b5d140ea25b40bb",
+    "new_candidates": 0,
+    "optimizer_updates": 0,
+    "missing": [
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update015000_inner0/COMPLETE",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_progress_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_invocation_cost_snapshot.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_saved_batch.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_DEV.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_DEV_paired_own_SFT.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_TRAIN_DIAGNOSTIC.json",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_TRAIN_DIAGNOSTIC_paired_own_SFT.json"
+    ],
+    "observed_unix": 1792240015.9327426
+  },
+  "public_script": "reproduce_B_RL15k_analysis_handoff.py",
+  "public_script_sha256": "a18e6f8134b462301b9310d6564ffb5a7318cf8e2a5d17d87b5d140ea25b40bb",
+  "real_15k_analysis_complete": false
+}
