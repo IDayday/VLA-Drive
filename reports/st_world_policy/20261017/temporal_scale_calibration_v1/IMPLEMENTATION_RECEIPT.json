@@ -1,0 +1,100 @@
+{
+  "CPU_tests": {
+    "command": "taskset -c 8,9 env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 timeout 120s /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_temporal_scale_calibration.py",
+    "failed": 0,
+    "passed": 23,
+    "seconds": 3.54
+  },
+  "base_commit": "7c4ef900d58128d3084e9ed27269880ad8ca5ff8",
+  "branch": "agent/st-temporal-scale-calibration-20261017",
+  "created_utc": "2026-10-17T12:02:06.027453+00:00",
+  "independent_correctness": "PENDING",
+  "model_image_teacher_payload_reads": 0,
+  "new_optimizer_updates": 0,
+  "new_teacher_tensor_bytes": 0,
+  "no_push": true,
+  "owned_paths": [
+    "tools/st_world_policy/calibration_measurement.py",
+    "tools/st_world_policy/calibrate_temporal_scale.py",
+    "tests/st_world/test_temporal_scale_calibration.py",
+    "reports/st_world_policy/20261017/temporal_scale_calibration_v1"
+  ],
+  "pins": [
+    {
+      "bytes": 10693,
+      "path": "tools/st_world_policy/calibration_measurement.py",
+      "sha256": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0"
+    },
+    {
+      "bytes": 19244,
+      "path": "tools/st_world_policy/calibrate_temporal_scale.py",
+      "sha256": "61d030d2131c0292e9909a0f89576e1f4f91941f609884a61f5c1d596531e9c6"
+    },
+    {
+      "bytes": 12622,
+      "path": "tests/st_world/test_temporal_scale_calibration.py",
+      "sha256": "b74b18f2295c343831925f37c5b92350cb32bc1632130b1b474b7102c2296fe9"
+    },
+    {
+      "bytes": 9015,
+      "path": "starVLA/model/framework/st_world_model.py",
+      "sha256": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007"
+    },
+    {
+      "bytes": 10160,
+      "path": "starVLA/model/modules/st_world/losses.py",
+      "sha256": "5566b79c551717d18429e5e6278993a8bcb726922f36d107025c0b80161306f6"
+    },
+    {
+      "bytes": 8101,
+      "path": "starVLA/model/modules/st_world/requests.py",
+      "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+    },
+    {
+      "bytes": 34353,
+      "path": "tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    {
+      "bytes": 18569,
+      "path": "tools/st_world_policy/official_runtime.py",
+      "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+    },
+    {
+      "bytes": 8535,
+      "path": "tools/st_world_policy/checkpoints.py",
+      "sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4"
+    },
+    {
+      "bytes": 7330,
+      "path": "tools/st_world_policy/base_binding.py",
+      "sha256": "edaec8fcb31f48cfdc9c52e5c4ffea89ba348bb128386bba098c372c8d48777f"
+    },
+    {
+      "bytes": 13263,
+      "path": "starVLA/dataloader/st_world_dataset.py",
+      "sha256": "178cae6f2dbef96e21de450a3f716005f73a563452df1bbcf7fc9ed3cddf0f33"
+    },
+    {
+      "bytes": 6328,
+      "path": "tools/st_world_policy/training_config.py",
+      "sha256": "87cb75dc7c948a8c37911fd2037794a48a50a5aae6d8153b867eaf0dc32ced97"
+    },
+    {
+      "bytes": 57235,
+      "path": "docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md",
+      "sha256": "12127bc733d527db7934c035789effd53d3373f0196aff26e644f7e256df98b2"
+    },
+    {
+      "bytes": 16299,
+      "path": "reports/st_world_policy/20261016/evidence/DESIGN_EVIDENCE_CARDS.json",
+      "sha256": "bc604677ca1b430e3a676e1acfaffc11ac3cf091f190b59373f95659c158cb2a"
+    }
+  ],
+  "prior_runtime_files_modified": false,
+  "real_GPU": "NOT_RUN",
+  "real_coefficients": null,
+  "real_controls_validate": "PASS_METADATA_ONLY",
+  "schema": "st_temporal_scale_implementation_v1",
+  "scientific_qualification": "NOT_GRANTED"
+}

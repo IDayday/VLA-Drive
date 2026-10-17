@@ -1,0 +1,20 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: calibrate_temporal_scale.py [-h] --config CONFIG
+                                   [--admission ADMISSION]
+                                   [--admission-sha256 ADMISSION_SHA256]
+                                   {validate,measure}
+
+Bounded one-shot ST loss/shared-gradient measurement, without optimizer
+updates. validate reads controls only. measure needs a separate Lead-owned GPU
+admission; this tool neither launches workers nor allocates a cache/checkpoint
+bank.
+
+positional arguments:
+  {validate,measure}
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256
