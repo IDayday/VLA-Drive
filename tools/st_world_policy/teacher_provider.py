@@ -7,6 +7,7 @@ guard remains responsible for all-rank failure. No cache completion is forged.
 import argparse
 from copy import deepcopy
 import json
+import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -19,6 +20,8 @@ MiB = 1 << 20
 LIMIT_FIELDS = {'max_cached_bytes', 'max_scene_bytes', 'max_batch_images', 'max_manifest_bytes'}
 INDEXED_SCHEMA = 'st_indexed_teacher_provider_dependency_v1'
 PROFILE_SCHEMA = 'st_indexed_provider_profile_admission_v1'
+FULL_PROFILE_SCHEMA = 'st_full_index_provider_profile_admission_v1'
+CONSUMPTION_SCHEMA = 'st_full_index_profile_consumption_v1'
 INDEX_FIELDS = {'complete', 'request_identity', 'index_identity', 'max_metadata_cache_bytes'}
 FIXED_CASES = ('fixed8_all_original_order', 'current_request1', 'current_request4',
     'current_reversed8', 'current_tail8_plus_duplicate', 'provider_cold_partial_lru_cold_resume')
@@ -236,11 +239,140 @@ def profile_recipe_identity(cfg):
     return identity_hash(value)
 
 
+def is_full_profile(admission):
+    return isinstance(admission, dict) and admission.get('schema') == FULL_PROFILE_SCHEMA
+
+
+def full_profile_consumption(cfg):
+    """Whole-run ceiling, shared by the original invocation and native resumes.
+
+    This is the existing global2 diagnostic distributed over one or two ranks,
+    not the formal global32 recipe. No alternate sampler/cursor is introduced.
+    """
+    ex = cfg['execution']
+    if (ex['world_size'] not in (1, 2) or ex['micro_batch'] != 1 or ex['global_batch'] != 2
+            or type(ex['sample_limit']) is not int or ex['sample_limit'] <= 256
+            or type(ex['stop_after']) is not int or not 1 <= ex['stop_after'] <= 256
+            or cfg['runtime']['profile_mode'] != 'none' or 'continuation' in cfg):
+        raise ValueError('Full-index PROFILE requires the finite global2 diagnostic, not formal throughput')
+    from tools.foresight.student_state import validate_rank_batches
+    validate_rank_batches(ex['sample_limit'], 2, ex['world_size'], 1)
+    n = ex['sample_limit']; batches = (n + 1) // 2
+    epochs, remainder = divmod(ex['stop_after'], batches)
+    exposures = epochs * n + min(remainder * 2, n)
+    return {'schema': CONSUMPTION_SCHEMA, 'initial_completed_updates': 0, 'initial_epoch': 0,
+            'initial_offset': 0, 'cumulative_optimizer_updates': ex['stop_after'],
+            'cumulative_scene_exposures': exposures,
+            'world_size': ex['world_size'], 'micro_batch': 1, 'global_batch': 2,
+            'gradient_accumulation_steps': 2 // ex['world_size'],
+            'per_rank_scene_exposures': [exposures // ex['world_size']] * ex['world_size'],
+            'resume_budget': 'same_run_cumulative_not_per_invocation',
+            'formal_global32_throughput_qualified': False}
+
+
+def _validate_full_population(d, request, source):
+    """Stream original selected rows against both immutable indices in order.
+
+    Only one selected/current/future row is resident. Do not parse requests.json
+    or selected scenes with json.load/list; MetadataIndex owns their raw hashes.
+    The unchanged student dataset still performs its own source/record checks.
+    """
+    from starVLA.dataloader.st_world_metadata_index import _atomic_rows, version, checked_sha, canonical
+    a = d['profile_admission']; population = a['population']
+    if (not isinstance(population, dict) or set(population) !=
+            {'current_registration', 'current_complete', 'future_complete'}):
+        raise ValueError('Full PROFILE needs original current and completed full-future population receipts')
+    reg = pinned(population['current_registration']); current = pinned(population['current_complete'])
+    future = pinned(population['future_complete']); binding = reg.get('source', {})
+    n = request.receipt['scene_count']; header = request.receipt['manifest_header']
+    selected = a['data_manifest']; path = Path(selected['path'])
+    current_root = Path(population['current_registration']['path']).parent
+    if (Path(population['current_complete']['path']) != current_root / 'COMPLETE.json'
+            or path != current_root / 'SELECTED_SCENES.json'
+            or Path(population['future_complete']['path']) != Path(d['requests']['path']).parent / 'COMPLETE.json'):
+        raise ValueError('Full PROFILE receipt paths do not bind the original preparations')
+    if (reg.get('schema') != 'st_current_population_registration_v1'
+            or reg.get('identity') != identity_hash({k:v for k,v in reg.items() if k != 'identity'})
+            or reg.get('scope') != 'all_original_current_observations' or reg.get('max_scenes') != n
+            or reg.get('target_times_s') != [0.] or binding.get('scenes') != n
+            or current.get('status') != 'COMPLETE' or current.get('scope') != 'current_only_metadata'
+            or current.get('registration_identity') != reg['identity'] or current.get('scenes') != n
+            or current.get('logs') != binding.get('logs') or current.get('selected_sha256') != selected['sha256']):
+        raise ValueError('Full PROFILE original current-population receipt is inconsistent')
+    original_selection = {'path': selected['path'], 'sha256': selected['sha256'],
+        'current_registration_identity': reg['identity'],
+        'current_registration_sha256': population['current_registration']['sha256'],
+        'current_complete_sha256': population['current_complete']['sha256']}
+    if (future.get('schema') != 'st_future_metadata_complete_v1' or future.get('status') != 'COMPLETE'
+            or future.get('scope') != 'full_population' or future.get('scenes') != n
+            or future.get('logs') != binding.get('logs') or future.get('target_times_s') != [0., .5, 1., 2., 4.]
+            or future.get('request_identity') != request.receipt['request_identity']
+            or future.get('files', {}).get('TEACHER_REQUESTS.json') != d['requests']['sha256']
+            or future.get('original_selection') != original_selection
+            or future.get('registration_identity') != header.get('registration_identity')
+            or future.get('tensor_disk_bytes') != 0 or future.get('training_admission') is not False
+            or header.get('source') != 'original_raw_log_future_frames_v1'
+            or request.receipt['dependencies'].get('source_logs_ledger') != {
+                'path': header.get('source_logs_ledger', {}).get('path'),
+                'sha256': future.get('files', {}).get('RAW_LOG_PROVENANCE.json')}):
+        raise ValueError('Full PROFILE requires matching actual full-future COMPLETE, not a PLAN/subset')
+    require_hash(future.get('plan_identity'), 'full future plan identity')
+    for field, target in [('source_identity','source_student_identity'),
+                          ('source_index_identity','source_index_sha256'), ('partition_sha256','partition_sha256')]:
+        if binding.get(field) != header.get(target):
+            raise ValueError('Full PROFILE source/partition identity differs: ' + field)
+    if (binding.get('split') != 'train' or binding.get('student_root') != pinned(a['recipe'])['data']['root']
+            or source.receipt['scene_count'] != n or source.manifest['times_s'] != [0.]
+            or a['max_scenes'] != n):
+        raise ValueError('Full PROFILE must retain the entire original train population and current index')
+    if (not isinstance(selected, dict) or set(selected) != {'path','sha256'} or not path.is_absolute()
+            or path.stat().st_size > 32 * MiB):
+        raise ValueError('Full PROFILE selected metadata exceeds the unchanged 32 MiB control bound')
+    require_hash(selected['sha256'], 'selected manifest checksum')
+    digest, stamp = checked_sha(path)
+    if digest != selected['sha256']:
+        raise ValueError('Full PROFILE selected manifest checksum changed')
+    future_rows, current_rows = iter(request.manifest['scenes']), iter(source.manifest['scenes'])
+    token_hash = hashlib.sha256(b'['); selection_hash = hashlib.sha256(b'['); logs = set()
+    def consume(key, pos, row, encoded):
+        if pos >= n:
+            raise ValueError('Full PROFILE selection exceeds registered population')
+        fr, cr = next(future_rows, None), next(current_rows, None)
+        if (fr is None or cr is None or any((row.get('token'), row.get('log')) != (r['token'], r['log']) for r in (fr, cr))
+                or fr['timestamp_us'] != cr['timestamp_us'] or fr['frames'][0] != cr['frames'][0]):
+            raise ValueError('Full PROFILE selected/request/current order, observation or time differs')
+        for field in ('current_record_sha256', 'ego_record_sha256'):
+            require_hash(row.get(field), field)
+        token_hash.update(((',' if pos else '') + canonical(row['token'])).encode())
+        selection_hash.update(((',' if pos else '') + encoded).encode()); logs.add(row['log'])
+        if len(logs) > 20000: raise ValueError('Full PROFILE log metadata exceeds existing ledger bound')
+    selected_header, counts, _ = _atomic_rows(path, {'scenes'}, consume)
+    token_hash.update(b']'); selection_hash.update(b']')
+    if (version(path) != stamp or checked_sha(path)[0] != selected['sha256']
+            or counts.get('scenes') != n or next(future_rows, None) is not None or next(current_rows, None) is not None
+            or selected_header.get('schema') != 'st_fixed_scene_list_v1' or selected_header.get('split') != 'train'
+            or selected_header.get('source_index_hash') != header['source_index_sha256']
+            or selected_header.get('source_student_identity') != header['source_student_identity']
+            or selected_header.get('ego_identity_sha256') != binding.get('ego_identity_sha256')
+            or selected_header.get('registration_identity') != reg['identity']
+            or selected_header.get('selection_rule') != 'entire_original_index_in_original_order'
+            or selection_hash.hexdigest() != header.get('selection_identity')
+            or selection_hash.hexdigest() != source.manifest.get('selection_identity')
+            or token_hash.hexdigest() != binding.get('ordered_scene_ids_hash') or len(logs) != binding.get('logs')):
+        raise ValueError('Full PROFILE complete ordered population/selected source hashes differ')
+    request.check(); source.check()
+
+
 def validate_profile_recipe(admission, cfg):
     fields={'schema','scope','parent_descriptor','source_migration','data_manifest','recipe',
             'reference_recipe','max_scenes','max_updates','new_population_tensor_qualified','formal_approved'}
-    if (not isinstance(admission,dict) or set(admission)!=fields or admission['schema']!=PROFILE_SCHEMA
-            or admission['scope']!='PROFILE' or admission['max_scenes']!=256 or admission['max_updates']!=256
+    full = is_full_profile(admission)
+    if full: fields |= {'population', 'consumption'}
+    if (not isinstance(admission,dict) or set(admission)!=fields
+            or admission['schema'] not in (PROFILE_SCHEMA, FULL_PROFILE_SCHEMA)
+            or admission['scope']!='PROFILE' or type(admission['max_scenes']) is not int
+            or (admission['max_scenes'] <= 256 if full else admission['max_scenes'] != 256)
+            or admission['max_updates']!=256
             or admission['new_population_tensor_qualified'] is not False or admission['formal_approved'] is not False):
         raise ValueError('Invalid bounded PROFILE admission; no formal promotion is supported')
     reference=pinned(admission['recipe'])
@@ -259,13 +391,16 @@ def validate_profile_recipe(admission, cfg):
     if mathematical_recipe(reference)!=mathematical_recipe(original):
         raise ValueError('PROFILE changed the original selected model/optimizer/PCA/precision recipe')
     ex=cfg['execution']; rt=cfg['runtime']
-    if (ex['scope']!='PROFILE' or not 1<=ex['sample_limit']<=256 or not 1<=ex['stop_after']<=256
+    if (ex['scope']!='PROFILE' or not 1<=ex['sample_limit']<=admission['max_scenes'] or not 1<=ex['stop_after']<=256
             or ex['family']!='temporal' or ex['max_updates']!=20000 or cfg['optimizer']['warmup']!=1000
             or rt['deterministic'] is not True or rt['gradient_checkpointing'] is not False
             or rt.get('official_execution',{}).get('preset')!='drivedreamer_f35fe783'
             or cfg['data']['history_root'] is not None
             or profile_recipe_identity(cfg)!=profile_recipe_identity(reference)):
         raise ValueError('PROFILE recipe/population/budget differs from its explicit original-policy binding')
+    if full and (ex['sample_limit'] != admission['max_scenes']
+            or identity_hash(admission['consumption']) != identity_hash(full_profile_consumption(cfg))):
+        raise ValueError('Full PROFILE consumption must preregister exact cumulative updates and exposures')
     return reference
 
 
@@ -288,6 +423,10 @@ def _qualified_profile_execution(d, manifest, scene_count):
     for key in ('split','source_student_identity','source_index_sha256','partition_sha256','times_s','view_names'):
         if manifest.get(key)!=original.get(key):
             raise ValueError('PROFILE population changed legal source/partition/time/view lineage: '+key)
+    if is_full_profile(a):
+        if scene_count != a['max_scenes'] or recipe['execution']['sample_limit'] != scene_count:
+            raise ValueError('Full PROFILE actual index population differs from registered count')
+        return pinned(d['teacher_config']),TeacherFeatureContract.from_dict(d['provider']['contract']),plan
     selected=pinned(a['data_manifest'])
     rows=selected.get('scenes',[])
     if (manifest['split']!='train' or manifest['times_s']!=[0.,.5,1.,2.,4.]
@@ -415,7 +554,7 @@ def _validate_indexed_descriptor(d, *, existing=None):
     try:
         index = open_metadata_index(d['request_index'], existing=existing.metadata_index if existing else None)
         if existing is None: indices.append(index)
-        if 'profile_admission' in d:
+        if 'profile_admission' in d and not is_full_profile(d['profile_admission']):
             if not 1<=index.receipt['scene_count']<=256:
                 raise ValueError('PROFILE request population exceeds 256 before row materialization')
             rows=pinned(d['profile_admission']['data_manifest'])['scenes']
@@ -443,6 +582,8 @@ def _validate_indexed_descriptor(d, *, existing=None):
                 raise ValueError('Provider source differs from qualified current cache; miss layouts would change')
             sources.append(IndexedTeacherCacheReader(source_index, expected_identity=source['cache_identity'],
                 expected_contract=contract))
+        if is_full_profile(d.get('profile_admission')):
+            _validate_full_population(d, index, source_index)
         placeholder = SimpleNamespace(contract_identity=contract.identity, execution_identity=identity_hash(d['execution']))
         provider = IndexedBoundedTeacherProvider(index, contract, sources, executor=placeholder,
             execution_identity=placeholder.execution_identity, **d['limits'])
@@ -638,14 +779,20 @@ def main():
         help='Legacy must stay below one record; fixed8 may use only its truly qualified LRU budget')
     p.add_argument('--max-scene-mib', type=int, default=64)
     p.add_argument('--max-batch-images', type=int, default=8)
-    p.add_argument('--training-config', help='Existing selected <=4 update SMOKE config; preserves cell and basis')
+    p.add_argument('--training-config', help='Selected <=4-update SMOKE or explicit bounded PROFILE config; preserves cell and basis')
     p.add_argument('--pca-fit-cache-root', help='Exact existing PCA fitted cache; metadata-only provenance')
     p.add_argument('--pca-fit-cache-index', help='Required existing fit-cache index for the indexed PCA scope')
     p.add_argument('--configured-output', help='New isolated namespace for selectable training_config.json')
     p.add_argument('--profile-parent-descriptor', help='Explicit existing exact32 composition descriptor')
     p.add_argument('--profile-source-migration', help='Pinned reviewed source-control migration JSON')
-    p.add_argument('--profile-data-manifest', help='Exact <=256 scene dataset with current/ego pins')
+    p.add_argument('--profile-data-manifest', help='Exact pinned selected dataset; <=256 unless explicit full-population admission')
     p.add_argument('--profile-reference-config', help='Actual original exact32 provider SMOKE config; model/recipe stays fixed')
+    p.add_argument('--profile-full-population', action='store_true',
+                   help='Explicit whole original train index with <=256 cumulative updates; not FORMAL')
+    p.add_argument('--profile-current-registration', help='Original full current population REGISTRATION.json')
+    p.add_argument('--profile-current-complete', help='Original full current population COMPLETE.json')
+    p.add_argument('--profile-future-complete', help='Actual full_population future preparation COMPLETE.json')
+    p.add_argument('--profile-consumption-budget', help='Predeclared cumulative global2 diagnostic consumption JSON')
     args = p.parse_args()
     if bool(args.training_config) != bool(args.configured_output):
         p.error('--training-config and --configured-output must be supplied together')
@@ -658,6 +805,12 @@ def main():
         p.error('Legacy --requests requires --source-root and rejects indexed-only options')
     profile=None
     flags=[args.profile_parent_descriptor,args.profile_source_migration,args.profile_data_manifest,args.profile_reference_config]
+    full_flags = [args.profile_current_registration, args.profile_current_complete,
+                  args.profile_future_complete, args.profile_consumption_budget]
+    if args.profile_full_population != all(bool(x) for x in full_flags) or (any(full_flags) and not args.profile_full_population):
+        p.error('Full-index PROFILE requires the explicit flag and all four population/consumption bindings')
+    if args.profile_full_population and not all(flags):
+        p.error('Full-index PROFILE also requires all four original PROFILE bindings')
     if any(flags):
         if not all(flags) or not args.request_index or not args.training_config:
             p.error('PROFILE requires all four profile bindings, request index and explicit training config')
@@ -665,6 +818,12 @@ def main():
             'source_migration':pin(flags[1]),'data_manifest':pin(flags[2]),'recipe':pin(args.training_config),
             'reference_recipe':pin(flags[3]),
             'max_scenes':256,'max_updates':256,'new_population_tensor_qualified':False,'formal_approved':False}
+        if args.profile_full_population:
+            profile.update(schema=FULL_PROFILE_SCHEMA,
+                max_scenes=read_small(args.training_config)['execution']['sample_limit'],
+                population=dict(zip(('current_registration','current_complete','future_complete'),
+                                    (pin(x) for x in full_flags[:3]))),
+                consumption=read_small(args.profile_consumption_budget))
         validate_profile_recipe(profile,read_small(args.training_config))
     limits = {'max_cached_bytes': args.max_cached_bytes, 'max_scene_bytes': args.max_scene_mib * MiB,
               'max_batch_images': args.max_batch_images, 'max_manifest_bytes': 32 * MiB}
