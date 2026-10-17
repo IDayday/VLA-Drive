@@ -1,0 +1,40 @@
+{
+  "schema": "st_one_shot_stage_command_v1",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "960s",
+    "/usr/bin/taskset",
+    "-c",
+    "2,3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/run_once.py",
+    "run",
+    "--arm",
+    "SP1",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/SP1_source_compat_resource_v1/SP1_DEV_EXTRACT_ADMISSION.json",
+    "--admission-sha256",
+    "be6d00d477ce4145da1bd96fa6d0708040a4bcaaf105eb641c1020ea21761386"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-w-storage-only-581399eb-v1-20261017",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "NUMEXPR_NUM_THREADS": "2"
+  },
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/SP1_source_compat_resource_v1/SP1_DEV_EXTRACT_ADMISSION.json",
+    "sha256": "be6d00d477ce4145da1bd96fa6d0708040a4bcaaf105eb641c1020ea21761386"
+  },
+  "automatic_retry": false,
+  "preconditions": [
+    "Fresh exact GPU0 UUID idle and one-loader free; enforced by original supervisor.",
+    "Exact runtime, source proofs, preparation and completed actual plan preserved.",
+    "Actual dev_extract attempt/output absent; original stage attempt creation is exclusive."
+  ],
+  "owner": "Lead only"
+}
