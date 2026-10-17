@@ -185,3 +185,24 @@ provide real teacher numerical/performance evidence.
 
 No spatial winner or future experiment was selected, no multi-TB prebuild was
 started, and no existing cache or checkpoint was removed.
+
+## Independent Evidence follow-up: source provenance on pure compute
+
+Evidence identified that the initial implementation validated
+`source_student_identity`, `source_index_sha256` and `partition_sha256` only
+inside the immutable-source loop. With `sources=()` an otherwise checksummed
+manifest could omit them. This was a provider provenance bug; no integrated
+training or cache was produced from that path.
+
+The provider now unconditionally calls `require_hash` on all three fields
+immediately after manifest validation, before examining sources or executor.
+The existing train/dev split restriction remains unchanged. Nine negative cases
+cover each field absent, `None` and malformed while using a nonempty executor
+and zero immutable sources; all reject before the executor is called.
+
+Focused source/reuse/current-only command (`-k 'source_lineage or content_reuse
+or complete_current_reuse or current_only'`) passed **12 tests in 3.66 s**, with
+16 unrelated tests deselected. Complete output is
+`BOUNDED_FUTURE_PROVIDER_LINEAGE_FIX_TEST.txt`. This narrow fix uses no GPU,
+teacher weights, trainer change or PCA change. Previous test evidence is retained
+and does not claim coverage of this later revision.

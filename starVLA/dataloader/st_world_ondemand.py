@@ -63,6 +63,10 @@ class BoundedTeacherProvider:
         if len(json.dumps(manifest, sort_keys=True).encode()) > max_manifest_bytes:
             raise ValueError('Request manifest exceeds the declared metadata budget')
         self.manifest = validate_target_manifest(deepcopy(manifest))
+        # Pure on-demand execution still needs a pinned source population. This
+        # cannot be conditional on whether any immutable cache is supplied.
+        for key in ('source_student_identity', 'source_index_sha256', 'partition_sha256'):
+            require_hash(self.manifest.get(key), key)
         self.contract = contract.validate()
         if tuple(self.manifest['view_names']) != self.contract.view_names:
             raise ValueError('Request/teacher view contract differs')

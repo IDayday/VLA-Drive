@@ -74,6 +74,19 @@ def complete_cache(tmp_path,c,m,name='cache'):
     return TeacherCacheReader(w.root,expected_identity=w.identity['identity'],expected_contract=c)
 
 
+@pytest.mark.parametrize('field', ['source_student_identity','source_index_sha256','partition_sha256'])
+@pytest.mark.parametrize('invalid', ['absent',None,'not-a-sha256'])
+def test_source_lineage_required_even_without_immutable_sources(tmp_path,field,invalid):
+    c,m=fixture(tmp_path)
+    if invalid=='absent':m.pop(field)
+    else:m[field]=invalid
+    sign(m)  # An internally valid manifest checksum is not source provenance.
+    executor=Executor(c)
+    with pytest.raises(ValueError,match=field+' must be a lowercase SHA256'):
+        provider(c,m,sources=(),executor=executor)
+    assert not executor.calls
+
+
 def test_complete_current_reuse_exact_image_sha_and_all_future_parity(tmp_path):
     c,m=fixture(tmp_path,missing_source=True)
     current=deepcopy(m);current['times_s']=[0.];current['scenes'][0]['frames']=current['scenes'][0]['frames'][:1];sign(current)
