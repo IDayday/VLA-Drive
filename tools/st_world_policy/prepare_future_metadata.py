@@ -4,14 +4,17 @@ plan is metadata/stat only. build requires a separately issued registration.
 All five target times are retained; time-pair/patch sampling remains downstream.
 """
 import argparse
+from contextlib import contextmanager
 from collections import OrderedDict, deque
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import hashlib
+import fcntl
 import json
 import os
 from pathlib import Path
 import resource
+import stat
 import sys
 import threading
 import time
@@ -22,7 +25,7 @@ from PIL import Image
 
 from starVLA.dataloader.st_world_history import VIEWS, resolve_camera_path, file_sha256
 from starVLA.dataloader.st_world_schema import identity_hash, require_hash
-from starVLA.dataloader.st_world_targets import file_lock, validate_target_manifest
+from starVLA.dataloader.st_world_targets import validate_target_manifest
 from starVLA.dataloader.st_world_metadata_index import _atomic_rows, canonical, version
 from starVLA.dataloader.st_world_future_provenance import (
     LogCoverage, LEDGER_SCHEMA, REF_SCHEMA, validate_ledger)
@@ -44,10 +47,94 @@ def signed(value):
     return dict(value, identity=identity_hash(value))
 
 
+def metadata_path(path, *, missing=False, directory=False):
+    """Never resolve an alias into the admitted metadata tree."""
+    path=Path(path)
+    if '..' in path.parts: raise ValueError('Noncanonical metadata path')
+    path=path.absolute()
+    for parent in reversed(path.parents):
+        info=parent.lstat()
+        if not stat.S_ISDIR(info.st_mode): raise ValueError('Metadata ancestor is not a plain directory: '+str(parent))
+    try: info=path.lstat()
+    except FileNotFoundError:
+        if missing: return path
+        raise
+    if directory:
+        if not stat.S_ISDIR(info.st_mode): raise ValueError('Metadata root is not a plain directory')
+    elif not stat.S_ISREG(info.st_mode) or info.st_nlink!=1:
+        raise ValueError('Metadata must be an unlinked-alias-free regular file: '+str(path))
+    return path
+
+
+def metadata_inventory(root):
+    """No symlink traversal; include orphan partials in the disk allowance."""
+    root=metadata_path(root,directory=True); total=0; pending=[root]
+    while pending:
+        directory=pending.pop()
+        with metadata_parent(directory/'__inventory__') as (_,fd):
+            with os.scandir(fd) as entries:
+                for entry in entries:
+                    info=entry.stat(follow_symlinks=False); path=directory/entry.name
+                    if stat.S_ISDIR(info.st_mode): pending.append(path)
+                    elif stat.S_ISREG(info.st_mode) and info.st_nlink==1: total+=info.st_size
+                    else: raise ValueError('Unsafe metadata entry (link/nonregular): '+str(path))
+    return total
+
+
+@contextmanager
+def metadata_parent(path, *, create=False):
+    """Walk using no-follow directory descriptors, including missing subdirs."""
+    path=Path(path)
+    if '..' in path.parts: raise ValueError('Noncanonical metadata path')
+    path=path.absolute(); fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY)
+    try:
+        for part in path.parent.parts[1:]:
+            if create:
+                try: os.mkdir(part,dir_fd=fd)
+                except FileExistsError: pass
+            try: following=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+            except OSError as exc: raise ValueError('Unsafe metadata parent: '+str(path)) from exc
+            os.close(fd); fd=following
+        yield path,fd
+    finally: os.close(fd)
+
+
+@contextmanager
+def metadata_reader(path):
+    path=metadata_path(path)
+    with metadata_parent(path) as (path,parent):
+        try: fd=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=parent)
+        except OSError as exc: raise ValueError('Unsafe metadata read') from exc
+        with os.fdopen(fd,'rb') as stream:
+            info=os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1: raise ValueError('Unsafe metadata read')
+            yield stream
+            metadata_path(path)
+            after=path.stat()
+            if (info.st_dev,info.st_ino,info.st_size,info.st_mtime_ns,info.st_ctime_ns)!=(
+                    after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns):
+                raise ValueError('Metadata read changed')
+
+
+@contextmanager
+def metadata_lock(path,budget):
+    budget.scan(); budget.path(path,missing=True)
+    with metadata_parent(path) as (path,parent):
+        try: fd=os.open(path.name,os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600,dir_fd=parent)
+        except OSError as exc: raise ValueError('Unsafe metadata lock') from exc
+        try:
+            info=os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1: raise ValueError('Unsafe metadata lock')
+            fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            budget.path(path); yield
+        finally: os.close(fd)
+
+
 def small_json(path, limit=MiB, expected_sha=None):
-    path=Path(path); before=version(path)
+    path=metadata_path(path); before=version(path)
     if not 0 < before[2] <= limit: raise ValueError('Metadata file exceeds bounded read: '+str(path))
-    with path.open('rb') as f: data=f.read(limit+1)
+    with metadata_reader(path) as f: data=f.read(limit+1)
+    metadata_path(path)
     if version(path)!=before or len(data)!=before[2]: raise ValueError('Metadata changed during read')
     if expected_sha and sha_bytes(data)!=expected_sha: raise ValueError('Pinned metadata checksum mismatch')
     return json.loads(data)
@@ -65,16 +152,29 @@ class BudgetExceeded(RuntimeError): pass
 class PreparationBudget:
     """Aggregate read pacing and actual metadata allocation, including orphans."""
     def __init__(self, root, limits):
-        self.root=Path(root); self.limits=limits; self.lock=threading.RLock()
+        self.root=metadata_path(root,directory=True); self.root_version=(self.root.stat().st_dev,self.root.stat().st_ino)
+        self.limits=limits; self.lock=threading.RLock()
         self.started=time.monotonic(); self.deadline=self.started+limits['max_seconds']
         self.next_read=self.started; self.bytes=0; self.throttle_seconds=0.; self.read_categories={}; self.written=0
-        self.disk_bytes=sum(p.stat().st_size for p in self.root.rglob('*') if p.is_file())
+        self.disk_bytes=metadata_inventory(self.root)
         self.check()
 
     def check(self):
+        root=metadata_path(self.root,directory=True).stat()
+        if (root.st_dev,root.st_ino)!=self.root_version: raise ValueError('Metadata root changed')
         if time.monotonic()>=self.deadline: raise BudgetExceeded('TIME_BUDGET')
         if rss()>self.limits['max_rss_bytes']: raise BudgetExceeded('RSS_BUDGET')
         if self.disk_bytes>self.limits['max_metadata_bytes']: raise BudgetExceeded('METADATA_DISK_BUDGET')
+
+    def path(self,path,*,missing=False):
+        self.check(); path=Path(path).absolute()
+        if not path.is_relative_to(self.root): raise ValueError('Metadata path outside admitted root')
+        return metadata_path(path,missing=missing)
+
+    def scan(self):
+        self.check()
+        if metadata_inventory(self.root)>self.limits['max_metadata_bytes']:
+            raise BudgetExceeded('METADATA_DISK_BUDGET')
 
     def read_allowance(self,n,category="source"):
         self._io_allowance(n,category,True)
@@ -114,7 +214,12 @@ class PreparationBudget:
 
 class BudgetedReader:
     def __init__(self,path,budget):
-        self.stream=Path(path).open('rb'); self.budget=budget
+        self.metadata_context=None
+        if Path(path).absolute().is_relative_to(budget.root):
+            budget.path(path); self.metadata_context=metadata_reader(path)
+            self.stream=self.metadata_context.__enter__()
+        else: self.stream=Path(path).open('rb')
+        self.budget=budget
         suffix=Path(path).suffix.lower()
         self.category={'.pkl':'raw_log','.pt':'opaque_ego','.json':'metadata'}.get(suffix,'image_or_other')
     def read(self,n=-1):
@@ -140,15 +245,21 @@ class BudgetedReader:
         data=self.read(len(target)); target[:len(data)]=data; return len(data)
     def seek(self,*args): return self.stream.seek(*args)
     def tell(self): return self.stream.tell()
-    def close(self): self.stream.close()
+    def close(self):
+        if self.metadata_context is not None:
+            self.metadata_context.__exit__(None,None,None); self.metadata_context=None
+        else: self.stream.close()
     def __enter__(self): return self
     def __exit__(self,*_): self.close()
 
 
 def budget_sha(path,budget):
+    managed=Path(path).absolute().is_relative_to(budget.root)
+    if managed: budget.path(path)
     before=version(path); digest=hashlib.sha256()
     with BudgetedReader(path,budget) as f:
         while block:=f.read(MiB): digest.update(block)
+    if managed: budget.path(path)
     if version(path)!=before: raise ValueError('Source changed while hashing')
     return digest.hexdigest()
 
@@ -161,20 +272,28 @@ def fsync_dir(path):
 
 def write_chunks(path,chunks,budget):
     """Keep failed temporary files; never overwrite a different immutable artifact."""
-    path=Path(path); path.parent.mkdir(parents=True,exist_ok=True)
-    if path.exists():
-        expected=hashlib.sha256()
-        for piece in chunks: expected.update(piece)
-        if budget_sha(path,budget)!=expected.hexdigest(): raise ValueError('Immutable artifact conflict: '+str(path))
-        return
-    temporary=path.with_name(path.name+'.'+uuid.uuid4().hex+'.partial')
-    with temporary.open('xb') as f:
-        for piece in chunks:
-            for offset in range(0,len(piece),MiB):
-                chunk=piece[offset:offset+MiB]
-                budget.reserve(len(chunk)); budget.write_allowance(len(chunk)); f.write(chunk)
-        f.flush(); os.fsync(f.fileno())
-    os.replace(temporary,path); fsync_dir(path.parent)
+    path=Path(path).absolute()
+    if not path.is_relative_to(budget.root) or '..' in path.parts: raise ValueError('Metadata output outside admitted root')
+    budget.scan()
+    with metadata_parent(path,create=True) as (path,parent):
+        budget.path(path,missing=True)
+        if path.exists():
+            expected=hashlib.sha256()
+            for piece in chunks: expected.update(piece)
+            if budget_sha(path,budget)!=expected.hexdigest(): raise ValueError('Immutable artifact conflict: '+str(path))
+            return
+        temporary=path.with_name(path.name+'.'+uuid.uuid4().hex+'.partial')
+        fd=os.open(temporary.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=parent)
+        with os.fdopen(fd,'wb') as f:
+            for piece in chunks:
+                for offset in range(0,len(piece),MiB):
+                    chunk=piece[offset:offset+MiB]
+                    budget.reserve(len(chunk)); budget.write_allowance(len(chunk)); f.write(chunk)
+            f.flush(); os.fsync(f.fileno())
+        budget.scan(); budget.path(temporary); budget.path(path,missing=True)
+        if path.exists(): raise ValueError('Concurrent immutable metadata publication')
+        os.rename(temporary.name,path.name,src_dir_fd=parent,dst_dir_fd=parent); os.fsync(parent)
+        budget.path(path)
 
 
 def write_json(path,value,budget):
@@ -340,7 +459,10 @@ def validate_limits(limits):
 def plan(args):
     limits=validate_limits({k:getattr(args,k) for k in ('workers','read_mib_per_second','max_seconds',
         'max_source_read_bytes','max_metadata_bytes','max_rss_bytes','max_raw_log_bytes')})
-    out=Path(args.output).resolve(); out.mkdir(parents=True,exist_ok=True)
+    out=Path(args.output).absolute()
+    # Create through no-follow parents, without silently resolving a root alias.
+    with metadata_parent(out/'PLAN.json',create=True): pass
+    metadata_path(out,directory=True)
     budget=PreparationBudget(out,limits)
     source,index,binding,pins=source_with_pins(args.student_root,args.partition,args.split,args.current_population,budget)
     if args.scope=='qualification':
@@ -378,7 +500,7 @@ def plan(args):
         'teacher_extraction_authorized':False,'training_authorized':False,
         'aggregate_preparation_plus_index_budget_bytes':4*GiB,'aggregate_budget_status':'PROPOSED_NOT_RESERVED'}
     proposal=signed(proposal)
-    with file_lock(out/'PLAN.lock',blocking=False):
+    with metadata_lock(out/'PLAN.lock',budget):
         path=out/'PLAN.json'
         if path.exists():
             old=validate_self(small_json(path,8*MiB),PLAN_SCHEMA)
@@ -417,11 +539,64 @@ def shard_path(output,log): return Path(output)/'log_shards'/(identity_hash({'lo
 
 
 def read_shard(path,registration,budget):
-    budget.check(); budget.read_allowance(Path(path).stat().st_size,'generated_metadata')
+    budget.path(path); budget.read_allowance(Path(path).stat().st_size,'generated_metadata')
     value=small_json(path,64*MiB)
     validate_self(value,SHARD_SCHEMA)
     if value['registration_identity']!=registration['identity']: raise ValueError('Shard registration changed')
     return value
+
+
+def validate_completed(done,p,reg,rows,groups,pins,output,budget):
+    """A receipt is not success unless it describes these exact real shards."""
+    expected={'schema':'st_future_metadata_complete_v1','status':'COMPLETE','scope':p['scope'],
+        'registration_identity':reg['identity'],'plan_identity':p['identity'],'scenes':len(rows),'logs':len(groups),
+        'original_selection':pins,'target_times_s':list(TIMES),'raw_log_deserialized':True,
+        'ego_tensor_decoded':False,'teacher_extractions':0,'tensor_disk_bytes':0,'training_admission':False}
+    if (not isinstance(done,dict) or set(done)!=set(expected)|{'request_identity','files','cost','log_costs'} or
+            any(canonical(done[k])!=canonical(value) for k,value in expected.items())):
+        raise ValueError('Completed preparation control fields do not match exact plan/population')
+    require_hash(done['request_identity'],'completed request identity')
+    names={'TEACHER_REQUESTS.json','RAW_LOG_PROVENANCE.json','SHARD_RECEIPTS.json'}
+    if not isinstance(done['files'],dict) or set(done['files'])!=names:
+        raise ValueError('Completed metadata file set changed')
+    budget.scan()
+    for name,digest in done['files'].items():
+        if budget_sha(output/name,budget)!=require_hash(digest,'completed metadata SHA'):
+            raise ValueError('Completed metadata changed')
+    costs=done['log_costs']
+    if (not isinstance(done['cost'],dict) or not isinstance(costs,list) or len(costs)!=len(groups) or
+            [row.get('log') for row in costs]!=list(groups)):
+        raise ValueError('Completed log cost coverage changed')
+    receipts=small_json(output/'SHARD_RECEIPTS.json',8*MiB)
+    if (set(receipts)!={'schema','registration_identity','shards'} or
+            receipts['schema']!='st_future_metadata_shards_v1' or receipts['registration_identity']!=reg['identity'] or
+            not isinstance(receipts['shards'],list) or len(receipts['shards'])!=len(groups)):
+        raise ValueError('Completed shard receipt schema/coverage changed')
+    expected_paths={shard_path(output,log) for log in groups}
+    # Only orphan partials may coexist with the exact complete shard set.
+    actual_paths=set()
+    for path in (output/'log_shards').iterdir():
+        budget.path(path)
+        if path.suffix=='.json': actual_paths.add(path)
+        elif path.suffix!='.partial': raise ValueError('Unexpected metadata in completed shard directory')
+    if actual_paths!=expected_paths: raise ValueError('Completed shard file coverage changed')
+    for (log,selected),record in zip(groups.items(),receipts['shards']):
+        path=shard_path(output,log)
+        if (set(record)!={'log','path','sha256'} or record['log']!=log or record['path']!=str(path) or
+                budget_sha(path,budget)!=require_hash(record['sha256'],'completed shard SHA')):
+            raise ValueError('Completed shard receipt identity changed')
+        shard=read_shard(path,reg,budget)
+        cover=LogCoverage()
+        for row in selected: cover.add(row['token'],log)
+        if (shard.get('log')!=log or shard.get('selected')!=selected or
+                len(shard.get('scenes',[]))!=len(selected) or
+                [{k:s.get(k) for k in ('token','log','split')} for s in shard['scenes']]!=
+                [{'token':r['token'],'log':log,'split':p['source']['split']} for r in selected] or
+                any(shard['raw_log'].get(k)!=v for k,v in cover.records()[0].items()) or
+                shard['raw_log'].get('path')!=str(Path(p['raw_log_root'])/(log+'.pkl'))):
+            raise ValueError('Completed shard does not cover registered scene/log population')
+    # Later replay checks original raw/image versions and reconstructs all final
+    # request/ledger bytes; no COMPLETE return is possible before that succeeds.
 
 
 def build_log(p,reg,log,rows,output,budget):
@@ -491,7 +666,7 @@ class SceneStream:
 
 
 def build(args):
-    plan_path=Path(args.plan).resolve(); p,reg=verify_registration(plan_path,args.registration,args.registration_sha256)
+    plan_path=metadata_path(args.plan); p,reg=verify_registration(plan_path,args.registration,args.registration_sha256)
     output=plan_path.parent; limits=p['limits']; budget=PreparationBudget(output,limits)
     source,index,binding,pins=source_with_pins(p['source']['student_root'],p['source']['partition_path'],p['source']['split'],Path(p['original_selection']['path']).parent,budget)
     if binding!=p['source'] or pins!=p['original_selection']: raise ValueError('Source population changed after planning')
@@ -505,15 +680,12 @@ def build(args):
         raise ValueError('Registered exact scene population changed')
     groups=groups_for(rows)
     if list(groups)!=p['selected_logs']: raise ValueError('Registered exact log population changed')
-    with file_lock(output/'BUILD.lock',blocking=False):
+    with metadata_lock(output/'BUILD.lock',budget):
         complete=output/'COMPLETE.json'
         prior=None
         if complete.exists():
             done=small_json(complete)
-            if done['registration_identity']!=reg['identity'] or done['scope']!=p['scope']:
-                raise ValueError('Completed preparation identity changed')
-            for name,digest in done['files'].items():
-                if budget_sha(output/name,budget)!=digest: raise ValueError('Completed metadata changed')
+            validate_completed(done,p,reg,rows,groups,pins,output,budget)
             prior=done
         completed=[]
         try:

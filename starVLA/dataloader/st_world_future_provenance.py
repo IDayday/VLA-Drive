@@ -7,7 +7,6 @@ import hashlib
 import json
 from pathlib import Path
 
-from .st_world_history import file_sha256
 from .st_world_schema import identity_hash, require_hash
 
 LEDGER_SCHEMA = 'st_raw_log_provenance_v1'
@@ -52,10 +51,19 @@ def validate_ledger(manifest, *, coverage=None):
             ref['schema'] != REF_SCHEMA or ref['ledger_schema'] != LEDGER_SCHEMA):
         raise ValueError('Unknown raw-log ledger reference schema')
     path = Path(ref['path'])
-    if not path.is_absolute() or not 0 < path.stat().st_size <= MAX_LEDGER_BYTES:
+    if not path.is_absolute():
         raise ValueError('Raw-log ledger path/size outside metadata bound')
     before = path.stat()
-    actual = file_sha256(path)
+    if not 0 < before.st_size <= MAX_LEDGER_BYTES:
+        raise ValueError('Raw-log ledger path/size outside metadata bound')
+    with path.open('rb') as stream:
+        data = stream.read(MAX_LEDGER_BYTES + 1)
+    after = path.stat()
+    def stamp(info):
+        return (info.st_dev,info.st_ino,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+    if len(data) != before.st_size or stamp(before) != stamp(after):
+        raise ValueError('Raw-log ledger changed during bounded verification')
+    actual = hashlib.sha256(data).hexdigest()
     if actual != require_hash(ref['sha256'], 'raw-log ledger SHA'):
         raise ValueError('Raw-log ledger checksum mismatch')
     def pairs(rows):
@@ -64,11 +72,8 @@ def validate_ledger(manifest, *, coverage=None):
             if key in result: raise ValueError('Duplicate ledger JSON key')
             result[key] = value
         return result
-    body = json.loads(path.read_text(), object_pairs_hook=pairs)
-    after = path.stat()
-    if (before.st_ino,before.st_size,before.st_mtime_ns,before.st_ctime_ns) != (
-            after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns):
-        raise ValueError('Raw-log ledger changed during verification')
+    # Parse exactly the bounded byte snapshot whose SHA passed the pin.
+    body = json.loads(data, object_pairs_hook=pairs)
     identity = require_hash(ref['identity'], 'raw-log ledger identity')
     if (body.get('schema') != LEDGER_SCHEMA or body.get('identity') != identity or
             identity_hash({k:v for k,v in body.items() if k != 'identity'}) != identity):
