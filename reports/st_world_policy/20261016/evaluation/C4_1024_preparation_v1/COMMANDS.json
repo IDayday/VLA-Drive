@@ -1,0 +1,133 @@
+{
+  "checkpoint_tag": "step_001024_1792231854036222559",
+  "complete_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/checkpoints/step_001024_1792231854036222559/COMPLETE.json",
+    "sha256": "3005fadcdf43c06198d376680b4453d8482cdb0c24f859c9d345af25f3621617"
+  },
+  "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+  "do_not_bypass_reviewed_helpers": true,
+  "export_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v5.py",
+    "--job-id",
+    "C4_step001024_dev1696_seed42_v1",
+    "--checkpoint-tag",
+    "step_001024_1792231854036222559",
+    "--gpu",
+    "__LEAD_FRESH_ROUTE_GPU_INDEX__",
+    "--route-sha256",
+    "__ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "fixed_child_command_provenance": {
+    "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "execution_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "export": {
+      "argv_template": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.export_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C4_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+        "--checkpoint-tag",
+        "__EXACT_COMPLETE_NATIVE_TAG_REQUIRED__",
+        "--current-root",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "--manifest",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/export",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-scenes",
+        "1696",
+        "--max-seconds",
+        "7200",
+        "--rank",
+        "0",
+        "--world-size",
+        "1"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "__ONE_LEAD_LEASED_GPU_REQUIRED__",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 7800,
+      "requires_actual_sealed_checkpoint_and_resource_binding": true
+    },
+    "job_id": "C4_step001024_dev1696_seed42_v1",
+    "launch_authorized": false,
+    "required_training_runtime_identity": "4e023061b8ac16114cc1f9e3b5e440cb2c3a23d524d562aa1276270567f5fbbb",
+    "requires_all_checkpoint_and_evaluation_launch_bindings": true,
+    "score": {
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.score_world",
+        "--predictions",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/export",
+        "--metric-index",
+        "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+        "--navsim-root",
+        "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+        "--maps-root",
+        "/mnt/navsim/maps",
+        "--run-id",
+        "st-world-policy-20261016",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/official_score",
+        "--cache-root",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+        "--workers",
+        "2",
+        "--max-calls",
+        "1728",
+        "--retry-attempts",
+        "1",
+        "--max-seconds",
+        "3600"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 4200,
+      "requires_all_export_shards_complete": true
+    },
+    "state": "PREPARED_NOT_DISPATCHED"
+  },
+  "helper_refs": {
+    "launch_completed_dev_score_v5.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v5.py",
+      "sha256": "2e62c84a2eecde3e9af585d0a6fb77f9ff33d27a2ec76cd0fa2b594b3a8f15c3"
+    },
+    "launch_formal_dev_export_v5.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v5.py",
+      "sha256": "ad0ee24987bdba9ee3fbc46a5efbdb1445b0a6a69d4d588fc32e960738b876bf"
+    }
+  },
+  "job_id": "C4_step001024_dev1696_seed42_v1",
+  "launch_authorized": false,
+  "schema": "st_fixed_endpoint_ready_commands_v1",
+  "score_gate": "All1696 COMPLETE + RESULT + export exit; same route/host; no scoring before these gates.",
+  "score_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v5.py",
+    "--job-id",
+    "C4_step001024_dev1696_seed42_v1",
+    "--route-sha256",
+    "__SAME_ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345"
+}
