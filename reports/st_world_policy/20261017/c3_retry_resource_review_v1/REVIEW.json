@@ -1,0 +1,69 @@
+{
+  "schema": "st_c3_retry_independent_resource_review_v1",
+  "status": "PASS_EXACT_C3_ONLY_RETRY_BOUNDARY",
+  "reviewed_unix": 1792236057.9256306,
+  "source_commit": "ba7a70093feb86e29173eca4323e8417b533b878",
+  "reviewer": "/root/st_metadata_resource_review",
+  "pins": {
+    "adapter": {
+      "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/FULL_PAYLOAD_C3_1024_RETRY_PREPARATION_v1/run_c3_once.py",
+      "sha256": "0a21f2286b45361572f2c55ed866f66c276e268b3273593d2d72ba44eac3223e",
+      "bytes": 7866
+    },
+    "session": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/SESSION_TERMINAL.json",
+      "sha256": "c0c07203570bec9a87c4955379e3140d44d639649a2ad67bb1b1f084d7c94848",
+      "bytes": 128,
+      "status": "FAILED_NO_AUTO_RETRY"
+    },
+    "C2": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/C2_minus_C0/RESULT.json",
+      "sha256": "752c5c916c53e5928dba92deb0e96b47b0ea05d335c8476cb6d3f98a97fa51f7",
+      "bytes": 6723,
+      "status": "COMPLETE",
+      "cleanup_live_owned_remaining": 0
+    },
+    "C3": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/C3_minus_C0/RESULT.json",
+      "sha256": "9695527dc0378624f8f42399c43a11ca4784aedaa32a5d490eaa51247e628df3",
+      "bytes": 2285,
+      "status": "FAILED_NO_AUTO_RETRY",
+      "cleanup_live_owned_remaining": 0
+    }
+  },
+  "original_wrapper_sha256": "2a47c91254707d3390bb74f92516b9cb5f48bf64d2365d2e874c81a6064a0c5f",
+  "monitor_core_sha256": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644",
+  "prior_read_charge_bytes": 1103776571,
+  "new_single_invocation_read_allowance_bytes": 1073741824,
+  "declared_campaign_read_ceiling_bytes": 2177518395,
+  "read_bound_is_sampled": true,
+  "limits": {
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "aggregate_rss_bytes": 2147483648,
+    "wall_seconds": 1800,
+    "cleanup_seconds": 40,
+    "logical_serialized_output_including_controls_bytes": 33554432,
+    "max_invocations": 1
+  },
+  "observed_paths": {
+    "old_RUN_lock_exists": true,
+    "new_control_root_exists": false,
+    "original_C3_analysis_output_exists": false
+  },
+  "tests": {
+    "owner": 13,
+    "independent": 5,
+    "passed": 18,
+    "wall_seconds": 0.3,
+    "initial_fixture_path_error_retained": true
+  },
+  "executed_real_payload_analysis": false,
+  "payload_read": false,
+  "gpu_used": false,
+  "ledger_mutated": false,
+  "parent_is_sole_dispatcher": true,
+  "no_approval_for_C2_rerun_or_new_scoring": true
+}
