@@ -103,3 +103,45 @@ def test_protocol_bytes_parsed_are_the_bytes_whose_sha_was_approved(tmp_path,mon
         assert protocol==approved, 'Parsed protocol was not the approved byte snapshot'
         assert labels['registration']=='approved'
     assert replaced
+
+
+@pytest.mark.parametrize('excess',[0,1])
+def test_pinned_control_size_limit_includes_exact_boundary(tmp_path,excess):
+    path=tmp_path/'limit.json'
+    path.write_bytes(b'{}'+b' '*((1<<20)+excess-2))
+    ref=dict(path=str(path),sha256=p.file_sha256(path))
+    if excess:
+        with pytest.raises(ValueError,match='1MiB'):p.pinned(ref)
+    else:
+        assert p.pinned(ref)=={}
+
+
+def test_pinned_control_growth_during_single_read_rejects(tmp_path,monkeypatch):
+    path=tmp_path/'control.json';ref=write(path,{'approved':True})
+    original=Path.open;reads=[]
+    class GrowAfterRead:
+        def __init__(self,stream):self.stream=stream
+        def __enter__(self):self.stream.__enter__();return self
+        def __exit__(self,*args):return self.stream.__exit__(*args)
+        def __getattr__(self,name):return getattr(self.stream,name)
+        def read(self,*args):
+            reads.append(args);raw=self.stream.read(*args)
+            with original(path,'ab') as out:out.write(b' '*(1<<20))
+            return raw
+    def opening(candidate,*args,**kwargs):
+        f=original(candidate,*args,**kwargs)
+        return GrowAfterRead(f) if Path(candidate)==path and args==('rb',) else f
+    monkeypatch.setattr(Path,'open',opening)
+    with pytest.raises(ValueError,match='Changed pinned'):p.pinned(ref)
+    assert reads==[((1<<20)+1,)]
+
+
+def test_pinned_control_parses_one_approved_read_without_reopening(tmp_path,monkeypatch):
+    path=tmp_path/'control.json';value={'approved':True};ref=write(path,value)
+    original=Path.open;calls=[]
+    def opening(candidate,*args,**kwargs):
+        if Path(candidate)==path:calls.append(args)
+        return original(candidate,*args,**kwargs)
+    monkeypatch.setattr(Path,'open',opening)
+    assert p.pinned(ref)==value
+    assert calls==[('rb',)]

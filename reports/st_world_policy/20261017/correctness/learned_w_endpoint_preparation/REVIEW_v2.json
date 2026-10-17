@@ -1,0 +1,89 @@
+{
+  "capability_boundary": {
+    "actual_optimizer_updates": "sum(exposure.optimizer_step), at most300",
+    "fixed_cycles": 300,
+    "head_parameters": 495362,
+    "input": "Frozen W only; query view/xy/current time metadata",
+    "loss": "train-only statistics; depth valid-mean SmoothL1 + small valid-mean BCE;1+1 weights",
+    "memory_lengths": [
+      144,
+      288
+    ],
+    "selection": "fixed final300, no development selection",
+    "shared_init": "9ac44b7e8ca541dd709c2ee82da675e51c219abbd478f5d1adc11a3e011f1611",
+    "shared_outputs": 2
+  },
+  "closed_findings": [
+    {
+      "change": "A regular JSON control is read once with1MiB+1 cap; fd/path versions and SHA256 are checked; JSON is parsed from exactly the same approved bytes.",
+      "id": "WPROBE-PIN-02",
+      "location": "tools/st_world_policy/spatial_probe.py:50-69",
+      "original_failure_preserved": true,
+      "reproduction": "The original protocol-to-unapproved-label swap is now rejected. Exact1MiB works;1MiB+1 rejects; growth during read rejects; normal read opens once.",
+      "status": "FIXED_AND_INDEPENDENTLY_VERIFIED"
+    }
+  ],
+  "created_at_utc": "2026-10-17T05:32:23.760637+00:00",
+  "decision": "PASS_LIMITED_CODE_CPU_METADATA",
+  "evidence_artifacts": {
+    "/mnt/project/VLA-Drive-st-correctness-learned-w-pin-20261017/tests/st_world/review_learned_w_probe_v3/test_boundaries.py": "752d11e7da0f8d8a0c614730bc18e37fc737e95db23b8da861b36cb4ee17da28",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/LEARNED_W_ENDPOINT_PREPARATION_REVIEW_v1.json": "d62cbe0f183ba2082383736ca5edaa4dfea6e0cb03d0ceddc3ddcaaff7a8e298",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/FIXED_METADATA_REVIEW.json": "591fe1a696ac2b3755ddaf87f34aafab8b42b9e439e6ea5645def271efa88804",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/INDEPENDENT_COUNTEREXAMPLES.log": "8bf31230226f96822b022f86a179f1251aa107a57d1f92b2084c1a46cdf10833",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/PINNED_CONTROL_SIZES.json": "8bb2d07c6d914308dba43b64d08449a8b0164eb3a1766485d89ba780f767c831",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/PIN_FIX_INDEPENDENT_TESTS.log": "1791767a4bf30d772f8c2ddb590d03afa0fcfb3e9349ef277ea4f34f2e986daa",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/PIN_FIX_SEMANTIC_SCOPE.json": "6a2c7b32ff84f658a931f38536eb8ffe3ad3dd77b6c3bd4c0f98fa8cc58d317f"
+  },
+  "inheritance": {
+    "existing20_CPU_cases": "PASS8.66s in this review; not repeated after pin fix",
+    "fixed_metadata": "64train/64logs and16dev/16logs, intersections0; current-time/view/source/label joins verified; no raw label arrays reread",
+    "historical_HANDOFF": "Its prior source hash describes the pre-fix implementation. This signed source hash and the new Lead fix report record the delta; protocol/schema/math do not change.",
+    "new4_nonpin_CPU_cases": "PASS5.01s batch containing original failed pin; not repeated after fix",
+    "other33_definitions_AST_exact": true,
+    "previous_source": "278f55c73253c34bb7013a046ae6f90b4293d626",
+    "relevant_dependencies_unchanged": [
+      "sparse_readout.py",
+      "st_world_model.py",
+      "st_world_schema.py",
+      "st_world_observation.py",
+      "checkpoints.py",
+      "cache_storage_budget.py",
+      "initialization.py"
+    ],
+    "unchanged_label_manifest_sha256": "5e43b13b382fce51fdd07dcf8e81f5168495bd66aeab2a535cdf90cceab93e9a",
+    "unchanged_protocol_file_sha256": "7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e",
+    "unchanged_protocol_semantic_identity": "800f88595587a6f2ed7156e7ed86cd5bbf6cf130596845dee7af0dda30a37c82"
+  },
+  "limits": {
+    "formal_launch_approval": false,
+    "no_GPU_or_teacher": true,
+    "no_images_or_native_weights": true,
+    "profile_approval": false,
+    "real5000_checkpoint_loaded": false,
+    "real_W_extracted": false,
+    "real_probe_fitted": false,
+    "resource_dispatch": "Lead only after actual endpoint and binding are available",
+    "scientific_result": "NOT_RUN"
+  },
+  "production_files_equal_pinned_source": true,
+  "review_tree_before_owned_followup": "0ca133d6d130d861d9c265b9de621f9b23afec65",
+  "reviewer_agent": "/root/st_correctness",
+  "schema": "independent_learned_w_endpoint_preparation_review_v2",
+  "source_commit": "a06b59e6289a19b05f4c1406d201cb8182dc2b65",
+  "source_sha256": "39baa4d46ece87cd674f80150b530c0de35ff74754e058084e5b1c7d51453a0c",
+  "tests": {
+    "command": "env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 timeout 120s taskset -c 0,1 /root/miniconda3/envs/ddp/bin/python -m pytest tests/st_world/review_learned_w_probe_v3/test_boundaries.py -k \"pinned_control or protocol_bytes\" -q",
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "deselected": 4,
+    "failed": 0,
+    "owner_and_previous_counts_not_added": true,
+    "passed": 5,
+    "seconds": 3.41,
+    "skipped": 0,
+    "threads": 2,
+    "timeout_seconds": 120
+  }
+}
