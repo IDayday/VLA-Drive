@@ -12,6 +12,42 @@ FIELDS = {'schema', 'cell', 'parent_recipe', 'history_complete',
           'history_identity', 'history_manifest_sha256', 'delta_weight'}
 
 
+def _validate_exact_population(admission, parent):
+    """Composition retains the original qualified <=32 ordered population."""
+    from tools.st_world_policy import teacher_provider as tp
+    n = parent['execution']['sample_limit']
+    if (admission.get('schema') != tp.PROFILE_SCHEMA or type(n) is not int
+            or not 1 <= n <= 32):
+        raise ValueError('Temporal composition requires non-full exact population <=32')
+    original = tp.pinned(admission['reference_recipe'])
+    d = tp.pinned(admission['parent_descriptor'])
+    if (original['execution']['sample_limit'] != n or d.get('schema') != tp.INDEXED_SCHEMA
+            or 'profile_admission' in d):
+        raise ValueError('Composition population differs from original exact qualification')
+    plan = tp.pinned(d['qualification_plan'])
+    if (plan.get('schema') != 'st_indexed_composition_plan_v1'
+            or plan.get('scenes') != n
+            or plan.get('request_index') != d['request_index']
+            or plan.get('requests') != d['requests']
+            or plan.get('training_admission') != {'max_scenes':32, 'max_updates':4,
+                'exact_request_identity':d['request_index']['request_identity']}):
+        raise ValueError('Composition must retain its qualified request identity and count')
+    request = tp.pinned(d['requests'])
+    selected = tp.pinned(admission['data_manifest'])
+    rows = selected.get('scenes', [])
+    request_rows = request.get('scenes', [])
+    if (request.get('identity') != d['request_index']['request_identity']
+            or selected.get('schema') != 'st_fixed_scene_list_v1'
+            or selected.get('split') != request.get('split') or selected.get('split') != 'train'
+            or selected.get('source_index_hash') != request.get('source_index_sha256')
+            or len(rows) != n or len(request_rows) != n
+            or [r['token'] for r in rows] != plan.get('scene_ids')
+            or len({r['token'] for r in rows}) != n
+            or [(r['token'], r['log']) for r in rows] !=
+                [(r['token'], r['log']) for r in request_rows]):
+        raise ValueError('Composition cannot replace, reorder or expand the qualified population')
+
+
 def history_binding(complete_pin):
     from tools.st_world_policy import teacher_provider as tp
     done = tp.pinned(complete_pin)
@@ -34,6 +70,7 @@ def validate_composition_recipe(admission, cfg):
     parent_admission.pop('temporal_composition')
     parent_admission['recipe'] = c['parent_recipe']
     parent = tp.pinned(c['parent_recipe'])
+    _validate_exact_population(parent_admission, parent)
     # This retains the old current-only guard, source migration, numerical
     # recipe, full population and consumption checks. No recursive exception.
     tp.validate_profile_recipe(parent_admission, parent)
@@ -95,13 +132,12 @@ def validate_dataset_attachment(history, source, rows, provider):
     # hashes and exact current-record identity per consumed scene.
 
 
-def prepare(args):
+def _prepare_staged(args, out):
     from tools.st_world_policy import teacher_provider as tp
     from tools.st_world_policy.provider_pca import register_provider_scope
     from tools.st_world_policy.training_config import validate_config
     from starVLA.dataloader.st_world_targets import atomic_json
     from starVLA.dataloader.st_world_history import HistoryReader
-    out = Path(args.output).resolve()
     parent = tp.pinned(tp.pin(args.parent_descriptor))
     if parent.get('schema') != tp.INDEXED_SCHEMA or 'profile_admission' in parent:
         raise ValueError('Initial composition requires original exact32 indexed qualification')
@@ -120,6 +156,7 @@ def prepare(args):
              source_migration=tp.pin(args.source_migration), data_manifest=tp.pin(args.data_manifest),
              recipe=tp.pin(base_recipe), reference_recipe=tp.pin(args.reference_config),
              max_scenes=256, max_updates=256, new_population_tensor_qualified=False, formal_approved=False)
+    _validate_exact_population(a, cfg)
     tp.validate_profile_recipe(a, cfg)
     hp = tp.pin(args.history_complete); done = history_binding(hp)
     c = dict(schema=SCHEMA, cell=args.cell, parent_recipe=tp.pin(base_recipe), history_complete=hp,
@@ -149,6 +186,65 @@ def prepare(args):
     atomic_json(out / 'training_config.json', cfg, immutable=True)
     return {'config':tp.pin(out / 'training_config.json'), 'scope':'PROFILE', 'updates':4,
             'training_started':False, 'formal_approved':False, 'scientific_weights_calibrated':False}
+
+
+def prepare(args):
+    """Publish one validated immutable version; failed staging remains inspectable.
+
+    Pins refer to the stable version directory, so the single atomic output
+    symlink publishes all artifacts without rewriting any dependent hash.
+    """
+    import os
+    import tempfile
+    from tools.st_world_policy import teacher_provider as tp
+    from starVLA.dataloader.st_world_targets import atomic_json, file_lock
+    from tools.st_world_policy.training_config import validate_config
+    out = Path(args.output).absolute()  # Do not resolve an already published link.
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with file_lock(out.with_name('.' + out.name + '.prepare.lock'), blocking=False):
+        def inputs():
+            return {**{key:tp.pin(getattr(args, key)) for key in
+                ('parent_descriptor', 'reference_config', 'data_manifest',
+                 'history_complete', 'source_migration')},
+                **{key:str(Path(getattr(args, key)).resolve()) for key in
+                   ('pca_fit_cache_root', 'pca_fit_cache_index', 'training_output_root')},
+                'cell':args.cell, 'max_seconds':args.max_seconds}
+        if out.exists() or out.is_symlink():
+            done = tp.pinned(tp.pin(out / 'PREPARATION_COMPLETE.json'))
+            if (done.get('schema') != 'st_temporal_composition_preparation_v1'
+                    or done.get('inputs') != inputs()):
+                raise ValueError('Existing temporal preparation has different immutable inputs')
+            for item in done['artifacts']:
+                tp.pinned(item)
+            validate_config(tp.pinned(done['result']['config']))
+            return done['result']
+        stage = Path(tempfile.mkdtemp(prefix='.' + out.name + '.staging-', dir=out.parent))
+        published = False
+        try:
+            request = inputs()
+            atomic_json(stage / 'PREPARATION_INPUTS.json', request, immutable=True)
+            result = _prepare_staged(args, stage)
+            artifacts = [tp.pin(stage / name) for name in ('T2_REFERENCE.json',
+                args.cell + '_RECIPE.json', 'PROVIDER.json', 'PROVIDER_CHANNEL_SCOPE.json',
+                'training_config.json')]
+            atomic_json(stage / 'PREPARATION_COMPLETE.json', dict(
+                schema='st_temporal_composition_preparation_v1', inputs=request,
+                artifacts=artifacts, result=result), immutable=True)
+            fd = os.open(stage, os.O_RDONLY | os.O_DIRECTORY)
+            try: os.fsync(fd)
+            finally: os.close(fd)
+            os.symlink(stage.name, out)  # Exclusive atomic publication; never replaces out.
+            published = True
+            fd = os.open(out.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try: os.fsync(fd)
+            finally: os.close(fd)
+            return result
+        except BaseException as error:
+            if not published:
+                atomic_json(stage / 'PREPARATION_FAILED.json', dict(
+                    status='FAILED_NOT_PUBLISHED', error_type=type(error).__name__,
+                    error=str(error), training_started=False), immutable=True)
+            raise
 
 
 def main():

@@ -1,0 +1,30 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "8,9",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "tests/st_world/test_temporal_composition.py",
+    "-q",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 5.131736937910318,
+  "sampled_peak_rss_bytes": 643108864,
+  "sampled_rchar_bytes": 143703805,
+  "stop_reason": null,
+  "limits": {
+    "seconds": 180,
+    "rss_bytes": 2147483648,
+    "logical_read_bytes": 268435456,
+    "cpus": [
+      8,
+      9
+    ]
+  },
+  "real_data_or_gpu": false,
+  "scope": "Only synthetic targeted tests plus original temporal recipe regressions; no pretrained tensor/model/index payload."
+}
