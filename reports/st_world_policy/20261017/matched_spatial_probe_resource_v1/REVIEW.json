@@ -1,0 +1,75 @@
+{
+  "actual_dispatched": false,
+  "bounds": {
+    "W_cap_bytes": 1073741824,
+    "all_four_W_bytes": 546104992,
+    "cleanup_seconds": 40,
+    "extract_gpu_peak_bytes": 25769803776,
+    "extract_wall_seconds": 960,
+    "fit_read_bytes": 2147483648,
+    "fit_rss_bytes": 2147483648,
+    "fit_wall_seconds": 1260,
+    "new_W_reservation_bytes": 433764480,
+    "new_control_bytes": 78643200,
+    "new_fit_output_bytes": 201326592,
+    "per_role_plan_plus_extract_read_bytes": 274877906944,
+    "plan_extract_rss_bytes": 68719476736,
+    "plan_wall_seconds": 600,
+    "stage_cpu_count": 2
+  },
+  "findings": [
+    "Original observer GPU/hash/native-load/read counters and 256GiB per-role cumulative plan+extract budget unchanged.",
+    "Three fixed arm identities use storage-only runtime and original64train16dev/300fit protocol; no priorSP0 retry or reconciliation exception accepted.",
+    "Only supervisor change rechecks active after leader_done; real owned stale-snapshot exit passes and real orphan remains failure and is cleaned.",
+    "Original one-loader flock spans each plan/extract/fit stage and cleanup; Lead sequences arms after activePROFILE terminal.",
+    "Dev plan needs no GPU, typed-W claim or ledger mutation; actual extraction still requires exact completed plan signature and typed-W migration.",
+    "Per-stage4MiB child log/5MiB control limit inherited, five stages per arm; fit output64MiB per arm is separate from W budget."
+  ],
+  "implementation_commit": "999328d5974bcf616696a93dfe347254a005cfe3",
+  "implementer": "/root/st_indexprep_boundary_fix",
+  "pins": {
+    "controller": {
+      "path": "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017/reports/st_world_policy/20261017/matched_spatial_probe_controls_v1/control.py",
+      "sha256": "c5c8521379b36c979bf8743f12c2a2baf80df5ca5d21941ba2fe9d453540c38c"
+    },
+    "inventory": {
+      "path": "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017/reports/st_world_policy/20261017/matched_spatial_probe_handoff_v1/ASSET_INVENTORY.json",
+      "sha256": "d4ee7ce482342985aed21c9024d5d3912f6a5f50dba67583223e4e73dec2c7f5"
+    },
+    "preparation": {
+      "path": "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017/reports/st_world_policy/20261017/matched_spatial_probe_controls_v1/prepared/SP1/PREPARATION.json",
+      "sha256": "2a59c1276bbb662e9f305cc64d115316d4fe207619f51bbb165ccc5c8eaaca69"
+    },
+    "runtime_compatibility": {
+      "path": "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017/reports/st_world_policy/20261017/matched_spatial_probe_controls_v1/prepared/SP1/RUNTIME_COMPATIBILITY.json",
+      "sha256": "839d91a203866d52f3765450e0c1ac5687b4cbd7546c1b334c8d40f157a8e7b1"
+    }
+  },
+  "remaining_boundaries": [
+    "Actual SP1/2/3 plan/extract/fit not executed by this review.",
+    "Extract admission requires actual plan signature, completed typed-W migration and fresh exact idle GPU/CP receipt; not pre-authorized here.",
+    "RSS and GPU peaks are sampled/allocator observations, not hard realtime quotas or total nvidia memory.",
+    "Inherited old observer scope is preserved; counters are not physical disk bandwidth.",
+    "Existing SP0 failed extract and reconciliation remain unchanged; no repeat SP0.",
+    "No checkpoint/database/feature payloads read, GPU invocation, actual-task signals, ledger mutation or actual stage dispatch."
+  ],
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "runtime": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+  "schema": "st_independent_resource_review_v1",
+  "status": "PASS_MATCHED_ARM_CONTROL_RESOURCE_ONLY",
+  "tests": {
+    "author20_pass_not_inherited": true,
+    "errors": 0,
+    "failed": 0,
+    "log": {
+      "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/matched_spatial_probe_resource_v1/TEST.log",
+      "sha256": "11ec7c8a2538bc18cb43feb1e8bbf1b830304439bcac71b326f867970dd26615"
+    },
+    "passed": 6,
+    "real_synthetic_owned_children": true,
+    "resources": {
+      "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/matched_spatial_probe_resource_v1/TEST_RESOURCE.json",
+      "sha256": "83170f7a054c4b81daf8fbcd4c579f1516cb16003ffbcc17c515feff611fbeb9"
+    }
+  }
+}

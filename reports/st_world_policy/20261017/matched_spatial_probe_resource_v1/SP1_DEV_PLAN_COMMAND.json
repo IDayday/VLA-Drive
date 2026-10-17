@@ -1,0 +1,41 @@
+{
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/matched_spatial_probe_resource_v1/SP1_DEV_PLAN_ADMISSION.json",
+    "sha256": "32fdc9e616794ff9dd213d1a8a02840f075bd718d03ede5cfbd520f1fd768cf1"
+  },
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "600s",
+    "taskset",
+    "-c",
+    "2,3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017/reports/st_world_policy/20261017/matched_spatial_probe_controls_v1/control.py",
+    "run",
+    "--arm",
+    "SP1",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/matched_spatial_probe_resource_v1/SP1_DEV_PLAN_ADMISSION.json",
+    "--admission-sha256",
+    "32fdc9e616794ff9dd213d1a8a02840f075bd718d03ede5cfbd520f1fd768cf1"
+  ],
+  "automatic_retry": false,
+  "cwd": "/mnt/project/VLA-Drive-st-matched-probe-controls-20261017",
+  "dispatch_owner": "/root",
+  "environment": {
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "maximum_single_invocation_seconds_including_cleanup": 640,
+  "no_extraction_or_next_stage_authorized": true,
+  "prerequisites": [
+    "Active full-population PROFILE has terminal result and verified zero owned live processes.",
+    "Its external one-loader flock is released; original supervisor acquires same lock nonblocking.",
+    "Fresh actual runtime/source pins and allowed-host check; SP1 dev_plan attempt absent."
+  ],
+  "status": "ADMITTED_WAITING_ACTIVE_PROFILE_TERMINAL"
+}
