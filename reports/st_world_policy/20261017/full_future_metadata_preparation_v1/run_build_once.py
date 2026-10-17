@@ -194,6 +194,40 @@ def decode_final(stdout):
     return value
 
 
+
+def terminal_read_accounting(baseline,pre_reap,post_reap,child_rchar,read_cap,*,final_child_available):
+    """Linux parent /proc/io after wait already contains this reaped child once."""
+    value={'schema':'st_wait_boundary_read_accounting_v1','parent_baseline':baseline,
+        'parent_pre_reap':pre_reap,'parent_post_reap':post_reap,'child_terminal_rchar_bytes':child_rchar}
+    try:
+        counts=[]
+        for row in (baseline,pre_reap,post_reap):
+            if not isinstance(row,dict) or type(row.get('rchar')) is not int or row['rchar']<0:
+                raise ValueError('Missing/invalid parent wait-boundary IO')
+            counts.append(row['rchar'])
+        if (not final_child_available or type(child_rchar) is not int or child_rchar<0):
+            raise ValueError('Missing/invalid final child IO')
+        base,before,after=counts
+        if before<base or after<before+child_rchar:
+            raise ValueError('Parent post-wait IO did not consistently absorb child')
+        value.update(status='COMPLETE',parent_pre_reap_delta_rchar_bytes=before-base,
+            parent_post_reap_delta_rchar_bytes=after-base,
+            parent_activity_during_wait_rchar_bytes=after-before-child_rchar,
+            charged_parent_child_rchar_bytes=after-base)
+    except ValueError as exc:
+        value.update(status='INCOMPLETE_CONSERVATIVE',error=str(exc),charged_parent_child_rchar_bytes=read_cap)
+    return value
+
+
+def charge_after_reap(accounting,current_parent):
+    """Add only later parent activity; never re-add the already absorbed child."""
+    previous=accounting.get('parent_post_reap')
+    if (not isinstance(current_parent,dict) or type(current_parent.get('rchar')) is not int
+            or not isinstance(previous,dict) or type(previous.get('rchar')) is not int
+            or current_parent['rchar']<previous['rchar']):
+        raise ValueError('Missing/nonmonotonic post-reap parent IO')
+    return accounting['charged_parent_child_rchar_bytes']+current_parent['rchar']-previous['rchar']
+
 def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
     """Original bounded pipe loop with existing unreaped-session/pidfd ownership."""
     buffers={name:bytearray() for name in ('stdout','stderr')};peak=0;failure=None;counter=None;child=None;owner=None;leader=None
@@ -236,8 +270,10 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                 if failure and term_at is None:owner.send(signal.SIGTERM);term_at=now
                 if term_at is not None and now-term_at>=30:owner.send(signal.SIGKILL)
                 if term_at is not None and now-term_at>=40:raise RuntimeError('Owned cleanup exceeded grace')
+            parent_pre_reap=obs.proc_io()
             code=owner.finish(terminate=failure is not None,deadline=term_at+40 if term_at else None)
             finished=True  # leader is reaped; later receipt errors must not clean it twice
+            parent_post_reap=obs.proc_io()
             try:accounting=decode_final(bytes(buffers['stdout']).decode('utf8','replace'))
             except Exception as exc:
                 failure=failure or 'CHILD_ACCOUNTING_INVALID'
@@ -249,11 +285,14 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
             charged=max([x['rchar'] for x in (terminal_io,final_io,last_io) if x is not None],default=0)
             if terminal_io is None and final_io is None:charged=budget['read_bytes']
             counter=accounting['counters'] if accounting else None
+            read_accounting=terminal_read_accounting(BOOT_IO,parent_pre_reap,parent_post_reap,charged,budget['read_bytes'],
+                final_child_available=terminal_io is not None or final_io is not None)
+            if read_accounting['status']!='COMPLETE':failure=failure or 'TERMINAL_IO_INCONSISTENT'
             return {'returncode':code,'failure':failure,'monitor_error':monitor_error,'peak_aggregate_rss_bytes':peak,
                 'invocation_seconds':time.monotonic()-START,'supervised_child_seconds':time.monotonic()-start,
                 'counters':counter,'child_accounting':accounting,'owned_proc_io_baseline':0,
                 'owned_proc_io_last_active':last_io,'owned_proc_io_terminal':terminal_io,
-                'charged_owned_child_rchar_bytes':charged,'stdout':bytes(buffers['stdout']).decode('utf8','replace'),
+                'charged_owned_child_rchar_bytes':charged,'read_accounting':read_accounting,'stdout':bytes(buffers['stdout']).decode('utf8','replace'),
                 'stderr':bytes(buffers['stderr']).decode('utf8','replace'),
                 'cleanup':{'verified_processes':owner.verified,'live_owned_remaining':0}}
         except BaseException:
@@ -296,7 +335,7 @@ def run(args):
                 '--admission-sha256',args.admission_sha256]
             observed=monitor(command,runtime=runtime,env=env,fd=lock.fileno(),root=root,s=s,m=m,obs=obs,budget=budget)
             envelope=observed['child_accounting'];output=envelope.get('cli_result') if envelope else None
-            c=observed['counters'];total=observed['charged_owned_child_rchar_bytes']+obs.proc_io()['rchar']-BOOT_IO['rchar']
+            c=observed['counters'];total=charge_after_reap(observed['read_accounting'],obs.proc_io())
             ok=(observed['returncode']==0 and observed['failure'] is None and c is not None
                 and isinstance(output,dict) and output.get('status')=='GUARDED_METADATA_RETURN'
                 and output.get('artifact',{}).get('status')=='COMPLETE' and total<=budget['read_bytes']
