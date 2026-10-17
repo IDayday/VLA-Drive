@@ -1,0 +1,74 @@
+{
+  "all_ten_checkpoints": {
+    "hard_total_admission_caps_sum": 17280,
+    "maximum_GPU_allocation_hours_if_every_rank_exhausts_both_outer_bounds": 43.666666666666664,
+    "output_reservation_GiB": 10,
+    "primary_admissions": 16960
+  },
+  "analysis": {
+    "CPU_threads": 2,
+    "GPU_count": 0,
+    "bootstrap_replicates": 2000,
+    "max_seconds_each": 1800,
+    "maximum_invocations_each": 2,
+    "new_scoring_calls": 0,
+    "registered_comparisons": 6
+  },
+  "cost_basis": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COST_BASIS.json",
+    "sha256": "413180d4a7a314ae2c39c2d634e77fde442976c4de061cca9399c9161e473b2a"
+  },
+  "default_parallelism": {
+    "GPUs_per_job": 1,
+    "active_score_jobs": 2,
+    "export_torch_threads_each": 2,
+    "global_score_workers_total": 4,
+    "independent_export_jobs": 4,
+    "maximum_active_export_GPUs": 4,
+    "score_coordinators_additional": 2
+  },
+  "enforcement_boundary": "max_calls/retries and immutable score ledger are enforced by existing tool. Invocation count,1GiB output allowance and outer timeout are Lead launch-policy limits, not new trainer/filesystem quotas. No automatically increased cap, changed seed/population, output reset or third invocation.32 is remaining total-admission headroom for completion, not a separate retry counter. Unknown ADMITTED attempts remain charged.",
+  "four_rank_candidate": {
+    "ranks": 4,
+    "reason": "Same original batch1/scene noise and one candidate are supported by existing sharding, but duplicate native/image validation/model load and concurrent IO/RAM costs are unmeasured. No four-rank commands enabled in this default preparation.",
+    "status": "UNAPPROVED_NOT_AUTOMATIC"
+  },
+  "jobs": 10,
+  "per_checkpoint": {
+    "accepted_trajectories_per_scene": 1,
+    "completion_extra_headroom": 32,
+    "export_internal_max_seconds": 7200,
+    "export_kill_after_seconds": 60,
+    "export_outer_timeout_seconds": 7800,
+    "export_world_size": 1,
+    "hard_total_score_admission_cap": 1728,
+    "maximum_GPU_allocation_hours_including_two_full_timeout_bounds": 4.366666666666666,
+    "maximum_export_invocations_per_rank": 2,
+    "maximum_score_invocations": 2,
+    "new_native_checkpoint_copies": 0,
+    "new_teacher_or_metric_cache_bytes": 0,
+    "output_reservation_MiB": {
+      "CSV_index_analysis": 128,
+      "logs_attempts": 512,
+      "predictions_receipts_observations": 64,
+      "primary_score_ledger": 256,
+      "retry_score_ledger": 64
+    },
+    "output_reservation_bytes": 1073741824,
+    "primary_score_admissions": 1696,
+    "requested_scenes": 1696,
+    "retry_attempts": 1,
+    "score_internal_max_seconds": 3600,
+    "score_kill_after_seconds": 60,
+    "score_outer_timeout_seconds": 4200,
+    "score_workers": 2
+  },
+  "schema": "st_fixed_dev_budget_v1",
+  "shared_cache_separate": {
+    "campaign_cache_cap_GiB": 768,
+    "existing_dev_metric_logical_bytes": 624149384,
+    "new_multi_TB_cache": false
+  },
+  "status": "PREPARATION_ONLY_PENDING_EXACT_CHECKPOINT_AND_LEAD_EXECUTION",
+  "wall_timer_boundary": "Export internal timer begins after initial complete-native/observation checks; score timer begins after full export/context request preparation. Outer timeout covers those gaps and process cleanup; child-process exit/GPU release must be confirmed before slot reuse."
+}
