@@ -1,0 +1,133 @@
+{
+  "actual_ledger_mutation": false,
+  "cost": {
+    "combined_import_startup_rchar_bytes": 264424554,
+    "combined_test_window_logical_read_bytes": 40927820,
+    "combined_test_window_wchar_bytes": 2443357,
+    "combined_wall_seconds": 23.033078145235777,
+    "first_process": {
+      "bounded_checks_pass": true,
+      "bounds": {
+        "RSS_bytes": 2147483648,
+        "fixture_reads_writes_each": 67108864,
+        "total_process_reads": 268435456,
+        "wall_seconds": 180
+      },
+      "cpu_affinity": [
+        6,
+        7
+      ],
+      "cuda_visible_devices": "",
+      "elapsed_seconds": 18.95448326319456,
+      "no_actual_ledger_mutation": true,
+      "no_real_payload": true,
+      "peak_RSS_bytes": 615706624,
+      "pytest_exitcode": 1,
+      "startup_logical_read_bytes": 132211701,
+      "startup_seconds": 3.153720900416374,
+      "startup_wchar_bytes": 2382,
+      "synthetic_files": 1210,
+      "synthetic_retained_bytes": 2124659,
+      "test_window_logical_read_bytes": 37174312,
+      "test_window_wchar_bytes": 2303098,
+      "total_process_logical_read_bytes": 169386013
+    },
+    "maximum_RSS_bytes": 615706624,
+    "per_process_logical_read_limit_bytes": 268435456,
+    "single_rerun_process": {
+      "bounded_checks_pass": true,
+      "bounds": {
+        "RSS_bytes": 2147483648,
+        "fixture_reads_writes_each": 67108864,
+        "total_process_reads": 268435456,
+        "wall_seconds": 180
+      },
+      "cpu_affinity": [
+        6,
+        7
+      ],
+      "cuda_visible_devices": "",
+      "elapsed_seconds": 4.078594882041216,
+      "no_actual_ledger_mutation": true,
+      "no_real_payload": true,
+      "peak_RSS_bytes": 605622272,
+      "pytest_exitcode": 0,
+      "startup_logical_read_bytes": 132212853,
+      "startup_seconds": 3.097598761320114,
+      "startup_wchar_bytes": 2382,
+      "synthetic_files": 54,
+      "synthetic_retained_bytes": 86383,
+      "test_window_logical_read_bytes": 3753508,
+      "test_window_wchar_bytes": 140259,
+      "total_process_logical_read_bytes": 135966361
+    }
+  },
+  "covered_unique_test_cases": 40,
+  "gpu_calls": 0,
+  "historical_suites_rerun": false,
+  "implementation_author_review": false,
+  "independent_new_negative_cases": 17,
+  "initial_result": {
+    "failed": 1,
+    "log": "TEST.log",
+    "passed": 39
+  },
+  "limits": [
+    "Only exact source commit and exercised synthetic schemas; real complete1176-shard finalization not executed",
+    "No actual source PLAN/index/shard reread. Real pipeline needs separately reviewed new registration and resource admission",
+    "Byte-identical scene rows and serialization for same header; new output ledger path intentionally changes top-level request identity",
+    "Compressed RAM behavior at real population scale not independently measured here",
+    "Shared-FS allocation change remains a valid strict inventory rejection; do not weaken guard",
+    "Provider branch assessed for full_population only; any additional index-preparation routing is outside this exact diff",
+    "Actual launch, quota, lease and read/RSS budget approval belong to Lead and separate resource reviewer"
+  ],
+  "narrow_rerun": {
+    "failed": 0,
+    "fixture_root": "/tmp/st-finalizer-independent-dispatch-20261017",
+    "log": "SINGLE_TEST.log",
+    "only_failed_test": true,
+    "passed": 1,
+    "source_modified": false
+  },
+  "owner_suite_reexecuted": true,
+  "real_finalization_run": "NOT_RUN",
+  "real_shard_raw_image_weight_reads": 0,
+  "resource_admission": "NOT_ISSUED_BY_THIS_CORRECTNESS_REVIEWER",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "schema": "st_future_finalization_correctness_independent_v1",
+  "scope_checks": {
+    "actual_FAILED_NO_AUTO_RETRY_schema_lineage": "PASS_SYNTHETIC_EXACT_SCHEMA_AND_NEGATIVES",
+    "atomic_completion_and_idempotent_resume": "PASS_FAULT_INJECTION",
+    "decompression_length_hash_truncation_trailing_concat_bomb": "PASS",
+    "new_provider_completion_schema_and_verified_inputs": "PASS",
+    "no_old_source_evidence_mutation": "PASS_FIXTURE_SNAPSHOT",
+    "old_provider_route": "PASS_REGRESSION_NO_SOURCE_CHANGE",
+    "original_population_order_and_manifest_rows": "PASS_EXACT_SERIALIZATION_AND_INTERLEAVED_REPLAY",
+    "single_source_shard_read": "PASS_COUNTER_AND_SAME_BYTES_HASH_DECODE",
+    "source_lock_and_postwork_lineage_census_recheck": "PASS"
+  },
+  "source_commit": "1ce3a44134bee0aa52fd1f6b659103e989a0bbc2",
+  "source_pins": [
+    {
+      "bytes": 32007,
+      "path": "tools/st_world_policy/finalize_future_metadata.py",
+      "sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d"
+    },
+    {
+      "bytes": 45239,
+      "path": "tools/st_world_policy/metadata_storage.py",
+      "sha256": "aaa36f5383451eadcd92c160c6f3ffb8704110ab44eb12ee433b3207995e71ba"
+    },
+    {
+      "bytes": 57761,
+      "path": "tools/st_world_policy/teacher_provider.py",
+      "sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+    },
+    {
+      "bytes": 17201,
+      "path": "tests/st_world/test_finalize_future_metadata.py",
+      "sha256": "f03b8493877f788e33328f7b666d98dec7cb5e54daecaad3b06dbf42dfc22e80"
+    }
+  ],
+  "status": "PASS_CODE_SYNTHETIC_ONLY"
+}
