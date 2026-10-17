@@ -1,0 +1,82 @@
+{
+  "analysis_source": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "comparison": "C4_minus_C0",
+  "launch_authorized": false,
+  "max_invocations": 1,
+  "population": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "previous_csv_audit": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/C3_RETRY_C4_1024_DIAGNOSTIC_v1/RESULTS.json",
+    "sha256": "fc3ab8fec41dfddf16a2842870a27ad8238dfcb084ba82a309075abaaa5c4e56"
+  },
+  "runs": {
+    "C0": {
+      "export_identity": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/export/IDENTITY.json",
+        "sha256": "5f43bda8409895bb1f6d2973865a365dd4764693c1de8caba01042f90796605a"
+      },
+      "score_complete": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "3a06edfabcb2f0fab62b055c290097abaae8d54d8dfba85551d2e37e4782738f"
+      },
+      "score_identity": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/IDENTITY.json",
+        "sha256": "1c22b5f438bd2f6e03d51810b6cdde15a1dfd5e8d47bd3f8cb8d67c3e727b367"
+      }
+    },
+    "C4": {
+      "export_identity": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/export/IDENTITY.json",
+        "sha256": "3fa194db5fbf887a80482d0423925b112adcf89e7c97e4a2993c8407c0ee39cd"
+      },
+      "score_complete": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "9db89f2c8ee7dc31a860a218e47803e5a6dfd26d68df58c957cb1af030d76645"
+      },
+      "score_identity": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step001024_dev1696_seed42_v1/official_score/IDENTITY.json",
+        "sha256": "37b4219944344e97352a4efde8d651dd85dda0e43a7a31bcb2c1f1507f7005d1"
+      }
+    }
+  },
+  "schema": "st_fixed_c4_payload_analysis_bindings_v1",
+  "source_files": {
+    "starVLA/model/modules/st_world/consequence.py": {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/model/modules/st_world/consequence.py",
+      "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+    },
+    "tools/st_world_policy/export_world.py": {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/export_world.py",
+      "sha256": "6d1e22635a8772bac44ecd69ef94f8b40f53a7bc93d7df1dad8125a16cc52ec2"
+    },
+    "tools/st_world_policy/score_world.py": {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/score_world.py",
+      "sha256": "e8242b1697242e2b09ce1b3835e5f10f3071b7ea9b51ce75a939c037219be6e9"
+    }
+  },
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "stage": "DIAGNOSTIC_1024",
+  "statistics_unchanged": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  }
+}
