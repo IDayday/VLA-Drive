@@ -5,6 +5,8 @@ import importlib.util
 import inspect
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -148,3 +150,28 @@ def test_original_limits_and_control_reserve():
     assert m.PAIR_LIMITS['wall_seconds']==1800 and m.PAIR_LIMITS['cleanup_seconds']==40
     assert m.ANALYSIS_LIMIT+m.CONTROL_RESERVE+m.ADMISSION_RESERVE==32<<20
     assert 32*1024+2*16*1024<=m.ADMISSION_RESERVE
+
+
+def test_actual_monitor_spawn_prefix_routes_real_child_affinity():
+    # Exercise the exact monitor prefix through a real child; no data/GPU access.
+    core=SimpleNamespace(subprocess=None)
+    r.route_monitor(core)
+    p=core.subprocess.Popen(['taskset','-c','0,1',sys.executable,'-c',
+        'import os,json; print(json.dumps(sorted(os.sched_getaffinity(0))))'],
+        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    stdout,stderr=p.communicate(timeout=10)
+    assert p.returncode==0,stderr
+    assert json.loads(stdout)==[6,7]
+
+
+@pytest.mark.parametrize('command', [['python','-c','pass'],['taskset','-c','2,3','python']])
+def test_monitor_route_rejects_unreviewed_prefix(command):
+    with pytest.raises(ValueError,match='taskset prefix'):
+        r.RoutedSubprocess().Popen(command)
+
+
+def test_real_core_monitor_uses_the_routed_subprocess(controls):
+    core=controls[0]
+    r.route_monitor(core)
+    assert core.monitor.__globals__['subprocess'] is core.subprocess
+    assert isinstance(core.subprocess,r.RoutedSubprocess)

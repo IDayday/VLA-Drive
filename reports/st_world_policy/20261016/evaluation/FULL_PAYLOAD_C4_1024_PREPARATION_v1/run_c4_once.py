@@ -27,6 +27,23 @@ PLAN_SHA = 'dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c'
 CPU_AFFINITY = [6, 7]  # Keep the live metadata writer's CPUs 0/1 available.
 
 
+class RoutedSubprocess:
+    """Route only the fixed monitor taskset prefix; leave its loop unchanged."""
+    def __getattr__(self, name):
+        return getattr(subprocess, name)
+
+    def Popen(self, command, *args, **kwargs):
+        if not isinstance(command, list) or command[:3] != ['taskset', '-c', '0,1']:
+            raise ValueError('Expected the reviewed monitor taskset prefix')
+        return subprocess.Popen(['taskset', '-c', ','.join(map(str, CPU_AFFINITY)),
+                                 *command[3:]], *args, **kwargs)
+
+
+def route_monitor(core):
+    # This is a private dynamically imported module, never a shared source edit.
+    core.subprocess = RoutedSubprocess()
+
+
 def original():
     path = Path(WRAPPER['path'])
     if any(p.is_symlink() for p in (path, *path.parents)) or path.stat().st_size > 64 * 1024:
@@ -122,6 +139,7 @@ def child():
 
 def run():
     module = original(); core, supervisor, observer = module.dependencies()
+    route_monitor(core)
     command, budget = fixed_command(module, core)
     verify_inputs(module, core, command, budget)
     if (subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=module.RUNTIME, text=True).strip() != module.SOURCE

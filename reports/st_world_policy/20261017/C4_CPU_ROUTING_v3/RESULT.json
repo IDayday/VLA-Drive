@@ -1,0 +1,26 @@
+{
+  "schema": "st_c4_actual_cpu_routing_v3",
+  "time_unix": 1792238106.5792315,
+  "adapter_sha256": "c4806201c46caee4a770545fa6e00764a4b5da5ba65ea97b389268b08be14c5f",
+  "command": [
+    "taskset",
+    "-c",
+    "6,7",
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "timeout",
+    "60s",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FULL_PAYLOAD_C4_1024_PREPARATION_v1/test_c4_once.py"
+  ],
+  "exit_code": 0,
+  "independent_review": "PENDING",
+  "analysis_launched": false
+}
