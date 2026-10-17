@@ -1,0 +1,13 @@
+{
+  "status": "PROTOTYPE_FINDING_NOT_ACTUAL_RUN",
+  "time_unix": 1792250425.904668,
+  "source": {
+    "path": "/mnt/project/VLA-Drive-st-full-population-provider-preparation-20261017/reports/st_world_policy/20261017/full_population_provider_preparation_v1/prepare_once.py",
+    "sha256": "4d28e139c2b0fe7ce71cd0817557de9e8526a596423d606ab7b2e0d35d4d5c52"
+  },
+  "finding": "Original two CLI runpy invocations print their JSON directly before final child envelope. Reviewed core.decode_final calls json.loads on entire stdout, causing Extra data and CHILD_ACCOUNTING_INVALID even on successful metadata creation.",
+  "minimal_trigger": "stdout = json.dumps(original_cli_result)+newline+json.dumps(final_accounting_envelope); core.decode_final(stdout)",
+  "impact": "False failed terminal, no scientific or artifact success may be claimed from this unmodified prototype.",
+  "requested_change": "Bound original CLI output without changing mature monitor; stdout contains exactly one final accounting envelope. Test original CLI print side effects.",
+  "actual_dispatch": false
+}

@@ -1,0 +1,32 @@
+{
+  "status": "ADMITTED_NOT_RUN",
+  "argv": [
+    "/bin/bash",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_provider_preparation_v1/launch_once.sh",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_provider_preparation_resource_v1/ADMISSION.json",
+    "--admission-sha256",
+    "e9f80335e22fbdd2c71dbcb57067e3a1c28f018a9fd48895f982e9384388ba87"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "NUMEXPR_NUM_THREADS": "2"
+  },
+  "launcher_sha256": "0a7083b66ddfc11bbdf53c41870be13c09e907c0a3c7bfb3735a37aa1e83a2aa",
+  "expanded_outer_prefix": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "1500s",
+    "taskset",
+    "-c",
+    "0,1"
+  ],
+  "max_total_seconds": 1540,
+  "automatic_retry": false
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "st_full_population_provider_preparation_admission_v1",
+  "status": "APPROVED_PROVIDER_METADATA_PREPARATION_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "hostname": "training-vla-zt-worker-0",
+  "issued_at_unix": 1792250824.8182845,
+  "latest_start_unix": 1792258024.8182845,
+  "valid_until_unix": 1792259564.8182845,
+  "limits": {
+    "cleanup_seconds": 40,
+    "read_bytes": 17179869184,
+    "rss_bytes": 4294967296,
+    "wall_seconds": 1500
+  },
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1",
+  "max_output_bytes": 33554432,
+  "control_reservation": {
+    "control_reservation_bytes": 33554432,
+    "ledger_written": false,
+    "metadata_envelope_bytes": 8589934592,
+    "original_admin_reservation_bytes": 134217728,
+    "prior_reserved_bytes": 8075083776,
+    "remaining_bytes": 481296384,
+    "total_reserved_bytes": 8108638208,
+    "typed_claims_changed": false
+  },
+  "control_reservation_receipt": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_provider_preparation_resource_v1/CONTROL_RESERVATION.json",
+    "sha256": "c6b93340ed3ef9b0fbe1c0dbde9ab0aa14647e9af20fc9a0d84c0ace257bfd47"
+  },
+  "gpu": false,
+  "automatic_retry": false,
+  "ledger_written": false,
+  "checkpoint_reservation_created": false,
+  "plan": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_provider_preparation_v1/PLAN.json",
+    "sha256": "d8c76c0445975362969efed9e506ae84956a29e8851a8eac90ffb9fd5ed004f4"
+  },
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_provider_preparation_v1/prepare_once.py",
+      "sha256": "9ef4b038705613d38fee96a26ff5798d21ad7c4daa50009243685bd6a940ce24"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_provider_preparation_v1/launch_once.sh",
+      "sha256": "0a7083b66ddfc11bbdf53c41870be13c09e907c0a3c7bfb3735a37aa1e83a2aa"
+    }
+  ],
+  "independent_resource_review": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_provider_preparation_resource_v1/REVIEW.json",
+    "sha256": "de25631205c2761032ade692151f40cb6a7ae54e11232ebb6a1910336e989b43"
+  },
+  "current_policy": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/PROPOSED_POLICY.json",
+    "sha256": "7a78476af60b191da42439dfdda0c63dae6334f7e911ee7bc3ed299e77486148",
+    "bytes": 52950
+  },
+  "checkpoint_commitments_preserved_only": {
+    "path": "/mnt/project/VLA-Drive-st-finalized-indexprep-resource-review-20261017/reports/st_world_policy/20261017/checkpoint_commitments_refresh_2303g_v2/CHECKPOINT_COMMITMENTS_2303G_V2.json",
+    "sha256": "b786cd1f667ef8e7eab359e78158829183a55bd591dddd5d7e20a4b92e48e84e",
+    "bytes": 4809
+  },
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+    "bytes": 129686
+  },
+  "fresh_resources": {
+    "host": "training-vla-zt-worker-0",
+    "one_loader_lock_nonblocking_acquired_and_released": true,
+    "output_root_absent": true,
+    "disk_free_bytes": 6630120640512,
+    "no_gpu_query": true,
+    "exact_source_and_small_control_bytes_read": 2616310,
+    "runtime_clean_recheck": "Lead repeats exact git HEAD/status; source/control hashes verified here; no broad index read by reviewer"
+  },
+  "prelaunch_requirements": [
+    "Lead checks exact source/control SHA and runtime commit/clean tree before invoking the pinned launcher.",
+    "Root remains absent and original global one-loader lock is acquired by wrapper.",
+    "Latest allowed start is a two-hour window; only one actual invocation is permitted within it.",
+    "Existing 2303 GiB checkpoint obligations plus 1 TiB floor remain reserved; this CPU preparation creates no new checkpoint budget.",
+    "No GPU profile, ledger migration, model/teacher execution or automatic subsequent stage."
+  ],
+  "formal_training_approved": false,
+  "scientific_PASS": false,
+  "scope": "One original full-population provider metadata preparation, the two fixed existing CLI phases in one supervised CPU child; original small frozen PCA load allowed, no new teacher tensors."
+}
