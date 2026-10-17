@@ -1,0 +1,65 @@
+FFF..........                                                            [100%]
+=================================== FAILURES ===================================
+______________ test_nonfinite_expiry_is_rejected[control_expiry] _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f0ec74f7af0>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-695/test_nonfinite_expiry_is_rejec0')
+field = 'control_expiry'
+
+    @pytest.mark.parametrize('field',['control_expiry','checkpoint_expiry'])
+    def test_nonfinite_expiry_is_rejected(monkeypatch,tmp_path,field):
+     cp=dict(schema='st_checkpoint_storage_commitments_v1',status='CURRENT',remaining_bytes=2303<<30,free_floor_bytes=1<<40,valid_until_unix=time.time()+5000)
+     control={'checkpoint_receipt':{},'valid_until_unix':time.time()+4000}
+     if field=='control_expiry': control['valid_until_unix']=float('nan')
+     else: cp['valid_until_unix']=float('nan')
+     monkeypatch.setattr(c,'ROOT',tmp_path)
+     monkeypatch.setattr(c,'pin_read',lambda _: cp)
+     monkeypatch.setattr(c.os,'statvfs',lambda _:SimpleNamespace(f_bavail=1<<50,f_frsize=1))
+>    with pytest.raises(ValueError,match='commitments|lease|finite|window'):
+E    Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py:20: Failed
+_____________ test_nonfinite_expiry_is_rejected[checkpoint_expiry] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f0ec74dca60>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-695/test_nonfinite_expiry_is_rejec1')
+field = 'checkpoint_expiry'
+
+    @pytest.mark.parametrize('field',['control_expiry','checkpoint_expiry'])
+    def test_nonfinite_expiry_is_rejected(monkeypatch,tmp_path,field):
+     cp=dict(schema='st_checkpoint_storage_commitments_v1',status='CURRENT',remaining_bytes=2303<<30,free_floor_bytes=1<<40,valid_until_unix=time.time()+5000)
+     control={'checkpoint_receipt':{},'valid_until_unix':time.time()+4000}
+     if field=='control_expiry': control['valid_until_unix']=float('nan')
+     else: cp['valid_until_unix']=float('nan')
+     monkeypatch.setattr(c,'ROOT',tmp_path)
+     monkeypatch.setattr(c,'pin_read',lambda _: cp)
+     monkeypatch.setattr(c.os,'statvfs',lambda _:SimpleNamespace(f_bavail=1<<50,f_frsize=1))
+>    with pytest.raises(ValueError,match='commitments|lease|finite|window'):
+E    Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py:20: Failed
+________________ test_fifo_control_refused_before_blocking_read ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-695/test_fifo_control_refused_befo0')
+
+    def test_fifo_control_refused_before_blocking_read(tmp_path):
+     fifo=tmp_path/'CONTROL.json'; os.mkfifo(fifo)
+     code="import importlib.util;from pathlib import Path;s=importlib.util.spec_from_file_location('c',%r);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);m.pin_read({'path':%r,'sha256':'0'*64})"%(str(Path(c.__file__)),str(fifo))
+     p=subprocess.Popen([sys.executable,'-c',code],stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,env=dict(os.environ,CUDA_VISIBLE_DEVICES=''))
+     blocked=False
+     try:
+      try: out,err=p.communicate(timeout=.35)
+      except subprocess.TimeoutExpired:
+       blocked=True; p.terminate(); out,err=p.communicate(timeout=2)
+     finally:
+      if p.returncode is None: p.kill(); p.wait(timeout=2)
+>    assert not blocked,'FIFO accepted by pin_read; parent blocks before any owned monitor/deadline starts'
+E    AssertionError: FIFO accepted by pin_read; parent blocks before any owned monitor/deadline starts
+E    assert not True
+
+reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py:35: AssertionError
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py::test_nonfinite_expiry_is_rejected[control_expiry]
+FAILED reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py::test_nonfinite_expiry_is_rejected[checkpoint_expiry]
+FAILED reports/st_world_policy/20261017/temporal_scale_controller_independent_v1/test_independent.py::test_fifo_control_refused_before_blocking_read
+3 failed, 10 passed in 0.86s
