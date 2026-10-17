@@ -40,6 +40,8 @@ CHECKPOINT_CONTROL = {
     'path': str(ROOT/'controls/CHECKPOINT_COMMITMENTS_2303G_V1.json'),
     'sha256': '13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3',
 }
+OWNERSHIP_HELPER = Path(__file__).parent.parent/'torchrun_descendant_scope_v1/owned_descendants.py'
+OWNERSHIP_HELPER_SHA = 'b8d38e1e66036fc09886368f4a35bb21b5ea76306291a84588a082069ee26c85'
 
 
 def check(value, message):
@@ -150,6 +152,10 @@ def controls(args, child=False):
     now = time.time()
     check(all(type(a.get(k)) in (int, float) and math.isfinite(a[k])
               for k in ('issued_at_unix', 'latest_start_unix', 'valid_until_unix')), 'Finite resource window required')
+    check(a.get('ownership_helper') == {'path': str(OWNERSHIP_HELPER.absolute()),
+                                        'sha256': OWNERSHIP_HELPER_SHA},
+          'New PPID ownership helper requires an explicit reviewed source pin')
+    pin_read(a['ownership_helper'], False)
     check(type(a.get('valid_until_unix')) in (int, float)
           and a.get('issued_at_unix', float('inf')) <= now
           and now <= a.get('latest_start_unix', 0)
@@ -161,6 +167,7 @@ def controls(args, child=False):
         review = pin_read(a['reviews'][role])
         check(review.get('status') == 'PASS_BOUNDED_T1_ADAPTER_ONLY'
               and review.get('adapter_sha256') == a['adapter']['sha256']
+              and review.get('ownership_helper') == a['ownership_helper']
               and review.get('reviewer') not in (None, '', '/root/st_temporal_readiness_inventory'), 'Independent adapter reviews required')
         if role == 'resource':
             check(review.get('new_checkpoint_reservation_bytes') == LIMITS['new_checkpoint_bytes']
@@ -305,6 +312,8 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard, lease_valid_
             next_sample = 0
             while True:
                 active = owner.discover(); done = owner.leader_done()
+                if getattr(owner, 'unknown_adopted', []):
+                    failure = failure or 'UNWITNESSED_ADOPTED_CHILD'
                 if done and active:
                     active = owner.discover()
                     if active: failure = failure or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
@@ -331,7 +340,7 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard, lease_valid_
                 if cleanup_until is not None and now >= cleanup_until-10: owner.send(signal.SIGKILL)
                 if cleanup_until is not None and now >= cleanup_until: raise RuntimeError('Owned cleanup exceeded absolute deadline')
             before = proc_io()
-            code = owner.finish(terminate=bool(failure), deadline=cleanup_until)
+            code = owner.finish(terminate=bool(failure), deadline=cleanup_until or hard_deadline)
             finished = True
             accounting = core.terminal_read_accounting(baseline, before, proc_io(), terminal['rchar'], remaining, final_child_available=True)
             if accounting['status'] != 'COMPLETE': failure = failure or 'IO_ACCOUNTING_INCOMPLETE'
@@ -340,7 +349,10 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard, lease_valid_
                 lease_deadline_monotonic=lease_deadline, hard_deadline_monotonic=hard_deadline,
                 cleanup_deadline_monotonic=cleanup_until, last_shared_storage_check=storage_last,
                 stdout=buffers['stdout'].decode('utf8', 'replace'), stderr=buffers['stderr'].decode('utf8', 'replace'),
-                cleanup={'verified_processes': owner.verified, 'live_owned_remaining': 0})
+                cleanup={'verified_processes': owner.verified, 'live_owned_remaining': 0,
+                         'scope': 'live_ppid_witnessed_across_sessions',
+                         'ownership_evidence': getattr(owner, 'evidence', []),
+                         'unknown_adopted': getattr(owner, 'unknown_adopted', [])})
         finally:
             try:
                 if owner is not None and not finished:
@@ -361,6 +373,8 @@ def parent_main(args):
     a, reg, cfg, prior, parent, devices = controls(args)
     helper_dir = RUNTIME/REL/'spatial_probe_actual_preparation_v1'
     sys.path.insert(0, str(helper_dir)); import supervise_once as s
+    ownership = load_module('t1_future_owned_descendants', OWNERSHIP_HELPER)
+    s = ownership.ancestry_supervisor(s)
     core = load_module('t1_accounting_core', RUNTIME/REL/'full_future_metadata_preparation_v1/run_build_once.py')
     s.shared_mount()  # original fixed shared-mount/global-flock check
     os.sched_setaffinity(0, LIMITS['cpu_affinity'])
