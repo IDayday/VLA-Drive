@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from contextlib import contextmanager
 import fcntl
+import hashlib
 import importlib.metadata
 import json
 import math
@@ -17,6 +18,7 @@ from pathlib import Path
 import platform
 import random
 import re
+import stat
 import subprocess
 import time
 
@@ -48,9 +50,22 @@ def pinned(ref):
     exact(ref, ('path', 'sha256'), 'pinned reference')
     require_hash(ref['sha256'], 'artifact hash')
     p = Path(ref['path'])
-    if not p.is_absolute() or file_sha256(p) != ref['sha256']:
+    if not p.is_absolute():
         raise ValueError('Changed pinned artifact: ' + str(p))
-    return json.loads(p.read_text())
+    # These are bounded protocol/population/label/registration JSON controls,
+    # never native model or W tensors. Hash exactly the bytes we parse.
+    with p.open('rb') as stream:
+        before = os.fstat(stream.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_size > (1 << 20):
+            raise ValueError('Pinned control must be a regular JSON file <=1MiB')
+        raw = stream.read((1 << 20) + 1)
+        after = os.fstat(stream.fileno())
+    version = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    if (len(raw) > (1 << 20) or version(before) != version(after)
+            or version(after) != version(p.stat())
+            or hashlib.sha256(raw).hexdigest() != ref['sha256']):
+        raise ValueError('Changed pinned artifact: ' + str(p))
+    return json.loads(raw)
 
 
 def identity(value):
