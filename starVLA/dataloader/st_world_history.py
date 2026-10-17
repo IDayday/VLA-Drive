@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import os
+import stat
+from contextlib import contextmanager
 from pathlib import Path
 import hashlib
 import math
@@ -249,6 +251,55 @@ def load_history_images(record, *, verify_images=True):
     return images, np.asarray(valid, dtype=bool)
 
 
+
+@contextmanager
+def _packed_parent(root, relative):
+    """Existing metadata no-follow directory-FD practice, without tools imports."""
+    root=Path(root);relative=Path(relative)
+    if '..' in root.parts or relative.is_absolute() or '..' in relative.parts or not relative.name:
+        raise ValueError('History shard path escapes root')
+    target=root.absolute()/relative
+    directory=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC)
+    try:
+        for part in target.parent.parts[1:]:
+            try:
+                following=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=directory)
+            except OSError as exc:raise ValueError('Unsafe history shard parent') from exc
+            os.close(directory);directory=following
+        yield directory,target.name
+    finally:os.close(directory)
+
+
+def _packed_version(info):
+    return (info.st_dev,info.st_ino,info.st_mode,info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+
+
+def read_packed_history_range(root,relative,offset,length):
+    """Read one bounded regular single-link record; reject replacement races."""
+    if type(offset) is not int or type(length) is not int or offset<0 or not 0<length<=1<<20:
+        raise ValueError('Invalid history record byte range')
+    with _packed_parent(root,relative) as (parent,name):
+        try:fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=parent)
+        except OSError as exc:raise ValueError('Unsafe history shard file') from exc
+        try:
+            before=os.fstat(fd)
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1:raise ValueError('History shard must be a regular single-link file')
+            if offset+length>before.st_size:raise ValueError('Truncated history shard')
+            raw=os.pread(fd,length,offset)
+            after=os.fstat(fd)
+            if _packed_version(before)!=_packed_version(after) or len(raw)!=length:
+                raise ValueError('History shard changed during read')
+            # Walk the original namespace again using no-follow descriptors.
+            # This catches a renamed/replaced ancestor or leaf after the first
+            # descriptor was opened, without following a replacement symlink.
+            with _packed_parent(root,relative) as (again,leaf):
+                try:published=os.stat(leaf,dir_fd=again,follow_symlinks=False)
+                except OSError as exc:raise ValueError('History shard disappeared during read') from exc
+            if _packed_version(before)!=_packed_version(published):raise ValueError('History shard publication changed')
+            return raw
+        finally:os.close(fd)
+
+
 class HistoryReader:
     def __init__(self, root, expected_identity):
         self.root = Path(root)
@@ -267,17 +318,8 @@ class HistoryReader:
         row = self.index[token]
         path = self.root / row['record']
         if row.get('record_layout') == 'packed_log_v1':
-            if any(p.is_symlink() for p in (path, *path.parents)) or not path.resolve().is_relative_to(self.root.resolve()):
-                raise ValueError('History shard path escapes root')
-            offset,length=row.get('record_offset'),row.get('record_length')
-            if type(offset) is not int or type(length) is not int or offset<0 or not 0<length<=1<<20:
-                raise ValueError('Invalid history record byte range')
-            with path.open('rb') as stream:
-                before=os.fstat(stream.fileno())
-                if offset+length>before.st_size:raise ValueError('Truncated history shard')
-                stream.seek(offset);raw=stream.read(length)
-                after=os.fstat(stream.fileno())
-            if (before.st_ino,before.st_size,before.st_mtime_ns)!=(after.st_ino,after.st_size,after.st_mtime_ns) or len(raw)!=length or hashlib.sha256(raw).hexdigest()!=row['sha256']:
+            raw=read_packed_history_range(self.root,row['record'],row.get('record_offset'),row.get('record_length'))
+            if hashlib.sha256(raw).hexdigest()!=row['sha256']:
                 raise ValueError('History record checksum mismatch')
             record=validate_history_record(json.loads(raw))
         else:
