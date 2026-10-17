@@ -1,0 +1,106 @@
+{
+  "additional_owned_cleanup_seconds": 10,
+  "administrative_budget": {
+    "adopt_into_future_prep_claims_without_double_count": true,
+    "dev_share_bytes": 33554432,
+    "effective_until_adoption_bytes": 1392508928,
+    "existing_qualification_64MiB_not_reused": true,
+    "ledger_claim": false,
+    "new_preplan_total_bytes": 67108864,
+    "new_tensor_bytes": 0,
+    "old_effective_bytes": 1325400064,
+    "train_share_authorized_plan_only_bytes": 33554432
+  },
+  "argv": {
+    "bytes": 1117,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/TRAIN_PLAN_ARGV.json",
+    "sha256": "6019166052234371d80e7bf27fa0582956fdd548fcc4243f5b377b3c28b39f1c"
+  },
+  "checkpoint_commitments": {
+    "bytes": 1513,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/indexed_profile64_training_admission_v1/CHECKPOINT_COMMITMENTS_2183G_V1.json",
+    "sha256": "d5bce1fec28d6ce3dab496287c9be41852ca154495ecf4cf686c7e780ebf4d52"
+  },
+  "execution_requirements": [
+    "Execute only the exact pinned plan_once.py wrapper with this admission path and SHA; never bare CLI. Dev and train run serially and share the existing owned loader lock.",
+    "Lead alone dispatches; pin source, argv and helper SHA before mkdir/spawn; reject existing output root.",
+    "Use reviewed supervise_once.supervise and observed_cli.Counters in the single owned child; monitor COUNTERS read under its original writer control_lock; immutable reads remain strict.",
+    "CUDA_VISIBLE_DEVICES empty; OMP/MKL/OPENBLAS/NUMEXPR threads=2; PYTHONDONTWRITEBYTECODE=1.",
+    "Outer plan wall/RSS/read/root bounds override this invocation; CLI limits intentionally describe a future build and do not authorize it.",
+    "Count stdout, stderr, PLAN.lock, PLAN.json, control records and partials; bounded output logging. Preserve failure; no automatic retry.",
+    "Fresh disk check must retain complete 2183GiB obligations +1TiB floor +this output bound."
+  ],
+  "fresh_free_bytes_at_review": 7290741469184,
+  "issued_at_unix": 1792228071.9452727,
+  "latest_start_unix": 1792229051.9452727,
+  "limits": {
+    "attempts": 1,
+    "automatic_retry": false,
+    "cleanup_seconds": 30,
+    "core_dump_bytes": 0,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "logical_read_bytes_including_imports": 4294967296,
+    "root_inclusive_bytes_including_control_temp_logs": 33554432,
+    "rss_process_tree_bytes": 2147483648,
+    "single_file_bytes": 4194304,
+    "wall_seconds": 180
+  },
+  "live_ledger": {
+    "bytes": 49750,
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+    "sha256": "a4c1fb15f4799187b03035343b8582484d8feb02fd23c7b632b5bc968662789d"
+  },
+  "maximum_total_window_seconds": 220,
+  "output_root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1",
+  "population_stat_evidence": {
+    "bytes": 2733,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/POPULATION_STAT_EVIDENCE.json",
+    "sha256": "0722d99d740681151cf80e1a613260642a3e0a05d60ccd80e80e8750ef6cace0"
+  },
+  "preliminary_admission_superseded": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/DEV_PLAN_ADMISSION.json",
+  "quota_verified": false,
+  "reviewer": "/root/st_metadata_resource_review",
+  "runtime": "/mnt/project/VLA-Drive-st-metadata-runtime-v3-20261017",
+  "schema": "st_full_future_plan_resource_admission_v1",
+  "scope": {
+    "build_authorized": false,
+    "exact_scenes": 101592,
+    "gpu": false,
+    "image_read": false,
+    "index_authorized": false,
+    "migration_authorized": false,
+    "model_load": false,
+    "raw_log_read": false,
+    "raw_log_stat_count": 1176,
+    "role": "train",
+    "teacher_tensor_read_or_write": false,
+    "training_authorized": false
+  },
+  "source_commit": "ad1318328f81a0023490a99e1fece4a132b5a7c2",
+  "source_patch_boundary": "Dev uses immutable b805; train uses immutable ad131 with explicitly reviewed192MiB ceiling and workers1. Models and old plans unchanged; no build/index/ledger migration admitted.",
+  "source_pins": {
+    "bytes": 4192,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/TRAIN_SOURCE_PINS_V3.json",
+    "sha256": "c5033fee72228daad61864341cc5a63b0545590f09baaf2183054254e295d600"
+  },
+  "status": "PASS_BOUNDED_TRAIN_PLAN_ONLY",
+  "test_evidence": {
+    "independent_cpu_cases": 7,
+    "owner_cpu_cases_rerun": 33,
+    "resource_review": {
+      "bytes": 3390,
+      "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/WRAPPER_REVIEW.md",
+      "sha256": "ea2333e0bd5015fbfd7238cc00cf489b5bd1096dbf643b4a0b555255f33acd14"
+    }
+  },
+  "valid_until_unix": 1792229271.9452727,
+  "wrapper": {
+    "bytes": 15894,
+    "path": "/mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py",
+    "sha256": "bd3c1dadaed8c79ea5242bcf40e95d991b11851edfd6b61d47f1073f6f41159f"
+  },
+  "wrapper_owner_commit": "e894f687ce65ae0ca2f4c6c16df1b1d9c1910faf"
+}
