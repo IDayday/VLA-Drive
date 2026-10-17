@@ -1,5 +1,7 @@
 # B100k SFT → 自身筛选与八卡验收 → 正式 RL 的衔接
 
+更新：2026-10-17，100k SFT真实完成后，v1实际调用暴露CPU dispatcher与`--ranks`参数的版本不匹配；旧27项mock测试未覆盖这个实际组合。现已完成[显式v2修复、33项测试与24个真实worker验证](B_SFT100k_completion_and_handoff.md)，旧失败目录保留，数值worker仍为225b。当前owner位于`endpoint_handoff_B_v2`，源为`8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81`；下面的v1启动说明是历史记录，不得重启旧owner。
+
 2026-10-16 21:44 UTC，有限衔接控制器已实际启动，并核对了 PID 与进程启动标识。它目前等待 B 的完整100k SFT，没有提前产生筛选候选或启动 B 的 RL。实际证据见 [B_endpoint_handoff_execution.json](B_endpoint_handoff_execution.json)。
 
 本改动只负责已有阶段的衔接。原 A RL、B SFT、里程碑评价控制器继续运行，未中断或热修改；没有新增训练路线、seed、候选预算或 Navtest 观察。
