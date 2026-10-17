@@ -1,0 +1,61 @@
+{
+  "build_argv_by_role": {
+    "dev": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/run_index_once.py",
+      "--admission",
+      "<NEW_DEV_INDEX_ADMISSION_PATH>",
+      "--admission-sha256",
+      "<NEW_DEV_INDEX_ADMISSION_SHA256>"
+    ],
+    "train": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/run_index_once.py",
+      "--admission",
+      "<NEW_TRAIN_INDEX_ADMISSION_PATH>",
+      "--admission-sha256",
+      "<NEW_TRAIN_INDEX_ADMISSION_SHA256>"
+    ]
+  },
+  "fresh_checkpoint_receipt_required_for_build": true,
+  "live_ledger_sha_hardcoded": false,
+  "prepare_argv": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+    "--wrapper-sha256",
+    "c749b4f9181b407cdb0b0684d7d26aeb52db8c31664b3b6f353def90f629ad1e",
+    "--preparer",
+    "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/full_future_index_preparation_v1/prepare_index_controls.py",
+    "--preparer-sha256",
+    "360a52ab7b8cf94bb1e8b1c7d2d6068a7ffe1acd1eec3f7761834a519d5a04d0",
+    "--policy",
+    "<CURRENT_POLICY_PATH_AFTER_W_TERMINAL>",
+    "--policy-sha256",
+    "<CURRENT_POLICY_SHA256>",
+    "--ledger-sha256",
+    "<FRESH_EXACT_LEDGER_SHA256>",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1",
+    "--train-index-source-pins",
+    "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalized_index_route_v1/TRAIN_INDEX_RUNTIME_SOURCE_PINS.json",
+    "--train-index-source-pins-sha256",
+    "17613ead99064c538554361b9452e3be11b368b352de2cb0d9049431ec95aef1"
+  ],
+  "prepare_cwd": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017",
+  "prepare_env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "sequence": [
+    "wait_for_owned_W_terminal_and_fresh_state",
+    "bounded_preparation_only",
+    "review_then_additive_policy_migration",
+    "independently_admitted_dev_index",
+    "independently_admitted_train_index"
+  ],
+  "status": "TEMPLATES_ONLY_NOT_DISPATCHED"
+}

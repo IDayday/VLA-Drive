@@ -1,0 +1,59 @@
+Source-only handoff. No preparation, index build, ledger read/write, policy
+migration, real request/shard/tensor read, GPU use or dispatch occurred here.
+
+Sequential actual invocation
+  COMMANDS.json contains exact executable/source argv plus placeholders for the
+  current policy pin and fresh ledger SHA. Wait for Lead's current W extraction
+  to terminate and refresh state before invoking preparation. The latest policy
+  change adds W separately; do not restore the earlier a6984/266a253 policy.
+  Preparation invokes prepare_once.py once on CPU0/1:120s work +40s cleanup,
+  1GiB aggregate RSS,384MiB total parent/child logical read, combined1MiB output
+  and control evidence inside the original administration allowance. It uses the
+  reviewed 4b2f core.monitor and charge_after_reap plus existing finite control
+  helpers. It does not add a new monitor loop, stage engine or automatic retry.
+  Output is a new finalized_phase_v1 directory; terminal controls are in its
+  finalized_phase_v1_controls sibling. Existing directories are never reused.
+  The helper's existing768KiB serialized-output bound remains. The wrapper
+  additionally censuses both roots including allocations, caps terminal controls
+  at128KiB, retains failed files and reports final owned cleanup/read accounting.
+  It reads the live ledger only when Lead later invokes the explicit command,
+  pinned to that invocation's supplied SHA; it never mutates it.
+
+After actual PREPARATION_COMPLETE
+  Independently review the generated PREPARATION and both registrations; perform
+  the existing additive policy migration preserving all W/history/finalizer
+  claims. Then issue separate finite DEV and TRAIN admissions and execute the
+  two run_index_once.py commands sequentially. Fresh checkpoint receipts must
+  cover each actual role window plus cleanup. The updated controller keeps the
+  existing2303GiB commitment minimum and1TiB free floor, rather than a stale CP
+  filename or an expanded allowance. CPU0/1, DEV900+40s/4GiB reads/4GiB RSS/
+  128MiB root and TRAIN3600+40s/64GiB reads/4GiB RSS/2GiB root are unchanged.
+  New controller/core/helper pins must appear in those new admissions. Prior
+  metadata build or finalizer admissions do not authorize index builds.
+
+Existing index-controller blockers fixed in place
+  expected_command: TRAIN now requests the exact new finalized-root manifest;
+  DEV retains its original root. Result dependency validation uses the same path.
+  validate_preparation: TRAIN explicitly requires the new finalization schema,
+  FINALIZATION_COMPLETE filename and source_shards_reused/no-raw-read flags.
+  controls: TRAIN additionally calls the pinned reviewed index preparer's
+  bind_finalized_train, preserving its full new terminal/admission/old-FAILED
+  lineage validation and the shared full finalizer receipt validator.
+  TRAIN runtime binding: exact3df052ea frozen tree and the existing reviewed
+  runtime_commit source-pin field. DEV retains1265b237 and its source_commit.
+  Monitor: exact4b2f current wait-boundary core, with actual reviewedd829
+  supervise_once.py hash. The old8674 core and a295 helper literals would reject
+  the current frozen monitor sources. All source hash checks remain enabled.
+  The index builder content hash remains ea8fe604; no indexer math/data changes.
+
+Evidence and limitations
+  Five narrow stdlib checks passed on DDP Python3.10/CPU0,1 in0.057s,
+  peakRSS22945792B, whole test-process rchar1870003B. They cover exact role
+  paths/schemas, runtime commit, newly emitted index dependency rejection,
+  actual frozen source hashes, strict-binder call presence, and prep source pins.
+  The existing broad controller fixture was minimally adjusted for the explicit
+  TRAIN schema. No broad tests or actual full-validator import were run here.
+  Full finalizer semantics and index-preparer adapter already have separate
+  independent reviews; new executable control changes still require Lead's
+  narrow independent review. This report is not actual admission or a PASS for
+  a real index build. SOURCE_PINS.json provides the exact review targets.

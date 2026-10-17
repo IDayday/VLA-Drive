@@ -36,12 +36,15 @@ def test_more_checkpoint_space_does_not_bypass_other_guards(change):
 def preparation(role='dev'):
     bindings={r:{'status':'ACTUAL_COMPLETE_BOUND','complete':{'path':'/fixture/'+r+'/COMPLETE.json','sha256':'a'*64},
         'request_identity':'b'*64,'request_file_sha256':'c'*64,'scenes':m.COUNTS[r]} for r in m.COUNTS}
+    bindings['train']['complete']['path']=str(m.BASE/'caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json')
+    bindings['train']['requests']=m.expected_command('train','b'*64)[5]
     p={'schema':'st_full_future_metadata_controls_v1','phase':'index','index_phase':'EXACT_REQUEST_BOUND',
         'dispatch_authorized':False,'build_executed':False,'new_teacher_tensor_bytes':0,'actual_completion_bindings':bindings,
         'source_inputs':{'roles':{r:{'future_complete':bindings[r]['complete']} for r in m.COUNTS}},
         'registrations':{r:{'path':'/fixture/'+r+'/REGISTRATION.json','sha256':'d'*64} for r in m.COUNTS}}
     done={'schema':'st_future_metadata_complete_v1','status':'COMPLETE','scope':'full_population','request_identity':'b'*64,
         'scenes':m.COUNTS[role],'training_admission':False,'teacher_extractions':0,'tensor_disk_bytes':0,'files':{'TEACHER_REQUESTS.json':'c'*64}}
+    if role=='train':done.update(schema='st_future_metadata_finalization_complete_v1',raw_log_deserialized=False,source_shards_reused=True)
     size=(56 if role=='dev' else 1008)*m.MiB
     reg={'schema':'st_metadata_build_registration_v1','writer_kind':'future_index','callback_protocol':'st_metadata_storage_check_v1',
         'command':m.expected_command(role,'b'*64),'storage_requirements':{'output_bytes':size,'staging_bytes':size,'metadata_bytes':(16 if role=='dev' else 32)*m.MiB},

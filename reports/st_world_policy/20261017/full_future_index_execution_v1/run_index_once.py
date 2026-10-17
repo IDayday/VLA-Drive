@@ -17,8 +17,10 @@ import subprocess
 import sys
 from types import ModuleType
 
-CORE_SHA='8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644'
-CORE_PATH=Path(__file__).absolute().parent.parent/'full_future_metadata_preparation_v1/run_build_once.py'
+FINALIZER_RUNTIME=Path('/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017')
+FINALIZER_COMMIT='3df052ea422c4ba042ef3be33dea19438c5702dc'
+CORE_SHA='4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2'
+CORE_PATH=FINALIZER_RUNTIME/'reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py'
 raw=CORE_PATH.read_bytes()
 if hashlib.sha256(raw).hexdigest()!=CORE_SHA:raise ValueError('Reviewed wait-boundary controller changed')
 core=ModuleType('fixed_future_index_monitor');core.__file__=str(CORE_PATH)
@@ -31,6 +33,9 @@ CONTRACT={'path':str(BASE/'audits/fixed_teacher_batch64_runtime_run_v1/RESOLVED_
 INDEX_BUILDER_SHA='ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f'
 FIELDS=('identity','request_identity','cache_identity','scene_count','record_count','database_bytes',
     'builder_peak_rss_bytes','tensor_files_opened','image_files_opened','tensor_disk_bytes')
+MONITORS={**core.MONITORS,'supervise_once.py':'d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902'}
+PREPARER_PATH=Path(__file__).absolute().parent.parent/'full_future_index_preparation_v1/prepare_index_controls.py'
+PREPARER_SHA='360a52ab7b8cf94bb1e8b1c7d2d6068a7ffe1acd1eec3f7761834a519d5a04d0'
 
 
 def digest(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
@@ -72,8 +77,10 @@ def validate_admission(a,now,*,child=False):
 
 
 def expected_command(role,request_identity):
+    requests=BASE/('caches/full_future_metadata_train_finalized_v1/TEACHER_REQUESTS.json' if role=='train'
+                   else 'caches/full_future_metadata_dev_v1/TEACHER_REQUESTS.json')
     return [core.PYTHON,'-m','tools.st_world_policy.index_teacher_metadata','build',
-        '--requests',str(BASE/('caches/full_future_metadata_'+role+'_v1/TEACHER_REQUESTS.json')),
+        '--requests',str(requests),
         '--expected-request-identity',request_identity,'--contract-receipt',CONTRACT['path'],
         '--contract-receipt-sha256',CONTRACT['sha256'],
         '--output',str(BASE/('caches/full_future_request_index_'+role+'_v1')),'--max-scenes',str(COUNTS[role]),
@@ -89,13 +96,18 @@ def validate_preparation(p,role,reg,done):
     if set(bindings)!=set(COUNTS) or any(b.get('status')!='ACTUAL_COMPLETE_BOUND' for b in bindings.values()):
         raise ValueError('Both actual future COMPLETE inputs are required')
     binding=bindings[role];inp=p['source_inputs']['roles'][role]
-    if (inp['future_complete']!=binding['complete'] or done.get('schema')!='st_future_metadata_complete_v1'
+    schema='st_future_metadata_finalization_complete_v1' if role=='train' else 'st_future_metadata_complete_v1'
+    if (inp['future_complete']!=binding['complete'] or done.get('schema')!=schema
             or done.get('status')!='COMPLETE' or done.get('scope')!='full_population'
             or done.get('request_identity')!=binding.get('request_identity')
             or type(done.get('scenes')) is not int or done['scenes']!=COUNTS[role]
             or binding.get('scenes')!=COUNTS[role] or done.get('training_admission') is not False
             or done.get('files',{}).get('TEACHER_REQUESTS.json')!=binding.get('request_file_sha256')):
         raise ValueError('Missing or changed actual role COMPLETE/request population')
+    if role=='train' and (Path(inp['future_complete']['path'])!=BASE/'caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json'
+            or binding.get('requests')!=expected_command(role,done['request_identity'])[5]
+            or done.get('raw_log_deserialized') is not False or done.get('source_shards_reused') is not True):
+        raise ValueError('Explicit finalized TRAIN receipt/root required')
     for name in ('teacher_extractions','tensor_disk_bytes'):
         if type(done.get(name)) is not int or done[name]!=0:raise ValueError('Metadata-only future input required')
     size=(56 if role=='dev' else 1008)*MiB
@@ -109,6 +121,31 @@ def validate_preparation(p,role,reg,done):
             or reg.get('limits',{}).get('max_seconds')!=limits(role)['wall_seconds']):
         raise ValueError('Exact bounded request-only index registration required')
     return binding
+
+
+def validate_finalized_input(p,done):
+    """Re-use the reviewed new receipt/terminal/old-failure binding exactly."""
+    raw=core.pinned({'path':str(PREPARER_PATH),'sha256':PREPARER_SHA},decode=False)
+    preparer=ModuleType('reviewed_finalized_index_preparation');preparer.__file__=str(PREPARER_PATH)
+    exec(compile(raw,str(PREPARER_PATH),'exec'),preparer.__dict__)
+    helper=preparer.load_helper();item=p['source_inputs']['roles']['train']
+    terminal_pin=p['actual_completion_bindings']['train']['build_result']
+    terminal=core.pinned(terminal_pin)
+    reg=preparer.bind_finalized_train(helper,item['plan'],done,item['future_complete'],terminal,terminal_pin)
+    if reg['source_code_root']!=item['original_source_code_root']:
+        raise ValueError('Original frozen source runtime lineage changed')
+
+
+def runtime_binding(role,source):
+    if role=='train':
+        if (source.get('schema')!='st_future_finalized_index_runtime_pins_v1'
+                or source.get('runtime')!=str(FINALIZER_RUNTIME) or source.get('runtime_commit')!=FINALIZER_COMMIT):
+            raise ValueError('Exact finalized TRAIN index runtime required')
+        return str(FINALIZER_RUNTIME),FINALIZER_COMMIT
+    runtime,commit=core.RUNTIMES['dev']
+    if source.get('runtime')!=runtime or not source.get('source_commit','').startswith(commit):
+        raise ValueError('Original immutable DEV index source required')
+    return runtime,source['source_commit']
 
 
 
@@ -141,19 +178,20 @@ def controls(args,*,child=False):
     p=core.pinned(a['preparation']);regpin=p['registrations'][role];reg=core.pinned(regpin)
     done=core.pinned(p['source_inputs']['roles'][role]['future_complete'])
     validate_preparation(p,role,reg,done)
-    runtime,commit=core.RUNTIMES[role]
     source=core.pinned(p['source_inputs']['roles'][role]['source_pins'])
-    if source['runtime']!=runtime or reg['cwd']!=runtime or not source['source_commit'].startswith(commit):
+    runtime,commit=runtime_binding(role,source)
+    if reg['cwd']!=runtime:
         raise ValueError('Original immutable index source required')
     for pin in source['files'].values():core.pinned(pin,decode=False)
+    if role=='train':validate_finalized_input(p,done)
     if a['policy']!=p['proposed_policy'] or a['registration']!=regpin:raise ValueError('Changed index policy/registration binding')
     if a.get('base_policy')!=p['source_inputs']['old_policy']:raise ValueError('Exact additive base policy required')
     validate_additive_policy(p,core.pinned(a['base_policy']),core.pinned(a['policy']))
     cp=core.pinned(a['checkpoint_receipt'])
     validate_checkpoint_commitments(cp,a['valid_until_unix'])
-    if set(a['monitor_helpers'])!=set(core.MONITORS):raise ValueError('Original monitor helpers required')
+    if set(a['monitor_helpers'])!=set(MONITORS):raise ValueError('Reviewed monitor helpers required')
     parent=None
-    for name,sha in core.MONITORS.items():
+    for name,sha in MONITORS.items():
         pin=a['monitor_helpers'][name]
         if pin['sha256']!=sha or Path(pin['path']).name!=name:raise ValueError('Changed monitor helper')
         core.pinned(pin,decode=False)
@@ -230,7 +268,7 @@ def validate_result(role,p,output,done,contract):
 def run(args):
     a,p,reg,root,guard,s,obs,m,b=controls(args);role=a['role'];budget=a['limits'];runtime=reg['cwd']
     source=core.pinned(p['source_inputs']['roles'][role]['source_pins'])
-    if subprocess.check_output(['git','rev-parse','HEAD'],cwd=runtime,text=True).strip()!=source['source_commit']:
+    if subprocess.check_output(['git','rev-parse','HEAD'],cwd=runtime,text=True).strip()!=runtime_binding(role,source)[1]:
         raise ValueError('Immutable index source HEAD changed')
     if subprocess.check_output(['git','status','--porcelain'],cwd=runtime).strip():raise ValueError('Immutable index source dirty')
     dispatch=core.pinned(a['dispatch_policy'])
