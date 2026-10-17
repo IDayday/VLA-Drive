@@ -1,0 +1,210 @@
+--- reviewed_world2_controller
++++ fixed_world8_controller
+@@ -17,26 +17,26 @@
+ import time
+ 
+ ROOT=Path('/mnt/project/st-world-policy-20261016')
+-REPO=Path('/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017')
+-SOURCE='a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a'
+-OUT=ROOT/'profile/world_indexed_provider_fulltrain_updates64_world2_v1'
+-FACTORY=ROOT/'audits/full_population_provider_preparation_v1'
+-RUN_ID='indexed_provider_fulltrain_updates64_world2_v1'
++REPO=Path('/mnt/project/VLA-Drive-st-full-topology-profile-runtime-20261017')
++SOURCE='210be55caa9b3395434504b5e310f7274d09c35a'
++OUT=ROOT/'profile/world_indexed_provider_fulltrain_updates240_world8_v1'
++FACTORY=Path('/mnt/project/st-world-policy-20261016/audits/full_population_topology240_provider_v1')
++RUN_ID='indexed_provider_fulltrain_updates240_world8_v1'
+ HOST='training-vla-zt-worker-0'
+-GPU='0,1'
+-GPU_LOCKS=(Path('/tmp/foresight_gpu_0.lock'),Path('/tmp/foresight_gpu_1.lock'))
++GPU='0,1,2,3,4,5,6,7'
++GPU_LOCKS=tuple(Path('/tmp/foresight_gpu_'+str(i)+'.lock') for i in range(8))
+ PYTHON='/root/miniconda3/envs/ddp/bin/python'
+ OLD=ROOT/'resources/qualify_fixed_provider_training_v1.py'
+ OLD_SHA='8d7049bd2e7557121c78d02674590004ab923a8129dd9c30ffd3cbc7e8ef8925'
+ POLICY=Path('/mnt/project/server_dispatch_policy.json')
+ AUTH=ROOT/'resources/AUTHORIZATION_20261016T203442.json'
+-INPUT=Path(__file__).resolve().with_name('INPUTS.json')
++INPUT=Path('/mnt/project/st-world-policy-20261016/audits/full_population_topology240_provider_v1/CONTROLLER_INPUTS.json')
+ RESERVE=80*(1<<30)
+-OTHER_COMMITMENTS=2303*(1<<30)
++OTHER_COMMITMENTS=2383*(1<<30)
+ FREE_FLOOR=1<<40
+-OUTER_SECONDS=1620
++OUTER_SECONDS=3720
+ CLEANUP_SECONDS=180
+-RSS_LIMIT=64*(1<<30)
++RSS_LIMIT=256*(1<<30)
+ RSS_INTERVAL=1.
+ STORAGE_INTERVAL=10.
+ MONITOR_SOURCES={
+@@ -72,19 +72,20 @@
+ 
+ def validate_recipe(cfg):
+     require(cfg['execution']=={
+-        'scope':'PROFILE','family':'temporal','world_size':2,'micro_batch':1,'global_batch':2,
+-        'max_updates':20000,'stop_after':64,'sample_limit':101592,'seed':42,
++        'scope':'PROFILE','family':'temporal','world_size':8,'micro_batch':4,'global_batch':32,
++        'max_updates':20000,'stop_after':240,'sample_limit':101592,'seed':42,
+         'precision_policy':'S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off'},'Wrong finite PROFILE identity')
+     rt=cfg['runtime']
+-    require(rt['max_seconds']==1500 and rt['save_every']==64 and rt['loader_workers']==0
++    require(rt['max_seconds']==3600 and rt['save_every']==1000 and rt['loader_workers']==0
+         and rt['deterministic'] is True and rt['gradient_checkpointing'] is False
+-        and rt.get('profile_mode','none')=='none' and rt['output_root']==str(FACTORY/'configured/runs')
++        and rt.get('profile_mode','none')=='timing' and rt['output_root']==str(FACTORY/'configured/runs')
+         and cfg['optimizer']['warmup']==1000,'Runtime/schedule changed')
+ 
+ 
+ def command(resume=False):
+-    argv = ['timeout','--signal=TERM','--kill-after=180s','1620s',PYTHON,'-m','torch.distributed.run',
+-        '--standalone','--nnodes=1','--nproc_per_node=2','-m','tools.st_world_policy.train_world',
++    require(not resume,'Fresh complete timing windows cannot resume or stitch PROFILE checkpoints')
++    argv = ['timeout','--signal=TERM','--kill-after=180s','3720s',PYTHON,'-m','torch.distributed.run',
++        '--standalone','--nnodes=1','--nproc_per_node=8','-m','tools.st_world_policy.train_world',
+         '--registration',str(OUT/'REGISTRATION.json')]
+     return argv + (['--resume','--acknowledge-stop'] if resume else [])
+ 
+@@ -103,7 +104,7 @@
+             if path.is_file(): used+=max(path.stat().st_size,path.stat().st_blocks*512)
+     free=shutil.disk_usage(ROOT).free
+     required=storage_requirement(used)
+-    require(free>=required,'Insufficient space after 2303GiB existing commitments + 1TiB floor + own remaining80GiB')
++    require(free>=required,'Insufficient space after 2383GiB existing commitments + 1TiB floor + own remaining80GiB')
+     return {'schema':'st_indexed_profile64_storage_check_v1','checked_at_unix':time.time(),
+         'actual_free_bytes':free,'minimum_free_bytes':required,'reserved_bytes':RESERVE,
+         'existing_task_bytes':used,'other_registered_commitments_bytes':OTHER_COMMITMENTS,
+@@ -115,13 +116,13 @@
+ def gpu_record(idle):
+     rows=subprocess.check_output(['nvidia-smi','--id='+GPU,'--query-gpu=uuid,memory.used,utilization.gpu',
+         '--format=csv,noheader,nounits'],text=True).strip().splitlines()
+-    require(len(rows)==2,'Exactly physical GPU0/1 required')
++    require(len(rows)==8,'Exactly physical GPU0 through7 required')
+     result=[]
+     for gpu,row in zip(GPU.split(','),rows):
+         uuid,memory,util=[x.strip() for x in row.split(',')]
+         if idle:require(int(memory)<64 and int(util)<=5,'GPU'+gpu+' busy; never stop another job')
+         result.append({'id':gpu,'uuid':uuid,'memory_mib':int(memory),'utilization_percent':int(util)})
+-    require(len({x['uuid'] for x in result})==2,'Duplicate physical GPU UUID')
++    require(len({x['uuid'] for x in result})==8,'Duplicate physical GPU UUID')
+     return result
+ 
+ 
+@@ -152,10 +153,10 @@
+         'Actual complete full original TRAIN population must match the provider')
+     require(admission.get('consumption')=={
+         'schema':'st_full_index_profile_consumption_v1','initial_completed_updates':0,'initial_epoch':0,'initial_offset':0,
+-        'cumulative_optimizer_updates':64,'cumulative_scene_exposures':128,'world_size':2,'micro_batch':1,'global_batch':2,
+-        'gradient_accumulation_steps':1,'per_rank_scene_exposures':[64,64],
+-        'resume_budget':'same_run_cumulative_not_per_invocation','formal_global32_throughput_qualified':False},
+-        'Whole-run64/128 budget changed')
++        'cumulative_optimizer_updates':240,'cumulative_scene_exposures':7680,'world_size':8,'micro_batch':4,'global_batch':32,
++        'gradient_accumulation_steps':1,'per_rank_scene_exposures':[960]*8,
++        'resume_budget':'timing_requires_fresh_complete_windows_no_resume','formal_global32_throughput_qualified':False},
++        'Whole-run240/7680 budget changed')
+     # The factory and native provider validate every row/order/hash. This control
+     # uses its pinned COMPLETE count and never parses the full scene list again.
+ 
+@@ -197,12 +198,12 @@
+         'source_sha':SOURCE,'run_id':RUN_ID,'output_root':str(OUT),'controller_sha256':digest(__file__),
+         'inputs_sha256':digest(INPUT),'checkpoint_reservation_bytes':RESERVE,
+         'other_commitments_bytes':OTHER_COMMITMENTS,'free_floor_bytes':FREE_FLOOR,
+-        'max_invocation_seconds':1500,'outer_timeout_seconds':OUTER_SECONDS,'cleanup_seconds':CLEANUP_SECONDS,
++        'max_invocation_seconds':3600,'outer_timeout_seconds':OUTER_SECONDS,'cleanup_seconds':CLEANUP_SECONDS,
+         'rss_limit_bytes':RSS_LIMIT,'rss_interval_seconds':RSS_INTERVAL,'storage_interval_seconds':STORAGE_INTERVAL}
+     require(all(a.get(k)==v and type(a.get(k)) is type(v) for k,v in expected.items()),'Resource admission does not bind this exact run')
+     require(action in a.get('allowed_actions',[]),'This action is outside its resource admission')
+     cpus=a.get('cpu_affinity')
+-    require(isinstance(cpus,list) and len(cpus) in (2,4) and len(set(cpus))==len(cpus)
++    require(isinstance(cpus,list) and len(cpus)==16 and len(set(cpus))==len(cpus)
+         and all(type(x) is int and x>=0 for x in cpus),'Explicit bounded CPU affinity required')
+     cp_pin=a.get('checkpoint_commitments',{})
+     require(isinstance(cp_pin,dict) and set(cp_pin)=={'path','sha256'}
+@@ -222,16 +223,16 @@
+ def prepare(inputs,cfg,approval,approval_pin):
+     m=legacy(); envrec,validate,official,fingerprint,verify,write,_=m.modules()
+     with ExitStack() as stack:
+-        stack.enter_context(m.lock(ROOT/'resources/indexed_profile64_preparation.lock'))
++        stack.enter_context(m.lock(ROOT/'resources/indexed_profile240_preparation.lock'))
+         for path in GPU_LOCKS: stack.enter_context(m.lock(path))
+         require(not OUT.exists(),'Existing output preserved; no overwrite or automatic retry')
+         gpu=gpu_record(True);disk=storage();cfg=registered_config(cfg);validate(cfg)
+         require(official(cfg) is not None,'Official execution policy missing')
+         now=time.time()
+-        lease={'schema':'st_training_resource_lease_v1','hostnames':[HOST],'world_size':2,
++        lease={'schema':'st_training_resource_lease_v1','hostnames':[HOST],'world_size':8,
+             'cuda_visible_devices_by_host':{HOST:GPU},'gpu_uuids_by_host':{HOST:[row['uuid'] for row in gpu]},
+-            'valid_from_unix':now-1,'valid_until_unix':approval['valid_until_unix'],'max_invocation_seconds':1500,
+-            'purpose':'Full original population, cumulative64 updates/128 exposures, world2/global2 diagnostic only; not formal global32 qualification',
++            'valid_from_unix':now-1,'valid_until_unix':approval['valid_until_unix'],'max_invocation_seconds':3600,
++            'purpose':'Fresh full population intended topology PROFILE240/7680; two20+100 windows; formal approval remains false',
+             'authorization':str(AUTH),'resource_admission':approval_pin,'checkpoint_reservation_bytes':RESERVE,
+             'other_commitments_bytes':OTHER_COMMITMENTS,'separate_free_floor_bytes':FREE_FLOOR,
+             'cpu_threads':2,'cpu_affinity':approval['cpu_affinity'],'rss_limit_bytes':RSS_LIMIT,'tensor_cache_write_bytes':0,'pressure_workers_killed':False,'real_jobs_stopped':False}
+@@ -292,7 +293,7 @@
+ 
+ def rank_telemetry(run):
+     values={}
+-    for rank in range(2):
++    for rank in range(8):
+         p=run/('teacher_provider_rank'+str(rank)+'.json')
+         if p.exists():
+             require(p.stat().st_size<=64<<10,'Oversized original per-rank telemetry')
+@@ -402,6 +403,7 @@
+ 
+ 
+ def execute(approval,approval_pin,resume=False):
++    require(not resume,'Timing requires a fresh independent complete window; native weights preserved but not reused')
+     m=legacy();envrec,_,_,_,verify,write,_=m.modules()
+     verify(OUT/'REGISTRATION.json',repo=REPO)
+     prepared=read(OUT/'PREPARED.json');lease=read(OUT/'RESOURCE_LEASE.json')
+@@ -417,7 +419,7 @@
+     else:
+         require(prepared['resource_admission']==approval_pin,'Different initial resource admission')
+     require(read(OUT/'ENVIRONMENT.json')==envrec(),'Actual environment changed')
+-    require(lease['valid_from_unix']<=time.time() and time.time()+1800<=lease['valid_until_unix'],'Lease too short')
++    require(lease['valid_from_unix']<=time.time() and time.time()+3900<=lease['valid_until_unix'],'Lease too short')
+     require(set(lease['cpu_affinity']).issubset(os.sched_getaffinity(0)),'Admitted CPUs not available')
+     os.sched_setaffinity(0,set(lease['cpu_affinity']))
+     run=OUT/'runs'/RUN_ID
+@@ -426,7 +428,7 @@
+         stack.enter_context(m.lock(OUT/'DISPATCH.lock'))
+         gpu_locks=[stack.enter_context(m.lock(path)) for path in GPU_LOCKS]
+         gpu=gpu_record(True);disk=storage()
+-        require([row['uuid'] for row in gpu]==lease['gpu_uuids_by_host'][HOST],'Physical GPU0/1 UUID changed')
++        require([row['uuid'] for row in gpu]==lease['gpu_uuids_by_host'][HOST],'Physical GPU0 through7 UUID changed')
+         require(not (OUT/('LAUNCH_'+phase+'.json')).exists(),'This explicit invocation already exists; no automatic retry')
+         if resume:
+             previous=read(run/'RESULT.json')
+@@ -453,7 +455,7 @@
+                     'launcher_pid':os.getpid(),'launcher_starttime':m.proc_start(os.getpid()),'argv':command(resume),
+                     'source_sha':SOURCE,'script_sha256':digest(__file__),'started_unix':time.time(),'scope':'PROFILE',
+                     'cuda_visible_devices':GPU,'gpu_lock_paths':[str(p) for p in GPU_LOCKS],'storage':disk,'formal':False,'resume':resume,
+-                    'max_completed_updates':64,'max_total_scene_exposures':128,'sample_limit':101592,'resource_admission':approval_pin},immutable=True)
++                    'max_completed_updates':240,'max_total_scene_exposures':7680,'sample_limit':101592,'resource_admission':approval_pin},immutable=True)
+                 print(json.dumps({'status':'LAUNCHED','pid':child.pid,'run_id':RUN_ID}),flush=True)
+                 entered_monitor=True
+                 code,monitor=monitor_training(child,owner,stopped,rss_reader,run,phase,started=invoked,absolute_end=absolute_end)
+@@ -474,18 +476,18 @@
+             'monitor':monitor},immutable=True)
+         require(monitor['reason'] is None,'Monitored failure preserved even if native save/returncode succeeded')
+         require(code==0,'Invocation failed; preserved evidence, no automatic retry')
+-        require(result is not None and result.get('completed')==64 and result.get('exposure')==128 and result.get('status')=='PAUSED',
+-            'Earlier boundary or incorrect terminal result; do not claim64 completed')
++        require(result is not None and result.get('completed')==240 and result.get('exposure')==7680 and result.get('status')=='PAUSED',
++            'Earlier boundary or incorrect terminal result; do not claim240 completed')
+ 
+ 
+ def main():
+     p=argparse.ArgumentParser(description=__doc__)
+-    p.add_argument('--action',choices=('preflight','prepare','run','resume'),default='preflight')
++    p.add_argument('--action',choices=('preflight','prepare','run'),default='preflight')
+     p.add_argument('--resource-admission');p.add_argument('--resource-admission-sha256')
+     args=p.parse_args();inputs,cfg=common()
+     if args.action=='preflight':
+         print(json.dumps({'status':'METADATA_PREFLIGHT_ONLY','source':SOURCE,'scope':'PROFILE',
+-            'updates':64,'total_exposures':128,'world_size':2,'sample_limit':101592,'gpu_queried':False,'output_created':False}));return
++            'updates':240,'total_exposures':7680,'world_size':8,'sample_limit':101592,'gpu_queried':False,'output_created':False}));return
+     approved,approval_pin=admission(args.resource_admission,args.resource_admission_sha256,args.action)
+     if args.action=='prepare':prepare(inputs,cfg,approved,approval_pin)
+     else:execute(approved,approval_pin,resume=args.action=='resume')

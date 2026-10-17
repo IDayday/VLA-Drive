@@ -1,0 +1,204 @@
+{
+  "donor": {
+    "path": "/mnt/project/VLA-Drive-st-full-topology-profile-control-20261017/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py",
+    "sha256": "bd802d47f187e494c2dde72ab8c04c670cb529d2b32b187ca06dfad3f3cc6bd1"
+  },
+  "edits": [
+    {
+      "count": 1,
+      "new": "REPO=Path('/mnt/project/VLA-Drive-st-full-topology-profile-runtime-20261017')",
+      "old": "REPO=Path('/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017')"
+    },
+    {
+      "count": 1,
+      "new": "SOURCE='210be55caa9b3395434504b5e310f7274d09c35a'",
+      "old": "SOURCE='a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a'"
+    },
+    {
+      "count": 1,
+      "new": "world_indexed_provider_fulltrain_updates240_world8_v1",
+      "old": "world_indexed_provider_fulltrain_updates64_world2_v1"
+    },
+    {
+      "count": 1,
+      "new": "indexed_provider_fulltrain_updates240_world8_v1",
+      "old": "indexed_provider_fulltrain_updates64_world2_v1"
+    },
+    {
+      "count": 1,
+      "new": "FACTORY=Path('/mnt/project/st-world-policy-20261016/audits/full_population_topology240_provider_v1')",
+      "old": "FACTORY=ROOT/'audits/full_population_provider_preparation_v1'"
+    },
+    {
+      "count": 1,
+      "new": "GPU='0,1,2,3,4,5,6,7'",
+      "old": "GPU='0,1'"
+    },
+    {
+      "count": 1,
+      "new": "GPU_LOCKS=tuple(Path('/tmp/foresight_gpu_'+str(i)+'.lock') for i in range(8))",
+      "old": "GPU_LOCKS=(Path('/tmp/foresight_gpu_0.lock'),Path('/tmp/foresight_gpu_1.lock'))"
+    },
+    {
+      "count": 1,
+      "new": "INPUT=Path('/mnt/project/st-world-policy-20261016/audits/full_population_topology240_provider_v1/CONTROLLER_INPUTS.json')",
+      "old": "INPUT=Path(__file__).resolve().with_name('INPUTS.json')"
+    },
+    {
+      "count": 1,
+      "new": "OTHER_COMMITMENTS=2383*(1<<30)",
+      "old": "OTHER_COMMITMENTS=2303*(1<<30)"
+    },
+    {
+      "count": 1,
+      "new": "OUTER_SECONDS=3720",
+      "old": "OUTER_SECONDS=1620"
+    },
+    {
+      "count": 1,
+      "new": "RSS_LIMIT=256*(1<<30)",
+      "old": "RSS_LIMIT=64*(1<<30)"
+    },
+    {
+      "count": 2,
+      "new": "'world_size':8,'micro_batch':4,'global_batch':32",
+      "old": "'world_size':2,'micro_batch':1,'global_batch':2"
+    },
+    {
+      "count": 1,
+      "new": "'max_updates':20000,'stop_after':240",
+      "old": "'max_updates':20000,'stop_after':64"
+    },
+    {
+      "count": 1,
+      "new": "rt['max_seconds']==3600 and rt['save_every']==1000",
+      "old": "rt['max_seconds']==1500 and rt['save_every']==64"
+    },
+    {
+      "count": 1,
+      "new": "rt.get('profile_mode','none')=='timing'",
+      "old": "rt.get('profile_mode','none')=='none'"
+    },
+    {
+      "count": 1,
+      "new": "'3720s'",
+      "old": "'1620s'"
+    },
+    {
+      "count": 1,
+      "new": "'--nproc_per_node=8'",
+      "old": "'--nproc_per_node=2'"
+    },
+    {
+      "count": 1,
+      "new": "    require(not resume,'Fresh complete timing windows cannot resume or stitch PROFILE checkpoints')\n    argv = ['timeout'",
+      "old": "    argv = ['timeout'"
+    },
+    {
+      "count": 1,
+      "new": "len(rows)==8,'Exactly physical GPU0 through7 required'",
+      "old": "len(rows)==2,'Exactly physical GPU0/1 required'"
+    },
+    {
+      "count": 1,
+      "new": "len({x['uuid'] for x in result})==8",
+      "old": "len({x['uuid'] for x in result})==2"
+    },
+    {
+      "count": 1,
+      "new": "'cumulative_optimizer_updates':240,'cumulative_scene_exposures':7680",
+      "old": "'cumulative_optimizer_updates':64,'cumulative_scene_exposures':128"
+    },
+    {
+      "count": 1,
+      "new": "'per_rank_scene_exposures':[960]*8",
+      "old": "'per_rank_scene_exposures':[64,64]"
+    },
+    {
+      "count": 1,
+      "new": "'resume_budget':'timing_requires_fresh_complete_windows_no_resume'",
+      "old": "'resume_budget':'same_run_cumulative_not_per_invocation'"
+    },
+    {
+      "count": 1,
+      "new": "'Whole-run240/7680 budget changed'",
+      "old": "'Whole-run64/128 budget changed'"
+    },
+    {
+      "count": 2,
+      "new": "'max_invocation_seconds':3600",
+      "old": "'max_invocation_seconds':1500"
+    },
+    {
+      "count": 1,
+      "new": "len(cpus)==16",
+      "old": "len(cpus) in (2,4)"
+    },
+    {
+      "count": 1,
+      "new": "'hostnames':[HOST],'world_size':8,",
+      "old": "'hostnames':[HOST],'world_size':2,"
+    },
+    {
+      "count": 1,
+      "new": "'Fresh full population intended topology PROFILE240/7680; two20+100 windows; formal approval remains false'",
+      "old": "'Full original population, cumulative64 updates/128 exposures, world2/global2 diagnostic only; not formal global32 qualification'"
+    },
+    {
+      "count": 1,
+      "new": "'resources/indexed_profile240_preparation.lock'",
+      "old": "'resources/indexed_profile64_preparation.lock'"
+    },
+    {
+      "count": 1,
+      "new": "for rank in range(8):",
+      "old": "for rank in range(2):"
+    },
+    {
+      "count": 1,
+      "new": "time.time()+3900<=lease['valid_until_unix']",
+      "old": "time.time()+1800<=lease['valid_until_unix']"
+    },
+    {
+      "count": 1,
+      "new": "'Physical GPU0 through7 UUID changed'",
+      "old": "'Physical GPU0/1 UUID changed'"
+    },
+    {
+      "count": 1,
+      "new": "'max_completed_updates':240,'max_total_scene_exposures':7680",
+      "old": "'max_completed_updates':64,'max_total_scene_exposures':128"
+    },
+    {
+      "count": 1,
+      "new": "result.get('completed')==240 and result.get('exposure')==7680",
+      "old": "result.get('completed')==64 and result.get('exposure')==128"
+    },
+    {
+      "count": 1,
+      "new": "'Earlier boundary or incorrect terminal result; do not claim240 completed'",
+      "old": "'Earlier boundary or incorrect terminal result; do not claim64 completed'"
+    },
+    {
+      "count": 1,
+      "new": "choices=('preflight','prepare','run')",
+      "old": "choices=('preflight','prepare','run','resume')"
+    },
+    {
+      "count": 1,
+      "new": "'updates':240,'total_exposures':7680,'world_size':8",
+      "old": "'updates':64,'total_exposures':128,'world_size':2"
+    },
+    {
+      "count": 1,
+      "new": "2383GiB existing commitments",
+      "old": "2303GiB existing commitments"
+    },
+    {
+      "count": 1,
+      "new": "def execute(approval,approval_pin,resume=False):\n    require(not resume,'Timing requires a fresh independent complete window; native weights preserved but not reused')\n",
+      "old": "def execute(approval,approval_pin,resume=False):\n"
+    }
+  ],
+  "transformed_sha256": "8c733608dcfe7c87fd3727ff4da2828798bd267f44a776df6b50edb274046ea1"
+}

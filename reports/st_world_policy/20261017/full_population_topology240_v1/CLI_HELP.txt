@@ -1,0 +1,29 @@
+usage: controller.py [-h] [--action {preflight,prepare,run}]
+                     [--resource-admission RESOURCE_ADMISSION]
+                     [--resource-admission-sha256 RESOURCE_ADMISSION_SHA256]
+
+Lead-only one-shot PROFILE control. Default is read-only preflight; no trainer
+fork.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --action {preflight,prepare,run}
+  --resource-admission RESOURCE_ADMISSION
+  --resource-admission-sha256 RESOURCE_ADMISSION_SHA256
+usage: prepare_once.py [-h] --admission ADMISSION --admission-sha256
+                       ADMISSION_SHA256
+
+One bounded original full-population provider preparation; never trains or
+retries.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256
+usage: bind_controller_inputs.py [-h]
+
+After the original factory exits successfully, pin its small actual outputs;
+no DB/tensor reads.
+
+optional arguments:
+  -h, --help  show this help message and exit
