@@ -1,0 +1,59 @@
+.....F.................................F..                               [100%]
+=================================== FAILURES ===================================
+_______ test_post_read_fd_path_and_parent_changes_are_rejected[fd_mtime] _______
+
+tmp_path = PosixPath('/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_index_adapter_resource_addendum_v2/tiny_fixture_tmp/test_post_read_fd_path_and_par1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2a467e2730>
+change = 'fd_mtime'
+
+    @pytest.mark.parametrize('change', ['path_inode', 'fd_mtime', 'parent_symlink'])
+    def test_post_read_fd_path_and_parent_changes_are_rejected(tmp_path, monkeypatch, change):
+        directory = tmp_path / 'dir'
+        directory.mkdir()
+        p = directory / 'COMPLETE.json'
+        p.write_text('{}')
+        original = m.os.read
+        called = []
+        def changing(fd, size):
+            raw = original(fd, size)
+            if not called:
+                called.append(True)
+                if change == 'path_inode':
+                    other = directory / 'replacement'
+                    other.write_text('{}')
+                    other.replace(p)
+                elif change == 'fd_mtime':
+                    st = os.fstat(fd)
+                    os.utime(p, ns=(st.st_atime_ns, st.st_mtime_ns + 1000000))
+                else:
+                    moved = tmp_path / 'moved'
+                    directory.rename(moved)
+                    directory.symlink_to(moved, target_is_directory=True)
+            return raw
+        monkeypatch.setattr(m.os, 'read', changing)
+        with pytest.raises(ValueError, match='changed or exceeded bound'):
+>           m.read_small_actual(p)
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+../VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/test_bounded_complete_read.py:88: Failed
+__________ test_complete_hardlink_and_atomic_replace_race_fail_closed __________
+
+tmp_path = PosixPath('/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_index_adapter_resource_addendum_v2/tiny_fixture_tmp/test_complete_hardlink_and_ato0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2a46832a00>
+
+    def test_complete_hardlink_and_atomic_replace_race_fail_closed(tmp_path,monkeypatch):
+        import os
+        p=tmp_path/'COMPLETE.json';p.write_text('{}');os.link(p,tmp_path/'alias')
+        with pytest.raises(ValueError):m.read_small_actual(p)
+        (tmp_path/'alias').unlink();original=Path.read_bytes
+        def replace(path):
+            raw=original(path);temp=path.with_suffix('.new');temp.write_text('{"changed":true}');os.replace(temp,path);return raw
+        monkeypatch.setattr(Path,'read_bytes',replace)
+>       with pytest.raises(ValueError,match='changed during read'):m.read_small_actual(p)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+../VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_index_adapter_resource_addendum_v2/test_resource_addendum.py:52: Failed
+=========================== short test summary info ============================
+FAILED ../VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/test_bounded_complete_read.py::test_post_read_fd_path_and_parent_changes_are_rejected[fd_mtime]
+FAILED ../VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_index_adapter_resource_addendum_v2/test_resource_addendum.py::test_complete_hardlink_and_atomic_replace_race_fail_closed
+2 failed, 40 passed in 1.67s

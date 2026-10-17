@@ -1,0 +1,126 @@
+{
+  "active_train_modified": false,
+  "actual_execution_admission": "NOT_ISSUED",
+  "inherited_conclusions": [
+    "Exact dev/train resource limits and same-core/old-claim preservation.",
+    "Original actual index schema validation and request-only argv.",
+    "Guarded root/control/tmp publication and checkpoint/free-floor requirements.",
+    "Administrative allocation remains pending; no fresh actual token."
+  ],
+  "ledger_modified": false,
+  "owner_commit": "ea1b00bb3f00d3a96633325f04d8d08bc817b56f",
+  "pending": [
+    "Actual train completion and independently verified terminal accounting.",
+    "Explicit1MiB index preparation administrative reservation before use; would be5621MiB/8GiB if granted.",
+    "Actual preparation/registrations/current policy and ledger pins.",
+    "Fresh exact per-role resource lease and checkpoint commitments."
+  ],
+  "prior_resource_review_commit": "c6c41f25",
+  "production_limits_modified": false,
+  "retained_initial_run": {
+    "explanation": [
+      "Inherited negative test still patched removed Path.read_bytes call; updated fixture interception to actual os.read path.",
+      "Owner +1ms timestamp fault injection did not change shared-FS fstat/path timestamps; original owner case passes unchanged on /tmp; separately injected and verified observable +2s on shared FS is rejected."
+    ],
+    "failed": 2,
+    "not_relabelled_pass": true,
+    "passed": 40,
+    "preserved_output": "INITIAL_TEST_OUTPUT.txt"
+  },
+  "schema": "independent_index_resource_addendum_v2",
+  "shared_timestamp_probe": [
+    {
+      "before": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232894000000000,
+        "st_size": 2
+      },
+      "fd_after": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232894000000000,
+        "st_size": 2
+      },
+      "mtime_changed": false,
+      "path_after": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232894000000000,
+        "st_size": 2
+      },
+      "requested_delta_ns": 1000000,
+      "requested_mtime_ns": 1792232894001000000
+    },
+    {
+      "before": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232894000000000,
+        "st_size": 2
+      },
+      "fd_after": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232896000000000,
+        "st_size": 2
+      },
+      "mtime_changed": true,
+      "path_after": {
+        "st_ctime_ns": 1792232894000000000,
+        "st_dev": 3789794614,
+        "st_ino": 144115927531753284,
+        "st_mtime_ns": 1792232896000000000,
+        "st_size": 2
+      },
+      "requested_delta_ns": 2000000000,
+      "requested_mtime_ns": 1792232896000000000
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/run_index_once.py",
+      "sha256": "eb9713666a84e8ffba7a55c75f656bb6133218dc626d772200189adad6d41a9a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_index_execution_v1/test_bounded_complete_read.py",
+      "sha256": "fc313f5f1366b198f80d8c7b79c68f41e7d93a8d84af69e06ca8168fec318433"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-index-bounded-read-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/test_exit_race.py",
+      "sha256": "f12236034c3d880393ac85b265ddd992703cc8c73c4b84926aeb0c235a7b15a6"
+    }
+  ],
+  "status": "PASS_EXACT_FIXED_PAIR_RESOURCE_BOUNDARY",
+  "tests": {
+    "cost": {
+      "additional_shared_fs_fixture": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_index_adapter_resource_addendum_v2/shared_observable_mtime_fixture.json",
+      "address_space_limit_bytes": 2147483648,
+      "cpu_affinity": [
+        0,
+        1
+      ],
+      "exit_code": 0,
+      "index_executed": false,
+      "ledger_written": false,
+      "local_fixture_root": "/tmp/independent-index-resource-v2-jdqkaex2",
+      "peak_rss_bytes": 38617088,
+      "rchar_delta": 8942075,
+      "torch_imported": false,
+      "wall_seconds": 1.1383697781711817
+    },
+    "failed": 0,
+    "passed": 43,
+    "scope": "12 bounded-read +10 exit-race +21 independent resources/pins/fd-close/observable shared-FS checks",
+    "skipped": 0
+  }
+}
