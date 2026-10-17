@@ -1,0 +1,166 @@
+{
+  "actual_execution_by_rank": [
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 1276336834,
+      "moment_elements": 2552673668,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "482a4086431057c3c9865e9bcf45ff967425dfd1569bee6a7d7cc363257673e2",
+      "policy_identity": "b65a9dab64108b1e3c25a1375cae1e671312a971aee63f1137341155acab2687",
+      "schema": "st_official_engine_check_v1"
+    },
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 1276336834,
+      "moment_elements": 2552673668,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "482a4086431057c3c9865e9bcf45ff967425dfd1569bee6a7d7cc363257673e2",
+      "policy_identity": "b65a9dab64108b1e3c25a1375cae1e671312a971aee63f1137341155acab2687",
+      "schema": "st_official_engine_check_v1"
+    }
+  ],
+  "aggregate_process_tree_peak_rss_bytes": 58897227776,
+  "allocation_wall_seconds_including_cold_start_and_checkpoint": 957.2469788864255,
+  "checkpoint_actual_file_bytes": 37365998631,
+  "checkpoint_file_count": 8,
+  "checkpoint_seconds": 53.580661460757256,
+  "checkpoint_seconds_per_consumed_update": 0.8371978353243321,
+  "completed_updates": 64,
+  "controller_wall_seconds_including_cleanup": 965.4874998200685,
+  "data_seconds_mean_by_rank": [
+    1.716967298038071,
+    1.7154212487803306
+  ],
+  "epoch": 0,
+  "evidence": {
+    "CONFIG.json": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/CONFIG.json",
+      "sha256": "c268dfc521cf0bccf946e997e6e121da2fb602a946e4b4cf9b2ee774eec24364"
+    },
+    "EXIT_initial.json": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/EXIT_initial.json",
+      "sha256": "a1cac3e981ccc6617cb03e5511670c941eb8d5403cb571f41ac9e986593612d7"
+    },
+    "MONITOR_RESULT_initial.json": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/MONITOR_RESULT_initial.json",
+      "sha256": "63324c18b0478d164294a468989ffc8863c89604bc1802743761d3c783be8ae0"
+    },
+    "REGISTRATION.json": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/REGISTRATION.json",
+      "sha256": "99d07f053ebc7b3dbcc5a127d7e334749795ecfe4ca3bf1af0ae876123acdf53"
+    },
+    "RESULT.json": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/runs/indexed_provider_fulltrain_updates64_world2_v1/RESULT.json",
+      "sha256": "26de240a2b3bacbbe26fbe69ed4a7246023dbc7770c8141bacddf5234ef83eff"
+    },
+    "checkpoint_costs.jsonl": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/runs/indexed_provider_fulltrain_updates64_world2_v1/checkpoint_costs.jsonl",
+      "sha256": "02b07154f67419b485c0040085f61878754f12afd7517dbc0f456156b9d1f038"
+    },
+    "steps.jsonl": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1/runs/indexed_provider_fulltrain_updates64_world2_v1/steps.jsonl",
+      "sha256": "68b1de607a4bdad174ebb29fdf8319bf218d81d8ec9bb8b63aeb4ccdae668c20"
+    }
+  },
+  "formal_global32_efficiency_qualified": false,
+  "global_batch": 2,
+  "gpu_peak_allocated_bytes_by_rank": [
+    33729073664.0,
+    34127313920.0
+  ],
+  "gpu_peak_reserved_bytes_by_rank": [
+    37878759424.0,
+    36370907136.0
+  ],
+  "internal_update_timer": {
+    "mean_seconds": 2.400705766136525,
+    "n": 64,
+    "p50_seconds": 2.4139127591624856,
+    "p95_seconds": 2.6759584040381013
+  },
+  "internal_update_timer_after_20_warmup": {
+    "mean_seconds": 2.3942210684022442,
+    "n": 44,
+    "p50_seconds": 2.4131700713187456,
+    "p95_seconds": 2.6606090288609265
+  },
+  "live_owned_remaining": 0,
+  "losses_and_gradient_norms_finite": true,
+  "new_teacher_tensor_disk_bytes": 0,
+  "offset": 64,
+  "population": 101592,
+  "provider_by_rank": [
+    {
+      "batches": 80,
+      "computed_images": 393,
+      "counter_scope": "this_process_invocation_not_checkpoint_progress",
+      "evictions": 952,
+      "executor_output_limit_bytes": 14159232,
+      "failures": 0,
+      "fixed_compute": {
+        "calls": 80,
+        "compute_image_slots": 640,
+        "padding_image_slots": 247,
+        "requested_images": 393
+      },
+      "immutable_hits": 567,
+      "limit_scope": "tensor payloads only; metadata, teacher weights/activations, pixels and caller batches separate",
+      "metadata_cache_budget_bytes": 33554432,
+      "metadata_connections": 2,
+      "metadata_population_materialized": false,
+      "peak_resident_bytes": 14159232,
+      "provider_identity": "53fb99d8c70a70f2023cb802e5064ee153b5b916e4befb73f246d62058679082",
+      "ram_hits": 0,
+      "rank": 0,
+      "resident_bytes": 14159232,
+      "resident_limit_bytes": 14159232,
+      "scene_limit_bytes": 67108864,
+      "tensor_disk_bytes": 0
+    },
+    {
+      "batches": 66,
+      "computed_images": 312,
+      "counter_scope": "this_process_invocation_not_checkpoint_progress",
+      "evictions": 952,
+      "executor_output_limit_bytes": 14159232,
+      "failures": 0,
+      "fixed_compute": {
+        "calls": 66,
+        "compute_image_slots": 528,
+        "padding_image_slots": 216,
+        "requested_images": 312
+      },
+      "immutable_hits": 648,
+      "limit_scope": "tensor payloads only; metadata, teacher weights/activations, pixels and caller batches separate",
+      "metadata_cache_budget_bytes": 33554432,
+      "metadata_connections": 2,
+      "metadata_population_materialized": false,
+      "peak_resident_bytes": 14159232,
+      "provider_identity": "53fb99d8c70a70f2023cb802e5064ee153b5b916e4befb73f246d62058679082",
+      "ram_hits": 0,
+      "rank": 1,
+      "resident_bytes": 14159232,
+      "resident_limit_bytes": 14159232,
+      "scene_limit_bytes": 67108864,
+      "tensor_disk_bytes": 0
+    }
+  ],
+  "runtime_source": "a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a",
+  "same_host_wall_clock_launch_to_training_ready_seconds": 751.1727061271667,
+  "same_host_wall_clock_training_ready_to_exit_seconds_including_save_and_cleanup": 214.39224219322205,
+  "scene_exposures": 128,
+  "schema": "st_full_population_profile_actual_v1",
+  "scientific_result": "NOT_EVALUATED",
+  "status": "BOUNDED_PROFILE_COMPLETE",
+  "timing_scope": "Native slowest-rank update timer includes data/compute/sync; excludes subsequent ID/log/status writes and checkpoint. This is NOT full-loop steady throughput.",
+  "unique_scenes": 128,
+  "verified_owned_processes": 22,
+  "weights_usable_for_formal_init": false,
+  "world_size": 2
+}
