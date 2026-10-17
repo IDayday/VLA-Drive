@@ -596,7 +596,10 @@ def metadata_writing(*, policy_path, policy_sha256, registration_path, registrat
         files = [r for r in observed["entries"] if r["kind"] == "file"]
         if known is None and files:
             pins = reg.get("preexisting_pins", [])
-            if (not isinstance(pins, list) or len(pins) > 8 or
+            # A bounded PLAN retains its two plan files and seven supervision
+            # receipts. Admit those exact pins without deleting failure/history
+            # evidence; content, paths and the whole-root byte cap remain strict.
+            if (not isinstance(pins, list) or len(pins) > 16 or
                 len({p["relative_path"] for p in pins}) != len(pins) or
                 {p["relative_path"] for p in pins} != {r["relative"] for r in files}):
                 b._fail("unclaimed metadata root contains foreign files")

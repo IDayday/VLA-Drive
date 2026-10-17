@@ -303,6 +303,52 @@ def test_preexisting_empty_lock_has_exact_raw_pin(tmp_path):
     assert lock.read_bytes() == b''
 
 
+@pytest.mark.parametrize('count', [9, 16, 17])
+def test_bounded_plan_receipts_retained_without_expanding_byte_budget(tmp_path, count):
+    f = fixture(tmp_path, initial_plan=True)
+    f.reg['file_patterns'].append(r'control_[0-9]+\.json')
+    for i in range(count - 1):
+        relative = f'control_{i}.json'
+        sha = write(f.root / relative, {'fixture': True, 'record': i})
+        f.reg['preexisting_pins'].append({'relative_path': relative, 'sha256': sha})
+    update_registration(f)
+    m.migrate_policy(**f.kwargs)
+    if count > 16:
+        with pytest.raises(b.StorageBudgetError, match='foreign files'):
+            with m.metadata_writing(**f.guard):
+                pytest.fail('Over-limit receipt set admitted')
+        assert not (f.root / 'METADATA_ADMISSION.json').exists()
+    else:
+        with m.metadata_writing(**f.guard) as ctx:
+            ctx.check()
+        for pin in f.reg['preexisting_pins']:
+            assert hashlib.sha256((f.root / pin['relative_path']).read_bytes()).hexdigest() == pin['sha256']
+        state = json.loads(f.old.state_path.read_text())
+        assert state['claims'][str(f.root)]['charged_bytes'] == 3 * MIB
+
+
+@pytest.mark.parametrize('failure', ['changed_hash', 'unlisted_file', 'duplicate_pin'])
+def test_nine_plan_receipts_still_require_exact_complete_pins(tmp_path, failure):
+    f = fixture(tmp_path, initial_plan=True)
+    f.reg['file_patterns'].append(r'control_[0-9]+\.json')
+    for i in range(8):
+        relative = f'control_{i}.json'
+        sha = write(f.root / relative, {'fixture': True, 'record': i})
+        f.reg['preexisting_pins'].append({'relative_path': relative, 'sha256': sha})
+    if failure == 'changed_hash':
+        f.reg['preexisting_pins'][-1]['sha256'] = '0' * 64
+    elif failure == 'unlisted_file':
+        f.reg['preexisting_pins'].pop()
+    else:
+        f.reg['preexisting_pins'][-1] = dict(f.reg['preexisting_pins'][0])
+    update_registration(f)
+    m.migrate_policy(**f.kwargs)
+    with pytest.raises(b.StorageBudgetError):
+        with m.metadata_writing(**f.guard):
+            pytest.fail('Invalid receipt set admitted')
+    assert not (f.root / 'METADATA_ADMISSION.json').exists()
+
+
 def test_new_metadata_policy_cannot_initialize_a_second_ledger(tmp_path):
     f = fixture(tmp_path)
     # A new policy on the same existing v4 ledger needs migration first.
