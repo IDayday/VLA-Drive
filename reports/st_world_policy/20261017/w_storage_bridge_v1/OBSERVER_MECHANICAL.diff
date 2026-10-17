@@ -1,0 +1,37 @@
+--- reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py	2026-10-17 09:49:28.000000000 +0000
++++ reports/st_world_policy/20261017/w_storage_bridge_v1/observed_cli.py	2026-10-17 09:52:30.000000000 +0000
+@@ -15,7 +15,9 @@
+ import threading
+ import time
+ 
+-from prepare_bindings import read, write_once, write_control
++from storage_bridge import upstream_module, install
++_control = upstream_module('prepare_bindings')
++read, write_once, write_control = _control.read, _control.write_once, _control.write_control
+ 
+ 
+ def proc_io():
+@@ -118,9 +120,12 @@
+                 break
+ 
+ 
+-def run(preparation, stage, attempt, policy, commitments, read_cap):
++def run(preparation, stage, attempt, policy, commitments, read_cap, *, compatibility=None, admission=None):
+     baseline = proc_io()  # before torch/runtime imports, including their actual syscalls
+     sys.path.insert(0, preparation['runtime']['path'])
++    provenance = install(compatibility, preparation, stage, policy, admission=admission)
++    if provenance is not None:
++        write_once(Path(attempt) / 'STORAGE_COMPATIBILITY.json', provenance)
+     import torch
+     from tools.st_world_policy import spatial_probe as p
+     from tools.st_world_policy import checkpoints, training_state, base_binding
+@@ -181,7 +186,8 @@
+     if os.getpgrp() != os.getpid():
+         raise ValueError('Dedicated child session required')
+     return run(preparation, admission['stage'], a.attempt, admission.get('storage_policy'),
+-               admission.get('checkpoint_commitments'), a.read_cap)
++               admission.get('checkpoint_commitments'), a.read_cap,
++               compatibility=admission.get('storage_compatibility'), admission=admission)
+ 
+ 
+ if __name__ == '__main__':
