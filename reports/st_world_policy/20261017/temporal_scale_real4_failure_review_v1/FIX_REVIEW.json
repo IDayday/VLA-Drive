@@ -1,0 +1,107 @@
+{
+  "schema": "st_temporal_scale_real4_workspace_fix_independent_review_v1",
+  "status": "PASS_CODE_CPU_ONLY",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "implementation_author": "/root/st_temporal_scale_calibration",
+  "reviewed_commit": "c1168f97efb051b1418b01004668426211d68d42",
+  "review_base": "112ef4c40c0b0f2e82df367b2a4a64e9fdcf3d30",
+  "actual_frozen_runtime": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017",
+  "actual_frozen_runtime_commit": "f212c96cbb74af9b3c59d91e80241675dc55fec0",
+  "execution_source_hashes": {
+    "tools/st_world_policy/calibrate_temporal_scale.py": "f2de950a36ac39f76b96e9fb22a5cc1c7fab8facda9d1e01d217dfa31fd6a1e4",
+    "tools/st_world_policy/calibration_measurement.py": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0",
+    "reports/st_world_policy/20261017/temporal_scale_calibration_v1/run_once.py": "6be76123c7610b4e7a228bba20982e80ec80bf6fc6d05e3d0a4511bb8fb684f9",
+    "starVLA/model/framework/st_world_model.py": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007",
+    "starVLA/model/modules/st_world/losses.py": "5566b79c551717d18429e5e6278993a8bcb726922f36d107025c0b80161306f6"
+  },
+  "actual_runtime_source_identity": "BYTE_EQUAL_FOR_ALL_LISTED_EXECUTION_SOURCES",
+  "configuration": {
+    "path": "/mnt/project/VLA-Drive-st-calibration-cublas-preflight-20261017/reports/st_world_policy/20261017/temporal_scale_cublas_preflight_fix_v1/PROPOSED_CALIBRATION_CONFIG.json",
+    "sha256": "d5358c65585a4852bc959e5795a0f0ae647b9bdf6dd99c64220e361b38eed560",
+    "training_path": "/mnt/project/VLA-Drive-st-calibration-cublas-preflight-20261017/reports/st_world_policy/20261017/temporal_scale_cublas_preflight_fix_v1/PROPOSED_TRAINING_CONFIG.json",
+    "training_sha256": "716d1cc229e4bcab14431c29954ab1858e8bb81c6fa213c1e4c1155f345f9c95",
+    "runtime_environment": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+    }
+  },
+  "tests": {
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "author_existing_cases": 47,
+    "independent_cases": 6,
+    "log_sha256": "e7de0e963e65cb20cec94bc79d87ca58f558239c0a1641fde62ba60bcbf3825d",
+    "cost": {
+      "status": "PASS_CPU_TESTS_ONLY",
+      "exit_code": 0,
+      "reason": null,
+      "elapsed_seconds": 4.667674910277128,
+      "sampled_child_peak_RSS_bytes": 658841600,
+      "wait_accounted_rchar_delta": 139020567,
+      "cpu_affinity": [
+        6,
+        7
+      ],
+      "GPU_dispatches": 0,
+      "model_image_teacher_payload_reads": 0,
+      "limits": {
+        "wall_seconds": 120,
+        "RSS_bytes": 1073741824,
+        "logical_read_bytes": 1073741824,
+        "output_bytes": 16777216
+      }
+    }
+  },
+  "narrow_findings": [
+    "Child environment is fixed before Python interpreter creation; inherited conflict fails closed",
+    "CLI measure and execute reject missing/wrong env and already initialized CUDA before payload loading",
+    "Preflight preserves Python/NumPy/CPU RNG and environment; no CUDA initialization in CPU tests",
+    "Existing execute AST is identical after removing only preflight call and receipt insertion",
+    "Original measurement, model and loss source bytes unchanged",
+    "Fixed4 IDs/seeds, parameter subset, targets, initialization and training numeric settings unchanged",
+    "Only output namespaces, reduced wall cap and workspace environment differ in proposed configurations",
+    "New real4_v2 root and one-invocation guard retain real4_v1 failure without overwrite",
+    "Recorded first-attempt costs plus second-attempt cap fit original aggregate allowance"
+  ],
+  "failed_actual_attempt": {
+    "status": "FAILED_NO_AUTO_RETRY",
+    "post_state_RNG": "NOT_RECORDED",
+    "scientific_result": "ABSENT",
+    "receipt_review_commit": "901eb43dd46fa144f734734a040639c584f7b673"
+  },
+  "retry_limits": {
+    "wall_seconds": 3000,
+    "cleanup_seconds": 40,
+    "read_bytes": 223338299392,
+    "RSS_bytes": 103079215104,
+    "fixed_scenes": 4,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "optimizer_steps": 0,
+    "max_invocations": 1,
+    "automatic_retry": false
+  },
+  "combined_cap_arithmetic": {
+    "first_seconds": 416.6046734880656,
+    "first_plus_next_wall_cleanup_seconds": 3456.6046734880656,
+    "original_wall_cleanup_seconds": 3640,
+    "first_read_bytes": 51404923553,
+    "first_plus_next_read_cap_bytes": 274743222945,
+    "original_read_cap_bytes": 274877906944,
+    "remaining_read_margin_bytes": 134683999
+  },
+  "actual_v2_GPU_measurement": "NOT_RUN_BY_REVIEWER",
+  "post_fix_real_loss_gradient_RNG_model_equality": "UNTESTED",
+  "resource_dispatch_approval": false,
+  "historical_T1_resource_scope": "FAIL_LIVE_DESCENDANT_SCOPE_REMAINS",
+  "documentation_caveat": "Owner REPORT first-cuBLAS-matmul wording is unsupported by receipt callsite evidence; correction requested, not endorsed here.",
+  "boundaries": [
+    "Exact code/config only; changed source/config requires review",
+    "Fresh exact-source independent resource admission and Lead decision required before any real retry",
+    "No GPU/SSH/model/image/teacher payload access, training, ledger mutation or live-workload signals",
+    "No actual deterministic CuBLAS/FA2 correctness or full loss/gradient measurement is established by CPU tests",
+    "No existing checkpoint or failed evidence changed; no coefficients selected or applied"
+  ]
+}

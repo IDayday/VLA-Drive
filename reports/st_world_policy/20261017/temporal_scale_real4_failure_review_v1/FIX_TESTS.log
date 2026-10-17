@@ -1,0 +1,67 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project/VLA-Drive-st-temporal-real4-fix-review-20261017
+collecting ... collected 53 items
+
+tests/st_world/test_temporal_scale_calibration.py::test_analytic_gradients_cosines_and_fixed_rule_not_total_gradient PASSED [  1%]
+tests/st_world/test_temporal_scale_calibration.py::test_microbatches_sum_already_global_normalized_contributions PASSED [  3%]
+tests/st_world/test_temporal_scale_calibration.py::test_same_graph_dropout_only_once_for_all_tasks_and_rng_restored PASSED [  5%]
+tests/st_world/test_temporal_scale_calibration.py::test_preserve_all_rng_on_failure PASSED [  7%]
+tests/st_world/test_temporal_scale_calibration.py::test_no_update_contract_detects_mutation[param] PASSED [  9%]
+tests/st_world/test_temporal_scale_calibration.py::test_no_update_contract_detects_mutation[buffer] PASSED [ 11%]
+tests/st_world/test_temporal_scale_calibration.py::test_no_update_contract_detects_mutation[mode] PASSED [ 13%]
+tests/st_world/test_temporal_scale_calibration.py::test_signal_failures_never_invent_coefficients[zero] PASSED [ 15%]
+tests/st_world/test_temporal_scale_calibration.py::test_signal_failures_never_invent_coefficients[missing] PASSED [ 16%]
+tests/st_world/test_temporal_scale_calibration.py::test_signal_failures_never_invent_coefficients[nonfinite] PASSED [ 18%]
+tests/st_world/test_temporal_scale_calibration.py::test_signal_failures_never_invent_coefficients[missing_task] PASSED [ 20%]
+tests/st_world/test_temporal_scale_calibration.py::test_zero_valid_counts_not_loss_denominator_fallback PASSED [ 22%]
+tests/st_world/test_temporal_scale_calibration.py::test_existing_gradients_and_unknown_frozen_overlap_groups_rejected PASSED [ 24%]
+tests/st_world/test_temporal_scale_calibration.py::test_budget_exhaustion_before_extra_forward_and_rng_preserved PASSED [ 26%]
+tests/st_world/test_temporal_scale_calibration.py::test_conflicting_gradients_have_negative_cosine PASSED [ 28%]
+tests/st_world/test_temporal_scale_calibration.py::test_bf16_accumulation_is_reported_not_silently_fp32 PASSED [ 30%]
+tests/st_world/test_temporal_scale_calibration.py::test_pinned_wrong_hash_rejected PASSED [ 32%]
+tests/st_world/test_temporal_scale_calibration.py::test_missing_common_initialization_and_unknown_config_rejected PASSED [ 33%]
+tests/st_world/test_temporal_scale_calibration.py::test_diagnostic_learned_native_weights_rejected_before_payload[SMOKE] PASSED [ 35%]
+tests/st_world/test_temporal_scale_calibration.py::test_diagnostic_learned_native_weights_rejected_before_payload[PROFILE] PASSED [ 37%]
+tests/st_world/test_temporal_scale_calibration.py::test_distributed_state_is_not_silently_averaged PASSED [ 39%]
+tests/st_world/test_temporal_scale_calibration.py::test_true_temporal_losses_preserve_masks_delta_and_teacher_detach PASSED [ 41%]
+tests/st_world/test_temporal_scale_calibration.py::test_mixed_valid_microbatches_keep_original_batch_denominators PASSED [ 43%]
+tests/st_world/test_calibration_runtime_preflight.py::test_missing_or_conflicting_environment_fails_before_cuda_check[None] PASSED [ 45%]
+tests/st_world/test_calibration_runtime_preflight.py::test_missing_or_conflicting_environment_fails_before_cuda_check[] PASSED [ 47%]
+tests/st_world/test_calibration_runtime_preflight.py::test_missing_or_conflicting_environment_fails_before_cuda_check[:16:8] PASSED [ 49%]
+tests/st_world/test_calibration_runtime_preflight.py::test_missing_or_conflicting_environment_fails_before_cuda_check[:4096:7] PASSED [ 50%]
+tests/st_world/test_calibration_runtime_preflight.py::test_matching_environment_checks_without_initializing_cuda PASSED [ 52%]
+tests/st_world/test_calibration_runtime_preflight.py::test_late_environment_repair_is_rejected PASSED [ 54%]
+tests/st_world/test_calibration_runtime_preflight.py::test_determinism_and_declared_contract_cannot_be_relaxed PASSED [ 56%]
+tests/st_world/test_calibration_runtime_preflight.py::test_measure_fails_before_admission_payload_or_output PASSED [ 58%]
+tests/st_world/test_calibration_runtime_preflight.py::test_execute_also_checks_before_payload_loading PASSED [ 60%]
+tests/st_world/test_calibration_runtime_preflight.py::test_launcher_sets_child_environment_without_mutating_parent PASSED [ 62%]
+tests/st_world/test_calibration_runtime_preflight.py::test_launcher_rejects_conflicting_inherited_environment[] PASSED [ 64%]
+tests/st_world/test_calibration_runtime_preflight.py::test_launcher_rejects_conflicting_inherited_environment[:16:8] PASSED [ 66%]
+tests/st_world/test_calibration_runtime_preflight.py::test_launcher_rejects_conflicting_inherited_environment[garbage] PASSED [ 67%]
+tests/st_world/test_calibration_runtime_preflight.py::test_lease_uses_reduced_wall_plus_cleanup[3039-lease] PASSED [ 69%]
+tests/st_world/test_calibration_runtime_preflight.py::test_lease_uses_reduced_wall_plus_cleanup[3040-sources_reached] PASSED [ 71%]
+tests/st_world/test_calibration_runtime_preflight.py::test_second_attempt_has_separate_root_and_remaining_budget PASSED [ 73%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_pin_and_tamper PASSED [ 75%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_symlink_rejected PASSED [ 77%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_obligations_fail_closed[2343978401792] PASSED [ 79%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_obligations_fail_closed[2472827420672.0] PASSED [ 81%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_obligations_fail_closed[True] PASSED [ 83%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_space_and_lease PASSED [ 84%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_no_overbudget_publication PASSED [ 86%]
+reports/st_world_policy/20261017/temporal_scale_calibration_v1/test_controller.py::test_no_tensor_or_checkpoint_budget PASSED [ 88%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_preflight_does_not_advance_any_cpu_rng_or_mutate_environment PASSED [ 90%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_workspace_is_in_child_environment_at_interpreter_start PASSED [ 92%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_execute_computation_ast_unchanged_after_removing_only_preflight_receipts PASSED [ 94%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_configs_change_only_declared_namespace_wall_and_environment PASSED [ 96%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_actual_frozen_runtime_uses_exact_reviewed_execution_and_math_sources PASSED [ 98%]
+reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/test_fix_independent.py::test_failure_receipt_cannot_become_poststate_or_rng_pass PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 53 passed, 1 warning in 3.64s =========================
+{"child_exit": 0, "CUDA_initialized": false, "peak_RSS_bytes": 642080768}
