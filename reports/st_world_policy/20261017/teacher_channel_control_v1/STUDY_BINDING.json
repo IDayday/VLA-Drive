@@ -1,0 +1,104 @@
+{
+  "arms": {
+    "256": {
+      "config": {
+        "repo_path": "configs/st_world_policy/teacher_channel_control_v1/PCA256.json",
+        "sha256": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e"
+      },
+      "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+      "status": "NOT_RUN_REQUIRES_NEW_REGISTRATION_AND_REVIEWS",
+      "target_contract": {
+        "repo_path": "configs/st_world_policy/teacher_channel_control_v1/TARGET_CONTRACT_256.json",
+        "sha256": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2"
+      }
+    },
+    "384": {
+      "config": {
+        "repo_path": "configs/st_world_policy/teacher_channel_control_v1/PCA384.json",
+        "sha256": "16f8716ef14a2a9a57bca234be16357decc346e8919cc35f781fcc6f69e7abdd"
+      },
+      "run_id": "SP2_fulltrain_seed42_official_5k_v1",
+      "status": "EXISTING_RUN_REFERENCED_NO_RERUN",
+      "target_contract": {
+        "repo_path": "configs/st_world_policy/teacher_channel_control_v1/TARGET_CONTRACT_384.json",
+        "sha256": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da"
+      }
+    }
+  },
+  "common_artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+      "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/identity.json",
+      "sha256": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    }
+  },
+  "design_before_implementation_commit": "e74efeb3b178c07911cbd3eaae223b1e035713d8",
+  "formal_launch_allowed": false,
+  "historical_approval_reused_for_256": false,
+  "historical_environment": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/ENVIRONMENT.json",
+    "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+  },
+  "historical_resource_lease_reused": false,
+  "large_cache_generated": false,
+  "new_training_started": false,
+  "only_scientific_factor": "teacher_PCA_channels_256_vs_384",
+  "pca_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+  "reference384": {
+    "actual_scene_presentations": 159992,
+    "checkpoint_receipt": {
+      "bytes": 1907,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792222283615035511/COMPLETE.json",
+      "sha256": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183"
+    },
+    "completed": 5000,
+    "fresh_optimizer": true,
+    "full_checkpoint_payload_rehashed_this_preparation": false,
+    "full_manifest_reread_this_preparation": false,
+    "init_base_identity": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "initialization": {
+      "bytes": 248972,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/initialization.json",
+      "sha256": "566fba35dbc9a3dba84b382bd651f5138881d53e1c7f241c7bd036bd5f1f4e62"
+    },
+    "master_initialization_status": "RESTORED_EXACT_FP32_SOURCE",
+    "reuse_basis": "Byte-identical384 config; exact original source/environment/data/PCA/Base/seed/topology and original endpoint identity retained. No claim a new runtime generated this checkpoint. Independent comparability review pending.",
+    "state_identity": "4a2a36978a1e41170ce00b482d281ffb25c883bf6d501e64958775807f960156",
+    "world_expanded": false
+  },
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+  },
+  "sampled_positions_per_view": 96,
+  "schema": "st_teacher_channel_control_v1",
+  "shared_runtime_changed": false,
+  "source_start": "951711fbd2eae1730262a79575b08024bcd2001d",
+  "student_benefit": "UNTESTED",
+  "student_image_wh": [
+    1024,
+    576
+  ],
+  "teacher_grid_hw": [
+    18,
+    24
+  ],
+  "teacher_image_hw": [
+    288,
+    384
+  ],
+  "views": [
+    "CAM_F0",
+    "CAM_L0",
+    "CAM_R0"
+  ],
+  "world_per_view": 48
+}
