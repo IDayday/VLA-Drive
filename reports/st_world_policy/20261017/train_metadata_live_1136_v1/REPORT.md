@@ -8,7 +8,7 @@ Elapsed build wall is6268.7s (1h44m29s), with8131.3s (2h15m31s) left in the orig
 
 At the cumulative completed-scene rate, the remaining scenes would take about **4518s /75.3min**, approximately12:52UTC, **plus final aggregation**. Logs differ in size and processing cost, so this is an extrapolation, not a deadline guarantee. It fits the present wall allowance with roughly60min headroom before finalization.
 
-Completed shards extrapolate to982,750,819B. Stat-only comparison with the completed dev TEACHER_REQUESTS file (12,896,749B/1696scenes) gives another772,512,810B for full train, or about1.635GiB for shards plus requests before small controls/rounding. This remains under2GiB in the current estimate; it is not proof of final fit. No additional manifest or tensor content was read for that estimate. Shared available space was7,155,056,771,072B; quota remains unverified.
+Completed shards extrapolate to982,750,819B. Stat-only comparison with the completed dev TEACHER_REQUESTS file (12,896,749B/1696scenes) gives another772,527,432B for full train, or about1.635GiB for shards plus requests before small controls/rounding. This remains under2GiB in the current estimate; it is not proof of final fit. No additional manifest or tensor content was read for that estimate. Shared available space was7,155,056,771,072B; quota remains unverified.
 
 The known legacy **post-wait child read double-counting** defect remains a terminal-only reconciliation issue. No terminal receipt exists and this report does not call the active run failed, reduce spent cost, modify its512GiB allowance or forecast a terminal PASS from a linear read estimate. Actual pre/post/child evidence must determine its outcome.
 
