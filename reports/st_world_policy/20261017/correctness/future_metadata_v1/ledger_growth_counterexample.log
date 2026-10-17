@@ -1,0 +1,61 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_ledger_growth_is_rejected_before_unbounded_read_text ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-484/test_ledger_growth_is_rejected0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f72242f8d00>
+
+    def test_ledger_growth_is_rejected_before_unbounded_read_text(tmp_path, monkeypatch):
+        from starVLA.dataloader import st_world_future_provenance as provenance
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        manifest = json.loads((Path(args.output)/'TEACHER_REQUESTS.json').read_text())
+        ledger = Path(manifest['source_logs_ledger']['path'])
+        original_sha, original_read = provenance.file_sha256, Path.read_text
+        def grow_after_hash(path):
+            digest = original_sha(path)
+            if Path(path) == ledger:
+                with ledger.open('ab') as stream:
+                    stream.write(b' ' * provenance.MAX_LEDGER_BYTES)
+            return digest
+        def reject_unbounded_large_read(path, *args, **kwargs):
+            if path == ledger:
+                assert path.stat().st_size <= provenance.MAX_LEDGER_BYTES, 'Unbounded read after ledger grew past cap'
+            return original_read(path, *args, **kwargs)
+        monkeypatch.setattr(provenance, 'file_sha256', grow_after_hash)
+        monkeypatch.setattr(Path, 'read_text', reject_unbounded_large_read)
+>       with pytest.raises(ValueError): validate_ledger(manifest)
+
+tests/st_world/test_review_future_metadata.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+starVLA/dataloader/st_world_future_provenance.py:67: in validate_ledger
+    body = json.loads(path.read_text(), object_pairs_hook=pairs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-484/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json')
+args = (), kwargs = {}
+@py_assert1 = <bound method Path.stat of PosixPath('/tmp/pytest-of-root/pytest-484/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json')>
+@py_assert3 = os.stat_result(st_mode=33188, st_ino=6444135800, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792213986, st_mtime=1792213987, st_ctime=1792213987)
+@py_assert5 = 4195694, @py_assert9 = 4194304, @py_assert7 = False
+@py_format11 = "4195694\n{4195694 = os.stat_result(st_mode=33188, st_ino=6444135800, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, ...A-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES\n}"
+@py_format13 = "Unbounded read after ledger grew past cap\n>assert 4195694\n{4195694 = os.stat_result(st_mode=33188, st_ino=644413580...A-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES\n}"
+
+    def reject_unbounded_large_read(path, *args, **kwargs):
+        if path == ledger:
+>           assert path.stat().st_size <= provenance.MAX_LEDGER_BYTES, 'Unbounded read after ledger grew past cap'
+E           AssertionError: Unbounded read after ledger grew past cap
+E           assert 4195694 <= 4194304
+E            +  where 4195694 = os.stat_result(st_mode=33188, st_ino=6444135800, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792213986, st_mtime=1792213987, st_ctime=1792213987).st_size
+E            +    where os.stat_result(st_mode=33188, st_ino=6444135800, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792213986, st_mtime=1792213987, st_ctime=1792213987) = stat()
+E            +      where stat = PosixPath('/tmp/pytest-of-root/pytest-484/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json').stat
+E            +  and   4194304 = <module 'starVLA.dataloader.st_world_future_provenance' from '/mnt/project/VLA-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES
+
+tests/st_world/test_review_future_metadata.py:245: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_review_future_metadata.py::test_ledger_growth_is_rejected_before_unbounded_read_text
+1 failed, 1 warning in 3.69s

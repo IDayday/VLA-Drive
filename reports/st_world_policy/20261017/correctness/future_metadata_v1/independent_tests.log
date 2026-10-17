@@ -1,0 +1,119 @@
+.........................FFFFFFF                                         [100%]
+=================================== FAILURES ===================================
+_____ test_corrupted_complete_control_fields_are_rejected[status-PARTIAL] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_corrupted_complete_contro0')
+field = 'status', value = 'PARTIAL'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+______ test_corrupted_complete_control_fields_are_rejected[schema-wrong] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_corrupted_complete_contro1')
+field = 'schema', value = 'wrong'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_ test_corrupted_complete_control_fields_are_rejected[plan_identity-0000000000000000000000000000000000000000000000000000000000000000] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_corrupted_complete_contro2')
+field = 'plan_identity'
+value = '0000000000000000000000000000000000000000000000000000000000000000'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_______ test_corrupted_complete_control_fields_are_rejected[scenes-999] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_corrupted_complete_contro3')
+field = 'scenes', value = 999
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+________ test_corrupted_complete_control_fields_are_rejected[logs-999] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_corrupted_complete_contro4')
+field = 'logs', value = 999
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_________ test_symlinked_log_shard_directory_is_rejected_before_write __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_symlinked_log_shard_direc0')
+
+    def test_symlinked_log_shard_directory_is_rejected_before_write(tmp_path):
+        args, run, _, _ = setup(tmp_path)
+        external = tmp_path/'outside_admitted_root'; external.mkdir()
+        (Path(args.output)/'log_shards').symlink_to(external, target_is_directory=True)
+>       with pytest.raises((ValueError, f.BudgetExceeded)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'tools.st_world_policy.prepare_future_metadata.BudgetExceeded'>)
+
+tests/st_world/test_review_future_metadata.py:215: Failed
+___________ test_hardlinked_completed_shard_is_rejected_before_reuse ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-482/test_hardlinked_completed_shar0')
+
+    def test_hardlinked_completed_shard_is_rejected_before_reuse(tmp_path):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        shard = next((Path(args.output)/'log_shards').glob('*.json'))
+        external = tmp_path/'external_alias.json'
+        external.hardlink_to(shard)
+        before = external.read_bytes()
+>       with pytest.raises((ValueError, f.BudgetExceeded)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'tools.st_world_policy.prepare_future_metadata.BudgetExceeded'>)
+
+tests/st_world/test_review_future_metadata.py:226: Failed
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[status-PARTIAL]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[schema-wrong]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[plan_identity-0000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[scenes-999]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[logs-999]
+FAILED tests/st_world/test_review_future_metadata.py::test_symlinked_log_shard_directory_is_rejected_before_write
+FAILED tests/st_world/test_review_future_metadata.py::test_hardlinked_completed_shard_is_rejected_before_reuse
+7 failed, 25 passed, 1 warning in 4.63s
