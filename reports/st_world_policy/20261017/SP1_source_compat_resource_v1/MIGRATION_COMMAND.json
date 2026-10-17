@@ -1,0 +1,53 @@
+{
+  "schema": "st_explicit_original_metadata_migration_command_v1",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "60s",
+    "/usr/bin/taskset",
+    "-c",
+    "2,3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-c",
+    "import sys; sys.path.insert(0, '/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1'); import compat; compat.install({'path': '/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/COMPATIBILITY.json', 'sha256': 'bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f'}); from tools.st_world_policy.metadata_storage import main; main()",
+    "migrate",
+    "--old-policy",
+    "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/PROPOSED_POLICY.json",
+    "--old-policy-sha256",
+    "7a78476af60b191da42439dfdda0c63dae6334f7e911ee7bc3ed299e77486148",
+    "--new-policy",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/SP1_source_compat_resource_v1/PROPOSED_POLICY.json",
+    "--new-policy-sha256",
+    "230b052a037f844709403151ad025823cb7a5c17f213136430829b4ee88b634e",
+    "--expected-old-ledger-sha256",
+    "3fb22a2372cd5b754e9d88448046051c320f11536ddadb5f06f9216f5a3868b3",
+    "--quiescence-receipt",
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/SOURCE_COMPAT_QUIESCENCE.json",
+    "--quiescence-sha256",
+    "9ed888b7fbb5592494814155012fb0223784daa3584791609d5fba6bebddaad3",
+    "--pilot-inventory",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/SP1_source_compat_resource_v1/NO_PILOT_ADOPTIONS.json",
+    "--pilot-inventory-sha256",
+    "31aa0e0174bf1692547932f0d2b71596db6217ad3deb6a5cf3212dbb20fa7d67",
+    "--checkpoint-receipt",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/SP1_dev_typed_migration_resource_v1/CHECKPOINT_COMMITMENTS_2383G.json",
+    "--checkpoint-sha256",
+    "d16430ae3cc2cbd087f08d50c279add42e6a0616425d56f24bc6478286de9e47"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-w-storage-only-581399eb-v1-20261017",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "source_compatibility": {
+    "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/COMPATIBILITY.json",
+    "sha256": "bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f"
+  },
+  "adapter": {
+    "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/compat.py",
+    "sha256": "776ec07ac8fc150eddd7cf685db602abe27dc94a9050628bef3a1ebbdc717e32"
+  },
+  "calls_original_metadata_storage_main_after_explicit_install": true,
+  "automatic_retry": false
+}
