@@ -1,0 +1,187 @@
+{
+  "actual_cpu_tests": {
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "existing_failed": 0,
+    "existing_passed": 20,
+    "existing_seconds": 8.66,
+    "new_failed": 1,
+    "new_passed": 4,
+    "new_seconds": 5.01,
+    "skipped": 0,
+    "threads": 2,
+    "timeout_seconds": 120
+  },
+  "blocking_findings": [
+    {
+      "actual": "load_protocol accepts a new internally valid protocol with a different label-manifest source although the external protocol SHA pins the old bytes.",
+      "actual_assets_changed": false,
+      "evidence": "INDEPENDENT_COUNTEREXAMPLES.log: 1 failed,4 passed in5.01s; pure JSON fixture, no image/native/label tensor.",
+      "file": "tools/st_world_policy/spatial_probe.py",
+      "id": "WPROBE-PIN-02",
+      "lines": [
+        48,
+        54
+      ],
+      "production_implementation_changed_by_reviewer": false,
+      "remedy": "Read each bounded control once; verify SHA and parse exactly the same bytes. Preserve role/recipe/schema checks. Reject detected changes or consistently retain the approved snapshot.",
+      "reproduction": "tests/st_world/review_learned_w_probe_v3/test_boundaries.py::test_protocol_bytes_parsed_are_the_bytes_whose_sha_was_approved",
+      "severity": "MEDIUM",
+      "trigger": "Concurrent atomic replacement after protocol SHA read and before JSON parse."
+    }
+  ],
+  "created_at_utc": "2026-10-17T05:30:05.154804+00:00",
+  "decision": "CHANGES_REQUESTED",
+  "evidence_artifacts": {
+    "/mnt/project/VLA-Drive-st-correctness-learned-w-probe-20261017/tests/st_world/review_learned_w_probe_v3/test_boundaries.py": "d7d0bafcf647873c6ccb6965372354e690a8ca15504b9c2428c3efde87b8a043",
+    "/mnt/project/VLA-Drive-st-correctness-learned-w-probe-20261017/tests/st_world/test_review_spatial_probe.py": "ba1a5ef0eabc6c86275d95f4dfae2a074113f37d7f9ea5bd368684d313570792",
+    "/mnt/project/VLA-Drive-st-correctness-learned-w-probe-20261017/tests/st_world/test_spatial_probe.py": "bc2fd3a8704a3a72a2bee42cbcda45fe63d4278bc2ce3d3e8a4fd7cf5a9952db",
+    "/mnt/project/VLA-Drive-st-correctness-learned-w-probe-20261017/tools/st_world_policy/spatial_probe.py": "b9c9f74af728c99007d2a6416e0fe03d3eb182822d93668150849f668ab70f2a",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/EXISTING_CPU_TESTS.log": "326be2c63a9fb3fbd3d8174b1e920635ff04061f90fa17dd9960c04c2ceb1db2",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/FIXED_METADATA_REVIEW.json": "591fe1a696ac2b3755ddaf87f34aafab8b42b9e439e6ea5645def271efa88804",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/INDEPENDENT_COUNTEREXAMPLES.log": "8bf31230226f96822b022f86a179f1251aa107a57d1f92b2084c1a46cdf10833",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/PINNED_CONTROL_SIZES.json": "8bb2d07c6d914308dba43b64d08449a8b0164eb3a1766485d89ba780f767c831",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/learned_w_probe_endpoint_preparation_v1/review_fixed_metadata.py": "aa160625913506fdc3b5b19179ff5b026cec2077bb5aa761b608f6929d28112f"
+  },
+  "fixed_metadata": {
+    "cycles": 300,
+    "elapsed_seconds_excluding_import": 0.03680839203298092,
+    "forbidden_open_attempts": [],
+    "formal_approval": false,
+    "gpu": false,
+    "handoff_source_and_test_and_protocol_hashes_match": true,
+    "head_initial_state_identity": "9ac44b7e8ca541dd709c2ee82da675e51c219abbd478f5d1adc11a3e011f1611",
+    "head_parameters_per_arm": 495362,
+    "label_manifest_sha256": "5e43b13b382fce51fdd07dcf8e81f5168495bd66aeab2a535cdf90cceab93e9a",
+    "optimizer_updates": "sum(exposure.optimizer_step), at most300",
+    "peak_rss_bytes": 630366208,
+    "populations": {
+      "dev": {
+        "all_current_times_and_three_views_metadata": true,
+        "depth_valid": 15922,
+        "logs": 16,
+        "scene_label_join_exact": true,
+        "scenes": 16,
+        "scenes_with_small_positive": 11,
+        "small_negative": 6889,
+        "small_positive": 291
+      },
+      "train": {
+        "all_current_times_and_three_views_metadata": true,
+        "depth_valid": 64067,
+        "logs": 64,
+        "scene_label_join_exact": true,
+        "scenes": 64,
+        "scenes_with_small_positive": 54,
+        "small_negative": 18232,
+        "small_positive": 1231
+      }
+    },
+    "protocol_file_sha256": "7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e",
+    "protocol_semantic_identity": "800f88595587a6f2ed7156e7ed86cd5bbf6cf130596845dee7af0dda30a37c82",
+    "raw_image_or_label_array_reads": 0,
+    "real_W_cache": false,
+    "real_fit": false,
+    "real_native_load": false,
+    "same_initial_state": true,
+    "schema": "independent_learned_w_fixed_metadata_v1",
+    "source": "278f55c73253c34bb7013a046ae6f90b4293d626",
+    "statistics_scope": "Actual counts from metadata only; no raw label arrays reread. Loss/train-only-statistics verified in CPU tests.",
+    "status": "PASS_FIXED_METADATA_ONLY",
+    "target_input_boundary": "Current labels read only in fit loss/statistics/evaluation; image-to-W accepts ModelInputs only.",
+    "train_dev_log_and_token_intersection": 0
+  },
+  "limits": {
+    "formal_launch_approval": false,
+    "gpu": false,
+    "interpretation": "64/16 bounded capacity diagnostic, previously observed dev16; not full1696PDMS, untouched test or proven convergence.",
+    "raw_image_or_label_arrays_read": 0,
+    "real5000_native_loaded": false,
+    "real_W_extracted": false,
+    "real_probe_fit": false,
+    "scientific_effect": "NOT_RUN"
+  },
+  "next_action": "Lead owns minimum pinned-reader fix. Recheck only read/size/replacement negative paths on the new fixed source; inherit unchanged math and fixed metadata evidence.",
+  "passed_checks": [
+    {
+      "evidence": "64train/64logs and16dev/16logs; token andlog intersections0; label joins and current timestamps/three-view metadata exact.",
+      "item": "Fixed scene/source/label metadata"
+    },
+    {
+      "evidence": "Protocol file SHA7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e matches HANDOFF. Semantic identity800f88595587a6f2ed7156e7ed86cd5bbf6cf130596845dee7af0dda30a37c82 is a different hash domain, not a mismatch.",
+      "item": "Protocol identity"
+    },
+    {
+      "evidence": "encode_world accepts only current ModelInputs and returns encode_inputs W; strip=True actual-method synthetic test preserves144/288 W slots; no target argument, training forward, future/metric access.",
+      "item": "Observation/label separation"
+    },
+    {
+      "evidence": "H2048 has495362 parameters per arm; identical fresh seeded state,128dim/1layer/4heads/two outputs. W144/288 only changes memory length, not parameter count.",
+      "item": "Fixed readout"
+    },
+    {
+      "evidence": "Queries use three native18x24 views, row-major center coordinates and t=0; independent scene/view/pixel gather test passes. Two task valid means over the full two-scene batch are summed1+1; train-only statistics; nonfinite predictions reject.",
+      "item": "Geometry/mask/loss"
+    },
+    {
+      "evidence": "300 cycles fixed; each2scenes*3views*32patches. Empty exposure advances stream but neither parameters nor existing Adam moments/step/decay change; actual update count is sum(exposure.optimizer_step).",
+      "item": "Exposure vs optimizer"
+    },
+    {
+      "evidence": "Current rerun passes ordinary CPU model/optimizer/RNG/stream resume, two-slot pointer failure retention, and terminal300 no new samples/updates. Evaluation only after final300; no dev selection.",
+      "item": "Recovery and fixed final endpoint"
+    },
+    {
+      "evidence": "All fixed scene/view/log populations retained, invalid masks counted separately. Empty/single-class populations produce null metrics; depth MAE/RMSE/AbsRel and AP/ROC/balanced accuracy use valid entries only.",
+      "item": "Metric denominators"
+    }
+  ],
+  "pinned_control_sizes": {
+    "SP0_training_registration": {
+      "bytes": 2426,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "stat_only": true
+    },
+    "SP1_training_registration": {
+      "bytes": 2422,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "stat_only": true
+    },
+    "SP2_training_registration": {
+      "bytes": 2426,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "stat_only": true
+    },
+    "SP3_training_registration": {
+      "bytes": 2426,
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "stat_only": true
+    },
+    "dev_scene_manifest": {
+      "bytes": 5534,
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_dev16_pinned_v2/SELECTED_SCENES.json",
+      "stat_only": true
+    },
+    "labels": {
+      "bytes": 128955,
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/spatial_probes_train64_dev16_v1/LABEL_MANIFEST.json",
+      "stat_only": true
+    },
+    "protocol": {
+      "bytes": 1527,
+      "path": "/mnt/project/VLA-Drive-st-correctness-learned-w-probe-20261017/reports/st_world_policy/20261017/spatial_probe/PROTOCOL.json",
+      "stat_only": true
+    },
+    "train_scene_manifest": {
+      "bytes": 19746,
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_pinned_v2/SELECTED_SCENES.json",
+      "stat_only": true
+    }
+  },
+  "reviewer_agent": "/root/st_correctness",
+  "schema": "independent_learned_w_endpoint_preparation_review_v1",
+  "scope": "spatial_probe.py, its bounded CPU tests and fixed64/16 JSON metadata; no real extraction or fit.",
+  "source_commit": "278f55c73253c34bb7013a046ae6f90b4293d626"
+}
