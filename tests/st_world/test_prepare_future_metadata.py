@@ -177,6 +177,17 @@ def test_individual_resource_limits_and_unregistered_build_reject(tmp_path):
     with pytest.raises(future.BudgetExceeded,match='DISK'): b.reserve(1)
 
 
+def test_larger_existing_source_log_requires_explicit_bounded_limit(tmp_path):
+    a, _, p, _ = setup(tmp_path)
+    assert a.max_raw_log_bytes == 128 * future.MiB
+    limits = dict(p['limits'], workers=1, max_raw_log_bytes=192 * future.MiB)
+    assert future.validate_limits(limits) == limits
+    for bad in (192 * future.MiB + 1, True, 192.0 * future.MiB, 0):
+        with pytest.raises(ValueError):
+            future.validate_limits(dict(limits, max_raw_log_bytes=bad))
+    assert limits['max_rss_bytes'] == 4 * future.GiB
+
+
 def test_new_request_index_verifies_ledger_and_exact_logs(tmp_path):
     a,run,p,_=setup(tmp_path); future.build(run)
     out=Path(a.output); request=out/'TEACHER_REQUESTS.json'; manifest=json.loads(request.read_text())

@@ -482,7 +482,7 @@ def groups_for(rows):
 def validate_limits(limits):
     ceilings={'workers':2,'read_mib_per_second':64.,'max_seconds':14400.,
               'max_source_read_bytes':1024*GiB,'max_metadata_bytes':2*GiB,
-              'max_rss_bytes':4*GiB,'max_raw_log_bytes':128*MiB}
+              'max_rss_bytes':4*GiB,'max_raw_log_bytes':192*MiB}
     if set(limits)!=set(ceilings): raise ValueError('Unknown/missing preparation limits')
     for key,ceiling in ceilings.items():
         value=limits[key]
