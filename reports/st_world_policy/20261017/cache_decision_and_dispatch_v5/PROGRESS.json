@@ -1,0 +1,96 @@
+{
+  "SP0_dispatch": {
+    "evaluation_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "gpu": 3,
+    "launch": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/SP0_step005000_dev1696_seed42_v1/invocations/1792218262676208630/LAUNCH.json",
+      "sha256": "8d644f44ca0dca1e13b58d4ee4488bc2e963708e8bb29fba79e310e368fbef51"
+    },
+    "new_navtest": false,
+    "pid": 430671,
+    "route": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/SP0_step005000_dev1696_seed42_v1/ROUTE.json",
+      "sha256": "aae92a88866f70c0efbac1230cd511a86097601511d90bcda11fc28a5c775bc0"
+    },
+    "training_checkpoint_step": 5000,
+    "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+  },
+  "completed_index": {
+    "actual_root_bytes": 381931520,
+    "new_tensor_bytes": 0,
+    "records": 304776,
+    "scenes": 101592
+  },
+  "decision": {
+    "checkpoint_space_preserved_on_each_new_W_write": true,
+    "missing_targets": "on_demand_fixed8_fp32_with_bounded_RAM_LRU",
+    "new_metadata_package_limit_bytes": 4294967296,
+    "new_multi_TB_tensor_cache": false,
+    "old_cache_deletion": false,
+    "precision_or_sample_order_change": false,
+    "reuse_existing_fp32_teacher_cache": true,
+    "separate_prepared_W_probe_cap_bytes": 1073741824
+  },
+  "earlier_file_count_correction": "Each prediction has .npz and .json; count paired stems, never both files as two scenes.",
+  "evaluation_snapshot": [
+    {
+      "job": "C0_step004096_dev1696_seed42_v1",
+      "paired_prediction_records_at_snapshot": 537,
+      "payload_reverified_by_snapshot": false,
+      "requested": 1696,
+      "scoring_result_complete": false
+    },
+    {
+      "job": "C1_step000512_dev1696_seed42_v1",
+      "paired_prediction_records_at_snapshot": 538,
+      "payload_reverified_by_snapshot": false,
+      "requested": 1696,
+      "scoring_result_complete": false
+    },
+    {
+      "job": "C2_step000512_dev1696_seed42_v1",
+      "paired_prediction_records_at_snapshot": 538,
+      "payload_reverified_by_snapshot": false,
+      "requested": 1696,
+      "scoring_result_complete": false
+    },
+    {
+      "job": "SP0_step005000_dev1696_seed42_v1",
+      "paired_prediction_records_at_snapshot": 0,
+      "payload_reverified_by_snapshot": false,
+      "requested": 1696,
+      "scoring_result_complete": false
+    }
+  ],
+  "future32_reuse": {
+    "all_slot_hits": 336,
+    "all_slots": 480,
+    "distinct_missing_keys": 105,
+    "future_hits": 240,
+    "future_slots": 384,
+    "logs": 2,
+    "new_tensor_bytes": 0,
+    "report": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future32_current_reuse_v1/RESULT.json",
+      "sha256": "25128bd5e942e9ea1a99848bcf9bd8991fda1486a77c78efa6a55f1308642535"
+    },
+    "scenes": 32,
+    "scope": "metadata only; not full-population or training throughput"
+  },
+  "host": "training-vla-zt-worker-0",
+  "independent_reviews": {
+    "W_launch_supplement_code_and_real_metadata": "PASS",
+    "indexed_factory_PCA_cpu": "PASS",
+    "typed_W_storage_and_checkpoint_reserve": "independent report pending; no live W migration/extraction"
+  },
+  "recorded_unix": 1792218412.5214477,
+  "remaining": [
+    "actual indexed provider/trainer qualification on full-current lookup source",
+    "fresh exact W signatures/typed-storage migration and bounded extraction/fit",
+    "complete current full-dev exports then independent official scoring",
+    "full-population temporal metadata and sustained training/resource qualification before formal T runs"
+  ],
+  "schema": "st_bounded_cache_progress_v5",
+  "source_commit": "f4e192dcdfd0f4980d65d60712f6d8f65cc67534",
+  "status": "PROGRESS_NOT_FORMAL_TEMPORAL_ADMISSION"
+}
