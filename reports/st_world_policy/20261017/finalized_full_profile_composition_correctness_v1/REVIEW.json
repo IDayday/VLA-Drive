@@ -1,0 +1,502 @@
+{
+  "actual_full_population_order_verified": false,
+  "actual_population_payload_read": false,
+  "checks": [
+    "exact_original_15_math_paths",
+    "preserved:tools/st_world_policy/fixed_batch_teacher.py",
+    "preserved:tools/st_world_policy/ondemand_teacher.py",
+    "preserved:tools/st_world_policy/qualify_fixed_batch_teacher.py",
+    "preserved:tools/st_world_policy/qualify_ondemand_teacher.py",
+    "preserved:tools/st_world_policy/provider_pca.py",
+    "preserved:tools/st_world_policy/teacher_pca.py",
+    "preserved:tools/st_world_policy/cache_teacher.py",
+    "preserved:starVLA/model/modules/foresight/dinov3_target_encoder.py",
+    "preserved:starVLA/dataloader/st_world_history.py",
+    "preserved:starVLA/dataloader/st_world_indexed_provider.py",
+    "preserved:starVLA/dataloader/st_world_metadata_index.py",
+    "preserved:starVLA/dataloader/st_world_ondemand.py",
+    "preserved:starVLA/dataloader/st_world_targets.py",
+    "preserved:starVLA/dataloader/st_world_schema.py",
+    "preserved:starVLA/model/modules/st_world/requests.py",
+    "original_runtime:tools/st_world_policy/train_world.py",
+    "original_runtime:tools/st_world_policy/training_config.py",
+    "original_runtime:tools/st_world_policy/qualify_indexed_provider.py",
+    "original_runtime:starVLA/dataloader/st_world_dataset.py",
+    "original_runtime:tools/st_world_policy/official_runtime.py",
+    "original_runtime:tools/ddpolicy_vehicle/training_state.py",
+    "original_runtime:tools/foresight/student_state.py",
+    "original_runtime:tools/st_world_policy/prepare_history.py",
+    "original_runtime:tools/st_world_policy/metadata_storage.py",
+    "read_dependency:tools/st_world_policy/prepare_future_metadata.py",
+    "read_dependency:tools/st_world_policy/prepare_current_teacher.py",
+    "read_dependency:starVLA/dataloader/st_world_metadata_index.py",
+    "read_dependency:starVLA/dataloader/st_world_future_provenance.py",
+    "reviewed_donor_exact:tools/st_world_policy/finalize_future_metadata.py",
+    "reviewed_donor_exact:tools/st_world_policy/teacher_provider.py",
+    "all_legacy_provider_semantics_identical_after_only_new_branch_removed",
+    "new_branch_real_validator_import",
+    "new_branch_passes_all_verified_index_dependencies",
+    "full_population_retains:entire_original_index_in_original_order",
+    "full_population_retains:selected/request/current order, observation or time differs",
+    "full_population_retains:request.check()",
+    "full_population_retains:source.check()",
+    "full_population_retains:next(future_rows, None)",
+    "full_population_retains:next(current_rows, None)",
+    "full_population_retains:selection_hash.hexdigest()",
+    "full_population_retains:token_hash.hexdigest()",
+    "consumer_helper_f_symbols_present_in_unchanged_prepare_future",
+    "consumer_no_finalizer_writer_execution",
+    "consumer_lineage_check_code_default_false",
+    "consumer_lineage_uses_default_read_only_branch",
+    "helper_has_no_packed_history_name",
+    "draft_not_launchable_unassigned_fields",
+    "cumulative_stop64_128_exposures",
+    "history_delta_off_original_time_axis",
+    "no_torch_import"
+  ],
+  "helper_consumer_functions": [
+    "_decode",
+    "_lineage",
+    "_pin",
+    "_read",
+    "_registration",
+    "_stamp",
+    "_terminal",
+    "validate_completion"
+  ],
+  "helper_prepare_future_attributes": [
+    "BudgetExceeded",
+    "LEDGER_SCHEMA",
+    "PLAN_SCHEMA",
+    "REF_SCHEMA",
+    "REG_SCHEMA",
+    "TIMES",
+    "TOLERANCE",
+    "_storage_check",
+    "budget_sha",
+    "file_sha256",
+    "metadata_path",
+    "metadata_reader",
+    "require_hash",
+    "rss",
+    "shard_path",
+    "validate_limits",
+    "validate_self"
+  ],
+  "measurement": {
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "peak_RSS_bytes": 31256576,
+    "source_control_bytes": 1536270,
+    "wall_seconds": 0.2727219481021166
+  },
+  "proposal_commit": "5327cd32823ca2e69f56efbb4d0118edff5618b1",
+  "runtime_commit": "a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a",
+  "source_pins": [
+    {
+      "bytes": 43115,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/qualify_indexed_provider.py",
+      "sha256": "6fd0a7b9d3317f78aa139906f20ff81b97a7bb7bee3a397a038a3553aaa5fc08"
+    },
+    {
+      "bytes": 9213,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/fixed_batch_teacher.py",
+      "sha256": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8"
+    },
+    {
+      "bytes": 9213,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/fixed_batch_teacher.py",
+      "sha256": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8"
+    },
+    {
+      "bytes": 9213,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/fixed_batch_teacher.py",
+      "sha256": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8"
+    },
+    {
+      "bytes": 7925,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/ondemand_teacher.py",
+      "sha256": "9a5a142892ada2ccb780b6fdae6b098e7863c3842abbb6ee7db0a3b59392f3c7"
+    },
+    {
+      "bytes": 7925,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/ondemand_teacher.py",
+      "sha256": "9a5a142892ada2ccb780b6fdae6b098e7863c3842abbb6ee7db0a3b59392f3c7"
+    },
+    {
+      "bytes": 7925,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/ondemand_teacher.py",
+      "sha256": "9a5a142892ada2ccb780b6fdae6b098e7863c3842abbb6ee7db0a3b59392f3c7"
+    },
+    {
+      "bytes": 19991,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py",
+      "sha256": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f"
+    },
+    {
+      "bytes": 19991,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py",
+      "sha256": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f"
+    },
+    {
+      "bytes": 19991,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py",
+      "sha256": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f"
+    },
+    {
+      "bytes": 22876,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/qualify_ondemand_teacher.py",
+      "sha256": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32"
+    },
+    {
+      "bytes": 22876,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/qualify_ondemand_teacher.py",
+      "sha256": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32"
+    },
+    {
+      "bytes": 22876,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_ondemand_teacher.py",
+      "sha256": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32"
+    },
+    {
+      "bytes": 11528,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/provider_pca.py",
+      "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+    },
+    {
+      "bytes": 11528,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/provider_pca.py",
+      "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+    },
+    {
+      "bytes": 11528,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/provider_pca.py",
+      "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+    },
+    {
+      "bytes": 28454,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/teacher_pca.py",
+      "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+    },
+    {
+      "bytes": 28454,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/teacher_pca.py",
+      "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+    },
+    {
+      "bytes": 28454,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/teacher_pca.py",
+      "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+    },
+    {
+      "bytes": 23020,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/cache_teacher.py",
+      "sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877"
+    },
+    {
+      "bytes": 23020,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/cache_teacher.py",
+      "sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877"
+    },
+    {
+      "bytes": 23020,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/cache_teacher.py",
+      "sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877"
+    },
+    {
+      "bytes": 5542,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py",
+      "sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8"
+    },
+    {
+      "bytes": 5542,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py",
+      "sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8"
+    },
+    {
+      "bytes": 5542,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py",
+      "sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8"
+    },
+    {
+      "bytes": 16195,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+    },
+    {
+      "bytes": 16195,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+    },
+    {
+      "bytes": 16195,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+    },
+    {
+      "bytes": 6467,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_indexed_provider.py",
+      "sha256": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85"
+    },
+    {
+      "bytes": 6467,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_indexed_provider.py",
+      "sha256": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85"
+    },
+    {
+      "bytes": 6467,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_indexed_provider.py",
+      "sha256": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85"
+    },
+    {
+      "bytes": 30480,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "bytes": 30480,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "bytes": 30480,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "bytes": 13096,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_ondemand.py",
+      "sha256": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658"
+    },
+    {
+      "bytes": 13096,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_ondemand.py",
+      "sha256": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658"
+    },
+    {
+      "bytes": 13096,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_ondemand.py",
+      "sha256": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658"
+    },
+    {
+      "bytes": 21321,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_targets.py",
+      "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+    },
+    {
+      "bytes": 21321,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_targets.py",
+      "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+    },
+    {
+      "bytes": 21321,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_targets.py",
+      "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+    },
+    {
+      "bytes": 9218,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_schema.py",
+      "sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc"
+    },
+    {
+      "bytes": 9218,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_schema.py",
+      "sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc"
+    },
+    {
+      "bytes": 9218,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_schema.py",
+      "sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc"
+    },
+    {
+      "bytes": 8101,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/model/modules/st_world/requests.py",
+      "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+    },
+    {
+      "bytes": 8101,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/model/modules/st_world/requests.py",
+      "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+    },
+    {
+      "bytes": 8101,
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/model/modules/st_world/requests.py",
+      "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+    },
+    {
+      "bytes": 34353,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    {
+      "bytes": 34353,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    {
+      "bytes": 6328,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/training_config.py",
+      "sha256": "87cb75dc7c948a8c37911fd2037794a48a50a5aae6d8153b867eaf0dc32ced97"
+    },
+    {
+      "bytes": 6328,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/training_config.py",
+      "sha256": "87cb75dc7c948a8c37911fd2037794a48a50a5aae6d8153b867eaf0dc32ced97"
+    },
+    {
+      "bytes": 43115,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/qualify_indexed_provider.py",
+      "sha256": "6fd0a7b9d3317f78aa139906f20ff81b97a7bb7bee3a397a038a3553aaa5fc08"
+    },
+    {
+      "bytes": 13263,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_dataset.py",
+      "sha256": "178cae6f2dbef96e21de450a3f716005f73a563452df1bbcf7fc9ed3cddf0f33"
+    },
+    {
+      "bytes": 13263,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_dataset.py",
+      "sha256": "178cae6f2dbef96e21de450a3f716005f73a563452df1bbcf7fc9ed3cddf0f33"
+    },
+    {
+      "bytes": 18569,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/official_runtime.py",
+      "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+    },
+    {
+      "bytes": 18569,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/official_runtime.py",
+      "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+    },
+    {
+      "bytes": 1779,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/ddpolicy_vehicle/training_state.py",
+      "sha256": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f"
+    },
+    {
+      "bytes": 1779,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/ddpolicy_vehicle/training_state.py",
+      "sha256": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f"
+    },
+    {
+      "bytes": 4742,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/foresight/student_state.py",
+      "sha256": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c"
+    },
+    {
+      "bytes": 4742,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/foresight/student_state.py",
+      "sha256": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c"
+    },
+    {
+      "bytes": 15513,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/prepare_history.py",
+      "sha256": "d5bf7b5ddfd9a0ea7649070e7bfc9e6352b2e66ec39ad7bcd07a80a334ac6427"
+    },
+    {
+      "bytes": 15513,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/prepare_history.py",
+      "sha256": "d5bf7b5ddfd9a0ea7649070e7bfc9e6352b2e66ec39ad7bcd07a80a334ac6427"
+    },
+    {
+      "bytes": 43870,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/metadata_storage.py",
+      "sha256": "46233cf232a61e73e7e24f967b1cf316298473b017f49f4e96432d7e1b1a3591"
+    },
+    {
+      "bytes": 43870,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/metadata_storage.py",
+      "sha256": "46233cf232a61e73e7e24f967b1cf316298473b017f49f4e96432d7e1b1a3591"
+    },
+    {
+      "bytes": 46489,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/prepare_future_metadata.py",
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    {
+      "bytes": 46489,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/prepare_future_metadata.py",
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    {
+      "bytes": 46489,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/tools/st_world_policy/prepare_future_metadata.py",
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    {
+      "bytes": 15818,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/prepare_current_teacher.py",
+      "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+    },
+    {
+      "bytes": 15818,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/prepare_current_teacher.py",
+      "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+    },
+    {
+      "bytes": 15818,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/tools/st_world_policy/prepare_current_teacher.py",
+      "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+    },
+    {
+      "bytes": 30480,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "bytes": 5176,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/starVLA/dataloader/st_world_future_provenance.py",
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    {
+      "bytes": 5176,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/starVLA/dataloader/st_world_future_provenance.py",
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    {
+      "bytes": 5176,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/starVLA/dataloader/st_world_future_provenance.py",
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    {
+      "bytes": 32007,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/finalize_future_metadata.py",
+      "sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d"
+    },
+    {
+      "bytes": 32007,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/tools/st_world_policy/finalize_future_metadata.py",
+      "sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d"
+    },
+    {
+      "bytes": 57761,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/teacher_provider.py",
+      "sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+    },
+    {
+      "bytes": 57761,
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/tools/st_world_policy/teacher_provider.py",
+      "sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+    },
+    {
+      "bytes": 57200,
+      "path": "/mnt/project/VLA-Drive-st-full-index-profile-20261017/tools/st_world_policy/teacher_provider.py",
+      "sha256": "c36cb97a7b2d7acf3ee143338fc9922ffc11e3b3bc054714e89acfdea65314f2"
+    },
+    {
+      "bytes": 2793,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-review-20261017/reports/st_world_policy/20261017/finalized_full_profile_source_preparation_v1/DRAFT_TRAINING_CONFIG.json",
+      "sha256": "e49bba7011d78eee72bebbf9ba73ade5bfaf0852f345da8f76c1f94f6b99db36"
+    },
+    {
+      "bytes": 467,
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-review-20261017/reports/st_world_policy/20261017/finalized_full_profile_source_preparation_v1/DRAFT_CONSUMPTION.json",
+      "sha256": "0e9feea786131bc521af3ce1fa2f16158022c79e2360d3e48a876c8c53efe3ca"
+    }
+  ],
+  "status": "PASS_NARROW_STATIC_COMPOSITION_ONLY",
+  "torch_imported": false,
+  "training_or_dispatch_permission": false
+}
