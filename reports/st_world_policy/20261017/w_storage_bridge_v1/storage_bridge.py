@@ -55,7 +55,7 @@ class Reads:
         self.check_io()
     def raw(self, path, expected=None):
         p = canonical(path)
-        fd = os.open(p, os.O_RDONLY | os.O_NOFOLLOW)
+        fd = os.open(p, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
         with os.fdopen(fd, 'rb') as stream:
             before = os.fstat(stream.fileno())
             if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size > FILE_LIMIT):
