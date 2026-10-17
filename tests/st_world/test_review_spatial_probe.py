@@ -144,3 +144,17 @@ def test_encode_rejects_in_place_buffer_change():
     obs = ModelInputs({'image': [object()] * 3, 'state': [[0., 0., 0., 0.]], 'lang': '', 'token': 'synthetic'})
     with pytest.raises(ValueError, match='buffer changed'):
         p.encode_world(model, [obs], tokens=144, hidden=8)
+
+
+def test_metadata_only_runtime_does_not_query_or_activate_cuda(monkeypatch):
+    """Regression: planning a future CUDA extraction must work without a GPU."""
+    source = 'a' * 40
+    monkeypatch.setattr(p.subprocess, 'check_output', lambda argv, **kwargs:
+        b'' if argv[1] == 'status' else source + '\n')
+    monkeypatch.setattr(p, 'runtime_environment', lambda: {'fixture': 'metadata-only'})
+    def forbidden(*args, **kwargs):
+        raise AssertionError('Metadata-only planning queried or activated CUDA')
+    monkeypatch.setattr(p.torch.cuda, 'is_available', forbidden)
+    monkeypatch.setattr(p.torch.cuda, 'set_device', forbidden)
+    monkeypatch.setattr(p.torch.cuda, 'init', forbidden)
+    p.source_runtime(source, {'fixture': 'metadata-only'}, 'cuda:0', configure_device=False)
