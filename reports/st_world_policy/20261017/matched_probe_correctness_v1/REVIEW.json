@@ -1,0 +1,102 @@
+{
+  "actual_data_qualifications": {
+    "actual_extraction": false,
+    "actual_fit": false,
+    "actual_os_cleanup": false,
+    "actual_tensor_hash_shape_finite_verification": false,
+    "fresh_checkpoint_payload_integrity": false
+  },
+  "arms": [
+    {
+      "arm": "SP1",
+      "caches": {
+        "dev": {
+          "identity": "cc3a32c8c276cd56f91247d73839f5f088300b96272c64838422303b7ba0be83",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev"
+        },
+        "train": {
+          "identity": "609e9d0219cfaf20d6cfed7195b32949568fda802e8494b5bbd9f6ca743be93b",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/train"
+        }
+      },
+      "checkpoint_identity": "c088115fdeffa355d2b6ebf8a807ea01112a22c90059919b39f5372456af2d28",
+      "checkpoint_tag": "step_005000_1792219550866622410",
+      "memory_tokens": 144,
+      "preparation_sha256": "2a59c1276bbb662e9f305cc64d115316d4fe207619f51bbb165ccc5c8eaaca69"
+    },
+    {
+      "arm": "SP2",
+      "caches": {
+        "dev": {
+          "identity": "7da697ec0e9d91175072cbf6316845cd8db6ec26d3c12335e41cb31d8cde2abd",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/dev"
+        },
+        "train": {
+          "identity": "0e3aa1e84c6ad5d5cacfc48901da6e131f94f082995efaa358d1e568f95cbfb1",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/train"
+        }
+      },
+      "checkpoint_identity": "2de4bf93f817a82f673d5d0c53af20a264c2e5b0a76e0263336283091cc5bdb1",
+      "checkpoint_tag": "step_005000_1792222283615035511",
+      "memory_tokens": 144,
+      "preparation_sha256": "c7e6cdeaf893b32e5e43ccb80dab4da365761c2b6faa42c45cce543615df0565"
+    },
+    {
+      "arm": "SP3",
+      "caches": {
+        "dev": {
+          "identity": "b2f4a0a8e748e9cacdc4f47a4e891138c3f0b57f63bce779148870f89900fb7b",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/dev"
+        },
+        "train": {
+          "identity": "2ca310b105b714705dbba6e3bab5f44123e4475d321595b7c0f77df7ad170c31",
+          "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/train"
+        }
+      },
+      "checkpoint_identity": "52beafa2273e3cb9900ce3aed824a0af19683a5e22e935cb2e4d6ef9d3fc5058",
+      "checkpoint_tag": "step_005000_1792224403643960209",
+      "memory_tokens": 288,
+      "preparation_sha256": "3ad04538942f5c245f09b5a3f51000c56787af2f435cef43297d74ab1f5a20b1"
+    }
+  ],
+  "controller_sha256": "c5c8521379b36c979bf8743f12c2a2baf80df5ca5d21941ba2fe9d453540c38c",
+  "cost": {
+    "actual_gpu_or_loader_use": false,
+    "actual_model_data_or_database_reads": false,
+    "actual_process_launches": 0,
+    "actual_process_launches_field_scope": "experiment and monitor worker launches only; three read-only git subprocesses did run",
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "logical_read_bytes": 7877986,
+    "logical_written_bytes": 3950,
+    "returncode": 0,
+    "rss_peak_bytes": 40005632,
+    "torch_imported": false,
+    "wall_seconds": 1.077120078727603
+  },
+  "inventory_sha256": "d4ee7ce482342985aed21c9024d5d3912f6a5f50dba67583223e4e73dec2c7f5",
+  "permission": {
+    "automatic_retry": false,
+    "dispatch": false,
+    "ledger_mutation": false,
+    "prior_failure_override": false,
+    "resource_admission": false
+  },
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "runtime_source_sha": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+  "schema": "st_matched_probe_controls_correctness_review_v1",
+  "source_commit": "999328d5974bcf616696a93dfe347254a005cfe3",
+  "status": "PASS_NARROW_MATCHED_CONTROL_CORRECTNESS_ONLY",
+  "tests": {
+    "additional_cases": 6,
+    "author_control_cases_reexecuted": 18,
+    "deselected": 2,
+    "independent_script_sha256": "62e3d8778defca302565d1ca14cb6a9da9f12f301645d725a35822974bfb98dc",
+    "log_sha256": "9ad844f452c2ff5cb8ea90eb9163804f0476b07ba72453457d3d5447824687a3",
+    "passed": 24,
+    "reason_deselected": "live child tests hard-code CPU2/3; actual patched monitor tested with synthetic owners instead"
+  },
+  "unchanged_compute_parent": "581399eb309677c20fe7464791b4f18685e947a6"
+}
