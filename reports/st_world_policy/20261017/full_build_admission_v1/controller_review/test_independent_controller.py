@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 OWNER=Path('/mnt/project/VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py')
-assert hashlib.sha256(OWNER.read_bytes()).hexdigest()=='10ece34548c88069e765de95c5053688ac104de5862e45fc01c342882bb6fa67'
+assert hashlib.sha256(OWNER.read_bytes()).hexdigest()=='866c35bce29b2215def6f1fea215dd75d7a62dc650a39d15c6e861f170ec7216'
 spec=importlib.util.spec_from_file_location('independent_full_build',OWNER)
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 HELPERS=Path('/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1')

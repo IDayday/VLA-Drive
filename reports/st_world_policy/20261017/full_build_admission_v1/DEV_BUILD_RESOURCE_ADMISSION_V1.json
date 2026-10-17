@@ -1,0 +1,121 @@
+{
+  "administrative_budget_addendum": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/ADMIN_BUDGET_ADDENDUM_V1.json",
+    "sha256": "2946083d7ed65aa931bcdf12bee333b340d9e0c9ec742509314ebfed9de61ddf"
+  },
+  "checkpoint_receipt": {
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_build_admission_v1/CHECKPOINT_COMMITMENTS_2183G_V2.json",
+    "sha256": "9aab11e10c59cb17218ab65ae028004a68315c0d1bd758c1c913f94a810bafe2"
+  },
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+    "sha256": "866c35bce29b2215def6f1fea215dd75d7a62dc650a39d15c6e861f170ec7216"
+  },
+  "controller_commit": "26320138b9a4f880f0b7bd6a98a9796a9f067553",
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+  },
+  "exact_population": {
+    "logs": 16,
+    "max_raw_log_bytes": 134217728,
+    "paced_source_rate_mib_per_second": 64,
+    "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1",
+    "root_cap_bytes": 134217728,
+    "scenes": 1696,
+    "workers": 1
+  },
+  "hostname": "training-vla-zt-worker-0",
+  "issued_at_unix": 1792229806.9910195,
+  "latest_start_unix": 1792230706.9910195,
+  "ledger_observed_before_build": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+    "sha256": "caebf94cd9b5d303feea6cfd18aebc8f5915eeebeac81d7230ed90cad38123ba"
+  },
+  "limits": {
+    "attempts": 1,
+    "automatic_retry": false,
+    "cleanup_seconds": 40,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "gpu": false,
+    "read_bytes": 17179869184,
+    "rss_bytes": 4294967296,
+    "stderr_bytes": 1048576,
+    "stdout_bytes": 1048576,
+    "wall_seconds": 1800
+  },
+  "migration": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/MIGRATION_01fc719a84318e75e7482a20f0b041ccc2a9954623b2b9e715e5081a3eb44053.complete.json",
+    "sha256": "d53193e57b383e0299387da61f6262c69fc23352616638d0280cdcec7d4c18cb"
+  },
+  "monitor_helpers": {
+    "observed_cli.py": {
+      "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    },
+    "prepare_bindings.py": {
+      "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    "supervise_once.py": {
+      "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "a29527dfbe23a4563a66266532f44644f5f184f4a8f59842883524632a63f2d6"
+    }
+  },
+  "policy": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/PROPOSED_POLICY.json",
+    "sha256": "59371867175a65dd032cc27c88a050227d8ac4ba34a681c2e31b250c58a0978d"
+  },
+  "preparation": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/PREPARATION.json",
+    "sha256": "dce5b37f391f37c3076a232510e554f382c3a61ad8d983ec381d63c59970855c"
+  },
+  "registration": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/DEV_STORAGE_REGISTRATION.json",
+    "sha256": "4344bb546c21a649946c0b82514fe2159515abd74288c8e3d2c7869dc6d31a83"
+  },
+  "reviewer": "/root/st_metadata_resource_review",
+  "reviewer_role": "IndependentSystems",
+  "role": "dev",
+  "schema": "st_full_future_build_resource_admission_v1",
+  "scope": [
+    "One dev metadata build only; no train auto-chain or indexes.",
+    "Reads real raw logs, image headers/image bytes for identities; no teacher tensors or GPU computation.",
+    "Existing PLAN/control files retained; one-shot markers prohibit automatic retry.",
+    "Only newly spawned verified session is signalled on resource failure.",
+    "CPU0/1 and process-tree RSS4GiB; sampled monitoring is not a cgroup guarantee.",
+    "8GiB versioned metadata envelope and extra administrative4MiB preserved; no old cache deletion.",
+    "Training, formal release and scientific conclusions are outside this approval."
+  ],
+  "source_runtime": {
+    "commit": "1265b2376864ee929d95513f4f91e58d0910d147",
+    "path": "/mnt/project/VLA-Drive-st-metadata-build-dev-v1-20261017"
+  },
+  "space_observation": {
+    "checked_unix": 1792229806.9910195,
+    "checkpoint_obligations_bytes": 2343978401792,
+    "common_cache_cap_bytes": 824633720832,
+    "current_metadata_with_administrative_reservations_bytes": 3611295744,
+    "final_metadata_including_pending_indexes_bytes": 5892997120,
+    "metadata_envelope_bytes": 8589934592,
+    "quota_verified": false,
+    "separate_free_floor_bytes": 1099511627776,
+    "shared_available_bytes": 7256924061696
+  },
+  "status": "PASS_BOUNDED_DEV_BUILD_ONLY",
+  "valid_until_unix": 1792233406.9910195,
+  "verification": {
+    "counter_reader_uses_writer_lock": true,
+    "independent_tests_passed": 10,
+    "old_claim_rows_unchanged_after_migration": true,
+    "original_failed_test_evidence_preserved": true,
+    "owner_tests_passed": 21,
+    "real_builder_executed_by_reviewer": false,
+    "result_json_escaping_and_atomic_headroom_accounted": true,
+    "same_ledger_same_lock": true,
+    "tiny_owned_cpu_child_cases": 7
+  }
+}
