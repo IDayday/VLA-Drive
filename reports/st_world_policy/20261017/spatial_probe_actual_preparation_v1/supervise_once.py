@@ -275,6 +275,64 @@ class OwnedSession:
         self.members.clear()
 
 
+def abort_spawn_setup(child, leader_fd, deadline=None):
+    """Close only this fresh, unreaped start_new_session Popen on setup failure.
+
+    waitid proves it is still our unreaped child. Its kernel SID/PGID is checked
+    before the fallback group signal; the unreaped leader prevents ID reuse.
+    This authority comes from the current Popen call, never a saved receipt.
+    """
+    if child.returncode is not None:
+        return
+    deadline = time.monotonic() + 10 if deadline is None else min(deadline, time.monotonic() + 10)
+    os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+    if os.getsid(child.pid) != child.pid or os.getpgid(child.pid) != child.pid:
+        # A pidfd still identifies our actual child, but never authorizes an
+        # unrelated group. Do not reap until after the signal.
+        if leader_fd is not None: pidfd_signal(leader_fd, signal.SIGKILL)
+        else: child.kill()  # direct unreaped Popen child, not an old PID
+        child.wait(timeout=max(.1, deadline - time.monotonic()))
+        raise RuntimeError('Fresh spawn did not retain its own session')
+    try:
+        # Failures before ownership registration have not admitted useful work.
+        # KILL here avoids granting a failed setup another 30s to fork/work.
+        os.killpg(child.pid, signal.SIGKILL)
+        if leader_fd is not None: pidfd_signal(leader_fd, signal.SIGKILL)
+        while True:
+            entries = list(Path('/proc').iterdir())
+            if len(entries) > 32768:
+                raise RuntimeError('Bounded setup cleanup scan exceeded')
+            active = False
+            for entry in entries:
+                if not entry.name.isdigit(): continue
+                try:
+                    record = proc_identity(int(entry.name))
+                    if record['sid'] != child.pid: continue
+                    # SID cannot be reused while the actual leader is unreaped.
+                    fd = pidfd_open(record['pid'])
+                    try:
+                        if not OwnedSession.same(record, proc_identity(record['pid'])):
+                            continue
+                        if record['state'] not in ('Z', 'X'):
+                            active = True; pidfd_signal(fd, signal.SIGKILL)
+                        elif record['pid'] != child.pid and record['ppid'] == os.getpid():
+                            os.waitpid(record['pid'], os.WNOHANG)
+                    finally:
+                        os.close(fd)
+                except (FileNotFoundError, ProcessLookupError, ChildProcessError):
+                    continue
+            if not active: break
+            if time.monotonic() >= deadline:
+                raise RuntimeError('Fresh spawn setup cleanup exceeded 10 seconds')
+            time.sleep(.01)
+    finally:
+        # Even /proc or selector registration failure cannot abandon the fresh
+        # child/group. Keep the spawn anchor reserved through the final signal.
+        os.killpg(child.pid, signal.SIGKILL)
+        if leader_fd is not None: pidfd_signal(leader_fd, signal.SIGKILL)
+        child.wait(timeout=max(.1, deadline - time.monotonic()))
+
+
 def own_group_signal(child, sig):
     owner = getattr(child, '_probe_owned_session', None)
     if owner is None or owner.child is not child:
@@ -296,10 +354,13 @@ def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_rea
     child = popen(['taskset', '-c', ','.join(map(str, cpus)), *argv], cwd=cwd, env=env,
                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True,
                   pass_fds=tuple(descriptors))
-    owner = OwnedSession(child)
-    selector = selectors.DefaultSelector(); selector.register(child.stdout, selectors.EVENT_READ)
+    owner = None; selector = None; leader_fd = None
     next_sample = 0.; final_counters = None
     try:
+        leader_fd = pidfd_open(child.pid)
+        owner = OwnedSession(child)
+        selector = selectors.DefaultSelector()
+        selector.register(child.stdout, selectors.EVENT_READ)
         write_once(Path(attempt) / 'CHILD.json', dict(pid=child.pid, pgid=child.pid,
                    sid=owner.anchor['sid'], start_ticks=owner.anchor['start_ticks'],
                    started_unix=time.time(), argv=argv, owned_new_session=True,
@@ -350,10 +411,26 @@ def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_rea
             stream.flush(); os.fsync(stream.fileno())
         code = owner.finish(terminate=reason is not None, deadline=term_at + 40 if term_at is not None else None)
     except BaseException:
-        owner.finish(terminate=True, deadline=term_at + 40 if term_at is not None else None)
+        partial = getattr(child, '_probe_owned_session', None)
+        if owner is None and partial is not None and partial.child is child:
+            owner = partial
+        cleanup_deadline = term_at + 40 if term_at is not None else None
+        try:
+            if owner is not None:
+                owner.finish(terminate=True, deadline=term_at + 40 if term_at is not None else None)
+            else:
+                abort_spawn_setup(child, leader_fd, deadline=cleanup_deadline)
+        except BaseException:
+            # Discovery itself can fail; the newly spawned unreaped child still
+            # has a bounded cleanup owner. This never consults old metadata.
+            abort_spawn_setup(child, leader_fd, deadline=cleanup_deadline)
+            raise
         raise
     finally:
-        owner.close(); selector.close(); child.stdout.close()
+        if owner is not None: owner.close()
+        if selector is not None: selector.close()
+        if leader_fd is not None: os.close(leader_fd)
+        child.stdout.close()
     counter = Path(attempt) / 'COUNTERS.json'
     if counter.exists():
         final_counters, _ = read(counter, limit=65536)

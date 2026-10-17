@@ -190,3 +190,75 @@ def test_changed_spawn_identity_refuses_signal_then_owned_pidfd_cleanup(tmp_path
         finally:
             owner.close()
     assert child.returncode==-signal.SIGTERM
+
+@pytest.mark.parametrize('fault', ['owner_init', 'selector_init', 'selector_register', 'proc_identity', 'leader_pidfd'])
+def test_post_spawn_setup_failure_closes_fresh_child_and_lock(tmp_path, monkeypatch, fault):
+    attempt=tmp_path/'stage'; attempt.mkdir()
+    spawned=[]; fixture_fds=[]
+    original_open=s.pidfd_open
+    def spawn(*args, **kwargs):
+        child=subprocess.Popen(*args, **kwargs)
+        spawned.append(child); fixture_fds.append(pidfd_open(child.pid))
+        return child
+    def fail(*args, **kwargs):
+        raise OSError('injected '+fault)
+    if fault=='owner_init': monkeypatch.setattr(s.OwnedSession,'__init__',fail)
+    elif fault=='selector_init': monkeypatch.setattr(s.selectors,'DefaultSelector',fail)
+    elif fault=='selector_register': monkeypatch.setattr(s.selectors.DefaultSelector,'register',fail)
+    elif fault=='proc_identity': monkeypatch.setattr(s,'proc_identity',fail)
+    else:
+        monkeypatch.setattr(s,'pidfd_open',lambda pid: fail() if spawned and pid==spawned[0].pid else original_open(pid))
+    outsider=subprocess.Popen([sys.executable,'-c','import time; time.sleep(15)'],start_new_session=True)
+    outsider_fd=pidfd_open(outsider.pid)
+    try:
+        with ExitStack() as stack:
+            lock=s.acquire(tmp_path/'one-loader.lock',stack)
+            with pytest.raises(OSError,match='injected '+fault):
+                s.supervise([sys.executable,'-c','import time; time.sleep(15)'],cwd=tmp_path,
+                    env=dict(os.environ),cpus=sorted(os.sched_getaffinity(0))[:2],
+                    descriptors=(lock.fileno(),),attempt=attempt,wall=3,rss=1<<30,
+                    rss_reader=lambda pid:0,popen=spawn)
+        assert len(spawned)==1 and spawned[0].returncode is not None
+        assert not alive(spawned[0].pid)
+        assert alive(outsider.pid)
+        with ExitStack() as stack: s.acquire(tmp_path/'one-loader.lock',stack)
+    finally:
+        for child,fd in zip(spawned,fixture_fds):
+            stop_owned(fd); child.wait(timeout=5); os.close(fd)
+        stop_owned(outsider_fd); outsider.wait(timeout=5); os.close(outsider_fd)
+
+
+@pytest.mark.parametrize('new_group', [False, True])
+def test_registration_failure_after_spawned_leader_exit_closes_descendant(tmp_path, monkeypatch, new_group):
+    pid_file=tmp_path/'tail.json'; attempt=tmp_path/'stage'; attempt.mkdir()
+    spawned=[]; fds=[]
+    code="""import os,json,time
+p=os.fork()
+if p: os._exit(0)
+if os.environ['NEW_GROUP']=='1': os.setpgid(0,0)
+os.close(1); os.close(2)
+with open(os.environ['TAIL_FILE'],'w') as f: json.dump({'pid':os.getpid()},f)
+time.sleep(15)
+"""
+    def spawn(*args,**kwargs):
+        child=subprocess.Popen(*args,**kwargs); spawned.append(child); fds.append(pidfd_open(child.pid))
+        return child
+    def fail(self,child):
+        wait_path(pid_file)
+        state=json.loads(pid_file.read_text()); fds.append(pidfd_open(state['pid']))
+        raise OSError('registration failed after leader exit')
+    monkeypatch.setattr(s.OwnedSession,'__init__',fail)
+    try:
+        with ExitStack() as stack:
+            lock=s.acquire(tmp_path/'one-loader.lock',stack)
+            with pytest.raises(OSError,match='registration failed'):
+                s.supervise([sys.executable,'-c',code],cwd=tmp_path,
+                    env={**os.environ,'TAIL_FILE':str(pid_file),'NEW_GROUP':str(int(new_group))},cpus=sorted(os.sched_getaffinity(0))[:2],
+                    descriptors=(lock.fileno(),),attempt=attempt,wall=3,rss=1<<30,
+                    rss_reader=lambda pid:0,popen=spawn)
+        assert spawned[0].returncode==0
+        assert not alive(json.loads(pid_file.read_text())['pid'])
+        with ExitStack() as stack: s.acquire(tmp_path/'one-loader.lock',stack)
+    finally:
+        for fd in fds: stop_owned(fd); os.close(fd)
+        for child in spawned: child.wait(timeout=5)

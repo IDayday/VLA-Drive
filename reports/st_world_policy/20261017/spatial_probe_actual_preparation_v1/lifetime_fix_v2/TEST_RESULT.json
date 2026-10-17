@@ -1,0 +1,20 @@
+{
+  "schema": "st_probe_spawn_setup_cpu_regression_v2",
+  "status": "OWNER_CPU_TESTS_PASS_NOT_EXECUTION_APPROVAL",
+  "passed": 50,
+  "elapsed_seconds": 3.37,
+  "previous_regressions_retained": 43,
+  "new_cases": 7,
+  "command": "CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m pytest -q -p no:cacheprovider reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/test_preparation.py reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/test_lifetime_fix.py",
+  "cpu_affinity": "first two available CPUs via os.sched_setaffinity before pytest subprocess",
+  "output": ".................................................. [100%]\n50 passed in 3.37s",
+  "real_dispatch": false,
+  "real_stage_run": false,
+  "gpu_or_model_access": false,
+  "ledger_access": false,
+  "fixture_processes_only": true,
+  "test_file_sha256": {
+    "test_preparation.py": "44ac59b5f79b78f6c801dd76304434e6cff94d4c976dc4418b0d40febe452065",
+    "test_lifetime_fix.py": "985bf6c0db9ba15c38a3604a1616c62f7061d12224aa456e489603d87493f9b4"
+  }
+}
