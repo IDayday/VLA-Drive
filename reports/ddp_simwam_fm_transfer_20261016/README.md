@@ -182,4 +182,6 @@ torchrun --standalone --nproc_per_node=8 -m scripts.analysis.fm_transfer.train_r
 
 SFT终点核算入口要求全部rank正式完成，逐rank检查更新日志连续、无重叠、cursor及TRAIN人口匹配；FM repeat不算独立场景，八rank的更新不乘成八倍逻辑更新。7项针对性核算测试及CLI smoke通过，正式全量核算待各自SFT终点执行。重复/回滚日志须明确审计祖先，不静默去重。累计worker wall、rank0训练wall和派发至最后训练边界分别报告；未单独记录的模型加载、逐次保存和退出时间明确列为统计限制，不补造精确成本。
 
+RL的5k/10k/15k固定前缀使用[参数化汇总入口](registered_rl_prefix_analysis.md)，复用已有统计函数及精确观察点成本快照。真实B-5k全字段对照一致，拒绝未封存边界和覆盖旧证据；20k继续使用完整终点入口。此为只读分析改进，不修改正式训练或数值评价，也不代表尚未完成的10k/15k已有结果。
+
 全量TRAIN筛选分析复用已验证的完整清单，不改变canonical<0.9成员规则。它区分全人口与困难人口、精确零分/满分和安全分项，并单列失败/重试实际推理、worker累计时间与job wall。这里每场景仅一个固定ODE样本，不能把零分/满分场景比例写成G8等分组比例。4项统计/失败成本测试及CLI smoke通过；完整筛选结果须等所有分片完成后才能生成。
