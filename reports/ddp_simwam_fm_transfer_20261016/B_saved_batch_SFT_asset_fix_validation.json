@@ -1,0 +1,383 @@
+{
+  "schema": "fm_transfer_B_saved_batch_asset_fix_v1",
+  "status": "15K_CORRECTED_DIAGNOSTIC_COMPLETE_20K_CORRECTED_WAITER_ACTIVE",
+  "observed_unix": 1792247623.1157858,
+  "qualification": {
+    "status": "PASS_SIX_ASSET_PREFLIGHT_CHECKS_NOT_GRADIENT_RESULTS",
+    "observed_unix": 1792247388.494811,
+    "checks": [
+      "actual 15000 CLI resolves fixed own SFT100k",
+      "actual 20000 CLI resolves fixed own SFT100k",
+      "old wrong SFT150000 path rejected before model construction",
+      "old wrong SFT200000 path rejected before model construction",
+      "wrong hard-manifest hash rejected",
+      "different physical own-SFT screen rejected"
+    ],
+    "positive": [
+      {
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "/mnt/project/fm-transfer-20261016/resources/B_RL_15k_saved_batch_dispatch_20261017_v2/run.py",
+          "--preflight-only"
+        ],
+        "result": {
+          "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+          "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+          "own_SFT_updates": 100000,
+          "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+          "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+          "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+          "RL_update": 15000,
+          "collection": 3750,
+          "new_candidates": 0,
+          "optimizer_updates": 0
+        },
+        "script_sha256": "cda3b782a0e805a85d25b9a4f135e9cb9eea05fd2c3c60ba11f78fc56f064a41"
+      },
+      {
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "/mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017_v3/run.py",
+          "--preflight-only"
+        ],
+        "result": {
+          "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+          "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+          "own_SFT_updates": 100000,
+          "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+          "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+          "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+          "RL_update": 20000,
+          "collection": 5000,
+          "new_candidates": 0,
+          "optimizer_updates": 0
+        },
+        "script_sha256": "c03e81720211b20ea91383b97580e461abbda0a663cfe044ff8da9ff752287ce"
+      }
+    ],
+    "failed_attempt": {
+      "status": "FAILED",
+      "child_pid": 543471,
+      "child_start_ticks": 1368575194,
+      "dispatch_to_exit_seconds": 1.45831298828125,
+      "status_sha256": "64c0b405dfac1a3eb0c6c3f65cbb0567038bb35f3649326873bfe10a047500b2",
+      "diagnostic_log_sha256": "d82b4149dac3377960818fb9f71e3a91091e5cf336fa8abbdfb9eb724ae4b2e9",
+      "new_candidates": 0,
+      "new_scoring_calls": 0,
+      "optimizer_updates": 0
+    },
+    "training_source_unchanged": "225b9af660cb0210208e2c46fc4216d0f151275b",
+    "diagnostic_source_unchanged": "fd440275edc3fdf40b2aaa46c38da1d038068902",
+    "new_fm_or_rl_algorithm": false
+  },
+  "launches": {
+    "status": "FIXED_DIAGNOSTICS_DISPATCHED_FORMAL_TRAINING_UNCHANGED",
+    "launches": [
+      {
+        "status": "LAUNCHED_EXPLICIT_VALIDATED_DIAGNOSTIC_ATTEMPT",
+        "pid": 544792,
+        "start_ticks": 1368606708,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "/mnt/project/fm-transfer-20261016/resources/B_RL_15k_saved_batch_dispatch_20261017_v2/run.py"
+        ],
+        "script_sha256": "cda3b782a0e805a85d25b9a4f135e9cb9eea05fd2c3c60ba11f78fc56f064a41",
+        "asset_preflight": {
+          "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+          "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+          "own_SFT_updates": 100000,
+          "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+          "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+          "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+          "RL_update": 15000,
+          "collection": 3750,
+          "new_candidates": 0,
+          "optimizer_updates": 0
+        },
+        "resource": {
+          "host": "training-vla-zt",
+          "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+          "observed_unix": 1792247453.9040968,
+          "cpu_affinity": 128,
+          "load_average": [
+            6.3544921875,
+            9.31787109375,
+            11.017578125
+          ],
+          "memory_kB": {
+            "MemAvailable": 894540636
+          }
+        },
+        "launch_unix": 1792247453.9124167,
+        "source": "fd440275edc3fdf40b2aaa46c38da1d038068902"
+      },
+      {
+        "status": "LAUNCHED_EXPLICIT_VALIDATED_DIAGNOSTIC_ATTEMPT",
+        "pid": 544793,
+        "start_ticks": 1368606709,
+        "command": [
+          "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+          "/mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017_v3/run.py"
+        ],
+        "script_sha256": "c03e81720211b20ea91383b97580e461abbda0a663cfe044ff8da9ff752287ce",
+        "asset_preflight": {
+          "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+          "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+          "own_SFT_updates": 100000,
+          "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+          "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+          "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+          "RL_update": 20000,
+          "collection": 5000,
+          "new_candidates": 0,
+          "optimizer_updates": 0
+        },
+        "resource": {
+          "host": "training-vla-zt",
+          "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+          "observed_unix": 1792247453.9040968,
+          "cpu_affinity": 128,
+          "load_average": [
+            6.3544921875,
+            9.31787109375,
+            11.017578125
+          ],
+          "memory_kB": {
+            "MemAvailable": 894540636
+          }
+        },
+        "launch_unix": 1792247453.926556,
+        "source": "fd440275edc3fdf40b2aaa46c38da1d038068902"
+      }
+    ],
+    "old_20k_owner_stopped_before_GPU": true,
+    "cost_capture_20k_v2_preserved": true,
+    "observed_unix": 1792247453.9313455
+  },
+  "diagnostic_15k": {
+    "schema": "fm_transfer_one_shot_saved_batch_dispatch_v1",
+    "status": "COMPLETE",
+    "pid": 544792,
+    "start_ticks": 1368606708,
+    "started_unix": 1792247454.334769,
+    "deadline_unix": 1792260549.4682527,
+    "source": "/mnt/project/fm-transfer-20261016/source/fd440275edc3fdf40b2aaa46c38da1d038068902",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update015000_inner0",
+    "result": "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_saved_batch.json",
+    "new_candidates": 0,
+    "optimizer_updates": 0,
+    "asset_preflight": {
+      "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+      "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+      "own_SFT_updates": 100000,
+      "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+      "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+      "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+      "RL_update": 15000,
+      "collection": 3750,
+      "new_candidates": 0,
+      "optimizer_updates": 0
+    },
+    "host": "training-vla-zt",
+    "gpu": 1,
+    "gpu_uuid": "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "scripts.analysis.fm_transfer.diagnose_saved_batch",
+      "--run",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1",
+      "--checkpoint",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update015000_inner0",
+      "--collection",
+      "3750",
+      "--hard-manifest",
+      "/mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json",
+      "--sft-screen",
+      "/mnt/project/fm-transfer-20261016/screens/B_SOURCE_ACTION_DIT_SFT_update100000",
+      "--output",
+      "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update015000_saved_batch.json"
+    ],
+    "resource_samples": [
+      [
+        [
+          "0",
+          "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+          "4",
+          "81150"
+        ],
+        [
+          "1",
+          "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+          "0",
+          "81153"
+        ],
+        [
+          "2",
+          "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+          "0",
+          "81153"
+        ],
+        [
+          "3",
+          "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+          "0",
+          "81153"
+        ],
+        [
+          "4",
+          "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+          "0",
+          "81153"
+        ],
+        [
+          "5",
+          "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+          "0",
+          "81153"
+        ],
+        [
+          "6",
+          "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+          "0",
+          "81153"
+        ],
+        [
+          "7",
+          "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+          "0",
+          "81153"
+        ]
+      ],
+      [
+        [
+          "0",
+          "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+          "4",
+          "81150"
+        ],
+        [
+          "1",
+          "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+          "0",
+          "81153"
+        ],
+        [
+          "2",
+          "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+          "0",
+          "81153"
+        ],
+        [
+          "3",
+          "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+          "0",
+          "81153"
+        ],
+        [
+          "4",
+          "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+          "0",
+          "81153"
+        ],
+        [
+          "5",
+          "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+          "0",
+          "81153"
+        ],
+        [
+          "6",
+          "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+          "0",
+          "81153"
+        ],
+        [
+          "7",
+          "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+          "0",
+          "81153"
+        ]
+      ]
+    ],
+    "owners": [
+      "",
+      ""
+    ],
+    "dispatch_unix": 1792247456.702316,
+    "child_pid": 544802,
+    "child_start_ticks": 1368606988,
+    "exit_code": 0,
+    "ended_unix": 1792247519.6381843,
+    "observed_unix": 1792247519.6708684
+  },
+  "old_20k_waiter_superseded": {
+    "status": "OLD_DIAGNOSTIC_OWNER_EXITED_BEFORE_ANY_GPU_DISPATCH",
+    "pid": 521880,
+    "start_ticks": 1367804034,
+    "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python /mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017_v2/run.py ",
+    "observed_unix": 1792247453.74659,
+    "prior_status_sha256": "e192bb49d0a86134d0fd16f65196f1955b5f52cbacd828749fa52e2dd324e890",
+    "reason": "Wrong permanent SFT path in diagnostic arguments; fixed and actual preflight qualified",
+    "cost_capture_pid_preserved": 521881,
+    "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+    "replacement": "/mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017_v3/run.py",
+    "observed_exit_unix": 1792247453.8527114,
+    "cost_capture_still_live": true
+  },
+  "diagnostic_20k": {
+    "schema": "fm_transfer_one_shot_saved_batch_dispatch_v1",
+    "status": "WAITING_FOR_SEALED_20K",
+    "pid": 544793,
+    "start_ticks": 1368606709,
+    "started_unix": 1792247454.3347268,
+    "deadline_unix": 1792261027.2822075,
+    "source": "/mnt/project/fm-transfer-20261016/source/fd440275edc3fdf40b2aaa46c38da1d038068902",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "result": "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_RL_update020000_saved_batch.json",
+    "new_candidates": 0,
+    "optimizer_updates": 0,
+    "asset_preflight": {
+      "status": "OWN_SFT_ASSET_PREFLIGHT_PASS",
+      "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+      "own_SFT_updates": 100000,
+      "own_SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+      "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+      "screen_manifest_sha256": "5fdfecbcbf751f9a05e2f5966c943f89823c659249285cff1f6e30499dc2cc08",
+      "RL_update": 20000,
+      "collection": 5000,
+      "new_candidates": 0,
+      "optimizer_updates": 0
+    },
+    "observed_unix": 1792247614.7980068
+  },
+  "cost_20k_preserved": {
+    "status": "WAITING_FOR_EXACT_20K_SAVE_COUNTERS",
+    "pid": 521881,
+    "start_ticks": 1367804034,
+    "start_unix": 1792239427.2816904,
+    "deadline_unix": 1792261027.2816904,
+    "observed_unix": 1792247622.623045
+  },
+  "gradient_15k": {
+    "result_sha256": "fa06d55e9f41d50360231ba1818ad9ee7e1f467a41b3d0979ed75546fd0dc361",
+    "adapters_unchanged": true,
+    "new_candidates": 0,
+    "new_scoring_calls": 0,
+    "new_optimizer_updates": 0,
+    "analyzed_checkpoint_optimizer_update": 15000,
+    "cumulative_worker_wall_seconds": 60.97290350496769,
+    "peak_GPU_bytes": 10608101888,
+    "source_total_loss_gradient_max_abs_by_rank": [
+      1.8776518118102103e-09,
+      2.3371171664621215e-10,
+      3.707896212290507e-10,
+      1.4496670530661504e-10,
+      5.366587174648885e-10,
+      2.3608208721270785e-09,
+      2.694093836907996e-10,
+      2.1464074961841106e-10
+    ]
+  },
+  "private_payloads_published": false
+}
