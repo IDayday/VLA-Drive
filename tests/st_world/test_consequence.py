@@ -1,5 +1,6 @@
 """Behavior tests against native v1 predicates; fixtures are not real-data evidence."""
 from dataclasses import replace
+from copy import deepcopy
 import os
 from pathlib import Path
 import sys
@@ -276,3 +277,102 @@ def test_worker_count_and_queue_bounds(tmp_path):
         c.ConsequenceService(spec, workers=5, max_calls=1)
     with pytest.raises(ValueError):
         c.ConsequenceService(spec, workers=2, max_calls=1, max_inflight=100)
+
+
+def reference_record(tmp_path):
+    """Synthetic identity fixture; not a substitute for the recorded CPU replay."""
+    _, request = spec_and_request(tmp_path)
+    reference = np.arange(451, dtype=np.float64).reshape(41, 11)
+    execution = np.stack((reference + .01, reference + .02))
+    row = {"identity": request.identity(), "valid": True, "status": "VALID_SCORED",
+           "context_unchanged": True, "context_hash": "e" * 64,
+           "executed_states": execution[1].copy(),
+           **c._reference_evidence(request, "e" * 64, reference, execution,
+               {"dependencies": {"numpy": "fixture", "scipy": "fixture", "shapely": "fixture"}})}
+    return request, row, reference, execution
+
+
+def test_reference_input_identity_is_not_native_execution_identity(tmp_path):
+    request, row, reference, execution = reference_record(tmp_path)
+    original = deepcopy(row)
+    first = c.validated_reference_input(row, request)
+    # Even one ULP in a numerical OUTPUT changes its exact hash. It does not
+    # change the immutable reference/input identity. No tolerance is applied.
+    execution[0, 7, 9] = np.nextafter(execution[0, 7, 9], np.inf)
+    row.update(c._reference_evidence(request, "e" * 64, reference, execution,
+        {"dependencies": row["reference_identity"]["software_identity"]}))
+    assert c.validated_reference_input(row, request) == first
+    assert original["reference_identity"] != row["reference_identity"]
+    assert original["reference_contract"]["execution_sha256"] != row["reference_contract"]["execution_sha256"]
+    np.testing.assert_array_equal(original["executed_states"], row["executed_states"])
+    assert c.validate_reference_group([original, row], [request, request]) == first
+    # Reordering, duplicating or deleting other candidates does not modify any
+    # result or its reference identity; derived outputs stay per-call evidence.
+    assert c.validate_reference_group([row, original, row], [request] * 3) == first
+    assert c.validate_reference_group([row], [request]) == first
+
+
+@pytest.mark.parametrize("field", ["reference_interpolated_states", "reference_executed_states", "executed_states"])
+def test_reference_array_corruption_rejected_even_one_ulp(tmp_path, field):
+    request, row, _, _ = reference_record(tmp_path)
+    row[field][7, 9] = np.nextafter(row[field][7, 9], np.inf)
+    with pytest.raises(c.ContractMismatch, match="checksum|provenance"):
+        c.validated_reference_input(row, request)
+
+
+@pytest.mark.parametrize("change", ["schema", "legacy", "input_hash", "execution_hash", "dtype", "nan",
+    "cache", "protocol", "reference", "context", "configuration", "source", "scene", "mutated"])
+def test_reference_identity_negative_cases(tmp_path, change):
+    request, row, _, _ = reference_record(tmp_path)
+    if change == "schema": row["reference_contract"]["schema"] = "unknown"
+    elif change == "legacy": row.pop("reference_contract")
+    elif change == "input_hash": row["reference_contract"]["input_sha256"] = "1" * 64
+    elif change == "execution_hash": row["reference_contract"]["execution_sha256"] = "1" * 64
+    elif change == "dtype": row["reference_executed_states"] = row["reference_executed_states"].astype(np.float32)
+    elif change == "nan": row["reference_executed_states"][0, 0] = np.nan
+    elif change == "cache": row["reference_identity"]["full_cache_sha256"] = "1" * 64
+    elif change == "protocol": row["reference_identity"]["score_protocol_hash"] = "1" * 64
+    elif change == "reference": row["reference_identity"]["reference_interpolated_states_sha256"] = "1" * 64
+    elif change == "context": row["context_hash"] = "1" * 64
+    elif change == "configuration": row["reference_identity"]["configuration_hash"] = "1" * 64
+    elif change == "source": row["reference_identity"]["canonical_source_hashes"] = {}
+    elif change == "scene": request = replace(request, scene_id="foreign")
+    elif change == "mutated": row["context_unchanged"] = False
+    with pytest.raises(c.ContractMismatch):
+        c.validated_reference_input(row, request)
+
+
+def test_reference_hash_cannot_be_borrowed_from_other_candidate(tmp_path):
+    request, row, _, _ = reference_record(tmp_path)
+    other = replace(request, trajectory_sha256="1" * 64)
+    row["identity"] = other.identity()  # Even if a stale row is incorrectly re-joined.
+    with pytest.raises(c.ContractMismatch, match="provenance"):
+        c.validated_reference_input(row, other)
+
+
+def test_reference_bound_input_and_arrays_are_not_aliased(tmp_path):
+    request, row, reference, execution = reference_record(tmp_path)
+    bound = replace(request, reference_sha256="1" * 64)
+    row["identity"] = bound.identity()
+    with pytest.raises(c.ContractMismatch, match="bound input"):
+        c.validated_reference_input(row, bound)
+    assert not np.shares_memory(row["reference_interpolated_states"], reference)
+    assert not np.shares_memory(row["reference_executed_states"], execution)
+
+
+@pytest.mark.parametrize("change", ["context", "reference", "scene", "cache"])
+def test_group_rejects_changed_input_even_with_valid_per_record_checksums(tmp_path, change):
+    request, row, reference, execution = reference_record(tmp_path)
+    other_request = request
+    context = row["context_hash"]
+    if change == "context": context = "1" * 64
+    elif change == "reference": reference[7, 0] += 1
+    elif change == "scene": other_request = replace(request, scene_id="foreign")
+    elif change == "cache": other_request = replace(request, metric_cache_sha256="1" * 64)
+    other = deepcopy(row)
+    other.update(identity=other_request.identity(), context_hash=context,
+        **c._reference_evidence(other_request, context, reference, execution,
+            {"dependencies": row["reference_identity"]["software_identity"]}))
+    c.validated_reference_input(other, other_request)  # Internally valid, different INPUT.
+    with pytest.raises(c.ContractMismatch, match="identical.*INPUT"):
+        c.validate_reference_group([row, other], [request, other_request])

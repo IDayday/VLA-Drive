@@ -32,6 +32,7 @@ import numpy as np
 
 
 SCHEMA = "st_world_canonical_consequence_v1"
+REFERENCE_CONTRACT = "st_world_reference_input_and_execution_v2"
 PROTOCOL = "navsim_v1.1_fixed_reference_single_candidate"
 SOURCE_COMMIT = "1493deda247107efe076b9294863a6753391298a"
 SOURCE_SHA256 = {
@@ -112,6 +113,109 @@ def _sha(value: Any, field: str) -> str:
     if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
         raise ContractMismatch(f"{field} must be a lowercase SHA256")
     return value
+
+
+def _reference_evidence(request, context_hash, reference, executed_pair, protocol):
+    """Keep immutable reference inputs separate from native numerical outputs.
+
+    The official [reference, candidate] simulation is unchanged. Its executed
+    reference is an OUTPUT, not an environment identity: native NumPy SIMD vs
+    scalar dispatch can depend on temporary-array layout. We retain exact hashes
+    and full arrays for both; no rounding or numerical tolerance is introduced.
+    """
+    legacy = {"full_cache_sha256": request.metric_cache_sha256,
+        "reference_interpolated_states_sha256": array_sha256(reference),
+        "reference_executed_states_sha256": array_sha256(executed_pair[0]),
+        "reference_dtype": reference.dtype.str, "reference_shape": list(reference.shape),
+        "score_protocol_hash": request.score_protocol_hash,
+        "configuration_hash": fingerprint(OFFICIAL_CONFIG),
+        "canonical_source_hashes": dict(SOURCE_SHA256),
+        "software_identity": dict(protocol["dependencies"])}
+    inputs = {k: v for k, v in legacy.items() if k != "reference_executed_states_sha256"}
+    inputs.update(campaign_id=request.campaign_id, scene_id=request.scene_id,
+                  source_log=request.source_log, context_hash=context_hash)
+    outputs = {"input_sha256": fingerprint(inputs),
+        "candidate_trajectory_sha256": request.trajectory_sha256,
+        "reference_executed_states_sha256": legacy["reference_executed_states_sha256"],
+        "candidate_executed_states_sha256": array_sha256(executed_pair[1])}
+    return {"reference_identity": legacy,
+        "reference_interpolated_states": reference.copy(),
+        "reference_executed_states": executed_pair[0].copy(),
+        "reference_contract": {"schema": REFERENCE_CONTRACT, "input": inputs,
+            "input_sha256": fingerprint(inputs), "execution": outputs,
+            "execution_sha256": fingerprint(outputs)}}
+
+
+def validated_reference_input(record: Dict[str, Any], request: ConsequenceRequest) -> Dict[str, Any]:
+    """Validate exact per-call evidence; return the identity shared by candidates.
+
+    V1 records without full reference arrays are deliberately rejected. They
+    remain historical evidence, but are not silently promoted to this contract.
+    The caller must still validate canonical metrics/events and complete receipts.
+    """
+    if (record.get("identity") != request.identity() or record.get("status") != "VALID_SCORED"
+            or record.get("valid") is not True or record.get("context_unchanged") is not True):
+        raise ContractMismatch("Reference evidence belongs to an invalid/different request or mutated context")
+    contract = record.get("reference_contract")
+    if (not isinstance(contract, dict) or contract.get("schema") != REFERENCE_CONTRACT
+            or set(contract) != {"schema", "input", "input_sha256", "execution", "execution_sha256"}):
+        raise ContractMismatch("Missing v2 reference evidence; legacy records require explicit re-scoring")
+    inputs, outputs = contract["input"], contract["execution"]
+    if not isinstance(inputs, dict) or not isinstance(outputs, dict):
+        raise ContractMismatch("Invalid reference evidence schema")
+    legacy = record.get("reference_identity", {})
+    legacy_keys = {"full_cache_sha256", "reference_interpolated_states_sha256",
+        "reference_executed_states_sha256", "reference_dtype", "reference_shape",
+        "score_protocol_hash", "configuration_hash", "canonical_source_hashes", "software_identity"}
+    if not isinstance(legacy, dict) or set(legacy) != legacy_keys:
+        raise ContractMismatch("Incomplete official reference identity")
+    expected_input = {k: v for k, v in legacy.items() if k != "reference_executed_states_sha256"}
+    expected_input.update(campaign_id=request.campaign_id, scene_id=request.scene_id,
+                          source_log=request.source_log, context_hash=record.get("context_hash"))
+    if inputs != expected_input or contract["input_sha256"] != fingerprint(inputs):
+        raise ContractMismatch("Reference input identity/checksum mismatch")
+    for name in ("full_cache_sha256", "reference_interpolated_states_sha256", "score_protocol_hash",
+                 "configuration_hash", "context_hash"):
+        _sha(inputs[name], name)
+    if (inputs["full_cache_sha256"] != request.metric_cache_sha256
+            or inputs["score_protocol_hash"] != request.score_protocol_hash
+            or inputs["configuration_hash"] != fingerprint(OFFICIAL_CONFIG)
+            or inputs["canonical_source_hashes"] != SOURCE_SHA256
+            or inputs["reference_shape"] != [41, 11] or inputs["reference_dtype"] != "<f8"):
+        raise ContractMismatch("Official reference input/cache/protocol/configuration changed")
+    if (request.reference_sha256 is not None
+            and request.reference_sha256 != inputs["reference_interpolated_states_sha256"]):
+        raise ContractMismatch("Reference differs from the request's bound input")
+    arrays = {}
+    for name in ("reference_interpolated_states", "reference_executed_states", "executed_states"):
+        value = record.get(name)
+        if (not isinstance(value, np.ndarray) or value.shape != (41, 11)
+                or value.dtype.str != "<f8" or not np.isfinite(value).all()):
+            raise ContractMismatch(f"Invalid/missing exact native array: {name}")
+        arrays[name] = array_sha256(value)
+    if arrays["reference_interpolated_states"] != inputs["reference_interpolated_states_sha256"]:
+        raise ContractMismatch("Reference input array checksum mismatch")
+    if arrays["reference_executed_states"] != legacy["reference_executed_states_sha256"]:
+        raise ContractMismatch("Native reference execution checksum mismatch")
+    expected_output = {"input_sha256": contract["input_sha256"],
+        "candidate_trajectory_sha256": request.trajectory_sha256,
+        "reference_executed_states_sha256": arrays["reference_executed_states"],
+        "candidate_executed_states_sha256": arrays["executed_states"]}
+    if outputs != expected_output or contract["execution_sha256"] != fingerprint(outputs):
+        raise ContractMismatch("Native reference/candidate execution provenance mismatch")
+    return inputs
+
+
+def validate_reference_group(records: Sequence[Dict[str, Any]],
+                             requests: Sequence[ConsequenceRequest]) -> Dict[str, Any]:
+    """Exact common-input check, while independently validating every execution."""
+    if not records or len(records) != len(requests):
+        raise ContractMismatch("Incomplete official reference group")
+    first = validated_reference_input(records[0], requests[0])
+    for row, request in zip(records[1:], requests[1:]):
+        if validated_reference_input(row, request) != first:
+            raise ContractMismatch("Candidates did not use one identical official reference INPUT/context")
+    return first
 
 
 def protocol_identity(navsim_root: str) -> Dict[str, Any]:
@@ -588,15 +692,9 @@ class ConsequenceEngine:
                 "official_first_at_fault_time_seconds": _finite_time(s.time_to_at_fault_collision(1)),
                 "official_first_ttc_state_time_seconds": _finite_time(s.time_to_ttc_infraction(1)),
                 "context_hash": before, "context_unchanged": True,
-                "reference_identity": {"full_cache_sha256": request.metric_cache_sha256,
-                    "reference_interpolated_states_sha256": reference_hash,
-                    "reference_executed_states_sha256": array_sha256(s._states[0]),
-                    "reference_dtype": reference.dtype.str, "reference_shape": list(reference.shape),
-                    "score_protocol_hash": self.spec.score_protocol_hash,
-                    "configuration_hash": fingerprint(OFFICIAL_CONFIG),
-                    "canonical_source_hashes": SOURCE_SHA256,
-                    "software_identity": self.protocol["dependencies"]},
+                **_reference_evidence(request, before, reference, s._states, self.protocol),
             }
+            validated_reference_input(result, request)
         except InvalidPrediction as exc:
             result = self._failure(identity, "INVALID_PREDICTION", exc, False)
         except (IncompatibleContext, FileNotFoundError) as exc:
