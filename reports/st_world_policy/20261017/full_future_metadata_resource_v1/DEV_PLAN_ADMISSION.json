@@ -1,0 +1,85 @@
+{
+  "administrative_budget": {
+    "adopt_into_future_prep_claims_without_double_count": true,
+    "dev_share_bytes": 33554432,
+    "effective_until_adoption_bytes": 1392508928,
+    "existing_qualification_64MiB_not_reused": true,
+    "ledger_claim": false,
+    "new_preplan_total_bytes": 67108864,
+    "new_tensor_bytes": 0,
+    "old_effective_bytes": 1325400064,
+    "train_share_reserved_not_authorized_bytes": 33554432
+  },
+  "argv": {
+    "bytes": 1107,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/DEV_PLAN_ARGV.json",
+    "sha256": "31384200178549f877db16cd6f4116bf0ea3fa3cc9946644a98ba37c205d2298"
+  },
+  "checkpoint_commitments": {
+    "bytes": 1513,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/indexed_profile64_training_admission_v1/CHECKPOINT_COMMITMENTS_2183G_V1.json",
+    "sha256": "d5bce1fec28d6ce3dab496287c9be41852ca154495ecf4cf686c7e780ebf4d52"
+  },
+  "execution_requirements": [
+    "Lead alone dispatches; pin source, argv and helper SHA before mkdir/spawn; reject existing output root.",
+    "Use reviewed supervise_once.supervise and observed_cli.Counters in the single owned child; monitor COUNTERS read under its original writer control_lock; immutable reads remain strict.",
+    "CUDA_VISIBLE_DEVICES empty; OMP/MKL/OPENBLAS/NUMEXPR threads=2; PYTHONDONTWRITEBYTECODE=1.",
+    "Outer plan wall/RSS/read/root bounds override this invocation; CLI limits intentionally describe a future build and do not authorize it.",
+    "Count stdout, stderr, PLAN.lock, PLAN.json, control records and partials; bounded output logging. Preserve failure; no automatic retry.",
+    "Fresh disk check must retain complete 2183GiB obligations +1TiB floor +this output bound."
+  ],
+  "issued_at_unix": 1792227502.4822166,
+  "latest_start_unix": 1792228192.4822166,
+  "limits": {
+    "attempts": 1,
+    "automatic_retry": false,
+    "cleanup_seconds": 30,
+    "core_dump_bytes": 0,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "logical_read_bytes_including_imports": 4294967296,
+    "root_inclusive_bytes_including_control_temp_logs": 33554432,
+    "rss_process_tree_bytes": 2147483648,
+    "single_file_bytes": 4194304,
+    "wall_seconds": 180
+  },
+  "live_ledger": {
+    "bytes": 49750,
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+    "sha256": "a4c1fb15f4799187b03035343b8582484d8feb02fd23c7b632b5bc968662789d"
+  },
+  "output_root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1",
+  "population_stat_evidence": {
+    "bytes": 2733,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/POPULATION_STAT_EVIDENCE.json",
+    "sha256": "0722d99d740681151cf80e1a613260642a3e0a05d60ccd80e80e8750ef6cace0"
+  },
+  "reviewer": "/root/st_metadata_resource_review",
+  "runtime": "/mnt/project/VLA-Drive-st-metadata-runtime-v2-20261017",
+  "schema": "st_full_future_plan_resource_admission_v1",
+  "scope": {
+    "build_authorized": false,
+    "exact_scenes": 1696,
+    "gpu": false,
+    "image_read": false,
+    "index_authorized": false,
+    "migration_authorized": false,
+    "model_load": false,
+    "raw_log_read": false,
+    "raw_log_stat_count": 16,
+    "role": "dev",
+    "teacher_tensor_read_or_write": false,
+    "training_authorized": false
+  },
+  "source_commit": "b805b00e80e1cc4e28f8e4a8f6ba7b79894fb9ab",
+  "source_patch_boundary": "fc477e60 changes envelope only; independent v2 correctness review separate. No live migration is granted.",
+  "source_pins": {
+    "bytes": 4192,
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/SOURCE_PINS.json",
+    "sha256": "f6d9f580b966bcaaa80449aec3b2089a22569050f64f55c53729c5112c1da565"
+  },
+  "status": "PASS_BOUNDED_DEV_PLAN_ONLY",
+  "valid_until_unix": 1792228402.4822166
+}
