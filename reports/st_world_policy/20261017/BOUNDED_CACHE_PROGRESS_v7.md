@@ -99,3 +99,28 @@ establishing ownership immediately after spawn. Its owner is correcting that
 narrow window. No actual learned-W extraction/fit has been admitted under that
 controller. This does not block the independently reviewed, worker-free teacher
 qualification above or already running formal training/evaluation.
+
+## Completed actual qualification
+
+The one-shot process subsequently exited **0** after **170.356905 seconds**.
+RESULT SHA256:
+`a4f4c86f0b5c09d18a58d02e8919dd73e659b48a53ed0d2a25c7d68e497b7a2f`.
+Status is `INDEXED_COMPOSITION_BITWISE_QUALIFIED`, with no errors and zero new
+teacher tensor bytes. Fixed-policy repeatability, legacy compatibility, masks,
+sampling and frozen/RNG checks all pass on the exact 32-scene population.
+
+Actual compute is 234 fixed-eight calls: 1,135 requested images and 737 discarded
+padding slots, 1,872 compute slots total. The registered partial/mixed layouts
+occur naturally (7 partial-LRU and 111 immutable-cache-plus-compute scene reads).
+Peak process RSS is 3,158,171,648 B; CUDA allocated/reserved peaks are
+1,416,995,328 / 1,533,018,112 B. Logical input accounting is 18,935,222,456 B,
+including immutable tensor verification and mmap accounting; this is not zero
+read I/O. The two report roots occupy 2,424,832 B including directories.
+
+The independent reviewer has also consumed this actual RESULT through the
+unchanged production receipt validator. Its full evidence covers 4,323 complete
+tensor-difference records / 1,912,356,864 compared elements. This closes the
+specific numerical composition check. It does **not** measure sustained student
+training throughput, establish a full-population hit rate, approve formal
+temporal training, or establish scientific gain. Those remaining boundaries are
+unchanged.
