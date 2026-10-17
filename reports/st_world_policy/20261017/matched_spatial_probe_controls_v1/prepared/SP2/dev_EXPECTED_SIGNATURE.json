@@ -1,0 +1,434 @@
+{
+  "binding": {
+    "arm": "S-P2",
+    "checkpoint_identity": "2de4bf93f817a82f673d5d0c53af20a264c2e5b0a76e0263336283091cc5bdb1",
+    "checkpoint_tag": "step_005000_1792222283615035511",
+    "device": "cuda:0",
+    "environment": {
+      "base": {
+        "cuda_runtime": "12.4",
+        "cudnn": 90100,
+        "packages": {
+          "deepspeed": "0.16.9",
+          "numpy": "1.26.4",
+          "safetensors": "0.6.2",
+          "timm": "1.0.20",
+          "torch": "2.5.1+cu124",
+          "transformers": "4.57.0"
+        },
+        "python": "3.10.20",
+        "schema": "st_training_environment_v1"
+      },
+      "scikit_learn": "1.2.2"
+    },
+    "hidden_dim": 2048,
+    "identity": "fd5413c1baf36b1418f60d8c00a6f10028f54dabfc49a123408671bcbf946e67",
+    "max_seconds": 900,
+    "memory_tokens": 144,
+    "observations": {
+      "current_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+      "identity": "31172bfdb3932f338eb9cc0b26d909b87b878eec307b033bfaedb9e13c539093",
+      "manifest": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_dev16_pinned_v2/SELECTED_SCENES.json",
+        "sha256": "b544911f882b44631b515107f955c96bc43f6933a4c49bfdad1fc5dc4798d148"
+      },
+      "split": "dev"
+    },
+    "schema": "st_spatial_w_binding_v1",
+    "source_sha": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+    "training_registration": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+    }
+  },
+  "checkpoint": {
+    "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "completed": 5000,
+    "deployment_source_contract": {
+      "starVLA/cache/navsim_feature_cache.py": "323678961a15eb9d4a38a416cf57741f9a632031cc4185834f6d6443fe7cd0e3",
+      "starVLA/dataloader/foresight_dataset.py": "bf17f210e40387f57a18776c4af96c57bdab7abd5bf7c4921050614cca204b82",
+      "starVLA/dataloader/st_world_schema.py": "27562ef6de107afe3a26ebe98b95be61ca26b1f706da04cb4d98ff4be7b4961b",
+      "starVLA/model/framework/DDPForesight.py": "a960869b22a10354074be255c4556c09d97a95a7da573ae7205fd59c178f8b6f",
+      "starVLA/model/framework/QwenOFT.py": "2ced0c52f92b59d79d95d17578412cde53699da893e955efe1ea8c152abca272",
+      "starVLA/model/framework/__init__.py": "636c826cf5d26088f98522a0242537472b171d633ba01c8446b3dcddb4cabfdf",
+      "starVLA/model/framework/base_framework.py": "2d31a36278773dc4a266c94516335a2d87ec8eabd521b64d92cc5f678109ffb7",
+      "starVLA/model/framework/ddp_action_video_foresight.py": "a58f776be1866129b54e549896f30c2de7515fc911c3bc7b713ff466c91563d8",
+      "starVLA/model/framework/ddp_full_foresight.py": "11802d0ad8d686c5dd28448dc30c275b19a1e2be5e17d5ea979c755ab7bfefe6",
+      "starVLA/model/framework/share_tools.py": "8a584204b7b46a6db001541b9a2a6f5bcafc56bdb6e0bf16fc64343f63dc313f",
+      "starVLA/model/framework/st_world_model.py": "c65119b124acad5647276c657e6f8d62efb8aa170a9ed3219d1bbf50661a6182",
+      "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "8b82c4df58680876659943b1c9c4bc97979b9df8b7b6634bda4489eee98fff20",
+      "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "6f3e7b341b8b8f4d36a170f32b298edc2ab6719a2e25d556adc51712dea8c163",
+      "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "8bbfdd3e459debd4a8b0246b6152999f956ac3877001adfcb0178c7f4ee9b931",
+      "starVLA/model/modules/foresight/config.py": "7117562fce5b54af6819f738461512a39095276a1d26d7051bc63ea115e8cf23",
+      "starVLA/model/modules/foresight/queries.py": "cbab52bba690736dace4409b6ca74cac31a52064598df82bdccf3341a73bf86e",
+      "starVLA/model/modules/foresight/tokens.py": "357e50f57ea9d6973ab3b1a648be1c843faeb4593d3ede18c146b1e7c0591caf",
+      "starVLA/model/modules/st_world/config.py": "27801ec54cf65991f51e77e8ff6b5c4469d5fb67102a5f870af235540601c17b",
+      "starVLA/model/modules/vlm/QWen3.py": "777a69c8f604c6525517ac2c8de5b7494579581e87b4f8de9a66c5275f81e49f",
+      "starVLA/model/modules/vlm/__init__.py": "32837be09f8d86d46781cf944d0a9d55bb5d33f5bc14f38e661c35da5ffb4159",
+      "starVLA/model/modules/vlm/qwen3_vl/configuration_qwen3_vl.py": "56f269fa492f953784197408ef30bad1ee2e8c4b2188d45e1401daa71700f8a2",
+      "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "82904015a044aaddf43637f75aa2ad0bc791c68b493a5e4c2bd275255b6b7049",
+      "starVLA/training/trainer_utils/trainer_tools.py": "bce78db91815e873a22e4d0abc73d91326693f469f9e0e45296295dc95a55b4b",
+      "tools/foresight/checkpoints.py": "0af14d825c85cb68e357a83c8b5d0627888119893a844e3456efc183dcd65de5",
+      "tools/st_world_policy/world_expansion.py": "001ba03c0e0ef8b8d9533793c92d2631f1923f2660d5faf968dc0d0c9dd5755c"
+    },
+    "inference_contract": {
+      "dt_seconds": 0.5,
+      "flow_steps": 10,
+      "frame": "ego_t0_rear_axle",
+      "physical": "8x3_xy_yaw",
+      "precision": "FP32_master_eval_TF32_off",
+      "raw": "8x4_xy_sin_cos",
+      "scene_seed_protocol": "foresight-action-v1"
+    },
+    "native_checkpoint_sha256": "fb841690c2ff9e38ff3af8a7cdfe19bd0c64a2230c26b92e2edb41eb78f2d060",
+    "native_receipt_sha256": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183",
+    "receipt_identity": "784fa31313d8653e29142a0f0287ffa0abc4d9a47535a2d21f90892ff39714f0",
+    "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1",
+    "run_identity": "4a2a36978a1e41170ce00b482d281ffb25c883bf6d501e64958775807f960156",
+    "schema": "st_world_deployment_checkpoint_v1",
+    "scope": "FORMAL",
+    "sha256": "2de4bf93f817a82f673d5d0c53af20a264c2e5b0a76e0263336283091cc5bdb1",
+    "tag": "step_005000_1792222283615035511",
+    "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+    "weights_usable_for_formal_init": true
+  },
+  "identity": "7da697ec0e9d91175072cbf6316845cd8db6ec26d3c12335e41cb31d8cde2abd",
+  "memory_mask": "all learned W slots valid; no label-derived mask",
+  "observations": {
+    "current_source": "b2a0ae01c2580fe00c3da8d7351b51e940410486b8a3febf18eebb11d6d61d96",
+    "history": null,
+    "identity": "31172bfdb3932f338eb9cc0b26d909b87b878eec307b033bfaedb9e13c539093",
+    "image_pins": {
+      "20fc3e4c2b93595d": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.11.47.30_veh-40_00919_01000/CAM_F0/873808872f0c5ee4.jpg",
+          "c7d44fef4dddc9ed1334e114eeabbfa1b51862283b56bd431956f25dc0cd520f"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.11.47.30_veh-40_00919_01000/CAM_L0/44368952266654e3.jpg",
+          "4f097f80007ca6b3a5815373c0bea10730c2869650974bb68a6400568917ae4b"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.11.47.30_veh-40_00919_01000/CAM_R0/ccf82ce78c1c51e5.jpg",
+          "b5f83b5fcca641a8e0965abe9aee9fb3ea22276b9b2f72abf971da62ae1c8171"
+        ]
+      ],
+      "36fd9bb68bca5db1": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.17.23.18_veh-38_01598_01750/CAM_F0/865e605b0380546a.jpg",
+          "c4e8194512b9e43c7e29c29c615baff081a8ae4529771f08fe4edb4fe4a95069"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.17.23.18_veh-38_01598_01750/CAM_L0/dbeeb8e9410b540d.jpg",
+          "c11b2947b36efc1b9aa4fdd9e749f16d8325b607f323cb1276accbf764ce17db"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.17.23.18_veh-38_01598_01750/CAM_R0/3bdda61b6e7c576c.jpg",
+          "7b4c42d6ab9173238bbcefa69ebd0cab6542d3c537c12a5e9fdfc46e36bfe897"
+        ]
+      ],
+      "37a37c6486205360": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.14.50.36_veh-26_02826_02955/CAM_F0/c21878e1f639521c.jpg",
+          "855a2237b2f52677b2097ddbc2b1107c802d585d2e4a527d410d06e5a0f8fa67"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.14.50.36_veh-26_02826_02955/CAM_L0/cd4d86df7bd7598d.jpg",
+          "c09b5f62be1e9b9b5e85c32c52b598f3b78edf556f209633c61871c093fc4ded"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.14.50.36_veh-26_02826_02955/CAM_R0/1ec3783e80785842.jpg",
+          "160a0de2f9b54b5b6a10a2739837f09f90ed4262d3f2c11472119723250634c8"
+        ]
+      ],
+      "3df6bd69748e51ec": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_01028_01289/CAM_F0/786796d7abe455e9.jpg",
+          "0f2aa5c60f2f25719f6795632d38f02066e11de4c051d93b19c30c367bd521f4"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_01028_01289/CAM_L0/8a49953c796f5108.jpg",
+          "130dd3d3a38bf9c78e2c0560e6522c42184eb69bb11cf338bd234c0b9821503b"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_01028_01289/CAM_R0/c51c0f429ec4598c.jpg",
+          "43801a626a92e05287fa2d2fe27dcc70080539f490f6d970e9d1cd5fb8417d93"
+        ]
+      ],
+      "49593af9450356f9": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.20.26.11_veh-35_00970_01216/CAM_F0/94a3a859788b5378.jpg",
+          "15bf20730a5e7836f8ed2358a07cf3fbeaffa7c874a7737ed019292a0aba33af"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.20.26.11_veh-35_00970_01216/CAM_L0/7818dd742f9f5f39.jpg",
+          "0106e688eb80970b0f96d273f23fe7b6b60f4dbb8d78191e0654937f25c948ae"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.20.26.11_veh-35_00970_01216/CAM_R0/42cb595261c35bd0.jpg",
+          "818eda185a4baa2efe0a7544b955222bdb8cacb350fe7546c5b1ded6f5b581b7"
+        ]
+      ],
+      "5d6fd74f1a555e69": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.23.17.31.36_veh-16_00016_00377/CAM_F0/c8054b2190c259c4.jpg",
+          "b64b1912cbc7182a1393aee2073b67501ace6d5105a787acb3aededd5bc02665"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.23.17.31.36_veh-16_00016_00377/CAM_L0/10d8cceabb7056f0.jpg",
+          "92c53c19e4ea954ba7b4badf0ccd1268c4f40d5db1e234686fad07ca946ae91e"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.23.17.31.36_veh-16_00016_00377/CAM_R0/ddd20df993b6558a.jpg",
+          "846888035c6f9097671e0cccf3f31b139dba17257b7e0cd0667af2a93db162bd"
+        ]
+      ],
+      "5ded7f2e94075a10": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.16.22.40.23_veh-38_00204_00360/CAM_F0/9204dac67ffa5e77.jpg",
+          "7338a696548ea0c4fbd2f4909888aa4b89fd91865f562a0240b15cb51a228790"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.16.22.40.23_veh-38_00204_00360/CAM_L0/baf94243c0085e24.jpg",
+          "0013532b5e4b183be9ffa811382459648127794f80ee6180ff02e0905122b3c6"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.16.22.40.23_veh-38_00204_00360/CAM_R0/8b59bc0c2d335f82.jpg",
+          "79cb39e1d283ba2f6a260a54560158ecf7d176d206e3317dc1c5fe47bdb4e0b2"
+        ]
+      ],
+      "7d838c40752e5080": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.51.31_veh-35_01729_02626/CAM_F0/af0d7edaa0065ff6.jpg",
+          "20070a80fa91eab23d3c7d0e3fd34322e4795267c59a2916b60496f845e3e453"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.51.31_veh-35_01729_02626/CAM_L0/0d2b93c50ad85b55.jpg",
+          "5372a45816f8ae722981d40a2dbe74a6e2bd86e5fd1bf9f60355e980dd0403d4"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.51.31_veh-35_01729_02626/CAM_R0/4679a8df76255f18.jpg",
+          "4ae3294a3ec77153ca75de9f949483c430e2528413c2bec891b4e46cb29c9304"
+        ]
+      ],
+      "8935f0d3af6b51fd": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.14.01.15_veh-40_01576_01714/CAM_F0/f0c12ea421a25806.jpg",
+          "66f4f0d49db5803d0016aa60bc8d86609ac5fdf1022cf1cade5cae4ebec210f4"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.14.01.15_veh-40_01576_01714/CAM_L0/e287eee873d15881.jpg",
+          "e35d1a53bb2af8e99eba571b21fa142efdf03f14e1d18e6c5fc15c05a703ea81"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.14.01.15_veh-40_01576_01714/CAM_R0/6c044f7ec1fd5580.jpg",
+          "a3cdd65985fd39a050d62b6c130a674f7fc3e1bf80e580785652f18d469d6bac"
+        ]
+      ],
+      "8c1c77e3c8a35388": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.07.49.39_veh-52_00770_00905/CAM_F0/ee097a2be4cd516b.jpg",
+          "f737219c94e7ea3ec632758061cb8668a70ae584831b79f6bf0ee936e6c25078"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.07.49.39_veh-52_00770_00905/CAM_L0/c40fdede74fd5b63.jpg",
+          "75ea128764ac70618c58c9ffaeeb47334e356f88f97819b5803a6cef5276a13d"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.07.49.39_veh-52_00770_00905/CAM_R0/516dcd9054345980.jpg",
+          "62fcfb77aaef6085fb31c34ac85b23fe7105a272b5dc00008a4dc2b38efa608f"
+        ]
+      ],
+      "97a3fc19fc7b508e": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.01.17.52.06_veh-28_01141_01264/CAM_F0/a0a8ce0b5cf557dc.jpg",
+          "37abce04968b1d58048d321907327cd1834991ba783bc58f5589ff877860a48c"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.01.17.52.06_veh-28_01141_01264/CAM_L0/22cec549a6fa5d58.jpg",
+          "12537f61ba5b69f405698a17663e4d839064f1eb0966632f4038c981e9605183"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.01.17.52.06_veh-28_01141_01264/CAM_R0/78b28c3c4b39524d.jpg",
+          "ed47afe1d065937bfc4ee80a12751981f041d4107f91dcb5c76fd59f5e2c998d"
+        ]
+      ],
+      "a0757b8313a15615": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_02155_02265/CAM_F0/23dc94e54e1a592a.jpg",
+          "16f61fb0db6e4059a36005383cbdded6d0bd43d297c9274e64da3f598f8615b1"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_02155_02265/CAM_L0/6cf34e39022e5c80.jpg",
+          "692c050128d7fbc31e18f48c5c161bd2d5b9df6f85d2138024d4c0c8739c17a1"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.11.02.57.41_veh-50_02155_02265/CAM_R0/3ba53cb83cd55dbd.jpg",
+          "7af5892053c1b94a7115a8e158b65bcf0e1da7308b8fa80d31e2fca38e63ab0b"
+        ]
+      ],
+      "abc8c3e51f5857d5": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.08.11.15_veh-50_00437_00585/CAM_F0/6810f7a4579152d6.jpg",
+          "3c3f866ae6781ee07c55b198a65be7aa91e6a634c6493bf4fa90363caa8f3411"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.08.11.15_veh-50_00437_00585/CAM_L0/e4f2e2062a595ba3.jpg",
+          "7ecbc3c5a0d44a4848afd2a2bd20331409d0f3d65f6ee3a33eb61befdd4569c9"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.10.05.08.11.15_veh-50_00437_00585/CAM_R0/82ea295a17275a27.jpg",
+          "64068c6e50e42b8581bb605ecb2858c28cd0074ee9910a1b734adef7a7f94db3"
+        ]
+      ],
+      "ae75038bea395c18": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.15.53.28_veh-38_00184_02293/CAM_F0/0a18b07ab058518f.jpg",
+          "322462ab83a298101e72e11cdf6b3807af3d7a949fb460ac7dadea0c913e6a64"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.15.53.28_veh-38_00184_02293/CAM_L0/7984c99224185e46.jpg",
+          "f9fc0b263a61cde61e63b9902919af96e5096c20ca8d07a8a80e204ec0b4bd8c"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.15.53.28_veh-38_00184_02293/CAM_R0/f57b4f2dd81f51ab.jpg",
+          "003a3db1ed5fa7d710dd23a4641842f088d03f5e5dc08248cddda32f3a0a1fba"
+        ]
+      ],
+      "b462555081035453": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.20.26.06_veh-35_02793_03289/CAM_F0/fd0195448b91570d.jpg",
+          "629b907f33ee89a314610c1af813fbe245f3f52bcba63489b9af9ada9c4f165a"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.20.26.06_veh-35_02793_03289/CAM_L0/0b35c048d28c5d63.jpg",
+          "cdcf1439f45819a2520def4ca961b8491e3a506c00a7e0477413f762cda7f83f"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.07.09.20.26.06_veh-35_02793_03289/CAM_R0/729b4058b59e5d77.jpg",
+          "07767ee3e2b6cfaaab004e529cd4d11801e3da5eb25620cdf53423c1c3f7c5e4"
+        ]
+      ],
+      "faa10d766e1e5675": [
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.06.35_veh-35_01164_01494/CAM_F0/2d616904aa9859de.jpg",
+          "506ee93bd79965cb928eb58262ddb7a360356344772415b61b238778113179ac"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.06.35_veh-35_01164_01494/CAM_L0/4ee9f5b512075b6b.jpg",
+          "3945f1d5c09eb31771d9302cafda1c1f319405254285875b21757a7c658897f9"
+        ],
+        [
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.06.09.12.06.35_veh-35_01164_01494/CAM_R0/0b445f275e255edb.jpg",
+          "15355d5b3a0056da6dbc12805b411a71b3736b88111539eb3b8474fc5e3bbd58"
+        ]
+      ]
+    },
+    "manifest_sha256": "b544911f882b44631b515107f955c96bc43f6933a4c49bfdad1fc5dc4798d148",
+    "schema": "st_observation_only_v1",
+    "split": "dev",
+    "targets_read": false,
+    "teacher_cache_read": false
+  },
+  "precision": "FP32_native_master_TF32_off",
+  "rows": [
+    {
+      "current_record_sha256": "c9929f34a25a0c5b0be9671b827bb647d526ffc18447a16cb5b5a04bb4fe75bf",
+      "ego_record_sha256": "18f9265203f654a1129e87ec93d526c1688b7d54a37b897b257354c3b87c247e",
+      "log": "2021.06.09.12.06.35_veh-35_01164_01494",
+      "token": "faa10d766e1e5675"
+    },
+    {
+      "current_record_sha256": "0ee7f3b2be6c39f5a2d5383a5e536e091aceefce1f812ecf68174637e32e6734",
+      "ego_record_sha256": "6d0286b06799fc7887799f859c73fea495409dae52698ec2f188b630058efac9",
+      "log": "2021.10.05.08.11.15_veh-50_00437_00585",
+      "token": "abc8c3e51f5857d5"
+    },
+    {
+      "current_record_sha256": "b144698902f64ea5c53a52475d95f8a82fb77c72ccf47101ce767ea2409b1f4e",
+      "ego_record_sha256": "662bdcbdb1e8ed5d0d849b931ead42bc6c0c02def8af72ee00c6dd46d77ccac4",
+      "log": "2021.07.16.22.40.23_veh-38_00204_00360",
+      "token": "5ded7f2e94075a10"
+    },
+    {
+      "current_record_sha256": "1df7c37bf372e71036f0fcabd361bf4ad49325c64583f9713abe36558984b719",
+      "ego_record_sha256": "e820ad862f3f87bc6c533064d906809313dd0a0baf5bc41463dfee4d7bd2ae5f",
+      "log": "2021.06.23.17.31.36_veh-16_00016_00377",
+      "token": "5d6fd74f1a555e69"
+    },
+    {
+      "current_record_sha256": "08b69c9f0166d20b874c67b64f55381cdf41e8668aa7ef8036b7c6dc4b27e3fd",
+      "ego_record_sha256": "0c33db069e5a99e4d1391c09c3eb4e3ee3c7eaf765e4917096f39f6982f103ae",
+      "log": "2021.07.09.15.53.28_veh-38_00184_02293",
+      "token": "ae75038bea395c18"
+    },
+    {
+      "current_record_sha256": "4b0169034ebc7cb3e71f49517063da34fadaf983ce10acba27395dcbeb8c3198",
+      "ego_record_sha256": "62a37d8ba5692afac2470222d514e8d21d7051666d4d478af7fa3ceb5f4f15dd",
+      "log": "2021.06.09.14.50.36_veh-26_02826_02955",
+      "token": "37a37c6486205360"
+    },
+    {
+      "current_record_sha256": "1427e72ab9ab20b9fca7295861d327b7e20c189a6a933cc9579d62dcf2fd399c",
+      "ego_record_sha256": "597347da8e1799a9a7881827fc19c79da1c068dd0477efc949d2f005b6327363",
+      "log": "2021.10.11.02.57.41_veh-50_01028_01289",
+      "token": "3df6bd69748e51ec"
+    },
+    {
+      "current_record_sha256": "b2089dfe904feaff0aacdbd8eca1ee5b30f079a80b86c405ccfffbc6d5875afe",
+      "ego_record_sha256": "915e3d79541a679b9622e4439aea4dbe6c7d25d124074aaefd2c27cba8a8ff76",
+      "log": "2021.06.09.20.26.11_veh-35_00970_01216",
+      "token": "49593af9450356f9"
+    },
+    {
+      "current_record_sha256": "12382dc0b8cdcbbf0bb9f509ab905baef900d8ae14ca3a3e38db71ccf07a23f2",
+      "ego_record_sha256": "1b9ae31eb2af37cbf3d4917d60b2c33add9f9c5a642a3645cd99743a7c61a8d6",
+      "log": "2021.08.31.14.01.15_veh-40_01576_01714",
+      "token": "8935f0d3af6b51fd"
+    },
+    {
+      "current_record_sha256": "30b11d53d936d52abfe76cc7010046c7cbaa16bb7cf813b1a2409e395758752d",
+      "ego_record_sha256": "444198bb251e5542ef8d751369d63b14b77c6befe693b70dc194c9c7576f4b3c",
+      "log": "2021.10.11.02.57.41_veh-50_02155_02265",
+      "token": "a0757b8313a15615"
+    },
+    {
+      "current_record_sha256": "40d9dde8237feb2adc9a743e7cd68c8a89d0f420e6e24da03171e7a7ca4b68aa",
+      "ego_record_sha256": "04326b906a976c2779f74411bedb12437687c807983d726df2e3d7dd1b23be50",
+      "log": "2021.08.31.11.47.30_veh-40_00919_01000",
+      "token": "20fc3e4c2b93595d"
+    },
+    {
+      "current_record_sha256": "ea106784c392431be8086dabeb17212ffec4d5fa200534e564ae7a9e6d1bffce",
+      "ego_record_sha256": "f48baba9bddb4647439fcd91b4c080277c2874f4020bc44d58bcf8719a4320c0",
+      "log": "2021.06.09.17.23.18_veh-38_01598_01750",
+      "token": "36fd9bb68bca5db1"
+    },
+    {
+      "current_record_sha256": "798ca8826c335657c7682f34e32b352e25d29425eaf47e48959f9a3378a9c6ed",
+      "ego_record_sha256": "1011c9797c740d01cfb782c124d486044c2a93b63adb86d0360d129fcdc285ff",
+      "log": "2021.10.01.17.52.06_veh-28_01141_01264",
+      "token": "97a3fc19fc7b508e"
+    },
+    {
+      "current_record_sha256": "31c1d75bae8d690e178af95dc7436ae044b803a4d7455f76028c9cf34a12bd79",
+      "ego_record_sha256": "189d15a454153476a6713781762ceb02868e6afaff21a9bb77f7623214bfe029",
+      "log": "2021.10.05.07.49.39_veh-52_00770_00905",
+      "token": "8c1c77e3c8a35388"
+    },
+    {
+      "current_record_sha256": "3357eaf06fdb4e2c4a12c5b73acb893351d6129bb374b4a49d9a841781334f5f",
+      "ego_record_sha256": "e72d61dd121a4aacc0bb214063a8f5787554d2bdd0b4fc8fc7f39e75c0a38589",
+      "log": "2021.07.09.20.26.06_veh-35_02793_03289",
+      "token": "b462555081035453"
+    },
+    {
+      "current_record_sha256": "5d2411136970023d800e8f4497cf76809b43da1244b21378e2621b2eefce0032",
+      "ego_record_sha256": "c49cb743644d4571a8ccc6df5f7faf3d3133183eb4d0f6ff078dcbd41ebe0e8e",
+      "log": "2021.06.09.12.51.31_veh-35_01729_02626",
+      "token": "7d838c40752e5080"
+    }
+  ],
+  "schema": "st_frozen_spatial_w_v1",
+  "targets_read": false
+}
