@@ -1,0 +1,2331 @@
+EEEEEEEEEEEEEEEEEEEEEEEEEEE.EEEEEEEEEEEEEEEEEEEEEEEEEEEEFFFFF.F...EF     [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_full_population_actual_indices_and_cumulative_consumption _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_full_configuration_uses_existing_pca_and_trainer_contract _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+______ ERROR at setup of test_full_population_negative_boundaries[scope] _______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+______ ERROR at setup of test_full_population_negative_boundaries[count] _______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_______ ERROR at setup of test_full_population_negative_boundaries[role] _______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_______ ERROR at setup of test_full_population_negative_boundaries[time] _______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+______ ERROR at setup of test_full_population_negative_boundaries[source] ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_full_population_negative_boundaries[current_complete] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_full_population_negative_boundaries[future_complete] __
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+__ ERROR at setup of test_full_population_negative_boundaries[wrong_request] ___
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_full_population_negative_boundaries[original_selection] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+___ ERROR at setup of test_full_population_negative_boundaries[consumption] ____
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_______ ERROR at setup of test_full_population_negative_boundaries[257] ________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_____ ERROR at setup of test_full_population_negative_boundaries[global32] _____
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+______ ERROR at setup of test_full_population_negative_boundaries[recipe] ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+___ ERROR at setup of test_full_population_negative_boundaries[source_cache] ___
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_____ ERROR at setup of test_full_population_negative_boundaries[raw_sha] ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_____ ERROR at setup of test_full_population_negative_boundaries[teacher] ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_full_population_negative_boundaries[missing_complete] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[reverse] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[omit] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[duplicate] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[current_pin] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[ego_pin] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_stream_population_rejects_order_coverage_and_pins[source] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_____ ERROR at setup of test_old_profile_does_not_inherit_full_permission ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+___ ERROR at setup of test_consumption_resume_is_total_not_a_fresh_increment ___
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_counter_type_cannot_alias_integer_with_boolean[initial_completed_updates] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_counter_type_cannot_alias_integer_with_boolean[initial_epoch] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_counter_type_cannot_alias_integer_with_boolean[initial_offset] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_ ERROR at setup of test_counter_type_cannot_alias_integer_with_boolean[gradient_accumulation_steps] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+_____ ERROR at setup of test_explicit_reference_recipe_change_is_rejected ______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+____ ERROR at setup of test_actual_full_cli_with_synthetic_existing_indices ____
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:66: in exercise
+    r=q.qualify_layouts(plan,req,source,e,rng=rng,budget=FakeBudget())
+tools/st_world_policy/qualify_indexed_provider.py:324: in qualify_layouts
+    repeated.append({'key':row['key'], 'difference':shared.difference(out.features[i],z)})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actual = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+expected = tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., ...    [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+    def difference(actual, expected):
+        if actual.shape != expected.shape or actual.dtype != expected.dtype or not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+            raise ValueError('Qualification cannot compare invalid shape/dtype/finite targets')
+        a, b = actual.double(), expected.double()
+        delta = a-b
+        abs_delta = delta.abs()
+        ref_sq = float(b.square().sum())
+        err_sq = float(delta.square().sum())
+        return {'elements':actual.numel(),'bitwise_equal':tensor_digest(actual)==tensor_digest(expected),
+                'max_abs':float(abs_delta.max()),'sum_abs':float(abs_delta.sum()),'sum_squared':err_sq,
+                'reference_squared':ref_sq,'rms':math.sqrt(err_sq/actual.numel()),
+                'l2_relative':math.sqrt(err_sq/max(ref_sq,1e-24)),
+>               'max_elementwise_relative':float((abs_delta/b.abs().clamp_min(1e-12)).max())}
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 3538944 bytes. Error code 12 (Cannot allocate memory)
+
+tools/st_world_policy/qualify_ondemand_teacher.py:141: RuntimeError
+__ ERROR at setup of test_new_profile_exact_population_old_evidence_unchanged __
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='module')
+    def f(tmp_path_factory):
+        root=tmp_path_factory.mktemp('profile')
+>       a,p=setup(root);r=exercise(p);parent,parentpath=descriptor(p,r,root)
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    a=artifacts(tmp_path)
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+______ ERROR at setup of test_profile_wrong_binding_rejected[population] _______
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+________ ERROR at setup of test_profile_wrong_binding_rejected[source] _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+________ ERROR at setup of test_profile_wrong_binding_rejected[budget] _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+________ ERROR at setup of test_profile_wrong_binding_rejected[teacher] ________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+________ ERROR at setup of test_profile_wrong_binding_rejected[recipe] _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_________ ERROR at setup of test_profile_wrong_binding_rejected[flags] _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_________ ERROR at setup of test_profile_wrong_binding_rejected[times] _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+___ ERROR at setup of test_profile_recipe_hard_scope_bounds[stop_after-257] ____
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+__ ERROR at setup of test_profile_recipe_hard_scope_bounds[sample_limit-257] ___
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+___ ERROR at setup of test_profile_recipe_hard_scope_bounds[max_updates-256] ___
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+____ ERROR at setup of test_profile_recipe_hard_scope_bounds[scope-FORMAL] _____
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_migration_rejects_unapproved_math_or_historical_bindings[source_sha] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_migration_rejects_unapproved_math_or_historical_bindings[commit] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_migration_rejects_unapproved_math_or_historical_bindings[math] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_migration_rejects_unapproved_math_or_historical_bindings[extra_control] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_migration_rejects_unapproved_math_or_historical_bindings[parent_result] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_old_smoke_default_rejects_historical_code_without_migration _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+____________ ERROR at setup of test_no_new_source_check_boolean_api ____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_configured_profile_reuses_frozen_pca_and_real_config_validation _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+__________ ERROR at setup of test_profile_cannot_be_relabelled_smoke ___________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:87: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_________ ERROR at setup of test_lazy_rows_are_not_population_retained _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:63: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:64: in image_reference
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+_ ERROR at setup of test_world_change_has_new_recipe_and_consumption_identity __
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _trace=<pluggy._tracing.TagTracer...5c8149270>, _basetemp=PosixPath('/tmp/full-index-profile-resource-small'), _retention_count=3, _retention_policy='all')
+
+>   ???
+
+tests/st_world/test_provider_profile_upgrade.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/st_world/test_indexed_composition.py:22: in setup
+    ???
+tests/st_world/test_indexed_provider_factory.py:27: in artifacts
+    ???
+tests/st_world/test_fixed_provider_training.py:26: in fixed_artifacts
+    ???
+tests/st_world/test_provider_training.py:30: in provider_artifacts
+    ???
+tests/st_world/test_pca.py:63: in scoped_fixture
+    ???
+starVLA/dataloader/st_world_history.py:64: in image_reference
+    ???
+starVLA/dataloader/st_world_history.py:27: in file_sha256
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   MemoryError
+
+starVLA/dataloader/st_world_history.py:27: MemoryError
+=================================== FAILURES ===================================
+____ test_cumulative_exposure_and_rank_consumption_across_resume[257-1-256] ____
+
+n = 257, world = 1, steps = 256
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def894e0>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+____ test_cumulative_exposure_and_rank_consumption_across_resume[258-1-256] ____
+
+n = 258, world = 1, steps = 256
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def8af50>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+____ test_cumulative_exposure_and_rank_consumption_across_resume[258-2-256] ____
+
+n = 258, world = 2, steps = 256
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def33520>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+___ test_cumulative_exposure_and_rank_consumption_across_resume[101592-1-64] ___
+
+n = 101592, world = 1, steps = 64
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def31f00>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+___ test_cumulative_exposure_and_rank_consumption_across_resume[101592-2-64] ___
+
+n = 101592, world = 2, steps = 64
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def8a980>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+_________ test_unsupported_exposure_or_topology_rejected[odd_two_rank] _________
+
+change = 'odd_two_rank'
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/st_world_policy/teacher_provider.py:258: in full_profile_consumption
+    ???
+<frozen importlib._bootstrap>:1027: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:688: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:879: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1016: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7f34def320e0>
+path = '/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/foresight/__init__.py'
+
+>   ???
+E   MemoryError
+
+<frozen importlib._bootstrap_external>:1073: MemoryError
+_________ test_native_resume_and_stop_gate_unchanged_and_before_fetch __________
+
+>   ???
+
+reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/miniconda3/envs/ddp/lib/python3.10/pathlib.py:1134: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/mnt/project/VLA-Drive-st-full-index-profile-resource-review-20261017/tools/st_world_policy/train_world.py')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return self._accessor.open(self, mode, buffering, encoding, errors,
+                                   newline)
+E       MemoryError
+
+/root/miniconda3/envs/ddp/lib/python3.10/pathlib.py:1119: MemoryError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_cumulative_exposure_and_rank_consumption_across_resume[257-1-256]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_cumulative_exposure_and_rank_consumption_across_resume[258-1-256]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_cumulative_exposure_and_rank_consumption_across_resume[258-2-256]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_cumulative_exposure_and_rank_consumption_across_resume[101592-1-64]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_cumulative_exposure_and_rank_consumption_across_resume[101592-2-64]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_unsupported_exposure_or_topology_rejected[odd_two_rank]
+FAILED reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_native_resume_and_stop_gate_unchanged_and_before_fetch
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_actual_indices_and_cumulative_consumption
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_configuration_uses_existing_pca_and_trainer_contract
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[scope]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[count]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[role]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[time]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[source]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[current_complete]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[future_complete]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[wrong_request]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[original_selection]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[consumption]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[257]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[global32]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[recipe]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[source_cache]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[raw_sha]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[teacher]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_full_population_negative_boundaries[missing_complete]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[reverse]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[omit]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[duplicate]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[current_pin]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[ego_pin]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_stream_population_rejects_order_coverage_and_pins[source]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_old_profile_does_not_inherit_full_permission
+ERROR tests/st_world/test_provider_full_index_profile.py::test_consumption_resume_is_total_not_a_fresh_increment
+ERROR tests/st_world/test_provider_full_index_profile.py::test_counter_type_cannot_alias_integer_with_boolean[initial_completed_updates]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_counter_type_cannot_alias_integer_with_boolean[initial_epoch]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_counter_type_cannot_alias_integer_with_boolean[initial_offset]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_counter_type_cannot_alias_integer_with_boolean[gradient_accumulation_steps]
+ERROR tests/st_world/test_provider_full_index_profile.py::test_explicit_reference_recipe_change_is_rejected
+ERROR tests/st_world/test_provider_full_index_profile.py::test_actual_full_cli_with_synthetic_existing_indices
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_new_profile_exact_population_old_evidence_unchanged
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[population]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[source]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[budget]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[teacher]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[recipe]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[flags]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[times]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[stop_after-257]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[sample_limit-257]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[max_updates-256]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[scope-FORMAL]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[source_sha]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[commit]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[math]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[extra_control]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[parent_result]
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_old_smoke_default_rejects_historical_code_without_migration
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_no_new_source_check_boolean_api
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_configured_profile_reuses_frozen_pca_and_real_config_validation
+ERROR tests/st_world/test_provider_profile_upgrade.py::test_profile_cannot_be_relabelled_smoke
+ERROR reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_lazy_rows_are_not_population_retained
+ERROR reports/st_world_policy/20261017/full_index_profile_resource_review_v1/test_resource_profile.py::test_world_change_has_new_recipe_and_consumption_identity
+7 failed, 5 passed, 1 warning, 56 errors in 6.53s

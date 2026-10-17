@@ -1,0 +1,119 @@
+{
+  "actual_wall_rss_output_not_measured": true,
+  "commands": [
+    {
+      "arms": {
+        "control": "C0",
+        "treatment": "C2"
+      },
+      "command_parser_matches": true,
+      "comparison": "C2_minus_C0",
+      "non_null_formal_bindings": true,
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+      },
+      "statistics": {
+        "all_metrics_required": true,
+        "bootstrap_replicates": 2000,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_seed": 20261017,
+        "bootstrap_unit": "paired_log_cluster",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "ep_drop_threshold": 0.05,
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "high_drop_threshold": 0.05,
+        "high_score_threshold": 0.9,
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "low_progress_m": 1.0,
+        "moving_reference_m": 5.0,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "near_stop_speed_mps": 0.5,
+        "zero_epsilon": 1e-08
+      }
+    },
+    {
+      "arms": {
+        "control": "C0",
+        "treatment": "C3"
+      },
+      "command_parser_matches": true,
+      "comparison": "C3_minus_C0",
+      "non_null_formal_bindings": true,
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+      },
+      "statistics": {
+        "all_metrics_required": true,
+        "bootstrap_replicates": 2000,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_seed": 20261017,
+        "bootstrap_unit": "paired_log_cluster",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "ep_drop_threshold": 0.05,
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "high_drop_threshold": 0.05,
+        "high_score_threshold": 0.9,
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "low_progress_m": 1.0,
+        "moving_reference_m": 5.0,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "near_stop_speed_mps": 0.5,
+        "zero_epsilon": 1e-08
+      }
+    }
+  ],
+  "dispatch_or_ledger_mutation": false,
+  "evaluator": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "input_pins": {
+    "BUDGET.json": "21242f52da877cbe353de560e2c8298434aa3d13ec90ed866698d8eda0206854",
+    "COMMANDS.json": "f93ff9abb821a632f7c08c1f961c5c6219ccd14b3c4218b1902bf398d07d8d90",
+    "MANIFEST.json": "374a3c8db1077356fa0d895099019e09e693e100c52bae92baa5e01581c427ca",
+    "REPORT.md": "c4f1642c2cae805ffd6777462b95abe0a3664106ca5fbec54d257f411a97de31"
+  },
+  "no_actual_resource_token": true,
+  "no_payload_read_by_this_review": true,
+  "payload_read_estimate": {
+    "full_file_read_open_multipliers": {
+      "ego_gt_pt_per_run": 2,
+      "ledger_results_pt": 2,
+      "prediction_npz": 3
+    },
+    "per_run_load_plus_trajectory_diagnostics_bytes": {
+      "C0": 98760384,
+      "C2": 98760896,
+      "C3": 98762048
+    },
+    "scope": "Conservative full file size per source read-open; not measured physical I/O. Original CLI reruns C0 and GT for the second pair. Compressed container seek/read behavior may differ.",
+    "three_unique_run_function_calls_no_extra_gt_cache_bytes": 296283328,
+    "two_original_cli_pair_bytes": {
+      "C2_minus_C0": 197521280,
+      "C3_minus_C0": 197522432
+    },
+    "two_original_cli_total_bytes": 395043712,
+    "unique_existing_content_bytes": 141245728
+  },
+  "proposal": {
+    "cpu_threads": 2,
+    "execution": "Two unchanged frozen CLI comparisons, sequential",
+    "full_run_cpu_wall_and_peak_rss": "NOT_MEASURED; proposed admission ceilings, not a benchmark",
+    "gpu_count": 0,
+    "launch_authorized": false,
+    "metadata_source_read_cap_bytes_total": 134217728,
+    "no_new_cache": true,
+    "output_cap_bytes_per_pair": 33554432,
+    "payload_read_cap_bytes_total": 536870912,
+    "requires_lead_budget_registration": true,
+    "rss_cap_bytes": 2147483648,
+    "scoring_calls": 0,
+    "wall_cap_seconds_per_pair": 1800,
+    "wall_cap_seconds_total": 3600
+  },
+  "reviewer": "/root/st_metadata_resource_review",
+  "schema": "st_existing_analysis_budget_resource_review_v1",
+  "status": "PASS_BUDGET_PROPOSAL_PENDING_BOUNDED_EXECUTION"
+}
