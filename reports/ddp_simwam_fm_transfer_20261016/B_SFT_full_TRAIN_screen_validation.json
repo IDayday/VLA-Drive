@@ -1,0 +1,79 @@
+{
+  "schema": "B_SFT100k_full_screen_qualified_v1",
+  "status": "PASS_FULL_TRAIN_SCREEN_AND_FIXED_HARD_POPULATION",
+  "observed_unix": 1792220442.1846056,
+  "execution_audit_sha256": "e160b09555c88ea3fec6cf91697d389ea780228a84cd0b015d1224187a95adaf",
+  "analysis_sha256": "4fb97f2df6fdb33ed0c5f2ab9c5f9575a7b358b0229fb9f7144def6df20b123f",
+  "hard_manifest_file_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+  "hard_manifest_content_fingerprint": "681efb6c5958a7b45c80d48cb8ebf22d1ec00e0c06abe8010b43982407adc4e3",
+  "all_payload_verification": {
+    "status": "COMPLETE_ALL_PAYLOAD_HASHES_VERIFIED",
+    "checked": 101592,
+    "total": 101592,
+    "workers": 8,
+    "elapsed": 246.79655537568033,
+    "hard_scenes": 21836,
+    "manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a"
+  },
+  "stages": {
+    "hard_manifest": {
+      "attempt": "63fa7b0af8ea461d8a728f9e83c25cb9",
+      "plan_sha256": "2e2db9a76a8a721f2f0196d1891e9914c07849595dca69ba869070f00e68d4bd",
+      "state": "COMPLETE",
+      "pid": 436621,
+      "start_ticks": 1365850462,
+      "host": "training-vla-zt",
+      "start_unix": 1792219891.5993507,
+      "execution_source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "numerical_worker_source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "child": {
+        "pid": 436622,
+        "start_ticks": 1365850478
+      },
+      "exit_code": 0,
+      "end_unix": 1792220138.7686853
+    },
+    "screen_summary": {
+      "attempt": "4580439bc4584ca0b3d30bf03a862e6f",
+      "plan_sha256": "2e2db9a76a8a721f2f0196d1891e9914c07849595dca69ba869070f00e68d4bd",
+      "state": "COMPLETE",
+      "pid": 353096,
+      "start_ticks": 1365875641,
+      "host": "training-vlawm-tsinghua-zt6",
+      "start_unix": 1792220144.7764378,
+      "execution_source": "/mnt/project/fm-transfer-20261016/source/d8e4c6c7cdf11eed2a1f1ef8c3b84230b7e46999",
+      "numerical_worker_source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "child": {
+        "pid": 353097,
+        "start_ticks": 1365875664
+      },
+      "exit_code": 0,
+      "end_unix": 1792220299.235897
+    }
+  },
+  "source_own_SFT": {
+    "SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+    "SFT_identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+    "architecture": "source_action_dit",
+    "seed": 2101,
+    "grid": "native",
+    "threshold": 0.9,
+    "statistic": "one canonical v1.1 score per scene"
+  },
+  "full_train_scenes": 101592,
+  "hard_scenes": 21836,
+  "hard_logs": 1056,
+  "full_TRAIN_no_DEV_or_Navtest": true,
+  "hard_population_comparison": {
+    "A_hard": 21367,
+    "B_hard": 21836,
+    "intersection": 20690,
+    "A_only": 677,
+    "B_only": 1146,
+    "union": 22513,
+    "comparison_caveat": "Different own-SFT populations; not an isolated architecture or optimizer ablation"
+  },
+  "scientific_protocol_changed": false,
+  "new_inference_from_analysis": 0,
+  "new_scoring_from_analysis": 0
+}
