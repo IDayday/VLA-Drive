@@ -1,0 +1,239 @@
+{
+  "actions": {
+    "GPU": false,
+    "SSH": false,
+    "checkpoint_tensor_read": false,
+    "dispatch": false,
+    "ledger_mutation": false,
+    "runtime_edits": false,
+    "tensor_cache_read": false,
+    "training": false
+  },
+  "additional_prelaunch_profile_required_by_this_review": false,
+  "conclusion": "Existing measured same-runtime four-GPU global32/micro4/caller-accumulation2 evidence is reusable for execution-topology feasibility; no repeat topology search or duplicate384 training required. Exact256 speed/memory remain unmeasured; this is not a refreshed run registration or a current resource lease.",
+  "config_differences": [
+    {
+      "PCA256": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs",
+      "PCA384": "/mnt/project/st-world-policy-20261016/formal/spatial/runs",
+      "path": "runtime.output_root"
+    },
+    {
+      "PCA256": 256,
+      "PCA384": 384,
+      "path": "space_time.teacher.channels"
+    },
+    {
+      "PCA256": "1d75028d6ddb89bdf68ca1e6ab3fbaa00a8cb112c8053ee532de8d43c1ad815d",
+      "PCA384": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+      "path": "space_time.teacher.transform_identity"
+    }
+  ],
+  "controlled_evidence_pass": {
+    "elapsed_seconds": 0.5837450195103884,
+    "explicit_source_control_bytes_read": 192698,
+    "process_peak_rss_bytes": 14594048,
+    "scope": "This final evidence pass only; preceding short administrative git/source reads not claimed as aggregate monitored cost."
+  },
+  "formal_launch_allowed": false,
+  "historical_four_gpu_measurements": [
+    {
+      "arm": "A",
+      "windows": [
+        {
+          "allocation_gpu_seconds": 1303.11334476,
+          "checkpoint_events": 0,
+          "checkpoint_max_rank_seconds": 0.0,
+          "complete_wall_seconds": 325.77833619,
+          "cpu_self_and_waited_child_seconds": 1771.9081079999999,
+          "normal_update_mean": 3.25626920863,
+          "normal_update_p50": 3.234170023,
+          "normal_update_p95": 3.4296038711,
+          "normal_updates": 100,
+          "peak_allocated_bytes": 44119953408,
+          "peak_reserved_bytes": 48045752320,
+          "scenes": 3200,
+          "scenes_per_second": 9.822629820706371,
+          "slowest_rank_update_mean": 3.25626920863,
+          "slowest_rank_update_p50": 3.234170023,
+          "slowest_rank_update_p95": 3.4296038711,
+          "window": 1
+        },
+        {
+          "allocation_gpu_seconds": 1502.178906024,
+          "checkpoint_events": 1,
+          "checkpoint_max_rank_seconds": 50.66889621131122,
+          "complete_wall_seconds": 375.544726506,
+          "cpu_self_and_waited_child_seconds": 1976.269786,
+          "normal_update_mean": 3.246519644555555,
+          "normal_update_p50": 3.241526499,
+          "normal_update_p95": 3.3717751343,
+          "normal_updates": 99,
+          "peak_allocated_bytes": 44119953408,
+          "peak_reserved_bytes": 48045752320,
+          "scenes": 3200,
+          "scenes_per_second": 8.520955758777975,
+          "slowest_rank_update_mean": 3.7541017833199994,
+          "slowest_rank_update_p50": 3.24245978,
+          "slowest_rank_update_p95": 3.3785203883499997,
+          "window": 2
+        }
+      ],
+      "working_set_scenes": 64
+    },
+    {
+      "arm": "B",
+      "windows": [
+        {
+          "allocation_gpu_seconds": 1303.114623972,
+          "checkpoint_events": 0,
+          "checkpoint_max_rank_seconds": 0.0,
+          "complete_wall_seconds": 325.778655993,
+          "cpu_self_and_waited_child_seconds": 1770.169457,
+          "normal_update_mean": 3.2565572899299995,
+          "normal_update_p50": 3.2379338339999997,
+          "normal_update_p95": 3.42985717125,
+          "normal_updates": 100,
+          "peak_allocated_bytes": 44119953408,
+          "peak_reserved_bytes": 49046093824,
+          "scenes": 3200,
+          "scenes_per_second": 9.822620178249979,
+          "slowest_rank_update_mean": 3.2565572899299995,
+          "slowest_rank_update_p50": 3.2379338339999997,
+          "slowest_rank_update_p95": 3.42985717125,
+          "window": 1
+        },
+        {
+          "allocation_gpu_seconds": 1502.547046212,
+          "checkpoint_events": 1,
+          "checkpoint_max_rank_seconds": 49.87794007174671,
+          "complete_wall_seconds": 375.636761553,
+          "cpu_self_and_waited_child_seconds": 1983.314097,
+          "normal_update_mean": 3.2563296733232323,
+          "normal_update_p50": 3.256181648,
+          "normal_update_p95": 3.3674416682,
+          "normal_updates": 99,
+          "peak_allocated_bytes": 44119953408,
+          "peak_reserved_bytes": 49046093824,
+          "scenes": 3200,
+          "scenes_per_second": 8.518868032964074,
+          "slowest_rank_update_mean": 3.75509326417,
+          "slowest_rank_update_p50": 3.2586638875,
+          "slowest_rank_update_p95": 3.3728774718500003,
+          "window": 2
+        }
+      ],
+      "working_set_scenes": 64
+    }
+  ],
+  "historical_full_SP2": {
+    "allocation_scenes_per_second": 6.825293819530606,
+    "allocation_seconds_per_update": 4.688208426783979,
+    "allocation_wall_seconds": 23441.042133919895,
+    "checkpoint_files": [
+      {
+        "name": "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+        "receipt_bytes": 7658046102,
+        "stat_bytes": 7658046102
+      },
+      {
+        "name": "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+        "receipt_bytes": 7658049238,
+        "stat_bytes": 7658049238
+      },
+      {
+        "name": "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+        "receipt_bytes": 7658051734,
+        "stat_bytes": 7658051734
+      },
+      {
+        "name": "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+        "receipt_bytes": 7658058006,
+        "stat_bytes": 7658058006
+      },
+      {
+        "name": "mp_rank_00_model_states.pt",
+        "receipt_bytes": 6733728866,
+        "stat_bytes": 6733728866
+      },
+      {
+        "name": "rng_rank0.pt",
+        "receipt_bytes": 25402,
+        "stat_bytes": 25402
+      },
+      {
+        "name": "rng_rank1.pt",
+        "receipt_bytes": 25466,
+        "stat_bytes": 25466
+      },
+      {
+        "name": "rng_rank2.pt",
+        "receipt_bytes": 25466,
+        "stat_bytes": 25466
+      },
+      {
+        "name": "rng_rank3.pt",
+        "receipt_bytes": 25466,
+        "stat_bytes": 25466
+      }
+    ],
+    "checkpoint_payload_bytes_receipt_plus_stat": 37366035746,
+    "completed_updates": 5000,
+    "exposure": 159992,
+    "payload_hashes_reread": false
+  },
+  "independent_of_implementation": true,
+  "inheritance": {
+    "no_new_history_or_future_provider": true,
+    "no_new_teacher_cache_needed": true,
+    "same_20k_schedule_warmup1000_stop5000": true,
+    "same_W48_views3_positions96": true,
+    "same_backbone_precision_optimizer_loader": true,
+    "same_backend_runtime": true,
+    "same_student_images": true,
+    "same_teacher_raw_cache": true
+  },
+  "limitations": [
+    "Historical240 profiles each used64 scenes, two100-update windows, one terminal native save; they are not a full-population cold-IO measurement.",
+    "Four-GPU timings were observed concurrently as2x4, not an isolated-job speed promise.",
+    "Historical A/B loss streams were finite but not bitwise identical; erratum retained.",
+    "Historical profiles lack full live process-tree CPU/RSS coverage; do not infer a new aggregate host-RSS hard cap.",
+    "Current GPU availability, checkpoint quota/free space and shared storage contention were not queried in this noGPU/noSSH review.",
+    "Exact256 training, total latency and peak memory have not yet been measured.",
+    "Existing256 author CPU-test import accounting exceeded its128MiB allowance by4689916B; this review does not rewrite that result or inherit author tests as independent integration."
+  ],
+  "minimum_lead_dispatch_items": [
+    "Create exact256 registration with this config/target, same Base/PCA/data/runtime and newly verified matching environment; combine separate evidence/correctness reviews through existing checker.",
+    "Bind current authorized hostname and four GPU UUIDs, current lease, nonblocking per-GPU locks; recheck actual owners/memory and shared IO contention after locks. No historical idle claim transfers.",
+    "Reserve independent checkpoint output capacity (conservative240GiB) including all current commitments and1TiB free floor; do not reuse existing384 space or delete checkpoints.",
+    "Respect stop5000, original20k scheduler and28800s native invocation boundary; separately budget any pause/resume extra save. Exact256 throughput and peaks should be recorded from actual run, not invented from old384."
+  ],
+  "narrow_resource_change": {
+    "claim_full_update_speedup": false,
+    "dense_current_projected_target_reduction_bytes_per_microbatch4": 2654208,
+    "final_readout_parameter_reduction": 65664,
+    "notes": "PCA transform output width and final readout/targets decrease; earlier encoder/readout layers are identical. Smaller matrices do not guarantee faster kernel latency.",
+    "raw_teacher_payload_reduction_bytes": 0,
+    "sampled_current_target_reduction_bytes_per_microbatch4": 589824
+  },
+  "new_output_exists_at_review": false,
+  "review_start_commit": "633fc59a6518f92e9fc0508fdb80f3be3c23657c",
+  "reviewer_agent": "/root/st_owned_descendants_review_v2",
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+  },
+  "schema": "st_teacher_channel_resource_review_v1",
+  "status": "PASS_AFFECTED_RESOURCE_EVIDENCE_REUSE_ONLY",
+  "storage_plan_to_carry_into_new_lease": {
+    "contingency_bytes": 42949672960,
+    "existing_commitments_must_be_added_not_replaced": true,
+    "free_floor_bytes": 1099511627776,
+    "live_free_space_queried": false,
+    "new_checkpoint_reserve_bytes": 257698037760,
+    "new_teacher_cache_bytes": 0,
+    "per_save_upper_bound_bytes": 42949672960,
+    "planned_saves": 5,
+    "reservation_created": false
+  }
+}
