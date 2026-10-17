@@ -1,5 +1,22 @@
 # Bounded cache decision and current evidence
 
+## Update: actual full-population bounded run completed, 2026-10-17 16:06 UTC
+
+The full101,592-scene sampler has now completed64 diagnostic updates over128
+distinct scenes on two A800 GPUs. No new teacher tensors were written to disk;
+each rank's bounded target LRU peaked at13.5MiB. All losses/gradient norms were
+finite, target failures were0, and cleanup verified22 owned processes/0 remaining.
+
+After20 warmup updates, the44 internal slowest-rank update measurements were
+mean2.394s / p502.413s / p952.661s. They exclude subsequent logging/status and
+checkpoint operations, so are not complete-loop throughput. Native allocation
+including cold startup/save was957.247s; checkpoint save53.581s and actual
+checkpoint namespace37.366GB are accounted separately from teacher cache.
+Original official student BF16/FP32-master/Adam/ZeRO2 execution and frozen FP32
+teacher were checked on both ranks. This does not qualify global32/world8
+formal throughput, and the diagnostic weights cannot initialize formal runs.
+See [the actual run and limits](full_population_profile_actual_v1/REPORT.md).
+
 ## Update: full metadata indices completed, 2026-10-17
 
 The no-multi-TB decision remains in force. The actual TRAIN index now covers
@@ -11,10 +28,10 @@ See [actual build evidence](bounded_cache_index_actual_v1/REPORT.md).
 The earlier 32-scene indexed provider qualification has since run: its fixed
 FP32 teacher comparison passed on 4,323 tensors (1.912 billion elements), and
 its bounded 64-update test consumed 128 scene exposures with repeated scenes.
-That result does not establish full-population throughput. The next bounded
-test uses the original full training sampler; its source/data preparation is
+That result did not establish full-population throughput. The subsequent bounded
+test above uses the original full training sampler; its source/data preparation is
 documented in [the exact CLI handoff](full_population_profile_commands_v1/RUNBOOK.md).
-No full-population speed or formal temporal-training approval is claimed yet.
+No formal temporal-training approval is claimed yet.
 
 The storage plan reuses existing current-frame target caches (about 586 GiB),
 computes missing future targets on demand in original FP32, and keeps only a
