@@ -1,0 +1,137 @@
+.....F........................                                           [100%]
+=================================== FAILURES ===================================
+________________ test_real_owned_cpu_child_limits[bad_counter] _________________
+
+command = ['/root/miniconda3/envs/ddp/bin/python', '-c', "import time;time.sleep(.6);print('{}')"]
+
+    def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
+        """Original bounded pipe loop with existing unreaped-session/pidfd ownership."""
+        buffers={name:bytearray() for name in ('stdout','stderr')};peak=0;failure=None;counter=None;child=None;owner=None;leader=None
+        start=time.monotonic();selector=selectors.DefaultSelector()
+        with s.lifetime_scope() as stopped:
+            try:
+                child=subprocess.Popen(['taskset','-c','0,1',*command],cwd=runtime,env=env,stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,pass_fds=(fd,))
+                leader=s.pidfd_open(child.pid);owner=s.OwnedSession(child)
+                for name,stream in (('stdout',child.stdout),('stderr',child.stderr)):
+                    os.set_blocking(stream.fileno(),False);selector.register(stream,selectors.EVENT_READ,name)
+                next_sample=0.;term_at=None
+                while True:
+                    active=owner.discover();done=owner.leader_done()
+                    if stopped['signal'] is not None:failure=failure or 'SUPERVISOR_SIGNAL_'+str(stopped['signal'])
+                    if done and active:failure=failure or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
+                    if not active and not selector.get_map():break
+                    for key,_ in selector.select(.25):
+                        data=os.read(key.fd,65536)
+                        if not data:selector.unregister(key.fileobj);continue
+                        if not append_pipe(buffers,key.data,data):failure=failure or key.data.upper()+'_LIMIT'
+                    now=time.monotonic()
+                    if now>=next_sample:
+                        next_sample=now+1
+                        try:
+                            peak=max(peak,m.process_tree_rss(os.getpid()))
+                            path=root/'CONTROL_BUILD_COUNTERS.json'
+                            if path.exists():
+                                counter=read_counter(root)
+                                if counter['limit_exceeded']:failure=failure or counter['limit_exceeded']
+                                if not done and time.time()-path.stat().st_mtime>15:failure=failure or 'STALE_COUNTER'
+                                total=counter['proc_self_io_delta']['rchar']+obs.proc_io()['rchar']-BOOT_IO['rchar']
+                                if total>budget['read_bytes']:failure=failure or 'PARENT_CHILD_READ_LIMIT'
+                        except Exception:failure=failure or 'MONITOR_UNREADABLE'
+                        if peak>budget['rss_bytes']:failure=failure or 'RSS_LIMIT'
+                        if now-START>=budget['wall_seconds']:failure=failure or 'WALL_LIMIT'
+                    if failure and term_at is None:owner.send(signal.SIGTERM);term_at=now
+                    if term_at is not None and now-term_at>=30:owner.send(signal.SIGKILL)
+                    if term_at is not None and now-term_at>=40:raise RuntimeError('Owned cleanup exceeded grace')
+                code=owner.finish(terminate=failure is not None,deadline=term_at+40 if term_at else None)
+>               counter=read_counter(root)  # final snapshot, not a potentially older polling sample
+
+../VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py:226: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py:130: in read_counter
+    return json.loads(value)
+/root/miniconda3/envs/ddp/lib/python3.10/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+/root/miniconda3/envs/ddp/lib/python3.10/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x7fe2ceca5e10>, s = '{bad', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+>           obj, end = self.scan_once(s, idx)
+E           json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+/root/miniconda3/envs/ddp/lib/python3.10/json/decoder.py:353: JSONDecodeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-617/test_real_owned_cpu_child_limi5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fe22c956ce0>
+case = 'bad_counter'
+
+    @pytest.mark.parametrize('case',['success','rss','source_read','wall','stale','bad_counter','pipe'])
+    def test_real_owned_cpu_child_limits(tmp_path,monkeypatch,case):
+        # Only this fixture's fresh process is launched/signalled, never a real job.
+        (tmp_path/'CONTROL_BUILD_COUNTER_LOCK.json').write_text('')
+        p=tmp_path/'CONTROL_BUILD_COUNTERS.json'
+        p.write_text(json.dumps({'limit_exceeded':None,'proc_self_io_delta':{'rchar':0}}))
+        if case=='bad_counter':p.write_text('{bad')
+        if case=='stale':os.utime(p,(time.time()-60,time.time()-60))
+        budget={'wall_seconds':10,'rss_bytes':1<<30,'read_bytes':64<<20}
+        if case=='source_read':budget['read_bytes']=1
+        if case=='wall':budget['wall_seconds']=0
+        source="import time;time.sleep(.6);print('{}')"
+        if case=='pipe':source="import sys,time;sys.stdout.write('x'*((1<<20)+2));sys.stdout.flush();time.sleep(.6)"
+        monkeypatch.setattr(c,'START',time.monotonic())
+        stub=SimpleNamespace(process_tree_rss=lambda pid: (2<<30) if case=='rss' else 32<<20)
+        with (tmp_path/'owned-fd').open('wb') as fd:
+            if case=='bad_counter':
+                # Final corrupt read also refuses to publish a successful resource receipt.
+                with pytest.raises(json.JSONDecodeError):
+>                   c.monitor([sys.executable,'-c',source],runtime=str(tmp_path),env=dict(os.environ,CUDA_VISIBLE_DEVICES=''),fd=fd.fileno(),root=tmp_path,s=s,m=stub,obs=obs,budget=budget)
+
+reports/st_world_policy/20261017/full_build_admission_v1/controller_review/test_independent_controller.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py:233: in monitor
+    if owner is not None:owner.finish(terminate=True)
+../VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py:260: in finish
+    if terminate: self.send(signal.SIGTERM)
+../VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py:249: in send
+    active = self.discover()
+../VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py:215: in discover
+    if not self.same(self.anchor, proc_identity(self.child.pid)):
+../VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py:138: in proc_identity
+    fields = Path(f'/proc/{pid}/stat').read_text().rsplit(') ', 1)[1].split()
+/root/miniconda3/envs/ddp/lib/python3.10/pathlib.py:1134: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/proc/475292/stat'), mode = 'r', buffering = -1
+encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return self._accessor.open(self, mode, buffering, encoding, errors,
+                                   newline)
+E       FileNotFoundError: [Errno 2] No such file or directory: '/proc/475292/stat'
+
+/root/miniconda3/envs/ddp/lib/python3.10/pathlib.py:1119: FileNotFoundError
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/full_build_admission_v1/controller_review/test_independent_controller.py::test_real_owned_cpu_child_limits[bad_counter]
+1 failed, 29 passed in 3.92s
