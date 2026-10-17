@@ -1,0 +1,52 @@
+{
+  "schema": "fm_transfer_SFT_milestone_safety_execution_v1",
+  "started_unix": 1792206443.593738,
+  "status": "COMPLETE",
+  "source_commit": "ec271529ca1d6eeaa912a3436052a8e4df4db99e",
+  "source_files": {
+    "scripts/analysis/fm_transfer/analyze_safety_transitions.py": "8b243a0014f40f4e8f41493f0824665448f792c3b699b2644799f6c5aef36e15",
+    "scripts/analysis/fm_transfer/analyze_evaluation.py": "8e30d6d6b77af89d350310a0e9702acaf5810b7849d82490a91c0bf1d4b2012a",
+    "scripts/analysis/simwam_recipe/analyze_evaluation.py": "5aa223e6b7673b1e940553dd4e000d99c35b7add95edbdf130ef54353daa7e52",
+    "scripts/analysis/simwam_recipe/evaluation_compatibility.py": "6ce4d5a41f49c6d31ba6006e81f70a116b10ced8c052988ab55e0afee34d590a"
+  },
+  "command": [
+    "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+    "-m",
+    "scripts.analysis.fm_transfer.analyze_safety_transitions",
+    "--comparison-kind",
+    "sft_milestones",
+    "--evaluation",
+    "/mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update075000_DEV",
+    "--reference",
+    "/mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update050000_DEV",
+    "--output",
+    "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_DEV_safety_vs50k.json"
+  ],
+  "input_hashes": {
+    "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_DEV.json": "0fe3d51040648d28dd7ea68fb0a06da7b89b8b2a2a80d0cdaa95b38ede542629",
+    "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_DEV_paired_50k.json": "97fd672c266b702acd53e49adf96cfdf4d3734b5c29cfd71a9b818c355bce83e",
+    "/mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update075000_DEV/manifest.json": "76d78ab235ee01897ad24501d34c0786c4edf47f7d073e2f0d8eda13788cc752",
+    "/mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update050000_DEV/manifest.json": "510286db12c8a5ef635adcbcbf97ed8a283da4e72badf731f99826f9685874a1"
+  },
+  "tests_passed": 17,
+  "new_inference": 0,
+  "new_scoring": 0,
+  "optimizer_updates": 0,
+  "ended_unix": 1792206474.6276934,
+  "output": "/mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_DEV_safety_vs50k.json",
+  "output_sha256": "6bff68ac3ac9c708c2b943d2b9f89ebe16bf0d075a983b1cba3d6b2241a88901",
+  "sources_and_existing_results_unchanged": true,
+  "private_receipt_sha256": "3a641f8ddf140379055ae586dab2866710c13ad06974629e96318acd09fe89e1",
+  "summary_crosschecks": {
+    "E_NATIVE": {
+      "PDMS_gain_loss_match": true,
+      "safety_counts_match": true
+    },
+    "E_SHIFT5": {
+      "PDMS_gain_loss_match": true,
+      "safety_counts_match": true
+    }
+  },
+  "public_result": "reports/ddp_simwam_fm_transfer_20261016/B_SFT75k_DEV_safety_vs50k.json",
+  "public_result_sha256": "6bff68ac3ac9c708c2b943d2b9f89ebe16bf0d075a983b1cba3d6b2241a88901"
+}
