@@ -1,0 +1,299 @@
+{
+  "arm": "C3",
+  "checkpoint_status": "READY",
+  "checkpoint_tag": "step_001024_1792229437292318665",
+  "comparison": "C3_minus_C0",
+  "complete_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/checkpoints/step_001024_1792229437292318665/COMPLETE.json",
+    "sha256": "f22258f8094fcba3c071927db8e9733fffcf0a503b56f662b38ad42a2fc2d0ea"
+  },
+  "control_job_id": "C0_step001024_dev1696_seed42_v1",
+  "cost": {
+    "cpu_affinity_count": 2,
+    "metadata_source_bytes_read": 1625323,
+    "native_payload_bytes_read": 0,
+    "read_cap_bytes": 134217728,
+    "rss_peak_bytes": 1569472512,
+    "wall_seconds": 0.8877625055611134
+  },
+  "dedup_resume": [
+    "Freeze export world1, seed42, source/environment, manifest, checkpoint and output namespace before first invocation.",
+    "Rank0 file lock plus immutable signature; resume validates existing per-scene prediction receipt/NPZ before skipping it. Incomplete scenes keep the same scene_noise; no new candidate seed or best-of selection.",
+    "Scoring requires COMPLETE_rank0 and exact full1696 receipts; EVALUATION.lock single writer; fixed chunks of4 and durable ADMITTED ledger persist across resumes.",
+    "Valid cached feedback is reused only under exact request/result hashes; unknown/interrupted admissions count and consume bounded retry allowance. Nonretryable/unresolved failures block complete CSV, never become zeros or dropped rows.",
+    "CSV and analysis outputs are immutable; pair analysis joins complete real per-scene rows and validates ledger/trajectory/input hashes. Aggregate means are never used to reconstruct missing rows."
+  ],
+  "early_elimination": false,
+  "endpoints_unchanged": {
+    "consequence": {
+      "COMMON_ENDPOINT": 4096,
+      "DIAGNOSTIC_1024": 1024,
+      "DIAGNOSTIC_512": 512
+    },
+    "spatial": {
+      "COMMON_ENDPOINT": 20000,
+      "SCREENING": 5000
+    }
+  },
+  "existing_evaluation_registration": false,
+  "existing_export_root": false,
+  "existing_score_root": false,
+  "expected_completed": 1024,
+  "fixed_helper_loader_used_without_launcher_main": true,
+  "fixed_preparation_pins": {
+    "COMMANDS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/COMMANDS.json",
+      "sha256": "c4f4c6498b29f42548b98a17c8d398e8cf2182f4ecb19c11197209774af12195"
+    },
+    "EXECUTION_PLAN.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+      "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+    },
+    "INTENTS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/INTENTS.json",
+      "sha256": "22be1d966aea1a2b076f1d29f7a124a3d25285abbe8591cbdb7cbefe533b6be4"
+    },
+    "POLICY.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/POLICY.json",
+      "sha256": "70c172ffb691ba893e0c99ad1e9bcfc78dce338174b17539ec225d1fa759b39d"
+    },
+    "TRAINING_BINDINGS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/TRAINING_BINDINGS.json",
+      "sha256": "ae2cac8211bb3eb94c454129ed976f6fbe0fc6ee465925fe8751dbf30c299168"
+    }
+  },
+  "helper_refs": {
+    "launch_completed_dev_score_v5.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v5.py",
+      "sha256": "2e62c84a2eecde3e9af585d0a6fb77f9ff33d27a2ec76cd0fa2b594b3a8f15c3"
+    },
+    "launch_formal_dev_export_v5.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v5.py",
+      "sha256": "ad0ee24987bdba9ee3fbc46a5efbdb1445b0a6a69d4d588fc32e960738b876bf"
+    }
+  },
+  "inference": {
+    "attention": "sdpa",
+    "candidates_per_scene": 1,
+    "precision": "FP32_master_eval_TF32_off",
+    "rank": 0,
+    "requested_scenes": 1696,
+    "score_max_calls": 1728,
+    "score_workers": 2,
+    "seed": 42,
+    "solver": "original_Euler_10",
+    "world_size": 1
+  },
+  "job_id": "C3_step001024_dev1696_seed42_v1",
+  "launch_allowed_now": false,
+  "metric_index": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+    "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+  },
+  "native_metadata": {
+    "exact_inventory": true,
+    "file_count": 9,
+    "file_sizes_verified": true,
+    "payload_hashes_recomputed": false,
+    "payload_reads": 0,
+    "payload_verification_deferred_to_existing_frozen_exporter": true,
+    "receipt_identity_recomputed": true,
+    "state": {
+      "completed": 1024,
+      "counts": {
+        "BC_repeat8_presentations": 262144,
+        "actual_rollouts": 131072,
+        "original_GT_scenes": 32768,
+        "policy_MC_points_per_old_and_current": 6553600
+      },
+      "epoch": 0,
+      "exposure": 32768,
+      "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999",
+      "last_completed_policy": {
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "optimizer_step": 1023,
+        "role": "old",
+        "state_hash": "6cc3ff0f1e4a9a142a62dc7247c14caf6cf0af65deca47c53f22e557235e76c2",
+        "version": 1023
+      },
+      "offset": 1024,
+      "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+      "pending_feedback": null,
+      "pending_old_policy": null,
+      "policy_version": 1024,
+      "reuse_guard": {
+        "consumed": {},
+        "limits": {
+          "max_records": 1,
+          "max_reuses": 1,
+          "max_update_age": 1,
+          "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+        },
+        "retired_before": 1024,
+        "schema": "fpo_reuse_v1"
+      },
+      "rng_stream_base_seed": 42,
+      "tag": "step_001024_1792229437292318665",
+      "termination_reason": "RUNNING_CHECKPOINT"
+    },
+    "total_bytes": 11473306440
+  },
+  "navtest": false,
+  "observed_unix": 1792229671.6573544,
+  "parent_policy_pins": {
+    "COMMANDS.json": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421",
+    "INTENTS.json": "e749a4969803c2a9f0a6eb67cbd19e7544de33013e946517fb67709a6a1df1b6",
+    "POLICY.json": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f"
+  },
+  "population_alignment": {
+    "contexts": 1696,
+    "logs": 16,
+    "payloads_reread": false,
+    "scenes": 1696,
+    "token_log_exact": true
+  },
+  "population_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "receipt_identity": "15d9fadc96b2802b57a6347c17b514c841e2e1055e9512d86f6c57ba15e83b06",
+  "requested_host": "training-vla-zt",
+  "required_before_dispatch": [
+    "Lead fresh environment, shared mount/locks, CPU quota, RAM, disk, GPU UUID/memory/util and process inventory",
+    "Lead seal immutable exact job ROUTE with a fresh GPU and sufficient validity",
+    "Use reviewed v5 helper; it generates final REGISTRATION after admission and enforces campaign slots4/export and2/score, GPU exclusion, two invocations/endpoint"
+  ],
+  "reviewer": "/root/st_evaluation",
+  "route_draft_only": true,
+  "route_schema_template": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C1_step001024_dev1696_seed42_v1/ROUTE.json",
+    "sha256": "3fe30afe13b2259d55d22b34c873486f372cd3ac93e7d3b6ea386edf334857f8"
+  },
+  "runtime_clean": true,
+  "runtime_identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999",
+  "runtime_path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+  "schema": "st_registered_endpoint_queue_observation_v1",
+  "scientific_results_created": false,
+  "score": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "cache_root": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+    "maps_root": "/mnt/navsim/maps",
+    "max_calls": 1728,
+    "max_seconds": 3600,
+    "metric_index": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+      "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+    },
+    "navsim_root": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+    "protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+    "retry_attempts": 1,
+    "run_id_argument": "st-world-policy-20261016",
+    "run_id_semantics": "ConsequenceSpec.campaign_id, common for every compared policy/checkpoint; not training run_id or a unique score job ID.",
+    "workers": 2
+  },
+  "signals_sent": false,
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "stage": "DIAGNOSTIC_1024",
+  "statistics_unchanged": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "status": "WAITING_RESOURCE",
+  "tasks_launched": 0,
+  "training_binding": {
+    "approval": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+      "sha256": "91188c6a68420956d6c16cbd5b186a502d387a8b523bfd11e29eb704d8e5c1b0"
+    },
+    "launch": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/invocations/1792212057408455570/LAUNCH.json",
+      "sha256": "07fd2fb930b6823ae78ce5b4762301608eefa0a9d508980e1d1c7daa798e431a"
+    },
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "sha256": "024e0e86eec8f1c9d2a837a6c8a2b600f2e1f39805cf9984cc7a6e2466a852d2"
+    },
+    "run_identity_file": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/identity.json",
+      "sha256": "7b9d57c3ae83d8ca37106927d037b26c7ec11600a4e5496548e412e9171f18c6"
+    },
+    "status": "TRAINING_RUNNING",
+    "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345"
+  },
+  "training_config": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/CONFIG.json",
+    "sha256": "d8987f3e467fd66e67e2274ccaf2046dc4eb63c00e79ae5837c0b8a83b3c87ba"
+  },
+  "training_status": {
+    "reference": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/status.json",
+      "sha256": "70fc48fec79e5f66e074bf41728179437c1098211b57c3b95e56f3769952966f"
+    },
+    "snapshot": {
+      "completed": 1036,
+      "counts": {
+        "BC_repeat8_presentations": 265216,
+        "actual_rollouts": 132608,
+        "original_GT_scenes": 33152,
+        "policy_MC_points_per_old_and_current": 6630400
+      },
+      "epoch": 0,
+      "exposure": 33152,
+      "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "host": "training-rl-zt2-worker-0",
+      "identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999",
+      "last_completed_policy": {
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "optimizer_step": 1035,
+        "role": "old",
+        "state_hash": "3974d334a9066eea8b112e55ff4c1d5e8a4f529ec81db093d26d01288ef4a888",
+        "version": 1035
+      },
+      "offset": 1036,
+      "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+      "pending_feedback": null,
+      "pending_old_policy": null,
+      "pid": 1184051,
+      "policy_version": 1036,
+      "reuse_guard": {
+        "consumed": {},
+        "limits": {
+          "max_records": 1,
+          "max_reuses": 1,
+          "max_update_age": 1,
+          "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+        },
+        "retired_before": 1036,
+        "schema": "fpo_reuse_v1"
+      },
+      "rng_stream_base_seed": 42,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "started_unix": 1792212260.676042,
+      "status": "RUNNING",
+      "tag": "step_001024_1792229437292318665",
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "updated_unix": 1792229658.527444
+    }
+  },
+  "unresolved_route_fields": [
+    "gpu",
+    "gpu_uuid",
+    "valid_from_unix",
+    "valid_until_unix"
+  ]
+}
