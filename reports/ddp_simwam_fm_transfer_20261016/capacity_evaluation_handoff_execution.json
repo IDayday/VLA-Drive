@@ -1,0 +1,131 @@
+{
+  "schema": "fm_transfer_capacity_handoff_public_v1",
+  "source_commit": "3a23d3cdaaa7fbb86ea60f9674d350f40b440e24",
+  "completed_unix": 1792204173.6726532,
+  "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+  "old_owner": {
+    "observed_unix": 1792204124.490582,
+    "status": "STOPPED_CONTROLLER_ONLY",
+    "pid": 322120,
+    "old_process_absent": true,
+    "old_owner_lock_released": true,
+    "complete": 24,
+    "pending": 12,
+    "active": 0,
+    "ready": 0
+  },
+  "new_owner": {
+    "pid": 378345,
+    "start_ticks": 1364278483,
+    "status": "WAITING_FOR_SEALED_REGISTERED_MILESTONE",
+    "owner_lock_held": true,
+    "source": "/mnt/project/fm-transfer-20261016/source/3a23d3cdaaa7fbb86ea60f9674d350f40b440e24",
+    "complete": 24,
+    "pending": 12,
+    "active": 0,
+    "ready": 0
+  },
+  "same_36_jobs": true,
+  "existing_analysis_files_unchanged": 97,
+  "tests_passed": 13,
+  "unchanged_dependencies": {
+    "scripts/analysis/fm_transfer/analyze_evaluation.py": true,
+    "starVLA/rl/fm_transfer/contracts.py": true,
+    "starVLA/rl/simwam_recipe/contracts.py": true,
+    "starVLA/rl/flow_grpo/transactions.py": true
+  },
+  "new_training_updates": 0,
+  "new_predictions": 0,
+  "new_evaluation_workers_during_migration": 0,
+  "training_signals": 0,
+  "pressure_signals": 0,
+  "resource_observations": {
+    "old_order_observations": {
+      "training-vlawm-tsinghua-zt": {
+        "available": true,
+        "second_min_free_MiB": 30888,
+        "all_owners_visible": true
+      },
+      "training-vla-zt": {
+        "available": false,
+        "second_min_free_MiB": 19703,
+        "all_owners_visible": true
+      },
+      "training-rl-zt2": {
+        "available": true,
+        "second_min_free_MiB": 81221,
+        "all_owners_visible": true
+      }
+    },
+    "preferred_order_observations": {
+      "training-rl-zt2": {
+        "available": true,
+        "second_min_free_MiB": 81221,
+        "all_owners_visible": true
+      },
+      "training-vlawm-tsinghua-zt4": {
+        "available": true,
+        "second_min_free_MiB": 62858,
+        "all_owners_visible": true
+      }
+    }
+  },
+  "plans": {
+    "old_plan": [
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "DEV",
+        "host": "training-vlawm-tsinghua-zt"
+      },
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "TRAIN_DIAGNOSTIC",
+        "host": "training-vla-zt"
+      }
+    ],
+    "fixed_old_host_order": [
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "DEV",
+        "host": "training-vlawm-tsinghua-zt"
+      },
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "TRAIN_DIAGNOSTIC",
+        "host": "training-rl-zt2"
+      }
+    ],
+    "preferred_plan": [
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "DEV",
+        "host": "training-rl-zt2"
+      },
+      {
+        "variant": "B_SOURCE_ACTION_DIT",
+        "stage": "SFT",
+        "update": 75000,
+        "cohort": "TRAIN_DIAGNOSTIC",
+        "host": "training-vlawm-tsinghua-zt4"
+      }
+    ]
+  },
+  "private_receipt_hashes": {
+    "REQUEST.json": "e144f772de443bfe4939f488a7db665c8c428771b9ec305ee271ed9d5c3db60e",
+    "live_preflight.json": "529c8d7675d45adb37b393d43313582d50c24bfe25ab6091ed0c3347b12027dd",
+    "old_exit.json": "48a1ae9fb1f89c4f00f04166f87e3ccb0ac80feb6ca41541ab1fa6a9606a99a2",
+    "source_snapshot.json": "05ac1c0589e2dd94a7e2e4f83c6334397e781fac795c40627dd2c6f40be2fc54",
+    "qualification_once.json": "5e9b6bce6fc6b13067a8deea40197514d74bec78660d0df9f9746d9a757ba910",
+    "COMPLETE.json": "c4241767f0d1ce6994f5b5db712bc443145b4466fa9654d5648103cd2d8718e3"
+  }
+}
