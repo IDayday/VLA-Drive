@@ -1,0 +1,43 @@
+{
+  "status": "FAIL_RECEIPT_VALIDATION",
+  "tested_source": "fd9cb5056c76be29b6bb3cbe83af9bab3b267239",
+  "runtime": "/mnt/project/VLA-Drive-st-indexed-composition-review-runtime-fd9cb505",
+  "runtime_clean": true,
+  "source_sha256": {
+    "tools/st_world_policy/qualify_indexed_provider.py": "90d34c46478a3f12c194bbf5d632e777ea2081f5526510659dfd84cfc38b0d98",
+    "tools/st_world_policy/teacher_provider.py": "83410555d7e879407b09039f6a094fa6daac1259d0df7379cd6a220c2954b6bf"
+  },
+  "owner_tests_independent": {
+    "passed": 30,
+    "failed": 0,
+    "seconds": 29.29
+  },
+  "independent_tests": {
+    "passed": 7,
+    "failed": 5,
+    "seconds": 14.99,
+    "skipped": 0
+  },
+  "initial_test_harness_error": "NaN rejected during signing; corrected to consumer rejection test. Original log preserved, not counted as implementation failure.",
+  "findings": [
+    "F1 incomplete/contradictory full-element evidence",
+    "F2 impossible or bool accounting scalars"
+  ],
+  "real_qualification_executed": false,
+  "real_qualification_approved": false,
+  "descriptor_admission_approved": false,
+  "actual_raw_image_tensor_teacher_GPU_read": false,
+  "modified_implementation": false,
+  "commands": [
+    "CPU env CUDA_VISIBLE_DEVICES empty, PYTHONDONTWRITEBYTECODE=1, OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2; taskset -c 0,1 /root/miniconda3/envs/ddp/bin/python; sys.path[:0]=[cwd,cwd+/tests/st_world]",
+    "pytest -vv -p no:cacheprovider tests/st_world/test_indexed_composition.py",
+    "pytest -vv -p no:cacheprovider /mnt/project/VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py"
+  ],
+  "evidence_sha256": {
+    "independent_tests.log": "de9321c848350af319847560d6f3069ccbbe27291956b743d3512c6c36a0c9a6",
+    "test_composition_independent.py": "4ef738808f822b5aac33e8360dfdb8458c2c59c803b1b5dc5ef745013f8ded08",
+    "README.md": "85de85dd1d1fa88a25b406028e2e95e3f5c9dedb3f4f4e7295c38f18627d2078",
+    "independent_tests_initial.log": "75cbdfd7b73c87055f88e2b4444243e04513f60a9d1502aca95f6f9ad2c53013",
+    "owner_tests_independent.log": "503e89ca40c2d481418a76277584c0ab510763e4c16a29fb77eeb8aac943dbcf"
+  }
+}

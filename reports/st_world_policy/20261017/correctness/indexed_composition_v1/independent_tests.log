@@ -1,0 +1,213 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 12 items
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[zero_elements] FAILED [  8%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[one_element] FAILED [ 16%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[contradictory_summary] FAILED [ 25%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[negative_requested] FAILED [ 33%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[nan_read] PASSED [ 41%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[bool_read] FAILED [ 50%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[time] PASSED [ 58%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[rss] PASSED [ 66%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[allocated] PASSED [ 75%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[reads] PASSED [ 83%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_single_last_tensor_element_difference_is_not_hidden PASSED [ 91%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_nonconstant_miss_features_keep_key_and_slot_alignment PASSED [100%]
+
+=================================== FAILURES ===================================
+_______ test_resigned_incomplete_measurement_cannot_admit[zero_elements] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-562/test_resigned_incomplete_measu0')
+mutation = 'zero_elements'
+
+    @pytest.mark.parametrize('mutation', ['zero_elements', 'one_element', 'contradictory_summary',
+                                        'negative_requested', 'nan_read', 'bool_read'])
+    def test_resigned_incomplete_measurement_cannot_admit(tmp_path, mutation):
+        _, plan = setup(tmp_path); report = exercise(plan)
+        if mutation in ('zero_elements', 'one_element'):
+            count = 0 if mutation == 'zero_elements' else 1
+            comparisons = report['legacy_cached_reference'] + report['reference_reordered4'] + [
+                item for rows in report['cases'].values() for row in rows for item in row['comparisons']]
+            for comparison in comparisons: comparison['difference']['elements'] = count
+        elif mutation == 'contradictory_summary':
+            report['legacy_reference_summary']['bitwise_equal'] = False
+            report['legacy_reference_summary']['max_abs'] = 1.0
+        elif mutation == 'negative_requested':
+            slots = report['compute_stats']['compute_image_slots']
+            report['compute_stats']['requested_images'] = -1
+            report['compute_stats']['padding_image_slots'] = slots + 1
+        elif mutation == 'nan_read': report['process_rchar_bytes'] = float('nan')
+        else: report['process_rchar_bytes'] = True
+        # Canonical identity signing already rejects NaN. Leave this mutation
+        # unsigned and require the actual consumer to reject it as well.
+        if mutation != 'nan_read': sign(report)
+        # Direct consumer validation isolates schema rejection from atomic_json's
+        # serialization policy (which correctly refuses NaN in its own writer).
+        d = {'requests':plan['requests'], 'request_index':plan['request_index'],
+             'sources':[{'index':plan['source_index'],'cache_identity':plan['current_identity']}],
+             'teacher_config':plan['teacher_config'], 'execution':plan['execution'],
+             'limits':plan['limits'], 'provider':plan['provider']}
+>       with pytest.raises((ValueError,TypeError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py:42: Failed
+________ test_resigned_incomplete_measurement_cannot_admit[one_element] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-562/test_resigned_incomplete_measu1')
+mutation = 'one_element'
+
+    @pytest.mark.parametrize('mutation', ['zero_elements', 'one_element', 'contradictory_summary',
+                                        'negative_requested', 'nan_read', 'bool_read'])
+    def test_resigned_incomplete_measurement_cannot_admit(tmp_path, mutation):
+        _, plan = setup(tmp_path); report = exercise(plan)
+        if mutation in ('zero_elements', 'one_element'):
+            count = 0 if mutation == 'zero_elements' else 1
+            comparisons = report['legacy_cached_reference'] + report['reference_reordered4'] + [
+                item for rows in report['cases'].values() for row in rows for item in row['comparisons']]
+            for comparison in comparisons: comparison['difference']['elements'] = count
+        elif mutation == 'contradictory_summary':
+            report['legacy_reference_summary']['bitwise_equal'] = False
+            report['legacy_reference_summary']['max_abs'] = 1.0
+        elif mutation == 'negative_requested':
+            slots = report['compute_stats']['compute_image_slots']
+            report['compute_stats']['requested_images'] = -1
+            report['compute_stats']['padding_image_slots'] = slots + 1
+        elif mutation == 'nan_read': report['process_rchar_bytes'] = float('nan')
+        else: report['process_rchar_bytes'] = True
+        # Canonical identity signing already rejects NaN. Leave this mutation
+        # unsigned and require the actual consumer to reject it as well.
+        if mutation != 'nan_read': sign(report)
+        # Direct consumer validation isolates schema rejection from atomic_json's
+        # serialization policy (which correctly refuses NaN in its own writer).
+        d = {'requests':plan['requests'], 'request_index':plan['request_index'],
+             'sources':[{'index':plan['source_index'],'cache_identity':plan['current_identity']}],
+             'teacher_config':plan['teacher_config'], 'execution':plan['execution'],
+             'limits':plan['limits'], 'provider':plan['provider']}
+>       with pytest.raises((ValueError,TypeError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py:42: Failed
+___ test_resigned_incomplete_measurement_cannot_admit[contradictory_summary] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-562/test_resigned_incomplete_measu2')
+mutation = 'contradictory_summary'
+
+    @pytest.mark.parametrize('mutation', ['zero_elements', 'one_element', 'contradictory_summary',
+                                        'negative_requested', 'nan_read', 'bool_read'])
+    def test_resigned_incomplete_measurement_cannot_admit(tmp_path, mutation):
+        _, plan = setup(tmp_path); report = exercise(plan)
+        if mutation in ('zero_elements', 'one_element'):
+            count = 0 if mutation == 'zero_elements' else 1
+            comparisons = report['legacy_cached_reference'] + report['reference_reordered4'] + [
+                item for rows in report['cases'].values() for row in rows for item in row['comparisons']]
+            for comparison in comparisons: comparison['difference']['elements'] = count
+        elif mutation == 'contradictory_summary':
+            report['legacy_reference_summary']['bitwise_equal'] = False
+            report['legacy_reference_summary']['max_abs'] = 1.0
+        elif mutation == 'negative_requested':
+            slots = report['compute_stats']['compute_image_slots']
+            report['compute_stats']['requested_images'] = -1
+            report['compute_stats']['padding_image_slots'] = slots + 1
+        elif mutation == 'nan_read': report['process_rchar_bytes'] = float('nan')
+        else: report['process_rchar_bytes'] = True
+        # Canonical identity signing already rejects NaN. Leave this mutation
+        # unsigned and require the actual consumer to reject it as well.
+        if mutation != 'nan_read': sign(report)
+        # Direct consumer validation isolates schema rejection from atomic_json's
+        # serialization policy (which correctly refuses NaN in its own writer).
+        d = {'requests':plan['requests'], 'request_index':plan['request_index'],
+             'sources':[{'index':plan['source_index'],'cache_identity':plan['current_identity']}],
+             'teacher_config':plan['teacher_config'], 'execution':plan['execution'],
+             'limits':plan['limits'], 'provider':plan['provider']}
+>       with pytest.raises((ValueError,TypeError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py:42: Failed
+____ test_resigned_incomplete_measurement_cannot_admit[negative_requested] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-562/test_resigned_incomplete_measu3')
+mutation = 'negative_requested'
+
+    @pytest.mark.parametrize('mutation', ['zero_elements', 'one_element', 'contradictory_summary',
+                                        'negative_requested', 'nan_read', 'bool_read'])
+    def test_resigned_incomplete_measurement_cannot_admit(tmp_path, mutation):
+        _, plan = setup(tmp_path); report = exercise(plan)
+        if mutation in ('zero_elements', 'one_element'):
+            count = 0 if mutation == 'zero_elements' else 1
+            comparisons = report['legacy_cached_reference'] + report['reference_reordered4'] + [
+                item for rows in report['cases'].values() for row in rows for item in row['comparisons']]
+            for comparison in comparisons: comparison['difference']['elements'] = count
+        elif mutation == 'contradictory_summary':
+            report['legacy_reference_summary']['bitwise_equal'] = False
+            report['legacy_reference_summary']['max_abs'] = 1.0
+        elif mutation == 'negative_requested':
+            slots = report['compute_stats']['compute_image_slots']
+            report['compute_stats']['requested_images'] = -1
+            report['compute_stats']['padding_image_slots'] = slots + 1
+        elif mutation == 'nan_read': report['process_rchar_bytes'] = float('nan')
+        else: report['process_rchar_bytes'] = True
+        # Canonical identity signing already rejects NaN. Leave this mutation
+        # unsigned and require the actual consumer to reject it as well.
+        if mutation != 'nan_read': sign(report)
+        # Direct consumer validation isolates schema rejection from atomic_json's
+        # serialization policy (which correctly refuses NaN in its own writer).
+        d = {'requests':plan['requests'], 'request_index':plan['request_index'],
+             'sources':[{'index':plan['source_index'],'cache_identity':plan['current_identity']}],
+             'teacher_config':plan['teacher_config'], 'execution':plan['execution'],
+             'limits':plan['limits'], 'provider':plan['provider']}
+>       with pytest.raises((ValueError,TypeError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py:42: Failed
+_________ test_resigned_incomplete_measurement_cannot_admit[bool_read] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-562/test_resigned_incomplete_measu5')
+mutation = 'bool_read'
+
+    @pytest.mark.parametrize('mutation', ['zero_elements', 'one_element', 'contradictory_summary',
+                                        'negative_requested', 'nan_read', 'bool_read'])
+    def test_resigned_incomplete_measurement_cannot_admit(tmp_path, mutation):
+        _, plan = setup(tmp_path); report = exercise(plan)
+        if mutation in ('zero_elements', 'one_element'):
+            count = 0 if mutation == 'zero_elements' else 1
+            comparisons = report['legacy_cached_reference'] + report['reference_reordered4'] + [
+                item for rows in report['cases'].values() for row in rows for item in row['comparisons']]
+            for comparison in comparisons: comparison['difference']['elements'] = count
+        elif mutation == 'contradictory_summary':
+            report['legacy_reference_summary']['bitwise_equal'] = False
+            report['legacy_reference_summary']['max_abs'] = 1.0
+        elif mutation == 'negative_requested':
+            slots = report['compute_stats']['compute_image_slots']
+            report['compute_stats']['requested_images'] = -1
+            report['compute_stats']['padding_image_slots'] = slots + 1
+        elif mutation == 'nan_read': report['process_rchar_bytes'] = float('nan')
+        else: report['process_rchar_bytes'] = True
+        # Canonical identity signing already rejects NaN. Leave this mutation
+        # unsigned and require the actual consumer to reject it as well.
+        if mutation != 'nan_read': sign(report)
+        # Direct consumer validation isolates schema rejection from atomic_json's
+        # serialization policy (which correctly refuses NaN in its own writer).
+        d = {'requests':plan['requests'], 'request_index':plan['request_index'],
+             'sources':[{'index':plan['source_index'],'cache_identity':plan['current_identity']}],
+             'teacher_config':plan['teacher_config'], 'execution':plan['execution'],
+             'limits':plan['limits'], 'provider':plan['provider']}
+>       with pytest.raises((ValueError,TypeError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py:42: Failed
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[zero_elements] - Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[one_element] - Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[contradictory_summary] - Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[negative_requested] - Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[bool_read] - Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)
+=================== 5 failed, 7 passed, 1 warning in 14.99s ====================

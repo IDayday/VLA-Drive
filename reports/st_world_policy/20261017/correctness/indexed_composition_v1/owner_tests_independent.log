@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project/VLA-Drive-st-indexed-composition-review-runtime-fd9cb505
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 30 items
+
+tests/st_world/test_indexed_composition.py::test_plan_and_cli_are_metadata_only_and_exact_population PASSED [  3%]
+tests/st_world/test_indexed_composition.py::test_actual_adapter_layouts_masks_rng_and_factory_admission PASSED [  6%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[prior_incomplete] PASSED [ 10%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[prior_changed_execution] PASSED [ 13%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[source_code] PASSED [ 16%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[scope] PASSED [ 20%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[scenes] PASSED [ 23%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[budget] PASSED [ 26%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[request_path] PASSED [ 30%]
+tests/st_world/test_indexed_composition.py::test_plan_negative_pre_gpu[keys] PASSED [ 33%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[partial] PASSED [ 36%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[mixed] PASSED [ 40%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[legacy] PASSED [ 43%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[repeat] PASSED [ 46%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[mask] PASSED [ 50%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[truncate] PASSED [ 53%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[duplicate] PASSED [ 56%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[rng] PASSED [ 60%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[padding] PASSED [ 63%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[source] PASSED [ 66%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[execution] PASSED [ 70%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[old_prior] PASSED [ 73%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[restore] PASSED [ 76%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[false_partial] PASSED [ 80%]
+tests/st_world/test_indexed_composition.py::test_incomplete_or_resigned_bad_evidence_cannot_publish[sampler] PASSED [ 83%]
+tests/st_world/test_indexed_composition.py::test_changed_independent_outputs_are_visible_without_relaxation PASSED [ 86%]
+tests/st_world/test_indexed_composition.py::test_legacy_numerical_difference_is_separate_from_fixed_repeatability PASSED [ 90%]
+tests/st_world/test_indexed_composition.py::test_existing_shard_first_use_checksum_still_runs_once PASSED [ 93%]
+tests/st_world/test_indexed_composition.py::test_budget_exhaustion_is_retryable_incomplete_not_qualification PASSED [ 96%]
+tests/st_world/test_indexed_composition.py::test_multiple_scenes_reorder_shared_keys_and_distinct_missing_masks PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 30 passed, 1 warning in 29.29s ========================
