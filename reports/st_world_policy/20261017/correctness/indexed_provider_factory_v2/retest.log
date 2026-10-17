@@ -1,0 +1,35 @@
+{"tested_source": "ac6b93a43de6d41585a1c01e3370f5a6db41f456", "runtime": "/mnt/project/VLA-Drive-st-indexed-provider-review-runtime-ac6b93a4", "source_sha256": {"tools/st_world_policy/teacher_provider.py": "e9bde7c61e1e6f5e01d75195d3888722bfb6f4d0a32641240275fa3a5ff6c512", "tools/st_world_policy/provider_pca.py": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"}, "utc": "2026-10-17T06:17:29.492394+00:00", "python": "3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0]", "cuda_visible_devices": "", "cpu_affinity": [0, 1], "scope": "CPU_generated_fixtures_only"}
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 19 items
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_legacy_scope_cannot_be_rebound_to_indexed_provider PASSED [  5%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_pca_preview_never_opens_over_combined_metadata_allowance PASSED [ 10%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_indexed_pca_owns_only_fit_preview_and_preserves_live_provider PASSED [ 15%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_executor_construction_failure_closes_all_index_previews[executor_exception] PASSED [ 21%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_executor_construction_failure_closes_all_index_previews[executor_identity] PASSED [ 26%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_indexed_path_retains_original_fixed_execution_gates[rng] PASSED [ 31%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_indexed_path_retains_original_fixed_execution_gates[partial_lru] PASSED [ 36%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_indexed_path_retains_original_fixed_execution_gates[fixed8_slots] PASSED [ 42%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_indexed_path_retains_original_fixed_execution_gates[legacy_claim] PASSED [ 47%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_exact_request_bytes_cannot_be_replaced_by_same_semantic_json PASSED [ 52%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v2/test_preopen_scope_boundaries.py::test_runtime_scope_checks_budget_before_open_and_keeps_owned_readers[240-False] PASSED [ 57%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v2/test_preopen_scope_boundaries.py::test_runtime_scope_checks_budget_before_open_and_keeps_owned_readers[224-True] PASSED [ 63%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v2/test_preopen_scope_boundaries.py::test_legacy_indexed_mix_rejected_before_eager_fit_or_preview[False] PASSED [ 68%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v2/test_preopen_scope_boundaries.py::test_legacy_indexed_mix_rejected_before_eager_fit_or_preview[True] PASSED [ 73%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v2/test_preopen_scope_boundaries.py::test_registration_exact_combined_budget_is_admitted_and_closed PASSED [ 78%]
+tests/st_world/test_provider_training.py::test_provider_scope_reuses_exact_basis_without_fake_cache_identity PASSED [ 84%]
+tests/st_world/test_indexed_provider_factory.py::test_indexed_pca_basis_unchanged_scope_distinct_and_no_eager_fit_records PASSED [ 89%]
+tests/st_world/test_indexed_provider_factory.py::test_indexed_factory_no_eager_parse_and_preserves_keys_math_masks_rng_resume PASSED [ 94%]
+tests/st_world/test_indexed_provider_factory.py::test_actual_indexed_cli_metadata_only_and_strict_arguments PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 19 passed, 1 warning in 17.55s ========================
+{"exit_code": 0, "source_unchanged": true, "runtime_clean": true}
