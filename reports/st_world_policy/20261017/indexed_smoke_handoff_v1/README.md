@@ -23,7 +23,7 @@ is changed.
 | Current-cache index | `326a3f37344b4526b8595954cb7d0b1dbb6eabdfdc836ea9582d2dc239dc725b` |
 | Original PCA-fit index | `390790f1fc6a469ab76fc855f477d2308122888819ce73b1dc9bb069140716ff` |
 | Original PCA identity | `268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46` |
-| Expected provider identity | `90a908a48eba2e3d94e1d07700178dd08c61cb4aa0943459bbf572bd1b17ff8b` |
+| Expected provider descriptor identity | `90a908a48eba2e3d94e1d07700178dd08c61cb4aa0943459bbf572bd1b17ff8b` |
 
 The actual existing receipt consumer validated all real composition evidence,
 including prior fixed8 qualification, full comparisons, source-code pins and

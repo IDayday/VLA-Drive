@@ -1,0 +1,295 @@
+{
+  "checkpoint_costs": [
+    {
+      "seconds": 76.90984678268433,
+      "step": 1,
+      "tag": "step_000001_1792223181796920591"
+    },
+    {
+      "seconds": 72.88815649598837,
+      "step": 2,
+      "tag": "step_000002_1792223263666164659"
+    }
+  ],
+  "config_sha256": "2ec8df5c996c51ef0b7b40707c0e66179643bcc5cac317ec4d53d31d0d85b13f",
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 2,
+    "world_size": 1
+  },
+  "formal_approved": false,
+  "full_model_bitwise_claim": false,
+  "initial_engine_evidence": {
+    "execution_dtype": "bfloat16",
+    "gradient_accumulation_dtype": "bfloat16",
+    "master_dtype": "float32",
+    "master_elements": 2552673668,
+    "moment_elements": 0,
+    "moments_required": false,
+    "optimizer": "torch.optim.AdamW",
+    "optimizer_layout_identity": "56fd1b24da18297ad0beb592765ce8883f8346c3c54e1b3337e0ffd5a133e3fb",
+    "policy_identity": "36546f7c5cb6d1e4c14bce800beafb57f3bac52b5dcce6cb732d9aae8ad1be2c",
+    "schema": "st_official_engine_check_v1"
+  },
+  "initialization_fields": [
+    "base",
+    "groups",
+    "master_initialization",
+    "model_parameters",
+    "native_parent_state_restored_next",
+    "optimizer_reset_for_common_control",
+    "teacher_instantiated",
+    "trainable_parameters",
+    "world_migration"
+  ],
+  "metadata_read_bytes": 285910,
+  "native_checkpoints": [
+    {
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": {
+          "bytes": 30632173006,
+          "sha256": "ad244469644e955a58c5125dafd5055736368fb9cf4139a3180dc605e99a3538"
+        },
+        "mp_rank_00_model_states.pt": {
+          "bytes": 6733729058,
+          "sha256": "d9e3afed174de2c37c9cea342ac4cbf668f9448599f41ad9fbd51d0db3e8c111"
+        },
+        "rng_rank0.pt": {
+          "bytes": 25402,
+          "sha256": "08a9940d1b94375e79c72c29b679476922d3d4c206d7c8a5cb84f03857d1a12d"
+        }
+      },
+      "native_tensor_bytes": 37365927466,
+      "payload_rehashed_by_observer": false,
+      "receipt_identity": "3f29f1e212fd0df80c38cd78a1a32e82a7d05869987f84cd6c45e0d17f9302ee",
+      "step": 1,
+      "tag": "step_000001_1792223181796920591",
+      "termination_reason": "RUNNING_CHECKPOINT"
+    },
+    {
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": {
+          "bytes": 30632173006,
+          "sha256": "c29b4a10b739acb0e722282505d0df1498fdaa67331d8f655c6e4274c616ec83"
+        },
+        "mp_rank_00_model_states.pt": {
+          "bytes": 6733729058,
+          "sha256": "c0917a830a1718bc4d556a829d5a5f86b11a51b3c843fdafcf547600465baa79"
+        },
+        "rng_rank0.pt": {
+          "bytes": 25402,
+          "sha256": "cf3fec6128bc5ce5ca8859cb56168f97d336e3aa3cb9f42cde598c4dfcb4e335"
+        }
+      },
+      "native_tensor_bytes": 37365927466,
+      "payload_rehashed_by_observer": false,
+      "receipt_identity": "3f1e70667d60d83ccbee880fb617df7e0bc973301d09bf89450187ebfb156f70",
+      "step": 2,
+      "tag": "step_000002_1792223263666164659",
+      "termination_reason": "RUNNING_CHECKPOINT"
+    }
+  ],
+  "observed_unix": 1792223364.2204137,
+  "observer_boundary": "Small JSON hashes plus checkpoint inventory/stat; no tensor/model/image read or new GPU task",
+  "pins": {
+    "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/SELECTED_SCENES.json": "7c78c58c40456649a93d152f9925ea5e1faa7e08bb65e98cd6c4af3b0c52b9b8",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json": "bb53252f1aea91ed54fa7b3917314d2d7f6c1c251d1f89f6a079f0f582f3874d",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/CONFIG.json": "2ec8df5c996c51ef0b7b40707c0e66179643bcc5cac317ec4d53d31d0d85b13f",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/EXIT_initial.json": "f36ede8f4f9823b071ae85afa36847166e2ac5ffd7d6f70452d6d08b80b08dd8",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/REGISTRATION.json": "cff8e02fe3ad2f7a97574967c65b8d1c8d27c63b6bbd7a8cc1a61d6793b00c24",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/RESULT.json": "dbba56ec956c5efa633cf922bda5564d2ce427e9733032996d5796e8728c4382",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/checkpoint_costs.jsonl": "9c64f8c8a589cdd32f30334b3e5333cd12d0988f1a1be7786b0c7062d45eae56",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/checkpoints/step_000001_1792223181796920591/COMPLETE.json": "9ec9d2029bdbc548b2050606b219b729ac2c69846ef3c613435db773d592e97b",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/checkpoints/step_000002_1792223263666164659/COMPLETE.json": "b71b96539b40e2ace407c8c77139db8173d8e9aa306c82045f0d9e0ba28c24f7",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/initialization.json": "9f7ef366336d5b4822e51bf933f5600bc0b2117c9a8320549f21855ff44088b1",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/official_runtime/initial_engine_rank0.json": "cb1f828df12685856c6ece9dd53d9f2f2125e50d9db27707901f82bbde2d476b",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/official_runtime/updated_engine_rank0.json": "7118a48172fe2b3fb1661c3cd8e717bc0e964e986ce190d33cf811b710ff78da",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/steps.jsonl": "667043023e1aac920505cedbc713759bcf92ccd32a691af3b3efcb5357a84928",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/runs/indexed_provider_single_updates2_v1/teacher_provider_rank0.json": "3d526a15c28803e48e619e4e2d92d69963b525f8c7ea0cda5d247d6664f308fa"
+  },
+  "registration_sha256": "cff8e02fe3ad2f7a97574967c65b8d1c8d27c63b6bbd7a8cc1a61d6793b00c24",
+  "result": {
+    "allocation_wall_seconds": 529.2711051478982,
+    "completed": 2,
+    "counts": {
+      "current": 442368,
+      "ego_scenes": 4,
+      "future_a": 442368,
+      "future_b": 442368
+    },
+    "epoch": 0,
+    "exposure": 4,
+    "formal_launch_approval": false,
+    "host": "training-vla-zt-worker-0",
+    "identity": "254e70e1f7fe011a64bb1ea0fa97906f0d48b278667bc7ab25abd0fc7d748dda",
+    "new_optimizer_updates": 2,
+    "offset": 2,
+    "pause_reason": "BUDGET_PAUSED",
+    "pid": 448312,
+    "scientific_result": "NOT_EVALUATED",
+    "source_sha": "31c3dca2fbc697b419bf343ce05d10be0a4fe13f",
+    "started_unix": 1792223176.1517127,
+    "status": "PAUSED",
+    "tag": "step_000002_1792223263666164659",
+    "teacher_provider_runtime": {
+      "batches": 4,
+      "computed_images": 12,
+      "counter_scope": "this_process_invocation_not_checkpoint_progress",
+      "evictions": 52,
+      "executor_output_limit_bytes": 14159232,
+      "failures": 0,
+      "fixed_compute": {
+        "calls": 4,
+        "compute_image_slots": 32,
+        "padding_image_slots": 20,
+        "requested_images": 12
+      },
+      "immutable_hits": 48,
+      "limit_scope": "tensor payloads only; metadata, teacher weights/activations, pixels and caller batches separate",
+      "metadata_cache_budget_bytes": 33554432,
+      "metadata_connections": 2,
+      "metadata_population_materialized": false,
+      "peak_resident_bytes": 14159232,
+      "provider_identity": "4e20806444638cf8ed18a767eabd75f69e8de406a96faa4925b23088223ba360",
+      "ram_hits": 0,
+      "rank": 0,
+      "resident_bytes": 14159232,
+      "resident_limit_bytes": 14159232,
+      "scene_limit_bytes": 67108864,
+      "tensor_disk_bytes": 0
+    },
+    "teacher_provider_state": {
+      "identity": "4e20806444638cf8ed18a767eabd75f69e8de406a96faa4925b23088223ba360",
+      "schema": "st_bounded_teacher_state_v1"
+    },
+    "termination_reason": "RUNNING_CHECKPOINT"
+  },
+  "resume_test_run": false,
+  "samples": {
+    "actual_consumed_ids": [
+      "a63f004207525614",
+      "be625a27a9785d96",
+      "7d5c00836fe55286",
+      "29741652e0705def"
+    ],
+    "all_in_exact32_manifest": true,
+    "unique": 4
+  },
+  "schema": "st_indexed_student_smoke_actual_v1",
+  "scientific_result": "NOT_EVALUATED",
+  "source_sha": "31c3dca2fbc697b419bf343ce05d10be0a4fe13f",
+  "status": "REAL_TWO_UPDATE_WIRING_PASS",
+  "steady_state_throughput_claim": false,
+  "steps": [
+    {
+      "counts": {
+        "current": 221184,
+        "ego_scenes": 2,
+        "future_a": 221184,
+        "future_b": 221184
+      },
+      "epoch": 0,
+      "exposure": 2,
+      "fp32_master_update_verified": true,
+      "gradient_norm": 4.350932598114014,
+      "losses": {
+        "current": 2.6023471355438232,
+        "ego_fm": 0.001001833938062191,
+        "future": 2.6160497665405273
+      },
+      "lr": 1e-08,
+      "maximum_sampled_change": 1.4901161193847656e-08,
+      "offset": 1,
+      "per_rank_profile": [
+        [
+          5.614075850695372,
+          4.095943653956056,
+          46238007296.0,
+          52592377856.0,
+          1930.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "sample_ids_by_rank": [
+        [
+          "a63f004207525614",
+          "be625a27a9785d96"
+        ]
+      ],
+      "sampled_changed_elements": 2694,
+      "slowest_rank_seconds": 5.614075850695372,
+      "step": 1
+    },
+    {
+      "counts": {
+        "current": 221184,
+        "ego_scenes": 2,
+        "future_a": 221184,
+        "future_b": 221184
+      },
+      "epoch": 0,
+      "exposure": 4,
+      "fp32_master_update_verified": true,
+      "gradient_norm": 5.607594013214111,
+      "losses": {
+        "current": 2.7064008712768555,
+        "ego_fm": 0.00536051532253623,
+        "future": 2.6973395347595215
+      },
+      "lr": 2e-08,
+      "maximum_sampled_change": 2.2351741790771484e-08,
+      "offset": 2,
+      "per_rank_profile": [
+        [
+          4.929991632699966,
+          3.773258564993739,
+          56284111872.0,
+          60131639296.0,
+          1930.0
+        ]
+      ],
+      "profile_fields": [
+        "update_seconds",
+        "data_seconds",
+        "peak_allocated",
+        "peak_reserved",
+        "max_sequence"
+      ],
+      "sample_ids_by_rank": [
+        [
+          "7d5c00836fe55286",
+          "29741652e0705def"
+        ]
+      ],
+      "sampled_changed_elements": 2679,
+      "slowest_rank_seconds": 4.929991632699966,
+      "step": 2
+    }
+  ],
+  "updated_engine_evidence": {
+    "execution_dtype": "bfloat16",
+    "gradient_accumulation_dtype": "bfloat16",
+    "master_dtype": "float32",
+    "master_elements": 2552673668,
+    "moment_elements": 5105347336,
+    "moments_required": true,
+    "optimizer": "torch.optim.AdamW",
+    "optimizer_layout_identity": "56fd1b24da18297ad0beb592765ce8883f8346c3c54e1b3337e0ffd5a133e3fb",
+    "policy_identity": "36546f7c5cb6d1e4c14bce800beafb57f3bac52b5dcce6cb732d9aae8ad1be2c",
+    "schema": "st_official_engine_check_v1"
+  },
+  "weights_usable_for_formal_init": false
+}
