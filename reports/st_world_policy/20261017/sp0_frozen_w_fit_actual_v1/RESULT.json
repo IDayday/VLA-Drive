@@ -1,0 +1,172 @@
+{
+  "schema": "st_sp0_frozen_w_fit_actual_summary_v1",
+  "recorded_utc": "2026-10-17T15:14:16.934628+00:00",
+  "status": "COMPLETE",
+  "arm": "S-P0",
+  "parent_optimizer_step": 5000,
+  "fit_cycles": 300,
+  "actual_optimizer_updates": 300,
+  "scene_presentations": 600,
+  "unique_train_scene_indices_consumed": 64,
+  "queried_patch_exposures": 57600,
+  "parameter_count": 495362,
+  "frozen_W_unchanged": true,
+  "all_observed_loss_values_finite": true,
+  "result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/fit/RESULT.json",
+    "sha256": "ef91d3f867c78e9bba018fdafbbe11c3210cd06b67e9daa225daaf1f92798431"
+  },
+  "terminal": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/fit/RESULT.json",
+    "sha256": "996176a20ec4d750e6687b0a7f273cfc136c4d6b3fd4a42c75a3807d0ca1498f"
+  },
+  "manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/fit/MANIFEST.json",
+    "sha256": "694c4767d3a1110e4fed76ebb3ae96e813707752e603110199fdfe11b3d4892f"
+  },
+  "state": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/fit/STATE.json",
+    "sha256": "ab70702e8ef504267e196095359ba9ef89354988d844e61600153cb82e2b6827"
+  },
+  "readout_metrics": {
+    "dev": {
+      "scenes": 16,
+      "logs": 16,
+      "overall": {
+        "depth": {
+          "AbsRel": 0.6122816434276968,
+          "MAE_m": 7.533805096071338,
+          "RMSE_m": 12.139717425818693,
+          "valid": 15922
+        },
+        "depth_ranges_m": {
+          "10_to_30": {
+            "AbsRel": 0.4603962444663433,
+            "MAE_m": 7.207920068742185,
+            "RMSE_m": 10.282494447325636,
+            "valid": 6252
+          },
+          "1_to_10": {
+            "AbsRel": 0.8505408858488122,
+            "MAE_m": 4.594567327630945,
+            "RMSE_m": 9.338647109322707,
+            "valid": 7113
+          },
+          "30_to_80_inclusive": {
+            "AbsRel": 0.3208657353185799,
+            "MAE_m": 16.50691085977035,
+            "RMSE_m": 20.409568966952598,
+            "valid": 2557
+          }
+        },
+        "depth_unknown": 4814,
+        "patches": 20736,
+        "small": {
+          "PR_AUC": 0.7057646822992784,
+          "ROC_AUC": 0.9831126767659385,
+          "balanced_accuracy": 0.9324995922081071,
+          "negative": 6889,
+          "positive": 291,
+          "threshold_logit": 0.0,
+          "valid": 7180
+        },
+        "small_unknown": 13556
+      }
+    },
+    "train": {
+      "scenes": 64,
+      "logs": 64,
+      "overall": {
+        "depth": {
+          "AbsRel": 0.5711343172967698,
+          "MAE_m": 6.835686561487767,
+          "RMSE_m": 11.113407706104914,
+          "valid": 64067
+        },
+        "depth_ranges_m": {
+          "10_to_30": {
+            "AbsRel": 0.39545693760967116,
+            "MAE_m": 6.6201116186432785,
+            "RMSE_m": 9.672022395337724,
+            "valid": 25294
+          },
+          "1_to_10": {
+            "AbsRel": 0.8294021672398791,
+            "MAE_m": 4.24788061629516,
+            "RMSE_m": 8.68876660804068,
+            "valid": 28432
+          },
+          "30_to_80_inclusive": {
+            "AbsRel": 0.2907467466771954,
+            "MAE_m": 14.47800850694998,
+            "RMSE_m": 18.13280988205782,
+            "valid": 10341
+          }
+        },
+        "depth_unknown": 18877,
+        "patches": 82944,
+        "small": {
+          "PR_AUC": 0.8321342200777685,
+          "ROC_AUC": 0.98030636094258,
+          "balanced_accuracy": 0.9294373422935152,
+          "negative": 18232,
+          "positive": 1231,
+          "threshold_logit": 0.0,
+          "valid": 19463
+        },
+        "small_unknown": 63481
+      }
+    }
+  },
+  "resources": {
+    "counters": {
+      "gpu_peak_allocated_bytes": 0,
+      "gpu_peak_reserved_bytes": 0,
+      "hash_calls_completed": 173,
+      "hash_calls_started": 173,
+      "hash_logical_bytes_admitted": 173933668,
+      "hash_logical_bytes_completed": 173933668,
+      "hash_wall_seconds": 1.0172534584999084,
+      "limit_exceeded": null,
+      "native_load_calls": 0,
+      "native_load_wall_seconds": 0.0,
+      "phase": "CPU_FIT_ORIGINAL_300_CYCLES",
+      "pid": 552275,
+      "proc_self_io_delta": {
+        "cancelled_write_bytes": 4096,
+        "rchar": 312542045,
+        "read_bytes": 1350967296,
+        "syscr": 20156,
+        "syscw": 62,
+        "wchar": 78779432,
+        "write_bytes": 78905344
+      },
+      "read_accounting_scope": "hash full-file bytes + nominal torch.load bytes; proc rchar/read_bytes separate; safetensors mmap/library/image-decode reads not individually instrumented",
+      "torch_load_calls": 0,
+      "torch_load_nominal_bytes": 0,
+      "torch_load_wall_seconds": 0.0,
+      "wall_seconds": 6.995790695771575
+    },
+    "exit_code": 0,
+    "first_monitor_error": null,
+    "limit_reason": null,
+    "log_bytes_received": 332,
+    "log_bytes_stored": 332,
+    "monitoring": "RSS/wall use a 1s sampling schedule; each counter snapshot may add <=2s control-lock waiting plus I/O/scheduling; thresholds unchanged; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace",
+    "process_cleanup": {
+      "live_owned_remaining": 0,
+      "method": "unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped",
+      "verified_processes": 1
+    },
+    "sampled_tree_rss_peak_bytes": 793411584,
+    "wall_seconds": 10.825969623401761
+  },
+  "fit_output_bytes": 12454544,
+  "upstream_failed_supervisor_preserved": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_extract/RESULT.json",
+    "sha256": "4d24e4ed9a97744fe0d977c21284cb5fd64ec14c1348d71f6edadeff61245b27"
+  },
+  "interpretation": "Fixed64train/16dev learned-W capacity diagnostic; no dev tuning, not untouched test, not full1696PDMS or sufficient generalization. Small vehicle labels are current raw-box/LiDAR-supported region proxy; depth is valid current raw LiDAR grid.",
+  "scientific_result": false,
+  "formal_or_deployment_model": false
+}
