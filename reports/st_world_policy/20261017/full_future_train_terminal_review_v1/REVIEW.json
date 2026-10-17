@@ -1,0 +1,131 @@
+{
+  "actual_dispatch": false,
+  "actual_terminal_double_charge": "NOT_IDENTIFIABLE_BEFORE_TERMINAL",
+  "bounded_collector_samples": 17,
+  "complete_receipt_observed": false,
+  "elapsed_first_to_last_s": 573.0880882740021,
+  "evidence": {
+    "CONTROLLED_STOP_PREFLIGHT.json": {
+      "bytes": 2754,
+      "sha256": "4bb59777f5011f95e3db3889f383497c63a858bbc7686dc52c1088fbf093aff9"
+    },
+    "FIRST_TOOL_SNAPSHOT.json": {
+      "bytes": 1152,
+      "sha256": "2df7b2582ad9867dc8154e0d6444e3cbdd4c8228782c99102d6099e6fa6ac328"
+    },
+    "OBSERVATION.json": {
+      "bytes": 32445,
+      "sha256": "07d978eaa00ce17d7b9b0477a7fbd23eae609e0eae90c758cd6b4388fbe66562"
+    },
+    "observe.py": {
+      "bytes": 6427,
+      "sha256": "e0e72b6e604d8ef878c5e8cbeb60ffb667530a2882b6900b51e30ab40c240e4d"
+    }
+  },
+  "first_observation_utc": "2026-10-17 12:58:23 UTC",
+  "gpu_calls": 0,
+  "last_matching_processes": [
+    {
+      "after": {
+        "pid": 480124,
+        "ppid": 3316287,
+        "start_ticks": 1366936766,
+        "state": "S"
+      },
+      "before": {
+        "pid": 480124,
+        "ppid": 3316287,
+        "start_ticks": 1366936766,
+        "state": "S"
+      },
+      "expected_start_ticks": 1366936766,
+      "identity": "MATCH",
+      "io": {
+        "cancelled_write_bytes": 0,
+        "rchar": 1271369845,
+        "read_bytes": 84172800,
+        "syscr": 7474506,
+        "syscw": 12,
+        "wchar": 124142,
+        "write_bytes": 143360
+      },
+      "memory_lines": [
+        "VmHWM:\t  129968 kB",
+        "VmRSS:\t   64692 kB"
+      ],
+      "pid": 480124
+    },
+    {
+      "after": {
+        "pid": 480140,
+        "ppid": 480124,
+        "start_ticks": 1366936849,
+        "state": "I"
+      },
+      "before": {
+        "pid": 480140,
+        "ppid": 480124,
+        "start_ticks": 1366936849,
+        "state": "I"
+      },
+      "expected_start_ticks": 1366936849,
+      "identity": "MATCH",
+      "io": {
+        "cancelled_write_bytes": 4096,
+        "rchar": 300687765796,
+        "read_bytes": 2547962216448,
+        "syscr": 3017831,
+        "syscw": 1207,
+        "wchar": 985533281,
+        "write_bytes": 987959296
+      },
+      "memory_lines": [
+        "VmHWM:\t 1141076 kB",
+        "VmRSS:\t 1053964 kB"
+      ],
+      "pid": 480140
+    }
+  ],
+  "last_observation_utc": "2026-10-17 13:07:56 UTC",
+  "ledger_or_cache_mutations": 0,
+  "monitor_source": {
+    "path": "/mnt/project/VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+    "sha256": "a866ae4261cad36312355028cdfba3b24f52f64b174433635d0473420ddc84bf"
+  },
+  "observer_resource_evidence": {
+    "collector_cpu_affinity": [
+      8,
+      9
+    ],
+    "collector_payload_read_bytes": 74998,
+    "collector_reported_ru_maxrss_bytes": 1569472512,
+    "note": "Raw getrusage value exceeds cap despite an RLIMIT_AS of 256MiB set after imports. No live /proc RSS sample was retained for the observer. Cause unresolved; do not claim the observer met the RSS budget or replace its evidence with a later small process. Reads outside collector were small bounded source/admission reads and one authorized shard stat census, not raw metadata payloads. No all-process read-total claim.",
+    "rss_cap_bytes": 268435456,
+    "status": "FAIL_REPORTED_RSS_OVER_CAP"
+  },
+  "original_result_status_override": false,
+  "owned_stop_path_code_review": "BOUNDED_PIDFD_SAME_SESSION_CLEANUP_AND_FAILED_RECEIPT_ATTEMPT",
+  "owned_stop_scope_limit": "Original helper does not establish cross-SID descendants; no such coverage or successful cleanup is claimed. Receipt publication can itself fail.",
+  "review_base_commit": "ee18fb2c8420e2f9d2c94903364eb6dc304b69e0",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "schema": "st_full_future_train_terminal_independent_review_v1",
+  "scientific_result": false,
+  "shard_stat_snapshot": {
+    "entries": 1176,
+    "non_json_names": [],
+    "regular_bytes": 984972623,
+    "regular_json": 1176,
+    "symlinks": 0
+  },
+  "status": "SNAPSHOT_ONLY_TERMINAL_NOT_OBSERVED",
+  "supervisor_source": {
+    "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+    "sha256": "a29527dfbe23a4563a66266532f44644f5f184f4a8f59842883524632a63f2d6"
+  },
+  "task_process_identity": "PASS_CURRENT_SNAPSHOT_ONLY",
+  "task_root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1",
+  "task_runtime_commit": "838dd21f7a16a79086a44bc63be056d6a750570e",
+  "task_signals_by_reviewer": 0,
+  "terminal_result_observed": false,
+  "training_or_build_admission": false
+}

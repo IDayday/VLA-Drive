@@ -1,0 +1,37 @@
+{
+  "source": "Fresh direct read-only tool observation before bounded collector startup",
+  "observed_unix": 1792241903.0442202,
+  "observed_utc": "2026-10-17 12:58:23 UTC",
+  "cpu_affinity": [8, 9],
+  "processes": [
+    {
+      "pid": 480124,
+      "expected_start_ticks": 1366936766,
+      "observed_start_ticks": 1366936766,
+      "state": "S",
+      "ppid": 3316287,
+      "rchar": 1223237044,
+      "wchar": 124142,
+      "read_bytes": 84172800,
+      "write_bytes": 143360,
+      "rss_kib": 64692,
+      "hwm_kib": 129968
+    },
+    {
+      "pid": 480140,
+      "expected_start_ticks": 1366936849,
+      "observed_start_ticks": 1366936849,
+      "state": "S",
+      "ppid": 480124,
+      "rchar": 282179101030,
+      "wchar": 985533281,
+      "read_bytes": 2547945439232,
+      "write_bytes": 987959296,
+      "rss_kib": 1047812,
+      "hwm_kib": 1141076
+    }
+  ],
+  "COMPLETE.json_exists": false,
+  "CONTROL_BUILD_RESULT.json_exists": false,
+  "note": "Initial process identity was checked before IO; all repeated collector observations additionally validate identity after IO. The initial snapshot is not a terminal or peak-resource claim."
+}
