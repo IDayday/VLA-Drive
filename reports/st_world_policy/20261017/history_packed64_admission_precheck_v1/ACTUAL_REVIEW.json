@@ -1,0 +1,250 @@
+{
+  "admission_scope": "One fixed64 CPU-only metadata pilot,900+40s; no GPU,training,teacher/cachefullbuild,automaticretry",
+  "checked_at_unix": 1792243194.164604,
+  "checkpoint_quota_verified": false,
+  "control_budget_separate": true,
+  "cost": {
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "elapsed_seconds": 0.07442647032439709,
+    "explicit_small_file_read_bytes": 481290,
+    "logical_read_delta": 535108,
+    "peak_RSS_bytes": 19357696
+  },
+  "cpu6_7_reservation": "Lead current dispatch message; final freshcheck remains Lead responsibility",
+  "exit_review": {
+    "actual_stop_requested_utc": "2026-10-17T13:13:27Z",
+    "build_lock": {
+      "bytes": 0,
+      "device_major_minor_inode": [
+        941,
+        925238,
+        144115927531689814
+      ],
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1/BUILD.lock",
+      "proc_locks_matches": [],
+      "regular": true,
+      "scope": "local kernel /proc/locks; no exclusive acquisition or ledger mutation; not a global multi-host lock assertion",
+      "status": "NO_KERNEL_LOCK_RECORD_OBSERVED"
+    },
+    "complete_receipt_present": false,
+    "dispatch": false,
+    "evidence": {
+      "OBSERVATION.json": {
+        "bytes": 8284,
+        "sha256": "a28337ce1e9a76a0dd9ef29a0ac5c38155b0b48a28c28f01a8582026d907848f"
+      },
+      "ORIGINAL_RESULT.json": {
+        "bytes": 2961,
+        "sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6"
+      },
+      "STOP_RECEIPT.json": {
+        "bytes": 2547,
+        "sha256": "14e75d9e34f5c5f4274cd3a3b10432ff5249037843b8c8ffe9d7f87924d51f63"
+      }
+    },
+    "exact_parent_child_absent_before_and_after": true,
+    "independent_short_inspection": {
+      "affinity": [
+        8,
+        9
+      ],
+      "elapsed_seconds": 0.3478612918406725,
+      "gpu_calls": 0,
+      "ledger_mutations": 0,
+      "note": "New independent short inspection only; does not replace earlier observer RSS FAIL.",
+      "raw_payload_reads": 0,
+      "read_bytes": 10935,
+      "ru_maxrss_bytes": 15675392,
+      "self_memory": [
+        "VmSize:\t   23632 kB",
+        "VmHWM:\t   15308 kB",
+        "VmRSS:\t   15308 kB"
+      ],
+      "signals": 0
+    },
+    "inspected_runtime_commit": "838dd21f7a16a79086a44bc63be056d6a750570e",
+    "ledger_mutations": 0,
+    "observation_utc": "2026-10-17 13:14:47 UTC",
+    "original_cleanup_report": {
+      "live_owned_remaining": 0,
+      "verified_processes": 1
+    },
+    "original_failure": "SUPERVISOR_SIGNAL_15",
+    "original_result_sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6",
+    "original_status": "FAILED_NO_AUTO_RETRY",
+    "original_status_preserved": true,
+    "previous_observer_resource_fail_retained": {
+      "not_retested_or_overridden": true,
+      "path": "../full_future_train_terminal_review_v1/REVIEW.json",
+      "status": "FAIL_REPORTED_RSS_OVER_CAP"
+    },
+    "resource_scope_note": "New administrative task only. Source target sampling occurred13:14:09\u201313:14:47 UTC inside90s; script bounds payload reads8MiB/output1MiB/AS256MiB on CPUs8,9. 10935B reports explicit bounded content reads, not a measured global all-tools rchar total. All artifact/source payload reads are forbidden outside exact approved targets.",
+    "returncode": -15,
+    "reviewer": "/root/st_owned_descendants_review_v2",
+    "schema": "st_train_metadata_terminal_accounting_independent_v2",
+    "scientific_result": false,
+    "shard_content_verification": false,
+    "shard_stat": {
+      "bytes": 984972623,
+      "entries": 1176,
+      "non_json": [],
+      "regular_json": 1176,
+      "symlinks": 0
+    },
+    "signals_sent_by_reviewer": 0,
+    "source_review_parent_commit": "05dd1aff12ccd9ca5dd4d442a5d51bc647213105",
+    "status": "CONTROLLED_STOP_CONFIRMED_ORIGINAL_FAILURE_RETAINED",
+    "stop_receipt_sha256": "14e75d9e34f5c5f4274cd3a3b10432ff5249037843b8c8ffe9d7f87924d51f63",
+    "terminal_accounting": {
+      "C_equals_terminal": true,
+      "budget_bytes": 549755813888,
+      "child_terminal_rchar": 311382658089,
+      "duplicate_child_charge_triggered": true,
+      "method": "Original pinned source waits/reaps before evaluating T=C+(parent_after_wait-BOOT_IO). Its C equals actual child terminal /proc counter. Subtract only the duplicate C; no estimated source bytes, wall*workers, or original result mutation. The parent term is bounded and includes inherited waited-child accounting; controller result publication after that read is outside this recorded term.",
+      "not_a_success_conversion": "The independent stop, child returncode -15, absent final accounting/CLI artifact and absent COMPLETE remain failures regardless of corrected count.",
+      "once_charged_GiB": 291.2068765005097,
+      "one_charge_bound_below_budget_bytes": 237074811153,
+      "one_charge_parent_after_wait_minus_boot_T_minus_C": 312681002735,
+      "parent_own_increment_T_minus_2C": 1298344646,
+      "recorded_child_C": 311382658089,
+      "recorded_total_T": 624063660824,
+      "recorded_total_above_budget_bytes": 74307846936
+    },
+    "training_or_retry_authorized": false
+  },
+  "free_bytes_independently_observed": 6896881696768,
+  "inputs": [
+    {
+      "bytes": 8965,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-call-review-20261017/reports/st_world_policy/20261017/history_packed64_admission_precheck_v1/CONDITIONS.json",
+      "sha256": "8c007fa6ad18abc11f09b3864dee65e3b7631f86d8f46d3d369c3e3685da32ab"
+    },
+    {
+      "bytes": 1903,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history64_actual_admission_v1/LIVE_QUIESCENCE_EVIDENCE.json",
+      "sha256": "759aaae25e60455018cebcd05a5146045923dabf9128069af32b89b19e1ed109"
+    },
+    {
+      "bytes": 3730,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history64_actual_admission_v1/QUIESCENCE.json",
+      "sha256": "c8b5a17faf7fc1f471c521bd7605fdd855d201e22c33138743f14ed5d9d34f6b"
+    },
+    {
+      "bytes": 1464,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history64_actual_admission_v1/CONTROL_RESERVATION_ADOPTED.json",
+      "sha256": "a9abca6fb8492b100557597b22169fae0897bfa780918b9e4bf1f0ab3ef5a8e8"
+    },
+    {
+      "bytes": 1075,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json",
+      "sha256": "13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3"
+    },
+    {
+      "bytes": 48910,
+      "path": "/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_packed64_registration_proposal_v1/PROPOSED_POLICY.json",
+      "sha256": "a6984d65bfcb47e32153ac3b8b395dcbf8a694ef3844ea644f82e0c58ffbd8fd"
+    },
+    {
+      "bytes": 4339,
+      "path": "/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_packed64_registration_proposal_v1/HISTORY64_PACKED_STORAGE_REGISTRATION.json",
+      "sha256": "01de79cac8f49804a662d8f1454ac9b85eb6358c8ea572e1ef13e9a3bd5d15a0"
+    },
+    {
+      "bytes": 1438,
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/MIGRATION_1a729d88423b0f6643c33304aed715bff49d2b4f4d57c8fbfc1f13d4b438d6b7.complete.json",
+      "sha256": "3ea4f8ce5c6a01842b4360acd7dec88c72bf6500f748f4b2a2b81fa0ad90ef04"
+    },
+    {
+      "bytes": 51753,
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+      "sha256": "d81af1a046ce83765964935ec6cf9d9d876a21476e6f4e575bbfa85e95b6f526"
+    },
+    {
+      "bytes": 103469,
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/MIGRATION_1a729d88423b0f6643c33304aed715bff49d2b4f4d57c8fbfc1f13d4b438d6b7.snapshot.json",
+      "sha256": "0035b7525f8888954855af21129328870eb6d4685d7f7faf0ef21ebd9920712b"
+    },
+    {
+      "bytes": 1903,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history64_actual_admission_v1/LIVE_QUIESCENCE_EVIDENCE.json",
+      "sha256": "759aaae25e60455018cebcd05a5146045923dabf9128069af32b89b19e1ed109"
+    },
+    {
+      "bytes": 2961,
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1/CONTROL_BUILD_RESULT.json",
+      "sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6"
+    },
+    {
+      "bytes": 4362,
+      "git_commit": "2e8240ee34b9ee9a03c408af8ef146db6a4cb5cc",
+      "path": "reports/st_world_policy/20261017/full_future_train_exit_review_v2/REVIEW.json",
+      "sha256": "711c4bcdf74db53d6c7639e166447cb731dfd449d6ad67d8ad3c60e00f390b69"
+    },
+    {
+      "bytes": 1095,
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/ADMIN_BUDGET_ADDENDUM_V1.json",
+      "sha256": "2946083d7ed65aa931bcdf12bee333b340d9e0c9ec742509314ebfed9de61ddf"
+    },
+    {
+      "bytes": 14690,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+      "sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016"
+    },
+    {
+      "bytes": 23793,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "bytes": 36959,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "bytes": 14696,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "bytes": 9409,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    },
+    {
+      "bytes": 129686,
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+    },
+    {
+      "bytes": 14690,
+      "path": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+      "sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016"
+    }
+  ],
+  "known_train_pids_absent": [
+    480124,
+    480140
+  ],
+  "launch_performed": false,
+  "ledger_mutated": false,
+  "limitations": [
+    "No artifact production or real packed run success asserted",
+    "No GPU,raw,image,teacher,checkpoint tensor read",
+    "Lead must recheck lease,free,CP,roots,no writer andCPU6/7 immediately before one launch",
+    "Advisory CP reserve is not a verified filesystem quota",
+    "Stopped TRAIN retains FAILED_NO_AUTO_RETRY and all charged claims"
+  ],
+  "live_descendant_authority": "Lead fresh census plus independent exit review2e8240ee; no additional descendant scanning here",
+  "migration_status": "MIGRATED",
+  "old_claims_and_accounting_unchanged": true,
+  "old_train_failure_preserved": "FAILED_NO_AUTO_RETRY",
+  "output_and_control_roots_absent": true,
+  "prior_44_14_15_suites_rerun": false,
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "runtime_mutated": false,
+  "schema": "st_history64_independent_actual_admission_review_v1",
+  "status": "PASS_NARROW_ACTUAL_ADMISSION_ONLY"
+}
