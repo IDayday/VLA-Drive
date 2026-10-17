@@ -1,0 +1,240 @@
+{
+  "automatic_retry": false,
+  "checkpoint_reservation_created": false,
+  "consumption": {
+    "cumulative_optimizer_updates": 64,
+    "cumulative_scene_exposures": 128,
+    "formal_global32_throughput_qualified": false,
+    "global_batch": 2,
+    "gradient_accumulation_steps": 1,
+    "initial_completed_updates": 0,
+    "initial_epoch": 0,
+    "initial_offset": 0,
+    "micro_batch": 1,
+    "per_rank_scene_exposures": [
+      64,
+      64
+    ],
+    "resume_budget": "same_run_cumulative_not_per_invocation",
+    "schema": "st_full_index_profile_consumption_v1",
+    "world_size": 2
+  },
+  "control_reservation": {
+    "control_reservation_bytes": 33554432,
+    "ledger_written": false,
+    "metadata_envelope_bytes": 8589934592,
+    "original_admin_reservation_bytes": 134217728,
+    "prior_reserved_bytes": 8075083776,
+    "remaining_bytes": 481296384,
+    "total_reserved_bytes": 8108638208,
+    "typed_claims_changed": false
+  },
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+    "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+    "verified_by": "original_teacher_provider_full_population_validator"
+  },
+  "gpu": false,
+  "inputs": {
+    "current_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/COMPLETE.json",
+      "sha256": "0c1c913e72733191fc47cf1969b2fb8462b1081ae8c893b656b7aba5d022ad3f"
+    },
+    "current_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1/COMPLETE.json",
+      "sha256": "8c44a8994e38a481ffcb1d06d77615e77328686c370f32e9954354358ecd4b02"
+    },
+    "current_registration": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/REGISTRATION.json",
+      "sha256": "f7bad022b4aae85c5925b0a1afa143077aa0764efc1849d80f622d092beebbec"
+    },
+    "fit_result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/fit/RESULT.json",
+      "sha256": "996176a20ec4d750e6687b0a7f273cfc136c4d6b3fd4a42c75a3807d0ca1498f"
+    },
+    "future_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json",
+      "sha256": "16c47d6603144dcabe0c764f85c23c231bb0edfaf347d869f93c34d79bdc5438"
+    },
+    "parent_descriptor": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+      "sha256": "bb53252f1aea91ed54fa7b3917314d2d7f6c1c251d1f89f6a079f0f582f3874d"
+    },
+    "pca_fit_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1/COMPLETE.json",
+      "sha256": "952333bf289508a904b3b3c726ad840bc0557828fdb4b08f5f0b3bf508c6ab56"
+    },
+    "pca_receipt": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/PCA.json",
+      "sha256": "f4a0845dd0244da29a30dec9f482f4ef801dfdbc80cbd34ad3ebb508b0885067"
+    },
+    "qualification": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESULT.json",
+      "sha256": "a4f4c86f0b5c09d18a58d02e8919dd73e659b48a53ed0d2a25c7d68e497b7a2f"
+    },
+    "qualification_plan": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESOLVED_PLAN.json",
+      "sha256": "f96e5612c068aa4000172f7076ea37031b8fe09d03b2f60706d57300e540f0eb"
+    },
+    "reference_config": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/CONFIG.json",
+      "sha256": "2ec8df5c996c51ef0b7b40707c0e66179643bcc5cac317ec4d53d31d0d85b13f"
+    },
+    "teacher_config": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/resolved_config_build_rank0.json",
+      "sha256": "41f8ed0dfc6a82c5d3a2923a2ec4c3cd99180e8f915c18886883dd1aa33e9863"
+    },
+    "train_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/COMPLETE.json",
+      "sha256": "07cdbbd00d7c9be219c23c75bf75aee4651cad6c93b136a0f2b19b4bdca4a148"
+    }
+  },
+  "ledger_written": false,
+  "limits": {
+    "cleanup_seconds": 40,
+    "read_bytes": 17179869184,
+    "rss_bytes": 4294967296,
+    "wall_seconds": 1500
+  },
+  "max_output_bytes": 33554432,
+  "new_teacher_tensor_bytes": 0,
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1",
+  "parent_runtime": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+  "pca_fit_cache_root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+  "recipe": {
+    "data": {
+      "history_root": null,
+      "pca_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1",
+      "root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+      "teacher_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384"
+    },
+    "execution": {
+      "family": "temporal",
+      "global_batch": 2,
+      "max_updates": 20000,
+      "micro_batch": 1,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 101592,
+      "scope": "PROFILE",
+      "seed": 42,
+      "stop_after": 64,
+      "world_size": 2
+    },
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "clip": 1.0,
+      "eps": 1e-08,
+      "lr": 1e-05,
+      "minimum_lr": 5e-07,
+      "warmup": 1000,
+      "weight_decay": 0.001
+    },
+    "runtime": {
+      "deterministic": true,
+      "gradient_checkpointing": false,
+      "loader_workers": 0,
+      "max_seconds": 1500,
+      "official_execution": {
+        "adaptation_reason": "Bounded full-original-population provider PROFILE only: world2 micro1 global2 accumulation1; cumulative64 updates and128 scene exposures across resumes; original20000-update/warmup1000 recipe, fixed8 FP32 teacher, original PCA384 and official BF16/FA2/FP32-master Adam/ZeRO2 student unchanged. Diagnostic weights excluded from formal initialization; not formal global32 throughput qualification.",
+        "declared_recipe_overrides": [
+          "global_batch",
+          "max_updates",
+          "micro_batch",
+          "warmup",
+          "world_size"
+        ],
+        "preset": "drivedreamer_f35fe783",
+        "schema": "st_official_drivedreamer_execution_v1",
+        "scope": "research_stage"
+      },
+      "output_root": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/configured/runs",
+      "profile_mode": "none",
+      "save_every": 64
+    },
+    "schema": "st_training_v1",
+    "space_time": {
+      "cell": "T2",
+      "delta": false,
+      "future": true,
+      "future_weight": 1.0,
+      "history": false,
+      "sampled_positions": 96,
+      "spatial_parent": "S-P2",
+      "teacher": {
+        "channels": 384,
+        "compute_dtype": "float32",
+        "feature_layer": "last_block_post_norm_dense_patch",
+        "image_hw": [
+          288,
+          384
+        ],
+        "native_grid_hw": [
+          18,
+          24
+        ],
+        "output_grid_hw": [
+          18,
+          24
+        ],
+        "output_layout": "HWC",
+        "patch_hw": [
+          16,
+          16
+        ],
+        "pooling": {
+          "kernel_hw": [
+            1,
+            1
+          ],
+          "kind": "none",
+          "stride_hw": [
+            1,
+            1
+          ]
+        },
+        "schema_version": "st_teacher_feature_contract_v1",
+        "source_cache_identity": null,
+        "storage_dtype": "float32",
+        "teacher_identity": "f83de897907f546ebd6c0746d74e35efbb07eeb34ccd95a28ebb6d2d611dc202",
+        "transform_identity": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+        "view_names": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ]
+      },
+      "world_queries_per_view": 48
+    }
+  },
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017",
+    "source_sha": "a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a"
+  },
+  "schema": "st_full_population_provider_preparation_plan_v1",
+  "source_files": {
+    "tools/st_world_policy/finalize_future_metadata.py": {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/finalize_future_metadata.py",
+      "sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d"
+    },
+    "tools/st_world_policy/provider_pca.py": {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/provider_pca.py",
+      "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+    },
+    "tools/st_world_policy/qualify_indexed_provider.py": {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/qualify_indexed_provider.py",
+      "sha256": "6fd0a7b9d3317f78aa139906f20ff81b97a7bb7bee3a397a038a3553aaa5fc08"
+    },
+    "tools/st_world_policy/teacher_provider.py": {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/teacher_provider.py",
+      "sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+    }
+  },
+  "training_started": false
+}
