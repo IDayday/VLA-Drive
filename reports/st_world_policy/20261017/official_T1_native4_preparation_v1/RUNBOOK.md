@@ -83,8 +83,11 @@ between an external stop-file observer and a fast optimizer loop:
 4. Invoke the same original trainer with phase4 registration. It loads
    optimizer2 and performs only updates3–4. This is `continuation`, not the
    ordinary `--resume` of the phase2 identity; ordinary resume never changes
-   its immutable budget. If either invocation is interrupted early, use its
-   **own** `--resume` command. Retrying is not automatic.
+   its immutable budget. The two-invocation allowance covers phase2 and phase4
+   only. An early interruption retains state but does not authorize a third
+   invocation; any retry requires a separate resource admission. The ordinary
+   resume command below documents recovery syntax, not an additional execution
+   within this qualification.
 
 Commands after Lead has created the real registrations and bound devices/port
 to the fresh lease (shell variables below are required admission outputs, not
@@ -103,7 +106,8 @@ CUDA_VISIBLE_DEVICES="$T1_LEASE_DEVICES" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=
   /root/miniconda3/envs/ddp/bin/torchrun --standalone --nproc-per-node=2 \
   -m tools.st_world_policy.train_world --registration "$T1_PHASE4_REGISTRATION"
 
-# Ordinary interrupted phase4 continuation, same identity and cumulative4 cap:
+# Recovery syntax only, NOT admitted as a third invocation by this qualification:
+# requires separate resource admission; same identity and cumulative4 cap.
 CUDA_VISIBLE_DEVICES="$T1_LEASE_DEVICES" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   /root/miniconda3/envs/ddp/bin/torchrun --standalone --nproc-per-node=2 \
   -m tools.st_world_policy.train_world --registration "$T1_PHASE4_REGISTRATION" --resume
@@ -152,8 +156,11 @@ invocation wall separately. This tiny check must not be advertised as a
   a new trainer. A 4-total-update budget has no new continuous4 comparator:
   report restored-state equality plus subsequent valid updates, not a fresh
   cross-run bitwise training proof. Production FA2 A/A variation remains noted.
-- Save4 and ordinary terminal-budget reload does not consume another batch or
-  add an optimizer step; native helper preserves existing receipt semantics.
+- Save4 completes the second and final admitted invocation. A new-process
+  terminal-budget reload is **NOT_RUN / outside this qualification** because it
+  would require a third invocation. Existing terminal-state tests remain
+  preserved; this four-update/two-invocation check supplies no new terminal
+  reload evidence or budget.
 
 If source/runtime/lease checks fail, retain the failure and diagnose that
 boundary. Do not silently disable history, restore checkpointing, reduce
