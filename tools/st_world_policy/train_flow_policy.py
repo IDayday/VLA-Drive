@@ -36,7 +36,7 @@ from starVLA.model.modules.flow_posttraining.rollout_contract import (
     FeedbackBatch, FeedbackReuseGuard, prepare_fpo_batch, sample_rollout_group)
 from starVLA.model.modules.st_world.consequence import (
     ConsequenceRequest, ConsequenceService, ConsequenceSpec, METRICS,
-    array_sha256, fingerprint, protocol_identity)
+    array_sha256, fingerprint, protocol_identity, validated_reference_input)
 from tools.ddpolicy_vehicle.optimizer_safety import (
     bounded_parameter_groups, capture_master_samples, master_update_evidence)
 from tools.ddpolicy_vehicle.training_state import epoch_batches
@@ -320,6 +320,7 @@ def _validate_scored(record, request):
              (1 - float(trace["ttc_summary"]["any"]), metrics["time_to_collision_within_bound"]))
     if any(abs(a-b) > 1e-12 for a, b in pairs):
         raise ValueError("Canonical event consequence and official metric disagree")
+    return validated_reference_input(record, request)
 
 
 def feedback_from_records(rollout, requests, records, cell, protocol_hash):
@@ -327,13 +328,13 @@ def feedback_from_records(rollout, requests, records, cell, protocol_hash):
         raise ValueError("Incomplete/unregistered official feedback group")
     rewards, contexts = [], []
     for i, (request, record) in enumerate(zip(requests, records)):
-        _validate_scored(record, request)
+        reference_input = _validate_scored(record, request)
         if i % 4 == 0:
             contexts.append(request.metric_cache_sha256)
             first_context = record["context_hash"]
-            first_reference = record["reference_identity"]
+            first_reference = reference_input
         elif (contexts[-1] != request.metric_cache_sha256 or first_context != record["context_hash"]
-              or first_reference != record["reference_identity"]):
+              or first_reference != reference_input):
             raise ValueError("Four candidates did not use one identical official reference context")
         trace = record["consequences"]
         rewards.append({"C1": record["metrics"]["score"], "C2": -float(trace["road"]["any"]),

@@ -12,7 +12,7 @@ import torch
 from starVLA.model.modules.flow_posttraining import (
     FPOConfig, FlowRandomStreams, FrozenPolicySnapshot, group_centered_advantages,
     prepare_fpo_batch, sample_rollout_group, module_hash)
-from starVLA.model.modules.st_world.consequence import METRICS, fingerprint
+from starVLA.model.modules.st_world.consequence import METRICS, fingerprint, _reference_evidence
 from tools.st_world_policy.flow_training_config import validate_config, target_contract
 from tools.st_world_policy.training_config import PRECISION
 from tools.st_world_policy.train_flow_policy import (
@@ -58,14 +58,16 @@ def setup_rollout(batch=2):
 
 def scored(request, score=.7, nc=1., dac=1., ttc=1.):
     """Explicitly synthetic canonical-result fixture for failure/contract tests."""
+    native = np.zeros((2, 41, 11), dtype=np.float64)
     metrics = {k: 1. for k in METRICS}
     metrics.update(score=score, no_at_fault_collisions=nc, drivable_area_compliance=dac,
                    time_to_collision_within_bound=ttc)
     return {"identity": request.identity(), "valid": True, "status": "VALID_SCORED", "score_units": "0..1",
             "context_unchanged": True, "metrics": metrics, "metrics_valid": {k: True for k in METRICS},
             "requested_trajectory": request.trajectory, "context_hash": "1"*64,
-            "reference_identity": {"full_cache_sha256": request.metric_cache_sha256,
-                                   "score_protocol_hash": request.score_protocol_hash},
+            "executed_states": native[1].copy(),
+            **_reference_evidence(request, "1" * 64, native[0], native,
+                {"dependencies": {"numpy": "fixture", "scipy": "fixture", "shapely": "fixture"}}),
             "consequences": {"road": {"any": dac == 0}, "collision_summary": {"nc_min": nc},
                              "ttc_summary": {"any": ttc == 0}}}
 
