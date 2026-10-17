@@ -11,9 +11,11 @@ from contextlib import ExitStack, redirect_stdout
 import hashlib
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import socket
+import stat
 import sys
 import time
 
@@ -39,9 +41,12 @@ def pin_read(pin, *, decode=True):
     if not path.is_absolute() or '..' in path.parts or any(p.is_symlink() for p in (path, *path.parents)):
         raise ValueError('Canonical absolute source/control required')
     before = path.stat()
-    if before.st_size > 4 << 20:
+    if not stat.S_ISREG(before.st_mode) or before.st_size > 4 << 20:
         raise ValueError('Small control/source only')
-    raw = path.read_bytes()
+    with path.open('rb') as stream:
+        raw = stream.read((4 << 20) + 1)
+    if len(raw) > 4 << 20:
+        raise ValueError('Control/source read bound exceeded')
     after = path.stat()
     version = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
     if version(before) != version(after) or hashlib.sha256(raw).hexdigest() != pin['sha256']:
@@ -75,6 +80,10 @@ def storage_guard(control):
     if (cp.get('schema') != 'st_checkpoint_storage_commitments_v1' or cp.get('status') != 'CURRENT'
             or type(cp.get('remaining_bytes')) is not int or cp['remaining_bytes'] < 2303 * (1 << 30)
             or cp.get('free_floor_bytes') != 1 << 40
+            or type(cp.get('valid_until_unix')) not in (int, float)
+            or not math.isfinite(cp['valid_until_unix'])
+            or type(control.get('valid_until_unix')) not in (int, float)
+            or not math.isfinite(control['valid_until_unix'])
             or cp.get('valid_until_unix', 0) < control['valid_until_unix']):
         raise ValueError('Fresh complete checkpoint commitments required')
     stat = os.statvfs(BASE)
@@ -91,6 +100,9 @@ def controls(args):
             or control.get('output_root') != str(ROOT)):
         raise ValueError('Exact one-shot resource controls required')
     now = time.time()
+    if any(type(control.get(key)) not in (int, float) or not math.isfinite(control[key])
+           for key in ('issued_at_unix', 'latest_start_unix', 'valid_until_unix')):
+        raise ValueError('Finite absolute resource times required')
     if not control['issued_at_unix'] <= now <= control['latest_start_unix']:
         raise ValueError('Not in launch window')
     if control['valid_until_unix'] < now + (0 if args.child else 3640):
