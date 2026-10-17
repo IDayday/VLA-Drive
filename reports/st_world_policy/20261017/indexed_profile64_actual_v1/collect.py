@@ -109,6 +109,8 @@ def main():
         costs=read(RUN/'checkpoint_costs.jsonl',True);provider=read(RUN/'teacher_provider_rank0.json')
         selected=read(reg['artifacts']['data_manifest']['path']);descriptor=read(reg['artifacts']['teacher_manifest']['path'])
         observed=read(ROOT/'SUPPLY_STATUS_SAMPLES.jsonl',True);observer=read(ROOT/'SUPPLY_STATUS_OBSERVER.json')
+        if observer['launch_sha256']!=pins[str(ROOT/'LAUNCH_initial.json')]:
+            raise ValueError('Observer belongs to another launch')
         engine=read(RUN/'official_runtime/updated_engine_rank0.json')
         for name in ('config','data_manifest','teacher_manifest'):
             a=reg['artifacts'][name]
