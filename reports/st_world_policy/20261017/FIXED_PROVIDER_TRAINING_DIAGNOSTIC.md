@@ -64,3 +64,38 @@ as a student numerical PASS, multi-rank qualification, or training throughput.
 The later completed receipts and an independent comparison are required before
 updating that status. Existing formal W/C runs use their unchanged immutable
 runtimes and are unaffected.
+
+## Actual continuous result, 2026-10-17 04:16 UTC
+
+The continuous arm exited with return code0 after exactly two optimizer updates,
+four consumed scenes, epoch0/offset2. `PAUSED / BUDGET_PAUSED` is the intended
+diagnostic boundary on the unchanged20k schedule, not a completed training run.
+Both complete native checkpoints are retained. This is real image/teacher/student
+execution, not a tensor fixture.
+
+| Update | Current target loss | Future target loss | Ego FM loss | Gradient norm |
+|---|---:|---:|---:|---:|
+| 1 | 2.7802338600 | 2.7700381279 | 0.0009760054 | 3.7669742107 |
+| 2 | 2.7161521912 | 2.6758897305 | 0.0030776514 | 3.8511259556 |
+
+FP32 master updates were verified. The provider reused12 immutable records,
+computed48 images in eight fixed-size calls (64 compute slots, including16
+discarded padding slots), and recorded52 RAM evictions. Its peak retained tensor
+payload was14,159,232 bytes. There were zero provider failures and **zero newly
+written teacher tensor bytes**. The bound excludes teacher weights, activations,
+image buffers and caller-held batches; it is not a claim that the full trainer
+uses13.5MiB RAM.
+
+The complete continuous receipt is
+`smoke/world_fixed_provider_native2_v1/continuous/EXIT_initial.json` under the
+campaign root. Total allocation wall was624.807 seconds, including cold model
+initialization and two native saves. Two warmup updates do **not** establish
+steady-state throughput or a cache speedup.
+
+The split arm was separately admitted on idle rl-zt2 GPU3, using the same source,
+teacher, samples, recipe and shared160GiB checkpoint reservation. The original
+continuous controller was not edited. Its SHA-pinned split-only wrapper is
+`resources/qualify_fixed_provider_split_gpu3_v1.py`, SHA256
+`a2469673a460d4abf94b9b6cceced9b50154ac7d24eee49170e2b278a78750f0`.
+Pause1/resume1 and the independent complete-state comparison remain pending at
+this update. No formal temporal provider approval is implied.
