@@ -1,0 +1,137 @@
+{
+  "arm": "C0",
+  "conditional_denominators": {
+    "initial_high_score": 1225,
+    "initial_nonzero": 1650,
+    "initial_zero": 46,
+    "moving_reference": 1590
+  },
+  "conditional_rates": {
+    "high_any_decline": 0.02857142857142857,
+    "high_decline_gt_0_05": 0.00816326530612245,
+    "high_to_zero": 0.0016326530612244899,
+    "nonzero_to_zero": 0.0036363636363636364,
+    "zero_to_nonzero": 0.08695652173913043
+  },
+  "definitions": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "denominator_scenes": 1696,
+  "event_counts": {
+    "ep_decline_gt_0_05": 6,
+    "high_any_decline": 35,
+    "high_decline_gt_0_05": 10,
+    "high_to_zero": 2,
+    "new_stopping_proxy": 0,
+    "nonzero_to_nonzero": 1644,
+    "nonzero_to_zero": 6,
+    "safety_gain_with_ep_drop": 0,
+    "zero_to_nonzero": 4,
+    "zero_to_zero": 42
+  },
+  "event_full_population_rates": {
+    "ep_decline_gt_0_05": 0.003537735849056604,
+    "high_any_decline": 0.020636792452830188,
+    "high_decline_gt_0_05": 0.00589622641509434,
+    "high_to_zero": 0.0011792452830188679,
+    "new_stopping_proxy": 0.0,
+    "nonzero_to_nonzero": 0.9693396226415094,
+    "nonzero_to_zero": 0.003537735849056604,
+    "safety_gain_with_ep_drop": 0.0,
+    "zero_to_nonzero": 0.0023584905660377358,
+    "zero_to_zero": 0.024764150943396228
+  },
+  "from_step": 512,
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_512_complete_review_v1/SCENE_RISK_DIAGNOSTICS.csv",
+      "sha256": "ba824d05555e8f46181993f619df3c8f67ef7f379d86c42d9975b6e42e5272b5"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/official_score/IDENTITY.json",
+      "sha256": "3a6159343008df9c3176bc0dbdda60c824504efe9362a57ac220694829e2fb18"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/export/IDENTITY.json",
+      "sha256": "52f9e18e7c2f425a2c6ed3eeeea624597e57d71d6fef30ac503d4c0f6a678c59"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_512_complete_review_v1/REVIEW.json",
+      "sha256": "a0780231374425a6e1bb6831c22964a5c7be46e861e08d4c3b2a71a2c29a5035"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_1024_complete_review_v1/SCENE_RISK_DIAGNOSTICS.csv",
+      "sha256": "dc56490488f39af0ce46bd742955f136476263f3da0f38a5e692c3a090e76887"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/IDENTITY.json",
+      "sha256": "1c22b5f438bd2f6e03d51810b6cdde15a1dfd5e8d47bd3f8cb8d67c3e727b367"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/export/IDENTITY.json",
+      "sha256": "5f43bda8409895bb1f6d2973865a365dd4764693c1de8caba01042f90796605a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_1024_complete_review_v1/REVIEW.json",
+      "sha256": "114c0cf6717daf88ef0ed584452e46227e3daaa4fa100fab66907f0f38ecd529"
+    }
+  ],
+  "interpretation": "Same continued-training C0 run at two fixed diagnostics. Changes do not identify reward-treatment effects, authorize best-checkpoint selection or alter the fixed 4096 endpoint.",
+  "logs": 16,
+  "matched_request_fixed_fields": [
+    "campaign_id",
+    "scene_id",
+    "source_log",
+    "candidate_id",
+    "generator_kind",
+    "metric_cache_path",
+    "metric_cache_sha256",
+    "score_protocol_hash",
+    "inference_runtime_hash",
+    "generator_source_hash"
+  ],
+  "mean_paired_scene_changes_1024_minus_512": {
+    "ade_m": 0.061095080206172124,
+    "comfort": 0.0,
+    "drivable_area_compliance": -0.0005896226415094339,
+    "driving_direction_compliance": -0.0005896226415094339,
+    "ego_progress": 0.006695631844318405,
+    "fde_m": 0.018165478580918454,
+    "mean_executed_speed_mps": 0.07804567565156165,
+    "no_at_fault_collisions": -0.0005896226415094339,
+    "raw_progress_m": 0.290021220032674,
+    "reference_progress_m": 0.0,
+    "score": 0.0008729522910269106,
+    "time_to_collision_within_bound": -0.0047169811320754715
+  },
+  "registered_primary_contrast": false,
+  "risk_count_changes": {
+    "NC_DAC_TTC_union": 7,
+    "comfort": 0,
+    "drivable_area_compliance": 1,
+    "driving_direction_compliance": 0,
+    "no_at_fault_collisions": 1,
+    "time_to_collision_within_bound": 8,
+    "zero_pdms": 2
+  },
+  "same_population_inputs_protocol_metric_contexts_environment": true,
+  "schema": "st_descriptive_same_run_checkpoint_progression_v1",
+  "status": "DESCRIPTIVE_ONLY_NOT_TREATMENT_CONTRAST_OR_SELECTION",
+  "to_step": 1024,
+  "uncertainty": "No inferential interval computed for this descriptive cross-checkpoint progression. Preregistered 2000 paired-log bootstrap remains reserved unchanged for fixed registered arm contrasts."
+}
