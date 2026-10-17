@@ -14,7 +14,9 @@ import json
 import math
 import os
 from pathlib import Path
+import platform
 import random
+import re
 import subprocess
 import time
 
@@ -65,12 +67,22 @@ def source_runtime(expected_source, expected_environment, device, *, configure_d
     if subprocess.check_output(['git', 'status', '--porcelain'], cwd=REPO).strip():
         raise ValueError('Commit clean probe runtime before dispatch')
     actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
-    if actual != expected_source or runtime_environment() != expected_environment:
+    expected = expected_environment
+    if not configure_device:
+        if 'cudnn' not in expected_environment.get('base', {}):
+            raise ValueError('Registered full runtime must include expected cuDNN identity')
+        expected = {**expected_environment,
+                    'base': {k: v for k, v in expected_environment['base'].items() if k != 'cudnn'}}
+    if actual != expected_source or runtime_environment(metadata_only=not configure_device) != expected:
         raise ValueError('Registered source/runtime changed')
-    if device != 'cpu' and (not device.startswith('cuda:') or not torch.cuda.is_available()):
-        raise ValueError('Explicit available CPU/CUDA device required')
+    if not isinstance(device, str) or (device != 'cpu' and not re.fullmatch(r'cuda:[0-9]+', device)):
+        raise ValueError('Explicit CPU/CUDA device identity required')
     torch.set_num_threads(2)
-    if configure_device and device.startswith('cuda:'):
+    if not configure_device:
+        return  # Plan metadata only: no CUDA/cuDNN APIs or backend activation.
+    if device.startswith('cuda:'):
+        if not torch.cuda.is_available():
+            raise ValueError('Explicit available CPU/CUDA device required')
         torch.cuda.set_device(device)
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
@@ -78,7 +90,16 @@ def source_runtime(expected_source, expected_environment, device, *, configure_d
     torch.use_deterministic_algorithms(True)
 
 
-def runtime_environment():
+def runtime_environment(*, metadata_only=False):
+    if metadata_only:
+        # Match environment_record's static fields without its cuDNN query.
+        # The complete expected runtime remains in the binding and is checked
+        # before actual extraction/fit; planning cannot verify device/cuDNN.
+        base = dict(schema='st_training_environment_v1', python=platform.python_version(),
+                    packages={name: importlib.metadata.version(name) for name in
+                              ('torch', 'transformers', 'deepspeed', 'timm', 'safetensors', 'numpy')},
+                    cuda_runtime=torch.version.cuda)
+        return dict(base=base, scikit_learn=importlib.metadata.version('scikit-learn'))
     from tools.st_world_policy.training_config import environment_record
     return dict(base=environment_record(), scikit_learn=importlib.metadata.version('scikit-learn'))
 
@@ -629,7 +650,8 @@ def main():
             else:
                 signature, _, required = cache_plan(binding)
                 result = dict(status='PLANNED_ONLY', cache_identity=signature['identity'], root=str(Path(a.output).resolve()),
-                              **required, payload_total_bytes=required['output_bytes'], no_cache_written=True)
+                              **required, payload_total_bytes=required['output_bytes'], no_cache_written=True,
+                              runtime_check='metadata_only', runtime_checks_deferred=['cuDNN', 'device'])
         print(json.dumps({k: v for k, v in result.items() if k not in ('metrics', 'exposure')}, allow_nan=False))
         return 0 if result['status'] in ('COMPLETE', 'PLANNED_ONLY') else 2
     except Exception as exc:

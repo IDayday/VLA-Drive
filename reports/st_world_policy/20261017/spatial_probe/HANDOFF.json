@@ -4,6 +4,23 @@
   "cli_help_executed": true,
   "fixed_dev_scenes": 16,
   "fixed_train_scenes": 64,
+  "followup": {
+    "documentation": "Actual probe not run; 300 exposure cycles, actual AdamW count is sum(exposure.optimizer_step); verified official PyTorch v2.5.1 loss source replaces 2.8 links.",
+    "focused_final_verification": {
+      "command": "OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 timeout 120 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_spatial_probe.py -k plan_cache_metadata",
+      "deselected": 13,
+      "elapsed_seconds": 3.68,
+      "note": "Final additional CLI metadata/deferred-check and cuDNN mismatch assertions; full14-test source run preceded these stronger focused assertions.",
+      "passed": 1
+    },
+    "gpu_used": false,
+    "independent_review_required": true,
+    "owner_parent_commit": "57a4e27218144c982e413808eedfdeda50fe6b42",
+    "plan_runtime_verification": "metadata_only; cuDNN and device deferred until execution",
+    "real_cache_or_fit_run": false,
+    "scope": "Plan-cache metadata no-CUDA correction; preserve actual extract/fit full runtime/device checks and expected signature.",
+    "test": "All CUDA/cuDNN query APIs raise during plan-cache synthetic metadata seam; actual full runtime rejects mismatched cuDNN and activates device before intercepted native loader."
+  },
   "formal_launch_allowed": false,
   "implementation_agent": "/root/st_spatial_probe",
   "label_evidence": [
@@ -38,16 +55,16 @@
     "simulations": 0
   },
   "self_signed_reviews": false,
-  "source_sha256": "a8999c52fd75f508c95a033598e54a77a3efe018f7e1d2c64d8f5048eaaefa43",
+  "source_sha256": "b9c9f74af728c99007d2a6416e0fe03d3eb182822d93668150849f668ab70f2a",
   "status": "NEEDS_INDEPENDENT_REVIEW",
   "test_command": "OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 timeout 120 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_spatial_probe.py",
-  "test_sha256": "a3274d87efcc96762ce5db88461825119dda8eca7d217e3d3bcc6e0f672a681b",
+  "test_sha256": "bc2fd3a8704a3a72a2bee42cbcda45fe63d4278bc2ce3d3e8a4fd7cf5a9952db",
   "tests": {
     "cpu_threads": 2,
-    "elapsed_seconds": 8.24,
+    "elapsed_seconds": 8.21,
     "failed": 0,
     "fixtures": "explicit CPU tensors and metadata; no mock claimed as real image/native extraction",
-    "passed": 13,
+    "passed": 14,
     "sklearn": "1.2.2",
     "torch": "2.5.1+cu124",
     "warning": "existing pynvml deprecation"

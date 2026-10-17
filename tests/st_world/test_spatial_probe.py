@@ -265,3 +265,79 @@ def test_binding_enforces_fixed_population_hash_role_and_shape(tmp_path):
     with pytest.raises(ValueError,match='pinned'):p.validate_binding(binding)
     with pytest.raises(ValueError,match='population'):p.checked_rows({**payload,'scenes':payload['scenes'][:32]},'train',64)
     with pytest.raises(ValueError,match='missing/unknown'):p.pinned({**ref,'unreviewed':True})
+
+
+def test_plan_cache_metadata_never_calls_cuda_and_extract_activates_before_model(tmp_path, monkeypatch, capsys):
+    """Synthetic metadata seams only; no images, native model or W cache is fabricated."""
+    from contextlib import nullcontext
+    from starVLA.dataloader import st_world_observation
+    from tools.st_world_policy import checkpoints
+    rows=[dict(token=str(i),log='log') for i in range(64)]
+    manifest=tmp_path/'manifest.json'
+    manifest.write_text(json.dumps(dict(schema='st_fixed_scene_list_v1',split='train',scenes=rows)))
+    training=tmp_path/'registration.json'; training.write_text('{}')
+    checkpoint=dict(sha256='a'*64,completed=5000,scope='FORMAL')
+    cfg=dict(space_time=dict(cell='S-P0'),data=dict(history_root=None))
+    base=dict(parent_identity=dict(config=dict(framework=dict(qwenvl=dict(vl_hidden_dim=2048)))))
+    class ObservationMetadata:
+        def __init__(self,*_):
+            self.rows=rows; self.identity=dict(identity='b'*64)
+        def __len__(self):return len(self.rows)
+        def __getitem__(self,_):raise AssertionError('Synthetic metadata has no real images')
+    monkeypatch.setattr(st_world_observation,'STObservationDataset',ObservationMetadata)
+    monkeypatch.setattr(checkpoints,'checkpoint_identity',lambda *_:(cfg,base,checkpoint))
+    monkeypatch.setattr(p.subprocess,'check_output',lambda args,**_:b'' if '--porcelain' in args else 'fixture')
+    def forbidden(*_,**__):raise AssertionError('Planning touched a CUDA/cuDNN API')
+    for name in ('is_available','set_device','init','_lazy_init','is_initialized','current_device',
+                 'device_count','get_device_properties','get_device_capability','get_rng_state',
+                 'get_rng_state_all','synchronize','current_stream','manual_seed_all'):
+        monkeypatch.setattr(torch.cuda,name,forbidden)
+    monkeypatch.setattr(torch.backends.cudnn,'version',forbidden)
+    environment=p.runtime_environment(metadata_only=True)
+    environment['base']['cudnn']=12345  # Expected runtime; metadata plan must defer verification.
+    binding=p.seal(dict(schema='st_spatial_w_binding_v1',source_sha='fixture',environment=environment,device='cuda:7',
+        training_registration=dict(path=str(training),sha256=p.file_sha256(training)),checkpoint_tag='step005000',
+        checkpoint_identity='a'*64,arm='S-P0',observations=dict(current_root=str(tmp_path),
+        manifest=dict(path=str(manifest),sha256=p.file_sha256(manifest)),identity='b'*64,split='train'),
+        hidden_dim=2048,memory_tokens=144,max_seconds=30.))
+    signature,data,required=p.cache_plan(binding)
+    assert signature['binding']['environment']==environment and len(data)==64
+    assert required['output_bytes']>0 and torch.get_num_threads()==2
+    binding_path=tmp_path/'binding.json'; binding_path.write_text(json.dumps(binding))
+    monkeypatch.setattr(sys,'argv',['spatial_probe','plan-cache','--binding',str(binding_path),
+                                   '--output',str(tmp_path/'never_created')])
+    assert p.main()==0
+    result=json.loads(capsys.readouterr().out)
+    assert result['runtime_check']=='metadata_only'
+    assert result['runtime_checks_deferred']==['cuDNN','device']
+    assert result['no_cache_written'] and not (tmp_path/'never_created').exists()
+    changed=copy.deepcopy(binding); changed['environment']['base']['packages']['torch']='foreign'
+    changed=p.seal({k:v for k,v in changed.items() if k!='identity'})
+    with pytest.raises(ValueError,match='source/runtime'):p.cache_plan(changed)
+    # Actual extraction retains full runtime and device checks before invoking
+    # the native loader. Only metadata files are written in this test seam.
+    calls=[]
+    monkeypatch.setattr(torch.backends.cudnn,'version',lambda:calls.append('cudnn_mismatch') or 99999)
+    with pytest.raises(ValueError,match='source/runtime'):
+        p.source_runtime('fixture',environment,'cuda:7')
+    assert calls==['cudnn_mismatch']  # No device activation under a foreign runtime.
+    calls.clear()
+    monkeypatch.setattr(torch.backends.cudnn,'version',lambda:calls.append('cudnn') or 12345)
+    monkeypatch.setattr(torch.cuda,'is_available',lambda:calls.append('available') or True)
+    monkeypatch.setattr(torch.cuda,'set_device',lambda device:calls.append(('activate',device)))
+    class BudgetMetadata:
+        def __init__(self,*_):pass
+        def reserve(self,*_,**__):return self
+        def writing(self,*_):return nullcontext()
+    monkeypatch.setattr(p,'StorageBudget',BudgetMetadata)
+    def no_model(*_,**__):
+        calls.append('native_loader')
+        raise RuntimeError('Stop before native model allocation')
+    monkeypatch.setattr(checkpoints,'load_world_checkpoint',no_model)
+    with pytest.raises(RuntimeError,match='before native model'):
+        p.extract(binding,tmp_path/'synthetic_metadata_only',tmp_path/'unused_policy.json')
+    assert calls==['cudnn','available',('activate','cuda:7'),'native_loader']
+    assert torch.backends.cuda.matmul.allow_tf32 is False
+    assert torch.backends.cudnn.allow_tf32 is False
+    assert torch.backends.cudnn.benchmark is False
+    assert torch.are_deterministic_algorithms_enabled()
