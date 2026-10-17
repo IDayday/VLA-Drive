@@ -1,0 +1,87 @@
+............................................F                            [100%]
+=================================== FAILURES ===================================
+______________ test_fifo_input_rejects_before_waiting_for_writer _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-633/test_fifo_input_rejects_before0')
+
+    def test_fifo_input_rejects_before_waiting_for_writer(tmp_path):
+        fifo = tmp_path / 'pinned-control.json'
+        os.mkfifo(fifo)
+        code = f'''
+    import sys
+    sys.path.insert(0, {str(BRIDGE)!r})
+    import storage_bridge
+    try:
+        storage_bridge.Reads().raw({str(fifo)!r})
+    except ValueError as exc:
+        assert 'regular' in str(exc)
+        print('NONREGULAR_REJECTED')
+    else:
+        raise AssertionError('FIFO was accepted')
+    '''
+        try:
+>           result = subprocess.run([sys.executable, '-c', code], text=True,
+                                    capture_output=True, timeout=1,
+                                    env={**os.environ, 'CUDA_VISIBLE_DEVICES': '',
+                                         'PYTHONDONTWRITEBYTECODE': '1'})
+
+reports/st_world_policy/20261017/correctness/w_storage_bridge_review_v1/test_independent.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py:505: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py:1154: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py:2022: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['/root/miniconda3/envs/ddp/bin/python', '-c', ...>
+endtime = 13670015.942778448, orig_timeout = 1, stdout_seq = [], stderr_seq = []
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['/root/miniconda3/envs/ddp/bin/python', '-c', "\nimport sys\nsys.path.insert(0, '/mnt/project/VLA-Drive-st-w-storage-bridge-review-20261017/reports/st_world_policy/20261017/w_storage_bridge_v1')\nimport storage_bridge\ntry:\n    storage_bridge.Reads().raw('/tmp/pytest-of-root/pytest-633/test_fifo_input_rejects_before0/pinned-control.json')\nexcept ValueError as exc:\n    assert 'regular' in str(exc)\n    print('NONREGULAR_REJECTED')\nelse:\n    raise AssertionError('FIFO was accepted')\n"]' timed out after 1 seconds
+
+/root/miniconda3/envs/ddp/lib/python3.10/subprocess.py:1198: TimeoutExpired
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-633/test_fifo_input_rejects_before0')
+
+    def test_fifo_input_rejects_before_waiting_for_writer(tmp_path):
+        fifo = tmp_path / 'pinned-control.json'
+        os.mkfifo(fifo)
+        code = f'''
+    import sys
+    sys.path.insert(0, {str(BRIDGE)!r})
+    import storage_bridge
+    try:
+        storage_bridge.Reads().raw({str(fifo)!r})
+    except ValueError as exc:
+        assert 'regular' in str(exc)
+        print('NONREGULAR_REJECTED')
+    else:
+        raise AssertionError('FIFO was accepted')
+    '''
+        try:
+            result = subprocess.run([sys.executable, '-c', code], text=True,
+                                    capture_output=True, timeout=1,
+                                    env={**os.environ, 'CUDA_VISIBLE_DEVICES': '',
+                                         'PYTHONDONTWRITEBYTECODE': '1'})
+        except subprocess.TimeoutExpired:
+>           pytest.fail('Reads.raw blocked opening FIFO before its regular-file check; bounded control admission did not return')
+E           Failed: Reads.raw blocked opening FIFO before its regular-file check; bounded control admission did not return
+
+reports/st_world_policy/20261017/correctness/w_storage_bridge_review_v1/test_independent.py:33: Failed
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/correctness/w_storage_bridge_review_v1/test_independent.py::test_fifo_input_rejects_before_waiting_for_writer
+1 failed, 44 passed in 7.24s
