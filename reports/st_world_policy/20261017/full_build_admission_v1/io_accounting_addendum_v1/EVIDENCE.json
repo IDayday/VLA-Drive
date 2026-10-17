@@ -1,0 +1,45 @@
+{
+  "active_limit_unchanged_bytes": 549755813888,
+  "active_train_admission": {
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_build_admission_v1/TRAIN_BUILD_RESOURCE_ADMISSION_V1.json",
+    "sha256": "e7cd20b754b4f8fab6b3045d1ab7f70e79b1e4299966ce80a0096761e5cc7389"
+  },
+  "actual_dev_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1/CONTROL_BUILD_ATTEMPT2_RESULT.json",
+    "sha256": "889a108501ddac3b269ecb5274406bb4d01a69bdd12d6e4a3b51d96321fe013f"
+  },
+  "budget_semantics": "512GiB logical parent+child aggregate; not a declared 2x child multiplier. Logical read syscall bytes are distinct from block-layer read_bytes.",
+  "changes": {
+    "budget": false,
+    "controller": false,
+    "dispatch": false,
+    "historical_spent": false,
+    "ledger": false,
+    "payload_reads": false,
+    "signals": false
+  },
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-full-future-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+    "sha256": "a866ae4261cad36312355028cdfba3b24f52f64b174433635d0473420ddc84bf"
+  },
+  "dev_attempt2": {
+    "derived_parent_beyond_child_rchar_bytes": 48229575,
+    "derived_post_reap_parent_delta_rchar_bytes": 4322097186,
+    "duplicate_child_addend_bytes": 4273867611,
+    "historical_cumulative_charge_retained_bytes": 10798774978,
+    "recorded_terminal_child_rchar_bytes": 4273867611,
+    "recorded_total_rchar_bytes": 8595964797
+  },
+  "diagnostic_only": true,
+  "limitations": [
+    "No current train final receipt exists in this check; projected exhaustion is not observed exhaustion.",
+    "Derived once-counted dev figure is diagnostic; existing receipt and spent balances remain immutable.",
+    "Initial failed dev has less precise child sampling and is not used to establish an exact duplicate count."
+  ],
+  "live_snapshots_commit": "57a0a6e9",
+  "reviewed_unix": 1792231537.9763596,
+  "schema": "independent_io_accounting_addendum_v1",
+  "scope": "Read-only code and existing small dev receipts; no active-process sampling or mutation.",
+  "source_semantics": "https://man7.org/linux/man-pages/man5/proc_pid_io.5.html",
+  "status": "CONFIRMED_TERMINAL_DOUBLE_COUNT"
+}
