@@ -61,6 +61,11 @@ def check_manual_fields(admission, stage):
         if stage != 'train_plan':
             raise ValueError('Only train_plan may explicitly follow the fixed dev retry')
         exact_result_pin(admission['previous_stage_result'], DEV_RETRY_DIRECTORY / 'RESULT.json')
+    if 'previous_artifact_reconciliation' in admission:
+        if stage != 'train_plan' or 'previous_stage_result' not in admission:
+            raise ValueError('Artifact reconciliation is only an explicit train_plan prerequisite')
+        from reconcile_artifact_exit import pin_shape
+        pin_shape(admission['previous_artifact_reconciliation'])
     return retry
 
 
@@ -82,8 +87,14 @@ def stage_inputs(admission, stage):
             previous, previous_pin = read(JOB / 'stages' / PREVIOUS[stage] / 'RESULT.json')
         else:
             previous, previous_pin = read(pin['path'], pin['sha256'])
+        reconciled = False
+        if 'previous_artifact_reconciliation' in admission:
+            from reconcile_artifact_exit import validate_receipt
+            validate_receipt(admission['previous_artifact_reconciliation'], failed_pin=previous_pin,
+                preparation_pin=admission['preparation'], cache_root=ROOTS['dev'], read=read)
+            reconciled = True
         if (previous.get('schema') != 'st_SP0_probe_stage_result_v1'
-                or previous.get('status') != 'COMPLETE' or previous.get('stage') != PREVIOUS[stage]
+                or (previous.get('status') != 'COMPLETE' and not reconciled) or previous.get('stage') != PREVIOUS[stage]
                 or previous.get('preparation') != admission['preparation']):
             raise ValueError('Previous fixed stage incomplete/different identity')
         if 'previous_stage_result' in admission:
@@ -92,6 +103,9 @@ def stage_inputs(admission, stage):
                 raise ValueError('Previous result is not the explicitly completed dev retry')
     cap = FIT_READ_LIMIT if stage == 'fit' else ROLE_READ_LIMIT
     accounting = dict(role_limit_bytes=cap, prior_read_bytes=0, sources=[])
+    if 'previous_artifact_reconciliation' in admission:
+        accounting['upstream_artifact_reconciliation'] = admission['previous_artifact_reconciliation']
+        accounting['upstream_supervisor_status_preserved'] = previous['status']
     if stage.endswith('_extract'):
         used = charged_read_bytes(previous['resources']['counters'])
         accounting['sources'].append(dict(result=previous_pin, charged_read_bytes=used))
@@ -146,7 +160,8 @@ def validate(admission, preparation, stage, now):
             or any(type(n) is not int or n < 0 for n in cpus)
             or not set(cpus).issubset(os.sched_getaffinity(0))):
         raise ValueError('Exactly two available leased CPUs required')
-    if set(admission.get('helpers', {})) != set(HELPERS):
+    expected_helpers = set(HELPERS) | ({'reconcile_artifact_exit.py'} if 'previous_artifact_reconciliation' in admission else set())
+    if set(admission.get('helpers', {})) != expected_helpers:
         raise ValueError('Exact reviewed helper hashes required')
     for name, expected in admission['helpers'].items():
         if hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() != expected:
