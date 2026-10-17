@@ -1,0 +1,39 @@
+{
+  "common_hidden_dim": 2048,
+  "identity": "800f88595587a6f2ed7156e7ed86cd5bbf6cf130596845dee7af0dda30a37c82",
+  "interpretation": "Fixed64train/16dev learned-W capacity diagnostic; no dev tuning, not untouched test, not full1696PDMS or sufficient generalization. Small vehicle labels are current raw-box/LiDAR-supported region proxy; depth is valid current raw LiDAR grid.",
+  "label_schema": "current_raw_lidar_distorted_full_rgb_native384_patch_v1",
+  "labels": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/spatial_probes_train64_dev16_v1/LABEL_MANIFEST.json",
+    "sha256": "5e43b13b382fce51fdd07dcf8e81f5168495bd66aeab2a535cdf90cceab93e9a"
+  },
+  "populations": {
+    "dev": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_dev16_pinned_v2/SELECTED_SCENES.json",
+      "sha256": "b544911f882b44631b515107f955c96bc43f6933a4c49bfdad1fc5dc4798d148"
+    },
+    "train": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_pinned_v2/SELECTED_SCENES.json",
+      "sha256": "58387c3779b083cd83b55f2339e49dc99ff12b136e20ea672b9dc0c50e5b40c1"
+    }
+  },
+  "recipe": {
+    "allowed_times_s": [
+      0.0
+    ],
+    "clip": 1.0,
+    "depth_beta": 0.1,
+    "dim": 128,
+    "heads": 4,
+    "layers": 1,
+    "lr": 0.001,
+    "outputs": 2,
+    "patches_per_view": 32,
+    "scenes_per_update": 2,
+    "seed": 42,
+    "threshold_logit": 0.0,
+    "updates": 300,
+    "weight_decay": 0.001
+  },
+  "schema": "st_learned_w_probe_protocol_v1"
+}

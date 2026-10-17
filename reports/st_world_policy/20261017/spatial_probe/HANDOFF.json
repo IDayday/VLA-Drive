@@ -1,0 +1,56 @@
+{
+  "automatic_push": false,
+  "base_sha": "6c4de2cb28bfaa3a55bcd2d6ffe3e05c2b5e737f",
+  "cli_help_executed": true,
+  "fixed_dev_scenes": 16,
+  "fixed_train_scenes": 64,
+  "formal_launch_allowed": false,
+  "implementation_agent": "/root/st_spatial_probe",
+  "label_evidence": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence_spatial_probe_availability_20261017/HANDOFF.json",
+      "sha256": "063ea43e6e07a9142c9efc101ddcbca758952481de06afe6d78b0d86c707d07b"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence_spatial_probe_availability_20261017/extra_train32/EXTRA_TRAIN32_ASSET_AUDIT.json",
+      "sha256": "8f85767d9cd44efacb43a2fd6220cc1a0f9a3a22f2ace845129f1acaa0be4011"
+    }
+  ],
+  "limitations": [
+    "Native5000 checkpoint/image-to-W path not executed; actual checkpoints unavailable at implementation time.",
+    "Real frozen-W readout not fitted or profiled; no scientific effect or convergence claim.",
+    "CPU interface/tensor tests cannot replace independent code correctness, true image boundary and efficiency review.",
+    "Wall budgets are cooperative between bounded operations; a native model load or single scene call may finish after the boundary.",
+    "Fixed dev16 was previously observed; probe does not replace full1696 development PDMS."
+  ],
+  "owned_paths": [
+    "tools/st_world_policy/spatial_probe.py",
+    "tests/st_world/test_spatial_probe.py",
+    "reports/st_world_policy/20261017/spatial_probe/"
+  ],
+  "protocol_reference_validated": true,
+  "protocol_sha256": "7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e",
+  "resource_use": {
+    "actual_W_cache": 0,
+    "actual_probe_fit": 0,
+    "gpu": 0,
+    "packages_installed_or_upgraded": 0,
+    "simulations": 0
+  },
+  "self_signed_reviews": false,
+  "source_sha256": "a8999c52fd75f508c95a033598e54a77a3efe018f7e1d2c64d8f5048eaaefa43",
+  "status": "NEEDS_INDEPENDENT_REVIEW",
+  "test_command": "OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 timeout 120 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_spatial_probe.py",
+  "test_sha256": "a3274d87efcc96762ce5db88461825119dda8eca7d217e3d3bcc6e0f672a681b",
+  "tests": {
+    "cpu_threads": 2,
+    "elapsed_seconds": 8.24,
+    "failed": 0,
+    "fixtures": "explicit CPU tensors and metadata; no mock claimed as real image/native extraction",
+    "passed": 13,
+    "sklearn": "1.2.2",
+    "torch": "2.5.1+cu124",
+    "warning": "existing pynvml deprecation"
+  },
+  "train_dev_log_disjoint": true
+}
