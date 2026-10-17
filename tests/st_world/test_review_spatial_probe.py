@@ -151,10 +151,14 @@ def test_metadata_only_runtime_does_not_query_or_activate_cuda(monkeypatch):
     source = 'a' * 40
     monkeypatch.setattr(p.subprocess, 'check_output', lambda argv, **kwargs:
         b'' if argv[1] == 'status' else source + '\n')
-    monkeypatch.setattr(p, 'runtime_environment', lambda: {'fixture': 'metadata-only'})
+    # The binding retains the full expected runtime.  Only device/cuDNN checks
+    # are deferred by metadata-only planning; static runtime identity is real.
+    expected = p.runtime_environment(metadata_only=True)
+    expected['base']['cudnn'] = 12345
     def forbidden(*args, **kwargs):
         raise AssertionError('Metadata-only planning queried or activated CUDA')
     monkeypatch.setattr(p.torch.cuda, 'is_available', forbidden)
     monkeypatch.setattr(p.torch.cuda, 'set_device', forbidden)
     monkeypatch.setattr(p.torch.cuda, 'init', forbidden)
-    p.source_runtime(source, {'fixture': 'metadata-only'}, 'cuda:0', configure_device=False)
+    monkeypatch.setattr(p.torch.backends.cudnn, 'version', forbidden)
+    p.source_runtime(source, expected, 'cuda:0', configure_device=False)
