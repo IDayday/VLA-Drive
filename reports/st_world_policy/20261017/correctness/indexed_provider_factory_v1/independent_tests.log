@@ -1,0 +1,58 @@
+{"source_commit": "5e0e2ec3ff236b73d3cf2f850f1e6f17dc71967d", "scope": "CPU tiny synthetic fixtures only"}
+FF........                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_legacy_scope_cannot_be_rebound_to_indexed_provider ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-535/test_legacy_scope_cannot_be_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd31d16a5c0>
+
+    def test_legacy_scope_cannot_be_rebound_to_indexed_provider(tmp_path, monkeypatch):
+        a = artifacts(tmp_path); prepare(a)
+        path = tmp_path/'legacy_scope.json'
+        scope = pp.register_provider_scope(a.pca, a.fit.root, tp.pin(a.fixed_path), path)
+        _, _, provider = tp.load_descriptor(tp.pin(a.indexed_path))
+        scope['provider_descriptor'] = tp.pin(a.indexed_path)
+        scope['provider_identity'] = provider.identity['identity']
+        scope['provider_contract_identity'] = provider.contract.identity
+        write(path, sign(scope))
+        previews = track_indices(monkeypatch)
+        try:
+            # A valid indexed target must require the new bounded/indexed scope.
+            # Re-signing an old scope may not select eager validation and extra readers.
+>           with pytest.raises(ValueError):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py:47: Failed
+________ test_pca_preview_never_opens_over_combined_metadata_allowance _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-535/test_pca_preview_never_opens_o0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd31d4cada0>
+
+    def test_pca_preview_never_opens_over_combined_metadata_allowance(tmp_path, monkeypatch):
+        a = artifacts(tmp_path); prepare(a, max_metadata_cache_bytes=128 << 20)
+        opened = []; peak = [0]; original = MetadataIndex.__init__
+        def init(index, *args, **kwargs):
+            original(index, *args, **kwargs); opened.append(index)
+            live = sum(i.max_metadata_cache_bytes for i in opened if not is_closed(i))
+            peak[0] = max(peak[0], live)
+        monkeypatch.setattr(MetadataIndex, '__init__', init)
+        with pytest.raises(ValueError, match='256 MiB'):
+            pp.register_provider_scope(a.pca, a.fit.root, tp.pin(a.indexed_path), tmp_path/'rejected.json',
+                                       fit_cache_index=a.fit_index)
+        assert not (tmp_path/'rejected.json').exists()
+        assert all(is_closed(i) for i in opened)
+>       assert peak[0] <= 256 << 20, f'Concurrent declared reader allowance {peak[0]}'
+E       AssertionError: Concurrent declared reader allowance 285212672
+E       assert 285212672 <= (256 << 20)
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py:69: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_legacy_scope_cannot_be_rebound_to_indexed_provider
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_provider_factory_v1/test_independent_provider_boundaries.py::test_pca_preview_never_opens_over_combined_metadata_allowance
+2 failed, 8 passed, 1 warning in 5.48s
