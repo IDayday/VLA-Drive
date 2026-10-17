@@ -17,7 +17,7 @@ import subprocess
 import sys
 from types import ModuleType
 
-CORE_SHA='a775a87532dab70a376cb64a7c0c19403e21e2f3a3b8040152fbefb8cebf10b9'
+CORE_SHA='8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644'
 CORE_PATH=Path(__file__).absolute().parent.parent/'full_future_metadata_preparation_v1/run_build_once.py'
 raw=CORE_PATH.read_bytes()
 if hashlib.sha256(raw).hexdigest()!=CORE_SHA:raise ValueError('Reviewed wait-boundary controller changed')
