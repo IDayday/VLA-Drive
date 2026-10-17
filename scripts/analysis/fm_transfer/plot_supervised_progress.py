@@ -69,12 +69,13 @@ def plot_learning(args):
         initial = []
         for mode, color, label in styles:
             values = [row['populations'][cohort]['modes'][mode] for row in learned]
+            short_label = 'Native' if mode == 'E_NATIVE' else 'Shift5'
             axes[0, column].plot(x, [v['mean_percent']['score'] for v in values], 'o-',
                                 color=color, label=label, linewidth=1.6)
             axes[1, column].plot(x, [reference['scenes'] - v['fully_safe_scenes'] for v in values],
-                                'o-', color=color, label=label + ': NC/DAC/TTC fail', linewidth=1.4)
+                                'o-', color=color, label=short_label + ': any safety fail', linewidth=1.4)
             axes[1, column].plot(x, [v['zero_scenes'] for v in values], 's--',
-                                color=color, label=label + ': zero score', linewidth=1.3)
+                                's--', color=color, label=short_label + ': zero score', linewidth=1.3)
             initial.append(f"{reference['modes'][mode]['mean_percent']['score']:.3f}")
         axes[0, column].set_title(f"{cohort}: {reference['scenes']} scenes / {reference['logs']} logs\n"
                                   f"Initial native/shift5 PDMS: {' / '.join(initial)}", fontsize=10)
@@ -86,13 +87,15 @@ def plot_learning(args):
         axes[1, column].set_ylim(bottom=0)
     for ax in axes.flat:
         ax.set_xticks(x)
-        ax.set_xlabel('SFT optimizer updates (thousands); initial point omitted for zoom')
+        ax.set_xlabel('SFT optimizer updates (thousands)')
         ax.grid(axis='y', alpha=.18)
     fig.suptitle(args.variant + ' — completed SFT learning observations; no RL results', fontsize=12)
-    fig.subplots_adjust(hspace=.42, wspace=.24, bottom=.14, top=.87)
-    fig.text(.5, .035, 'Single-candidate ODE; seed2101; separate grids and populations. '
+    fig.subplots_adjust(hspace=.42, wspace=.24, bottom=.16, top=.87)
+    fig.text(.5, .025, 'Single-candidate ODE; seed2101; separate grids and populations. '
              'TRAIN diagnostic is deliberately enriched for difficult scenes.\n'
              'Point means only; paired log-cluster intervals are in milestone reports. '
+             'Initial point labelled above, omitted from axes for zoom.\n'
+             'Safety fail = any NC/DAC/TTC not fully passing; not all are collisions. '
              'Not Navtest. Missing milestones: ' + (', '.join(map(str, missing)) or 'none'),
              ha='center', fontsize=8)
     output.parent.mkdir(parents=True, exist_ok=True)
