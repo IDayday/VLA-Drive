@@ -1,0 +1,141 @@
+{
+  "schema": "st_evaluation_inheritance_review_v1",
+  "status": "PASS",
+  "reviewer": "/root/temporal_narrow_review",
+  "scope": "UNCHANGED_FROZEN_EXPORT_AND_SCORE_CONFIGURATION_INHERITANCE",
+  "spec": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_channel256_actual_v1/EVALUATION_SPEC.json",
+    "sha256": "59cdf8a3ab692994f926ce460a4a353bb16ffba1a3bb21d1ff6c4beacb936452"
+  },
+  "parent_policy": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/POLICY.json",
+    "sha256": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f"
+  },
+  "parent_commands": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COMMANDS.json",
+    "sha256": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421"
+  },
+  "parent_job_id": "SP2_step005000_dev1696_seed42_v1",
+  "actual_diff": [
+    {
+      "key": "/export/argv_template/4",
+      "before": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "after": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json"
+    },
+    {
+      "key": "/export/argv_template/6",
+      "before": "__EXACT_COMPLETE_NATIVE_TAG_REQUIRED__",
+      "after": "step_005000_1792279373299682127"
+    },
+    {
+      "key": "/export/argv_template/12",
+      "before": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/export",
+      "after": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/export"
+    },
+    {
+      "key": "/export/env/CUDA_VISIBLE_DEVICES",
+      "before": "__ONE_LEAD_LEASED_GPU_REQUIRED__",
+      "after": "0"
+    },
+    {
+      "key": "/job_id",
+      "before": "SP2_step005000_dev1696_seed42_v1",
+      "after": "SP2_PCA256_step005000_dev1696_seed42_v1"
+    },
+    {
+      "key": "/score/argv/4",
+      "before": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/export",
+      "after": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/export"
+    },
+    {
+      "key": "/score/argv/14",
+      "before": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score",
+      "after": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/official_score"
+    }
+  ],
+  "checks": {
+    "all_pinned_metadata_match": true,
+    "training_lineage_and_5000_receipt_metadata_match": true,
+    "native_inventory_and_sizes_match": true,
+    "checkpoint_native_total_bytes": 37365116450,
+    "native_payloads_rehashed_in_this_review": false,
+    "strict_loader_must_rehash_payloads_at_consumption": true,
+    "source_runtime_clean_and_pinned": true,
+    "source_files_unchanged": true,
+    "dev_manifest_scenes": 1696,
+    "dev_logs": 16,
+    "parent_actual_export_complete": true,
+    "parent_actual_score_complete_exists": true,
+    "inference_contract_unchanged": true,
+    "master_fp32_TF32_off_SDPA_Euler10_seed42": true
+  },
+  "checkpoint_complete": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792279373299682127/COMPLETE.json",
+    "sha256": "5c767895cfd77734a07bcb7dab4b4b37a7dcdfff0376e3e4e10f7e5e5b1022fc"
+  },
+  "checkpoint_receipt_identity": "fddf136fb46484f8bb94f636bc595d503f3b2b80bd4487661a0bf6dcef8e886e",
+  "native_files": {
+    "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": {
+      "bytes": 7657849110,
+      "sha256": "c061671e6625651233510e0dab82f2e3532246325749ad32411045400ae13f22"
+    },
+    "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": {
+      "bytes": 7657852246,
+      "sha256": "e03570c46a3aec3731a206fae1247d4874e11bfbed22054208307ce8640d2b9d"
+    },
+    "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": {
+      "bytes": 7657854742,
+      "sha256": "b0880dd5352a12f109ebe761824802b559d27d150782fd3a6e4303f8ee4a80fa"
+    },
+    "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": {
+      "bytes": 7657861014,
+      "sha256": "fee2d30ca012e2c10e4ec4bc102ac1d85682f443e39ef5350c30a29dbac02b24"
+    },
+    "mp_rank_00_model_states.pt": {
+      "bytes": 6733597538,
+      "sha256": "151ce8c0a0da1cb1b0a6a8cf6bb48ce54c794fbffa30b9de920d479474e66e6e"
+    },
+    "rng_rank0.pt": {
+      "bytes": 25402,
+      "sha256": "4c26d2958c7029bde65adce0d6a43f9be151774434eee39c1059358b1c3a3b1f"
+    },
+    "rng_rank1.pt": {
+      "bytes": 25466,
+      "sha256": "55216835dee7aa1d3ef8acd225fbc4ab0967f3f33cbc10c67fcb16dd6b4e4a65"
+    },
+    "rng_rank2.pt": {
+      "bytes": 25466,
+      "sha256": "968625d0561982cd50b1e971f07e7811ec7b54bf6b78defdb3971a2020b245b4"
+    },
+    "rng_rank3.pt": {
+      "bytes": 25466,
+      "sha256": "3d2186762deac09702e88c4d028936aec7142505e2923a0dddba2b2bd4add5f7"
+    }
+  },
+  "inherited": [
+    "frozen6714 strict native reconstruction and inference source contract",
+    "same dev1696 observations and official reference score protocol",
+    "single Euler10 trajectory; FP32 master evaluation, TF32 off, SDPA, seed42, no online teacher/scorer",
+    "same per-scene immutable resume and score retry/CPU/concurrency limits"
+  ],
+  "pending_live_dispatch": [
+    "fresh allowed-host/lease/GPU UUID/idle and own lock checks",
+    "current disk capacity and explicit1GiB output reservation",
+    "native payload checksum verification by unchanged loader",
+    "actual export and complete official score; no result inferred from dimensions"
+  ],
+  "formal_training_authorization": false,
+  "scientific_result": "NOT_EVALUATED",
+  "dispatched": false,
+  "resources": {
+    "wall_seconds": 1.003435268998146,
+    "peak_rss_bytes": 109936640,
+    "json_source_bytes_read": 22027540,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "gpu": false,
+    "ssh": false
+  }
+}
