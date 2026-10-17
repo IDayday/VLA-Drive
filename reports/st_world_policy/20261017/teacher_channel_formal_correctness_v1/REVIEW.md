@@ -2,7 +2,7 @@
 
 Reviewer `/root/st_road_proxy_hypothesis`，非 channel-control 配置作者。审查对象为 Lead `633fc59a6518f92e9fc0508fdb80f3be3c23657c` 中的 PCA256 配置，执行源继续使用 clean immutable runtime `fdf25f99b702754787904215bf1c2a2b7515ea75`。
 
-**这是一项配置维度变化的 affected-part 审查，不需要重验整个 VLM、原 Flow 目标、数据生产或 native checkpoint 引擎。旧 SP2 审批可提供不变模块的证据，不能直接充当新 run 的审批。** 新实际 registration/environment/resource lease 尚需绑定；本文件不签发三项 PASS 或 formal 启动许可。
+**这是一项配置维度变化的 affected-part 审查，不需要重验整个 VLM、原 Flow 目标、数据生产或 native checkpoint 引擎。旧 SP2 审批可提供不变模块的证据，不能直接充当新 run 的审批。** 新实际 registration/environment/resource lease 已于本审查最后阶段绑定，见第5节；本文件只支持正确性角色，不签发三项 PASS 或 formal 启动许可。
 
 ## 1. 新 registration 的精确输入
 
@@ -61,3 +61,13 @@ W和目标为明确fixture；这不是新的真实图像或完整Base测试。�
 这些首步观察不是“先跑未经审批训练”的豁免，也不要求额外训练一个diagnostic Base；只是利用已允许的正式作业现有日志确认新维度真实接线。已有384的训练效果不能预测256效果。后续5000端点的teacher-common误差、learned-W probe与固定dev规划/风险结果分别报告。
 
 实际正式审核仍由原 `check_formal_approval` 合并三个独立角色的新 fingerprint；旧审批只作为 evidence artifact 引用。当前没有由本 reviewer 创建新 registration、lease、三项PASS或GPU任务。
+
+## 5. 实际新登记的正确性角色结论
+
+Lead 已创建真实 `formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json`，SHA256 `a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6`，并执行原 `verify_registration` 的完整文件hash校验。Lead提供的完整 fingerprint 为 `FINGERPRINT.json`，SHA256 `e9582e4b1002ce9293a6a241e9f0465c274aa0e11ad62afeda5d6c2e508097c9`。
+
+本 reviewer 随后独立核验新 config/target/Base binding/environment/lease等小文件的真实hash与已审身份，确认新 target 正是有效训练配置中的256契约；逐项重建 fingerprint；以原函数独立计算 runtime source fingerprint并检查clean SHA；确认大train/teacher manifest继承原SP2的相同路径与hash。本次不重复读取146MB教师identity，采用Lead完整hash核验和原不可变资产审批链，明确此范围。
+
+正确性结论：**PASS，仅上述精确新登记的PCA256首5000步。** 对应机器可读角色签名为 `CORRECTNESS.json`；reviewer不在本run implementer列表内。不批准其他loss、维度、预算、数据、精度或部署；不承诺256科学收益。
+
+Environment内容与已核实旧runtime一致；新的lease在结构上覆盖world4、5000步和28800秒，但本 reviewer不主张已独立核验实时GPU空闲、锁或空间。此责任由独立效率/资源审查和Lead启动前检查承担。必须取得另两个独立角色签名、运行原正式gate后才可启动。
