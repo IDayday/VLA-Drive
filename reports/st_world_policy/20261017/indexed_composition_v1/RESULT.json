@@ -1,0 +1,44 @@
+{
+  "actual_qualification": "WAITING_INPUTS_AND_INDEPENDENT_REVIEW",
+  "awaiting_lead_assets": {
+    "construction_status": "NOT_CLAIMED_COMPLETE_BY_IMPLEMENTER",
+    "pca_fit_index": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+    "request_index": "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1"
+  },
+  "cache_claims_changed": false,
+  "calculated_native_reference_bytes": {
+    "cached_composed_189": 334511856,
+    "online_294": 520351776,
+    "total": 854863632
+  },
+  "cli_help": "PASS",
+  "commands": [
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_indexed_composition.py tests/st_world/test_indexed_provider_factory.py tests/st_world/test_fixed_provider_training.py tests/st_world/test_qualify_fixed_batch_teacher.py",
+      "failed": 0,
+      "log": "tests.log",
+      "passed": 85,
+      "seconds": 42.75,
+      "skipped": 0
+    },
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_indexed_composition.py::test_multiple_scenes_reorder_shared_keys_and_distinct_missing_masks",
+      "failed": 0,
+      "log": "multiscene-test.log",
+      "passed": 1,
+      "seconds": 5.9,
+      "skipped": 0
+    }
+  ],
+  "formal_or_full_population_approval": false,
+  "implementation_files": {
+    "tools/st_world_policy/qualify_indexed_provider.py": "90d34c46478a3f12c194bbf5d632e777ea2081f5526510659dfd84cfc38b0d98",
+    "tools/st_world_policy/teacher_provider.py": "83410555d7e879407b09039f6a094fa6daac1259d0df7379cd6a220c2954b6bf"
+  },
+  "live_jobs_changed": false,
+  "new_behavior_tests": 30,
+  "real_gpu_or_teacher_payload_io": "NOT_RUN",
+  "source_start": "cf5805016b5e23bdab9541c77b562ed5fda83dc3",
+  "status": "IMPLEMENTED_CPU_FIXTURES_VERIFIED",
+  "total_distinct_tests": 86
+}

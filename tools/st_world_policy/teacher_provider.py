@@ -219,6 +219,20 @@ def _qualified_execution(d, manifest, scene_count):
     cfg, qualification = pinned(d['teacher_config']), pinned(d['qualification'])
     plan = pinned(d['qualification_plan'])
     fixed = d['execution'].get('schema') == 'st_fixed8_dino_execution_v1'
+    if plan.get('schema') == 'st_indexed_composition_plan_v1':
+        # The prior body qualification is engineering evidence only. A new
+        # population/source needs its own actual mixed-layout result.
+        from tools.st_world_policy.qualify_indexed_provider import validate_receipt
+        if (d.get('schema') != INDEXED_SCHEMA or not fixed or scene_count > 32 or
+                manifest['times_s'] != [0., .5, 1., 2., 4.] or
+                manifest['identity'] != plan['training_admission']['exact_request_identity']):
+            raise ValueError('Indexed composition is exact-population <=32-scene SMOKE only')
+        validate_receipt(plan, qualification, d)
+        contract = TeacherFeatureContract.from_dict(d['provider']['contract'])
+        if (cfg.get('command') != 'build' or cfg.get('variant') not in ('SP2', 'SP3') or
+                cfg.get('storage_dtype') != 'float32' or plan['contract'] != contract.to_dict()):
+            raise ValueError('Indexed composition teacher config/contract changed')
+        return cfg, contract, plan
     if fixed and manifest['times_s'] != [0., .5, 1., 2., 4.]:
         raise ValueError('Fixed qualification requires the complete physical future table')
     plan_schema = 'st_fixed_teacher_qualification_plan_v1' if fixed else 'st_ondemand_qualification_plan_v1'
