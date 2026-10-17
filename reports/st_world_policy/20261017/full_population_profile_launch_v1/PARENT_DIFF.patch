@@ -1,0 +1,421 @@
+--- exercised/indexed_profile64_control_v1/controller.py
++++ full_population_profile_launch_v1/controller.py
+@@ -2,0 +3,2 @@
++from contextlib import ExitStack
++from copy import deepcopy
+@@ -9,0 +12,2 @@
++import signal
++from types import ModuleType
+@@ -16,4 +20,5 @@
+-REPO=Path('/mnt/project/VLA-Drive-st-indexed-profile-runtime-v1-20261017')
+-SOURCE='2d5e9483a8c8bc80b71348211756f3cab6aa21b1'
+-OUT=ROOT/'profile/world_indexed_provider_profile32_updates64_v1'
+-RUN_ID='indexed_provider_profile32_updates64_v1'
++REPO=Path('/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017')
++SOURCE='a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a'
++OUT=ROOT/'profile/world_indexed_provider_fulltrain_updates64_world2_v1'
++FACTORY=ROOT/'audits/full_population_provider_preparation_v1'
++RUN_ID='indexed_provider_fulltrain_updates64_world2_v1'
+@@ -21,2 +26,2 @@
+-GPU='0'
+-GPU_LOCK=Path('/tmp/foresight_gpu_0.lock')
++GPU='0,1'
++GPU_LOCKS=(Path('/tmp/foresight_gpu_0.lock'),Path('/tmp/foresight_gpu_1.lock'))
+@@ -30 +35 @@
+-OTHER_COMMITMENTS=2103*(1<<30)
++OTHER_COMMITMENTS=2303*(1<<30)
+@@ -33,0 +39,8 @@
++RSS_LIMIT=64*(1<<30)
++RSS_INTERVAL=1.
++STORAGE_INTERVAL=10.
++MONITOR_SOURCES={
++ 'prepare_bindings':('/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py','31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84'),
++ 'full_profile_legacy_supervisor':('/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py','d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902'),
++ 'full_profile_ancestry':('/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/torchrun_descendant_scope_v1/owned_descendants.py','b8d38e1e66036fc09886368f4a35bb21b5ea76306291a84588a082069ee26c85')}
++METADATA_SHA='46233cf232a61e73e7e24f967b1cf316298473b017f49f4e96432d7e1b1a3591'
+@@ -62,2 +75,2 @@
+-        'scope':'PROFILE','family':'temporal','world_size':1,'micro_batch':1,'global_batch':2,
+-        'max_updates':20000,'stop_after':64,'sample_limit':32,'seed':42,
++        'scope':'PROFILE','family':'temporal','world_size':2,'micro_batch':1,'global_batch':2,
++        'max_updates':20000,'stop_after':64,'sample_limit':101592,'seed':42,
+@@ -68 +81 @@
+-        and rt.get('profile_mode','none')=='none' and rt['output_root']==str(OUT/'runs')
++        and rt.get('profile_mode','none')=='none' and rt['output_root']==str(FACTORY/'configured/runs')
+@@ -72,3 +85,3 @@
+-def command():
+-    return ['timeout','--signal=TERM','--kill-after=180s','1620s',PYTHON,'-m','torch.distributed.run',
+-        '--standalone','--nnodes=1','--nproc_per_node=1','-m','tools.st_world_policy.train_world',
++def command(resume=False):
++    argv = ['timeout','--signal=TERM','--kill-after=180s','1620s',PYTHON,'-m','torch.distributed.run',
++        '--standalone','--nnodes=1','--nproc_per_node=2','-m','tools.st_world_policy.train_world',
+@@ -75,0 +89 @@
++    return argv + (['--resume','--acknowledge-stop'] if resume else [])
+@@ -86 +100,2 @@
+-        for path in OUT.rglob('*'):
++        for count,path in enumerate(OUT.rglob('*'),1):
++            require(count<=2048,'Owned output entry bound exceeded')
+@@ -91 +106 @@
+-    require(free>=required,'Insufficient space after 2103GiB existing commitments + 1TiB floor + own remaining80GiB')
++    require(free>=required,'Insufficient space after 2303GiB existing commitments + 1TiB floor + own remaining80GiB')
+@@ -101 +116 @@
+-    rows=subprocess.check_output(['nvidia-smi','--id=0','--query-gpu=uuid,memory.used,utilization.gpu',
++    rows=subprocess.check_output(['nvidia-smi','--id='+GPU,'--query-gpu=uuid,memory.used,utilization.gpu',
+@@ -103,4 +118,50 @@
+-    require(len(rows)==1,'Exactly physical GPU0 required')
+-    uuid,memory,util=[x.strip() for x in rows[0].split(',')]
+-    if idle:require(int(memory)<64 and int(util)<=5,'GPU0 busy; never stop another job')
+-    return {'uuid':uuid,'memory_mib':int(memory),'utilization_percent':int(util)}
++    require(len(rows)==2,'Exactly physical GPU0/1 required')
++    result=[]
++    for gpu,row in zip(GPU.split(','),rows):
++        uuid,memory,util=[x.strip() for x in row.split(',')]
++        if idle:require(int(memory)<64 and int(util)<=5,'GPU'+gpu+' busy; never stop another job')
++        result.append({'id':gpu,'uuid':uuid,'memory_mib':int(memory),'utilization_percent':int(util)})
++    require(len({x['uuid'] for x in result})==2,'Duplicate physical GPU UUID')
++    return result
++
++
++def validate_population(inputs, cfg):
++    require(inputs.get('schema')=='st_full_index_profile64_controller_inputs_v1'
++        and inputs.get('source_sha')==SOURCE and inputs.get('status')=='ACTUAL_FACTORY_PINNED_NOT_DISPATCHED',
++        'Actual completed factory and resource input pins required; templates cannot prepare')
++    pins=inputs['pins']; factory=read(pins['factory_result']['path'])
++    require(factory.get('status')=='PREPARATION_COMPLETE'
++        and factory.get('training_started') is False
++        and factory.get('cli_result',{}).get('status')=='PROVIDER_PREPARATION_COMPLETE',
++        'Full-population provider factory not complete')
++    outputs=factory['cli_result']['outputs']
++    for key,name in [('config','configured/training_config.json'),('teacher_manifest','PROVIDER.json'),
++        ('provider_pca_scope','configured/PROVIDER_CHANNEL_SCOPE.json'),
++        ('config_lineage','configured/PROVIDER_CONFIG_LINEAGE.json'),('source_migration','SOURCE_MIGRATION.json')]:
++        require(outputs.get(name)==pins[key],'Factory result output pin differs: '+key)
++    require(cfg['data']['teacher_provider']['descriptor']==pins['teacher_manifest']
++        and cfg['data']['teacher_provider']['pca_channel_scope']==pins['provider_pca_scope'],
++        'Config and actual provider/PCA pins disagree')
++    descriptor=read(pins['teacher_manifest']['path']); population=read(pins['request_index_complete']['path'])
++    admission=descriptor.get('profile_admission',{})
++    require(admission.get('schema')=='st_full_index_provider_profile_admission_v1'
++        and admission.get('data_manifest')==pins['data_manifest'] and admission.get('max_scenes')==101592
++        and descriptor.get('request_index',{}).get('complete')==pins['request_index_complete']
++        and population.get('status')=='COMPLETE' and population.get('scene_count')==101592
++        and population.get('manifest_header',{}).get('split')=='train',
++        'Actual complete full original TRAIN population must match the provider')
++    require(admission.get('consumption')=={
++        'schema':'st_full_index_profile_consumption_v1','initial_completed_updates':0,'initial_epoch':0,'initial_offset':0,
++        'cumulative_optimizer_updates':64,'cumulative_scene_exposures':128,'world_size':2,'micro_batch':1,'global_batch':2,
++        'gradient_accumulation_steps':1,'per_rank_scene_exposures':[64,64],
++        'resume_budget':'same_run_cumulative_not_per_invocation','formal_global32_throughput_qualified':False},
++        'Whole-run64/128 budget changed')
++    # The factory and native provider validate every row/order/hash. This control
++    # uses its pinned COMPLETE count and never parses the full scene list again.
++
++
++def registered_config(cfg):
++    # Same output-only relocation used by the prior relocate_config.py. The
++    # provider recipe identity deliberately excludes only this output namespace.
++    result=deepcopy(cfg);result['runtime']['output_root']=str(OUT/'runs')
++    return result
+@@ -120,0 +182 @@
++    require(inputs.get('status')=='ACTUAL_FACTORY_PINNED_NOT_DISPATCHED','Required actual input pins are not bound')
+@@ -121,0 +184,3 @@
++        require(isinstance(pin,dict) and set(pin)=={'path','sha256'}
++            and isinstance(pin['sha256'],str) and len(pin['sha256'])==64,
++            'Missing exact input SHA: '+name)
+@@ -123,8 +188,2 @@
+-    require(read(inputs['pins']['factory_result']['path'])['status']=='COMPLETE','Factory not complete')
+-    cfg=read(inputs['pins']['config']['path']);validate_recipe(cfg)
+-    require(cfg['data']['teacher_provider']['descriptor']==inputs['pins']['teacher_manifest'],
+-        'Config and provider pins disagree')
+-    descriptor=read(inputs['pins']['teacher_manifest']['path'])
+-    require(descriptor['profile_admission']['data_manifest']==inputs['pins']['data_manifest'],
+-        'Registered population differs from actual PROFILE descriptor')
+-    require(len(read(inputs['pins']['data_manifest']['path'])['scenes'])==32,'Changed exact32 population')
++    cfg=read(inputs['pins']['config']['path']);validate_recipe(cfg);validate_population(inputs,cfg)
++
+@@ -134 +193 @@
+-def admission(path,sha):
++def admission(path,sha,action):
+@@ -137 +196 @@
+-    expected={'schema':'st_indexed_profile64_resource_admission_v1','status':'ADMITTED','host':HOST,'gpu':GPU,
++    expected={'schema':'st_full_index_profile64_resource_admission_v1','status':'ADMITTED','host':HOST,'gpu':GPU,
+@@ -141 +200,2 @@
+-        'max_invocation_seconds':1500,'outer_timeout_seconds':OUTER_SECONDS,'cleanup_seconds':CLEANUP_SECONDS}
++        'max_invocation_seconds':1500,'outer_timeout_seconds':OUTER_SECONDS,'cleanup_seconds':CLEANUP_SECONDS,
++        'rss_limit_bytes':RSS_LIMIT,'rss_interval_seconds':RSS_INTERVAL,'storage_interval_seconds':STORAGE_INTERVAL}
+@@ -143 +203,12 @@
+-    now=time.time()
++    require(action in a.get('allowed_actions',[]),'This action is outside its resource admission')
++    cpus=a.get('cpu_affinity')
++    require(isinstance(cpus,list) and len(cpus) in (2,4) and len(set(cpus))==len(cpus)
++        and all(type(x) is int and x>=0 for x in cpus),'Explicit bounded CPU affinity required')
++    cp_pin=a.get('checkpoint_commitments',{})
++    require(isinstance(cp_pin,dict) and set(cp_pin)=={'path','sha256'}
++        and digest(cp_pin['path'])==cp_pin['sha256'],'Fresh exact other-checkpoint commitments required')
++    cp=read(cp_pin['path']);now=time.time()
++    require(cp.get('remaining_bytes')==OTHER_COMMITMENTS and cp.get('free_floor_bytes')==FREE_FLOOR
++        and type(cp.get('valid_until_unix')) in (int,float) and math.isfinite(cp['valid_until_unix'])
++        and now+OUTER_SECONDS+CLEANUP_SECONDS<=cp['valid_until_unix'],
++        'Checkpoint obligations changed or expire during this invocation')
+@@ -153 +224,3 @@
+-    with m.lock(ROOT/'resources/indexed_profile64_preparation.lock'),m.lock(GPU_LOCK):
++    with ExitStack() as stack:
++        stack.enter_context(m.lock(ROOT/'resources/indexed_profile64_preparation.lock'))
++        for path in GPU_LOCKS: stack.enter_context(m.lock(path))
+@@ -155 +228 @@
+-        gpu=gpu_record(True);disk=storage();validate(cfg)
++        gpu=gpu_record(True);disk=storage();cfg=registered_config(cfg);validate(cfg)
+@@ -158,2 +231,2 @@
+-        lease={'schema':'st_training_resource_lease_v1','hostnames':[HOST],'world_size':1,
+-            'cuda_visible_devices_by_host':{HOST:GPU},'gpu_uuids_by_host':{HOST:[gpu['uuid']]},
++        lease={'schema':'st_training_resource_lease_v1','hostnames':[HOST],'world_size':2,
++            'cuda_visible_devices_by_host':{HOST:GPU},'gpu_uuids_by_host':{HOST:[row['uuid'] for row in gpu]},
+@@ -161 +234 @@
+-            'purpose':'One64-update exact32 supply/memory diagnostic; no fullpopulation/timing qualification',
++            'purpose':'Full original population, cumulative64 updates/128 exposures, world2/global2 diagnostic only; not formal global32 qualification',
+@@ -164 +237 @@
+-            'cpu_threads':2,'tensor_cache_write_bytes':0,'pressure_workers_killed':False,'real_jobs_stopped':False}
++            'cpu_threads':2,'cpu_affinity':approval['cpu_affinity'],'rss_limit_bytes':RSS_LIMIT,'tensor_cache_write_bytes':0,'pressure_workers_killed':False,'real_jobs_stopped':False}
+@@ -168,0 +242,4 @@
++        write(OUT/'EXECUTION_CONFIG_LINEAGE.json',{'parent':inputs['pins']['config'],
++            'child':{'path':str(OUT/'CONFIG.json'),'sha256':digest(OUT/'CONFIG.json')},
++            'changed_field':'runtime.output_root','before':str(FACTORY/'configured/runs'),'after':str(OUT/'runs'),
++            'teacher_and_mathematics_changed':False},immutable=True)
+@@ -184 +261,144 @@
+-def execute(approval_pin):
++def monitor_helpers():
++    # Execute only the exact reviewed bytes, without importing donor trainers or
++    # changing an already loaded supervisor. This is the existing PPID/pidfd
++    # ownership primitive, with an explicit 180s deadline supplied below.
++    modules={}
++    for name,(path,sha) in MONITOR_SOURCES.items():
++        p=Path(path);require(p.stat().st_size<=128<<10,'Oversized monitor source')
++        payload=p.read_bytes();require(hashlib.sha256(payload).hexdigest()==sha,'Monitor source changed')
++        if name in sys.modules:
++            existing=sys.modules[name]
++            require(getattr(existing,'__file__',None)==str(p) and getattr(existing,'_source_sha',None)==sha,
++                'Mixed pre-imported monitor dependency')
++            module=existing
++        else:
++            module=ModuleType(name);module.__file__=str(p);module._source_sha=sha
++            sys.modules[name]=module
++            try:exec(compile(payload,str(p),'exec'),module.__dict__)
++            except BaseException:del sys.modules[name];raise
++        modules[name]=module
++    require(digest(REPO/'tools/st_world_policy/metadata_storage.py')==METADATA_SHA,'RSS source changed')
++    from tools.st_world_policy import metadata_storage
++    require(Path(metadata_storage.__file__).resolve()==(REPO/'tools/st_world_policy/metadata_storage.py').resolve(),
++        'Mixed pre-imported RSS dependency')
++    process_tree_rss=metadata_storage.process_tree_rss
++    facade=modules['full_profile_ancestry'].ancestry_supervisor(modules['full_profile_legacy_supervisor'])
++    return facade,process_tree_rss
++
++
++def proc_io():
++    return {k:int(v) for k,v in (line.split(':',1) for line in Path('/proc/self/io').read_text().splitlines())}
++
++
++def rank_telemetry(run):
++    values={}
++    for rank in range(2):
++        p=run/('teacher_provider_rank'+str(rank)+'.json')
++        if p.exists():
++            require(p.stat().st_size<=64<<10,'Oversized original per-rank telemetry')
++            values[str(rank)]=read(p)
++    return values
++
++
++def monitor_training(child, owner, stopped, rss_reader, run, phase, *, started, absolute_end):
++    next_rss=next_storage=started; peak=0; reason=None; last_storage=None
++    initial_io=proc_io(); monitor_error=None; cleanup_error=None; code=None; closed=False
++    samples=OUT/('MONITOR_'+phase+'.jsonl')
++    log=None
++    def sample(active):
++        # Also used inside the existing helper's cleanup discovery loop. This
++        # observes only; it never changes membership, signals or cleanup budget.
++        nonlocal next_rss,next_storage,peak,reason,last_storage,monitor_error
++        now=time.monotonic()
++        if stopped['signal'] is not None:reason=reason or 'SUPERVISOR_SIGNAL_'+str(stopped['signal'])
++        if now<next_rss:return
++        next_rss=now+RSS_INTERVAL
++        try:
++            peak=max(peak,rss_reader(os.getpid()))
++            if peak>RSS_LIMIT:reason=reason or 'RSS_LIMIT'
++            if now>=next_storage:
++                next_storage=now+STORAGE_INTERVAL;last_storage=storage()
++            row={'elapsed_seconds':now-started,'rss_peak_bytes':peak,'active_owned':len(active),
++                'ranks':rank_telemetry(run),'storage':last_storage,'reason':reason}
++            if log is not None and log.tell()<=16<<20:
++                log.write(json.dumps(row,sort_keys=True)+'\n');log.flush()
++            else:reason=reason or 'MONITOR_LOG_LIMIT'
++        except Exception as exc:
++            reason=reason or 'MONITOR_ERROR'
++            monitor_error=monitor_error or {'class':type(exc).__name__,'message':str(exc)[:1024]}
++    try:
++        log=samples.open('x')
++        while True:
++            active=owner.discover();done=owner.leader_done()
++            if done and active:active=owner.discover()  # close normal exit between the two snapshots
++            now=time.monotonic();sample(active)
++            if done and active:reason=reason or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
++            if not active:break
++            if now-started>=OUTER_SECONDS:reason=reason or 'WALL_LIMIT'
++            if reason:break
++            time.sleep(.2)
++    except BaseException as exc:
++        reason=reason or 'MONITOR_ERROR'
++        monitor_error=monitor_error or {'class':type(exc).__name__,'message':str(exc)[:1024]}
++    # Explicitly retain the original 180s cleanup, not the donor's default40s.
++    # Wrap this one owner's read-only discovery return only while finishing.
++    # First wait/reap remains in the reviewed ownership helper.
++    discover=owner.discover
++    def sampled_discover():
++        active=discover();sample(active);return active
++    owner.discover=sampled_discover
++    try:
++        code=owner.finish(terminate=reason is not None,deadline=min(absolute_end,time.monotonic()+CLEANUP_SECONDS))
++        closed=True
++    except BaseException as exc:
++        reason=reason or 'OWNERSHIP_CLEANUP_FAILURE'
++        cleanup_error={'class':type(exc).__name__,'message':str(exc)[:1024]}
++    finally:
++        owner.discover=discover;owner.close()
++        if log is not None:log.close()
++    try:
++        final_storage=storage();telemetry=rank_telemetry(run)
++    except Exception as exc:
++        reason=reason or 'FINAL_MONITOR_ERROR';final_storage=last_storage;telemetry={}
++        monitor_error=monitor_error or {'class':type(exc).__name__,'message':str(exc)[:1024]}
++    final_io=proc_io()
++    return code,{'reason':reason,'wall_seconds':time.monotonic()-started,'rss_peak_bytes':peak,
++        'rss_limit_bytes':RSS_LIMIT,'rss_interval_seconds':RSS_INTERVAL,'storage_interval_seconds':STORAGE_INTERVAL,
++        'storage':final_storage,'rank_telemetry':telemetry,'verified_owned_processes':owner.verified,
++        'live_owned_remaining':0 if closed else None,'monitor_error':monitor_error,'cleanup_error':cleanup_error,
++        'proc_supervisor_after_wait_delta':{k:final_io[k]-initial_io[k] for k in final_io},
++        'io_scope':'supervisor self plus waited descendants after reap; rank telemetry is not added again; incomplete if cleanup fails',
++        'sampling_boundary':'1s RSS including cleanup,10s output/free-space; scheduler/filesystem delay means trigger limits, not hard OS quotas'}
++
++
++def validate_resume_state(previous):
++    require(previous.get('status')=='PAUSED' and previous.get('source_sha')==SOURCE
++        and type(previous.get('completed')) is int and 0<previous['completed']<64
++        and previous.get('exposure')==2*previous['completed'],
++        'Resume requires a native interior consumed boundary; completed64 cannot be extended')
++
++
++def archive_rank1(run,phase):
++    # The inherited archive already preserves rank0 and native RESULT/status.
++    # Keep rank1's exact bytes as well before any native resume can replace it.
++    source=run/'teacher_provider_rank1.json'
++    if source.exists():
++        require(source.stat().st_size<=64<<10,'Oversized rank1 telemetry')
++        payload=source.read_bytes();target=OUT/'invocations'/phase/source.name
++        if target.exists():require(target.read_bytes()==payload,'Existing rank1 evidence differs')
++        else:
++            with target.open('xb') as stream:stream.write(payload);stream.flush();os.fsync(stream.fileno())
++
++
++def require_resume_slot(run):
++    # Count partial slots too; COMPLETE is not a disk-allocation boundary.
++    folder=run/'checkpoints';slots=[]
++    require(folder.is_dir() and not folder.is_symlink(),'Native checkpoint directory missing/aliased')
++    for count,p in enumerate(folder.iterdir(),1):
++        require(count<=16 and not p.is_symlink(),'Unexpected native checkpoint entries')
++        if p.is_dir():slots.append(p.name)
++    require(len(slots)==1,'80GiB allows one existing native slot plus one final slot; no third slot')
++    return slots
++
++
++def execute(approval,approval_pin,resume=False):
+@@ -192,2 +412,7 @@
+-    require(prepared['resource_admission']==approval_pin and lease['resource_admission']==approval_pin,
+-        'Different resource admission; no implicit extension')
++    require(lease['resource_admission']==prepared['resource_admission'],'Registered initial admission changed')
++    if resume:
++        require(approval.get('initial_resource_admission')==prepared['resource_admission']
++            and approval.get('registration_sha256')==prepared['registration_sha256']
++            and approval.get('allowed_actions')==['resume'],'Resume needs a new explicit single-invocation admission')
++    else:
++        require(prepared['resource_admission']==approval_pin,'Different initial resource admission')
+@@ -195,0 +421,2 @@
++    require(set(lease['cpu_affinity']).issubset(os.sched_getaffinity(0)),'Admitted CPUs not available')
++    os.sched_setaffinity(0,set(lease['cpu_affinity']))
+@@ -197 +424,4 @@
+-    with m.lock(OUT/'DISPATCH.lock'),m.lock(GPU_LOCK) as gpu_lock:
++    phase='resume' if resume else 'initial'
++    with ExitStack() as stack:
++        stack.enter_context(m.lock(OUT/'DISPATCH.lock'))
++        gpu_locks=[stack.enter_context(m.lock(path)) for path in GPU_LOCKS]
+@@ -199,2 +429,9 @@
+-        require(gpu['uuid']==lease['gpu_uuids_by_host'][HOST][0],'Physical GPU0 UUID changed')
+-        require(not (OUT/'LAUNCH_initial.json').exists() and not run.exists(),'Duplicate/failed run preserved; no retry')
++        require([row['uuid'] for row in gpu]==lease['gpu_uuids_by_host'][HOST],'Physical GPU0/1 UUID changed')
++        require(not (OUT/('LAUNCH_'+phase+'.json')).exists(),'This explicit invocation already exists; no automatic retry')
++        if resume:
++            previous=read(run/'RESULT.json')
++            require((OUT/'LAUNCH_initial.json').exists(),'Original launch evidence missing')
++            validate_resume_state(previous);require_resume_slot(run)
++            m.archive_run_metadata(OUT,run,'before_resume',write);archive_rank1(run,'before_resume')
++        else:
++            require(not run.exists(),'Duplicate/failed run preserved; no retry')
+@@ -204,11 +441,30 @@
+-        with (OUT/'TRAIN_initial.log').open('xb') as log:
+-            child=subprocess.Popen(command(),cwd=REPO,env=env,stdin=subprocess.DEVNULL,stdout=log,
+-                stderr=subprocess.STDOUT,start_new_session=True,pass_fds=(gpu_lock.fileno(),))
+-        write(OUT/'LAUNCH_initial.json',{'host':HOST,'pid':child.pid,'process_starttime':m.proc_start(child.pid),
+-            'launcher_pid':os.getpid(),'launcher_starttime':m.proc_start(os.getpid()),'argv':command(),
+-            'source_sha':SOURCE,'script_sha256':digest(__file__),'started_unix':time.time(),'scope':'PROFILE',
+-            'cuda_visible_devices':GPU,'gpu_lock_path':str(GPU_LOCK),'storage':disk,'formal':False,'resume':False,
+-            'max_completed_updates':64,'sample_limit':32,'resource_admission':approval_pin},immutable=True)
+-        print(json.dumps({'status':'LAUNCHED','pid':child.pid,'run_id':RUN_ID}),flush=True)
+-        code=child.wait()
+-        m.archive_run_metadata(OUT,run,'initial',write)
++        mon,rss_reader=monitor_helpers()
++        with mon.lifetime_scope() as stopped:
++            invoked=time.monotonic()
++            absolute_end=min(invoked+OUTER_SECONDS+CLEANUP_SECONDS,invoked+lease['valid_until_unix']-time.time())
++            child=None;owner=None;leader_fd=None;entered_monitor=False
++            try:
++                with (OUT/('TRAIN_'+phase+'.log')).open('xb') as log:
++                    child=subprocess.Popen(command(resume),cwd=REPO,env=env,stdin=subprocess.DEVNULL,stdout=log,
++                        stderr=subprocess.STDOUT,start_new_session=True,pass_fds=tuple(lock.fileno() for lock in gpu_locks))
++                leader_fd=mon.pidfd_open(child.pid)
++                owner=mon.OwnedSession(child)
++                write(OUT/('LAUNCH_'+phase+'.json'),{'host':HOST,'pid':child.pid,'process_starttime':m.proc_start(child.pid),
++                    'launcher_pid':os.getpid(),'launcher_starttime':m.proc_start(os.getpid()),'argv':command(resume),
++                    'source_sha':SOURCE,'script_sha256':digest(__file__),'started_unix':time.time(),'scope':'PROFILE',
++                    'cuda_visible_devices':GPU,'gpu_lock_paths':[str(p) for p in GPU_LOCKS],'storage':disk,'formal':False,'resume':resume,
++                    'max_completed_updates':64,'max_total_scene_exposures':128,'sample_limit':101592,'resource_admission':approval_pin},immutable=True)
++                print(json.dumps({'status':'LAUNCHED','pid':child.pid,'run_id':RUN_ID}),flush=True)
++                entered_monitor=True
++                code,monitor=monitor_training(child,owner,stopped,rss_reader,run,phase,started=invoked,absolute_end=absolute_end)
++            except BaseException:
++                if child is not None and not entered_monitor:
++                    if owner is not None:
++                        try:owner.finish(terminate=True,deadline=min(absolute_end,time.monotonic()+CLEANUP_SECONDS))
++                        finally:owner.close()
++                    else:mon.abort_spawn_setup(child,leader_fd,deadline=min(absolute_end,time.monotonic()+CLEANUP_SECONDS))
++                raise
++            finally:
++                if leader_fd is not None:os.close(leader_fd)
++            write(OUT/('MONITOR_RESULT_'+phase+'.json'),monitor,immutable=True)
++        m.archive_run_metadata(OUT,run,phase,write);archive_rank1(run,phase)
+@@ -216 +472,4 @@
+-        write(OUT/'EXIT_initial.json',{'returncode':code,'ended_unix':time.time(),'result':result},immutable=True)
++        write(OUT/('EXIT_'+phase+'.json'),{'returncode':code,'ended_unix':time.time(),'result':result,
++            'status':'FAIL' if monitor['reason'] is not None or code!=0 else 'NATIVE_EXIT',
++            'monitor':monitor},immutable=True)
++        require(monitor['reason'] is None,'Monitored failure preserved even if native save/returncode succeeded')
+@@ -218 +477 @@
+-        require(result is not None and result.get('completed')==64 and result.get('status')=='PAUSED',
++        require(result is not None and result.get('completed')==64 and result.get('exposure')==128 and result.get('status')=='PAUSED',
+@@ -224 +483 @@
+-    p.add_argument('--action',choices=('preflight','prepare','run'),default='preflight')
++    p.add_argument('--action',choices=('preflight','prepare','run','resume'),default='preflight')
+@@ -229,2 +488,2 @@
+-            'updates':64,'gpu_queried':False,'output_created':False}));return
+-    approved,approval_pin=admission(args.resource_admission,args.resource_admission_sha256)
++            'updates':64,'total_exposures':128,'world_size':2,'sample_limit':101592,'gpu_queried':False,'output_created':False}));return
++    approved,approval_pin=admission(args.resource_admission,args.resource_admission_sha256,args.action)
+@@ -232 +491 @@
+-    else:execute(approval_pin)
++    else:execute(approved,approval_pin,resume=args.action=='resume')
