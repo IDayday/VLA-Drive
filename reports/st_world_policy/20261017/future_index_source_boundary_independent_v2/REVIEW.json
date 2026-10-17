@@ -1,0 +1,116 @@
+{
+  "schema": "st_index_source_boundary_independent_review_v2",
+  "status": "PASS_NARROW_SOURCE_BOUNDARY_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "author": "/root/st_indexprep_boundary_fix",
+  "target_commit": "e8ac21550ae0d38bf8414486282c0b41908d3db3",
+  "target_source": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+    "sha256": "49b21405d1dacee17405598c1a7165727db9855af4de66c2feff70ab30b93ce5"
+  },
+  "independent_tests": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "author_tests_inherited_as_ours": false
+  },
+  "original_fail_preserved": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_resource_independent_v1/REVIEW.json",
+    "sha256": "c39cbe00d4ae22352ca5df6901e6e8c9fe39ec4ca4400ce0adbbd05a29632b50",
+    "cases": "original 9 PASS / 1 FAIL / 1 ERROR; FIFO timeout ERROR is the actual defect, not a discarded harness result"
+  },
+  "fix_findings": [
+    "regular lstat plus O_NONBLOCK/O_NOFOLLOW descriptor read; bound 1MiB+1 and descriptor/path identity checks",
+    "bootstrap alarm covers actual main first load and preserves original START+120 absolute deadline",
+    "unchanged original monitor, once-only post-wait charging, limits, role routes and no automatic retry"
+  ],
+  "cost": {
+    "schema": "independent_source_boundary_review_cost_v2",
+    "source": "/mnt/project/VLA-Drive-st-indexprep-source-boundary-20261017/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+    "source_sha256": "49b21405d1dacee17405598c1a7165727db9855af4de66c2feff70ab30b93ce5",
+    "source_bytes_read": 9132,
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "wall_seconds": 0.10466643422842026,
+    "process_rchar_bytes_since_start": 2126077,
+    "process_vm_hwm_bytes": 24539136,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "fixture_payload_read_bytes": 0,
+    "fixture_payload_write_bytes": 0,
+    "events": [
+      {
+        "case": "first_load_absolute_deadline",
+        "elapsed_seconds": 0.04892280325293541,
+        "actual_external_source_loads": 0,
+        "result": "PASS"
+      },
+      {
+        "case": "fifo",
+        "elapsed_seconds": 0.00010973401367664337,
+        "fixture_content_bytes_read": 0,
+        "result": "PASS"
+      }
+    ],
+    "no_actual_payload_ledger_gpu_or_dispatch": true
+  },
+  "binding_verification": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_preparation_actual_v2/BINDINGS.json",
+    "sha256": "c15e726202a788eb027a8ce42f3c484dee1320dfb9338c9abd79f9fbf94a1cd0",
+    "explicit_small_control_source_bytes_read": 152400,
+    "verified_pins": [
+      {
+        "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_preparation_actual_v2/BINDINGS.json",
+        "sha256": "c15e726202a788eb027a8ce42f3c484dee1320dfb9338c9abd79f9fbf94a1cd0",
+        "bytes": 3394
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+        "sha256": "49b21405d1dacee17405598c1a7165727db9855af4de66c2feff70ab30b93ce5",
+        "bytes": 9132
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_index_preparation_v1/prepare_index_controls.py",
+        "sha256": "360a52ab7b8cf94bb1e8b1c7d2d6068a7ffe1acd1eec3f7761834a519d5a04d0",
+        "bytes": 25762
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalized_index_route_v1/TRAIN_INDEX_RUNTIME_SOURCE_PINS.json",
+        "sha256": "17613ead99064c538554361b9452e3be11b368b352de2cb0d9049431ec95aef1",
+        "bytes": 1595
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/storage_preparation_train_v2/PROPOSED_POLICY.json",
+        "sha256": "b69506569a24f1057d975d3a94c8cfaee75af1affc0c27279a97458d67e70cf2",
+        "bytes": 51624
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+        "sha256": "82f1eca523980e75fa28207600ac1729d1726a7d041b3e58e1a98b81e77ce614",
+        "bytes": 56084
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-finalized-indexprep-resource-review-20261017/reports/st_world_policy/20261017/checkpoint_commitments_refresh_2303g_v2/CHECKPOINT_COMMITMENTS_2303G_V2.json",
+        "sha256": "b786cd1f667ef8e7eab359e78158829183a55bd591dddd5d7e20a4b92e48e84e",
+        "bytes": 4809
+      }
+    ],
+    "output_and_control_absent_at_check": true,
+    "checked_unix": 1792248323.4128819
+  },
+  "unchanged_review_scope": [
+    "17-case finalized index-preparer review: fb846a31",
+    "original wrapper 9 passing checks: 3be27574",
+    "bf67fad2 independent correctness 14-case review, not re-executed here"
+  ],
+  "not_covered": [
+    "actual preparation invocation",
+    "full metadata index build",
+    "full-population throughput",
+    "training, teacher/model execution or tensor payload reads"
+  ],
+  "separate_build_note": "run_index_once module-level CORE_PATH.read_bytes still lacks pre-read deadline/descriptor protections. Separate build review required; does not run during preparation."
+}
