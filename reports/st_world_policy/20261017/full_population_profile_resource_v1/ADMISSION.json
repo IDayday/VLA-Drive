@@ -1,0 +1,57 @@
+{
+  "allowed_actions": [
+    "prepare",
+    "run"
+  ],
+  "automatic_resume": false,
+  "automatic_retry": false,
+  "checkpoint_commitments": {
+    "path": "/mnt/project/VLA-Drive-st-finalized-indexprep-resource-review-20261017/reports/st_world_policy/20261017/checkpoint_commitments_refresh_2303g_v2/CHECKPOINT_COMMITMENTS_2303G_V2.json",
+    "sha256": "b786cd1f667ef8e7eab359e78158829183a55bd591dddd5d7e20a4b92e48e84e"
+  },
+  "checkpoint_reservation": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_profile_resource_v1/CHECKPOINT_RESERVATION_80G.json",
+    "sha256": "dee3d6af415f9981879a3e424f177e74fae9c532dfbff81a1ca08a3c6e10bf72"
+  },
+  "checkpoint_reservation_bytes": 85899345920,
+  "cleanup_seconds": 180,
+  "controller_sha256": "bd802d47f187e494c2dde72ab8c04c670cb529d2b32b187ca06dfad3f3cc6bd1",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "free_floor_bytes": 1099511627776,
+  "gpu": "0,1",
+  "gpu_idle_uuid_fresh_check_required": true,
+  "host": "training-vla-zt-worker-0",
+  "initial_only": true,
+  "inputs_sha256": "e853aefff0ddd0ef4d65e7b656bd15c0f194f1974025788d290930dc000e2e34",
+  "latest_start_unix": 1792261097.905552,
+  "max_invocation_seconds": 1500,
+  "notes": "One initial prepare and one initial run only. Separate explicit resume admission required; no immutable lease extension. Lead must fresh-check policy, pins, idle GPU0/1 UUIDs, output absence, locks and storage. No actual GPU success is signed.",
+  "one_loader_exclusive_sequence_required": true,
+  "other_commitments_bytes": 2472827420672,
+  "outer_timeout_seconds": 1620,
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_fulltrain_updates64_world2_v1",
+  "resource_review": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_profile_resource_v1/REVIEW.json",
+    "sha256": "1ea882099a16f74ac06aedbfc472f9f1e92394b63888d61dd65f70e8142b5a72"
+  },
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "rss_interval_seconds": 1.0,
+  "rss_limit_bytes": 68719476736,
+  "run_id": "indexed_provider_fulltrain_updates64_world2_v1",
+  "schema": "st_full_index_profile64_resource_admission_v1",
+  "source_sha": "a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a",
+  "status": "ADMITTED",
+  "storage_interval_seconds": 10.0,
+  "thread_environment": {
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2"
+  },
+  "valid_from_unix": 1792252096.905552,
+  "valid_until_unix": 1792262897.905552
+}

@@ -1,0 +1,56 @@
+{
+  "status": "SOURCE_AND_PRIOR_RECEIPT_CAPACITY_ANALYSIS_ONLY",
+  "world2_actual_checkpoint_measured": false,
+  "sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689",
+      "bytes": 34353
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017/tools/st_world_policy/training_state.py",
+      "sha256": "8af70592caa5c3d1ac97d20b116543b6c7736a544120641b3b984de9e2f008c3",
+      "bytes": 8482
+    },
+    {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/runtime/engine.py",
+      "sha256": "88db49f4970ad38101946467c69abc07b67f4454d4411eea1dbc13ed9c2f460d",
+      "bytes": 189329
+    },
+    {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/runtime/zero/stage_1_and_2.py",
+      "sha256": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6",
+      "bytes": 121833
+    },
+    {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/runtime/checkpoint_engine/torch_checkpoint_engine.py",
+      "sha256": "4887c6a45c798a10c9380c4b2e809f365e63f42f8090e8c8eb9c58b56acf03b9",
+      "bytes": 1080
+    }
+  ],
+  "prior_world1_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1/runs/indexed_provider_profile32_updates64_v1/checkpoints/step_000064_1792226247328387018/COMPLETE.json",
+    "sha256": "5f5dcc3288c8542ba8b8c33343d72526b53a01c348685dc9c2cc9d3ec1a65d7d"
+  },
+  "prior_world1_native_files": {
+    "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": 30632173006,
+    "mp_rank_00_model_states.pt": 6733729058,
+    "rng_rank0.pt": 25402
+  },
+  "prior_world1_tensor_files_bytes": 37365927466,
+  "prior_world1_two_tensor_slots_bytes": 74731854932,
+  "proposed_new_reservation_bytes": 85899345920,
+  "two_slot_remaining_bytes_before_new_rank_overhead": 11167490988,
+  "old_checkpoint_commitments_preserved_bytes": 2472827420672,
+  "free_floor_bytes": 1099511627776,
+  "new_plus_old_checkpoint_commitments_bytes": 2558726766592,
+  "writer_findings": [
+    "Installed ZeRO2 engine writes full model only on data-parallel rank0 and a distinct optimizer-state partition on each rank.",
+    "stage_1_and_2 state_dict stores local master partition and local Adam moments, not one full optimizer replica per rank.",
+    "Installed TorchCheckpointEngine calls torch.save directly to native destination; no second full temporary directory is introduced.",
+    "train_world writes small per-rank RNG.pt.tmp then replaces, commits COMPLETE only after rank barrier and hashes the full native files.",
+    "World2 adds a rank shard header, RNG record and small alignment/pickle overhead. Same student tensor set and fixed recipe are required.",
+    "80GiB is a conservative advisory reservation for at most two full/partial native slots across initial and any separately admitted resume, not a measured world2 peak or permission for a third slot.",
+    "No checkpoint content, Adam state or weight file was read by this review."
+  ]
+}

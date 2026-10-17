@@ -1,0 +1,52 @@
+{
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017",
+  "dispatch_owner": "/root",
+  "environment": {
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "latest_start_unix": 1792261097.905552,
+  "prepare_argv": [
+    "taskset",
+    "-c",
+    "0-3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py",
+    "--action",
+    "prepare",
+    "--resource-admission",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_profile_resource_v1/ADMISSION.json",
+    "--resource-admission-sha256",
+    "86ef871b19998a515a1e2ba28b6f5ef69fd5b109e82665a93e8e29dd69303328"
+  ],
+  "prepare_failure_does_not_allow_automatic_retry": true,
+  "resource_admission": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_profile_resource_v1/ADMISSION.json",
+    "sha256": "86ef871b19998a515a1e2ba28b6f5ef69fd5b109e82665a93e8e29dd69303328"
+  },
+  "run_argv": [
+    "taskset",
+    "-c",
+    "0-3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py",
+    "--action",
+    "run",
+    "--resource-admission",
+    "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_population_profile_resource_v1/ADMISSION.json",
+    "--resource-admission-sha256",
+    "86ef871b19998a515a1e2ba28b6f5ef69fd5b109e82665a93e8e29dd69303328"
+  ],
+  "run_failure_does_not_allow_automatic_retry": true,
+  "source_runtime": "/mnt/project/VLA-Drive-st-finalized-full-profile-runtime-v2-20261017",
+  "status": "ADMITTED_NOT_DISPATCHED",
+  "valid_until_unix": 1792262897.905552
+}
