@@ -29,11 +29,14 @@ def projected_teacher_contract(raw_contract, *, pca_identity, dimension):
 
 class STWorldTrainingDataset(Dataset):
     def __init__(self, data_root, manifest_path, teacher_root, expected_teacher_identity,
-                 expected_contract, history_root=None, pca_path=None, require_split='train', need_future=False):
+                 expected_contract, history_root=None, pca_path=None, require_split='train', need_future=False,
+                 teacher_provider=None, provider_pca_scope=None):
         if require_split not in ('train','dev'):
             raise ValueError('ST baseline may not open test/navtest training data')
         if type(need_future) is not bool:
             raise ValueError('need_future must be a resolved bool')
+        if provider_pca_scope is not None and pca_path is None:
+            raise ValueError('Provider PCA scope requires an actual frozen basis')
         self.root=Path(data_root)
         self.manifest_path=Path(manifest_path)
         self.source=json.loads((self.root/'identity.json').read_text())
@@ -53,7 +56,16 @@ class STWorldTrainingDataset(Dataset):
         for row in self.rows:
             if row['token'] not in lookup or lookup[row['token']]['log']!=row['log']:
                 raise ValueError('Selected scene/log outside original role')
-        self.teacher=TeacherCacheReader(teacher_root,expected_identity=expected_teacher_identity)
+        if teacher_provider is None:
+            if provider_pca_scope is not None:
+                raise ValueError('Provider PCA scope requires an explicit provider')
+            self.teacher=TeacherCacheReader(teacher_root,expected_identity=expected_teacher_identity)
+        else:
+            from .st_world_ondemand import BoundedTeacherProvider
+            if (not isinstance(teacher_provider,BoundedTeacherProvider) or teacher_root is not None or
+                    teacher_provider.identity['identity']!=expected_teacher_identity):
+                raise ValueError('Explicit provider type/identity required; immutable cache root must be absent')
+            self.teacher=teacher_provider
         if need_future and self.teacher.manifest['times_s'] != [0., .5, 1., 2., 4.]:
             raise ValueError('ST future supervision requires exact times [0, 0.5, 1, 2, 4] seconds')
         if (self.teacher.manifest['split']!=require_split or
@@ -109,10 +121,12 @@ class STWorldTrainingDataset(Dataset):
             from tools.st_world_policy.teacher_pca import TeacherPCA
             receipt=json.loads((Path(pca_path)/'PCA.json').read_text())
             scope_path=Path(pca_path)/'CHANNEL_SCOPE.json'
+            application=({'provider_scope':provider_pca_scope,'target_provider':self.teacher}
+                if teacher_provider is not None else
+                {'channel_scope':scope_path if scope_path.exists() else None,'target_cache_identity':expected_teacher_identity})
             self.pca=TeacherPCA.load(pca_path,dimension=expected_contract.channels,
                 expected_identity=receipt['identity'],expected_teacher_contract=self.teacher.contract.identity,
-                channel_scope=scope_path if scope_path.exists() else None,
-                target_cache_identity=expected_teacher_identity)
+                **application)
             effective=projected_teacher_contract(self.teacher.contract,pca_identity=receipt['identity'],dimension=expected_contract.channels)
         else:
             effective=self.teacher.contract
@@ -129,6 +143,11 @@ class STWorldTrainingDataset(Dataset):
             'pca_channel_scope_identity':self.pca.channel_scope_identity if self.pca else None,
             'history_identity':self.history.manifest['identity'] if self.history else None,
             'split':require_split,'need_future':need_future,'scenes':len(self.rows)}
+        if teacher_provider is not None:
+            self.identity['schema']='st_training_dataset_provider_v1'
+            del self.identity['teacher_cache_identity']
+            self.identity['teacher_provider_identity']=expected_teacher_identity
+            self.identity['teacher_provider_resume']='identity_only_cold_rebuild'
         self.identity['identity']=identity_hash(self.identity)
 
     def __len__(self):return len(self.rows)

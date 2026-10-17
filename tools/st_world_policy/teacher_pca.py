@@ -235,7 +235,7 @@ class TeacherPCA:
 
     @classmethod
     def load(cls, root, *, dimension, expected_identity, expected_teacher_contract,
-             channel_scope=None, target_cache_identity=None):
+             channel_scope=None, target_cache_identity=None, provider_scope=None, target_provider=None):
         root=Path(root)
         receipt=json.loads((root/'PCA.json').read_text())
         done=json.loads((root/'COMPLETE.json').read_text())
@@ -247,7 +247,13 @@ class TeacherPCA:
         if receipt['fit_role']!='train' or receipt['whiten'] is not False or receipt['standardize_channels'] is not True:
             raise ValueError('PCA normalization/provenance changed')
         scope_identity=None
-        if channel_scope is not None:
+        if provider_scope is not None or target_provider is not None:
+            if (provider_scope is None or target_provider is None or
+                    channel_scope is not None or target_cache_identity is not None):
+                raise ValueError('Provider PCA scope is explicit and separate from cache identity scopes')
+            from tools.st_world_policy.provider_pca import validate_provider_scope
+            scope_identity=validate_provider_scope(provider_scope,receipt,expected_teacher_contract,target_provider)
+        elif channel_scope is not None:
             if target_cache_identity is None:raise ValueError('Explicit PCA scope requires the target cache identity')
             scope_identity=validate_channel_scope(channel_scope,receipt,expected_teacher_contract,target_cache_identity)
         elif receipt['teacher_contract_identity']!=expected_teacher_contract:

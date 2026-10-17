@@ -2,7 +2,8 @@
 
 Invoke with torchrun. New experiments strictly load the common S0, then start
 fresh matched optimizers. Resume restores this run's native complete state.
-No teacher model, scoring worker or evaluation data is loaded by this trainer.
+The default immutable-cache path loads no teacher. An explicit SMOKE-only
+provider may own a frozen teacher on the rank's device, synchronously.
 """
 from __future__ import annotations
 
@@ -101,17 +102,32 @@ def run(args):
     try:
         from starVLA.dataloader.st_world_dataset import STWorldTrainingDataset, collate_st_world
         teacher = read_json(registration["artifacts"]["teacher_manifest"]["path"])
+        provider_option = cfg["data"].get("teacher_provider")
+        provider = None
         contract = read_json(registration["artifacts"]["target_contract"]["path"])
         if contract != st.teacher.to_dict():
             raise ValueError("Registered target contract differs from active loss")
-        if Path(registration["artifacts"]["teacher_manifest"]["path"]).resolve() != (
-                Path(cfg["data"]["teacher_root"]) / "identity.json").resolve():
-            raise ValueError("Actual teacher reader root is not the registered dependency")
+        if provider_option is None:
+            if Path(registration["artifacts"]["teacher_manifest"]["path"]).resolve() != (
+                    Path(cfg["data"]["teacher_root"]) / "identity.json").resolve():
+                raise ValueError("Actual teacher reader root is not the registered dependency")
+        else:
+            from tools.st_world_policy.teacher_provider import load_descriptor, create_provider
+            if registration["artifacts"]["teacher_manifest"] != provider_option["descriptor"]:
+                raise ValueError("Registered teacher dependency must be the explicit provider descriptor")
+            # Metadata-only provider preview. Dataset validation below reads the
+            # small frozen PCA basis, but no teacher weights/target-cache tensors.
+            # Acquire run ownership before allocating the actual teacher.
+            provider = collective_call(lambda: load_descriptor(provider_option["descriptor"])[2],
+                                       "explicit label provider metadata")
+            teacher = provider.identity
         data = collective_call(lambda: STWorldTrainingDataset(
             cfg["data"]["root"], registration["artifacts"]["data_manifest"]["path"],
             cfg["data"]["teacher_root"], teacher["identity"], st.teacher,
             history_root=cfg["data"]["history_root"], pca_path=cfg["data"]["pca_path"],
-            require_split="train", need_future=st.future), "training manifest/cache")
+            require_split="train", need_future=st.future,
+            **({"teacher_provider": provider, "provider_pca_scope": provider_option["pca_channel_scope"]}
+               if provider is not None else {})), "training manifest/cache")
         if execution["sample_limit"] and len(data) != execution["sample_limit"]:
             raise ValueError("Diagnostic population must be the exact registered manifest, not a prefix")
         validate_rank_batches(len(data), execution["global_batch"], world, execution["micro_batch"])
@@ -155,6 +171,13 @@ def run(args):
         torch.backends.cudnn.allow_tf32 = False
         torch.backends.cudnn.benchmark = False
         torch.use_deterministic_algorithms(cfg["runtime"]["deterministic"])
+        if provider is not None:
+            expected_provider = provider.identity
+            provider = collective_call(lambda: create_provider(provider_option["descriptor"],
+                device=f"cuda:{local}"), "explicit frozen label provider")
+            if provider.identity != expected_provider:
+                raise ValueError("Provider changed after dataset/ownership checks")
+            data.teacher = provider
         random.seed(execution["seed"] + rank)
         np.random.seed(execution["seed"] + rank)
         torch.manual_seed(execution["seed"] + rank)
@@ -209,6 +232,9 @@ def run(args):
         master_initialization = restore_fp32_master_initialization(
             engine, master_source, is_fresh_run=fresh_master_initialization)
         del master_source
+        if provider is not None:
+            collective_call(provider.executor._check_backend,
+                            "teacher backend after student/official-runtime/DeepSpeed initialization")
         if official_policy is not None:
             engine_check = collective_call(lambda: verify_official_engine(
                 engine, client_optimizer, official_policy), "official optimizer execution")
@@ -251,7 +277,7 @@ def run(args):
                 "master_initialization": master_initialization,
                 "model_parameters": sum(p.numel() for p in model.parameters()),
                 "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
-                "teacher_instantiated": False,
+                "teacher_instantiated": provider is not None,
                 "optimizer_reset_for_common_control": "continuation" not in cfg,
                 "native_parent_state_restored_next": "continuation" in cfg}, immutable=True)
         generators = {name: torch.Generator(device="cpu" if name in ("patch", "horizon") else "cuda").manual_seed(
@@ -259,6 +285,8 @@ def run(args):
             (("noise", 9000), ("time", 10000), ("horizon", 11000), ("patch", 12000))}
         state = {"identity": signature, "completed": 0, "epoch": 0, "offset": 0, "exposure": 0,
                  "termination_reason": "RUNNING_CHECKPOINT", "counts": {}}
+        if provider is not None:
+            state["teacher_provider_state"] = provider.state_dict()
         if args.resume or "continuation" in cfg:
             if args.resume:
                 resolution = collective_call(lambda: resolve_latest(out / "checkpoints", identity=signature,
@@ -293,6 +321,9 @@ def run(args):
                 state.update(identity=signature, termination_reason="RUNNING_CHECKPOINT",
                              budget_extension_parent=resolution["parent_identity"])
                 state.pop("tag", None)
+            if provider is not None:
+                collective_call(lambda: provider.load_state_dict(state["teacher_provider_state"]),
+                                "provider identity and cold RAM rebuild")
             restore_rng(torch.load(folder / f"rng_rank{rank}.pt", map_location="cpu", weights_only=False), generators)
             if rank == 0:
                 atomic_json(out / "RESUME_RESOLUTION.json", resolution)

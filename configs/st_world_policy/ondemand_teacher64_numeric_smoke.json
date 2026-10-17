@@ -1,0 +1,104 @@
+{
+  "data": {
+    "history_root": null,
+    "pca_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1",
+    "root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "teacher_provider": {
+      "descriptor": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/ondemand_provider_wiring_v1/PROVIDER.json",
+        "sha256": "4e9c245fba5d25f812b234c00ddb5348cf7876ce0ccc5434d27d70a485a34ac9"
+      },
+      "pca_channel_scope": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/ondemand_provider_wiring_v1/configured/PROVIDER_CHANNEL_SCOPE.json",
+        "sha256": "99a10fd094bcf20e762f40535dbd99f57fcdcfca6158f97aa48cfa3a8b3f0bb7"
+      }
+    },
+    "teacher_root": null
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 64,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 2,
+    "world_size": 1
+  },
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "clip": 1.0,
+    "eps": 1e-08,
+    "lr": 1e-05,
+    "minimum_lr": 5e-07,
+    "warmup": 1000,
+    "weight_decay": 0.001
+  },
+  "runtime": {
+    "deterministic": false,
+    "gradient_checkpointing": true,
+    "loader_workers": 0,
+    "max_seconds": 900,
+    "output_root": "/mnt/project/st-world-policy-20261016/audits/ondemand_provider_wiring_v1/configured/runs",
+    "save_every": 1
+  },
+  "schema": "st_training_v1",
+  "space_time": {
+    "cell": "T2",
+    "delta": false,
+    "future": true,
+    "future_weight": 1.0,
+    "history": false,
+    "sampled_positions": 96,
+    "spatial_parent": "S-P2",
+    "teacher": {
+      "channels": 384,
+      "compute_dtype": "float32",
+      "feature_layer": "last_block_post_norm_dense_patch",
+      "image_hw": [
+        288,
+        384
+      ],
+      "native_grid_hw": [
+        18,
+        24
+      ],
+      "output_grid_hw": [
+        18,
+        24
+      ],
+      "output_layout": "HWC",
+      "patch_hw": [
+        16,
+        16
+      ],
+      "pooling": {
+        "kernel_hw": [
+          1,
+          1
+        ],
+        "kind": "none",
+        "stride_hw": [
+          1,
+          1
+        ]
+      },
+      "schema_version": "st_teacher_feature_contract_v1",
+      "source_cache_identity": null,
+      "storage_dtype": "float32",
+      "teacher_identity": "f83de897907f546ebd6c0746d74e35efbb07eeb34ccd95a28ebb6d2d611dc202",
+      "transform_identity": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+      "view_names": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ]
+    },
+    "world_queries_per_view": 48
+  }
+}

@@ -89,8 +89,16 @@ def validate_config(cfg):
     from pathlib import Path
     if not isinstance(runtime["output_root"], str) or not Path(runtime["output_root"]).is_absolute():
         raise ValueError("An isolated absolute run output root is required")
-    exact_fields(cfg["data"], {"root", "teacher_root", "history_root", "pca_path"}, "Data")
+    provider = cfg["data"].get("teacher_provider")
+    exact_fields(cfg["data"], {"root", "teacher_root", "history_root", "pca_path"} |
+                 ({"teacher_provider"} if "teacher_provider" in cfg["data"] else set()), "Data")
+    if "teacher_provider" in cfg["data"]:
+        from tools.st_world_policy.teacher_provider import validate_option
+        validate_option(provider, loader_workers=runtime["loader_workers"],
+            teacher_root=cfg["data"]["teacher_root"], pca_path=cfg["data"]["pca_path"], scope=execution["scope"])
     for name, value in cfg["data"].items():
+        if name == "teacher_provider" or (provider is not None and name == "teacher_root"):
+            continue
         if value is None and name in ("history_root", "pca_path"):
             continue
         if not isinstance(value, str) or not Path(value).is_absolute():
