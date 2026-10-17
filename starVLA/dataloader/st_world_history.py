@@ -7,6 +7,7 @@ current RGB or substitute a future frame. Existing current_observation and its
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import hashlib
 import math
@@ -265,9 +266,25 @@ class HistoryReader:
     def read(self, token, *, current_record=None):
         row = self.index[token]
         path = self.root / row['record']
-        if file_sha256(path) != row['sha256']:
-            raise ValueError('History record checksum mismatch')
-        record = validate_history_record(json.loads(path.read_text()))
+        if row.get('record_layout') == 'packed_log_v1':
+            if any(p.is_symlink() for p in (path, *path.parents)) or not path.resolve().is_relative_to(self.root.resolve()):
+                raise ValueError('History shard path escapes root')
+            offset,length=row.get('record_offset'),row.get('record_length')
+            if type(offset) is not int or type(length) is not int or offset<0 or not 0<length<=1<<20:
+                raise ValueError('Invalid history record byte range')
+            with path.open('rb') as stream:
+                before=os.fstat(stream.fileno())
+                if offset+length>before.st_size:raise ValueError('Truncated history shard')
+                stream.seek(offset);raw=stream.read(length)
+                after=os.fstat(stream.fileno())
+            if (before.st_ino,before.st_size,before.st_mtime_ns)!=(after.st_ino,after.st_size,after.st_mtime_ns) or len(raw)!=length or hashlib.sha256(raw).hexdigest()!=row['sha256']:
+                raise ValueError('History record checksum mismatch')
+            record=validate_history_record(json.loads(raw))
+        else:
+            if row.get('record_layout') not in (None,'files'):raise ValueError('Unknown history record layout')
+            if file_sha256(path) != row['sha256']:
+                raise ValueError('History record checksum mismatch')
+            record = validate_history_record(json.loads(path.read_text()))
         if record['token'] != token or record['log'] != row['log']:
             raise ValueError('History source-group mismatch')
         if current_record is not None and record['current_record_identity'] != identity_hash(current_record):

@@ -436,6 +436,10 @@ def _resources(reg):
         b._fail("unsupported metadata writer")
     if limits["max_depth"] != 0 and reg["writer_kind"] not in ("future_preparation", "history_preparation"):
         b._fail("index output must stay flat")
+    strategy = reg.get("inventory_strategy")
+    if strategy is not None and (strategy != "immutable_history_shards_v1" or
+            reg["writer_kind"] != "history_preparation" or reg.get("record_layout") != "packed_log_v1"):
+        b._fail("cached census only applies to immutable packed history")
     return limits
 
 
@@ -486,6 +490,9 @@ class MetadataWriteContext:
         self.callback_lock = threading.RLock()
         self.writer_callbacks = 0
         self.writer_commit_callbacks = 0
+        self._inventory_cache = None
+        self._inventory_at = 0.0
+        self.inventory_scans = 0
 
     def check(self, *, before_commit=False, path=None):
         """Call during long reads and immediately before *every* publication.
@@ -529,10 +536,18 @@ class MetadataWriteContext:
                 parent = b._existing_parent(target.parent)
                 if parent.stat().st_dev != self.root.stat().st_dev:
                     b._fail("metadata write parent is a different filesystem")
-            observed = tree_inventory(self.root, max_depth=self.limits["max_depth"],
-                                      max_entries=self.limits["max_entries"],
-                                      patterns=self.registration["file_patterns"],
-                                      directory_patterns=self.registration.get("directory_patterns", []))
+            # Packed history creates immutable bounded shards, not one file per
+            # scene. Keep source-read callbacks O(1); census before EVERY actual
+            # publication, on path checks, and at least once per five seconds.
+            cached = self.registration.get("inventory_strategy") == "immutable_history_shards_v1"
+            if (not cached or before_commit or path is not None or self._inventory_cache is None or
+                    now - self._inventory_at >= 5):
+                self._inventory_cache = tree_inventory(self.root, max_depth=self.limits["max_depth"],
+                    max_entries=self.limits["max_entries"], patterns=self.registration["file_patterns"],
+                    directory_patterns=self.registration.get("directory_patterns", []))
+                self._inventory_at = now
+                self.inventory_scans += 1
+            observed = self._inventory_cache
             disk = observed["charged_bytes"]
             rss = process_tree_rss(os.getpid())
             self.peak_disk_bytes = max(self.peak_disk_bytes, disk)
