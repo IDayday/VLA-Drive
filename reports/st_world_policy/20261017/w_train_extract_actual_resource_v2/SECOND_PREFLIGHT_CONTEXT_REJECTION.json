@@ -1,0 +1,17 @@
+{
+  "status": "REVIEW_CPU_CONTEXT_REJECTED_AS_DESIGNED",
+  "source_bridge_validation": "PASS before original validator",
+  "error": "Exactly two available leased CPUs required",
+  "review_cpu_affinity": [
+    8,
+    9
+  ],
+  "requested_actual_cpu_affinity": [
+    2,
+    3
+  ],
+  "actual_job_dispatched": false,
+  "admission_written": false,
+  "resource_evidence": "RETRY_MONITOR.json",
+  "explanation": "The reviewer process CPU lease intentionally excludes actual workload CPUs; this is a review harness execution-context mismatch, not a production bridge defect. Production validator remains unchanged."
+}

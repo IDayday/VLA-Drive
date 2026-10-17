@@ -1,0 +1,33 @@
+from pathlib import Path
+import hashlib,json,os,resource,signal,socket,sys,time,types
+signal.alarm(10);os.sched_setaffinity(0,{2,3});resource.setrlimit(resource.RLIMIT_AS,(256<<20,256<<20));t0=time.monotonic()
+HERE=Path(__file__).resolve().parent;LEAD=Path('/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017');JOB=Path('/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1')
+pins=[];total=0
+def read(path,expected=None):
+ global total
+ p=Path(path);assert p.stat().st_size<4<<20;b=p.read_bytes();total+=len(b);assert total<8<<20
+ h=hashlib.sha256(b).hexdigest();assert expected is None or h==expected
+ pin={'path':str(p),'sha256':h};pins.append(dict(pin,bytes=len(b)));return json.loads(b),pin
+prep,preppin=read(JOB/'controls_581399eb_v2_metadata_only/PREPARATION.json','34c174a6aa0c859a1b0a5f8b7dd800bbe189d51c770211b49c35d061e92b6431')
+f,_=read(LEAD/'w_storage_bridge_v1/FIXED_INPUTS.json','c4305f8d459694b2e89e546638c10e976074a2301b967eea32b4edc4f4bcb61f')
+_,scpin=read(LEAD/'correctness/w_storage_bridge_review_v2/SOURCE_CHECK.json')
+_,prevpin=read(JOB/'stages/train_plan/RESULT.json','001952cd9d5f608ba1761056d41159135ec3e61853d9aff5d3da90f1590aef15')
+now=time.time();cp={'path':'/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json','sha256':'13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3'}
+ad={'schema':'st_SP0_probe_stage_admission_v1','status':'APPROVED','reviewer':'/root/st_owned_descendants_review_v2','stage':'train_extract','hostname':socket.gethostname(),'reviewed_at_unix':now,'latest_dispatch_start_unix':now+600,'valid_until_unix':now+1600,'outer_wall_seconds':960,'cleanup_coverage_seconds':40,'observed_RSS_limit_bytes':64<<30,'observed_GPU_peak_limit_bytes':24<<30,'cpu_affinity':[2,3],'gpu':{'index':0,'uuid':'GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c'},'read_limit_bytes':256<<30,'remaining_read_bytes':237302801889,'control_output_total_maximum_bytes':32<<20,'runtime':prep['runtime'],'preparation':preppin,'helpers':{k:f['upstream'][k]['sha256'] for k in ('prepare_bindings.py','observed_cli.py','supervise_once.py')},'storage_policy':{'path':str(JOB/'storage_preparation_train_v2/PROPOSED_POLICY.json'),'sha256':'b69506569a24f1057d975d3a94c8cfaee75af1affc0c27279a97458d67e70cf2'},'storage_migration':{'path':str(JOB/'storage_preparation_train_v2/MIGRATION_RECEIPT.json'),'sha256':'f3fdcb64fc33b088013f50a3fb410c3a3f124b3a9379edc6ac6243be9d97990c'},'checkpoint_commitments':cp,'storage_compatibility':{'path':str(JOB/'storage_preparation_train_v2/STORAGE_COMPATIBILITY.json'),'sha256':'484292108ec085f7e512ccbfd8bd5aac15824b21f6420a5efe1cad1b8443e7f6'},'typed_storage_approved':True,'launch_approved':True,'formal_training_approved':False,'automatic_retry':False,'scope':'One original fixed SP0 train64 frozen-W extraction only using exact reviewed storage bridge; no standalone plan, DEV rerun, fit, training, or automatic continuation. Lead alone dispatches.','independent_bridge_correctness':scpin,'current_ledger_at_review':{'path':str(Path(f['ledger'])/'CLAIMS.json'),'sha256':'9bc3942bbda7a00dcd785ea226e5c1698b67cbeffd4a9d6c5efa46dda27572ad'},'previous_plan_evidence':prevpin,'training_or_scientific_PASS':False,'GPU_inventory_basis':'First preflight exactGPU0 UUID, <=64MiB and0percent/no owner assertions passed; no new GPU probe during narrow retries. Lead/original launcher must check fresh again.'}
+for name in ('prepare_bindings','supervise_once'):
+ pin=f['upstream'][name+'.py'];p=Path(pin['path']);b=p.read_bytes();total+=len(b);assert hashlib.sha256(b).hexdigest()==pin['sha256']
+ m=types.ModuleType(name);m.__file__=str(p);sys.modules[name]=m;exec(compile(b,str(p),'exec'),m.__dict__)
+original=sys.modules['supervise_once'];wall,rss=original.validate(ad,prep,'train_extract',now);assert wall==960 and rss==64<<30
+attempt,accounting,pp=original.stage_inputs(ad,'train_extract');assert accounting['remaining_read_bytes']==237302801889 and pp==prevpin and not attempt.exists()
+assert 'torch' not in sys.modules
+out=HERE/'ADMISSION.json'
+with out.open('x') as stream:stream.write(json.dumps(ad,indent=2,sort_keys=True)+'\n')
+adpin={'path':str(out),'sha256':hashlib.sha256(out.read_bytes()).hexdigest()}
+command={'argv':['/root/miniconda3/envs/ddp/bin/python',str(LEAD/'w_storage_bridge_v1/supervise_bridge.py'),'--admission',adpin['path'],'--admission-sha256',adpin['sha256']],'cwd':prep['runtime']['path'],'dispatch_owner':'Lead','executed':False}
+with (HERE/'COMMAND.json').open('x') as stream:stream.write(json.dumps(command,indent=2)+'\n')
+hwm=next(int(x.split()[1])*1024 for x in Path('/proc/self/status').read_text().splitlines() if x.startswith('VmHWM:'))
+rchar=int(next(x.split(':')[1] for x in Path('/proc/self/io').read_text().splitlines() if x.startswith('rchar:')))
+assert hwm<256<<20 and total<8<<20 and rchar<8<<20 and time.monotonic()-t0<10
+review={'status':'APPROVED_ONE_TRAIN64_EXTRACTION_ONLY','reviewer':ad['reviewer'],'admission':adpin,'actual_original_validate_and_stage_inputs':'PASS on actual admittedCPU2/3; no monkeypatch','actual_exact_bridge_preflight':'PASS in narrow retry before intentional review8/9 versus task2/3 originalCPU-context rejection','inherited_code_review':scpin,'prior_harness_failures_preserved':['FIRST_PREFLIGHT_FAILURE.json','SECOND_PREFLIGHT_CONTEXT_REJECTION.json','RETRY_STDERR.log','RETRY_MONITOR.json'],'policy_additive_checks':'original12 claims and metadata envelope byte-value preserved; one86,254,736B typedtrainW member added; no live ledger mutation by reviewer','previous_plan_read_charge_bytes':accounting['prior_read_bytes'],'remaining_role_read_bytes':accounting['remaining_read_bytes'],'stage_inputs':accounting,'fresh_ledger_at_prior_control_review':ad['current_ledger_at_review'],'model_or_image_payload_read':False,'GPU_allocation_or_model_execution':False,'GPU_query_in_narrow_retries':False,'dispatch':False,'no_new_scientific_or_training_approval':True,'cost_final_narrow_check':{'wall_seconds':time.monotonic()-t0,'explicit_read_bytes':total,'process_rchar_total_bytes':rchar,'actual_self_VmHWM_bytes':hwm,'cpu_affinity':sorted(os.sched_getaffinity(0))},'remaining_boundary':'One fixed64TRAIN extraction is permitted under original runtime/controller/bridge. Actual completion, tensor equivalence and fit remain unclaimed. Lead/original launch must freshcheckGPU,CPU,locks,remaining wall and storage. No automatic retry.'}
+with (HERE/'REVIEW.json').open('x') as stream:stream.write(json.dumps(review,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'admission':adpin,'cost':review['cost_final_narrow_check']}))
