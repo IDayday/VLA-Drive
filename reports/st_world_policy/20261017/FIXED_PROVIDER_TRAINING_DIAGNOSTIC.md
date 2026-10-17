@@ -97,5 +97,36 @@ teacher, samples, recipe and shared160GiB checkpoint reservation. The original
 continuous controller was not edited. Its SHA-pinned split-only wrapper is
 `resources/qualify_fixed_provider_split_gpu3_v1.py`, SHA256
 `a2469673a460d4abf94b9b6cceced9b50154ac7d24eee49170e2b278a78750f0`.
-Pause1/resume1 and the independent complete-state comparison remain pending at
-this update. No formal temporal provider approval is implied.
+At that update, pause1/resume1 was pending. The completed result follows; no
+formal temporal provider approval is implied.
+
+## Completed split recovery and numerical boundary, 2026-10-17 04:48 UTC
+
+The split arm paused after one consumed update and resumed its own exact native
+checkpoint in a new process. Resume exited zero at update2, epoch0/offset2, after
+exactly one additional optimizer update. It computed24 images, reused6 immutable
+records, used4 fixed8 calls and retained the same bounded LRU. Provider failures
+and newly written teacher tensor bytes were both zero.
+
+Independent review is in
+`correctness/fixed_provider_native2/README.md` and `REVIEW.json`. The actual
+saved Python/NumPy/CPU/CUDA and task-specific RNG states match between both arms
+at steps1 and2; next sample IDs and the consumed cursor match. Strict native
+loading and the FP32 master/moment structure were checked. The unchanged native
+loader retains its earlier independent live-state qualification. This grants a
+limited **training-wiring and functional recovery PASS**, not a claim that all
+current live optimizer values were reread and compared bitwise.
+
+The independently initialized runs already had different first-step gradient
+norms before recovery (3.7669742107 versus3.7667880058), despite identical losses,
+initial master hashes, inputs and denominators. A separate8.055-second test of
+the installed FA2 entrypoint reproduced backward variability with default FA2
+settings, while explicit FA2 deterministic backward repeated exactly. It does
+not prove the unique cause of all full-model differences, and no production
+backend was changed. The first tiny test's pre-backward resource-guard failure
+is retained with the successful revised test.
+
+No149GB full-state reread or third full-model experiment was run to rediscover
+the already-observed independent-run variation. The provider remains SMOKE-only;
+large-population metadata, sustained throughput and formal admission are separate
+pending work. Existing W/C training runtimes remain unchanged.
