@@ -1,0 +1,51 @@
+{
+  "actual_free_bytes": 7337491095552,
+  "actual_gpu_fresh_check": "PASS",
+  "actual_stage_inputs": {
+    "prior_read_bytes": 68166209851,
+    "remaining_read_bytes": 206711697093,
+    "role_limit_bytes": 274877906944,
+    "scope": "sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO",
+    "sources": [
+      {
+        "charged_read_bytes": 37533999575,
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json",
+          "sha256": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520"
+        }
+      },
+      {
+        "charged_read_bytes": 30632210276,
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+          "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327"
+        }
+      }
+    ]
+  },
+  "actual_validate": [
+    960,
+    68719476736
+  ],
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/sp0_dev_extract_manual_retry_resource_v1/ADMISSION.json",
+    "sha256": "adc1b2fea2418f138a8668c780c3ed6ef0f2a9c3226fe1c4695a37d579245898"
+  },
+  "checkpoint_commitments": {
+    "path": "/mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/indexed_profile64_training_admission_v1/CHECKPOINT_COMMITMENTS_2183G_V1.json",
+    "sha256": "d5bce1fec28d6ce3dab496287c9be41852ca154495ecf4cf686c7e780ebf4d52"
+  },
+  "dispatch": false,
+  "existing_W_claim_reused": true,
+  "helpers": {
+    "observed_cli.py": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643",
+    "prepare_bindings.py": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84",
+    "supervise_once.py": "747873b72ce6bcb2cfd3163bd89ce1560e4538d1069952d8deed176c349a67ef"
+  },
+  "latest_start_unix": 1792228597.0036902,
+  "ledger_write": false,
+  "model_or_tensor_reads": false,
+  "new_attempt_created": false,
+  "status": "PASS_ONE_EXPLICIT_DEV_EXTRACT_RETRY_RESOURCE_ADMISSION",
+  "valid_until_unix": 1792229597.0036902
+}
