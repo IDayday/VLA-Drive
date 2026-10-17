@@ -1,0 +1,109 @@
+{
+  "actions": {
+    "GPU": false,
+    "SSH": false,
+    "dispatch": false,
+    "ledger_mutation": false,
+    "new_profile": false,
+    "signals": false,
+    "teacher_identity_scan": false,
+    "tensor_or_checkpoint_read": false
+  },
+  "basis": [
+    "Existing fdf25f99 real four-GPU/global32/micro4/caller accumulation2 profiles and the actual5000-update SP2 full-population completion are inherited only for the unchanged affected execution path.",
+    "PCA256 changes the projected channel count, derived target identity and independent output namespace. No new teacher cache, provider, precision, backbone or topology is introduced.",
+    "Exact config/target/environment/lease hashes and complete fingerprint match the actual new registration; original Base/data/teacher/PCA pins remain unchanged without rereading the huge teacher identity.",
+    "New240GiB checkpoint budget plus720GiB stated existing-run reservations and1TiB floor needs1984GiB. Observed free6516988932096B also covers the conservative prior known2463GiB reserve plus this new240GiB and1TiB floor (3727GiB); no old reservation is released by this review.",
+    "Five planned native checkpoints at1000..5000 use the inherited40GiB per-save upper bound and40GiB contingency. The actual old5000 receipt/stat sum is37366035746B."
+  ],
+  "created_utc": "2026-10-17T17:15:53.759202+00:00",
+  "decision": "PASS for the exact registered PCA256 5000-update current-only spatial run using the inherited fdf25f99 four-GPU official execution path and the new independent resource/storage binding. Dispatch remains contingent on the existing launcher fresh-idle checks and all other independent review roles; the current observation is explicitly occupied.",
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-resource-review-20261017/reports/st_world_policy/20261017/teacher_channel_resource_review_v1/REVIEW.json",
+      "sha256": "3151e6e83390060a7fa165e21e2b5348cfe81557d3dc9c4fdd42dae87a752617"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-resource-review-20261017/reports/st_world_policy/20261017/teacher_channel_resource_review_v1/ACTUAL_BINDING_CHECKS.json",
+      "sha256": "87344b8fc54bcf348cfa9c967a71c6aee203139392af2304c246194e59ff38fe"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/FINGERPRINT.json",
+      "sha256": "e9582e4b1002ce9293a6a241e9f0465c274aa0e11ad62afeda5d6c2e508097c9"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/RESOURCE_LEASE.json",
+      "sha256": "b841c7c4696ba5b84ecc913bbb2c0437f6a16f8794502fd50534abeb16e0be3a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/DATA_AND_STORAGE_BOUNDARY.json",
+      "sha256": "a1ed5f8917fdfb71341f992fec311b554c24acf8a9710bd8ffb97bc861d3441b"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/RESOURCE_OBSERVATION.json",
+      "sha256": "a38452cb6fcbe7ea1bdf3778a1bc63583df575f46a901654bb82327f99b36fee"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/world_official_runtime_4gpu_A_v1/TIMING_SUMMARY.json",
+      "sha256": "e7be118dc7d6a7457aff02e752f8f212b05c69cb3a41c0e98ef1f855e30be489"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/world_official_runtime_4gpu_B_v1/TIMING_SUMMARY.json",
+      "sha256": "818e0a2b49cce01b3a90ca4adc1edac206a6407259e39ceda85245b0aa85b78d"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/RESULT.json",
+      "sha256": "eb06fd877ca1f32c7412303e439a1464ee728b56841808e4863178c3e6dca5da"
+    }
+  ],
+  "fingerprint": {
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "b841c7c4696ba5b84ecc913bbb2c0437f6a16f8794502fd50534abeb16e0be3a",
+      "target_contract": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 5000,
+      "world_size": 4
+    },
+    "registration_sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6",
+    "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec"
+  },
+  "independence": "Reviewer did not implement this teacher-channel configuration or original official runtime; identity is absent from registered implementer_agents.",
+  "limitations": [
+    "No new256 timing or memory measurement is claimed; no additional prelaunch topology experiment is required by this affected-scope review.",
+    "Historical profiles used64 scenes and concurrent2x4 execution; full-population cold-IO speed and current standalone speed are not guaranteed.",
+    "Historical full-process-tree CPU/RSS peaks were incomplete; no new hard host-RSS guarantee is inferred.",
+    "Current resource observation is Lead-collected, explicitly occupied; this is an execution/resource approval with required fresh launch checks, not a present-idle assertion.",
+    "The registration1984GiB guard is not permission to discard or undercount other existing reservations.",
+    "RESOURCE_OBSERVATION pressure_processes_not_stopped is not an ownership proof. Subsequent Lead correction identifies real diagnosis work and its natural exit; require fresh launch checks rather than relabeling or signaling those old PIDs."
+  ],
+  "mandatory_dispatch_requirements": [
+    "Do not stop unknown or real tasks. Only positively verified owned pressure workers, if actually present, may be released under current authorization. Lead later identified the old occupancy as a real diagnosis job that exited naturally; this reviewer sends no signals.",
+    "Acquire the existing nonblocking GPU0..3 locks; then recheck exact hostname/UUIDs against this lease, memory strictly below64MiB and utilization strictly below5 percent, no conflicting owners, and hold locks through torchrun/native cleanup. Reject launch while the recorded9005MiB/29-30 percent occupancy persists.",
+    "Fresh-check the allowed-host policy and lease, exact environment and output uniqueness, shared IO conditions, free space and outstanding checkpoint obligations; preserve the new240GiB reservation and1TiB floor in addition to existing obligations.",
+    "Use the registered5000-stop/original20k schedule, current-only objective and28800s invocation bound. Extra pauses or saves consume contingency and are not authority for budget expansion.",
+    "Combine this exact efficiency fingerprint with separate evidence and correctness reviews using the unchanged formal checker; no old384 approval or lease substitutes for this run."
+  ],
+  "reviewer_agent": "/root/st_owned_descendants_review_v2",
+  "role": "efficiency",
+  "schema": "st_world_review_v1",
+  "status": "PASS"
+}
