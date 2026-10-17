@@ -15,6 +15,29 @@ from starVLA.rl.simwam_recipe.contracts import POPULATION, file_sha, fingerprint
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+def validate_origin_ranks(source, ranks):
+    """The sealed pre-ledger historical worker did not write a rank identity.
+
+    Only that exact evaluator hash may use its recorded shard counts instead.
+    Every original scene's manifest/payload hash is still checked below.
+    """
+    legacy = 'f9bfa2d205bd9548beca787730c8cf7508f2412998e72f7665848e062b218163'
+    modes = []
+    if len(ranks) != source['shards']: raise ValueError('Missing original rank')
+    for rank, record in enumerate(ranks):
+        expected = len(range(rank, source['scenes'], source['shards']))
+        if record['status'] != 'ASSIGNED_COMPLETE' or record['new'] + record['reused'] != expected:
+            raise ValueError('Original rank did not complete its assigned population')
+        if 'identity_sha256' in record:
+            if record['identity_sha256'] != source['sha256']: raise ValueError('Original rank identity changed')
+            modes.append('rank_identity_and_per_scene_seals')
+        elif source['source_sha256'] == legacy and record['direct_original_check']:
+            modes.append('exact_legacy_worker_shard_counts_and_per_scene_seals')
+        else:
+            raise ValueError('Missing rank identity without the qualified historical worker schema')
+    return sorted(set(modes))
+
+
 def summarize(values, logs, reference=None):
     if values.shape != (len(logs), len(METRICS)) or not np.isfinite(values).all() or np.any((values < 0) | (values > 1)):
         raise ValueError('Invalid complete score matrix')
@@ -46,8 +69,7 @@ def read_bank(root):
     if file_sha(origin / 'manifest.json') != identity['original_manifest_sha256'] or source['sha256'] != identity['original_manifest_identity']:
         raise ValueError('Original evaluation manifest changed')
     ranks = [json.loads((origin / f'rank{i}.json').read_text()) for i in range(source['shards'])]
-    if any(r['status'] != 'ASSIGNED_COMPLETE' or r['identity_sha256'] != source['sha256'] for r in ranks):
-        raise ValueError('Original full evaluation is not yet complete')
+    rank_validation = validate_origin_ranks(source, ranks)
     attempts = [json.loads(p.read_text()) for p in sorted((root / 'attempts').glob('*.json'))]
     if not attempts or any(r['status'] == 'RUNNING' for r in attempts): raise ValueError('Scoring workers still running')
     if any(r['identity_sha256'] != identity['sha256'] for r in attempts): raise ValueError('Mixed scoring attempts')
@@ -84,7 +106,7 @@ def read_bank(root):
     arrays = {v: {m: np.asarray(x, dtype=np.float64) for m, x in modes.items()} for v, modes in rows.items()}
     starts = [datetime.fromisoformat(r['started_utc']).timestamp() for r in attempts]
     ends = [datetime.fromisoformat(r['ended_utc']).timestamp() for r in attempts if 'ended_utc' in r]
-    cost = dict(additional_model_predictions=0,
+    cost = dict(additional_model_predictions=0, original_rank_validation=rank_validation,
         logical_scored_trajectories=2 * len(tokens),
         committed_actual_scoring_calls=sum(r['physical_scoring_calls'] for r in attempts),
         cumulative_CPU_worker_scoring_seconds=sum(r['scoring_worker_seconds'] for r in attempts),
