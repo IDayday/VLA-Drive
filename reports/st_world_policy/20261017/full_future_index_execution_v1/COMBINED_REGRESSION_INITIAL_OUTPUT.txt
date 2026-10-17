@@ -1,0 +1,51 @@
+.....................................................................F.. [ 63%]
+..........................................                               [100%]
+=================================== FAILURES ===================================
+__________ test_real_owned_read_child_is_counted_once_across_wait[3] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-642/test_real_owned_read_child_is_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7feff0f9efe0>
+exitcode = 3
+
+    @pytest.mark.parametrize('exitcode',[0,3])
+    def test_real_owned_read_child_is_counted_once_across_wait(tmp_path,monkeypatch,exitcode):
+        helpers=Path('/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1')
+        for name,digest in m.MONITORS.items():assert hashlib.sha256((helpers/name).read_bytes()).hexdigest()==digest
+        monkeypatch.syspath_prepend(str(helpers))
+        import supervise_once as supervisor
+        import observed_cli as observer
+        child_file=tmp_path/'child_payload';parent_file=tmp_path/'parent_payload'
+        child_file.write_bytes(b'c'*(4<<20));parent_file.write_bytes(b'p'*(2<<20))
+        code="""import json,sys,time
+    read=lambda:{k:int(v) for k,v in (line.split(':') for line in open('/proc/self/io'))}
+    before=read()
+    with open(sys.argv[1],'rb') as f:
+        while f.read(1<<20):pass
+    time.sleep(.3)
+    after=read()
+    print(json.dumps({'schema':'st_full_future_child_result_v2','cli_result':{'status':'GUARDED_METADATA_RETURN'},'error':None if int(sys.argv[2])==0 else {'type':'FixtureExit','message':'bounded nonzero fixture'},'counters':{'proc_self_io_baseline':before,'proc_self_io_final':after,'proc_self_io_delta':{k:after[k]-before[k] for k in after}}}))
+    raise SystemExit(int(sys.argv[2]))
+    """
+        parent_read=[]
+        def rss(_):
+            if not parent_read:
+                with parent_file.open('rb') as f:
+                    while f.read(1<<20):pass
+                parent_read.append(True)
+            return 32<<20
+        monkeypatch.setattr(m,'BOOT_IO',observer.proc_io())
+        monkeypatch.setattr(m,'START',time.monotonic())
+        budget=m.limits('dev');budget.update(wall_seconds=10,read_bytes=64<<20,rss_bytes=1<<30)
+        with (tmp_path/'owned-fd').open('wb') as fd:
+            r=m.monitor([sys.executable,'-c',code,str(child_file),str(exitcode)],runtime=str(tmp_path),
+                env=dict(os.environ,CUDA_VISIBLE_DEVICES=''),fd=fd.fileno(),root=tmp_path,s=supervisor,
+                m=SimpleNamespace(process_tree_rss=rss),obs=observer,budget=budget)
+        a=r['read_accounting'];child=r['charged_owned_child_rchar_bytes']
+>       assert r['returncode']==exitcode and r['failure'] is None
+E       AssertionError: assert (3 == 3 and 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT' is None)
+
+reports/st_world_policy/20261017/full_future_metadata_preparation_v1/test_terminal_accounting.py:93: AssertionError
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/full_future_metadata_preparation_v1/test_terminal_accounting.py::test_real_owned_read_child_is_counted_once_across_wait[3]
+1 failed, 113 passed in 3.03s
+{"address_space_limit_bytes": 2147483648, "cpu_affinity": [0, 1], "exit_code": 1, "gpu": false, "ledger_written": false, "new_adapter_largest_fixture_bytes": 1048577, "peak_rss_bytes": 71561216, "real_index_run": false, "reused_monitor_new_payload_fixture_bytes": 12582912, "schema": "st_index_control_cpu_tests_v1", "torch_imported": false, "wall_limit_seconds": 180, "wall_seconds": 3.431585356593132}
