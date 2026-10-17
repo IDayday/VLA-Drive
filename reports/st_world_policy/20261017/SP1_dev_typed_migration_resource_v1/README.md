@@ -1,0 +1,11 @@
+# SP1 actual plan passes; typed-W append is blocked
+
+The actual SP1 dev_plan completed with no GPU/native load,42.772 s supervisor wall,694,788,096-byte sampled RSS and37,533,211,956 charged logical-read bytes. It leaves237,344,694,988 bytes in the cumulative dev-role budget. Its actual signature matches the previously prepared signature. No plan repeat is needed.
+
+**FAIL_ACTUAL_DECLARATION_COMPATIBILITY_BEFORE_MIGRATION.** Existing SP0 dev/train signature bindings use compute source `581399eb309677c20fe7464791b4f18685e947a6`. The actual new SP1 binding uses the reviewed storage-only source `2a1e140a64d2817247ceb6214f7f2affa20d56c6`. The storage implementation's `validate_package` compares `(base_binding, binding.source_sha, environment)` across all members and therefore rejects this exact mixed package.
+
+The counterexample used the actual current policy and three small signatures, added only the proposed SP1 dev claim in memory, then called the real package validator. Per-signature deep validation was substituted with the already-admitted binding/size to avoid rereading native run identities; the package-wide comparison itself was unchanged. It raised `StorageBudgetError: BLOCKED_STORAGE: frozen W arms must share original Base and extraction runtime` in0.0085 s. No ledger or cache was written. `PROPOSED_SP1_DEV_CLAIM_NOT_ADMITTED.json` is evidence only.
+
+The next implementation must retain each real source/hash and both existing SP0 and new SP1 signatures. Compatibility must explicitly pin the two source versions, the two reviewed storage-file hashes and the unchanged computation contract; Base/environment must still match. An arbitrary third source, changed mathematical code or unsupported provenance must remain rejected. Deleting the source guard, relabeling either experiment or editing completed plans is not an acceptable fix.
+
+The implementation owner has received the exact counterexample and is preparing a versioned narrow fix. The earlier matched-controller resource review remains scoped to its actual control/CPU checks; it did not authorize extraction. GPU extraction and ledger migration remain unstarted pending this fix and an actual exact migration receipt.

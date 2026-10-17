@@ -1,0 +1,54 @@
+{
+  "status": "FAIL_ACTUAL_DECLARATION_COMPATIBILITY_BEFORE_MIGRATION",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "implementation_commit": "999328d5974bcf616696a93dfe347254a005cfe3",
+  "runtime": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+  "source": {
+    "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/tools/st_world_policy/spatial_w_storage.py",
+    "sha256": "0d2c16be1e7ef98bf5b1c9ab6abc10f6b4fdd23ff722d8e0e41f0b280f957987"
+  },
+  "old_policy": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/PROPOSED_POLICY.json",
+    "sha256": "7a78476af60b191da42439dfdda0c63dae6334f7e911ee7bc3ed299e77486148"
+  },
+  "actual_member_sources": [
+    {
+      "signature": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/SIGNATURE.json",
+        "sha256": "3de51e64aec7f555f8d5c053695656346e1549796dad08c2c5bdafa88a26cff4"
+      },
+      "arm": "S-P0",
+      "runtime_source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+      "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099"
+    },
+    {
+      "signature": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+        "sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29"
+      },
+      "arm": "S-P0",
+      "runtime_source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+      "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099"
+    },
+    {
+      "signature": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/stages/dev_plan/SIGNATURE.json",
+        "sha256": "4582329a1e78f01c7aceda8543ffef91a37f28964f5ba0e4a04afda6b315ade1"
+      },
+      "arm": "S-P1",
+      "runtime_source_sha": "2a1e140a64d2817247ceb6214f7f2affa20d56c6",
+      "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099"
+    }
+  ],
+  "observed_exception": {
+    "class": "StorageBudgetError",
+    "message": "BLOCKED_STORAGE: frozen W arms must share original Base and extraction runtime"
+  },
+  "wall_seconds": 0.008478585630655289,
+  "scope": "Executed real validate_package with actual small signature/policy documents. Per-signature deep qualification was stubbed to already-admitted binding/size to isolate package shared-runtime check, avoiding native run identity and payload rereads. The shared-runtime guard itself is unmodified.",
+  "actual_migration_or_extraction_started": false,
+  "ledger_mutated": false,
+  "new_signature_changed": false,
+  "old_SP0_changed": false,
+  "remedy_boundary": "Keep old and new identities unchanged. Explicit narrowly pinned storage-only runtime compatibility is required; deleting source checks or rewriting legacy signatures is not permitted."
+}
