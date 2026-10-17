@@ -1,0 +1,132 @@
+{
+  "additional_independent_cases": 13,
+  "aggregate_test_process_cost": {
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "logical_read_bytes": 3970540,
+    "peak_RSS_bytes": 29728768,
+    "startup_read_bytes": 1777814,
+    "test_window_read_bytes": 2192726,
+    "test_window_write_bytes": 20163,
+    "wall_seconds": 0.2203204706311226
+  },
+  "created_at_utc": "2026-10-17T14:02:12.060514+00:00",
+  "evidence": {
+    "FIRST_TEST.log": {
+      "bytes": 7530,
+      "sha256": "65e167087d95f09f42a39f1cf88961fa510e4c3e65c057571f932ce7a1776636"
+    },
+    "FIRST_TEST_RESULT.json": {
+      "bytes": 673,
+      "sha256": "49a4c6032761f784e36571200f7003b93c0eaffe6fbc6a2b086bfb630172c573"
+    },
+    "RETRY_TEST.log": {
+      "bytes": 889,
+      "sha256": "c3c2e23052d038b7a34845723f010d8bc2e1dba939e09e742630f1bb5b892aec"
+    },
+    "RETRY_TEST_RESULT.json": {
+      "bytes": 693,
+      "sha256": "968d9568c2ae0b7473201504f47de341833e51007164a396547350ead9d70624"
+    },
+    "run_control.py": {
+      "bytes": 2226,
+      "sha256": "88fb78a12cc4fb342e58b1cce698c4ffbfd66b5572f897e2478e84932ff4ea1b"
+    },
+    "run_retry.py": {
+      "bytes": 2151,
+      "sha256": "3f060ffdc5865367b1e82e06f5db6d69b4f0e1bcb3d46a51ddaa4d4fcc35c442"
+    },
+    "test_narrow.py": {
+      "bytes": 8462,
+      "sha256": "a53fe54205e454e1c114c7e6bf930ec95fd199cb8cbb9849bb24930239a9ab43"
+    }
+  },
+  "first_run": {
+    "errors": 2,
+    "failed": 0,
+    "passed": 21,
+    "reason": "Independent harness SIGALRM conflicts with controller prohibition on replacing an unrelated caller alarm; both exception-publication fixtures reached this intended protection."
+  },
+  "independent_unique_cases": 23,
+  "not_executed": {
+    "GPU": true,
+    "actual_ledger_read_or_mutation": true,
+    "dispatch": true,
+    "new_admission": true,
+    "raw_images_weights_or_teacher_payload": true,
+    "real_finalizer": true,
+    "real_source_shard_read": true
+  },
+  "only_two_harness_affected_cases_rerun": {
+    "deadline": "external timeout --signal=TERM --kill-after=5s 20s; no in-process caller alarm",
+    "errors": 0,
+    "failed": 0,
+    "passed": 2
+  },
+  "owner_cases_actually_rerun": 10,
+  "pins": {
+    "DRAFT_ADMISSION.json": {
+      "bytes": 3861,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_ADMISSION.json",
+      "sha256": "c92fff1583965bb0457e9112bb7c3b7e185659087d74b9f4c9c4c89549e876ff"
+    },
+    "DRAFT_COMMAND.json": {
+      "bytes": 1278,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_COMMAND.json",
+      "sha256": "d26045fa9b933a1716b52192dd285f473daa63a49a5061f641fcf49ee94dab2e"
+    },
+    "DRAFT_FINALIZATION_REGISTRATION.json": {
+      "bytes": 4005,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_FINALIZATION_REGISTRATION.json",
+      "sha256": "e265861615b9f2dafd219c46e165934e1bb148517de5f6b07c49896d497df707"
+    },
+    "DRAFT_PROPOSED_POLICY.json": {
+      "bytes": 49624,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_PROPOSED_POLICY.json",
+      "sha256": "266a253d266fecf20057b2a79988c28cd3de1fbcb7d9293a7daa90b21300cfdb"
+    },
+    "DRAFT_STORAGE_REGISTRATION.json": {
+      "bytes": 3469,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_STORAGE_REGISTRATION.json",
+      "sha256": "1b42bc7bd3294444e111e0b4049fa9ab29dd884780663d720eaedafa8774705c"
+    },
+    "run_finalize_once.py": {
+      "bytes": 16176,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py",
+      "sha256": "82477551e0e335bc25c20556387d0b8d98512e1728481ed1e00e8218976c1bb2"
+    }
+  },
+  "remaining_boundaries": {
+    "actual_finalization": "NOT_RUN_BY_REVIEWER",
+    "actual_resource_admission": "SEPARATE_INDEPENDENT_REVIEW_AND_LEAD_FRESH_CHECK_REQUIRED",
+    "new_index_preparation_TRAIN_branch": "DEFERRED_UNTIL_ACTUAL_FINALIZATION; assessment only, no implementation in reviewed patch",
+    "old_source_status": "FAILED_NO_AUTO_RETRY preserved; finalizing surviving metadata does not rewrite or convert source failure",
+    "real_scale_correctness": "NOT_ESTABLISHED_BY_SYNTHETIC_CONTROL_TESTS"
+  },
+  "reviewed_commit": "7d698b6d6f04661833f03f73ce4f0e92f23820cb",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "runtime": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017",
+  "runtime_commit": "3df052ea422c4ba042ef3be33dea19438c5702dc",
+  "runtime_inheritance": {
+    "finalizer_sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d",
+    "metadata_storage_sha256": "aaa36f5383451eadcd92c160c6f3ffb8704110ab44eb12ee433b3207995e71ba",
+    "prior_40_finalizer_tests_rerun": false,
+    "same_as_previously_reviewed_source": true,
+    "teacher_provider_sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+  },
+  "schema": "st_future_finalization_control_independent_correctness_v1",
+  "scope_checks": {
+    "actual_draft_hashes": true,
+    "exact_finalizer_command_and_runtime": true,
+    "finalize_lock_matches_actual_writer": true,
+    "guard_rejects_changed_limits_command_dependencies": true,
+    "incomplete_cleanup_never_claimed_zero": true,
+    "new_provider_receipt_route_source_unchanged": true,
+    "no_auto_retry_paths": true,
+    "old_11_claims_preserved_in_policy": true,
+    "original_failed_source_terminal_binding": true
+  },
+  "status": "PASS_NARROW_CONTROL_WIRING_ONLY"
+}

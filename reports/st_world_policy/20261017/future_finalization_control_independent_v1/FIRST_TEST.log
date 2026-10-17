@@ -1,0 +1,79 @@
+test_actual_draft_allows_real_writer_lock (owner_finalization_controls.Controls) ... ok
+test_admission_bounds (owner_finalization_controls.Controls) ... ok
+test_busy_ledger_fallback_does_not_retry (owner_finalization_controls.Controls) ... ERROR
+test_control_lock_nonblocking (owner_finalization_controls.Controls) ... ok
+test_control_no_overwrite (owner_finalization_controls.Controls) ... ok
+test_draft_is_rejected (owner_finalization_controls.Controls) ... ok
+test_monitor_exception_retains_unknown_cleanup (owner_finalization_controls.Controls) ... ERROR
+test_success_and_once_only_read_charge (owner_finalization_controls.Controls) ... ok
+test_terminal_read_budget (owner_finalization_controls.Controls) ... ok
+test_wrong_artifact_cannot_complete (owner_finalization_controls.Controls) ... ok
+test_actual_allowlist_covers_only_expected_flat_publications (independent_control_tests.ActualDraftWiring) ... ok
+test_actual_controls_to_reviewed_guard_without_invocation (independent_control_tests.ActualDraftWiring) ... ok
+test_actual_pin_tampering_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_all_actual_draft_pins_and_worker_fields (independent_control_tests.ActualDraftWiring) ... ok
+test_changed_internal_workers_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_changed_row_limit_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_guarded_runtime_source_inheritance (independent_control_tests.ActualDraftWiring) ... ok
+test_internal_terminal_mismatch_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_missing_monitor_pin_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_policy_is_exact_addition_not_live_migration (independent_control_tests.ActualDraftWiring) ... ok
+test_short_CP_lease_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_wrong_command_path_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+test_wrong_storage_budget_is_rejected (independent_control_tests.ActualDraftWiring) ... ok
+
+======================================================================
+ERROR: test_busy_ledger_fallback_does_not_retry (owner_finalization_controls.Controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 181, in run_parent
+    core.publish_guarded(m,b,guard,start,{'admission':args.admission,'sha256':args.admission_sha256,'automatic_retry':False})
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 111, in publish
+    if fail_publish:raise BlockingIOError('fixture locked ledger')
+BlockingIOError: fixture locked ledger
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 157, in test_busy_ledger_fallback_does_not_retry
+    code,result,_,calls=self.run_fixture(fail_publish=True)
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 128, in run_fixture
+    code=adapter.run_parent(args,a,{}, {},None,obs,None,SimpleNamespace(fcntl=adapter.fcntl),
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 224, in run_parent
+    with whole_invocation_alarm(min(work_deadline+40,time.monotonic()+40),terminal=True):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/contextlib.py", line 135, in __enter__
+    return next(self.gen)
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 122, in whole_invocation_alarm
+    if old_timer!=(0.,0.) and not (terminal and getattr(previous,'_finalization_deadline',False)):raise ValueError('Existing caller alarm must not be replaced')
+ValueError: Existing caller alarm must not be replaced
+
+======================================================================
+ERROR: test_monitor_exception_retains_unknown_cleanup (owner_finalization_controls.Controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 189, in run_parent
+    observed=core.monitor(command,runtime=str(RUNTIME),env=env,fd=fd,root=ROOT,s=s,m=m,obs=obs,budget=budget,cpu_affinity=tuple(LIMITS['cpu_affinity']),storage_guard=storage_guard,lease_valid_until=a['valid_until_unix'])
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 116, in monitor
+    if fail_monitor:raise RuntimeError('fixture monitor failure')
+RuntimeError: fixture monitor failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 152, in test_monitor_exception_retains_unknown_cleanup
+    code,result,_,_=self.run_fixture(fail_monitor=True)
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/test_control_adapter.py", line 128, in run_fixture
+    code=adapter.run_parent(args,a,{}, {},None,obs,None,SimpleNamespace(fcntl=adapter.fcntl),
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 224, in run_parent
+    with whole_invocation_alarm(min(work_deadline+40,time.monotonic()+40),terminal=True):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/contextlib.py", line 135, in __enter__
+    return next(self.gen)
+  File "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py", line 122, in whole_invocation_alarm
+    if old_timer!=(0.,0.) and not (terminal and getattr(previous,'_finalization_deadline',False)):raise ValueError('Existing caller alarm must not be replaced')
+ValueError: Existing caller alarm must not be replaced
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.138s
+
+FAILED (errors=2)
+{"schema": "st_future_finalization_control_correctness_test_v1", "code_commit": "7d698b6d6f04661833f03f73ce4f0e92f23820cb", "tests": 23, "failures": 0, "errors": 2, "status": "FAIL", "cost": {"elapsed_seconds": 0.1705472357571125, "startup_seconds": 0.03215945139527321, "startup_rchar": 888907, "test_rchar": 2143691, "total_rchar": 3032598, "test_wchar": 17751, "peak_RSS_bytes": 29728768, "cpu_affinity": [6, 7]}, "bounds_pass": true, "imports_torch": false, "actual_admission_created": false, "actual_ledger_read_or_mutated": false, "actual_source_payload_read": false, "launch": false}
