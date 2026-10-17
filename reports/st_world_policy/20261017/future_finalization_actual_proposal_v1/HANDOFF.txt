@@ -1,0 +1,78 @@
+Status: DRAFT ONLY. No dispatch, live ledger read/write, claim acquisition,
+policy migration, real shard payload read, raw/image/teacher read or old-root
+write was performed. Independent actual resource admission is still required.
+
+Runtime and identity
+  Frozen writer: /mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017
+  Commit: 3df052ea422c4ba042ef3be33dea19438c5702dc
+  This contains the exact reviewed 1ce3a441 writer/provider/storage changes.
+  Adapter: this directory/run_finalize_once.py; self-pinned in DRAFT_ADMISSION.
+  Source old runtime remains 838dd21; its failed supervisor receipt remains
+  FAILED_NO_AUTO_RETRY. No old receipt is relabeled, renamed or overwritten.
+  New root: /mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1
+  Separate control root: /mnt/project/st-world-policy-20261016/audits/full_future_finalization_v1_controls
+
+Draft controls
+  DRAFT_FINALIZATION_REGISTRATION.json pins actual old PLAN, original
+  registration, old terminal failure, raw-provenance metadata, original source
+  runtime, nine new frozen implementation files, and stat-only shard census.
+  Census: 1176 original immutable shards / 984972623 bytes. Payload reads: 0.
+  DRAFT_STORAGE_REGISTRATION.json binds exactly finalize-existing, the new root,
+  a flat filename allowlist and 100-entry bound. No source shard is copied.
+  DRAFT_PROPOSED_POLICY.json appends one 2048 MiB claim to the exact a6984d65
+  policy. All 11 old claims, all legacy reservations, metadata package and
+  frozen-W identity remain identical. The actual live ledger was not read.
+  New output uses 1008 MiB output + 1008 MiB staging + 32 MiB metadata.
+  Conservative whole-package plan: 5652 + 2048 + 1 = 7701 MiB <= 8192 MiB.
+  The separate 1 MiB terminal-control directory needs explicit admission and
+  accounting in the existing administration allowance or a separately reviewed
+  reservation. It is not silently converted into an immutable legacy pilot.
+
+Finite adapter
+  The adapter preserves the latest history64 finite control flow and uses its
+  frozen reviewed run_build_once.monitor / charge_after_reap / OwnedDescendants.
+  CONTROLLER_DIFF.patch records the limited changes from that controller.
+  Differences: fixed new runtime and roots, exact finalizer command/registration
+  instead of history64 selection, CPU 0/1, 3600 s + 40 s cleanup, 16 GiB total
+  logical read, 4 GiB aggregate RSS, 2 GiB output + separate 1 MiB controls.
+  Writer: 1 worker, 64 MiB/s, 512 MiB compressed-record RAM, 768 MiB decoded
+  shard allowance, 64 KiB record cap. Original source bytes are read once.
+  One invocation only; no automatic retry. Admission is DRAFT_NOT_APPROVED and
+  has no reviewer, host or valid lease, so the adapter rejects it as supplied.
+  Parent post-wait rchar already includes reaped child usage. charge_after_reap
+  adds only later parent reads; it never adds the child a second time.
+  The root's CONTROL_FINALIZATION_RESULT.json remains pending terminal
+  accounting. Only separate controls/RESULT.json may say FINALIZATION_COMPLETE,
+  with exact CLI artifact, storage registration, old terminal lineage and actual
+  zero-owned-descendant cleanup. A failed/unknown monitor cannot claim cleanup.
+  Terminal fallback does not wait for or reacquire the storage ledger.
+
+Lead next actions (not performed here)
+  Independently review the exact adapter and draft pins/limits; bind a fresh
+  live ledger/quiescence/inventory to additive migration without losing history64.
+  Account the separate controls; create only the admitted new control directory.
+  Bind an actual host, reviewer and finite time lease in a new immutable admission
+  covering 3600+40 s and the existing 2303 GiB checkpoint receipt / 1 TiB floor.
+  Replace DRAFT command's admission path/SHA with that approved admission.
+  Invoke the finite controller once; do not directly run its worker argv.
+  Any subsequent source/registration change requires refreshed pins and review.
+
+Author control checks (not independent actual PASS)
+  9 pure-control synthetic tests passed, 0.030 s, peak RSS 25726976 bytes;
+  taskset CPU 10/11, RLIMIT_AS 1 GiB, RLIMIT_CPU 180 s, bytecode disabled.
+  Tests use /tmp only and do not import the writer/Torch or run a child process.
+  Covered draft/lease/reviewer/CPU rejection, exclusive nonblocking lock,
+  no-overwrite receipts, once-only terminal read charging, wrong artifact and
+  read-budget rejection, unknown cleanup after monitor exception and busy-ledger
+  failure without retry. Existing code reviews apply to the frozen writer only.
+  Proposal construction read 1137211 bytes of bounded source/control metadata,
+  plus small source reads during inspection; total scope remained below 32 MiB.
+  The source provenance JSON is metadata, not the live storage ledger.
+
+Downstream compatibility
+  See INDEX_PREPARATION_ADAPTATION.txt. Index preparation is deferred until
+  actual finalization succeeds; no new index controls were created here.
+  The frozen PROFILE runtime bccebb00319512049e93df58d18cb5ead49575f0 lacks the
+  new teacher_provider receipt branch. A new immutable PROFILE runtime and
+  registration are required later. Do not hot-edit that frozen runtime or rename
+  FINALIZATION_COMPLETE.json to COMPLETE.json. No trainer change is proposed.

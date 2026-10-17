@@ -1,0 +1,51 @@
+Assessment only; no request-body read or index preparation was executed.
+
+Existing helper:
+  /mnt/project/VLA-Drive-st-full-future-index-prep-20261017/reports/st_world_policy/20261017/full_future_index_preparation_v1/prepare_index_controls.py
+
+Minimum explicit TRAIN branch after actual success
+  completion_inputs currently assumes both roles use old root/COMPLETE.json
+  and old CONTROL_BUILD_RESULT status BUILD_COMPLETE. Retain that route and its
+  exact pinned DEV attempt2/prior-failure checks for DEV.
+  For TRAIN only, bind new root/FINALIZATION_COMPLETE.json with schema
+  st_future_metadata_finalization_complete_v1. Bind separate admitted controls
+  RESULT.json with schema st_future_finalization_invocation_v1 and status
+  FINALIZATION_COMPLETE, exact storage/internal registration, actual zero cleanup,
+  no automatic retry and matching CLI artifact. Require old FAILED_NO_AUTO_RETRY
+  source_terminal pin in both terminal receipt and finalizer lineage.
+  Use finalize_future_metadata.validate_completion to retain exact original PLAN,
+  registration, selected full population, times, source-provenance metadata and
+  shard-receipt identity checks. Its verified request SHA, semantic identity and
+  scene count feed the existing index arguments; no guessed old identity.
+  The shared validator imports the existing writer dependency chain (including
+  Torch). A later bounded helper must explicitly budget this import or invoke
+  the existing guarded consumer; it cannot retain a 32 MiB total-process import
+  claim while importing that chain. Do not duplicate a weakened receipt parser.
+
+Path and source pins
+  index_proposal currently takes requests from original resource_plan prep root.
+  TRAIN must use the verified new receipt's parent/TEACHER_REQUESTS.json.
+  Preserve original PLAN implementation pins in the old frozen source runtime.
+  Bind the index's current implementation separately in its new immutable runtime;
+  requiring old PLAN pins to equal today's history/provider code is incorrect.
+  Refresh affected source pin manifests and registrations. DEV old route is intact.
+  Update stale final_metadata_reserved_mib == 5616 assumptions using current
+  additive policy and both still-pending index claims; preserve every history64
+  claim. The current planning baseline is 5652 MiB, including pending indexes,
+  so those pending index reservations must not be counted a second time.
+  New finalization adds 2048 MiB + conservatively 1 MiB terminal control, yielding
+  7701 MiB planned of 8192 MiB before any further expansion.
+
+Provider and PROFILE
+  teacher_provider.py at reviewed 1ce3a441 already accepts the explicit new
+  receipt via validate_completion while retaining its old COMPLETE branch and
+  unchanged ordered-scene/first-frame/target checks. Frozen PROFILE bccebb003195
+  cannot consume it. Later create and register a new immutable PROFILE runtime;
+  do not alter the old runtime, teacher caches, model, math or supervision.
+
+Deferred patch and verification
+  The index-preparation code patch is a separate small follow-up after actual
+  FINALIZATION_COMPLETE exists. Test legacy DEV unchanged, new TRAIN exact
+  binding, wrong schema/old failed receipt rejected, mismatched request identity
+  rejected, original 101592 scene order retained, and source pin mismatch rejected.
+  This assessment is not an independent correctness or resource approval.
