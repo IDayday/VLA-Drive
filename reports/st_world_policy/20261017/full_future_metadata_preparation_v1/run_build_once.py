@@ -4,7 +4,6 @@ with open('/proc/self/io') as _io:
     BOOT_IO={k:int(v) for k,v in (line.split(':') for line in _io)}
 import argparse
 from contextlib import contextmanager, ExitStack
-import fcntl
 import hashlib
 import json
 import math
@@ -12,11 +11,11 @@ import os
 from pathlib import Path
 import selectors
 import signal
+import traceback
 import socket
 import stat
 import subprocess
 import sys
-import threading
 import time
 
 START=time.monotonic()
@@ -28,14 +27,17 @@ MiB=1<<20
 GiB=1<<30
 RUNTIMES={'dev':('/mnt/project/VLA-Drive-st-metadata-build-dev-v1-20261017','1265b2376864ee929d95513f4f91e58d0910d147'),
     'train':('/mnt/project/VLA-Drive-st-metadata-build-train-v1-20261017','838dd21f')}
+PRIOR_DEV_RESULT={'path':str(BASE/'caches/full_future_metadata_dev_v1/CONTROL_BUILD_RESULT.json'),
+    'sha256':'60b7ba6177b51081fdb323b36a0821f3848e6ddf2c2bb625b97e9a8c850aefda'}
+PRIOR_DEV_CHARGE=2202810181
 MONITORS={'prepare_bindings.py':'31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84',
     'supervise_once.py':'a29527dfbe23a4563a66266532f44644f5f184f4a8f59842883524632a63f2d6',
     'observed_cli.py':'c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643'}
 
 
-def limits(role):
+def limits(role,attempt=1):
     return {'wall_seconds':1800 if role=='dev' else 14400,'cleanup_seconds':40,
-        'read_bytes':(16 if role=='dev' else 512)*GiB,'rss_bytes':4*GiB,'cpu_affinity':[0,1],
+        'read_bytes':(16 if role=='dev' else 512)*GiB-(PRIOR_DEV_CHARGE if attempt==2 else 0),'rss_bytes':4*GiB,'cpu_affinity':[0,1],
         'stdout_bytes':MiB,'stderr_bytes':MiB,'attempts':1,'automatic_retry':False,'gpu':False}
 
 
@@ -54,16 +56,21 @@ def pinned(pin,*,decode=True):
 
 def validate(a,role,now,*,child=False):
     if role not in RUNTIMES:raise ValueError('Only dev/train metadata builds')
+    attempt=a.get('attempt',1)
+    if type(attempt) is not int or attempt not in (1,2) or (attempt==2 and role!='dev'):
+        raise ValueError('Only original attempt or explicit dev attempt2')
+    if attempt==2 and a.get('prior_attempt')!=PRIOR_DEV_RESULT:
+        raise ValueError('Exact retained failed dev attempt required')
     if (a.get('schema')!='st_full_future_build_resource_admission_v1'
-            or a.get('status')!='PASS_BOUNDED_'+role.upper()+'_BUILD_ONLY'
-            or a.get('role')!=role or json.dumps(a.get('limits'),sort_keys=True,allow_nan=False)!=json.dumps(limits(role),sort_keys=True)
+            or a.get('status')!='PASS_BOUNDED_'+role.upper()+('_BUILD_ONLY' if attempt==1 else '_BUILD_ATTEMPT2_ONLY')
+            or a.get('role')!=role or json.dumps(a.get('limits'),sort_keys=True,allow_nan=False)!=json.dumps(limits(role,attempt),sort_keys=True)
             or a.get('hostname')!=socket.gethostname()
             or a.get('reviewer') in (None,'','/root/st_indexed_composition')
             or a.get('preparation')!={'path':str(PREP),'sha256':PREP_SHA}):
         raise ValueError('Exact independent role/resource admission required')
     for name in ('issued_at_unix','latest_start_unix','valid_until_unix'):
         if type(a.get(name)) not in (int,float) or not math.isfinite(a[name]):raise ValueError('Finite lease required')
-    if not a['issued_at_unix']<=now<=a['latest_start_unix'] or a['valid_until_unix']<now+(0 if child else limits(role)['wall_seconds']+40):
+    if not a['issued_at_unix']<=now<=a['latest_start_unix'] or a['valid_until_unix']<now+(0 if child else limits(role,attempt)['wall_seconds']+40):
         raise ValueError('Expired/insufficient resource window')
     if not {0,1}.issubset(os.sched_getaffinity(0)):raise ValueError('Admitted CPUs unavailable')
 
@@ -72,6 +79,11 @@ def controls(args,*,child=False):
     a=pinned({'path':args.admission,'sha256':args.admission_sha256});role=a['role'];validate(a,role,time.time(),child=child)
     if a['controller']['path']!=str(Path(__file__).absolute()):raise ValueError('Wrong controller path')
     pinned(a['controller'],decode=False)
+    if a.get('attempt',1)==2:
+        prior=pinned(a['prior_attempt'])
+        if (prior.get('status')!='FAILED_NO_AUTO_RETRY' or prior.get('charged_parent_child_rchar_bytes')!=PRIOR_DEV_CHARGE
+                or prior.get('resources',{}).get('cleanup',{}).get('live_owned_remaining')!=0):
+            raise ValueError('Prior failed attempt/accounting/cleanup changed')
     p=pinned(a['preparation']);regpin=p['registrations'][role];reg=pinned(regpin)
     runtime,commit=RUNTIMES[role]
     source=pinned(p['source_inputs']['roles'][role]['source_pins'])
@@ -108,28 +120,6 @@ def controls(args,*,child=False):
     return a,p,reg,root,guard,s,obs,m,b
 
 
-@contextmanager
-def counter_lock(path,*,create=False):
-    if path.is_symlink():raise ValueError('Counter-lock alias forbidden')
-    with path.open('a+b' if create else 'rb') as f:
-        deadline=time.monotonic()+2
-        while True:
-            try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);break
-            except BlockingIOError:
-                if time.monotonic()>deadline:raise TimeoutError('Counter snapshot writer-lock deadline')
-                time.sleep(.01)
-        yield
-
-
-def read_counter(root):
-    path=root/'CONTROL_BUILD_COUNTERS.json'
-    if not path.exists():return None
-    with counter_lock(root/'CONTROL_BUILD_COUNTER_LOCK.json'):
-        with path.open('rb') as stream:value=stream.read(65537)
-        if len(value)>65536:raise ValueError('Counter size')
-        return json.loads(value)
-
-
 def append_pipe(buffers,name,data):
     buf=buffers[name];remaining=MiB-len(buf);buf.extend(data[:remaining])
     return len(data)<=remaining
@@ -149,44 +139,65 @@ def child_run(args):
     a,p,reg,root,guard,s,obs,m,b=controls(args,child=True)
     os.fstat(int(os.environ['ST_PROBE_SUPERVISOR_LOCK_FD']))
     if os.getpid()!=os.getpgrp() or os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Owned CPU child required')
-    # Accounting baseline preceded all imports; no torch/model is required here.
+    # Existing Counters are sampled once into RAM; no observer writes into the builder tree.
     class NoCUDA:
         @staticmethod
         def is_initialized():return False
     class CPUOnly:cuda=NoCUDA
-    cap=a['limits']['read_bytes']-128*MiB
-    counter=obs.Counters(root/'CONTROL_BUILD_COUNTERS.json',CPUOnly,cap,BOOT_IO)
-    original_context=m.metadata_writing
-    @contextmanager
-    def observed_context(**kw):
-        with original_context(**kw) as ctx:
-            lock=root/'CONTROL_BUILD_COUNTER_LOCK.json';ctx.check(before_commit=True,path=lock)
-            with counter_lock(lock,create=True):pass
-            def store(path,value,*,replace=False):
-                if Path(path)!=counter.target:raise ValueError('Only this bounded counter may replace')
-                raw=json.dumps(value,allow_nan=False)
-                if len(raw)>65536:raise ValueError('Counter size limit')
-                with counter_lock(lock):
-                    observed=ctx.check(before_commit=True,path=counter.target)
-                    if observed['charged_disk_bytes']+b.json_write_bound(value)>ctx.limits['max_disk_bytes']:
-                        raise ValueError('Counter/staging headroom exhausted')
-                    b._atomic(counter.target,value);ctx.check(before_commit=True)
-            obs.write_control=store
-            counter.data['phase']='REGISTERED_FUTURE_BUILD';counter.snapshot()
-            thread=threading.Thread(target=counter.monitor,daemon=True);thread.start()
-            try:yield ctx
-            finally:
-                counter.stop.set();thread.join(2)
-                if counter.snapshot()['limit_exceeded']:raise RuntimeError('Inclusive child read budget exceeded')
-    m.metadata_writing=observed_context
-    result=m.run_registered_metadata(**guard)
-    print(json.dumps(result,sort_keys=True,allow_nan=False));return 0
+    counter=obs.Counters(root/'UNUSED_RAM_ONLY_COUNTER',CPUOnly,a['limits']['read_bytes'],BOOT_IO)
+    original_write=obs.write_control
+    obs.write_control=lambda *args,**kwargs:None
+    result=None;error=None;code=0
+    try:
+        result=m.run_registered_metadata(**guard)
+    except BaseException as exc:
+        error={'type':type(exc).__name__,'message':str(exc)[:2048]};code=1
+        traceback.print_exc()  # retain actual failure before the final accounting snapshot
+    finally:
+        try:
+            counters=counter.snapshot()
+            current=obs.proc_io()
+            counters['proc_self_io_delta']={k:current[k]-BOOT_IO.get(k,0) for k in current}
+            counters['proc_self_io_final']=current
+            counters['proc_self_io_baseline']=BOOT_IO
+            counters['read_accounting_scope']='child pre-import baseline delta; parent separately charges whole owned-process rchar including startup'
+        finally:obs.write_control=original_write
+    print(json.dumps({'schema':'st_full_future_child_result_v2','cli_result':result,
+        'error':error,'counters':counters},sort_keys=True,allow_nan=False))
+    return code
+
+
+def owned_proc_io(owner,s):
+    """Read only the current unreaped spawn anchor, with both-sided identity checks."""
+    anchor=owner.anchor;pid=anchor['pid']
+    if not owner.same(anchor,s.proc_identity(pid)):raise RuntimeError('Owned IO identity changed')
+    with open('/proc/'+str(pid)+'/io') as stream:raw=stream.read(4097)
+    if len(raw)>4096:raise ValueError('Owned IO record exceeds bound')
+    value={k:int(v) for k,v in (line.split(':') for line in raw.splitlines())}
+    if 'rchar' not in value or any(type(v) is not int or v<0 for v in value.values()):raise ValueError('Invalid owned IO counters')
+    if not owner.same(anchor,s.proc_identity(pid)):raise RuntimeError('Owned IO identity changed during read')
+    return value
+
+
+def decode_final(stdout):
+    value=json.loads(stdout)
+    if not isinstance(value,dict) or value.get('schema')!='st_full_future_child_result_v2':raise ValueError('Final child accounting schema')
+    c=value.get('counters')
+    if not isinstance(c,dict):raise ValueError('Missing final child counters')
+    for key in ('proc_self_io_baseline','proc_self_io_final','proc_self_io_delta'):
+        row=c.get(key)
+        if not isinstance(row,dict) or 'rchar' not in row or any(type(v) is not int or v<0 for v in row.values()):
+            raise ValueError('Final child counters must be nonnegative exact integers')
+    before,after,delta=(c[k] for k in ('proc_self_io_baseline','proc_self_io_final','proc_self_io_delta'))
+    if set(after)!=set(delta) or any(after[k]-before.get(k,0)!=delta[k] for k in after):
+        raise ValueError('Final child IO delta mismatch')
+    return value
 
 
 def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
     """Original bounded pipe loop with existing unreaped-session/pidfd ownership."""
     buffers={name:bytearray() for name in ('stdout','stderr')};peak=0;failure=None;counter=None;child=None;owner=None;leader=None
-    finished=False;monitor_error=None
+    finished=False;monitor_error=None;last_io=None;terminal_io=None;accounting=None
     start=time.monotonic();selector=selectors.DefaultSelector()
     with s.lifetime_scope() as stopped:
         try:
@@ -200,7 +211,11 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                 active=owner.discover();done=owner.leader_done()
                 if stopped['signal'] is not None:failure=failure or 'SUPERVISOR_SIGNAL_'+str(stopped['signal'])
                 if done and active:failure=failure or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
-                if not active and not selector.get_map():break
+                if not active and not selector.get_map():
+                    try:terminal_io=owned_proc_io(owner,s)
+                    except Exception as exc:
+                        monitor_error=monitor_error or {'type':type(exc).__name__,'message':str(exc)[:2048]}
+                    break
                 for key,_ in selector.select(.25):
                     data=os.read(key.fd,65536)
                     if not data:selector.unregister(key.fileobj);continue
@@ -210,13 +225,9 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                     next_sample=now+1
                     try:
                         peak=max(peak,m.process_tree_rss(os.getpid()))
-                        path=root/'CONTROL_BUILD_COUNTERS.json'
-                        if path.exists():
-                            counter=read_counter(root)
-                            if counter['limit_exceeded']:failure=failure or counter['limit_exceeded']
-                            if not done and time.time()-path.stat().st_mtime>15:failure=failure or 'STALE_COUNTER'
-                            total=counter['proc_self_io_delta']['rchar']+obs.proc_io()['rchar']-BOOT_IO['rchar']
-                            if total>budget['read_bytes']:failure=failure or 'PARENT_CHILD_READ_LIMIT'
+                        last_io=owned_proc_io(owner,s)
+                        total=last_io['rchar']+obs.proc_io()['rchar']-BOOT_IO['rchar']
+                        if total>budget['read_bytes']:failure=failure or 'PARENT_CHILD_READ_LIMIT'
                     except Exception as exc:
                         failure=failure or 'MONITOR_UNREADABLE'
                         monitor_error=monitor_error or {'type':type(exc).__name__,'message':str(exc)[:2048]}
@@ -227,10 +238,22 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                 if term_at is not None and now-term_at>=40:raise RuntimeError('Owned cleanup exceeded grace')
             code=owner.finish(terminate=failure is not None,deadline=term_at+40 if term_at else None)
             finished=True  # leader is reaped; later receipt errors must not clean it twice
-            counter=read_counter(root)  # final snapshot, not a potentially older polling sample
+            try:accounting=decode_final(bytes(buffers['stdout']).decode('utf8','replace'))
+            except Exception as exc:
+                failure=failure or 'CHILD_ACCOUNTING_INVALID'
+                monitor_error=monitor_error or {'type':type(exc).__name__,'message':str(exc)[:2048]}
+            final_io=accounting['counters']['proc_self_io_final'] if accounting else None
+            if terminal_io is None and final_io is None:failure=failure or 'FINAL_IO_MISSING'
+            # Whole /proc lifetime absolute counts cover taskset/python startup too.
+            # Missing both final sources is charged at the entire remaining allowance.
+            charged=max([x['rchar'] for x in (terminal_io,final_io,last_io) if x is not None],default=0)
+            if terminal_io is None and final_io is None:charged=budget['read_bytes']
+            counter=accounting['counters'] if accounting else None
             return {'returncode':code,'failure':failure,'monitor_error':monitor_error,'peak_aggregate_rss_bytes':peak,
                 'invocation_seconds':time.monotonic()-START,'supervised_child_seconds':time.monotonic()-start,
-                'counters':counter,'stdout':bytes(buffers['stdout']).decode('utf8','replace'),
+                'counters':counter,'child_accounting':accounting,'owned_proc_io_baseline':0,
+                'owned_proc_io_last_active':last_io,'owned_proc_io_terminal':terminal_io,
+                'charged_owned_child_rchar_bytes':charged,'stdout':bytes(buffers['stdout']).decode('utf8','replace'),
                 'stderr':bytes(buffers['stderr']).decode('utf8','replace'),
                 'cleanup':{'verified_processes':owner.verified,'live_owned_remaining':0}}
         except BaseException:
@@ -254,12 +277,14 @@ def run(args):
     if not any(socket.gethostname()==h or socket.gethostname().startswith(h+'-worker-') for h in dispatch['allowed_hosts']):
         raise ValueError('Current host not allowed by current pinned dispatch policy')
     s.shared_mount();os.sched_setaffinity(0,[0,1])
-    started=root/'CONTROL_BUILD_STARTED.json';result_path=root/'CONTROL_BUILD_RESULT.json'
+    prefix='CONTROL_BUILD_' if a.get('attempt',1)==1 else 'CONTROL_BUILD_ATTEMPT2_'
+    started=root/(prefix+'STARTED.json');result_path=root/(prefix+'RESULT.json')
     def publish(path,value):return publish_guarded(m,b,guard,path,value)
     with ExitStack() as stack:
         lock=s.acquire(s.LOCK,stack)
         validate(a,a['role'],time.time())
-        start={'schema':'st_full_future_build_invocation_v1','role':a['role'],
+        start={'schema':'st_full_future_build_invocation_v1','role':a['role'],'attempt':a.get('attempt',1),
+            'prior_attempt':a.get('prior_attempt'),
             'admission':{'path':args.admission,'sha256':args.admission_sha256},'controller':a['controller'],
             'preparation':a['preparation'],'registered_unix':time.time(),'limits':budget,'automatic_retry':False}
         publish(started,start)  # existing metadata_writing owns same global lock through atomic marker
@@ -270,15 +295,15 @@ def run(args):
             command=[PYTHON,str(Path(__file__).absolute()),'--child','--admission',args.admission,
                 '--admission-sha256',args.admission_sha256]
             observed=monitor(command,runtime=runtime,env=env,fd=lock.fileno(),root=root,s=s,m=m,obs=obs,budget=budget)
-            try:output=json.loads(observed['stdout'])
-            except Exception:output=None
-            c=observed['counters'];total=budget['read_bytes'] if c is None else c['proc_self_io_delta']['rchar']+obs.proc_io()['rchar']-BOOT_IO['rchar']
+            envelope=observed['child_accounting'];output=envelope.get('cli_result') if envelope else None
+            c=observed['counters'];total=observed['charged_owned_child_rchar_bytes']+obs.proc_io()['rchar']-BOOT_IO['rchar']
             ok=(observed['returncode']==0 and observed['failure'] is None and c is not None
                 and isinstance(output,dict) and output.get('status')=='GUARDED_METADATA_RETURN'
                 and output.get('artifact',{}).get('status')=='COMPLETE' and total<=budget['read_bytes']
                 and observed['invocation_seconds']<=budget['wall_seconds'])
             result={**start,'status':'BUILD_COMPLETE' if ok else 'FAILED_NO_AUTO_RETRY',
                 'resources':observed,'charged_parent_child_rchar_bytes':total,'cli_result':output,
+                'cumulative_parent_child_rchar_bytes':total+(PRIOR_DEV_CHARGE if a.get('attempt',1)==2 else 0),
                 'scientific_result':False,'training_authorized':False,'new_teacher_tensor_bytes':0}
             publish(result_path,result);print(json.dumps({'status':result['status'],'result':str(result_path)}))
             return 0 if ok else 2

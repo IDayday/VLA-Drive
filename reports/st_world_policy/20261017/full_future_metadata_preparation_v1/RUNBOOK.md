@@ -97,3 +97,10 @@ env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 \
 The admission pins: schema `st_full_future_build_resource_admission_v1`; role `dev` or `train`; matching `PASS_BOUNDED_<ROLE>_BUILD_ONLY`; hostname; independent reviewer; finite issued/latest-start/expiry timestamps; exact `limits(role)`; controller path/hash; immutable PREPARATION; proposed policy; role registration; actual MIGRATED receipt; fresh CURRENT checkpoint commitments; current dispatch policy; and the three immutable monitor helper pins. It must cover the full 1800/14400 second invocation and 40 second cleanup. A source-review report alone is not a resource admission.
 
 Original prepared controls remain historical immutable evidence. The new separate administrative allocation is 4 MiB, making the final planned metadata budget 5620 MiB / 8 GiB. See `BOUNDED_BUILD_CONTROL.md` and its additive budget receipt; do not reuse the prior 128 MiB administrative scope.
+
+
+## Dev failure and explicit attempt 2
+
+`BUILD_SCAN_RACE_FIX.md` supersedes the background counter mechanism described in the earlier handoff: the parent now reads owned `/proc` counters; the child returns a final RAM snapshot on stdout. No observer writes into the directory being inventoried. The original failed receipt is retained unchanged.
+
+A dev attempt-2 admission must explicitly bind `attempt=2`, status `PASS_BOUNDED_DEV_BUILD_ATTEMPT2_ONLY`, the prior result SHA `60b7ba6177b51081fdb323b36a0821f3848e6ddf2c2bb625b97e9a8c850aefda`, and remaining read ceiling `14977059003`. Use the same finite outer CLI with this new independent admission only. Its one-shot marker/result use `CONTROL_BUILD_ATTEMPT2_*`; no old control or partial file is removed. The new controller does not automatically retry dev and does not authorize a train retry.
