@@ -1,0 +1,54 @@
+{
+  "schema": "st_train64_fit_consumer_resource_review_v1",
+  "status": "PASS_CODE_RESOURCE_REUSE_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "source_commit": "875e1437339d06863d978e1f72c62b0a9ca9f7af",
+  "checked_unix": 1792248978.4830306,
+  "source_pins": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/w_train_reconciliation_v1/supervise_fit.py",
+      "sha256": "2e630f3b1db30cdade58d960982d9f4aa5d8344518ce688e8fb1c2b96a643c06",
+      "bytes": 3834
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/w_train_reconciliation_v1/train_artifact_receipt.py",
+      "sha256": "782f29a8aad0518c2e688e030ded9994f9feab54660d5d5773462c6e8a04edd5",
+      "bytes": 10684
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/w_storage_bridge_v1/storage_bridge.py",
+      "sha256": "a6aa3a2ba5430ef588cd9811a4da373d64d05c17f042cade40324c810909089f",
+      "bytes": 14581
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/w_train_fit_consumer_correctness_v1/REVIEW.json",
+      "sha256": "94594633f8fdd9181fd8137f5094dca5751cc0444a15d08521689205b78a367d",
+      "bytes": 698
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/controls_581399eb_v2_metadata_only/TRAIN_ARTIFACT_RECONCILIATION.json",
+      "sha256": "d50972ff00e23ddc20ac5b0ee1713690032d689620aeaa3970988e1178980a32",
+      "bytes": 49950
+    }
+  ],
+  "explicit_source_control_bytes_read": 79747,
+  "resource_findings": [
+    "Only original validate and stage_inputs hooks replaced; original observer, monitor, compute and fit registration unchanged",
+    "Reconciliation rechecks fixed small metadata and64 unchanged payload file versions; no new tensor contents read during reconciliation",
+    "Original extraction failure STOPPED_NO_AUTO_RETRY retained; no automatic extraction retry or rewrites",
+    "Fit uses original separate2GiB read budget,300steps,CPU2/3,1260s,2GiBRSS, noGPU; retains original single-loader lock",
+    "Whole-fit inputs are the already independently validatedTRAIN64 andDEV16 W artifacts; this review does not rerun their validation"
+  ],
+  "inherited_correctness": "23-case independent result94594633f8fdd9181fd8137f5094dca5751cc0444a15d08521689205b78a367d, not represented as new resource tests",
+  "tests_executed": 0,
+  "future_actual_conditions": [
+    "Both DEV andTRAIN index invocations terminal with no remaining owned writer",
+    "Fresh exact source/reconciliation/preparation/runtime pins",
+    "Fresh one-loader availability and exact originalfit admission",
+    "Any failure preserves prior status and artifacts; no automatic retry"
+  ],
+  "actual_fit_authorized": false,
+  "actual_training_or_dispatch": false,
+  "tensor_payload_reads": false,
+  "ledger_mutation": false
+}
