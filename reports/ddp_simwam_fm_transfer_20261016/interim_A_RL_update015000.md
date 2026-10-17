@@ -4,6 +4,10 @@ A_DDP_TIME的15,000 optimizer updates固定观察点已完成完整DEV与固定T
 
 **DEV原生PDMS为94.474666，相对自己的SFT提高0.754574个百分点；shift5为94.513221，提高1.052911个百分点。** 两项对自身SFT的log聚类配对区间均高于零。相对10k，原生略降、shift5略升，但两项区间均跨零。TTC新增违规减少，原生DAC退化增加，不能将均分增益解释成全面安全提升。继续固定20k终点，不选择中期最高点；最终Navtest尚未执行。
 
+![A组完整DEV的实际单候选成绩、对自身SFT增益及分项安全转移](A_RL_DEV_through_15k.png)
+
+图中只连接已完成的0/5k/10k/15k观察点，0为实际自身SFT；不外推20k。两个网格的参考安全人口分别固定，违规不等同于碰撞。可导出[独立PDF](A_RL_DEV_through_15k.pdf)，来源、输入hash和缺失里程碑见[绘图证据](A_RL_DEV_through_15k.json)。图由既有配对结果生成，未新增推理、评分或参数更新。
+
 ## 单候选部署成绩
 
 分数用0–100，差值为百分点。置信区间按log聚类重采样，保持场景权重；只覆盖固定训练seed42、推理seed2101下的数据不确定性，不含训练或推理seed的不确定性。
@@ -124,3 +128,9 @@ python -m scripts.analysis.fm_transfer.analyze_grid_gap --evaluation /mnt/projec
 ```
 
 训练前缀的实际脚本副本：[reproduce_A_RL15k_training_prefix.py](reproduce_A_RL15k_training_prefix.py)。
+
+绘图命令也已实际执行并检查渲染、输入/图像/PDF hash；需要重绘时指定新的输出路径：
+
+```bash
+python -m scripts.analysis.fm_transfer.plot_rl_progress --variant A_DDP_TIME --output /mnt/project/fm-transfer-20261016/analysis/A_RL_DEV_through_15k_v2.png
+```
