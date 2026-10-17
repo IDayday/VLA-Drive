@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Candidate one-shot supervisor for five fixed SP0 probe stages, Lead only.
 
-No arbitrary command, retries, resource allocation or approval generation.
+No arbitrary command, automatic retries, resource allocation or approval generation.
 This preparation supplies no APPROVED admission. RSS/wall and PyTorch peak are
 observed limits with a bounded reaction interval, not OS cgroup hard ceilings.
 """
@@ -35,6 +35,84 @@ LEDGER = str(BASE / 'resources/cache_storage_ledger_v1')
 SHARED_SOURCE = '100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2[/mnt/project]'
 PYTHON = '/root/miniconda3/envs/ddp/bin/python'
 HELPERS = ('supervise_once.py', 'observed_cli.py', 'prepare_bindings.py')
+FAILED_DEV_RESULT = JOB / 'stages/dev_extract/RESULT.json'
+FAILED_DEV_SHA256 = '18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327'
+DEV_RETRY_DIRECTORY = JOB / 'stages/dev_extract_manual_retry_v1'
+
+
+def exact_result_pin(pin, path, expected_sha=None):
+    if (not isinstance(pin, dict) or set(pin) != {'path', 'sha256'} or pin['path'] != str(path)
+            or not isinstance(pin['sha256'], str) or len(pin['sha256']) != 64
+            or any(c not in '0123456789abcdef' for c in pin['sha256'])
+            or expected_sha is not None and pin['sha256'] != expected_sha):
+        raise ValueError('Exact fixed stage result pin required')
+
+
+def check_manual_fields(admission, stage):
+    retry = admission.get('manual_retry')
+    if 'manual_retry' in admission:
+        if (stage != 'dev_extract' or not isinstance(retry, dict)
+                or set(retry) != {'failed_result', 'plan_result', 'attempt_directory'}
+                or retry['attempt_directory'] != str(DEV_RETRY_DIRECTORY)):
+            raise ValueError('Only one explicit fixed SP0 dev extraction retry exists')
+        exact_result_pin(retry['failed_result'], FAILED_DEV_RESULT, FAILED_DEV_SHA256)
+        exact_result_pin(retry['plan_result'], JOB / 'stages/dev_plan/RESULT.json')
+    if 'previous_stage_result' in admission:
+        if stage != 'train_plan':
+            raise ValueError('Only train_plan may explicitly follow the fixed dev retry')
+        exact_result_pin(admission['previous_stage_result'], DEV_RETRY_DIRECTORY / 'RESULT.json')
+    return retry
+
+
+def charged_read_bytes(counters):
+    values = (counters['hash_logical_bytes_admitted'], counters['torch_load_nominal_bytes'],
+              counters['proc_self_io_delta']['rchar'])
+    if any(type(v) is not int or v < 0 for v in values):
+        raise ValueError('Complete nonnegative integer read counters required')
+    return max(values[0] + values[1], values[2])
+
+
+def stage_inputs(admission, stage):
+    """Small pinned receipts only; never recomputes a plan or loads weights."""
+    retry = check_manual_fields(admission, stage)
+    previous = None; previous_pin = None
+    if stage in PREVIOUS:
+        pin = (retry['plan_result'] if retry else admission.get('previous_stage_result'))
+        if pin is None:
+            previous, previous_pin = read(JOB / 'stages' / PREVIOUS[stage] / 'RESULT.json')
+        else:
+            previous, previous_pin = read(pin['path'], pin['sha256'])
+        if (previous.get('schema') != 'st_SP0_probe_stage_result_v1'
+                or previous.get('status') != 'COMPLETE' or previous.get('stage') != PREVIOUS[stage]
+                or previous.get('preparation') != admission['preparation']):
+            raise ValueError('Previous fixed stage incomplete/different identity')
+        if 'previous_stage_result' in admission:
+            check_manual_fields({'manual_retry': previous.get('manual_retry')}, 'dev_extract')
+            if previous.get('attempt_directory') != str(DEV_RETRY_DIRECTORY):
+                raise ValueError('Previous result is not the explicitly completed dev retry')
+    cap = FIT_READ_LIMIT if stage == 'fit' else ROLE_READ_LIMIT
+    accounting = dict(role_limit_bytes=cap, prior_read_bytes=0, sources=[])
+    if stage.endswith('_extract'):
+        used = charged_read_bytes(previous['resources']['counters'])
+        accounting['sources'].append(dict(result=previous_pin, charged_read_bytes=used))
+        accounting['prior_read_bytes'] += used
+    if retry:
+        failed, failed_pin = read(retry['failed_result']['path'], retry['failed_result']['sha256'])
+        if (failed.get('schema') != 'st_SP0_probe_stage_result_v1'
+                or failed.get('stage') != 'dev_extract' or failed.get('status') != 'STOPPED_NO_AUTO_RETRY'
+                or failed.get('preparation') != admission['preparation']
+                or failed['resources'].get('limit_reason') != 'MONITOR_UNREADABLE'
+                or failed['resources']['process_cleanup'].get('live_owned_remaining') != 0):
+            raise ValueError('Only the pinned closed monitor-failure attempt may be retried')
+        used = charged_read_bytes(failed['resources']['counters'])
+        accounting['sources'].append(dict(result=failed_pin, charged_read_bytes=used))
+        accounting['prior_read_bytes'] += used
+    accounting['remaining_read_bytes'] = cap - accounting['prior_read_bytes']
+    if accounting['remaining_read_bytes'] <= 0:
+        raise ValueError('Cumulative role read budget exhausted')
+    accounting['scope'] = 'sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO'
+    attempt = DEV_RETRY_DIRECTORY if retry else JOB / 'stages' / stage
+    return attempt, accounting, previous_pin
 
 
 def acquire(path, stack):
@@ -48,6 +126,7 @@ def acquire(path, stack):
 
 
 def validate(admission, preparation, stage, now):
+    check_manual_fields(admission, stage)
     action = stage.rsplit('_', 1)[-1]
     wall, rss = LIMITS[action]
     if (admission.get('schema') != 'st_SP0_probe_stage_admission_v1' or admission.get('status') != 'APPROVED'
@@ -509,10 +588,7 @@ def main():
     with ExitStack() as stack:
         lock = acquire(LOCK, stack)  # one plan/extract/fit at a time across campaign hosts
         locks = [lock]
-        if stage in PREVIOUS:
-            previous, _ = read(stage_root / PREVIOUS[stage] / 'RESULT.json')
-            if previous['status'] != 'COMPLETE' or previous['preparation'] != admission['preparation']:
-                raise ValueError('Previous fixed stage incomplete/different identity')
+        attempt, read_accounting, previous_pin = stage_inputs(admission, stage)
         if stage.endswith('_extract'):
             locks.append(acquire(f"/tmp/foresight_gpu_{admission['gpu']['index']}.lock", stack))
             fresh_gpu(admission['gpu'])
@@ -521,20 +597,13 @@ def main():
             raise ValueError('Insufficient current host memory for fixed admission')
         validate(admission, preparation, stage, time.time())  # recheck lease/space window at admission
         # Reserve exactly one durable attempt before Popen. Failed starts remain spent.
-        attempt = stage_root / stage
         attempt.mkdir(exist_ok=False)
         try:
             write_once(attempt / 'ADMITTED.json', dict(admission=admission_pin, stage=stage,
-                       preparation=admission['preparation'], consumed=True, automatic_retry=False))
-            read_cap = FIT_READ_LIMIT if stage == 'fit' else ROLE_READ_LIMIT
-            if stage.endswith('_extract'):
-                planned, _ = read(stage_root / (stage.split('_')[0] + '_plan') / 'RESULT.json')
-                counters = planned['resources']['counters']
-                used = max(counters['hash_logical_bytes_admitted'] + counters['torch_load_nominal_bytes'],
-                           counters['proc_self_io_delta']['rchar'])
-                read_cap -= used
-                if read_cap <= 0:
-                    raise ValueError('Role read budget exhausted')
+                       preparation=admission['preparation'], consumed=True, automatic_retry=False,
+                       manual_retry=admission.get('manual_retry'), attempt_directory=str(attempt),
+                       previous_stage_result=previous_pin, read_accounting=read_accounting))
+            read_cap = read_accounting['remaining_read_bytes']
             env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(admission['gpu']['index']) if admission.get('gpu') else '',
                        PYTHONDONTWRITEBYTECODE='1', OMP_NUM_THREADS='2', MKL_NUM_THREADS='2',
                        OPENBLAS_NUM_THREADS='2', NUMEXPR_NUM_THREADS='2', CUBLAS_WORKSPACE_CONFIG=':4096:8',
@@ -550,7 +619,9 @@ def main():
                   and cli is not None and cli.get('status') == ('PLANNED_ONLY' if stage.endswith('_plan') else 'COMPLETE'))
             result = dict(schema='st_SP0_probe_stage_result_v1', status='COMPLETE' if ok else 'STOPPED_NO_AUTO_RETRY',
                           stage=stage, preparation=admission['preparation'], admission=admission_pin,
-                          resources=resource, cli_result=cli, scientific_result=False)
+                          resources=resource, cli_result=cli, scientific_result=False,
+                          manual_retry=admission.get('manual_retry'), attempt_directory=str(attempt),
+                          previous_stage_result=previous_pin, read_accounting=read_accounting)
             write_once(attempt / 'RESULT.json', result)
             print(json.dumps({'status': result['status'], 'stage': stage, 'result': str(attempt / 'RESULT.json')}))
             return 0 if ok else 2
@@ -562,7 +633,9 @@ def main():
                     schema='st_SP0_probe_stage_result_v1', status='FAILED_NO_AUTO_RETRY',
                     stage=stage, preparation=admission['preparation'], admission=admission_pin,
                     error_type=type(exc).__name__, error=str(exc)[:2048],
-                    retained_diagnostics=True, scientific_result=False))
+                    retained_diagnostics=True, scientific_result=False,
+                    manual_retry=admission.get('manual_retry'), attempt_directory=str(attempt),
+                    previous_stage_result=previous_pin, read_accounting=read_accounting))
             return 2
 
 

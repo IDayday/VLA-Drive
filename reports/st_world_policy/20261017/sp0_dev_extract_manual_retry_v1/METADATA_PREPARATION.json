@@ -1,0 +1,59 @@
+{
+  "admission_fields_to_add_after_review": {
+    "manual_retry": {
+      "attempt_directory": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract_manual_retry_v1",
+      "failed_result": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+        "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327"
+      },
+      "plan_result": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json",
+        "sha256": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520"
+      }
+    }
+  },
+  "artifact_reader_unchanged": true,
+  "attempt_exists_at_preparation": false,
+  "dispatch": false,
+  "existing_failed_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+    "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327"
+  },
+  "model_or_payload_read": false,
+  "new_plan_executed": false,
+  "original_plan_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json",
+    "sha256": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520"
+  },
+  "preparation": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/controls_581399eb_v2_metadata_only/PREPARATION.json",
+    "sha256": "34c174a6aa0c859a1b0a5f8b7dd800bbe189d51c770211b49c35d061e92b6431"
+  },
+  "read_accounting": {
+    "prior_read_bytes": 68166209851,
+    "remaining_read_bytes": 206711697093,
+    "role_limit_bytes": 274877906944,
+    "scope": "sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO",
+    "sources": [
+      {
+        "charged_read_bytes": 37533999575,
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json",
+          "sha256": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520"
+        }
+      },
+      {
+        "charged_read_bytes": 30632210276,
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+          "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327"
+        }
+      }
+    ]
+  },
+  "runtime_preserved": {
+    "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017",
+    "source_sha": "581399eb309677c20fe7464791b4f18685e947a6"
+  },
+  "status": "METADATA_PREPARATION_ONLY_NOT_ADMITTED"
+}
