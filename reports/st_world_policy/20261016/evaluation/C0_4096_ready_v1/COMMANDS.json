@@ -1,0 +1,134 @@
+{
+  "schema": "st_registered_ready_endpoint_commands_v1",
+  "job_id": "C0_step004096_dev1696_seed42_v1",
+  "state": "PREPARED_NOT_DISPATCHED",
+  "checkpoint_tag": "step_004096_1792214769814548316",
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+  "required_native_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/checkpoints/step_004096_1792214769814548316/COMPLETE.json",
+    "sha256": "c8655892cff8292b60325b405767294c04fb1445f952a2fd858c084188e818f0",
+    "identity": "d8d0e487551d0315acdd7b84ffef2acfb9b100ea5912362b41ae6fe1bd1de1df"
+  },
+  "required_runtime_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9",
+  "helper_refs": {
+    "launch_formal_dev_export_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py",
+      "sha256": "e58f58e3d0e3fb05e05dcd28c5d04142c4f3a4ba2002e5cc8ea9b3a5bf95217f"
+    },
+    "launch_completed_dev_score_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v3.py",
+      "sha256": "9217c5c0b5362453a86843bfe8dd9c6ad1609b7440c5441be4bd1af6511e8d7c"
+    }
+  },
+  "export_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py",
+    "--job-id",
+    "C0_step004096_dev1696_seed42_v1",
+    "--checkpoint-tag",
+    "step_004096_1792214769814548316",
+    "--gpu",
+    "__LEAD_FRESH_ROUTE_GPU_INDEX__",
+    "--route-sha256",
+    "__ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "score_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v3.py",
+    "--job-id",
+    "C0_step004096_dev1696_seed42_v1",
+    "--route-sha256",
+    "__SAME_ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "unresolved_before_launch": [
+    "Actual route host/hostname/GPU UUID/index and validity interval",
+    "Actual ROUTE.json SHA256",
+    "Fresh available resource admission"
+  ],
+  "frozen_child_commands_for_traceability_only": {
+    "export": {
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "__ONE_LEAD_LEASED_GPU_REQUIRED__",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 7800,
+      "requires_actual_sealed_checkpoint_and_resource_binding": true,
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.export_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+        "--checkpoint-tag",
+        "step_004096_1792214769814548316",
+        "--current-root",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "--manifest",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-scenes",
+        "1696",
+        "--max-seconds",
+        "7200",
+        "--rank",
+        "0",
+        "--world-size",
+        "1"
+      ]
+    },
+    "score": {
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.score_world",
+        "--predictions",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+        "--metric-index",
+        "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+        "--navsim-root",
+        "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+        "--maps-root",
+        "/mnt/navsim/maps",
+        "--run-id",
+        "st-world-policy-20261016",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+        "--cache-root",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+        "--workers",
+        "2",
+        "--max-calls",
+        "1728",
+        "--retry-attempts",
+        "1",
+        "--max-seconds",
+        "3600"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 4200,
+      "requires_all_export_shards_complete": true
+    }
+  },
+  "do_not_bypass_reviewed_helpers": true,
+  "score_requires_complete1696_and_export_exit": true,
+  "automatic_dispatch": false
+}
