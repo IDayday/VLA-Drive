@@ -1,11 +1,15 @@
 """Pure control fixtures; no metadata writer, ledger, GPU or real payload access."""
 import ast
-from contextlib import redirect_stdout
+from contextlib import contextmanager, redirect_stdout
+import fcntl
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import socket
+import stat
+import sys
 import tempfile
 import time
 from types import SimpleNamespace
@@ -43,6 +47,43 @@ class Controls(unittest.TestCase):
     def test_draft_is_rejected(self):
         a=json.loads((HERE/'DRAFT_ADMISSION.json').read_text())
         with self.assertRaises(ValueError):adapter.validate(a,time.time())
+
+    def test_actual_draft_allows_real_writer_lock(self):
+        # Exact draft allowlist and real guard; only the output root is relocated.
+        # Compile the real stdlib lock functions to avoid Torch's unrelated import
+        # reads under this control-only 32 MiB budget. The path expression itself
+        # comes from the frozen finalizer.run AST, never a test-created filename.
+        sys.path.insert(0,str(adapter.RUNTIME))
+        from tools.st_world_policy import metadata_storage as storage
+        reg=json.loads((HERE/'DRAFT_STORAGE_REGISTRATION.json').read_text())
+        writer=ast.parse((adapter.RUNTIME/'tools/st_world_policy/finalize_future_metadata.py').read_text())
+        run=next(n for n in writer.body if isinstance(n,ast.FunctionDef) and n.name=='run')
+        lock=next(n.context_expr for w in ast.walk(run) if isinstance(w,ast.With) for n in w.items
+            if isinstance(n.context_expr,ast.Call) and isinstance(n.context_expr.func,ast.Attribute)
+            and n.context_expr.func.attr=='metadata_lock')
+        preparation=adapter.RUNTIME/'tools/st_world_policy/prepare_future_metadata.py'
+        source=ast.parse(preparation.read_text())
+        names={'metadata_path','metadata_parent','metadata_lock'}
+        functions=[n for n in source.body if isinstance(n,ast.FunctionDef) and n.name in names]
+        with tempfile.TemporaryDirectory(prefix='finalization-lock-draft-') as directory:
+            output=Path(directory); reg['output_root']=str(output)
+            reservation=SimpleNamespace(_total=lambda claim:2<<30,
+                _check_disk=lambda *args,**kwargs:None,core={'free_reserve_bytes':0})
+            guard=storage.MetadataWriteContext(reservation,{},output,{},reg,'unused-fixture-pin','0'*64)
+            namespace=dict(Path=Path,os=os,stat=stat,fcntl=fcntl,contextmanager=contextmanager,
+                _storage_check=guard.check)
+            exec(compile(ast.Module(body=functions,type_ignores=[]),str(preparation),'exec'),namespace)
+            def check_path(path,missing=False):
+                namespace['metadata_path'](path,missing=missing); guard.check(path=path)
+            budget=SimpleNamespace(scan=guard.check,path=check_path)
+            with patch.object(storage,'_checkpoint_reserve',return_value=0), \
+                    patch.object(storage,'process_tree_rss',return_value=32<<20):
+                context=eval(compile(ast.Expression(lock),'<actual finalizer lock expression>','eval'),
+                    {'f':SimpleNamespace(metadata_lock=namespace['metadata_lock']),'output':output,'budget':budget})
+                with context:
+                    observed=guard.check(before_commit=True)
+                    self.assertGreaterEqual(observed['charged_disk_bytes'],0)
+                    self.assertEqual([p.name for p in output.iterdir()],['FINALIZE.lock'])
 
     def test_control_no_overwrite(self):
         with tempfile.TemporaryDirectory(prefix='finalization-control-') as directory:

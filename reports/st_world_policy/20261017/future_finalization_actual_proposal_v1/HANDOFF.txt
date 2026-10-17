@@ -2,6 +2,20 @@ Status: DRAFT ONLY. No dispatch, live ledger read/write, claim acquisition,
 policy migration, real shard payload read, raw/image/teacher read or old-root
 write was performed. Independent actual resource admission is still required.
 
+Lock mapping correction after 5d868e85
+  The initial storage draft allowed BUILD.lock while the frozen finalizer writes
+  FINALIZE.lock. The actual-draft regression reproduced BLOCKED_STORAGE before
+  lock creation; its log is retained in LOCK_REGRESSION_BEFORE_FIX.log.
+  The draft now permits FINALIZE.lock. Storage registration -> policy and
+  admission -> command SHA bindings were refreshed; LOCK_FIX_PINS.json lists
+  every old/new digest. Frozen writer and controller source are unchanged.
+  The regression executes the frozen writer's actual lock-path expression and
+  stdlib metadata_lock functions against real MetadataWriteContext using the
+  actual draft allowlist, with only the output root relocated to /tmp and
+  checkpoint/free-space/RSS probes replaced with fixture values. No ledger is
+  opened. All 10 controls tests pass on DDP Python 3.10 in 0.101 s, measured peak
+  RSS 29872128 bytes; see LOCK_FIX_TEST_RESULT.json. This is author evidence.
+
 Runtime and identity
   Frozen writer: /mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017
   Commit: 3df052ea422c4ba042ef3be33dea19438c5702dc
