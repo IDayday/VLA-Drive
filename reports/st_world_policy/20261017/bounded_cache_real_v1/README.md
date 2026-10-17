@@ -43,9 +43,21 @@ only the new child process group that it owns. No running training process was
 signalled. The source archive is byte-identical to the executed private helper;
 historical approvals expire and are not reusable launch permissions.
 
-The full-current metadata index build is a separate CPU-only invocation. It
-reads original metadata and writes a bounded index; it must not read image or
-teacher tensor payloads. Its measured result is recorded separately when it
-finishes. Full-future population preparation and long-window on-demand training
-remain unexecuted. This qualification grants neither formal temporal training
-nor a scientific-effect claim.
+The full-current metadata index build also completed in a separate CPU-only
+invocation. It covers all 101,592 original scenes and 304,776 image records.
+The database is 381,902,848 bytes (364.21 MiB); elapsed outer wall time was
+218.157 s and peak aggregate RSS 673,263,616 bytes (642.07 MiB). The guarded
+disk peak, including transient SQLite files, was 536,460,904 bytes. No image or
+teacher tensor payload was opened and no teacher tensor was written. Metadata
+was read and hashed: its total read bytes were not instrumented by this
+invocation, so zero payload opens must not be described as zero I/O.
+`CURRENT_INDEX_RESULT.json` binds its completion and controller receipts.
+
+Full-future population preparation and long-window on-demand training remain
+unexecuted. These results validate bounded metadata preparation, not long-run
+cache hit rate, training throughput, or formal temporal training. Existing
+current feature tensors remain in place; the index itself does not replace
+their storage. Missing future tensors will use the separately qualified FP32
+on-demand path with a bounded RAM LRU, rather than a new multi-terabyte disk
+population. The user disk constraint does not authorize deleting old evidence
+or reducing target precision.
