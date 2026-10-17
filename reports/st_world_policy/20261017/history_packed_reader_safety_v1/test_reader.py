@@ -65,3 +65,16 @@ def test_after_open_mutations_fail_before_return(tmp_path,change):
 def test_lexical_and_range_reject(tmp_path,relative,offset,length):
     root,path=asset(tmp_path)
     with pytest.raises(ValueError):h.read_packed_history_range(root,relative,offset,length)
+
+
+def test_files_mode_cannot_borrow_packed_census_registration():
+    from types import SimpleNamespace
+    from tools.st_world_policy import prepare_causal_history as writer
+    args=SimpleNamespace(action='build',pin_selection=None,scene_list='/fixed',target_times=[0.],mode='registered',max_scenes=64,record_layout='files')
+    guard=SimpleNamespace(registration={},limits={'max_disk_bytes':32<<20,'max_seconds':900,'max_rss_bytes':4<<30})
+    with patch.object(writer.storage,'_ACTIVE_GUARD',guard),patch.object(writer.os,'sched_getaffinity',return_value={6,7}),patch.dict(writer.os.environ,CUDA_VISIBLE_DEVICES=''):
+        writer.validate(args)  # Legacy files registration remains valid.
+        guard.registration={'record_layout':'packed_log_v1','inventory_strategy':'immutable_history_shards_v1'}
+        with pytest.raises(ValueError,match='Files command'):writer.validate(args)
+        guard.registration={'record_layout':'files','inventory_strategy':'immutable_history_shards_v1'}
+        with pytest.raises(ValueError,match='Files command'):writer.validate(args)

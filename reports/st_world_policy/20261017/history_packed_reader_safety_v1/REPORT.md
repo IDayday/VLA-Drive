@@ -11,3 +11,5 @@ The first test run retained in `TEST_LOG.txt` had26 PASS/1 FAIL: an in-place sam
 The reviewer's previous Path.open-hook counterexample targets the removed open call; its next review should inject at os.open/pread instead. This patch has a corresponding precise at-open symlink race test and a nonblocking actual FIFO fixture. Independent re-review is pending, not self-approved.
 
 No full build, new admission, claims, model/teacher tensors, GPU work or push occurred. Full-history performance/coverage remain untested.
+
+Reviewer follow-up: files/default mode must not borrow a packed-only census registration. `prepare_causal_history.validate` now rejects any packed layout or inventory_strategy on its files branch; legacy files registrations with no declared strategy remain valid. Added negative/legacy behavior test. `TEST_LAYOUT_BINDING.txt`:28 PASS. This additional change is confined to configuration consistency; no read/mathematical path changed.

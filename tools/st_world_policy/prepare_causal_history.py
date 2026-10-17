@@ -48,6 +48,8 @@ def validate(args):
             if type(reg.get(key)) is not int or reg[key]<=0:raise ValueError('Explicit packed IO/shard budgets required')
         if reg['read_mib_per_second']>32 or reg['max_source_read_bytes']>2*(1<<40):raise ValueError('Packed IO budget exceeds supported bounds')
         return
+    if guard.registration.get('record_layout') not in (None,'files') or guard.registration.get('inventory_strategy') is not None:
+        raise ValueError('Files command cannot claim packed layout or census strategy')
     if not set(os.sched_getaffinity(0))<= {6,7}:raise ValueError('Pilot CPU6,7 only')
     if (guard.limits['max_disk_bytes']>LIMITS['max_metadata_bytes'] or
             guard.limits['max_seconds']>LIMITS['max_seconds'] or
