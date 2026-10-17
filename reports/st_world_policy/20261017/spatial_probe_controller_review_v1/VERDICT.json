@@ -1,0 +1,68 @@
+{
+  "actual_dispatch_allowed": false,
+  "actual_efficiency": "UNKNOWN",
+  "additional_limitations": [
+    "SYS-03_ANCESTOR_SYMLINK_NOT_REJECTED",
+    "SYS-04_IMMUTABLE_REUSE_SKIPS_DIRECTORY_ENVELOPE"
+  ],
+  "blocking_findings": [
+    "SYS-01_SUPERVISOR_SIGNAL_ORPHANS_WORKER",
+    "SYS-02_LEADER_EXIT_LEAKS_DESCENDANT_AND_LOCK"
+  ],
+  "evidence": {
+    "INDEPENDENT_COUNTEREXAMPLES.txt": "2207aede3effc76057a2a3e57150b95838d002e9383df950aadd0fec45f590e8",
+    "INITIAL_FIXTURE_API_FAILURE.txt": "6fd692718a78486a4f1d3df97915c9316fa6f94acf4d1b03385b6d33f3b2952e",
+    "OWNER_TEST_RESULTS.txt": "e6313a7a11db53d029ce061c48a04ea238f9ad017853b5ce3d4f87202f89792c",
+    "REVIEW.md": "edc074422796c750593352a9c4659f8e2fc962f2d66df33328c64916aea9e98f",
+    "test_system_boundaries.py": "3971ce9c6dd91b551c3af437557889adf2d72f564a538b7f1b59dfec92eccc9e"
+  },
+  "final_runtime_v2": "WAITING_INPUTS",
+  "helper_sha256": {
+    "observed_cli.py": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643",
+    "prepare_bindings.py": "d9cb2c14028c0418d0e5c81d5dd01cf724e776a451d33945c21ff7fd53086968",
+    "supervise_once.py": "17f7bd4aef45136b40bbca36a088e5f3044a070f4cf80cf589e4d23557423563"
+  },
+  "independent_counterexample_tests": {
+    "failed": 0,
+    "interpretation": "PASS reproduces candidate defects; not qualification",
+    "passed": 4,
+    "seconds": 0.18
+  },
+  "initial_fixture_run": {
+    "cause": "Python build lacks optional pidfd wrappers; fixture repaired with Linux pidfd syscalls, production unchanged",
+    "failed": 2,
+    "passed": 2
+  },
+  "owner_cpu_tests": {
+    "failed": 0,
+    "passed": 33,
+    "seconds": 1.01
+  },
+  "review_utc": "2026-10-17T06:55:45.455404+00:00",
+  "reviewed_candidate": "a785985dc7bd780e97b029219caec2587ae8b299",
+  "reviewed_parent": "7c2bfe07a11f1ddbfd62be60a6aac579cd4f18e6",
+  "reviewer": "/root/st_learned_w_probe_efficiency",
+  "schema": "st_independent_probe_controller_system_review_v1",
+  "scope": {
+    "actual_extract_executed": false,
+    "actual_fit_executed": false,
+    "actual_plan_executed": false,
+    "dispatch": false,
+    "gpu_accessed": false,
+    "images_read": false,
+    "live_ledger_read_or_mutated": false,
+    "model_method_revisited": false,
+    "native_weights_read": false,
+    "owned_tiny_cpu_processes_only": true,
+    "production_process_signalled": false
+  },
+  "source_head": "a785985dc7bd780e97b029219caec2587ae8b299",
+  "typed_w_package": {
+    "maximum_bytes": 1073741824,
+    "same_ledger_cap_bytes": 824633720832,
+    "status": "WAITING_ACTUAL_PLAN_AND_MIGRATION",
+    "v7_claims_to_preserve": 7,
+    "v7_ledger_sha256_lead_reported_not_reverified": "7fcfc0c18fa69fc65a125ee36acc1204f9976e62926bede016269136f79cebbe"
+  },
+  "verdict": "FAIL"
+}
