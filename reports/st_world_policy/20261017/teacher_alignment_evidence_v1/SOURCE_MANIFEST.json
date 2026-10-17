@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-17T16:58:02.300053+00:00",
+  "status": "EVIDENCE_REVIEW_ONLY_NOT_INDEPENDENT_CORRECTNESS_APPROVAL",
+  "worktree_base": "42ad6fcbeca99e1bf99df757191fca0edbad742f",
+  "current_model_source_base": "951711fbd2eae1730262a79575b08024bcd2001d",
+  "sources": [
+    {
+      "method": "DINO-Foresight",
+      "repository": "https://github.com/Sta8is/DINO-Foresight",
+      "commit": "d98f765d2b743ec90fb38bc657a39c07c7ca4ab0",
+      "local_root": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dino_foresight",
+      "paper": "https://arxiv.org/html/2412.11673v2",
+      "read_sections": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.1",
+        "Appendix A.1 / Table 5",
+        "Appendix A.5 / Table 10"
+      ],
+      "files": [
+        {
+          "path": "pca.py",
+          "bytes": 7494,
+          "sha256": "f89498986b21936a901be7d06046ee8af5969242b07b355bb1031ae8c0e3a8bd",
+          "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/pca.py"
+        },
+        {
+          "path": "src/dino_f.py",
+          "bytes": 37633,
+          "sha256": "3d418b1488a4eff0ed1da1c6f13f12f50dcb6c36b4301addd8dfbfa0ad1a272f",
+          "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/src/dino_f.py"
+        },
+        {
+          "path": "train.py",
+          "bytes": 12663,
+          "sha256": "e981b5368bcd8decd8b50541e5ccfb98522756473dfad9b88aee9b9bb8fb7502",
+          "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/train.py"
+        },
+        {
+          "path": "README.md",
+          "bytes": 11534,
+          "sha256": "050a6049e3ff5e9d69bb4b80dde75426507a21a6bcc0c5fb8ee26f7014c8da74",
+          "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/README.md"
+        }
+      ],
+      "executed_training": false
+    },
+    {
+      "method": "PHI-S / RADIO adaptor",
+      "repository": "https://github.com/NVlabs/RADIO",
+      "commit": "4ffaf15d0ff48197c194e306772bdb5fb92db230",
+      "local_root": "/tmp/st_teacher_alignment_evidence_v1",
+      "paper": [
+        "https://arxiv.org/html/2410.01680v1",
+        "https://arxiv.org/html/2412.07679v2"
+      ],
+      "read_sections": [
+        "PHI-S 2.2.1-2.2.5 / equations 5-26 / Tables 1,3,4",
+        "RADIOv2.5 2.1-2.2 / 4.4 / Table 3"
+      ],
+      "files": [
+        {
+          "path": "examples/common/phi_s.py",
+          "bytes": 477,
+          "sha256": "207b5558cbd38cd1daae5936dbaf418ccd856e286661945c5eef091c91a03a92",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/examples/common/phi_s.py"
+        },
+        {
+          "path": "examples/common/hadamard.py",
+          "bytes": 5286,
+          "sha256": "25152293f49c22bb2925622cb915162dea615c58947d881ee43a33f0a8e8dc9b",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/examples/common/hadamard.py"
+        },
+        {
+          "path": "radio/feature_normalizer.py",
+          "bytes": 4399,
+          "sha256": "a74401f5220c2e5960d39addce9ba40f481efca9ab44bb9d96535ed23e1ef62b",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/radio/feature_normalizer.py"
+        },
+        {
+          "path": "radio/adaptor_mlp.py",
+          "bytes": 4025,
+          "sha256": "e75a9ed1f7f58c749dec5a510d699f36f32fdb7f3b61cd8a7e3ccd5afd2c9b77",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/radio/adaptor_mlp.py"
+        },
+        {
+          "path": "radio/adaptor_generic.py",
+          "bytes": 3747,
+          "sha256": "3d1b5a015ff3754a9eb64cd56b4d04cae01e537a1ffa606adaf904c55fff07a1",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/radio/adaptor_generic.py"
+        },
+        {
+          "path": "radio/adaptor_module_factory.py",
+          "bytes": 3278,
+          "sha256": "2beac17dc5824c7d9f925dc782cdd4b49bd15cf206bf1cbaa9108a8966e33316",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/radio/adaptor_module_factory.py"
+        },
+        {
+          "path": "README.md",
+          "bytes": 22568,
+          "sha256": "6efc6fab3c8148d64a056107c3fb7d439b258040a684f8ba77c6f44a18d7e236",
+          "url": "https://github.com/NVlabs/RADIO/blob/4ffaf15d0ff48197c194e306772bdb5fb92db230/README.md"
+        }
+      ],
+      "fixed_commit_verified_with_official_api": true,
+      "executed_training": false,
+      "license_handling": "Inspected and linked only. No NVIDIA source copied into project."
+    }
+  ],
+  "local_code_inspected": [
+    {
+      "path": "tools/st_world_policy/teacher_pca.py",
+      "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+    },
+    {
+      "path": "starVLA/model/modules/st_world/sparse_readout.py",
+      "sha256": "e0fe8b047e2e0c7836ad221984ff526b8be7a379197deeebcee4036c8ce938ee"
+    },
+    {
+      "path": "starVLA/model/modules/st_world/losses.py",
+      "sha256": "5566b79c551717d18429e5e6278993a8bcb726922f36d107025c0b80161306f6"
+    },
+    {
+      "path": "starVLA/model/modules/foresight/future_latent_head.py",
+      "sha256": "0866b0ab16261c064c4cb26fbc2d77c514e754008eeecea1bd428f779f1a38fe"
+    }
+  ],
+  "new_model_changes": false,
+  "new_training_runs": 0,
+  "gpu_used": false,
+  "ssh_used": false,
+  "road_followup": "PAUSED; retained commit 42ad6fcb",
+  "verification_boundary": "Source/formula review; no claim of real driving improvement, DDP qualification, or independent PASS."
+}
