@@ -1,0 +1,120 @@
+{
+  "schema": "st_index_outer_timeout_composition_review_v1",
+  "status": "PASS_BOUNDED_BOOTSTRAP_TIMEOUT_COMPOSITION_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "checked_unix": 1792248657.3751967,
+  "independent_tests": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0
+  },
+  "source_pins": {
+    "timeout": {
+      "path": "/usr/bin/timeout",
+      "sha256": "8d21b4cf1b204cc2387377a63c542ecdd0ae0895613db67ceb7da1e253110741"
+    },
+    "index_controller": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_index_execution_v1/run_index_once.py",
+      "sha256": "be1b5b6ca4390cdd3da00c3885098426d8c6279fdd490861898d432bd184dcf3"
+    },
+    "core": {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    "ownership": {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    }
+  },
+  "timeout_version": "timeout (GNU coreutils) 8.32",
+  "actual_prefix": {
+    "dev": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=40s",
+      "900s"
+    ],
+    "train": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=40s",
+      "3600s"
+    ]
+  },
+  "cost": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "wall_seconds": 1.6892965603619814,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "harness_hwm_bytes": 17788928,
+    "sampled_fixture_tree_peak_rss_bytes": 42373120,
+    "process_rchar_including_reaped_children_once": 5837583,
+    "events": [
+      {
+        "case": "actual_import_fifo",
+        "returncode": 124,
+        "elapsed_seconds": 0.3050472103059292,
+        "argv": [
+          "/usr/bin/timeout",
+          "--signal=TERM",
+          "--kill-after=40s",
+          "0.3s",
+          "/usr/bin/python3",
+          "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_external_timeout_independent_v1/fixture.py",
+          "fifo",
+          "/tmp/index-timeout-fifo-jr9o8c0t"
+        ],
+        "status": "PASS"
+      },
+      {
+        "case": "real_monitor_external_term",
+        "returncode": 124,
+        "elapsed_seconds": 1.3546321298927069,
+        "argv": [
+          "/usr/bin/timeout",
+          "--signal=TERM",
+          "--kill-after=40s",
+          "1s",
+          "/usr/bin/python3",
+          "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_external_timeout_independent_v1/fixture.py",
+          "monitor",
+          "/tmp/index-timeout-owned-73gjes8g"
+        ],
+        "failure_preserved": "SUPERVISOR_SIGNAL_15",
+        "cleanup": {
+          "verified_processes": 2,
+          "live_owned_remaining": 0
+        },
+        "status": "PASS",
+        "resource_sampling_in_monitor": "fixture-local RSS only; actual ownership/signal/cleanup helpers unmodified"
+      }
+    ],
+    "actual_task_signals": false,
+    "real_payload_reads": false,
+    "ledger_access": false,
+    "gpu": false
+  },
+  "findings": [
+    "Actual run_index module executed with only its CORE read redirected to synthetic FIFO; external timeout bounded startup before core import",
+    "Unmodified core.monitor and actual OwnedSession/pidfd/lifetime_scope received external SIGTERM and cleaned both real synthetic same-session descendants; no actual task signaled",
+    "Default GNU timeout process group is required; do not add --foreground or --preserve-status. Exit124 is a failed/stopped attempt",
+    "40-second kill-after is the same global cleanup envelope, not a second grace period; core remains responsible for its separately sessioned owned child",
+    "Source/lease/limits and full-process read/RSS/storage budget checks remain unchanged; prefix supplies missing bootstrap wall bound"
+  ],
+  "fixture_limits": [
+    "FIFO read substitution is explicit; no real immutable source was altered",
+    "Only monitor RSS provider was substituted with fixture-local RSS; ownership and cleanup implementation is actual pinned code",
+    "No real index payload or migration, no model/GPU; these are two process-control examples rather than measured full-population cost"
+  ],
+  "admission_requirements": [
+    "Actual role admission must include exact external prefix plus controller/admission args",
+    "Fresh source/control/ledger/CP verification and actual completed preparation/migration required separately",
+    "No auto retry; timeout124/137 or missing terminal receipt must never be promoted to COMPLETE"
+  ],
+  "actual_index_build_authorized": false,
+  "actual_dispatch": false
+}
