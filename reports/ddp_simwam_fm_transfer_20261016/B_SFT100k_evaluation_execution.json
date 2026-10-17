@@ -1,0 +1,165 @@
+{
+  "schema": "fm_transfer_B_SFT100k_evaluation_execution_v2",
+  "observed_unix": 1792217051.0547614,
+  "probe_source_sha256": "d86824560a8b2f4ddf8ec2d18d989b799cb94fff4bcbb3bae035ca1882251f48",
+  "cohorts": {
+    "DEV": {
+      "workers_exited": {
+        "training-vlawm-tsinghua-zt4": {
+          "pinned": [
+            {
+              "pid": 281007,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281019,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281013,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281010,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281025,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281022,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281004,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 281016,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        }
+      },
+      "raw_original_checks_passed": 8,
+      "scenes": 1696,
+      "logical_single_candidates": 3392,
+      "diagnostic_predictions": 8,
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 4868.122406607494,
+        "job_wall_seconds": 631.176947593689,
+        "model_load_seconds": 1118.1710286233574,
+        "generation_wall_seconds_sum": 3343.833593359217,
+        "scoring_wait_seconds_sum": 211.91962839849293,
+        "missing": []
+      },
+      "evaluation_manifest_sha256": "1d2bc9d43fcbf55ca2c5e8b8ebe679d4aa205cb44fbb4fb1ebaa358ab955484c",
+      "formal_physical_predictions": 3392,
+      "physical_predictions_including_diagnostics": 3400
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "workers_exited": {
+        "training-vlawm-tsinghua-zt": {
+          "pinned": [
+            {
+              "pid": 1976670,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1976435,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1976968,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1976251,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1977449,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1977583,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1977822,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 1977237,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        }
+      },
+      "raw_original_checks_passed": 8,
+      "scenes": 512,
+      "logical_single_candidates": 1024,
+      "diagnostic_predictions": 8,
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 2128.581089613959,
+        "job_wall_seconds": 274.15162110328674,
+        "model_load_seconds": 919.4977714046836,
+        "generation_wall_seconds_sum": 1009.7725361436605,
+        "scoring_wait_seconds_sum": 76.02947310358286,
+        "missing": []
+      },
+      "evaluation_manifest_sha256": "6873f63ccb01ac1dd730673e57de93de56431d2daadf1f191b88775a091faa77",
+      "formal_physical_predictions": 1024,
+      "physical_predictions_including_diagnostics": 1032
+    }
+  },
+  "parent_receipt_sha256": "587eac0ea2b5ab64c5c1027f735c09b26e1443b7f25edf754007e4b7e067bb78",
+  "counter_note": "Formal prediction counter excludes separately recorded raw-entry diagnostic predictions; include both for physical cost."
+}
