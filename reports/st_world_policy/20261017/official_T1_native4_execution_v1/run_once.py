@@ -283,9 +283,13 @@ def checkpoint_bytes(root):
     return total
 
 
-def monitor(command, env, fd, s, core, remaining, *, storage_guard):
+def monitor(command, env, fd, s, core, remaining, *, storage_guard, lease_valid_until):
     """Narrow adaptation of 8674 monitor: topology, 180s grace, native log format."""
     baseline = proc_io(); started = time.monotonic(); buffers = {'stdout': bytearray(), 'stderr': bytearray()}
+    check(type(lease_valid_until) in (int, float) and math.isfinite(lease_valid_until), 'Finite actual admission expiry required')
+    lease_deadline = started+max(0., lease_valid_until-time.time())
+    check(lease_deadline >= started+3780, 'Setup consumed the required execution/cleanup lease window')
+    hard_deadline = min(started+3780, lease_deadline)
     child = owner = leader = None; finished = False; failure = None; peak = 0; term_at = None
     cleanup_until = None; storage_last = None
     selector = selectors.DefaultSelector()
@@ -322,7 +326,7 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard):
                     if now-started >= LIMITS['invocation_seconds']: failure = failure or 'WALL_LIMIT'
                 if failure and term_at is None:
                     term_at = now
-                    cleanup_until = min(started+3780, term_at+180)
+                    cleanup_until = min(hard_deadline, term_at+180)
                     owner.send(signal.SIGTERM)
                 if cleanup_until is not None and now >= cleanup_until-10: owner.send(signal.SIGKILL)
                 if cleanup_until is not None and now >= cleanup_until: raise RuntimeError('Owned cleanup exceeded absolute deadline')
@@ -333,6 +337,7 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard):
             if accounting['status'] != 'COMPLETE': failure = failure or 'IO_ACCOUNTING_INCOMPLETE'
             return dict(returncode=code, failure=failure, peak_rss_bytes=peak,
                 elapsed_seconds=time.monotonic()-started, accounting=accounting,
+                lease_deadline_monotonic=lease_deadline, hard_deadline_monotonic=hard_deadline,
                 cleanup_deadline_monotonic=cleanup_until, last_shared_storage_check=storage_last,
                 stdout=buffers['stdout'].decode('utf8', 'replace'), stderr=buffers['stderr'].decode('utf8', 'replace'),
                 cleanup={'verified_processes': owner.verified, 'live_owned_remaining': 0})
@@ -340,10 +345,10 @@ def monitor(command, env, fd, s, core, remaining, *, storage_guard):
             try:
                 if owner is not None and not finished:
                     if cleanup_until is None:
-                        cleanup_until = min(started+3780, time.monotonic()+180)
+                        cleanup_until = min(hard_deadline, time.monotonic()+180)
                     # In particular, an already expired deadline never gets 180s again.
                     owner.finish(terminate=True, deadline=cleanup_until)
-                elif owner is None and child is not None: s.abort_spawn_setup(child, leader, deadline=started+3780)
+                elif owner is None and child is not None: s.abort_spawn_setup(child, leader, deadline=hard_deadline)
             finally:
                 selector.close()
                 if owner is not None: owner.close()
@@ -388,7 +393,8 @@ def parent_main(args):
             overhead = proc_io()['rchar']-start_io['rchar']
             check(prior+overhead < LIMITS['cumulative_rchar_bytes'], 'Read budget exhausted before launch')
             observed = monitor(command, env, lock.fileno(), s, core, LIMITS['cumulative_rchar_bytes']-prior-overhead,
-                storage_guard=lambda: shared_storage_guard(a['checkpoint_commitments'], a['valid_until_unix']))
+                storage_guard=lambda: shared_storage_guard(a['checkpoint_commitments'], a['valid_until_unix']),
+                lease_valid_until=a['valid_until_unix'])
             result_path = ROOT/'runs'/reg['run_id']/'RESULT.json'
             result = json.loads(result_path.read_text()) if result_path.exists() else {}
             check(observed['returncode'] == 0 and observed['failure'] is None, 'Bounded invocation unsuccessful')

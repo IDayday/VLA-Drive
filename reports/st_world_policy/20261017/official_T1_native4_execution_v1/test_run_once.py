@@ -144,7 +144,7 @@ def test_owned_monitor_tiny_children_no_gpu(tmp_path, monkeypatch, stop):
               'p.wait();print("tiny child fixture")')
     with (tmp_path/'lock').open('w') as lock:
         out = m.monitor([sys.executable, '-c', script], dict(os.environ, CUDA_VISIBLE_DEVICES=''), lock.fileno(), s, core, 64 << 20,
-                        storage_guard=lambda: {'fixture_only': True})
+                        storage_guard=lambda: {'fixture_only': True}, lease_valid_until=m.time.time()+5000)
     assert out['cleanup']['live_owned_remaining'] == 0
     assert out['accounting']['status'] == 'COMPLETE'
     assert out['failure'] == ('WALL_LIMIT' if stop else None)
@@ -232,3 +232,13 @@ def test_storage_guard_rejects_changed_control_content(tmp_path, monkeypatch):
     pin = storage_fixture(tmp_path, monkeypatch)
     Path(pin['path']).write_text('{}')
     with pytest.raises(ValueError, match='changed'): m.shared_storage_guard(pin, 4000.)
+
+
+def test_delayed_setup_cannot_start_a_fresh_window_after_admission_check(monkeypatch):
+    monkeypatch.setattr(m.time, 'monotonic', lambda: 20.)
+    monkeypatch.setattr(m.time, 'time', lambda: 120.)
+    monkeypatch.setattr(m.subprocess, 'Popen', lambda *a, **k: pytest.fail('Expired setup must not spawn'))
+    # Admission at wall100 had exactly 3780s; setup consumed 20s before monitor.
+    with pytest.raises(ValueError, match='Setup consumed'):
+        m.monitor(['/fixture/no-child'], {}, -1, None, None, 1 << 30,
+                  storage_guard=lambda: {}, lease_valid_until=3880.)

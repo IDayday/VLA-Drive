@@ -1,4 +1,4 @@
-# Independent reviewer commit 14831196; only new storage_guard fixture wiring added. Assertions unchanged.
+# Independent reviewer commit 14831196; only new guard/expiry fixture wiring added. Assertions unchanged.
 """A deterministic, no-child/no-model reproduction of cleanup deadline renewal."""
 from contextlib import contextmanager
 import importlib.util
@@ -41,7 +41,8 @@ def test_cleanup_cannot_restart_at_the_already_expired_absolute_deadline(tmp_pat
     monkeypatch.setattr(m, 'live_owned_usage', lambda *a: (0,0))
     monkeypatch.setattr(m, 'checkpoint_bytes', lambda *a:0)
     with pytest.raises(RuntimeError, match='cleanup exceeded'):
-        m.monitor(['/fixture/no-child'],{},-1,s,SimpleNamespace(),1<<30, storage_guard=lambda: {'fixture': True})
+        m.monitor(['/fixture/no-child'],{},-1,s,SimpleNamespace(),1<<30,
+                  storage_guard=lambda: {'fixture': True}, lease_valid_until=m.time.time()+5000)
     assert len(deadlines)==1
     # First TERM at 3601. Only the original 180-second allowance is admitted.
     assert deadlines[0] <= 3781., f'Cleanup restarted: {deadlines[0]} > original deadline 3781'
