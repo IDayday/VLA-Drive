@@ -1,0 +1,60 @@
+{
+  "artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/CONFIG.json",
+      "sha256": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+      "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+    },
+    "environment": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/ENVIRONMENT.json",
+      "sha256": null,
+      "status": "LEAD_MUST_CREATE_AND_BIND_CURRENT_ARTIFACT"
+    },
+    "resource_lease": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/RESOURCE_LEASE.json",
+      "sha256": null,
+      "status": "LEAD_MUST_CREATE_AND_BIND_CURRENT_ARTIFACT"
+    },
+    "target_contract": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/TARGET_CONTRACT.json",
+      "sha256": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/identity.json",
+      "sha256": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    }
+  },
+  "execution": {
+    "family": "spatial",
+    "global_batch": 32,
+    "max_updates": 20000,
+    "micro_batch": 4,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 0,
+    "scope": "FORMAL",
+    "seed": 42,
+    "stop_after": 5000,
+    "world_size": 4
+  },
+  "formal_launch_allowed": false,
+  "implementer_agents": [
+    "/root",
+    "/root/st_cache_budget",
+    "/root/st_flow_policy",
+    "/root/st_indexprep_boundary_fix",
+    "/root/st_systems"
+  ],
+  "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+  "schema": "st_world_run_dispatch_draft_v1",
+  "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+  "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "status": "DRAFT_NOT_A_REGISTRATION_OR_APPROVAL",
+  "weights_usable_for_formal_init": true
+}
