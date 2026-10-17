@@ -22,7 +22,12 @@ child exit 1; supervisor limit failure `null`; cleanup live-owned count 0.
 Charged parent+child logical `rchar` is **2,202,810,181 bytes**. Native-load and
 GPU allocation counters are zero; new teacher tensor bytes are zero. Counter
 hash instrumentation is absent here, so its zero does not mean zero raw/image
-identity reads. Physical `read_bytes` and logical `rchar` must not be conflated.
+identity reads. Physical `read_bytes` and logical `rchar` must not be conflated. The actual child
+reported `rchar=1,086,790,274` and `read_bytes=8,133,128,192`, while the controller
+charged parent+child `rchar=2,202,810,181`. The builder's 64 MiB/s pacing applies to
+source read requests. It is **not a strict cap on aggregate physical Lustre/block
+throughput**; read-ahead and storage accounting can differ substantially. No new
+performance change or stronger physical-bandwidth guarantee is inferred.
 
 All nine original PLAN/control hashes still exactly match the registration.
 The data role, 1,696-scene/16-log selection, registered source/runtime and PLAN
