@@ -1,0 +1,285 @@
+{
+  "status": "PASS_EXACT_32_SCENE_REAL_RECEIPT_CONSUMER",
+  "tested_runtime_commit": "31c3dca2fbc697b419bf343ce05d10be0a4fe13f",
+  "reviewed_consumer_fix": "42854f40d0dab551463d63abae80a1045b64722f",
+  "consumer": "tools.st_world_policy.qualify_indexed_provider.validate_receipt",
+  "descriptor_scope": "in-memory exact plan-derived view; not factory or training admission",
+  "plan_identity": "df38f4997f888c868a7de3991768be065646907d3d30480a720147131683688a",
+  "receipt_identity": "ab47303d09323f10f1fcf5b4a13a32ab857bed7856a1a4abec4555a09233372d",
+  "pins": {
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESOLVED_PLAN.json": {
+      "sha256": "f96e5612c068aa4000172f7076ea37031b8fe09d03b2f60706d57300e540f0eb",
+      "bytes": 211856
+    },
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1/PLAN.json": {
+      "sha256": "f96e5612c068aa4000172f7076ea37031b8fe09d03b2f60706d57300e540f0eb",
+      "bytes": 211856
+    },
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESULT.json": {
+      "sha256": "a4f4c86f0b5c09d18a58d02e8919dd73e659b48a53ed0d2a25c7d68e497b7a2f",
+      "bytes": 1976604
+    },
+    "/mnt/project/st-world-policy-20261016/resources/QUALIFICATION_REPORT_BUDGET_v1.json": {
+      "sha256": "1ab0e8a8673b354ec81d99311444c68a502ac8d4d0f86e66e103373f90c0744e",
+      "bytes": 1007
+    },
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1/QUALIFICATION_LAUNCH.json": {
+      "sha256": "527df7eef2d4b14b1aa85316bf02275731600c2a7436dccc36ced1f51691ae81",
+      "bytes": 730
+    },
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/PROGRESS.json": {
+      "sha256": "fe1704ff40408127283d769e1f27487b8fe5146488599091c485cdb1c8ee81e2",
+      "bytes": 236
+    }
+  },
+  "scenes": 32,
+  "slots": 480,
+  "missing_slots": 0,
+  "unique_images": 294,
+  "cached_unique": 189,
+  "miss_unique": 105,
+  "elements_per_full_feature": 442368,
+  "case_counts": {
+    "cold": {
+      "scenes": 32,
+      "comparisons": 480,
+      "elements": 212336640,
+      "online_elements": 212336640,
+      "partial_ram_hit_and_compute_scenes": 0,
+      "mixed_immutable_hit_and_compute_scenes": 28,
+      "counts": {
+        "computed_images": 144,
+        "evictions": 224,
+        "immutable_hits": 336,
+        "ram_hits": 0
+      }
+    },
+    "cold_restored": {
+      "scenes": 32,
+      "comparisons": 480,
+      "elements": 212336640,
+      "online_elements": 212336640,
+      "partial_ram_hit_and_compute_scenes": 0,
+      "mixed_immutable_hit_and_compute_scenes": 28,
+      "counts": {
+        "computed_images": 144,
+        "evictions": 224,
+        "immutable_hits": 336,
+        "ram_hits": 0
+      }
+    },
+    "partial_lru": {
+      "scenes": 32,
+      "comparisons": 480,
+      "elements": 212336640,
+      "online_elements": 212336640,
+      "partial_ram_hit_and_compute_scenes": 7,
+      "mixed_immutable_hit_and_compute_scenes": 27,
+      "counts": {
+        "computed_images": 115,
+        "evictions": 451,
+        "immutable_hits": 336,
+        "ram_hits": 29
+      }
+    },
+    "reordered": {
+      "scenes": 32,
+      "comparisons": 480,
+      "elements": 212336640,
+      "online_elements": 212336640,
+      "partial_ram_hit_and_compute_scenes": 0,
+      "mixed_immutable_hit_and_compute_scenes": 28,
+      "counts": {
+        "computed_images": 144,
+        "evictions": 472,
+        "immutable_hits": 336,
+        "ram_hits": 0
+      }
+    }
+  },
+  "all_checked_comparisons": 4323,
+  "all_checked_elements": 1912356864,
+  "fixed_policy_summary": {
+    "bitwise_equal": true,
+    "comparisons": 2214,
+    "elements": 979402752,
+    "l2_relative": 0.0,
+    "max_abs": 0.0,
+    "max_elementwise_relative": 0.0,
+    "mean_abs": 0.0,
+    "rms": 0.0
+  },
+  "legacy_reference_summary": {
+    "bitwise_equal": true,
+    "comparisons": 189,
+    "elements": 83607552,
+    "l2_relative": 0.0,
+    "max_abs": 0.0,
+    "max_elementwise_relative": 0.0,
+    "mean_abs": 0.0,
+    "rms": 0.0
+  },
+  "compute_stats": {
+    "calls": 234,
+    "compute_image_slots": 1872,
+    "padding_image_slots": 737,
+    "requested_images": 1135
+  },
+  "provider_memory": {
+    "batches": 123,
+    "computed_images": 547,
+    "evictions": 1371,
+    "executor_output_limit_bytes": 14159232,
+    "failures": 0,
+    "immutable_hits": 1344,
+    "limit_scope": "tensor payloads only; metadata, teacher weights/activations, pixels and caller batches separate",
+    "metadata_cache_budget_bytes": 33554432,
+    "metadata_connections": 2,
+    "metadata_population_materialized": false,
+    "peak_resident_bytes": 14159232,
+    "ram_hits": 29,
+    "resident_bytes": 14159232,
+    "resident_limit_bytes": 14159232,
+    "scene_limit_bytes": 67108864,
+    "tensor_disk_bytes": 0
+  },
+  "numerical_and_state_gates": {
+    "construction_rng_unchanged": true,
+    "completed_all_cases": true,
+    "fixed_policy_repeatability": true,
+    "legacy_reference_compatibility": true,
+    "all_masks_equal": true,
+    "sampler_equal": true,
+    "partial_lru_exercised": true,
+    "mixed_cache_compute_exercised": true,
+    "rng_forward_checks": 234
+  },
+  "measured_resources": {
+    "elapsed_seconds": 170.35690484941006,
+    "peak_rss_bytes": 3158171648,
+    "cuda_peak_allocated_bytes": 1416995328,
+    "cuda_peak_reserved_bytes": 1533018112,
+    "process_rchar_bytes": 15009611984,
+    "tensor_mmap_logical_bytes": 3925610472,
+    "tensor_disk_bytes": 0
+  },
+  "logical_input_bytes": 18935222456,
+  "budget": {
+    "composed_reference_extra_bytes": 334511856,
+    "cpu_threads": 2,
+    "gpu_peak_bytes": 17179869184,
+    "max_batch_calls": 367,
+    "max_image_forwards": 2936,
+    "max_logical_input_bytes": 68719476736,
+    "max_scene_bytes": 67108864,
+    "max_seconds": 900,
+    "metadata_bytes": 33554432,
+    "online_reference_bytes": 520351776,
+    "planned_input_upper_bytes": 21103670755,
+    "ram_peak_bytes": 8589934592,
+    "reference_resident_limit_bytes": 2147483648,
+    "resident_provider_bytes": 14159232,
+    "teacher_weight_mmap_bytes": 1212347640,
+    "tensor_disk_bytes": 0,
+    "visible_gpus": 1
+  },
+  "metadata_root_census": {
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1": {
+      "apparent_bytes": 217119,
+      "allocated_bytes": 225280,
+      "files": 3,
+      "directories": 1
+    },
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1": {
+      "apparent_bytes": 2192792,
+      "allocated_bytes": 2199552,
+      "files": 3,
+      "directories": 1
+    }
+  },
+  "metadata_reserved_administratively_not_cache_claim": true,
+  "progress_file_is_last_periodic_running_snapshot_not_terminal": "RUNNING",
+  "launch": {
+    "pid": 441496,
+    "started_unix": 1792220921.4738746,
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=30s",
+      "930s",
+      "taskset",
+      "-c",
+      "0,1",
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "tools.st_world_policy.qualify_indexed_provider",
+      "run",
+      "--plan",
+      "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1/PLAN.json",
+      "--output",
+      "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1"
+    ],
+    "report_reservation_bytes": 67108864,
+    "cache_ledger_claim": false,
+    "automatic_retry": false,
+    "gpu_uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+    "gpu_lock": "/tmp/foresight_gpu_0.lock",
+    "report_budget_sha256": "1ab0e8a8673b354ec81d99311444c68a502ac8d4d0f86e66e103373f90c0744e"
+  },
+  "source_files": {
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/teacher_provider.py": "83410555d7e879407b09039f6a094fa6daac1259d0df7379cd6a220c2954b6bf",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_ondemand_teacher.py": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/fixed_batch_teacher.py": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_indexed_provider.py": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_metadata_index.py": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_ondemand.py": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_targets.py": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_indexed_provider.py": "d072f46ac3b1da4fffb42dec2439f35382e793b4a9de1cd4317eb60872a46bbb"
+  },
+  "opened_project_files": {
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESOLVED_PLAN.json": 211856,
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1/PLAN.json": 211856,
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESULT.json": 1976604,
+    "/mnt/project/st-world-policy-20261016/resources/QUALIFICATION_REPORT_BUDGET_v1.json": 1007,
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_plan_v1/QUALIFICATION_LAUNCH.json": 730,
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/PROGRESS.json": 236,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_indexed_provider.py": 36906,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/teacher_provider.py": 36291,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_ondemand_teacher.py": 22876,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/fixed_batch_teacher.py": 9213,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py": 19991,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_indexed_provider.py": 6467,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_metadata_index.py": 30480,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_ondemand.py": 13096,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_targets.py": 21321,
+    "/mnt/project/st-world-policy-20261016/audits/fixed_teacher_batch64_runtime_run_v1/RESULT.json": 1666719,
+    "/mnt/project/st-world-policy-20261016/audits/fixed_teacher_batch64_runtime_run_v1/RESOLVED_PLAN.json": 10388,
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/ondemand_teacher.py": 7925,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_v1/TEACHER_REQUESTS.json": 502318,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/resolved_config_build_rank0.json": 1632,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/identity.json": 460796,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/requests.json": 502318,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/COMPLETE.json": 4048,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/identity.json": 370420,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/requests.json": 494248,
+    "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json": 3311,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/tools/st_world_policy/ondemand_teacher.py": 7925,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/starVLA/dataloader/st_world_ondemand.py": 13096,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/tools/st_world_policy/qualify_ondemand_teacher.py": 22876,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/tools/st_world_policy/fixed_batch_teacher.py": 9213,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py": 5542,
+    "/mnt/project/VLA-Drive-st-fixed-label-runtime-v2-20261017/tools/st_world_policy/cache_teacher.py": 23020
+  },
+  "review_cpu_affinity": [
+    0,
+    1
+  ],
+  "review_peak_rss_bytes": 631558144,
+  "review_elapsed_seconds_after_import": 0.21910299733281136,
+  "review_cuda_initialized": false,
+  "formal_approved": false,
+  "full_population_approved": false,
+  "training_throughput_approved": false,
+  "scientific_gain": "UNTESTED"
+}
