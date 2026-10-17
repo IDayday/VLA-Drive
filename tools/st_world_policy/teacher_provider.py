@@ -385,6 +385,9 @@ def _validate_full_population(d, request, source):
 
 
 def validate_profile_recipe(admission, cfg):
+    if isinstance(admission, dict) and 'temporal_composition' in admission:
+        from tools.st_world_policy.temporal_composition import validate_composition_recipe
+        return validate_composition_recipe(admission, cfg)
     fields={'schema','scope','parent_descriptor','source_migration','data_manifest','recipe',
             'reference_recipe','max_scenes','max_updates','new_population_tensor_qualified','formal_approved'}
     full = is_full_profile(admission)
@@ -612,6 +615,11 @@ def _validate_indexed_descriptor(d, *, existing=None):
             raise ValueError('Indexed provider implementation/population/runtime identity changed')
         if existing is not None and existing.identity != provider.identity:
             raise ValueError('Owned indexed provider identity differs from its descriptor')
+        composition = d.get('profile_admission', {}).get('temporal_composition')
+        if existing is not None and getattr(existing, 'temporal_composition', None) != composition:
+            raise ValueError('Owned provider temporal input dependency changed')
+        if composition is not None:
+            provider.temporal_composition = deepcopy(composition)
         return d, cfg, existing if existing is not None else provider
     except BaseException:
         for index in indices:

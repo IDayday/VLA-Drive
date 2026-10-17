@@ -115,6 +115,12 @@ class STWorldTrainingDataset(Dataset):
                 raise ValueError('History role mismatch')
             if any(r['token'] not in self.history.index for r in self.rows):
                 raise ValueError('History population incomplete')
+        if teacher_provider is not None:
+            # Only the explicit composition route binds history to the future
+            # provider. Reuse metadata already loaded above; never scan images,
+            # packed history shards or teacher tensors a second time here.
+            from tools.st_world_policy.temporal_composition import validate_dataset_attachment
+            validate_dataset_attachment(self.history, self.source, self.rows, teacher_provider)
         if isinstance(expected_contract,dict):expected_contract=TeacherFeatureContract.from_dict(expected_contract)
         self.pca=None
         if pca_path is not None:
