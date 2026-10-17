@@ -1,0 +1,128 @@
+{
+  "execution_boundary": {
+    "actual_extract_pass": false,
+    "dispatch_authorized_by_this_review": false,
+    "migration_requirement": "Use this pinned proof adapter before invoking original metadata_storage migration; do not use raw unadapted package validator or edit old signatures.",
+    "new_numerical_equivalence_claim": false,
+    "resource_admission": "Separate independent resource review and fresh Lead checks required"
+  },
+  "findings": [
+    "Original mixed-source package counterexample reproduced, then accepted only after exact common-source expression substitution; in-memory declarations/signatures unmodified.",
+    "Same-arm endpoint still binds actual source/checkpoint/registration. Old SP0 and completed SP1 plans retain actual source and exact original file versions.",
+    "Third source, mismatched Base/environment/same-arm source, dirty/wrong runtime, non-storage change and stale proof reject.",
+    "Parent wrapper retains original supervisor argv/validator and rejects bad wrapper/proof pins before supervisor; no auto admission.",
+    "Actual observed_cli source transformation reverses byte-exactly to original; Counters AST unchanged. Executed original transformed run prefix reaches compatibility installation/provenance before first Torch import.",
+    "Original observer bootstrap baseline is BOOT_IO captured before imports; storage adapter installation cannot erase original observer counter fields or later stage/resource failure.",
+    "Original validate_signature implementation remains unchanged by the one-expression package transformation. Deep per-signature checks were intentionally stubbed only in package-guard fixture; they are neither removed in production nor independently rerun here."
+  ],
+  "lead_integration_commit_prefix": "b3aa64e9",
+  "observed_cost": {
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "parent_cpu_seconds_sum": 0.524261,
+    "parent_rchar_including_two_python_startups_bytes": 17621650,
+    "peak_parent_rss_bytes": 41246720,
+    "scope": "Parent /proc I/O includes git stdout. Git internal repository reads are not separately instrumented; static source/control reads were small and targeted. This is not an independent actual-run resource admission.",
+    "test_wall_seconds_sum": 3.5054188780486584
+  },
+  "preserved_prior_failure": {
+    "commit": "c1e761f163b8fdb67dd9ef256f5221cd84a3e6d8",
+    "effect": "Unmodified; explains original source guard rejection, not converted into successful extraction.",
+    "status": "FAIL_ACTUAL_DECLARATION_COMPATIBILITY_BEFORE_MIGRATION"
+  },
+  "prohibited_actions_performed": {
+    "experiment_worker_launch": false,
+    "gpu": false,
+    "ledger_read_or_write": false,
+    "model_or_torch_import": false,
+    "payload_checkpoint_image_database_reads": false,
+    "policy_migration": false,
+    "runtime_source_mutation": false
+  },
+  "proof": {
+    "comparison": "git tracked mode/type/blob identity, actual clean fixed HEADs; not checkpoint tensor comparison",
+    "excluded_files": [
+      "tools/st_world_policy/metadata_storage.py",
+      "tools/st_world_policy/spatial_w_storage.py"
+    ],
+    "identical_non_storage_tracked_entries": 3139,
+    "non_storage_blob_manifest_sha256": "f67197120299c4309a49489e13f65f677aa5849d66cc090f4383d4881af51318",
+    "old": "581399eb309677c20fe7464791b4f18685e947a6",
+    "storage_only": "2a1e140a64d2817247ceb6214f7f2affa20d56c6"
+  },
+  "protected_signatures": {
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/SIGNATURE.json": {
+      "file_version": [
+        3789794614,
+        144115927481345923,
+        23227,
+        1792222010000000000,
+        1792222010000000000
+      ],
+      "sha256": "3de51e64aec7f555f8d5c053695656346e1549796dad08c2c5bdafa88a26cff4"
+    },
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json": {
+      "file_version": [
+        3789794614,
+        144115927531673448,
+        72867,
+        1792228788000000000,
+        1792228788000000000
+      ],
+      "sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29"
+    },
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/stages/dev_plan/SIGNATURE.json": {
+      "file_version": [
+        3789794614,
+        144115927733016074,
+        23227,
+        1792253303000000000,
+        1792253304000000000
+      ],
+      "sha256": "4582329a1e78f01c7aceda8543ffef91a37f28964f5ba0e4a04afda6b315ade1"
+    }
+  },
+  "protected_signatures_unchanged": true,
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "schema": "st_narrow_independent_correctness_review_v1",
+  "scope": "Fixed two-source package compatibility and explicit matched observer/control routing; no new model/data/measurement qualification.",
+  "source_commit": "858e1914078ab4807525ba69081ebc1d49491cc9",
+  "source_pins": {
+    "COMPATIBILITY.json": {
+      "lead_integrated_bytes_identical": true,
+      "relative_path": "reports/st_world_policy/20261017/w_storage_source_compat_v1/COMPATIBILITY.json",
+      "sha256": "bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f"
+    },
+    "compat.py": {
+      "lead_integrated_bytes_identical": true,
+      "relative_path": "reports/st_world_policy/20261017/w_storage_source_compat_v1/compat.py",
+      "sha256": "776ec07ac8fc150eddd7cf685db602abe27dc94a9050628bef3a1ebbdc717e32"
+    },
+    "run_once.py": {
+      "lead_integrated_bytes_identical": true,
+      "relative_path": "reports/st_world_policy/20261017/w_storage_source_compat_v1/run_once.py",
+      "sha256": "2f2355372e0158ef46d341fc3993b3251bf61e78750ef9ce7a86a77d13c218e1"
+    }
+  },
+  "status": "PASS_EXACT_TWO_RUNTIME_COMPATIBILITY_ONLY",
+  "tests": {
+    "author_test_results_inherited": false,
+    "first_invocation": {
+      "failed": 1,
+      "failure_kind": "INDEPENDENT_FIXTURE_GLOBAL_FSTAT_MOCK",
+      "log": "TEST.log",
+      "passed": 19
+    },
+    "fix": "Only mock FD 77; forward all other os.fstat calls to real original. No product changes. Other 19 tests not rerun.",
+    "new_independent_cases": 9,
+    "owner_cases_executed_independently": 11,
+    "single_affected_test_recheck": {
+      "failed": 0,
+      "log": "SINGLE_FIXTURE.log",
+      "passed": 1
+    },
+    "unique_behavior_cases_passed": 20
+  }
+}
