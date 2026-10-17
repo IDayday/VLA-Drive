@@ -22,7 +22,7 @@ Primary implementation evidence, inspected in the installed timm 1.0.20:
   `[B, heads, tokens, channels]` and token attention; normalization is LayerNorm,
   with no cross-image batch normalization. Eval sets attention dropout to zero.
 - [timm position implementation](https://github.com/huggingface/pytorch-image-models/blob/234907eca5d801a369b536e001ec0b45d8ec9d60/timm/layers/pos_embed_sincos.py):
-  `RotaryEmbeddingDinoV3._augment_coords` bypasses random coordinate augmentation
+  `RotaryEmbeddingDinoV3._apply_coord_augs` bypasses random coordinate augmentation
   in eval. The actual wrapper uses strict local weights and excludes 5 prefix
   tokens, retaining all native 18x24 patches.
 - [PyTorch 2.5.1 numerical accuracy, batched computations](https://github.com/pytorch/pytorch/blob/v2.5.1/docs/source/notes/numerical_accuracy.rst):
