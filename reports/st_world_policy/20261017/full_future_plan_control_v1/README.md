@@ -98,3 +98,22 @@ The only successful completion status is `PLAN_COMPLETE`. It means the single
 metadata proposal exists and the outer monitor passed; it authorizes no build,
 index, teacher extraction, training or scientific conclusion. Failure preserves
 the root and evidence under `control/RESULT.json` as `*_NO_AUTO_RETRY`.
+
+## Narrow read-atime correction
+
+After the original commit's independent review, Lead's real preflight rejected
+the correctly hashed admission before creating any output root or child. Lead
+observed that Lustre changed `st_atime_ns` on read while content-related fields
+were unchanged. Original `pinned()` compared whole `stat_result` objects, thereby
+treating access time as a content change.
+
+The correction compares only device, inode, mode, link count, size, nanosecond
+mtime/ctime, and allocated blocks. SHA256 is still mandatory. Atime alone cannot
+trigger rejection; a changed inode, size, mtime/ctime (including nanoseconds),
+mode, link count, device, allocation or content still rejects.
+
+The original 33-test log and failure evidence remain preserved. The added CPU
+fixtures explicitly vary each field and retain the existing changed-content/hash
+negative test: **42 passed in 0.10 seconds**, recorded separately in
+`ATIME_FIX_TEST_OUTPUT.txt`. No real plan was rerun by the implementation agent.
+Fresh resource tokens must bind the changed wrapper; old tokens are not reused.

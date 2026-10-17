@@ -3,6 +3,7 @@ import copy
 import hashlib
 import importlib.util
 from pathlib import Path
+from types import SimpleNamespace
 import pytest
 
 spec=importlib.util.spec_from_file_location('future_plan_control',Path(__file__).with_name('plan_once.py'))
@@ -97,3 +98,24 @@ def test_changed_source_rejected(tmp_path):
 def test_existing_root_never_loads_runtime_or_dispatches(tmp_path,monkeypatch):
     monkeypatch.setattr(m,'load_controls',lambda _: ({},[],tmp_path,None,None,None))
     with pytest.raises(ValueError,match='Single-attempt'):m.run(None)
+
+
+@pytest.mark.parametrize('changed_field',['st_atime_ns','st_dev','st_ino','st_mode',
+    'st_nlink','st_size','st_mtime_ns','st_ctime_ns','st_blocks'])
+def test_pinned_content_version_excludes_only_access_time(tmp_path,monkeypatch,changed_field):
+    path=tmp_path/'control.json';raw=b'{"unchanged":true}';path.write_bytes(raw)
+    pin={'path':str(path),'sha256':hashlib.sha256(raw).hexdigest()}
+    original=Path.stat;info=original(path);calls=[]
+    fields=('st_atime_ns','st_dev','st_ino','st_mode','st_nlink','st_size','st_mtime_ns','st_ctime_ns','st_blocks')
+    before={name:getattr(info,name) for name in fields}
+    def observed(p,*a,**kw):
+        if p!=path or kw.get('follow_symlinks') is False:return original(p,*a,**kw)
+        values=dict(before)
+        if calls:values[changed_field]+=1
+        calls.append(True)
+        return SimpleNamespace(**values)
+    monkeypatch.setattr(Path,'stat',observed)
+    if changed_field=='st_atime_ns':assert m.pinned(pin)=={'unchanged':True}
+    else:
+        with pytest.raises(ValueError,match='Pinned source/control changed'):m.pinned(pin)
+    assert len(calls)==2

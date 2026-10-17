@@ -38,7 +38,11 @@ def pinned(pin, *, json_value=True):
     if not stat.S_ISREG(info.st_mode) or info.st_size > 4 << 20:
         raise ValueError('Bounded regular metadata/source input required')
     raw = p.read_bytes(); after = p.stat()
-    if info != after or hashlib.sha256(raw).hexdigest() != pin['sha256']:
+    version = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_size,
+                         s.st_mtime_ns, s.st_ctime_ns, s.st_blocks)
+    # A read can legitimately advance Lustre atime. Content/version and SHA
+    # remain strict; access time is not a content mutation.
+    if version(info) != version(after) or hashlib.sha256(raw).hexdigest() != pin['sha256']:
         raise ValueError('Pinned source/control changed')
     return json.loads(raw) if json_value else raw
 
