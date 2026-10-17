@@ -1,0 +1,21 @@
+{
+  "status": "HELP_ONLY_NO_MAIN_DISPATCH",
+  "results": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/C4_HELPER_v5/launch_formal_dev_export_v5.py",
+      "sha256": "ad0ee24987bdba9ee3fbc46a5efbdb1445b0a6a69d4d588fc32e960738b876bf",
+      "exit_code": 0,
+      "elapsed_seconds": 3.7679057009518147,
+      "stdout": "usage: launch_formal_dev_export_v5.py [-h] --job-id JOB_ID --checkpoint-tag\n                                      CHECKPOINT_TAG --gpu {0,1,2,3,4,5,6,7}\n                                      --route-sha256 ROUTE_SHA256 [--resume]\n\nLead-only launch of a predeclared, exact complete full-dev endpoint. No\npolling, latest fallback, extra training, scoring or navtest dispatch.\nExisting frozen export code performs full native checksum/strict model\nloading.\n\noptions:\n  -h, --help            show this help message and exit\n  --job-id JOB_ID\n  --checkpoint-tag CHECKPOINT_TAG\n  --gpu {0,1,2,3,4,5,6,7}\n  --route-sha256 ROUTE_SHA256\n                        SHA256 of this job registration directory ROUTE.json\n  --resume\n",
+      "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/C4_HELPER_v5/launch_completed_dev_score_v5.py",
+      "sha256": "2e62c84a2eecde3e9af585d0a6fb77f9ff33d27a2ec76cd0fa2b594b3a8f15c3",
+      "exit_code": 0,
+      "elapsed_seconds": 3.6484133433550596,
+      "stdout": "usage: launch_completed_dev_score_v5.py [-h] --job-id JOB_ID [--resume]\n                                        --route-sha256 ROUTE_SHA256\n\nLead-only bounded scoring of one already registered complete dev export. No\nwaiting controller, automatic retry, GPU context, training or navtest.\n\noptions:\n  -h, --help            show this help message and exit\n  --job-id JOB_ID\n  --resume\n  --route-sha256 ROUTE_SHA256\n                        SHA256 of this job registration directory ROUTE.json\n",
+      "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+    }
+  ]
+}

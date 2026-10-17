@@ -1,0 +1,51 @@
+--- launch_formal_dev_export_v4.py
++++ launch_formal_dev_export_v5.py
+@@ -38,6 +38,16 @@
+     p = Path(ref['path'])
+     assert p.is_absolute() and sha(p) == ref['sha256'], str(p)
+     return json.loads(p.read_text())
++
++
++# Only C4 is added; all older preparation pins and routes remain fixed.
++C4_V5_PREP = Path('/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1')
++C4_V5_PINS = {'POLICY.json': 'ed465e3bedc8974c0bc43edd64ed73f55090010c314cccce8b9c9718c3e2e1b2', 'INTENTS.json': '9bfea3670b0f7ea40a57eb5902fd94ae404c2e78038ebe76246885f522f9f8ea', 'COMMANDS.json': '334e8735f45da2f2fbf70d3b27e4e2cdabfdfa070c4549443533a3d57d125879', 'TRAINING_BINDINGS.json': 'c68375034eaf616c4a797d1b8e1fae4f441ff3588933efef34e0e8884f18338e', 'EXECUTION_PLAN.json': 'dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c'}
++
++
++def c4_pin_refs_v5():
++    return {name: {'path': str(C4_V5_PREP / name), 'sha256': value}
++            for name, value in C4_V5_PINS.items()}
+ 
+ 
+ # Fixed host routing for this campaign; no arbitrary host/config dispatcher.
+@@ -312,9 +322,9 @@
+ 
+ 
+ def normalize_fixed_additive_job_v3(raw, binding, registration, config, identity, arm, refs):
+-    """Only the two explicit source-pinned C2/C3 preparations are accepted."""
+-    assert arm in ('C2', 'C3') and raw['arm'] == arm
+-    assert refs == (additive_pin_refs_v2() if arm == 'C2' else c3_pin_refs_v3())
++    """Only the explicit source-pinned C2/C3/C4 preparations are accepted."""
++    assert arm in ('C2', 'C3', 'C4') and raw['arm'] == arm
++    assert refs == (additive_pin_refs_v2() if arm == 'C2' else c3_pin_refs_v3() if arm == 'C3' else c4_pin_refs_v5())
+     step = raw['expected_completed']
+     assert step in (512, 1024, 4096)
+     stage = {512: 'DIAGNOSTIC_512', 1024: 'DIAGNOSTIC_1024', 4096: 'COMMON_ENDPOINT'}[step]
+@@ -365,14 +375,16 @@
+ 
+ 
+ def load_fixed_additive_v3(job_id, base_documents):
++    if job_id.startswith('C4_'):
++        return load_pinned_additive_v3(job_id, base_documents, 'C4', c4_pin_refs_v5())
+     if job_id.startswith('C3_'):
+         return load_pinned_additive_v3(job_id, base_documents, 'C3', c3_pin_refs_v3())
+     return load_fixed_additive_v2(job_id, base_documents)
+ 
+ 
+ def load_pinned_additive_v3(job_id, base_documents, arm, refs):
+-    assert arm in ('C2', 'C3')
+-    assert refs == (additive_pin_refs_v2() if arm == 'C2' else c3_pin_refs_v3())
++    assert arm in ('C2', 'C3', 'C4')
++    assert refs == (additive_pin_refs_v2() if arm == 'C2' else c3_pin_refs_v3() if arm == 'C3' else c4_pin_refs_v5())
+ 
+     def pinned(ref):
+         assert sha(ref['path']) == ref['sha256'], 'Changed additive pin: ' + ref['path']

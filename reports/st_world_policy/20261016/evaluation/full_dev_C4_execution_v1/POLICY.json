@@ -1,0 +1,200 @@
+{
+  "assets": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/ASSETS.json",
+    "sha256": "1d2b81dbfbfef3d58d1b5f432a11b5f6ef7acd9dfab4b2653b61f8127e1cf016"
+  },
+  "checkpoint_gate": [
+    "Explicit safe checkpoint tag, no latest pointer or silent earlier-step fallback.",
+    "Actual COMPLETE.json must be canonical st_native_checkpoint_v1 with matching runtime identity, training world_size, tag, exact requested completed step, allowed termination, complete native inventory and declared sizes.",
+    "Final evaluation registration must pin the actual COMPLETE path/file SHA, receipt_identity and exact native file hash map before export; currently requested targets are pending.",
+    "Existing identity_reader and model_reader revalidate every native payload before reconstruction. Missing/in-progress/corrupt native never loads. No checkpoint files are copied or converted to new on-disk weights.",
+    "Retain immutable registration/approval/config/runtime source/environment and exact dev manifest.Only Lead may bind resources/approve and dispatch; this preparation does not."
+  ],
+  "commands": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/COMMANDS.json",
+    "sha256": "334e8735f45da2f2fbf70d3b27e4e2cdabfdfa070c4549443533a3d57d125879"
+  },
+  "created_at_utc": "2026-10-17T07:54:34.809196+00:00",
+  "dedup_resume": [
+    "Freeze export world1, seed42, source/environment, manifest, checkpoint and output namespace before first invocation.",
+    "Rank0 file lock plus immutable signature; resume validates existing per-scene prediction receipt/NPZ before skipping it. Incomplete scenes keep the same scene_noise; no new candidate seed or best-of selection.",
+    "Scoring requires COMPLETE_rank0 and exact full1696 receipts; EVALUATION.lock single writer; fixed chunks of4 and durable ADMITTED ledger persist across resumes.",
+    "Valid cached feedback is reused only under exact request/result hashes; unknown/interrupted admissions count and consume bounded retry allowance. Nonretryable/unresolved failures block complete CSV, never become zeros or dropped rows.",
+    "CSV and analysis outputs are immutable; pair analysis joins complete real per-scene rows and validates ledger/trajectory/input hashes. Aggregate means are never used to reconstruct missing rows."
+  ],
+  "execution_plan": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+    "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+  },
+  "execution_runtime": {
+    "clean_at_preparation": true,
+    "must_not_execute_old_evaluation_agent_source": true,
+    "python": "/root/miniconda3/envs/ddp/bin/python",
+    "repo": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "source_files": [
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/export_world.py",
+        "sha256": "6d1e22635a8772bac44ecd69ef94f8b40f53a7bc93d7df1dad8125a16cc52ec2"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/score_world.py",
+        "sha256": "e8242b1697242e2b09ce1b3835e5f10f3071b7ea9b51ce75a939c037219be6e9"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/checkpoints.py",
+        "sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/flow_checkpoints.py",
+        "sha256": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/training_state.py",
+        "sha256": "8af70592caa5c3d1ac97d20b116543b6c7736a544120641b3b984de9e2f008c3"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/train_flow_policy.py",
+        "sha256": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+        "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/dataloader/st_world_observation.py",
+        "sha256": "135d6a4936627a8a8fcb92ac579c3b867970f574631eeff2be31e9ad55d94a49"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/model/modules/st_world/consequence.py",
+        "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+      }
+    ],
+    "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345"
+  },
+  "formal_launch_allowed": false,
+  "incremental_budget": {
+    "C4_maximum_total_score_admissions": 5184,
+    "C4_output_reservation_GiB": 3,
+    "C4_primary_score_admissions": 5088,
+    "additional_prepared_jobs": 3,
+    "additional_scientific_arms": 0,
+    "budget_scope": "Three already preregistered C4 endpoints newly wired. Original sixteen prepared W/C0-C3 jobs and all old pins are unchanged; no duplicate C0 controls. Whole campaign now has nineteen fixed checkpoint jobs.",
+    "controller_budget": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/BUDGET.json",
+      "sha256": "e00602154ecf0661265ae38352fe380a863143b5ed0f3008eed317805af9b9d9"
+    },
+    "existing_C0_control_evaluations": "Reuse same fixed C0 outputs; no duplicate jobs",
+    "global_limits_unchanged": "At most 4 world1 exports and 2 scores with 2 workers each across the entire campaign; no new slots",
+    "hard_cap_per_job": 1728,
+    "maximum_export_invocations_per_job": 2,
+    "maximum_score_invocations_per_job": 2,
+    "native_copy_bytes": 0,
+    "new_cache_payload_bytes": 0,
+    "primary_per_job": 1696,
+    "resume_call_budget": "Same ledger and total admission cap across both invocations; no doubling of 1728",
+    "retry_attempts": 1
+  },
+  "inference": {
+    "candidates_per_scene": 1,
+    "current_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+    "device": "cuda:0",
+    "history_root": null,
+    "max_scenes": 1696,
+    "precision": "FP32_master_eval_TF32_off",
+    "rank": 0,
+    "seed": 42,
+    "selection_by_scorer": false,
+    "solver": "original_Euler_10",
+    "teacher_cache": null,
+    "world_size": 1
+  },
+  "intents": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/INTENTS.json",
+    "sha256": "9bfea3670b0f7ea40a57eb5902fd94ae404c2e78038ebe76246885f522f9f8ea"
+  },
+  "parent_policy": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/POLICY.json",
+    "sha256": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f"
+  },
+  "parent_ten_job_files_unchanged_sha256": {
+    "ASSETS.json": "1d2b81dbfbfef3d58d1b5f432a11b5f6ef7acd9dfab4b2653b61f8127e1cf016",
+    "BUDGET.json": "e00602154ecf0661265ae38352fe380a863143b5ed0f3008eed317805af9b9d9",
+    "COMMANDS.json": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421",
+    "COST_BASIS.json": "413180d4a7a314ae2c39c2d634e77fde442976c4de061cca9399c9161e473b2a",
+    "HANDOFF.md": "b46f69dc5aa99c72856319a4c885af6e04e20f0ad6ca7504ac60ee212da7cfba",
+    "INTENTS.json": "e749a4969803c2a9f0a6eb67cbd19e7544de33013e946517fb67709a6a1df1b6",
+    "MANIFEST.json": "34638baf34c49e736f1cbdfa68b58505463915745092338ef889e2b16e713003",
+    "POLICY.json": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f",
+    "RUNBOOK.md": "4514c23928103d5af4b3be21d963312cea3eb69518e1f10b8601cf0e57a56bb3",
+    "VALIDATION.json": "2afd888ebbe5076437631043034bb17255607331265edac23ac3d0a6389f22e9"
+  },
+  "population_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "resource_default": "Lead-approved proposal: one GPU/world1 per checkpoint, up to4 independent checkpoints concurrently, initial preferred evaluation host rl-zt2; fresh allowed-host/env/GPU UUID/idle/flock/memory/disk checks remain launch-time. Four-rank sharding is only an unapproved candidate.",
+  "schedule": {
+    "arms": [
+      "C4"
+    ],
+    "controls": {
+      "C4": "C0"
+    },
+    "diagnostic_early_elimination": false,
+    "new_scientific_arm_or_comparison": false,
+    "stages": {
+      "COMMON_ENDPOINT": 4096,
+      "DIAGNOSTIC_1024": 1024,
+      "DIAGNOSTIC_512": 512
+    }
+  },
+  "schema": "st_fixed_dev_C4_actual_binding_policy_v1",
+  "scientific_v4": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+    "sha256": "7176e78ccc287094e19ed51691d02b8dd4685866ea69bd96eb76a2e58c3d9bf4"
+  },
+  "score": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "cache_root": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+    "maps_root": "/mnt/navsim/maps",
+    "max_calls": 1728,
+    "max_seconds": 3600,
+    "metric_index": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+      "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+    },
+    "navsim_root": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+    "protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+    "retry_attempts": 1,
+    "run_id_argument": "st-world-policy-20261016",
+    "run_id_semantics": "ConsequenceSpec.campaign_id, common for every compared policy/checkpoint; not training run_id or a unique score job ID.",
+    "workers": 2
+  },
+  "source_scope_note": "Historicalimplementation_base_sha9250884e is authoring provenance; everyfutureexport/score/analyze command uses frozen6714. Noimplementation orruntime edit.",
+  "statistics": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "status": "C4_PREPARATION_ONLY",
+  "training_bindings": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/TRAINING_BINDINGS.json",
+    "sha256": "c68375034eaf616c4a797d1b8e1fae4f441ff3588933efef34e0e8884f18338e"
+  },
+  "unresolved": {
+    "C4": "Each exact 512/1024/4096 COMPLETE binding, independently reviewed v5 helper, endpoint evaluation registration, fresh evaluation resource and Lead dispatch"
+  }
+}
