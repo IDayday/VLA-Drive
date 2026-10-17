@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 12 items
+
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_writer_cannot_replace_during_strict_read_and_freshness PASSED [  8%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_lock_timeout_is_original_two_seconds_and_fail_closed PASSED [ 16%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_bad_snapshot_still_rejected[invalid_json] PASSED [ 25%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_bad_snapshot_still_rejected[oversize] PASSED [ 33%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_bad_snapshot_still_rejected[symlink] PASSED [ 41%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_bad_counter_records_real_error_and_owned_cleanup PASSED [ 50%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_first_rss_error_bounded_and_not_overwritten_by_final_counter PASSED [ 58%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_final_snapshot_uses_same_locked_path_and_captures_failure PASSED [ 66%]
+reports/st_world_policy/20261017/sp0_monitor_read_lock_fix_v1/test_counter_lock.py::test_fixed_artifact_hash_guard_and_missing_counter_unchanged PASSED [ 75%]
+../VLA-Drive-st-monitor-lock-correctness-20261017/reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v2/test_independent.py::test_final_real_control_lock_wait_is_included_in_wall_admission PASSED [ 83%]
+../VLA-Drive-st-monitor-lock-correctness-20261017/reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v2/test_independent.py::test_first_freshness_failure_survives_later_final_failure PASSED [ 91%]
+../VLA-Drive-st-monitor-lock-correctness-20261017/reports/st_world_policy/20261017/correctness/sp0_monitor_read_lock_fix_v2/test_independent.py::test_final_valid_limit_is_not_lost PASSED [100%]
+
+============================== 12 passed in 4.12s ==============================
