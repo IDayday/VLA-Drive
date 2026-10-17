@@ -1,6 +1,8 @@
 # Exact32 causal-history preparation handoff
 
-Status: **read-only preparation; builder not run, no admission or launch signed**.
+Status: **fixed32 controller implemented and fixture-tested; builder not run,
+no admission or launch signed**. The original read-only handoff is commit
+`73127f0576ffd3d3082f622d21adf17e9276550c`; this follow-up adds execution wiring.
 Author working tree starts at `f8098c895411dc500bd6eaa56f6eaee3d778e72d`.
 Consumers are the existing T3/T4 runtime `a8f8cb879a806ea674ed7be9b1ff7d82483e8b2d`
 at `/mnt/project/VLA-Drive-st-temporal-combination-20261017`.
@@ -60,13 +62,22 @@ arguments, CPU6/7, old admission status, and the historical2303GiB checkpoint
 commitment. It intentionally rejects an arbitrary new argv. Do not weaken its
 checks or call the builder bare to evade them.
 
-The minimum controller work is a mechanical fixed32 binding: new output/control
+`run_history32_once.py` implements the mechanical fixed32 binding: new output/control
 roots, exact selected SHA, max_scenes32, current admitted CPU pair, fresh current
 checkpoint commitment and exact32 admission identity. Retain the existing
 absolute deadline, 4b2f monitor, nonblocking ledger acquisition, before-import
 accounting baseline, child wait-boundary read accounting, owned-descendant
 cleanup, single-shot marker, failure preservation and no automatic retry.
-This report does not implement or pretend such a binding already exists.
+The original controller source is SHA-checked and loaded with exact-count
+constant substitutions; there is no copied monitor/framework. Original
+`run_parent` publication, monitor, accounting, cleanup and failure branches are
+retained; only its child script path and CPU tuple bind the new fixed controller.
+Additional checks reject an unsigned/author-issued admission, non-packed or
+changed argv, wrong source pins, future target-times, oversized disk envelope,
+and stale CP. Source/control reads use nonblocking regular-file descriptors.
+The absolute bootstrap deadline is installed before the first admission/source
+read and handed to the original absolute-deadline mechanism. A GNU timeout
+must also cover Python process startup. No original runtime file is modified.
 `metadata_storage.py` has evolved since b847; use its actual a8f8cb pin and the
 current policy/ledger rather than reinstalling an old storage implementation.
 
@@ -155,11 +166,51 @@ CUDA_VISIBLE_DEVICES='' "$PY" -m tools.st_world_policy.metadata_storage run \
   --checkpoint-receipt "$HISTORY32_CP" --checkpoint-sha256 "$HISTORY32_CP_SHA"
 ```
 
-This child must remain inside the existing owned supervisor. No exact32 parent
-path is fabricated here: first produce the mechanical binding identified above,
-then invoke its existing `--admission PATH --admission-sha256 SHA` interface with
-fresh reviewed pins under the900+40s bootstrap-inclusive outer bound. The old
-64 controller cannot serve as that command unchanged.
+This child must remain inside the existing owned supervisor. The new exact32
+entry is now present; its real `--help` is checked. Lead supplies the **real**
+admission path/hash and uses:
+
+```bash
+: "${HISTORY32_ADMISSION:?Independent exact32 admission required}"
+: "${HISTORY32_ADMISSION_SHA:?Actual admission SHA256 required}"
+: "${HISTORY32_CPUSET:?Same admitted one-or-two CPU IDs required}"
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 \
+  taskset -c "$HISTORY32_CPUSET" timeout --signal=TERM --kill-after=40s 900s \
+  /root/miniconda3/envs/ddp/bin/python \
+  /mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261017/temporal_history32_preparation_v1/run_history32_once.py \
+  --admission "$HISTORY32_ADMISSION" --admission-sha256 "$HISTORY32_ADMISSION_SHA"
+```
+
+Fresh admission uses `st_history32_owned_admission_v1`, independent status
+`APPROVED_HISTORY32_PILOT_ONLY`, exact limits and fresh hostname/lease times.
+It retains the original history64 fields plus **`builder_budget:{path,sha256}`**.
+`controller_sources` contains the original five controller/helper pins **plus
+the exact actual `run_history32_once.py` path/hash**. Add the same immutable
+policy, storage registration and CURRENT checkpoint commitment pins; no old
+2303GiB value is hardcoded. The current CP's actual remaining_bytes and1TiB
+free floor are enforced again in the original callback throughout execution.
+The combined32MiB budget contains31MiB artifacts and a separately adopted1MiB
+`temporal_composition32_history_v1_controls` directory. The caller creates and
+accounts for that plain directory before launch; this controller cannot create
+an approval, reservation, migration, arbitrary task or automatic retry.
+
+The draft registration remains deliberately unsigned and has null CPU IDs.
+Lead must materialize the actual original schema `st_metadata_build_registration_v1`,
+real builder-budget path/hash and current CPU list, then obtain resource review.
+Do not pass the proposal schema directly to the live metadata writer.
+
+Targeted fixture command (no real builder or ledger):
+
+```bash
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 taskset -c 2,3 timeout 120s \
+  python reports/st_world_policy/20261017/temporal_history32_preparation_v1/test_history32_binding.py
+```
+
+Eight tests cover exact32/current CP adaptation, old64/unsigned/author rejection,
+resource-cap expansion, expired CP/floor, changed original source, actual FIFO
+refusal, existing parent monitor/child routing and single-invocation behavior,
+and exact command/disk/target-times. Monitor execution in these tests is a
+small synthetic fixture; it is not a real history extraction or launch review.
 
 ## Completion and downstream
 
