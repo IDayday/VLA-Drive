@@ -1,0 +1,117 @@
+{
+  "C2_rerun": false,
+  "actual_dispatch": false,
+  "automatic_retry": false,
+  "core": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+    "sha256": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644"
+  },
+  "declared_campaign_read_ceiling_bytes": 2177518395,
+  "execution_runtime": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+  "files": {
+    "HANDOFF.md": {
+      "bytes": 4420,
+      "sha256": "7801eeaf5fe5fef140db63887b0453792a2a685081dd228bf6ebf6b05b83744c"
+    },
+    "run_c3_once.py": {
+      "bytes": 7866,
+      "sha256": "0a21f2286b45361572f2c55ed866f66c276e268b3273593d2d72ba44eac3223e"
+    },
+    "test_c3_once.py": {
+      "bytes": 5162,
+      "sha256": "a33684ab4c9e4b02b5b60598e18f88170614593401618a381d6179db188fdc58"
+    }
+  },
+  "limits": {
+    "cleanup_seconds": 40,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "output_including_controls_bytes": 33554432,
+    "rss_bytes": 2147483648,
+    "stderr_bytes": 1048576,
+    "stdout_bytes": 1048576,
+    "wall_seconds": 1800
+  },
+  "max_invocations": 1,
+  "new_control_namespace": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C3_1024_RETRY_v1",
+  "new_single_cli_rchar_allowance_bytes": 1073741824,
+  "original_output_absent_at_preparation": true,
+  "parent_sha": "20ab82fb505fa9ce44ca168e8177b5a09c96532a",
+  "prior_campaign_read_charge_bytes": 1103776571,
+  "prior_evidence": {
+    "C2": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/C2_minus_C0/RESULT.json",
+      "sha256": "752c5c916c53e5928dba92deb0e96b47b0ea05d335c8476cb6d3f98a97fa51f7"
+    },
+    "C3": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/C3_minus_C0/RESULT.json",
+      "sha256": "9695527dc0378624f8f42399c43a11ca4784aedaa32a5d490eaa51247e628df3"
+    },
+    "session": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/SESSION_TERMINAL.json",
+      "sha256": "c0c07203570bec9a87c4955379e3140d44d639649a2ad67bb1b1f084d7c94848"
+    }
+  },
+  "real_payload_reads": 0,
+  "schema": "st_fixed_c3_retry_preparation_v1",
+  "selected_original_command": {
+    "analysis_plan": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+      "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+    },
+    "argv": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "tools.st_world_policy.evaluate_campaign",
+      "--plan",
+      "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+      "--population",
+      "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+      "--control-score",
+      "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score",
+      "--control-export",
+      "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/export",
+      "--treatment-score",
+      "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step001024_dev1696_seed42_v1/official_score",
+      "--treatment-export",
+      "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step001024_dev1696_seed42_v1/export",
+      "--comparison",
+      "C3_minus_C0",
+      "--stage",
+      "DIAGNOSTIC_1024",
+      "--scope",
+      "FORMAL",
+      "--output",
+      "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C3_minus_C0_DIAGNOSTIC_1024_dev1696_v1"
+    ],
+    "comparison": "C3_minus_C0",
+    "current_training_binding_resolved": true,
+    "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "env": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "TOKENIZERS_PARALLELISM": "false"
+    },
+    "launch_authorized": false,
+    "max_seconds": 1800,
+    "prerequisite": "C0 and C3 at the same fixed stage: exact complete native identity, full 1696 export and official score, plus Lead analysis authorization. 512/1024 remain diagnostic only.",
+    "stage": "DIAGNOSTIC_1024"
+  },
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "status": "PREPARED_NOT_DISPATCHED_NOT_RESOURCE_APPROVED",
+  "tests": {
+    "analysis_children_spawned": 0,
+    "help": "PASS",
+    "passed": 13,
+    "wall_seconds": 0.26
+  },
+  "wrapper": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/FULL_PAYLOAD_C2_C3_1024_EXECUTION_v2/run_fixed_pairs.py",
+    "sha256": "2a47c91254707d3390bb74f92516b9cb5f48bf64d2365d2e874c81a6064a0c5f"
+  }
+}
