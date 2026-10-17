@@ -64,3 +64,40 @@ The final table will report both versions and both grids, matched SFT-to-RL
 changes, NC/DAC/TTC new violations and recoveries, zero-score transitions, and
 log-cluster uncertainty. Full denominator and completed worker evidence are
 required. Until then, DEV gains do not establish Navtest success or 92 PDMS.
+
+## Execution update, 2026-10-17
+
+The complete official v1.0 cache was built on rl-zt2 and Tsinghua zt2/zt3/zt5,
+eight CPU workers per host. The original F-SFT and the historical R_SOURCE and
+R_CANONICAL banks have completed their v1.0 scoring invocations with exit code0;
+full payload verification and paired analysis remain separate completion gates.
+The four current route endpoints use the same CPU-only rescore queue as their
+sealed Navtest requests become available. All existing inference and training
+source snapshots remain unchanged.
+
+The adapter has eight contract tests; saved-request replay has ten tests and a
+real two-scene roundtrip/reuse/duplicate-owner qualification; derived analysis
+has eight tests. The original analysis attempt exposed an old logging schema:
+the exact historical `f9bfa2d...` evaluator did not write `identity_sha256` in
+rank summaries. The corrected analyzer accepts only that exact historical source
+with complete shard counts and direct-entry checks, while still authenticating
+every scene's manifest and payload hash. Current workers must retain their rank
+identity field. Failed read-only attempts are preserved; no scoring or inference
+was repeated for this fix.
+
+Additional executed entry points:
+
+```bash
+python -m scripts.analysis.fm_transfer.rescore_saved_navtest --help
+python -m scripts.analysis.fm_transfer.analyze_versioned_navtest --help
+python -m pytest -q tests/rl/test_saved_navtest_rescore.py
+python -m pytest -q tests/rl/test_versioned_navtest_analysis.py
+```
+
+Private execution receipts are under
+`/mnt/project/fm-transfer-20261016/resources/pdms_dual_version_20261017/`.
+`cache_dispatch_v1` owns the completed cache work; `scoring_dispatch_v1` owns
+seven fixed score banks; `analysis_handoff_v2` supersedes only the failed
+read-only schema attempt. None owns GPU inference or training. Per-model CPU
+invocations retain actual new/reused counts and exit status. Full scores will be
+published only after their exact 12146-scene checks complete.
