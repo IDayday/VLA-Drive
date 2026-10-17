@@ -1,0 +1,142 @@
+{
+  "schema": "st_evaluation_execution_binding_validation_v1",
+  "reviewer_agent": "/root/st_evaluation",
+  "created_utc": "2026-10-17T01:14:35.403439+00:00",
+  "status": "TRAINING_RUNNING",
+  "scope": "Actual schema/approval/run identity binding only; no planning metrics or scientific comparison",
+  "plan": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v2.json",
+    "sha256": "253126790f3ee83a7996986ab127dc905b173e881f3c5d38ff3a88f2004affb7"
+  },
+  "old_json": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION.json",
+    "sha256": "a41c9ab06c5e05f9593deb8c4f06c52cc7f35942cc24bfa5b4dbb1f99b03e6a7"
+  },
+  "old_md": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION.md",
+    "sha256": "fd6af35d3c5e3e8ff1133b87e983a83f7b22a65a14d575019b78b6a34487e46f"
+  },
+  "original_definitions_identical_after_removing_only_explicit_execution_delta": true,
+  "modified_existing_fields": [
+    "status",
+    "formal_runs",
+    "arms.SP0.status",
+    "arms.SP2.status"
+  ],
+  "added_field": "execution_binding_revision",
+  "unchanged_scientific_fields": [
+    "populations",
+    "base_binding",
+    "score_protocol_sha256",
+    "training_seed",
+    "inference_seed",
+    "statistics",
+    "endpoints",
+    "optimizer",
+    "comparisons",
+    "shortlist_rule",
+    "all_arm_definitions_except_SP0_SP2_status"
+  ],
+  "runs": [
+    {
+      "arm": "SP0",
+      "status": "TRAINING_RUNNING",
+      "run_id": "SP0_fulltrain_seed42_official_5k_v1",
+      "run_identity": "703ac3d75f4651a29688ed226de7ebf0593c12df359cc13086aa47106b442789",
+      "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "registered_train_scenes": 101592,
+      "registered_train_logs": 1176,
+      "registered_stage_stop": 5000,
+      "common_LR_horizon": 20000,
+      "warmup": 1000,
+      "pca_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+      "pca_channel_scope_identity": "1326fdb5f4d3c45da2fd4da7767f1dd3fb45e9ffd632d3092417104ad4186839",
+      "teacher_cache_identity": "bb03843957a2a420c53d480b8b41165b77ccfbdaeb79ec8640ad50bc038fcbe5",
+      "actual_current_and_ego_pins_each": 101592,
+      "bindings": {
+        "registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+          "sha256": "85624cb410dab8a531edc3a793ddc052ed1f905c488174289638f55bcf489738"
+        },
+        "approval": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+          "sha256": "fb7ecf8bb57811f5535ed3a9f2f9cc7805088a15b0485e9a088bb3ba31aa22ed"
+        },
+        "run_identity_file": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/identity.json",
+          "sha256": "33b15316a564379f811bcef430e96842e1a13b366fe53212ab7344e5cdc12444"
+        },
+        "status": "TRAINING_RUNNING",
+        "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+      },
+      "observed_status": "RUNNING"
+    },
+    {
+      "arm": "SP2",
+      "status": "TRAINING_RUNNING",
+      "run_id": "SP2_fulltrain_seed42_official_5k_v1",
+      "run_identity": "4a2a36978a1e41170ce00b482d281ffb25c883bf6d501e64958775807f960156",
+      "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "registered_train_scenes": 101592,
+      "registered_train_logs": 1176,
+      "registered_stage_stop": 5000,
+      "common_LR_horizon": 20000,
+      "warmup": 1000,
+      "pca_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+      "pca_channel_scope_identity": "1326fdb5f4d3c45da2fd4da7767f1dd3fb45e9ffd632d3092417104ad4186839",
+      "teacher_cache_identity": "d92dcced1f92106e0e10a361bc65ea67348be299f07b78e38b75ba973079aa56",
+      "actual_current_and_ego_pins_each": 101592,
+      "bindings": {
+        "registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+          "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+        },
+        "approval": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+          "sha256": "4d2a556bc9caa68408ba8283d9d1421bf29ece3eef773319495bd5f49a08ccc2"
+        },
+        "run_identity_file": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/identity.json",
+          "sha256": "46e1c623ab2fb914b7344c3a72187fa960211660c3f5e1929fb4e98360581448"
+        },
+        "status": "TRAINING_RUNNING",
+        "training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+      },
+      "observed_status": "RUNNING"
+    }
+  ],
+  "formal_binding_actual_schema_checks": [
+    {
+      "arm": "SP0",
+      "actual_metadata_schema_read": true,
+      "result": "EXPECTED_REJECTION_NO_COMPLETED_CHECKPOINT",
+      "error": "Arm, common endpoint or common LR schedule differs",
+      "checkpoint_completed_argument": null,
+      "actual_checkpoint_or_export_supplied": false,
+      "stage": "SCREENING",
+      "all_non_checkpoint_final_predicates_verified_separately": true
+    },
+    {
+      "arm": "SP2",
+      "actual_metadata_schema_read": true,
+      "result": "EXPECTED_REJECTION_NO_COMPLETED_CHECKPOINT",
+      "error": "Arm, common endpoint or common LR schedule differs",
+      "checkpoint_completed_argument": null,
+      "actual_checkpoint_or_export_supplied": false,
+      "stage": "SCREENING",
+      "all_non_checkpoint_final_predicates_verified_separately": true
+    }
+  ],
+  "all_seven_unbound_arms_still_rejected": true,
+  "formal_binding_AST_hashes": {
+    "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/tools/st_world_policy/evaluate_campaign.py": "5404330d63a457724aee9fd07069d92a54cb520d70566b09fa7096e18b890512",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/tools/st_world_policy/evaluate_campaign.py": "5404330d63a457724aee9fd07069d92a54cb520d70566b09fa7096e18b890512",
+    "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/tools/st_world_policy/evaluate_campaign.py": "5404330d63a457724aee9fd07069d92a54cb520d70566b09fa7096e18b890512"
+  },
+  "implementation_changed": false,
+  "results_created": false,
+  "formal_checkpoint_created": false,
+  "exports_read_or_created": false,
+  "GPU_or_training_or_scoring_started": false,
+  "navtest_read": false
+}
