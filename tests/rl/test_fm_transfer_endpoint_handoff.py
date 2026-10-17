@@ -17,6 +17,8 @@ def test_plan_keeps_registered_budget_source_and_own_parent(tmp_path):
     assert h.validate_plan(p) == p
     assert p['worker_source'].endswith('225b9af660cb0210208e2c46fc4216d0f151275b')
     assert p['screen_dispatch_source'] == p['controller_source']
+    assert p['screen_analysis_source'] == p['controller_source']
+    assert p['schema'] == 'fm_transfer_B_endpoint_handoff_v3'
     assert p['SFT_updates'] == 100000 and p['RL_updates'] == 20000
     ranks = []
     for i in range(3):
@@ -31,7 +33,7 @@ def test_plan_keeps_registered_budget_source_and_own_parent(tmp_path):
 
 
 @pytest.mark.parametrize('field', ['RL_updates', 'SFT_updates', 'worker_source', 'training_seed',
-                                 'screen_dispatch_source'])
+                                 'screen_dispatch_source', 'screen_analysis_source'])
 def test_plan_tampering_cannot_change_science(tmp_path, field):
     p = make(tmp_path); p[field] = 'changed'
     with pytest.raises(ValueError): h.validate_plan(p)
@@ -201,7 +203,8 @@ def test_stage_executor_publishes_physical_attempt_and_never_retries(tmp_path, m
     assert len(calls) == 1
 
 
-@pytest.mark.parametrize('name', ['screen_0', 'screen_1', 'screen_2', 'endpoint_gate', 'formal_RL'])
+@pytest.mark.parametrize('name', ['sft_summary', 'screen_0', 'screen_1', 'screen_2',
+                                'hard_manifest', 'screen_summary', 'endpoint_gate', 'formal_RL'])
 def test_stage_uses_compatible_dispatcher_but_keeps_numerical_worker_source(tmp_path, monkeypatch, name):
     import os
     p = make(tmp_path)
@@ -220,7 +223,7 @@ def test_stage_uses_compatible_dispatcher_but_keeps_numerical_worker_source(tmp_
     monkeypatch.setattr(h, 'validate_plan', lambda value: value)
     monkeypatch.setattr(h, 'require_dispatch', lambda: 'local')
     monkeypatch.setattr(h, 'endpoint_ready', lambda value: True)
-    expected = dispatcher if name.startswith('screen_') else worker
+    expected = dispatcher if name in (*h.SCREEN_DISPATCH_STAGES, 'screen_summary') else worker
     class Child:
         pid = os.getpid()
         def wait(self): return 0
@@ -228,7 +231,7 @@ def test_stage_uses_compatible_dispatcher_but_keeps_numerical_worker_source(tmp_
         assert kwargs['cwd'] == expected
         assert kwargs['env']['PYTHONPATH'] == str(expected)
         assert kwargs['env']['CUDA_VISIBLE_DEVICES'] == ''
-        if name.startswith('screen_'):
+        if name in h.SCREEN_DISPATCH_STAGES:
             assert '--ranks' in command
             assert command[command.index('--source') + 1] == str(h.SOURCE)
         return Child()
@@ -238,3 +241,39 @@ def test_stage_uses_compatible_dispatcher_but_keeps_numerical_worker_source(tmp_
     assert status['state'] == 'COMPLETE'
     assert status['execution_source'] == str(expected)
     assert status['numerical_worker_source'] == str(worker)
+
+
+def entrypoint_fixture(tmp_path):
+    p = make(tmp_path)
+    p['worker_source'] = str(tmp_path / 'worker')
+    for name, command in p['stages'].items():
+        source = h.stage_source(p, name)
+        source.mkdir(exist_ok=True)
+        atomic_json(source / 'SOURCE_COMPLETE.json',
+                    dict(commit=source.name, git_archive_extraction_complete=True))
+        entry = source.joinpath(*command[2].split('.')).with_suffix('.py')
+        entry.parent.mkdir(parents=True, exist_ok=True)
+        entry.write_text('# CLI fixture; no numerical execution\n')
+    return p
+
+
+def test_preflight_checks_all_stages_in_their_actual_sources(tmp_path):
+    p = entrypoint_fixture(tmp_path)
+    h.validate_entrypoints(p)
+    entry = Path(p['screen_analysis_source']) / 'scripts/analysis/fm_transfer/analyze_screen.py'
+    entry.unlink()
+    with pytest.raises(ValueError, match='Missing endpoint entry point: screen_summary'):
+        h.validate_entrypoints(p)
+
+
+def test_original_worker_snapshot_cannot_silently_supply_later_analyzer(tmp_path):
+    p = entrypoint_fixture(tmp_path)
+    # Reproduce the old effective routing: the numerical snapshot has no analyzer.
+    p['screen_analysis_source'] = p['worker_source']
+    with pytest.raises(ValueError, match='Missing endpoint entry point: screen_summary'):
+        h.validate_entrypoints(p)
+
+
+def test_source_resolution_never_falls_back_for_an_unknown_stage(tmp_path):
+    with pytest.raises(ValueError, match='Unknown registered'):
+        h.stage_source(make(tmp_path), 'unregistered_extra_training')

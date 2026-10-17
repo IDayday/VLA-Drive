@@ -1,6 +1,7 @@
 """Finite B100k SFT -> own screen -> existing eight-GPU gate -> source RL.
 
-This CPU owner only invokes already qualified, immutable 225b entry points.
+Numerical entry points remain on qualified immutable 225b. The partition
+dispatcher and read-only screen analyzer use explicit compatible CPU sources.
 It never resumes a failed stage, restarts a trainer, selects a checkpoint, or
 owns the independent milestone evaluation queue. Ambiguous launches stop for
 inspection; a stale status or SSH timeout is not evidence that a worker died.
@@ -27,6 +28,7 @@ PYTHON = '/mnt/project/flow-safe-improvement-20261013/venv/bin/python'
 SOURCE = ROOT / 'source/225b9af660cb0210208e2c46fc4216d0f151275b'
 VARIANT = 'B_SOURCE_ACTION_DIT'
 PREFIX = VARIANT + '_SFT_update100000'
+SCREEN_DISPATCH_STAGES = ('screen_0', 'screen_1', 'screen_2')
 
 
 def read(path):
@@ -58,9 +60,10 @@ def plan(root, controller_source, screen_hosts, training_host):
                           '--qualification-root', gate, '--baseline-root', root / 'evaluations',
                           '--output', run),
     }
-    value = dict(schema='fm_transfer_B_endpoint_handoff_v2', root=str(root),
+    value = dict(schema='fm_transfer_B_endpoint_handoff_v3', root=str(root),
         controller_source=str(Path(controller_source).resolve()), worker_source=str(SOURCE),
         screen_dispatch_source=str(Path(controller_source).resolve()),
+        screen_analysis_source=str(Path(controller_source).resolve()),
         endpoint=str(checkpoint), screen=str(screen), hard_manifest=str(hard), gate=str(gate), run=str(run),
         screen_hosts=list(screen_hosts), training_host=training_host, stages=stages,
         training_seed=42, evaluation_seed=2101, SFT_updates=100000, RL_updates=20000,
@@ -74,6 +77,32 @@ def validate_plan(value):
     if value != expected:
         raise ValueError('Changed handoff plan or training source; no implicit migration')
     return value
+
+
+def stage_source(value, name):
+    if name not in value['stages']:
+        raise ValueError('Unknown registered endpoint stage: ' + name)
+    key = ('screen_dispatch_source' if name in SCREEN_DISPATCH_STAGES else
+           'screen_analysis_source' if name == 'screen_summary' else 'worker_source')
+    return Path(value[key])
+
+
+def validate_entrypoints(value):
+    """Reject missing future CLIs before a controller admits any stage.
+
+    Existence is only a routing check. Actual CLI smoke and numerical gates
+    remain separate evidence; this does not certify arbitrary imported code.
+    """
+    for name, command in value['stages'].items():
+        source = stage_source(value, name)
+        if read(source / 'SOURCE_COMPLETE.json') != dict(
+                commit=source.name, git_archive_extraction_complete=True):
+            raise ValueError('Endpoint stage source is not sealed: ' + name)
+        if command[:2] != [PYTHON, '-m']:
+            raise ValueError('Unexpected endpoint entry command: ' + name)
+        entry = source.joinpath(*command[2].split('.')).with_suffix('.py')
+        if not entry.is_file():
+            raise ValueError('Missing endpoint entry point: ' + name + ': ' + str(entry))
 
 
 def remote(host, command):
@@ -188,12 +217,10 @@ def stage_worker(control, name):
         try:
             if not endpoint_ready(value):
                 raise ValueError('An unfinished SFT cannot enter any endpoint stage')
-            # The multihost --ranks interface was added after the immutable
-            # numerical worker snapshot. Run that CPU dispatcher from its
-            # compatible source; its explicit --source still pins every model
-            # and scoring worker to the original, qualified 225b snapshot.
-            source = Path(value['screen_dispatch_source'] if name in
-                          ('screen_0', 'screen_1', 'screen_2') else value['worker_source'])
+            # CPU partition dispatch and read-only analysis were added after
+            # 225b. Their explicit routes never replace model/scorer/gate/RL
+            # execution; dispatch_screen still passes --source=225b.
+            source = stage_source(value, name)
             if read(source / 'SOURCE_COMPLETE.json') != dict(commit=source.name, git_archive_extraction_complete=True):
                 raise ValueError('Immutable qualified source is not sealed')
             env = dict(os.environ, PYTHONPATH=str(source), CUDA_VISIBLE_DEVICES='',
@@ -348,6 +375,7 @@ def main():
     controller_source = Path(__file__).resolve().parents[3]
     if not args.screen_hosts or not args.training_host: parser.error('Explicit screen and training hosts required')
     value = plan(ROOT, controller_source, args.screen_hosts, args.training_host)
+    validate_entrypoints(value)
     control.mkdir(parents=True, exist_ok=True)
     # One B handoff across control-directory names; do not duplicate the milestone owner.
     with (ROOT / 'B_endpoint_handoff.owner.lock').open('a') as guard:
