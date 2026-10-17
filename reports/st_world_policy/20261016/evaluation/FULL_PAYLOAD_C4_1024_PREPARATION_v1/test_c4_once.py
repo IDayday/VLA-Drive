@@ -117,11 +117,15 @@ def test_one_parent_attempt_no_c2_c3_calls(controls,tmp_path,monkeypatch,fail):
     monkeypatch.setattr(module,'dependencies',lambda:(core,supervisor,observer))
     monkeypatch.setattr(module,'rss_monitor',lambda *a:None)
     monkeypatch.setattr(r.subprocess,'check_output',lambda argv,**kw:module.SOURCE if 'rev-parse' in argv else '')
+    affinities=[]
+    monkeypatch.setattr(r.os,'sched_setaffinity',lambda pid,cpus:affinities.append((pid,list(cpus))))
     calls=[]
     def fake_pair(selected,budget_,core_,supervisor_,observer_,metadata,lock,meter):
         assert selected==command and selected['comparison']=='C4_minus_C0'
         assert module.COMMANDS==r.COMMANDS and module.BUDGET==r.BINDINGS
         assert module.__file__==str(Path(r.__file__).absolute())
+        assert module.PAIR_LIMITS['cpu_affinity']==[6,7]
+        assert affinities[-1]==(0,[6,7])
         assert (r.CONTROL/'SESSION_STARTED.json').exists()
         calls.append(selected)
         if fail: raise RuntimeError('fixture only')
@@ -139,6 +143,7 @@ def test_one_parent_attempt_no_c2_c3_calls(controls,tmp_path,monkeypatch,fail):
 
 def test_original_limits_and_control_reserve():
     m=r.original()
+    assert m.PAIR_LIMITS['cpu_affinity']==[6,7]
     assert m.TOTAL_READ==1<<30 and m.PAIR_LIMITS['rss_bytes']==2<<30
     assert m.PAIR_LIMITS['wall_seconds']==1800 and m.PAIR_LIMITS['cleanup_seconds']==40
     assert m.ANALYSIS_LIMIT+m.CONTROL_RESERVE+m.ADMISSION_RESERVE==32<<20

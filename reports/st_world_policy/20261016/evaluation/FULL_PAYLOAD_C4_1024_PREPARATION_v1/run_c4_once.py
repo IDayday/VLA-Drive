@@ -24,6 +24,7 @@ COMMANDS = {'path': str(BASE / 'full_dev_C4_execution_v1/COMMANDS.json'),
 BINDINGS = {'path': str(BASE / 'FULL_PAYLOAD_C4_1024_PREPARATION_v1/BINDINGS.json'),
             'sha256': '9d0e9d049e5dd1fc7ce2173f7318b0c901cf97665e978c5ca209e67442eab287'}
 PLAN_SHA = 'dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c'
+CPU_AFFINITY = [6, 7]  # Keep the live metadata writer's CPUs 0/1 available.
 
 
 def original():
@@ -34,6 +35,7 @@ def original():
         raise ValueError('Reviewed wrapper changed')
     spec = importlib.util.spec_from_file_location('c4_original_wrapper', path)
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    module.PAIR_LIMITS = {**module.PAIR_LIMITS, 'cpu_affinity': CPU_AFFINITY.copy()}
     return module
 
 
@@ -126,7 +128,7 @@ def run():
             or subprocess.check_output(['git', 'status', '--porcelain'], cwd=module.RUNTIME).strip()):
         raise ValueError('Frozen analyzer runtime changed')
     for pin in [budget['analysis_source'], *budget['source_files'].values()]: core.pinned(pin, decode=False)
-    os.sched_setaffinity(0, [0, 1]); metadata = module.rss_monitor(core)
+    os.sched_setaffinity(0, CPU_AFFINITY); metadata = module.rss_monitor(core)
     module.safe(CONTROL); CONTROL.mkdir(parents=True, exist_ok=True)
     with (CONTROL / 'RUN.lock').open('a+') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
