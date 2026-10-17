@@ -17,6 +17,7 @@ import uuid
 import zlib
 
 from .st_world_history import file_sha256
+from .st_world_future_provenance import LogCoverage, validate_ledger
 from .st_world_schema import TeacherFeatureContract, identity_hash, require_hash
 from .st_world_targets import atomic_json, file_lock, payload_key, validate_target_manifest
 
@@ -236,7 +237,10 @@ def build_index(output, *, requests, expected_request_identity, contract,
             prior = _loads(receipt_path.read_text())
             with MetadataIndex(output, expected_request_identity=expected_request_identity,
                                expected_index_identity=prior['identity']) as existing:
-                if (existing.receipt['dependencies'] != dependencies or
+                ledger = validate_ledger(existing.receipt['manifest_header'])
+                expected_dependencies = dict(dependencies)
+                if ledger is not None: expected_dependencies['source_logs_ledger'] = ledger
+                if (existing.receipt['dependencies'] != expected_dependencies or
                         existing.receipt['contract'] != contract.to_dict() or
                         existing.receipt['cache_identity'] != expected_cache_identity or
                         existing.receipt['scene_count'] > max_scenes or
@@ -258,6 +262,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
           CREATE TABLE receipts(shard INTEGER PRIMARY KEY, sha TEXT NOT NULL);
         ''')
         checks = 0
+        log_coverage = LogCoverage()
         def budget():
             nonlocal checks
             checks += 1
@@ -289,6 +294,10 @@ def build_index(output, *, requests, expected_request_identity, contract,
                 raise ValueError('Original request semantic identity mismatch')
             for name in ('source_student_identity', 'source_index_sha256', 'partition_sha256'):
                 require_hash(manifest.get(name), name)
+            ledger = validate_ledger(manifest)
+            if ledger is not None:
+                dependencies['source_logs_ledger'] = ledger
+                paths['source_logs_ledger'] = Path(ledger['path'])
             if tuple(manifest['view_names']) != contract.view_names:
                 raise ValueError('Teacher/request camera contract differs')
             # Reuse the original per-scene validator without ever materializing all scenes.
@@ -300,6 +309,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
                 single['scenes'] = [scene]
                 single['identity'] = identity_hash({k:v for k,v in single.items() if k != 'identity'})
                 validate_target_manifest(single)
+                if ledger is not None: log_coverage.add(scene['token'], scene['log'])
                 for frame in scene['frames']:
                     for ref in frame['views']:
                         if ref is not None:
@@ -308,6 +318,8 @@ def build_index(output, *, requests, expected_request_identity, contract,
                             db.execute('INSERT OR IGNORE INTO expected VALUES (?,?,?)',
                                        (key, pack(record), hashlib.sha256(record.encode()).hexdigest()))
                 budget()
+            if ledger is not None:
+                validate_ledger(manifest, coverage=log_coverage.records())
             metadata, complete = None, None
             if cache_root is not None:
                 metadata, record_counts, digest = _atomic_rows(paths['identity'], {'records'}, consume)
@@ -410,6 +422,9 @@ class MetadataIndex:
             if digest != dep['sha256']:
                 raise ValueError('Original metadata changed after indexing')
             self._versions[p] = stamp
+        ledger = validate_ledger(d['manifest_header'])
+        if ledger is not None and d['dependencies'].get('source_logs_ledger') != ledger:
+            raise ValueError('Index does not bind verified raw-log ledger dependency')
         self.db = sqlite3.connect(path.as_uri()+'?mode=ro&immutable=1', uri=True, cached_statements=16)
         self.max_metadata_cache_bytes = max_metadata_cache_bytes
         # Half the declared allowance remains for bounded decoded rows/headers/statements.

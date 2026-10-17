@@ -1,0 +1,17 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: prepare_future_metadata.py [-h] {plan,build} ...
+
+Registered, bounded future image metadata; no teacher, tensors or training.
+plan is metadata/stat only. build requires a separately issued registration.
+All five target times are retained; time-pair/patch sampling remains
+downstream.
+
+positional arguments:
+  {plan,build}
+    plan        Metadata/stat-only proposal; never scans images or issues
+                approval
+    build       Requires separate pinned metadata-only registration
+
+options:
+  -h, --help    show this help message and exit
