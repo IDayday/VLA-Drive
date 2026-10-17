@@ -1,0 +1,74 @@
+{
+  "actual_measurement_pass": false,
+  "actual_tensor_or_checkpoint_read": false,
+  "dispatch_authorized": false,
+  "evidence": {
+    "actual_training_or_payload_validation": false,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "errors": 0,
+    "failures": 0,
+    "parent_rchar_including_startup_bytes": 2906520,
+    "peak_parent_rss_bytes": 30494720,
+    "read_accounting_note": "Parent rchar includes git stdout; read-only git children inspect exact small source blobs, internal git reads not separately measured.",
+    "teacher_provider_sha256": "7e98cc830e0127ed6434d7a540d58725d8bef864aef40712e4761248193bd2f7",
+    "tests_run": 9,
+    "torch_imported": false,
+    "wall_seconds": 1.210751498118043
+  },
+  "findings": [
+    "Only full_profile_consumption and main help text differ in teacher_provider; full population/order/identity and numerical recipe checks are unchanged.",
+    "Original world1/world2 global2 diagnostic still returns its original 64/128 accounting; invalid empty-rank tail still rejects.",
+    "Nearby topology, population, short LR schedule, changed warmup, FORMAL scope, trace mode and continuation config reject for the timing branch.",
+    "Original train_world timing/trace resume rejection was extracted and executed without importing the trainer; explicit resume cannot concatenate measurement windows.",
+    "Original TimingPlan class was executed without Torch and confirms two separate 20 warmup plus 100 steady windows.",
+    "No new tensor writer: inherited RAM-only teacher and full-population tensor_disk_bytes==0 checks remain unchanged. This is a source property, not an actual write measurement.",
+    "Original formal-approval policy remains byte-identical and rejects usable-for-formal weights outside FORMAL; timing consumption itself declares formal_global32_throughput_qualified=false."
+  ],
+  "fixed_timing": {
+    "cumulative_scene_exposures": 7680,
+    "global_batch": 32,
+    "gradient_accumulation_steps": 1,
+    "max_updates": 20000,
+    "micro_batch": 4,
+    "mode": "timing",
+    "per_rank_scene_exposures": [
+      960,
+      960,
+      960,
+      960,
+      960,
+      960,
+      960,
+      960
+    ],
+    "resume_allowed": false,
+    "sample_limit": 101592,
+    "scope": "PROFILE",
+    "steady_windows": [
+      [
+        21,
+        120
+      ],
+      [
+        141,
+        240
+      ]
+    ],
+    "stop_after": 240,
+    "warmup": 1000,
+    "world_size": 8
+  },
+  "formal_launch_approval": false,
+  "next_boundary": "Await fixed controller/source pins; Lead must separately satisfy resource admission and execute a single fresh run. Actual timing, all-rank behavior, data/read counts and output lifecycle remain unmeasured by this review.",
+  "parent_commit": "a8b0036f33554fd2a00ea1af8c9b5f20fb6b965a",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "runtime_tree": "/mnt/project/VLA-Drive-st-full-topology-profile-runtime-20261017",
+  "schema": "st_narrow_independent_runtime_guard_review_v1",
+  "scope": "Only fixed full-topology timing PROFILE admission; controller/actual resources reviewed separately. Original teacher/model mathematics inherited unchanged.",
+  "source_commit": "210be55caa9b3395434504b5e310f7274d09c35a",
+  "status": "PASS_EXACT_RUNTIME_GUARD_ONLY",
+  "teacher_provider_sha256": "7e98cc830e0127ed6434d7a540d58725d8bef864aef40712e4761248193bd2f7"
+}
