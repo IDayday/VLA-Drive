@@ -1,0 +1,160 @@
+{
+  "actual_data_reads": 0,
+  "actual_finalization_authorized": false,
+  "actual_ledger_mutations": 0,
+  "gpu_calls": 0,
+  "implementation_author": "/root/st_future_finalization_cost",
+  "independent_tests": {
+    "failed": 0,
+    "fixture": {
+      "actual_finalizer_shard_open_counts": {
+        "/tmp/st-future-finalization-independent-v2/data/future/log_shards/a8b027f06e54e46161beafd5776aa6ea35d63bd17c04cc521cf9cccc47ec6c62.json": 1,
+        "/tmp/st-future-finalization-independent-v2/data/future/log_shards/b5bc66f7c1254718382c8bb1a03f3ba54215162942cc1b2aa174d7a20fc6c428.json": 1
+      },
+      "cache_128_rows_actual_accounted_bytes": 45042,
+      "cache_scenes": 128,
+      "compressed_cache_bytes": 1393,
+      "fixture": "/tmp/st-future-finalization-independent-v2",
+      "fixture_file_bytes": 66016,
+      "fixture_file_count": 41,
+      "source_shards": 2,
+      "synthetic_finalizer_cost": {
+        "aggregate_throttle_wait_s": 0.006493121385574341,
+        "elapsed_s": 0.04030519910156727,
+        "metadata_bytes_reserved": 15499,
+        "metadata_bytes_written": 15499,
+        "peak_rss_bytes": 597073920,
+        "source_bytes_read": 420247,
+        "source_read_categories": {
+          "control_metadata": 8599,
+          "finalization_metadata": 37049,
+          "finalization_registration": 3885,
+          "generated_metadata": 16157,
+          "image_or_other": 337698,
+          "metadata": 16859
+        }
+      }
+    },
+    "full_import_wall_seconds": 3.7286785058677197,
+    "native_source_shard_read_once": true,
+    "passed": 11,
+    "python": "3.9.25 (main, Nov  3 2025, 22:33:05) \n[GCC 11.2.0]",
+    "resource": {
+      "command": [
+        "/root/miniconda3/envs/navsim/bin/python",
+        "-u",
+        "/mnt/project/VLA-Drive-st-future-finalization-resource-review-20261017/reports/st_world_policy/20261017/future_finalization_resource_independent_v1/test_resources.py"
+      ],
+      "cpu_affinity": [
+        8,
+        9
+      ],
+      "elapsed_seconds": 3.7286785058677197,
+      "exit_code": 0,
+      "gpu_dispatch": false,
+      "limit_reason": null,
+      "limits": {
+        "logical_read_bytes": 268435456,
+        "rss_bytes": 2147483648,
+        "seconds": 120,
+        "synthetic_read_bytes": 33554432,
+        "synthetic_write_bytes": 33554432
+      },
+      "post_wait_parent_rchar_delta": 135187521,
+      "production_ledger_mutations": false,
+      "read_accounting": "post-wait parent delta counts waited child once; imports and monitoring included",
+      "real_payload_reads": false,
+      "reviewer": "/root/st_owned_descendants_review_v2",
+      "rss_accounting": "20ms live /proc VmRSS aggregate plus child VmHWM; no inherited getrusage substitution",
+      "rss_evidence": "AVAILABLE_SAMPLED_PEAK",
+      "rss_samples": 183,
+      "rss_unavailable_samples": 1,
+      "sampled_aggregate_rss_peak_bytes": 623443968,
+      "sampled_child_vm_hwm_peak_bytes": 612839424,
+      "source_commit": "1ce3a44134bee0aa52fd1f6b659103e989a0bbc2"
+    },
+    "skipped": 0,
+    "test_wall_seconds": 0.172,
+    "three_ram_replays_read_free": true,
+    "zlib_build": "1.2.13",
+    "zlib_runtime": "1.3.1"
+  },
+  "prior_review_harness_failure_retained": {
+    "not_author_code_failure": true,
+    "path": "attempt1_monitor_failure/FAILURE.json",
+    "retry": "One explicit Lead-authorized same-source narrow repeat; not automatic retry",
+    "status": "FAIL_MONITOR_EXIT_RACE_NO_COMPLETE_RESOURCE_RECORD"
+  },
+  "remaining_boundaries": [
+    "Real 1176-shard finalization was not executed. No full-scale compression ratio, memory, time or completion result is signed.",
+    "Source index/rows, groups, census and provenance are retained outside the 512MiB compressed cache ceiling; aggregate RSS needs the separately admitted finite monitor.",
+    "64x decoded workspace / 67x file-size RSS headroom are engineering prechecks, not a mathematical Python allocator bound.",
+    "Only the new flat root has the 2GiB cap here. Aggregate existing/new metadata allocations and checkpoint reserve remain controlled by the unchanged real storage policy/claim guard; no 8GiB actual allocation is granted.",
+    "Source .json shards are read once per finalizer invocation. An explicit retry after failure revalidates/recompresses source shards, and existing outputs may be reread for immutable byte comparison.",
+    "Streamed writer retains a current and lookahead scene plus bounded serialization chunks; it does not retain all expanded scenes.",
+    "Production must enter the existing registered metadata runner with a new claim and finite parent/child monitor. Direct CLI use alone is not an approval or resource admission.",
+    "Independent tests used current navsim Python with imports recorded; production ddp interpreter/full-scale peak remains unmeasured.",
+    "Local fixture lock exclusivity passed. Remote shared mount lock semantics require the Lead actual environment check; no actual source lock was acquired.",
+    "Old FAILED_NO_AUTO_RETRY and missing COMPLETE remain unchanged until a separately valid FINALIZATION_COMPLETE exists in a distinct new root."
+  ],
+  "review_tree": "/mnt/project/VLA-Drive-st-future-finalization-resource-review-20261017",
+  "reviewed_ceilings": {
+    "compressed_cache_accounted_bytes": 536870912,
+    "decoded_shard_workspace_bytes": 1073741824,
+    "logical_read_bytes": 17179869184,
+    "new_output_metadata_bytes": 2147483648,
+    "read_mib_per_second": 64,
+    "row_bytes": 65536,
+    "source_shard_bytes": 2147483648,
+    "source_shard_file_bytes": 67108864,
+    "task_rss_bytes": 4294967296,
+    "task_seconds": 14400,
+    "workers": 1
+  },
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "schema": "st_future_finalization_independent_resource_review_v1",
+  "scientific_result": false,
+  "scope": "New finalizer, affected metadata-storage routing and consumer call chain; no real-source/shard/body/teacher read, no actual claim/ledger/dispatch",
+  "source_commit": "1ce3a44134bee0aa52fd1f6b659103e989a0bbc2",
+  "source_control_explicit_read_bytes_note": "Reviewed source files total below32MiB; no real dataset controls or payloads were read. Import/startup logical IO is separately charged under the explicit256MiB test allowance.",
+  "source_pins": {
+    "starVLA/dataloader/st_world_future_provenance.py": {
+      "bytes": 5176,
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    "starVLA/dataloader/st_world_metadata_index.py": {
+      "bytes": 30480,
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    "starVLA/dataloader/st_world_targets.py": {
+      "bytes": 21321,
+      "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+    },
+    "tools/st_world_policy/finalize_future_metadata.py": {
+      "bytes": 32007,
+      "sha256": "e3443e703e40f16747a0d0bf307dd895045b4406d0e69a9a0b06e7300415e98d"
+    },
+    "tools/st_world_policy/metadata_storage.py": {
+      "bytes": 45239,
+      "sha256": "aaa36f5383451eadcd92c160c6f3ffb8704110ab44eb12ee433b3207995e71ba"
+    },
+    "tools/st_world_policy/prepare_future_metadata.py": {
+      "bytes": 46489,
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    "tools/st_world_policy/teacher_provider.py": {
+      "bytes": 57761,
+      "sha256": "2ba5003f05366c97e0091e48e8a271f5e7ec771319341acdc236249f11dd36d1"
+    }
+  },
+  "status": "PASS_CODE_RESOURCE_ONLY",
+  "test_artifacts": {
+    "ATTEMPT2_TEST_OUTPUT.txt": "447c2b5f61065532ab779c2bbe6ffdda155ff68d0bce31110c3ba37f204a6cdf",
+    "ATTEMPT2_TEST_RESULT.json": "306fbd32802172a7cef316801247802cd36aff8656519335b73db9a2ee0ed61f",
+    "DETAILS.json": "4f9ab7ca1395f9d36e7bf110abb09de76b5cbed91fcbad15287532e63253b443",
+    "attempt1_monitor_failure/FAILURE.json": "98bcb2d2d62153edf856dcf2db27d38d2594890fb94b8f38537d37d86aadfb8e",
+    "run_tests.py": "bf6bdf7263442cd6e9580abb1c8fe16b131cada80e121f987baa7e705eea59fb",
+    "test_resources.py": "058d10c9d69b47636e2992d2aaf6403223abdd80805099b3d24bcdb5e7bbc81f"
+  },
+  "training_authorized": false
+}
