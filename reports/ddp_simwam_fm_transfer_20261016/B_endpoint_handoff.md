@@ -1,6 +1,8 @@
 # B100k SFT → 自身筛选与八卡验收 → 正式 RL 的衔接
 
-最新更新：2026-10-17 06:25 UTC，[后续汇总入口修复与v3接管](B_endpoint_analysis_routing_20261017.md)已完成。当前唯一owner位于`endpoint_handoff_B_v3`，CPU源为`d8e4c6c7cdf11eed2a1f1ef8c3b84230b7e46999`；24个现有筛选worker继续使用225b，未重采样。v2已通过STOP_AFTER_TICK正常退出。以下v1/v2命令均为历史说明，不得重启旧owner。
+最新更新：2026-10-17 07:09 UTC，[所有前置验收通过，B正式RL实际启动](B_RL_start_and_endpoint_gate.md)。v3以`FORMAL_B_RL_STARTED_HANDOFF_COMPLETE`正常完成交接并退出，正式trainer和八rank继续运行225b，100步原生恢复点已核验。`formal_RL: COMPLETE`是派发stage完成，不是20k训练完成。无需重启任何handoff owner。
+
+历史更新：2026-10-17 06:25 UTC，[后续汇总入口修复与v3接管](B_endpoint_analysis_routing_20261017.md)已完成。当时唯一owner位于`endpoint_handoff_B_v3`，CPU源为`d8e4c6c7cdf11eed2a1f1ef8c3b84230b7e46999`；24个现有筛选worker继续使用225b，未重采样。v2已通过STOP_AFTER_TICK正常退出。以下v1/v2命令均为历史说明，不得重启旧owner。
 
 历史更新：2026-10-17，100k SFT真实完成后，v1实际调用暴露CPU dispatcher与`--ranks`参数的版本不匹配；旧27项mock测试未覆盖这个实际组合。[显式v2修复、33项测试与24个真实worker验证](B_SFT100k_completion_and_handoff.md)完成，旧失败目录保留，数值worker仍为225b。当时owner位于`endpoint_handoff_B_v2`，源为`8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81`。
 

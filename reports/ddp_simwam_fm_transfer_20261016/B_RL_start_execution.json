@@ -1,0 +1,195 @@
+{
+  "schema": "fm_transfer_B_RL_start_verified_v1",
+  "status": "PASS",
+  "observed_utc": "2026-10-17T07:08:52.551860+00:00",
+  "scope": "read-only existing own-SFT gate, formal identity, immutable update100 and actual live process; no new rollout or optimizer update by this audit",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "scientific_identity": "43033cfc2c78c809fbb0d347296b9685c243fc9dfe2fbf36798186a4839453ca",
+  "training_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "verified_training_source_files": 64,
+  "SFT_model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+  "hard_manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+  "qualification": {
+    "complete_sha256": "d34ec76c228eb2157418d48fd54621fe7e4ec42d9c9897c34d3ff2888df4d313",
+    "continuous4_equals_split2_resume4": true,
+    "all_8_ranks_adapter_updates_and_frozen_head_reference_verified": true,
+    "merged_ODE_max_abs": 2.384185791015625e-07,
+    "raw_original_observation_deployment": true,
+    "training_candidates_logical_per_trial": 64,
+    "training_candidates_physical_in_two_trials": 128,
+    "deployment_physical_predictions": 4,
+    "deployment_diagnostic_predictions": 1,
+    "total_wall_seconds": 298.1289715766907,
+    "phase_wall_seconds": {
+      "continuous": 63.62913942337036,
+      "split2": 59.7632098197937,
+      "resume4": 51.16605472564697,
+      "compare": 2.5010969638824463,
+      "merge_ODE": 34.021851539611816,
+      "export": 45.06845307350159,
+      "raw_deployment": 40.82078003883362
+    },
+    "evidence_hashes": {
+      "validation.json": "952981aa624531b16ee11fdf7406701dc8c7e211e5d334117e7d0488cf2dd63e",
+      "merged_ODE.json": "dffc7890f249fd2c04f81f88126625c12b56bbbd0537d591adaf920fd332bd3d",
+      "export/export.json": "fa667ffd233c6d6757f828146cdac64ab4799b72668cfe5fb2acc2cfbf68448b",
+      "raw_deployment/rank0.json": "d6e4a6ee99d968f2cef0b098366c41a54ae187eef94e7fc61ae9dabac0b29722"
+    }
+  },
+  "formal": {
+    "host": "training-vlawm-tsinghua-zt6",
+    "start_unix": 1792220643.8123138,
+    "command": [
+      "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc_per_node=8",
+      "--module",
+      "scripts.analysis.fm_transfer.train_rl",
+      "--config",
+      "configs/flow_rl/simwam_source_ddp.yaml",
+      "--sft-checkpoint",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+      "--manifest",
+      "/mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json",
+      "--output",
+      "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1"
+    ],
+    "qualification_weights_used": false,
+    "resume": null,
+    "LoRA_modules": 240,
+    "trainable_tensors": 480,
+    "trainable_parameters": 15728640,
+    "initial_B_exact_zero": true,
+    "initial_optimizer_empty": true,
+    "all_adapters_changed_by_update100": true,
+    "optimizer_moments_FP32": true,
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update000100_inner0",
+    "checkpoint_files_sha256": "5dd9288f3d868401eb04e616176b795cc1f10a39f88d6f91b4e0d3318d09b5ab",
+    "checkpoint_payload_count": 11,
+    "checkpoint_phase": "READY",
+    "updates": 100,
+    "collections": 25,
+    "scene_exposures": 200,
+    "fresh_candidates": 1600,
+    "cross_rank_boundary_validated": true,
+    "same_chain_old_probability_advantage_all_four_inner": true,
+    "processes": [
+      {
+        "pid": 354490,
+        "ppid": 1,
+        "start_ticks": 1365925566,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -m torch.distributed.run --standalone --nproc_per_node=8 --module scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354493,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354494,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354495,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354496,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354497,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354498,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354499,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      },
+      {
+        "pid": 354500,
+        "ppid": 354490,
+        "start_ticks": 1365925696,
+        "cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+        "command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python -u -m scripts.analysis.fm_transfer.train_rl --config configs/flow_rl/simwam_source_ddp.yaml --sft-checkpoint /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000 --manifest /mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json --output /mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1 "
+      }
+    ],
+    "state_rank0": {
+      "updates": 100,
+      "collections": 25,
+      "raw_scene_exposures": 200,
+      "new_candidates": 1600,
+      "next_inner": 0,
+      "phase": "READY",
+      "RL_updates_local": 100,
+      "anchor_only_updates_local": 0,
+      "scene_cursor": 200,
+      "seconds_rollout": 30.387938383966684,
+      "seconds_scoring_wait": 5.984182259067893,
+      "seconds_scoring_cpu": 1.6444462351500988,
+      "seconds_old_probability": 9.218457913026214,
+      "seconds_update": 122.4257869515568
+    },
+    "Adam_parameter_states_at_step100": 480
+  },
+  "first100_exploration": {
+    "scene_groups": 200,
+    "zero_PG_groups": 1,
+    "full_score_groups": 0,
+    "all_zero_groups": 0,
+    "progress_only_groups": 140,
+    "safety_differing_groups": 51,
+    "inner_diagnostics": {
+      "1": {
+        "rows": 200,
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0
+      },
+      "2": {
+        "rows": 200,
+        "ratio_max_abs_from_one": 0.0024194717407226562,
+        "mean_PPO_clip_fraction": 0.0
+      },
+      "3": {
+        "rows": 200,
+        "ratio_max_abs_from_one": 0.0067615509033203125,
+        "mean_PPO_clip_fraction": 0.000833333358168602
+      },
+      "4": {
+        "rows": 200,
+        "ratio_max_abs_from_one": 0.00999748706817627,
+        "mean_PPO_clip_fraction": 0.005625000093132258
+      }
+    },
+    "not_a_policy_evaluation": true
+  },
+  "audit_elapsed_seconds": 1.1208374500274658,
+  "formal_DEV_RL_available": false,
+  "final_Navtest_started": false
+}
