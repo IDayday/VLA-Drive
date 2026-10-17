@@ -1,0 +1,35 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "0,1",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "--basetemp",
+    "/tmp/st-full-index-profile-independent-review-20261017/pytest",
+    "tests/st_world/test_provider_full_index_profile.py",
+    "tests/st_world/test_provider_profile_upgrade.py",
+    "tests/st_world/test_provider_scope_boundaries.py",
+    "tests/st_world/test_indexed_provider_factory.py",
+    "tests/st_world/test_fixed_provider_training.py",
+    "tests/st_world/test_training_config.py",
+    "tests/st_world/test_full_index_profile_independent_review.py"
+  ],
+  "working_directory": "/mnt/project/VLA-Drive-st-full-index-profile-independent-review-20261017",
+  "exit_code": 0,
+  "wall_s": 33.88276750035584,
+  "observed_peak_process_group_rss_bytes": 1388208128,
+  "observed_peak_test_temp_allocated_bytes": 291459072,
+  "sampling_interval_s": 0.5,
+  "violation": null,
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "cuda_visible_devices": "",
+  "real_dataset_reads": false,
+  "teacher_or_gpu_invocations": 0,
+  "formal_or_real_profile_approval": false
+}
