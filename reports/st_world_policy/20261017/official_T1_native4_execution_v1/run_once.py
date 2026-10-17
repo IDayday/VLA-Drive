@@ -168,7 +168,8 @@ def controls(args, child=False):
         check(review.get('status') == 'PASS_BOUNDED_T1_ADAPTER_ONLY'
               and review.get('adapter_sha256') == a['adapter']['sha256']
               and review.get('ownership_helper') == a['ownership_helper']
-              and review.get('reviewer') not in (None, '', '/root/st_temporal_readiness_inventory'), 'Independent adapter reviews required')
+              and review.get('reviewer') not in (None, '', '/root', '/root/st_temporal_readiness_inventory',
+                                               '/root/st_torchrun_process_scope'), 'Independent adapter reviews required')
         if role == 'resource':
             check(review.get('new_checkpoint_reservation_bytes') == LIMITS['new_checkpoint_bytes']
                   and review.get('checkpoint_root') == str(ROOT/'runs')
