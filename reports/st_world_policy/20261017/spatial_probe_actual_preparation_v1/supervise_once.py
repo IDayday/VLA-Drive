@@ -6,7 +6,9 @@ This preparation supplies no APPROVED admission. RSS/wall and PyTorch peak are
 observed limits with a bounded reaction interval, not OS cgroup hard ceilings.
 """
 import argparse
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
+import ctypes
+import errno
 import fcntl
 import hashlib
 import json
@@ -20,7 +22,7 @@ import subprocess
 import sys
 import time
 
-from prepare_bindings import BASE, JOB, ROOTS, TAG, read, write_once, append_log
+from prepare_bindings import BASE, JOB, ROOTS, TAG, read, write_once, append_log, check_ancestry
 
 STAGES = ('dev_plan', 'dev_extract', 'train_plan', 'train_extract', 'fit')
 PREVIOUS = dict(zip(STAGES[1:], STAGES[:-1]))
@@ -37,6 +39,7 @@ HELPERS = ('supervise_once.py', 'observed_cli.py', 'prepare_bindings.py')
 
 def acquire(path, stack):
     path = Path(path)
+    check_ancestry(path)
     if path.is_symlink():
         raise ValueError('Symlink lock forbidden')
     file = stack.enter_context(path.open('a+b'))
@@ -131,28 +134,184 @@ def fresh_gpu(gpu):
         raise ValueError('Leased GPU has a compute owner')
 
 
+def proc_identity(pid):
+    fields = Path(f'/proc/{pid}/stat').read_text().rsplit(') ', 1)[1].split()
+    return dict(pid=pid, state=fields[0], ppid=int(fields[1]), pgid=int(fields[2]),
+                sid=int(fields[3]), start_ticks=int(fields[19]))
+
+
+def pidfd_open(pid):
+    if os.uname().machine not in ('x86_64', 'aarch64'):
+        raise RuntimeError('Reviewed Linux pidfd ABI required')
+    libc = ctypes.CDLL(None, use_errno=True)
+    fd = libc.syscall(434, int(pid), 0)
+    if fd < 0:
+        error = ctypes.get_errno(); raise OSError(error, os.strerror(error))
+    os.set_inheritable(fd, False)
+    return fd
+
+
+def pidfd_signal(fd, sig):
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.syscall(424, int(fd), int(sig), None, 0) < 0:
+        error = ctypes.get_errno()
+        if error != errno.ESRCH:
+            raise OSError(error, os.strerror(error))
+
+
+@contextmanager
+def lifetime_scope():
+    """This supervisor owns orphaned descendants only for its invocation."""
+    libc = ctypes.CDLL(None, use_errno=True); previous = ctypes.c_int()
+    fd = pidfd_open(os.getpid()); os.close(fd)  # fail before Popen if pidfds unavailable
+    if libc.prctl(37, ctypes.byref(previous), 0, 0, 0) or libc.prctl(36, 1, 0, 0, 0):
+        raise RuntimeError('Linux child subreaper is required before spawning')
+    stopped = {'signal': None}
+    old = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    def request_stop(sig, frame):
+        stopped['signal'] = stopped['signal'] or sig  # do not interrupt cleanup/writes
+    try:
+        for sig in old: signal.signal(sig, request_stop)
+        yield stopped
+    finally:
+        for sig, handler in old.items(): signal.signal(sig, handler)
+        libc.prctl(36, previous.value, 0, 0, 0)
+
+
+class OwnedSession:
+    """Hold the spawn's unreaped leader as SID anchor; signal exact pidfds only.
+
+    No Popen.poll()/wait() until closure: WNOWAIT leaves the dead leader's PID
+    reserved, so a later foreign session cannot reuse its numeric identity.
+    Members are checked before and after pidfd_open. Historical receipts are
+    never an input. Subreaper adoption lets us reap our orphaned zombies too.
+    """
+    def __init__(self, child):
+        self.child = child; self.anchor = proc_identity(child.pid); self.members = {}
+        self.verified = 0
+        if self.anchor['sid'] != child.pid or self.anchor['pgid'] != child.pid:
+            raise RuntimeError('Refuse a foreign process group')
+        self._remember(self.anchor)
+        child._probe_owned_session = self
+
+    @staticmethod
+    def same(a, b):
+        return all(a[k] == b[k] for k in ('pid', 'sid', 'start_ticks'))
+
+    def _remember(self, record):
+        old = self.members.get(record['pid'])
+        if old is not None:
+            if self.same(record, old[0]): return
+            os.close(old[1]); del self.members[record['pid']]
+        fd = pidfd_open(record['pid'])
+        try:
+            if not self.same(record, proc_identity(record['pid'])):
+                raise RuntimeError('Process identity changed while opening pidfd')
+        except BaseException:
+            os.close(fd); raise
+        self.members[record['pid']] = (record, fd); self.verified += 1
+
+    def discover(self):
+        if not self.same(self.anchor, proc_identity(self.child.pid)):
+            raise RuntimeError('Spawn anchor changed; no numeric-session signalling allowed')
+        entries = list(Path('/proc').iterdir())
+        if len(entries) > 32768:
+            raise RuntimeError('Bounded process metadata scan exceeded')
+        for entry in entries:
+            if not entry.name.isdigit(): continue
+            try:
+                record = proc_identity(int(entry.name))
+                if record['sid'] == self.child.pid:
+                    if record['start_ticks'] < self.anchor['start_ticks']:
+                        raise RuntimeError('Session member predates this spawn')
+                    self._remember(record)
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+        active = []
+        for pid, (known, fd) in list(self.members.items()):
+            try:
+                current = proc_identity(pid)
+                if self.same(known, current) and current['state'] not in ('Z', 'X'):
+                    active.append((known, fd)); continue
+                if pid != self.child.pid and self.same(known, current) and current['ppid'] == os.getpid():
+                    os.waitpid(pid, os.WNOHANG)  # only our verified adopted child
+            except (FileNotFoundError, ProcessLookupError, ChildProcessError):
+                pass
+            if pid != self.child.pid:
+                os.close(fd); del self.members[pid]
+        return active
+
+    def leader_done(self):
+        return os.waitid(os.P_PID, self.child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+    def send(self, sig):
+        try:
+            active = self.discover()
+        except BaseException:
+            # Even if /proc discovery fails, already opened pidfds still name
+            # only our verified tasks. Stop those; do not guess new numeric PIDs.
+            for _, fd in self.members.values(): pidfd_signal(fd, sig)
+            raise
+        for _, fd in active:
+            pidfd_signal(fd, sig)
+
+    def finish(self, *, terminate, deadline=None):
+        deadline = time.monotonic() + 40 if deadline is None else deadline
+        if terminate: self.send(signal.SIGTERM)
+        while self.discover():
+            now = time.monotonic()
+            if now >= deadline - 10:
+                self.send(signal.SIGKILL)
+            elif terminate:
+                self.send(signal.SIGTERM)  # include forks discovered during cleanup
+            if now >= deadline:
+                raise RuntimeError('Owned session cleanup incomplete after TERM/KILL grace')
+            time.sleep(.05)
+        code = self.child.wait(timeout=1)  # first reap of the SID anchor
+        return code
+
+    def close(self):
+        for _, fd in self.members.values(): os.close(fd)
+        self.members.clear()
+
+
 def own_group_signal(child, sig):
-    # Popen created this exact new session, and no existing PID/group is accepted.
-    if child.poll() is None:
-        if os.getsid(child.pid) != child.pid or os.getpgid(child.pid) != child.pid:
-            raise RuntimeError('Refuse to signal a foreign process group')
-        os.killpg(child.pid, sig)
+    owner = getattr(child, '_probe_owned_session', None)
+    if owner is None or owner.child is not child:
+        raise RuntimeError('Refuse to signal a foreign process group')
+    owner.send(sig)
 
 
 def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_reader, popen=subprocess.Popen):
     """Only small fake children are used by tests; real argv is fixed by main."""
+    with lifetime_scope() as stopped:
+        return _supervise(argv, cwd=cwd, env=env, cpus=cpus, descriptors=descriptors,
+                          attempt=attempt, wall=wall, rss=rss, rss_reader=rss_reader,
+                          popen=popen, stopped=stopped)
+
+
+def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_reader, popen, stopped):
     started = time.monotonic(); maximum_rss = 0; emitted = 0; reason = None; term_at = None
     log = Path(attempt) / 'CHILD.log'
     child = popen(['taskset', '-c', ','.join(map(str, cpus)), *argv], cwd=cwd, env=env,
                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True,
                   pass_fds=tuple(descriptors))
+    owner = OwnedSession(child)
     selector = selectors.DefaultSelector(); selector.register(child.stdout, selectors.EVENT_READ)
     next_sample = 0.; final_counters = None
     try:
         write_once(Path(attempt) / 'CHILD.json', dict(pid=child.pid, pgid=child.pid,
-                   started_unix=time.time(), argv=argv, owned_new_session=True))
+                   sid=owner.anchor['sid'], start_ticks=owner.anchor['start_ticks'],
+                   started_unix=time.time(), argv=argv, owned_new_session=True,
+                   ownership='unreaped spawn anchor + verified live pidfds; never reconstructed from receipt'))
         with log.open('xb', buffering=0) as stream:
-            while child.poll() is None or selector.get_map():
+            while True:
+                active = owner.discover(); done = owner.leader_done()
+                if stopped['signal'] is not None:
+                    reason = reason or 'SUPERVISOR_SIGNAL_' + str(stopped['signal'])
+                if done and active:
+                    reason = reason or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
+                if not active and not selector.get_map(): break
                 for key, _ in selector.select(.2):
                     block = os.read(key.fileobj.fileno(), 65536)
                     if not block:
@@ -167,14 +326,14 @@ def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_read
                 if now >= next_sample:
                     next_sample = now + 1
                     try:
-                        if child.poll() is None:
+                        if not done:
                             maximum_rss = max(maximum_rss, rss_reader(child.pid))
                         counter = Path(attempt) / 'COUNTERS.json'
                         if counter.exists():
                             final_counters, _ = read(counter, limit=65536)
                             if final_counters.get('limit_exceeded'):
                                 reason = reason or final_counters['limit_exceeded']
-                            if child.poll() is None and time.time() - counter.stat().st_mtime > 15:
+                            if not done and time.time() - counter.stat().st_mtime > 15:
                                 reason = reason or 'STALE_OBSERVER'
                     except Exception:
                         reason = reason or 'MONITOR_UNREADABLE'
@@ -184,23 +343,17 @@ def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_read
                         reason = reason or 'WALL_LIMIT'
                 if reason and term_at is None:
                     own_group_signal(child, signal.SIGTERM); term_at = now
-                if term_at is not None and now - term_at >= 30 and child.poll() is None:
+                if term_at is not None and now - term_at >= 30:
                     own_group_signal(child, signal.SIGKILL)
-                    child.wait(timeout=10)
-                # Pipes inherited by a stranded child may otherwise keep us alive.
-                if child.poll() is not None and now - started > wall + 40:
-                    reason = reason or 'DESCENDANT_PIPE_NOT_CLOSED'; break
+                if term_at is not None and now - term_at >= 40:
+                    raise RuntimeError('Owned session or pipe did not close within cleanup grace')
             stream.flush(); os.fsync(stream.fileno())
-        code = child.wait(timeout=10)
+        code = owner.finish(terminate=reason is not None, deadline=term_at + 40 if term_at is not None else None)
     except BaseException:
-        own_group_signal(child, signal.SIGTERM)
-        try:
-            child.wait(timeout=30)
-        except subprocess.TimeoutExpired:
-            own_group_signal(child, signal.SIGKILL); child.wait(timeout=10)
+        owner.finish(terminate=True, deadline=term_at + 40 if term_at is not None else None)
         raise
     finally:
-        selector.close(); child.stdout.close()
+        owner.close(); selector.close(); child.stdout.close()
     counter = Path(attempt) / 'COUNTERS.json'
     if counter.exists():
         final_counters, _ = read(counter, limit=65536)
@@ -208,6 +361,8 @@ def supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_read
     return dict(exit_code=code, limit_reason=reason, wall_seconds=time.monotonic() - started,
                 sampled_tree_rss_peak_bytes=maximum_rss, log_bytes_stored=log.stat().st_size,
                 log_bytes_received=emitted, counters=final_counters,
+                process_cleanup=dict(verified_processes=owner.verified, live_owned_remaining=0,
+                                     method='unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped'),
                 monitoring='RSS/wall sampled at <=1s between reads; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace')
 
 
@@ -230,7 +385,7 @@ def main():
     sys.path.insert(0, runtime)
     from tools.st_world_policy.metadata_storage import process_tree_rss
     shared_mount()
-    stage_root = JOB / 'stages'; stage_root.mkdir(parents=True, exist_ok=True)
+    stage_root = JOB / 'stages'; check_ancestry(stage_root); stage_root.mkdir(parents=True, exist_ok=True)
     with ExitStack() as stack:
         lock = acquire(LOCK, stack)  # one plan/extract/fit at a time across campaign hosts
         locks = [lock]

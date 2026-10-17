@@ -51,6 +51,7 @@ def check_seal(value, key='identity'):
 
 def read(path, expected=None, limit=1 << 20):
     path = Path(path)
+    check_ancestry(path)
     if not path.is_absolute() or path.is_symlink():
         raise ValueError('Absolute nonsymlink control required')
     with path.open('rb') as f:
@@ -69,7 +70,7 @@ def read(path, expected=None, limit=1 << 20):
 
 @contextmanager
 def control_lock(directory):
-    directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
+    directory = Path(directory); check_ancestry(directory); directory.mkdir(parents=True, exist_ok=True)
     path = directory / 'CONTROL_WRITE.lock'
     if directory.is_symlink() or path.is_symlink():
         raise ValueError('Symlink control namespace forbidden')
@@ -83,6 +84,12 @@ def control_lock(directory):
                     raise TimeoutError('Bounded control write lock wait exceeded')
                 time.sleep(.01)
         yield
+
+
+def check_ancestry(path):
+    path = Path(path).absolute()
+    if '..' in path.parts or any(p.is_symlink() for p in (path, *path.parents)):
+        raise ValueError('Symlink/parent traversal in control namespace forbidden')
 
 
 def observed_bytes(directory):
@@ -102,6 +109,8 @@ def write_control(path, value, *, replace=False):
     if path.name not in ('RESULT.json', 'COUNTERS.json'):
         reserve += COUNTER_RESERVE
     with control_lock(path.parent):
+        if observed_bytes(path.parent) > DIRECTORY_LIMIT:
+            raise ValueError('Existing control directory exceeds byte budget')
         if path.is_symlink():
             raise ValueError('Symlink control output forbidden')
         if path.exists() and not replace:
