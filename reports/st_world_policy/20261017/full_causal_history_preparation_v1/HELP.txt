@@ -1,0 +1,41 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: Prepare causal history inputs and a separate label-only teacher image index.
+
+Default smoke scope is at most64 scenes. Registered larger preparation requires
+an explicit budget file and never starts teacher/GPU work. Existing student
+indices/order/partition are retained; scores and GT are not opened.
+
+       [-h] --student-root STUDENT_ROOT --output OUTPUT
+       [--raw-log-root RAW_LOG_ROOT] [--sensor-root SENSOR_ROOT]
+       [--partition PARTITION] [--pin-selection PIN_SELECTION]
+       [--fallback-sensor-root FALLBACK_SENSOR_ROOT] --split {train,dev}
+       [--mode {smoke,registered}] [--registration REGISTRATION] --max-scenes
+       MAX_SCENES [--scene-list SCENE_LIST] [--seed SEED]
+       [--tolerance TOLERANCE]
+       [--target-times TARGET_TIMES [TARGET_TIMES ...]] [--resume]
+       {build}
+
+positional arguments:
+  {build}
+
+options:
+  -h, --help            show this help message and exit
+  --student-root STUDENT_ROOT
+  --output OUTPUT
+  --raw-log-root RAW_LOG_ROOT
+  --sensor-root SENSOR_ROOT
+  --partition PARTITION
+  --pin-selection PIN_SELECTION
+                        Explicitly upgrade an old selected manifest into a NEW
+                        output directory with current/ego content pins
+  --fallback-sensor-root FALLBACK_SENSOR_ROOT
+  --split {train,dev}
+  --mode {smoke,registered}
+  --registration REGISTRATION
+  --max-scenes MAX_SCENES
+  --scene-list SCENE_LIST
+  --seed SEED
+  --tolerance TOLERANCE
+  --target-times TARGET_TIMES [TARGET_TIMES ...]
+  --resume

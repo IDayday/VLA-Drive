@@ -138,6 +138,14 @@ def upgrade_selection(args):
     return result
 
 
+def read_json(path):
+    return json.loads(Path(path).read_text())
+
+
+def open_raw(path):
+    return Path(path).open("rb")
+
+
 def run(args):
     if args.pin_selection:
         return upgrade_selection(args)
@@ -150,18 +158,18 @@ def run(args):
     if args.mode == 'registered':
         if not args.registration:
             raise ValueError('Larger preparation requires a predeclared registration')
-        budget = json.loads(Path(args.registration).read_text())
+        budget = read_json(args.registration)
         if (budget['phase'] != 'data_preparation' or budget['split'] != args.split or
                 budget['max_scenes'] < args.max_scenes):
             raise ValueError('Preparation outside explicit registration budget')
     student = Path(args.student_root).resolve()
-    identity = json.loads((student / 'identity.json').read_text())
-    index = json.loads((student / 'index.json').read_text())
+    identity = read_json(student / 'identity.json')
+    index = read_json(student / 'index.json')
     if (identity['schema'] != 'ddpolicy_current_cameras_v1' or identity['split'] != args.split or
             identity['index_sha256'] != identity_hash(index) or
             identity['identity'] != identity_hash({k:v for k,v in identity.items() if k != 'identity'})):
         raise ValueError('Current student source/index/role mismatch')
-    partition = json.loads(Path(args.partition).read_text())
+    partition = read_json(args.partition)
     if file_sha256(args.partition) != identity['partition_sha256']:
         raise ValueError('Original train/dev partition changed')
     if [r['token'] for r in index] != partition[args.split + '_tokens']:
@@ -169,7 +177,7 @@ def run(args):
     if {partition['token_logs'][t] for t in partition['train_tokens']} & {partition['token_logs'][t] for t in partition['dev_tokens']}:
         raise ValueError('Train/dev raw log overlap')
     if args.scene_list:
-        selected = json.loads(Path(args.scene_list).read_text())
+        selected = read_json(args.scene_list)
         if isinstance(selected, dict):
             selected = selected['scenes']
         by_token = {r['token']: r for r in index}
@@ -204,12 +212,12 @@ def run(args):
                 raise ValueError('Invalid raw log identifier')
             raw = Path(args.raw_log_root) / (log + '.pkl')
             digest = file_sha256(raw)
-            with raw.open('rb') as f:
+            with open_raw(raw) as f:
                 frames = TrustedNumpyUnpickler(f).load()
             sources.append({'log': log, 'path': str(raw), 'sha256': digest})
             for token in tokens:
                 current_path = student / 'current' / (token + '.json')
-                current = json.loads(current_path.read_text())
+                current = read_json(current_path)
                 if current['identity'] != identity['identity']:
                     raise ValueError('Foreign current record')
                 past = build_history_record(frames, token, log, current,

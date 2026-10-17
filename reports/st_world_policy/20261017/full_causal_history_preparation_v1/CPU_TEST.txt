@@ -1,0 +1,61 @@
+......F.                                                                 [100%]
+=================================== FAILURES ===================================
+______________________ test_original_parser_current_only _______________________
+
+    def test_original_parser_current_only():
+>       a=m.parser().parse_args(['build','--student-root','/s','--output','/o','--target-times','0'])
+
+reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_wrapper.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/miniconda3/envs/ddp/lib/python3.10/argparse.py:1833: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+/root/miniconda3/envs/ddp/lib/python3.10/argparse.py:1866: in parse_known_args
+    namespace, args = self._parse_known_args(args, namespace)
+/root/miniconda3/envs/ddp/lib/python3.10/argparse.py:2107: in _parse_known_args
+    self.error(_('the following arguments are required: %s') %
+/root/miniconda3/envs/ddp/lib/python3.10/argparse.py:2594: in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArgumentParser(prog='Prepare causal history inputs and a separate label-only teacher image index.\n\nDefault smoke sco...sage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+status = 2
+message = 'Prepare causal history inputs and a separate label-only teacher image index.\n\nDefault smoke scope is at most64 scen...on are retained; scores and GT are not opened.\n: error: the following arguments are required: --split, --max-scenes\n'
+
+    def exit(self, status=0, message=None):
+        if message:
+            self._print_message(message, _sys.stderr)
+>       _sys.exit(status)
+E       SystemExit: 2
+
+/root/miniconda3/envs/ddp/lib/python3.10/argparse.py:2581: SystemExit
+----------------------------- Captured stderr call -----------------------------
+usage: Prepare causal history inputs and a separate label-only teacher image index.
+
+Default smoke scope is at most64 scenes. Registered larger preparation requires
+an explicit budget file and never starts teacher/GPU work. Existing student
+indices/order/partition are retained; scores and GT are not opened.
+
+       [-h] --student-root STUDENT_ROOT --output OUTPUT
+       [--raw-log-root RAW_LOG_ROOT] [--sensor-root SENSOR_ROOT]
+       [--partition PARTITION] [--pin-selection PIN_SELECTION]
+       [--fallback-sensor-root FALLBACK_SENSOR_ROOT] --split {train,dev}
+       [--mode {smoke,registered}] [--registration REGISTRATION] --max-scenes
+       MAX_SCENES [--scene-list SCENE_LIST] [--seed SEED]
+       [--tolerance TOLERANCE]
+       [--target-times TARGET_TIMES [TARGET_TIMES ...]] [--resume]
+       {build}
+Prepare causal history inputs and a separate label-only teacher image index.
+
+Default smoke scope is at most64 scenes. Registered larger preparation requires
+an explicit budget file and never starts teacher/GPU work. Existing student
+indices/order/partition are retained; scores and GT are not opened.
+: error: the following arguments are required: --split, --max-scenes
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_wrapper.py::test_original_parser_current_only
+1 failed, 7 passed, 1 warning in 3.41s

@@ -432,9 +432,9 @@ def _resources(reg):
         if not isinstance(pattern, str) or len(pattern) > 256:
             b._fail("invalid metadata filename pattern")
         re.compile(pattern)
-    if reg.get("writer_kind") not in ("current_index", "future_preparation", "future_index"):
+    if reg.get("writer_kind") not in ("current_index", "future_preparation", "future_index", "history_preparation"):
         b._fail("unsupported metadata writer")
-    if limits["max_depth"] != 0 and reg["writer_kind"] != "future_preparation":
+    if limits["max_depth"] != 0 and reg["writer_kind"] not in ("future_preparation", "history_preparation"):
         b._fail("index output must stay flat")
     return limits
 
@@ -683,7 +683,8 @@ def run_registered_metadata(**kwargs):
         b._fail("metadata command must be exact argv")
     expected_module = {"current_index": "tools.st_world_policy.index_teacher_metadata",
                        "future_index": "tools.st_world_policy.index_teacher_metadata",
-                       "future_preparation": "tools.st_world_policy.prepare_future_metadata"}[reg["writer_kind"]]
+                       "future_preparation": "tools.st_world_policy.prepare_future_metadata",
+                       "history_preparation": "tools.st_world_policy.prepare_causal_history"}[reg["writer_kind"]]
     if command[1:3] != ["-m", expected_module] or command[3] not in ("build", "verify"):
         b._fail("runner only accepts registered metadata CLI")
     output_flag = "--plan" if reg["writer_kind"] == "future_preparation" else ("--index" if command[3] == "verify" else "--output")

@@ -1,0 +1,95 @@
+{
+  "schema": "st_causal_history_preparation_proposal_v1",
+  "status": "PREPARATION_ONLY_NOT_ADMITTED",
+  "no_launch": true,
+  "no_ledger_mutation": true,
+  "writer_kind": "history_preparation",
+  "checkpoint_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json",
+    "sha256": "13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3"
+  },
+  "checkpoint_remaining_bytes": 2472827420672,
+  "free_floor_bytes": 1099511627776,
+  "pilot": {
+    "scene_list": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_v1/SELECTED_SCENES.json",
+    "scenes": 64,
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "workers": 1,
+    "wall_seconds": 900,
+    "owned_cleanup_seconds": 40,
+    "rss_bytes": 4294967296,
+    "source_read_bytes": 17179869184,
+    "aggregate_read_mib_s": 32,
+    "output_root_proposal": "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2",
+    "disk_cap_bytes": 33554432,
+    "disk_includes": [
+      "records",
+      "manifest",
+      "selected",
+      "config",
+      "current_requests",
+      "partial_temporary",
+      "retained_failed_files",
+      "controls",
+      "logs"
+    ],
+    "target_times": [
+      0.0
+    ],
+    "automatic_retry": false
+  },
+  "full_roles": {
+    "train": {
+      "scene_list": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+      "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "scenes": 101592,
+      "status": "WAITING_COST_AND_SCALE_REVIEW"
+    },
+    "dev": {
+      "scene_list": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+      "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573",
+      "scenes": 1696,
+      "status": "WAITING_COST_AND_SCALE_REVIEW"
+    }
+  },
+  "dispatch_dependencies": [
+    "independent correctness and resource review",
+    "future writer quiescence; no parallel original ledger writer",
+    "Lead additive admission/registration in original ledger",
+    "fresh CP lease covering actual monitor window and fresh statvfs",
+    "existing owned CPU monitor adaptation; no bare CLI launch"
+  ],
+  "source_pins": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_causal_history.py",
+      "sha256": "b486d2233955d19179c7beb93e314681dda45664890d8bc7d59edc00f92b6d48"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_history.py",
+      "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_future_metadata.py",
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_future_provenance.py",
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_current_teacher.py",
+      "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+    }
+  ]
+}
