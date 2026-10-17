@@ -244,29 +244,42 @@ def is_full_profile(admission):
 
 
 def full_profile_consumption(cfg):
-    """Whole-run ceiling, shared by the original invocation and native resumes.
+    """Finite PROFILE ceilings; diagnostic and intended-topology paths stay distinct.
 
-    This is the existing global2 diagnostic distributed over one or two ranks,
-    not the formal global32 recipe. No alternate sampler/cursor is introduced.
+    The new timing case is exactly the registered original 8-rank topology and
+    two 20+100 windows. It is never a FORMAL admission or a continuation of the
+    completed global2 diagnostic. All native sampler and training math are reused.
     """
-    ex = cfg['execution']
-    if (ex['world_size'] not in (1, 2) or ex['micro_batch'] != 1 or ex['global_batch'] != 2
+    ex = cfg['execution']; rt = cfg['runtime']
+    diagnostic = (ex['world_size'] in (1, 2) and ex['micro_batch'] == 1
+                  and ex['global_batch'] == 2 and rt['profile_mode'] == 'none')
+    timing = (ex.get('scope') == 'PROFILE' and ex['world_size'] == 8 and ex['micro_batch'] == 4 and ex['global_batch'] == 32
+              and ex['stop_after'] == 240 and ex['sample_limit'] == 101592
+              and rt['profile_mode'] == 'timing' and ex.get('max_updates') == 20000
+              and cfg.get('optimizer', {}).get('warmup') == 1000)
+    if (not (diagnostic or timing)
+            or any(type(ex[k]) is not int for k in ('world_size', 'micro_batch', 'global_batch'))
             or type(ex['sample_limit']) is not int or ex['sample_limit'] <= 256
             or type(ex['stop_after']) is not int or not 1 <= ex['stop_after'] <= 256
-            or cfg['runtime']['profile_mode'] != 'none' or 'continuation' in cfg):
-        raise ValueError('Full-index PROFILE requires the finite global2 diagnostic, not formal throughput')
+            or 'continuation' in cfg):
+        raise ValueError('Full-index PROFILE requires global2 diagnostic or fixed world8/global32 timing240')
     from tools.foresight.student_state import validate_rank_batches
-    validate_rank_batches(ex['sample_limit'], 2, ex['world_size'], 1)
-    n = ex['sample_limit']; batches = (n + 1) // 2
+    world, batch, micro = ex['world_size'], ex['global_batch'], ex['micro_batch']
+    validate_rank_batches(ex['sample_limit'], batch, world, micro)
+    n = ex['sample_limit']; batches = (n + batch - 1) // batch
     epochs, remainder = divmod(ex['stop_after'], batches)
-    exposures = epochs * n + min(remainder * 2, n)
+    tail_exposures = min(remainder * batch, n)
+    exposures = epochs * n + tail_exposures
+    per_rank = [epochs * len(range(rank, n, world))
+                + len(range(rank, tail_exposures, world)) for rank in range(world)]
     return {'schema': CONSUMPTION_SCHEMA, 'initial_completed_updates': 0, 'initial_epoch': 0,
             'initial_offset': 0, 'cumulative_optimizer_updates': ex['stop_after'],
             'cumulative_scene_exposures': exposures,
-            'world_size': ex['world_size'], 'micro_batch': 1, 'global_batch': 2,
-            'gradient_accumulation_steps': 2 // ex['world_size'],
-            'per_rank_scene_exposures': [exposures // ex['world_size']] * ex['world_size'],
-            'resume_budget': 'same_run_cumulative_not_per_invocation',
+            'world_size': world, 'micro_batch': micro, 'global_batch': batch,
+            'gradient_accumulation_steps': batch // (world * micro),
+            'per_rank_scene_exposures': per_rank,
+            'resume_budget': ('timing_requires_fresh_complete_windows_no_resume' if timing
+                              else 'same_run_cumulative_not_per_invocation'),
             'formal_global32_throughput_qualified': False}
 
 
@@ -800,7 +813,7 @@ def main():
     p.add_argument('--profile-current-registration', help='Original full current population REGISTRATION.json')
     p.add_argument('--profile-current-complete', help='Original full current population COMPLETE.json')
     p.add_argument('--profile-future-complete', help='Actual full_population future preparation COMPLETE.json')
-    p.add_argument('--profile-consumption-budget', help='Predeclared cumulative global2 diagnostic consumption JSON')
+    p.add_argument('--profile-consumption-budget', help='Predeclared cumulative diagnostic or fixed world8 timing240 consumption JSON')
     args = p.parse_args()
     if bool(args.training_config) != bool(args.configured_output):
         p.error('--training-config and --configured-output must be supplied together')
