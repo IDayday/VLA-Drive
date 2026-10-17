@@ -1,0 +1,88 @@
+{
+  "conclusion": "Channel PCA has verified primary-source support, and the actual one-width adaptation is explicitly bounded. Same frozen training-only basis, teacher geometry, W/K, Base, data, source and recipe are bound. The mean-channel denominator, induced output-layer differences and lack of a scientific-gain guarantee are disclosed. No evidence blocker remains for this registration.",
+  "created_utc": "2026-10-17T17:18:45.690957+00:00",
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-formal-evidence-20261017/reports/st_world_policy/20261017/teacher_channel_formal_evidence_v1/REVIEW.md",
+      "sha256": "eea3b163117ec691f378a5a588084fc3195100df8e98e616db81b3df80740c7a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-formal-evidence-20261017/reports/st_world_policy/20261017/teacher_channel_formal_evidence_v1/SMALL_ARTIFACT_AUDIT.json",
+      "sha256": "4c53897f6857809a83a2b53a713865ca7d8dc4d3be6587c717ecf7416e5c6448"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-formal-evidence-20261017/reports/st_world_policy/20261017/teacher_channel_formal_evidence_v1/verify_small_artifacts.py",
+      "sha256": "c062c2cc9a4101e49fb972c417d55e6646bca833a1cb5fc44cc955aaf8581324"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/CONFIG.json",
+      "sha256": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/TARGET_CONTRACT.json",
+      "sha256": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/DATA_AND_STORAGE_BOUNDARY.json",
+      "sha256": "a1ed5f8917fdfb71341f992fec311b554c24acf8a9710bd8ffb97bc861d3441b"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-formal-evidence-20261017/reports/st_world_policy/20261017/teacher_channel_control_v1/DESIGN_EVIDENCE_CARD.md",
+      "sha256": "4154f45ecd8afde172ed399834293e63f066f14a9c312146cc963d478fad3d27"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-formal-evidence-20261017/reports/st_world_policy/20261017/teacher_alignment_evidence_v1/LEAD_DECISION.md",
+      "sha256": "e3dec2b1f5557f85cfc0aa02c599d8125de47563beaf8e47ace3905d02af9ead"
+    }
+  ],
+  "fingerprint": {
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "b841c7c4696ba5b84ecc913bbb2c0437f6a16f8794502fd50534abeb16e0be3a",
+      "target_contract": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 5000,
+      "world_size": 4
+    },
+    "registration_sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6",
+    "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec"
+  },
+  "inherited_verification": {
+    "large_artifact_hashes": "Data/teacher paths and hashes independently crosschecked against historical approved SP2. Lead reported complete verify_registration hashing of this exact new registration. Reviewer did not reread the 30MB manifest or 146MB teacher identity.",
+    "old_checkpoint": "Small COMPLETE/initialization receipts independently hashed; model/optimizer tensors not opened or rehashed.",
+    "shared_initialization": "Prior author CPU test is inherited, not rerun or presented as a new model execution."
+  },
+  "launch_action": "No task dispatched. Lead must bind independently issued correctness/efficiency reviews, pass the unchanged final approval gate, and confirm actual authorized slots before launch.",
+  "remaining_scientific_limits": [
+    "PCA is lossy; DINO-Foresight does not establish 256 as optimal for this single-layer DINOv3 and sparse-W setting.",
+    "Mean over C makes common residual coefficients 1.5 times larger at C=256 than C=384; the result cannot isolate capacity from retained-subspace weighting.",
+    "Output projection width and final bias draws differ. Existing teacher linear probes have 257/385 parameters, not identical parameter capacity.",
+    "The small teacher probe dev set already informed original384 selection. Its results establish neither semantic equivalence nor statistical noninferiority.",
+    "256 learned-W, common/tail error and full-development planning results remain NOT_RUN. No Navtest-based selection is approved.",
+    "S0 already saw train; this is a 5k mechanism-continuation screen, not convergence or unseen-data generalization.",
+    "Original384 frozen selection remains unchanged; this later user-requested256 diagnostic does not expand the temporal matrix."
+  ],
+  "reviewer_agent": "/root/st_teacher_channel_evidence_v2",
+  "role": "evidence",
+  "schema": "st_world_review_v1",
+  "scope": "Only the registered SP2_PCA256_fulltrain_seed42_official_5k_v1 5000-update diagnostic, on the original 20000-update LR horizon, compared with the existing completed PCA384 SP2 endpoint.",
+  "status": "PASS"
+}
