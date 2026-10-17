@@ -1,0 +1,70 @@
+{
+  "schema": "st_torchrun_descendant_independent_review_v1",
+  "created_at": "2026-10-17T12:11:18.369385+00:00",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "implementation_author": "/root/st_torchrun_process_scope",
+  "reviewed_commit": "9383910ef5aad137b3b48d9b453089bed1285ec9",
+  "status": "FAIL_SELF_REVIEW_NOT_REJECTED",
+  "helper_process_correctness": "PASS_CPU_BEHAVIOR_SCOPE_ONLY",
+  "cpu_test_resources": "PASS_ASSIGNED_BOUNDED_CPU_TEST_ONLY",
+  "source_sha256": {
+    "torchrun_descendant_scope_v1/owned_descendants.py": "b8d38e1e66036fc09886368f4a35bb21b5ea76306291a84588a082069ee26c85",
+    "official_T1_native4_execution_v1/run_once.py": "5a5fd9c1fea1c56e866ae4b382e74a3acc3f4f27ad99fa1528826507422c9ea9",
+    "spatial_probe_actual_preparation_v1/supervise_once.py": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902",
+    "full_future_metadata_preparation_v1/run_build_once.py": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644"
+  },
+  "model_and_restore_asts_unchanged": {
+    "rank_main": true,
+    "observe_restore": true,
+    "validate_recipe": true,
+    "check_prior": true
+  },
+  "actual_tests": {
+    "passed": 42,
+    "failed": 1,
+    "skipped": 0,
+    "warning": 1,
+    "test_receipt_sha256": "5e50fc69e208abbb89d2c86aa9459d10c88e2c411a19bebbf8dd1badd16b759d",
+    "full_log_sha256": "46d66bb38da85cb04a9cb4d9553020d8a39d525acf6d982760a05bd6ed2d3fab",
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "/mnt/project/VLA-Drive-st-owned-descendants-review-20261017/reports/st_world_policy/20261017/torchrun_descendant_independent_v1/test_independent.py",
+      "/mnt/project/VLA-Drive-st-owned-descendants-review-20261017/reports/st_world_policy/20261017/torchrun_descendant_scope_v1/test_owned_descendants.py",
+      "/mnt/project/VLA-Drive-st-owned-descendants-review-20261017/reports/st_world_policy/20261017/official_T1_native4_execution_v1/test_run_once.py"
+    ]
+  },
+  "failure": {
+    "location": "reports/st_world_policy/20261017/official_T1_native4_execution_v1/run_once.py:169",
+    "trigger": "Both exact-hash review records name /root/st_torchrun_process_scope, the implementation author",
+    "expected": "Reject with Independent adapter reviews required before registration or payload processing",
+    "observed": "Both review checks accepted, then KeyError registration in intentionally incomplete fixture",
+    "fix_scope": "Exclude actual implementation author as well as original adapter author; preserve existing exact helper/adapter/review checksums. No requirement to use different reviewers for two roles."
+  },
+  "verified": [
+    "PPID ancestry rechecked before and after pidfd open; PID/start identity, not SID/cmdline/GPU ownership",
+    "Cross-session root/rank/loader live RSS and rchar included by actual adapter monitor fixture",
+    "Witnessed descendants survive session changes and orphaning; exact pidfd cleanup",
+    "Previously existing unrelated child untouched",
+    "Unwitnessed adopted child is rejected, not claimed or signalled; independent real cross-SID orphan fixture",
+    "Parent and child identity reuse across pidfd acquisition rejected, descriptor closed",
+    "Explicit finite absolute cleanup deadline; expired deadline does not grant new grace",
+    "Terminal post-wait parent counters charge descendants once, without re-adding child counters",
+    "Actual parent_main loads isolated ancestry facade; admissions bind helper and adapter hashes",
+    "Original model/recipe/native restoration function ASTs unchanged"
+  ],
+  "remaining_boundaries": [
+    "Sampled /proc monitoring is not a cgroup hard limit or complete peak guarantee",
+    "Unobserved very short-lived descendants can escape live sampling; reaped IO is included by parent where Linux provides it",
+    "An unwitnessed orphan is fail-closed and deliberately not signalled; operator investigation required",
+    "No GPU, torchrun training, model/images/checkpoints, SSH or actual task signals",
+    "No historical T1 resource peak reconstructed; historical FAIL_LIVE_DESCENDANT_SCOPE remains",
+    "No new native 2-to-4 invocation or resource admission authorised",
+    "Future launch still requires corrected independent approval check and fresh admission/lease/storage/source pins"
+  ],
+  "new_training_dispatched": false,
+  "historical_resource_failure_changed": false,
+  "source_or_active_runtime_mutated": false
+}
