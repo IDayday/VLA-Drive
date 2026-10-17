@@ -1,0 +1,451 @@
+{
+  "schema": "simwam_training_analysis_v3",
+  "analysis_identity": "5ec72ecbe5200c1317dc0afcfd96fa6efcc652c9a8bac73ab0d7bbaa3db09d1e",
+  "cost_analysis_identity": "c31cd24f6a45c88dc0eee7994e39b859430b4a4f497b01b7dbb7541f67b2dedf",
+  "status": "INTERIM_TRAINING_ONLY",
+  "captured_utc": "2026-10-17T07:34:34.983820+00:00",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "variant": "R_SOURCE",
+  "matched_completed_updates": 1020,
+  "observed_updates_by_rank": [
+    1021,
+    1021,
+    1021,
+    1021,
+    1021,
+    1021,
+    1021,
+    1021
+  ],
+  "cumulative": {
+    "first_optimizer_update": 1,
+    "last_optimizer_update": 1020,
+    "actual_global_optimizer_updates": 1020,
+    "fresh_global_rollouts": 255,
+    "scene_exposures": 2040,
+    "new_candidates": 16320,
+    "global_RL_updates": 1020,
+    "global_anchor_only_updates": 0,
+    "local_PG_groups": 2030,
+    "local_PG_group_fraction": 0.9950980392156863,
+    "full_score_groups": 1,
+    "zero_score_groups": 5,
+    "other_tied_groups": 4,
+    "canonical_tied_groups": 10,
+    "zero_final_PG_groups": 10,
+    "progress_only_groups": 1462,
+    "safety_differing_groups": 469,
+    "stochastic_policy_mean": {
+      "canonical_random_mean": 0.8258534784319629,
+      "train_reward_mean": 0.7823539870261562,
+      "NC": 0.9975183823529412,
+      "DAC": 0.9504901960784313,
+      "TTC": 0.9769607843137255,
+      "EP": 0.6781588704321242,
+      "safe_fraction": 0.9294117647058824
+    },
+    "finite_best_safe": {
+      "mean_among_groups_with_safe_candidate": 0.9024809036565563,
+      "defined_groups": 2032,
+      "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+    },
+    "positive_candidate_counts": {
+      "positive_safe": 8806,
+      "positive_still_unsafe": 23,
+      "positive_unsafe_with_safe_alternative": 17
+    },
+    "global_raw_reward_std": {
+      "mean": 0.16802337840266932,
+      "min": 0.02826933799354785,
+      "max": 0.4034762317186502
+    },
+    "first_inner": {
+      "ratio_max_abs_from_one": 0.0,
+      "mean_PPO_clip_fraction": 0.0,
+      "policy_loss_rank_mean": -0.0031002092547828862,
+      "beta50_anchor_loss_rank_mean": 0.0007586290617836425,
+      "mean_gradient_norm": 0.03513505444222806
+    },
+    "inner_updates": {
+      "1": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0031002092547828862,
+        "beta50_anchor_loss_rank_mean": 0.0007586290617836425,
+        "mean_gradient_norm": 0.03513505444222806
+      },
+      "2": {
+        "ratio_max_abs_from_one": 0.009641587734222412,
+        "mean_PPO_clip_fraction": 0.00020424837210014754,
+        "policy_loss_rank_mean": -0.0031816645400984853,
+        "beta50_anchor_loss_rank_mean": 0.0007587512867614981,
+        "mean_gradient_norm": 0.03375948111654497
+      },
+      "3": {
+        "ratio_max_abs_from_one": 0.018569767475128174,
+        "mean_PPO_clip_fraction": 0.00488153608223679,
+        "policy_loss_rank_mean": -0.0032970687321115296,
+        "beta50_anchor_loss_rank_mean": 0.0007585787383461905,
+        "mean_gradient_norm": 0.02733529497887574
+      },
+      "4": {
+        "ratio_max_abs_from_one": 0.026002168655395508,
+        "mean_PPO_clip_fraction": 0.018484477602018445,
+        "policy_loss_rank_mean": -0.0034004059469699057,
+        "beta50_anchor_loss_rank_mean": 0.000758510002230133,
+        "mean_gradient_norm": 0.022829737868525234
+      }
+    },
+    "mean_update_seconds_per_rank": 1.2177040540820956,
+    "source_relative_clamp_hit_rate": 0.00031403187194704445
+  },
+  "windows": [
+    {
+      "first_optimizer_update": 1,
+      "last_optimizer_update": 1000,
+      "actual_global_optimizer_updates": 1000,
+      "fresh_global_rollouts": 250,
+      "scene_exposures": 2000,
+      "new_candidates": 16000,
+      "global_RL_updates": 1000,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 1990,
+      "local_PG_group_fraction": 0.995,
+      "full_score_groups": 1,
+      "zero_score_groups": 5,
+      "other_tied_groups": 4,
+      "canonical_tied_groups": 10,
+      "zero_final_PG_groups": 10,
+      "progress_only_groups": 1434,
+      "safety_differing_groups": 461,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.8253388340358765,
+        "train_reward_mean": 0.7817246765717865,
+        "NC": 0.99746875,
+        "DAC": 0.95025,
+        "TTC": 0.977,
+        "EP": 0.6772584343254252,
+        "safe_fraction": 0.9291875
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.9021569321442925,
+        "defined_groups": 1992,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 8632,
+        "positive_still_unsafe": 23,
+        "positive_unsafe_with_safe_alternative": 17
+      },
+      "global_raw_reward_std": {
+        "mean": 0.16807196311225495,
+        "min": 0.02826933799354785,
+        "max": 0.4034762317186502
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -0.0031622134984742568,
+        "beta50_anchor_loss_rank_mean": 0.0007498366071194238,
+        "mean_gradient_norm": 0.03484831400960684
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -0.0031622134984742568,
+          "beta50_anchor_loss_rank_mean": 0.0007498366071194238,
+          "mean_gradient_norm": 0.03484831400960684
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.009641587734222412,
+          "mean_PPO_clip_fraction": 0.00018750000558793545,
+          "policy_loss_rank_mean": -0.003242994829754014,
+          "beta50_anchor_loss_rank_mean": 0.000750200973903661,
+          "mean_gradient_norm": 0.03355599454790354
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.018569767475128174,
+          "mean_PPO_clip_fraction": 0.00477083346247673,
+          "policy_loss_rank_mean": -0.003357692730914619,
+          "beta50_anchor_loss_rank_mean": 0.0007502758828333662,
+          "mean_gradient_norm": 0.02734818998724222
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.026002168655395508,
+          "mean_PPO_clip_fraction": 0.018312500469386577,
+          "policy_loss_rank_mean": -0.0034611100573856994,
+          "beta50_anchor_loss_rank_mean": 0.0007504426363349554,
+          "mean_gradient_norm": 0.0228968357630074
+        }
+      },
+      "mean_update_seconds_per_rank": 1.2175170971900224,
+      "source_relative_clamp_hit_rate": 0.0003139648529468104
+    },
+    {
+      "first_optimizer_update": 1001,
+      "last_optimizer_update": 1020,
+      "actual_global_optimizer_updates": 20,
+      "fresh_global_rollouts": 5,
+      "scene_exposures": 40,
+      "new_candidates": 320,
+      "global_RL_updates": 20,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 40,
+      "local_PG_group_fraction": 1.0,
+      "full_score_groups": 0,
+      "zero_score_groups": 0,
+      "other_tied_groups": 0,
+      "canonical_tied_groups": 0,
+      "zero_final_PG_groups": 0,
+      "progress_only_groups": 28,
+      "safety_differing_groups": 8,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.8515856982362788,
+        "train_reward_mean": 0.8138195097446441,
+        "NC": 1.0,
+        "DAC": 0.9625,
+        "TTC": 0.975,
+        "EP": 0.7231806757670689,
+        "safe_fraction": 0.940625
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.9186146849672955,
+        "defined_groups": 40,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 174,
+        "positive_still_unsafe": 0,
+        "positive_unsafe_with_safe_alternative": 0
+      },
+      "global_raw_reward_std": {
+        "mean": 0.1655941429233879,
+        "min": 0.08374687235548196,
+        "max": 0.21073125085698236
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": 2.929785663380313e-09,
+        "beta50_anchor_loss_rank_mean": 0.0011982517949945758,
+        "mean_gradient_norm": 0.04947207607328892
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": 2.929785663380313e-09,
+          "beta50_anchor_loss_rank_mean": 0.0011982517949945758,
+          "mean_gradient_norm": 0.04947207607328892
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.005475282669067383,
+          "mean_PPO_clip_fraction": 0.0010416666977107526,
+          "policy_loss_rank_mean": -0.00011515005732203321,
+          "beta50_anchor_loss_rank_mean": 0.0011862669296533567,
+          "mean_gradient_norm": 0.043933809548616407
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.011318683624267578,
+          "mean_PPO_clip_fraction": 0.010416667070239782,
+          "policy_loss_rank_mean": -0.0002658687919570468,
+          "beta50_anchor_loss_rank_mean": 0.0011737215139874025,
+          "mean_gradient_norm": 0.026690544560551643
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.017448008060455322,
+          "mean_PPO_clip_fraction": 0.02708333423361182,
+          "policy_loss_rank_mean": -0.0003652004261802233,
+          "beta50_anchor_loss_rank_mean": 0.0011618782969890161,
+          "mean_gradient_norm": 0.01947484314441681
+        }
+      },
+      "mean_update_seconds_per_rank": 1.2270518986857497,
+      "source_relative_clamp_hit_rate": 0.0003173828219587449
+    }
+  ],
+  "cost": {
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update001000_inner0",
+    "checkpoint_updates": 1000,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 2374.4554081168026,
+      "old_probability": 727.2032049223781,
+      "update": 9740.13677752018,
+      "scoring_wait": 274.7344272248447,
+      "scoring_cpu": 121.5343332644552
+    },
+    "max_rank_wall_seconds_by_phase": {
+      "rollout": 303.35120858438313,
+      "old_probability": 92.83754518255591,
+      "update": 1217.7649131212384,
+      "scoring_wait": 35.54994333535433,
+      "scoring_cpu": 15.482657965272665
+    },
+    "all_rank_phase_seconds": {
+      "rollout": [
+        298.0526143871248,
+        293.2983551044017,
+        293.3529697731137,
+        302.2827768418938,
+        291.003446476534,
+        289.8626598082483,
+        303.25137714110315,
+        303.35120858438313
+      ],
+      "old_probability": [
+        91.2727978490293,
+        90.03124033287168,
+        90.46086154133081,
+        91.79718246124685,
+        89.6069746632129,
+        89.11314460076392,
+        92.0834582913667,
+        92.83754518255591
+      ],
+      "update": [
+        1217.5473032798618,
+        1217.448780067265,
+        1217.408667974174,
+        1217.6748258378357,
+        1217.354266460985,
+        1217.338382665068,
+        1217.7649131212384,
+        1217.599638113752
+      ],
+      "scoring_wait": [
+        35.498345509171486,
+        33.585288217291236,
+        33.4028491564095,
+        35.54994333535433,
+        33.05622782185674,
+        34.35284902155399,
+        34.804278725758195,
+        34.48464543744922
+      ],
+      "scoring_cpu": [
+        15.273341998457909,
+        15.179440500214696,
+        15.125720350071788,
+        15.231927055865526,
+        14.920217776671052,
+        15.030253792181611,
+        15.290773825719953,
+        15.482657965272665
+      ]
+    },
+    "invocation_ledger": {
+      "schema": 3,
+      "provenance": "per-invocation records; RUNNING records are unclosed observations",
+      "cumulative_logical_updates": 1000,
+      "invocation_start_update": 0,
+      "invocation_effective_updates": 1000,
+      "invocation_updates_per_second": 0.5659404116329586,
+      "rate_basis": "last sealed checkpoint in matching invocation",
+      "rate_window_seconds": 1766.9704785961658,
+      "linear_remaining_training_hours": 9.325677525924208,
+      "cumulative_worker_wall_seconds": 14612.539574243128,
+      "invocation_worker_wall_seconds": 14432.093676930293,
+      "preparation_worker_wall_seconds_observed": 180.44589731283486,
+      "workers_missing_preparation_seconds": 0,
+      "aborted_invocation_worker_wall_seconds": 0,
+      "unclosed_invocation_worker_wall_seconds": 14612.539574243128,
+      "rollback_overhead_seconds": null,
+      "save_worker_wall_seconds": 66.52691753208637,
+      "physical_generated_candidates": 16384,
+      "physical_scored_candidates": 16384,
+      "worker_records": 8,
+      "incomplete_invocations": 8,
+      "missing": [
+        "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+        "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+      ],
+      "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+    },
+    "linear_remaining_training_hours": 9.325677525924208,
+    "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+  },
+  "first_behavior_adapter_sha256": [
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91",
+    "3f7bed836e6334efc0988e054a84a10358775747e7fa4161bd4ce50012f34c91"
+  ],
+  "source_files": {
+    "scripts/analysis/constrained_flow_noise/batched_canonical_score.py": "5b368a4b23e8de6891e7f44c8f4a19b26484783224aa95bdcb7e52fe94868dca",
+    "scripts/analysis/simwam_recipe/train.py": "98e53d41d431a3ddc3166477c3533bf157f5af2684d8a6f6e61107358cacc673",
+    "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "3e1b0db9086bea93688c54e9fa379d6089b5264830e87d4c589d665e7be061d3",
+    "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "23a23db9646e6a08d131ca5a2201daabc8528a633f1b2ed0ef6ba492cdd98965",
+    "starVLA/rl/constrained_flow_noise/loading.py": "c4674acc28d04fbf4582f31b256fff48f30b0958d62d884f8f0619ea09fd77ca",
+    "starVLA/rl/simwam_recipe/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/simwam_recipe/checkpoint.py": "998fbf1a3eb4ce438759311c92d2f24c1f0018889019a5ebb0f4cd87cdf6872e",
+    "starVLA/rl/simwam_recipe/collection.py": "06e8783d685a7a6900feddcb92ed7094151e4f7f0637d82a9e7bfcaac32d614d",
+    "starVLA/rl/simwam_recipe/condition.py": "d5e02e4217d86649676968f18bc8d8de2186be3a11e777d47739bce753df5909",
+    "starVLA/rl/simwam_recipe/contracts.py": "c26cc79c4dd071d5e83ef0d018f908d5dbef16ef2c47b2739f5d060565f10d1e",
+    "starVLA/rl/simwam_recipe/data_stream.py": "3ecd4df19a529298b07cdd451cd5e330b4dee956b885facb349db750b190ed8b",
+    "starVLA/rl/simwam_recipe/invocation.py": "1d005733e190032778e58895f432e64b788e4d6cac3766df4d268830cacc5792",
+    "starVLA/rl/simwam_recipe/lineage.py": "27735916776bd77d4c60097a0af5651f299f0888d4c8a9cc47ad54dde63ed621",
+    "starVLA/rl/simwam_recipe/lora_adapter.py": "2a2d50197c94785f386b552f889e10d553dac0766ba6752f78c3968a5feb33a9",
+    "starVLA/rl/simwam_recipe/recovery_state.py": "c4af1576548b802e6219a3cec70239a1cbe4d9de7288cd6129cac90dd1fd98bc",
+    "starVLA/rl/simwam_recipe/reward_readouts.py": "6507e7e4befd75a47612308818bc33a68bf523cc76d87a0b421c372eca671430",
+    "starVLA/rl/simwam_recipe/source_advantages.py": "29c450625f6ccd9025eb9ba1942f08f73ddec14c86e0e9be7f9cbdd19a46db4c",
+    "starVLA/rl/simwam_recipe/trainer_adapter.py": "7fad3760410d4e21fc82e06b0527f75ed6d60385fdd28bfd0745b2d54dbf6dbe",
+    "starVLA/rl/simwam_recipe/vendor/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/simwam_recipe/vendor/action_math.py": "e3f8fe99a1afc0ad9905e59fcd8a1e3f5a9378e2bf07ec0e7463db1a66c62d99",
+    "starVLA/rl/simwam_recipe/vendor/lora.py": "22ec50bc327c45b9a5fab543293b39186bf572dd8d269ceb8acdf1dfe1e5b04d",
+    "starVLA/rl/simwam_recipe/vendor/samplers.py": "dd8dabf42f9d5f7b95b380be22d10b6092a3b1a211c30b214380fb2d24437be9",
+    "starVLA/rl/simwam_recipe/vendor/scheduler_continuous.py": "67eb410317eeadd965af5f241572655344941a48b3569fd3a09cd81ea7a565f7",
+    "starVLA/rl/simwam_recipe/vendor/trainer_math.py": "4ffb7898036606d60fec24fe77b98d2e3036d0730bd0b3c4a3baa33f05036ca6",
+    "scripts/analysis/fm_transfer/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scripts/analysis/fm_transfer/analyze_evaluation.py": "8e30d6d6b77af89d350310a0e9702acaf5810b7849d82490a91c0bf1d4b2012a",
+    "scripts/analysis/fm_transfer/build_hard_manifest.py": "cb8a8ad1398323a935d5f5b215ce56fa07b3f24f0ad0aeb9c6f8840c9f64b706",
+    "scripts/analysis/fm_transfer/compare_checkpoint.py": "d76bf345524bc58b089552ce642e4d820265ae7691781ec9f55aec437fccfa09",
+    "scripts/analysis/fm_transfer/compare_resume.py": "0d79a4dc7e9fabcf34a88e8f31b24f48729f637c8c3ce078241b6f0fcaf4b748",
+    "scripts/analysis/fm_transfer/dispatch_evaluation.py": "2fa90407f52646c883adb4e061918793f007765b6bf3d1be5ad58381dee6a755",
+    "scripts/analysis/fm_transfer/dispatch_rl.py": "8592fe587dc7db8453bfaf25df92a416aa6fec929160f1a9bc638d7281901776",
+    "scripts/analysis/fm_transfer/dispatch_screen.py": "f5830716ff010b7f8baf2804f23242f4740d643462026dff29e46797bd6a76f2",
+    "scripts/analysis/fm_transfer/dispatch_sft.py": "9c9109838d2fb787c7650ba4113cbe535eae9ac63155a994dc1cb6524c3020d5",
+    "scripts/analysis/fm_transfer/evaluate_policy.py": "4609c7b02514ab7b2dbebbe2441106bf3f3f38f7a712eac59548696d02caef0b",
+    "scripts/analysis/fm_transfer/export_policy.py": "70d13e8b7a0690f9d7731c598b0f03c11975398f5930610958e7745482a4dc50",
+    "scripts/analysis/fm_transfer/milestone_controller.py": "28cd798a5e3ee177d64b6a62998cd346afc37a7697361e4af241000675ceb647",
+    "scripts/analysis/fm_transfer/prepare_data.py": "d6f221c8b56a32b61c20f2b803f180cba4742de107c8455894caa09b5b90f31c",
+    "scripts/analysis/fm_transfer/qualify_deployment.py": "f30a9b66d8b19eaa7c5aa87b7588eb3af5cd376a3627edc56c181be0b8066f38",
+    "scripts/analysis/fm_transfer/qualify_math.py": "5eeb2a630b1bff9aaec64ca2c8b615a9eaf89317c1e3a34123b7b82a916046af",
+    "scripts/analysis/fm_transfer/qualify_merged_ode.py": "aaaf86a228c869eb99be955e50b1c0bc01020e2a4bda1a648a2f335672d34d16",
+    "scripts/analysis/fm_transfer/qualify_rl_endpoint.py": "8e00a6be7688cee8fc1d759724b643e23a42a765dff7d39fce72a99b0ea0b571",
+    "scripts/analysis/fm_transfer/qualify_rl_resume.py": "1be91199b8be9766790993ba2f8c0f90ba3b0b94c59658b054dd576810dbca29",
+    "scripts/analysis/fm_transfer/screen_train.py": "aa32ec0006255a1ce43ff3e8425e5eddcf539c4c035deba51fed44970ac7c308",
+    "scripts/analysis/fm_transfer/summarize_sft.py": "ea9dd221b63ed94230e674632b8d805a44d9ec51ff72d435aedb4b3c9a978e58",
+    "scripts/analysis/fm_transfer/train_rl.py": "8138963485bb2a2da876981d9beb1ac8f6181aae45804b556c8903cc0ae99002",
+    "scripts/analysis/fm_transfer/train_sft.py": "1bcacb49426437d36834a8d46cc9b529ee05a34b8d0f36bb8f498196249bb98f",
+    "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+    "starVLA/rl/constrained_flow_noise/condition_cache.py": "cdc23914418970cace61ded103e6513e989432a61bf329bea5320e92feb4e7bd",
+    "starVLA/rl/flow_grpo/config.py": "37b08c1ad77664c02128472640e3388551f800c2d57f70a9a836d108c394d79f",
+    "starVLA/rl/flow_grpo/data.py": "308d5ec0b74c867b2cf92ade90b5e3b4222bce9a13835c0aedff135dc6b16395",
+    "starVLA/rl/flow_grpo/reproducibility.py": "92fb9a1e8c4552894b578ed54938af3ad781ec66a649ab994007e7ba9607634c",
+    "starVLA/rl/flow_grpo/transactions.py": "80065e99903dd4dcb5c1ac3d854673824e49d3a08ca78b8f9cb36a91a98780ec",
+    "starVLA/rl/fm_transfer/__init__.py": "9a38b8671d3ee4ae2446168a9009040c388279bb4de7aaeb469e0e8e0b418fe1",
+    "starVLA/rl/fm_transfer/checkpoint.py": "eac2522f5c6f3eb74c4a4b42a5f65758d0672164339629775ab4b112539434bc",
+    "starVLA/rl/fm_transfer/contracts.py": "aa5823ea2b35cfd97c2df1de6b2c3fcb9727b74a2ff9b6b0b37d650dd318f88f",
+    "starVLA/rl/fm_transfer/data.py": "c5696d3b3a5b7bc3d85f69118a87f9a686006a15c1487376cd5cab5cb2bf540f",
+    "starVLA/rl/fm_transfer/deployment.py": "2496d7c7e4a7afe62def3977ae3e44fae82962717b0a1533ab7224c5f311e4f6",
+    "starVLA/rl/fm_transfer/model.py": "aa9c2341fc6e72928d2973be43818dff9596fb91f120922b2390da20b7af87a5",
+    "starVLA/rl/fm_transfer/rl_adapter.py": "0c043f5ea501782cf6e125c371d8ba21dfe0f71f3c278b5647a5542e6aa1d2fb",
+    "starVLA/rl/fm_transfer/rl_runtime.py": "6e67ef6883991f1a3d0657eeabb3bdae61c5ac2f6962bcc98c4179829d1b91e2",
+    "starVLA/rl/fm_transfer/vendor/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starVLA/rl/fm_transfer/vendor/action_blocks.py": "ad7938be36daba185ff15f8d394c0fb336af4ba2fea61c3234d3a34bc8da408d",
+    "starVLA/rl/fm_transfer/vendor/action_dit.py": "6786e04cd09a87a04ec3cb9b98ffd25df4f222f09db25485a4f903b3d93f6e34",
+    "starVLA/rl/fm_transfer/vendor/gradient.py": "2653b2fd6310faaec6b4f7ba743e975c996a8ef0dc84788479b0111b5c309abf"
+  },
+  "limits": [
+    "Stochastic G8 scores are not original single-ODE deployment scores.",
+    "The fixed hard scene list changes training population; do not compare this mean with full-TRAIN or DEV.",
+    "A repeated group across four inner updates contributes only one fresh sample group.",
+    "Global update count uses all ranks, not rank0 local PG activity.",
+    "Window changes also include scene mix; matched fixed-population ODE evaluation determines efficacy."
+  ]
+}
