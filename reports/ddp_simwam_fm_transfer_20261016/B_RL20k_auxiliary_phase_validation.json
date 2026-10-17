@@ -1,0 +1,155 @@
+{
+  "status": "PASS_ENDPOINT_PHASE_GUARDS_REAL_SEALS_AND_NEGATIVES",
+  "utc_unix": 1792239427.1651173,
+  "checks": [
+    {
+      "script": "run.py",
+      "case": "real_A20k_COMPLETE",
+      "rejected": false,
+      "expected_rejection": false
+    },
+    {
+      "script": "run.py",
+      "case": "real_B10k_READY",
+      "rejected": true,
+      "expected_rejection": true
+    },
+    {
+      "script": "run.py",
+      "case": "synthetic_20k_READY",
+      "rejected": true,
+      "expected_rejection": true
+    },
+    {
+      "script": "run.py",
+      "case": "wrong_world",
+      "rejected": true,
+      "expected_rejection": true
+    },
+    {
+      "script": "capture_cost.py",
+      "case": "real_A20k_COMPLETE",
+      "rejected": false,
+      "expected_rejection": false
+    },
+    {
+      "script": "capture_cost.py",
+      "case": "real_B10k_READY",
+      "rejected": true,
+      "expected_rejection": true
+    },
+    {
+      "script": "capture_cost.py",
+      "case": "synthetic_20k_READY",
+      "rejected": true,
+      "expected_rejection": true
+    },
+    {
+      "script": "capture_cost.py",
+      "case": "wrong_world",
+      "rejected": true,
+      "expected_rejection": true
+    }
+  ],
+  "scripts": {
+    "run.py": {
+      "parent_sha256": "9e97ac84e1381d58b18987659f5ca3579a0e56e7ad48432bf8fec8711c773637",
+      "sha256": "92e9b25a4c54069d13631879c09a09cc2898d070c37fb7a6c14647e24cc3ab11",
+      "diff": [
+        "--- v1/run.py\n",
+        "+++ v2/run.py\n",
+        "@@ -3,7 +3,7 @@\n",
+        " from starVLA.rl.flow_grpo.transactions import atomic_json",
+        " ROOT=pathlib.Path('/mnt/project/fm-transfer-20261016')",
+        " SOURCE=ROOT/'source/fd440275edc3fdf40b2aaa46c38da1d038068902'",
+        "-OUT=ROOT/'resources/B_RL_20k_saved_batch_dispatch_20261017'",
+        "+OUT=ROOT/'resources/B_RL_20k_saved_batch_dispatch_20261017_v2'",
+        " CHECKPOINT=ROOT/'runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0'",
+        " RESULT=ROOT/'analysis/B_SOURCE_ACTION_DIT_RL_update020000_saved_batch.json'",
+        " SNAPSHOT=ROOT/'analysis/B_SOURCE_ACTION_DIT_RL_update020000_progress_snapshot.json'",
+        "@@ -19,7 +19,7 @@\n",
+        "         host=require_dispatch()",
+        "         if (CHECKPOINT/'COMPLETE').exists():",
+        "             seal=json.loads((CHECKPOINT/'COMPLETE').read_text())",
+        "-            if seal['updates']!=20000 or seal['phase']!='READY' or seal['world']!=8 or seal['next_inner']!=0:",
+        "+            if seal['updates']!=20000 or seal['phase']!='COMPLETE' or seal['world']!=8 or seal['next_inner']!=0:",
+        "                 raise ValueError('Unexpected registered milestone boundary')",
+        "             progress=json.loads((ROOT/'runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/progress.json').read_text())",
+        "             if not SNAPSHOT.exists():"
+      ]
+    },
+    "capture_cost.py": {
+      "parent_sha256": "40cea834ecfd20b443a62c6ab65ae8f460266d918138f43a76c32062e37e29eb",
+      "sha256": "09e5d30745a73c4a420c66e04897b1b47bdf7e441586ec1ae2afe4a4fe640519",
+      "diff": [
+        "--- v1/capture_cost.py\n",
+        "+++ v2/capture_cost.py\n",
+        "@@ -3,7 +3,7 @@\n",
+        " from starVLA.rl.simwam_recipe.contracts import file_sha",
+        " from starVLA.rl.flow_grpo.transactions import atomic_json",
+        " ROOT=pathlib.Path('/mnt/project/fm-transfer-20261016');RUN=ROOT/'runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1'",
+        "-OUT=ROOT/'resources/B_RL_20k_saved_batch_dispatch_20261017'",
+        "+OUT=ROOT/'resources/B_RL_20k_saved_batch_dispatch_20261017_v2'",
+        " TARGET=ROOT/'analysis/B_SOURCE_ACTION_DIT_RL_update020000_invocation_cost_snapshot.json'",
+        " started=time.time();record=dict(status='WAITING_FOR_EXACT_20K_SAVE_COUNTERS',pid=os.getpid(),start_ticks=int(pathlib.Path('/proc/self/stat').read_text().split()[21]),start_unix=started,deadline_unix=started+21600)",
+        " if TARGET.exists() or (OUT/'cost_capture.status.json').exists():raise RuntimeError('Existing cost capture; no duplicate')",
+        "@@ -12,7 +12,7 @@\n",
+        "   require_dispatch();progress=json.loads((RUN/'progress.json').read_text())",
+        "   if progress['updates']==20000:",
+        "    checkpoint=pathlib.Path(progress['checkpoint']);seal=json.loads((checkpoint/'COMPLETE').read_text())",
+        "-   if seal['updates']!=20000 or seal['phase']!='READY' or seal['world']!=8 or file_sha(checkpoint/'files.json')!=seal['files_sha256']:raise ValueError('Unsealed milestone')",
+        "+   if seal['updates']!=20000 or seal['phase']!='COMPLETE' or seal['world']!=8 or file_sha(checkpoint/'files.json')!=seal['files_sha256']:raise ValueError('Unsealed milestone')",
+        "    paths=[RUN/'invocations'/progress['invocation']/f'rank{i}.json' for i in range(8)]",
+        "    items=[json.loads(p.read_text()) for p in paths]",
+        "    if all(x['last_legal_checkpoint']==str(checkpoint) and x['run']==items[0]['run'] and x['start_update']==0 for x in items):"
+      ]
+    }
+  },
+  "source": "/mnt/project/fm-transfer-20261016/source/fd440275edc3fdf40b2aaa46c38da1d038068902",
+  "training_changed": false,
+  "evaluation_changed": false,
+  "new_candidates": 0,
+  "optimizer_updates": 0,
+  "parent_waiters_stopped": [
+    {
+      "script": "run.py",
+      "pid": 519914,
+      "start_ticks": 1367756251,
+      "start_unix": 1792238949.3407896,
+      "prior_status": "WAITING_FOR_SEALED_20K",
+      "signal": "SIGTERM",
+      "observed_command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python /mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017/run.py "
+    },
+    {
+      "script": "capture_cost.py",
+      "pid": 519915,
+      "start_ticks": 1367756251,
+      "start_unix": 1792238949.3425357,
+      "prior_status": "WAITING_FOR_EXACT_20K_SAVE_COUNTERS",
+      "signal": "SIGTERM",
+      "observed_command": "/mnt/project/flow-safe-improvement-20261013/venv/bin/python /mnt/project/fm-transfer-20261016/resources/B_RL_20k_saved_batch_dispatch_20261017/capture_cost.py "
+    }
+  ],
+  "public_schema": "fm_transfer_endpoint_auxiliary_phase_fix_v1",
+  "replacement_waiters": [
+    {
+      "script": "run.py",
+      "pid": 521880,
+      "start_ticks": 1367804034,
+      "start_unix": 1792239427.1699731,
+      "status": "WAITING_FOR_SEALED_20K"
+    },
+    {
+      "script": "capture_cost.py",
+      "pid": 521881,
+      "start_ticks": 1367804034,
+      "start_unix": 1792239427.172993,
+      "status": "WAITING_FOR_EXACT_20K_SAVE_COUNTERS"
+    }
+  ],
+  "verification_unix": 1792239491.5988538,
+  "target_result_exists": false,
+  "preserved_original_scripts": true,
+  "original_waiters_exited": true,
+  "source_qualification_sha256": "db62f820bdba9fdcca3c6d84877632a4770d734d7c3e609f836b05516e725e0e"
+}
