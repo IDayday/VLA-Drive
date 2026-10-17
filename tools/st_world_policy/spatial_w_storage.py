@@ -310,7 +310,8 @@ def validate_package(core, declarations):
         b._fail('frozen W package exceeds one GiB')
     for key in ('baseline_policy_sha256', 'baseline_ledger_sha256', 'metadata_package_sha256'):
         b._hash(package[key], key)
-    if b._digest(core['metadata_package']) != package['metadata_package_sha256']:
+    from tools.st_world_policy.metadata_storage import original_package
+    if b._digest(original_package(core['metadata_package'])) != package['metadata_package_sha256']:
         b._fail('frozen W changed original metadata package')
     baseline = package['baseline_claims']
     if not isinstance(baseline, dict) or any(declarations.get(root) != row for root,row in baseline.items()):

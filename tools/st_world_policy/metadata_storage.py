@@ -22,9 +22,11 @@ from tools.st_world_policy import cache_storage_budget as b
 
 MIB = 1 << 20
 PACKAGE_MAX = 4 * b.GIB
+FULL_METADATA_PACKAGE_MAX = 8 * b.GIB
 CONTROL_LIMIT = 16 * MIB
 REG_SCHEMA = "st_metadata_build_registration_v1"
 PACKAGE_SCHEMA = "st_metadata_storage_package_v1"
+FULL_METADATA_PACKAGE_SCHEMA = "st_metadata_storage_package_v2"
 MIGRATION_SCHEMA = "st_metadata_storage_migration_v1"
 
 
@@ -129,13 +131,34 @@ def _registration(row):
     return reg
 
 
+def original_package(package):
+    """Verify the sole explicit 4→8 GiB metadata-envelope version transition.
+
+    Keep the old package identity available to frozen-W claims. This does not
+    enlarge a claim, the campaign cache cap, checkpoint allowance or RAM limit.
+    Old v1 policies retain their original four-GiB ceiling.
+    """
+    if package.get("schema") == PACKAGE_SCHEMA:
+        return package
+    if package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA:
+        b._fail("unknown metadata package")
+    if type(package.get("maximum_bytes")) is not int or package["maximum_bytes"] != FULL_METADATA_PACKAGE_MAX:
+        b._fail("metadata v2 requires the exact eight-GiB envelope")
+    previous_sha = package.get("previous_package_sha256")
+    b._hash(previous_sha, "original metadata package")
+    previous = {k: v for k, v in package.items() if k != "previous_package_sha256"}
+    previous.update(schema=PACKAGE_SCHEMA, maximum_bytes=PACKAGE_MAX)
+    if b._digest(previous) != previous_sha:
+        b._fail("metadata v2 changed its original package baseline")
+    return previous
+
+
 def validate_package(core, declarations):
     """Called on every original StorageBudget lock acquisition after migration."""
     package = core["metadata_package"]
-    if package.get("schema") != PACKAGE_SCHEMA:
-        b._fail("unknown metadata package")
+    original_package(package)
     maximum = b._integer(package.get("maximum_bytes"), "metadata package maximum", positive=True)
-    if maximum > PACKAGE_MAX:
+    if package["schema"] == PACKAGE_SCHEMA and maximum > PACKAGE_MAX:
         b._fail("metadata package exceeds four GiB")
     old_claims = package["baseline_claims"]
     old_legacy = package["baseline_legacy_reservations"]
@@ -214,8 +237,14 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
         b._fail("migration requires one bounded metadata package")
     if "metadata_package" in old.core:
         if package != old.core["metadata_package"]:
-            b._fail("migration changed original metadata package baseline")
-    elif (package["baseline_claims"] != old.declarations or
+            previous = old.core["metadata_package"]
+            if (previous.get("schema") != PACKAGE_SCHEMA or
+                    previous.get("maximum_bytes") != PACKAGE_MAX or
+                    package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA or
+                    original_package(package) != previous):
+                b._fail("migration changed original metadata package baseline")
+    elif (package.get("schema") != PACKAGE_SCHEMA or
+          package["baseline_claims"] != old.declarations or
           package["baseline_legacy_reservations"] != old.core["legacy_reservations"] or
           package["baseline_policy_sha256"] != old_policy_sha256 or
           package["baseline_ledger_sha256"] != expected_old_ledger_sha256):
