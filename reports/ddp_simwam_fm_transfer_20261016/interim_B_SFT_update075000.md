@@ -4,6 +4,12 @@
 
 **DEV原生PDMS为93.147534，shift5为93.334612，相对50k分别−0.318288/−0.268381个百分点；两个log聚类配对区间均跨零。** TRAIN诊断分别提高1.368624/2.798291个百分点，只有shift5的区间高于零。B仍在SFT，继续固定100k终点；尚无本组正式RL或最终Navtest结论。
 
+![B组已完成SFT阶段的单候选分数、联合违规与零分曲线](B_SFT_learning_through_75k.png)
+
+[独立PDF](B_SFT_learning_through_75k.pdf)和[绘图输入/hash](B_SFT_learning_through_75k.json)包含全部0/10k/25k/50k/75k记录。为显示训练后的变化，曲线从10k起，随机初始化分数在图中单列，100k明确缺失；不外推、不挑较高网格。下排是各完整人口的失败总数，不是相对50k新增违规。上排只画点均值，配对区间见下表，不能由连线认定统计显著性。
+
+绘图复用原入口的新增`--view learning`，默认配对增益视图保持；源码`15f90a1d2e919945164701c0f85878499cc195b2`。已核对10份人口摘要、SFT/export身份和输入hash，实际绘图坐标逐项等于保存数值，终图已目视检查。中间布局及绘图格式问题在发布前修正，中间文件保留在私有analysis目录；本图未修改任何评分、模型或正式执行快照，新增推理/评分/更新均为0。
+
 补充的[已有轨迹安全转移分析](B_SFT75k_safety_transition_analysis.md)定位到：每网格11个新增DAC分别贡献总G−的78.59%/70.87%，主要集中在3/4个logs；这些轨迹多数前进更少、平均速度更低。该分析新增推理/评分为0，不改变本报告的分数或配对区间。
 
 ## 固定观察点的单候选结果
@@ -80,4 +86,14 @@ DEV/诊断分别在rl-zt2/tsinghua-zt4各8卡并行；这两项是既定评价�
 python -m scripts.analysis.fm_transfer.analyze_evaluation --evaluation /mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update075000_DEV --reference /mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update050000_DEV --output /mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_DEV_paired_50k.json
 python -m scripts.analysis.fm_transfer.analyze_evaluation --evaluation /mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update075000_TRAIN_DIAGNOSTIC --reference /mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update050000_TRAIN_DIAGNOSTIC --output /mnt/project/fm-transfer-20261016/analysis/B_SOURCE_ACTION_DIT_SFT_update075000_TRAIN_DIAGNOSTIC_paired_50k.json
 python -m scripts.analysis.fm_transfer.analyze_grid_gap --evaluation /mnt/project/fm-transfer-20261016/evaluations/B_SOURCE_ACTION_DIT_SFT_update075000_DEV --output /mnt/project/fm-transfer-20261016/analysis/B_SFT75k_DEV_native_minus_shift5.json
+```
+
+新增曲线命令已在上述绘图提交执行，CPU-only；历史输出不覆盖，再次执行应指定新输出名：
+
+```bash
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  /mnt/project/flow-safe-improvement-20261013/venv/bin/python \
+  -m scripts.analysis.fm_transfer.plot_supervised_progress \
+  --variant B_SOURCE_ACTION_DIT --view learning \
+  --output /mnt/project/fm-transfer-20261016/analysis/B_SFT_learning_through_75k_v3.png
 ```
