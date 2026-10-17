@@ -244,7 +244,11 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
             while True:
                 active=owner.discover();done=owner.leader_done()
                 if stopped['signal'] is not None:failure=failure or 'SUPERVISOR_SIGNAL_'+str(stopped['signal'])
-                if done and active:failure=failure or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
+                if done and active:
+                    # discover() may have seen the leader just before it exited.
+                    # Revalidate all pidfd-owned identities after WNOWAIT confirms exit.
+                    active=owner.discover()
+                    if active:failure=failure or 'OWNED_DESCENDANTS_AFTER_LEADER_EXIT'
                 if not active and not selector.get_map():
                     try:terminal_io=owned_proc_io(owner,s)
                     except Exception as exc:
