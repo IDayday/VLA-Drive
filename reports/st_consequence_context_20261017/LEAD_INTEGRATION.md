@@ -28,3 +28,13 @@ teacher, optimizer and approvals are unaffected by this separate C metadata fix.
 No active worktree or historical checkpoint was changed. The canonical simulator
 and scorer, reference inputs, scoring configuration, and model training losses
 are unchanged.
+
+Independent review found the same mixed-input/output comparison in
+`evaluate_campaign.analyze`. Its ledger reader now validates every v2 reference
+input and execution array against the exported, hash-checked trajectory; paired
+analysis compares only those validated inputs. Legacy incomplete records remain
+rejected. Additional tests cover two complete ledgers with identical inputs and
+different valid executed-reference hashes, changed inputs, one-ULP corruption,
+and a missing v2 contract. The evaluation suite passed **25 tests** in 3.71 seconds
+(one dependency warning); full output is `LEAD_EVALUATION_INTEGRATION_TEST.log`
+beside the integration log above. No additional native scoring calls were used.

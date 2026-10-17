@@ -17,7 +17,8 @@ import sys
 import numpy as np
 
 from starVLA.model.modules.st_world.consequence import (
-    METRICS, STATE_COLUMNS, file_sha256, fingerprint, trajectory_sha256,
+    ConsequenceRequest, METRICS, STATE_COLUMNS, file_sha256, fingerprint, trajectory_sha256,
+    validated_reference_input,
 )
 
 
@@ -119,7 +120,7 @@ def _formal_binding(plan, arm, export, stage):
         raise ValueError("Arm, common endpoint or common LR schedule differs")
 
 
-def _read_ledger(root, score, requests, csv_rows):
+def _read_ledger(root, score, requests, csv_rows, predictions):
     """Read trusted local scorer receipts. Do not reconstruct scores from means."""
     import torch
     torch.set_num_threads(2)
@@ -183,6 +184,8 @@ def _read_ledger(root, score, requests, csv_rows):
             if (reference["full_cache_sha256"] != request["metric_cache_sha256"]
                     or reference["score_protocol_hash"] != request["score_protocol_hash"]):
                 raise ValueError("Saved canonical reference differs")
+            validated_reference_input(result, ConsequenceRequest(
+                **request, trajectory=predictions[scene]))
             records[scene] = result
     if set(records) != set(requests):
         raise ValueError("Ledger does not cover the complete evaluation population")
@@ -275,7 +278,7 @@ def load_run(score_root, export_root, selected, population_path, plan, scope, ar
         if trajectory_sha256(trajectory) != request["trajectory_sha256"]:
             raise ValueError("Scored trajectory differs from the exported prediction")
         predictions[scene] = trajectory
-    records, attempts = _read_ledger(score_root, score, requests, rows)
+    records, attempts = _read_ledger(score_root, score, requests, rows, predictions)
     return {"export": export, "score": score, "rows": rows, "requests": requests,
             "records": records, "predictions": predictions, "failed_attempts": attempts,
             "score_root": str(score_root.resolve()), "export_root": str(export_root.resolve()),
@@ -430,7 +433,7 @@ def analyze(plan, population_path, control_score, control_export, treatment_scor
     for scene in a["rows"]:
         if (a["requests"][scene]["metric_cache_sha256"] != b["requests"][scene]["metric_cache_sha256"]
                 or a["records"][scene]["context_hash"] != b["records"][scene]["context_hash"]
-                or a["records"][scene]["reference_identity"] != b["records"][scene]["reference_identity"]):
+                or a["records"][scene]["reference_contract"]["input"] != b["records"][scene]["reference_contract"]["input"]):
             raise ValueError("Paired canonical context/reference changed")
     da = trajectory_diagnostics(a, selected, plan)
     db = da if b is a else trajectory_diagnostics(b, selected, plan)

@@ -3,6 +3,7 @@ import copy
 import csv
 import json
 from pathlib import Path
+import shutil
 import sys
 
 import numpy as np
@@ -11,7 +12,8 @@ import torch
 
 from starVLA.dataloader.foresight_dataset import decode_ego
 from starVLA.model.modules.st_world.consequence import (
-    METRICS, STATE_COLUMNS, file_sha256, fingerprint, trajectory_sha256,
+    ConsequenceRequest, METRICS, STATE_COLUMNS, file_sha256, fingerprint, trajectory_sha256,
+    _reference_evidence,
 )
 from tools.st_world_policy import evaluate_campaign as evaluation
 
@@ -88,7 +90,8 @@ def campaign(tmp_path):
         receipts.append({"token": token, "receipt_sha256": file_sha256(path.with_suffix(".json"))})
         context = tmp_path / "unread_cache" / (token + ".pkl")
         contexts.append({"token": token, "log": log, "cache_path": str(context)})
-        request = {"scene_id": token, "source_log": log, "metric_cache_path": str(context),
+        request = {"campaign_id": "fixture", "repetition": 0, "reference_sha256": None,
+                   "scene_id": token, "source_log": log, "metric_cache_path": str(context),
                    "metric_cache_sha256": fingerprint(token), "candidate_id": "single_policy", "generator_kind": "policy",
                    "policy_version": checkpoint["sha256"], "generator_checkpoint_sha256": "c" * 64,
                    "generator_source_hash": fingerprint(checkpoint["deployment_source_contract"]),
@@ -101,7 +104,10 @@ def campaign(tmp_path):
         records.append({"valid": True, "status": "VALID_SCORED", "identity": request,
                         "metrics": values, "metrics_valid": {k: True for k in METRICS},
                         "context_unchanged": True, "context_hash": fingerprint([token, log]),
-                        "reference_identity": {"full_cache_sha256": fingerprint(token), "score_protocol_hash": protocol["sha256"]},
+                        "requested_trajectory": trajectory.copy(),
+                        **_reference_evidence(ConsequenceRequest(**request, trajectory=trajectory),
+                            fingerprint([token, log]), states.copy(), np.stack((states, states)),
+                            {"dependencies": {"numpy": "fixture", "scipy": "fixture", "shapely": "fixture"}}),
                         "progress": {"raw_meters": 6., "reference_raw_meters": 7.},
                         "executed_states": states, "state_columns": STATE_COLUMNS,
                         "executed_state_times_seconds": np.arange(41) * .1})
@@ -170,6 +176,45 @@ def test_real_shape_receipts_aa_are_zero_and_csv_order_is_irrelevant(campaign):
     assert not (campaign["tmp"] / "unread_cache").exists()  # Cache payloads were never needed.
 
 
+@pytest.mark.parametrize("change", ["execution", "input", "corrupt_execution", "legacy"])
+def test_paired_analysis_validates_input_and_each_execution_separately(campaign, change):
+    """Two complete synthetic ledgers, same predictions; no scoring is run."""
+    alternate = campaign["tmp"] / "score_other"
+    shutil.copytree(campaign["score"], alternate)
+    other = dict(campaign, score=alternate,
+        attempt=alternate / campaign["attempt"].relative_to(campaign["score"]),
+        records=copy.deepcopy(campaign["records"]))
+    row = other["records"][0]
+    request = ConsequenceRequest(**row["identity"], trajectory=row["requested_trajectory"])
+    reference = row["reference_interpolated_states"].copy()
+    executed = np.stack((row["reference_executed_states"], row["executed_states"]))
+    if change == "input":
+        reference[7, 9] = np.nextafter(reference[7, 9], np.inf)
+    else:
+        executed[0, 7, 9] = np.nextafter(executed[0, 7, 9], np.inf)
+    row.update(_reference_evidence(request, row["context_hash"], reference, executed,
+        {"dependencies": row["reference_identity"]["software_identity"]}))
+    if change == "corrupt_execution":
+        row["reference_executed_states"][7, 9] += 1
+    elif change == "legacy":
+        row.pop("reference_contract")
+    update_records(other)
+
+    def compare():
+        return evaluation.analyze(campaign["plan"], campaign["population"],
+            campaign["score"], campaign["export"], alternate, campaign["export"],
+            scope="SMOKE", comparison="SMOKE_AA", stage="SMOKE")
+
+    if change == "execution":
+        result, _ = compare()
+        assert result["statistics"]["metrics"]["score"]["delta"]["mean"] == 0
+    else:
+        match = {"input": "Paired canonical context/reference", "corrupt_execution": "checksum",
+                 "legacy": "legacy records require explicit re-scoring"}[change]
+        with pytest.raises(ValueError, match=match):
+            compare()
+
+
 @pytest.mark.parametrize("change,match", [
     ("missing", "missing scenes"), ("duplicate", "duplicate scene"), ("extra", "extra scenes"),
     ("log", "foreign log"), ("nan", "Nonfinite"), ("range", "out-of-range"),
@@ -191,7 +236,7 @@ def test_forged_complete_csv_cannot_shrink_relabel_or_reconstruct_population(cam
 @pytest.mark.parametrize("change,match", [
     ("invalid", "Invalid/unresolved"), ("metric_valid", "Invalid/unresolved"),
     ("mutated_context", "Invalid/unresolved"), ("reference", "reference differs"),
-    ("missing_record", "Missing saved"), ("state_nan", "state/time/units"),
+    ("missing_record", "Missing saved"), ("state_nan", "Invalid/missing exact native array"),
 ])
 def test_ledger_failures_are_never_zeros_or_ignored_scenes(campaign, change, match):
     record = campaign["records"][0]
