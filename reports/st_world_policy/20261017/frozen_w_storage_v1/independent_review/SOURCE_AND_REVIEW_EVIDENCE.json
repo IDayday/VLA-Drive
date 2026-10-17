@@ -1,0 +1,81 @@
+{
+  "actual_migration_admission": "WAITING_FRESH_EXACT_EVIDENCE",
+  "actual_sp0_extraction_admission": "WAITING_FRESH_EXACT_EVIDENCE",
+  "checked_at_unix": 1792218380.6678472,
+  "cli_extract_help": "PASS; both --checkpoint-commitments and --checkpoint-commitments-sha256 present",
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "cuda_visible_devices": "",
+  "evidence_pins": {
+    "REGRESSION.log": "eddda5e43f8819bae59e2cca660d38b0b3e55671efb6de99077c45d6e5f94d89",
+    "SUPPLEMENTAL.log": "7879f809e7250ddb7ecf1c1f31849b4039ad9b52905b360f1fa602a0d76e0825"
+  },
+  "formal_training_admission": false,
+  "gpu_jobs": 0,
+  "live_policy_reads": 0,
+  "real_ledger_mutations": 0,
+  "real_native_payload_reads": 0,
+  "real_observation_reads": 0,
+  "real_w_extractions": 0,
+  "review_runtime_commit": "5378290266e0870be083703dc3d0fcb749c2799a",
+  "runtime": "/root/miniconda3/envs/ddp/bin/python",
+  "schema": "st_frozen_w_independent_resource_code_review_v1",
+  "source_pins": {
+    "reports/st_world_policy/20261017/frozen_w_storage_v1/independent_review/test_independent_boundaries.py": {
+      "bytes": 7690,
+      "sha256": "814b6619a28b8e03e722937d115f8a0f2d895b4ac7130777a7fca9c8b6cb0c54"
+    },
+    "starVLA/dataloader/st_world_observation.py": {
+      "bytes": 4312,
+      "sha256": "135d6a4936627a8a8fcb92ac579c3b867970f574631eeff2be31e9ad55d94a49"
+    },
+    "tests/st_world/test_spatial_probe_checkpoint_reserve.py": {
+      "bytes": 4048,
+      "sha256": "c6b7f5f6986600f70f0f6879b6b9cd8b7948433d3092a565ba09b96916e2f5a0"
+    },
+    "tests/st_world/test_spatial_w_storage.py": {
+      "bytes": 25318,
+      "sha256": "7699c02e51f2de7a23825e8b1f10c1a3ffb5191599f2a00b39323f3cabedabc8"
+    },
+    "tools/st_world_policy/cache_storage_budget.py": {
+      "bytes": 19224,
+      "sha256": "2103a082271706513127404b35fb1ff9154309b5e5fbe56306b8e831a509b1d5"
+    },
+    "tools/st_world_policy/checkpoints.py": {
+      "bytes": 8535,
+      "sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4"
+    },
+    "tools/st_world_policy/metadata_storage.py": {
+      "bytes": 42078,
+      "sha256": "4972a7b89647c7195ce567da00447f3224b0b4cc28d9d942b6c7c88a5715fd3c"
+    },
+    "tools/st_world_policy/spatial_probe.py": {
+      "bytes": 38869,
+      "sha256": "e5d9e4306aae8311aefea9c8cc8ee777fd88424b412abcc6003128c6c7e0a20f"
+    },
+    "tools/st_world_policy/spatial_w_storage.py": {
+      "bytes": 18858,
+      "sha256": "0f961d51a196d400852e7cb03b13e3d6822cb77869f8a3ffb44900da2b70fa87"
+    }
+  },
+  "status": "PASS_SOURCE_AND_CPU_BOUNDARY",
+  "supplemental_commit": "5114055f36596ab1b5d109c456024c74280f330f",
+  "target_commit": "7cb76144cd4cc0bfa64fbc46284b0470f9a31dd5",
+  "tensor_numerical_qualification": false,
+  "test_counts_additive": false,
+  "tests": [
+    {
+      "log": "REGRESSION.log",
+      "result": "155 passed, 1 warning in 13.55s",
+      "scope": "Original typed-W and storage/spatial regression"
+    },
+    {
+      "log": "SUPPLEMENTAL.log",
+      "result": "79 passed, 1 warning in 13.69s",
+      "scope": "Supplemental checkpoint-floor wiring and affected paths plus 7 independent tests"
+    }
+  ],
+  "throughput_qualification": false
+}
