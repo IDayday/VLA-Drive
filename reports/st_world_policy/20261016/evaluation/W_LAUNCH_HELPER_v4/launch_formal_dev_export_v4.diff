@@ -1,0 +1,105 @@
+--- /mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py
++++ /mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/W_LAUNCH_HELPER_v4/launch_formal_dev_export_v4.py
+@@ -198,0 +199,97 @@
++
++
++# Exact W launch supplement; training remains fdf25f99, evaluation remains6714.
++W_ARMS_V4 = ('SP0', 'SP1', 'SP2', 'SP3')
++W_TRAINING_SOURCE_V4 = 'fdf25f99b702754787904215bf1c2a2b7515ea75'
++W_TRAINING_RUNTIME_V4 = '/mnt/project/VLA-Drive-st-official-runtime-v2-20261016'
++W_LAUNCH_SUPPLEMENT_V4 = {
++    'path': str(PREP.parent / 'W_LAUNCH_HELPER_v4/W_LAUNCH_BINDINGS.json'),
++    'sha256': 'e57d2219bc79b738d3305683181c49a12d865f3892acad35dafefbbf160bbd53',
++}
++
++
++def read_w_launch_control_v4(pin):
++    # Only the small supplement/registration/config/approval/launch controls.
++    # The original large W identity is retained by reference, never read here.
++    with Path(pin['path']).open('rb') as handle:
++        data = handle.read(1024 * 1024 + 1)
++    assert len(data) <= 1024 * 1024, 'W launch control exceeds metadata bound'
++    assert hashlib.sha256(data).hexdigest() == pin['sha256'], 'Changed W launch control pin'
++    return json.loads(data)
++
++
++def validate_w_launch_v4(job, binding, registration, config, approval, launch):
++    arm = job['arm']
++    assert arm in W_ARMS_V4 and binding['arm'] == arm
++    assert job['job_id'] == binding['job_id'] == f'{arm}_step005000_dev1696_seed42_v1'
++    assert job['stage'] == 'SCREENING' and job['expected_completed'] == 5000
++    assert job['export_world_size'] == 1 and job['export_rank'] == 0
++    assert job['training_world_size'] == 4
++    assert job['runtime_identity'] == binding['runtime_identity']
++    original = job['training_binding']
++    assert binding['launch']['path'] == str(Path(binding['registration']['path']).parent / 'LAUNCH.json')
++    for key in ('registration', 'approval', 'run_identity_file'):
++        assert original[key] == binding[key], 'Changed original W binding: ' + key
++    if 'launch' in original:
++        assert original['launch'] == binding['launch'], 'Changed existing W launch pin'
++    assert job['training_config'] == binding['config'] == registration['artifacts']['config']
++    assert job['training_source_sha'] == original['training_source_sha'] == registration['source_sha'] == W_TRAINING_SOURCE_V4
++    assert registration['source_fingerprint'] == binding['source_fingerprint']
++    assert registration['run_id'] == binding['run_id'] == f'{arm}_fulltrain_seed42_official_5k_v1'
++    assert config['space_time']['cell'] == arm.replace('SP', 'S-P')
++    assert config['execution'] == registration['execution']
++    fingerprint = {
++        'registration_sha256': binding['registration']['sha256'],
++        'run_id': registration['run_id'],
++        'source_fingerprint': registration['source_fingerprint'],
++        'execution': registration['execution'],
++        'artifacts': {name: pin['sha256'] for name, pin in registration['artifacts'].items()},
++    }
++    assert identity_hash(fingerprint) == binding['registration_fingerprint_sha256']
++    assert approval['formal_launch_allowed'] is True and approval['fingerprint'] == fingerprint
++    assert launch['schema'] == 'st_reviewed_formal_launch_v1'
++    assert launch['registration_sha256'] == binding['registration']['sha256']
++    assert launch['approval_sha256'] == binding['approval']['sha256']
++    assert launch['gate'] == {'formal_launch_allowed': True,
++                              'identity': identity_hash(fingerprint), 'status': 'VERIFIED'}
++    assert launch['cwd'] == W_TRAINING_RUNTIME_V4
++    # Historical W receipts have no source_sha field; their pinned cwd and
++    # approved registration carry fdf25f99, independently of evaluation6714.
++    assert launch.get('source_sha', W_TRAINING_SOURCE_V4) == W_TRAINING_SOURCE_V4
++    assert launch['output'] == str(Path(config['runtime']['output_root']) / registration['run_id'])
++    assert launch['diagnostic_weights_used'] is False
++    assert launch['argv'] == [
++        'timeout', '--signal=TERM', '--kill-after=180s', '29400s',
++        '/root/miniconda3/envs/ddp/bin/python', '-m', 'torch.distributed.run',
++        '--standalone', '--nnodes=1', '--nproc_per_node=4', '-m',
++        'tools.st_world_policy.train_world',
++        '--registration', binding['registration']['path'],
++        '--approval', binding['approval']['path'],
++    ]
++
++
++def supplement_w_launch_v4(job):
++    if job['arm'] not in W_ARMS_V4:
++        return job, None  # Every existing C path remains byte-for-byte unchanged.
++    document = read_w_launch_control_v4(W_LAUNCH_SUPPLEMENT_V4)
++    assert document['schema'] == 'st_fixed_W_launch_supplement_v4'
++    assert document['parent_intents'] == {
++        'path': str(PREP / 'INTENTS.json'),
++        'sha256': 'e749a4969803c2a9f0a6eb67cbd19e7544de33013e946517fb67709a6a1df1b6',
++    }
++    assert document['training_source_sha'] == W_TRAINING_SOURCE_V4
++    assert document['training_runtime'] == W_TRAINING_RUNTIME_V4
++    assert document['evaluation_source_sha'] == SOURCE
++    assert set(document['arms']) == set(W_ARMS_V4)
++    binding = document['arms'][job['arm']]
++    registration, config, approval, launch = (
++        read_w_launch_control_v4(binding[name])
++        for name in ('registration', 'config', 'approval', 'launch'))
++    validate_w_launch_v4(job, binding, registration, config, approval, launch)
++    assert subprocess.check_output(['git', 'rev-parse', 'HEAD'],
++        cwd=W_TRAINING_RUNTIME_V4, text=True).strip() == W_TRAINING_SOURCE_V4
++    assert not subprocess.check_output(['git', 'status', '--porcelain'],
++        cwd=W_TRAINING_RUNTIME_V4, text=True).strip()
++    normalized = dict(job)
++    normalized['training_binding'] = {**job['training_binding'], 'launch': binding['launch']}
++    return normalized, dict(W_LAUNCH_SUPPLEMENT_V4)
+@@ -354,0 +452 @@
++job, w_launch_supplement = supplement_w_launch_v4(job)
+@@ -408,0 +507,2 @@
++if w_launch_supplement:
++    binding['w_launch_supplement'] = w_launch_supplement
