@@ -192,3 +192,31 @@ def test_cli_contract_must_be_the_same_bytes_that_passed_pin(tmp_path,monkeypatc
         complete=json.loads((tmp_path/'index/COMPLETE.json').read_text())
         assert complete['contract']==approved['contract'], 'Published contract differs from the bytes that passed the pin'
     assert replaced
+
+
+@pytest.mark.parametrize('case',['valid','wrong_sha','oversize','empty'])
+def test_cli_contract_single_bounded_read_and_invalid_pins(tmp_path,monkeypatch,case):
+    from tools.st_world_policy import index_teacher_metadata as cli
+    c,m=fixture();requests=tmp_path/'requests.json';atomic_json(requests,m)
+    receipt=tmp_path/'contract.json'
+    approved={'schema':'st_fixed_teacher_qualification_plan_v1','contract':c.to_dict()}
+    atomic_json(receipt,approved);expected_sha=file_sha256(receipt)
+    if case=='wrong_sha':expected_sha='0'*64
+    elif case=='oversize':receipt.write_bytes(b' '*(cli.MiB+1))
+    elif case=='empty':receipt.write_bytes(b'')
+    args=cli.parser().parse_args(['build','--requests',str(requests),
+        '--expected-request-identity',m['identity'],'--contract-receipt',str(receipt),
+        '--contract-receipt-sha256',expected_sha,'--output',str(tmp_path/'index'),
+        '--max-scenes','1'])
+    original=Path.open;opens=[]
+    def counted(path,*a,**kw):
+        if Path(path)==receipt:opens.append(a[0] if a else kw.get('mode','r'))
+        return original(path,*a,**kw)
+    monkeypatch.setattr(Path,'open',counted)
+    if case=='valid':
+        assert cli.run(args)['scene_count']==1
+        assert opens==['rb']
+        assert json.loads((tmp_path/'index/COMPLETE.json').read_text())['contract']==approved['contract']
+    else:
+        with pytest.raises(ValueError,match='checksum|small pinned'):cli.run(args)
+        assert not (tmp_path/'index/COMPLETE.json').exists()

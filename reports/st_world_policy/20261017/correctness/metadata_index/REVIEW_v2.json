@@ -1,0 +1,93 @@
+{
+  "decision": "PASS_METADATA_IMPLEMENTATION_LIMITED",
+  "evidence_artifacts": {
+    "/mnt/project/VLA-Drive-st-correctness-metadata-pin-20261017/tests/st_world/test_review_metadata_index.py": "fe4376b59e43019de98e7f4ff415ad1e00a47e7116492156f91992a97ed1182a",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/ACTUAL_METADATA_REVIEW.json": "5131d75fd0544fd16bba996ab4004260beed7edd3ceda8c23a643ecef924172d",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/CONTRACT_PIN_COUNTEREXAMPLE.log": "493b4d67c37008b4604323f80d7cb31b0bdd92fd59a0207e939388daaf7b8b8a",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/CONTRACT_PIN_FIX_REVIEW.log": "7fb74cfc2132a53b1e0ef6714b5d6d721d900bf2389514740a0fb523b7d0d12a",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/CONTRACT_PIN_READ_COUNTEREXAMPLE.log": "32246419b97b577013010fdfb10dbcce2a03f6b283c9cb453a30087c93158f85"
+  },
+  "finding_resolution": {
+    "file": "tools/st_world_policy/index_teacher_metadata.py",
+    "fix": "Single bounded rb read; before/after version and byte count check; SHA256 and JSON parse use the same bytes. Recognized receipt schema and TeacherFeatureContract validation remain.",
+    "id": "META-F01",
+    "lines": [
+      40,
+      52
+    ],
+    "negative_pins": [
+      "wrong_sha",
+      "oversize",
+      "empty"
+    ],
+    "negative_reproduction": "Atomic replacement after read is rejected; no COMPLETE is published. The independent read-hook test has unchanged semantics.",
+    "original_failed_evidence_retained": true,
+    "original_source": "9c7743f5323cbc0e85c3aaa4f9e13685ac4ae234",
+    "original_status": "CHANGES_REQUESTED",
+    "positive_reproduction": "Approved receipt opened once as rb; published contract equals approved bytes.",
+    "status": "FIXED_AND_INDEPENDENTLY_VERIFIED"
+  },
+  "implementation_hashes": {
+    "starVLA/dataloader/st_world_indexed_provider.py": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85",
+    "starVLA/dataloader/st_world_metadata_index.py": "a404d79f657abffefe9635374d8a5714f10878da286f54e588be6b32613a7dc4",
+    "tools/st_world_policy/index_teacher_metadata.py": "d33b0ac1af5a6b312b4aabca52b685c21d2d712ecf5e798ba139d26ddeb139ce"
+  },
+  "independent_worktree": "/mnt/project/VLA-Drive-st-correctness-metadata-pin-20261017",
+  "inherited_evidence": {
+    "actual_metadata_parity": "All original current256 scene/768 record/ordinal/receipt and future64 scene/957 record metadata exact; not rerun.",
+    "actual_previous_peak_rss_bytes": 627769344,
+    "actual_previous_seconds_excluding_import": 1.8592790234833956,
+    "adapter_source_unchanged": true,
+    "cold_restore_boundary": "Identity-only metadata state restoration, not real indexed executor/student optimizer state.",
+    "current_database_bytes": 983040,
+    "future_database_bytes": 638976,
+    "metadata_source_unchanged": true,
+    "original13_metadata_tests": "PASS at9c, not rerun",
+    "review_path": "/mnt/project/st-world-policy-20261016/audits/correctness/BOUNDED_METADATA_INDEX_REVIEW_v1.json",
+    "review_sha256": "615e8eb187f0f6114cbaf90341751f9b797d512bd545c0b9cb4a0419696019bd"
+  },
+  "not_granted": {
+    "formal_training_admission": true,
+    "full_future_metadata_readiness": true,
+    "profile_admission": true,
+    "real_indexed_teacher_student_qualification": true
+  },
+  "operations": {
+    "full_population_scanned": false,
+    "gpu_dispatches": 0,
+    "image_tensor_files_read": 0,
+    "large_weights_read": 0,
+    "new_training_or_scoring": 0,
+    "teacher_calls": 0,
+    "tensor_bytes_written": 0
+  },
+  "production_sources_identical_to_pinned_commit": true,
+  "remaining_limits": [
+    "Complete future population remains WAITING_INPUTS.",
+    "Full legacy source_logs header above64KiB safely rejects; new provenance-ledger proposal is not reviewed here.",
+    "No factory/trainer/PCA connection is introduced by this index patch.",
+    "No numerical/throughput or large-population memory inference from small metadata results."
+  ],
+  "review_tree_before_followup": "50a60be83702e956754973c352d335940a0568f3",
+  "reviewed_at_utc": "2026-10-17T04:57:52.901366+00:00",
+  "reviewer_agent": "/root/st_correctness",
+  "schema": "independent_bounded_metadata_index_review_v2",
+  "scope": "Narrow independent follow-up of contract receipt pin fix; original fixed9c metadata review is inherited by exact implementation hashes. Later future preparation and trainer/factory integration are excluded.",
+  "source_commit": "400a5607a318b8cc3a35a1d777534e898fd4661a",
+  "tests": {
+    "command": "env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 timeout 120s taskset -c 0,1 /root/miniconda3/envs/ddp/bin/python -m pytest tests/st_world/test_review_metadata_index.py -k \"contract or lineage or actual_cli\" -q",
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "deselected": 9,
+    "elapsed_seconds": 3.43,
+    "failed": 0,
+    "owner_test_count_not_added": true,
+    "passed": 9,
+    "prior_pass_count_not_added": true,
+    "skipped": 0,
+    "threads": 2,
+    "warning": "Existing pynvml deprecation warning only."
+  }
+}
