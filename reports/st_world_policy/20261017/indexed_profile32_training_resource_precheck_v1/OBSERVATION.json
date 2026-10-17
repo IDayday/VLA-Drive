@@ -1,0 +1,147 @@
+{
+  "additional_free_floor_bytes": 1099511627776,
+  "authorization": {
+    "bytes": 1576,
+    "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+    "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+  },
+  "checkpoint_commitments": {
+    "bytes": 1184,
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/storage_preparation_dev_v1/CHECKPOINT_COMMITMENTS_2103G_V1.json",
+    "sha256": "60606edc286a0c34016842a03f0de08f2422936e347364c7373defe9efcc5259"
+  },
+  "combined_full_commitments_bytes": 2343978401792,
+  "config": {
+    "bytes": 3523,
+    "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/profile32_v1/TRAINING_CONFIG.json",
+    "sha256": "e72f767f4dfdc349508befb64665bb11f4e407b8e670fc3a31dd983f8c0c7676"
+  },
+  "dispatch_policy": {
+    "bytes": 129686,
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 64,
+    "world_size": 1
+  },
+  "factory": {
+    "bytes": 1788,
+    "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/profile32_v1/preparation_control_v1/RESULT.json",
+    "sha256": "6407b37cd7f457c57f60717c71ef47bcedc9e2d40c090e51239cdc2fcf8be6d1"
+  },
+  "factory_actual_resources": {
+    "counters": {
+      "gpu_peak_allocated_bytes": 0,
+      "gpu_peak_reserved_bytes": 0,
+      "hash_calls_completed": 0,
+      "hash_calls_started": 0,
+      "hash_logical_bytes_admitted": 0,
+      "hash_logical_bytes_completed": 0,
+      "hash_wall_seconds": 0.0,
+      "limit_exceeded": null,
+      "native_load_calls": 0,
+      "native_load_wall_seconds": 0.0,
+      "phase": "PROFILE_METADATA_FACTORY_ONLY",
+      "pid": 458879,
+      "proc_self_io_delta": {
+        "cancelled_write_bytes": 4096,
+        "rchar": 3020067533,
+        "read_bytes": 874606592,
+        "syscr": 26239,
+        "syscw": 176,
+        "wchar": 1623933,
+        "write_bytes": 118784
+      },
+      "read_accounting_scope": "hash full-file bytes + nominal torch.load bytes; proc rchar/read_bytes separate; safetensors mmap/library/image-decode reads not individually instrumented",
+      "torch_load_calls": 0,
+      "torch_load_nominal_bytes": 0,
+      "torch_load_wall_seconds": 0.0,
+      "wall_seconds": 7.560033207759261
+    },
+    "exit_code": 0,
+    "limit_reason": null,
+    "log_bytes_received": 1533,
+    "log_bytes_stored": 1533,
+    "monitoring": "RSS/wall sampled at <=1s between reads; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace",
+    "process_cleanup": {
+      "live_owned_remaining": 0,
+      "method": "unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped",
+      "verified_processes": 1
+    },
+    "sampled_tree_rss_peak_bytes": 642953216,
+    "wall_seconds": 9.223395837470889
+  },
+  "factory_parent_cap_bytes": 33554432,
+  "factory_parent_charged_bytes_after_receipt": 151552,
+  "free_above_requirement_bytes": 3897276301312,
+  "gpu0": "0, GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c, NVIDIA A800-SXM4-80GB, 81920, 0, 0",
+  "gpu0_compute_processes": "",
+  "gpu0_lock": {
+    "acquired_by_reviewer": false,
+    "exists": true,
+    "held_rows": [],
+    "inode": 2684394458,
+    "path": "/tmp/foresight_gpu_0.lock"
+  },
+  "held_boundaries": [
+    "No training admission before exact launcher review",
+    "Refresh storage commitments through full 1500s run plus save/cleanup window",
+    "No creation of output/claim/ledger",
+    "Protect all existing GPU1-4 users",
+    "Do not reuse old hard-coded GPU1 lock/1020s timeout"
+  ],
+  "host": "training-vla-zt-worker-0",
+  "host_allowed_at_observation": true,
+  "loadavg": "20.02 19.72 19.94 5/5624 459483",
+  "memory": {
+    "MemAvailable": 897274200064,
+    "MemTotal": 1081266782208
+  },
+  "new_profile_reservation_bytes": 85899345920,
+  "observed_at_unix": 1792225327.062954,
+  "observed_free_bytes": 7340766330880,
+  "old_full_commitments_bytes": 2258079055872,
+  "other_gpu_snapshot": "0, 0, 0\n1, 13207, 100\n2, 13317, 100\n3, 13209, 35\n4, 13207, 26\n5, 0, 0\n6, 0, 0\n7, 0, 0",
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1",
+  "output_root_exists": false,
+  "prior_commitment_expires_unix": 1792226649.4307477,
+  "prior_commitment_seconds_remaining": 1322.3677937984467,
+  "quota_verified": false,
+  "required_free_bytes": 3443490029568,
+  "reviewer_dispatch": false,
+  "reviewer_gpu_compute": false,
+  "reviewer_ledger_writes": false,
+  "reviewer_tensor_reads": false,
+  "runtime": {
+    "deterministic": true,
+    "gradient_checkpointing": false,
+    "loader_workers": 0,
+    "max_seconds": 1500,
+    "official_execution": {
+      "adaptation_reason": "One bounded 64-update exact32 population supply/memory stability diagnostic. World1 micro1 global2; preserve the actual 20000-update/warmup1000 schedule, original objectives, BF16/FA2/TorchAdamW/ZeRO2 FP32 master backend, FP32 fixed8 teacher/PCA384, deterministic=true and checkpointing=false. Repeated32 is not full-population throughput or a formal recipe qualification.",
+      "declared_recipe_overrides": [
+        "global_batch",
+        "max_updates",
+        "micro_batch",
+        "warmup",
+        "world_size"
+      ],
+      "preset": "drivedreamer_f35fe783",
+      "schema": "st_official_drivedreamer_execution_v1",
+      "scope": "research_stage"
+    },
+    "output_root": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1/runs",
+    "profile_mode": "none",
+    "save_every": 64
+  },
+  "status": "PRECHECK_ONLY_NOT_TRAINING_ADMISSION"
+}
