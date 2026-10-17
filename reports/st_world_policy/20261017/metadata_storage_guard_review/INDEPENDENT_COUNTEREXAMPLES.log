@@ -1,0 +1,81 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+____________ test_pending_retry_still_requires_unexpired_quiescence ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-499/test_pending_retry_still_requi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fe3dee37280>
+
+    def test_pending_retry_still_requires_unexpired_quiescence(tmp_path, monkeypatch):
+        f = fixture(tmp_path)
+        now = time.time()
+        f.q['valid_until_unix'] = now + 1
+        f.kwargs['quiescence_sha256'] = write(f.q_path, f.q)
+    
+        def fault(stage):
+            if stage == 'after_pending':
+                raise RuntimeError('interrupt before changing ledger')
+    
+        with pytest.raises(RuntimeError):
+            m.migrate_policy(**f.kwargs, fault=fault)
+        original = f.old.state_path.read_bytes()
+        monkeypatch.setattr(m.time, 'time', lambda: now + 2)
+>       with pytest.raises(b.StorageBudgetError, match='quiescence expired'):
+E       Failed: DID NOT RAISE <class 'tools.st_world_policy.cache_storage_budget.StorageBudgetError'>
+
+tests/st_world/test_review_metadata_guard.py:27: Failed
+_______________ test_nonexistent_parent_is_checked_before_write ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-499/test_nonexistent_parent_is_che0')
+
+    def test_nonexistent_parent_is_checked_before_write(tmp_path):
+        f = fixture(tmp_path, nested=True)
+        # file regex permits this path, but no directory pattern permits log_shards.
+        m.migrate_policy(**f.kwargs)
+        with pytest.raises(b.StorageBudgetError, match='directory'):
+            with m.metadata_writing(**f.guard) as guard:
+                target = f.root / 'log_shards' / ('a' * 64 + '.json')
+                assert not target.parent.exists()
+                guard.check(before_commit=True, path=target)
+>               pytest.fail('unregistered planned directory passed pre-write check')
+E               Failed: unregistered planned directory passed pre-write check
+
+tests/st_world/test_review_metadata_guard.py:41: Failed
+___________ test_unwired_runner_rejects_before_artifact_publication ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-499/test_unwired_runner_rejects_be0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fe3dedb0e80>
+
+    def test_unwired_runner_rejects_before_artifact_publication(tmp_path, monkeypatch):
+        f = fixture(tmp_path)
+        f.reg.update(command=['/fixture/python', '-m', 'tools.st_world_policy.index_teacher_metadata',
+            'build', '--output', str(f.root)], cwd=str(Path.cwd()),
+            callback_protocol='st_metadata_storage_check_v1')
+        update_registration(f)
+        m.migrate_policy(**f.kwargs)
+    
+        class Parser:
+            def parse_args(self, _):
+                return SimpleNamespace(command='build')
+    
+        def unwired(_):
+            # Deliberately no hooks: the existing index CLI has this same boundary.
+            write(f.root / 'COMPLETE.json', {'status': 'COMPLETE', 'fixture': True})
+            return {'status': 'COMPLETE'}
+    
+        monkeypatch.setattr(m.importlib, 'import_module',
+                            lambda _: SimpleNamespace(parser=Parser, run=unwired))
+        with pytest.raises(b.StorageBudgetError):
+            m.run_registered_metadata(**f.guard)
+>       assert not (f.root / 'COMPLETE.json').exists(), 'late hook counting is not pre-write admission'
+E       AssertionError: late hook counting is not pre-write admission
+E       assert not True
+E        +  where True = exists()
+E        +    where exists = (PosixPath('/tmp/pytest-of-root/pytest-499/test_unwired_runner_rejects_be0/cache/metadata') / 'COMPLETE.json').exists
+E        +      where PosixPath('/tmp/pytest-of-root/pytest-499/test_unwired_runner_rejects_be0/cache/metadata') = namespace(tmp_path=PosixPath('/tmp/pytest-of-root/pytest-499/test_unwired_runner_rejects_be0'), nested=False, initial_...ejects_be0/checkpoint.json'), 'checkpoint_sha256': 'c48505106b8d7684d10690a960cf78019235806c1955cf057e6d55c8fd6fd394'}).root
+
+tests/st_world/test_review_metadata_guard.py:65: AssertionError
+=========================== short test summary info ============================
+FAILED tests/st_world/test_review_metadata_guard.py::test_pending_retry_still_requires_unexpired_quiescence
+FAILED tests/st_world/test_review_metadata_guard.py::test_nonexistent_parent_is_checked_before_write
+FAILED tests/st_world/test_review_metadata_guard.py::test_unwired_runner_rejects_before_artifact_publication
+3 failed in 0.13s

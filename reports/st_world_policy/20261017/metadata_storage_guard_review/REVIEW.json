@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "reports/st_world_policy/20261017/metadata_storage_guard_review/INDEPENDENT_COUNTEREXAMPLES.log": "3734d50bcf9c69f84af5e86893e13d1f61fe040bf51420bca30d40d4c0bdb6d9",
+    "reports/st_world_policy/20261017/metadata_storage_guard_review/OWNER_REGRESSION_REVIEW.log": "60684123e9a86cda51df7aad5f1be58445f3ba812cfb9093280227ede3deb197",
+    "reports/st_world_policy/20261017/metadata_storage_guard_review/REVIEW.md": "b7195017f5d62a88603c9de98a2c620ca2d3ae75e0e48115e35cbcfe9f2e6c96",
+    "tests/st_world/test_review_metadata_guard.py": "6950b0fb4ad0c2ff5a9a1e4b960b709df5c8e19c0cc5158814739c3b0bab8e80"
+  },
+  "findings": [
+    {
+      "id": "MG-F01",
+      "issue": "Expired quiescence can mutate old ledger on pending retry",
+      "severity": "P1"
+    },
+    {
+      "id": "MG-F02",
+      "issue": "Planned nonexistent parent directory escapes pre-write pattern check",
+      "severity": "P2"
+    },
+    {
+      "id": "MG-F03",
+      "issue": "Unwired builder can publish COMPLETE before missing-hook rejection",
+      "severity": "P1"
+    }
+  ],
+  "not_granted": [
+    "real_ledger_migration",
+    "metadata_build",
+    "teacher_execution",
+    "profile_or_formal_training"
+  ],
+  "operations": {
+    "gpu_jobs": 0,
+    "image_or_tensor_reads": 0,
+    "real_cache_builds": 0,
+    "real_ledger_writes": 0
+  },
+  "reviewed_commit": "6e20c8b6d9b883a21653b1f79dd39c132ca9bf2f",
+  "reviewer": "/root/st_metadata_resource_review",
+  "schema": "independent_metadata_storage_guard_review_v1",
+  "status": "CHANGES_REQUESTED",
+  "tests": {
+    "cpu_cores": 2,
+    "gpu_count": 0,
+    "independent_counterexamples": {
+      "failed": 3,
+      "seconds": 0.13
+    },
+    "owner_and_existing_regression": {
+      "passed": 75,
+      "seconds": 5.79
+    }
+  },
+  "utc": "2026-10-17T05:24:07.086114+00:00"
+}
