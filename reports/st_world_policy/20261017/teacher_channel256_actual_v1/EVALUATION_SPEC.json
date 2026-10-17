@@ -1,0 +1,149 @@
+{
+  "schema": "st_teacher_channel_fixed_dev_evaluation_v1",
+  "status": "PREPARED_NOT_DISPATCHED",
+  "created_utc": "2026-10-17T23:43:26.552018+00:00",
+  "job_id": "SP2_PCA256_step005000_dev1696_seed42_v1",
+  "training_registration": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+    "sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6"
+  },
+  "training_approval": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+    "sha256": "a73f84d2e2c3e88870c93e2b9618121c52baa47b1eda88dd9113c954dbe3ca88"
+  },
+  "training_launch": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+    "sha256": "2a3508ab0d8d5c4bb0c2cfb0ce80f878f39608baa4a5729b66ae88f4992c33a1"
+  },
+  "training_result": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/RESULT.json",
+    "sha256": "5122471cc9d96c1b70c4acc4dba88e68b7966023107e8a87d729ec69ebbf06d0"
+  },
+  "checkpoint_complete": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792279373299682127/COMPLETE.json",
+    "sha256": "5c767895cfd77734a07bcb7dab4b4b37a7dcdfff0376e3e4e10f7e5e5b1022fc"
+  },
+  "checkpoint_receipt_identity": "fddf136fb46484f8bb94f636bc595d503f3b2b80bd4487661a0bf6dcef8e886e",
+  "runtime_identity": "40234a3c6af252fdf493658bfd018ead418d016c102af848182d07a42b968e16",
+  "checkpoint_tag": "step_005000_1792279373299682127",
+  "parent_commands": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COMMANDS.json",
+    "sha256": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421"
+  },
+  "parent_policy": {
+    "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/POLICY.json",
+    "sha256": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f"
+  },
+  "parent_job_id": "SP2_step005000_dev1696_seed42_v1",
+  "output_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1",
+  "registration_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/SP2_PCA256_step005000_dev1696_seed42_v1",
+  "command": {
+    "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "execution_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "export": {
+      "argv_template": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.export_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "--checkpoint-tag",
+        "step_005000_1792279373299682127",
+        "--current-root",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "--manifest",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/export",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-scenes",
+        "1696",
+        "--max-seconds",
+        "7200",
+        "--rank",
+        "0",
+        "--world-size",
+        "1"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 7800,
+      "requires_actual_sealed_checkpoint_and_resource_binding": true
+    },
+    "job_id": "SP2_PCA256_step005000_dev1696_seed42_v1",
+    "score": {
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.score_world",
+        "--predictions",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/export",
+        "--metric-index",
+        "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+        "--navsim-root",
+        "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+        "--maps-root",
+        "/mnt/navsim/maps",
+        "--run-id",
+        "st-world-policy-20261016",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/official_score",
+        "--cache-root",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+        "--workers",
+        "2",
+        "--max-calls",
+        "1728",
+        "--retry-attempts",
+        "1",
+        "--max-seconds",
+        "3600"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 4200,
+      "requires_all_export_shards_complete": true
+    },
+    "state": "COMMAND_TEMPLATE_NOT_DISPATCHED"
+  },
+  "inference_unchanged": true,
+  "population_unchanged": true,
+  "score_unchanged": true,
+  "requested_scenes": 1696,
+  "seed": 42,
+  "gpu": 0,
+  "gpu_uuid": "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+  "hostname": "training-vla-zt-worker-0",
+  "max_export_invocations": 2,
+  "max_score_invocations": 2,
+  "storage_reservation_bytes": 1073741824,
+  "max_live_export_slots": 4,
+  "max_live_score_slots": 2,
+  "navtest": false,
+  "training_started": false,
+  "ACTIVE_update": false,
+  "allowed_difference": [
+    "training_registration",
+    "checkpoint",
+    "independent_output",
+    "job_id",
+    "GPU_placement"
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema": "st_channel_control_actual_launch_observation_v1",
+  "observed_utc": "2026-10-17T17:32:25.118344+00:00",
+  "integration_parent": "9ec7807ddbe534eed939702461b851891d074cd0",
+  "runtime_source": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+  "fingerprint": {
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "b841c7c4696ba5b84ecc913bbb2c0437f6a16f8794502fd50534abeb16e0be3a",
+      "target_contract": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 5000,
+      "world_size": 4
+    },
+    "registration_sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6",
+    "run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec"
+  },
+  "pins": {
+    "REGISTRATION.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+      "sha256": "a644ad60477b5dd857b44069568e9b93fde68994b4862ffcbcaaae9b57e29ca6",
+      "bytes": 2500
+    },
+    "RUN_APPROVAL.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+      "sha256": "a73f84d2e2c3e88870c93e2b9618121c52baa47b1eda88dd9113c954dbe3ca88",
+      "bytes": 2128
+    },
+    "LAUNCH.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+      "sha256": "2a3508ab0d8d5c4bb0c2cfb0ce80f878f39608baa4a5729b66ae88f4992c33a1",
+      "bytes": 2005
+    },
+    "PRELAUNCH_OBSERVATION.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/PRELAUNCH_OBSERVATION.json",
+      "sha256": "430f4243e45212f21b173d4c4956555e1f1538bd1bbdca0735b56beb6c35e649",
+      "bytes": 706
+    },
+    "DATA_AND_STORAGE_BOUNDARY.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/DATA_AND_STORAGE_BOUNDARY.json",
+      "sha256": "a1ed5f8917fdfb71341f992fec311b554c24acf8a9710bd8ffb97bc861d3441b",
+      "bytes": 2286
+    }
+  },
+  "reviews": {
+    "correctness": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+      "sha256": "980a0413e02d2e404d26a003170d0504bedb85ffa0662228ea212d3336827acc"
+    },
+    "efficiency": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/reviews/EFFICIENCY.json",
+      "sha256": "8912a3f7aced9580da0d235f86ac5dd98f5cf3ca589a0d451806de6223abfa55"
+    },
+    "evidence": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/reviews/EVIDENCE.json",
+      "sha256": "c90bb9b246497efbdbd0d6d9c14508d9183d0dc6c5490b2a22c24d3693af9a87"
+    }
+  },
+  "live_status_observation": {
+    "completed": 41,
+    "counts": {
+      "current": 96731136,
+      "ego_scenes": 1312
+    },
+    "epoch": 0,
+    "exposure": 1312,
+    "host": "training-vla-zt-worker-0",
+    "identity": "40234a3c6af252fdf493658bfd018ead418d016c102af848182d07a42b968e16",
+    "offset": 41,
+    "pid": 590459,
+    "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+    "started_unix": 1792258108.9285164,
+    "status": "RUNNING",
+    "termination_reason": "RUNNING_CHECKPOINT",
+    "updated_unix": 1792258342.1176808
+  },
+  "observed_update_rows": 41,
+  "loss_gradient_all_finite": true,
+  "sampled_fp32_master_updates_verified": true,
+  "early_timing_not_formal_performance_result": {
+    "discarded_first_updates": 5,
+    "window_count": 36,
+    "mean_seconds": 5.549050169996917,
+    "p50_seconds": 5.53145267162472,
+    "p95_seconds": 5.782330990768969,
+    "source": "slowest_rank_seconds",
+    "checkpoint_events_observed": 0,
+    "full_validation_to_first_step_excluded": true
+  },
+  "old384_reused": true,
+  "new_teacher_cache": false,
+  "active_job_signals_sent": 0,
+  "scientific_gain": "UNTESTED",
+  "formal_completion": "NOT_COMPLETE"
+}
