@@ -1,0 +1,50 @@
+{
+  "schema": "st_future_index_sequential_control_resource_review_v1",
+  "status": "FAIL",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "target_commit": "bf67fad2b77e443395635f8871eb757cbbb8c596",
+  "target_source": {
+    "path": "reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+    "sha256": "c749b4f9181b407cdb0b0684d7d26aeb52db8c31664b3b6f353def90f629ad1e"
+  },
+  "unique_cases": 11,
+  "passed": 9,
+  "failed": 1,
+  "errors": 1,
+  "findings": [
+    {
+      "id": "R1_UNBOUNDED_SOURCE_OPEN_BEFORE_DEADLINE",
+      "location": "prepare_once.py::read_source lines26\u201331 and main lines50\u201353",
+      "counterexample": "A temporary FIFO is absolute, non-symlink, size0; read_source enters blocking open. Independent200msSIGALRM raisesTimeoutError. FirstADAPTER load executes before whole_invocation_alarm context.",
+      "impact": "Pinned source hashing is not reached; the nominal120s invocation deadline is not yet installed.",
+      "minimal_fix": "Check source descriptor type with no-follow/nonblocking open and boundedread; install absolute deadline before the first source load. Do not change actual workload or monitor."
+    }
+  ],
+  "confirmed_unchanged": [
+    "4b2f0fcc fixed monitor source hash",
+    "82477551 fixed finite-control adapter hash",
+    "120s/40s/384MiB/1GiB limits",
+    "BOOT_IO baseline before nontrivial imports forwarded into core",
+    "monitor and charge_after_reap reused, no new Popen implementation",
+    "one-shot and no-auto-retry flags"
+  ],
+  "inherited_not_rerun": "Existing17-case finalized index-preparer review is separate and not invalidated by this wrapper defect.",
+  "actual_resource_admission": false,
+  "actual_dispatch": false,
+  "ledger_access": false,
+  "real_payload_read": false,
+  "cost": {
+    "returncode": 1,
+    "wall_seconds": 0.6480599287897348,
+    "sampled_RSS_peak_bytes": 19288064,
+    "samples": 62,
+    "terminal_logical_read_once_bytes": 1559482,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "payload_read": false,
+    "ledger_access": false,
+    "dispatch": false
+  }
+}

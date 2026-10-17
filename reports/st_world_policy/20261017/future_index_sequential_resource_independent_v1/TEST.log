@@ -1,0 +1,51 @@
+test_boot_accounting_before_nontrivial_imports (__main__.Resource) ... ok
+test_exact_limits (__main__.Resource) ... ok
+test_fifo_rejected_without_wait (__main__.Resource) ... ERROR
+test_first_source_load_is_under_absolute_deadline (__main__.Resource) ... FAIL
+test_fixed_finite_adapter_pin (__main__.Resource) ... ok
+test_fixed_monitor_pin (__main__.Resource) ... ok
+test_monitor_and_wait_reuse (__main__.Resource) ... ok
+test_regular_pin_pass (__main__.Resource) ... ok
+test_relative_rejected (__main__.Resource) ... ok
+test_symlink_rejected (__main__.Resource) ... ok
+test_wrong_hash_rejected (__main__.Resource) ... ok
+
+======================================================================
+ERROR: test_fifo_rejected_without_wait (__main__.Resource)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_resource_independent_v1/test_resource.py", line 29, in test_fifo_rejected_without_wait
+    with self.assertRaises(ValueError):m.read_source(p,'0'*64)
+  File "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py", line 28, in read_source
+    before=p.stat();raw=p.read_bytes();after=p.stat()
+  File "/root/miniconda3/envs/navsim/lib/python3.9/pathlib.py", line 1187, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/root/miniconda3/envs/navsim/lib/python3.9/pathlib.py", line 1180, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/root/miniconda3/envs/navsim/lib/python3.9/pathlib.py", line 1038, in _opener
+    return self._accessor.open(self, flags, mode)
+  File "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_resource_independent_v1/test_resource.py", line 26, in <lambda>
+    previous=signal.signal(signal.SIGALRM,lambda *_:(_ for _ in ()).throw(TimeoutError('independent200msdeadline: FIFO blocked before source verification')))
+  File "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_resource_independent_v1/test_resource.py", line 26, in <genexpr>
+    previous=signal.signal(signal.SIGALRM,lambda *_:(_ for _ in ()).throw(TimeoutError('independent200msdeadline: FIFO blocked before source verification')))
+TimeoutError: independent200msdeadline: FIFO blocked before source verification
+
+======================================================================
+FAIL: test_first_source_load_is_under_absolute_deadline (__main__.Resource)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/future_index_sequential_resource_independent_v1/test_resource.py", line 34, in test_first_source_load_is_under_absolute_deadline
+    self.assertEqual(unguarded,[],'first adapter load executes before alarm context')
+AssertionError: Lists differ: [<ast.Assign object at 0x7fb55ceec6d0>] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+<ast.Assign object at 0x7fb55ceec6d0>
+
+- [<ast.Assign object at 0x7fb55ceec6d0>]
++ [] : first adapter load executes before alarm context
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.521s
+
+FAILED (failures=1, errors=1)
