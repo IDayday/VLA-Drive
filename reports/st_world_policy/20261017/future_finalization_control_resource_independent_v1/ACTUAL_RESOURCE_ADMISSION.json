@@ -1,0 +1,120 @@
+{
+  "authorizations": {
+    "actual_dispatch_owner": "Lead",
+    "actual_gpu": false,
+    "automatic_retry": false,
+    "cpu_metadata_finalization": true,
+    "model_training": false,
+    "raw_or_image_reads": false,
+    "teacher_extraction": false
+  },
+  "automatic_retry": false,
+  "before_dispatch_requirements": [
+    "Verify exact5 controller and9 writer dependencies unchanged, frozen runtime commit3df052ea; no hot edits.",
+    "Freshly verify no old/new metadata writer or unknown owner and immutable source; actual locks remain nonblocking.",
+    "Verify separate control root is new/plain, within explicitly adopted1MiB; no prior INVOCATION/RESULT markers.",
+    "Run only the approved controller once, not the registered worker directly.",
+    "Whole3600+40sec must fit lease; expired/latest-start admission is rejected, never backdated.",
+    "Retain old FAILED_NO_AUTO_RETRY and require new terminal full accounting/zero owned survivors."
+  ],
+  "checkpoint_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json",
+    "sha256": "13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3"
+  },
+  "control_reservation": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalization_actual_admission_v1/CONTROL_RESERVATION_ADOPTED.json",
+    "sha256": "3bd2880105bbddd5738e9bf2433f203fe561c13a2ac078157fd250eada5c9005"
+  },
+  "control_reserved_bytes": 1048576,
+  "control_root": "/mnt/project/st-world-policy-20261016/audits/full_future_finalization_v1_controls",
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/run_finalize_once.py",
+      "sha256": "82477551e0e335bc25c20556387d0b8d98512e1728481ed1e00e8218976c1bb2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    }
+  ],
+  "correctness_review": {
+    "path": "/mnt/project/VLA-Drive-st-future-control-correctness-20261017/reports/st_world_policy/20261017/future_finalization_control_independent_v1/REVIEW.json",
+    "sha256": "fb37eff36ea4b108a49e79366271e4271a56b960b4a397a49536f7a4d0724a2f"
+  },
+  "finalization_registration": {
+    "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_FINALIZATION_REGISTRATION.json",
+    "sha256": "e265861615b9f2dafd219c46e165934e1bb148517de5f6b07c49896d497df707"
+  },
+  "hostname": "training-vla-zt-worker-0",
+  "issued_at_unix": 1792245858.1277266,
+  "latest_start_unix": 1792246200.0,
+  "limits": {
+    "cleanup_seconds": 40,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "max_disk_bytes": 2148532224,
+    "max_invocations": 1,
+    "read_bytes": 17179869184,
+    "rss_bytes": 4294967296,
+    "wall_seconds": 3600
+  },
+  "live_ledger_binding": {
+    "migration_id": "de8cfdf57e19daa245fe50d345a94f554bec174bee1f82d62c6099e10ab9c749",
+    "receipt": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalization_actual_admission_v1/MIGRATION_RECEIPT.json",
+      "sha256": "9c516a3e04884b5a3199e2cc8ae8662f2fa7605b22c75511474a2585b30402f5"
+    },
+    "reviewer_read_live_ledger": false,
+    "sha256_at_completed_migration": "80fb66dd9dccd934cb2ac0957bb983b6b8848f8b28326d90ad353d73af8cad6c"
+  },
+  "migration": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalization_actual_admission_v1/MIGRATION_RECEIPT.json",
+    "sha256": "9c516a3e04884b5a3199e2cc8ae8662f2fa7605b22c75511474a2585b30402f5"
+  },
+  "old_policy": {
+    "path": "/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_packed64_registration_proposal_v1/PROPOSED_POLICY.json",
+    "sha256": "a6984d65bfcb47e32153ac3b8b395dcbf8a694ef3844ea644f82e0c58ffbd8fd"
+  },
+  "output_root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1",
+  "policy": {
+    "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_PROPOSED_POLICY.json",
+    "sha256": "266a253d266fecf20057b2a79988c28cd3de1fbcb7d9293a7daa90b21300cfdb"
+  },
+  "quiescence": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalization_actual_admission_v1/QUIESCENCE.json",
+    "sha256": "48f6b82c80b7b6db1ebe51d4e83b07e7c9c1be4e8af582723dab258c29bf31c2"
+  },
+  "registration": {
+    "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_STORAGE_REGISTRATION.json",
+    "sha256": "1b42bc7bd3294444e111e0b4049fa9ab29dd884780663d720eaedafa8774705c"
+  },
+  "resource_review": {
+    "path": "/mnt/project/VLA-Drive-st-finalizer-control-resource-review-20261017/reports/st_world_policy/20261017/future_finalization_control_resource_independent_v1/REVIEW.json",
+    "sha256": "97e1a7e025c7d695e4c27878880b6b3d3fb68389a4d174ce80e012801a7d171e"
+  },
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "runtime": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017",
+  "schema": "st_future_finalization_owned_admission_v1",
+  "source_runtime_commit": "3df052ea422c4ba042ef3be33dea19438c5702dc",
+  "source_terminal": {
+    "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1/CONTROL_BUILD_RESULT.json",
+    "sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6"
+  },
+  "statement": "Independent finite CPU admission, not actual build success; no future index preparation/teacher/training permission.",
+  "status": "APPROVED_FUTURE_FINALIZATION_ONLY",
+  "valid_until_unix": 1792250100.0
+}
