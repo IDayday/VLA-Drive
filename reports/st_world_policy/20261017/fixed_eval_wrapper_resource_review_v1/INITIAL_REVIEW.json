@@ -1,0 +1,23 @@
+{
+  "owner_commit": "41826094045964bf7ca5b70552a923a1a6e7267c",
+  "wrapper_sha256": "b9d709dd11fc0f9860115fefbb19b61a5aca519e4dc525a18d97101444db22ab",
+  "status": "BLOCKED_PENDING_NARROW_FIXES",
+  "findings": [
+    {
+      "id": "FE-R01",
+      "code": "run_pair prior COMPLETE branch / ReadMeter initialization",
+      "finding": "New process verifies prior C2 COMPLETE but starts meter at zero; recorded cumulative spent is not inherited before C3 admission."
+    },
+    {
+      "id": "FE-R02",
+      "code": "OUTPUT_LIMIT/immutable/run_pair",
+      "finding": "Analysis admits32MiB but ADMITTED/RESULT and stdout+stderr escaped within RESULT are extra, contrary to inclusive32MiB/pair scope."
+    },
+    {
+      "id": "FE-R03",
+      "code": "child guard before runpy",
+      "finding": "Owner confirms cold torch/dill import attempts /dev/null write and is rejected before actual evaluator; tiny fixtures do not establish cold import success."
+    }
+  ],
+  "production_read_or_dispatch": false
+}
