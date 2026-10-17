@@ -101,3 +101,42 @@ seven fixed score banks; `analysis_handoff_v2` supersedes only the failed
 read-only schema attempt. None owns GPU inference or training. Per-model CPU
 invocations retain actual new/reused counts and exit status. Full scores will be
 published only after their exact 12146-scene checks complete.
+
+## First complete version comparison: original F-SFT and historical R_SOURCE
+
+Both banks have now passed full payload verification: 12146 scenes, 136 logs,
+seed2101, identical requested trajectories between scoring versions. These are
+historical controls, not the current A/B terminal results.
+
+| Model | Grid | Official v1.0 PDMS | Canonical v1.1 PDMS |
+|---|---|---:|---:|
+| Original F-SFT step100000 | Native uniform10 | 88.293200 | 88.911606 |
+| Original F-SFT step100000 | Shift5_10 | 88.149541 | 88.764112 |
+| Historical R_SOURCE RL20k | Native uniform10 | 87.790110 | 87.912466 |
+| Historical R_SOURCE RL20k | Shift5_10 | 88.340511 | 88.580152 |
+
+Sources: [complete F-SFT result](PDMS_versions_ORIGINAL_F_SFT.json),
+[complete historical R_SOURCE result](PDMS_versions_HISTORICAL_R_SOURCE.json).
+The F-SFT native score changes by +0.618406 percentage points between versions;
+historical R_SOURCE native changes by +0.122356. There is no fixed offset that
+converts models between versions. This historical R_SOURCE does not improve its
+native policy in either version. Its small shift5 change has different signs
+between the versions; it must not be selected to manufacture a successful
+canonical result. Paired uncertainty and safety tables are being completed by
+the fixed full-population analysis, not by selecting examples.
+
+The v1.0 cache build has [complete payload/raw-log verification and measured
+costs](PDMS_v1.0_cache_completion.json): 12146 scenes, 3,164,331,316 bytes
+(2.947 GiB), production wall span 619.453 seconds across four CPU hosts.
+Two profile scenes were reused and 12144 were newly built in production. The
+8295.812 summed log-worker seconds are parallel worker elapsed time, not job
+wall time or measured exclusive CPU-core time. No model inference was required.
+
+Runtime boundary: both upstream releases request Python3.9 / numpy1.23.4 and
+nuPlan's v1.2 tag in their original installation files. This project evaluates
+both unmodified NAVSIM source releases in its already-qualified common runtime
+(Python3.10, numpy1.26.4, scipy1.13.1, shapely2.0.7, installed nuplan-devkit1.2.2).
+This explicit runtime adaptation is shared by both versions; no claim is made
+that an original paper's entire historical environment has been reconstructed.
+The new v1.1 real-cache oracle matched the existing canonical runtime exactly on
+the qualification requests.
