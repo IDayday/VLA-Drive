@@ -233,10 +233,14 @@ def test_ledger_growth_is_rejected_before_unbounded_read_text(tmp_path, monkeypa
     args, run, _, _ = setup(tmp_path); f.build(run)
     manifest = json.loads((Path(args.output)/'TEACHER_REQUESTS.json').read_text())
     ledger = Path(manifest['source_logs_ledger']['path'])
-    original_sha, original_read = provenance.file_sha256, Path.read_text
+    # Retain the original vulnerable-window regression without requiring a
+    # corrected implementation to keep its removed second hash/read sequence.
+    original_sha, original_read = getattr(provenance, 'file_sha256', file_sha256), Path.read_text
+    activated = [False]
     def grow_after_hash(path):
         digest = original_sha(path)
         if Path(path) == ledger:
+            activated[0] = True
             with ledger.open('ab') as stream:
                 stream.write(b' ' * provenance.MAX_LEDGER_BYTES)
         return digest
@@ -244,6 +248,45 @@ def test_ledger_growth_is_rejected_before_unbounded_read_text(tmp_path, monkeypa
         if path == ledger:
             assert path.stat().st_size <= provenance.MAX_LEDGER_BYTES, 'Unbounded read after ledger grew past cap'
         return original_read(path, *args, **kwargs)
-    monkeypatch.setattr(provenance, 'file_sha256', grow_after_hash)
+    monkeypatch.setattr(provenance, 'file_sha256', grow_after_hash, raising=False)
     monkeypatch.setattr(Path, 'read_text', reject_unbounded_large_read)
+    try:
+        result = validate_ledger(manifest)
+    except ValueError:
+        return
+    assert activated == [False], 'A changed ledger was accepted after the old hash/read window'
+    assert result['sha256'] == manifest['source_logs_ledger']['sha256']
+
+
+@pytest.mark.parametrize('mutation', ['growth', 'atomic_replace'])
+def test_ledger_single_read_bound_and_after_read_mutation_rejection(tmp_path, monkeypatch, mutation):
+    from starVLA.dataloader import st_world_future_provenance as provenance
+    args, run, _, _ = setup(tmp_path); f.build(run)
+    manifest = json.loads((Path(args.output)/'TEACHER_REQUESTS.json').read_text())
+    ledger = Path(manifest['source_logs_ledger']['path'])
+    original_open = Path.open
+    changed, read_sizes = [False], []
+    class Reader:
+        def __init__(self, raw): self.raw = raw
+        def __enter__(self): return self
+        def __exit__(self, *args): self.raw.close()
+        def __getattr__(self, name): return getattr(self.raw, name)
+        def read(self, count=-1):
+            assert 0 < count <= provenance.MAX_LEDGER_BYTES+1, 'Ledger read must be bounded'
+            read_sizes.append(count)
+            data = self.raw.read(count)
+            if not changed[0]:
+                changed[0] = True
+                if mutation == 'growth':
+                    with original_open(ledger, 'ab') as stream: stream.write(b' ' * provenance.MAX_LEDGER_BYTES)
+                else:
+                    replacement = ledger.with_suffix('.replacement')
+                    with original_open(replacement, 'wb') as stream: stream.write(data)
+                    replacement.replace(ledger)
+            return data
+    def intercept(path, mode='r', *args, **kwargs):
+        raw = original_open(path, mode, *args, **kwargs)
+        return Reader(raw) if path == ledger and mode == 'rb' else raw
+    monkeypatch.setattr(Path, 'open', intercept)
     with pytest.raises(ValueError): validate_ledger(manifest)
+    assert changed == [True] and read_sizes

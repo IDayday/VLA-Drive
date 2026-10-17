@@ -1,0 +1,175 @@
+.........................FFFFFFFF..                                      [100%]
+=================================== FAILURES ===================================
+_____ test_corrupted_complete_control_fields_are_rejected[status-PARTIAL] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_corrupted_complete_contro0')
+field = 'status', value = 'PARTIAL'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+______ test_corrupted_complete_control_fields_are_rejected[schema-wrong] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_corrupted_complete_contro1')
+field = 'schema', value = 'wrong'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_ test_corrupted_complete_control_fields_are_rejected[plan_identity-0000000000000000000000000000000000000000000000000000000000000000] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_corrupted_complete_contro2')
+field = 'plan_identity'
+value = '0000000000000000000000000000000000000000000000000000000000000000'
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_______ test_corrupted_complete_control_fields_are_rejected[scenes-999] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_corrupted_complete_contro3')
+field = 'scenes', value = 999
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+________ test_corrupted_complete_control_fields_are_rejected[logs-999] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_corrupted_complete_contro4')
+field = 'logs', value = 999
+
+    @pytest.mark.parametrize('field,value', [('status','PARTIAL'), ('schema','wrong'),
+                                            ('plan_identity','0'*64), ('scenes',999), ('logs',999)])
+    def test_corrupted_complete_control_fields_are_rejected(tmp_path, field, value):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        path = Path(args.output)/'COMPLETE.json'; receipt = json.loads(path.read_text())
+        receipt[field] = value; atomic_json(path, receipt)
+>       with pytest.raises(ValueError): f.build(run)
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/st_world/test_review_future_metadata.py:208: Failed
+_________ test_symlinked_log_shard_directory_is_rejected_before_write __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_symlinked_log_shard_direc0')
+
+    def test_symlinked_log_shard_directory_is_rejected_before_write(tmp_path):
+        args, run, _, _ = setup(tmp_path)
+        external = tmp_path/'outside_admitted_root'; external.mkdir()
+        (Path(args.output)/'log_shards').symlink_to(external, target_is_directory=True)
+>       with pytest.raises((ValueError, f.BudgetExceeded)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'tools.st_world_policy.prepare_future_metadata.BudgetExceeded'>)
+
+tests/st_world/test_review_future_metadata.py:215: Failed
+___________ test_hardlinked_completed_shard_is_rejected_before_reuse ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_hardlinked_completed_shar0')
+
+    def test_hardlinked_completed_shard_is_rejected_before_reuse(tmp_path):
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        shard = next((Path(args.output)/'log_shards').glob('*.json'))
+        external = tmp_path/'external_alias.json'
+        external.hardlink_to(shard)
+        before = external.read_bytes()
+>       with pytest.raises((ValueError, f.BudgetExceeded)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'tools.st_world_policy.prepare_future_metadata.BudgetExceeded'>)
+
+tests/st_world/test_review_future_metadata.py:226: Failed
+__________ test_ledger_growth_is_rejected_before_unbounded_read_text ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-489/test_ledger_growth_is_rejected0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f3091c2b880>
+
+    def test_ledger_growth_is_rejected_before_unbounded_read_text(tmp_path, monkeypatch):
+        from starVLA.dataloader import st_world_future_provenance as provenance
+        args, run, _, _ = setup(tmp_path); f.build(run)
+        manifest = json.loads((Path(args.output)/'TEACHER_REQUESTS.json').read_text())
+        ledger = Path(manifest['source_logs_ledger']['path'])
+        # Retain the original vulnerable-window regression without requiring a
+        # corrected implementation to keep its removed second hash/read sequence.
+        original_sha, original_read = getattr(provenance, 'file_sha256', file_sha256), Path.read_text
+        activated = [False]
+        def grow_after_hash(path):
+            digest = original_sha(path)
+            if Path(path) == ledger:
+                activated[0] = True
+                with ledger.open('ab') as stream:
+                    stream.write(b' ' * provenance.MAX_LEDGER_BYTES)
+            return digest
+        def reject_unbounded_large_read(path, *args, **kwargs):
+            if path == ledger:
+                assert path.stat().st_size <= provenance.MAX_LEDGER_BYTES, 'Unbounded read after ledger grew past cap'
+            return original_read(path, *args, **kwargs)
+        monkeypatch.setattr(provenance, 'file_sha256', grow_after_hash, raising=False)
+        monkeypatch.setattr(Path, 'read_text', reject_unbounded_large_read)
+        try:
+>           result = validate_ledger(manifest)
+
+tests/st_world/test_review_future_metadata.py:254: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+starVLA/dataloader/st_world_future_provenance.py:67: in validate_ledger
+    body = json.loads(path.read_text(), object_pairs_hook=pairs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-489/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json')
+args = (), kwargs = {}
+@py_assert1 = <bound method Path.stat of PosixPath('/tmp/pytest-of-root/pytest-489/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json')>
+@py_assert3 = os.stat_result(st_mode=33188, st_ino=6985322393, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792214270, st_mtime=1792214270, st_ctime=1792214270)
+@py_assert5 = 4195694, @py_assert9 = 4194304, @py_assert7 = False
+@py_format11 = "4195694\n{4195694 = os.stat_result(st_mode=33188, st_ino=6985322393, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, ...A-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES\n}"
+@py_format13 = "Unbounded read after ledger grew past cap\n>assert 4195694\n{4195694 = os.stat_result(st_mode=33188, st_ino=698532239...A-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES\n}"
+
+    def reject_unbounded_large_read(path, *args, **kwargs):
+        if path == ledger:
+>           assert path.stat().st_size <= provenance.MAX_LEDGER_BYTES, 'Unbounded read after ledger grew past cap'
+E           AssertionError: Unbounded read after ledger grew past cap
+E           assert 4195694 <= 4194304
+E            +  where 4195694 = os.stat_result(st_mode=33188, st_ino=6985322393, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792214270, st_mtime=1792214270, st_ctime=1792214270).st_size
+E            +    where os.stat_result(st_mode=33188, st_ino=6985322393, st_dev=1048644, st_nlink=1, st_uid=0, st_gid=0, st_size=4195694, st_atime=1792214270, st_mtime=1792214270, st_ctime=1792214270) = stat()
+E            +      where stat = PosixPath('/tmp/pytest-of-root/pytest-489/test_ledger_growth_is_rejected0/future/RAW_LOG_PROVENANCE.json').stat
+E            +  and   4194304 = <module 'starVLA.dataloader.st_world_future_provenance' from '/mnt/project/VLA-Drive-st-future-metadata-correctness-20261017/starVLA/dataloader/st_world_future_provenance.py'>.MAX_LEDGER_BYTES
+
+tests/st_world/test_review_future_metadata.py:249: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[status-PARTIAL]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[schema-wrong]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[plan_identity-0000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[scenes-999]
+FAILED tests/st_world/test_review_future_metadata.py::test_corrupted_complete_control_fields_are_rejected[logs-999]
+FAILED tests/st_world/test_review_future_metadata.py::test_symlinked_log_shard_directory_is_rejected_before_write
+FAILED tests/st_world/test_review_future_metadata.py::test_hardlinked_completed_shard_is_rejected_before_reuse
+FAILED tests/st_world/test_review_future_metadata.py::test_ledger_growth_is_rejected_before_unbounded_read_text
+8 failed, 27 passed, 1 warning in 5.14s
