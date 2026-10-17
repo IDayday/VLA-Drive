@@ -1,0 +1,260 @@
+{
+  "actual_ledger_read_or_mutation": false,
+  "actual_resources": {
+    "claim_peak_disk_bytes": 773218304,
+    "compressed_scene_cache_bytes": 165783978,
+    "control_stat": {
+      "charged_bytes": 20480,
+      "files": [
+        {
+          "charged_bytes": 0,
+          "logical_bytes": 0,
+          "name": "SUPERVISOR.lock"
+        },
+        {
+          "charged_bytes": 16384,
+          "logical_bytes": 15876,
+          "name": "RESULT.json"
+        },
+        {
+          "charged_bytes": 4096,
+          "logical_bytes": 480,
+          "name": "INVOCATION.json"
+        }
+      ],
+      "logical_bytes": 16356
+    },
+    "invocation_seconds": 283.73791239224374,
+    "limits": {
+      "cleanup_seconds": 40,
+      "cpu_affinity": [
+        0,
+        1
+      ],
+      "max_disk_bytes": 2148532224,
+      "max_invocations": 1,
+      "read_bytes": 17179869184,
+      "rss_bytes": 4294967296,
+      "wall_seconds": 3600
+    },
+    "logical_read_terminal_bytes": 2867654447,
+    "peak_aggregate_RSS_bytes_recorded_by_original_monitor": 952291328,
+    "root_stat": {
+      "charged_bytes": 773234688,
+      "files": [
+        {
+          "charged_bytes": 385024,
+          "logical_bytes": 381184,
+          "name": "SHARD_RECEIPTS.json"
+        },
+        {
+          "charged_bytes": 20480,
+          "logical_bytes": 18283,
+          "name": "CONTROL_FINALIZATION_RESULT.json"
+        },
+        {
+          "charged_bytes": 4096,
+          "logical_bytes": 3507,
+          "name": "FINALIZATION_COMPLETE.json"
+        },
+        {
+          "charged_bytes": 772313088,
+          "logical_bytes": 772307583,
+          "name": "TEACHER_REQUESTS.json"
+        },
+        {
+          "charged_bytes": 4096,
+          "logical_bytes": 314,
+          "name": "CONTROL_FINALIZATION_STARTED.json"
+        },
+        {
+          "charged_bytes": 503808,
+          "logical_bytes": 503285,
+          "name": "RAW_LOG_PROVENANCE.json"
+        },
+        {
+          "charged_bytes": 0,
+          "logical_bytes": 0,
+          "name": "FINALIZE.lock"
+        },
+        {
+          "charged_bytes": 4096,
+          "logical_bytes": 1132,
+          "name": "METADATA_ADMISSION.json"
+        }
+      ],
+      "logical_bytes": 773215288
+    },
+    "supervised_child_seconds": 282.900516141206,
+    "writer_read_bytes": 2661893729
+  },
+  "checks": [
+    "small_plain:FINALIZATION_COMPLETE.json",
+    "json_budget",
+    "stable:FINALIZATION_COMPLETE.json",
+    "hash:FINALIZATION_COMPLETE.json",
+    "small_plain:CONTROL_FINALIZATION_RESULT.json",
+    "json_budget",
+    "stable:CONTROL_FINALIZATION_RESULT.json",
+    "hash:CONTROL_FINALIZATION_RESULT.json",
+    "small_plain:RESULT.json",
+    "json_budget",
+    "stable:RESULT.json",
+    "hash:RESULT.json",
+    "small_plain:INVOCATION.json",
+    "json_budget",
+    "stable:INVOCATION.json",
+    "hash:INVOCATION.json",
+    "exact_admission",
+    "small_plain:ACTUAL_RESOURCE_ADMISSION.json",
+    "json_budget",
+    "stable:ACTUAL_RESOURCE_ADMISSION.json",
+    "hash:ACTUAL_RESOURCE_ADMISSION.json",
+    "small_plain:DRAFT_STORAGE_REGISTRATION.json",
+    "json_budget",
+    "stable:DRAFT_STORAGE_REGISTRATION.json",
+    "hash:DRAFT_STORAGE_REGISTRATION.json",
+    "small_plain:DRAFT_FINALIZATION_REGISTRATION.json",
+    "json_budget",
+    "stable:DRAFT_FINALIZATION_REGISTRATION.json",
+    "hash:DRAFT_FINALIZATION_REGISTRATION.json",
+    "small_plain:CONTROL_BUILD_RESULT.json",
+    "json_budget",
+    "stable:CONTROL_BUILD_RESULT.json",
+    "hash:CONTROL_BUILD_RESULT.json",
+    "old_failure_preserved",
+    "failure_lineage",
+    "complete_schema",
+    "full_coverage_receipt",
+    "source_census_identity",
+    "complete_self_identity",
+    "metadata_only",
+    "terminal_complete",
+    "root_marker_not_terminal",
+    "one_invocation_identity",
+    "monitor_success",
+    "cleanup_receipts",
+    "artifact_matches_all_receipts",
+    "claim_registration_match",
+    "guard_callbacks_executed",
+    "elapsed_bound",
+    "recorded_rss_bound",
+    "claim_peak_disk_bound",
+    "claim_inclusive_reservation",
+    "accounting_baseline",
+    "single_postwait_charge",
+    "child_absorbed_once",
+    "later_publication_reads_included",
+    "writer_cost_below_outer_budget",
+    "bounded_entry_count",
+    "allowed_stat_only:SHARD_RECEIPTS.json",
+    "allowed_stat_only:CONTROL_FINALIZATION_RESULT.json",
+    "allowed_stat_only:FINALIZATION_COMPLETE.json",
+    "allowed_stat_only:TEACHER_REQUESTS.json",
+    "allowed_stat_only:CONTROL_FINALIZATION_STARTED.json",
+    "allowed_stat_only:RAW_LOG_PROVENANCE.json",
+    "allowed_stat_only:FINALIZE.lock",
+    "allowed_stat_only:METADATA_ADMISSION.json",
+    "bounded_entry_count",
+    "allowed_stat_only:SUPERVISOR.lock",
+    "allowed_stat_only:RESULT.json",
+    "allowed_stat_only:INVOCATION.json",
+    "terminal_stat_disk_bounds",
+    "combined_disk_bound",
+    "original_process_exited:540671",
+    "original_process_exited:540678",
+    "review_budget"
+  ],
+  "coverage": {
+    "basis": "pinned complete receipt and matching CLI artifact; no request-body rescan",
+    "logs": 1176,
+    "request_identity": "0c8132c3b3ac97aa8adf88736a46594427f845a03712e34f2e53ea91ce5be57b",
+    "request_sha256": "5f43583a4a0f35a2fc9374d3b6c59442332b8f00721f63bd1ef1fdc9f5bb71ef",
+    "scenes": 101592
+  },
+  "dispatch": false,
+  "evidence": [
+    {
+      "bytes": 3507,
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json",
+      "sha256": "16c47d6603144dcabe0c764f85c23c231bb0edfaf347d869f93c34d79bdc5438"
+    },
+    {
+      "bytes": 18283,
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1/CONTROL_FINALIZATION_RESULT.json",
+      "sha256": "10566f3eab44dab4ab42e2fb9992a0621bf2fb21cc904b2d333d004bec7cf654"
+    },
+    {
+      "bytes": 15876,
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_future_finalization_v1_controls/RESULT.json",
+      "sha256": "db72d9418d390d66af7622a35999921f207d588c969ae017f42857572daec7dd"
+    },
+    {
+      "bytes": 480,
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_future_finalization_v1_controls/INVOCATION.json",
+      "sha256": "04926c223a25ce33febb8929f0048e05aadead0a0e15972f20fd1dfedecb6d04"
+    },
+    {
+      "bytes": 6892,
+      "path": "/mnt/project/VLA-Drive-st-finalizer-control-resource-review-20261017/reports/st_world_policy/20261017/future_finalization_control_resource_independent_v1/ACTUAL_RESOURCE_ADMISSION.json",
+      "sha256": "eb15cea1e9df6f8671c7b3da056815422ac73218c45e664011a6bd8e944f6033"
+    },
+    {
+      "bytes": 3469,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_STORAGE_REGISTRATION.json",
+      "sha256": "1b42bc7bd3294444e111e0b4049fa9ab29dd884780663d720eaedafa8774705c"
+    },
+    {
+      "bytes": 4005,
+      "path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_FINALIZATION_REGISTRATION.json",
+      "sha256": "e265861615b9f2dafd219c46e165934e1bb148517de5f6b07c49896d497df707"
+    },
+    {
+      "bytes": 2961,
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1/CONTROL_BUILD_RESULT.json",
+      "sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6"
+    }
+  ],
+  "fresh_old_failure_hash": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6",
+  "old_source_status": "FAILED_NO_AUTO_RETRY",
+  "original_process_checks": [
+    {
+      "expected_start_ticks": 1368453455,
+      "pid": 540671,
+      "present": false,
+      "same_original_process": false
+    },
+    {
+      "expected_start_ticks": 1368453542,
+      "pid": 540678,
+      "present": false,
+      "same_original_process": false
+    }
+  ],
+  "payload_read_or_hash_scan": false,
+  "remaining_boundaries": [
+    "Current review independently checks original monitor receipts/counters, not a second continuous RSS history.",
+    "TEACHER_REQUESTS and source shards were not read/hashed; only bounded directory entries were statted.",
+    "The image_or_other read category is an inherited generic hash counter; metadata-only scope is bound to reviewed source/receipts, not inferred from category label.",
+    "Current storage claim accounting verified via pinned registration and executed guard receipts, not live ledger contents.",
+    "Any next index preparation requires fresh policy/ledger/checkpoint pins and its own finite whole-process admission."
+  ],
+  "review_cost": {
+    "actual_process_VmHWM_bytes": 15052800,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "elapsed_seconds": 0.029402313753962517,
+    "explicit_JSON_read_bytes": 55473
+  },
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "schema": "st_future_finalization_independent_actual_terminal_resource_review_v1",
+  "scientific_or_training_PASS": false,
+  "status": "PASS_ACTUAL_TERMINAL_RESOURCE_REVIEW_ONLY",
+  "wait_accounting": {
+    "child_not_added_twice": true,
+    "later_parent_publication_read_bytes": 1112482,
+    "parent_postwait_minus_baseline": 2866541965
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "st_index_preparation_resource_proposal_v1",
+  "status": "PROPOSED_NOT_ADMITTED",
+  "scope": "one-shot index control preparation only, not index build",
+  "proposed_limits": {
+    "wall_seconds": 120,
+    "rss_bytes": 1073741824,
+    "total_process_logical_read_bytes": 402653184
+  },
+  "accounting": "Start before Python/Torch lazy imports and include actual completion validator internal reads. No double post-wait charging. Explicit cleanup and control-output limits must match the submitted supervisor.",
+  "metadata_plan_bytes": 8075083776,
+  "pending_included_once": {
+    "DEV_index_bytes": 134217728,
+    "TRAIN_index_bytes": 2147483648
+  },
+  "dependencies_pending": [
+    "exact one-shot supervisor source and command",
+    "fresh parent-linked checkpoint commitment receipt",
+    "fresh policy and ledger identity after the completed finalizer",
+    "explicit administrative output reservation"
+  ],
+  "dispatch_allowed": false,
+  "index_build_allowed": false
+}
