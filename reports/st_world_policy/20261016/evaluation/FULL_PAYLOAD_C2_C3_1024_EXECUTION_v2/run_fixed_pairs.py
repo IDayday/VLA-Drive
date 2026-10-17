@@ -25,6 +25,9 @@ import traceback
 MiB = 1 << 20
 TOTAL_READ = 1 << 30
 OUTPUT_LIMIT = 32 * MiB
+CONTROL_RESERVE = 16 * MiB
+ADMISSION_RESERVE = 64 * 1024
+ANALYSIS_LIMIT = OUTPUT_LIMIT - CONTROL_RESERVE - ADMISSION_RESERVE
 PAIR_LIMITS = dict(wall_seconds=1800, cleanup_seconds=40, rss_bytes=2 << 30,
                    cpu_affinity=[0, 1], stdout_bytes=MiB, stderr_bytes=MiB)
 ROOT = Path('/mnt/project/st-world-policy-20261016')
@@ -122,7 +125,7 @@ def output_size(root):
         if not p.is_file(): raise ValueError('Unexpected analysis output entry')
         stat = p.stat(); key = stat.st_dev, stat.st_ino
         if key not in seen: size += stat.st_size; seen.add(key)
-    if size > OUTPUT_LIMIT: raise ValueError('Analysis output exceeds 32MiB')
+    if size > ANALYSIS_LIMIT: raise ValueError('Analysis output consumes reserved control headroom')
     return size
 
 
@@ -169,7 +172,7 @@ def complete_output(command, core, budget):
 
 class ReadMeter:
     """Parent /proc counters absorb each reaped child exactly once."""
-    def __init__(self, cap=TOTAL_READ): self.cap, self.total, self.last = cap, 0, 0
+    def __init__(self, cap=TOTAL_READ, spent=0): self.cap, self.total, self.last = cap, spent, 0
     def parent(self, current):
         n = current['rchar']
         if n < self.last: raise ValueError('Nonmonotonic parent reads')
@@ -183,24 +186,25 @@ class ReadMeter:
         return charge
 
 
-def immutable(path, value):
+def immutable(path, value, cap=CONTROL_RESERVE):
     raw = (json.dumps(value, sort_keys=True, allow_nan=False, ensure_ascii=True) + '\n').encode()
     # Two retained 1MiB pipe prefixes can expand through JSON escaping.
-    if len(raw) > 16 * MiB: raise ValueError('Serialized control exceeds 16MiB')
+    if len(raw) > cap: raise ValueError('Serialized control exceeds reserved bytes')
     with safe(path).open('xb') as stream: stream.write(raw)
     return hashlib.sha256(raw).hexdigest()
 
 
 class OutputGuard:
-    def __init__(self, root, payloads, cap=OUTPUT_LIMIT):
+    def __init__(self, root, payloads, cap=ANALYSIS_LIMIT):
         self.root, self.payloads, self.cap, self.written = safe(root), set(payloads), cap, 0
+        self.enforce_writes = True
     def audit(self, event, args):
         if event != 'open' or not isinstance(args[0], (str, bytes)): return
         path = Path(os.fsdecode(args[0])).absolute(); flags = args[2]
-        if flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT):
-            self.allowed_write(path)
-        elif path.suffix.lower() in ('.pt', '.pth', '.npz', '.npy', '.pkl', '.gz', '.safetensors', '.png', '.jpg', '.jpeg') or str(path).startswith('/dev/nvidia'):
+        if path.suffix.lower() in ('.pt', '.pth', '.npz', '.npy', '.pkl', '.gz', '.safetensors', '.png', '.jpg', '.jpeg') or str(path).startswith('/dev/nvidia'):
             if path not in self.payloads: raise ValueError('Payload outside fixed ledger/prediction/dev-GT allowlist')
+        if self.enforce_writes and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT):
+            self.allowed_write(path)
     def allowed_write(self, path):
         path = safe(path)
         if path.parent != self.root or not (path.name in ('ANALYSIS.json', 'PAIRED_SCENES.csv') or re.fullmatch(r'ANALYSIS\.json\.tmp\.[0-9a-f]{32}', path.name)):
@@ -217,7 +221,7 @@ class OutputGuard:
             def __exit__(self, *args): return self.stream.__exit__(*args)
             def write(self, value):
                 data = value.encode(getattr(self.stream, 'encoding', None) or 'utf8') if isinstance(value, str) else value
-                if owner.written + len(data) > owner.cap: raise ValueError('Serialized output exceeds 32MiB before write')
+                if owner.written + len(data) > owner.cap: raise ValueError('Serialized output exceeds reserved analysis bytes before write')
                 owner.written += len(data)
                 return self.stream.write(value)
             def writelines(self, lines):
@@ -259,6 +263,15 @@ def allowed_payloads(command, core):
     return paths
 
 
+def preload_analysis_imports():
+    # Pure imports used by the fixed CLI. Torch/dill inspect /dev/null and
+    # standard-library temporary files; these are not analysis output writes.
+    # Payload-read protection and outer RSS/rchar monitoring remain active.
+    import torch
+    from tools.st_world_policy import export_world, score_world, base_binding
+    from starVLA.dataloader.foresight_dataset import decode_ego
+
+
 def child(pair):
     os.fstat(int(os.environ['ST_EVAL_CHILD_LOCK_FD']))
     if os.getpid() != os.getpgrp() or os.environ.get('CUDA_VISIBLE_DEVICES') != '':
@@ -266,10 +279,13 @@ def child(pair):
     core, _, obs = dependencies(); commands, _ = fixed_commands(core)
     command = commands[('C2', 'C3').index(pair)]
     guard = OutputGuard(option(command, 'output'), allowed_payloads(command, core))
+    guard.enforce_writes = False
     sys.addaudithook(guard.audit)
     sys.path.insert(0, str(RUNTIME)); sys.dont_write_bytecode = True
     stdout, code, error = SmallText(), 0, None
     try:
+        preload_analysis_imports()
+        guard.enforce_writes = True
         sys.argv = ['tools.st_world_policy.evaluate_campaign', *command['argv'][3:]]
         with guard.writers(), redirect_stdout(stdout):
             try: runpy.run_module('tools.st_world_policy.evaluate_campaign', run_name='__main__', alter_sys=True)
@@ -319,7 +335,9 @@ def run_pair(command, budget, core, supervisor, observer, metadata, lock, meter)
         immutable(attempt / 'ADMITTED.json', {'command': command, 'commands': COMMANDS, 'budget_preparation': BUDGET,
             'adapter_sha256': file_hash(Path(__file__).absolute()), 'core': CORE,
             'limits': PAIR_LIMITS, 'total_whole_process_read_cap_bytes': TOTAL_READ,
-            'output_cap_bytes': OUTPUT_LIMIT, 'automatic_retry': False, 'started_unix': time.time()})
+            'output_cap_bytes_including_controls': OUTPUT_LIMIT, 'analysis_write_cap_bytes': ANALYSIS_LIMIT,
+            'result_reserve_bytes': CONTROL_RESERVE, 'admission_reserve_bytes': ADMISSION_RESERVE,
+            'automatic_retry': False, 'started_unix': time.time()}, cap=ADMISSION_RESERVE // 2)
         env = {**os.environ, **command['env'], 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': str(RUNTIME),
                'ST_EVAL_CHILD_LOCK_FD': str(lock.fileno())}
         baseline = observer.proc_io(); remaining = meter.parent(baseline)
@@ -368,13 +386,34 @@ def main():
     safe(CONTROL); CONTROL.mkdir(parents=True, exist_ok=True)
     with (CONTROL / 'RUN.lock').open('a+') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        session_state(commands)
+        immutable(CONTROL / 'SESSION_STARTED.json', {'commands': COMMANDS, 'read_cap': TOTAL_READ,
+            'scope': 'one fixed sequential session; interruption is spent, not resumable'}, cap=16 * 1024)
         meter = ReadMeter(); results = []
-        for command in commands:
-            results.append(run_pair(command, budget, core, supervisor, observer, metadata, lock, meter))
-        meter.parent(observer.proc_io())
-        print(json.dumps({'status': 'COMPLETE', 'pairs': results, 'charged_whole_process_rchar_bytes': meter.total,
-                          'gpu': False, 'scoring_calls': 0, 'automatic_retry': False}))
+        try:
+            for command in commands:
+                results.append(run_pair(command, budget, core, supervisor, observer, metadata, lock, meter))
+            meter.parent(observer.proc_io())
+            result = {'status': 'COMPLETE', 'pairs': results, 'charged_whole_process_rchar_bytes': meter.total,
+                      'gpu': False, 'scoring_calls': 0, 'automatic_retry': False}
+            immutable(CONTROL / 'SESSION_TERMINAL.json', result, cap=16 * 1024)
+            print(json.dumps(result))
+        except BaseException as exc:
+            if not (CONTROL / 'SESSION_TERMINAL.json').exists():
+                immutable(CONTROL / 'SESSION_TERMINAL.json', {'status': 'FAILED_NO_AUTO_RETRY',
+                    'error': str(exc)[:2048], 'conservative_spent_bytes': max(TOTAL_READ, meter.total)}, cap=16 * 1024)
+            raise
     return 0
+
+
+def session_state(commands):
+    # Never infer unrecorded shutdown costs from a completed-prefix lower bound.
+    # A consumed session (including success) cannot obtain a fresh read allowance.
+    paths = [CONTROL / 'SESSION_STARTED.json', CONTROL / 'SESSION_TERMINAL.json',
+             *(CONTROL / c['comparison'] for c in commands)]
+    if any(path.exists() for path in paths):
+        raise ValueError('Consumed session; inspect retained results, no new --execute or automatic continuation')
+    return False
 
 
 if __name__ == '__main__': raise SystemExit(main())

@@ -1,0 +1,91 @@
+{
+  "adapter_sha256": "2a47c91254707d3390bb74f92516b9cb5f48bf64d2365d2e874c81a6064a0c5f",
+  "charged_owned_child_rchar_bytes": 136622502,
+  "child_accounting": {
+    "cli_result": {
+      "evaluation_payload_apis_invoked": false,
+      "fixture_output_bytes": 68,
+      "help_exit": 0,
+      "original_immutable_json": "PASS"
+    },
+    "counters": {
+      "proc_self_io_baseline": {
+        "cancelled_write_bytes": 0,
+        "rchar": 1298088,
+        "read_bytes": 0,
+        "syscr": 200,
+        "syscw": 0,
+        "wchar": 0,
+        "write_bytes": 0
+      },
+      "proc_self_io_delta": {
+        "cancelled_write_bytes": 4096,
+        "rchar": 135324297,
+        "read_bytes": 331776,
+        "syscr": 18660,
+        "syscw": 8,
+        "wchar": 5763,
+        "write_bytes": 12288
+      },
+      "proc_self_io_final": {
+        "cancelled_write_bytes": 4096,
+        "rchar": 136622385,
+        "read_bytes": 331776,
+        "syscr": 18860,
+        "syscw": 8,
+        "wchar": 5763,
+        "write_bytes": 12288
+      }
+    },
+    "schema": "st_full_future_child_result_v2"
+  },
+  "cleanup": {
+    "live_owned_remaining": 0,
+    "verified_processes": 1
+  },
+  "failure": null,
+  "fixture_python_source": "import importlib.util, json, runpy, sys\nfrom pathlib import Path\nfrom contextlib import redirect_stdout\np=Path(sys.argv[1]); out=Path(sys.argv[2]); runtime=sys.argv[3]\ns=importlib.util.spec_from_file_location(\"adapter\",p); a=importlib.util.module_from_spec(s); s.loader.exec_module(a)\n_,_,obs=a.dependencies(); before=obs.proc_io()\ng=a.OutputGuard(out, []); g.enforce_writes=False; sys.path.insert(0,runtime); sys.dont_write_bytecode=True\nsys.addaudithook(g.audit); a.preload_analysis_imports(); g.enforce_writes=True\nbuf=a.SmallText()\nwith g.writers(), redirect_stdout(buf):\n sys.argv=[\"tools.st_world_policy.evaluate_campaign\", \"--help\"]\n try: runpy.run_module(\"tools.st_world_policy.evaluate_campaign\",run_name=\"__main__\",alter_sys=True)\n except SystemExit as ex: assert ex.code==0\n from tools.st_world_policy.base_binding import immutable_json\n immutable_json(out/\"ANALYSIS.json\",{\"fixture_only\":True,\"unicode\":\"\u4e2d\",\"text\":\"\\n\\\"\"})\nassert \"--control-score\" in buf.getvalue()\nassert json.loads((out/\"ANALYSIS.json\").read_text())[\"fixture_only\"]\nafter=obs.proc_io()\nprint(json.dumps({\"schema\":\"st_full_future_child_result_v2\",\"cli_result\":{\"help_exit\":0,\"original_immutable_json\":\"PASS\",\"fixture_output_bytes\":g.written,\"evaluation_payload_apis_invoked\":False},\"counters\":{\"proc_self_io_baseline\":before,\"proc_self_io_final\":after,\"proc_self_io_delta\":{k:after[k]-before[k] for k in after}}}))\n",
+  "invocation_seconds": 3.882089303806424,
+  "peak_aggregate_rss_bytes": 635101184,
+  "read_accounting": {
+    "charged_parent_child_rchar_bytes": 137003629,
+    "child_terminal_rchar_bytes": 136622502,
+    "parent_activity_during_wait_rchar_bytes": 19953,
+    "parent_baseline": {
+      "cancelled_write_bytes": 4096,
+      "rchar": 1561472,
+      "read_bytes": 4435968,
+      "syscr": 229,
+      "syscw": 1,
+      "wchar": 4,
+      "write_bytes": 4096
+    },
+    "parent_post_reap": {
+      "cancelled_write_bytes": 12288,
+      "rchar": 138565101,
+      "read_bytes": 4767744,
+      "syscr": 21367,
+      "syscw": 10,
+      "wchar": 6433,
+      "write_bytes": 16384
+    },
+    "parent_post_reap_delta_rchar_bytes": 137003629,
+    "parent_pre_reap": {
+      "cancelled_write_bytes": 4096,
+      "rchar": 1922646,
+      "read_bytes": 4435968,
+      "syscr": 2381,
+      "syscw": 1,
+      "wchar": 4,
+      "write_bytes": 4096
+    },
+    "parent_pre_reap_delta_rchar_bytes": 361174,
+    "schema": "st_wait_boundary_read_accounting_v1",
+    "status": "COMPLETE"
+  },
+  "returncode": 0,
+  "scope": "CPU cold import + original CLI --help + original immutable_json small fixture only; no real analysis/payload",
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "status": "PASS",
+  "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+}

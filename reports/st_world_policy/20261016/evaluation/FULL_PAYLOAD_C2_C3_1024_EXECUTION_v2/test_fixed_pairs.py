@@ -59,6 +59,32 @@ def test_incomplete_wait_accounting_consumes_remaining_allowance():
     assert meter.total == 1000
 
 
+def test_completed_prefix_cannot_obtain_new_budget(tmp_path, monkeypatch):
+    monkeypatch.setattr(m, 'CONTROL', tmp_path)
+    commands = [{'comparison': k} for k in ('C2_minus_C0', 'C3_minus_C0')]
+    for command, spent in zip(commands, (400, 900)):
+        attempt = tmp_path / command['comparison']; attempt.mkdir()
+        (attempt / 'RESULT.json').write_text(json.dumps({'status': 'COMPLETE', 'cumulative_whole_process_rchar_bytes': spent}))
+    with pytest.raises(ValueError, match='Consumed session'): m.session_state(commands)
+
+
+def test_output_budget_includes_both_control_receipts():
+    assert m.ANALYSIS_LIMIT + m.CONTROL_RESERVE + m.ADMISSION_RESERVE == 32 * m.MiB
+
+
+def test_interrupted_session_cannot_spend_fresh_budget(tmp_path, monkeypatch):
+    monkeypatch.setattr(m, 'CONTROL', tmp_path)
+    commands = [{'comparison': k} for k in ('C2_minus_C0', 'C3_minus_C0')]
+    assert m.session_state(commands) is False
+    (tmp_path / 'SESSION_STARTED.json').write_text('{}')
+    with pytest.raises(ValueError, match='Consumed session'): m.session_state(commands)
+    for c in commands:
+        (tmp_path / c['comparison']).mkdir()
+        (tmp_path / c['comparison'] / 'RESULT.json').write_text('{}')
+    (tmp_path / 'SESSION_TERMINAL.json').write_text(json.dumps({'status': 'COMPLETE', 'pairs': [{}, {}]}))
+    with pytest.raises(ValueError, match='Consumed session'): m.session_state(commands)
+
+
 def test_serialized_bytes_checked_before_write_and_partial_retained(tmp_path):
     root = tmp_path / 'out'; root.mkdir()
     guard = m.OutputGuard(root, [], cap=10)
