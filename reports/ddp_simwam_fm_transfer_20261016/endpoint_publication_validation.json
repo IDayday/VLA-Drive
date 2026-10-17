@@ -1,0 +1,84 @@
+{
+  "status": "PASS_ENDPOINT_PACKAGER_NOT_B_ENDPOINT_OR_NAVTEST_RESULT",
+  "source_sha256": "d5e789a9b2fa9d250b46ce7d17d2b88ae08725d60172bcee3ed94683600b2355",
+  "qualification_sha256": "b4953a5e7133959bc1fc4a33f5d51c18aa4d627fe2d979dcc20e74de9d0ec48f",
+  "started_unix": 1792249076.5449932,
+  "ended_unix": 1792249076.710577,
+  "checks": [
+    {
+      "check": "actual_complete_A_endpoint_validation",
+      "status": "PASS",
+      "crosschecks": 4
+    },
+    {
+      "check": "actual_A_package_hashes_and_last_complete",
+      "status": "PASS",
+      "files": 16
+    },
+    {
+      "check": "individual_private_payloads_omitted",
+      "status": "PASS"
+    },
+    {
+      "check": "existing_output_rejected_without_overwrite",
+      "status": "PASS"
+    },
+    {
+      "check": "reject_wrong_budget",
+      "status": "PASS",
+      "rejection": "Wrong effective budget",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "reject_open_cost_ledger",
+      "status": "PASS",
+      "rejection": "Training cost ledger remains open",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "reject_ready_instead_of_complete",
+      "status": "PASS",
+      "rejection": "Wrong checkpoint phase",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "reject_mixed_own_SFT",
+      "status": "PASS",
+      "rejection": "Wrong paired reference or safety population",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "reject_inconsistent_gain",
+      "status": "PASS",
+      "rejection": "Independent numerical summaries disagree",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "reject_mixed_rank_identity",
+      "status": "PASS",
+      "rejection": "Actual rank evidence differs from the evaluation identity",
+      "real_input_files_unmodified": true
+    },
+    {
+      "check": "actual_unfinished_B_rejected",
+      "status": "PASS",
+      "missing_path": "/mnt/project/fm-transfer-20261016/qualification/B_RL20k_analysis/completion.json"
+    },
+    {
+      "check": "already_published_B_completion_verifier_matches",
+      "status": "PASS",
+      "sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63"
+    }
+  ],
+  "original_A_evidence_hashes": {
+    "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_complete_training.json": "50ce541adde43db526cc45a4a3de1e89a3bccaee5af5d2d7398b794ca2376aec",
+    "/mnt/project/fm-transfer-20261016/qualification/A_RL20k_analysis/completion.json": "1942e8159ef66410872b6a54b8efe46e1d2d685a736880d31e8dc3b07d8aa7b5",
+    "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_update020000_population.json": "5fc66b495885f12f1157a055cee9a39d93dfc9b6c764de52c00b2a92ac37d3fa",
+    "/mnt/project/fm-transfer-20261016/analysis/A_DDP_TIME_RL_update020000_saved_batch.json": "e63bbb91eea0f1b271bbf6c51a71bc40141ab66e40b0b064242a0836f154a2bc"
+  },
+  "new_candidates": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "actual_B_endpoint_complete": false,
+  "note": "Negative fixtures alter in-memory copies only; real training/evaluation artifacts preserved."
+}
