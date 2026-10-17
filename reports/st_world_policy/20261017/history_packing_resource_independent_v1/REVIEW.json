@@ -1,0 +1,96 @@
+{
+  "schema": "st_history_packing_code_resource_review_v1",
+  "status": "PASS_CODE_RESOURCE_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "reviewed_source_commit": "fc76b5f075f0f3ed2fbc0cc35825bd557d3fa006",
+  "comparison_base": "112ef4c4",
+  "created_at": "2026-10-17T12:54:30.788529+00:00",
+  "source_pins": [
+    {
+      "path": "tools/st_world_policy/history_shards.py",
+      "sha256": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043"
+    },
+    {
+      "path": "tools/st_world_policy/prepare_causal_history.py",
+      "sha256": "87f9fb3f5e864962788198076618bdda3edc3d59e231b6ba9bd902080e5c3d63"
+    },
+    {
+      "path": "tools/st_world_policy/metadata_storage.py",
+      "sha256": "7016833537d54ed84081ed47a02163fa0f7462e1053e911726c9b6d09b08d448"
+    },
+    {
+      "path": "starVLA/dataloader/st_world_history.py",
+      "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+    }
+  ],
+  "tests": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "warning": 1,
+    "test_result_sha256": "79e2bc85862728ffa442cf04ce06f887b86c4497d58ae94e7be8514eff42584b",
+    "full_log_sha256": "f790f381729d9fb2985da2182a04407e8e16b866cc2f273ed4958ef092c6cc91"
+  },
+  "resource_evidence": {
+    "elapsed_seconds": 5.043840939179063,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "peak_sampled_rss_bytes": 661086208,
+    "post_wait_logical_read_bytes": 162511984,
+    "fixture_root": "/tmp/pytest-of-root/pytest-707",
+    "fixture_logical_bytes": 10976437,
+    "fixture_allocated_bytes": 11001856,
+    "fixture_files": 10,
+    "artifact_limit_bytes": 33554432,
+    "read_limit_bytes": 2147483648,
+    "rss_limit_bytes": 2147483648,
+    "wall_limit_seconds": 120
+  },
+  "verified_boundaries": {
+    "max_record_bytes": 1048576,
+    "max_shard_bytes": 4194304,
+    "max_records_per_shard": 128,
+    "max_shards_supported": 4096,
+    "global_max_entries_unchanged": 20000,
+    "max_census_reuse_seconds": 5,
+    "census_only_for": "history_preparation + packed_log_v1 + immutable_history_shards_v1",
+    "publication_and_path_checks_force_census": true,
+    "rss_checkpoint_reserve_and_free_space_checked_every_callback": true,
+    "metadata_writing_full_ledger_precharge_resume_AST_unchanged": true,
+    "retained_partials_in_initial_disk_inventory": true,
+    "resume_immutable_shard_verification_charged_to_read_budget": true,
+    "reader_one_pread_exact_range_per_call": true,
+    "reader_no_resident_shard_cache": true,
+    "reader_max_transient_fds_in_real_fixture": 4,
+    "reader_fd_count_returns_to_baseline_after_100_reads_and_10_failures": true
+  },
+  "negative_cases": [
+    "Oversize record rejected before shard publication",
+    "Explicit shard count exhausted: no unbounded extension",
+    "Resumed immutable shard reads rejected when source-read budget insufficient; existing bytes/inodes preserved",
+    "Retained partial exceeds resumed metadata cap: rejected, partial preserved",
+    "Packed census cannot be enabled for future/current index or per-file history",
+    "Global max_entries20001 rejected",
+    "Disk increase becomes sticky failure at next prepublication census"
+  ],
+  "limits_of_conclusion": [
+    "No real raw logs/images/teacher payloads or full population were read or built",
+    "No active metadata contents scanned and no actual ledger/claim/admission/dispatch mutated",
+    "Existing writer and future metadata runtime remain untouched",
+    "Record buffers are <=4MiB, but all manifest/index rows and original source-log structures remain in RAM; full population peak is unmeasured",
+    "Total census cost is not proven linear: scans remain proportional to shard publications and retained shard count plus periodic scans",
+    "Resume reconstructs and rehashes source data; not cheap per-log skip resume",
+    "Cooperative checks need the already-required external finite monitor; sampled RSS is not a cgroup hard ceiling",
+    "The 5-second cached disk view is scoped to immutable packed storage; every actual publication/path check performs original census",
+    "No claim that4096 shards or existing disk allowance covers every real population; actual pilot and subsequent bounded admission are separate"
+  ],
+  "full_scale_cost": "UNTESTED",
+  "real_history_coverage": "NOT_RUN",
+  "gpu_used": false,
+  "raw_or_teacher_payload_reads": false,
+  "actual_ledger_or_claim_mutation": false,
+  "actual_dispatch": false,
+  "new_gate_framework": false
+}
