@@ -1,0 +1,101 @@
+{
+  "actual_stop_requested_utc": "2026-10-17T13:13:27Z",
+  "build_lock": {
+    "bytes": 0,
+    "device_major_minor_inode": [
+      941,
+      925238,
+      144115927531689814
+    ],
+    "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1/BUILD.lock",
+    "proc_locks_matches": [],
+    "regular": true,
+    "scope": "local kernel /proc/locks; no exclusive acquisition or ledger mutation; not a global multi-host lock assertion",
+    "status": "NO_KERNEL_LOCK_RECORD_OBSERVED"
+  },
+  "complete_receipt_present": false,
+  "dispatch": false,
+  "evidence": {
+    "OBSERVATION.json": {
+      "bytes": 8284,
+      "sha256": "a28337ce1e9a76a0dd9ef29a0ac5c38155b0b48a28c28f01a8582026d907848f"
+    },
+    "ORIGINAL_RESULT.json": {
+      "bytes": 2961,
+      "sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6"
+    },
+    "STOP_RECEIPT.json": {
+      "bytes": 2547,
+      "sha256": "14e75d9e34f5c5f4274cd3a3b10432ff5249037843b8c8ffe9d7f87924d51f63"
+    }
+  },
+  "exact_parent_child_absent_before_and_after": true,
+  "independent_short_inspection": {
+    "affinity": [
+      8,
+      9
+    ],
+    "elapsed_seconds": 0.3478612918406725,
+    "gpu_calls": 0,
+    "ledger_mutations": 0,
+    "note": "New independent short inspection only; does not replace earlier observer RSS FAIL.",
+    "raw_payload_reads": 0,
+    "read_bytes": 10935,
+    "ru_maxrss_bytes": 15675392,
+    "self_memory": [
+      "VmSize:\t   23632 kB",
+      "VmHWM:\t   15308 kB",
+      "VmRSS:\t   15308 kB"
+    ],
+    "signals": 0
+  },
+  "inspected_runtime_commit": "838dd21f7a16a79086a44bc63be056d6a750570e",
+  "ledger_mutations": 0,
+  "observation_utc": "2026-10-17 13:14:47 UTC",
+  "original_cleanup_report": {
+    "live_owned_remaining": 0,
+    "verified_processes": 1
+  },
+  "original_failure": "SUPERVISOR_SIGNAL_15",
+  "original_result_sha256": "0a29abe2f9f57ba3a70b923abb9dccb839aa8c65a3cdf374d4f4d402cc75fca6",
+  "original_status": "FAILED_NO_AUTO_RETRY",
+  "original_status_preserved": true,
+  "previous_observer_resource_fail_retained": {
+    "not_retested_or_overridden": true,
+    "path": "../full_future_train_terminal_review_v1/REVIEW.json",
+    "status": "FAIL_REPORTED_RSS_OVER_CAP"
+  },
+  "resource_scope_note": "New administrative task only. Source target sampling occurred13:14:09\u201313:14:47 UTC inside90s; script bounds payload reads8MiB/output1MiB/AS256MiB on CPUs8,9. 10935B reports explicit bounded content reads, not a measured global all-tools rchar total. All artifact/source payload reads are forbidden outside exact approved targets.",
+  "returncode": -15,
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "schema": "st_train_metadata_terminal_accounting_independent_v2",
+  "scientific_result": false,
+  "shard_content_verification": false,
+  "shard_stat": {
+    "bytes": 984972623,
+    "entries": 1176,
+    "non_json": [],
+    "regular_json": 1176,
+    "symlinks": 0
+  },
+  "signals_sent_by_reviewer": 0,
+  "source_review_parent_commit": "05dd1aff12ccd9ca5dd4d442a5d51bc647213105",
+  "status": "CONTROLLED_STOP_CONFIRMED_ORIGINAL_FAILURE_RETAINED",
+  "stop_receipt_sha256": "14e75d9e34f5c5f4274cd3a3b10432ff5249037843b8c8ffe9d7f87924d51f63",
+  "terminal_accounting": {
+    "C_equals_terminal": true,
+    "budget_bytes": 549755813888,
+    "child_terminal_rchar": 311382658089,
+    "duplicate_child_charge_triggered": true,
+    "method": "Original pinned source waits/reaps before evaluating T=C+(parent_after_wait-BOOT_IO). Its C equals actual child terminal /proc counter. Subtract only the duplicate C; no estimated source bytes, wall*workers, or original result mutation. The parent term is bounded and includes inherited waited-child accounting; controller result publication after that read is outside this recorded term.",
+    "not_a_success_conversion": "The independent stop, child returncode -15, absent final accounting/CLI artifact and absent COMPLETE remain failures regardless of corrected count.",
+    "once_charged_GiB": 291.2068765005097,
+    "one_charge_bound_below_budget_bytes": 237074811153,
+    "one_charge_parent_after_wait_minus_boot_T_minus_C": 312681002735,
+    "parent_own_increment_T_minus_2C": 1298344646,
+    "recorded_child_C": 311382658089,
+    "recorded_total_T": 624063660824,
+    "recorded_total_above_budget_bytes": 74307846936
+  },
+  "training_or_retry_authorized": false
+}
