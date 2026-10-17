@@ -44,7 +44,9 @@ Draft controls
 
 Finite adapter
   The adapter preserves the latest history64 finite control flow and uses its
-  frozen reviewed run_build_once.monitor / charge_after_reap / OwnedDescendants.
+  frozen reviewed run_build_once.monitor / charge_after_reap / OwnedSession.
+  Ownership here uses PID/start/SID/pidfd for this single-reader CPU invocation;
+  this handoff does not establish cross-session or DDP descendant coverage.
   CONTROLLER_DIFF.patch records the limited changes from that controller.
   Differences: fixed new runtime and roots, exact finalizer command/registration
   instead of history64 selection, CPU 0/1, 3600 s + 40 s cleanup, 16 GiB total
