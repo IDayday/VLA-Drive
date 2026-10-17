@@ -1,0 +1,39 @@
+{
+  "schema": "st_teacher_channel_matched_training_observation_v1",
+  "reviewer": "/root/teacher_method_synthesis",
+  "recorded_utc": "2026-10-17T23:56:05.395613+00:00",
+  "window_inclusive": [
+    4501,
+    5000
+  ],
+  "logs": {
+    "384": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/steps.jsonl",
+      "sha256": "cbecb518e4ea3b7d2b429960c16e7582d81b2e2e4e3ffd727a7c80f332847828"
+    },
+    "256": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/steps.jsonl",
+      "sha256": "0ce7bbb31570faf3cdd680c3b25ccd2f38434ca92dce3b5cae42c60b3aaba0f6"
+    }
+  },
+  "PCA384": {
+    "FM_mean": 0.0112415,
+    "FM_median": 0.01111009,
+    "aux_current_channel_mean_MSE": 1.186932,
+    "global_gradient_norm_mean": 1.53911,
+    "slowest_rank_update_seconds_mean": 4.08164
+  },
+  "PCA256": {
+    "FM_mean": 0.01031342,
+    "FM_median": 0.01015649,
+    "aux_current_channel_mean_MSE": 1.519482,
+    "global_gradient_norm_mean": 2.05795,
+    "slowest_rank_update_seconds_mean": 3.91683
+  },
+  "completed_updates_each": 5000,
+  "scene_exposures_each": 159992,
+  "all_per_update_sample_IDs_LR_cursors_match": true,
+  "nonfinite_loss_or_gradient_records": 0,
+  "interpretation": "Training proxy observation only; heldout planning gain remains UNTESTED. Auxiliary channel means have different denominators; common256/tail128 errors are not present in logs. Timing is not a controlled speed comparison across the two allocations. Total gradient norm cannot identify FM/aux conflict.",
+  "new_training_launched": false
+}

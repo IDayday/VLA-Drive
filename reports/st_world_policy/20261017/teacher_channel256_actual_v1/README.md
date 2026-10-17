@@ -84,6 +84,15 @@ fixtures passed; these are scheduler tests, not actual PDMS results.
 
 ## Method decision
 
+An independent read-only comparison of both complete training logs confirms
+identical per-update sample IDs, learning rates and consumption cursors. In the
+fixed4501–5000 window, FM training loss is0.01124150 for384 and0.01031342 for256
+(8.26% lower); the recorded total gradient norm is33.71% higher for256. This is
+an initial training-proxy observation, not a held-out planning result or proof
+of reduced gradient conflict. The channel-averaged auxiliary losses use different
+denominators and cannot establish which model learned the common information
+better. `MATCHED_TRAINING_OBSERVATION.json` records identities and limits.
+
 The full source/formula evidence is in
 [`EVIDENCE_CARDS.md`](../teacher_alignment_evidence_v1/EVIDENCE_CARDS.md) and
 [`LEAD_DECISION.md`](../teacher_alignment_evidence_v1/LEAD_DECISION.md).
