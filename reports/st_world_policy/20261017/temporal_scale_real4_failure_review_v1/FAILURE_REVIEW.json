@@ -1,0 +1,162 @@
+{
+  "schema": "st_temporal_scale_real4_actual_failure_review_v1",
+  "status": "PASS_FAILURE_CLASSIFICATION_ONLY",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "review_base_commit": "112ef4c40c0b0f2e82df367b2a4a64e9fdcf3d30",
+  "actual_runtime_commit": "09ca42cbf03be30250a5736e6fd13951072fd2ca",
+  "actual_root": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1",
+  "actual_measurement_status": "FAILED_NO_AUTO_RETRY",
+  "actual_error": "RuntimeError('Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility')",
+  "post_failure_model_and_RNG_equality": "NOT_RECORDED",
+  "actual_optimizer_updates": 0,
+  "actual_new_persistent_tensor_bytes": 0,
+  "actual_loss_or_shared_gradient_result": "ABSENT",
+  "actual_cost": {
+    "measurement_elapsed_seconds": 407.81490362621844,
+    "invocation_seconds": 416.6046734880656,
+    "supervised_child_seconds": 412.671718519181,
+    "peak_aggregate_rss_bytes": 26929520640,
+    "charged_parent_child_rchar_bytes": 51404923553,
+    "cuda_peak": {
+      "peak_allocated_bytes": 7126431744,
+      "peak_reserved_bytes": 7325351936
+    },
+    "live_owned_remaining": 0
+  },
+  "source_hashes": {
+    "cli": "61d030d2131c0292e9909a0f89576e1f4f91941f609884a61f5c1d596531e9c6",
+    "measurement": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0"
+  },
+  "checks": [
+    "actual control and admission checksums match recorded identities",
+    "resolved actual config equals admitted fixed four-scene config",
+    "failed attempt has no complete measurement artifact",
+    "failure records CuBLAS determinism requirement",
+    "no automatic retry or scientific calibration selection",
+    "zero optimizer updates and zero newly persisted tensor output are recorded",
+    "failure does not claim state/RNG after-equality",
+    "workload failure is separate from resource monitor success",
+    "owned descendants recorded drained",
+    "actual recorded time/RSS/read/output stay within admitted numeric caps",
+    "read accounting has terminal child and parent reconciliation",
+    "actual pinned controller dependency run_once.py",
+    "actual pinned controller dependency run_build_once.py",
+    "actual pinned controller dependency supervise_once.py",
+    "actual pinned controller dependency prepare_bindings.py",
+    "actual pinned controller dependency observed_cli.py",
+    "actual controller did not pin CuBLAS workspace before child launch",
+    "actual CLI enables deterministic algorithms and lacks workspace preflight",
+    "source retains failure cleanup assertions but they are not receipt evidence"
+  ],
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/START.json",
+      "bytes": 208,
+      "sha256": "24db4524d65e5dfb5adfc41993ae97756b2e2c43d52a6eb8e9c537db64f6aa25"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/RESULT.json",
+      "bytes": 7698,
+      "sha256": "72bcfe8e153d5ccc2e7a993dde6817e3f48d0ccff9be27928420804c9c20f582"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/result/FAILED.json",
+      "bytes": 642,
+      "sha256": "63f20488d25ffed20b96349d40d76ec3304db07301fb6881b0fcfaa46c406620"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/result/RESOLVED_CONFIG.json",
+      "bytes": 1866,
+      "sha256": "7ea353ce534a3e023071da351ae24819901bbfa04083c7cad0fa038a3d28733e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v1/CONTROL.json",
+      "bytes": 2722,
+      "sha256": "155ae4d40177530186fdc56cb50ba407090c314716917814751c329c54ef0f7e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v1/ADMISSION.json",
+      "bytes": 862,
+      "sha256": "7606086fd8bef55514b910d331a7b01215d9b69425aa3799a27c11faa1d757da"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_scale_controller_independent_v2/REVIEW.json",
+      "bytes": 4239,
+      "sha256": "38935a775a30ae5755d04c06c21f3ec6e3312becfa0e330ea270f26bda4dc974"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/temporal_scale_calibration_v1/PROPOSED_CALIBRATION_CONFIG.json",
+      "bytes": 1866,
+      "sha256": "7ea353ce534a3e023071da351ae24819901bbfa04083c7cad0fa038a3d28733e"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/temporal_scale_calibration_v1/run_once.py",
+      "bytes": 11395,
+      "sha256": "9803f279515cff8770dab959bf4926a7cbec249e0ab9151ff9d3643148f6e289"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "bytes": 23793,
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "bytes": 36959,
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "bytes": 14696,
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "bytes": 9409,
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/tools/st_world_policy/calibrate_temporal_scale.py",
+      "bytes": 19244,
+      "sha256": "61d030d2131c0292e9909a0f89576e1f4f91941f609884a61f5c1d596531e9c6"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/tools/st_world_policy/calibration_measurement.py",
+      "bytes": 10693,
+      "sha256": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0"
+    }
+  ],
+  "audit_subprocess_cost": {
+    "elapsed_seconds": 0.026658544316887856,
+    "peak_rss_bytes": 14835712,
+    "rchar_delta": 146389,
+    "physical_read_delta": 180224,
+    "declared_input_bytes": 146292,
+    "cpu_affinity": [
+      6,
+      7
+    ],
+    "GPU_calls": 0,
+    "tensor_payload_reads": 0
+  },
+  "retry": {
+    "automatic": false,
+    "authorized_by_this_review": false,
+    "required": [
+      "minimal fix independent source review",
+      "fresh independent resource admission",
+      "new immutable attempt/output identity",
+      "Lead explicit one-shot launch decision"
+    ]
+  },
+  "historical_T1_resource_result": "FAIL_LIVE_DESCENDANT_SCOPE_PRESERVED",
+  "limitations": [
+    "This verifies small recorded artifacts, not checkpoint or teacher tensors.",
+    "No new CUDA execution or determinism equivalence has been tested.",
+    "No complete loss/gradient measurement or coefficient proposal exists for this failed attempt.",
+    "No post-failure model hash/RNG equality receipt was produced; source finally code is not measured PASS.",
+    "The RuntimeError identifies CuBLAS deterministic workspace setup, not an exact failing operator.",
+    "Resource figures are the controller recorded observations; sampled enforcement is not a kernel hard limit.",
+    "Zero new persistent tensor bytes does not mean zero model/teacher input reads or zero CUDA work.",
+    "A corrected run must remain a separate bounded attempt and retain this failed attempt and its costs."
+  ]
+}
