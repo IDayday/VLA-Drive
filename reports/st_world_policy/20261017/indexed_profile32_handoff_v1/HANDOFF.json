@@ -1,0 +1,94 @@
+{
+  "base_binding": {
+    "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+    "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+  },
+  "checkpoint_output_root": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1",
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/SELECTED_SCENES.json",
+    "sha256": "7c78c58c40456649a93d152f9925ea5e1faa7e08bb65e98cd6c4af3b0c52b9b8"
+  },
+  "data_reused_exact32": true,
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 64,
+    "world_size": 1
+  },
+  "formal_approved": false,
+  "gpu_queried_or_acquired": false,
+  "input_config": {
+    "path": "/mnt/project/VLA-Drive-st-indexed-composition-20261017/reports/st_world_policy/20261017/indexed_profile32_handoff_v1/INPUT_PROFILE_CONFIG.json",
+    "sha256": "f3df60fd61cd616769f43e4e0e5d815b4f5b81300be655b4faa2446a65f7704b"
+  },
+  "live_ledger_changed": false,
+  "local_metadata_preparation_wall_seconds": 0.6894527357071638,
+  "max_seconds": 1500,
+  "metadata_output_root": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/profile32_v1",
+  "metadata_permission": {
+    "extension_approved": false,
+    "fallback_minimum_new_reservation_bytes": 33554432,
+    "preferred": "Account profile32_v1 and existing files together within original 32MiB ceiling",
+    "prior_one_shot_admission": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/preparation_control_v1/ADMITTED.json",
+      "sha256": "0e4a321f5a468c150d3a5006c78e049c4afb74e5accb04a4cd1a7c4e0e13f5db"
+    },
+    "prior_status": "ONE_SHOT_PREPARE",
+    "required": "New explicit one-shot script/subpath admission; existing headroom alone is not authorization"
+  },
+  "native_storage": {
+    "actual_reservation": false,
+    "conservative_slots_including_partial": 2,
+    "existing_files_deleted": false,
+    "normal_complete_copies": 1,
+    "observed_native_directory_bytes": 37365928655,
+    "remaining_bytes": 11167488610,
+    "reservation_bytes": 85899345920,
+    "teacher_tensor_disk_bytes": 0,
+    "two_slot_bytes": 74731857310
+  },
+  "new_population_qualified": false,
+  "parent_descriptor": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+    "sha256": "bb53252f1aea91ed54fa7b3917314d2d7f6c1c251d1f89f6a079f0f582f3874d"
+  },
+  "pending": [
+    "independent new-source correctness closure",
+    "explicit metadata one-shot resource admission",
+    "actual factory descriptor/config pins",
+    "fresh training registration/reviews/environment/GPU lease",
+    "separate <=80GiB training storage admission"
+  ],
+  "preparation": {
+    "cpu": 2,
+    "full_index_read_required": true,
+    "gpu": false,
+    "known_original_pca_payload_read_bytes": 1590864,
+    "logical_read_budget_bytes": 4294967296,
+    "new_teacher_tensor_bytes": 0,
+    "output_bytes": 33554432,
+    "rss_bytes": 2147483648,
+    "wall_seconds": 180
+  },
+  "profile_mode": "none",
+  "reference_config": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/configured/training_config.json",
+    "sha256": "f6b8bd3ad59a763355130ef8bb0ef9228473f424516c62e630def80e87db948d"
+  },
+  "run_id": "indexed_provider_profile32_updates64_v1",
+  "runtime": "/mnt/project/VLA-Drive-st-indexed-profile-runtime-v1-20261017",
+  "schema": "st_indexed_profile32_handoff_v1",
+  "source_sha": "2d5e9483a8c8bc80b71348211756f3cab6aa21b1",
+  "status": "PROPOSED_NOT_APPROVED",
+  "target_contract": {
+    "path": "/mnt/project/VLA-Drive-st-indexed-composition-20261017/reports/st_world_policy/20261017/indexed_profile32_handoff_v1/TARGET_CONTRACT.json",
+    "sha256": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da"
+  },
+  "training_launched": false
+}
