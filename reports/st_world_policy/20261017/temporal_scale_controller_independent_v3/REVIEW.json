@@ -1,0 +1,107 @@
+{
+  "schema": "st_calibration_controller_independent_review_v3",
+  "status": "PASS_CALIBRATION_CONTROLLER_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "implementation_authors": [
+    "/root",
+    "/root/st_temporal_scale_calibration"
+  ],
+  "source_sha": "f212c96cbb74af9b3c59d91e80241675dc55fec0",
+  "owner_fix_commit": "c1168f97efb051b1418b01004668426211d68d42",
+  "runtime": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017",
+  "runtime_clean_at_review": true,
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017/reports/st_world_policy/20261017/temporal_scale_calibration_v1/run_once.py",
+      "sha256": "6be76123c7610b4e7a228bba20982e80ec80bf6fc6d05e3d0a4511bb8fb684f9"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    }
+  ],
+  "limits": {
+    "wall_seconds": 3000,
+    "cleanup_seconds": 40,
+    "read_bytes": 223338299392,
+    "rss_bytes": 103079215104,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "max_disk_bytes": 16777216,
+    "max_invocations": 1,
+    "optimizer_updates": 0,
+    "new_tensor_bytes": 0
+  },
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "created_at": "2026-10-17T12:41:42.795878+00:00",
+  "test_result_sha256": "0f68df9897bd1e8264c92c604fad3646c8e648a7c931f11b381db5ed952359e8",
+  "test_log_sha256": "650214c5f386eefbec314a4dc5d07025047a32a0b136a222738a6fd4eb9df8e0",
+  "tests": {
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "warning": 1
+  },
+  "previous_attempt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/RESULT.json",
+    "sha256": "72bcfe8e153d5ccc2e7a993dde6817e3f48d0ccff9be27928420804c9c20f582"
+  },
+  "previous_attempt_status": "FAILED_NO_AUTO_RETRY",
+  "previous_charged_logical_read_bytes": 51404923553,
+  "previous_invocation_seconds": 416.6046734880656,
+  "cumulative_nominal_bounds": {
+    "read_bytes": 274743222945,
+    "original_read_budget_bytes": 274877906944,
+    "read_headroom_bytes": 134683999,
+    "wall_seconds_including_second_cleanup": 3456.6046734880656,
+    "original_wall_and_cleanup_seconds": 3640,
+    "wall_headroom_seconds": 183.3953265119344
+  },
+  "new_attempt_root": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2",
+  "proposal_config_sha256": "d5358c65585a4852bc959e5795a0f0ae647b9bdf6dd99c64220e361b38eed560",
+  "proposal_training_config": {
+    "path": "/mnt/project/VLA-Drive-st-calibration-cublas-preflight-20261017/reports/st_world_policy/20261017/temporal_scale_cublas_preflight_fix_v1/PROPOSED_TRAINING_CONFIG.json",
+    "sha256": "716d1cc229e4bcab14431c29954ab1858e8bb81c6fa213c1e4c1155f345f9c95"
+  },
+  "verified_delta": [
+    "Launcher binds exact CUBLAS_WORKSPACE_CONFIG=:4096:8 before new child Python; inherited conflict rejected, parent mapping not mutated",
+    "Config/control/runtime source agree with declared environment; CLI rejects missing/conflicting environment or already-initialized CUDA before payload/device checks",
+    "Deterministic=True preserved; actual old/new fixed4 batch, seeds, objective and shared-gradient files unchanged",
+    "Only output namespaces, unused trainer wall cap and runtime environment change in resolved proposal",
+    "Lease length now uses3000+40;208GiB read cap; independent second root; one invocation; no automatic retry",
+    "Previous failed receipt hash and actual cost verified; new declared bounds stay inside original aggregate allowance",
+    "Prior source pins/review cannot pass exact changed source list/limits; new review still required",
+    "No optimizer construction/update or new stored teacher tensors; no automatic adoption of scientific coefficients"
+  ],
+  "inherited_review_scope": [
+    "Existing actual single-process core monitor accounting, fixed4 no-update CLI routing, nonblocking locks, storage/output bounds from v2 review retained",
+    "Current exact5 source hashes are pinned; core and measurement math bytes match the previously reviewed versions"
+  ],
+  "measurement_status": "NOT_RUN_FOR_SECOND_ATTEMPT",
+  "real_gpu_peak_validated": false,
+  "scientific_calibration_selected": false,
+  "fresh_dispatch_approval": false,
+  "remaining_boundaries": [
+    "Lead must issue fresh actual control/admission with this exact source list, environment, limits and review hash, verify current GPU0/CPU2,3 lease/storage and no duplicate run",
+    "Previous failure consumed its recorded budget and remains FAILED_NO_AUTO_RETRY; no recovered real loss/gradient or RNG preservation is inferred",
+    "This review approves controller/source delta only, not a numerical measurement PASS or a new formal training start",
+    "Resource monitor is sampled /proc accounting, not kernel hard enforcement; actual cumulative cost must be reported after second attempt",
+    "No GPU, weights, scene images, teacher payloads, SSH, ledger/claim write, or actual workload signal occurred in this review"
+  ]
+}
