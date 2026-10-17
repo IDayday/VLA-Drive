@@ -3,12 +3,14 @@
 Only Lead dispatches these two fixed, serial, single-attempt operations. They
 perform metadata reads and raw-log `stat`; they do not build future requests,
 read image/raw-log payloads, load models, launch GPUs, or migrate the ledger.
-The exact wrapper is committed and clean at `e894f687ce65ae0ca2f4c6c16df1b1d9c1910faf`.
-Its SHA256 is `bd3c1dadaed8c79ea5242bcf40e95d991b11851edfd6b61d47f1073f6f41159f`.
+The exact wrapper is committed and clean at `b0ae418cb51b3cc67259a80144d571aabd3a82b0`.
+Its SHA256 is `feaadec9ccac6efc4a302fe7ca8bd2f55efa1f415ab77830befd571d7e5d3734`.
+These commands explicitly supersede the preflight attempt rejected because of
+an atime-only change. See `ATIME_REVIEW_ADDENDUM.md`; no earlier token is reused.
 
-The fixed admission window starts at Unix 1792228071.9452727, permits startup
-through 1792229051.9452727 (2026-10-17 09:24:11 UTC), and expires at
-1792229271.9452727 (09:27:51 UTC). Each start must have 180 s running + 40 s
+The fixed admission window starts at Unix 1792228270.1489353, permits startup
+through 1792229250.1489353 (2026-10-17 09:27:30 UTC), and expires at
+1792229470.1489353 (09:31:10 UTC). Each start must have 180 s running + 40 s
 owned cleanup available. No automatic renewal or retry is authorized.
 
 Run dev first:
@@ -16,8 +18,8 @@ Run dev first:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python \
   /mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py \
-  --admission /mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/DEV_PLAN_ADMISSION_V2.json \
-  --admission-sha256 c5a7c14b22ee07a3093d3f8cf65a2b5534e67f9994d3eb45eeaa71e623d78761
+  --admission /mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/DEV_PLAN_ADMISSION_V3.json \
+  --admission-sha256 4fc509288a07970521f80f23eca041b75df87d696b9e30c0243dbb2fe0bb7e02
 ```
 
 Then train under its own exact source and budget:
@@ -25,8 +27,8 @@ Then train under its own exact source and budget:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python \
   /mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py \
-  --admission /mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/TRAIN_PLAN_ADMISSION_V1.json \
-  --admission-sha256 1860c18c9ee723e1d07b5f8a7c7f5a86c98e8d83214e27657aec2383be8443b0
+  --admission /mnt/project/VLA-Drive-st-sp0-dev-plan-resource-review-20261017/reports/st_world_policy/20261017/full_future_metadata_resource_v1/TRAIN_PLAN_ADMISSION_V2.json \
+  --admission-sha256 f262084ae73b79090e4c3bdc7cc2b78b3e318b5a1d737bc4b310a6122091117a
 ```
 
 The underlying exact CLI arrays and source pins are checked by the wrapper.

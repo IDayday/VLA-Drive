@@ -1,0 +1,168 @@
+........FFFF..........................................                   [100%]
+=================================== FAILURES ===================================
+_________ test_pinned_read_ignores_only_access_time[st_mtime_ns-False] _________
+
+module = <module 'independent_plan_review' from '/mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py'>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-609/test_pinned_read_ignores_only_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc71bce39a0>
+field = 'st_mtime_ns', accepted = False
+
+    @pytest.mark.parametrize("field,accepted", [
+        ("st_atime_ns", True), ("st_mtime_ns", False), ("st_ctime_ns", False),
+        ("st_ino", False), ("st_size", False),
+    ])
+    def test_pinned_read_ignores_only_access_time(module, tmp_path, monkeypatch, field, accepted):
+        p = tmp_path / "control.json"
+        raw = b'{"ok": true}'
+        p.write_bytes(raw)
+        initial = p.stat()
+        original = module.Path.stat
+        calls = 0
+    
+        def observed(path, *args, **kwargs):
+            nonlocal calls
+            if path != p:
+                return original(path, *args, **kwargs)
+            calls += 1
+            attrs = {key:getattr(initial,key) for key in (
+                "st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+                "st_atime_ns", "st_mtime_ns", "st_ctime_ns", "st_atime", "st_mtime", "st_ctime", "st_blocks")}
+            if calls > 1:
+                attrs[field] += 1
+            return SimpleNamespace(**attrs)
+    
+        monkeypatch.setattr(module.Path, "stat", observed)
+        control = {"path":str(p), "sha256":hashlib.sha256(raw).hexdigest()}
+        if accepted:
+            assert module.pinned(control) == {"ok":True}
+        else:
+>           with pytest.raises(ValueError, match="changed"):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py:112: Failed
+_________ test_pinned_read_ignores_only_access_time[st_ctime_ns-False] _________
+
+module = <module 'independent_plan_review' from '/mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py'>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-609/test_pinned_read_ignores_only_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc71bbb69e0>
+field = 'st_ctime_ns', accepted = False
+
+    @pytest.mark.parametrize("field,accepted", [
+        ("st_atime_ns", True), ("st_mtime_ns", False), ("st_ctime_ns", False),
+        ("st_ino", False), ("st_size", False),
+    ])
+    def test_pinned_read_ignores_only_access_time(module, tmp_path, monkeypatch, field, accepted):
+        p = tmp_path / "control.json"
+        raw = b'{"ok": true}'
+        p.write_bytes(raw)
+        initial = p.stat()
+        original = module.Path.stat
+        calls = 0
+    
+        def observed(path, *args, **kwargs):
+            nonlocal calls
+            if path != p:
+                return original(path, *args, **kwargs)
+            calls += 1
+            attrs = {key:getattr(initial,key) for key in (
+                "st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+                "st_atime_ns", "st_mtime_ns", "st_ctime_ns", "st_atime", "st_mtime", "st_ctime", "st_blocks")}
+            if calls > 1:
+                attrs[field] += 1
+            return SimpleNamespace(**attrs)
+    
+        monkeypatch.setattr(module.Path, "stat", observed)
+        control = {"path":str(p), "sha256":hashlib.sha256(raw).hexdigest()}
+        if accepted:
+            assert module.pinned(control) == {"ok":True}
+        else:
+>           with pytest.raises(ValueError, match="changed"):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py:112: Failed
+___________ test_pinned_read_ignores_only_access_time[st_ino-False] ____________
+
+module = <module 'independent_plan_review' from '/mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py'>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-609/test_pinned_read_ignores_only_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc71bca32e0>
+field = 'st_ino', accepted = False
+
+    @pytest.mark.parametrize("field,accepted", [
+        ("st_atime_ns", True), ("st_mtime_ns", False), ("st_ctime_ns", False),
+        ("st_ino", False), ("st_size", False),
+    ])
+    def test_pinned_read_ignores_only_access_time(module, tmp_path, monkeypatch, field, accepted):
+        p = tmp_path / "control.json"
+        raw = b'{"ok": true}'
+        p.write_bytes(raw)
+        initial = p.stat()
+        original = module.Path.stat
+        calls = 0
+    
+        def observed(path, *args, **kwargs):
+            nonlocal calls
+            if path != p:
+                return original(path, *args, **kwargs)
+            calls += 1
+            attrs = {key:getattr(initial,key) for key in (
+                "st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+                "st_atime_ns", "st_mtime_ns", "st_ctime_ns", "st_atime", "st_mtime", "st_ctime", "st_blocks")}
+            if calls > 1:
+                attrs[field] += 1
+            return SimpleNamespace(**attrs)
+    
+        monkeypatch.setattr(module.Path, "stat", observed)
+        control = {"path":str(p), "sha256":hashlib.sha256(raw).hexdigest()}
+        if accepted:
+            assert module.pinned(control) == {"ok":True}
+        else:
+>           with pytest.raises(ValueError, match="changed"):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py:112: Failed
+___________ test_pinned_read_ignores_only_access_time[st_size-False] ___________
+
+module = <module 'independent_plan_review' from '/mnt/project/VLA-Drive-st-full-future-plan-control-20261017/reports/st_world_policy/20261017/full_future_plan_control_v1/plan_once.py'>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-609/test_pinned_read_ignores_only_4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc71bb72b30>
+field = 'st_size', accepted = False
+
+    @pytest.mark.parametrize("field,accepted", [
+        ("st_atime_ns", True), ("st_mtime_ns", False), ("st_ctime_ns", False),
+        ("st_ino", False), ("st_size", False),
+    ])
+    def test_pinned_read_ignores_only_access_time(module, tmp_path, monkeypatch, field, accepted):
+        p = tmp_path / "control.json"
+        raw = b'{"ok": true}'
+        p.write_bytes(raw)
+        initial = p.stat()
+        original = module.Path.stat
+        calls = 0
+    
+        def observed(path, *args, **kwargs):
+            nonlocal calls
+            if path != p:
+                return original(path, *args, **kwargs)
+            calls += 1
+            attrs = {key:getattr(initial,key) for key in (
+                "st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+                "st_atime_ns", "st_mtime_ns", "st_ctime_ns", "st_atime", "st_mtime", "st_ctime", "st_blocks")}
+            if calls > 1:
+                attrs[field] += 1
+            return SimpleNamespace(**attrs)
+    
+        monkeypatch.setattr(module.Path, "stat", observed)
+        control = {"path":str(p), "sha256":hashlib.sha256(raw).hexdigest()}
+        if accepted:
+            assert module.pinned(control) == {"ok":True}
+        else:
+>           with pytest.raises(ValueError, match="changed"):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py:112: Failed
+=========================== short test summary info ============================
+FAILED reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py::test_pinned_read_ignores_only_access_time[st_mtime_ns-False]
+FAILED reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py::test_pinned_read_ignores_only_access_time[st_ctime_ns-False]
+FAILED reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py::test_pinned_read_ignores_only_access_time[st_ino-False]
+FAILED reports/st_world_policy/20261017/full_future_metadata_resource_v1/test_plan_wrapper_review.py::test_pinned_read_ignores_only_access_time[st_size-False]
+4 failed, 50 passed in 0.67s

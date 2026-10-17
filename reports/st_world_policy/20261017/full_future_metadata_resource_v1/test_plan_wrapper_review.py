@@ -4,6 +4,8 @@ import json
 import os
 from pathlib import Path
 import time
+from types import SimpleNamespace
+import hashlib
 
 import pytest
 
@@ -76,3 +78,36 @@ def test_short_cleanup_window_rejected(module):
     admission["valid_until_unix"] = now+219
     with pytest.raises(ValueError, match="window"):
         module.validate(admission, argv, now)
+
+
+@pytest.mark.parametrize("field,accepted", [
+    ("st_atime_ns", True), ("st_mtime_ns", False), ("st_ctime_ns", False),
+    ("st_ino", False), ("st_size", False),
+])
+def test_pinned_read_ignores_only_access_time(module, tmp_path, monkeypatch, field, accepted):
+    p = tmp_path / "control.json"
+    raw = b'{"ok": true}'
+    p.write_bytes(raw)
+    initial = p.stat()
+    original = module.Path.stat
+    calls = 0
+
+    def observed(path, *args, **kwargs):
+        nonlocal calls
+        if path != p or kwargs.get("follow_symlinks") is False:
+            return original(path, *args, **kwargs)
+        calls += 1
+        attrs = {key:getattr(initial,key) for key in (
+            "st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+            "st_atime_ns", "st_mtime_ns", "st_ctime_ns", "st_atime", "st_mtime", "st_ctime", "st_blocks")}
+        if calls > 1:
+            attrs[field] += 1
+        return SimpleNamespace(**attrs)
+
+    monkeypatch.setattr(module.Path, "stat", observed)
+    control = {"path":str(p), "sha256":hashlib.sha256(raw).hexdigest()}
+    if accepted:
+        assert module.pinned(control) == {"ok":True}
+    else:
+        with pytest.raises(ValueError, match="changed"):
+            module.pinned(control)
