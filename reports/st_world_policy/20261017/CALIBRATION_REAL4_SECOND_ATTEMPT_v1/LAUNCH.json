@@ -1,0 +1,76 @@
+{
+  "schema": "st_calibration_explicit_second_attempt_launch_v1",
+  "recorded_utc": "2026-10-17T12:45:29.036346+00:00",
+  "runtime": "/mnt/project/VLA-Drive-st-loss-scale-real4-v3-20261017",
+  "runtime_sha": "f212c96cbb74af9b3c59d91e80241675dc55fec0",
+  "control": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v2/CONTROL.json",
+    "sha256": "76e00b6fe4b5840333263554441b8ff9e108b99959fbd97ca8ac42bf95c4efb9"
+  },
+  "admission": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v2/ADMISSION.json",
+    "sha256": "00fc941208da760770cdeed367e45378af15c79e4ed70fa43852f4378f0c53a0"
+  },
+  "preflight": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v2/PREFLIGHT.json",
+    "sha256": "3d98d9aca5e4e86bd7e5ee428ef9422be2d4239c7bf571328b555916731bfd89"
+  },
+  "child_runtime_preflight": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2/result/RUNTIME_PREFLIGHT.json",
+    "sha256": "69e60c05b38177775e469ca4d0f1e49d6b2778f296f95a987fa644763eeab760"
+  },
+  "correctness_review": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_scale_real4_failure_review_v1/FIX_REVIEW.json",
+    "sha256": "4027e15125dd670a10b6aec1b25c8e19f210bc4a735e8f92d2d876c02ef66626"
+  },
+  "controller_review": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_scale_controller_independent_v3/REVIEW.json",
+    "sha256": "cc2e175dfca7cc97493b6104e669102061564db94b5fe5f2bb45f1794ddfc084"
+  },
+  "parent_pid": 526368,
+  "parent_start_ticks": 1367967204,
+  "child_pid": 526388,
+  "child_start_ticks": 1367967711,
+  "session_id": 13154,
+  "scope": "DIAGNOSTIC_ONLY",
+  "status_at_record": "RUNNING",
+  "result_root": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2",
+  "limits": {
+    "wall_seconds": 3000,
+    "cleanup_seconds": 40,
+    "read_bytes": 223338299392,
+    "rss_bytes": 103079215104,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "max_disk_bytes": 16777216,
+    "max_invocations": 1,
+    "optimizer_updates": 0,
+    "new_tensor_bytes": 0
+  },
+  "previous_failed_attempt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v1/RESULT.json",
+    "sha256": "72bcfe8e153d5ccc2e7a993dde6817e3f48d0ccff9be27928420804c9c20f582"
+  },
+  "automatic_retry": false,
+  "optimizer_updates": 0,
+  "new_teacher_tensor_bytes": 0,
+  "scientific_coefficients_applied": false,
+  "command": [
+    "taskset",
+    "-c",
+    "2,3",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "OMP_NUM_THREADS=2",
+    "MKL_NUM_THREADS=2",
+    "OPENBLAS_NUM_THREADS=2",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "reports/st_world_policy/20261017/temporal_scale_calibration_v1/run_once.py",
+    "--control",
+    "/mnt/project/st-world-policy-20261016/resources/loss_scale_real4_v2/CONTROL.json",
+    "--control-sha256",
+    "76e00b6fe4b5840333263554441b8ff9e108b99959fbd97ca8ac42bf95c4efb9"
+  ]
+}
