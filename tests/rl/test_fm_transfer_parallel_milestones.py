@@ -73,3 +73,69 @@ def test_local_transport_does_not_bypass_host_withdrawal(monkeypatch):
     monkeypatch.setattr(m, 'worker_allowed', withdrawn)
     monkeypatch.setattr(m.subprocess, 'check_output', lambda *a, **k: pytest.fail('Must not execute'))
     with pytest.raises(PermissionError): m.remote('training-vla-zt', ['/python'])
+
+
+def inventory(host, free=70000, visible=True):
+    uuids=[f'{host}-gpu{i}' for i in range(8)]
+    return dict(gpus=[dict(uuid=u,used=1000,free=free) for u in uuids],
+                owners=[dict(uuid=u,visible=visible) for u in uuids])
+
+
+def test_busy_preferred_host_does_not_hide_idle_fallback():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    ready=[dict(output='DEV'),dict(output='TRAIN')]
+    samples={h:inventory(h,free=19000 if h=='busy' else 70000) for h in ('busy','free1','free2')}
+    calls=[]
+    def probe(h):calls.append(h);return samples[h]
+    expected={h:[g['uuid'] for g in s['gpus']] for h,s in samples.items()}
+    plan,seen=capacity_dispatch_plan(ready,[],list(samples),expected,probe,lambda _:None)
+    assert plan==[(ready[0],'free1'),(ready[1],'free2')]
+    assert calls==['busy','busy','free1','free1','free2','free2']
+    assert not seen['busy']['available']
+
+
+def test_second_observation_can_reject_a_host_without_losing_the_job():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    ready=[dict(output='DEV')];calls=[]
+    expected={h:[g['uuid'] for g in inventory(h)['gpus']] for h in ('changed','fallback')}
+    def probe(h):
+        calls.append(h)
+        return inventory(h,visible=not(h=='changed' and calls.count(h)==2))
+    plan,_=capacity_dispatch_plan(ready,[],list(expected),expected,probe,lambda _:None)
+    assert plan==[(ready[0],'fallback')]
+
+
+def test_active_host_is_never_probed_or_reassigned_and_no_ready_jobs_are_idle():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    ready=[dict(output='next')];active=[dict(output='running',host='active')]
+    expected={h:[g['uuid'] for g in inventory(h)['gpus']] for h in ('active','free')}
+    calls=[]
+    def probe(h):calls.append(h);return inventory(h)
+    plan,_=capacity_dispatch_plan(ready,active,list(expected),expected,probe,lambda _:None)
+    assert plan==[(ready[0],'free')] and calls==['free','free']
+    assert capacity_dispatch_plan([],active,list(expected),expected,lambda _:pytest.fail('No ready jobs'),lambda _:None)==([], {})
+
+
+def test_all_hosts_unavailable_preserves_pending_jobs():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    ready=[dict(output='DEV')];expected={'busy':[g['uuid'] for g in inventory('busy')['gpus']]}
+    plan,seen=capacity_dispatch_plan(ready,[],['busy'],expected,
+        lambda h:inventory(h,free=1000),lambda _:None)
+    assert plan==[] and not seen['busy']['available'] and ready==[dict(output='DEV')]
+
+
+def test_probe_error_is_not_free_capacity_and_duplicates_fail_before_probe():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    def fail(_):raise TimeoutError('SSH observation timeout')
+    with pytest.raises(TimeoutError):
+        capacity_dispatch_plan([dict(output='x')],[],['host'],{'host':[]},fail,lambda _:None)
+    with pytest.raises(ValueError):
+        capacity_dispatch_plan([dict(output='x')],[],['host','host'],{},
+            lambda _:pytest.fail('Duplicate host must fail first'),lambda _:None)
+
+
+def test_changed_physical_gpu_identity_is_fatal_before_dispatch():
+    from scripts.analysis.fm_transfer.milestone_controller import capacity_dispatch_plan
+    expected={'host':[g['uuid'] for g in inventory('old')['gpus']]}
+    with pytest.raises(ValueError):
+        capacity_dispatch_plan([dict(output='x')],[],['host'],expected,inventory,lambda _:None)

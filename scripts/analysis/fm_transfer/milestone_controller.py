@@ -127,6 +127,26 @@ def capacity_available(first,second,expected):
     return True
 
 
+def capacity_dispatch_plan(ready,active,hosts,host_uuids,probe=resource_probe,pause=time.sleep):
+    """Unavailable earlier hosts must not hide available later hosts.
+
+    Preserve registered job and host order, active workers and two observations.
+    The caller still rechecks capacity after export and immediately before launch.
+    Transport errors propagate; they are not interpreted as free capacity.
+    """
+    dispatch_plan(ready,active,hosts)  # Validate duplicates before any probe.
+    if not ready:return [],{}
+    occupied={job['host'] for job in active};eligible=[];observations={}
+    for host in hosts:
+        if host in occupied:continue
+        first=probe(host);pause(2);second=probe(host)
+        available=capacity_available(first,second,host_uuids[host])
+        observations[host]=dict(first=first,second=second,available=available)
+        if available:eligible.append(host)
+        if len(eligible)==len(ready):break
+    return dispatch_plan(ready,active,eligible),observations
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation-source',required=True)
     p.add_argument('--dispatch-source',required=True);p.add_argument('--host',required=True)
@@ -199,7 +219,10 @@ def main():
                 else:pending.append(job)
             status=dict(**invocation,status='RUNNING',complete=complete,active=active,ready=ready,pending=pending,
                 observed_unix=time.time())
-            planned=dispatch_plan(ready,active,hosts)
+            planned,preflight=capacity_dispatch_plan(ready,active,hosts,host_uuids)
+            if ready:
+                status['capacity_preflight']=preflight
+                if not planned:status['status']='WAITING_FOR_AUTHORIZED_MEMORY_HEADROOM'
             for job,host in planned:
                 export=Path(job['export'])
                 # Export only a sealed model; this does not load/modify a trainer.
