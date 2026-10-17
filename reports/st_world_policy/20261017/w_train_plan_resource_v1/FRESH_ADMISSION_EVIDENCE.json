@@ -1,0 +1,85 @@
+{
+  "CPU_affinity": [
+    2,
+    3
+  ],
+  "CPU_sampling": {
+    "cpu2": {
+      "idle_fraction": 1.0,
+      "sampled_ticks": 25
+    },
+    "cpu3": {
+      "idle_fraction": 1.0,
+      "sampled_ticks": 25
+    }
+  },
+  "CUDA_VISIBLE_DEVICES": "",
+  "GPU_for_plan": null,
+  "MemAvailable_bytes": 922422382592,
+  "actual_stage_inputs": {
+    "prior_read_bytes": 0,
+    "remaining_read_bytes": 274877906944,
+    "role_limit_bytes": 274877906944,
+    "scope": "sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO",
+    "sources": [],
+    "upstream_artifact_reconciliation": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/reconciliation/dev_extract_manual_retry_v1.json",
+      "sha256": "3722ef6e87871429be10718fb5fda5c332aa3ecc5aec24290de389c309079f1a"
+    },
+    "upstream_supervisor_status_preserved": "STOPPED_NO_AUTO_RETRY"
+  },
+  "actual_validate_result": {
+    "outer_wall_seconds": 600,
+    "sampled_RSS_limit_bytes": 68719476736
+  },
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_plan_resource_v1/ADMISSION.json",
+    "sha256": "9d39cae34cbb92c44bbee216cfa07b86edd4d3987f3191e37a858350cc1bcd55"
+  },
+  "attempt_directory_absent": true,
+  "canonical_allowed_host": "training-vla-zt",
+  "checkpoint_payload_inventory_bytes_from_prior_small_receipt": 37366035746,
+  "checkpoint_source_and_pins": "Exact original source/tag/native receipt preserved as recorded in EVIDENCE.json; no duplicate 9-file content sweep by reviewer. Original cache_plan checks them once in the approved stage.",
+  "disk_free_bytes": 7280763179008,
+  "dispatched": false,
+  "free_after_plan_envelope_bytes": 7280729624576,
+  "hostname": "training-vla-zt-worker-0",
+  "latest_dispatch_start_UTC": "2026-10-17T09:22:58.772300+00:00",
+  "latest_dispatch_start_unix": 1792228978.7723,
+  "lead_context": "Lead states full-future dev/train PLAN have ended and loader lock is free. W plan CPUs2,3; subsequent metadata CPUs0,1. Shared filesystem IO contention remains possible and is not treated as numerical evidence or throughput guarantee. Prefer W plan to finish before metadata starts when feasible.",
+  "limits_qualification": "RSS/wall are existing sampled supervisor limits, not cgroup hard ceilings; cleanup interval is covered by 640 seconds. Launch after latest_dispatch_start is not admitted even if source validate could accept a 630-second remainder. No process absence or resource exclusivity is inferred from the historical dev receipt.",
+  "local_kernel_spatial_loader_lock_matches": 0,
+  "minimum_RSS_headroom_bytes": 68719476736,
+  "minimum_free_floor_bytes": 1099511627776,
+  "native_or_image_payload_opened": false,
+  "new_claim_or_ledger_mutation": false,
+  "plan_output_envelope_bytes": 33554432,
+  "review_process": {
+    "address_space_limit_bytes": 2147483648,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "elapsed_seconds": 0.9429126549512148,
+    "maxrss_bytes": 20828160,
+    "timeout_seconds": 180,
+    "torch_imported": false
+  },
+  "reviewed_at_UTC": "2026-10-17T09:18:38.772300+00:00",
+  "reviewed_at_unix": 1792228718.7723,
+  "reviewer_acquired_lock": false,
+  "root_alone_dispatches": true,
+  "runtime_HEAD_exact_and_clean": true,
+  "same_shared_lustre_global_flock_mount_validated": true,
+  "schema": "st_W_train_plan_fresh_resource_review_v1",
+  "source_helper_pins_identical_to_main": true,
+  "source_policy": {
+    "bytes": 129686,
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+  },
+  "status": "PASS_ONE_FIXED_TRAIN_PLAN_RESOURCE_ADMISSION",
+  "storage_policy_for_plan": null,
+  "valid_until_UTC": "2026-10-17T09:33:38.772300+00:00",
+  "valid_until_unix": 1792229618.7723
+}
