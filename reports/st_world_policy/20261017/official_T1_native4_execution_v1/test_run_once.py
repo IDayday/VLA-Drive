@@ -143,7 +143,8 @@ def test_owned_monitor_tiny_children_no_gpu(tmp_path, monkeypatch, stop):
               f'p=subprocess.Popen([sys.executable,"-c","import time; time.sleep({2 if stop else .4})"]);'
               'p.wait();print("tiny child fixture")')
     with (tmp_path/'lock').open('w') as lock:
-        out = m.monitor([sys.executable, '-c', script], dict(os.environ, CUDA_VISIBLE_DEVICES=''), lock.fileno(), s, core, 64 << 20)
+        out = m.monitor([sys.executable, '-c', script], dict(os.environ, CUDA_VISIBLE_DEVICES=''), lock.fileno(), s, core, 64 << 20,
+                        storage_guard=lambda: {'fixture_only': True})
     assert out['cleanup']['live_owned_remaining'] == 0
     assert out['accounting']['status'] == 'COMPLETE'
     assert out['failure'] == ('WALL_LIMIT' if stop else None)
@@ -186,3 +187,48 @@ def test_unbounded_resource_window_rejected_before_any_runtime_read(monkeypatch,
     monkeypatch.setattr(m, 'pin_read', lambda pin, decode=True: a if decode else b'fixture')
     with pytest.raises(ValueError, match='Finite'):
         m.controls(SimpleNamespace(admission='/fixture', admission_sha256='a'*64))
+
+
+def storage_fixture(tmp_path, monkeypatch, changes=None):
+    monkeypatch.setattr(m, 'ROOT', tmp_path)
+    monkeypatch.setattr(m.time, 'time', lambda: 100.)
+    real_stat = Path.stat
+    device = tmp_path.stat().st_dev
+    monkeypatch.setattr(Path, 'stat', lambda p, *a, **k:
+        SimpleNamespace(st_dev=device) if str(p) == '/mnt/project' else real_stat(p, *a, **k))
+    cp = dict(schema='st_checkpoint_storage_commitments_v1', status='CURRENT',
+        remaining_bytes=m.CHECKPOINT_COMMITMENTS, free_floor_bytes=m.SHARED_FREE_FLOOR,
+        checked_at_unix=90., valid_until_unix=5000.,
+        new_checkpoint_reservation_bytes=m.LIMITS['new_checkpoint_bytes'],
+        new_checkpoint_root=str(tmp_path/'runs'), old_profile_reservation_reused=False)
+    cp.update(changes or {})
+    pin = pinned(tmp_path/'CP.json', cp); monkeypatch.setattr(m, 'CHECKPOINT_CONTROL', pin)
+    return pin
+
+
+def test_storage_guard_reads_fresh_free_space_each_call(tmp_path, monkeypatch):
+    pin = storage_fixture(tmp_path, monkeypatch)
+    required = m.CHECKPOINT_COMMITMENTS+m.SHARED_FREE_FLOOR
+    calls = []
+    def statvfs(path):
+        calls.append(str(path)); return SimpleNamespace(f_bavail=required+10 if len(calls) == 1 else required-1, f_frsize=1)
+    monkeypatch.setattr(m.os, 'statvfs', statvfs)
+    assert m.shared_storage_guard(pin, 4000.)['available_bytes'] == required+10
+    with pytest.raises(ValueError, match='Fresh shared free'): m.shared_storage_guard(pin, 4000.)
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize('changes', [
+    {'remaining_bytes': 2183*m.GiB}, {'free_floor_bytes': 0},
+    {'valid_until_unix': 3999.}, {'checked_at_unix': 101.},
+    {'new_checkpoint_reservation_bytes': 80*m.GiB}, {'old_profile_reservation_reused': True}])
+def test_incomplete_stale_or_borrowed_checkpoint_reservation_rejected(tmp_path, monkeypatch, changes):
+    pin = storage_fixture(tmp_path, monkeypatch, changes)
+    monkeypatch.setattr(m.os, 'statvfs', lambda p: pytest.fail('Rejected control must not reach space read'))
+    with pytest.raises(ValueError): m.shared_storage_guard(pin, 4000.)
+
+
+def test_storage_guard_rejects_changed_control_content(tmp_path, monkeypatch):
+    pin = storage_fixture(tmp_path, monkeypatch)
+    Path(pin['path']).write_text('{}')
+    with pytest.raises(ValueError, match='changed'): m.shared_storage_guard(pin, 4000.)

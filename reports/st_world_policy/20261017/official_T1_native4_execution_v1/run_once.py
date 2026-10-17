@@ -34,6 +34,12 @@ LIMITS = dict(cpu_affinity=[2, 3, 4, 5], world_size=2, max_invocations=2,
               total_updates=4, total_scene_exposures=16, rss_bytes=96*GiB,
               cumulative_rchar_bytes=512*GiB, new_checkpoint_bytes=120*GiB,
               invocation_seconds=3600, save_cleanup_seconds=180)
+CHECKPOINT_COMMITMENTS = (2183+120)*GiB
+SHARED_FREE_FLOOR = 1 << 40
+CHECKPOINT_CONTROL = {
+    'path': str(ROOT/'controls/CHECKPOINT_COMMITMENTS_2303G_V1.json'),
+    'sha256': '13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3',
+}
 
 
 def check(value, message):
@@ -106,6 +112,33 @@ def check_prior(a, cfg):
     return used, receipt
 
 
+def shared_storage_guard(pin, valid_until):
+    """Fresh bounded control + live shared statvfs; never edits ledger/claims."""
+    check(pin == CHECKPOINT_CONTROL, 'Exact Lead-issued checkpoint commitments pin required')
+    cp = pin_read(pin); now = time.time()
+    check(cp.get('schema') == 'st_checkpoint_storage_commitments_v1'
+          and cp.get('status') == 'CURRENT'
+          and cp.get('remaining_bytes') == CHECKPOINT_COMMITMENTS
+          and cp.get('free_floor_bytes') == SHARED_FREE_FLOOR
+          and cp.get('new_checkpoint_reservation_bytes') == LIMITS['new_checkpoint_bytes']
+          and cp.get('new_checkpoint_root') == str(ROOT/'runs')
+          and cp.get('old_profile_reservation_reused') is False,
+          'Exact combined 2303GiB checkpoint commitments and 1TiB floor required')
+    check(all(type(cp.get(k)) in (int, float) and math.isfinite(cp[k])
+              for k in ('checked_at_unix', 'valid_until_unix'))
+          and cp['checked_at_unix'] <= now <= valid_until <= cp['valid_until_unix'],
+          'Checkpoint commitments must cover the entire admitted execution window')
+    anchor = ROOT if ROOT.exists() else ROOT.parent
+    check(anchor.stat().st_dev == Path('/mnt/project').stat().st_dev,
+          'Qualification output must remain on the verified shared mount')
+    fs = os.statvfs(anchor)
+    available = fs.f_bavail*fs.f_frsize
+    required = CHECKPOINT_COMMITMENTS+SHARED_FREE_FLOOR
+    check(available >= required, 'Fresh shared free space is below commitments plus safety floor')
+    return {'checked_at_unix': now, 'available_bytes': available,
+            'required_available_bytes': required, 'checkpoint_commitments': pin}
+
+
 def controls(args, child=False):
     a = pin_read({'path': args.admission, 'sha256': args.admission_sha256})
     check(a.get('schema') == 'st_T1_native4_execution_admission_v1'
@@ -122,6 +155,7 @@ def controls(args, child=False):
           and now <= a.get('latest_start_unix', 0)
           and now <= a['valid_until_unix']
           and (child or now+3780 <= a['valid_until_unix']), 'Lease does not cover save/cleanup')
+    shared_storage_guard(a['checkpoint_commitments'], a['valid_until_unix'])
     check(set(LIMITS['cpu_affinity']).issubset(os.sched_getaffinity(0)), 'CPUs 2-5 unavailable')
     for role in ('correctness', 'resource'):
         review = pin_read(a['reviews'][role])
@@ -249,13 +283,15 @@ def checkpoint_bytes(root):
     return total
 
 
-def monitor(command, env, fd, s, core, remaining):
+def monitor(command, env, fd, s, core, remaining, *, storage_guard):
     """Narrow adaptation of 8674 monitor: topology, 180s grace, native log format."""
     baseline = proc_io(); started = time.monotonic(); buffers = {'stdout': bytearray(), 'stderr': bytearray()}
     child = owner = leader = None; finished = False; failure = None; peak = 0; term_at = None
+    cleanup_until = None; storage_last = None
     selector = selectors.DefaultSelector()
     with s.lifetime_scope() as stopped:
         try:
+            storage_last = storage_guard()  # fresh immediately before Popen
             child = subprocess.Popen(['taskset', '-c', '2-5', *command], cwd=RUNTIME, env=env,
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 start_new_session=True, pass_fds=(fd,))
@@ -282,24 +318,32 @@ def monitor(command, env, fd, s, core, remaining):
                     if memory > LIMITS['rss_bytes']: failure = failure or 'RSS_LIMIT'
                     if reads+proc_io()['rchar']-baseline['rchar'] > remaining: failure = failure or 'READ_LIMIT'
                     if checkpoint_bytes(ROOT/'runs') > LIMITS['new_checkpoint_bytes']: failure = failure or 'CHECKPOINT_LIMIT'
+                    storage_last = storage_guard()
                     if now-started >= LIMITS['invocation_seconds']: failure = failure or 'WALL_LIMIT'
-                if failure and term_at is None: owner.send(signal.SIGTERM); term_at = now
-                if term_at and now-term_at >= 170: owner.send(signal.SIGKILL)
-                if term_at and now-term_at >= 180: raise RuntimeError('Owned cleanup exceeded 180s')
+                if failure and term_at is None:
+                    term_at = now
+                    cleanup_until = min(started+3780, term_at+180)
+                    owner.send(signal.SIGTERM)
+                if cleanup_until is not None and now >= cleanup_until-10: owner.send(signal.SIGKILL)
+                if cleanup_until is not None and now >= cleanup_until: raise RuntimeError('Owned cleanup exceeded absolute deadline')
             before = proc_io()
-            code = owner.finish(terminate=bool(failure), deadline=term_at+180 if term_at else None)
+            code = owner.finish(terminate=bool(failure), deadline=cleanup_until)
             finished = True
             accounting = core.terminal_read_accounting(baseline, before, proc_io(), terminal['rchar'], remaining, final_child_available=True)
             if accounting['status'] != 'COMPLETE': failure = failure or 'IO_ACCOUNTING_INCOMPLETE'
             return dict(returncode=code, failure=failure, peak_rss_bytes=peak,
                 elapsed_seconds=time.monotonic()-started, accounting=accounting,
+                cleanup_deadline_monotonic=cleanup_until, last_shared_storage_check=storage_last,
                 stdout=buffers['stdout'].decode('utf8', 'replace'), stderr=buffers['stderr'].decode('utf8', 'replace'),
                 cleanup={'verified_processes': owner.verified, 'live_owned_remaining': 0})
         finally:
             try:
                 if owner is not None and not finished:
-                    owner.finish(terminate=True, deadline=time.monotonic()+180)
-                elif owner is None and child is not None: s.abort_spawn_setup(child, leader)
+                    if cleanup_until is None:
+                        cleanup_until = min(started+3780, time.monotonic()+180)
+                    # In particular, an already expired deadline never gets 180s again.
+                    owner.finish(terminate=True, deadline=cleanup_until)
+                elif owner is None and child is not None: s.abort_spawn_setup(child, leader, deadline=started+3780)
             finally:
                 selector.close()
                 if owner is not None: owner.close()
@@ -343,7 +387,8 @@ def parent_main(args):
                 str(Path(__file__).absolute()), '--rank-child', '--admission', args.admission, '--admission-sha256', args.admission_sha256]
             overhead = proc_io()['rchar']-start_io['rchar']
             check(prior+overhead < LIMITS['cumulative_rchar_bytes'], 'Read budget exhausted before launch')
-            observed = monitor(command, env, lock.fileno(), s, core, LIMITS['cumulative_rchar_bytes']-prior-overhead)
+            observed = monitor(command, env, lock.fileno(), s, core, LIMITS['cumulative_rchar_bytes']-prior-overhead,
+                storage_guard=lambda: shared_storage_guard(a['checkpoint_commitments'], a['valid_until_unix']))
             result_path = ROOT/'runs'/reg['run_id']/'RESULT.json'
             result = json.loads(result_path.read_text()) if result_path.exists() else {}
             check(observed['returncode'] == 0 and observed['failure'] is None, 'Bounded invocation unsuccessful')
