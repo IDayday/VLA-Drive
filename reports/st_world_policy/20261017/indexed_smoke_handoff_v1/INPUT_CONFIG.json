@@ -1,0 +1,117 @@
+{
+  "data": {
+    "history_root": null,
+    "pca_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1",
+    "root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "teacher_provider": {
+      "descriptor": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/fixed_provider_wiring_v1/PROVIDER.json",
+        "sha256": "84cdf37e816e64622fb36334b1473e06d630bdba5b743877cfaefb7d78f49c75"
+      },
+      "pca_channel_scope": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/fixed_provider_wiring_v1/configured/PROVIDER_CHANNEL_SCOPE.json",
+        "sha256": "98a216097b57267249a2f16c72a73e206418787f7701f5e1a6824834a38e920c"
+      }
+    },
+    "teacher_root": null
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 2,
+    "world_size": 1
+  },
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "clip": 1.0,
+    "eps": 1e-08,
+    "lr": 1e-05,
+    "minimum_lr": 5e-07,
+    "warmup": 1000,
+    "weight_decay": 0.001
+  },
+  "runtime": {
+    "deterministic": true,
+    "gradient_checkpointing": false,
+    "loader_workers": 0,
+    "max_seconds": 900,
+    "official_execution": {
+      "adaptation_reason": "Finite two-update temporal provider engineering diagnostic only: 1 GPU, microbatch 1, global batch 2. Preserve the existing ST 20000-update/warmup1000 schedule, BF16 execution/FA2/TorchAdamW/ZeRO2 FP32 master backend, effective checkpointing=false, and deterministic=true. Native384/PCA384 is an existing numerical fixture, not a selected spatial winner.",
+      "declared_recipe_overrides": [
+        "global_batch",
+        "max_updates",
+        "micro_batch",
+        "warmup",
+        "world_size"
+      ],
+      "preset": "drivedreamer_f35fe783",
+      "schema": "st_official_drivedreamer_execution_v1",
+      "scope": "research_stage"
+    },
+    "output_root": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/configured/runs",
+    "save_every": 1
+  },
+  "schema": "st_training_v1",
+  "space_time": {
+    "cell": "T2",
+    "delta": false,
+    "future": true,
+    "future_weight": 1.0,
+    "history": false,
+    "sampled_positions": 96,
+    "spatial_parent": "S-P2",
+    "teacher": {
+      "channels": 384,
+      "compute_dtype": "float32",
+      "feature_layer": "last_block_post_norm_dense_patch",
+      "image_hw": [
+        288,
+        384
+      ],
+      "native_grid_hw": [
+        18,
+        24
+      ],
+      "output_grid_hw": [
+        18,
+        24
+      ],
+      "output_layout": "HWC",
+      "patch_hw": [
+        16,
+        16
+      ],
+      "pooling": {
+        "kernel_hw": [
+          1,
+          1
+        ],
+        "kind": "none",
+        "stride_hw": [
+          1,
+          1
+        ]
+      },
+      "schema_version": "st_teacher_feature_contract_v1",
+      "source_cache_identity": null,
+      "storage_dtype": "float32",
+      "teacher_identity": "f83de897907f546ebd6c0746d74e35efbb07eeb34ccd95a28ebb6d2d611dc202",
+      "transform_identity": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+      "view_names": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ]
+    },
+    "world_queries_per_view": 48
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "configured_output_exists": false,
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/SELECTED_SCENES.json",
+    "sha256": "7c78c58c40456649a93d152f9925ea5e1faa7e08bb65e98cd6c4af3b0c52b9b8"
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 2,
+    "world_size": 1
+  },
+  "fit_index": {
+    "complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1/COMPLETE.json",
+      "sha256": "952333bf289508a904b3b3c726ad840bc0557828fdb4b08f5f0b3bf508c6ab56"
+    },
+    "index_identity": "390790f1fc6a469ab76fc855f477d2308122888819ce73b1dc9bb069140716ff",
+    "max_metadata_cache_bytes": 16777216,
+    "request_identity": "eda2256c3a4a63a9cf3d5a1db3a582ed68de6cacf5e6014a1e9e0f310a86cfe9"
+  },
+  "formal_approved": false,
+  "full_current_index_opens": 1,
+  "gpu_execution": false,
+  "measurements": {
+    "elapsed_seconds": 5.261174786835909,
+    "logical_read_rchar_bytes": 857254384,
+    "peak_rss_bytes": 637583360
+  },
+  "namespace": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1",
+  "new_inputs": {
+    "current_hits": 189,
+    "on_demand_misses": 105,
+    "selected_scenes": 32,
+    "unique_images": 294
+  },
+  "pca_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/PCA.json",
+    "sha256": "f4a0845dd0244da29a30dec9f482f4ef801dfdbc80cbd34ad3ebb508b0885067"
+  },
+  "pca_refitted": false,
+  "pending_runtime_checks": [
+    "PCA tensor SHA/load",
+    "current/ego actual bytes",
+    "images and teacher weights",
+    "current runtime environment and GPU/resource lease",
+    "native trainer two-update execution"
+  ],
+  "plan": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESOLVED_PLAN.json",
+    "sha256": "f96e5612c068aa4000172f7076ea37031b8fe09d03b2f60706d57300e540f0eb"
+  },
+  "prepare_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "tools.st_world_policy.teacher_provider",
+    "--request-index",
+    "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1",
+    "--source-index",
+    "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1",
+    "--teacher-config",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/resolved_config_build_rank0.json",
+    "--qualification-result",
+    "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESULT.json",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+    "--max-cached-bytes",
+    "14159232",
+    "--max-scene-mib",
+    "64",
+    "--max-batch-images",
+    "8",
+    "--max-metadata-cache-mib",
+    "16",
+    "--training-config",
+    "/mnt/project/VLA-Drive-st-indexed-composition-20261017/reports/st_world_policy/20261017/indexed_smoke_handoff_v1/INPUT_CONFIG.json",
+    "--pca-fit-cache-root",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+    "--pca-fit-cache-index",
+    "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+    "--configured-output",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/configured"
+  ],
+  "prepare_command_executed": false,
+  "provider_descriptor_expected_identity": "90a908a48eba2e3d94e1d07700178dd08c61cb4aa0943459bbf572bd1b17ff8b",
+  "qualification": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/indexed_provider_composition_run_v1/RESULT.json",
+    "sha256": "a4f4c86f0b5c09d18a58d02e8919dd73e659b48a53ed0d2a25c7d68e497b7a2f"
+  },
+  "resource_registered": false,
+  "runtime": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+  "schema": "st_indexed_smoke_handoff_v1",
+  "source_config": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/world_fixed_provider_native2_v1/continuous/CONFIG.json",
+    "sha256": "a1fbb86793a141a869f18c1438e39626b398d42dc142da1f9b13fb877fd91d17"
+  },
+  "source_student": {
+    "path": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1/identity.json",
+    "sha256": "ead48e218f7c1fb777020523dd476303ae2760663d41534214c314ad6b951542"
+  },
+  "status": "METADATA_CHECKED_NOT_ADMITTED",
+  "target_contract": {
+    "channels": 384,
+    "compute_dtype": "float32",
+    "feature_layer": "last_block_post_norm_dense_patch",
+    "image_hw": [
+      288,
+      384
+    ],
+    "native_grid_hw": [
+      18,
+      24
+    ],
+    "output_grid_hw": [
+      18,
+      24
+    ],
+    "output_layout": "HWC",
+    "patch_hw": [
+      16,
+      16
+    ],
+    "pooling": {
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "kind": "none",
+      "stride_hw": [
+        1,
+        1
+      ]
+    },
+    "schema_version": "st_teacher_feature_contract_v1",
+    "source_cache_identity": null,
+    "storage_dtype": "float32",
+    "teacher_identity": "f83de897907f546ebd6c0746d74e35efbb07eeb34ccd95a28ebb6d2d611dc202",
+    "transform_identity": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+    "view_names": [
+      "CAM_F0",
+      "CAM_L0",
+      "CAM_R0"
+    ]
+  },
+  "tensor_payload_reads": 0,
+  "training_command": [
+    "/root/miniconda3/envs/ddp/bin/torchrun",
+    "--standalone",
+    "--nproc_per_node=1",
+    "-m",
+    "tools.st_world_policy.train_world",
+    "--registration",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/REGISTRATION.json"
+  ],
+  "training_started": false,
+  "unchanged": [
+    "optimizer",
+    "space_time",
+    "max_updates_20000",
+    "warmup_1000",
+    "precision_policy",
+    "micro1_global2_world1",
+    "PCA_basis",
+    "original_current_ego_content_pins"
+  ],
+  "weights_usable_for_formal_init": false
+}
