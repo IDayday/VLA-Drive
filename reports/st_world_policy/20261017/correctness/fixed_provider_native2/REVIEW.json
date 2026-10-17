@@ -1,0 +1,196 @@
+{
+  "actions_by_reviewer": {
+    "large_weights_or_teacher_tensors_loaded": 0,
+    "new_GPU_jobs": 0,
+    "new_training_runs": 0,
+    "private_small_RNG_files_read": 4,
+    "production_source_edits": 0,
+    "scoring": 0,
+    "signals": 0
+  },
+  "actual_training": {
+    "both_exit_codes": 0,
+    "continuous_new_updates": 2,
+    "final_checkpoint": "step_000002_1792211825910574568",
+    "global_batch": 2,
+    "large_native_model_or_optimizer_payload_bytes_read": 0,
+    "micro_batch": 1,
+    "next_batch_and_next_future_batch_exact": true,
+    "observed_updates": 2,
+    "original_schedule_updates": 20000,
+    "population": 64,
+    "provider_identity": {
+      "identity": "5e537de60be495fa86414ee8fe0f90d7683e4b0246b0a32dcd624c4728519458",
+      "schema": "st_bounded_teacher_state_v1"
+    },
+    "resume_checkpoint": "step_000001_1792211156436255598",
+    "saved_rng_payload_bytes_independently_read": 101608,
+    "source": "8c1e3f86268ef5ed79f46d69abf33d5c9ca74bdf",
+    "split_initial_completed_offset_exposure": [
+      1,
+      1,
+      2
+    ],
+    "split_initial_new_updates": 1,
+    "split_resume_completed_offset_exposure": [
+      2,
+      2,
+      4
+    ],
+    "split_resume_new_updates": 1,
+    "status": "PAUSED budget boundary, not terminal20k completion",
+    "tensor_disk_bytes": 0,
+    "warmup": 1000,
+    "world_size": 1
+  },
+  "conclusions": {
+    "ALL_SAVED_RNG_STREAMS": "PASS_EXACT_STEP1_AND_STEP2",
+    "BOUNDED_PROVIDER_TRAINING_WIRING": "PASS_REAL_FORWARD_BACKWARD_AND_NATIVE_SAVE",
+    "CROSS_RUN_TRAINING_BITWISE": "NOT_PASS_PRE_RESUME_AA_DIFFERENCE",
+    "CURRENT_RUN_LIVE_MASTER_VALUE_OBSERVER": "NOT_CAPTURED_NO_EXACT_LIVE_VALUE_CLAIM",
+    "FA2_VARIABILITY_MECHANISM": "OBSERVED_TINY_ACTUAL_ENTRYPOINT",
+    "FIXED_RAW_TEACHER_EQUIVALENCE": "PASS_INHERITED_REAL64_ALL_TENSORS",
+    "FUNCTIONAL_NATIVE_CONTINUATION": "PASS_WITH_INHERITED_UNCHANGED_BACKEND_AND_CURRENT_PROGRESS_RNG_EVIDENCE",
+    "LONG_WINDOW_THROUGHPUT": "UNTESTED",
+    "PROVIDER_FORMAL_APPROVAL": "NOT_GRANTED_SMOKE_ONLY"
+  },
+  "evidence": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/PRE_RESUME_AA_DIAGNOSTIC.json",
+      "sha256": "b54a3da52b003a0aaf193a504163252423ef9240f146874e500a51f2fb43b4c9"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/SMALL_RESUME_BOUNDARY_REVIEW.json",
+      "sha256": "1beb1f61795b9210bf21baccbb04e46e296c235a309dc2730fa7dddffe05ee00"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/LIVE_RESUME_ENV_OBSERVATION.json",
+      "sha256": "33e4ae94134e16725944bbe1b3b0a20f09f6607e85d263109cddc94ab9be4ee4"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/TINY_FA2_ACTUAL_v1/RESULT.json",
+      "sha256": "224e68427164832b4ef6685fa48f6812a7a5a3772145d38e9e257ee5732ba98e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/TINY_FA2_EXIT.json",
+      "sha256": "d89ae20647d0baf7cc7201d6be8228fca8d202bcc1e5f339d3f35e47db71212c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/TINY_FA2_ACTUAL_v2/RESULT.json",
+      "sha256": "5f1f909ec2cedf360a1f44d6808df4f921a61a0c02eaf1767c178eb9db3b8b8f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/TINY_FA2_EXIT_v2.json",
+      "sha256": "1ff028741a0cef1f657528505cccbb47f97a236618e173740a30c34e5d017a55"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/TINY_FA2_LEAD_ADMISSION_v2.json",
+      "sha256": "f0e9561c6d5cccb4838a343b3b79943704e79a32e2a628dcf3c40bb8167a0725"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/probe_installed_fa2_backward.py",
+      "sha256": "a033e14dce448efcb0b121faa703bbc11bd1aeb07405224f6ee3805299e9f380"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/probe_installed_fa2_backward_v2.py",
+      "sha256": "7a77de8804477e7c5fb0c62c2439e6e4da19622004ee8da1bc3e4a63c0987676"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/FIXED_TEACHER_BATCH64_REVIEW_v1.json",
+      "sha256": "9852e4675098d05114625a75a354cad5b4567eb12fa904a51b0b47e1199eca73"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/FIXED_PROVIDER_ADAPTER_REVIEW_v1.json",
+      "sha256": "9d153086cefe5ca9ecf003713d7a928ed967ec4ae9e230a30df9786e97c65d12"
+    }
+  ],
+  "formal_launch_allowed": false,
+  "minimal_remaining_checks": {
+    "for_claim_all_current_run_live_values_bitwise": "Would require existing zero-update external live observer against this run native file; it has not been performed and is not imposed as an extra prerequisite for the limited gate.",
+    "for_cross_run_deterministic_training": "Not granted. The observed pre-resume A/A divergence already falsifies that claim for these two arms. Tiny env1 evidence does not retroactively alter the production run.",
+    "for_formal_or_scale": "Not assessed here; existing SMOKE-only gate remains. No new unrelated criterion is introduced.",
+    "for_this_bounded_wiring_and_functional_resume_gate": "None. Current real forward/backward/native-save/resume, provider identity, nextIDs and all saved stochastic streams plus independently verified unchanged native backend evidence are sufficient for this limited conclusion. No additional full-model run requested."
+  },
+  "numerical_separation": {
+    "actual_resume_FA2_env": "Absent as recorded in matched live root process observation. Initial exited child environment was not saved; do not infer it retroactively.",
+    "first_master_partitions_equal": true,
+    "interpretation": "A concrete installed FA2 backward nondeterminism mechanism is experimentally established. It is not a unique causal proof for every full-model difference, not evidence against cache equivalence, and not a reason to waive state/identity/RNG checks. No tolerance or production flag was changed.",
+    "pre_resume_first_loss_values_equal": true,
+    "pre_resume_gradient_norm_difference": {
+      "absolute": 0.0001862049102783203,
+      "description": "Descriptive only; no acceptance threshold.",
+      "relative_to_continuous": 4.943089595555903e-05
+    },
+    "pre_resume_gradient_norms": {
+      "continuous": 3.7669742107391357,
+      "split": 3.7667880058288574
+    },
+    "tiny": {
+      "backward_calls": 16,
+      "changed_q_gradient_elements_per_default_repeat": [
+        147,
+        152,
+        145,
+        135,
+        126,
+        132
+      ],
+      "default_backward_repeated_exact": false,
+      "elapsed_seconds": 8.054947596043348,
+      "explicit_deterministic_backward_repeated_exact": true,
+      "forward_and_loss_all_repeats_modes_exact": true,
+      "initial_v1_failed_guard_before_backward": true,
+      "memory_measurement_scope": "nvidia-smi total-device memory.used before/after each call plus continuous PyTorch allocator peak; not process-memory attribution or a continuous total-device peak",
+      "pytorch_allocated_peak_bytes": 235696128,
+      "sampled_total_device_peak_bytes": 769654784
+    }
+  },
+  "optional_strict_comparator": {
+    "cpu_threads": 2,
+    "final_payload_bytes": {
+      "continuous": 37365927466,
+      "split": 37365927466
+    },
+    "interpretation": "Strict cross-run numerical mismatch expected from already-observed pre-resume step1 divergence. Full comparison quantifies this; it cannot by itself isolate immediate saved-to-live load equality.",
+    "largest_two_mmap_files_bytes": 61264346012,
+    "minimum_hash_plus_compare_bytes": 149463709864,
+    "resident_memory_warning": "Mmap can accumulate file-backed pages. Plan approximately64GiB RAM headroom plus ordinary interpreter/buffers, or admit a separate controlled-memory execution; no hard small-RSS claim. CPU/I/O admission required.",
+    "status": "PREPARED_NOT_EXECUTED",
+    "timeout_seconds": 1800,
+    "total_final_payload_bytes": 74731854932,
+    "unchanged_command": "/mnt/project/st-world-policy-20261016/audits/correctness/fixed_provider_native2_review_v1/COMMAND.sh"
+  },
+  "production_source": "8c1e3f86268ef5ed79f46d69abf33d5c9ca74bdf",
+  "restore_boundary": {
+    "actual_prior_exact_live_backend_review": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_WORLD_LIVE_NATIVE_RESTORE_REVIEW.json",
+      "sha256": "39b592831c02d8c67305c457ca8623135507fb6d97a4481ac0cf39f7f0fa5eb7"
+    },
+    "immediate_engine_receipt": "Actual strict native load continued with FP32 master/moment dtype,element counts,optimizer layout and step1 checked. This alone is not elementwise live-value evidence.",
+    "new_trainer_behavior": "Only provider metadata/creation/checks/state, cold reconstruction before existing restore_rng, and observability added to prior trainer; native engine.load_checkpoint strict optimizer/scheduler path and RNG primitive unchanged.",
+    "provider": "Exact provider identity restored; RAM cleared before final restore_rng; counters remain invocation-local. Both initial and resumed invocations report no failures and no tensor writes.",
+    "rng": "Independent exact comparison of Python,NumPy,torchCPU,CUDA plus noise,time,horizon,patch serialized states at both step1 and step2. Saved endpoint equality is distinguished from a live post-load observer.",
+    "source_inheritance": {
+      "tools/foresight/student_state.py": {
+        "byte_equal_to_actual_official_native_observer_source": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+        "sha256": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c"
+      },
+      "tools/st_world_policy/fp32_master_init.py": {
+        "byte_equal_to_actual_official_native_observer_source": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+        "sha256": "fe2f8ad5c737ca49d5aa6e5435335a5b248a05527c25545635cb1ee43cad35dd"
+      },
+      "tools/st_world_policy/official_runtime.py": {
+        "byte_equal_to_actual_official_native_observer_source": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+        "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+      },
+      "tools/st_world_policy/training_state.py": {
+        "byte_equal_to_actual_official_native_observer_source": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+        "sha256": "8af70592caa5c3d1ac97d20b116543b6c7736a544120641b3b984de9e2f008c3"
+      }
+    }
+  },
+  "reviewed_at_utc": "2026-10-17T04:43:47.651500+00:00",
+  "reviewer_agent": "/root/st_correctness",
+  "schema": "independent_fixed_provider_training_resume_review_v1",
+  "scope": "Only fixed8 provider bounded64-scene continuous2 vs split1+1 diagnostic and separate tiny FA2 mechanism probe. No formal, throughput, scientific-effect or cross-run bitwise claim."
+}
