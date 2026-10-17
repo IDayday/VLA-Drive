@@ -1,0 +1,68 @@
+{
+  "actual_failure": {
+    "actual_exception_class": "UNKNOWN_NOT_RECORDED",
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+    "resources": {
+      "counters": {
+        "gpu_peak_allocated_bytes": 0,
+        "gpu_peak_reserved_bytes": 0,
+        "hash_calls_completed": 5,
+        "hash_calls_started": 6,
+        "hash_logical_bytes_admitted": 30632210276,
+        "hash_logical_bytes_completed": 22974152270,
+        "hash_wall_seconds": 23.650149343535304,
+        "limit_exceeded": null,
+        "native_load_calls": 0,
+        "native_load_wall_seconds": 0.0,
+        "phase": "EXTRACT",
+        "pid": 452602,
+        "proc_self_io_delta": {
+          "cancelled_write_bytes": 4096,
+          "rchar": 25128772047,
+          "read_bytes": 3242733568,
+          "syscr": 22132,
+          "syscw": 60,
+          "wchar": 51470,
+          "write_bytes": 217088
+        },
+        "read_accounting_scope": "hash full-file bytes + nominal torch.load bytes; proc rchar/read_bytes separate; safetensors mmap/library/image-decode reads not individually instrumented",
+        "torch_load_calls": 0,
+        "torch_load_nominal_bytes": 0,
+        "torch_load_wall_seconds": 0.0,
+        "wall_seconds": 30.725417219102383
+      },
+      "exit_code": -15,
+      "limit_reason": "MONITOR_UNREADABLE",
+      "log_bytes_received": 332,
+      "log_bytes_stored": 332,
+      "monitoring": "RSS/wall sampled at <=1s between reads; torch allocator peak sampled at 0.5s; cooperative kernel scheduling; 30s own-group TERM grace",
+      "process_cleanup": {
+        "live_owned_remaining": 0,
+        "method": "unreaped session anchor, start_ticks and pidfd; adopted owned zombies reaped",
+        "verified_processes": 2
+      },
+      "sampled_tree_rss_peak_bytes": 711897088,
+      "wall_seconds": 35.15043227188289
+    },
+    "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327",
+    "status": "STOPPED_NO_AUTO_RETRY"
+  },
+  "scope": {
+    "actual_stage_changed": false,
+    "dispatch_or_retry": false,
+    "gpu_or_model_execution": false,
+    "source_changed": false,
+    "uniquely_attributed_actual_root_cause": false
+  },
+  "shared_lock_read": {
+    "replacement_published_after_release": true,
+    "status": "PASS",
+    "strict_reader_unchanged": true,
+    "writer_blocked_until_read_complete": true
+  },
+  "unlocked_read": {
+    "exception_type": "ValueError",
+    "message": "Control changed while reading",
+    "status": "RACE_REPRODUCED"
+  }
+}
