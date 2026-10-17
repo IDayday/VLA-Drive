@@ -1,0 +1,134 @@
+{
+  "actual_mutations": {
+    "GPU_or_model": false,
+    "cache": false,
+    "live_ledger": false,
+    "owned_report_files_only": true,
+    "process_signals": false,
+    "runtime_or_source": false
+  },
+  "actual_train_plan": {
+    "bytes": 2985,
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/ACTUAL_TRAIN_PLAN_HANDOFF.json",
+    "sha256": "cbb40711301aeac16d1c2d94d3cd4b648dd6240d6d0b3d375b07617c8d7fa6c0"
+  },
+  "candidate_future_execution_budget_not_admitted": {
+    "CPU_affinity": "fresh assignment; do not consume metadata CPU0,1 by assumption",
+    "CPU_count": 2,
+    "GPU_count": 1,
+    "GPU_peak_allocated_bytes": 25769803776,
+    "W_dtype": "float32",
+    "W_shape": [
+      144,
+      2048
+    ],
+    "attempt_directory": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_extract",
+    "checkpoint_obligations": "Fresh CURRENT receipt, covering all actual obligations and the full 1000 s; separate from W/cache allowance. No expired dev receipt reuse.",
+    "cleanup_coverage_seconds": 40,
+    "controls": "Existing <=5 MiB attempt inside 32 MiB arm envelope, existing bounded logs/failure reserve",
+    "cooperative_seconds": 900,
+    "fixed_train_scenes": 64,
+    "lease_and_checkpoint_commitment_coverage_seconds": 1000,
+    "mask_all_true": true,
+    "mask_dtype": "bool",
+    "mask_shape": [
+      144
+    ],
+    "one_shot_no_automatic_retry": true,
+    "outer_seconds": 960,
+    "read_cap_bytes": 237302801889,
+    "sampled_tree_RSS_bytes": 68719476736
+  },
+  "claim": {
+    "bytes": 823,
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/TRAIN_TYPED_W_CLAIM.json",
+    "sha256": "2739dc43ce9ad04ced0d6fc7d4bdeafa001dff857318035591483640e44eaa92"
+  },
+  "current_policy": {
+    "bytes": 48188,
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/PROPOSED_POLICY.json",
+    "sha256": "59371867175a65dd032cc27c88a050227d8ac4ba34a681c2e31b250c58a0978d"
+  },
+  "exact_two_source_file_diff": {
+    "bytes": 3251,
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/STORAGE_MODULES.diff",
+    "sha256": "b1b3e56a357c91b178745bc797b626e30f2fb50546d2f5e7ef690c424233795f"
+  },
+  "ledger_snapshot": {
+    "bytes": 50794,
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+    "sha256": "f9099a472140e1b29daaaaf87bea9f297d924e29e9616fe450452b5361419377"
+  },
+  "ledger_snapshot_is_not_an_executable_migration_token": true,
+  "migration_handoff": [
+    "Metadata dev/train build/index line has priority; do not migrate while their old-policy writers/queues are active. Do not interrupt them for W.",
+    "After they finish, Lead rereads latest policy/core/ledger and establishes fresh exact quiescence. If policy advanced beyond 593718..., rebase this single additive claim preserving every new declaration/baseline.",
+    "Even if policy stays identical, writer admission/accounting changes ledger SHA; do not use the captured caeb... or later snapshot as a stale expected_old_ledger_sha256.",
+    "Use existing migrate_policy with fresh old/new policy pins, then-current old ledger SHA, no-adoption inventory, quiescence and checkpoint commitments. This preparation supplies none of those live authorizations.",
+    "Retain existing dev FAILED + additive reconciliation and both spent attempts. No deletion, budget reset or old proposal restoration."
+  ],
+  "parent_reported_ledger_before_writers": "caebf94cd9b5d303feea6cfd18aebc8f5915eeebeac81d7230ed90cad38123ba",
+  "preservation_checks": {
+    "W_baseline_and_limits_exact": true,
+    "actual_signature_used": true,
+    "all_old_claims_exact": true,
+    "all_old_legacy_exact": true,
+    "metadata_v2_package_exact": true,
+    "old_W_members_unchanged": true,
+    "state_dir_unchanged": true
+  },
+  "proposed_policy": {
+    "bytes": 50188,
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/PROPOSED_POLICY.json",
+    "sha256": "3694930973bddf9be5cbc83505f541bea86e4ba87425a71b99eec68488bd76bf"
+  },
+  "pure_existing_API_checks": [
+    "claim_from_signature(actual_signature)",
+    "StorageBudget._read_policy on uninitialized metadata-only holder; constructor/reserve/initialize/_locked not called",
+    "spatial_w_storage.validate_package",
+    "metadata_storage.validate_package",
+    "spatial_w_storage.validate_migration structure only; migrate_policy never called"
+  ],
+  "quantities": {
+    "W_maximum_bytes": 1073741824,
+    "all_declared_new_bytes": 696490422662,
+    "all_declared_old_bytes": 696404167926,
+    "campaign_cap_bytes": 824633720832,
+    "metadata_envelope_bytes": 8589934592,
+    "metadata_package_bytes_from_validator": 3472883712,
+    "new_W_total_bytes": 112340512,
+    "new_train_W_claim_bytes": 86254736,
+    "old_dev_W_bytes": 26085776,
+    "remaining_campaign_declared_headroom_bytes": 128143298170,
+    "separate_free_floor_bytes": 1099511627776,
+    "train_read_charged_bytes": 37575105055,
+    "train_read_remaining_bytes": 237302801889
+  },
+  "read_only_check_cost": {
+    "CPU_affinity": [
+      0,
+      1
+    ],
+    "RSS_peak_bytes": 128258048,
+    "address_space_limit_bytes": 2147483648,
+    "json_open_bytes_admitted": 22901365,
+    "metadata_read_cap_bytes": 134217728,
+    "payload_open_attempts": [],
+    "run_identity_JSON_bytes": 19105073,
+    "run_identity_full_reads": 1,
+    "torch_imported": false,
+    "wall_and_CPU_seconds": 180,
+    "wall_seconds": 0.9651155471801758
+  },
+  "remaining_resource_review": "After compatible resource binding and actual migration receipt exist: fresh exact host/GPU UUID/CPU/memory/free+checkpoint checks, source/helper/receipt pins, remaining 237302801889-byte train cap and one-shot admission.",
+  "remaining_source_review": "The two donor compatibility modules already have narrow independent review. The new optional observer/admission adapter and exact storage-vs-compute provenance require a separate focused correctness review; no model/teacher/PCA changes, new platform or broad algorithm regression is proposed.",
+  "schema": "st_SP0_train_extract_preparation_resource_package_v1",
+  "source_owner_worktree": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017",
+  "status": "PREPARED_ADDITIVE_CLAIM_AND_COMPATIBILITY_PROPOSAL_NO_MIGRATION_NO_ADMISSION",
+  "storage_compatibility_proposal": {
+    "bytes": 14545,
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/STORAGE_COMPATIBILITY_PROPOSAL.json",
+    "sha256": "7418818142204985d3bf6da8ebd2d175f5f0d6359ea1f157c2f096fadd193f02"
+  },
+  "validator_source_head": "61ed7fa359d8b5d40b49e1390d9bcf6a4311269b"
+}

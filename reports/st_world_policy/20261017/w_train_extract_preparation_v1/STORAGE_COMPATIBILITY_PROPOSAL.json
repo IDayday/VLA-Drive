@@ -1,0 +1,215 @@
+{
+  "compute_runtime": {
+    "must_remain_clean_and_unmodified": true,
+    "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017",
+    "source_sha": "581399eb309677c20fe7464791b4f18685e947a6"
+  },
+  "current_moving_source_caveat": "Current metadata_storage includes a later preexisting-pins8-to16 change. It is unnecessary for W extraction guard validation; freeze the explicitly reviewed donor source instead of following moving HEAD.",
+  "exact_two_source_file_diff": {
+    "applied": false,
+    "base_commit": "581399eb309677c20fe7464791b4f18685e947a6",
+    "bytes": 3251,
+    "donor_commit": "619707b4524b211b7dc313a9723c70195f26aa6b",
+    "format": "git diff --unified=0; exact changed lines, no whitespace-only context lines",
+    "path": "/mnt/project/VLA-Drive-st-w-train-plan-resource-20261017/reports/st_world_policy/20261017/w_train_extract_preparation_v1/STORAGE_MODULES.diff",
+    "sha256": "b1b3e56a357c91b178745bc797b626e30f2fb50546d2f5e7ef690c424233795f"
+  },
+  "identity_contract": {
+    "actual_train_plan_result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/RESULT.json",
+      "sha256": "001952cd9d5f608ba1761056d41159135ec3e61853d9aff5d3da90f1590aef15"
+    },
+    "actual_train_signature": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+      "sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29"
+    },
+    "binding_compute_source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+    "cache_identity": "24741e0c9f1f8076158322bd92d7028142518fdb532cb43d2bc674d5dd11dcf3",
+    "checkpoint_identity": "c87c59804b6237205e4b4a7a7e355b569c7cef5eaa499023f699111ec36d0beb",
+    "do_not": [
+      "Change the old runtime files or claim a new full git tree is 581399eb.",
+      "Set binding.source_sha to the new storage commit: that changes the actual signature and conflicts with the immutable dev W member runtime.",
+      "Remove existing source/environment/checkpoint/content validation.",
+      "Rerun dev, issue a second explicit train_plan, read model payloads for this control migration, or install arbitrary imports."
+    ],
+    "no_new_plan_due_only_to_git_sha": true,
+    "original_extract_internal_checks": "The existing extraction itself still executes cache_plan and native-loader validation as originally budgeted. This proposal does not delete or cache those checks, and does not add another standalone plan.",
+    "reuse_actual_plan": true,
+    "training_checkpoint_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+  },
+  "inherited_reviews": {
+    "W_guard": "reports/st_world_policy/20261017/frozen_w_storage_v1/independent_review/REVIEW.md; original claim/reserve/writing behavior retained.",
+    "metadata_v2": "reports/st_world_policy/20261017/correctness/metadata_envelope_v2_review/README.md: 27 passed; donor file code only, does not certify the new adapter."
+  },
+  "necessary_narrow_tests_not_run_here": [
+    "Exact real-control pins accepted under <=128MiB metadata-only read; same train/dev signatures and old checkpoint identity before/after resource binding.",
+    "Tiny fixtures: v2 policy succeeds with both exact storage modules; wrong hash/path/commit, dirty or extra-file checkout, wrong base, unpinned or mixed module imports reject before reserve/model load.",
+    "Old computation source_runtime still rejects wrong/dirty compute HEAD and changed environment; no override or REPO reassignment.",
+    "No compatibility pin preserves prior default behavior; compatibility pin on dev retry/other role or wrong cache identity is rejected.",
+    "Real unchanged StorageBudget reserve/writing boundary on tiny temporary fixtures retains cap/free/checkpoint floor and original claims, and process-local admission never migrates live state.",
+    "Observer/supervisor helper-pin checks cover the new exact adapter; upstream failed dev status/accounting and train-role residual stay unchanged."
+  ],
+  "problem": {
+    "active_metadata_envelope_bytes": 8589934592,
+    "active_metadata_schema": "st_metadata_storage_package_v2",
+    "first_old_failure": "spatial_w_storage.validate_package:313 compares the v2 whole-package digest to the old metadata digest and fails before model loading; metadata_storage:135 also rejects v2.",
+    "no_source_compatible_override_found": "Source search found no existing W source override. source_runtime still requires exact clean computation git HEAD; metadata resource_checkpoint only serves admitted metadata writers.",
+    "old_metadata_schema": "st_metadata_storage_package_v1"
+  },
+  "schema": "st_W_storage_compatibility_proposal_v1",
+  "smallest_proposed_seam": {
+    "approach": "Subject to independent review, the existing observer can load only the two exact pure storage modules from the new immutable storage checkout into their fixed canonical module names. Compute modules, cwd, PYTHONPATH, spatial_probe.REPO and binding.source_sha continue resolving to the original clean 581399eb tree. No code is loaded from an arbitrary module list or caller-supplied command.",
+    "dependencies": "Both new storage modules depend on the unchanged original cache_storage_budget module. Pin that class module SHA 2103a082271706513127404b35fb1ff9154309b5e5fbe56306b8e831a509b1d5. Load/check old package first; then both fixed storage modules together before use; reject an already mixed or foreign module cache.",
+    "existing_api_kept": "Unchanged spatial_probe.extract -> old unchanged StorageBudget class -> its dynamic metadata_storage/spatial_w_storage imports; unchanged reserve/writing/checkpoint floor APIs and shared ledger lock.",
+    "implementation_owner": "Existing owner, after independent correctness chooses/approves the thinnest exact adapter. No observer/module monkeypatch is implemented by this preparation.",
+    "location": "existing supervised observed_cli.py::run at line 123, after sys.path.insert(0, preparation[\"runtime\"][\"path\"]) and before torch/spatial_probe imports at lines 124-125",
+    "minimum_control_changes": [
+      "A narrow optional storage-compatibility receipt pin, accepted only for the fixed SP0 train_extract role and exact old compute runtime/source/signature, with independent resource review.",
+      "Supervisor admission validation checks clean new storage checkout commit, exact two file hashes, full git tree difference limited to those paths, original compute commit/paths, helper hashes and current policy pin. No global source check is weakened.",
+      "Observer consumes the same pin once at the fixed seam and records old computation identity plus new storage commit/file hashes in admission/CLI provenance, leaving existing binding/signature bytes unchanged.",
+      "Keep the existing default path unchanged when no explicit compatibility pin exists; no CLI-wide source override."
+    ],
+    "unchanged_dynamic_call_points": [
+      "cache_storage_budget.py:205 imports spatial_w_storage.validate_package while reading policy.",
+      "cache_storage_budget.py:216 imports metadata_storage.validate_package while reading policy.",
+      "spatial_probe.py:237 imports metadata_storage._checkpoint_reserve for extraction free-space commitments."
+    ]
+  },
+  "status": "PROPOSAL_ONLY_NOT_IMPLEMENTED_NOT_APPROVED",
+  "storage_checkout_to_freeze": {
+    "allowed_source_difference_paths": [
+      "tools/st_world_policy/metadata_storage.py",
+      "tools/st_world_policy/spatial_w_storage.py"
+    ],
+    "base_commit": "581399eb309677c20fe7464791b4f18685e947a6",
+    "new_commit_and_path": "Not created; must be pinned after implementation review. It is a storage-code identity, not a replacement computation identity.",
+    "only_donor_files": [
+      {
+        "compute_runtime_original": {
+          "bytes": 42078,
+          "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/tools/st_world_policy/metadata_storage.py",
+          "sha256": "4972a7b89647c7195ce567da00447f3224b0b4cc28d9d942b6c7c88a5715fd3c"
+        },
+        "moving_lead_at_snapshot": {
+          "bytes": 43870,
+          "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/tools/st_world_policy/metadata_storage.py",
+          "sha256": "46233cf232a61e73e7e24f967b1cf316298473b017f49f4e96432d7e1b1a3591"
+        },
+        "relative_path": "tools/st_world_policy/metadata_storage.py",
+        "reviewed_donor_bytes": 43629,
+        "reviewed_donor_commit": "619707b4524b211b7dc313a9723c70195f26aa6b",
+        "reviewed_donor_sha256": "68ffeb4862c6ea0536e34e9c14f36ee189625e02ead806775cd397e179f7e5ca"
+      },
+      {
+        "compute_runtime_original": {
+          "bytes": 22077,
+          "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/tools/st_world_policy/spatial_w_storage.py",
+          "sha256": "fb514722b82934639a3946d7aaf1e5e94445df19d0a071040ddf8cda58d02231"
+        },
+        "moving_lead_at_snapshot": {
+          "bytes": 22167,
+          "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/tools/st_world_policy/spatial_w_storage.py",
+          "sha256": "0d2c16be1e7ef98bf5b1c9ab6abc10f6b4fdd23ff722d8e0e41f0b280f957987"
+        },
+        "relative_path": "tools/st_world_policy/spatial_w_storage.py",
+        "reviewed_donor_bytes": 22167,
+        "reviewed_donor_commit": "619707b4524b211b7dc313a9723c70195f26aa6b",
+        "reviewed_donor_sha256": "0d2c16be1e7ef98bf5b1c9ab6abc10f6b4fdd23ff722d8e0e41f0b280f957987"
+      }
+    ]
+  },
+  "two_source_file_change_summary": {
+    "tools/st_world_policy/metadata_storage.py": [
+      "Adds the explicit metadata package v2 schema and exact 8 GiB maximum; v1 remains capped at 4 GiB.",
+      "Adds original_package() to reconstruct and hash-check the exact original v1 package baseline.",
+      "validate_package() accepts only the checked v1 or v2 envelope; migrate_policy() admits only that one exact baseline-preserving v1-to-v2 transition."
+    ],
+    "tools/st_world_policy/spatial_w_storage.py": [
+      "validate_package() hashes the verified original_package(metadata_package) baseline instead of the whole v2 envelope. All other W claim, reserve, writer and one-GiB ceiling logic is unchanged."
+    ]
+  },
+  "unchanged_computation_dependency_pins": [
+    {
+      "compute_runtime_sha256": "2103a082271706513127404b35fb1ff9154309b5e5fbe56306b8e831a509b1d5",
+      "current_lead_sha256": "2103a082271706513127404b35fb1ff9154309b5e5fbe56306b8e831a509b1d5",
+      "equal_now": true,
+      "relative_path": "tools/st_world_policy/cache_storage_budget.py"
+    },
+    {
+      "compute_runtime_sha256": "e5d9e4306aae8311aefea9c8cc8ee777fd88424b412abcc6003128c6c7e0a20f",
+      "current_lead_sha256": "e5d9e4306aae8311aefea9c8cc8ee777fd88424b412abcc6003128c6c7e0a20f",
+      "equal_now": true,
+      "relative_path": "tools/st_world_policy/spatial_probe.py"
+    },
+    {
+      "compute_runtime_sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4",
+      "current_lead_sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4",
+      "equal_now": true,
+      "relative_path": "tools/st_world_policy/checkpoints.py"
+    },
+    {
+      "compute_runtime_sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758",
+      "current_lead_sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758",
+      "equal_now": true,
+      "relative_path": "tools/st_world_policy/teacher_pca.py"
+    },
+    {
+      "compute_runtime_sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877",
+      "current_lead_sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877",
+      "equal_now": true,
+      "relative_path": "tools/st_world_policy/cache_teacher.py"
+    },
+    {
+      "compute_runtime_sha256": "135d6a4936627a8a8fcb92ac579c3b867970f574631eeff2be31e9ad55d94a49",
+      "current_lead_sha256": "135d6a4936627a8a8fcb92ac579c3b867970f574631eeff2be31e9ad55d94a49",
+      "equal_now": true,
+      "relative_path": "starVLA/dataloader/st_world_observation.py"
+    },
+    {
+      "compute_runtime_sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e",
+      "current_lead_sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e",
+      "equal_now": true,
+      "relative_path": "starVLA/dataloader/st_world_targets.py"
+    },
+    {
+      "compute_runtime_sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc",
+      "current_lead_sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc",
+      "equal_now": true,
+      "relative_path": "starVLA/dataloader/st_world_schema.py"
+    },
+    {
+      "compute_runtime_sha256": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007",
+      "current_lead_sha256": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007",
+      "equal_now": true,
+      "relative_path": "starVLA/model/framework/st_world_model.py"
+    },
+    {
+      "compute_runtime_sha256": "46a70bcd5a51f16688512df3fd0abbc5c44752d08b7285effd099e93ecae11ba",
+      "current_lead_sha256": "46a70bcd5a51f16688512df3fd0abbc5c44752d08b7285effd099e93ecae11ba",
+      "equal_now": true,
+      "relative_path": "starVLA/model/modules/vehicle_joint/initialization.py"
+    }
+  ],
+  "upstream_helper_pins_before_any_hook_change": {
+    "observed_cli.py": {
+      "bytes": 9409,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    },
+    "prepare_bindings.py": {
+      "bytes": 14696,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    "reconcile_artifact_exit.py": {
+      "bytes": 9848,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/reconcile_artifact_exit.py",
+      "sha256": "8deea58c4550866500378f6016cbca0f21e75fa937285b38350528c0bdd61de3"
+    },
+    "supervise_once.py": {
+      "bytes": 36959,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "actual_cost": {
+    "GPU_peak_allocated_bytes": 0,
+    "charged_train_role_read_bytes": 37575105055,
+    "exit_code": 0,
+    "hash_logical_bytes_admitted": 37407898449,
+    "limit_reason": null,
+    "native_model_load_calls": 0,
+    "observer_wall_seconds": 39.65464909374714,
+    "outer_wall_seconds": 43.417401706799865,
+    "proc_rchar": 37575105055,
+    "remaining_owned_processes": 0,
+    "sampled_tree_RSS_bytes": 701132800,
+    "torch_load_nominal_bytes": 0
+  },
+  "cache_identity": "24741e0c9f1f8076158322bd92d7028142518fdb532cb43d2bc674d5dd11dcf3",
+  "charge_rule": "max(hash_logical_bytes_admitted + torch_load_nominal_bytes, proc_self_io_delta.rchar); the train plan is charged once, no use of dev allowance",
+  "checkpoint_identity": "c87c59804b6237205e4b4a7a7e355b569c7cef5eaa499023f699111ec36d0beb",
+  "checkpoint_tag": "step_005000_1792217229597178910",
+  "cli_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/CLI_RESULT.json",
+    "sha256": "e942c9ed81500a7af496097572f861046303b0adc69a98126cc202666636a75f"
+  },
+  "completed_by": "Lead",
+  "compute_source_sha": "581399eb309677c20fe7464791b4f18685e947a6",
+  "fixed_scenes": 64,
+  "native_training_source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "new_cache_written": false,
+  "original_failed_dev_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract_manual_retry_v1/RESULT.json",
+    "sha256": "57406c7728bd2937d6723ebe3b22596fd04dd45d0fcabaa22c64311daf11166c"
+  },
+  "precision": "FP32_native_master_TF32_off",
+  "result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/RESULT.json",
+    "sha256": "001952cd9d5f608ba1761056d41159135ec3e61853d9aff5d3da90f1590aef15"
+  },
+  "reviewer_reran_plan": false,
+  "schema": "st_SP0_train_plan_actual_handoff_v1",
+  "scientific_result": false,
+  "signature": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+    "sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29"
+  },
+  "status": "ACTUAL_TRAIN_PLAN_COMPLETE",
+  "train_role_limit_bytes": 274877906944,
+  "train_role_remaining_read_bytes": 237302801889,
+  "upstream_read_accounting_preserved": {
+    "prior_read_bytes": 0,
+    "remaining_read_bytes": 274877906944,
+    "role_limit_bytes": 274877906944,
+    "scope": "sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO",
+    "sources": [],
+    "upstream_artifact_reconciliation": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/reconciliation/dev_extract_manual_retry_v1.json",
+      "sha256": "3722ef6e87871429be10718fb5fda5c332aa3ecc5aec24290de389c309079f1a"
+    },
+    "upstream_supervisor_status_preserved": "STOPPED_NO_AUTO_RETRY"
+  }
+}

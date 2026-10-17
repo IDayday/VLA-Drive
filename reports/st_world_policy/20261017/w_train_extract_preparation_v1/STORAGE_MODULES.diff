@@ -1,0 +1,57 @@
+diff --git a/tools/st_world_policy/metadata_storage.py b/tools/st_world_policy/metadata_storage.py
+index 0daa00ae..554aaff5 100644
+--- a/tools/st_world_policy/metadata_storage.py
++++ b/tools/st_world_policy/metadata_storage.py
+@@ -24,0 +25 @@ PACKAGE_MAX = 4 * b.GIB
++FULL_METADATA_PACKAGE_MAX = 8 * b.GIB
+@@ -27,0 +29 @@ PACKAGE_SCHEMA = "st_metadata_storage_package_v1"
++FULL_METADATA_PACKAGE_SCHEMA = "st_metadata_storage_package_v2"
+@@ -131,0 +134,22 @@ def _registration(row):
++def original_package(package):
++    """Verify the sole explicit 4→8 GiB metadata-envelope version transition.
++
++    Keep the old package identity available to frozen-W claims. This does not
++    enlarge a claim, the campaign cache cap, checkpoint allowance or RAM limit.
++    Old v1 policies retain their original four-GiB ceiling.
++    """
++    if package.get("schema") == PACKAGE_SCHEMA:
++        return package
++    if package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA:
++        b._fail("unknown metadata package")
++    if type(package.get("maximum_bytes")) is not int or package["maximum_bytes"] != FULL_METADATA_PACKAGE_MAX:
++        b._fail("metadata v2 requires the exact eight-GiB envelope")
++    previous_sha = package.get("previous_package_sha256")
++    b._hash(previous_sha, "original metadata package")
++    previous = {k: v for k, v in package.items() if k != "previous_package_sha256"}
++    previous.update(schema=PACKAGE_SCHEMA, maximum_bytes=PACKAGE_MAX)
++    if b._digest(previous) != previous_sha:
++        b._fail("metadata v2 changed its original package baseline")
++    return previous
++
++
+@@ -135,2 +159 @@ def validate_package(core, declarations):
+-    if package.get("schema") != PACKAGE_SCHEMA:
+-        b._fail("unknown metadata package")
++    original_package(package)
+@@ -138 +161 @@ def validate_package(core, declarations):
+-    if maximum > PACKAGE_MAX:
++    if package["schema"] == PACKAGE_SCHEMA and maximum > PACKAGE_MAX:
+@@ -217,2 +240,8 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
+-            b._fail("migration changed original metadata package baseline")
+-    elif (package["baseline_claims"] != old.declarations or
++            previous = old.core["metadata_package"]
++            if (previous.get("schema") != PACKAGE_SCHEMA or
++                    previous.get("maximum_bytes") != PACKAGE_MAX or
++                    package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA or
++                    original_package(package) != previous):
++                b._fail("migration changed original metadata package baseline")
++    elif (package.get("schema") != PACKAGE_SCHEMA or
++          package["baseline_claims"] != old.declarations or
+diff --git a/tools/st_world_policy/spatial_w_storage.py b/tools/st_world_policy/spatial_w_storage.py
+index 8a1bc0c8..36dcbfa7 100644
+--- a/tools/st_world_policy/spatial_w_storage.py
++++ b/tools/st_world_policy/spatial_w_storage.py
+@@ -313 +313,2 @@ def validate_package(core, declarations):
+-    if b._digest(core['metadata_package']) != package['metadata_package_sha256']:
++    from tools.st_world_policy.metadata_storage import original_package
++    if b._digest(original_package(core['metadata_package'])) != package['metadata_package_sha256']:
