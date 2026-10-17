@@ -13,18 +13,61 @@ from pathlib import Path
 import resource
 import sqlite3
 import sys
+import time
 import uuid
 import zlib
 
-from .st_world_history import file_sha256
+from tools.st_world_policy.metadata_storage import check_active_metadata_storage
 from .st_world_future_provenance import LogCoverage, validate_ledger
 from .st_world_schema import TeacherFeatureContract, identity_hash, require_hash
-from .st_world_targets import atomic_json, file_lock, payload_key, validate_target_manifest
+from .st_world_targets import file_lock, payload_key, validate_target_manifest
 
 MiB = 1 << 20
 GiB = 1 << 30
 SCHEMA = 'st_teacher_metadata_index_v1'
 ENCODING = 'canonical_json_zlib_level1_v1'
+_LAST_STORAGE_CHECK = 0.
+
+
+def _storage_check(*, before_commit=False, path=None, force=False):
+    """Cheap per-chunk cooperative call; full census at most one second apart.
+
+    Publication/creation checks never throttle. Native JSON/SQLite/IO cannot be
+    preempted here: the outer finite process monitor remains required, and a
+    late return fails closed in the guard rather than permitting publication.
+    """
+    global _LAST_STORAGE_CHECK
+    if force or before_commit or path is not None or time.monotonic()-_LAST_STORAGE_CHECK>=1.:
+        check_active_metadata_storage(before_commit=before_commit,path=path)
+        _LAST_STORAGE_CHECK=time.monotonic()
+
+
+def file_sha256(path):
+    """Identical SHA bytes, bounded chunks with the active metadata callback."""
+    _storage_check(); digest=hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        while block:=stream.read(MiB):
+            _storage_check(); digest.update(block)
+    _storage_check()
+    return digest.hexdigest()
+
+
+def atomic_json(path,value,*,immutable=False):
+    """The existing index publication seam, with exact temporary-path checks."""
+    path=Path(path)
+    if immutable and path.exists():
+        if _loads(path.read_text())!=value: raise ValueError('Immutable artifact conflict: '+str(path))
+        return
+    temporary=path.with_name(path.name+'.'+uuid.uuid4().hex+'.tmp')
+    _storage_check(before_commit=True,path=temporary)
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with temporary.open('x') as stream:
+        stream.write(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n')
+        stream.flush(); os.fsync(stream.fileno())
+    _storage_check(before_commit=True,path=path)
+    if immutable and path.exists(): raise ValueError('Concurrent immutable metadata receipt publication')
+    os.replace(temporary,path)
+    _storage_check(force=True)
 
 
 def canonical(value):
@@ -66,8 +109,10 @@ def _pairs(pairs):
 
 
 def _loads(text):
+    _storage_check()
     value = json.loads(text, object_pairs_hook=_pairs)
     canonical(value)  # Reject NaN/Infinity, which stdlib decoding otherwise permits.
+    _storage_check()
     return value
 
 
@@ -95,6 +140,7 @@ def _atomic_rows(path, arrays, consume, *, max_row_bytes=64*1024):
     first, previous, total_header = True, None, 0
     with Path(path).open('r', encoding='utf-8', newline='') as stream:
         def line():
+            _storage_check()
             value = stream.readline(max_row_bytes + 1)
             if len(value.encode()) > max_row_bytes:
                 raise ValueError('Metadata line exceeds bounded row budget')
@@ -146,6 +192,7 @@ def _atomic_rows(path, arrays, consume, *, max_row_bytes=64*1024):
                         digest.update((',' if count else '').encode())
                         digest.update(encoded.encode())
                     consume(key, count, row, encoded)
+                    _storage_check()
                     count += 1
                     if not row_comma:
                         closing = line()
@@ -210,6 +257,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
     max_scenes is an upper bound, not sampling. Missing/truncated inputs fail.
     Interrupted temporary DBs remain evidence; only COMPLETE admits readers.
     """
+    _storage_check(force=True)
     _limit(max_scenes, 'max_scenes', 2_000_000)
     _limit(max_disk_bytes, 'max_disk_bytes', 2*GiB)
     _limit(max_builder_rss_bytes, 'max_builder_rss_bytes', 4*GiB)
@@ -228,6 +276,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
     dependencies = {k: {'path': str(p), 'sha256': checked_sha(p)[0]} for k, p in paths.items()}
     if _rss() > max_builder_rss_bytes:
         raise ValueError('Builder RSS already exceeds registered budget')
+    _storage_check(before_commit=True,path=output/'BUILD.lock')
     output.mkdir(parents=True, exist_ok=True)
     with file_lock(output/'BUILD.lock'):
         if (output/'COMPLETE.json').exists():
@@ -248,7 +297,13 @@ def build_index(output, *, requests, expected_request_identity, contract,
                     raise ValueError('Immutable metadata index conflict')
                 return existing.receipt
         temporary = output / ('metadata.' + uuid.uuid4().hex + '.partial.sqlite')
+        _storage_check(before_commit=True,path=temporary)
+        _storage_check(before_commit=True,path=Path(str(temporary)+'-journal'))
         db = sqlite3.connect(temporary)
+        # Bound long SQL native work by cooperative VM callbacks as well as rows.
+        def sql_progress():
+            _storage_check(); return 0
+        db.set_progress_handler(sql_progress,1000)
         db.execute('PRAGMA page_size=4096')
         # Leave >=1/2 of the disk budget for rollback journal and publication metadata.
         db.execute(f'PRAGMA max_page_count={max_disk_bytes//(2*4096)}')
@@ -265,8 +320,10 @@ def build_index(output, *, requests, expected_request_identity, contract,
         log_coverage = LogCoverage()
         def budget():
             nonlocal checks
+            _storage_check()
             checks += 1
             if checks % 128 == 0:
+                _storage_check(before_commit=True,path=temporary)
                 db.commit()
                 if _rss() > max_builder_rss_bytes:
                     raise ValueError('Builder exceeded registered RSS budget')
@@ -305,6 +362,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
             single['identity'] = identity_hash({k:v for k,v in single.items() if k != 'identity'})
             validate_target_manifest(single)
             for (encoded,) in db.execute('SELECT body FROM scenes ORDER BY pos'):
+                _storage_check()
                 scene = _loads(unpack(encoded))
                 single['scenes'] = [scene]
                 single['identity'] = identity_hash({k:v for k,v in single.items() if k != 'identity'})
@@ -341,8 +399,9 @@ def build_index(output, *, requests, expected_request_identity, contract,
                 expected_iter = db.execute('SELECT key,body FROM expected ORDER BY key')
                 actual_iter = db.execute('SELECT key,body FROM records ORDER BY pos')
                 from itertools import zip_longest
-                if any(a != b for a,b in zip_longest(expected_iter, actual_iter)):
-                    raise ValueError('Teacher records differ from exact original request coverage/order')
+                for a,b in zip_longest(expected_iter, actual_iter):
+                    _storage_check()
+                    if a!=b: raise ValueError('Teacher records differ from exact original request coverage/order')
                 db.execute('DROP TABLE expected')
             else:
                 # Requests have no source shard offsets. Their canonical record
@@ -350,6 +409,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
                 # directly instead of duplicating the entire expected-record table.
                 db.execute('DROP TABLE records')
                 db.execute('ALTER TABLE expected RENAME TO records')
+            _storage_check(before_commit=True,path=temporary)
             db.commit()
             record_count = db.execute('SELECT COUNT(*) FROM records').fetchone()[0]
             db.close()
@@ -364,7 +424,10 @@ def build_index(output, *, requests, expected_request_identity, contract,
             final = output/'metadata.sqlite'
             if final.exists():
                 # An unpublished DB from the checkpoint/receipt window is retained, never trusted.
-                final.rename(output/('metadata.orphan.'+uuid.uuid4().hex+'.sqlite'))
+                orphan=output/('metadata.orphan.'+uuid.uuid4().hex+'.sqlite')
+                _storage_check(before_commit=True,path=orphan)
+                final.rename(orphan)
+            _storage_check(before_commit=True,path=final)
             os.replace(temporary, final)
             with final.open('rb') as f:
                 os.fsync(f.fileno())
@@ -383,7 +446,7 @@ def build_index(output, *, requests, expected_request_identity, contract,
                 raise ValueError('Index receipt exceeds bounded reader header budget')
             if sum(p.stat().st_size for p in output.glob('*') if p.is_file()) + len(json.dumps(receipt,sort_keys=True,indent=2).encode()) + 1 > max_disk_bytes:
                 raise ValueError('Metadata receipt would exceed registered disk budget')
-            atomic_json(output/'COMPLETE.json', receipt, immutable=True)
+            atomic_json(output/'COMPLETE.json',receipt,immutable=True)
             return receipt
         except BaseException:
             db.close()
@@ -439,6 +502,7 @@ class MetadataIndex:
         self.receipt_hashes = Lookup(self, 'receipts', 'shard', (d['cache_header'] or {}).get('shards', 0))
 
     def check(self):
+        _storage_check()
         for path, stamp in self._versions.items():
             if version(path) != stamp:
                 raise ValueError('Immutable metadata file version changed: '+str(path))

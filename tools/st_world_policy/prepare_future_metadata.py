@@ -23,10 +23,10 @@ import uuid
 import numpy as np
 from PIL import Image
 
-from starVLA.dataloader.st_world_history import VIEWS, resolve_camera_path, file_sha256
+from starVLA.dataloader.st_world_history import VIEWS, resolve_camera_path
 from starVLA.dataloader.st_world_schema import identity_hash, require_hash
 from starVLA.dataloader.st_world_targets import validate_target_manifest
-from starVLA.dataloader.st_world_metadata_index import _atomic_rows, canonical, version
+from starVLA.dataloader.st_world_metadata_index import _atomic_rows, canonical, version, file_sha256, _storage_check
 from starVLA.dataloader.st_world_future_provenance import (
     LogCoverage, LEDGER_SCHEMA, REF_SCHEMA, validate_ledger)
 from tools.st_world_policy.prepare_current_teacher import source_population
@@ -38,13 +38,20 @@ TOLERANCE = .05
 PLAN_SCHEMA = 'st_future_metadata_plan_v1'
 REG_SCHEMA = 'st_future_metadata_registration_v1'
 SHARD_SCHEMA = 'st_future_metadata_log_shard_v1'
+METADATA_STORAGE_CALLBACK_PROTOCOL = 'st_metadata_storage_check_v1'
+METADATA_STORAGE_CALLBACK_DEPENDENCIES = (
+    'starVLA.dataloader.st_world_metadata_index',
+    'starVLA.dataloader.st_world_future_provenance',
+    'tools.st_world_policy.prepare_current_teacher',
+)
 
 
 def sha_bytes(data): return hashlib.sha256(data).hexdigest()
 def rss(): return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
 
 def signed(value):
-    return dict(value, identity=identity_hash(value))
+    _storage_check(); result=dict(value, identity=identity_hash(value)); _storage_check()
+    return result
 
 
 def metadata_path(path, *, missing=False, directory=False):
@@ -70,10 +77,12 @@ def metadata_inventory(root):
     """No symlink traversal; include orphan partials in the disk allowance."""
     root=metadata_path(root,directory=True); total=0; pending=[root]
     while pending:
+        _storage_check()
         directory=pending.pop()
         with metadata_parent(directory/'__inventory__') as (_,fd):
             with os.scandir(fd) as entries:
                 for entry in entries:
+                    _storage_check()
                     info=entry.stat(follow_symlinks=False); path=directory/entry.name
                     if stat.S_ISDIR(info.st_mode): pending.append(path)
                     elif stat.S_ISREG(info.st_mode) and info.st_nlink==1: total+=info.st_size
@@ -90,8 +99,11 @@ def metadata_parent(path, *, create=False):
     try:
         for part in path.parent.parts[1:]:
             if create:
-                try: os.mkdir(part,dir_fd=fd)
-                except FileExistsError: pass
+                try: os.stat(part,dir_fd=fd,follow_symlinks=False)
+                except FileNotFoundError:
+                    _storage_check(before_commit=True,path=path)
+                    try: os.mkdir(part,dir_fd=fd)
+                    except FileExistsError: pass
             try: following=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
             except OSError as exc: raise ValueError('Unsafe metadata parent: '+str(path)) from exc
             os.close(fd); fd=following
@@ -119,6 +131,7 @@ def metadata_reader(path):
 @contextmanager
 def metadata_lock(path,budget):
     budget.scan(); budget.path(path,missing=True)
+    _storage_check(before_commit=True,path=path)
     with metadata_parent(path) as (path,parent):
         try: fd=os.open(path.name,os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600,dir_fd=parent)
         except OSError as exc: raise ValueError('Unsafe metadata lock') from exc
@@ -133,16 +146,24 @@ def metadata_lock(path,budget):
 def small_json(path, limit=MiB, expected_sha=None):
     path=metadata_path(path); before=version(path)
     if not 0 < before[2] <= limit: raise ValueError('Metadata file exceeds bounded read: '+str(path))
-    with metadata_reader(path) as f: data=f.read(limit+1)
+    with metadata_reader(path) as f:
+        chunks=[]; remaining=limit+1
+        while remaining:
+            _storage_check(); part=f.read(min(MiB,remaining)); chunks.append(part); remaining-=len(part)
+            if not part: break
+        data=b''.join(chunks)
     metadata_path(path)
     if version(path)!=before or len(data)!=before[2]: raise ValueError('Metadata changed during read')
     if expected_sha and sha_bytes(data)!=expected_sha: raise ValueError('Pinned metadata checksum mismatch')
-    return json.loads(data)
+    _storage_check(); value=json.loads(data); _storage_check()
+    return value
 
 
 def validate_self(value, schema):
+    _storage_check()
     if value.get('schema')!=schema or value.get('identity')!=identity_hash({k:v for k,v in value.items() if k!='identity'}):
         raise ValueError('Metadata schema/semantic identity mismatch')
+    _storage_check()
     return value
 
 
@@ -160,6 +181,7 @@ class PreparationBudget:
         self.check()
 
     def check(self):
+        _storage_check()
         root=metadata_path(self.root,directory=True).stat()
         if (root.st_dev,root.st_ino)!=self.root_version: raise ValueError('Metadata root changed')
         if time.monotonic()>=self.deadline: raise BudgetExceeded('TIME_BUDGET')
@@ -196,7 +218,9 @@ class PreparationBudget:
                 self.read_categories[category]=self.read_categories.get(category,0)+n
             else: self.written+=n
             self.throttle_seconds+=delay
-        if delay>0: time.sleep(delay)
+        # Long aggregate throttles must not leave the shared guard unchecked.
+        while delay>0:
+            part=min(delay,1.); time.sleep(part); delay-=part; self.check()
         self.check()
 
     def reserve(self,n):
@@ -279,10 +303,12 @@ def write_chunks(path,chunks,budget):
         budget.path(path,missing=True)
         if path.exists():
             expected=hashlib.sha256()
-            for piece in chunks: expected.update(piece)
+            for piece in chunks:
+                _storage_check(); expected.update(piece)
             if budget_sha(path,budget)!=expected.hexdigest(): raise ValueError('Immutable artifact conflict: '+str(path))
             return
         temporary=path.with_name(path.name+'.'+uuid.uuid4().hex+'.partial')
+        _storage_check(before_commit=True,path=temporary)
         fd=os.open(temporary.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=parent)
         with os.fdopen(fd,'wb') as f:
             for piece in chunks:
@@ -292,12 +318,15 @@ def write_chunks(path,chunks,budget):
             f.flush(); os.fsync(f.fileno())
         budget.scan(); budget.path(temporary); budget.path(path,missing=True)
         if path.exists(): raise ValueError('Concurrent immutable metadata publication')
+        _storage_check(before_commit=True,path=path)
         os.rename(temporary.name,path.name,src_dir_fd=parent,dst_dir_fd=parent); os.fsync(parent)
-        budget.path(path)
+        budget.path(path); _storage_check(force=True)
 
 
 def write_json(path,value,budget):
+    _storage_check()
     data=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+    _storage_check()
     write_chunks(path,[data],budget)
 
 
@@ -309,6 +338,7 @@ def row_document_identity(header,rows):
         if key!='scenes': digest.update(canonical(header[key]).encode()); continue
         digest.update(b'[')
         for i,row in enumerate(rows()):
+            _storage_check()
             digest.update(((',' if i else '')+canonical(row)).encode())
         digest.update(b']')
     digest.update(b'}'); return digest.hexdigest()
@@ -331,6 +361,7 @@ def write_row_document(path,header,rows,budget):
             if current is None: yield ('  "scenes": []'+comma+'\n').encode(); continue
             yield b'  "scenes": [\n'
             while current is not None:
+                _storage_check()
                 following=next(iterator,None)
                 text='\n'.join('    '+v for v in json.dumps(current,sort_keys=True,indent=2,allow_nan=False).splitlines())
                 yield (text+(',' if following is not None else '')+'\n').encode(); current=following
@@ -363,13 +394,16 @@ class ImageMemo:
 class TargetLogLookup:
     """Same frame selection as prepare_history.build_target_scene, once per log."""
     def __init__(self,frames):
-        self.frames=frames; self.locations={f['token']:i for i,f in enumerate(frames)}
+        self.frames=frames; self.locations={}
+        for i,f in enumerate(frames):
+            _storage_check(); self.locations[f['token']]=i
         if len(self.locations)!=len(frames): raise ValueError('Duplicate raw token')
         self.times=np.array([int(f['timestamp']) for f in frames],dtype=np.int64)
         if not (np.diff(self.times)>0).all(): raise ValueError('Nonmonotonic raw log')
     def scene(self,token,log,split,sensor_roots,reference):
         t0=int(self.times[self.locations[token]]); rows=[]
         for t in TIMES:
+            _storage_check()
             wanted=t0+round(t*1e6); distance=np.abs(self.times-wanted)
             eligible=np.flatnonzero((distance<=round(TOLERANCE*1e6)) & ((self.times==t0) if t==0 else (self.times>t0)))
             frame=None
@@ -401,7 +435,9 @@ def source_with_pins(student,partition,split,current_population,budget=None):
             (current/'REGISTRATION.json',2),(current/'COMPLETE.json',2),
             (current/'SELECTED_SCENES.json',3)]
         budget.read_allowance(sum(path.stat().st_size*count for path,count in reads),'control_metadata')
-    source,index,binding=source_population(student,partition,split)
+    _storage_check(force=True)
+    source,index,binding=source_population(student,partition,split,resource_check=_storage_check)
+    _storage_check(force=True)
     registration=validate_self(small_json(current/'REGISTRATION.json'),'st_current_population_registration_v1')
     done=small_json(current/'COMPLETE.json')
     selected=current/'SELECTED_SCENES.json'
@@ -436,6 +472,7 @@ def source_with_pins(student,partition,split,current_population,budget=None):
 def groups_for(rows):
     groups=OrderedDict()
     for row in rows:
+        _storage_check()
         log=row['log']
         if Path(log).name!=log or log in ('.','..'): raise ValueError('Unsafe registered log name')
         groups.setdefault(log,[]).append(row)
@@ -666,6 +703,7 @@ class SceneStream:
 
 
 def build(args):
+    _storage_check(force=True)
     plan_path=metadata_path(args.plan); p,reg=verify_registration(plan_path,args.registration,args.registration_sha256)
     output=plan_path.parent; limits=p['limits']; budget=PreparationBudget(output,limits)
     source,index,binding,pins=source_with_pins(p['source']['student_root'],p['source']['partition_path'],p['source']['split'],Path(p['original_selection']['path']).parent,budget)

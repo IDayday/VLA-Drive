@@ -59,15 +59,34 @@ def current_image_reference(path,budget):
     return {'path':str(path),'sha256':digest,'bytes':after.st_size,'mtime_ns':after.st_mtime_ns,'original_wh':wh}
 
 
-def source_population(student_root,partition_path,split):
+def source_population(student_root,partition_path,split,*,resource_check=None):
+    # The existing callers retain their original path. Only registered future
+    # preparation supplies the optional cooperative metadata resource callback.
+    def check():
+        if resource_check is not None: resource_check()
+    def read_json(path):
+        if resource_check is None: return json.loads(path.read_text())
+        check(); chunks=[]
+        with path.open('rb') as stream:
+            while part:=stream.read(1<<20): check(); chunks.append(part)
+        check(); value=json.loads(b''.join(chunks).decode('utf-8')); check()
+        return value
+    def sha(path):
+        if resource_check is None: return file_sha256(path)
+        digest=hashlib.sha256(); check()
+        with path.open('rb') as stream:
+            while part:=stream.read(1<<20): check(); digest.update(part)
+        check(); return digest.hexdigest()
+    check()
     if split not in ('train','dev'):raise ValueError('Only original train/dev roles are allowed')
     root=Path(student_root).resolve();partition_path=Path(partition_path).resolve()
-    source=json.loads((root/'identity.json').read_text());index=json.loads((root/'index.json').read_text())
-    partition=json.loads(partition_path.read_text())
+    source=read_json(root/'identity.json');index=read_json(root/'index.json')
+    partition=read_json(partition_path)
     if (source['schema']!='ddpolicy_current_cameras_v1' or source['split']!=split or
             source['identity']!=identity_hash({k:v for k,v in source.items() if k!='identity'}) or
-            source['index_sha256']!=identity_hash(index) or source['partition_sha256']!=file_sha256(partition_path)):
+            source['index_sha256']!=identity_hash(index) or source['partition_sha256']!=sha(partition_path)):
         raise ValueError('Original source population/partition/role identity mismatch')
+    check()
     tokens=[r['token'] for r in index]
     if len(tokens)!=len(set(tokens)) or tokens!=partition[split+'_tokens']:
         raise ValueError('Source population is not the exact original ordered role')
@@ -75,16 +94,16 @@ def source_population(student_root,partition_path,split):
     a={partition['token_logs'][t] for t in partition['train_tokens']}
     b={partition['token_logs'][t] for t in partition['dev_tokens']}
     if a&b:raise ValueError('Train/dev source-log leakage')
-    ego=json.loads((root/'ego_identity.json').read_text())
+    check(); ego=read_json(root/'ego_identity.json')
     if (ego['schema']!='foresight_ego_labels_v1' or ego['index_sha256']!=source['index_sha256'] or
             ego['identity']!=identity_hash({k:v for k,v in ego.items() if k!='identity'})):
         raise ValueError('Original ego target identity mismatch')
     identity={'student_root':str(root),'source_identity':source['identity'],
-        'source_index_identity':source['index_sha256'],'source_index_file_sha256':file_sha256(root/'index.json'),
+        'source_index_identity':source['index_sha256'],'source_index_file_sha256':sha(root/'index.json'),
         'partition_path':str(partition_path),'partition_sha256':source['partition_sha256'],
-        'ego_identity_sha256':file_sha256(root/'ego_identity.json'),'split':split,
+        'ego_identity_sha256':sha(root/'ego_identity.json'),'split':split,
         'scenes':len(index),'logs':len({r['log'] for r in index}),'ordered_scene_ids_hash':identity_hash(tokens)}
-    return source,index,identity
+    check(); return source,index,identity
 
 
 def plan(args):
