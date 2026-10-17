@@ -1,0 +1,39 @@
+ST future metadata finalization 独立只读效率诊断
+时间：2026-10-17T13:05:18.492821+00:00
+结论状态：READ_ONLY_COST_PREDICTION_NOT_RUNTIME_FAILURE
+Writer源码：838dd21f7a16a79086a44bc63be056d6a750570e
+报告起点：71942071b5f0d10fccd69a8fa79395edebd73e45
+
+结论
+原 source index 顺序与 PLAN 的 scene 顺序、log 首次出现顺序、源文件 SHA、源语义 identity 全部匹配。101592 scenes /1176 logs 产生101391次相邻log切换；仅200对相邻scene同log。SceneStream每遍调用read_shard 101392次。
+
+1176个分片总大小为984,972,623 B（0.917327239 GiB）。
+一次stream读取218,107,871,958 B（203.128784856 GiB），是每分片读一次的221.435466倍；其中重复读取217,122,899,335 B。
+三次stream读取654,323,615,874 B（609.386354567 GiB），调用read_shard 304176次。相对全流程每分片只读一次的冗余为653,338,643,251 B；相对每遍都各读一次的冗余为651,368,698,005 B。
+ledger生成前置单遍加三次stream合计655,308,588,497 B（610.303681807 GiB）。
+
+512 GiB预算判断
+PLAN上限为549755813888 B。三次stream单独就超限19.020772%，即使此前source/raw/image/current/ego读取全部按零计算，既定finalization也不能在该调用预算内完成。加ledger前置单遍、并把更早所有读取当零，最迟在第三遍第52438次read_shard尝试时超限；真实此前成本只会令越界更早。这里是静态代码和文件大小推导，不是对运行中任务已失败的声明，且未读取任何failure/运行日志。
+预算在PreparationBudget._io_allowance读取前按文件逻辑字节累加；OS page-cache命中不减少该计数。SOURCE_READ_BYTES_BUDGET与TIME_BUDGET谁先发生尚未观测。
+
+4小时wall判断
+PLAN为64 MiB/s、14400秒、1个log worker。单stream仅节流下界3250.060558秒；三次为9750.181673秒（2.708384小时）；加ledger前置为9764.858909秒。该下界本身不足以证明4小时必超，剩余约4635.141秒还必须覆盖先前工作、完整JSON解析、语义canonical序列化/哈希、scene校验、manifest写入及最终读验。未benchmark实际吞吐，不能给确定ETA或宣称已经TIME_BUDGET。
+
+静态调用链（均为冻结writer tree中的文件）
+tools/st_world_policy/prepare_future_metadata.py:693–702：SceneStream.__call__每次从空单log缓存开始，按原rows顺序输出；每次切换读取完整分片。
+同文件:578–583：read_shard按stat大小预记一次generated_metadata读取，调用small_json一次，再validate_self一次。
+同文件:146–159：small_json逐块读取文件一次并json.loads一次；此调用未传expected_sha，因此不另外计算文件内容SHA，也不再读一遍文件。
+同文件:162–165 / starVLA/dataloader/st_world_schema.py:19–21：validate_self对去掉identity的完整分片做一次canonical JSON序列化与SHA256。每次read_shard是一遍文件读、一遍解析、一次完整语义SHA；caller的shard_path另有一次很小的log名称identity SHA。
+同文件:743：ledger_rows对每个唯一log另行read_shard一次，增加1176次读取/解析/完整语义SHA。
+同文件:755–759：stream第1遍为逐scene签名/validate_target_manifest；write_row_document调用row_document_identity进行第2遍（333–344），chunks进行第3遍（347–370）。
+starVLA/dataloader/st_world_targets.py:76–115：逐scene校验只处理内存manifest，不读取raw/image/teacher文件；signed与validate分别计算该单scene manifest identity。不要把它算成另一轮分片文件读取。
+同文件:766–775：之后还有最终request流式重读/identity核验及文件SHA，这些成本未加入上述三遍下界。
+
+诊断边界与证据
+实际只读取PLAN.json一次（285070 B）与source index一次（9549650 B），合计9834720 B（9.379120 MiB）；对PLAN列出的1176个分片只lstat，分片内容/raw/image/teacher读取为0。没有遍历缓存树，没有导入writer或启动/停止/发信号给任何作业。辅助只读代码/合同/Git报告准备与上述数据读数分开；未将其伪报为进程级rchar测量。
+诊断CPU固定10,11，timeout90s，RLIMIT_CPU90s、RLIMIT_AS512MiB。记录wall 0.293245秒、CPU 0.300674秒、peak RSS 77.144531MiB。所有统计和逐log的size/mtime/read计数见evidence.json；仅有stat信息不等于重新验证shard内容合法性。
+可复现命令：taskset -c 10,11 timeout 90s python reports/st_world_policy/20261017/future_finalization_cost_v1/diagnose.py
+复现会再次读取source index；本次只执行过一次。
+
+最小后续方向（建议，未实现，未批准launch）
+在新冻结实现中仅复用1176个已完成immutable shard，逐分片读一次并核实既有identity/receipt；保持原scene顺序、所有字段、canonical identity及输出字节。可使用有明确内存上限的无损压缩JSON RAM存储，或者建立record-range索引后按原顺序取精确记录；满内存必须显式拒绝/选择有预算的设计，不能删scene或降标签/精度。保留已有分片，不重建teacher缓存，不重读原始图像/raw log，不改数据或数学。实现后需证明与现有输出字节/identity/顺序一致，并独立审查新资源预算与输入合法性；本报告不授权热改当前writer。
