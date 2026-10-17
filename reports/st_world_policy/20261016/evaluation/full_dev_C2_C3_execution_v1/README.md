@@ -1,0 +1,11 @@
+这份独立追加准备覆盖C2/C3各自512、1024、4096的完整dev1696/16log，共6个endpoint。它们来自原v4既定C2−C0、C3−C0对照和全C阶段定义；C0现有同阶段输出直接复用，没有新控制或科学矩阵。原十job目录、哈希、命令完全不改。
+
+实际C2已经由Lead启动：三审、RUN_APPROVAL、LAUNCH、runtimeidentity齐全，并记录一份真实RUNNING状态快照。C3只有实际注册和三审PASS，仍无RUN_APPROVAL/LAUNCH/runtimeidentity，明确标为REGISTERED_QUEUED。C3必须等相关评估退出及GPU0–3空闲；本准备不授予启动权限。C4未加入，未发明任何身份。
+
+EXECUTION_PLAN.json只扩展执行指针和状态，科学内容逐字段继承v4，包括2000次pairedlogbootstrap、PCG64 seed20261017、所有分项/零分转移/高分退化/停车捷径/无效处理。C2具有冻结analyzer读取的真实formal_runs绑定；C3formal_runs保持null，现有_formal_binding会明确拒绝未绑定C3。C3启动后须再出新不可变执行版本，不回写本文件或套用另一arm身份。
+
+INTENTS.json的6个checkpoint tag/COMPLETE/receiptidentity/nativefilemap全部null。本次没有读取native目录或全trainmanifest；未来只准绑定精确512/1024/4096 COMPLETE，不用latest、邻近step、部分权重。先由Lead封存每个endpoint实际评估注册，才能使用COMMANDS.json对应argv。全部export/score/analyze使用clean frozen6714，world1/单轨迹Euler10/seed42/FP32master，score --run-id统一st-world-policy-20261016，各endpoint的export/score/ledger独立。
+
+新增6job共10176主评分/10368总admission上限、6GiB输出预留；每job1696主调用、1728持久硬cap、retry1，恢复不重置。最多2次export和2次score invocation继续继承原policy。全活动最多4个独立world1export、最多2个CPUscore任务且各2worker，不为追加目录再加一份并发配额。共享metriccache、训练native原地复用，没有新缓存或权重拷贝。
+
+512/1024只诊断，不提前淘汰；共同终点4096。尚无本追加端点的导出、评分或分析授权，也未执行任何GPU、模型、评分、navtest或新测试。HANDOFF.md给出父SHA和owned范围，VALIDATION.json记录元数据一致性核验。
