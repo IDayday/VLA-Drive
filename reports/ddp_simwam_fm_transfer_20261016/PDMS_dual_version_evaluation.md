@@ -102,9 +102,9 @@ read-only schema attempt. None owns GPU inference or training. Per-model CPU
 invocations retain actual new/reused counts and exit status. Full scores will be
 published only after their exact 12146-scene checks complete.
 
-## First complete version comparison: original F-SFT and historical R_SOURCE
+## Complete historical controls: original F-SFT, R_SOURCE and R_CANONICAL
 
-Both banks have now passed full payload verification: 12146 scenes, 136 logs,
+All three banks have now passed full payload verification: 12146 scenes, 136 logs,
 seed2101, identical requested trajectories between scoring versions. These are
 historical controls, not the current A/B terminal results.
 
@@ -114,9 +114,12 @@ historical controls, not the current A/B terminal results.
 | Original F-SFT step100000 | Shift5_10 | 88.149541 | 88.764112 |
 | Historical R_SOURCE RL20k | Native uniform10 | 87.790110 | 87.912466 |
 | Historical R_SOURCE RL20k | Shift5_10 | 88.340511 | 88.580152 |
+| Historical R_CANONICAL RL20k | Native uniform10 | 88.665018 | 88.951692 |
+| Historical R_CANONICAL RL20k | Shift5_10 | 88.762837 | 89.111551 |
 
 Sources: [complete F-SFT result](PDMS_versions_ORIGINAL_F_SFT.json),
-[complete historical R_SOURCE result](PDMS_versions_HISTORICAL_R_SOURCE.json).
+[complete historical R_SOURCE result](PDMS_versions_HISTORICAL_R_SOURCE.json),
+[complete historical R_CANONICAL result](PDMS_versions_HISTORICAL_R_CANONICAL.json).
 The F-SFT native score changes by +0.618406 percentage points between versions;
 historical R_SOURCE native changes by +0.122356. There is no fixed offset that
 converts models between versions. This historical R_SOURCE does not improve its
@@ -125,7 +128,14 @@ between the versions; it must not be selected to manufacture a successful
 canonical result. Paired uncertainty and safety tables are being completed by
 the fixed full-population analysis, not by selecting examples.
 
-In these two historical banks, v1.0 reports DDC=100 while v1.1 reports about
+Historical R_CANONICAL's native gain is +0.371818 pp under v1.0 but only
++0.040086 pp under the actual training/evaluation v1.1 metric. Its v1.1 native
+NC is 97.674131 versus SFT98.164005, DAC97.357155 versus96.970196, and
+TTC93.569900 versus95.051869. This tiny aggregate change with NC/TTC degradation
+does not establish a useful, safety-preserving improvement. Current A/B results
+are still required before choosing the next training change.
+
+In these historical banks, v1.0 reports DDC=100 while v1.1 reports about
 98.2–98.3. This is not a safety improvement: the requests are identical and the
 release's DDC implementation changed. The v1.0 function accumulates a slice of
 the proposal axis using `len(oncoming_progress)`; v1.1 explicitly accumulates
