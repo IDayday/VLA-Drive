@@ -125,6 +125,15 @@ between the versions; it must not be selected to manufacture a successful
 canonical result. Paired uncertainty and safety tables are being completed by
 the fixed full-population analysis, not by selecting examples.
 
+In these two historical banks, v1.0 reports DDC=100 while v1.1 reports about
+98.2–98.3. This is not a safety improvement: the requests are identical and the
+release's DDC implementation changed. The v1.0 function accumulates a slice of
+the proposal axis using `len(oncoming_progress)`; v1.1 explicitly accumulates
+the driving-time axis for each proposal. We retain the original v1.0 behavior
+for release-faithful evaluation and do not describe its DDC as equivalent to
+the corrected v1.1 diagnostic. This historical scorer detail did not enter
+either current RL run, which uses the locked v1.1 backend.
+
 The v1.0 cache build has [complete payload/raw-log verification and measured
 costs](PDMS_v1.0_cache_completion.json): 12146 scenes, 3,164,331,316 bytes
 (2.947 GiB), production wall span 619.453 seconds across four CPU hosts.
