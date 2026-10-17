@@ -80,3 +80,23 @@ it is not reported as COMPLETE. Controller source is
 Its exact admission SHA256 is
 `a8aedf096e29a28552e5e2e8e9a981d53288ca3a8748d16001c1e2a42d14b15c`.
 No automatic third attempt or train build is enabled.
+
+## Dev completion at09:50 UTC
+
+Attempt2 finished with `BUILD_COMPLETE`, exit0 and no remaining owned child.
+All1,696 scenes and16 logs are present. The unchanged builder reports zero
+teacher extractions and zero tensor disk bytes. Total dev metadata root size,
+including retained failure controls/partial and successful outputs, is
+30,174,302 logical bytes /30,253,056 allocated bytes, below128MiB.
+
+The successful invocation took161.435seconds; observed aggregate RSS peaked
+at921,694,208bytes. It charged8,595,964,797 read bytes, so both attempts together
+charged10,798,774,978bytes inside the original16GiB role allowance. These are
+actual counters, not a predicted full-training cost.
+
+- COMPLETE SHA256: `5418ed85260c449bee5df626b14e123064b883488816c6103bf4904a4e365180`.
+- Request identity: `61f2c9400dec518e33b60e222d14d6c096826b61dc865ee64638c60c55afa149`.
+- Attempt2 RESULT SHA256: `889a108501ddac3b269ecb5274406bb4d01a69bdd12d6e4a3b51d96321fe013f`.
+
+Full training metadata and both final indexes are still pending. They must not
+be described as complete because the dev build completed.
