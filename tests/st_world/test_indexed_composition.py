@@ -214,3 +214,43 @@ def test_multiple_scenes_reorder_shared_keys_and_distinct_missing_masks(tmp_path
     assert len(r['cases']['cold'][0]['comparisons'])!=len(r['cases']['cold'][1]['comparisons'])
     assert r['all_masks_equal'] and r['sampler_equal']
     descriptor(p,r,tmp_path)
+
+
+def test_receipt_strict_full_tensor_summaries_and_integer_ledgers(tmp_path):
+    _,p=setup(tmp_path);valid=exercise(p)
+    d={'requests':p['requests'],'request_index':p['request_index'],
+       'sources':[{'index':p['source_index'],'cache_identity':p['current_identity']}],
+       'teacher_config':p['teacher_config'],'execution':p['execution'],
+       'limits':p['limits'],'provider':p['provider']}
+    q.validate_receipt(p,valid,d)
+    mutations={
+        'elements_zero':lambda r:r['legacy_cached_reference'][0]['difference'].update(elements=0),
+        'elements_bool':lambda r:r['reference_reordered4'][0]['difference'].update(elements=True),
+        'online_one_element':lambda r:r['cases']['cold'][0]['comparisons'][0]['online_difference'].update(elements=1),
+        'missing_statistic':lambda r:r['reference_reordered4'][0]['difference'].pop('sum_squared'),
+        'contradictory_squared':lambda r:r['reference_reordered4'][0]['difference'].update(sum_squared=1.),
+        'negative_reference':lambda r:r['legacy_cached_reference'][0]['difference'].update(reference_squared=-1.),
+        'failed_legacy_summary':lambda r:r['legacy_reference_summary'].update(bitwise_equal=False,max_abs=1.),
+        'truncated_fixed_summary':lambda r:r['fixed_policy_summary'].update(comparisons=1),
+        'summary_bool':lambda r:r['fixed_policy_summary'].update(rms=False),
+        'negative_requests':lambda r:r['compute_stats'].update(requested_images=-1,
+            padding_image_slots=r['image_forwards']+1),
+        'requested_bool':lambda r:r['compute_stats'].update(requested_images=True),
+        'fractional_padding':lambda r:r['compute_stats'].update(padding_image_slots=float(r['compute_stats']['padding_image_slots'])),
+        'false_read_bytes':lambda r:r.update(process_rchar_bytes=True),
+        'negative_mmap_bytes':lambda r:r.update(tensor_mmap_logical_bytes=-1),
+        'float_rss_bytes':lambda r:r.update(peak_rss_bytes=float(r['peak_rss_bytes'])),
+        'bool_gpu_bytes':lambda r:r.update(cuda_peak_allocated_bytes=False),
+        'bool_elapsed':lambda r:r.update(elapsed_seconds=True),
+        'bool_layout_count':lambda r:r['cases']['cold'][0]['counts'].update(ram_hits=False),
+        'wrong_provider_total':lambda r:r['provider_memory'].update(computed_images=0),
+        'bool_provider_peak':lambda r:r['provider_memory'].update(peak_resident_bytes=True),
+        'wrong_reference_digest':lambda r:r['reference_digests'][p['keys'][0]].update(features='invalid'),
+        'different_sample_schema':lambda r:r['cases']['cold'][0].update(sampler_ids=['0'*64]),
+        'reordered_reference':lambda r:r['reference_reordered4'].reverse(),
+        'same_total_wrong_calls':lambda r:r.update(batch_calls=r['batch_calls']+1),
+    }
+    for name,mutate in mutations.items():
+        report=deepcopy(valid);mutate(report);sign(report)
+        with pytest.raises(ValueError,match='Composition|composition|counter|summary|sample|reference|RNG|Provider|hash|integer|budget|mask|key|Sampling'):
+            q.validate_receipt(p,report,d)

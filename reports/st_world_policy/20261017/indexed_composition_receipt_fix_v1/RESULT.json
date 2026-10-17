@@ -1,0 +1,59 @@
+{
+  "actual_metadata_audit": {
+    "elapsed_seconds": 1.4822039175778627,
+    "gpu_discovery_or_execution": false,
+    "hit_keys": 189,
+    "logical_read_rchar_bytes": 701545747,
+    "miss_keys": 105,
+    "mixed_read_count": 111,
+    "partial_read_count": 7,
+    "peak_rss_bytes": 625164288,
+    "request_index_identity": "d8e82f21aa8fea1d4353e1a442d22e01fc0a2ad6a36f232602dd7b9521161dd3",
+    "scenes": 32,
+    "scope": "Not a teacher numerical qualification",
+    "source_index_identity": "326a3f37344b4526b8595954cb7d0b1dbb6eabdfdc836ea9582d2dc239dc725b",
+    "status": "READ_ONLY_METADATA_SIMULATION_COMPLETE",
+    "tensor_image_model_payload_opens": 0,
+    "unique_keys": 294
+  },
+  "actual_tests": {
+    "adjacent_mutations_in_one_test": 24,
+    "failed": 0,
+    "independent_cases_replayed": 12,
+    "passed": 99,
+    "seconds": 84.47,
+    "skipped": 0
+  },
+  "cache_or_ledger_changed": false,
+  "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 PYTHONPATH=.:tests/st_world /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_indexed_composition.py tests/st_world/test_indexed_provider_factory.py tests/st_world/test_fixed_provider_training.py tests/st_world/test_qualify_fixed_batch_teacher.py /mnt/project/VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py",
+  "evidence_sha256": {
+    "METADATA_LRU_AUDIT.json": "0e0d1c3991531134996d6086e1d3c165c33ccc41681dfd491fed14bfad235eb7",
+    "README.md": "1fb5ebccac932e7ab592d34358224f25683c9c4c691edf24e13d953c0c92e0f1",
+    "metadata_lru_audit.py": "29ebad564b6267d0c019592d1381d32641d32deb47a8192e4556da186529d92d",
+    "tests.log": "bc5143ba7f603da1ad11db8595a3271cb53e8d3eb6a2fbaddfb40160603cb345"
+  },
+  "fix_scope": [
+    "Full tensor elements and statistic schema",
+    "Recomputed fixed and legacy summaries",
+    "Strict counter and resource scalar types",
+    "Exact source/cold key counts and fixed8 call/padding totals"
+  ],
+  "formal_approved": false,
+  "implementation_parent": "fd9cb5056c76be29b6bb3cbe83af9bab3b267239",
+  "live_jobs_changed": false,
+  "numeric_tolerance_changed": false,
+  "original_independent_failure_commit": "21cac2d3ded5f046fd532b550bbd25109e687d9e",
+  "original_independent_tests": {
+    "failed": 5,
+    "nan_was_already_rejected": true,
+    "passed": 7
+  },
+  "real_teacher_qualification": "NOT_RUN",
+  "source_hashes": {
+    "tests/st_world/test_indexed_composition.py": "3a71620aff9d81f85b76059b183912e19e10204aed5b648a7bc3b98dd450a4a4",
+    "tools/st_world_policy/qualify_indexed_provider.py": "d072f46ac3b1da4fffb42dec2439f35382e793b4a9de1cd4317eb60872a46bbb",
+    "tools/st_world_policy/teacher_provider.py": "83410555d7e879407b09039f6a094fa6daac1259d0df7379cd6a220c2954b6bf"
+  },
+  "status": "OWNER_CPU_REGRESSION_PASS_AWAITING_INDEPENDENT_RETEST",
+  "training_scope_changed": false
+}

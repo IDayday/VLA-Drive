@@ -16,7 +16,7 @@ import time
 import torch
 
 from starVLA.dataloader.st_world_history import file_sha256
-from starVLA.dataloader.st_world_schema import TeacherFeatureContract, identity_hash
+from starVLA.dataloader.st_world_schema import TeacherFeatureContract, identity_hash, require_hash
 from starVLA.dataloader.st_world_targets import payload_key, tensor_digest
 from starVLA.dataloader.st_world_indexed_provider import IndexedTeacherCacheReader, IndexedBoundedTeacherProvider
 from starVLA.model.modules.st_world.requests import sample_requests, gather_current, gather_future
@@ -301,6 +301,43 @@ def qualify_layouts(plan, request, source, checked, *, rng, budget, progress=lam
             'provider_memory':provider.memory_report()}
 
 
+
+def _uint(value, name, *, positive=False):
+    if type(value) is not int or value < (1 if positive else 0):
+        raise ValueError('Composition requires an exact nonnegative integer: '+name)
+    return value
+
+
+def _full_difference(metric, expected_elements):
+    fields = {'elements','bitwise_equal','max_abs','sum_abs','sum_squared',
+              'reference_squared','rms','l2_relative','max_elementwise_relative'}
+    if (not isinstance(metric,dict) or set(metric)!=fields or
+            _uint(metric.get('elements'),'comparison elements',positive=True)!=expected_elements or
+            metric.get('bitwise_equal') is not True):
+        raise ValueError('Composition comparison must cover every expected tensor element')
+    for name in fields-{'elements','bitwise_equal'}:
+        value=metric[name]
+        if type(value) not in (int,float) or not math.isfinite(value) or value<0:
+            raise ValueError('Composition difference statistic is not finite nonnegative: '+name)
+        if name!='reference_squared' and value!=0:
+            raise ValueError('Composition comparison contradicts exact bitwise equality')
+
+
+def _checked_summary(actual, metrics):
+    expected=shared.summarize(metrics)
+    if not isinstance(actual,dict) or set(actual)!=set(expected):
+        raise ValueError('Composition summary schema differs from full comparisons')
+    for name,value in actual.items():
+        if name in ('comparisons','elements'):
+            _uint(value,'summary '+name,positive=True)
+        elif name=='bitwise_equal':
+            if type(value) is not bool:raise ValueError('Composition summary bitwise flag must be boolean')
+        elif type(value) not in (int,float) or not math.isfinite(value) or value<0:
+            raise ValueError('Composition summary scalar is invalid: '+name)
+    if actual!=expected:
+        raise ValueError('Composition summary differs from recomputed full-tensor comparisons')
+
+
 def validate_receipt(plan, report, descriptor):
     """Admission requires measured composition evidence, never path rebinding alone."""
     validate_plan(plan, rebuild=False)
@@ -322,22 +359,52 @@ def validate_receipt(plan, report, descriptor):
             report.get('frozen_initial_versions_hash')!=report.get('frozen_final_versions_hash') or
             not report.get('frozen_initial_versions_hash')):
         raise ValueError('Indexed composition is incomplete, changed or numerically unqualified')
-    if (set(report['reference_digests'])!=set(plan['keys']) or len(report['reference_reordered4'])!=len(plan['keys']) or
-            {r['key'] for r in report['reference_reordered4']}!=set(plan['keys'])):
-        raise ValueError('Independent reference did not cover all exact new keys')
+    expected_elements=math.prod(plan['contract']['output_grid_hw'])*plan['contract']['channels']
+    if (set(report['reference_digests'])!=set(plan['keys']) or
+            [r['key'] for r in report['reference_reordered4']]!=list(reversed(plan['keys']))):
+        raise ValueError('Independent reference did not cover all exact new keys in the registered order')
+    for row in report['reference_digests'].values():
+        if set(row)!={'features','valid'}:raise ValueError('Independent reference digest schema changed')
+        for value in row.values():require_hash(value,'independent reference tensor digest')
     legacy=report['legacy_cached_reference']
-    if len(legacy)!=len(plan['hit_keys']) or {r['key'] for r in legacy}!=set(plan['hit_keys']):
-        raise ValueError('Legacy cached comparison is incomplete')
+    if [r['key'] for r in legacy]!=plan['hit_keys']:
+        raise ValueError('Legacy cached comparison is incomplete or reordered')
     if set(report['cases'])!=set(CASES):raise ValueError('Missing composition layout')
+    totals={name:0 for name in ('ram_hits','immutable_hits','computed_images','evictions')}
+    provider_calls=0
     for name,rows in report['cases'].items():
         expected=plan['scene_ids'][::-1] if name=='reordered' else plan['scene_ids']
         if [r['scene'] for r in rows]!=expected or sum(len(r['comparisons']) for r in rows)!=plan['slots']-plan['missing_slots']:
             raise ValueError('Incomplete scene/slot comparison')
-        if any(not r['all_masks_equal'] or [v['key'] for v in r['comparisons']] != plan['scene_keys'][r['scene']] for r in rows):
-            raise ValueError('Unqualified masks/scene keys')
+        for row in rows:
+            keys=plan['scene_keys'][row['scene']]
+            if row['all_masks_equal'] is not True or [v['key'] for v in row['comparisons']]!=keys:
+                raise ValueError('Unqualified masks/scene keys')
+            if not isinstance(row['sampler_ids'],list) or len(row['sampler_ids'])!=2:
+                raise ValueError('Missing patch/future-pair sample identities')
+            for value in row['sampler_ids']:require_hash(value,'sample tensor digest')
+            if not isinstance(row['counts'],dict) or set(row['counts'])!=set(totals):
+                raise ValueError('Per-layout counter schema changed')
+            counts=row['counts']
+            for key,value in counts.items():
+                totals[key]+=_uint(value,'layout '+key)
+            hits=len(set(keys)&set(plan['hit_keys'])); misses=len(set(keys))-hits
+            if (sum(counts[k] for k in ('ram_hits','immutable_hits','computed_images'))!=len(set(keys)) or
+                    counts['computed_images']>misses or counts['immutable_hits']>hits or
+                    counts['evictions']>len(set(keys))):
+                raise ValueError('Per-layout counters do not cover the actual scene keys')
+            if name in ('cold','cold_restored') and (counts['ram_hits']!=0 or
+                    counts['computed_images']!=misses or counts['immutable_hits']!=hits):
+                raise ValueError('Cold/restored counters contradict empty RAM and actual source coverage')
+            provider_calls+=math.ceil(counts['computed_images']/8)
+            for comparison in row['comparisons']:
+                _full_difference(comparison['online_difference'],expected_elements)
     comparisons=legacy+report['reference_reordered4']+[c for rows in report['cases'].values() for r in rows for c in r['comparisons']]
-    if any(r['difference'].get('bitwise_equal') is not True or r['difference'].get('max_abs')!=0 for r in comparisons):
-        raise ValueError('Composition tensor comparisons are not bitwise exact')
+    for row in comparisons:_full_difference(row['difference'],expected_elements)
+    _checked_summary(report['legacy_reference_summary'],[r['difference'] for r in legacy])
+    fixed_metrics=[r['difference'] for r in report['reference_reordered4']]+[
+        c['difference'] for rows in report['cases'].values() for r in rows for c in r['comparisons']]
+    _checked_summary(report['fixed_policy_summary'],fixed_metrics)
     for token in plan['scene_ids']:
         rows=[next(r for r in report['cases'][case] if r['scene']==token) for case in CASES]
         if any(r['sampler_ids']!=rows[0]['sampler_ids'] for r in rows):
@@ -346,19 +413,40 @@ def validate_receipt(plan, report, descriptor):
             not any(r['counts']['immutable_hits']>0 and r['counts']['computed_images']>0 for rows in report['cases'].values() for r in rows)):
         raise ValueError('Claimed partial/mixed layout was not actually exercised')
     for field,limit in [('peak_rss_bytes',plan['budget']['ram_peak_bytes']),
-                        ('cuda_peak_allocated_bytes',plan['budget']['gpu_peak_bytes']),
-                        ('elapsed_seconds',plan['budget']['max_seconds'])]:
-        value=report.get(field)
-        if not isinstance(value,(int,float)) or isinstance(value,bool) or not 0<=value<=limit:
-            raise ValueError('Composition did not complete within its measured resource budget: '+field)
-    if (report.get('process_rchar_bytes',-1)<0 or report.get('tensor_mmap_logical_bytes',-1)<0 or
-            report['process_rchar_bytes']+report['tensor_mmap_logical_bytes']>plan['budget']['max_logical_input_bytes']):
-        raise ValueError('Missing/exceeded logical input accounting')
-    calls=report.get('batch_calls',0);stats=report.get('compute_stats',{})
-    if (type(calls) is not int or calls<=0 or report.get('rng_forward_checks')!=calls or stats.get('calls')!=calls or
-            report.get('image_forwards')!=8*calls or stats.get('compute_image_slots')!=8*calls or
-            stats.get('requested_images',0)+stats.get('padding_image_slots',-1)!=8*calls or
-            calls>plan['budget']['max_batch_calls']):raise ValueError('Incomplete padded compute/RNG accounting')
+                        ('cuda_peak_allocated_bytes',plan['budget']['gpu_peak_bytes'])]:
+        if _uint(report.get(field),field)>limit:
+            raise ValueError('Composition exceeded its measured resource budget: '+field)
+    seconds=report.get('elapsed_seconds')
+    if type(seconds) not in (int,float) or not math.isfinite(seconds) or not 0<=seconds<=plan['budget']['max_seconds']:
+        raise ValueError('Composition elapsed time is invalid or outside budget')
+    reads=_uint(report.get('process_rchar_bytes'),'process rchar bytes')
+    mmap=_uint(report.get('tensor_mmap_logical_bytes'),'tensor mmap logical bytes')
+    if reads+mmap>plan['budget']['max_logical_input_bytes']:
+        raise ValueError('Exceeded logical input accounting')
+    if _uint(report.get('tensor_disk_bytes'),'tensor disk bytes')!=0:
+        raise ValueError('Composition may not write teacher tensors')
+    calls=_uint(report.get('batch_calls'),'batch calls',positive=True)
+    stats=report.get('compute_stats',{})
+    if not isinstance(stats,dict) or set(stats)!={'calls','requested_images','compute_image_slots','padding_image_slots'}:
+        raise ValueError('Fixed compute counter schema changed')
+    for field,value in stats.items():_uint(value,'fixed compute '+field,positive=field!='padding_image_slots')
+    expected_calls=math.ceil(len(plan['keys'])/8)+math.ceil(len(plan['keys'])/4)+provider_calls
+    expected_requests=2*len(plan['keys'])+totals['computed_images']
+    if (calls!=expected_calls or _uint(report.get('rng_forward_checks'),'RNG checks',positive=True)!=calls or
+            stats['calls']!=calls or _uint(report.get('image_forwards'),'image forwards',positive=True)!=8*calls or
+            stats['compute_image_slots']!=8*calls or stats['requested_images']!=expected_requests or
+            stats['padding_image_slots']!=8*calls-expected_requests or not calls<=expected_requests<=8*calls or
+            calls>plan['budget']['max_batch_calls'] or 8*calls>plan['budget']['max_image_forwards']):
+        raise ValueError('Incomplete padded compute/RNG accounting')
+    memory=report.get('provider_memory',{})
+    for field,value in {**totals,'batches':provider_calls,'failures':0,'tensor_disk_bytes':0}.items():
+        if _uint(memory.get(field),'provider '+field)!=value:
+            raise ValueError('Provider totals differ from actual per-layout counters')
+    limit=plan['limits']['max_cached_bytes']
+    resident=_uint(memory.get('resident_bytes'),'provider resident bytes')
+    peak=_uint(memory.get('peak_resident_bytes'),'provider peak resident bytes')
+    if not resident<=peak<=limit or _uint(memory.get('resident_limit_bytes'),'provider resident limit')!=limit:
+        raise ValueError('Provider RAM accounting exceeds its bound')
 
 
 def run(plan_path, output):
