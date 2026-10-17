@@ -1,0 +1,65 @@
+{
+  "schema": "fm_transfer_B_endpoint_analysis_cli_preflight_v1",
+  "observed_unix": 1792218130.5366518,
+  "results": [
+    {
+      "name": "old_missing_screen_summary",
+      "source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "module": "scripts.analysis.fm_transfer.analyze_screen",
+      "exit_code": 1,
+      "help_sha256": "715d55f63162b0be59c14f4a235e1b1a90dc0e03c602eb4facf8c8cb02916889",
+      "has_required_partition_flag": false
+    },
+    {
+      "name": "sft_summary",
+      "source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "module": "scripts.analysis.fm_transfer.summarize_sft",
+      "exit_code": 0,
+      "help_sha256": "f776cb67b6587160c35cca1b5310ad04f34028d89e7b69bd33871aeb56914479",
+      "has_required_partition_flag": false
+    },
+    {
+      "name": "screen_0",
+      "source": "/mnt/project/VLA-Drive-simwam-fm-transfer-20261016",
+      "module": "scripts.analysis.fm_transfer.dispatch_screen",
+      "exit_code": 0,
+      "help_sha256": "814b7ee253e8def814ff6c56961dbbc45a508e0726a70ce119f58d7978a18a32",
+      "has_required_partition_flag": true
+    },
+    {
+      "name": "hard_manifest",
+      "source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "module": "scripts.analysis.fm_transfer.build_hard_manifest",
+      "exit_code": 0,
+      "help_sha256": "93b4bc27e76ebd8dd4b6a7a0fa50dc456ced5eea0fb7f62e1c1a9faf9e3e4607",
+      "has_required_partition_flag": false
+    },
+    {
+      "name": "screen_summary",
+      "source": "/mnt/project/VLA-Drive-simwam-fm-transfer-20261016",
+      "module": "scripts.analysis.fm_transfer.analyze_screen",
+      "exit_code": 0,
+      "help_sha256": "e43c456b196a5f170106ed5c244e141559282cf5fab7ee6836e0d3628a29d235",
+      "has_required_partition_flag": false
+    },
+    {
+      "name": "endpoint_gate",
+      "source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "module": "scripts.analysis.fm_transfer.qualify_rl_endpoint",
+      "exit_code": 0,
+      "help_sha256": "a387821247cc3a8cd2169e85c9eb65ba2322be737e8e1d6673da45ee799ee004",
+      "has_required_partition_flag": false
+    },
+    {
+      "name": "formal_RL",
+      "source": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+      "module": "scripts.analysis.fm_transfer.dispatch_rl",
+      "exit_code": 0,
+      "help_sha256": "bf02c88b660ae1a3a167f044aba1654b4533480b8759ccbea8177549c4069e8e",
+      "has_required_partition_flag": false
+    }
+  ],
+  "controller_file_sha256": "0df9b420eb931c2197e00cbbf50441f0ca8d2461c14e08b73b11e375c03d6089",
+  "tests": "44 passed: endpoint handoff, screen analysis, screen partition",
+  "no_model_or_scoring_execution": true
+}
