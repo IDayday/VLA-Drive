@@ -167,9 +167,22 @@ def read_small_actual(path):
     before=path.lstat()
     if (not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or before.st_size>MiB
             or any(x.is_symlink() for x in (path,*path.parents))):raise ValueError('Small non-aliased COMPLETE required')
-    raw=path.read_bytes();after=path.lstat()
     version=lambda v:(v.st_dev,v.st_ino,v.st_mode,v.st_nlink,v.st_size,v.st_mtime_ns,v.st_ctime_ns)
-    if version(before)!=version(after) or len(raw)!=before.st_size:raise ValueError('Index COMPLETE changed during read')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    try:
+        opened=os.fstat(fd)
+        if not stat.S_ISREG(opened.st_mode) or opened.st_nlink!=1 or version(opened)!=version(before):
+            raise ValueError('Index COMPLETE changed before descriptor read')
+        raw=bytearray()
+        while len(raw)<=MiB:
+            block=os.read(fd,MiB+1-len(raw))
+            if not block:break
+            raw.extend(block)
+        after_fd=os.fstat(fd);after=path.lstat()
+        if (len(raw)>MiB or version(before)!=version(after_fd) or version(before)!=version(after)
+                or len(raw)!=before.st_size or any(x.is_symlink() for x in (path,*path.parents))):
+            raise ValueError('Index COMPLETE changed or exceeded bound during read')
+    finally:os.close(fd)
     return json.loads(raw),{'path':str(path),'sha256':hashlib.sha256(raw).hexdigest()}
 
 
