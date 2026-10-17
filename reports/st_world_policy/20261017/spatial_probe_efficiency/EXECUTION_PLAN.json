@@ -1,0 +1,84 @@
+{
+  "actual5000_checkpoint_binding": null,
+  "actual_resource_lease": null,
+  "actual_tensor_claims": null,
+  "byte_budget_runtime_enforcement": "NOT_IMPLEMENTED_BY_EXISTING_CLI; count fixed calls/invocations and instrument actual reads in Lead supervisor; do not claim physical disk bandwidth cap",
+  "cache": {
+    "actual_formula_total_claim_bytes": 546104992,
+    "metadata_package": false,
+    "package_cap_bytes": 1073741824,
+    "root_count": 8,
+    "same_existing_campaign_cap_bytes": 824633720832,
+    "separate_checkpoint_output_bytes": 268435456
+  },
+  "concurrency": {
+    "fit_after_measurement_at_most": 2,
+    "fit_cpu_threads_each": 2,
+    "fit_gpu": 0,
+    "fit_initial": 1,
+    "native_load_or_extraction": 1
+  },
+  "estimate_excludes_minor_controls_allocator_and_runtime_library_reads": true,
+  "estimated_primary_logical_read_bytes": 1862927106304,
+  "extract": {
+    "batch_scenes": 1,
+    "binding_max_seconds": 900,
+    "device": "one freshly allowed allocated GPU",
+    "first_population": "fixed dev16 of first exact5000 arm",
+    "gpu_allocated_budget_bytes": 25769803776,
+    "host_rss_budget_bytes": 68719476736,
+    "outer_wall_seconds": 960,
+    "second_population": "same arm fixed train64"
+  },
+  "fit": {
+    "cycles": 300,
+    "device": "cpu",
+    "no_repeated_fits_for_runtime_search": true,
+    "outer_wall_seconds": 1260,
+    "output_budget_bytes": 67108864,
+    "registration_max_seconds": 1200,
+    "rss_budget_bytes": 2147483648,
+    "same_identity_extra_invocations_at_most": 1,
+    "updates": "sum(exposure.optimizer_step), <=300"
+  },
+  "formal_launch_allowed": false,
+  "generic_bytes_per_role_max": 5368709120,
+  "lead_dispatch_only": true,
+  "maximum_additional_interrupted_role_lifecycles_campaign": 2,
+  "maximum_primary_read_admission_bytes": 2199023255552,
+  "maximum_primary_role_lifecycles": 8,
+  "maximum_with_two_extra_read_admission_bytes": 2748779069440,
+  "measured": {
+    "cpu_fit_rss_peak_bytes": null,
+    "cpu_fit_wall_seconds": null,
+    "extract_gpu_peak_bytes": null,
+    "extract_p50_seconds": null,
+    "extract_p95_seconds": null,
+    "native_load_seconds": null,
+    "real_W_bytes": null
+  },
+  "native_bytes_per_role_max": 42949672960,
+  "new_tensor_outputs_created": false,
+  "observation_control_allowance_bytes_per_role": 1073741824,
+  "observed_native_proxy_bytes_all4": 149469132104,
+  "per_role_lifecycle_logical_read_admission_bytes": 274877906944,
+  "plan": {
+    "gpu": 0,
+    "host_rss_budget_bytes": 68719476736,
+    "outer_wall_seconds": 600
+  },
+  "protocol_file_sha256": "7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e",
+  "protocol_identity": "800f88595587a6f2ed7156e7ed86cd5bbf6cf130596845dee7af0dda30a37c82",
+  "real_fit_completed": false,
+  "schema": "st_learned_w_probe_efficiency_plan_v1",
+  "source_commit": "7db26ae4e89d7c13a63130e3954b31dd4514cdd6",
+  "status": "PREPARATION_ONLY_PENDING_ENDPOINT_TYPED_STORAGE_AND_REAL_PROFILE",
+  "unknowns": [
+    "Actual5000 native receipts and hashes",
+    "Resource lease/host state",
+    "Typed W tensor admission after metadata migration",
+    "Real load/extraction costs",
+    "CPU full-grid evaluation and fit runtime",
+    "Shared filesystem physical traffic including mmap/page cache"
+  ]
+}
