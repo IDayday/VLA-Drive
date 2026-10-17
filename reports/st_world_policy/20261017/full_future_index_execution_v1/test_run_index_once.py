@@ -12,6 +12,27 @@ spec=importlib.util.spec_from_file_location('index_control',Path(__file__).with_
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 
+@pytest.mark.parametrize('remaining,accepted',[(2183*m.GiB,False),(2303*m.GiB-1,False),
+    (2303*m.GiB,True),(2383*m.GiB,True),(float(2303*m.GiB),False),(True,False)])
+def test_checkpoint_obligations_retain_new_t1_reservation(remaining,accepted):
+    cp={'schema':'st_checkpoint_storage_commitments_v1','status':'CURRENT',
+        'remaining_bytes':remaining,'free_floor_bytes':1<<40,'valid_until_unix':20000}
+    if accepted:m.validate_checkpoint_commitments(cp,19999)
+    else:
+        with pytest.raises(ValueError):m.validate_checkpoint_commitments(cp,19999)
+
+
+@pytest.mark.parametrize('change',['floor','expiry','nonfinite','status'])
+def test_more_checkpoint_space_does_not_bypass_other_guards(change):
+    cp={'schema':'st_checkpoint_storage_commitments_v1','status':'CURRENT',
+        'remaining_bytes':2383*m.GiB,'free_floor_bytes':1<<40,'valid_until_unix':20000}
+    if change=='floor':cp['free_floor_bytes']=0
+    elif change=='expiry':cp['valid_until_unix']=19000
+    elif change=='nonfinite':cp['valid_until_unix']=float('inf')
+    else:cp['status']='HISTORICAL'
+    with pytest.raises(ValueError):m.validate_checkpoint_commitments(cp,19999)
+
+
 def preparation(role='dev'):
     bindings={r:{'status':'ACTUAL_COMPLETE_BOUND','complete':{'path':'/fixture/'+r+'/COMPLETE.json','sha256':'a'*64},
         'request_identity':'b'*64,'request_file_sha256':'c'*64,'scenes':m.COUNTS[r]} for r in m.COUNTS}

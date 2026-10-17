@@ -1,0 +1,41 @@
+{
+  "schema": "st_index_checkpoint_guard_fix_v2",
+  "source_parent": "0d36e570ff7871e18d58d963e06eca27483fd5ce",
+  "time_unix": 1792237805.4011693,
+  "elapsed_seconds": 0.6655466556549072,
+  "command": [
+    "taskset",
+    "-c",
+    "6,7",
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "timeout",
+    "60s",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "reports/st_world_policy/20261017/full_future_index_execution_v1/test_run_index_once.py",
+    "reports/st_world_policy/20261017/full_future_index_execution_v1/test_bounded_complete_read.py"
+  ],
+  "exit_code": 0,
+  "tests": "75 PASS",
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_index_execution_v1/run_index_once.py",
+    "sha256": "5dc40c65b4dd4954173ef9ecbc3726e2cff74ab53dee75ea36f46d73831a81b1"
+  },
+  "minimum_checkpoint_commitments_bytes": 2472827420672,
+  "checkpoint_control": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json",
+    "sha256": "13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3"
+  },
+  "independent_review": "PENDING",
+  "launch_performed": false,
+  "active_runtime_modified": false,
+  "new_future_teacher_tensor_bytes": 0,
+  "test_log_sha256": "0747640eab6fce970d5097a0326f3dd3bd870f81d213d5a0348ac0126c01a1b8"
+}

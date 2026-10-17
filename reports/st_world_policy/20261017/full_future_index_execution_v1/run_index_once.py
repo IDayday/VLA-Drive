@@ -36,6 +36,17 @@ FIELDS=('identity','request_identity','cache_identity','scene_count','record_cou
 def digest(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
 
 
+def validate_checkpoint_commitments(cp,valid_until):
+    # Original 2183 GiB obligations remain, plus the separately admitted T1
+    # 120 GiB. A later larger, independently pinned CURRENT receipt is safe;
+    # silently reusing the older smaller commitment is not.
+    if (cp.get('schema')!='st_checkpoint_storage_commitments_v1' or cp.get('status')!='CURRENT'
+            or type(cp.get('remaining_bytes')) is not int or cp['remaining_bytes']<2303*GiB
+            or cp.get('free_floor_bytes')!=1<<40
+            or type(cp.get('valid_until_unix')) not in (int,float) or not math.isfinite(cp['valid_until_unix'])
+            or cp['valid_until_unix']<valid_until):raise ValueError('Fresh full checkpoint/floor commitment required')
+
+
 def limits(role):
     if role not in COUNTS:raise ValueError('Only dev/train index roles')
     return {'wall_seconds':900 if role=='dev' else 3600,'cleanup_seconds':40,
@@ -139,10 +150,7 @@ def controls(args,*,child=False):
     if a.get('base_policy')!=p['source_inputs']['old_policy']:raise ValueError('Exact additive base policy required')
     validate_additive_policy(p,core.pinned(a['base_policy']),core.pinned(a['policy']))
     cp=core.pinned(a['checkpoint_receipt'])
-    if (cp.get('schema')!='st_checkpoint_storage_commitments_v1' or cp.get('status')!='CURRENT'
-            or cp.get('remaining_bytes')!=2183*GiB or cp.get('free_floor_bytes')!=1<<40
-            or type(cp.get('valid_until_unix')) not in (int,float) or not math.isfinite(cp['valid_until_unix'])
-            or cp['valid_until_unix']<a['valid_until_unix']):raise ValueError('Fresh full checkpoint/floor commitment required')
+    validate_checkpoint_commitments(cp,a['valid_until_unix'])
     if set(a['monitor_helpers'])!=set(core.MONITORS):raise ValueError('Original monitor helpers required')
     parent=None
     for name,sha in core.MONITORS.items():
