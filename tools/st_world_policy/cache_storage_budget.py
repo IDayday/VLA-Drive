@@ -163,6 +163,8 @@ class StorageBudget:
                 "free_reserve_bytes": _integer(policy.get("free_reserve_bytes", DEFAULT_FREE_RESERVE_BYTES), "free reserve"),
                 "ledger_reserve_bytes": _integer(policy.get("ledger_reserve_bytes", DEFAULT_LEDGER_RESERVE_BYTES), "ledger reserve", positive=True),
                 "legacy_reservations": policy.get("legacy_reservations", [])}
+        if "metadata_package" in policy:
+            core["metadata_package"] = policy["metadata_package"]
         roots, ids, identities, declarations = [], set(), set(), {}
         for legacy, rows in ((True, core["legacy_reservations"]), (False, policy.get("claims", []))):
             for row in rows:
@@ -196,6 +198,9 @@ class StorageBudget:
                     declarations[str(root)] = row
         if core["ledger_reserve_bytes"] + sum(r["reserved_bytes"] for r in core["legacy_reservations"]) > core["cache_cap_bytes"]:
             _fail("legacy reservations exceed campaign cap")
+        if "metadata_package" in core:
+            from tools.st_world_policy.metadata_storage import validate_package
+            validate_package(core, declarations)
         return policy, core, declarations
 
     @contextmanager
@@ -209,6 +214,8 @@ class StorageBudget:
                 policy, core, declarations = self._read_policy()
                 if core != self.core:
                     _fail("campaign storage envelope changed")
+                if "metadata_package" in core and not self.state_path.exists():
+                    _fail("metadata package requires explicit migration of an existing ledger")
                 state = json.loads(self.state_path.read_text()) if self.state_path.exists() else {
                     "schema": SCHEMA, "core": core, "claims": {}}
                 if state.get("schema") != SCHEMA or state.get("core") != core:
@@ -260,6 +267,16 @@ class StorageBudget:
             _fail("ledger metadata/staging allowance exhausted")
         self._check_disk(state, self.state_dir, growth)
         _atomic(self.state_path, state)
+
+    @staticmethod
+    def migrate_metadata_policy(**kwargs):
+        """Explicit receipt-bound additive migration; never an implicit initialize.
+
+        This API keeps the original CLAIMS.lock and ledger. It does not inspect
+        or stop jobs; Lead must supply pinned live quiescence evidence.
+        """
+        from tools.st_world_policy.metadata_storage import migrate_policy
+        return migrate_policy(**kwargs)
 
     def initialize(self):
         """Persist the legacy envelope without admitting or launching a build."""

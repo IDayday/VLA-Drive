@@ -1,0 +1,12 @@
+Command: PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_metadata_storage_guard.py tests/st_world/test_cache_storage_budget.py
+Scope: temporary CPU fixtures only; no actual campaign ledger/build/teacher/GPU.
+
+........................................................................ [ 96%]
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/st_world/test_cache_storage_budget.py::test_registered_builder_requires_policy_before_teacher_or_output[build]
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+75 passed, 1 warning in 5.12s
