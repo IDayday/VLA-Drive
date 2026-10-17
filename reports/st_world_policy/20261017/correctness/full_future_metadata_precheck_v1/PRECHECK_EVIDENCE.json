@@ -1,0 +1,124 @@
+{
+  "schema": "st_full_future_metadata_precheck_v1",
+  "source_commit": "6faa9f8360c0a17e25f96399df03bdc162206ead",
+  "created_unix": 1792227084.0076632,
+  "scope": "source and existing small JSON/stat only; no builder, PLAN creation, raw/images/tensors/GPU",
+  "pins": {
+    "resources/cache_storage_ledger_v1/CLAIMS.json": {
+      "sha256": "a4c1fb15f4799187b03035343b8582484d8feb02fd23c7b632b5bc968662789d",
+      "bytes": 49750
+    },
+    "audits/spatial_probe_actual_SP0_5000_v1/storage_preparation_dev_v1/ADMINISTRATIVE_METADATA_CARRYFORWARD.json": {
+      "sha256": "1b3a22906bfebaa99bd425e855d9ec73550a4b34013490bb815814d1847aa530",
+      "bytes": 1436
+    },
+    "caches/future_metadata_qualification32_v2/PLAN.json": {
+      "sha256": "32bcf1d6edd7204a4b21d275fc521c66e817809cad127860f70bfddcdc781794",
+      "bytes": 13679
+    },
+    "audits/history_data/full_current_population_v1/train/COMPLETE.json": {
+      "sha256": "0c1c913e72733191fc47cf1969b2fb8462b1081ae8c893b656b7aba5d022ad3f",
+      "bytes": 803
+    },
+    "audits/history_data/full_current_population_v1/dev/COMPLETE.json": {
+      "sha256": "507fc43edea637fa35c16c97d89a09b695907ad653030dbafd17da78a312efb6",
+      "bytes": 795
+    },
+    "audits/history_data/full_current_population_v1/train/REGISTRATION.json": {
+      "sha256": "f7bad022b4aae85c5925b0a1afa143077aa0764efc1849d80f622d092beebbec",
+      "bytes": 1526
+    },
+    "audits/history_data/full_current_population_v1/dev/REGISTRATION.json": {
+      "sha256": "cf4ede53d076e25aa759b5f0bc4a4b84f441b94f50d199ac295b5c529afa9ffe",
+      "bytes": 1516
+    }
+  },
+  "source_sha256": {
+    "tools/st_world_policy/prepare_future_metadata.py": "c892d082c7bd33cb26c32aa810c21ba9ca652bc426bd9cfce058967bc5161aa8",
+    "tools/st_world_policy/metadata_storage.py": "4972a7b89647c7195ce567da00447f3224b0b4cc28d9d942b6c7c88a5715fd3c",
+    "tools/st_world_policy/index_teacher_metadata.py": "57cd8e7a348bf2a63818fefdedae26354b0a2e2f5e247267fb0ccd99c18b8080",
+    "starVLA/dataloader/st_world_metadata_index.py": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f",
+    "tools/st_world_policy/prepare_current_teacher.py": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+  },
+  "populations": {
+    "train": {
+      "scenes": 101592,
+      "logs": 1176,
+      "status": "COMPLETE",
+      "scope": "current_only_metadata",
+      "request_identity": "2c107e58146482d3f3985d7803d52ecf64d2e3ce9939435d8fce86e24fcf6d6f",
+      "selected_sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+    },
+    "dev": {
+      "scenes": 1696,
+      "logs": 16,
+      "status": "COMPLETE",
+      "scope": "current_only_metadata",
+      "request_identity": "81a46ee3ddd8c8f2602f53ca393e0c7d2ed91c1e4a43e801f98c7f374124a3da",
+      "selected_sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+    }
+  },
+  "source_bindings": {
+    "train": {
+      "ego_identity_sha256": "a8b6416c68b79e174d88dd0625594accda390b866b42436d94035a68f5974206",
+      "logs": 1176,
+      "ordered_scene_ids_hash": "9cd301e72bf2a9e46f5f9199dc0322c9fa7db92071e3aea4bed1558c77b89c3a",
+      "partition_path": "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "scenes": 101592,
+      "source_identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+      "source_index_file_sha256": "53e6175193f69f394f94dcc0c715222042c5abcbbf217f83fb6ffacb4bcf1179",
+      "source_index_identity": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "split": "train",
+      "student_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+    },
+    "dev": {
+      "ego_identity_sha256": "9b21fe0b00ac22acc1fe6daa2b4935f101787a5c9d7b7e04b80f67b31e88c934",
+      "logs": 16,
+      "ordered_scene_ids_hash": "f5daa55cc9c3d54ed0c2a60a5356857c24920e40e911d2b03449366729eedc65",
+      "partition_path": "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "scenes": 1696,
+      "source_identity": "b2a0ae01c2580fe00c3da8d7351b51e940410486b8a3febf18eebb11d6d61d96",
+      "source_index_file_sha256": "294be0f5590237a0253279fac95b6698a34f6bce2ae492fbfb951101a8f8a912",
+      "source_index_identity": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+      "split": "dev",
+      "student_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1"
+    }
+  },
+  "existing_qualification_paths": {
+    "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+    "sensor_roots": [
+      "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+      "/mnt/navsim/trainval_sensor_blobs/trainval"
+    ]
+  },
+  "measured_32_roots": {
+    "caches/future_metadata_qualification32_v2": {
+      "logical_bytes": 620617,
+      "allocated_bytes": 651264,
+      "files": 14
+    },
+    "caches/future32_request_metadata_index_v1": {
+      "logical_bytes": 258543,
+      "allocated_bytes": 266240,
+      "files": 6
+    }
+  },
+  "budget_mib": {
+    "ledger_claims": 1120,
+    "ledger_adopted_metadata_pilots": 16,
+    "administrative_not_ledger": 128,
+    "retained_effective_baseline": 1264,
+    "proposed_train_preparation_inclusive": 2048,
+    "proposed_dev_preparation_inclusive": 128,
+    "proposed_train_index_inclusive": 2048,
+    "proposed_dev_index_inclusive": 128,
+    "combined_proposed_and_baseline": 5616,
+    "proposed_global_maximum": 8192,
+    "unallocated_margin": 2576
+  },
+  "admission": "PROPOSAL_ONLY_REQUIRES_EXACT_VERSIONED_MIGRATION_AND_RESOURCE_REVIEW",
+  "actual_build_started": false,
+  "tensor_disk_bytes_added": 0
+}
