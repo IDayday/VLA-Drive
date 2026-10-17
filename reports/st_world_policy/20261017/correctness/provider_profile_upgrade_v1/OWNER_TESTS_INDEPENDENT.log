@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project/VLA-Drive-st-provider-profile-correctness-20261017
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 21 items
+
+tests/st_world/test_provider_profile_upgrade.py::test_new_profile_exact_population_old_evidence_unchanged PASSED [  4%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[population] PASSED [  9%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[source] PASSED [ 14%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[budget] PASSED [ 19%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[teacher] PASSED [ 23%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[recipe] PASSED [ 28%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[flags] PASSED [ 33%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_wrong_binding_rejected[times] PASSED [ 38%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[stop_after-257] PASSED [ 42%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[sample_limit-257] PASSED [ 47%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[max_updates-256] PASSED [ 52%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_recipe_hard_scope_bounds[scope-FORMAL] PASSED [ 57%]
+tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[source_sha] PASSED [ 61%]
+tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[commit] PASSED [ 66%]
+tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[math] PASSED [ 71%]
+tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[extra_control] PASSED [ 76%]
+tests/st_world/test_provider_profile_upgrade.py::test_migration_rejects_unapproved_math_or_historical_bindings[parent_result] PASSED [ 80%]
+tests/st_world/test_provider_profile_upgrade.py::test_old_smoke_default_rejects_historical_code_without_migration PASSED [ 85%]
+tests/st_world/test_provider_profile_upgrade.py::test_no_new_source_check_boolean_api PASSED [ 90%]
+tests/st_world/test_provider_profile_upgrade.py::test_configured_profile_reuses_frozen_pca_and_real_config_validation PASSED [ 95%]
+tests/st_world/test_provider_profile_upgrade.py::test_profile_cannot_be_relabelled_smoke PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 21 passed, 1 warning in 6.06s =========================
