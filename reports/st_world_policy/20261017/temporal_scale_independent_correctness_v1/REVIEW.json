@@ -1,0 +1,159 @@
+{
+  "actual_FA2_autograd_behavior": "NOT_RUN",
+  "actual_gradient_norms_and_weights": null,
+  "checks": {
+    "RNG_restoration_success_and_failure": "PASS_CPU",
+    "common_S0_initialization_source": "PASS_STATIC_STRICT_LOADING_PATH",
+    "fixed_four_scene_and_sampling_controls": "PASS_PINNED_METADATA",
+    "native_SMOKE_PROFILE_rejection": "PASS_CPU",
+    "no_optimizer_or_grad_accumulation_into_model": "PASS_STATIC_AND_CPU",
+    "original_losses_and_global_denominators": "PASS_STATIC_AND_CPU",
+    "parameter_buffer_and_mode_mutation_detection": "PASS_CPU",
+    "proposal_rule": "PREDECLARED_HYPOTHESIS_NOT_APPLIED",
+    "same_graph_randomness": "PASS_CPU",
+    "shared_subset_not_entire_model": "EXPLICIT",
+    "zero_missing_nonfinite_signal": "PASS_CPU"
+  },
+  "created_utc": "2026-10-17T12:12:06.685005+00:00",
+  "formal_training_approved": false,
+  "implementation_author": "/root/st_temporal_scale_calibration",
+  "native_ST_weight_loading": "NOT_RUN",
+  "production_files_modified_by_reviewer": false,
+  "real_model_teacher_integration": "NOT_RUN",
+  "resource_review": "SEPARATE_REQUIRED",
+  "review_branch": "review/st-temporal-scale-independent-v1",
+  "review_worktree": "/mnt/project/VLA-Drive-st-temporal-scale-independent-review-20261017",
+  "reviewed_source_sha": "baa6184ab7e4b3919a09adf7593dc82904c5f0ba",
+  "reviewer": "/root/st_calibration_independent_correctness_v2",
+  "schema": "st_independent_code_correctness_review_v1",
+  "scientific_calibration_approved": false,
+  "scope": "Exact new temporal calibration modules, pinned real4 diagnostic controls, original loss/call-chain reuse; not a formal launch or scientific calibration approval",
+  "small_control_pins": [
+    {
+      "bytes": 19746,
+      "kind": "data_manifest",
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_pinned_v2/SELECTED_SCENES.json",
+      "sha256": "58387c3779b083cd83b55f2339e49dc99ff12b136e20ea672b9dc0c50e5b40c1",
+      "verified": true
+    },
+    {
+      "bytes": 460796,
+      "kind": "teacher_manifest",
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/identity.json",
+      "sha256": "db5931bf5ca6711407a36703bc82c1b3c56dbe3c49dfabc1fd09dba02cb29626",
+      "verified": true
+    },
+    {
+      "bytes": 502318,
+      "kind": "teacher_requests",
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/requests.json",
+      "sha256": "d71f653111b5034c32c092b678a1d468727477ca1ea6c7611807f37aef889cb5",
+      "verified": true
+    },
+    {
+      "bytes": 2907,
+      "kind": "training_config",
+      "path": "/mnt/project/VLA-Drive-st-temporal-scale-calibration-20261017/reports/st_world_policy/20261017/temporal_scale_calibration_v1/PROPOSED_TRAINING_CONFIG.json",
+      "sha256": "059bd553efe247860d07eb76fbb715e1f7e9be07b4b3da2dbe5207b3a2bbca34",
+      "verified": true
+    },
+    {
+      "bytes": 19978,
+      "kind": "common_s0_binding",
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "verified": true
+    }
+  ],
+  "source_pins": [
+    {
+      "bytes": 10693,
+      "path": "tools/st_world_policy/calibration_measurement.py",
+      "sha256": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0"
+    },
+    {
+      "bytes": 19244,
+      "path": "tools/st_world_policy/calibrate_temporal_scale.py",
+      "sha256": "61d030d2131c0292e9909a0f89576e1f4f91941f609884a61f5c1d596531e9c6"
+    },
+    {
+      "bytes": 12622,
+      "path": "tests/st_world/test_temporal_scale_calibration.py",
+      "sha256": "b74b18f2295c343831925f37c5b92350cb32bc1632130b1b474b7102c2296fe9"
+    },
+    {
+      "bytes": 9015,
+      "path": "starVLA/model/framework/st_world_model.py",
+      "sha256": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007"
+    },
+    {
+      "bytes": 10160,
+      "path": "starVLA/model/modules/st_world/losses.py",
+      "sha256": "5566b79c551717d18429e5e6278993a8bcb726922f36d107025c0b80161306f6"
+    },
+    {
+      "bytes": 8101,
+      "path": "starVLA/model/modules/st_world/requests.py",
+      "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+    },
+    {
+      "bytes": 13263,
+      "path": "starVLA/dataloader/st_world_dataset.py",
+      "sha256": "178cae6f2dbef96e21de450a3f716005f73a563452df1bbcf7fc9ed3cddf0f33"
+    },
+    {
+      "bytes": 7330,
+      "path": "tools/st_world_policy/base_binding.py",
+      "sha256": "edaec8fcb31f48cfdc9c52e5c4ffea89ba348bb128386bba098c372c8d48777f"
+    },
+    {
+      "bytes": 3845,
+      "path": "tools/foresight/checkpoints.py",
+      "sha256": "2266ec39d9203ffa0939b7fb0cf6ad2397e6b303347513c1948e2a970087ff45"
+    },
+    {
+      "bytes": 8535,
+      "path": "tools/st_world_policy/checkpoints.py",
+      "sha256": "ecdef3b68ddd1fc0426745e939c4a9331d50c87ed96bb816f91d781c398665b4"
+    },
+    {
+      "bytes": 18569,
+      "path": "tools/st_world_policy/official_runtime.py",
+      "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+    },
+    {
+      "bytes": 34353,
+      "path": "tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    {
+      "bytes": 1866,
+      "path": "reports/st_world_policy/20261017/temporal_scale_calibration_v1/PROPOSED_CALIBRATION_CONFIG.json",
+      "sha256": "7ea353ce534a3e023071da351ae24819901bbfa04083c7cad0fa038a3d28733e"
+    },
+    {
+      "bytes": 2907,
+      "path": "reports/st_world_policy/20261017/temporal_scale_calibration_v1/PROPOSED_TRAINING_CONFIG.json",
+      "sha256": "059bd553efe247860d07eb76fbb715e1f7e9be07b4b3da2dbe5207b3a2bbca34"
+    }
+  ],
+  "status": "PASS_CODE_CPU_ONLY",
+  "tests": {
+    "GPU_used": false,
+    "failed": 0,
+    "first_attempt": "HARNESS_COLLECTION_FAILURE_PRESERVED",
+    "first_failure_reason": "Reviewer harness lacked repository sys.path; production implementation unchanged",
+    "image_payload_reads": 0,
+    "implementation_tests": 23,
+    "logical_reads_all_attempts_bytes": 159656528,
+    "model_payload_reads": 0,
+    "new_independent_tests": 3,
+    "passed": 26,
+    "peak_rss_bytes": 647626752,
+    "pytest_seconds": 3.42,
+    "teacher_tensor_reads": 0,
+    "training_updates": 0,
+    "wall_seconds_all_attempts": 6.833983751013875
+  },
+  "unresolved_code_blockers_in_scope": []
+}
