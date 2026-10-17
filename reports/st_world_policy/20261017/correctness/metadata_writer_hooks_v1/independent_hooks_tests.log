@@ -1,0 +1,53 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+{"loaded_modules": {"starVLA.dataloader.st_world_metadata_index": {"path": "/mnt/project/VLA-Drive-st-metadata-hooks-review-runtime-b3b7d79f/starVLA/dataloader/st_world_metadata_index.py", "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"}, "tools.st_world_policy.index_teacher_metadata": {"path": "/mnt/project/VLA-Drive-st-metadata-hooks-review-runtime-b3b7d79f/tools/st_world_policy/index_teacher_metadata.py", "sha256": "57cd8e7a348bf2a63818fefdedae26354b0a2e2f5e247267fb0ccd99c18b8080"}, "tools.st_world_policy.metadata_storage": {"path": "/mnt/project/VLA-Drive-st-metadata-hooks-review-runtime-b3b7d79f/tools/st_world_policy/metadata_storage.py", "sha256": "698b5425dbb6af8aa534682ac14a1bca13253e819e310b28e1bda08a0b77bae1"}, "tools.st_world_policy.prepare_current_teacher": {"path": "/mnt/project/VLA-Drive-st-metadata-hooks-review-runtime-b3b7d79f/tools/st_world_policy/prepare_current_teacher.py", "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"}, "tools.st_world_policy.prepare_future_metadata": {"path": "/mnt/project/VLA-Drive-st-metadata-hooks-review-runtime-b3b7d79f/tools/st_world_policy/prepare_future_metadata.py", "sha256": "c892d082c7bd33cb26c32aa810c21ba9ca652bc426bd9cfce058967bc5161aa8"}}, "source_commit": "b3b7d79f65ade003cae116e7c4b3d0f935b4799e"}
+FF..............                                                         [100%]
+=================================== FAILURES ===================================
+_ test_real_subprocess_cli_completes_and_reuses_synthetic_only[current_index] __
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-516/test_real_subprocess_cli_compl0')
+kind = 'current_index'
+
+    @pytest.mark.parametrize('kind', ['current_index', 'future_preparation'])
+    def test_real_subprocess_cli_completes_and_reuses_synthetic_only(tmp_path, kind):
+        run = registered_cli(tmp_path, kind)
+        command = [sys.executable, '-m', 'tools.st_world_policy.metadata_storage', 'run']
+        for key, value in run.guard.items(): command += ['--'+key.replace('_', '-'), str(value)]
+        env = dict(os.environ, CUDA_VISIBLE_DEVICES='', PYTHONDONTWRITEBYTECODE='1',
+                   OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2')
+        first = subprocess.run(command, cwd=Path.cwd(), env=env, text=True, capture_output=True, timeout=45)
+>       assert first.returncode == 0, first.stdout + first.stderr
+E       AssertionError: {"error": "BLOCKED_STORAGE: metadata writer never called required resource/publication hook", "status": "BLOCKED_STORAGE"}
+E         /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+E           import pynvml  # type: ignore[import]
+E         
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['/root/miniconda3/envs/ddp/bin/python', '-m', 'tools.st_world_policy.metadata_storage', 'run', ...port this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n').returncode
+
+../VLA-Drive-st-future-metadata-correctness-20261017/tests/st_world/test_review_metadata_writer_hooks.py:35: AssertionError
+_ test_real_subprocess_cli_completes_and_reuses_synthetic_only[future_preparation] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-516/test_real_subprocess_cli_compl1')
+kind = 'future_preparation'
+
+    @pytest.mark.parametrize('kind', ['current_index', 'future_preparation'])
+    def test_real_subprocess_cli_completes_and_reuses_synthetic_only(tmp_path, kind):
+        run = registered_cli(tmp_path, kind)
+        command = [sys.executable, '-m', 'tools.st_world_policy.metadata_storage', 'run']
+        for key, value in run.guard.items(): command += ['--'+key.replace('_', '-'), str(value)]
+        env = dict(os.environ, CUDA_VISIBLE_DEVICES='', PYTHONDONTWRITEBYTECODE='1',
+                   OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2')
+        first = subprocess.run(command, cwd=Path.cwd(), env=env, text=True, capture_output=True, timeout=45)
+>       assert first.returncode == 0, first.stdout + first.stderr
+E       AssertionError: {"error": "BLOCKED_STORAGE: metadata writer never called required resource/publication hook", "status": "BLOCKED_STORAGE"}
+E         /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+E           import pynvml  # type: ignore[import]
+E         
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['/root/miniconda3/envs/ddp/bin/python', '-m', 'tools.st_world_policy.metadata_storage', 'run', ...port this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n').returncode
+
+../VLA-Drive-st-future-metadata-correctness-20261017/tests/st_world/test_review_metadata_writer_hooks.py:35: AssertionError
+=========================== short test summary info ============================
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/tests/st_world/test_review_metadata_writer_hooks.py::test_real_subprocess_cli_completes_and_reuses_synthetic_only[current_index]
+FAILED ../VLA-Drive-st-future-metadata-correctness-20261017/tests/st_world/test_review_metadata_writer_hooks.py::test_real_subprocess_cli_completes_and_reuses_synthetic_only[future_preparation]
+2 failed, 14 passed in 9.67s

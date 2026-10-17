@@ -1,0 +1,24 @@
+{
+  "status": "CHANGES_REQUESTED",
+  "reviewed_commit": "b3b7d79f65ade003cae116e7c4b3d0f935b4799e",
+  "reviewer": "st_future_metadata_correctness",
+  "timestamp_utc": "2026-10-17T05:37:16Z",
+  "independent_tests": {
+    "passed": 14,
+    "failed": 2,
+    "seconds": 9.67
+  },
+  "regression_tests": {
+    "passed": 127,
+    "failed": 0,
+    "seconds": 9.78
+  },
+  "finding": "python -m creates separate __main__ and canonical metadata_storage instances; canonical writer hooks see no active guard; COMPLETE is published before outer guard detects missing callbacks",
+  "actual_data_qualification": "NOT_EXECUTED",
+  "storage_admission": "NOT_GRANTED",
+  "real_build": false,
+  "real_plan": false,
+  "gpu_used": false,
+  "test_data": "synthetic CPU fixtures only",
+  "previous_fixes": "35 independent boundary/ledger tests included in 127 passing regressions"
+}
