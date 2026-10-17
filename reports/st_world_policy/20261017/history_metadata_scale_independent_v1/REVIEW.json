@@ -1,0 +1,129 @@
+{
+  "schema": "st_history_metadata_scale_independent_review_v1",
+  "reviewer": "/root/st_history_pilot_independent_v2",
+  "reviewed_commit": "df68dc710d6a27cbc6009eb42a9db19d5e9b24fb",
+  "base_commit": "112ef4c40c0b0f2e82df367b2a4a64e9fdcf3d30",
+  "created_utc": "2026-10-17T12:46:25.233942+00:00",
+  "status": "FAIL_PACKED_READER_AND_LAYOUT_BINDING",
+  "launch_allowed": false,
+  "actual_full_build": "NOT_RUN",
+  "actual_claim_or_ledger_mutation": false,
+  "actual_gpu_or_checkpoint_or_raw_images_read": false,
+  "scientific_semantics_ast_unchanged": {
+    "causal_frames": true,
+    "build_history_record": true,
+    "validate_history_record": true,
+    "crop_resize_affine": true,
+    "load_history_images": true,
+    "collate_history_inputs": true
+  },
+  "source_pins": {
+    "tools/st_world_policy/history_shards.py": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043",
+    "tools/st_world_policy/prepare_causal_history.py": "600e5f98724f9381d71b79fca88bc927bf2a4342cb87705dce39ce381bf24cea",
+    "tools/st_world_policy/metadata_storage.py": "7016833537d54ed84081ed47a02163fa0f7462e1053e911726c9b6d09b08d448",
+    "starVLA/dataloader/st_world_history.py": "d713b9236064592b81b799ec8e8eed39910ba25dc9f072993184f8dc9084fb6c"
+  },
+  "findings": [
+    {
+      "id": "HS-1",
+      "priority": "P1",
+      "location": "starVLA/dataloader/st_world_history.py:HistoryReader.read packed_log_v1 branch",
+      "issue": "Path is checked then opened normally; symlink swap can follow a root-external file. No regular-file/single-link check; FIFO can block before integrity validation.",
+      "reproductions": [
+        "test_reproduce_path_swap_can_read_external_file",
+        "test_reproduce_fifo_reaches_blocking_open_without_type_guard"
+      ],
+      "minimal_fix": "Descriptor based no-follow directory walk and O_NOFOLLOW|O_NONBLOCK leaf open; fstat regular single-link, bounded offset/length, version and namespace checks, existing SHA and schema validation unchanged."
+    },
+    {
+      "id": "HS-2",
+      "priority": "P2",
+      "location": "tools/st_world_policy/prepare_causal_history.py:validate files branch",
+      "issue": "A files/default command is accepted under a packed-only inventory registration, so declared record layout is not actually enforced in both directions.",
+      "reproductions": [
+        "test_reproduce_files_command_accepts_packed_only_inventory_registration"
+      ],
+      "minimal_fix": "Require actual parsed layout to match registration/strategy in both branches; retain legal legacy files registrations with no strategy."
+    }
+  ],
+  "passed_checks": [
+    "256 schema-valid synthetic records exactly match legacy files values through actual HistoryReader validator",
+    "Original selected order preserved despite grouped storage; two immutable shards for two128-record logs",
+    "Repeat construction preserves shard bytes/inodes and manifest identity",
+    "Single-record retrieval reads only record_length; range and layout negatives rejected",
+    "Record corruption and conflicting resume reject; orphan evidence retained",
+    "Packed-only declaration gated in resource schema; cached census periodic and prepublication checks retained",
+    "Original global max_entries stays20000; no full performance pass claimed"
+  ],
+  "tests": {
+    "first": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/history-scale-independent-wtf1bo82/fixtures",
+        "reports/st_world_policy/20261017/history_metadata_scale_v1/test_scale.py",
+        "reports/st_world_policy/20261017/history_metadata_scale_independent_v1/test_independent_scale.py",
+        "tests/st_world/test_metadata_storage_guard.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.786822335794568,
+      "peak_descendant_process_tree_rss_bytes": 1284571136,
+      "maximum_live_descendant_rchar_sum_bytes": 160850198,
+      "observed_peak_processes": 4,
+      "fixture_peak_file_bytes_charged": 9605216,
+      "charged_parent_after_reap_rchar_bytes": 160276961,
+      "resource_limit_failure": null,
+      "cpu_affinity": [
+        10,
+        11
+      ],
+      "log_sha256": "98dad17428eface47e61d54265f51186ffc41f2ab9a7a2d4d22dd9f05b27544e",
+      "synthetic_metadata_only": true,
+      "synthetic_unique_records": 256,
+      "actual_full_history_build": false,
+      "resource_accounting_scope": "All test descendants via /proc task children; total logical reads via supervising parent after wait; max logical/allocated fixture file bytes; own ephemeral fixture directory removed after evidence collection."
+    },
+    "additional_layout_test": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "reports/st_world_policy/20261017/history_metadata_scale_independent_v1/test_independent_scale.py::test_reproduce_files_command_accepts_packed_only_inventory_registration"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.920624531805515,
+      "peak_child_rss_bytes": 650379264,
+      "maximum_live_child_rchar_bytes": 139383017,
+      "charged_parent_after_reap_rchar_bytes": 139530035,
+      "resource_limit_failure": null,
+      "cpu_affinity": [
+        10,
+        11
+      ],
+      "log_sha256": "8e54e645f52e619e6152bb35b08b759b516be1464ebb53f1aa23c241c69d5c2d",
+      "synthetic_only": true
+    },
+    "total_asserted_tests": 83,
+    "cumulative_seconds": 11.707446867600083,
+    "cumulative_logical_read_bytes": 299806996,
+    "max_test_process_tree_rss_bytes": 1284571136,
+    "synthetic_unique_records": 256,
+    "fixture_peak_file_bytes_charged": 9605216
+  },
+  "limits": [
+    "Green characterization tests mean defects reproduced, not qualification PASS.",
+    "No actual registered packed original-builder invocation or full population build occurred.",
+    "Resume reconstructs and rehashes all source records; it is not per-log cheap skip-resume.",
+    "Full manifest/teacher dictionaries remain memory resident. Full RSS/IO/disk/cold throughput are unmeasured.",
+    "Per-publication and periodic census remain; scaling is improved file count, not a proven linear bound.",
+    "Known full population estimate assumes byte cap does not split earlier;4096 is enforced ceiling, not guaranteed coverage."
+  ]
+}
