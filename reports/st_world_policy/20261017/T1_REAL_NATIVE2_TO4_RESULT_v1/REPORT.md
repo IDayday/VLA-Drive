@@ -2,7 +2,7 @@
 
 Two real A800 ranks completed updates 1–2, saved native model/master/Adam/RNG/cursor state, then a second process restored it and completed only updates 3–4. Both invocation receipts are COMPLETE. This used real current/history images and current FP32 DINO labels from the existing real64 assets; no full future tensor bank was created.
 
-The configuration kept the original 20k/warmup1000 timeline; global batch4/microbatch1/world2 is a declared SMOKE override. All four losses/gradients are finite and all four updates changed sampled FP32 master elements. The next batches, including updates3/4, match the original fixed64 manifest and epoch_batches(seed42) exactly. Total exposure16, not a full64 epoch.
+The configuration kept the original 20k/warmup1000 timeline; global batch4/microbatch1/world2 is a declared SMOKE override. The two active losses (current and ego_fm) and recorded global gradient norm are finite at each of the four updates; each update changed sampled FP32 master elements. Future/delta objectives were disabled in this T1 test. The next batches, including updates3/4, match the original fixed64 manifest and epoch_batches(seed42) exactly. Total exposure16, not a full64 epoch.
 
 Both ranks compared actual native-restored BF16 model parameters, persistent buffers, FP32 master partitions/Adam, scheduler/engine state and restored RNG before update3. All recorded sections contain zero differences/nonfinite paths. Nonpersistent buffers are explicitly outside serialized-value comparison. This is a restore-boundary check, not a claim that uninterrupted and interrupted FlashAttention training were compared step for step.
 
