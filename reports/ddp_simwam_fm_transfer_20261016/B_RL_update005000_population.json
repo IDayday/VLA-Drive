@@ -1,0 +1,71 @@
+{
+  "schema": "fm_transfer_committed_RL_population_v1",
+  "status": "COMPLETE_READONLY_POPULATION_AUDIT_NOT_POLICY_EVALUATION",
+  "captured_utc": "2026-10-17T09:32:45.055062+00:00",
+  "analysis_identity": "f9003127231cb112a72cd20ef23f0790d4283bd630842529ca586dafcab93d7b",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "checkpoint": {
+    "path": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update005000_inner0",
+    "files_sha256": "f67a0430962103afc1b4b2a193192582ddf1734624c3606e33db6e9fed237769",
+    "phase": "READY"
+  },
+  "manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+  "reused_source_files": {
+    "starVLA/rl/simwam_recipe/contracts.py": "c26cc79c4dd071d5e83ef0d018f908d5dbef16ef2c47b2739f5d060565f10d1e",
+    "starVLA/rl/simwam_recipe/data_stream.py": "3ecd4df19a529298b07cdd451cd5e330b4dee956b885facb349db750b190ed8b",
+    "starVLA/rl/simwam_recipe/vendor/samplers.py": "dd8dabf42f9d5f7b95b380be22d10b6092a3b1a211c30b214380fb2d24437be9",
+    "starVLA/rl/simwam_recipe/invocation.py": "1d005733e190032778e58895f432e64b788e4d6cac3766df4d268830cacc5792",
+    "starVLA/rl/simwam_recipe/recovery_state.py": "c4af1576548b802e6219a3cec70239a1cbe4d9de7288cd6129cac90dd1fd98bc"
+  },
+  "journal_prefix_sha256": [
+    "07101a79628353c529b9593b8ec4803b85a10cd6a041dccb262e0a21c2f7dce5",
+    "ff5f7cefb3c0987db710ee2f76f0ae7adfde6e1f6151872775532d620ebde4a6",
+    "9b4648fb54050ec76513b95d2bf64b25bede8dc3433f45fa6f5acade6486b870",
+    "2e1997e507a3a086185bf5c606bc1ab0c16b7724ac820a67bc77179c28bac903",
+    "ff38c8801212bc8c7fa64afce6fb6afa02923963fad2d0c16fc43b57d0f01da1",
+    "5b02e41aa9cd43b8db573f95b38e95335cbf0f2cbfbc5713e5c404371062741f",
+    "3e7d27a5339ed607c2592637f2e05e8de79f85b9db2f5ea57af0558453a93acd",
+    "1fa5174f6f2c0c447b12c38b4259db20cc639feccf5edd05a0c94d030cf283cb"
+  ],
+  "population": {
+    "optimizer_updates": 5000,
+    "fresh_global_rollouts": 1250,
+    "scene_exposures": 10000,
+    "fresh_candidates": 80000,
+    "hard_population_scenes": 21836,
+    "padded_epoch_size": 21840,
+    "unique_scene_count": 10000,
+    "unique_log_count": 992,
+    "scene_revisits_after_first_exposure": 0,
+    "epoch_padding_exposures": 0,
+    "nonpadding_revisits_after_first_exposure": 0,
+    "exposure_frequency_histogram": {
+      "1": 10000
+    },
+    "distinct_chain_digests_in_journal": 10000,
+    "epochs": [
+      {
+        "epoch": 0,
+        "scene_exposures": 10000,
+        "padding_exposures": 0,
+        "unique_scene_count": 10000
+      }
+    ]
+  },
+  "analysis_new_candidates": 0,
+  "analysis_optimizer_updates": 0,
+  "analysis_scores": 0,
+  "analysis_main_wall_seconds": 2.019175248220563,
+  "analysis_main_process_cpu_seconds": 1.744411666,
+  "limits": [
+    "Counts describe only the effective committed journals; failed attempts remain in the separate cost ledger.",
+    "All journal scene/chain identities are checked; tensor payload hashes are checked at the listed boundary probes.",
+    "Behavior and first-inner invocation IDs are separately retained: a legal restore may span invocations; this does not replace the resume ledger.",
+    "Padding and ordinary scene revisits generate fresh current-behavior G8 chains, not additional unique scenes.",
+    "Four inner updates reuse a single fresh collection; this is not a new score or model-selection milestone.",
+    "Analysis timers exclude Python imports and final JSON publication; no GPU is used."
+  ],
+  "checked_behavior_payload_count": 24,
+  "private_original_sha256": "d175f3ff81cd5f5f88717be24fb4b7ea56b61b2561e8299a011e2c9cb22bec88",
+  "public_omission": "Private scene identifiers and individual behavior payload records omitted; original evidence retained locally."
+}

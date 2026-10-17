@@ -1,0 +1,932 @@
+{
+  "schema": "fm_transfer_B_RL5k_public_evidence_v1",
+  "captured_unix": 1792230342.584848,
+  "status": "COMPLETE_B_5K_DEV_AND_TRAIN_OBSERVATIONS_NOT_FINAL_RL_OR_NAVTEST",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "training_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "numerical_evaluation_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "saved_batch_source": "fd440275edc3fdf40b2aaa46c38da1d038068902",
+  "paired_safety_plot_analysis_source": "8dbd2bb2c82026d3a8a0b4b96c9b0ba211248f81",
+  "training_prefix_analyzer_source": "d58485b08078a6319b2835793d8c79ffbbd3e9d5",
+  "publisher_sha256": "5bccbfde54350624835d2c346961210f99edba90ea5e902cb590851021deeb95",
+  "checkpoint": {
+    "path": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update005000_inner0",
+    "files_sha256": "f67a0430962103afc1b4b2a193192582ddf1734624c3606e33db6e9fed237769",
+    "phase": "READY"
+  },
+  "export": {
+    "schema": "fm_transfer_original_entry_export_v1",
+    "stage": "RL",
+    "architecture": "source_action_dit",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update005000_inner0",
+    "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+    "updates": 5000,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+      "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+      "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "architecture": "source_action_dit",
+        "initialization": "source_random_initialization_seed42",
+        "max_updates": 100000,
+        "learning_rate": 0.0001,
+        "milestones": [
+          0,
+          10000,
+          25000,
+          50000,
+          75000,
+          100000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 100000,
+      "qualification": false
+    },
+    "original_frozen_prefix_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "qualification": false,
+    "weight_sha256": "5a841462dd85fd0002f8faa7106a40f0051d411e7411ac4dfa65c4dbb22b2551",
+    "config_sha256": "db68a8c6bf74ab69b644c462fa1189a388ea6ba5b9930c78f78fc971f2bcdfab",
+    "changed_attention_from_own_SFT": [
+      "blocks.0.self_attn.q.weight",
+      "blocks.0.self_attn.k.weight",
+      "blocks.0.self_attn.v.weight",
+      "blocks.0.self_attn.o.weight",
+      "blocks.0.cross_attn.q.weight",
+      "blocks.0.cross_attn.k.weight",
+      "blocks.0.cross_attn.v.weight",
+      "blocks.0.cross_attn.o.weight",
+      "blocks.1.self_attn.q.weight",
+      "blocks.1.self_attn.k.weight",
+      "blocks.1.self_attn.v.weight",
+      "blocks.1.self_attn.o.weight",
+      "blocks.1.cross_attn.q.weight",
+      "blocks.1.cross_attn.k.weight",
+      "blocks.1.cross_attn.v.weight",
+      "blocks.1.cross_attn.o.weight",
+      "blocks.2.self_attn.q.weight",
+      "blocks.2.self_attn.k.weight",
+      "blocks.2.self_attn.v.weight",
+      "blocks.2.self_attn.o.weight",
+      "blocks.2.cross_attn.q.weight",
+      "blocks.2.cross_attn.k.weight",
+      "blocks.2.cross_attn.v.weight",
+      "blocks.2.cross_attn.o.weight",
+      "blocks.3.self_attn.q.weight",
+      "blocks.3.self_attn.k.weight",
+      "blocks.3.self_attn.v.weight",
+      "blocks.3.self_attn.o.weight",
+      "blocks.3.cross_attn.q.weight",
+      "blocks.3.cross_attn.k.weight",
+      "blocks.3.cross_attn.v.weight",
+      "blocks.3.cross_attn.o.weight",
+      "blocks.4.self_attn.q.weight",
+      "blocks.4.self_attn.k.weight",
+      "blocks.4.self_attn.v.weight",
+      "blocks.4.self_attn.o.weight",
+      "blocks.4.cross_attn.q.weight",
+      "blocks.4.cross_attn.k.weight",
+      "blocks.4.cross_attn.v.weight",
+      "blocks.4.cross_attn.o.weight",
+      "blocks.5.self_attn.q.weight",
+      "blocks.5.self_attn.k.weight",
+      "blocks.5.self_attn.v.weight",
+      "blocks.5.self_attn.o.weight",
+      "blocks.5.cross_attn.q.weight",
+      "blocks.5.cross_attn.k.weight",
+      "blocks.5.cross_attn.v.weight",
+      "blocks.5.cross_attn.o.weight",
+      "blocks.6.self_attn.q.weight",
+      "blocks.6.self_attn.k.weight",
+      "blocks.6.self_attn.v.weight",
+      "blocks.6.self_attn.o.weight",
+      "blocks.6.cross_attn.q.weight",
+      "blocks.6.cross_attn.k.weight",
+      "blocks.6.cross_attn.v.weight",
+      "blocks.6.cross_attn.o.weight",
+      "blocks.7.self_attn.q.weight",
+      "blocks.7.self_attn.k.weight",
+      "blocks.7.self_attn.v.weight",
+      "blocks.7.self_attn.o.weight",
+      "blocks.7.cross_attn.q.weight",
+      "blocks.7.cross_attn.k.weight",
+      "blocks.7.cross_attn.v.weight",
+      "blocks.7.cross_attn.o.weight",
+      "blocks.8.self_attn.q.weight",
+      "blocks.8.self_attn.k.weight",
+      "blocks.8.self_attn.v.weight",
+      "blocks.8.self_attn.o.weight",
+      "blocks.8.cross_attn.q.weight",
+      "blocks.8.cross_attn.k.weight",
+      "blocks.8.cross_attn.v.weight",
+      "blocks.8.cross_attn.o.weight",
+      "blocks.9.self_attn.q.weight",
+      "blocks.9.self_attn.k.weight",
+      "blocks.9.self_attn.v.weight",
+      "blocks.9.self_attn.o.weight",
+      "blocks.9.cross_attn.q.weight",
+      "blocks.9.cross_attn.k.weight",
+      "blocks.9.cross_attn.v.weight",
+      "blocks.9.cross_attn.o.weight",
+      "blocks.10.self_attn.q.weight",
+      "blocks.10.self_attn.k.weight",
+      "blocks.10.self_attn.v.weight",
+      "blocks.10.self_attn.o.weight",
+      "blocks.10.cross_attn.q.weight",
+      "blocks.10.cross_attn.k.weight",
+      "blocks.10.cross_attn.v.weight",
+      "blocks.10.cross_attn.o.weight",
+      "blocks.11.self_attn.q.weight",
+      "blocks.11.self_attn.k.weight",
+      "blocks.11.self_attn.v.weight",
+      "blocks.11.self_attn.o.weight",
+      "blocks.11.cross_attn.q.weight",
+      "blocks.11.cross_attn.k.weight",
+      "blocks.11.cross_attn.v.weight",
+      "blocks.11.cross_attn.o.weight",
+      "blocks.12.self_attn.q.weight",
+      "blocks.12.self_attn.k.weight",
+      "blocks.12.self_attn.v.weight",
+      "blocks.12.self_attn.o.weight",
+      "blocks.12.cross_attn.q.weight",
+      "blocks.12.cross_attn.k.weight",
+      "blocks.12.cross_attn.v.weight",
+      "blocks.12.cross_attn.o.weight",
+      "blocks.13.self_attn.q.weight",
+      "blocks.13.self_attn.k.weight",
+      "blocks.13.self_attn.v.weight",
+      "blocks.13.self_attn.o.weight",
+      "blocks.13.cross_attn.q.weight",
+      "blocks.13.cross_attn.k.weight",
+      "blocks.13.cross_attn.v.weight",
+      "blocks.13.cross_attn.o.weight",
+      "blocks.14.self_attn.q.weight",
+      "blocks.14.self_attn.k.weight",
+      "blocks.14.self_attn.v.weight",
+      "blocks.14.self_attn.o.weight",
+      "blocks.14.cross_attn.q.weight",
+      "blocks.14.cross_attn.k.weight",
+      "blocks.14.cross_attn.v.weight",
+      "blocks.14.cross_attn.o.weight",
+      "blocks.15.self_attn.q.weight",
+      "blocks.15.self_attn.k.weight",
+      "blocks.15.self_attn.v.weight",
+      "blocks.15.self_attn.o.weight",
+      "blocks.15.cross_attn.q.weight",
+      "blocks.15.cross_attn.k.weight",
+      "blocks.15.cross_attn.v.weight",
+      "blocks.15.cross_attn.o.weight",
+      "blocks.16.self_attn.q.weight",
+      "blocks.16.self_attn.k.weight",
+      "blocks.16.self_attn.v.weight",
+      "blocks.16.self_attn.o.weight",
+      "blocks.16.cross_attn.q.weight",
+      "blocks.16.cross_attn.k.weight",
+      "blocks.16.cross_attn.v.weight",
+      "blocks.16.cross_attn.o.weight",
+      "blocks.17.self_attn.q.weight",
+      "blocks.17.self_attn.k.weight",
+      "blocks.17.self_attn.v.weight",
+      "blocks.17.self_attn.o.weight",
+      "blocks.17.cross_attn.q.weight",
+      "blocks.17.cross_attn.k.weight",
+      "blocks.17.cross_attn.v.weight",
+      "blocks.17.cross_attn.o.weight",
+      "blocks.18.self_attn.q.weight",
+      "blocks.18.self_attn.k.weight",
+      "blocks.18.self_attn.v.weight",
+      "blocks.18.self_attn.o.weight",
+      "blocks.18.cross_attn.q.weight",
+      "blocks.18.cross_attn.k.weight",
+      "blocks.18.cross_attn.v.weight",
+      "blocks.18.cross_attn.o.weight",
+      "blocks.19.self_attn.q.weight",
+      "blocks.19.self_attn.k.weight",
+      "blocks.19.self_attn.v.weight",
+      "blocks.19.self_attn.o.weight",
+      "blocks.19.cross_attn.q.weight",
+      "blocks.19.cross_attn.k.weight",
+      "blocks.19.cross_attn.v.weight",
+      "blocks.19.cross_attn.o.weight",
+      "blocks.20.self_attn.q.weight",
+      "blocks.20.self_attn.k.weight",
+      "blocks.20.self_attn.v.weight",
+      "blocks.20.self_attn.o.weight",
+      "blocks.20.cross_attn.q.weight",
+      "blocks.20.cross_attn.k.weight",
+      "blocks.20.cross_attn.v.weight",
+      "blocks.20.cross_attn.o.weight",
+      "blocks.21.self_attn.q.weight",
+      "blocks.21.self_attn.k.weight",
+      "blocks.21.self_attn.v.weight",
+      "blocks.21.self_attn.o.weight",
+      "blocks.21.cross_attn.q.weight",
+      "blocks.21.cross_attn.k.weight",
+      "blocks.21.cross_attn.v.weight",
+      "blocks.21.cross_attn.o.weight",
+      "blocks.22.self_attn.q.weight",
+      "blocks.22.self_attn.k.weight",
+      "blocks.22.self_attn.v.weight",
+      "blocks.22.self_attn.o.weight",
+      "blocks.22.cross_attn.q.weight",
+      "blocks.22.cross_attn.k.weight",
+      "blocks.22.cross_attn.v.weight",
+      "blocks.22.cross_attn.o.weight",
+      "blocks.23.self_attn.q.weight",
+      "blocks.23.self_attn.k.weight",
+      "blocks.23.self_attn.v.weight",
+      "blocks.23.self_attn.o.weight",
+      "blocks.23.cross_attn.q.weight",
+      "blocks.23.cross_attn.k.weight",
+      "blocks.23.cross_attn.v.weight",
+      "blocks.23.cross_attn.o.weight",
+      "blocks.24.self_attn.q.weight",
+      "blocks.24.self_attn.k.weight",
+      "blocks.24.self_attn.v.weight",
+      "blocks.24.self_attn.o.weight",
+      "blocks.24.cross_attn.q.weight",
+      "blocks.24.cross_attn.k.weight",
+      "blocks.24.cross_attn.v.weight",
+      "blocks.24.cross_attn.o.weight",
+      "blocks.25.self_attn.q.weight",
+      "blocks.25.self_attn.k.weight",
+      "blocks.25.self_attn.v.weight",
+      "blocks.25.self_attn.o.weight",
+      "blocks.25.cross_attn.q.weight",
+      "blocks.25.cross_attn.k.weight",
+      "blocks.25.cross_attn.v.weight",
+      "blocks.25.cross_attn.o.weight",
+      "blocks.26.self_attn.q.weight",
+      "blocks.26.self_attn.k.weight",
+      "blocks.26.self_attn.v.weight",
+      "blocks.26.self_attn.o.weight",
+      "blocks.26.cross_attn.q.weight",
+      "blocks.26.cross_attn.k.weight",
+      "blocks.26.cross_attn.v.weight",
+      "blocks.26.cross_attn.o.weight",
+      "blocks.27.self_attn.q.weight",
+      "blocks.27.self_attn.k.weight",
+      "blocks.27.self_attn.v.weight",
+      "blocks.27.self_attn.o.weight",
+      "blocks.27.cross_attn.q.weight",
+      "blocks.27.cross_attn.k.weight",
+      "blocks.27.cross_attn.v.weight",
+      "blocks.27.cross_attn.o.weight",
+      "blocks.28.self_attn.q.weight",
+      "blocks.28.self_attn.k.weight",
+      "blocks.28.self_attn.v.weight",
+      "blocks.28.self_attn.o.weight",
+      "blocks.28.cross_attn.q.weight",
+      "blocks.28.cross_attn.k.weight",
+      "blocks.28.cross_attn.v.weight",
+      "blocks.28.cross_attn.o.weight",
+      "blocks.29.self_attn.q.weight",
+      "blocks.29.self_attn.k.weight",
+      "blocks.29.self_attn.v.weight",
+      "blocks.29.self_attn.o.weight",
+      "blocks.29.cross_attn.q.weight",
+      "blocks.29.cross_attn.k.weight",
+      "blocks.29.cross_attn.v.weight",
+      "blocks.29.cross_attn.o.weight"
+    ],
+    "frozen_upstream_exact": true,
+    "deployment": "original VLAAgent observation/encoding/decoding; no cache, reference, scorer or LoRA wrapper",
+    "not_exact_resume_use_native_checkpoint": true,
+    "sha256": "c899cb1d4c5ad6568cd023b47c983fe07d73926d397bcccf40dd6597702d78d5"
+  },
+  "completion_audit": {
+    "schema": "fm_transfer_B_RL5k_completion_audit_v1",
+    "observed_unix": 1792230270.2055404,
+    "evidence_script_sha256": "1759e8301f71871fe8a7e411103f7f5d2f9ae9123be87f7fbacf799b212781e2",
+    "cohorts": {
+      "DEV": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 285802,
+            "start_ticks": 1366839778,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 1,
+            "pid": 285805,
+            "start_ticks": 1366839793,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 2,
+            "pid": 285808,
+            "start_ticks": 1366839810,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 3,
+            "pid": 285811,
+            "start_ticks": 1366839820,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 4,
+            "pid": 285814,
+            "start_ticks": 1366839833,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 5,
+            "pid": 285817,
+            "start_ticks": 1366839841,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 6,
+            "pid": 285820,
+            "start_ticks": 1366839861,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 7,
+            "pid": 285823,
+            "start_ticks": 1366839877,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt4": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 4650.93947272189,
+        "job_wall_seconds": 599.0358242988586,
+        "manifest_sha256": "a3a8226903ab32ed66ae0049a23935fda5f911ef4bfeada87cc9b8fac5be70aa"
+      },
+      "TRAIN_DIAGNOSTIC": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 1427197,
+            "start_ticks": 1366840689,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 1,
+            "pid": 1427560,
+            "start_ticks": 1366840712,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 2,
+            "pid": 1427725,
+            "start_ticks": 1366840722,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 3,
+            "pid": 1427966,
+            "start_ticks": 1366840737,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 4,
+            "pid": 1428311,
+            "start_ticks": 1366840760,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 5,
+            "pid": 1428480,
+            "start_ticks": 1366840771,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 6,
+            "pid": 1428605,
+            "start_ticks": 1366840779,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 7,
+            "pid": 1428766,
+            "start_ticks": 1366840789,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 2042.6353756282479,
+        "job_wall_seconds": 257.2664408683777,
+        "manifest_sha256": "842fd58f8d8aa775ad7299d43ed4abedffe25d27a86223c36ccf2083a200831d"
+      }
+    },
+    "optimizer": {
+      "adam_states": 480,
+      "adam_steps": [
+        5000.0
+      ],
+      "FP32_moments": true,
+      "scheduler_last_epoch": 5000,
+      "checkpoint_files_sha256": "f67a0430962103afc1b4b2a193192582ddf1734624c3606e33db6e9fed237769",
+      "optimizer_file_sha256": "525d752e4e5c12028668378276afd10fb45607dca978cdfd377e7f42aead855b"
+    },
+    "status": "PASS_B_5K_OBSERVATIONS_NOT_FINAL_RL_OR_NAVTEST",
+    "training_endpoint_complete": false
+  },
+  "completion_audit_sha256": "be06ac9dfab48a8e522020312fc6aa94ddf60d2f28d29fd958fc7f4d2747d4d1",
+  "evaluations": {
+    "DEV": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 4650.93947272189,
+        "job_wall_seconds": 599.0358242988586,
+        "model_load_seconds": 1036.8958747945726,
+        "generation_wall_seconds_sum": 3132.5946981310844,
+        "scoring_wait_seconds_sum": 208.78877605497837,
+        "missing": []
+      },
+      "worker_audit": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 285802,
+            "start_ticks": 1366839778,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 1,
+            "pid": 285805,
+            "start_ticks": 1366839793,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 2,
+            "pid": 285808,
+            "start_ticks": 1366839810,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 3,
+            "pid": 285811,
+            "start_ticks": 1366839820,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 4,
+            "pid": 285814,
+            "start_ticks": 1366839833,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 5,
+            "pid": 285817,
+            "start_ticks": 1366839841,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 6,
+            "pid": 285820,
+            "start_ticks": 1366839861,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 7,
+            "pid": 285823,
+            "start_ticks": 1366839877,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt4": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 4650.93947272189,
+        "job_wall_seconds": 599.0358242988586,
+        "manifest_sha256": "a3a8226903ab32ed66ae0049a23935fda5f911ef4bfeada87cc9b8fac5be70aa"
+      },
+      "rank_record_sha256": [
+        "85f8c3407c47d0d8cc95ace36a93eecfb88c77adce9858ad9b698c3300e10f57",
+        "ea7b191b8402c605f1d6cf35fc5f17f1e66759ec3687a27c8cda416f19d43842",
+        "2898e5686e37cb511bdc7901c5d6c9cdd1be4c88cd777617540b786482424ba5",
+        "a18935ad8d01c13aa1cbd31e39b2e74e4047298ffe5512d73e4473f4a478181f",
+        "124acac43aa217a2c2583ee36f28749b12b55c1c2c479db7588969fe0785da56",
+        "1495b582b14bfd2b9bd6c9aa44cab07abb722d86f0d6a225bfe1cb47dbc70023",
+        "8fe5bbd59b2b9c72a01b2953ed9969cedd7a0e2371df8a2109d9175d06dec7de",
+        "55d30448fcabfd0a7c47d2bcc137d366c5bfcc94e06267a8a260955636539de4"
+      ]
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 2042.6353756282479,
+        "job_wall_seconds": 257.2664408683777,
+        "model_load_seconds": 943.2024833448231,
+        "generation_wall_seconds_sum": 851.7948272302747,
+        "scoring_wait_seconds_sum": 77.2575524803251,
+        "missing": []
+      },
+      "worker_audit": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 1427197,
+            "start_ticks": 1366840689,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 1,
+            "pid": 1427560,
+            "start_ticks": 1366840712,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 2,
+            "pid": 1427725,
+            "start_ticks": 1366840722,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 3,
+            "pid": 1427966,
+            "start_ticks": 1366840737,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 4,
+            "pid": 1428311,
+            "start_ticks": 1366840760,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 5,
+            "pid": 1428480,
+            "start_ticks": 1366840771,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 6,
+            "pid": 1428605,
+            "start_ticks": 1366840779,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          },
+          {
+            "rank": 7,
+            "pid": 1428766,
+            "start_ticks": 1366840789,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 2042.6353756282479,
+        "job_wall_seconds": 257.2664408683777,
+        "manifest_sha256": "842fd58f8d8aa775ad7299d43ed4abedffe25d27a86223c36ccf2083a200831d"
+      },
+      "rank_record_sha256": [
+        "cce9e2e384c53a10afc720ebc54f31897d8203d05ff578412c3cfae9a9bd3aef",
+        "cd8dae4725886415e8ee20406186b41d63ddc858d6f8785ae6d322d6eaa85f57",
+        "a3715bb533bf9f73cab94faf918dfaedab8f582b5ed082b9150abd89af287b1f",
+        "97784e938a9902f65fa0bd4468da841e17575dc6623601703c33b7040a3231f4",
+        "4dab82ea47a05d1d9a42f9774cd33ba6a338a1248c4b921d9eb050261d12a494",
+        "e6932a9e086e0d9075c85e988d1d8e6930bc875ebe90e3f5a36388692f077edc",
+        "aa0025bbee70535c4073ff3077a413ac73512dc3caa6303dd41bf89cbb7e3bb4",
+        "a45fb44357c811b6b621ac5093a6cde6d4f8dcd395e1b0d82bfa1bdd3b66f12b"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    }
+  ],
+  "population_summary": {
+    "optimizer_updates": 5000,
+    "fresh_global_rollouts": 1250,
+    "scene_exposures": 10000,
+    "fresh_candidates": 80000,
+    "hard_population_scenes": 21836,
+    "padded_epoch_size": 21840,
+    "unique_scene_count": 10000,
+    "unique_log_count": 992,
+    "scene_revisits_after_first_exposure": 0,
+    "epoch_padding_exposures": 0,
+    "nonpadding_revisits_after_first_exposure": 0,
+    "exposure_frequency_histogram": {
+      "1": 10000
+    },
+    "distinct_chain_digests_in_journal": 10000,
+    "epochs": [
+      {
+        "epoch": 0,
+        "scene_exposures": 10000,
+        "padding_exposures": 0,
+        "unique_scene_count": 10000
+      }
+    ]
+  },
+  "training_cost": {
+    "rank0_training_loop_wall_seconds": 8855.05356579274,
+    "rank0_preparation_seconds": 22.553739693015814,
+    "all_rank_preparation_seconds": [
+      22.553739693015814,
+      22.556608621031046,
+      22.557029731571674,
+      22.555535743013024,
+      22.55768165551126,
+      22.555918665602803,
+      22.55492039397359,
+      22.55446280911565
+    ],
+    "all_rank_cumulative_save_seconds_through_milestone": [
+      41.320841109380126,
+      41.317442137748,
+      41.31660560518503,
+      41.319057485088706,
+      41.31701268441975,
+      41.31865113042295,
+      41.32023238390684,
+      41.31988746114075
+    ],
+    "exact_save_cost_snapshot_sha256": "7c4bb1f0d9499a42a78109624d0271b4d4ccc6e279bdc550281622c8d77e3827",
+    "updates_per_rank0_wall_second": 0.5646493228810164,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 11903.871713787317,
+      "old_probability": 3639.5999355707318,
+      "update": 48764.61479840428,
+      "scoring_wait": 1281.8773780874908,
+      "scoring_cpu": 607.7925439346582
+    },
+    "rank0_wall_seconds_by_phase": {
+      "rollout": 1475.8424446359277,
+      "old_probability": 452.4596746303141,
+      "update": 6094.7472144868225,
+      "scoring_wait": 162.0012601632625,
+      "scoring_cpu": 75.94570206850767
+    },
+    "note": "Overlapping rank wall times, not exclusive GPU-hours; scoring_cpu is scorer elapsed, not CPU core seconds. Rank0 loop wall starts after actor/DDP preparation, includes checkpoint publication, and is not complete process wall. Preparation and exact save-through-milestone wall are separate; no exit cost exists while training continues."
+  },
+  "gradient_diagnostic": {
+    "cumulative_worker_wall_seconds": 62.38919125124812,
+    "peak_GPU_bytes": 10608101888,
+    "new_candidates": 0,
+    "new_scoring_calls": 0,
+    "adapters_unchanged": true,
+    "source_total_loss_gradient_max_abs_by_rank": [
+      2.893685291383008e-10,
+      1.0363550018155365e-09,
+      8.010374585865065e-10,
+      4.3725378873205045e-10,
+      1.2585417152877199e-09,
+      7.566995918750763e-10,
+      3.0951241569709964e-10,
+      6.041318556526676e-10
+    ]
+  },
+  "new_algorithms_or_training_changes": false,
+  "copied_analysis": [
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_DEV.json",
+      "sha256": "45850a009e5c0959a81cd56c243da565a5d2f476967e476c3509430aad1d0ecd"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_DEV_vs_own_SFT.json",
+      "sha256": "1af0efd79994534e224286f93b161e3ff0fd935b2790098432486a11bee05fa8"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_DEV_safety_transitions.json",
+      "sha256": "c4db9b21b510afcc6bcffad894e4a35f9490e983f833057aa20c1e31b6ff40d2"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_TRAIN_DIAGNOSTIC.json",
+      "sha256": "02f40c4cebaec2f02fa4180fc81078d7854f80278d5c625ea08a8dbcc7e94402"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+      "sha256": "00dc504328f2bdcc86be2c3f8c4c375382af7a0deefec838d9b1cf4d70791049"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+      "sha256": "d99cf3df9660242dc91990a18b50dd468f28b26b2c6a7015e7b1c9f524e21943"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_training_prefix.json",
+      "sha256": "ddb8c6350f073d344b1fd1eea0b98a07a4dfd07865f6700b644b9316656276fd"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL5k_DEV_native_minus_shift5.json",
+      "sha256": "e8f313ace885c101cb00455c0c9a42c30b2ab3c9881e601b0f2a600eaa306f06"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/reproduce_B_RL5k_training_prefix.py",
+      "sha256": "4eadcf2536a14822725c600129f79df88fb551427d38bdcadfd7d25f2443c3e7"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/reproduce_B_RL5k_completion.py",
+      "sha256": "1759e8301f71871fe8a7e411103f7f5d2f9ae9123be87f7fbacf799b212781e2"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_5k.png",
+      "sha256": "4462d1f0d1013079816cbe666978d0f621e3d2b55ad9ac080feeb3fafae67ac4"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_5k.pdf",
+      "sha256": "d66f99b1622ae0c56b18a07feb7f82385891ca15de59a228c4003ed44bbdc35d"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_5k.json",
+      "sha256": "733840fd24ce846b08cd23147d5f5e595dc90849ae013e4d32783f80d32505f1"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_population.json",
+      "sha256": "3a55ad30f005ebba9d412f1ef710559dcf39bbbd8b92e0b2ee51004bcbe97c8b",
+      "aggregate_publication": true,
+      "private_original_sha256": "d175f3ff81cd5f5f88717be24fb4b7ea56b61b2561e8299a011e2c9cb22bec88"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_RL_update005000_saved_batch.json",
+      "sha256": "b390f4241fc687452feb4ce2f2e7cd050a22e340f7fb360bb6de732af6ebf4b3",
+      "aggregate_publication": true,
+      "private_original_sha256": "d2c6f4ca057dd910cc74d64b79802a2416cb502c909a1d99f3becac479ae1296"
+    }
+  ]
+}

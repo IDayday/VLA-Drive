@@ -1,0 +1,260 @@
+{
+  "schema": "simwam_evaluation_analysis_v2",
+  "analysis_identity": "37258e1e00680ac8fb2622a581e16212273009e8cabf1bb30b913d66d8f3b28e",
+  "status": "COMPLETE_POPULATION",
+  "identity": {
+    "schema": "fm_transfer_raw_observation_dual_grid_v1",
+    "weight_sha256": "5a841462dd85fd0002f8faa7106a40f0051d411e7411ac4dfa65c4dbb22b2551",
+    "config_sha256": "db68a8c6bf74ab69b644c462fa1189a388ea6ba5b9930c78f78fc971f2bcdfab",
+    "population_identity": "f5f950dce2f2d9d6698a59f8c44949cf6b6311ff53b38d5c2b07977b9dd9a9bb",
+    "tokens_sha256": "351c1a5d99e186a643720e9a7c70012c0961767a69f3e3745d7aed6d90f2ebc2",
+    "scenes": 512,
+    "cohort": "TRAIN_DIAGNOSTIC",
+    "seed": 2101,
+    "modes": [
+      "E_NATIVE",
+      "E_SHIFT5"
+    ],
+    "profile": {
+      "qwen": "torch.bfloat16",
+      "history": "torch.float32",
+      "action": "torch.float32",
+      "attention": "flash_attention_2"
+    },
+    "feature_cache": false,
+    "actor": "original VLAAgent observation entry; new supervised velocity head",
+    "scoring": "2dee107a4e8358bc873530c0eb2ee16d8761e471eab1d80acc76022e789654e1",
+    "source_sha256": "59ce27486ff9f6550c70786299f3be2525e90179e6f46952f8e6b9c7dfe66cf3",
+    "shards": 8,
+    "final_lock": null,
+    "qualification_only": false,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+      "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+      "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "architecture": "source_action_dit",
+        "initialization": "source_random_initialization_seed42",
+        "max_updates": 100000,
+        "learning_rate": 0.0001,
+        "milestones": [
+          0,
+          10000,
+          25000,
+          50000,
+          75000,
+          100000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 100000,
+      "qualification": false
+    },
+    "architecture": "source_action_dit",
+    "stage": "RL",
+    "shift5_time_field": "source continuous sigma*1000",
+    "transfer_evaluation_sha256": "4609c7b02514ab7b2dbebbe2441106bf3f3f38f7a712eac59548696d02caef0b",
+    "export_receipt_sha256": "c07ecad53db986f39d91529fc9f8f15457439edfd3262e7900abd5f8a6c3d0e9",
+    "sha256": "5494bced2450633a89d85f74d42f3505466c8c33618e2dd383d778981f7b993a"
+  },
+  "reference": null,
+  "scenes": 512,
+  "logs": 343,
+  "seed": 2101,
+  "score_units": "raw0to1; mean_percent multiplied100; gain/loss sums remain raw score",
+  "modes": {
+    "E_NATIVE": {
+      "mean": {
+        "score": 0.8926385743701821,
+        "no_at_fault_collisions": 0.9951171875,
+        "drivable_area_compliance": 0.97265625,
+        "time_to_collision_within_bound": 0.947265625,
+        "ego_progress": 0.8331528909884369,
+        "comfort": 0.998046875,
+        "driving_direction_compliance": 0.98828125
+      },
+      "mean_percent": {
+        "score": 89.26385743701822,
+        "no_at_fault_collisions": 99.51171875,
+        "drivable_area_compliance": 97.265625,
+        "time_to_collision_within_bound": 94.7265625,
+        "ego_progress": 83.31528909884369,
+        "comfort": 99.8046875,
+        "driving_direction_compliance": 98.828125
+      },
+      "score_quantiles": {
+        "p01": 0.0,
+        "p05": 0.5833333333333334,
+        "p10": 0.8090715732572447,
+        "p50": 0.943934576156308
+      },
+      "zero_scenes": 16,
+      "fully_safe_scenes": 473,
+      "motion": {
+        "request_final_forward_m": {
+          "mean": 16.29772438108921,
+          "defined_scenes": 512
+        },
+        "request_final_lateral_m": {
+          "mean": 0.16629616255522706,
+          "defined_scenes": 512
+        },
+        "request_mean_segment_speed_mps": {
+          "mean": 4.285241443684628,
+          "defined_scenes": 512
+        },
+        "request_segment_jerk_RMS_mps3": {
+          "mean": 1.3161232566537757,
+          "defined_scenes": 512
+        },
+        "simulated_final_forward_m": {
+          "mean": 16.482376724138113,
+          "defined_scenes": 512
+        },
+        "simulated_abs_final_lateral_m": {
+          "mean": 2.8011689214673092,
+          "defined_scenes": 512
+        },
+        "simulated_mean_segment_speed_mps": {
+          "mean": 4.346989243781973,
+          "defined_scenes": 512
+        },
+        "simulated_time_to_90percent_own_path_s": {
+          "mean": 3.604296875,
+          "defined_scenes": 512
+        },
+        "raw_progress_meters": {
+          "mean": 17.25674055708008,
+          "defined_scenes": 512
+        }
+      }
+    },
+    "E_SHIFT5": {
+      "mean": {
+        "score": 0.8961488622936569,
+        "no_at_fault_collisions": 0.9951171875,
+        "drivable_area_compliance": 0.978515625,
+        "time_to_collision_within_bound": 0.943359375,
+        "ego_progress": 0.8372807070047763,
+        "comfort": 0.998046875,
+        "driving_direction_compliance": 0.98828125
+      },
+      "mean_percent": {
+        "score": 89.61488622936568,
+        "no_at_fault_collisions": 99.51171875,
+        "drivable_area_compliance": 97.8515625,
+        "time_to_collision_within_bound": 94.3359375,
+        "ego_progress": 83.72807070047763,
+        "comfort": 99.8046875,
+        "driving_direction_compliance": 98.828125
+      },
+      "score_quantiles": {
+        "p01": 0.0,
+        "p05": 0.5833333333333334,
+        "p10": 0.8087309391967595,
+        "p50": 0.9436578342181576
+      },
+      "zero_scenes": 13,
+      "fully_safe_scenes": 474,
+      "motion": {
+        "request_final_forward_m": {
+          "mean": 16.278580787591636,
+          "defined_scenes": 512
+        },
+        "request_final_lateral_m": {
+          "mean": 0.1632495203812141,
+          "defined_scenes": 512
+        },
+        "request_mean_segment_speed_mps": {
+          "mean": 4.282242016208728,
+          "defined_scenes": 512
+        },
+        "request_segment_jerk_RMS_mps3": {
+          "mean": 2.0404126315283464,
+          "defined_scenes": 512
+        },
+        "simulated_final_forward_m": {
+          "mean": 16.477868100647516,
+          "defined_scenes": 512
+        },
+        "simulated_abs_final_lateral_m": {
+          "mean": 2.8068070957103823,
+          "defined_scenes": 512
+        },
+        "simulated_mean_segment_speed_mps": {
+          "mean": 4.345221173685693,
+          "defined_scenes": 512
+        },
+        "simulated_time_to_90percent_own_path_s": {
+          "mean": 3.6187500000000004,
+          "defined_scenes": 512
+        },
+        "raw_progress_meters": {
+          "mean": 17.251366316226715,
+          "defined_scenes": 512
+        }
+      }
+    }
+  },
+  "cohort_caveat": "TRAIN diagnostic contains preselected difficult scenes and is not a population-unbiased estimate",
+  "cost": {
+    "schema": 2,
+    "logical_scenes": 512,
+    "logical_single_candidate_evaluations": 1024,
+    "candidate_evaluations_per_grid": 512,
+    "shared_GPU": true,
+    "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+    "provenance": "per-worker invocation ledger",
+    "worker_invocations": 8,
+    "complete_cost_accounting": true,
+    "new_scenes": 512,
+    "reused_scenes": 0,
+    "cumulative_physical_predictions": 1024,
+    "diagnostic_predictions": 8,
+    "physical_predictions_including_diagnostics": 1032,
+    "cumulative_worker_wall_seconds": 2042.6353756282479,
+    "job_wall_seconds": 257.2664408683777,
+    "model_load_seconds": 943.2024833448231,
+    "generation_wall_seconds_sum": 851.7948272302747,
+    "scoring_wait_seconds_sum": 77.2575524803251,
+    "missing": []
+  },
+  "source_compatibility": null
+}
