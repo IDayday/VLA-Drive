@@ -1,0 +1,73 @@
+{
+  "schema": "st_index_prepare_actual_bindings_v2",
+  "created_unix": 1792248095.5910656,
+  "status": "BOUND_PENDING_INDEPENDENT_RESOURCE_REVIEW",
+  "pins": {
+    "wrapper": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+      "sha256": "49b21405d1dacee17405598c1a7165727db9855af4de66c2feff70ab30b93ce5"
+    },
+    "preparer": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_index_preparation_v1/prepare_index_controls.py",
+      "sha256": "360a52ab7b8cf94bb1e8b1c7d2d6068a7ffe1acd1eec3f7761834a519d5a04d0"
+    },
+    "train_source_pins": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalized_index_route_v1/TRAIN_INDEX_RUNTIME_SOURCE_PINS.json",
+      "sha256": "17613ead99064c538554361b9452e3be11b368b352de2cb0d9049431ec95aef1"
+    },
+    "policy": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/storage_preparation_train_v2/PROPOSED_POLICY.json",
+      "sha256": "b69506569a24f1057d975d3a94c8cfaee75af1affc0c27279a97458d67e70cf2"
+    },
+    "ledger": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+      "sha256": "82f1eca523980e75fa28207600ac1729d1726a7d041b3e58e1a98b81e77ce614"
+    }
+  },
+  "argv": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_index_sequential_control_v1/prepare_once.py",
+    "--wrapper-sha256",
+    "49b21405d1dacee17405598c1a7165727db9855af4de66c2feff70ab30b93ce5",
+    "--preparer",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/full_future_index_preparation_v1/prepare_index_controls.py",
+    "--preparer-sha256",
+    "360a52ab7b8cf94bb1e8b1c7d2d6068a7ffe1acd1eec3f7761834a519d5a04d0",
+    "--policy",
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/storage_preparation_train_v2/PROPOSED_POLICY.json",
+    "--policy-sha256",
+    "b69506569a24f1057d975d3a94c8cfaee75af1affc0c27279a97458d67e70cf2",
+    "--ledger-sha256",
+    "82f1eca523980e75fa28207600ac1729d1726a7d041b3e58e1a98b81e77ce614",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1",
+    "--train-index-source-pins",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/future_finalized_index_route_v1/TRAIN_INDEX_RUNTIME_SOURCE_PINS.json",
+    "--train-index-source-pins-sha256",
+    "17613ead99064c538554361b9452e3be11b368b352de2cb0d9049431ec95aef1"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-future-finalize-runtime-v1-20261017",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "limits": {
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "wall_seconds": 120,
+    "cleanup_seconds": 40,
+    "rss_bytes": 1073741824,
+    "total_logical_read_bytes": 402653184,
+    "total_new_output_bytes": 1048576
+  },
+  "ledger_mutation_authorized": false,
+  "index_build_authorized": false,
+  "model_execution_authorized": false,
+  "automatic_retry": false
+}
