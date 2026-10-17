@@ -37,3 +37,30 @@ CUDA_VISIBLE_DEVICES='' taskset -c 6,7 /root/miniconda3/envs/ddp/bin/python -m t
 ```
 
 Registration command uses module `tools.st_world_policy.prepare_causal_history build`, existing student_train_v1, actual raw/sensor/fallback roots and partition from inventory, unchanged smoke_train64 SELECTED_SCENES, `--mode registered --max-scenes 64 --target-times 0 --split train`, and new admitted output. A separate original builder budget JSON remains required by `--registration`; dispatcher registration is a different typed resource control. No fake APPROVED control is supplied.
+
+
+## Follow-up: owned pilot is now wired (no dispatch)
+
+The earlier 7-pass/1-fail fixture evidence is preserved. Its missing required `--split/--max-scenes` arguments were corrected; `CPU_TEST_V3.txt` records 14 PASS in 3.36s. This includes a tiny real CPU subprocess only, no scientific data/model: CPU6/7, owned session cleanup, terminal parent/child read accounting, actual-start lease rejection, and admission rejection.
+
+`run_pilot_once.py` now supplies the complete Lead-only parent/child controller. It reuses existing `run_build_once.monitor` with explicit CPU affinity, fresh storage callback and admission expiry; the narrow helper extension defaults to the original topology. Absolute cleanup is bounded and does not reopen grace on exceptions. The active full-future builder is in another immutable worktree and is not modified. The controller fixes the existing64 selection by SHA, actual paths and exact recipe, checks independently signed host/lease/resource bounds, source pins,2303GiB obligations and1TiB fresh shared free floor, emits one guarded START marker, performs one owned CPU invocation, and publishes a guarded accounting result. No retries/claims/approvals are created. Failure leaves original partial artifacts; no model/teacher work occurs.
+
+The signed admission and metadata registration still must be created by Lead after independent review and original-ledger writer availability. This is a missing authorization/control dependency, not missing controller implementation. Current CP receipt expires; the proposed pilot must finish inside it or receive a separately reviewed fresh pinned receipt. No direct bare builder call should be used.
+
+Actual executable dispatch interface (not executed):
+
+```bash
+cd /mnt/project/VLA-Drive-st-history-metadata-preparation-20261017
+CUDA_VISIBLE_DEVICES='' taskset -c 6,7 /root/miniconda3/envs/ddp/bin/python \
+  reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py \
+  --admission "$ACTUAL_LEAD_HISTORY64_ADMISSION" \
+  --admission-sha256 "$ACTUAL_ADMISSION_SHA256"
+```
+
+`PROPOSED_CONTROLS.json` contains the complete fixed registered builder argv, builder budget proposal and actual controller hashes. The sole unresolved argv item is the not-yet-issued original-builder budget path, clearly marked rather than invented. It is distinct from the typed metadata resource registration. The immutable source pins are also retained.
+
+### Full-history scale boundary
+
+The existing future builder's per-log shards contain *future reference* rows and its own provenance schema; they cannot be substituted for HistoryReader's scene records or interpreted as causal inputs. Its bounded IO/write machinery is reused here. Adopting per-log completion/resume for history while retaining current record layout would need a separate narrow reader/manifest/census qualification. Raising20000 to100000 alone would leave the per-publication O(N²) tree census. Consequently this delivery is a complete **finite pilot execution proposal**, not a claim that full-scale history production is complete. The fixed pilot must measure raw-log/hash cost, aggregate process RSS, output+temporary+retained-failure size before that follow-up is admitted. No scientific selector/missing mask change is proposed.
+
+Current existing-history/adapter/storage regression: **87 PASS,5 SKIP** in5.67s (`REGRESSION_CPU.txt`). GPU skips remain skips; no GPU runtime qualification claimed. Original future-monitor default wall accounting still includes setup via START; the history lease-aware call uses actual monitor start and an expiry-clamped absolute end. This local helper version is pinned separately; no active runtime source changed.

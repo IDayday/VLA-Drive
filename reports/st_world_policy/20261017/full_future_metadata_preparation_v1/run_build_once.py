@@ -228,14 +228,22 @@ def charge_after_reap(accounting,current_parent):
         raise ValueError('Missing/nonmonotonic post-reap parent IO')
     return accounting['charged_parent_child_rchar_bytes']+current_parent['rchar']-previous['rchar']
 
-def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
+def monitor(command,*,runtime,env,fd,root,s,m,obs,budget, cpu_affinity=(0,1),
+            storage_guard=None, lease_valid_until=None):
     """Original bounded pipe loop with existing unreaped-session/pidfd ownership."""
     buffers={name:bytearray() for name in ('stdout','stderr')};peak=0;failure=None;counter=None;child=None;owner=None;leader=None
     finished=False;monitor_error=None;last_io=None;terminal_io=None;accounting=None
     start=time.monotonic();selector=selectors.DefaultSelector()
+    wall_started=START if lease_valid_until is None else start
+    absolute_end=wall_started+budget["wall_seconds"]+40
+    if lease_valid_until is not None:
+        if lease_valid_until-time.time()<budget["wall_seconds"]+40: raise ValueError("Insufficient actual-start lease")
+        absolute_end=min(absolute_end,start+lease_valid_until-time.time())
+    cleanup_until=None
     with s.lifetime_scope() as stopped:
         try:
-            child=subprocess.Popen(['taskset','-c','0,1',*command],cwd=runtime,env=env,stdin=subprocess.DEVNULL,
+            if storage_guard: storage_guard()
+            child=subprocess.Popen(['taskset','-c',','.join(map(str,cpu_affinity)),*command],cwd=runtime,env=env,stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,pass_fds=(fd,))
             leader=s.pidfd_open(child.pid);owner=s.OwnedSession(child)
             for name,stream in (('stdout',child.stdout),('stderr',child.stderr)):
@@ -270,12 +278,14 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                         failure=failure or 'MONITOR_UNREADABLE'
                         monitor_error=monitor_error or {'type':type(exc).__name__,'message':str(exc)[:2048]}
                     if peak>budget['rss_bytes']:failure=failure or 'RSS_LIMIT'
-                    if now-START>=budget['wall_seconds']:failure=failure or 'WALL_LIMIT'
-                if failure and term_at is None:owner.send(signal.SIGTERM);term_at=now
-                if term_at is not None and now-term_at>=30:owner.send(signal.SIGKILL)
-                if term_at is not None and now-term_at>=40:raise RuntimeError('Owned cleanup exceeded grace')
+                    if storage_guard: storage_guard()
+                    if now-wall_started>=budget['wall_seconds']:failure=failure or 'WALL_LIMIT'
+                if failure and term_at is None:
+                    owner.send(signal.SIGTERM);term_at=now;cleanup_until=min(absolute_end,now+40)
+                if cleanup_until is not None and now>=cleanup_until-10:owner.send(signal.SIGKILL)
+                if cleanup_until is not None and now>=cleanup_until:raise RuntimeError('Owned cleanup exceeded grace')
             parent_pre_reap=obs.proc_io()
-            code=owner.finish(terminate=failure is not None,deadline=term_at+40 if term_at else None)
+            code=owner.finish(terminate=failure is not None,deadline=cleanup_until or absolute_end)
             finished=True  # leader is reaped; later receipt errors must not clean it twice
             parent_post_reap=obs.proc_io()
             try:accounting=decode_final(bytes(buffers['stdout']).decode('utf8','replace'))
@@ -300,8 +310,8 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                 'stderr':bytes(buffers['stderr']).decode('utf8','replace'),
                 'cleanup':{'verified_processes':owner.verified,'live_owned_remaining':0}}
         except BaseException:
-            if owner is not None and not finished:owner.finish(terminate=True)
-            elif owner is None and child is not None:s.abort_spawn_setup(child,leader)
+            if owner is not None and not finished:owner.finish(terminate=True,deadline=cleanup_until or min(absolute_end,time.monotonic()+40))
+            elif owner is None and child is not None:s.abort_spawn_setup(child,leader,deadline=cleanup_until or absolute_end)
             raise
         finally:
             selector.close()

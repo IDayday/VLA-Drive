@@ -39,7 +39,8 @@
     "target_times": [
       0.0
     ],
-    "automatic_retry": false
+    "automatic_retry": false,
+    "scene_list_sha256": "dee94e75957fd8e9734f1669b47552b5cf6c39f719aa9d3298bc87f94aac1c01"
   },
   "full_roles": {
     "train": {
@@ -60,7 +61,7 @@
     "future writer quiescence; no parallel original ledger writer",
     "Lead additive admission/registration in original ledger",
     "fresh CP lease covering actual monitor window and fresh statvfs",
-    "existing owned CPU monitor adaptation; no bare CLI launch"
+    "independent review of wired history64 controller/monitor parameterization; Lead signs actual admission"
   ],
   "source_pins": [
     {
@@ -91,5 +92,73 @@
       "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_current_teacher.py",
       "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
     }
-  ]
+  ],
+  "owned_controller": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+      "sha256": "abb99e4fcdd4d312c0b2e8e7a9d5f65160575acc61ada6c24e0c342321d55d7c"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    }
+  ],
+  "registered_builder_argv": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "tools.st_world_policy.prepare_causal_history",
+    "build",
+    "--student-root",
+    "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "--raw-log-root",
+    "/mnt/navsim/trainval_navsim_logs/trainval",
+    "--sensor-root",
+    "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+    "--fallback-sensor-root",
+    "/mnt/navsim/trainval_sensor_blobs/trainval",
+    "--partition",
+    "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+    "--scene-list",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_v1/SELECTED_SCENES.json",
+    "--split",
+    "train",
+    "--mode",
+    "registered",
+    "--max-scenes",
+    "64",
+    "--seed",
+    "20261017",
+    "--tolerance",
+    "0.05",
+    "--target-times",
+    "0",
+    "--registration",
+    "LEAD_ISSUED_ORIGINAL_BUILDER_BUDGET_PATH_REQUIRED",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2"
+  ],
+  "builder_budget_proposal": {
+    "phase": "data_preparation",
+    "split": "train",
+    "max_scenes": 64,
+    "workers": 1,
+    "max_seconds": 900,
+    "target_times_s": [
+      0.0
+    ],
+    "status": "PROPOSAL_NOT_AN_ADMISSION"
+  }
 }

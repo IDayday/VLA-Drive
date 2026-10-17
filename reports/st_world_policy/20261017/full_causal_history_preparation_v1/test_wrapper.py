@@ -17,7 +17,7 @@ def test_no_ledger_admission():
         with pytest.raises(ValueError,match='admission'):m.validate(args())
 
 def test_original_parser_current_only():
-    a=m.parser().parse_args(['build','--student-root','/s','--output','/o','--target-times','0'])
+    a=m.parser().parse_args(['build','--student-root','/s','--output','/o','--target-times','0','--split','train','--max-scenes','64'])
     assert a.target_times==[0.] and a.action=='build'
 
 def test_budgeted_read_and_immutable_roundtrip(tmp_path):
