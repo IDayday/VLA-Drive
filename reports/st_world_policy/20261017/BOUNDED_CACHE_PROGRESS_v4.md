@@ -1,6 +1,6 @@
 # Storage-constrained teacher execution: current evidence
 
-Recorded 2026-10-17 04:52 UTC. This update supersedes the pending-status statements
+Recorded 2026-10-17 UTC. This update supersedes the pending-status statements
 in earlier cache progress reports without deleting their historical evidence.
 
 The user's instruction rules out a multi-terabyte feature prebuild. The chosen
@@ -31,16 +31,22 @@ budget. No old cache/checkpoint deletion or new full future tensor build occurre
   FA2 backward mechanism was tested separately. This is recorded explicitly;
   current full-model cross-run bitwise identity is **not** claimed. The production
   backend remains unchanged.
-- The owner has implemented bounded SQLite metadata indices in commit
-  `9c7743f5323cbc0e85c3aaa4f9e13685ac4ae234`. Its current256/future64 metadata pilot
-  produced 1,622,016 bytes of SQLite data, with no image or tensor reads. Owner
-  tests: 73 passed. Independent review is pending at this snapshot; this statement
-  is not training or large-population approval.
+- Bounded SQLite metadata indices from `9c7743f5`, followed by the contract-pin
+  fix `400a5607`, are integrated. The current256/future64 metadata pilot produced
+  1,622,016 bytes of SQLite data, with no image or tensor reads. Owner tests:
+  73 passed on the initial implementation; the narrow fix suite passed29 tests.
+  Independent review reproduced a contract-file replacement race, then verified
+  its exact-byte-read fix: 9 passed / 9 deselected. The independent real metadata
+  comparison also matched every row and shard location. See
+  `correctness/metadata_index/README_v1.md` and `README_v2.md`; the original failed
+  evidence remains. This is **PASS_METADATA_IMPLEMENTATION_LIMITED**, not
+  training or large-population approval. Counts from different suites are not
+  added together as a single final-source test run.
 
 ## Remaining work
 
-1. Review and integrate the bounded metadata adapter, retaining immutable source
-   hashes, exact row order and corruption rejection.
+1. Review resources for indexing the existing full current metadata. The small
+   implementation qualification is complete; no full index build has run yet.
 2. Prepare genuine full-future **metadata**, not teacher tensors. The existing
    full-population request has only time0 and cannot stand in for future coverage.
    Preparation must keep the locked population/order and use bounded per-log work
