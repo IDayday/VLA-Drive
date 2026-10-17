@@ -1,0 +1,977 @@
+{
+  "schema": "fm_transfer_RL_endpoint_package_v1",
+  "label": "B",
+  "variant": "B_SOURCE_ACTION_DIT",
+  "status": "COMPLETE_B_RL_EVIDENCE_NOT_FINAL_NAVTEST",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "captured_unix": 1792280417.0857239,
+  "packager_sha256": "d5e789a9b2fa9d250b46ce7d17d2b88ae08725d60172bcee3ed94683600b2355",
+  "checkpoint": {
+    "path": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "files_sha256": "7a3eb2f471f05fceeae97176209c721076a2ca7c20c94c15545748d3992a770b",
+    "phase": "COMPLETE"
+  },
+  "export": {
+    "schema": "fm_transfer_original_entry_export_v1",
+    "stage": "RL",
+    "architecture": "source_action_dit",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+    "updates": 20000,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+      "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+      "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "architecture": "source_action_dit",
+        "initialization": "source_random_initialization_seed42",
+        "max_updates": 100000,
+        "learning_rate": 0.0001,
+        "milestones": [
+          0,
+          10000,
+          25000,
+          50000,
+          75000,
+          100000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 100000,
+      "qualification": false
+    },
+    "original_frozen_prefix_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "qualification": false,
+    "weight_sha256": "943c774e13f8c2b72889e37f64eeccee00f92c71358ab76b21004b1741eaa622",
+    "config_sha256": "db68a8c6bf74ab69b644c462fa1189a388ea6ba5b9930c78f78fc971f2bcdfab",
+    "changed_attention_from_own_SFT": [
+      "blocks.0.self_attn.q.weight",
+      "blocks.0.self_attn.k.weight",
+      "blocks.0.self_attn.v.weight",
+      "blocks.0.self_attn.o.weight",
+      "blocks.0.cross_attn.q.weight",
+      "blocks.0.cross_attn.k.weight",
+      "blocks.0.cross_attn.v.weight",
+      "blocks.0.cross_attn.o.weight",
+      "blocks.1.self_attn.q.weight",
+      "blocks.1.self_attn.k.weight",
+      "blocks.1.self_attn.v.weight",
+      "blocks.1.self_attn.o.weight",
+      "blocks.1.cross_attn.q.weight",
+      "blocks.1.cross_attn.k.weight",
+      "blocks.1.cross_attn.v.weight",
+      "blocks.1.cross_attn.o.weight",
+      "blocks.2.self_attn.q.weight",
+      "blocks.2.self_attn.k.weight",
+      "blocks.2.self_attn.v.weight",
+      "blocks.2.self_attn.o.weight",
+      "blocks.2.cross_attn.q.weight",
+      "blocks.2.cross_attn.k.weight",
+      "blocks.2.cross_attn.v.weight",
+      "blocks.2.cross_attn.o.weight",
+      "blocks.3.self_attn.q.weight",
+      "blocks.3.self_attn.k.weight",
+      "blocks.3.self_attn.v.weight",
+      "blocks.3.self_attn.o.weight",
+      "blocks.3.cross_attn.q.weight",
+      "blocks.3.cross_attn.k.weight",
+      "blocks.3.cross_attn.v.weight",
+      "blocks.3.cross_attn.o.weight",
+      "blocks.4.self_attn.q.weight",
+      "blocks.4.self_attn.k.weight",
+      "blocks.4.self_attn.v.weight",
+      "blocks.4.self_attn.o.weight",
+      "blocks.4.cross_attn.q.weight",
+      "blocks.4.cross_attn.k.weight",
+      "blocks.4.cross_attn.v.weight",
+      "blocks.4.cross_attn.o.weight",
+      "blocks.5.self_attn.q.weight",
+      "blocks.5.self_attn.k.weight",
+      "blocks.5.self_attn.v.weight",
+      "blocks.5.self_attn.o.weight",
+      "blocks.5.cross_attn.q.weight",
+      "blocks.5.cross_attn.k.weight",
+      "blocks.5.cross_attn.v.weight",
+      "blocks.5.cross_attn.o.weight",
+      "blocks.6.self_attn.q.weight",
+      "blocks.6.self_attn.k.weight",
+      "blocks.6.self_attn.v.weight",
+      "blocks.6.self_attn.o.weight",
+      "blocks.6.cross_attn.q.weight",
+      "blocks.6.cross_attn.k.weight",
+      "blocks.6.cross_attn.v.weight",
+      "blocks.6.cross_attn.o.weight",
+      "blocks.7.self_attn.q.weight",
+      "blocks.7.self_attn.k.weight",
+      "blocks.7.self_attn.v.weight",
+      "blocks.7.self_attn.o.weight",
+      "blocks.7.cross_attn.q.weight",
+      "blocks.7.cross_attn.k.weight",
+      "blocks.7.cross_attn.v.weight",
+      "blocks.7.cross_attn.o.weight",
+      "blocks.8.self_attn.q.weight",
+      "blocks.8.self_attn.k.weight",
+      "blocks.8.self_attn.v.weight",
+      "blocks.8.self_attn.o.weight",
+      "blocks.8.cross_attn.q.weight",
+      "blocks.8.cross_attn.k.weight",
+      "blocks.8.cross_attn.v.weight",
+      "blocks.8.cross_attn.o.weight",
+      "blocks.9.self_attn.q.weight",
+      "blocks.9.self_attn.k.weight",
+      "blocks.9.self_attn.v.weight",
+      "blocks.9.self_attn.o.weight",
+      "blocks.9.cross_attn.q.weight",
+      "blocks.9.cross_attn.k.weight",
+      "blocks.9.cross_attn.v.weight",
+      "blocks.9.cross_attn.o.weight",
+      "blocks.10.self_attn.q.weight",
+      "blocks.10.self_attn.k.weight",
+      "blocks.10.self_attn.v.weight",
+      "blocks.10.self_attn.o.weight",
+      "blocks.10.cross_attn.q.weight",
+      "blocks.10.cross_attn.k.weight",
+      "blocks.10.cross_attn.v.weight",
+      "blocks.10.cross_attn.o.weight",
+      "blocks.11.self_attn.q.weight",
+      "blocks.11.self_attn.k.weight",
+      "blocks.11.self_attn.v.weight",
+      "blocks.11.self_attn.o.weight",
+      "blocks.11.cross_attn.q.weight",
+      "blocks.11.cross_attn.k.weight",
+      "blocks.11.cross_attn.v.weight",
+      "blocks.11.cross_attn.o.weight",
+      "blocks.12.self_attn.q.weight",
+      "blocks.12.self_attn.k.weight",
+      "blocks.12.self_attn.v.weight",
+      "blocks.12.self_attn.o.weight",
+      "blocks.12.cross_attn.q.weight",
+      "blocks.12.cross_attn.k.weight",
+      "blocks.12.cross_attn.v.weight",
+      "blocks.12.cross_attn.o.weight",
+      "blocks.13.self_attn.q.weight",
+      "blocks.13.self_attn.k.weight",
+      "blocks.13.self_attn.v.weight",
+      "blocks.13.self_attn.o.weight",
+      "blocks.13.cross_attn.q.weight",
+      "blocks.13.cross_attn.k.weight",
+      "blocks.13.cross_attn.v.weight",
+      "blocks.13.cross_attn.o.weight",
+      "blocks.14.self_attn.q.weight",
+      "blocks.14.self_attn.k.weight",
+      "blocks.14.self_attn.v.weight",
+      "blocks.14.self_attn.o.weight",
+      "blocks.14.cross_attn.q.weight",
+      "blocks.14.cross_attn.k.weight",
+      "blocks.14.cross_attn.v.weight",
+      "blocks.14.cross_attn.o.weight",
+      "blocks.15.self_attn.q.weight",
+      "blocks.15.self_attn.k.weight",
+      "blocks.15.self_attn.v.weight",
+      "blocks.15.self_attn.o.weight",
+      "blocks.15.cross_attn.q.weight",
+      "blocks.15.cross_attn.k.weight",
+      "blocks.15.cross_attn.v.weight",
+      "blocks.15.cross_attn.o.weight",
+      "blocks.16.self_attn.q.weight",
+      "blocks.16.self_attn.k.weight",
+      "blocks.16.self_attn.v.weight",
+      "blocks.16.self_attn.o.weight",
+      "blocks.16.cross_attn.q.weight",
+      "blocks.16.cross_attn.k.weight",
+      "blocks.16.cross_attn.v.weight",
+      "blocks.16.cross_attn.o.weight",
+      "blocks.17.self_attn.q.weight",
+      "blocks.17.self_attn.k.weight",
+      "blocks.17.self_attn.v.weight",
+      "blocks.17.self_attn.o.weight",
+      "blocks.17.cross_attn.q.weight",
+      "blocks.17.cross_attn.k.weight",
+      "blocks.17.cross_attn.v.weight",
+      "blocks.17.cross_attn.o.weight",
+      "blocks.18.self_attn.q.weight",
+      "blocks.18.self_attn.k.weight",
+      "blocks.18.self_attn.v.weight",
+      "blocks.18.self_attn.o.weight",
+      "blocks.18.cross_attn.q.weight",
+      "blocks.18.cross_attn.k.weight",
+      "blocks.18.cross_attn.v.weight",
+      "blocks.18.cross_attn.o.weight",
+      "blocks.19.self_attn.q.weight",
+      "blocks.19.self_attn.k.weight",
+      "blocks.19.self_attn.v.weight",
+      "blocks.19.self_attn.o.weight",
+      "blocks.19.cross_attn.q.weight",
+      "blocks.19.cross_attn.k.weight",
+      "blocks.19.cross_attn.v.weight",
+      "blocks.19.cross_attn.o.weight",
+      "blocks.20.self_attn.q.weight",
+      "blocks.20.self_attn.k.weight",
+      "blocks.20.self_attn.v.weight",
+      "blocks.20.self_attn.o.weight",
+      "blocks.20.cross_attn.q.weight",
+      "blocks.20.cross_attn.k.weight",
+      "blocks.20.cross_attn.v.weight",
+      "blocks.20.cross_attn.o.weight",
+      "blocks.21.self_attn.q.weight",
+      "blocks.21.self_attn.k.weight",
+      "blocks.21.self_attn.v.weight",
+      "blocks.21.self_attn.o.weight",
+      "blocks.21.cross_attn.q.weight",
+      "blocks.21.cross_attn.k.weight",
+      "blocks.21.cross_attn.v.weight",
+      "blocks.21.cross_attn.o.weight",
+      "blocks.22.self_attn.q.weight",
+      "blocks.22.self_attn.k.weight",
+      "blocks.22.self_attn.v.weight",
+      "blocks.22.self_attn.o.weight",
+      "blocks.22.cross_attn.q.weight",
+      "blocks.22.cross_attn.k.weight",
+      "blocks.22.cross_attn.v.weight",
+      "blocks.22.cross_attn.o.weight",
+      "blocks.23.self_attn.q.weight",
+      "blocks.23.self_attn.k.weight",
+      "blocks.23.self_attn.v.weight",
+      "blocks.23.self_attn.o.weight",
+      "blocks.23.cross_attn.q.weight",
+      "blocks.23.cross_attn.k.weight",
+      "blocks.23.cross_attn.v.weight",
+      "blocks.23.cross_attn.o.weight",
+      "blocks.24.self_attn.q.weight",
+      "blocks.24.self_attn.k.weight",
+      "blocks.24.self_attn.v.weight",
+      "blocks.24.self_attn.o.weight",
+      "blocks.24.cross_attn.q.weight",
+      "blocks.24.cross_attn.k.weight",
+      "blocks.24.cross_attn.v.weight",
+      "blocks.24.cross_attn.o.weight",
+      "blocks.25.self_attn.q.weight",
+      "blocks.25.self_attn.k.weight",
+      "blocks.25.self_attn.v.weight",
+      "blocks.25.self_attn.o.weight",
+      "blocks.25.cross_attn.q.weight",
+      "blocks.25.cross_attn.k.weight",
+      "blocks.25.cross_attn.v.weight",
+      "blocks.25.cross_attn.o.weight",
+      "blocks.26.self_attn.q.weight",
+      "blocks.26.self_attn.k.weight",
+      "blocks.26.self_attn.v.weight",
+      "blocks.26.self_attn.o.weight",
+      "blocks.26.cross_attn.q.weight",
+      "blocks.26.cross_attn.k.weight",
+      "blocks.26.cross_attn.v.weight",
+      "blocks.26.cross_attn.o.weight",
+      "blocks.27.self_attn.q.weight",
+      "blocks.27.self_attn.k.weight",
+      "blocks.27.self_attn.v.weight",
+      "blocks.27.self_attn.o.weight",
+      "blocks.27.cross_attn.q.weight",
+      "blocks.27.cross_attn.k.weight",
+      "blocks.27.cross_attn.v.weight",
+      "blocks.27.cross_attn.o.weight",
+      "blocks.28.self_attn.q.weight",
+      "blocks.28.self_attn.k.weight",
+      "blocks.28.self_attn.v.weight",
+      "blocks.28.self_attn.o.weight",
+      "blocks.28.cross_attn.q.weight",
+      "blocks.28.cross_attn.k.weight",
+      "blocks.28.cross_attn.v.weight",
+      "blocks.28.cross_attn.o.weight",
+      "blocks.29.self_attn.q.weight",
+      "blocks.29.self_attn.k.weight",
+      "blocks.29.self_attn.v.weight",
+      "blocks.29.self_attn.o.weight",
+      "blocks.29.cross_attn.q.weight",
+      "blocks.29.cross_attn.k.weight",
+      "blocks.29.cross_attn.v.weight",
+      "blocks.29.cross_attn.o.weight"
+    ],
+    "frozen_upstream_exact": true,
+    "deployment": "original VLAAgent observation/encoding/decoding; no cache, reference, scorer or LoRA wrapper",
+    "not_exact_resume_use_native_checkpoint": true,
+    "sha256": "e3a5882204a72c7ca1d0583b913190fb98fb9f466ca394053e9693398895e519"
+  },
+  "completion_audit": {
+    "schema": "fm_transfer_B_RL20k_completion_audit_v1",
+    "observed_unix": 1792257819.2175283,
+    "evidence_script_sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63",
+    "cohorts": {
+      "DEV": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 301886,
+            "start_ticks": 1369576489,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 1,
+            "pid": 301891,
+            "start_ticks": 1369576497,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 2,
+            "pid": 301895,
+            "start_ticks": 1369576506,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 3,
+            "pid": 301898,
+            "start_ticks": 1369576518,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 4,
+            "pid": 301903,
+            "start_ticks": 1369576527,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 5,
+            "pid": 301906,
+            "start_ticks": 1369576536,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 6,
+            "pid": 301911,
+            "start_ticks": 1369576545,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 7,
+            "pid": 301915,
+            "start_ticks": 1369576554,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt4": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 5497.506377233192,
+        "job_wall_seconds": 695.0358519554138,
+        "manifest_sha256": "546fce1393bfea88cd69deed01e8939301e94a02f6a5a2411da2e72bd7f7098c"
+      },
+      "TRAIN_DIAGNOSTIC": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 585303,
+            "start_ticks": 1369559581,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 1,
+            "pid": 585306,
+            "start_ticks": 1369559601,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 2,
+            "pid": 585309,
+            "start_ticks": 1369559608,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 3,
+            "pid": 585312,
+            "start_ticks": 1369559617,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 4,
+            "pid": 585315,
+            "start_ticks": 1369559625,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 5,
+            "pid": 585318,
+            "start_ticks": 1369559633,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 6,
+            "pid": 585321,
+            "start_ticks": 1369559646,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 7,
+            "pid": 585324,
+            "start_ticks": 1369559655,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          }
+        ],
+        "process_probe": {
+          "training-vla-zt": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 2000.3499759752303,
+        "job_wall_seconds": 253.09669160842896,
+        "manifest_sha256": "0f2c049d20359c14ca2f1770111fb0b0c1b45725a8e5b4698eca17cfc7435f4e"
+      }
+    },
+    "training_exit": {
+      "pinned": [
+        {
+          "pid": 354490,
+          "same_process": false,
+          "state": "ABSENT"
+        }
+      ],
+      "run_processes": []
+    },
+    "all_eight_training_results_complete": true,
+    "optimizer": {
+      "adam_states": 480,
+      "adam_steps": [
+        20000.0
+      ],
+      "FP32_moments": true,
+      "scheduler_last_epoch": 20000,
+      "checkpoint_files_sha256": "7a3eb2f471f05fceeae97176209c721076a2ca7c20c94c15545748d3992a770b",
+      "optimizer_file_sha256": "c074735e4e80382a123e7809a6fa5e8cd06134f08f915f409b6bd378de574cc8"
+    },
+    "status": "PASS_COMPLETE_B_RL_NOT_FINAL_NAVTEST",
+    "training_endpoint_complete": true
+  },
+  "completion_audit_sha256": "fa73231663b61906f8cd28b83510366f28ffff880c56d22b2d5795f1a0adeba5",
+  "completion_verifier_current_sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63",
+  "completion_verifier_historical_hash_available": true,
+  "evaluations": {
+    "DEV": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 5497.506377233192,
+        "job_wall_seconds": 695.0358519554138,
+        "model_load_seconds": 876.4593290127814,
+        "generation_wall_seconds_sum": 4136.198944171891,
+        "scoring_wait_seconds_sum": 208.71284050308168,
+        "missing": []
+      },
+      "worker_audit": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 301886,
+            "start_ticks": 1369576489,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 1,
+            "pid": 301891,
+            "start_ticks": 1369576497,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 2,
+            "pid": 301895,
+            "start_ticks": 1369576506,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 3,
+            "pid": 301898,
+            "start_ticks": 1369576518,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 4,
+            "pid": 301903,
+            "start_ticks": 1369576527,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 5,
+            "pid": 301906,
+            "start_ticks": 1369576536,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 6,
+            "pid": 301911,
+            "start_ticks": 1369576545,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          },
+          {
+            "rank": 7,
+            "pid": 301915,
+            "start_ticks": 1369576554,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vlawm-tsinghua-zt4"
+          }
+        ],
+        "process_probe": {
+          "training-vlawm-tsinghua-zt4": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 5497.506377233192,
+        "job_wall_seconds": 695.0358519554138,
+        "manifest_sha256": "546fce1393bfea88cd69deed01e8939301e94a02f6a5a2411da2e72bd7f7098c"
+      }
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 2000.3499759752303,
+        "job_wall_seconds": 253.09669160842896,
+        "model_load_seconds": 941.5782742556185,
+        "generation_wall_seconds_sum": 835.0647887773812,
+        "scoring_wait_seconds_sum": 72.1468483004719,
+        "missing": []
+      },
+      "worker_audit": {
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 585303,
+            "start_ticks": 1369559581,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 1,
+            "pid": 585306,
+            "start_ticks": 1369559601,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 2,
+            "pid": 585309,
+            "start_ticks": 1369559608,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 3,
+            "pid": 585312,
+            "start_ticks": 1369559617,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 4,
+            "pid": 585315,
+            "start_ticks": 1369559625,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 5,
+            "pid": 585318,
+            "start_ticks": 1369559633,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 6,
+            "pid": 585321,
+            "start_ticks": 1369559646,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          },
+          {
+            "rank": 7,
+            "pid": 585324,
+            "start_ticks": 1369559655,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a",
+            "host": "training-vla-zt"
+          }
+        ],
+        "process_probe": {
+          "training-vla-zt": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "total_worker_wall_seconds": 2000.3499759752303,
+        "job_wall_seconds": 253.09669160842896,
+        "manifest_sha256": "0f2c049d20359c14ca2f1770111fb0b0c1b45725a8e5b4698eca17cfc7435f4e"
+      }
+    }
+  },
+  "checks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    }
+  ],
+  "population_summary": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "fresh_candidates": 320000,
+    "hard_population_scenes": 21836,
+    "padded_epoch_size": 21840,
+    "unique_scene_count": 21836,
+    "unique_log_count": 1056,
+    "scene_revisits_after_first_exposure": 18164,
+    "epoch_padding_exposures": 4,
+    "nonpadding_revisits_after_first_exposure": 18160,
+    "exposure_frequency_histogram": {
+      "1": 3675,
+      "2": 18158,
+      "3": 3
+    },
+    "distinct_chain_digests_in_journal": 40000,
+    "epochs": [
+      {
+        "epoch": 0,
+        "scene_exposures": 21840,
+        "padding_exposures": 4,
+        "unique_scene_count": 21836
+      },
+      {
+        "epoch": 1,
+        "scene_exposures": 18160,
+        "padding_exposures": 0,
+        "unique_scene_count": 18160
+      }
+    ]
+  },
+  "training_cost": {
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "checkpoint_updates": 20000,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 48055.20540300943,
+      "old_probability": 15125.316073410213,
+      "update": 201391.81075056456,
+      "scoring_wait": 5037.048591081053,
+      "scoring_cpu": 2430.05375075154
+    },
+    "max_rank_wall_seconds_by_phase": {
+      "rollout": 6209.61925775744,
+      "old_probability": 1942.3482182770967,
+      "update": 25177.60711436905,
+      "scoring_wait": 648.7321562245488,
+      "scoring_cpu": 309.6948215086013
+    },
+    "all_rank_phase_seconds": {
+      "rollout": [
+        6002.651753509417,
+        5900.775682607666,
+        5952.3549537640065,
+        6075.68675124459,
+        5967.769360367209,
+        5850.02236219123,
+        6096.325281567872,
+        6209.61925775744
+      ],
+      "old_probability": [
+        1890.0054761935025,
+        1866.5151019673795,
+        1878.00640386343,
+        1903.7036177460104,
+        1882.0100977495313,
+        1851.3285195417702,
+        1911.3986380714923,
+        1942.3482182770967
+      ],
+      "update": [
+        25176.7063535098,
+        25173.695917148143,
+        25172.83866422996,
+        25177.60711436905,
+        25174.157233841717,
+        25168.426319859922,
+        25175.06741427444,
+        25173.31173333153
+      ],
+      "scoring_wait": [
+        641.68328419514,
+        614.4604710470885,
+        619.8355476558208,
+        648.7321562245488,
+        625.8311399128288,
+        618.5434521250427,
+        633.1129555813968,
+        634.8495843391865
+      ],
+      "scoring_cpu": [
+        304.86988283507526,
+        303.53647006489336,
+        299.31898974999785,
+        309.6948215086013,
+        303.35557346232235,
+        299.9030148088932,
+        303.1470394860953,
+        306.2279588356614
+      ]
+    },
+    "invocation_ledger": {
+      "schema": 3,
+      "provenance": "per-invocation records; RUNNING records are unclosed observations",
+      "cumulative_logical_updates": 20000,
+      "invocation_start_update": 0,
+      "invocation_effective_updates": 20000,
+      "invocation_updates_per_second": 0.5523177076777737,
+      "rate_basis": "finished invocation end-start updates / invocation wall",
+      "rate_window_seconds": 36211.04252494499,
+      "linear_remaining_training_hours": 0.0,
+      "cumulative_worker_wall_seconds": 289868.65293332003,
+      "invocation_worker_wall_seconds": 289688.2070360072,
+      "preparation_worker_wall_seconds_observed": 180.44589731283486,
+      "workers_missing_preparation_seconds": 0,
+      "aborted_invocation_worker_wall_seconds": 0,
+      "unclosed_invocation_worker_wall_seconds": 0,
+      "rollback_overhead_seconds": null,
+      "save_worker_wall_seconds": 1275.0119755212218,
+      "physical_generated_candidates": 320000,
+      "physical_scored_candidates": 320000,
+      "worker_records": 8,
+      "incomplete_invocations": 0,
+      "missing": [
+        "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+        "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+      ],
+      "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+    },
+    "linear_remaining_training_hours": 0.0,
+    "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+  },
+  "new_candidates": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "source_scope": "Packaging only; numerical training/evaluation source identities are preserved in each input.",
+  "copied_analysis": [
+    {
+      "path": "B_RL_update020000_DEV.json",
+      "sha256": "e87032597bcdf9ea6684aa822cdf4819d9c4a720f801bd0486c4eefc97e205e0"
+    },
+    {
+      "path": "B_RL_update020000_DEV_vs_own_SFT.json",
+      "sha256": "93e6f7344aa84edde72ffeaeb7bbfdaf3fb013034540daa0adc182faa399a6b4"
+    },
+    {
+      "path": "B_RL_update020000_DEV_vs15k.json",
+      "sha256": "45513108147664f43049caec5b4a1cd305dc117afc351b3f56cdc7bb65089995"
+    },
+    {
+      "path": "B_RL_update020000_DEV_safety_transitions.json",
+      "sha256": "0c0a0f4dd4237221523f4de01fcf668266f84a2428a82a813ef074a320096b51"
+    },
+    {
+      "path": "B_RL_update020000_TRAIN_DIAGNOSTIC.json",
+      "sha256": "0c08fca9ed4f4a86f512996546d98fb8ecc9e3e3e6491fcbd04fa2b343d7acab"
+    },
+    {
+      "path": "B_RL_update020000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+      "sha256": "c36764e57998c832346a640f9d5aba57718951d364125bdb4ece25306c4a95dd"
+    },
+    {
+      "path": "B_RL_update020000_TRAIN_DIAGNOSTIC_vs15k.json",
+      "sha256": "39dc1ceef2576d0d122ea9746d57874784f2b224846108de8b4576dc7e58b20e"
+    },
+    {
+      "path": "B_RL_update020000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+      "sha256": "c318768d01f3ffaad9a6d5a5f5272f5ca25efb46a283ef4b240660d307b7f0ee"
+    },
+    {
+      "path": "B_RL_complete_training.json",
+      "sha256": "7450a2b3c90eb382aae07aab092726a5779f66b1d1da1fbf6316256cc593c281"
+    },
+    {
+      "path": "B_RL20k_DEV_native_minus_shift5.json",
+      "sha256": "7b7a050cf195765e4ff0e9c925993217dbbd69c424d710e83e28af7cf79403c1"
+    },
+    {
+      "path": "reproduce_B_RL20k_completion.py",
+      "sha256": "852ed9bbf063fe188346a4d4acab0b948e984c830a559e20e4410295c8771f63"
+    },
+    {
+      "path": "B_RL_DEV_through_20k.png",
+      "sha256": "07a23796e591a3e774f6da7ea2831a2555461287a4885f1ab9bfb8b24c21ce78"
+    },
+    {
+      "path": "B_RL_DEV_through_20k.pdf",
+      "sha256": "6fa23314e5828cdb1c9a97b66189b572c3450cf8292db701914e377b0a150aa3"
+    },
+    {
+      "path": "B_RL_DEV_through_20k.json",
+      "sha256": "c09c2f6258fb9f70ddc70ea80e112002db4517e65248e6f3f25428db981bdead"
+    },
+    {
+      "path": "B_RL_update020000_population.json",
+      "sha256": "4b7945bd77eb2c2f3ee78755115b5456195a9ee8c7d92ea817f7a9218611236a",
+      "private_original_sha256": "4e2f35cbe8b5c4fb60b15cc94d94b7713f222bb1caa0f2c8afaf661a4672da06"
+    },
+    {
+      "path": "B_RL_update020000_saved_batch.json",
+      "sha256": "998c4d26936dad27e8fcdf0301e8bcbe9cae6ae41a12aeeb53857b809db773c0",
+      "private_original_sha256": "7ec9c98b43435ec2be36867bb07600a819d52b9766ba90c308dbbb9f105afdf9"
+    }
+  ]
+}

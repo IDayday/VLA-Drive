@@ -1,0 +1,79 @@
+{
+  "schema": "fm_transfer_committed_RL_population_v1",
+  "status": "COMPLETE_READONLY_POPULATION_AUDIT_NOT_POLICY_EVALUATION",
+  "captured_utc": "2026-10-17T17:22:08.337661+00:00",
+  "analysis_identity": "f9003127231cb112a72cd20ef23f0790d4283bd630842529ca586dafcab93d7b",
+  "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+  "checkpoint": {
+    "path": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "files_sha256": "7a3eb2f471f05fceeae97176209c721076a2ca7c20c94c15545748d3992a770b",
+    "phase": "COMPLETE"
+  },
+  "manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+  "reused_source_files": {
+    "starVLA/rl/simwam_recipe/contracts.py": "c26cc79c4dd071d5e83ef0d018f908d5dbef16ef2c47b2739f5d060565f10d1e",
+    "starVLA/rl/simwam_recipe/data_stream.py": "3ecd4df19a529298b07cdd451cd5e330b4dee956b885facb349db750b190ed8b",
+    "starVLA/rl/simwam_recipe/vendor/samplers.py": "dd8dabf42f9d5f7b95b380be22d10b6092a3b1a211c30b214380fb2d24437be9",
+    "starVLA/rl/simwam_recipe/invocation.py": "1d005733e190032778e58895f432e64b788e4d6cac3766df4d268830cacc5792",
+    "starVLA/rl/simwam_recipe/recovery_state.py": "c4af1576548b802e6219a3cec70239a1cbe4d9de7288cd6129cac90dd1fd98bc"
+  },
+  "journal_prefix_sha256": [
+    "2f39ff67550f742029fb1adab6dea0fa14cfc3f3c397dc83fd0fa0b396f5522e",
+    "353c86e58071d2a7ee23d1a6f7b806dcb9c81abf9bfa8868f87327a1620a292c",
+    "f79b8e7e83ecda9a1b2a7dd9a97260ada77853068d30ad411d89c2acbf725830",
+    "d11ef19c471c3c0e1a3e1c6c3a119778571d4e251b63d99f69e80ebb8a51bea5",
+    "22b9ca73cb3aa3bb41f558712e110deddbe25fe5a1f4814ba8a6a9ce993b3abd",
+    "a8b3597c8b4b5a0a8d7fa2afa90e4ab6cee3a742c5762cb19322f8b40d0b27a8",
+    "76920ca4bcbb4331d44cc28181c6f8659b26630857d7265265eea5fbecd1b354",
+    "7be78b7e3c6f4066184fddf5120539d5b27dc2b253e62104588849d4c9ae092d"
+  ],
+  "population": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "fresh_candidates": 320000,
+    "hard_population_scenes": 21836,
+    "padded_epoch_size": 21840,
+    "unique_scene_count": 21836,
+    "unique_log_count": 1056,
+    "scene_revisits_after_first_exposure": 18164,
+    "epoch_padding_exposures": 4,
+    "nonpadding_revisits_after_first_exposure": 18160,
+    "exposure_frequency_histogram": {
+      "1": 3675,
+      "2": 18158,
+      "3": 3
+    },
+    "distinct_chain_digests_in_journal": 40000,
+    "epochs": [
+      {
+        "epoch": 0,
+        "scene_exposures": 21840,
+        "padding_exposures": 4,
+        "unique_scene_count": 21836
+      },
+      {
+        "epoch": 1,
+        "scene_exposures": 18160,
+        "padding_exposures": 0,
+        "unique_scene_count": 18160
+      }
+    ]
+  },
+  "analysis_new_candidates": 0,
+  "analysis_optimizer_updates": 0,
+  "analysis_scores": 0,
+  "analysis_main_wall_seconds": 6.457576224580407,
+  "analysis_main_process_cpu_seconds": 5.916907976,
+  "limits": [
+    "Counts describe only the effective committed journals; failed attempts remain in the separate cost ledger.",
+    "All journal scene/chain identities are checked; tensor payload hashes are checked at the listed boundary probes.",
+    "Behavior and first-inner invocation IDs are separately retained: a legal restore may span invocations; this does not replace the resume ledger.",
+    "Padding and ordinary scene revisits generate fresh current-behavior G8 chains, not additional unique scenes.",
+    "Four inner updates reuse a single fresh collection; this is not a new score or model-selection milestone.",
+    "Analysis timers exclude Python imports and final JSON publication; no GPU is used."
+  ],
+  "checked_behavior_payload_count": 56,
+  "private_original_sha256": "4e2f35cbe8b5c4fb60b15cc94d94b7713f222bb1caa0f2c8afaf661a4672da06",
+  "public_omission": "Individual private scene payload/score identities omitted; original retained locally."
+}

@@ -125,8 +125,8 @@ historical R_SOURCE native changes by +0.122356. There is no fixed offset that
 converts models between versions. This historical R_SOURCE does not improve its
 native policy in either version. Its small shift5 change has different signs
 between the versions; it must not be selected to manufacture a successful
-canonical result. Paired uncertainty and safety tables are being completed by
-the fixed full-population analysis, not by selecting examples.
+canonical result. Full paired uncertainty and safety analysis is complete; results below use the
+entire population, without selecting examples.
 
 Historical R_CANONICAL's native gain is +0.371818 pp under v1.0 but only
 +0.040086 pp under the actual training/evaluation v1.1 metric. Its v1.1 native
@@ -159,3 +159,42 @@ This explicit runtime adaptation is shared by both versions; no claim is made
 that an original paper's entire historical environment has been reconstructed.
 The new v1.1 real-cache oracle matched the existing canonical runtime exactly on
 the qualification requests.
+
+
+## Completed historical paired uncertainty and safety
+
+All changes below compare each historical RL endpoint with the matching original
+F-SFT under the same version and grid. Intervals are log-cluster bootstrap, with
+scene weights retained; they exclude training/inference seed uncertainty. Units
+are PDMS percentage points. These are historical controls, not current A/B gains.
+
+| Historical model | Grid | v1.0 delta [95% CI] | v1.1 delta [95% CI] |
+|---|---|---:|---:|
+| R_SOURCE | E_NATIVE | -0.503091 [-0.986096, -0.025618] | -0.999141 [-1.551891, -0.456167] |
+| R_SOURCE | E_SHIFT5 | +0.190969 [-0.202497, +0.582860] | -0.183960 [-0.626643, +0.248177] |
+| R_CANONICAL | E_NATIVE | +0.371818 [+0.071694, +0.676805] | +0.040086 [-0.298496, +0.373614] |
+| R_CANONICAL | E_SHIFT5 | +0.613296 [+0.291432, +0.944152] | +0.347439 [-0.007468, +0.702609] |
+
+| Historical model / grid | NC new / recovered | DAC new / recovered | TTC new / recovered | Fixed SFT-safe new joint violation | Nonzero→zero / zero→nonzero |
+|---|---:|---:|---:|---:|---:|
+| R_SOURCE / E_NATIVE | 133 / 15 | 36 / 64 | 502 / 39 | 530 / 11213 | 168 / 70 |
+| R_SOURCE / E_SHIFT5 | 83 / 17 | 25 / 87 | 348 / 39 | 366 / 11184 | 106 / 96 |
+| R_CANONICAL / E_NATIVE | 70 / 12 | 23 / 70 | 219 / 39 | 242 / 11213 | 93 / 74 |
+| R_CANONICAL / E_SHIFT5 | 54 / 12 | 17 / 94 | 190 / 38 | 205 / 11184 | 69 / 100 |
+
+The safety table uses canonical v1.1; the two versions produce the same listed
+transition counts in these historical banks. R_CANONICAL native v1.1 has an
+interval spanning zero and 219 new versus 39 recovered TTC violations. Its small
+mean increase is not evidence of a reliable safety-preserving gain. v1.0 makes
+the historical mean gain look larger but does not remove these new failures.
+
+Sources: [R_SOURCE paired result](PDMS_versions_HISTORICAL_R_SOURCE_vs_ORIGINAL_F_SFT.json),
+[R_CANONICAL paired result](PDMS_versions_HISTORICAL_R_CANONICAL_vs_ORIGINAL_F_SFT.json).
+
+At 23:41 UTC, the four current endpoints started full Navtest on eight authorized
+vla-zt GPUs after explicit recovery of a capacity-admission failure. The failed
+attempt produced no final predictions. The CPU scoring and analysis owners had
+reached their finite waiting deadlines; new invocation identities now process
+only the four never-started current banks and eight pending summaries. The three
+completed historical scorings and five analyses are reused unchanged. See
+[the dispatch recovery record](final_navtest_dispatch_recovery_20261017.md).
