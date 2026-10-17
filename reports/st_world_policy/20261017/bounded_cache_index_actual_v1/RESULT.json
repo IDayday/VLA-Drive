@@ -1,0 +1,79 @@
+{
+  "schema": "st_bounded_cache_index_actual_summary_v1",
+  "recorded_utc": "2026-10-17T15:09:06.742030+00:00",
+  "decision": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/OFFICIAL_RUNTIME_AND_STORAGE_DECISION_20261016.json",
+    "sha256": "85fff1705e388c2e01eb1d1b2eb76d66b1fb763e1a66b81cf33eb38f2efa37a6"
+  },
+  "current_policy": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/PROPOSED_POLICY.json",
+    "sha256": "7a78476af60b191da42439dfdda0c63dae6334f7e911ee7bc3ed299e77486148"
+  },
+  "roles": {
+    "dev": {
+      "complete": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_dev_v1/COMPLETE.json",
+        "sha256": "339efa75e1cb41499c84b90783e09c375bd4ffd5b7a69a512c66c0207136f811"
+      },
+      "terminal": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_dev_v1/CONTROL_INDEX_RESULT.json",
+        "sha256": "58103dcb716db77b9466fa908539428f297f1f5e4b8320306168117282e4a4c2"
+      },
+      "identity": "156e1c50ad576955f33b4f23e1624cc926247600d8c2e410b63280fdac843baf",
+      "request_identity": "61f2c9400dec518e33b60e222d14d6c096826b61dc865ee64638c60c55afa149",
+      "scene_count": 1696,
+      "record_count": 9948,
+      "database_bytes": 8585216,
+      "wall_seconds": 9.526536708697677,
+      "peak_aggregate_rss_bytes": 741601280,
+      "charged_parent_child_rchar_bytes": 228842607,
+      "cleanup": {
+        "live_owned_remaining": 0,
+        "verified_processes": 1
+      },
+      "image_files_opened": 0,
+      "tensor_files_opened": 0,
+      "tensor_disk_bytes": 0,
+      "training_admission": false
+    },
+    "train": {
+      "complete": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/COMPLETE.json",
+        "sha256": "07cdbbd00d7c9be219c23c75bf75aee4651cad6c93b136a0f2b19b4bdca4a148"
+      },
+      "terminal": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/CONTROL_INDEX_RESULT.json",
+        "sha256": "bf0102cadcfd8dff61da92e21c14d298243b8eff915f247f6402039c007d3560"
+      },
+      "identity": "8a69095980d939d6b708e610bbd6800f0ad8ceeec798a33eba7a3607496da222",
+      "request_identity": "0c8132c3b3ac97aa8adf88736a46594427f845a03712e34f2e53ea91ce5be57b",
+      "scene_count": 101592,
+      "record_count": 603750,
+      "database_bytes": 515739648,
+      "wall_seconds": 282.77816851623356,
+      "peak_aggregate_rss_bytes": 1329537024,
+      "charged_parent_child_rchar_bytes": 19832531041,
+      "cleanup": {
+        "live_owned_remaining": 0,
+        "verified_processes": 2
+      },
+      "image_files_opened": 0,
+      "tensor_files_opened": 0,
+      "tensor_disk_bytes": 0,
+      "training_admission": false
+    }
+  },
+  "combined_database_bytes": 524324864,
+  "new_teacher_tensor_bytes": 0,
+  "large_future_feature_prebuild": false,
+  "existing_three_current_banks_bytes": 629335619712,
+  "campaign_cache_cap_bytes": 824633720832,
+  "checkpoint_space_separate": true,
+  "free_floor_bytes": 1099511627776,
+  "execution_notes": [
+    "DEV first admission expired before controller invocation; lead guard rejected; no actual build or output. Renewed immutable v2 used once.",
+    "DEV and TRAIN sequential under original single-loader lock; no retry or source/precision changes.",
+    "Read counters are logical parent/child rchar, not physical disk throughput.",
+    "Full-population provider order validation and two-rank training PROFILE remain NOT_RUN. Index completion is not training approval."
+  ]
+}
