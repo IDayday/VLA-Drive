@@ -1,0 +1,117 @@
+{
+  "actual_metadata": {
+    "absent_view_records": 3,
+    "all_scene_record_ordinal_receipt_parity": true,
+    "builder_idempotence": "PASS",
+    "current_database_bytes": 983040,
+    "current_hits": 192,
+    "current_records": 768,
+    "current_scenes": 256,
+    "elapsed_seconds_excluding_import": 1.8592790234833956,
+    "future_database_bytes": 638976,
+    "future_misses": 765,
+    "future_records": 957,
+    "future_scenes": 64,
+    "metadata_only_cold_state_restore": true,
+    "original_raw_hashes": {
+      "/mnt/project/st-world-policy-20261016/audits/history_data/smoke_train64_v1/TEACHER_REQUESTS.json": "d71f653111b5034c32c092b678a1d468727477ca1ea6c7611807f37aef889cb5",
+      "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json": "d4dd474c38554e0ca16fa35077b8528c6860170eb952cb708fc8b4ed6fa612a4",
+      "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/identity.json": "749f1c0cf7f7de4054fc3700ce1d612e721d9bf1b17462b9f249a14e41b42561",
+      "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/requests.json": "48d79575df2334dc69fb085286c033d3f5c44c1a83c8873be910ca386bd86765"
+    },
+    "peak_rss_bytes": 627769344,
+    "status": "PASS_METADATA_ONLY",
+    "teacher_calls": 0,
+    "tensor_disk_bytes_written": 0,
+    "tensor_image_files_opened": 0
+  },
+  "decision": "CHANGES_REQUESTED",
+  "evidence_artifacts": {
+    "/mnt/project/VLA-Drive-st-correctness-metadata-index-20261017/tests/st_world/test_review_metadata_index.py": "f8e83f0aa486a5758e0baa75f6ed98967ad6c7ce086e08793433e0f84c76dc8c",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/ACTUAL_METADATA_REVIEW.json": "5131d75fd0544fd16bba996ab4004260beed7edd3ceda8c23a643ecef924172d",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/ACTUAL_METADATA_REVIEW.log": "89136acd6c3a2436865846b9f1f107660fc8eb30b8ef3f3310811a54873a6936",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/CONTRACT_PIN_COUNTEREXAMPLE.log": "493b4d67c37008b4604323f80d7cb31b0bdd92fd59a0207e939388daaf7b8b8a",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/CONTRACT_PIN_READ_COUNTEREXAMPLE.log": "32246419b97b577013010fdfb10dbcce2a03f6b283c9cb453a30087c93158f85",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/INDEPENDENT_TESTS.log": "6239e634b4fe943d86022e557cd96a7d678e3cc4b44a72e62f321acd18b9e77e",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1/review_actual_metadata.py": "ae4ec094695476610cec3b642c4c55cb0dadfb6b4264f9090b033e44d0b47743"
+  },
+  "findings": [
+    {
+      "actual": "A request-only index is published COMPLETE with replacement teacher_identity=9*64 even though the approved receipt hash belongs to teacher_identity=a*64.",
+      "blocking_for": "CLI contract receipt pin guarantee",
+      "counterexample": "tests/st_world/test_review_metadata_index.py::test_cli_contract_must_be_the_same_bytes_that_passed_pin",
+      "file": "tools/st_world_policy/index_teacher_metadata.py",
+      "fix_requested": "Read bounded bytes once, verify their SHA256 and parse those same bytes. Preserve existing size/schema checks. Reject a detected concurrent replacement or consistently use the approved snapshot; never publish the replacement contract.",
+      "id": "META-F01",
+      "implementation_modified_by_reviewer": false,
+      "lines": [
+        39,
+        48
+      ],
+      "reproduction_exit_code": 1,
+      "reproduction_seconds": 3.47,
+      "root_cause": "Digest verification and JSON parsing read different snapshots of the path.",
+      "severity": "medium",
+      "trigger": "Atomic replacement of the small contract receipt after file_sha256 read but before read_text."
+    }
+  ],
+  "implementation_hashes": {
+    "starVLA/dataloader/st_world_indexed_provider.py": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85",
+    "starVLA/dataloader/st_world_metadata_index.py": "a404d79f657abffefe9635374d8a5714f10878da286f54e588be6b32613a7dc4",
+    "tools/st_world_policy/index_teacher_metadata.py": "b3f9516b3cd5b936d06e2b589d0766519d153dcb85969d5209e8009bfb226b47"
+  },
+  "independent_tests": {
+    "covered": [
+      "Original record ordinal, duplicate scene content and final partial shard",
+      "Three lineage hashes with zero cache sources",
+      "Cold metadata state identity and resident clearing",
+      "Train/dev source-role mismatch",
+      "Row corruption after DB and receipt hashes recomputed",
+      "Post-open mutation of requests, DB or COMPLETE",
+      "Actual verify CLI and wrong expected index identity",
+      "No partial population COMPLETE",
+      "Combined metadata allowance cap",
+      "Contract pin replacement counterexample"
+    ],
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "failed": 1,
+    "failure_iterations_counted_once": true,
+    "fixture_boundary": "Synthetic metadata references nonexistent image paths; no images or tensor payload files are created/read. Owner tests are not counted as independent runs.",
+    "initial_failure_seconds": 3.37,
+    "pass_log_seconds": 3.73,
+    "passed": 13,
+    "per_command_timeout_seconds": 120,
+    "revised_semantic_failure_seconds": 3.47,
+    "skipped": 0,
+    "threads": 2,
+    "unique_cases": 14
+  },
+  "limits": {
+    "formal_admission": false,
+    "full_future_population": "WAITING_INPUTS",
+    "full_population_scanned": false,
+    "gpu_dispatches": 0,
+    "known_full_legacy_header_limit": "A source_logs header exceeding64KiB is safely rejected at9c. current256/future64 evidence does not prove full-header compatibility. Future ledger proposal is outside this review.",
+    "new_training": 0,
+    "profile_admission": false,
+    "real_indexed_teacher_or_training": "NOT_RUN",
+    "teacher_calls": 0,
+    "weight_tensor_or_image_reads": 0
+  },
+  "next_review": "Owner CLI fix only: rerun the independent replacement counterexample and affected CLI/identity tests. Do not rerun GPU/teacher or full-population work.",
+  "reviewed_at_utc": "2026-10-17T04:56:02.732461+00:00",
+  "reviewer_agent": "/root/st_correctness",
+  "schema": "independent_bounded_metadata_index_review_v1",
+  "scope": "Only the three new metadata index/adapter/CLI files at the pinned commit, bounded CPU metadata checks; no trainer/factory or subsequent owner proposals.",
+  "source_audit": [
+    "Raw source dependency SHA and original semantic identity are checked independently. Source cache records retain original order and shard/row divmod mapping.",
+    "Streaming SQLite metadata uses bounded row/header/decompression limits and readonly connections; provider rejects aggregate metadata allowances above256MiB.",
+    "The indexed adapter reuses original payload integrity checks and provider assembly rather than introducing a numerical path. These payload and numerical functions were not executed in this review.",
+    "Provider identity binds metadata index and source identities; state restoration rejects another identity and clears resident data. This is not a new real teacher/student optimizer resume test."
+  ],
+  "source_commit": "9c7743f5323cbc0e85c3aaa4f9e13685ac4ae234",
+  "source_worktree": "/mnt/project/VLA-Drive-st-correctness-metadata-index-20261017"
+}
