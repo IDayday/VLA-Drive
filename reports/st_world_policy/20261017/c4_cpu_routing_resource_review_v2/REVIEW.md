@@ -1,0 +1,7 @@
+Independent result: FAIL_CPU_ROUTING_DELTA for commit166341289d1b0ff19dcfad84844faba7465cdcf1, adapter SHA e7ead9078ac5f5fe2db159bd4c61c2327b42f708b4f07df678fdf0da3426b164.
+
+The parent and recorded PAIR_LIMITS request CPUs6/7, but the retained core8674 monitor at run_build_once.py:238 invokes Popen with the literal prefix `taskset -c 0,1`. It does not consume `budget['cpu_affinity']`. Therefore the actual analysis child would still share the active metadata writer's CPUs0/1. The updated mocked-parent tests do not exercise this Popen boundary.
+
+All15 existing tests passed in0.67s; that is insufficient to establish actual CPU separation. An additional independent pre-launch interception called the real retained core monitor with the actual adapted PAIR_LIMITS and captured `['taskset','-c','0,1','/fixture/no-execution']` immediately before process creation. No child, payload analysis, GPU, signal, SSH or shared-state mutation occurred. The review process remained on CPUs6/7, peak RSS83,017,728 bytes, elapsed1.0525s. The reproduction is saved in check.py and RESULT.json.
+
+The first adapter's analysis/read/cleanup review is otherwise unchanged. This failure is specifically the newly claimed execution routing. Repair should remain in a C4-local adapter, preserve the shared/live core unchanged, and test the actual exec affinity (not merely the requested dictionary). No actual C4 execution should proceed under the claimed6/7 routing until corrected and rechecked.
