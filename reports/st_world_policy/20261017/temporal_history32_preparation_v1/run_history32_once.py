@@ -13,12 +13,14 @@ def _expire(*_):
 
 import argparse
 import hashlib
+import importlib
 import json
 import math
 import os
 from pathlib import Path
 import socket
 import stat
+import sys
 import types
 
 RUNTIME = Path('/mnt/project/VLA-Drive-st-temporal-combination-20261017')
@@ -30,6 +32,12 @@ CONTROL = ROOT.with_name(ROOT.name + '_controls')
 SELECTED = BASE / 'audits/indexed_composition_preparation_v1/SELECTED_SCENES.json'
 SELECTED_SHA = '7c78c58c40456649a93d152f9925ea5e1faa7e08bb65e98cd6c4af3b0c52b9b8'
 PYTHON = '/root/miniconda3/envs/ddp/bin/python'
+COMPAT_DIR = Path('/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1')
+W_COMPAT = {
+    'adapter': {'path': str(COMPAT_DIR / 'compat.py'), 'sha256': '776ec07ac8fc150eddd7cf685db602abe27dc94a9050628bef3a1ebbdc717e32'},
+    'proof': {'path': str(COMPAT_DIR / 'COMPATIBILITY.json'), 'sha256': 'bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f'},
+    'current_validator': {'path': str(RUNTIME / 'tools/st_world_policy/spatial_w_storage.py'), 'sha256': '0d2c16be1e7ef98bf5b1c9ab6abc10f6b4fdd23ff722d8e0e41f0b280f957987'},
+}
 PINS = {
     'reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py': 'a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016',
     'reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py': '4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2',
@@ -85,6 +93,8 @@ def validate_binding(a, cp, *, now, child=False):
         raise ValueError('Exact bounded32 resource envelope required')
     if a.get('schema') != 'st_history32_owned_admission_v1' or a.get('status') != 'APPROVED_HISTORY32_PILOT_ONLY':
         raise ValueError('Independent exact32 admission required')
+    if a.get('w_source_compatibility') != W_COMPAT:
+        raise ValueError('Exact reviewed W compatibility dependencies required')
     if a.get('reviewer') in (None, '', '/root', '/root/st_indexprep_boundary_fix', '/root/st_temporal_readiness_inventory'):
         raise ValueError('Author cannot approve this binding')
     if (a.get('runtime') != str(RUNTIME) or a.get('output_root') != str(ROOT) or
@@ -103,6 +113,47 @@ def validate_binding(a, cp, *, now, child=False):
     if not cp['checked_at_unix'] <= now <= a['valid_until_unix'] <= cp['valid_until_unix']:
         raise ValueError('Checkpoint commitment does not cover invocation')
     return cpus
+
+
+def install_current_w_compatibility(pins):
+    """Reuse the reviewed one-expression bridge, retaining this runtime's modules."""
+    if pins != W_COMPAT:
+        raise ValueError('Wrong W compatibility pins')
+    adapter = types.ModuleType('history32_reviewed_w_compatibility')
+    adapter.__file__ = pins['adapter']['path']
+    exec(compile(pinned(pins['adapter'], decode=False), adapter.__file__, 'exec'), adapter.__dict__)
+    # Original verify checks the exact two clean trees, all common computation
+    # blobs, the two storage differences and its own adapter identity.
+    proof = adapter.verify(pins['proof'])
+    source = pinned(pins['current_validator'], decode=False).decode()
+    if adapter.TARGET in sys.modules:
+        raise ValueError('Install before any spatial_w_storage import')
+    for name in ('metadata_storage', 'cache_storage_budget'):
+        relative = 'tools/st_world_policy/' + name + '.py'
+        pinned({'path': str(RUNTIME / relative), 'sha256': PINS[relative]}, decode=False)
+        loaded = sys.modules.get('tools.st_world_policy.' + name)
+        if loaded is not None and Path(loaded.__file__).resolve() != RUNTIME / relative:
+            raise ValueError('Foreign current storage module')
+    sys.path.insert(0, str(RUNTIME))
+    package = importlib.import_module('tools.st_world_policy')
+    if Path(package.__file__).resolve().parent != RUNTIME / 'tools/st_world_policy':
+        raise ValueError('Foreign current policy package')
+    budget = importlib.import_module('tools.st_world_policy.cache_storage_budget')
+    if Path(budget.__file__).resolve() != RUNTIME / 'tools/st_world_policy/cache_storage_budget.py':
+        raise ValueError('Foreign current budget module')
+    module = types.ModuleType(adapter.TARGET)
+    module.__file__ = pins['current_validator']['path']
+    module.__package__ = 'tools.st_world_policy'
+    module._verified_common_compute_source = lambda value: adapter.common_source(value, proof)
+    exec(compile(adapter.patched_source(source), module.__file__, 'exec'), module.__dict__)
+    if module.b is not budget:
+        raise ValueError('Current budget identity differs')
+    sys.modules[adapter.TARGET] = module
+    setattr(package, 'spatial_w_storage', module)
+    return {'dependencies': pins, 'current_runtime': str(RUNTIME),
+            'common_compute_blob_sha256': proof['common_compute_blob_sha256'],
+            'actual_source_shas_preserved': [adapter.OLD, adapter.NEW],
+            'source_metadata_bytes': adapter.READ_BYTES, 'policy_or_ledger_written': False}
 
 
 def bind_source(raw):
@@ -206,6 +257,9 @@ def main():
             reg.get('max_source_read_bytes') != 16 << 30 or reg.get('read_mib_per_second') != 32):
         raise ValueError('Wrong exact32 packed resource contract')
     m = make_controller(raw, a, cp, cpus, ENTRY_IO)
+    # Both parent and --child execute this before original controls() imports
+    # metadata_storage. Never call adapter.install(): it selects the old root.
+    m.W_SOURCE_COMPATIBILITY = install_current_w_compatibility(a['w_source_compatibility'])
     # Hand off to the existing absolute ENTRY+900 alarm before any I/O or import
     # in controls(). The original main parses the same already-validated argv.
     signal.setitimer(signal.ITIMER_REAL, 0)
