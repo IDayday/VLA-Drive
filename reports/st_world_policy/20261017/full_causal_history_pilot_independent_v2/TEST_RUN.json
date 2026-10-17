@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_wrapper.py",
+    "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_owned.py",
+    "reports/st_world_policy/20261017/full_causal_history_boundary_fix_v1/test_boundaries.py",
+    "reports/st_world_policy/20261017/full_causal_history_pilot_independent_v2/test_review_v2.py",
+    "-k",
+    "not real_tiny_owned_child"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 5.026156209409237,
+  "peak_descendant_process_tree_rss_bytes": 642301952,
+  "maximum_live_descendant_rchar_sum_bytes": 141244150,
+  "observed_peak_processes": 2,
+  "charged_parent_after_reap_rchar_bytes": 141403052,
+  "resource_limit_failure": null,
+  "cpu_affinity": [
+    8,
+    9
+  ],
+  "log_sha256": "a72e186e61eb27c417bbb2f11c713c13bb066df1944b911d3aa55fbdf4b3b1a6",
+  "synthetic_fixtures_only": true,
+  "real_history_pilot_run": false,
+  "resource_accounting_scope": "All test descendants via /proc task children; total logical reads via supervising parent after wait, includes reaped test child once."
+}

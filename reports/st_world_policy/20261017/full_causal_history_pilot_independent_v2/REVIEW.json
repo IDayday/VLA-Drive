@@ -1,0 +1,100 @@
+{
+  "schema": "st_history_pilot_independent_review_v2",
+  "reviewer": "/root/st_history_pilot_independent_v2",
+  "reviewed_commit": "3b5869cabfccaceca3562b1842abb6e326d2561a",
+  "lead_integration_reference": "b7bdbe47",
+  "created_utc": "2026-10-17T12:22:15.645494+00:00",
+  "overall_status": "PASS_CODE_CONTROLLER_BOUNDARY",
+  "launch_allowed": false,
+  "actual_admission_status": "MISSING_ACTUAL_CONTROL_RESERVATION_AND_ARTIFACT_ADMISSION",
+  "scope": "Narrow H64-1/2/3 fixes plus unchanged causal/source code; no real pilot or full history qualification",
+  "prior_negative_review_retained": {
+    "commit": "b20c9b5b46dc6b2b721eeccdb35a1e96fcf2af2e",
+    "sha256": "b9ec939f5fbf68800b03ccfcd5c87ea623953afd51678ea17461bb9642bdfe3a"
+  },
+  "verdicts": {
+    "H64-1": "PASS_SCOPED_ACTUAL_LOCK_NB_AND_WHOLE_WRAPPER_DEADLINE",
+    "H64-2": "PASS_ENTRY_IO_BASELINE_AND_POST_PUBLICATION_ACCOUNTING",
+    "H64-3": "PASS_IMMUTABLE_TERMINAL_FAILURE_CLEANUP_UNKNOWN_RETAINED",
+    "separate_control_admission_validation": "PASS_FIXED_PATH_1MIB_AND_CONSERVATIVE_31MIB_ARTIFACT_LIMIT",
+    "actual_control_reservation": "MISSING_ACTUAL_CONTROL_RESERVATION",
+    "real_64_scene_cost": "NOT_RUN",
+    "full_history_scale": "NOT_ADMITTED"
+  },
+  "source_comparison_to_v1": {
+    "tools/st_world_policy/prepare_causal_history.py": {
+      "sha256": "b486d2233955d19179c7beb93e314681dda45664890d8bc7d59edc00f92b6d48",
+      "matches_v1_review": true
+    },
+    "tools/st_world_policy/prepare_history.py": {
+      "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836",
+      "matches_v1_review": true
+    },
+    "tools/st_world_policy/metadata_storage.py": {
+      "sha256": "bfabb79e0f1f7938ad54008040d5f3ffd9a9791184da3c1b925d3d9c8a22d9cc",
+      "matches_v1_review": true
+    },
+    "tools/st_world_policy/cache_storage_budget.py": {
+      "sha256": "2103a082271706513127404b35fb1ff9154309b5e5fbe56306b8e831a509b1d5",
+      "matches_v1_review": true
+    },
+    "starVLA/dataloader/st_world_history.py": {
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d",
+      "matches_v1_review": true
+    },
+    "reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py": {
+      "sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016",
+      "matches_v1_review": false
+    },
+    "reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py": {
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2",
+      "matches_v1_review": true
+    },
+    "reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py": {
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902",
+      "matches_v1_review": true
+    }
+  },
+  "wrapper_sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016",
+  "tests": {
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_wrapper.py",
+      "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_owned.py",
+      "reports/st_world_policy/20261017/full_causal_history_boundary_fix_v1/test_boundaries.py",
+      "reports/st_world_policy/20261017/full_causal_history_pilot_independent_v2/test_review_v2.py",
+      "-k",
+      "not real_tiny_owned_child"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 5.026156209409237,
+    "peak_descendant_process_tree_rss_bytes": 642301952,
+    "maximum_live_descendant_rchar_sum_bytes": 141244150,
+    "observed_peak_processes": 2,
+    "charged_parent_after_reap_rchar_bytes": 141403052,
+    "resource_limit_failure": null,
+    "cpu_affinity": [
+      8,
+      9
+    ],
+    "log_sha256": "a72e186e61eb27c417bbb2f11c713c13bb066df1944b911d3aa55fbdf4b3b1a6",
+    "synthetic_fixtures_only": true,
+    "real_history_pilot_run": false,
+    "resource_accounting_scope": "All test descendants via /proc task children; total logical reads via supervising parent after wait, includes reaped test child once."
+  },
+  "remaining_launch_dependencies": [
+    "Lead must wait for active original-ledger writer quiescence; no competing claim mutation.",
+    "Precharge/explicitly reserve 1MiB control plus at most31MiB artifact in actual campaign budget; pin real reservation evidence, do not substitute report text.",
+    "Issue fresh exact host/runtime/source/selection/admission hashes and checkpoint lease covering actual 900+40 window; fresh free floor remains required.",
+    "No actual pilot result is approved by this code review."
+  ],
+  "no_production_dispatch": true,
+  "no_actual_ledger_mutation": true,
+  "no_raw_data_or_gpu_or_ssh": true,
+  "old_runtime_modified": false
+}
