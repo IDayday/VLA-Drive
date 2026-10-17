@@ -285,11 +285,19 @@ def _validate_full_population(d, request, source):
     reg = pinned(population['current_registration']); current = pinned(population['current_complete'])
     future = pinned(population['future_complete']); binding = reg.get('source', {})
     n = request.receipt['scene_count']; header = request.receipt['manifest_header']
+    future_name = 'COMPLETE.json'
+    future_schema = 'st_future_metadata_complete_v1'
+    if future.get('schema') == 'st_future_metadata_finalization_complete_v1':
+        from tools.st_world_policy.finalize_future_metadata import validate_completion, COMPLETE_NAME, COMPLETE_SCHEMA
+        validate_completion(future, population['future_complete']['path'],
+            request_sha256=d['requests']['sha256'], request_identity=request.receipt['request_identity'],
+            manifest_header=header, scene_count=n)
+        future_name, future_schema = COMPLETE_NAME, COMPLETE_SCHEMA
     selected = a['data_manifest']; path = Path(selected['path'])
     current_root = Path(population['current_registration']['path']).parent
     if (Path(population['current_complete']['path']) != current_root / 'COMPLETE.json'
             or path != current_root / 'SELECTED_SCENES.json'
-            or Path(population['future_complete']['path']) != Path(d['requests']['path']).parent / 'COMPLETE.json'):
+            or Path(population['future_complete']['path']) != Path(d['requests']['path']).parent / future_name):
         raise ValueError('Full PROFILE receipt paths do not bind the original preparations')
     if (reg.get('schema') != 'st_current_population_registration_v1'
             or reg.get('identity') != identity_hash({k:v for k,v in reg.items() if k != 'identity'})
@@ -303,7 +311,7 @@ def _validate_full_population(d, request, source):
         'current_registration_identity': reg['identity'],
         'current_registration_sha256': population['current_registration']['sha256'],
         'current_complete_sha256': population['current_complete']['sha256']}
-    if (future.get('schema') != 'st_future_metadata_complete_v1' or future.get('status') != 'COMPLETE'
+    if (future.get('schema') != future_schema or future.get('status') != 'COMPLETE'
             or future.get('scope') != 'full_population' or future.get('scenes') != n
             or future.get('logs') != binding.get('logs') or future.get('target_times_s') != [0., .5, 1., 2., 4.]
             or future.get('request_identity') != request.receipt['request_identity']

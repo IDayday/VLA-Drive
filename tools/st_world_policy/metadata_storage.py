@@ -432,7 +432,7 @@ def _resources(reg):
         if not isinstance(pattern, str) or len(pattern) > 256:
             b._fail("invalid metadata filename pattern")
         re.compile(pattern)
-    if reg.get("writer_kind") not in ("current_index", "future_preparation", "future_index", "history_preparation"):
+    if reg.get("writer_kind") not in ("current_index", "future_preparation", "future_finalization", "future_index", "history_preparation"):
         b._fail("unsupported metadata writer")
     if limits["max_depth"] != 0 and reg["writer_kind"] not in ("future_preparation", "history_preparation"):
         b._fail("index output must stay flat")
@@ -699,8 +699,10 @@ def run_registered_metadata(**kwargs):
     expected_module = {"current_index": "tools.st_world_policy.index_teacher_metadata",
                        "future_index": "tools.st_world_policy.index_teacher_metadata",
                        "future_preparation": "tools.st_world_policy.prepare_future_metadata",
+                       "future_finalization": "tools.st_world_policy.finalize_future_metadata",
                        "history_preparation": "tools.st_world_policy.prepare_causal_history"}[reg["writer_kind"]]
-    if command[1:3] != ["-m", expected_module] or command[3] not in ("build", "verify"):
+    allowed_commands = ("finalize-existing",) if reg["writer_kind"] == "future_finalization" else ("build", "verify")
+    if command[1:3] != ["-m", expected_module] or command[3] not in allowed_commands:
         b._fail("runner only accepts registered metadata CLI")
     output_flag = "--plan" if reg["writer_kind"] == "future_preparation" else ("--index" if command[3] == "verify" else "--output")
     if output_flag not in command or command.index(output_flag) + 1 >= len(command):
@@ -754,7 +756,7 @@ def run_registered_metadata(**kwargs):
         args = module.parser().parse_args(command[3:])
         result = module.build(args) if reg["writer_kind"] == "future_preparation" else module.run(args)
         guard.check(before_commit=True)
-        if guard.writer_callbacks == 0 or (command[3] == "build" and guard.writer_commit_callbacks == 0):
+        if guard.writer_callbacks == 0 or (command[3] in ("build", "finalize-existing") and guard.writer_commit_callbacks == 0):
             b._fail("metadata writer never called required resource/publication hook")
         if isinstance(result, dict) and result.get("status") in ("PARTIAL", "FAILED", "BLOCKED"):
             b._fail("metadata writer returned incomplete status")

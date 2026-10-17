@@ -1,0 +1,44 @@
+{
+  "actual_policy_or_claim_modified": false,
+  "all_test_affinity": [
+    10,
+    11
+  ],
+  "earlier_monitored_new_tests": {
+    "passed": 20,
+    "peak_rss_bytes": 630902784,
+    "pytest_seconds": 5.84,
+    "rss_abort_bytes": 2147483648,
+    "wall_abort_seconds": 120,
+    "wall_seconds": 7.513892438262701
+  },
+  "earlier_new_plus_legacy_regression": {
+    "files": [
+      "tests/st_world/test_finalize_future_metadata.py",
+      "tests/st_world/test_prepare_future_metadata.py",
+      "tests/st_world/test_metadata_writer_hooks.py"
+    ],
+    "passed": 51,
+    "pytest_seconds": 7.58
+  },
+  "independent_correctness": "PENDING",
+  "independent_efficiency": "PENDING",
+  "latest_new_tests": {
+    "command": "taskset -c 10,11 timeout 120s env PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q -p no:cacheprovider tests/st_world/test_finalize_future_metadata.py --basetemp=/tmp/st-finalize-existing-tests-v4",
+    "passed": 23,
+    "pytest_seconds": 6.13
+  },
+  "real_control_input_bytes": 17658,
+  "real_finalization": "NOT_RUN",
+  "real_raw_image_teacher_reads": 0,
+  "real_shard_content_reads": 0,
+  "source_frozen_runtime_unchanged": true,
+  "status": "IMPLEMENTED_SYNTHETIC_VERIFIED_PENDING_INDEPENDENT_REVIEW",
+  "synthetic_file_bytes_by_attempt": {
+    "/tmp/st-finalize-existing-tests-v1": 610157,
+    "/tmp/st-finalize-existing-tests-v2": 13311052,
+    "/tmp/st-finalize-existing-tests-v3": 804639,
+    "/tmp/st-finalize-existing-tests-v4": 986420
+  },
+  "synthetic_file_bytes_total": 15712268
+}
