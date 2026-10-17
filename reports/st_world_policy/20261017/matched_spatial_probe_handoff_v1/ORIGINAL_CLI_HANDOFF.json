@@ -1,0 +1,315 @@
+{
+  "schema": "st_matched_spatial_probe_commands_NOT_AUTHORIZATION_v1",
+  "status": "DEPENDENCIES_NOT_CREATED_NO_DISPATCH",
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017",
+    "probe": {
+      "bytes": 38869,
+      "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/tools/st_world_policy/spatial_probe.py",
+      "sha256": "e5d9e4306aae8311aefea9c8cc8ee777fd88424b412abcc6003128c6c7e0a20f"
+    },
+    "readout": {
+      "bytes": 4381,
+      "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017/starVLA/model/modules/st_world/sparse_readout.py",
+      "sha256": "e0fe8b047e2e0c7836ad221984ff526b8be7a379197deeebcee4036c8ce938ee"
+    },
+    "source_sha": "581399eb309677c20fe7464791b4f18685e947a6"
+  },
+  "python": "/root/miniconda3/envs/ddp/bin/python",
+  "arms": [
+    {
+      "arm": "S-P1",
+      "binding_source": {
+        "registration": {
+          "bytes": 2422,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+          "sha256": "41c5ada8232b51a7387b8a2ab267c8a3c84e7efb87b8cde3753a8d3bf5b2df5a"
+        },
+        "checkpoint_tag": "step_005000_1792219550866622410",
+        "checkpoint_identity": "c088115fdeffa355d2b6ebf8a807ea01112a22c90059919b39f5372456af2d28",
+        "native_receipt": {
+          "bytes": 1906,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792219550866622410/COMPLETE.json",
+          "sha256": "4bef7684343c4197427272c1274bde3271b5e8f640f5cff8a001a689f487b275"
+        }
+      },
+      "expected_new_controls_exist": false,
+      "order": [
+        {
+          "stage": "dev_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev"
+          ]
+        },
+        {
+          "stage": "dev_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/storage_preparation_dev_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "train_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/train"
+          ]
+        },
+        {
+          "stage": "train_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/train",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/storage_preparation_train_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "fit",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "fit",
+            "--registration",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/controls_581399eb_v1_metadata_only/FIT_REGISTRATION.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/fit"
+          ]
+        }
+      ],
+      "execution_requirement": "Only inside reviewed original observer/supervisor after fixed-arm binding and race-only control update, with fresh exact stage admission. This JSON is not runnable authorization."
+    },
+    {
+      "arm": "S-P2",
+      "binding_source": {
+        "registration": {
+          "bytes": 2426,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+          "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+        },
+        "checkpoint_tag": "step_005000_1792222283615035511",
+        "checkpoint_identity": "2de4bf93f817a82f673d5d0c53af20a264c2e5b0a76e0263336283091cc5bdb1",
+        "native_receipt": {
+          "bytes": 1907,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792222283615035511/COMPLETE.json",
+          "sha256": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183"
+        }
+      },
+      "expected_new_controls_exist": false,
+      "order": [
+        {
+          "stage": "dev_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/dev"
+          ]
+        },
+        {
+          "stage": "dev_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/dev",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/storage_preparation_dev_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "train_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/train"
+          ]
+        },
+        {
+          "stage": "train_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP2_5000_v1/train",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/storage_preparation_train_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "fit",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "fit",
+            "--registration",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/controls_581399eb_v1_metadata_only/FIT_REGISTRATION.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP2_5000_v1/fit"
+          ]
+        }
+      ],
+      "execution_requirement": "Only inside reviewed original observer/supervisor after fixed-arm binding and race-only control update, with fresh exact stage admission. This JSON is not runnable authorization."
+    },
+    {
+      "arm": "S-P3",
+      "binding_source": {
+        "registration": {
+          "bytes": 2426,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+          "sha256": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be"
+        },
+        "checkpoint_tag": "step_005000_1792224403643960209",
+        "checkpoint_identity": "52beafa2273e3cb9900ce3aed824a0af19683a5e22e935cb2e4d6ef9d3fc5058",
+        "native_receipt": {
+          "bytes": 1907,
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792224403643960209/COMPLETE.json",
+          "sha256": "d4f5225f84f6d2410f91ed79357258cff68c0a0e84e93f7d696520ac9ee5db93"
+        }
+      },
+      "expected_new_controls_exist": false,
+      "order": [
+        {
+          "stage": "dev_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/dev"
+          ]
+        },
+        {
+          "stage": "dev_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/controls_581399eb_v1_metadata_only/dev_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/dev",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/storage_preparation_dev_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "train_plan",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "plan-cache",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/train"
+          ]
+        },
+        {
+          "stage": "train_extract",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "extract",
+            "--binding",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/controls_581399eb_v1_metadata_only/train_BINDING.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP3_5000_v1/train",
+            "--storage-policy",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/storage_preparation_train_v1/POLICY.json",
+            "--checkpoint-commitments",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_PATH",
+            "--checkpoint-commitments-sha256",
+            "REQUIRED_FRESH_ADMISSION_COMMITMENTS_SHA256"
+          ]
+        },
+        {
+          "stage": "fit",
+          "argv": [
+            "/root/miniconda3/envs/ddp/bin/python",
+            "-m",
+            "tools.st_world_policy.spatial_probe",
+            "fit",
+            "--registration",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/controls_581399eb_v1_metadata_only/FIT_REGISTRATION.json",
+            "--output",
+            "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP3_5000_v1/fit"
+          ]
+        }
+      ],
+      "execution_requirement": "Only inside reviewed original observer/supervisor after fixed-arm binding and race-only control update, with fresh exact stage admission. This JSON is not runnable authorization."
+    }
+  ]
+}

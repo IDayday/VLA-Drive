@@ -1,0 +1,19 @@
+{
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "dispatch": false,
+  "elapsed_seconds": 0.48342047072947025,
+  "explicit_read_cap_bytes": 67108864,
+  "explicit_unique_metadata_source_bytes": 5954689,
+  "peak_rss_bytes": 1703653376,
+  "physical_read_bytes": 4198400,
+  "process_rchar_bytes": 6846548,
+  "source_files_read": 56,
+  "status": "FAIL_RESOURCE_ACCOUNTING_RUSAGE_EXEC_INHERITED_HIGH_WATER",
+  "storage_ledger_written": false,
+  "tensor_reads": 0,
+  "torch_imported": false,
+  "explanation": "Final budget assertion failed using ru_maxrss. Prior metadata assertions passed; no payload opened. Two small-metadata attempts were performed; first had the same final assertion but did not publish COST. Preserve this failure, fix accounting to report current executable /proc/self/status VmHWM and retain raw getrusage field."
+}
