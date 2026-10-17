@@ -1,0 +1,58 @@
+{
+  "checkpoint_payload_read": false,
+  "environment_inheritance": "Same receipt hash only after actual target environment equality check; historical receipt alone is not a live check.",
+  "exact_artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/configs/st_world_policy/teacher_channel_control_v1/PCA256.json",
+      "sha256": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+      "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+    },
+    "target_contract": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/configs/st_world_policy/teacher_channel_control_v1/TARGET_CONTRACT_256.json",
+      "sha256": "d598d570bde6b2e1725fabe5bb7df176618af48cc8c5e60fb719226ef4636de2"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/identity.json",
+      "sha256": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    }
+  },
+  "execution": {
+    "family": "spatial",
+    "global_batch": 32,
+    "max_updates": 20000,
+    "micro_batch": 4,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 0,
+    "scope": "FORMAL",
+    "seed": 42,
+    "stop_after": 5000,
+    "world_size": 4
+  },
+  "formal_launch_allowed": false,
+  "must_bind_new_actual_artifacts": [
+    "environment",
+    "resource_lease"
+  ],
+  "new_output_root": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs",
+  "old_approval_reusable_as_new_approval": false,
+  "old_correctness_evidence_reusable_for_unchanged_runtime": true,
+  "old_correctness_review": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+    "sha256": "c25e5f4efcd13d2d441897d8faf45d8a93a59e825e7f8109cf7d51898e4cca67"
+  },
+  "pca_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+  "proposed_run_id": "SP2_PCA256_fulltrain_seed42_official_5k_v1",
+  "registration_created_by_this_reviewer": false,
+  "resource_lease_inheritance": false,
+  "runtime": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016",
+  "schema": "st_channel256_registration_inputs_review_v1",
+  "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+  "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75"
+}
