@@ -1,0 +1,44 @@
+{
+  "schema": "st_T1_native4_independent_resource_code_review_v1",
+  "status": "BLOCKED_CONCRETE_RESOURCE_BOUNDARY_FIXES",
+  "source_commit": "cd55876bc2214ac7c8e0bc97405979a3f07c5548",
+  "adapter_sha256": "5da49c14d5552011a755ce981669b49f4d048242a9019667d77468eeefff5aca",
+  "reviewer": "/root/st_metadata_resource_review",
+  "reviewed_unix": 1792236407.6386096,
+  "inherits_resource_feasibility_commit": "490b288903b402b1499669b2ade7dc3fa15842ca",
+  "tests": {
+    "owner_pass": 18,
+    "independent_fail": 1,
+    "seconds": 1.95
+  },
+  "findings": [
+    {
+      "id": "T1-R01",
+      "boundary": "monitor cleanup deadline",
+      "evidence": "TERM at 3601; original absolute deadline 3781; finally calls finish(deadline=3961)",
+      "required_fix": "Reuse a single absolute cleanup deadline in all exit paths; do not renew 180s."
+    },
+    {
+      "id": "T1-R02",
+      "boundary": "shared checkpoint obligations and free floor",
+      "evidence": "Only new runs directory <=120GiB is checked; no checkpoint obligation pin or live statvfs in adapter; Lead confirms no outer control exists yet.",
+      "required_fix": "Pin a real fresh combined2303GiB commitment control, cover complete phase window, enforce shared free>=2303GiB+1TiB; preserve old2183GiB and new120GiB separately."
+    }
+  ],
+  "preserved_valid_boundaries": [
+    "phase2 plus phase4 only",
+    "actual phase2 native parent required for phase4",
+    "shared512GiB read budget carries prior observed cost",
+    "failed attempt marker prevents retry",
+    "existing owned process monitor and exactly pinned helper",
+    "live aggregate rank RSS and logical reads sampled",
+    "new120GiB separate from prior80GiB profile"
+  ],
+  "helper_sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902",
+  "terminal_accounting_core_sha256": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644",
+  "actual_dispatch": false,
+  "registration_or_lease_created": false,
+  "live_ledger_mutated": false,
+  "real_payload_or_gpu_used": false,
+  "next_scope": "Only exact two fixes and small positive/negative CPU regressions; original source/runtime/scientific recipe unchanged."
+}
