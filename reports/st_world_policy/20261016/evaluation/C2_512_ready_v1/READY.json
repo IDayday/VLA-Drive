@@ -1,0 +1,330 @@
+{
+  "schema": "st_registered_endpoint_queue_observation_v1",
+  "recorded_unix": 1792217147.8546426,
+  "recorded_utc": "2026-10-17T06:05:47.854653+00:00",
+  "reviewer": "/root/st_evaluation",
+  "job_id": "C2_step000512_dev1696_seed42_v1",
+  "arm": "C2",
+  "stage": "DIAGNOSTIC_512",
+  "expected_completed": 512,
+  "checkpoint_status": "READY",
+  "status": "WAITING_ALLOWED_GPU",
+  "launch_allowed_now": false,
+  "reason": "Complete fixed diagnostic checkpoint verified against deployed v3 fixed C2 loader; actual route and fresh allowed free resource admission remain Lead tasks.",
+  "checkpoint_tag": "step_000512_1792216013626052508",
+  "receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/checkpoints/step_000512_1792216013626052508/COMPLETE.json",
+    "sha256": "83d9a1e2a7c0b34edbf26f9e0909fb9d10380ad65f479ae624bb767d9220a95d",
+    "identity": "0084b3301a743a0f0b684fe9b49b26456e9f023bce9b6a79117f8f3ef3e2f300"
+  },
+  "runtime_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+  "training_refs": {
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "sha256": "7d3dd8587aa9e3f2ee03d113eac9e0535eeadab27598da584f1dfe5a4bda572a"
+    },
+    "approval": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+      "sha256": "5af307f55fe58bd734c629686413f363272014795fd880d45ab640b2678b613e"
+    },
+    "launch": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/LAUNCH.json",
+      "sha256": "33d75fc55aa6707b38d5f52e09e27052c25e8d379031cd2aa624962fd552a987"
+    },
+    "run_identity_file": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/identity.json",
+      "sha256": "ab6c077f5633e769b8987bf95a869be0bb4f3164cfa7fe041a42e57b7bc2fae0"
+    },
+    "status": "TRAINING_RUNNING",
+    "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/CONFIG.json",
+      "sha256": "9d9f17a75b20483deb79b6c938c669b26158750b6dff931778edcd362ffdbadd"
+    }
+  },
+  "training_status_source": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/status.json",
+  "training_status_observed_sha256": "a758176901f38a71e89d51df59c59aff1b948be947d6b76b1961c160b1410305",
+  "training_status_snapshot": {
+    "completed": 580,
+    "counts": {
+      "BC_repeat8_presentations": 148480,
+      "actual_rollouts": 74240,
+      "original_GT_scenes": 18560,
+      "policy_MC_points_per_old_and_current": 3712000
+    },
+    "epoch": 0,
+    "exposure": 18560,
+    "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+    "host": "training-rl-zt2-worker-0",
+    "identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+    "last_completed_policy": {
+      "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+      "optimizer_step": 579,
+      "role": "old",
+      "state_hash": "eb6eec7e21c350b3ad08aa67c0ba972da9a9dcdf928f8831f9c12f6b214075f0",
+      "version": 579
+    },
+    "offset": 580,
+    "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+    "pending_feedback": null,
+    "pending_old_policy": null,
+    "pid": 1180552,
+    "policy_version": 580,
+    "reuse_guard": {
+      "consumed": {},
+      "limits": {
+        "max_records": 1,
+        "max_reuses": 1,
+        "max_update_age": 1,
+        "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+      },
+      "retired_before": 580,
+      "schema": "fpo_reuse_v1"
+    },
+    "rng_stream_base_seed": 42,
+    "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "started_unix": 1792207419.3344448,
+    "status": "RUNNING",
+    "tag": "step_000512_1792216013626052508",
+    "termination_reason": "RUNNING_CHECKPOINT",
+    "updated_unix": 1792217131.7361732
+  },
+  "checkpoint_state": {
+    "completed": 512,
+    "counts": {
+      "BC_repeat8_presentations": 131072,
+      "actual_rollouts": 65536,
+      "original_GT_scenes": 16384,
+      "policy_MC_points_per_old_and_current": 3276800
+    },
+    "epoch": 0,
+    "exposure": 16384,
+    "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+    "identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+    "last_completed_policy": {
+      "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+      "optimizer_step": 511,
+      "role": "old",
+      "state_hash": "6cd434afc165a55b6b7944e2e94c960ee346190a51768a79c4dd9ef908daf7a8",
+      "version": 511
+    },
+    "offset": 512,
+    "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+    "pending_feedback": null,
+    "pending_old_policy": null,
+    "policy_version": 512,
+    "reuse_guard": {
+      "consumed": {},
+      "limits": {
+        "max_records": 1,
+        "max_reuses": 1,
+        "max_update_age": 1,
+        "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+      },
+      "retired_before": 512,
+      "schema": "fpo_reuse_v1"
+    },
+    "rng_stream_base_seed": 42,
+    "tag": "step_000512_1792216013626052508",
+    "termination_reason": "RUNNING_CHECKPOINT"
+  },
+  "native_file_sizes_verified": true,
+  "payload_hashes_recomputed": false,
+  "native_metadata": {
+    "file_count": 9,
+    "total_bytes": 11473306440,
+    "receipt_identity_recomputed": true,
+    "exact_native_inventory_verified": true,
+    "files": [
+      {
+        "name": "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+        "bytes": 2458525488,
+        "receipt_declared_sha256": "28523dff78a52faa455190b8c4e491806213a1b523c37706fbb084f2bd5939bd"
+      },
+      {
+        "name": "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+        "bytes": 2458524592,
+        "receipt_declared_sha256": "205fa3a597d6c2aee77ff3db849ac161ee6c3ac16571d983550bce1f264cd463"
+      },
+      {
+        "name": "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+        "bytes": 2458524592,
+        "receipt_declared_sha256": "c0cf5acf1f1d1368880de738ae316e3906fb4d8e7cc524c430627686ed02cf12"
+      },
+      {
+        "name": "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+        "bytes": 2458524784,
+        "receipt_declared_sha256": "76b4ebac93d8be213f2895de3d9ab9b67eeb7a358c1695b98fdee6d61b0b1744"
+      },
+      {
+        "name": "mp_rank_00_model_states.pt",
+        "bytes": 1639145080,
+        "receipt_declared_sha256": "6c9f2490a732ef6a6e4aeedc8462d1925e1ec9d7c2d242e85d79277ca3be63f4"
+      },
+      {
+        "name": "rng_rank0.pt",
+        "bytes": 15428,
+        "receipt_declared_sha256": "c38402693b3d49978a2fbd8a927f63d3488f85b1b14a0b88f81960a2b1bfae54"
+      },
+      {
+        "name": "rng_rank1.pt",
+        "bytes": 15492,
+        "receipt_declared_sha256": "5e01ba87d774cb9c23413bf6404b2fe6f822a1bc3ab1c7682210582f018ce748"
+      },
+      {
+        "name": "rng_rank2.pt",
+        "bytes": 15492,
+        "receipt_declared_sha256": "0ad50badafe6d82628e9471ca3c6fafd0420c6aeb6fc4c3a9749ba7a0dd95d12"
+      },
+      {
+        "name": "rng_rank3.pt",
+        "bytes": 15492,
+        "receipt_declared_sha256": "5a873906c43a407f6eb2186540a022cdc44466b840fa6d4663faa9eb7e4ec69d"
+      }
+    ],
+    "payload_verification_deferred_to": "Existing frozen exporter identity/model readers before use."
+  },
+  "fixed_preparation_pins": {
+    "POLICY.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/POLICY.json",
+      "sha256": "7b97826d9774a6a84f5541d89d18e5c25c2a028670bab949c9ffab03f3b80303"
+    },
+    "INTENTS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/INTENTS.json",
+      "sha256": "16dced163d61d0c32ba6c97901e7f2d4e1b0b2d212f3fbe6a2069adab11c98ce"
+    },
+    "COMMANDS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/COMMANDS.json",
+      "sha256": "640832d3714e8f889183950b50147bc1dcd1c2238cd637f019221a3c2cb10467"
+    },
+    "TRAINING_BINDINGS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/TRAINING_BINDINGS.json",
+      "sha256": "ed571df22ad2c82a1b099547fe98d4e163de260d9ce91d560949a5252c150324"
+    },
+    "EXECUTION_PLAN.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+      "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+    }
+  },
+  "parent_ten_job_pins": {
+    "POLICY.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/POLICY.json",
+      "sha256": "5373e3eb57dc4bbb0e042f4f08df4569bc0a5cbb5c5fedcbd45bfbb0a29ed17f"
+    },
+    "COMMANDS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COMMANDS.json",
+      "sha256": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421"
+    },
+    "INTENTS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/INTENTS.json",
+      "sha256": "e749a4969803c2a9f0a6eb67cbd19e7544de33013e946517fb67709a6a1df1b6"
+    }
+  },
+  "existing_v3_C2_loader_used_without_launcher_main": true,
+  "input_configuration_verified": "Actual identity.config equals pinned CONFIG; source_fingerprint/registered execution and registration/approval/launch/identity pins match fixed C2 preparation. No train payload reread.",
+  "frozen_runtime": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "clean_at_read": true,
+    "policy_source_file_pins_verified": true
+  },
+  "population_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "metric_index": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+    "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+  },
+  "population_alignment": {
+    "scenes": 1696,
+    "logs": 16,
+    "metric_contexts": 1696,
+    "exact_token_log_set_equal": true,
+    "context_payloads_reread": false
+  },
+  "protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+  "route": {
+    "state": "NOT_CREATED_PENDING_LEAD_FRESH_ADMISSION",
+    "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C2_step000512_dev1696_seed42_v1/ROUTE.json",
+    "sha256": null,
+    "host": null,
+    "gpu": null,
+    "gpu_uuid": null,
+    "environment_reference": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    "allowed_canonical_hosts": [
+      "training-rl-zt2",
+      "training-vla-zt",
+      "training-vlawm-tsinghua-zt"
+    ],
+    "same_host_for_export_resume_score": true
+  },
+  "helpers": {
+    "launch_formal_dev_export_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py",
+      "sha256": "e58f58e3d0e3fb05e05dcd28c5d04142c4f3a4ba2002e5cc8ea9b3a5bf95217f"
+    },
+    "launch_completed_dev_score_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v3.py",
+      "sha256": "9217c5c0b5362453a86843bfe8dd9c6ad1609b7440c5441be4bd1af6511e8d7c"
+    }
+  },
+  "output_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step000512_dev1696_seed42_v1",
+  "evaluation_registration_path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C2_step000512_dev1696_seed42_v1/REGISTRATION.json",
+  "existing_evaluation_state_at_observation": {
+    "route_exists": false,
+    "evaluation_registration_exists": false,
+    "export_exists": false,
+    "official_score_exists": false,
+    "export_invocation_count": 0,
+    "score_invocation_count": 0
+  },
+  "budget": {
+    "export_world_size": 1,
+    "export_rank": 0,
+    "seed": 42,
+    "requested_scenes": 1696,
+    "logs": 16,
+    "candidates_per_scene": 1,
+    "solver": "original_Euler_10",
+    "precision": "FP32_master_eval_TF32_off",
+    "attention": "sdpa",
+    "output_reservation_bytes": 1073741824,
+    "maximum_campaign_export_slots": 4,
+    "maximum_campaign_score_slots": 2,
+    "score_workers": 2,
+    "score_primary_calls": 1696,
+    "score_total_admission_cap": 1728,
+    "score_retry_attempts": 1,
+    "export_invocation_cap": 2,
+    "score_invocation_cap": 2,
+    "export_inner_seconds": 7200,
+    "export_outer_seconds": 7800,
+    "score_inner_seconds": 3600,
+    "score_outer_seconds": 4200,
+    "cleanup_seconds": 60
+  },
+  "fixed_control": {
+    "arm": "C0",
+    "job_id": "C0_step000512_dev1696_seed42_v1",
+    "comparison": "C2_minus_C0",
+    "stage": "DIAGNOSTIC_512",
+    "no_early_elimination": true,
+    "common_endpoint": 4096
+  },
+  "dependencies_remaining": [
+    "Lead immutable v3 route from this exact receipt and preparation; no latest fallback.",
+    "Fresh allowed-host environment/shared mount/CPU quota/RAM/disk, idle GPU UUID/process check and job/campaign/local-GPU locks.",
+    "Score only after full1696 COMPLETE, successful exporter RESULT and exit, on same host/route and fixed ledger budget."
+  ],
+  "scientific_result": "NOT_EVALUATED",
+  "no_new_evaluation_matrix": true,
+  "comparative_claims": false,
+  "navtest": false,
+  "tasks_launched": 0,
+  "signals_sent": false,
+  "scope": "Read-only small metadata and native file stats. No weights, model, images or metric-cache payloads opened; no GPU query/export/scoring."
+}

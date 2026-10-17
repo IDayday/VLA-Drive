@@ -1,0 +1,157 @@
+{
+  "schema": "st_registered_ready_endpoint_commands_v1",
+  "job_id": "C2_step000512_dev1696_seed42_v1",
+  "state": "PREPARED_NOT_DISPATCHED",
+  "checkpoint_tag": "step_000512_1792216013626052508",
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+  "required_native_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/checkpoints/step_000512_1792216013626052508/COMPLETE.json",
+    "sha256": "83d9a1e2a7c0b34edbf26f9e0909fb9d10380ad65f479ae624bb767d9220a95d",
+    "identity": "0084b3301a743a0f0b684fe9b49b26456e9f023bce9b6a79117f8f3ef3e2f300"
+  },
+  "required_runtime_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+  "helper_refs": {
+    "launch_formal_dev_export_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py",
+      "sha256": "e58f58e3d0e3fb05e05dcd28c5d04142c4f3a4ba2002e5cc8ea9b3a5bf95217f"
+    },
+    "launch_completed_dev_score_v3.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v3.py",
+      "sha256": "9217c5c0b5362453a86843bfe8dd9c6ad1609b7440c5441be4bd1af6511e8d7c"
+    }
+  },
+  "preparation_pins": {
+    "POLICY.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/POLICY.json",
+      "sha256": "7b97826d9774a6a84f5541d89d18e5c25c2a028670bab949c9ffab03f3b80303"
+    },
+    "INTENTS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/INTENTS.json",
+      "sha256": "16dced163d61d0c32ba6c97901e7f2d4e1b0b2d212f3fbe6a2069adab11c98ce"
+    },
+    "COMMANDS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/COMMANDS.json",
+      "sha256": "640832d3714e8f889183950b50147bc1dcd1c2238cd637f019221a3c2cb10467"
+    },
+    "TRAINING_BINDINGS.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/TRAINING_BINDINGS.json",
+      "sha256": "ed571df22ad2c82a1b099547fe98d4e163de260d9ce91d560949a5252c150324"
+    },
+    "EXECUTION_PLAN.json": {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+      "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+    }
+  },
+  "export_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v3.py",
+    "--job-id",
+    "C2_step000512_dev1696_seed42_v1",
+    "--checkpoint-tag",
+    "step_000512_1792216013626052508",
+    "--gpu",
+    "__LEAD_FRESH_ROUTE_GPU_INDEX__",
+    "--route-sha256",
+    "__ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "score_helper_argv_template": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/st-world-policy-20261016/resources/launch_completed_dev_score_v3.py",
+    "--job-id",
+    "C2_step000512_dev1696_seed42_v1",
+    "--route-sha256",
+    "__SAME_ACTUAL_IMMUTABLE_ROUTE_SHA256__"
+  ],
+  "fixed_child_command_provenance": {
+    "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "execution_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "export": {
+      "argv_template": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.export_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+        "--checkpoint-tag",
+        "__EXACT_COMPLETE_NATIVE_TAG_REQUIRED__",
+        "--current-root",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "--manifest",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step000512_dev1696_seed42_v1/export",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-scenes",
+        "1696",
+        "--max-seconds",
+        "7200",
+        "--rank",
+        "0",
+        "--world-size",
+        "1"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "__ONE_LEAD_LEASED_GPU_REQUIRED__",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 7800,
+      "requires_actual_sealed_checkpoint_and_resource_binding": true
+    },
+    "job_id": "C2_step000512_dev1696_seed42_v1",
+    "launch_authorized": false,
+    "required_training_runtime_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+    "requires_all_checkpoint_and_evaluation_launch_bindings": true,
+    "score": {
+      "argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.st_world_policy.score_world",
+        "--predictions",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step000512_dev1696_seed42_v1/export",
+        "--metric-index",
+        "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+        "--navsim-root",
+        "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim",
+        "--maps-root",
+        "/mnt/navsim/maps",
+        "--run-id",
+        "st-world-policy-20261016",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step000512_dev1696_seed42_v1/official_score",
+        "--cache-root",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache",
+        "--workers",
+        "2",
+        "--max-calls",
+        "1728",
+        "--retry-attempts",
+        "1",
+        "--max-seconds",
+        "3600"
+      ],
+      "env": {
+        "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false"
+      },
+      "kill_after_seconds": 60,
+      "outer_timeout_seconds": 4200,
+      "requires_all_export_shards_complete": true
+    },
+    "state": "PREPARED_NOT_DISPATCHED"
+  },
+  "do_not_bypass_reviewed_helpers": true,
+  "automatic_dispatch": false
+}
