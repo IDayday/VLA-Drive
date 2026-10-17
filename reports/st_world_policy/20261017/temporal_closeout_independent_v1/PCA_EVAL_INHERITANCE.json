@@ -137,5 +137,26 @@
     ],
     "gpu": false,
     "ssh": false
+  },
+  "spec_sha256": "59cdf8a3ab692994f926ce460a4a353bb16ffba1a3bb21d1ff6c4beacb936452",
+  "launcher_sha256": "46807de5d4e91bc8839fa5c9839075f9a3c4df1164b7907755abb183a34e8298",
+  "launcher_path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_channel256_actual_v1/launch_evaluation.py",
+  "launcher_review": {
+    "status": "PASS",
+    "scope": "read_only_lead_dispatch_wiring",
+    "checks": [
+      "same frozen runtime and exact reviewed spec checksum",
+      "independent non-Lead review pins the actual launcher",
+      "original training approval and completed endpoint metadata checked",
+      "one stage dispatch lock, shared4 export/2 score slots inherited by child",
+      "GPU UUID/idle/process and GPU file lock checked immediately before export",
+      "64GiB available host memory required for native reconstruction",
+      "2703GiB CP +1024GiB floor +768GiB cache +1GiB output free-space bound",
+      "up to2 durable admitted invocation directories; failed starts consume attempt",
+      "original export7800s/score4200s timeout plus60s kill bound",
+      "score refuses incomplete export; completed export/score not rerun",
+      "original strict loader will validate all native payload hashes; this review did not"
+    ],
+    "actual_resource_check_or_dispatch": false
   }
 }
