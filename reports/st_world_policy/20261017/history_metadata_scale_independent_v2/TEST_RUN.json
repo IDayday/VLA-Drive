@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/history-scale-review-v2-lfqfta0x/fixtures",
+    "/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_metadata_scale_independent_v2/test_independent_fixed_scale.py",
+    "reports/st_world_policy/20261017/history_packed_reader_safety_v1/test_reader.py",
+    "reports/st_world_policy/20261017/history_metadata_scale_v1/test_scale.py",
+    "tests/st_world/test_history.py"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 5.952440602704883,
+  "peak_complete_process_tree_rss_bytes": 678899712,
+  "maximum_live_process_tree_rchar_sum_bytes": 147299349,
+  "charged_parent_after_reap_rchar_bytes": 147299457,
+  "peak_processes": 3,
+  "fixture_peak_file_bytes_charged": 3371008,
+  "resource_limit_failure": null,
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "log_sha256": "f9da67fc0b4f5e398e809cae9f47f8792a3e07ee150a540d4779472e3ed41811",
+  "synthetic_unique_records": 256,
+  "actual_full_history_build": false,
+  "prior_review_logical_read_bytes": 446024135,
+  "prior_review_elapsed_seconds": 17.764698671176944,
+  "prior_review_peak_rss_bytes": 1284571136,
+  "accounting": "Supervisor plus all observed descendants; summed /proc RSS sampled at20ms. Logical reads charged through supervisor after child reap; peak snapshot is conservative when parent counters include reaped descendants. Own ephemeral fixtures only. Supervisor rchar charged from process birth, including interpreter startup/imports; no observed production data reads. Wall starts after supervisor setup; all pytest interpreter startup and descendants are inside the timed window.",
+  "cumulative_review_logical_read_bytes": 593323592,
+  "cumulative_review_elapsed_seconds": 23.717139273881827
+}
