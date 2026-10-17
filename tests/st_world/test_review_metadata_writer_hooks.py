@@ -1,8 +1,6 @@
 """Independent hook integration review; only synthetic temporary metadata."""
-from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -42,6 +40,44 @@ def test_real_subprocess_cli_completes_and_reuses_synthetic_only(tmp_path, kind)
     assert json.loads(second.stdout)['status'] == 'GUARDED_METADATA_RETURN'
     assert (run.root/'COMPLETE.json').read_bytes() == complete
     assert storage._ACTIVE_GUARD is None
+
+
+@pytest.mark.parametrize('kind', ['current_index', 'future_preparation'])
+@pytest.mark.parametrize('fault', ['publication', 'rss', 'source_pin'])
+def test_real_subprocess_rejects_before_complete(tmp_path, monkeypatch, kind, fault):
+    # All registration/policy preparation is synthetic; no monkeypatch reaches
+    # the subprocess being reviewed. Register the exact negative scope first.
+    migrate = storage.migrate_policy
+    with monkeypatch.context() as patch:
+        patch.setattr(storage, 'migrate_policy', lambda **kwargs: None)
+        run = registered_cli(tmp_path, kind)
+    if fault == 'publication':
+        run.reg['file_patterns'] = [pattern.replace('|COMPLETE', '')
+            for pattern in run.reg['file_patterns'] if not pattern.startswith('COMPLETE')]
+    elif fault == 'rss':
+        run.reg['limits']['max_rss_bytes'] = index.MiB
+    else:
+        run.reg['source_pins'][0]['sha256'] = 'f'*64
+    update_registration(run)
+    migrate(**run.kwargs)
+    command = [sys.executable, '-m', 'tools.st_world_policy.metadata_storage', 'run']
+    for key, value in run.guard.items(): command += ['--'+key.replace('_', '-'), str(value)]
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES='', PYTHONDONTWRITEBYTECODE='1',
+               OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2')
+    result = subprocess.run(command, cwd=Path.cwd(), env=env, text=True,
+                            capture_output=True, timeout=45)
+    assert result.returncode == 2, result.stdout + result.stderr
+    message = json.loads(result.stdout)
+    assert message['status'] == 'BLOCKED_STORAGE'
+    assert not (run.root/'COMPLETE.json').exists()
+    if fault == 'publication':
+        assert 'unregistered metadata write destination' in message['error']
+        assert not list(run.root.glob('COMPLETE.json.*'))
+        assert (run.root/('metadata.sqlite' if kind == 'current_index' else 'SHARD_RECEIPTS.json')).exists()
+    elif fault == 'rss':
+        assert 'RSS' in message['error']
+    else:
+        assert not (run.root/'METADATA_ADMISSION.json').exists()
 
 
 @pytest.mark.parametrize('kind', ['current_index', 'future_preparation'])
