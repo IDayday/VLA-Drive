@@ -1,9 +1,11 @@
-"""Describe saved single-ODE safety transitions against the exact own SFT.
+"""Describe saved single-ODE safety transitions under an explicit comparison.
 
 No inference, simulation, fitting or checkpoint selection. Outcome-conditioned
 subsets are descriptive diagnostics, not a causal test or an unbiased estimate
 of the full population. Official first TTC infraction is a physical simulation
 timestamp, not predicted time-to-impact and not a Flow generation step.
+The default remains RL versus its exact own SFT; comparing two SFT milestones
+requires an opt-in and the same supervised run/configuration.
 """
 import argparse
 from collections import Counter
@@ -22,6 +24,32 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 TTC = METRICS.index('time_to_collision_within_bound')
 EP = METRICS.index('ego_progress')
+
+
+def comparison_contract(identity, reference, kind):
+    if kind == 'rl_vs_own_sft':
+        if identity['stage'] != 'RL' or reference['stage'] != 'SFT':
+            raise ValueError('Requires RL vs exact own SFT')
+        if identity['new_SFT'] != reference['new_SFT']:
+            raise ValueError('RL must retain its exact supervised parent')
+        return None
+    if kind != 'sft_milestones':
+        raise ValueError('Unknown safety-analysis comparison')
+    if identity['stage'] != 'SFT' or reference['stage'] != 'SFT':
+        raise ValueError('SFT milestone comparison cannot include RL')
+    current, parent = identity['new_SFT'], reference['new_SFT']
+    if (not current.get('identity_sha256') or
+            current['identity_sha256'] != parent.get('identity_sha256') or
+            not current.get('config') or current['config'] != parent.get('config')):
+        raise ValueError('SFT milestones must share the same run identity and configuration')
+    before, after = parent['updates'], current['updates']
+    if (type(before) is not int or type(after) is not int or
+            not 0 <= before < after <= current['config']['max_updates'] or
+            before not in current['config']['milestones'] or after not in current['config']['milestones']):
+        raise ValueError('Requires ordered, registered SFT milestones')
+    return dict(kind=kind,reference_updates=before,evaluation_updates=after,
+        is_RL_increment=False,reference_is_final_RL_parent=False,
+        source_reward_readout='Counterfactual 10:5:2 readout only; SFT optimizes weighted FM')
 
 
 def distribution(values):
@@ -145,13 +173,15 @@ def events(evaluation, reference, mode, tokens, masks):
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--evaluation',required=True); parser.add_argument('--reference',required=True)
+    parser.add_argument('--comparison-kind',choices=('rl_vs_own_sft','sft_milestones'),
+        default='rl_vs_own_sft')
     parser.add_argument('--output',required=True); args=parser.parse_args(); require_dispatch()
     output=Path(args.output)
     if output.exists(): raise FileExistsError('Preserve previous derived evidence')
     start=time.monotonic()
     identity,tokens,logs,current,new_motion,_=read(args.evaluation)
     parent,old_tokens,old_logs,baseline,old_motion,_=read(args.reference)
-    if identity['stage']!='RL' or parent['stage']!='SFT': raise ValueError('Requires RL vs exact own SFT')
+    comparison=comparison_contract(identity,parent,args.comparison_kind)
     compatibility=match_transfer(identity,parent)
     if tokens!=old_tokens or logs!=old_logs: raise ValueError('Unpaired complete scene/log populations')
     result=dict(schema='fm_transfer_saved_safety_transition_analysis_v1',status='COMPLETE_SAVED_POPULATION',
@@ -161,6 +191,8 @@ def main():
         compatibility=compatibility,scenes=len(tokens),logs=len(set(logs)),
         outcome_conditioned_subsets_not_causal=True,score_units='raw0to1',
         new_inference=0,new_scoring=0,optimizer_updates=0,modes={})
+    if comparison is not None:
+        result.update(schema='fm_transfer_saved_SFT_milestone_safety_analysis_v1',comparison=comparison)
     selections={}
     for mode in identity['modes']:
         masks=subsets(baseline[mode],current[mode]);selections[mode]=masks
@@ -174,6 +206,8 @@ def main():
         current_TTC_fail_native_only=int((current_a&~current_b).sum()),
         current_TTC_fail_shift5_only=int((~current_a&current_b).sum()),
         caveat='Each new-failure set uses its own matching-grid SFT reference; no best-of-two selection')
+    if comparison is not None:
+        result['cross_grid']['caveat']='Each failure set uses its matching-grid earlier SFT milestone; no RL increment or best-of-two selection'
     result['analysis_wall_seconds']=time.monotonic()-start
     output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,result)
     print(json.dumps(dict(status=result['status'],scenes=len(tokens),cross_grid=result['cross_grid'],output=str(output))))

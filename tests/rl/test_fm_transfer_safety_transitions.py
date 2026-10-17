@@ -1,7 +1,47 @@
 import numpy as np
 import pytest
 from scripts.analysis.fm_transfer.analyze_safety_transitions import (
-    physical_event_pair, source_reward, subsets, summarize_subset, distribution)
+    physical_event_pair, source_reward, subsets, summarize_subset, distribution,
+    comparison_contract)
+
+
+def sft_identity(update, run='same_run', max_updates=100000):
+    return dict(stage='SFT',new_SFT=dict(updates=update,identity_sha256=run,
+        config=dict(max_updates=max_updates,seed=42,variant='B_SOURCE_ACTION_DIT',
+            milestones=[0,10000,25000,50000,75000,100000])))
+
+
+def test_sft_milestones_require_explicit_opt_in_and_label_non_rl():
+    current, previous = sft_identity(75000), sft_identity(50000)
+    with pytest.raises(ValueError): comparison_contract(current,previous,'rl_vs_own_sft')
+    result=comparison_contract(current,previous,'sft_milestones')
+    assert result['reference_updates']==50000 and result['evaluation_updates']==75000
+    assert not result['is_RL_increment'] and not result['reference_is_final_RL_parent']
+
+
+@pytest.mark.parametrize('current',[
+    sft_identity(75000,run='another_run'),
+    sft_identity(75000,max_updates=200000),
+    sft_identity(50000),sft_identity(25000),sft_identity(60000),sft_identity(100001),
+])
+def test_sft_milestones_reject_changed_lineage_or_invalid_order(current):
+    with pytest.raises(ValueError): comparison_contract(current,sft_identity(50000),'sft_milestones')
+
+
+def test_sft_comparison_never_accepts_an_rl_checkpoint_or_missing_identity():
+    current,previous=sft_identity(75000),sft_identity(50000)
+    current['stage']='RL'
+    with pytest.raises(ValueError): comparison_contract(current,previous,'sft_milestones')
+    current['stage']='SFT';current['new_SFT'].pop('identity_sha256')
+    with pytest.raises(ValueError): comparison_contract(current,previous,'sft_milestones')
+
+
+def test_default_rl_comparison_still_requires_exact_own_sft():
+    parent=sft_identity(100000);current=dict(stage='RL',new_SFT=parent['new_SFT'].copy())
+    assert comparison_contract(current,parent,'rl_vs_own_sft') is None
+    current['new_SFT']['identity_sha256']='another_run'
+    with pytest.raises(ValueError): comparison_contract(current,parent,'rl_vs_own_sft')
+    with pytest.raises(ValueError): comparison_contract(parent,parent,'unknown')
 
 
 def row(ep, ttc, nc=1., dac=1., comfort=1.):
