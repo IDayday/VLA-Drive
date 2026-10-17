@@ -1,5 +1,31 @@
 # Bounded cache decision and current evidence
 
+## Update: full metadata indices completed, 2026-10-17
+
+The no-multi-TB decision remains in force. The actual TRAIN index now covers
+101,592 scenes / 603,750 records in 515,739,648 bytes; DEV covers 1,696 scenes /
+9,948 records in 8,585,216 bytes. Combined database size is 524,324,864 bytes
+(500 MiB rounded). Both builds completed with zero new teacher tensor bytes.
+See [actual build evidence](bounded_cache_index_actual_v1/REPORT.md).
+
+The earlier 32-scene indexed provider qualification has since run: its fixed
+FP32 teacher comparison passed on 4,323 tensors (1.912 billion elements), and
+its bounded 64-update test consumed 128 scene exposures with repeated scenes.
+That result does not establish full-population throughput. The next bounded
+test uses the original full training sampler; its source/data preparation is
+documented in [the exact CLI handoff](full_population_profile_commands_v1/RUNBOOK.md).
+No full-population speed or formal temporal-training approval is claimed yet.
+
+The storage plan reuses existing current-frame target caches (about 586 GiB),
+computes missing future targets on demand in original FP32, and keeps only a
+bounded RAM LRU. It never caches trainable W/LLM features across updates. The
+768-GiB aggregate cache ceiling includes existing reservations; checkpoint
+space is accounted separately and the 1-TiB free-space floor remains protected.
+No previous cache/checkpoint was deleted. Historical observations below remain
+as dated implementation evidence, not current NOT_RUN assertions.
+
+## Original implementation snapshot
+
 The user's storage constraint is binding: no multi-TB future feature prebuild.
 This is an execution/storage change; the registered teacher precision, labels,
 sample order, horizon/patch sampling and training objectives stay unchanged.
