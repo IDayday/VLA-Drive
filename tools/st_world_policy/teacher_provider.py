@@ -17,6 +17,8 @@ from starVLA.dataloader.st_world_ondemand import BoundedTeacherProvider
 
 MiB = 1 << 20
 LIMIT_FIELDS = {'max_cached_bytes', 'max_scene_bytes', 'max_batch_images', 'max_manifest_bytes'}
+INDEXED_SCHEMA = 'st_indexed_teacher_provider_dependency_v1'
+INDEX_FIELDS = {'complete', 'request_identity', 'index_identity', 'max_metadata_cache_bytes'}
 FIXED_CASES = ('fixed8_all_original_order', 'current_request1', 'current_request4',
     'current_reversed8', 'current_tail8_plus_duplicate', 'provider_cold_partial_lru_cold_resume')
 
@@ -66,6 +68,60 @@ def validate_option(option, *, loader_workers, teacher_root, pca_path, scope):
 
 def load_descriptor(record):
     return validate_descriptor(pinned(record))
+
+
+def index_binding(root, *, max_metadata_cache_bytes=16 * MiB):
+    """Pin only the bounded index receipt; original JSON hashes remain dependencies."""
+    complete = pin(Path(root) / 'COMPLETE.json')
+    receipt = pinned(complete)
+    return {'complete': complete, 'request_identity': receipt['request_identity'],
+            'index_identity': receipt['identity'], 'max_metadata_cache_bytes': max_metadata_cache_bytes}
+
+
+def open_metadata_index(binding, *, existing=None):
+    from starVLA.dataloader.st_world_metadata_index import MetadataIndex
+    if not isinstance(binding, dict) or set(binding) != INDEX_FIELDS:
+        raise ValueError('Indexed provider needs an exact explicit metadata-index binding')
+    for name in ('request_identity', 'index_identity'):
+        require_hash(binding[name], name)
+    complete = binding['complete']
+    receipt = pinned(complete)
+    if Path(complete['path']).name != 'COMPLETE.json':
+        raise ValueError('Metadata index binding must name its original COMPLETE receipt')
+    if existing is not None:
+        if (not isinstance(existing, MetadataIndex) or existing.root != Path(complete['path']).parent.resolve() or
+                existing.receipt != receipt or existing.receipt['identity'] != binding['index_identity'] or
+                existing.receipt['request_identity'] != binding['request_identity'] or
+                existing.max_metadata_cache_bytes != binding['max_metadata_cache_bytes']):
+            raise ValueError('Existing metadata reader differs from the exact pinned index')
+        existing.check()
+        return existing
+    index = MetadataIndex(Path(complete['path']).parent,
+        expected_request_identity=binding['request_identity'], expected_index_identity=binding['index_identity'],
+        max_metadata_cache_bytes=binding['max_metadata_cache_bytes'])
+    try:
+        if index.receipt != receipt or file_sha256(complete['path']) != complete['sha256']:
+            raise ValueError('Metadata index COMPLETE changed across its pinned verification')
+        return index
+    except BaseException:
+        index.close()
+        raise
+
+
+def close_provider_metadata(provider):
+    """Close only optional SQLite previews; never alter teacher/tensor/RNG state."""
+    indices = {id(i): i for i in [getattr(provider, 'metadata_index', None),
+        *(getattr(s, 'metadata_index', None) for s in provider.sources)] if i is not None}
+    for index in indices.values():
+        index.close()
+
+
+def validate_bound_indexed_descriptor(record, provider):
+    """Revalidate an already owned provider without duplicate SQLite connections."""
+    d = pinned(record)
+    if d.get('schema') != INDEXED_SCHEMA:
+        raise ValueError('Indexed PCA scope requires an indexed provider descriptor')
+    return _validate_indexed_descriptor(d, existing=provider)[0]
 
 
 def validate_fixed_qualification(plan, qualification, execution):
@@ -146,13 +202,7 @@ def validate_fixed_qualification(plan, qualification, execution):
         raise ValueError('Fixed qualification RNG/frozen/actual padded compute accounting is incomplete')
 
 
-def validate_descriptor(d):
-    """Validate parsed metadata before immutable publication or runtime use."""
-    fields = {'schema', 'requests', 'sources', 'teacher_config', 'qualification', 'qualification_plan', 'execution',
-              'limits', 'provider', 'identity'}
-    if (set(d) != fields or d['schema'] != 'st_teacher_provider_dependency_v1' or
-            d['identity'] != identity_hash({k: v for k, v in d.items() if k != 'identity'})):
-        raise ValueError('Provider descriptor identity/schema changed')
+def _validate_limits(d):
     if set(d['limits']) != LIMIT_FIELDS:
         raise ValueError('Provider limits must all be explicit')
     if (any(type(v) is not int or v <= 0 for v in d['limits'].values()) or
@@ -160,8 +210,11 @@ def validate_descriptor(d):
             d['limits']['max_scene_bytes'] > 128 * MiB or
             d['limits']['max_manifest_bytes'] > 32 * MiB or d['limits']['max_batch_images'] > 8):
         raise ValueError('Initial synchronous provider exceeds declared RAM/batch bounds')
-    manifest = pinned(d['requests'])
-    if manifest['split'] != 'train' or not 1 <= len(manifest['scenes']) <= 64:
+
+
+def _qualified_execution(d, manifest, scene_count):
+    """Both metadata representations retain the exact existing finite admission."""
+    if manifest['split'] != 'train' or not 1 <= scene_count <= 64:
         raise ValueError('Initial provider wiring is bounded to 64 train scenes')
     cfg, qualification = pinned(d['teacher_config']), pinned(d['qualification'])
     plan = pinned(d['qualification_plan'])
@@ -208,6 +261,22 @@ def validate_descriptor(d):
             identity_hash(execution['teacher']) != contract.teacher_identity or
             identity_hash(execution['transform']) != contract.transform_identity):
         raise ValueError('Provider execution is not the exact raw FP32 teacher contract')
+    return cfg, contract, plan
+
+
+def validate_descriptor(d):
+    """Validate parsed metadata before immutable publication or runtime use."""
+    if d.get('schema') == INDEXED_SCHEMA:
+        return _validate_indexed_descriptor(d)
+    fields = {'schema', 'requests', 'sources', 'teacher_config', 'qualification', 'qualification_plan', 'execution',
+              'limits', 'provider', 'identity'}
+    if (set(d) != fields or d['schema'] != 'st_teacher_provider_dependency_v1' or
+            d['identity'] != identity_hash({k: v for k, v in d.items() if k != 'identity'})):
+        raise ValueError('Provider descriptor identity/schema changed')
+    _validate_limits(d)
+    manifest = pinned(d['requests'])
+    cfg, contract, plan = _qualified_execution(d, manifest, len(manifest['scenes']))
+    execution = d['execution']
     sources = []
     if not isinstance(d['sources'], list) or len(d['sources']) != 1:
         raise ValueError('Initial trainer requires exactly the qualified COMPLETE current source')
@@ -226,6 +295,54 @@ def validate_descriptor(d):
     return d, cfg, provider
 
 
+def _validate_indexed_descriptor(d, *, existing=None):
+    from starVLA.dataloader.st_world_indexed_provider import IndexedTeacherCacheReader, IndexedBoundedTeacherProvider
+    fields = {'schema', 'requests', 'request_index', 'sources', 'teacher_config', 'qualification',
+              'qualification_plan', 'execution', 'limits', 'provider', 'identity'}
+    if (set(d) != fields or d['identity'] != identity_hash({k:v for k,v in d.items() if k != 'identity'})):
+        raise ValueError('Indexed provider descriptor identity/schema changed')
+    _validate_limits(d)
+    if not isinstance(d['sources'], list) or len(d['sources']) != 1:
+        raise ValueError('Initial indexed trainer requires exactly the qualified COMPLETE current source')
+    if existing is not None and (not isinstance(existing, IndexedBoundedTeacherProvider) or len(existing.sources) != 1):
+        raise ValueError('Indexed descriptor requires its actual owned provider')
+    indices = []
+    try:
+        index = open_metadata_index(d['request_index'], existing=existing.metadata_index if existing else None)
+        if existing is None: indices.append(index)
+        if index.receipt['cache_identity'] is not None or index.receipt['dependencies']['requests'] != d['requests']:
+            raise ValueError('Indexed request source/raw SHA differs from the explicit request pin')
+        # A header and count suffice: the index has streamed and validated every
+        # original scene. Never materialize its lazy population to rehash JSON.
+        cfg, contract, plan = _qualified_execution(d, index.receipt['manifest_header'], index.receipt['scene_count'])
+        if d['execution'].get('schema') != 'st_fixed8_dino_execution_v1':
+            raise ValueError('Indexed trainer requires the qualified fixed8 execution policy')
+        sources = []
+        for source in d['sources']:
+            if not isinstance(source, dict) or set(source) != {'index', 'cache_identity'}:
+                raise ValueError('Indexed source must bind its index and original COMPLETE cache identity')
+            require_hash(source['cache_identity'], 'source cache identity')
+            source_index = open_metadata_index(source['index'],
+                existing=existing.sources[0].metadata_index if existing else None)
+            if existing is None: indices.append(source_index)
+            if source['cache_identity'] != plan['current_identity']:
+                raise ValueError('Provider source differs from qualified current cache; miss layouts would change')
+            sources.append(IndexedTeacherCacheReader(source_index, expected_identity=source['cache_identity'],
+                expected_contract=contract))
+        placeholder = SimpleNamespace(contract_identity=contract.identity, execution_identity=identity_hash(d['execution']))
+        provider = IndexedBoundedTeacherProvider(index, contract, sources, executor=placeholder,
+            execution_identity=placeholder.execution_identity, **d['limits'])
+        if provider.identity != d['provider']:
+            raise ValueError('Indexed provider implementation/population/runtime identity changed')
+        if existing is not None and existing.identity != provider.identity:
+            raise ValueError('Owned indexed provider identity differs from its descriptor')
+        return d, cfg, existing if existing is not None else provider
+    except BaseException:
+        for index in indices:
+            index.close()
+        raise
+
+
 def create_provider(record, *, device, executor_factory=None):
     d, cfg, provider = load_descriptor(record)
     if executor_factory is None:
@@ -235,12 +352,16 @@ def create_provider(record, *, device, executor_factory=None):
         else:
             from tools.st_world_policy.ondemand_teacher import FrozenDINOExecutor
             executor_factory = FrozenDINOExecutor
-    executor = executor_factory(cfg['teacher_root'], contract=provider.contract, variant=cfg['variant'],
-        device=device, max_batch_images=d['limits']['max_batch_images'],
-        expected_execution_identity=provider.execution_identity)
-    if (executor.execution != d['execution'] or executor.contract_identity != provider.contract.identity or
-            executor.execution_identity != provider.execution_identity):
-        raise ValueError('Constructed teacher differs from explicit provider dependency')
+    try:
+        executor = executor_factory(cfg['teacher_root'], contract=provider.contract, variant=cfg['variant'],
+            device=device, max_batch_images=d['limits']['max_batch_images'],
+            expected_execution_identity=provider.execution_identity)
+        if (executor.execution != d['execution'] or executor.contract_identity != provider.contract.identity or
+                executor.execution_identity != provider.execution_identity):
+            raise ValueError('Constructed teacher differs from explicit provider dependency')
+    except BaseException:
+        close_provider_metadata(provider)
+        raise
     provider.executor = executor
     return provider
 
@@ -281,7 +402,43 @@ def prepare(requests, sources, teacher_config, qualification, output, *, limits)
     return d
 
 
-def configure_smoke(config_path, descriptor_path, fit_cache_root, output):
+def prepare_indexed(request_index, source_indices, teacher_config, qualification, output, *, limits,
+                    max_metadata_cache_bytes=16 * MiB):
+    """Select existing immutable indices only; never build metadata or tensors."""
+    from starVLA.dataloader.st_world_indexed_provider import IndexedTeacherCacheReader, IndexedBoundedTeacherProvider
+    if len(source_indices) != 1:
+        raise ValueError('Initial indexed trainer requires exactly the qualified COMPLETE current source')
+    bindings = [index_binding(root, max_metadata_cache_bytes=max_metadata_cache_bytes)
+                for root in [request_index, *source_indices]]
+    indices = []
+    try:
+        for binding in bindings:
+            indices.append(open_metadata_index(binding))
+        request, source = indices
+        contract = TeacherFeatureContract.from_dict(request.receipt['contract'])
+        reader = IndexedTeacherCacheReader(source, expected_identity=source.receipt['cache_identity'],
+                                          expected_contract=contract)
+        execution = read_small(qualification).get('execution', {})
+        placeholder = SimpleNamespace(contract_identity=contract.identity, execution_identity=identity_hash(execution))
+        provider = IndexedBoundedTeacherProvider(request, contract, [reader], executor=placeholder,
+            execution_identity=placeholder.execution_identity, **limits)
+        d = {'schema': INDEXED_SCHEMA, 'requests': request.receipt['dependencies']['requests'],
+             'request_index': bindings[0], 'sources': [{'index': bindings[1],
+                 'cache_identity': source.receipt['cache_identity']}],
+             'teacher_config': pin(teacher_config), 'qualification': pin(qualification),
+             'qualification_plan': pin(Path(qualification).parent / 'RESOLVED_PLAN.json'),
+             'execution': execution, 'limits': limits, 'provider': provider.identity}
+        d['identity'] = identity_hash(d)
+    finally:
+        for index in indices:
+            index.close()
+    _, _, preview = validate_descriptor(d)
+    close_provider_metadata(preview)
+    atomic_json(output, d, immutable=True)
+    return d
+
+
+def configure_smoke(config_path, descriptor_path, fit_cache_root, output, *, fit_cache_index=None):
     """Retain the selected cell/basis/optimizer; write a NEW diagnostic config."""
     from tools.st_world_policy.training_config import validate_config
     from tools.st_world_policy.provider_pca import register_provider_scope
@@ -289,57 +446,69 @@ def configure_smoke(config_path, descriptor_path, fit_cache_root, output):
     st = validate_config(cfg)
     if cfg['execution']['scope'] != 'SMOKE' or cfg['execution']['stop_after'] > 4:
         raise ValueError('Supply an already selected SMOKE config of at most four updates; no cell is chosen here')
+    if fit_cache_index is not None and not cfg['data']['pca_path']:
+        raise ValueError('PCA fit metadata index supplied without an actual frozen PCA basis')
     d, _, provider = load_descriptor(pin(descriptor_path))
-    if cfg['execution']['sample_limit'] != len(provider.manifest['scenes']):
-        raise ValueError('Selected training config population differs from provider manifest')
-    if cfg['runtime']['deterministic'] != d['execution']['deterministic_algorithms']:
-        raise ValueError('Teacher qualified execution and student deterministic policy differ')
-    output = Path(output).resolve()
-    if output == Path(config_path).parent.resolve():
-        raise ValueError('Provider diagnostics require a new config/output namespace')
-    scope = None
-    if cfg['data']['pca_path']:
-        if fit_cache_root is None:
-            raise ValueError('Explicit original PCA fit cache required; no refit is allowed')
-        scope_path = output / 'PROVIDER_CHANNEL_SCOPE.json'
-        from starVLA.dataloader.st_world_dataset import projected_teacher_contract
-        receipt = read_small(Path(cfg['data']['pca_path']) / 'PCA.json')
-        effective = projected_teacher_contract(provider.contract, pca_identity=receipt['identity'],
-                                               dimension=st.teacher.channels)
-        if effective != st.teacher:
-            raise ValueError('Selected target contract does not use this provider and the same frozen PCA basis')
-        register_provider_scope(cfg['data']['pca_path'], fit_cache_root, pin(descriptor_path), scope_path)
-        scope = pin(scope_path)
-    elif provider.contract != st.teacher:
-        raise ValueError('Selected raw target contract differs from provider')
-    cfg['data'].update(teacher_root=None, teacher_provider={
-        'descriptor': pin(descriptor_path), 'pca_channel_scope': scope})
-    cfg['runtime'].update(loader_workers=0, output_root=str(output / 'runs'))
-    validate_config(cfg)
-    atomic_json(output / 'training_config.json', cfg, immutable=True)
-    lineage = {
-        'source_config': pin(config_path), 'new_config': pin(output / 'training_config.json'),
-        'provider_descriptor': pin(descriptor_path), 'teacher_manifest_artifact': pin(descriptor_path),
-        'numerical_status': pinned(d['qualification'])['status'],
-        'pca_refitted': False, 'formal_approved': False, 'training_started': False,
-        'loader_workers': 0, 'ram_reuse': ('qualified_fixed8_bounded_LRU' if
-            d['execution']['schema'] == 'st_fixed8_dino_execution_v1' and
-            d['limits']['max_cached_bytes'] >= provider.record_bytes else
-            'disabled_pending_partial_eviction_qualification')}
-    if d['execution']['schema'] == 'st_fixed8_dino_execution_v1':
-        qualification = pinned(d['qualification'])
-        lineage['fixed_policy_repeatability'] = qualification['fixed_policy_repeatability']
-        lineage['legacy_reference_compatibility'] = qualification['legacy_reference_compatibility']
-        lineage['fixed_execution_identity'] = qualification['execution_identity']
-        lineage['resident_limit_bytes'] = provider.max_cached_bytes
-    atomic_json(output / 'PROVIDER_CONFIG_LINEAGE.json', lineage, immutable=True)
-    return str(output / 'training_config.json')
+    try:
+        if cfg['execution']['sample_limit'] != len(provider.manifest['scenes']):
+            raise ValueError('Selected training config population differs from provider manifest')
+        if cfg['runtime']['deterministic'] != d['execution']['deterministic_algorithms']:
+            raise ValueError('Teacher qualified execution and student deterministic policy differ')
+        output = Path(output).resolve()
+        if output == Path(config_path).parent.resolve():
+            raise ValueError('Provider diagnostics require a new config/output namespace')
+        scope = None
+        if cfg['data']['pca_path']:
+            if fit_cache_root is None:
+                raise ValueError('Explicit original PCA fit cache required; no refit is allowed')
+            scope_path = output / 'PROVIDER_CHANNEL_SCOPE.json'
+            from starVLA.dataloader.st_world_dataset import projected_teacher_contract
+            receipt = read_small(Path(cfg['data']['pca_path']) / 'PCA.json')
+            effective = projected_teacher_contract(provider.contract, pca_identity=receipt['identity'],
+                                                   dimension=st.teacher.channels)
+            if effective != st.teacher:
+                raise ValueError('Selected target contract does not use this provider and the same frozen PCA basis')
+            close_provider_metadata(provider)  # Only immutable identity fields are used below.
+            register_provider_scope(cfg['data']['pca_path'], fit_cache_root, pin(descriptor_path), scope_path,
+                                    **({'fit_cache_index': fit_cache_index} if fit_cache_index is not None else {}))
+            scope = pin(scope_path)
+        elif provider.contract != st.teacher:
+            raise ValueError('Selected raw target contract differs from provider')
+        cfg['data'].update(teacher_root=None, teacher_provider={
+            'descriptor': pin(descriptor_path), 'pca_channel_scope': scope})
+        cfg['runtime'].update(loader_workers=0, output_root=str(output / 'runs'))
+        validate_config(cfg)
+        atomic_json(output / 'training_config.json', cfg, immutable=True)
+        lineage = {
+            'source_config': pin(config_path), 'new_config': pin(output / 'training_config.json'),
+            'provider_descriptor': pin(descriptor_path), 'teacher_manifest_artifact': pin(descriptor_path),
+            'numerical_status': pinned(d['qualification'])['status'],
+            'pca_refitted': False, 'formal_approved': False, 'training_started': False,
+            'loader_workers': 0, 'ram_reuse': ('qualified_fixed8_bounded_LRU' if
+                d['execution']['schema'] == 'st_fixed8_dino_execution_v1' and
+                d['limits']['max_cached_bytes'] >= provider.record_bytes else
+                'disabled_pending_partial_eviction_qualification')}
+        if d['execution']['schema'] == 'st_fixed8_dino_execution_v1':
+            qualification = pinned(d['qualification'])
+            lineage['fixed_policy_repeatability'] = qualification['fixed_policy_repeatability']
+            lineage['legacy_reference_compatibility'] = qualification['legacy_reference_compatibility']
+            lineage['fixed_execution_identity'] = qualification['execution_identity']
+            lineage['resident_limit_bytes'] = provider.max_cached_bytes
+        atomic_json(output / 'PROVIDER_CONFIG_LINEAGE.json', lineage, immutable=True)
+        return str(output / 'training_config.json')
+    finally:
+        close_provider_metadata(provider)
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--requests', required=True)
-    p.add_argument('--source-root', action='append', required=True)
+    requests = p.add_mutually_exclusive_group(required=True)
+    requests.add_argument('--requests', help='Original eager request JSON (legacy wiring)')
+    requests.add_argument('--request-index', help='Existing verified request metadata-index root; no index build')
+    p.add_argument('--source-root', action='append')
+    p.add_argument('--source-index', action='append', help='Existing index of the exact qualified COMPLETE current cache')
+    p.add_argument('--max-metadata-cache-mib', type=int, default=16,
+                   help='Per SQLite index allowance; combined provider allowance <=256 MiB')
     p.add_argument('--teacher-config', required=True)
     p.add_argument('--qualification-result', required=True)
     p.add_argument('--output', required=True)
@@ -349,19 +518,30 @@ def main():
     p.add_argument('--max-batch-images', type=int, default=8)
     p.add_argument('--training-config', help='Existing selected <=4 update SMOKE config; preserves cell and basis')
     p.add_argument('--pca-fit-cache-root', help='Exact existing PCA fitted cache; metadata-only provenance')
+    p.add_argument('--pca-fit-cache-index', help='Required existing fit-cache index for the indexed PCA scope')
     p.add_argument('--configured-output', help='New isolated namespace for selectable training_config.json')
     args = p.parse_args()
     if bool(args.training_config) != bool(args.configured_output):
         p.error('--training-config and --configured-output must be supplied together')
-    result = prepare(args.requests, args.source_root, args.teacher_config, args.qualification_result,
-        args.output, limits={'max_cached_bytes': args.max_cached_bytes,
-            'max_scene_bytes': args.max_scene_mib * MiB, 'max_batch_images': args.max_batch_images,
-            'max_manifest_bytes': 32 * MiB})
+    if args.request_index:
+        if args.source_root or not args.source_index:
+            p.error('--request-index requires --source-index and rejects --source-root')
+        if args.pca_fit_cache_index and not args.training_config:
+            p.error('--pca-fit-cache-index requires --training-config')
+    elif not args.source_root or args.source_index or args.pca_fit_cache_index or args.max_metadata_cache_mib != 16:
+        p.error('Legacy --requests requires --source-root and rejects indexed-only options')
+    limits = {'max_cached_bytes': args.max_cached_bytes, 'max_scene_bytes': args.max_scene_mib * MiB,
+              'max_batch_images': args.max_batch_images, 'max_manifest_bytes': 32 * MiB}
+    result = (prepare_indexed(args.request_index, args.source_index, args.teacher_config, args.qualification_result,
+              args.output, limits=limits, max_metadata_cache_bytes=args.max_metadata_cache_mib * MiB)
+              if args.request_index else
+              prepare(args.requests, args.source_root, args.teacher_config, args.qualification_result,
+                      args.output, limits=limits))
     print(json.dumps({'descriptor': pin(args.output), 'provider_identity': result['provider']['identity'],
                       'tensor_disk_bytes': 0, 'formal_approved': False}))
     if args.training_config:
         print(json.dumps({'training_config': configure_smoke(args.training_config, args.output,
-              args.pca_fit_cache_root, args.configured_output), 'started': False}))
+              args.pca_fit_cache_root, args.configured_output, fit_cache_index=args.pca_fit_cache_index), 'started': False}))
 
 
 if __name__ == '__main__':
