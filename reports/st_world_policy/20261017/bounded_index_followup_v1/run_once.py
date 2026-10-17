@@ -39,6 +39,8 @@ def main():
     review,_=m.pinned_json(a.review,a.review_sha256)
     if (review.get('status')!='PASS_BOUNDED_INDEX_FOLLOWUP' or review.get('owner_role')!='IndependentSystems'
        or review.get('prepared_sha256')!=sha(PREP) or review.get('controller_sha256')!=sha(__file__)
+       or review.get('checkpoint_receipt')!=str(b._path(a.checkpoint_receipt))
+       or review.get('checkpoint_sha256')!=a.checkpoint_sha256
        or not time.time()+185<=review['valid_until_unix']):raise ValueError('independent exact unexpired review missing')
     m._checkpoint_reserve(a.checkpoint_receipt,a.checkpoint_sha256,now=time.time()+185)
     item=prep['stages'][a.stage];reg,_=m.pinned_json(item['registration'],item['registration_sha256'])
