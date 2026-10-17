@@ -1,0 +1,317 @@
+{
+  "all_16_by_log_summaries_match": true,
+  "arm": "C0",
+  "canonical_aggregate_max_absolute_difference": 0.0,
+  "checkpoint": {
+    "completed": 512,
+    "native_checkpoint_sha256": "5243db74c91be68fa1d74140c59a7c63ed5c642b5bde7e1bbc9aecd51b8a5614",
+    "native_receipt_sha256": "ed68d260feaa95bbeced6ea0bea78bfca9e8f0431aaba18d30d39f1024934a12",
+    "receipt_identity": "8bc6862a6ed80538f75841126e548204dd8f34c528bb85b4136dcea6e6687359",
+    "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1",
+    "run_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9",
+    "schema": "st_flow_deployment_checkpoint_v1",
+    "scope": "FORMAL",
+    "sha256": "14a029936f4b67608972a28dac26fa19e83ee2c7b3ecf77275ac50643595f12d",
+    "tag": "step_000512_1792206493515965061",
+    "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "weights_usable_for_formal_init": true
+  },
+  "created_utc": "2026-10-17T04:20:23.181226+00:00",
+  "cuda_initialized": false,
+  "definitions": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "deployment": {
+    "candidates_per_scene": 1,
+    "precision": "FP32_master_eval_TF32_off",
+    "seed": 42,
+    "solver": "original_Euler_10",
+    "world_size": 1
+  },
+  "derived_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_512_complete_review_v1/BY_LOG.csv",
+      "sha256": "7a223cb58522d865f9ac5465d315f32d4607c4e7b4e99108255b7e7188421460"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_512_complete_review_v1/SCENE_RISK_DIAGNOSTICS.csv",
+      "sha256": "ba824d05555e8f46181993f619df3c8f67ef7f379d86c42d9975b6e42e5272b5"
+    }
+  ],
+  "elapsed_seconds": 19.639752058312297,
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+      "sha256": "7176e78ccc287094e19ed51691d02b8dd4685866ea69bd96eb76a2e58c3d9bf4"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+      "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C0_step000512_dev1696_seed42_v1/REGISTRATION.json",
+      "sha256": "76bda1d58fd7e8aff8553a83b6c2c58a860ce7c4e41414cba9f00fa51fd8d775"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/export/IDENTITY.json",
+      "sha256": "52f9e18e7c2f425a2c6ed3eeeea624597e57d71d6fef30ac503d4c0f6a678c59"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/export/COMPLETE_rank0.json",
+      "sha256": "4d7ca6504deafccf1fa730d14668f34caa6a21c418186c80b1a97420b0d69ce9"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/official_score/IDENTITY.json",
+      "sha256": "3a6159343008df9c3176bc0dbdda60c824504efe9362a57ac220694829e2fb18"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/official_score/COMPLETE.json",
+      "sha256": "fdb06a76963ae73faeb55c6e6e11c861923464ed1237818f27381560f28d5d75"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/official_score/SCENES.csv",
+      "sha256": "063de1251ec3d87df0f4e406c80548d554b09d972858e949d81fb2cfb8483787"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step000512_dev1696_seed42_v1/official_score/ledger/IDENTITY.json",
+      "sha256": "0d0751a7881795e9d507b6f6333b786ed035cd1d81183eff0d0c42878117b987"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C0_step000512_dev1696_seed42_v1/score_invocations/1792210082091688434/LAUNCH.json",
+      "sha256": "477afbfe58c3569cb68b6e09f05b9ca735c3de1251b76d0a17eda630dfaf497d"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C0_512_complete_review_v1/AUDIT.py",
+      "sha256": "5237b9440af57f187578be52260979d8ffe5cbf17269dc307d58835cd6d83dac"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+      "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/score_world.py",
+      "sha256": "e8242b1697242e2b09ce1b3835e5f10f3071b7ea9b51ce75a939c037219be6e9"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/model/modules/st_world/consequence.py",
+      "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/checkpoints/step_000512_1792206493515965061/COMPLETE.json",
+      "sha256": "ed68d260feaa95bbeced6ea0bea78bfca9e8f0431aaba18d30d39f1024934a12"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+      "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+      "sha256": "983aa66e1bf8919eeafe2511d6fd2bb41f1fccb4fbfe66493d5962e2f1416f6c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+      "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/invocations/1792205094228388879/LAUNCH.json",
+      "sha256": "76aa207144f79b5d21fce2ced58909278cfe4d8af57d434a941bde1d1c87df07"
+    }
+  ],
+  "export_identity": "5f8d968ca090532e868013f62582b597f662faf20dd4d29b6480c6e71c4c90fb",
+  "job_id": "C0_step000512_dev1696_seed42_v1",
+  "ledger": {
+    "admission_groups": 424,
+    "admitted_calls": 1696,
+    "call_cap": 1728,
+    "failed_or_unresolved_attempts": [],
+    "request_scenes": 1696,
+    "retry_admission_groups": 0,
+    "retry_attempts_configured": 1,
+    "saved_result_bytes": 44996864,
+    "saved_result_files": 424,
+    "score_invocations": 1,
+    "verified_feedback_records": 1696
+  },
+  "limits": [
+    "512 is a fixed diagnostic, not common endpoint 4096 or a best-checkpoint selection.",
+    "No matched C1 result was consumed. No gain, zero transition, high-score degradation, newly stopped scene, or comparative safety claim is identifiable from this single arm.",
+    "Component deficit counts can overlap and are descriptive canonical metric flags, not a new risk score.",
+    "Stopping proxy uses preregistered thresholds and is not a causal or universal unsafe-stop definition.",
+    "No changes to preregistered schedules, continuation rules, seed, thresholds, or bootstrap; no Navtest read or run.",
+    "No scoring, GPU, model loading, experiment dispatch, or payload rehash for weights/images/metric caches."
+  ],
+  "native_termination_reason": "RUNNING_CHECKPOINT",
+  "peak_rss_bytes": 1569472512,
+  "population": {
+    "duplicates": 0,
+    "extra": 0,
+    "foreign_logs": 0,
+    "full_denominator": true,
+    "invalid": 0,
+    "logs": 16,
+    "missing": 0,
+    "scenes": 1696,
+    "split": "dev",
+    "unresolved": 0
+  },
+  "reviewer_agent": "/root/st_evaluation",
+  "risk": {
+    "canonical_component_value_counts": {
+      "comfort": {
+        "1.0": 1696
+      },
+      "drivable_area_compliance": {
+        "0.0": 32,
+        "1.0": 1664
+      },
+      "driving_direction_compliance": {
+        "0.0": 16,
+        "0.5": 12,
+        "1.0": 1668
+      },
+      "no_at_fault_collisions": {
+        "0.0": 14,
+        "0.5": 2,
+        "1.0": 1680
+      },
+      "time_to_collision_within_bound": {
+        "0.0": 62,
+        "1.0": 1634
+      }
+    },
+    "component_deficits_within_zero_pdms": {
+      "comfort": 0,
+      "drivable_area_compliance": 32,
+      "driving_direction_compliance": 0,
+      "no_at_fault_collisions": 15,
+      "time_to_collision_within_bound": 17
+    },
+    "high_pdms_at_least_0_9": {
+      "count": 1225,
+      "denominator_scenes": 1696,
+      "rate": 0.7222877358490566,
+      "represented_logs_with_event": 16
+    },
+    "middle_pdms": {
+      "count": 425,
+      "denominator_scenes": 1696,
+      "rate": 0.2505896226415094,
+      "represented_logs_with_event": 15
+    },
+    "moving_reference": {
+      "count": 1590,
+      "denominator_scenes": 1696,
+      "rate": 0.9375,
+      "represented_logs_with_event": 16
+    },
+    "safety_component_subunit_union_NC_DAC_TTC": {
+      "count": 91,
+      "denominator_scenes": 1696,
+      "rate": 0.05365566037735849,
+      "represented_logs_with_event": 14
+    },
+    "stopping_proxy": {
+      "count": 0,
+      "denominator_scenes": 1696,
+      "moving_reference_denominator": 1590,
+      "moving_reference_rate": 0.0,
+      "rate": 0.0,
+      "represented_logs_with_event": 0
+    },
+    "subunit_component_values": {
+      "comfort": {
+        "count": 0,
+        "denominator_scenes": 1696,
+        "rate": 0.0,
+        "represented_logs_with_event": 0
+      },
+      "drivable_area_compliance": {
+        "count": 32,
+        "denominator_scenes": 1696,
+        "rate": 0.018867924528301886,
+        "represented_logs_with_event": 8
+      },
+      "driving_direction_compliance": {
+        "count": 28,
+        "denominator_scenes": 1696,
+        "rate": 0.01650943396226415,
+        "represented_logs_with_event": 6
+      },
+      "no_at_fault_collisions": {
+        "count": 16,
+        "denominator_scenes": 1696,
+        "rate": 0.009433962264150943,
+        "represented_logs_with_event": 3
+      },
+      "time_to_collision_within_bound": {
+        "count": 62,
+        "denominator_scenes": 1696,
+        "rate": 0.036556603773584904,
+        "represented_logs_with_event": 11
+      }
+    },
+    "zero_ego_progress": {
+      "count": 46,
+      "denominator_scenes": 1696,
+      "rate": 0.027122641509433963,
+      "represented_logs_with_event": 9
+    },
+    "zero_pdms": {
+      "count": 46,
+      "denominator_scenes": 1696,
+      "rate": 0.027122641509433963,
+      "represented_logs_with_event": 9
+    }
+  },
+  "schema": "st_single_arm_complete_dev_review_v1",
+  "scientific_comparison_performed": false,
+  "score_identity": "4dc489ae0b4cdbaaf9b3d0a262ae35c3f1d51abcbdba4e8fa47d17e9959b1bad",
+  "score_protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "stage": "DIAGNOSTIC_512",
+  "status": "PASS_COMPLETE_SINGLE_ARM_DIAGNOSTIC",
+  "summary_means": {
+    "comfort": 1.0,
+    "drivable_area_compliance": 0.9811320754716981,
+    "driving_direction_compliance": 0.9870283018867925,
+    "ego_progress": 0.8486224353332604,
+    "no_at_fault_collisions": 0.9911556603773585,
+    "score": 0.9098935186875641,
+    "time_to_collision_within_bound": 0.9634433962264151
+  },
+  "torch_cpu_threads": 2,
+  "trajectory_diagnostic_means": {
+    "ade_m": 0.667219687524733,
+    "fde_m": 1.4033386780188228,
+    "mean_executed_speed_mps": 4.551061240937515,
+    "raw_progress_m": 18.558747222079404,
+    "reference_progress_m": 20.572292637091778
+  },
+  "uncertainty_status": "No comparative estimate or interval without a matched arm. Registered 2000 paired-log PCG64 bootstrap seed 20261017 remains unchanged for later fixed comparisons.",
+  "validation": [
+    "Frozen 6714 FORMAL load_population/load_run validated full population and approvals.",
+    "Every canonical CSV value matched saved valid feedback; all request/prediction hashes and reference-v2 execution arrays validated.",
+    "Original GT ego payloads verified and decoded by frozen offline diagnostic reader.",
+    "All native bindings checked through small COMPLETE receipt only; no native/model/cache/image payloads read.",
+    "Aggregate and each log independently recomputed from scene rows; legal zero values retained."
+  ]
+}
