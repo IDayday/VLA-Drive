@@ -1,0 +1,32 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-8.4.2, pluggy-1.6.0 -- /root/miniconda3/envs/ddp/bin/python
+rootdir: /mnt/project
+plugins: anyio-4.11.0, hydra-core-1.3.2, jaxtyping-0.3.3, typeguard-2.13.3
+collecting ... collected 18 items
+
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[zero_elements] PASSED [  5%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[one_element] PASSED [ 11%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[contradictory_summary] PASSED [ 16%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[negative_requested] PASSED [ 22%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[nan_read] PASSED [ 27%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_resigned_incomplete_measurement_cannot_admit[bool_read] PASSED [ 33%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[time] PASSED [ 38%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[rss] PASSED [ 44%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[allocated] PASSED [ 50%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_runtime_resource_guard_rejects_each_exceeded_budget[reads] PASSED [ 55%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_single_last_tensor_element_difference_is_not_hidden PASSED [ 61%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v1/test_composition_independent.py::test_nonconstant_miss_features_keep_key_and_slot_alignment PASSED [ 66%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v2/test_counter_consistency.py::test_arithmetic_consistency_is_not_actual_coverage[coherent_extra_batch] PASSED [ 72%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v2/test_counter_consistency.py::test_arithmetic_consistency_is_not_actual_coverage[cold_hit_miss_swap] PASSED [ 77%]
+../VLA-Drive-st-future-metadata-correctness-20261017/reports/st_world_policy/20261017/correctness/indexed_composition_v2/test_counter_consistency.py::test_arithmetic_consistency_is_not_actual_coverage[bool_tensor_disk] PASSED [ 83%]
+tests/st_world/test_indexed_composition.py::test_receipt_strict_full_tensor_summaries_and_integer_ledgers PASSED [ 88%]
+tests/st_world/test_indexed_composition.py::test_actual_adapter_layouts_masks_rng_and_factory_admission PASSED [ 94%]
+tests/st_world/test_indexed_composition.py::test_multiple_scenes_reorder_shared_keys_and_distinct_missing_masks PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 18 passed, 1 warning in 22.40s ========================
