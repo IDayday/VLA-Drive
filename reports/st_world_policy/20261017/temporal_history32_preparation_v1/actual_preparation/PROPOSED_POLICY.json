@@ -1,0 +1,910 @@
+{
+  "activation": "Lead calls StorageBudget(policy_path).initialize(); this repository example does not launch or change any cache writer.",
+  "allowed_roots": [
+    "/mnt/project/st-world-policy-20261016/caches",
+    "/mnt/project/st-world-policy-20261016/audits/history_data",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v1",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v2",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v5",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v3",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v4",
+    "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1"
+  ],
+  "cache_cap_bytes": 824633720832,
+  "campaign": "st-world-policy-20261016",
+  "claims": [
+    {
+      "cache_identity": "43d366d363462540faf1e2053f9f4266983dc2698a5174f16326d8475212516f",
+      "claim_id": "real256_cpu_guarded_qualification",
+      "metadata_bytes": 10020710,
+      "output_bytes": 151228416,
+      "root": "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache",
+      "staging_bytes": 12700672
+    },
+    {
+      "cache_identity": "6b0857efb2088f52893f6d67edbf998f73cad7d0f99f747c77f73b2ce4c284a6",
+      "claim_id": "fixed_pca_full_current_namespace_v1",
+      "metadata_bytes": 8388608,
+      "output_bytes": 33554432,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1",
+      "staging_bytes": 33554432
+    },
+    {
+      "cache_identity": "1a69a7630229cef1adf8634ff6bf9a3facab11519f905118a02141b87a4f6899",
+      "claim_id": "fixed_pca_full_current_namespace_v2",
+      "metadata_bytes": 8388608,
+      "output_bytes": 33554432,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2",
+      "staging_bytes": 33554432
+    },
+    {
+      "cache_identity": "dee1c9280eb2a6a96729bbb4876d9d7856a1cabe0c53cb87a63ac903435f0eb6",
+      "claim_id": "bounded-metadata-future32-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 8388608,
+      "output_bytes": 16777216,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/FUTURE32_STORAGE_REGISTRATION_V2.json",
+      "registration_sha256": "dee1c9280eb2a6a96729bbb4876d9d7856a1cabe0c53cb87a63ac903435f0eb6",
+      "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v2",
+      "staging_bytes": 8388608
+    },
+    {
+      "cache_identity": "e01531d0609a663149cb91784b30909e7320b631c7d3808ed1186cd9ad9e276a",
+      "claim_id": "bounded-metadata-current-index-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 16777216,
+      "output_bytes": 528482304,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/CURRENT_INDEX_STORAGE_REGISTRATION_V2.json",
+      "registration_sha256": "e01531d0609a663149cb91784b30909e7320b631c7d3808ed1186cd9ad9e276a",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1",
+      "staging_bytes": 528482304
+    },
+    {
+      "cache_identity": "0ed4273e6639b1236c63ea1a087a72094d2f13caa913b406cd2d92be1f60765a",
+      "claim_id": "bounded-request-index-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 4194304,
+      "output_bytes": 14680064,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/REQUEST_INDEX_REGISTRATION.json",
+      "registration_sha256": "0ed4273e6639b1236c63ea1a087a72094d2f13caa913b406cd2d92be1f60765a",
+      "root": "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1",
+      "staging_bytes": 14680064
+    },
+    {
+      "cache_identity": "d3288fb3579d4198c5da1563b20e14f347b382a2458d886770ce18be982dfdc1",
+      "claim_id": "bounded-fit-index-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 4194304,
+      "output_bytes": 14680064,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/FIT_INDEX_REGISTRATION.json",
+      "registration_sha256": "d3288fb3579d4198c5da1563b20e14f347b382a2458d886770ce18be982dfdc1",
+      "root": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+      "staging_bytes": 14680064
+    },
+    {
+      "cache_identity": "bccc958c07f1ff9ce1618221abe8763337cab742243975f2f7ae47180819b673",
+      "claim_id": "SP0-frozen-W-dev16-native5000-v1",
+      "identity_kind": "st_frozen_spatial_w_v1",
+      "metadata_bytes": 1703936,
+      "output_bytes": 19007744,
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/dev",
+      "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/SIGNATURE.json",
+      "signature_sha256": "3de51e64aec7f555f8d5c053695656346e1549796dad08c2c5bdafa88a26cff4",
+      "staging_bytes": 5374096,
+      "tensor_schema": {
+        "W": {
+          "dtype": "float32",
+          "shape": [
+            144,
+            2048
+          ]
+        },
+        "memory_valid": {
+          "all_valid": true,
+          "dtype": "bool",
+          "shape": [
+            144
+          ]
+        }
+      }
+    },
+    {
+      "cache_identity": "4344bb546c21a649946c0b82514fe2159515abd74288c8e3d2c7869dc6d31a83",
+      "claim_id": "full-future-dev-preparation-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 16777216,
+      "output_bytes": 58720256,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/DEV_STORAGE_REGISTRATION.json",
+      "registration_sha256": "4344bb546c21a649946c0b82514fe2159515abd74288c8e3d2c7869dc6d31a83",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1",
+      "staging_bytes": 58720256
+    },
+    {
+      "cache_identity": "d97beeb39e23a56730b03f78610f13900fd4a9403a6205ce59756055bd19fa12",
+      "claim_id": "full-future-train-preparation-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 33554432,
+      "output_bytes": 1056964608,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/full_future_metadata_preparation_v1/prep_phase_v1/TRAIN_STORAGE_REGISTRATION.json",
+      "registration_sha256": "d97beeb39e23a56730b03f78610f13900fd4a9403a6205ce59756055bd19fa12",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1",
+      "staging_bytes": 1056964608
+    },
+    {
+      "cache_identity": "01de79cac8f49804a662d8f1454ac9b85eb6358c8ea572e1ef13e9a3bd5d15a0",
+      "claim_id": "history64-packed-cost-pilot-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 4194304,
+      "output_bytes": 24117248,
+      "registration_path": "/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_packed64_registration_proposal_v1/HISTORY64_PACKED_STORAGE_REGISTRATION.json",
+      "registration_sha256": "01de79cac8f49804a662d8f1454ac9b85eb6358c8ea572e1ef13e9a3bd5d15a0",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2",
+      "staging_bytes": 4194304
+    },
+    {
+      "cache_identity": "1b42bc7bd3294444e111e0b4049fa9ab29dd884780663d720eaedafa8774705c",
+      "claim_id": "full-future-train-finalization-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 33554432,
+      "output_bytes": 1056964608,
+      "registration_path": "/mnt/project/VLA-Drive-st-future-finalization-fix-20261017/reports/st_world_policy/20261017/future_finalization_actual_proposal_v1/DRAFT_STORAGE_REGISTRATION.json",
+      "registration_sha256": "1b42bc7bd3294444e111e0b4049fa9ab29dd884780663d720eaedafa8774705c",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1",
+      "staging_bytes": 1056964608
+    },
+    {
+      "cache_identity": "24741e0c9f1f8076158322bd92d7028142518fdb532cb43d2bc674d5dd11dcf3",
+      "claim_id": "SP0-frozen-W-train64-native5000-v1",
+      "identity_kind": "st_frozen_spatial_w_v1",
+      "metadata_bytes": 4849664,
+      "output_bytes": 76030976,
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/train",
+      "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+      "signature_sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29",
+      "staging_bytes": 5374096,
+      "tensor_schema": {
+        "W": {
+          "dtype": "float32",
+          "shape": [
+            144,
+            2048
+          ]
+        },
+        "memory_valid": {
+          "all_valid": true,
+          "dtype": "bool",
+          "shape": [
+            144
+          ]
+        }
+      }
+    },
+    {
+      "cache_identity": "bd50e3b2f1eb23421b5247d7b4d78ae2b176a8054aa3c3ff52215838b5396864",
+      "claim_id": "full-future-dev-index-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 16777216,
+      "output_bytes": 58720256,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/DEV_STORAGE_REGISTRATION.json",
+      "registration_sha256": "bd50e3b2f1eb23421b5247d7b4d78ae2b176a8054aa3c3ff52215838b5396864",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_dev_v1",
+      "staging_bytes": 58720256
+    },
+    {
+      "cache_identity": "a0035581ae025d5165f1755b56f42bc76a6fc757709bf915dd0df526b92422e6",
+      "claim_id": "full-future-train-index-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 33554432,
+      "output_bytes": 1056964608,
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/full_future_index_preparation_v1/finalized_phase_v1/TRAIN_STORAGE_REGISTRATION.json",
+      "registration_sha256": "a0035581ae025d5165f1755b56f42bc76a6fc757709bf915dd0df526b92422e6",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1",
+      "staging_bytes": 1056964608
+    },
+    {
+      "cache_identity": "cc3a32c8c276cd56f91247d73839f5f088300b96272c64838422303b7ba0be83",
+      "claim_id": "SP1-frozen-W-dev16-native5000-v1",
+      "identity_kind": "st_frozen_spatial_w_v1",
+      "metadata_bytes": 1703936,
+      "output_bytes": 19007744,
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev",
+      "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/stages/dev_plan/SIGNATURE.json",
+      "signature_sha256": "4582329a1e78f01c7aceda8543ffef91a37f28964f5ba0e4a04afda6b315ade1",
+      "staging_bytes": 5374096,
+      "tensor_schema": {
+        "W": {
+          "dtype": "float32",
+          "shape": [
+            144,
+            2048
+          ]
+        },
+        "memory_valid": {
+          "all_valid": true,
+          "dtype": "bool",
+          "shape": [
+            144
+          ]
+        }
+      }
+    },
+    {
+      "cache_identity": "e0fb7ceb37d3e3aead4bc5cc6fb5ff88d4f4ee3ababc422dc2f2a2d5f38ca25a",
+      "claim_id": "temporal-composition-exact32-causal-history-v1",
+      "identity_kind": "st_metadata_build_registration_v1",
+      "metadata_bytes": 4194304,
+      "output_bytes": 24117248,
+      "registration_path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261017/temporal_history32_preparation_v1/actual_preparation/HISTORY32_STORAGE_REGISTRATION.json",
+      "registration_sha256": "e0fb7ceb37d3e3aead4bc5cc6fb5ff88d4f4ee3ababc422dc2f2a2d5f38ca25a",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/temporal_composition32_history_v1",
+      "staging_bytes": 4194304
+    }
+  ],
+  "decision_path": "/mnt/project/st-world-policy-20261016/resources/OFFICIAL_RUNTIME_AND_STORAGE_DECISION_20261016.json",
+  "free_reserve_bytes": 1099511627776,
+  "frozen_w_package": {
+    "baseline_claims": {
+      "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1": {
+        "cache_identity": "6b0857efb2088f52893f6d67edbf998f73cad7d0f99f747c77f73b2ce4c284a6",
+        "claim_id": "fixed_pca_full_current_namespace_v1",
+        "metadata_bytes": 8388608,
+        "output_bytes": 33554432,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1",
+        "staging_bytes": 33554432
+      },
+      "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2": {
+        "cache_identity": "1a69a7630229cef1adf8634ff6bf9a3facab11519f905118a02141b87a4f6899",
+        "claim_id": "fixed_pca_full_current_namespace_v2",
+        "metadata_bytes": 8388608,
+        "output_bytes": 33554432,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2",
+        "staging_bytes": 33554432
+      },
+      "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1": {
+        "cache_identity": "e01531d0609a663149cb91784b30909e7320b631c7d3808ed1186cd9ad9e276a",
+        "claim_id": "bounded-metadata-current-index-v1",
+        "identity_kind": "st_metadata_build_registration_v1",
+        "metadata_bytes": 16777216,
+        "output_bytes": 528482304,
+        "registration_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/CURRENT_INDEX_STORAGE_REGISTRATION_V2.json",
+        "registration_sha256": "e01531d0609a663149cb91784b30909e7320b631c7d3808ed1186cd9ad9e276a",
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1",
+        "staging_bytes": 528482304
+      },
+      "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1": {
+        "cache_identity": "0ed4273e6639b1236c63ea1a087a72094d2f13caa913b406cd2d92be1f60765a",
+        "claim_id": "bounded-request-index-v1",
+        "identity_kind": "st_metadata_build_registration_v1",
+        "metadata_bytes": 4194304,
+        "output_bytes": 14680064,
+        "registration_path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/REQUEST_INDEX_REGISTRATION.json",
+        "registration_sha256": "0ed4273e6639b1236c63ea1a087a72094d2f13caa913b406cd2d92be1f60765a",
+        "root": "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1",
+        "staging_bytes": 14680064
+      },
+      "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v2": {
+        "cache_identity": "dee1c9280eb2a6a96729bbb4876d9d7856a1cabe0c53cb87a63ac903435f0eb6",
+        "claim_id": "bounded-metadata-future32-v1",
+        "identity_kind": "st_metadata_build_registration_v1",
+        "metadata_bytes": 8388608,
+        "output_bytes": 16777216,
+        "registration_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/FUTURE32_STORAGE_REGISTRATION_V2.json",
+        "registration_sha256": "dee1c9280eb2a6a96729bbb4876d9d7856a1cabe0c53cb87a63ac903435f0eb6",
+        "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v2",
+        "staging_bytes": 8388608
+      },
+      "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1": {
+        "cache_identity": "d3288fb3579d4198c5da1563b20e14f347b382a2458d886770ce18be982dfdc1",
+        "claim_id": "bounded-fit-index-v1",
+        "identity_kind": "st_metadata_build_registration_v1",
+        "metadata_bytes": 4194304,
+        "output_bytes": 14680064,
+        "registration_path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/FIT_INDEX_REGISTRATION.json",
+        "registration_sha256": "d3288fb3579d4198c5da1563b20e14f347b382a2458d886770ce18be982dfdc1",
+        "root": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "staging_bytes": 14680064
+      },
+      "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache": {
+        "cache_identity": "43d366d363462540faf1e2053f9f4266983dc2698a5174f16326d8475212516f",
+        "claim_id": "real256_cpu_guarded_qualification",
+        "metadata_bytes": 10020710,
+        "output_bytes": 151228416,
+        "root": "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache",
+        "staging_bytes": 12700672
+      }
+    },
+    "baseline_ledger_sha256": "7fcfc0c18fa69fc65a125ee36acc1204f9976e62926bede016269136f79cebbe",
+    "baseline_legacy_reservations": [
+      {
+        "claim_id": "legacy-current-train-three-variants",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "ea3096be19926d1449e62c0e42b969f54abc60eea42c7c8d044571be7eaf73e2",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/FULL_CACHE_STAGE_PLAN.json",
+        "evidence_sha256": "1b2f9a2f0e3eeaf8d562a3093a14a102255fe438fab9ad0dba9ea5dec48fcd29",
+        "reserved_bytes": 654982512640,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train"
+      },
+      {
+        "claim_id": "legacy-full-dev-native",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "67bbb89af8b540dcf2d98712ddc592b39eb3278ba070ec0833953c7c9f755969",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev/COMPLETE.json",
+        "evidence_sha256": "2d5f46f9b334c55da4ee17cc780ababde6024f595510236d7dcf5ba6a6e4137d",
+        "reserved_bytes": 12884901888,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev"
+      },
+      {
+        "claim_id": "legacy-full-dev-pooled",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "661853c50f41ce48c035084748bad7a3f18f426dd8cf20d6d1d1fac41d07222f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev/COMPLETE.json",
+        "evidence_sha256": "1a511396ff631bc26b631450233e7618cb97d242998c87caada8164eecf1f8a3",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev"
+      },
+      {
+        "claim_id": "legacy-full-dev-c1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "e6239158903c018804baacab2bf9ffbf40d9ae37a0bdb96b5a98393c6d293e0f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev/COMPLETE.json",
+        "evidence_sha256": "458dcff0523b8d78941007a4522d400b4bbbff53cc55778759bcc3dbcdf9862b",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev"
+      },
+      {
+        "claim_id": "legacy-diagnostic-legacy_c1_dev16_current_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "f72cfe0f985845a4c59b25489e7b9232f435a0845e99c67d3d820e148269e7e7",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1/COMPLETE.json",
+        "evidence_sha256": "06c9ddae05b6900c96089c3754245269956af89b295fe24925b24e594c83865e",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-legacy_c1_train64_current_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "ba6137b9e264b2b8e92361a584d2d0b13e9ec6abe23368c88113e831289c6b6b",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1/COMPLETE.json",
+        "evidence_sha256": "7363bc237b9e7da0677ec64262c9e040965bbffbf5447a4407e47986c25dedfb",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-native384_dev16_cost_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "73c345a38f23d6227d7611cd01ccff494421a801972993adf6e2c6c8d10d3579",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1/COMPLETE.json",
+        "evidence_sha256": "e79e8e6a5e943bb56ce54c55b9fc1b1d82f1b1d6fec35c6cc82f11aa21532853",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-native384_train64_cost_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "fae6ed77041cdd318e647a9f44d907ffe63c62487805b0d683e9b247b6d7714d",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/COMPLETE.json",
+        "evidence_sha256": "94b63b092655f8a2491c9cd23a279568a995f9c72c23e55c83e545d36c25afd0",
+        "reserved_bytes": 8589934592,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pooled384_dev16_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "40371589c651d42893319ca68ea15a07e7163dde7af863736e83c61612f7711f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1/COMPLETE.json",
+        "evidence_sha256": "11aca35f3d9c8c7932a8fc198c68669c7f1a48eab3d80add14779538d34274d0",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pooled384_train64_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "1f1270b65bafb0ced58b0e25547419e53bf272c1dbb65f04cbe5f213ce6ba075",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1/COMPLETE.json",
+        "evidence_sha256": "864383cbb5b483d607cf7ca4f1828a5f8843a98dd3a73817196190aabd3388eb",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-train256_current_cost_v1-native384",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "38691667383d9968956260a9cdb8895ed4392373d0d60bfb91395d1fbf96c9e3",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json",
+        "evidence_sha256": "d4dd474c38554e0ca16fa35077b8528c6860170eb952cb708fc8b4ed6fa612a4",
+        "reserved_bytes": 4294967296,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pca_fixed384_full_SP0_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1/COMPLETE.json",
+        "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "reserved_bytes": 536870912,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pca_train64_256_384_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/COMPLETE.json",
+        "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "reserved_bytes": 536870912,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-0",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 3145728,
+        "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v1"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-1",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 3145728,
+        "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v2"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-2",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 2097152,
+        "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v5"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-3",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 3145728,
+        "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v3"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-4",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 2097152,
+        "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v4"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-5",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 2097152,
+        "root": "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1"
+      },
+      {
+        "claim_id": "adopted-metadata-pilot-6",
+        "enforcement": "immutable retained metadata pilot; no live writer permitted",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "reserved_bytes": 1048576,
+        "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v1"
+      }
+    ],
+    "baseline_policy_sha256": "b7062c4da878519c435db2e88b899bd476e5cd6a0e9f16dca191fe61522bb831",
+    "maximum_bytes": 1073741824,
+    "members": {
+      "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/dev": {
+        "cache_identity": "bccc958c07f1ff9ce1618221abe8763337cab742243975f2f7ae47180819b673",
+        "claim_id": "SP0-frozen-W-dev16-native5000-v1",
+        "identity_kind": "st_frozen_spatial_w_v1",
+        "metadata_bytes": 1703936,
+        "output_bytes": 19007744,
+        "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/dev",
+        "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/SIGNATURE.json",
+        "signature_sha256": "3de51e64aec7f555f8d5c053695656346e1549796dad08c2c5bdafa88a26cff4",
+        "staging_bytes": 5374096,
+        "tensor_schema": {
+          "W": {
+            "dtype": "float32",
+            "shape": [
+              144,
+              2048
+            ]
+          },
+          "memory_valid": {
+            "all_valid": true,
+            "dtype": "bool",
+            "shape": [
+              144
+            ]
+          }
+        }
+      },
+      "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/train": {
+        "cache_identity": "24741e0c9f1f8076158322bd92d7028142518fdb532cb43d2bc674d5dd11dcf3",
+        "claim_id": "SP0-frozen-W-train64-native5000-v1",
+        "identity_kind": "st_frozen_spatial_w_v1",
+        "metadata_bytes": 4849664,
+        "output_bytes": 76030976,
+        "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/train",
+        "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/train_plan/SIGNATURE.json",
+        "signature_sha256": "7c1f21f83295e50d22791d8664fb1f67fd3e2c5272d66ddbff64dbda56780b29",
+        "staging_bytes": 5374096,
+        "tensor_schema": {
+          "W": {
+            "dtype": "float32",
+            "shape": [
+              144,
+              2048
+            ]
+          },
+          "memory_valid": {
+            "all_valid": true,
+            "dtype": "bool",
+            "shape": [
+              144
+            ]
+          }
+        }
+      },
+      "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev": {
+        "cache_identity": "cc3a32c8c276cd56f91247d73839f5f088300b96272c64838422303b7ba0be83",
+        "claim_id": "SP1-frozen-W-dev16-native5000-v1",
+        "identity_kind": "st_frozen_spatial_w_v1",
+        "metadata_bytes": 1703936,
+        "output_bytes": 19007744,
+        "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev",
+        "signature_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP1_5000_v1/stages/dev_plan/SIGNATURE.json",
+        "signature_sha256": "4582329a1e78f01c7aceda8543ffef91a37f28964f5ba0e4a04afda6b315ade1",
+        "staging_bytes": 5374096,
+        "tensor_schema": {
+          "W": {
+            "dtype": "float32",
+            "shape": [
+              144,
+              2048
+            ]
+          },
+          "memory_valid": {
+            "all_valid": true,
+            "dtype": "bool",
+            "shape": [
+              144
+            ]
+          }
+        }
+      }
+    },
+    "metadata_package_sha256": "0ba12afe819c3d4436fffb820af2600e35580dadb544caf41b36056973f27d61",
+    "schema": "st_frozen_spatial_w_storage_package_v1"
+  },
+  "ledger_reserve_bytes": 16777216,
+  "legacy_reservations": [
+    {
+      "claim_id": "legacy-current-train-three-variants",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "ea3096be19926d1449e62c0e42b969f54abc60eea42c7c8d044571be7eaf73e2",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/FULL_CACHE_STAGE_PLAN.json",
+      "evidence_sha256": "1b2f9a2f0e3eeaf8d562a3093a14a102255fe438fab9ad0dba9ea5dec48fcd29",
+      "reserved_bytes": 654982512640,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train"
+    },
+    {
+      "claim_id": "legacy-full-dev-native",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "67bbb89af8b540dcf2d98712ddc592b39eb3278ba070ec0833953c7c9f755969",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev/COMPLETE.json",
+      "evidence_sha256": "2d5f46f9b334c55da4ee17cc780ababde6024f595510236d7dcf5ba6a6e4137d",
+      "reserved_bytes": 12884901888,
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev"
+    },
+    {
+      "claim_id": "legacy-full-dev-pooled",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "661853c50f41ce48c035084748bad7a3f18f426dd8cf20d6d1d1fac41d07222f",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev/COMPLETE.json",
+      "evidence_sha256": "1a511396ff631bc26b631450233e7618cb97d242998c87caada8164eecf1f8a3",
+      "reserved_bytes": 2147483648,
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev"
+    },
+    {
+      "claim_id": "legacy-full-dev-c1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "e6239158903c018804baacab2bf9ffbf40d9ae37a0bdb96b5a98393c6d293e0f",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev/COMPLETE.json",
+      "evidence_sha256": "458dcff0523b8d78941007a4522d400b4bbbff53cc55778759bcc3dbcdf9862b",
+      "reserved_bytes": 1073741824,
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev"
+    },
+    {
+      "claim_id": "legacy-diagnostic-legacy_c1_dev16_current_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "f72cfe0f985845a4c59b25489e7b9232f435a0845e99c67d3d820e148269e7e7",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1/COMPLETE.json",
+      "evidence_sha256": "06c9ddae05b6900c96089c3754245269956af89b295fe24925b24e594c83865e",
+      "reserved_bytes": 1073741824,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-legacy_c1_train64_current_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "ba6137b9e264b2b8e92361a584d2d0b13e9ec6abe23368c88113e831289c6b6b",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1/COMPLETE.json",
+      "evidence_sha256": "7363bc237b9e7da0677ec64262c9e040965bbffbf5447a4407e47986c25dedfb",
+      "reserved_bytes": 1073741824,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-native384_dev16_cost_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "73c345a38f23d6227d7611cd01ccff494421a801972993adf6e2c6c8d10d3579",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1/COMPLETE.json",
+      "evidence_sha256": "e79e8e6a5e943bb56ce54c55b9fc1b1d82f1b1d6fec35c6cc82f11aa21532853",
+      "reserved_bytes": 2147483648,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-native384_train64_cost_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "fae6ed77041cdd318e647a9f44d907ffe63c62487805b0d683e9b247b6d7714d",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/COMPLETE.json",
+      "evidence_sha256": "94b63b092655f8a2491c9cd23a279568a995f9c72c23e55c83e545d36c25afd0",
+      "reserved_bytes": 8589934592,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-pooled384_dev16_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "40371589c651d42893319ca68ea15a07e7163dde7af863736e83c61612f7711f",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1/COMPLETE.json",
+      "evidence_sha256": "11aca35f3d9c8c7932a8fc198c68669c7f1a48eab3d80add14779538d34274d0",
+      "reserved_bytes": 1073741824,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-pooled384_train64_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "1f1270b65bafb0ced58b0e25547419e53bf272c1dbb65f04cbe5f213ce6ba075",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1/COMPLETE.json",
+      "evidence_sha256": "864383cbb5b483d607cf7ca4f1828a5f8843a98dd3a73817196190aabd3388eb",
+      "reserved_bytes": 2147483648,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-train256_current_cost_v1-native384",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "38691667383d9968956260a9cdb8895ed4392373d0d60bfb91395d1fbf96c9e3",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json",
+      "evidence_sha256": "d4dd474c38554e0ca16fa35077b8528c6860170eb952cb708fc8b4ed6fa612a4",
+      "reserved_bytes": 4294967296,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384"
+    },
+    {
+      "claim_id": "legacy-diagnostic-pca_fixed384_full_SP0_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1/COMPLETE.json",
+      "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+      "reserved_bytes": 536870912,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1"
+    },
+    {
+      "claim_id": "legacy-diagnostic-pca_train64_256_384_v1",
+      "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+      "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/COMPLETE.json",
+      "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+      "reserved_bytes": 536870912,
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-0",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 3145728,
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v1"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-1",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 3145728,
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v2"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-2",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 2097152,
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v5"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-3",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 3145728,
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v3"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-4",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 2097152,
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v4"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-5",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 2097152,
+      "root": "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-6",
+      "enforcement": "immutable retained metadata pilot; no live writer permitted",
+      "evidence_path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+      "evidence_sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+      "reserved_bytes": 1048576,
+      "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v1"
+    }
+  ],
+  "metadata_package": {
+    "baseline_claims": {
+      "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1": {
+        "cache_identity": "6b0857efb2088f52893f6d67edbf998f73cad7d0f99f747c77f73b2ce4c284a6",
+        "claim_id": "fixed_pca_full_current_namespace_v1",
+        "metadata_bytes": 8388608,
+        "output_bytes": 33554432,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1",
+        "staging_bytes": 33554432
+      },
+      "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2": {
+        "cache_identity": "1a69a7630229cef1adf8634ff6bf9a3facab11519f905118a02141b87a4f6899",
+        "claim_id": "fixed_pca_full_current_namespace_v2",
+        "metadata_bytes": 8388608,
+        "output_bytes": 33554432,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2",
+        "staging_bytes": 33554432
+      },
+      "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache": {
+        "cache_identity": "43d366d363462540faf1e2053f9f4266983dc2698a5174f16326d8475212516f",
+        "claim_id": "real256_cpu_guarded_qualification",
+        "metadata_bytes": 10020710,
+        "output_bytes": 151228416,
+        "root": "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache",
+        "staging_bytes": 12700672
+      }
+    },
+    "baseline_ledger_sha256": "da4a5b89427a7aacf41265b0c3babe528b6a1999557b3e34dc709c13ccab743c",
+    "baseline_legacy_reservations": [
+      {
+        "claim_id": "legacy-current-train-three-variants",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "ea3096be19926d1449e62c0e42b969f54abc60eea42c7c8d044571be7eaf73e2",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/FULL_CACHE_STAGE_PLAN.json",
+        "evidence_sha256": "1b2f9a2f0e3eeaf8d562a3093a14a102255fe438fab9ad0dba9ea5dec48fcd29",
+        "reserved_bytes": 654982512640,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train"
+      },
+      {
+        "claim_id": "legacy-full-dev-native",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "67bbb89af8b540dcf2d98712ddc592b39eb3278ba070ec0833953c7c9f755969",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev/COMPLETE.json",
+        "evidence_sha256": "2d5f46f9b334c55da4ee17cc780ababde6024f595510236d7dcf5ba6a6e4137d",
+        "reserved_bytes": 12884901888,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev"
+      },
+      {
+        "claim_id": "legacy-full-dev-pooled",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "661853c50f41ce48c035084748bad7a3f18f426dd8cf20d6d1d1fac41d07222f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev/COMPLETE.json",
+        "evidence_sha256": "1a511396ff631bc26b631450233e7618cb97d242998c87caada8164eecf1f8a3",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev"
+      },
+      {
+        "claim_id": "legacy-full-dev-c1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "e6239158903c018804baacab2bf9ffbf40d9ae37a0bdb96b5a98393c6d293e0f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev/COMPLETE.json",
+        "evidence_sha256": "458dcff0523b8d78941007a4522d400b4bbbff53cc55778759bcc3dbcdf9862b",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev"
+      },
+      {
+        "claim_id": "legacy-diagnostic-legacy_c1_dev16_current_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "f72cfe0f985845a4c59b25489e7b9232f435a0845e99c67d3d820e148269e7e7",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1/COMPLETE.json",
+        "evidence_sha256": "06c9ddae05b6900c96089c3754245269956af89b295fe24925b24e594c83865e",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-legacy_c1_train64_current_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "ba6137b9e264b2b8e92361a584d2d0b13e9ec6abe23368c88113e831289c6b6b",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1/COMPLETE.json",
+        "evidence_sha256": "7363bc237b9e7da0677ec64262c9e040965bbffbf5447a4407e47986c25dedfb",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-native384_dev16_cost_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "73c345a38f23d6227d7611cd01ccff494421a801972993adf6e2c6c8d10d3579",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1/COMPLETE.json",
+        "evidence_sha256": "e79e8e6a5e943bb56ce54c55b9fc1b1d82f1b1d6fec35c6cc82f11aa21532853",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-native384_train64_cost_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "fae6ed77041cdd318e647a9f44d907ffe63c62487805b0d683e9b247b6d7714d",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/COMPLETE.json",
+        "evidence_sha256": "94b63b092655f8a2491c9cd23a279568a995f9c72c23e55c83e545d36c25afd0",
+        "reserved_bytes": 8589934592,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pooled384_dev16_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "40371589c651d42893319ca68ea15a07e7163dde7af863736e83c61612f7711f",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1/COMPLETE.json",
+        "evidence_sha256": "11aca35f3d9c8c7932a8fc198c68669c7f1a48eab3d80add14779538d34274d0",
+        "reserved_bytes": 1073741824,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pooled384_train64_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "1f1270b65bafb0ced58b0e25547419e53bf272c1dbb65f04cbe5f213ce6ba075",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1/COMPLETE.json",
+        "evidence_sha256": "864383cbb5b483d607cf7ca4f1828a5f8843a98dd3a73817196190aabd3388eb",
+        "reserved_bytes": 2147483648,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-train256_current_cost_v1-native384",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "38691667383d9968956260a9cdb8895ed4392373d0d60bfb91395d1fbf96c9e3",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json",
+        "evidence_sha256": "d4dd474c38554e0ca16fa35077b8528c6860170eb952cb708fc8b4ed6fa612a4",
+        "reserved_bytes": 4294967296,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pca_fixed384_full_SP0_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1/COMPLETE.json",
+        "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "reserved_bytes": 536870912,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1"
+      },
+      {
+        "claim_id": "legacy-diagnostic-pca_train64_256_384_v1",
+        "enforcement": "legacy_prebounded_execution; original runtime is immutable and is not instrumented by the new per-shard guard",
+        "evidence_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+        "evidence_path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/COMPLETE.json",
+        "evidence_sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "reserved_bytes": 536870912,
+        "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1"
+      }
+    ],
+    "baseline_policy_sha256": "5fcc4421789cda3ed23b366dd78cf9fa7a867c3e7734aa3f1ed6bdaf1836618a",
+    "maximum_bytes": 8589934592,
+    "previous_package_sha256": "0ba12afe819c3d4436fffb820af2600e35580dadb544caf41b36056973f27d61",
+    "schema": "st_metadata_storage_package_v2"
+  },
+  "schema": "st_cache_storage_budget_v1",
+  "state_dir": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1"
+}
