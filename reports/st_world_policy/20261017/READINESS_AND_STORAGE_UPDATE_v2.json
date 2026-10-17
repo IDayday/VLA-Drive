@@ -1,0 +1,96 @@
+{
+  "schema": "st_bounded_storage_and_readiness_update_v2",
+  "recorded_utc": "2026-10-17T01:52:16.960342+00:00",
+  "source_sha": "cd61d09c1d0cafe763db91c1c1f7d4f31daf5289",
+  "user_constraint": "No multi-terabyte cache prebuild; preserve registered numerical/target/input contracts.",
+  "storage": {
+    "policy": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/CACHE_STORAGE_BUDGET_POLICY_v4.json",
+      "sha256": "5fcc4421789cda3ed23b366dd78cf9fa7a867c3e7734aa3f1ed6bdaf1836618a"
+    },
+    "cache_cap_bytes": 824633720832,
+    "reserved_bytes": 692905198438,
+    "unreserved_cap_bytes": 131728522394,
+    "free_space_floor_bytes": 1099511627776,
+    "actual_three_training_target_bytes": 629345297104,
+    "new_Qwen_visual_cache_bytes": 0,
+    "new_future_teacher_cache_bytes": 0,
+    "checkpoint_budget_separate": true,
+    "active_W_checkpoint_reserve_bytes": 1030792151040,
+    "automatic_cleanup": false
+  },
+  "full_flow_training_data": {
+    "status": "METADATA_EVIDENCE_VERIFIED",
+    "scene_count": 101592,
+    "log_count": 1176,
+    "source_images": 304776,
+    "base_saw_training_population": true,
+    "manifest_identity": "7255bb2db29fd0bf2748215edb8abbeed0352f8bfe7f841e1fabd9682b4f6797",
+    "review": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence_full_flow_manifest_v1/FULL_FLOW_MANIFEST_REVIEW.json",
+      "sha256": "033816f775449205a64b4a424752896cb524b7ee295e776bd44531648664f2df"
+    },
+    "handoff": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence_full_flow_manifest_v1/HANDOFF.json",
+      "sha256": "d0048320172f5a770e116215414812b7a0fd72ebd1edd34eccd0d33356214bfd"
+    },
+    "manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/TRAINING_MANIFEST.json",
+      "sha256": "b810cafbdaa42afd8554c08be443779e7d66edce56292c0c30940e728c0ed656"
+    },
+    "score_protocol": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/SCORE_PROTOCOL.json",
+      "sha256": "6dcc0bdad4897b3f49af2ee1bf66f1cd040b6cd88c444a04aa9c8de5614bdc8c"
+    },
+    "prepare_log": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/PREPARE.log",
+      "sha256": "f1ad863284c22d19d4ed6ffd3fa7f2ac5a6934fe90a5505416985e72c43d29dc"
+    },
+    "new_official_score_calls": 0,
+    "new_teacher_cache_bytes": 0,
+    "review_scope": "All metadata joins; expensive payload hashing belongs to original preparation, not independently repeated."
+  },
+  "native_deployment": {
+    "status": "PASS_BOUNDED_ENGINEERING_CHAIN",
+    "review": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_NATIVE_DEPLOYMENT_REVIEW.json",
+      "sha256": "fb2db98d4bfb6224455ac06b8ded37fb80fdb3e8cfef6089d5b69891e881490a"
+    },
+    "scenes_each": 16,
+    "new_calls_in_current_review": 0,
+    "scientific_gain": "NOT_TESTED"
+  },
+  "learned_W_probe": {
+    "status": "IMPLEMENTED_PENDING_INDEPENDENT_REVIEW_AND_REAL_5K_ENDPOINT",
+    "source_sha": "cd61d09c1d0cafe763db91c1c1f7d4f31daf5289",
+    "protocol": {
+      "path": "reports/st_world_policy/20261017/spatial_probe/PROTOCOL.json",
+      "sha256": "7e2dcd4a938dba575f4000f641f59e2cd48a80ad1ece190b0a31000596fc956e"
+    },
+    "cpu_tests": {
+      "passed": 13,
+      "seconds": 8.24,
+      "environment": "ddp torch2.5.1/sklearn1.2.2",
+      "evidence": {
+        "path": "reports/st_world_policy/20261017/spatial_probe/HANDOFF.json",
+        "sha256": "db613a2c6ed891bdf52fa8616de22f812a46edc63339a551d6f3474ec822c04c"
+      }
+    },
+    "train_scenes": 64,
+    "dev_scenes": 16,
+    "estimated_W_tensor_bytes_all_four_arms": 471859200,
+    "estimate_is_measured_cache_size": false,
+    "real_W_cache_generated": false,
+    "real_probe_fitted": false,
+    "actual_independent_reviews_required": true
+  },
+  "execution": {
+    "W_SP0_SP1_SP2_SP3": "FORMAL_RUNNING_ORIGINAL_FDF_RUNTIME",
+    "C0_to_C4": "NOT_LAUNCHED_PENDING_COMPLETE_PROFILE_AND_REGISTRATION_REVIEWS",
+    "flow_profile_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "navtest_started": false,
+    "held_experiments_restarted": false,
+    "ACTIVE_updated": false,
+    "push_performed": false
+  }
+}
