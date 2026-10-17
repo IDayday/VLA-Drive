@@ -728,4 +728,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Writers import this module by its canonical name. Keep their hook and the
+    # CLI's admission context in that same instance, rather than __main__'s
+    # separate _ACTIVE_GUARD (which would silently disable every writer hook).
+    from tools.st_world_policy.metadata_storage import main as canonical_main
+    canonical_main()
