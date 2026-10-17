@@ -1,0 +1,161 @@
+{
+  "schema": "st_C3_route_helper_v3_handoff_v1",
+  "status": "LEAD_METADATA_LOCK_REVIEW_COMPLETE_CANDIDATES_NOT_DEPLOYED",
+  "implementation_author": "/root/st_evaluation",
+  "independent_reviewer": "/root",
+  "dispatch_authority": "Lead only; no task was launched by this handoff",
+  "base_commit": "6ea815bb0ed7feeaccf626ea7723970ad26d25e4",
+  "branch": "agent/st-evaluation-20261016",
+  "owned_paths": [
+    "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1",
+    "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/C3_ROUTE_HELPER_v1"
+  ],
+  "frozen_execution_runtime": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+    "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "source_fingerprint": "81b45817b6fe80d908483a8cfab2b3f5bafb953deb192a46f1fdc97abb5d229d",
+    "changed": false
+  },
+  "change_scope": [
+    "Bind only the sealed C3 512/1024/4096 preparation; retain original ten jobs and exact C2 intent mappings.",
+    "Retain historical C3-null rejection and all undeclared endpoint rejection.",
+    "Add immutable per-job three-host route, with same host/route for export, resume and score.",
+    "Add four campaign-wide export slots; retain two campaign score slots, two score workers and host-local GPU exclusivity.",
+    "Preserve fixed population, native completion validation, one-trajectory inference, score ledger/call/invocation budgets and scientific definitions."
+  ],
+  "allowed_canonical_hosts": [
+    "training-rl-zt2",
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt"
+  ],
+  "validation": {
+    "implementer": {
+      "checks_passed": 99,
+      "elapsed_seconds": 3.703186731785536,
+      "status": "IMPLEMENTER_VALIDATION_ONLY_PENDING_LEAD_REVIEW"
+    },
+    "lead": {
+      "checks_passed": 99,
+      "elapsed_seconds": 3.7564158849418163,
+      "status": "LEAD_REVIEWED_METADATA_AND_LOCK_SCOPE_ONLY"
+    },
+    "help_exit_codes": [
+      0,
+      0
+    ],
+    "syntax": "Both candidate modules compiled during candidate construction.",
+    "scope": "Fixed metadata, negative cases and bounded CPU lock lifetime; actual local CPU environment/mount/quota. GPU inventory checks use fixtures.",
+    "limits": [
+      "No launcher main, experiment dispatch, model/checkpoint payload read, native export, official scoring, GPU context or navtest.",
+      "Same-host shared-Lustre flock tested; cross-host flock operation was not exercised.",
+      "Actual export/score latency on the additional hosts is NOT_MEASURED."
+    ]
+  },
+  "deployment_boundary": {
+    "deployed_v1_v2_changed": false,
+    "lead_reported_legacy_jobs_complete": true,
+    "lead_reported_all_future_new_exports_use_v3": true,
+    "global_export_bound_requires_all_new_exports_v3": true,
+    "old_registrations_can_silently_adopt_route": false,
+    "route_created": false,
+    "actual_checkpoint_or_idle_resource_invented": false,
+    "route_and_complete_receipt_required_before_execution": true,
+    "latest_checkpoint_fallback": false,
+    "resource_admission": "Fresh selected-host environment, shared-lock mount, CPU quota/RAM/disk, GPU UUID/type/idle/process checks and exclusive locks; never preempt or share occupied training GPUs.",
+    "ownership": "Lead copies exact reviewed candidate bytes to resources and alone dispatches after actual resource admission."
+  },
+  "retained_inference": {
+    "world_size": 1,
+    "rank": 0,
+    "seed": 42,
+    "dev_scenes": 1696,
+    "dev_logs": 16,
+    "precision": "FP32_master_eval_TF32_off",
+    "attention": "sdpa",
+    "solver": "original_Euler_10",
+    "trajectories_per_scene": 1,
+    "score_run_id": "st-world-policy-20261016",
+    "score_total_call_cap": 1728,
+    "score_retry_attempts": 1,
+    "score_workers": 2,
+    "export_invocation_cap": 2,
+    "score_invocation_cap": 2
+  },
+  "artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/CANDIDATES.json",
+      "sha256": "f0c4b1d437a4c00a91068d3a438d06d824169bd32c6fdd9e32ceccdbe8dcfb16",
+      "bytes": 1014
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_formal_dev_export_v3.py",
+      "sha256": "e58f58e3d0e3fb05e05dcd28c5d04142c4f3a4ba2002e5cc8ea9b3a5bf95217f",
+      "bytes": 25608
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_completed_dev_score_v3.py",
+      "sha256": "9217c5c0b5362453a86843bfe8dd9c6ad1609b7440c5441be4bd1af6511e8d7c",
+      "bytes": 31622
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_formal_dev_export_v2.py.before",
+      "sha256": "69ae3fc0f8ac00d89ca69348bc03c7fd7aa445a8de5e4eae979cae954cd304b1",
+      "bytes": 15213
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_completed_dev_score_v2.py.before",
+      "sha256": "1d588070d0882d6595c24ac89e46f44d222cb9d1e2b54fe8afb903a681bf5fc7",
+      "bytes": 21022
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_formal_dev_export_v3.diff",
+      "sha256": "dd4b1c9f51b7d8c6052d484212e783fd0bfb25ddcedf137abf7b186c1ec8c8b5",
+      "bytes": 22993
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/launch_completed_dev_score_v3.diff",
+      "sha256": "bb015456a474206460d320382bd86b75ab3efd18371bfbff3781a15b12fb12ed",
+      "bytes": 23392
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/ROUTE_ADAPTER_V3.txt",
+      "sha256": "3b324757b40bcee08a3d25c78de1a6c1c094bb18b6f2bd4a1cd91ccb3ad7bc4c",
+      "bytes": 8541
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/build_candidates.py",
+      "sha256": "016f74dbcb40b970936dfdacbba2fc064647187f36066fdae964a4416b552360",
+      "bytes": 12357
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/VALIDATE_CANDIDATES.py",
+      "sha256": "2cd6e7bea735a66d212d6f6bfad6853038489cdff980e0b916c7b5d8f29facb0",
+      "bytes": 15496
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/CANDIDATE_VALIDATION.json",
+      "sha256": "f616ed1db3fae35cff935f69c34c6b6783aeb9001a104e647745fe8d2e5ddd6f",
+      "bytes": 16566
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/LEAD_VALIDATION.json",
+      "sha256": "415e45d442acaa1eaa0107abff8ff8e18edc47300ee8dbc0aa401da0763601f5",
+      "bytes": 16562
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/README.md",
+      "sha256": "d21bf90c8d35ce974a13154a92c427ae395228eb2c359389c1f35847e6b12357",
+      "bytes": 4932
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/ROUTE_SCHEMA.md",
+      "sha256": "57aaeea8ecbbd08ec93d0a4daaf736fbdc5d034bef6929d4efcfe7d65add7f70",
+      "bytes": 3327
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evaluation/C3_ROUTE_HELPER_v1/HELP_RESULTS.json",
+      "sha256": "7b114f015ddafbc5c93cc39cb0a7ef4f3c558b4529c0f755ef98ea868dc0de00",
+      "bytes": 2486
+    }
+  ]
+}
