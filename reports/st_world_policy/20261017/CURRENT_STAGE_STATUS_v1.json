@@ -1,0 +1,300 @@
+{
+  "schema": "st_campaign_progress_snapshot_v1",
+  "observed_utc": "2026-10-17T01:29:37.126163+00:00",
+  "source_commit": "6fb113b48be351326da99f82d42e54359465cdcd",
+  "supersedes_status_snapshot": "reports/st_world_policy/20261016/IMPLEMENTATION_STATUS.json (initial implementation snapshot retained)",
+  "scientific_results": "NOT_YET_AT_REGISTERED_ENDPOINT",
+  "official_execution": {
+    "BF16_execution_weights": true,
+    "FP32_master_and_Adam_moments": true,
+    "optimizer_client": "torch.optim.AdamW",
+    "backend": "DeepSpeed ZeRO2",
+    "attention": "FlashAttention2",
+    "offload": false,
+    "gradient_checkpointing_effective": false,
+    "source_commit": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+    "canonical_deployment": "FP32 master reconstruction / SDPA / one ten-step Flow trajectory"
+  },
+  "storage": {
+    "policy": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/CACHE_STORAGE_BUDGET_POLICY_v4.json",
+      "sha256": "5fcc4421789cda3ed23b366dd78cf9fa7a867c3e7734aa3f1ed6bdaf1836618a"
+    },
+    "teacher_caches": [
+      {
+        "status": "COMPLETE",
+        "bytes": 29978529544,
+        "cache_identity": "bb03843957a2a420c53d480b8b41165b77ccfbdaeb79ec8640ad50bc038fcbe5",
+        "elapsed_seconds": 935.1870322227478,
+        "full_record_verification": true,
+        "scenes": 101592,
+        "unique_images": 304776,
+        "source_sha": "b9b2a19d6e99d21aa565920bec54c3e014477435",
+        "name": "legacy_c1",
+        "receipt": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/legacy_c1/COMPLETE.json",
+          "sha256": "4780ddd9eff05a1970152a732fd86064fef79030a2fdbbe2c268dd98eff2d052"
+        },
+        "verification": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/legacy_c1/STAGE_COMPLETE.json",
+          "sha256": "60677e5f5eefe7d3aa41dfd2f4dfeb8ce684ab95a875c94269ef355ef0d69bc8"
+        }
+      },
+      {
+        "status": "COMPLETE",
+        "bytes": 539427538104,
+        "cache_identity": "d92dcced1f92106e0e10a361bc65ea67348be299f07b78e38b75ba973079aa56",
+        "elapsed_seconds": 5428.774265766144,
+        "full_record_verification": true,
+        "scenes": 101592,
+        "unique_images": 304776,
+        "source_sha": "b9b2a19d6e99d21aa565920bec54c3e014477435",
+        "name": "native384",
+        "receipt": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/COMPLETE.json",
+          "sha256": "7dd3401dc3dadb32846c4df8eaf25bc453fdc72998906bd372323448979368ef"
+        },
+        "verification": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/STAGE_COMPLETE.json",
+          "sha256": "6102fa756cf53cb27a3ddd4a70852cc57f89a8c4765a1a7beca92bd759bbb415"
+        }
+      },
+      {
+        "status": "COMPLETE",
+        "bytes": 59939229456,
+        "cache_identity": "acc90fc5a74c9e0f0f83c85f5328a7d16b6d3e2264c5fe41f9f955dc6e2f9f66",
+        "elapsed_seconds": 3268.38471865654,
+        "full_record_verification": true,
+        "scenes": 101592,
+        "unique_images": 304776,
+        "source_sha": "b9b2a19d6e99d21aa565920bec54c3e014477435",
+        "name": "pool3",
+        "receipt": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/pool3/COMPLETE.json",
+          "sha256": "4dad9699728a93530be69ad03cd5e18caa412bb3947d82dc762c01e1dc008712"
+        },
+        "verification": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/pool3/STAGE_COMPLETE.json",
+          "sha256": "92214581232a2898a8d571dcbd839545dec1cdca5917c617d1c47c808a6d003c"
+        }
+      }
+    ],
+    "actual_three_train_target_bytes": 629345297104,
+    "cache_cap_bytes": 824633720832,
+    "all_cache_reserved_bytes_including_ledger": 692905198438,
+    "free_floor_bytes": 1099511627776,
+    "checkpoint_reservation_per_W_run_bytes": 257698037760,
+    "checkpoint_runs": 4,
+    "observed_filesystem_free_bytes": 9548353511424,
+    "filesystem_free_is_not_user_quota": true,
+    "multi_TB_Qwen_visual_cache_created": false,
+    "future_times_automatically_prebuilt": false,
+    "cache_or_checkpoint_cleanup_performed": false
+  },
+  "formal_world_runs": [
+    {
+      "cell": "SP0",
+      "status": "TRAINING_RUNNING",
+      "run_id": "SP0_fulltrain_seed42_official_5k_v1",
+      "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "stop_after": 5000,
+      "lr_horizon": 20000,
+      "global_batch": 32,
+      "world_size": 4,
+      "initialization": "original bound S0, never PROFILE weights",
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "85624cb410dab8a531edc3a793ddc052ed1f905c488174289638f55bcf489738"
+      },
+      "approval": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+        "sha256": "fb7ecf8bb57811f5535ed3a9f2f9cc7805088a15b0485e9a088bb3ba31aa22ed"
+      },
+      "launch_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+        "sha256": "9fc1949ab43e293156d7d379710dc28dab20426b2b36a8b26edc0064d1315057"
+      },
+      "started_unix": 1792199078.9202342,
+      "reviews": {
+        "EVIDENCE": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/reviews/EVIDENCE.json",
+          "sha256": "b1f8b74b40792a60c4adfdc5156a319eb961021cc566dc5a6ac2d1970ac12a2b"
+        },
+        "CORRECTNESS": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+          "sha256": "1aa5266d7befa246dd8419d54fbae8bc15485cb1ac7ee1aa9aac66b3278a4542"
+        },
+        "EFFICIENCY": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/reviews/EFFICIENCY.json",
+          "sha256": "3d29d2d74fdd706e85f2459a326b9adafd0e6fd599fff701ef820d87d8dbd641"
+        }
+      },
+      "observed_optimizer_step": 274,
+      "losses": {
+        "current": 1.5947918891906738,
+        "ego_fm": 0.0038111042231321335
+      },
+      "gradient_norm": 0.9516240954399109,
+      "fp32_master_update_verified": true,
+      "last_step_mtime": "2026-10-17T01:29:35+00:00",
+      "run_identity_file": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/identity.json",
+        "sha256": "33b15316a564379f811bcef430e96842e1a13b366fe53212ab7344e5cdc12444"
+      }
+    },
+    {
+      "cell": "SP1",
+      "status": "FORMAL_STARTED",
+      "run_id": "SP1_fulltrain_seed42_official_5k_v1",
+      "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "stop_after": 5000,
+      "lr_horizon": 20000,
+      "global_batch": 32,
+      "world_size": 4,
+      "initialization": "original bound S0, never PROFILE weights",
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "41c5ada8232b51a7387b8a2ab267c8a3c84e7efb87b8cde3753a8d3bf5b2df5a"
+      },
+      "approval": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+        "sha256": "3d0d0ffcb80dec08291234118ca5c329a942d53696b9b830acd5781fe50084e0"
+      },
+      "launch_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+        "sha256": "7b73536e99ef8a1405ec7fc5f140285414a74aa8eb8b7a61ecd20dc7414c676d"
+      },
+      "started_unix": 1792200407.2107265,
+      "reviews": {
+        "EVIDENCE": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/reviews/EVIDENCE.json",
+          "sha256": "3235f8eef7f7e1ed1f39ce3fd0e419ad2f9f2474e62418856f30825e0259e6ab"
+        },
+        "CORRECTNESS": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+          "sha256": "51a8f103bea1a9ed16471df51ff3a17ebf7d27bb5653adde84b5a4d5ea54b1ba"
+        },
+        "EFFICIENCY": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/reviews/EFFICIENCY.json",
+          "sha256": "557c7b840ba574160621eecd5608112ecca1e0d257d4465c2eb70b607a8424c7"
+        }
+      }
+    },
+    {
+      "cell": "SP2",
+      "status": "TRAINING_RUNNING",
+      "run_id": "SP2_fulltrain_seed42_official_5k_v1",
+      "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "stop_after": 5000,
+      "lr_horizon": 20000,
+      "global_batch": 32,
+      "world_size": 4,
+      "initialization": "original bound S0, never PROFILE weights",
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+      },
+      "approval": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+        "sha256": "4d2a556bc9caa68408ba8283d9d1421bf29ece3eef773319495bd5f49a08ccc2"
+      },
+      "launch_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+        "sha256": "3dc5adb88ceb56d36d39404384874fa58a788318bbcd4c3b1b1135e26ccbfb06"
+      },
+      "started_unix": 1792198885.5883954,
+      "reviews": {
+        "EVIDENCE": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/reviews/EVIDENCE.json",
+          "sha256": "06ed404146962c1537a6815056cf168c92ec1b2533821e6858d482c461aca8d2"
+        },
+        "CORRECTNESS": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+          "sha256": "c25e5f4efcd13d2d441897d8faf45d8a93a59e825e7f8109cf7d51898e4cca67"
+        },
+        "EFFICIENCY": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/reviews/EFFICIENCY.json",
+          "sha256": "ab794aa7ccb49fa75644c7adaffadcac07a73ab18a1e6cf7fe6919a816dc9807"
+        }
+      },
+      "observed_optimizer_step": 207,
+      "losses": {
+        "current": 2.2779717445373535,
+        "ego_fm": 0.0029164175502955914
+      },
+      "gradient_norm": 0.6683345437049866,
+      "fp32_master_update_verified": true,
+      "last_step_mtime": "2026-10-17T01:29:36+00:00",
+      "run_identity_file": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/identity.json",
+        "sha256": "46e1c623ab2fb914b7344c3a72187fa960211660c3f5e1929fb4e98360581448"
+      }
+    },
+    {
+      "cell": "SP3",
+      "status": "FORMAL_STARTED",
+      "run_id": "SP3_fulltrain_seed42_official_5k_v1",
+      "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+      "stop_after": 5000,
+      "lr_horizon": 20000,
+      "global_batch": 32,
+      "world_size": 4,
+      "initialization": "original bound S0, never PROFILE weights",
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be"
+      },
+      "approval": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/RUN_APPROVAL.json",
+        "sha256": "293b1baa97787e128245a662eb19541d5995ad9ba4b3c00d507318406c8e1670"
+      },
+      "launch_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/LAUNCH.json",
+        "sha256": "c2086cf67c022f67584d58a010b7aaf80b072b4d5464743fef30568bc169d46e"
+      },
+      "started_unix": 1792200441.149162,
+      "reviews": {
+        "EVIDENCE": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/reviews/EVIDENCE.json",
+          "sha256": "6cb45edb8e41f226030b9f1649945ad60fb9b4a5e57c00a8bb2ca32d96c82570"
+        },
+        "CORRECTNESS": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+          "sha256": "c4e63386568965d38e1fc8bb79fb2a0085fb900cfacd2b2bfb128f2478dd27c0"
+        },
+        "EFFICIENCY": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/reviews/EFFICIENCY.json",
+          "sha256": "c0bbe69d15277b0ad02b2c93ec4e0e33cf6c98052a6e303ccd77c2f5b0fb9d14"
+        }
+      }
+    }
+  ],
+  "consequence": {
+    "status": "REFERENCE_FIX_VERIFIED_AND_BOUNDED_PROFILES_RUNNING",
+    "source_commit": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "correctness_review": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/REFERENCE_CONTRACT_FINAL_REVIEW.json",
+      "sha256": "900197a0d0b8692cef630b7eb10bead52390084119217de8e3c1c65cf4443bee"
+    },
+    "evidence_inheritance": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence_consequence_context_6714b1e9/EVIDENCE_INHERITANCE.json",
+      "sha256": "ab324f7c648c78ed067298c25273888f52caefd8b887f12b742d7166c0a6d07e"
+    },
+    "formal_training_started": false,
+    "full_train_context_prepare_status": "RUNNING_NO_COMPLETE_RECEIPT",
+    "old_162_step_profile": "FAILED, retained; not counted as 240-step efficiency qualification"
+  },
+  "unchanged_boundaries": {
+    "old_expert_scorer_MOPD_tasks_restarted": false,
+    "navtest_started": false,
+    "formal_ACTIVE_updated": false,
+    "automatic_push": false,
+    "diagnostic_scores_are_scientific_results": false
+  },
+  "remaining": [
+    "Wait for the registered W 5k endpoints, then fixed full-dev evaluation and one contrast shortlist.",
+    "Finish C full-population context receipt and actual bounded topology profiles; collect exact-run independent reviews before formal C0-C4 launch.",
+    "Bind genuine spatial readout probes; do not substitute PCA reconstruction for two semantic capabilities.",
+    "Temporal/future and joint stages remain conditional; register bounded target storage before new times."
+  ]
+}
