@@ -1,0 +1,53 @@
+{
+  "schema": "st_fixed_evaluation_waiter_review_v1",
+  "status": "PASS",
+  "reviewer": "/root/temporal_narrow_review",
+  "waiter_path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_channel256_actual_v1/wait_evaluate_once.py",
+  "waiter_sha256": "d34ab3d00c138170efcca4b5829541c2767fa9c669c9023a03e29ea71d819d04",
+  "spec_sha256": "59cdf8a3ab692994f926ce460a4a353bb16ffba1a3bb21d1ff6c4beacb936452",
+  "launcher_sha256": "46807de5d4e91bc8839fa5c9839075f9a3c4df1164b7907755abb183a34e8298",
+  "inherited_review": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261017/temporal_closeout_independent_v1/PCA_EVAL_INHERITANCE.json",
+    "sha256": "559aef268acef84d2d8fe339b614aee473e7ac96692cb5ce93c336deb34595b7"
+  },
+  "fixed_findings": [
+    "Resource deadline is now checked before and after bounded GPU query; no free-after-deadline dispatch.",
+    "Waiter itself pins the exact EVALUATION_SPEC checksum."
+  ],
+  "checks": [
+    "One specified GPU only; no host search, no process signal, no pressure/task termination.",
+    "One exclusive waiter lock and persistent attempted status prevent automatic resubmission.",
+    "Launch refusal stops whole workflow; no retry.",
+    "Launcher retains fresh GPU/lock checks,4/2 shared slots,two-stage invocation bounds and original subprocess timeout.",
+    "PID state and starttime detect exit,zombie,reuse without sending signals.",
+    "Only complete export allows scoring; actual official_score/COMPLETE.json status must equal COMPLETE."
+  ],
+  "tests": {
+    "passed": 6,
+    "failed": 0,
+    "scope": "synthetic controller-only fixtures; subprocess.run/check_output mocked, real launcher never called",
+    "source_hash_checked_per_fixture": true,
+    "artifacts": [
+      {
+        "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261017/temporal_closeout_independent_v1/test_pca_waiter.py",
+        "sha256": "676b57fd55b9f5de4d8c3ec5bc9681c6aaaee41904eed0228352e5d42bb53bb0"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261017/temporal_closeout_independent_v1/PCA_WAITER_TEST.log",
+        "sha256": "857eec71633dca4c1e4f30deb0e99861cb526984d3cd0e6fe4c811e69d45fcfd"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261017/temporal_closeout_independent_v1/PCA_WAITER_TEST_INITIAL_FIXED_SOURCE.log",
+        "sha256": "767edf76332280e412f26c04fe5f330a4f67472da9bf6b38b2c153deb5cc316b"
+      }
+    ]
+  },
+  "execution_conditions": [
+    "Lead invokes once under outer timeout16200s +60s kill allowance",
+    "Original child timeout bounds remain independent if waiter exits",
+    "Fresh runtime/GPU/storage checks remain launcher responsibility"
+  ],
+  "dispatched": false,
+  "real_GPU_or_SSH": false,
+  "scientific_result": false
+}
