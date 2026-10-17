@@ -1,0 +1,62 @@
+{
+  "schema": "st_T1_native4_independent_resource_review_v3",
+  "status": "PASS_BOUNDED_T1_ADAPTER_ONLY",
+  "reviewer": "/root/st_metadata_resource_review",
+  "source_commit": "59c256ec7c387d4b822a45787074db55386e2116",
+  "adapter_sha256": "fe7b418dadb683c143f61d51508df32dae0c9d92f2726a4aade1950f9d112f93",
+  "adapter_path": "/mnt/project/VLA-Drive-st-t1-native4-execution-20261017/reports/st_world_policy/20261017/official_T1_native4_execution_v1/run_once.py",
+  "new_checkpoint_reservation_bytes": 128849018880,
+  "checkpoint_root": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/runs",
+  "uses_old_profile_reservation": false,
+  "valid_until_unix": 1792250452.226822,
+  "issued_at_unix": 1792236834.8130844,
+  "checkpoint_commitments": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/official_history_T1_native4_v1/controls/CHECKPOINT_COMMITMENTS_2303G_V1.json",
+    "sha256": "13f3f4b282db2aff24528bc5434db51a9351cf43cf02dcdea1fbef38d5434cb3"
+  },
+  "existing_obligations_bytes": 2343978401792,
+  "combined_checkpoint_obligations_bytes": 2472827420672,
+  "free_floor_bytes": 1099511627776,
+  "required_available_bytes": 3572339048448,
+  "observed_available_bytes": 7156840374272,
+  "quota_verified": false,
+  "acknowledges_Lead_created_reservation_only": true,
+  "resource_reservation_created_by_reviewer": false,
+  "max_invocations": 2,
+  "phases": [
+    2,
+    4
+  ],
+  "cpu_affinity": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "rss_bytes": 103079215104,
+  "cumulative_rchar_bytes": 549755813888,
+  "invocation_seconds": 3600,
+  "save_cleanup_seconds": 180,
+  "recommended_latest_start_unix_with_120s_setup_margin": 1792246552.226822,
+  "previous_failed_review_commit": "14831196b440081e104c3ec2ab9a9ab4255d6a06",
+  "inherited_feasibility_commit": "490b288903b402b1499669b2ade7dc3fa15842ca",
+  "fixes": {
+    "T1-R01": "PASS original deadline assertion; one absolute cleanup deadline retained including finally",
+    "T1-R02": "PASS exact actual CP hash and fresh shared statvfs before spawn and each sampled monitoring interval",
+    "actual_lease_expiry": "PASS actual expiry parameter wired from admission through monitor; no renewed lease window"
+  },
+  "tests": {
+    "inherited_previous_full_passed": 27,
+    "final_affected_passed": 7,
+    "final_affected_seconds": 0.83,
+    "original_deadline_assertion_preserved": true,
+    "scope": "late setup refused before spawn, finite actual expiry, absolute cleanup, normal and terminated owned tiny children"
+  },
+  "actual_training_dispatched": false,
+  "gpu_used": false,
+  "live_ledger_modified": false,
+  "real_model_image_teacher_payload_read": false,
+  "not_formal_training_or_scientific_result_approval": true,
+  "inherited_resource_fix_review_commit": "64ffae2be2bdedf84d1df124648a2da4a01ab914",
+  "final_delta": "Actual admission expiry mapped to monotonic deadline; setup insufficient for 3780s rejects before spawn; all cleanup/spawn-failure deadlines clamped."
+}
