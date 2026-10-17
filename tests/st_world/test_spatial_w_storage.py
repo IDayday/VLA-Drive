@@ -319,7 +319,8 @@ def test_actual_cache_plan_signature_and_extractor_reserve_call_are_compatible(t
     def stop(*a,**k):raise RuntimeError('intentional before native loader')
     monkeypatch.setattr(checkpoints,'load_world_checkpoint',stop)
     with pytest.raises(RuntimeError,match='before native loader'):
-        p.extract(s.binding,s.root,f.new_path)
+        p.extract(s.binding,s.root,f.new_path, checkpoint_commitments=dict(
+            path=str(f.m0.checkpoint_path), sha256=f.m0.checkpoint_sha))
     assert json.loads((s.root/'identity.json').read_text())==s.signature
     assert not list(s.root.glob('*.pt'))
     state=json.loads(f.m0.old.state_path.read_text())

@@ -1,0 +1,9 @@
+# Frozen W writes preserve checkpoint space
+
+Review of the typed-W admission found that migration checked future checkpoint obligations, but `spatial_probe.extract` did not pass them into its `StorageBudget.reserve` call. Later writes therefore preserved only the original free-space floor.
+
+The extractor now requires a pinned CURRENT checkpoint commitment receipt when the policy contains `frozen_w_package`. It checks the existing receipt schema/hash/freshness and that its lifetime covers the registered extraction window before reading native weights or observations. The existing reservation receives `free_reserve_bytes = policy floor + remaining checkpoint bytes`, so every durable precharge checks the same conservative floor. Old untyped diagnostic policies retain their previous API. Model computation, signatures, source contracts, precision, images, RNG and cache membership are unchanged.
+
+The CLI accepts `--checkpoint-commitments` and `--checkpoint-commitments-sha256` together. An outer supervisor must still enforce the registered time limit; this change is not a supervisor or a filesystem quota. Receipts and actual admission remain Lead-owned, and no live policy/ledger/model/cache was changed by these tests.
+
+Validation: two CPU cores, no GPU; `tests/st_world/test_spatial_probe_checkpoint_reserve.py`, `test_spatial_w_storage.py`, `test_metadata_storage_guard.py`, `test_cache_storage_budget.py`, `test_spatial_probe.py`: **162 passed, 15.09 seconds**, one existing pynvml deprecation warning. Full output is TESTS.log. Tests include missing/incorrect/expired/soon-expiring receipt, preserved legacy path, complete pin CLI, pre-plan rejection and a successful admission followed by insufficient disk at the next write with unchanged ledger. Synthetic fixtures are not real extraction evidence. Independent review pending.

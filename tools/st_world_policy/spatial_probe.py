@@ -228,13 +228,33 @@ def run_lock(path):
         yield
 
 
-def extract(binding, output, storage_policy):
+def extraction_free_reserve(budget, checkpoint_commitments, max_seconds):
+    """Keep the existing checkpoint commitment floor on every reserved write."""
+    if checkpoint_commitments is None:
+        if budget.core.get('frozen_w_package') is not None:
+            raise ValueError('Typed W extraction requires pinned checkpoint commitments')
+        return 0
+    from tools.st_world_policy.metadata_storage import _checkpoint_reserve
+    exact(checkpoint_commitments, ('path', 'sha256'), 'checkpoint commitments pin')
+    now = time.time()
+    reserve = _checkpoint_reserve(checkpoint_commitments['path'], checkpoint_commitments['sha256'], now=now)
+    # An outer supervisor still enforces the invocation deadline. Do not admit
+    # a receipt expiring during the registered cooperative extraction window.
+    _checkpoint_reserve(checkpoint_commitments['path'], checkpoint_commitments['sha256'],
+                        now=now + max_seconds)
+    return budget.core['free_reserve_bytes'] + reserve
+
+
+def extract(binding, output, storage_policy, *, checkpoint_commitments=None):
     from safetensors.torch import save_file
     from tools.st_world_policy.checkpoints import load_world_checkpoint
     started = time.monotonic()
+    validate_binding(binding)
+    budget = StorageBudget(Path(storage_policy).resolve())
+    free_reserve = extraction_free_reserve(budget, checkpoint_commitments, binding['max_seconds'])
     signature, data, required = cache_plan(binding)
     root = Path(output).resolve()
-    reservation = StorageBudget(Path(storage_policy).resolve()).reserve(root, signature['identity'], **required)
+    reservation = budget.reserve(root, signature['identity'], **required, free_reserve_bytes=free_reserve)
     root.mkdir(parents=True, exist_ok=True)
     with run_lock(root / 'RUN.lock'):
         with reservation.writing(json_write_bound(signature)):
@@ -647,6 +667,8 @@ def parser():
         q.add_argument('--output', required=True)
         if name == 'extract':
             q.add_argument('--storage-policy', required=True)
+            q.add_argument('--checkpoint-commitments', help='Pinned CURRENT checkpoint space receipt; required for typed W')
+            q.add_argument('--checkpoint-commitments-sha256', help='Exact SHA256 of the checkpoint space receipt')
     q = sub.add_parser('fit', help='Train only a fresh bounded spatial readout from frozen W')
     q.add_argument('--registration', required=True); q.add_argument('--output', required=True)
     q.add_argument('--resume', action='store_true')
@@ -661,7 +683,11 @@ def main():
         else:
             binding = json.loads(Path(a.binding).read_text())
             if a.command == 'extract':
-                result = extract(binding, a.output, a.storage_policy)
+                if bool(a.checkpoint_commitments) != bool(a.checkpoint_commitments_sha256):
+                    raise ValueError('Checkpoint commitments path and SHA256 must be supplied together')
+                pin = (dict(path=a.checkpoint_commitments, sha256=a.checkpoint_commitments_sha256)
+                       if a.checkpoint_commitments else None)
+                result = extract(binding, a.output, a.storage_policy, checkpoint_commitments=pin)
             else:
                 signature, _, required = cache_plan(binding)
                 result = dict(status='PLANNED_ONLY', cache_identity=signature['identity'], root=str(Path(a.output).resolve()),

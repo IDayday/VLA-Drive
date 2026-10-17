@@ -326,6 +326,7 @@ def test_plan_cache_metadata_never_calls_cuda_and_extract_activates_before_model
     monkeypatch.setattr(torch.cuda,'is_available',lambda:calls.append('available') or True)
     monkeypatch.setattr(torch.cuda,'set_device',lambda device:calls.append(('activate',device)))
     class BudgetMetadata:
+        core = {}
         def __init__(self,*_):pass
         def reserve(self,*_,**__):return self
         def writing(self,*_):return nullcontext()
