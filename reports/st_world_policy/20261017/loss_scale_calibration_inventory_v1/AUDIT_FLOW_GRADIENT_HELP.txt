@@ -1,0 +1,28 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: audit_flow_gradient.py [-h] --registration REGISTRATION --tag TAG
+                              --output OUTPUT [--max-scenes MAX_SCENES]
+                              [--max-seconds MAX_SECONDS]
+                              [--cpu-threads {1,2}] [--device {cuda:0}]
+                              [--preflight-only]
+
+Read-only C1 replay and policy-only gradient evidence; no training/scoring.
+Uses the exact saved BF16 execution policy, original current-only encoder
+path, saved generation noise, coupled MC50 samples and completed official
+feedback. It never starts DeepSpeed, constructs an optimizer, calls BC,
+changes a training checkpoint, or obtains new official scores. Only a private
+action copy gets gradients. GPU execution is a bounded, explicitly dispatched
+audit.
+
+options:
+  -h, --help            show this help message and exit
+  --registration REGISTRATION
+  --tag TAG             Exact complete native checkpoint at the old-policy
+                        boundary
+  --output OUTPUT       New isolated audit directory
+  --max-scenes MAX_SCENES
+  --max-seconds MAX_SECONDS
+  --cpu-threads {1,2}
+  --device {cuda:0}
+  --preflight-only      Verify real inputs/receipts without loading a model or
+                        CUDA
