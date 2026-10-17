@@ -1,0 +1,78 @@
+{
+  "schema": "st_calibration_controller_independent_review_v2",
+  "status": "PASS_CALIBRATION_CONTROLLER_ONLY",
+  "reviewer": "/root/st_owned_descendants_review_v2",
+  "implementation_author": "/root",
+  "source_sha": "09ca42cbf03be30250a5736e6fd13951072fd2ca",
+  "runtime": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017",
+  "runtime_clean_at_review": true,
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/temporal_scale_calibration_v1/run_once.py",
+      "sha256": "9803f279515cff8770dab959bf4926a7cbec249e0ab9151ff9d3643148f6e289"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-loss-scale-real4-v2-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
+    }
+  ],
+  "limits": {
+    "wall_seconds": 3600,
+    "cleanup_seconds": 40,
+    "read_bytes": 274877906944,
+    "rss_bytes": 103079215104,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "max_disk_bytes": 16777216,
+    "max_invocations": 1,
+    "optimizer_updates": 0,
+    "new_tensor_bytes": 0
+  },
+  "created_at": "2026-10-17T12:17:36.783718+00:00",
+  "prior_fail_review_sha256": "a6cb36e658884c3c07bc10184de7922d234b0be0016bbc1349c9e5aa550f8bcf",
+  "test_result_sha256": "9e0cefa27f99dbe47511f196d1dbde98b464aac0ac59e0f9b9976f27749ef2fb",
+  "test_log_sha256": "51fd68fce29a416cb401bd1ac83d176b17147c47c4959a0a1998b4b45fe578e8",
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "verified_fixes": [
+    "Nonregular control/source files rejected before reading; FIFO independent fixture returns immediately with error",
+    "Actual control read bounded to 4MiB+1 while retaining version and SHA256 identity checks",
+    "Control issued/latest-start/expiry and checkpoint expiry require exact finite numeric values before interval comparisons"
+  ],
+  "inherited_and_retested": [
+    "Single-process actual monitor CPU fixture includes parent setup IO before monitoring; terminal wait charges once",
+    "Nonblocking locks and bounded fresh-GPU probe; 16MiB isolated output and atomic publication reserve",
+    "Exact five dependency paths and source hashes, implementation-author exclusion and review limits",
+    "One invocation only; zero optimizer updates/new stored teacher tensors; fixed four-scene existing measure entry"
+  ],
+  "measurement_status": "NOT_RUN",
+  "real_gpu_peak_validated": false,
+  "math_calibration_approval": "SEPARATE_REVIEW_REQUIRED",
+  "fresh_dispatch_approval": false,
+  "bounds": [
+    "CPU resource evidence is separate: CPU6/7, 1.705s, 13448509 logical read bytes, 91017216 sampled aggregate RSS bytes",
+    "No real checkpoint/image/teacher data or GPU was loaded; no SSH or workload launch",
+    "Future actual workload limit is CPU2/3, one GPU, 3600+40 seconds,96GiB RSS,256GiB reads,16MiB output; these are limits, not measured usage",
+    "Sampled /proc and filesystem checks do not constitute a kernel hard limit or guarantee against storage/kernel stalls",
+    "Only single-process measurement authorised by this controller; no torchrun or parallel data-loader children",
+    "Lead must still bind actual fixed4 config/admission, current host/GPU/lease/checkpoint storage receipts, with this exact source list and independent review hash",
+    "Historical T1 resource qualification remains failed and is unaffected"
+  ]
+}
