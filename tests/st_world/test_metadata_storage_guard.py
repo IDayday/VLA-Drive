@@ -354,8 +354,10 @@ def test_threads_use_same_guard_without_nested_flock(tmp_path):
 @pytest.mark.parametrize('wired', [True, False])
 def test_thin_runner_calls_actual_parser_and_requires_writer_hooks(tmp_path, monkeypatch, wired):
     f = fixture(tmp_path)
+    entry = Path.cwd() / 'tools/st_world_policy/index_teacher_metadata.py'
     f.reg.update(command=['/fixture/python', '-m', 'tools.st_world_policy.index_teacher_metadata',
-        'build', '--output', str(f.root)], cwd=str(Path.cwd()), callback_protocol='st_metadata_storage_check_v1')
+        'build', '--output', str(f.root)], cwd=str(Path.cwd()), callback_protocol='st_metadata_storage_check_v1',
+        source_pins=[{'path': str(entry), 'sha256': hashlib.sha256(entry.read_bytes()).hexdigest()}])
     update_registration(f)
     m.migrate_policy(**f.kwargs)
     calls = []
@@ -368,7 +370,9 @@ def test_thin_runner_calls_actual_parser_and_requires_writer_hooks(tmp_path, mon
             m.check_active_metadata_storage()
             m.check_active_metadata_storage(before_commit=True, path=f.root / 'COMPLETE.json')
         return {'status': 'fixture', 'not_real_metadata': True}
-    monkeypatch.setattr(m.importlib, 'import_module', lambda name: SimpleNamespace(parser=Parser, run=run))
+    monkeypatch.setattr(m.importlib, 'import_module', lambda name: SimpleNamespace(parser=Parser, run=run,
+        __file__=str(entry), METADATA_STORAGE_CALLBACK_PROTOCOL='st_metadata_storage_check_v1',
+        METADATA_STORAGE_CALLBACK_DEPENDENCIES=()))
     if wired:
         result = m.run_registered_metadata(**f.guard)
         assert result['status'] == 'GUARDED_METADATA_RETURN'
@@ -403,3 +407,114 @@ def test_nested_guard_refuses_before_recursive_lock(tmp_path):
     with m.metadata_writing(**f.guard):
         with pytest.raises(b.StorageBudgetError, match='nested metadata writers'):
             with m.metadata_writing(**f.guard): pytest.fail('nested flock')
+
+
+@pytest.mark.parametrize('stage', ['after_pending', 'after_snapshot', 'after_state', 'after_receipt'])
+def test_expired_pending_requires_explicit_renewal_without_changing_transition(tmp_path, monkeypatch, stage):
+    f = fixture(tmp_path)
+    now = time.time()
+    f.q['valid_until_unix'] = now + 1
+    f.kwargs['quiescence_sha256'] = write(f.q_path, f.q)
+    def fault(name):
+        if name == stage: raise RuntimeError('injected')
+    with pytest.raises(RuntimeError): m.migrate_policy(**f.kwargs, fault=fault)
+    current = f.old.state_path.read_bytes()
+    pending = next(f.old.state_dir.glob('MIGRATION_*.pending.json'))
+    original_pending = pending.read_bytes()
+    migration_id = pending.name[len('MIGRATION_'):-len('.pending.json')]
+    monkeypatch.setattr(m.time, 'time', lambda: now + 2)
+    with pytest.raises(b.StorageBudgetError, match='quiescence expired'):
+        m.migrate_policy(**f.kwargs)
+    assert f.old.state_path.read_bytes() == current
+    renewed = copy.deepcopy(f.q)
+    renewed.update(checked_at_unix=now + 1.5, valid_until_unix=now + 3600, resumes_migration_id=migration_id)
+    renewed_path = tmp_path / 'renewed_quiescence.json'
+    renewed_sha = write(renewed_path, renewed)
+    result = m.migrate_policy(**f.kwargs, renew_quiescence_receipt=renewed_path, renew_quiescence_sha256=renewed_sha)
+    assert result['migration_id'] == migration_id
+    assert ledger(f)['metadata_migrations'] == [migration_id]
+    assert pending.read_bytes() == original_pending
+    assert len(list(f.old.state_dir.glob('MIGRATION_*.pending.json'))) == 1
+    if stage != 'after_receipt': assert result['completion_quiescence_sha256'] == renewed_sha
+    assert result == m.migrate_policy(**f.kwargs, renew_quiescence_receipt=renewed_path, renew_quiescence_sha256=renewed_sha)
+
+
+def test_wrong_renewal_transition_and_active_new_writers_reject(tmp_path):
+    f = fixture(tmp_path)
+    def fault(stage):
+        if stage == 'after_pending': raise RuntimeError('injected')
+    with pytest.raises(RuntimeError): m.migrate_policy(**f.kwargs, fault=fault)
+    original = f.old.state_path.read_bytes()
+    q = copy.deepcopy(f.q); q['resumes_migration_id'] = '0' * 64
+    path = tmp_path / 'renew.json'; digest = write(path, q)
+    with pytest.raises(b.StorageBudgetError, match='same pending transition'):
+        m.migrate_policy(**f.kwargs, renew_quiescence_receipt=path, renew_quiescence_sha256=digest)
+    pending = next(f.old.state_dir.glob('*.pending.json'))
+    q['resumes_migration_id'] = pending.name[len('MIGRATION_'):-len('.pending.json')]
+    q['active_or_unknown_writers'] = [{'pid': 123, 'fixture': True}]
+    digest = write(path, q)
+    with pytest.raises(b.StorageBudgetError, match='same pending transition'):
+        m.migrate_policy(**f.kwargs, renew_quiescence_receipt=path, renew_quiescence_sha256=digest)
+    assert f.old.state_path.read_bytes() == original
+
+
+def test_replacing_main_quiescence_is_not_implicit_pending_renewal(tmp_path):
+    f = fixture(tmp_path)
+    def fault(stage):
+        if stage == 'after_pending': raise RuntimeError('injected')
+    with pytest.raises(RuntimeError): m.migrate_policy(**f.kwargs, fault=fault)
+    other = copy.deepcopy(f.q); other['checked_at_unix'] += .01
+    path = tmp_path / 'other_quiescence.json'; digest = write(path, other)
+    kwargs = dict(f.kwargs, quiescence_receipt=path, quiescence_sha256=digest)
+    with pytest.raises(b.StorageBudgetError, match='conflicting pending'):
+        m.migrate_policy(**kwargs)
+    assert len(list(f.old.state_dir.glob('*.pending.json'))) == 1
+
+
+@pytest.mark.parametrize('patterns,relative,allowed', [
+    ([r'log_shards'], 'log_shards/' + 'a' * 64 + '.json', True),
+    ([r'a/b'], 'a/b/test.tmp', False),
+    ([r'a', r'a/b'], 'a/b/test.tmp', True),
+    ([r'a', r'a/b', r'a/b/c'], 'a/b/c/test.tmp', False),
+])
+def test_planned_parent_chain_and_depth_checked_before_creation(tmp_path, patterns, relative, allowed):
+    f = fixture(tmp_path, nested=True)
+    f.reg['directory_patterns'] = patterns
+    update_registration(f)
+    m.migrate_policy(**f.kwargs)
+    if allowed:
+        with m.metadata_writing(**f.guard) as ctx:
+            ctx.check(before_commit=True, path=f.root / relative)
+        assert not (f.root / relative).parent.exists()
+    else:
+        with pytest.raises(b.StorageBudgetError, match='directory'):
+            with m.metadata_writing(**f.guard) as ctx:
+                ctx.check(before_commit=True, path=f.root / relative)
+        assert not (f.root / relative).parent.exists()
+
+
+@pytest.mark.parametrize('failure', ['missing_capability', 'missing_pin', 'changed_source', 'missing_dependency', 'wrong_loaded_path'])
+def test_source_and_capability_fail_before_parser_admission_or_builder(tmp_path, monkeypatch, failure):
+    f = fixture(tmp_path)
+    source = tmp_path / 'source'; entry = source / 'tools/st_world_policy/index_teacher_metadata.py'
+    dependency = source / 'starVLA/dataloader/st_world_metadata_index.py'
+    entry.parent.mkdir(parents=True); dependency.parent.mkdir(parents=True)
+    entry.write_text('# synthetic source fixture\n'); dependency.write_text('# synthetic dependency\n')
+    pins = [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in (entry, dependency)]
+    f.reg.update(command=['/fixture/python', '-m', 'tools.st_world_policy.index_teacher_metadata',
+        'build', '--output', str(f.root)], cwd=str(source), callback_protocol='st_metadata_storage_check_v1', source_pins=pins)
+    if failure == 'missing_pin': del f.reg['source_pins']
+    if failure == 'missing_dependency': f.reg['source_pins'] = pins[:1]
+    update_registration(f); m.migrate_policy(**f.kwargs)
+    if failure == 'changed_source': entry.write_text('# changed synthetic source\n')
+    monkeypatch.chdir(source)
+    def must_not_call(*args): pytest.fail('unapproved parser/builder executed')
+    fake = SimpleNamespace(parser=must_not_call, run=must_not_call, __file__=str(entry),
+        METADATA_STORAGE_CALLBACK_PROTOCOL='st_metadata_storage_check_v1',
+        METADATA_STORAGE_CALLBACK_DEPENDENCIES=('starVLA.dataloader.st_world_metadata_index',))
+    if failure == 'missing_capability': del fake.METADATA_STORAGE_CALLBACK_PROTOCOL
+    if failure == 'wrong_loaded_path': fake.__file__ = str(dependency)
+    monkeypatch.setattr(m.importlib, 'import_module', lambda _: fake)
+    with pytest.raises(b.StorageBudgetError): m.run_registered_metadata(**f.guard)
+    assert not f.root.exists()
+    assert str(f.root) not in ledger(f)['claims']

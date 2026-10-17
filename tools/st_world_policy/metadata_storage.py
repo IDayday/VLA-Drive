@@ -178,7 +178,8 @@ def _checkpoint_reserve(path, sha, *, now=None):
 def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha256,
                    expected_old_ledger_sha256, quiescence_receipt, quiescence_sha256,
                    pilot_inventory, pilot_inventory_sha256,
-                   checkpoint_receipt, checkpoint_sha256, fault=None):
+                   checkpoint_receipt, checkpoint_sha256, renew_quiescence_receipt=None,
+                   renew_quiescence_sha256=None, fault=None):
     """Only explicit additive migration; all mutation is under CLAIMS.lock.
 
     `fault` is a test callback, never a CLI switch. Pending records fix the exact
@@ -252,6 +253,29 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
     transition = {"schema": MIGRATION_SCHEMA, **bindings,
                   "quiescence_sha256": quiescence_sha256}
     identity = b._digest(transition)
+    active_q, active_q_sha = q, quiescence_sha256
+    if bool(renew_quiescence_receipt) != bool(renew_quiescence_sha256):
+        b._fail("renewal requires both explicit quiescence receipt and SHA")
+    if renew_quiescence_receipt:
+        active_q, _ = pinned_json(renew_quiescence_receipt, renew_quiescence_sha256)
+        active_q_sha = renew_quiescence_sha256
+        if (active_q.get("schema") != "st_metadata_writer_quiescence_v1" or
+            active_q.get("status") != "QUIESCENT" or active_q.get("owner_role") != "Lead" or
+            active_q.get("bindings") != bindings or active_q.get("resumes_migration_id") != identity or
+            active_q.get("active_or_unknown_writers") != [] or active_q.get("queued_writers_disabled") is not True or
+            active_q.get("future_admission_owner") != "Lead" or
+            set(active_q.get("checked_writer_roots", [])) != required_roots or not active_q.get("process_evidence")):
+            b._fail("renewed quiescence does not bind the same pending transition")
+        for evidence in active_q["process_evidence"]:
+            if not isinstance(evidence, dict) or set(evidence) != {"path", "sha256"}:
+                b._fail("renewed quiescence evidence requires exact pins")
+            pinned_json(evidence["path"], evidence["sha256"])
+    def require_fresh_quiescence():
+        path = renew_quiescence_receipt or quiescence_receipt
+        pinned_json(path, active_q_sha)
+        now = time.time()
+        if not active_q["checked_at_unix"] <= now <= active_q["valid_until_unix"]:
+            b._fail("Lead quiescence expired; keep pending evidence and supply explicit renewed receipt/SHA for " + identity)
     pending_path = new.state_dir / ("MIGRATION_" + identity + ".pending.json")
     snapshot_path = new.state_dir / ("MIGRATION_" + identity + ".snapshot.json")
     complete_path = new.state_dir / ("MIGRATION_" + identity + ".complete.json")
@@ -265,6 +289,17 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
             pinned_json(old_policy, old_policy_sha256); pinned_json(new_policy, new_policy_sha256)
             for path in (new.state_dir, new.state_path, new.lock_path, pending_path, snapshot_path, complete_path):
                 b._path(path)
+            require_fresh_quiescence()  # Pending does not waive live quiescence.
+            if renew_quiescence_receipt and not pending_path.exists():
+                b._fail("renewal requires its original pending migration")
+            for other in new.state_dir.glob("MIGRATION_*.pending.json"):
+                if other == pending_path:
+                    continue
+                candidate = _json(other.read_bytes())
+                other_complete = other.with_name(other.name.replace(".pending.json", ".complete.json"))
+                if (candidate.get("transition", {}).get("old_ledger_sha256") == expected_old_ledger_sha256
+                    and not other_complete.exists()):
+                    b._fail("conflicting pending migration; renew its exact quiescence instead")
             if pending_path.exists():
                 pending = _json(pending_path.read_bytes())
                 if pending["transition"] != transition:
@@ -272,9 +307,6 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
                 old_raw = bytes.fromhex(pending["old_ledger_hex"])
                 old_state = _json(old_raw)
             else:
-                now = time.time()
-                if not q["checked_at_unix"] <= now <= q["valid_until_unix"]:
-                    b._fail("Lead quiescence expired")
                 old_state, old_raw = pinned_json(old.state_path, expected_old_ledger_sha256)
                 if old_state.get("core") != old.core:
                     b._fail("old ledger core mismatch")
@@ -310,19 +342,30 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
             # atomic files in the existing small ledger metadata allowance.
             snapshot = {"old_sha256": expected_old_ledger_sha256, "ledger_hex": old_raw.hex()}
             result = {"schema": MIGRATION_SCHEMA, "status": "MIGRATED", "migration_id": identity,
-                      **transition, "snapshot_path": str(snapshot_path),
+                      **transition, "completion_quiescence_sha256": active_q_sha,
+                      "completion_quiescence_receipt": str(b._path(renew_quiescence_receipt or quiescence_receipt)),
+                      "snapshot_path": str(snapshot_path),
                       "new_core_sha256": b._digest(new.core),
                       "new_ledger_sha256": _sha((json.dumps(new_state, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()),
                       "metadata_package_reserved_bytes": validate_package(new.core, new.declarations)}
+            if complete_path.exists():
+                completed = _json(complete_path.read_bytes())
+                comparable = dict(completed, completion_quiescence_sha256=active_q_sha,
+                                  completion_quiescence_receipt=result["completion_quiescence_receipt"])
+                if current != new_state or comparable != result:
+                    b._fail("completed migration no longer matches exact state/transition")
+                return completed  # Read-only retry does not rewrite its old receipt.
             used, _ = b._inventory(new.state_dir)
             required = sum(b.json_write_bound(v) for v in (pending, snapshot, result, new_state))
             if used + required > new.core["ledger_reserve_bytes"]:
                 b._fail("migration metadata/staging exceeds ledger reserve")
             _immutable(pending_path, pending); inject("after_pending")
             _immutable(snapshot_path, snapshot); inject("after_snapshot")
+            require_fresh_quiescence()
             if current != new_state:
                 new._save(new_state)
             inject("after_state")
+            require_fresh_quiescence()
             _immutable(complete_path, result); inject("after_receipt")
             return result
         finally:
@@ -430,6 +473,15 @@ class MetadataWriteContext:
                 relative = target.relative_to(self.root).as_posix()
                 if not any(re.fullmatch(p, relative) for p in self.registration["file_patterns"]):
                     b._fail("unregistered metadata write destination")
+                # Validate every planned ancestor before mkdir, even when the
+                # whole parent chain is not on disk yet. Census alone is too late.
+                directories = target.relative_to(self.root).parts[:-1]
+                if len(directories) > self.limits["max_depth"]:
+                    b._fail("planned metadata directory depth exceeds registration")
+                for depth in range(1, len(directories) + 1):
+                    planned = Path(*directories[:depth]).as_posix()
+                    if not any(re.fullmatch(p, planned) for p in self.registration.get("directory_patterns", [])):
+                        b._fail("unregistered planned metadata directory: " + planned)
                 parent = b._existing_parent(target.parent)
                 if parent.stat().st_dev != self.root.stat().st_dev:
                     b._fail("metadata write parent is a different filesystem")
@@ -598,10 +650,44 @@ def run_registered_metadata(**kwargs):
         b._fail("metadata child must use the reviewed resource callback")
     if b._path(reg["cwd"]) != Path.cwd().resolve():
         b._fail("run from the exact registered source cwd")
+    # Validate registered source bytes before importing the entry point. Imports
+    # do not call parser/build; capabilities and every declared dependency must
+    # pass before even writer admission or output directory creation.
+    pins = reg.get("source_pins")
+    if not isinstance(pins, list) or not 1 <= len(pins) <= 16:
+        b._fail("metadata source pins are required before dispatch")
+    sources = {}
+    cwd = Path.cwd().resolve()
+    for pin in pins:
+        if not isinstance(pin, dict) or set(pin) != {"path", "sha256"}:
+            b._fail("metadata source pin requires exact path/SHA")
+        path = b._path(pin["path"])
+        if path in sources or not b._inside(path, cwd) or path.suffix != ".py":
+            b._fail("metadata source pin is duplicate or outside registered source")
+        pinned_bytes(path, pin["sha256"])
+        sources[path] = pin["sha256"]
+    entry = cwd.joinpath(*expected_module.split(".")).with_suffix(".py")
+    if entry not in sources:
+        b._fail("metadata entry point source pin missing")
+    module = importlib.import_module(expected_module)
+    if (getattr(module, "METADATA_STORAGE_CALLBACK_PROTOCOL", None) != "st_metadata_storage_check_v1" or
+        b._path(getattr(module, "__file__", "")) != entry):
+        b._fail("metadata module is not a source-bound callback-capable implementation")
+    dependencies = getattr(module, "METADATA_STORAGE_CALLBACK_DEPENDENCIES", None)
+    if not isinstance(dependencies, tuple) or not all(isinstance(name, str) for name in dependencies):
+        b._fail("metadata callback dependency declaration missing")
+    expected_sources = {entry}
+    for name in dependencies:
+        if not re.fullmatch(r"(?:starVLA|tools)(?:\.[A-Za-z_][A-Za-z_0-9]*)+", name):
+            b._fail("invalid metadata callback dependency module")
+        expected_sources.add(cwd.joinpath(*name.split(".")).with_suffix(".py"))
+    if set(sources) != expected_sources:
+        b._fail("metadata callback dependency source pins incomplete or extra")
+    for path, sha in sources.items():
+        pinned_bytes(path, sha)
     # No subprocess or arbitrary command execution. The two real parsers still
     # validate every option, keeping all input/schema checks in their owners.
     with metadata_writing(**kwargs) as guard:
-        module = importlib.import_module(expected_module)
         args = module.parser().parse_args(command[3:])
         result = module.build(args) if reg["writer_kind"] == "future_preparation" else module.run(args)
         guard.check(before_commit=True)
@@ -629,6 +715,8 @@ def main():
                  "expected-old-ledger-sha256", "quiescence-receipt", "quiescence-sha256",
                  "pilot-inventory", "pilot-inventory-sha256", "checkpoint-receipt", "checkpoint-sha256"):
         migration.add_argument("--" + name, required=True)
+    migration.add_argument("--renew-quiescence-receipt")
+    migration.add_argument("--renew-quiescence-sha256")
     args = vars(parser.parse_args())
     name = args.pop("command")
     try:
