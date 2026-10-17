@@ -18,6 +18,7 @@ from starVLA.dataloader.st_world_ondemand import BoundedTeacherProvider
 MiB = 1 << 20
 LIMIT_FIELDS = {'max_cached_bytes', 'max_scene_bytes', 'max_batch_images', 'max_manifest_bytes'}
 INDEXED_SCHEMA = 'st_indexed_teacher_provider_dependency_v1'
+PROFILE_SCHEMA = 'st_indexed_provider_profile_admission_v1'
 INDEX_FIELDS = {'complete', 'request_identity', 'index_identity', 'max_metadata_cache_bytes'}
 FIXED_CASES = ('fixed8_all_original_order', 'current_request1', 'current_request4',
     'current_reversed8', 'current_tail8_plus_duplicate', 'provider_cold_partial_lru_cold_resume')
@@ -49,7 +50,7 @@ def pinned(record):
     return result
 
 
-def validate_option(option, *, loader_workers, teacher_root, pca_path, scope):
+def validate_option(option, *, loader_workers, teacher_root, pca_path, scope, config=None):
     if not isinstance(option, dict) or set(option) != {'descriptor', 'pca_channel_scope'}:
         raise ValueError('Teacher provider option has missing/unknown fields')
     for item in [option['descriptor'], *([option['pca_channel_scope']] if pca_path else [])]:
@@ -62,8 +63,22 @@ def validate_option(option, *, loader_workers, teacher_root, pca_path, scope):
         raise ValueError('PCA scope without PCA basis')
     if teacher_root is not None or loader_workers != 0:
         raise ValueError('On-demand provider requires teacher_root=null and synchronous loader_workers=0')
-    if scope != 'SMOKE':
-        raise ValueError('Initial provider wiring is SMOKE-only pending real trainer numerical/resume qualification')
+    if scope == 'PROFILE' and config is not None:
+        try: d = pinned(option['descriptor'])
+        except OSError as e: raise ValueError('SMOKE-only without an existing explicit PROFILE descriptor') from e
+        if 'profile_admission' not in d:
+            raise ValueError('SMOKE-only descriptor cannot be promoted by a PROFILE flag')
+        validate_profile_recipe(d['profile_admission'], config)
+    elif scope != 'SMOKE':
+        raise ValueError('Initial provider wiring is SMOKE-only without explicit bounded PROFILE admission')
+    elif Path(option['descriptor']['path']).is_file() and 'profile_admission' in pinned(option['descriptor']):
+        raise ValueError('PROFILE descriptor cannot be relabeled as SMOKE')
+
+
+def validate_training_manifest(option, manifest_pin):
+    d=pinned(option['descriptor'])
+    if 'profile_admission' in d and d['profile_admission']['data_manifest']!=manifest_pin:
+        raise ValueError('Registered PROFILE dataset path/SHA differs from the admitted fixed population')
 
 
 def load_descriptor(record):
@@ -212,8 +227,83 @@ def _validate_limits(d):
         raise ValueError('Initial synchronous provider exceeds declared RAM/batch bounds')
 
 
+def profile_recipe_identity(cfg):
+    value=deepcopy(cfg)
+    value['data'].pop('teacher_provider',None)
+    value['data']['teacher_root']=None
+    value['runtime']['loader_workers']=0
+    value['runtime']['output_root']='<isolated-provider-output>'
+    return identity_hash(value)
+
+
+def validate_profile_recipe(admission, cfg):
+    fields={'schema','scope','parent_descriptor','source_migration','data_manifest','recipe',
+            'reference_recipe','max_scenes','max_updates','new_population_tensor_qualified','formal_approved'}
+    if (not isinstance(admission,dict) or set(admission)!=fields or admission['schema']!=PROFILE_SCHEMA
+            or admission['scope']!='PROFILE' or admission['max_scenes']!=256 or admission['max_updates']!=256
+            or admission['new_population_tensor_qualified'] is not False or admission['formal_approved'] is not False):
+        raise ValueError('Invalid bounded PROFILE admission; no formal promotion is supported')
+    reference=pinned(admission['recipe'])
+    original=pinned(admission['reference_recipe'])
+    if (original['execution']['scope']!='SMOKE' or original['execution']['stop_after']>4
+            or original['data'].get('teacher_provider',{}).get('descriptor')!=admission['parent_descriptor']):
+        raise ValueError('PROFILE reference must be the original exact32 provider SMOKE recipe')
+    def mathematical_recipe(c):
+        c=deepcopy(c)
+        for key in ('scope','sample_limit','stop_after','world_size','micro_batch','global_batch'): c['execution'].pop(key,None)
+        for key in ('output_root','max_seconds','save_every','profile_mode','loader_workers'): c['runtime'].pop(key,None)
+        c['data'].pop('teacher_provider',None); c['data']['teacher_root']=None
+        if 'official_execution' in c['runtime']:
+            for key in ('declared_recipe_overrides','adaptation_reason'): c['runtime']['official_execution'].pop(key,None)
+        return c
+    if mathematical_recipe(reference)!=mathematical_recipe(original):
+        raise ValueError('PROFILE changed the original selected model/optimizer/PCA/precision recipe')
+    ex=cfg['execution']; rt=cfg['runtime']
+    if (ex['scope']!='PROFILE' or not 1<=ex['sample_limit']<=256 or not 1<=ex['stop_after']<=256
+            or ex['family']!='temporal' or ex['max_updates']!=20000 or cfg['optimizer']['warmup']!=1000
+            or rt['deterministic'] is not True or rt['gradient_checkpointing'] is not False
+            or rt.get('official_execution',{}).get('preset')!='drivedreamer_f35fe783'
+            or cfg['data']['history_root'] is not None
+            or profile_recipe_identity(cfg)!=profile_recipe_identity(reference)):
+        raise ValueError('PROFILE recipe/population/budget differs from its explicit original-policy binding')
+    return reference
+
+
+def _qualified_profile_execution(d, manifest, scene_count):
+    from tools.st_world_policy.qualify_indexed_provider import validate_receipt
+    a=d['profile_admission']; recipe=validate_profile_recipe(a,pinned(a['recipe']))
+    parent=pinned(a['parent_descriptor']); migration=pinned(a['source_migration'])
+    if (parent.get('schema')!=INDEXED_SCHEMA or 'profile_admission' in parent
+            or parent.get('identity')!=identity_hash({k:v for k,v in parent.items() if k!='identity'})
+            or migration['parent_descriptor']!=a['parent_descriptor']):
+        raise ValueError('PROFILE must derive from one original exact32 indexed descriptor')
+    plan=pinned(parent['qualification_plan']); result=pinned(parent['qualification'])
+    validate_receipt(plan,result,parent,control_migration=migration)
+    if (d['qualification']!=parent['qualification'] or d['qualification_plan']!=parent['qualification_plan']
+            or d['sources']!=parent['sources'] or d['execution']!=parent['execution']
+            or d['teacher_config']!=parent['teacher_config'] or d['limits']!=parent['limits']
+            or d['provider']['contract']!=parent['provider']['contract']):
+        raise ValueError('PROFILE changed qualified source/numerical/teacher/LRU contract')
+    original=pinned(parent['request_index']['complete'])['manifest_header']
+    for key in ('split','source_student_identity','source_index_sha256','partition_sha256','times_s','view_names'):
+        if manifest.get(key)!=original.get(key):
+            raise ValueError('PROFILE population changed legal source/partition/time/view lineage: '+key)
+    selected=pinned(a['data_manifest'])
+    rows=selected.get('scenes',[])
+    if (manifest['split']!='train' or manifest['times_s']!=[0.,.5,1.,2.,4.]
+            or not 1<=scene_count<=256 or len(rows)!=scene_count or recipe['execution']['sample_limit']!=scene_count
+            or selected.get('schema')!='st_fixed_scene_list_v1' or selected.get('split')!='train'
+            or selected.get('source_index_hash')!=manifest['source_index_sha256']):
+        raise ValueError('PROFILE fixed dataset/teacher population does not match')
+    return pinned(d['teacher_config']),TeacherFeatureContract.from_dict(d['provider']['contract']),plan
+
+
 def _qualified_execution(d, manifest, scene_count):
-    """Both metadata representations retain the exact existing finite admission."""
+    """Old exact admission is unchanged; PROFILE has its own source/population binding."""
+    if "profile_admission" in d:
+        if d.get("schema") != INDEXED_SCHEMA:
+            raise ValueError("PROFILE requires the indexed provider")
+        return _qualified_profile_execution(d,manifest,scene_count)
     if manifest['split'] != 'train' or not 1 <= scene_count <= 64:
         raise ValueError('Initial provider wiring is bounded to 64 train scenes')
     cfg, qualification = pinned(d['teacher_config']), pinned(d['qualification'])
@@ -313,6 +403,7 @@ def _validate_indexed_descriptor(d, *, existing=None):
     from starVLA.dataloader.st_world_indexed_provider import IndexedTeacherCacheReader, IndexedBoundedTeacherProvider
     fields = {'schema', 'requests', 'request_index', 'sources', 'teacher_config', 'qualification',
               'qualification_plan', 'execution', 'limits', 'provider', 'identity'}
+    if 'profile_admission' in d: fields.add('profile_admission')
     if (set(d) != fields or d['identity'] != identity_hash({k:v for k,v in d.items() if k != 'identity'})):
         raise ValueError('Indexed provider descriptor identity/schema changed')
     _validate_limits(d)
@@ -324,6 +415,15 @@ def _validate_indexed_descriptor(d, *, existing=None):
     try:
         index = open_metadata_index(d['request_index'], existing=existing.metadata_index if existing else None)
         if existing is None: indices.append(index)
+        if 'profile_admission' in d:
+            if not 1<=index.receipt['scene_count']<=256:
+                raise ValueError('PROFILE request population exceeds 256 before row materialization')
+            rows=pinned(d['profile_admission']['data_manifest'])['scenes']
+            if len(rows)>256 or [(r['token'],r['log']) for r in rows] != [(r['token'],r['log']) for r in index.manifest['scenes']]:
+                raise ValueError('PROFILE dataset order/scene IDs differ from request index')
+            for r in rows:
+                require_hash(r.get('current_record_sha256'),'PROFILE current record')
+                require_hash(r.get('ego_record_sha256'),'PROFILE ego record')
         if index.receipt['cache_identity'] is not None or index.receipt['dependencies']['requests'] != d['requests']:
             raise ValueError('Indexed request source/raw SHA differs from the explicit request pin')
         # A header and count suffice: the index has streamed and validated every
@@ -417,7 +517,7 @@ def prepare(requests, sources, teacher_config, qualification, output, *, limits)
 
 
 def prepare_indexed(request_index, source_indices, teacher_config, qualification, output, *, limits,
-                    max_metadata_cache_bytes=16 * MiB):
+                    max_metadata_cache_bytes=16 * MiB, profile_admission=None):
     """Select existing immutable indices only; never build metadata or tensors."""
     from starVLA.dataloader.st_world_indexed_provider import IndexedTeacherCacheReader, IndexedBoundedTeacherProvider
     if len(source_indices) != 1:
@@ -442,6 +542,7 @@ def prepare_indexed(request_index, source_indices, teacher_config, qualification
              'teacher_config': pin(teacher_config), 'qualification': pin(qualification),
              'qualification_plan': pin(Path(qualification).parent / 'RESOLVED_PLAN.json'),
              'execution': execution, 'limits': limits, 'provider': provider.identity}
+        if profile_admission is not None: d['profile_admission']=profile_admission
         d['identity'] = identity_hash(d)
     finally:
         for index in indices:
@@ -458,12 +559,18 @@ def configure_smoke(config_path, descriptor_path, fit_cache_root, output, *, fit
     from tools.st_world_policy.provider_pca import register_provider_scope
     cfg = deepcopy(read_small(config_path))
     st = validate_config(cfg)
-    if cfg['execution']['scope'] != 'SMOKE' or cfg['execution']['stop_after'] > 4:
+    is_profile=cfg['execution']['scope']=='PROFILE'
+    if not is_profile and (cfg['execution']['scope'] != 'SMOKE' or cfg['execution']['stop_after'] > 4):
         raise ValueError('Supply an already selected SMOKE config of at most four updates; no cell is chosen here')
     if fit_cache_index is not None and not cfg['data']['pca_path']:
         raise ValueError('PCA fit metadata index supplied without an actual frozen PCA basis')
     d, _, provider = load_descriptor(pin(descriptor_path))
     try:
+        if is_profile:
+            if 'profile_admission' not in d: raise ValueError('SMOKE-only descriptor cannot configure PROFILE')
+            validate_profile_recipe(d['profile_admission'],cfg)
+        elif 'profile_admission' in d:
+            raise ValueError('PROFILE descriptor cannot be relabeled as SMOKE')
         if cfg['execution']['sample_limit'] != len(provider.manifest['scenes']):
             raise ValueError('Selected training config population differs from provider manifest')
         if cfg['runtime']['deterministic'] != d['execution']['deterministic_algorithms']:
@@ -497,6 +604,7 @@ def configure_smoke(config_path, descriptor_path, fit_cache_root, output, *, fit
             'source_config': pin(config_path), 'new_config': pin(output / 'training_config.json'),
             'provider_descriptor': pin(descriptor_path), 'teacher_manifest_artifact': pin(descriptor_path),
             'numerical_status': pinned(d['qualification'])['status'],
+            'scope':cfg['execution']['scope'], 'new_population_tensor_qualified':not is_profile,
             'pca_refitted': False, 'formal_approved': False, 'training_started': False,
             'loader_workers': 0, 'ram_reuse': ('qualified_fixed8_bounded_LRU' if
                 d['execution']['schema'] == 'st_fixed8_dino_execution_v1' and
@@ -534,6 +642,10 @@ def main():
     p.add_argument('--pca-fit-cache-root', help='Exact existing PCA fitted cache; metadata-only provenance')
     p.add_argument('--pca-fit-cache-index', help='Required existing fit-cache index for the indexed PCA scope')
     p.add_argument('--configured-output', help='New isolated namespace for selectable training_config.json')
+    p.add_argument('--profile-parent-descriptor', help='Explicit existing exact32 composition descriptor')
+    p.add_argument('--profile-source-migration', help='Pinned reviewed source-control migration JSON')
+    p.add_argument('--profile-data-manifest', help='Exact <=256 scene dataset with current/ego pins')
+    p.add_argument('--profile-reference-config', help='Actual original exact32 provider SMOKE config; model/recipe stays fixed')
     args = p.parse_args()
     if bool(args.training_config) != bool(args.configured_output):
         p.error('--training-config and --configured-output must be supplied together')
@@ -544,10 +656,20 @@ def main():
             p.error('--pca-fit-cache-index requires --training-config')
     elif not args.source_root or args.source_index or args.pca_fit_cache_index or args.max_metadata_cache_mib != 16:
         p.error('Legacy --requests requires --source-root and rejects indexed-only options')
+    profile=None
+    flags=[args.profile_parent_descriptor,args.profile_source_migration,args.profile_data_manifest,args.profile_reference_config]
+    if any(flags):
+        if not all(flags) or not args.request_index or not args.training_config:
+            p.error('PROFILE requires all four profile bindings, request index and explicit training config')
+        profile={'schema':PROFILE_SCHEMA,'scope':'PROFILE','parent_descriptor':pin(flags[0]),
+            'source_migration':pin(flags[1]),'data_manifest':pin(flags[2]),'recipe':pin(args.training_config),
+            'reference_recipe':pin(flags[3]),
+            'max_scenes':256,'max_updates':256,'new_population_tensor_qualified':False,'formal_approved':False}
+        validate_profile_recipe(profile,read_small(args.training_config))
     limits = {'max_cached_bytes': args.max_cached_bytes, 'max_scene_bytes': args.max_scene_mib * MiB,
               'max_batch_images': args.max_batch_images, 'max_manifest_bytes': 32 * MiB}
     result = (prepare_indexed(args.request_index, args.source_index, args.teacher_config, args.qualification_result,
-              args.output, limits=limits, max_metadata_cache_bytes=args.max_metadata_cache_mib * MiB)
+              args.output, limits=limits, max_metadata_cache_bytes=args.max_metadata_cache_mib * MiB, profile_admission=profile)
               if args.request_index else
               prepare(args.requests, args.source_root, args.teacher_config, args.qualification_result,
                       args.output, limits=limits))

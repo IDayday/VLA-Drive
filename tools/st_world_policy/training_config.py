@@ -95,7 +95,7 @@ def validate_config(cfg):
     if "teacher_provider" in cfg["data"]:
         from tools.st_world_policy.teacher_provider import validate_option
         validate_option(provider, loader_workers=runtime["loader_workers"],
-            teacher_root=cfg["data"]["teacher_root"], pca_path=cfg["data"]["pca_path"], scope=execution["scope"])
+            teacher_root=cfg["data"]["teacher_root"], pca_path=cfg["data"]["pca_path"], scope=execution["scope"], config=cfg)
     for name, value in cfg["data"].items():
         if name == "teacher_provider" or (provider is not None and name == "teacher_root"):
             continue

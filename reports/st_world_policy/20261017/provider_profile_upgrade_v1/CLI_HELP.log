@@ -1,0 +1,80 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: teacher_provider.py [-h]
+                           (--requests REQUESTS | --request-index REQUEST_INDEX)
+                           [--source-root SOURCE_ROOT]
+                           [--source-index SOURCE_INDEX]
+                           [--max-metadata-cache-mib MAX_METADATA_CACHE_MIB]
+                           --teacher-config TEACHER_CONFIG
+                           --qualification-result QUALIFICATION_RESULT
+                           --output OUTPUT
+                           [--max-cached-bytes MAX_CACHED_BYTES]
+                           [--max-scene-mib MAX_SCENE_MIB]
+                           [--max-batch-images MAX_BATCH_IMAGES]
+                           [--training-config TRAINING_CONFIG]
+                           [--pca-fit-cache-root PCA_FIT_CACHE_ROOT]
+                           [--pca-fit-cache-index PCA_FIT_CACHE_INDEX]
+                           [--configured-output CONFIGURED_OUTPUT]
+                           [--profile-parent-descriptor PROFILE_PARENT_DESCRIPTOR]
+                           [--profile-source-migration PROFILE_SOURCE_MIGRATION]
+                           [--profile-data-manifest PROFILE_DATA_MANIFEST]
+                           [--profile-reference-config PROFILE_REFERENCE_CONFIG]
+
+Explicit RAM-only teacher dependency for the existing ST trainer. Preparing
+metadata never loads weights. Runtime creation is synchronous on the owning
+rank after its backend is configured; the existing collective data error guard
+remains responsible for all-rank failure. No cache completion is forged.
+
+options:
+  -h, --help            show this help message and exit
+  --requests REQUESTS   Original eager request JSON (legacy wiring)
+  --request-index REQUEST_INDEX
+                        Existing verified request metadata-index root; no
+                        index build
+  --source-root SOURCE_ROOT
+  --source-index SOURCE_INDEX
+                        Existing index of the exact qualified COMPLETE current
+                        cache
+  --max-metadata-cache-mib MAX_METADATA_CACHE_MIB
+                        Per SQLite index allowance; combined provider
+                        allowance <=256 MiB
+  --teacher-config TEACHER_CONFIG
+  --qualification-result QUALIFICATION_RESULT
+  --output OUTPUT
+  --max-cached-bytes MAX_CACHED_BYTES
+                        Legacy must stay below one record; fixed8 may use only
+                        its truly qualified LRU budget
+  --max-scene-mib MAX_SCENE_MIB
+  --max-batch-images MAX_BATCH_IMAGES
+  --training-config TRAINING_CONFIG
+                        Existing selected <=4 update SMOKE config; preserves
+                        cell and basis
+  --pca-fit-cache-root PCA_FIT_CACHE_ROOT
+                        Exact existing PCA fitted cache; metadata-only
+                        provenance
+  --pca-fit-cache-index PCA_FIT_CACHE_INDEX
+                        Required existing fit-cache index for the indexed PCA
+                        scope
+  --configured-output CONFIGURED_OUTPUT
+                        New isolated namespace for selectable
+                        training_config.json
+  --profile-parent-descriptor PROFILE_PARENT_DESCRIPTOR
+                        Explicit existing exact32 composition descriptor
+  --profile-source-migration PROFILE_SOURCE_MIGRATION
+                        Pinned reviewed source-control migration JSON
+  --profile-data-manifest PROFILE_DATA_MANIFEST
+                        Exact <=256 scene dataset with current/ego pins
+  --profile-reference-config PROFILE_REFERENCE_CONFIG
+                        Actual original exact32 provider SMOKE config;
+                        model/recipe stays fixed
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: qualify_indexed_provider.py prepare-profile-migration
+       [-h] --parent-descriptor PARENT_DESCRIPTOR --parent-runtime
+       PARENT_RUNTIME --output OUTPUT
+
+options:
+  -h, --help            show this help message and exit
+  --parent-descriptor PARENT_DESCRIPTOR
+  --parent-runtime PARENT_RUNTIME
+  --output OUTPUT

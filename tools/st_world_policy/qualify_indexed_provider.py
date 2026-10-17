@@ -157,9 +157,90 @@ def make_plan(request_index, source_index, teacher_config, prior_result, *, max_
         req.close(); src.close()
 
 
-def validate_plan(plan, *, rebuild=True):
+CONTROL_MIGRATION_SCHEMA = 'st_indexed_profile_control_migration_v1'
+CONTROL_PATHS = ('tools/st_world_policy/teacher_provider.py',
+                 'tools/st_world_policy/qualify_indexed_provider.py',
+                 'tools/st_world_policy/training_config.py')
+MATH_PATHS = ('tools/st_world_policy/fixed_batch_teacher.py',
+    'tools/st_world_policy/ondemand_teacher.py', 'tools/st_world_policy/qualify_fixed_batch_teacher.py',
+    'tools/st_world_policy/qualify_ondemand_teacher.py', 'tools/st_world_policy/provider_pca.py',
+    'tools/st_world_policy/teacher_pca.py', 'tools/st_world_policy/cache_teacher.py',
+    'starVLA/model/modules/foresight/dinov3_target_encoder.py', 'starVLA/dataloader/st_world_history.py',
+    'starVLA/dataloader/st_world_indexed_provider.py',
+    'starVLA/dataloader/st_world_metadata_index.py', 'starVLA/dataloader/st_world_ondemand.py',
+    'starVLA/dataloader/st_world_targets.py', 'starVLA/dataloader/st_world_schema.py',
+    'starVLA/model/modules/st_world/requests.py')
+
+
+def validate_control_migration(plan, migration):
+    """An explicit archived-code boundary, never a skip-source-check switch.
+
+    Historical controls are checked in place. Only three named control modules
+    may differ; every enumerated numerical/reader/PCA/sampler file must match.
+    New control code remains subject to new independent review/registration.
+    """
+    import subprocess
+    fields = {'schema','identity','parent_runtime','parent_commit','parent_descriptor',
+              'parent_plan','parent_result','controls','mathematics','scope',
+              'new_population_tensor_qualified','formal_approved'}
+    if (set(migration)!=fields or migration['schema']!=CONTROL_MIGRATION_SCHEMA or not _signed(migration)
+            or migration['scope']!='PROFILE' or migration['new_population_tensor_qualified'] is not False
+            or migration['formal_approved'] is not False):
+        raise ValueError('Invalid explicit PROFILE control-source migration')
+    old=Path(migration['parent_runtime']); current=Path(__file__).resolve().parents[2]
+    if not old.is_absolute() or old.resolve()!=old:
+        raise ValueError('Archived runtime must be a canonical absolute worktree')
+    commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=old,text=True).strip()
+    if commit!=migration['parent_commit'] or len(commit)!=40:
+        raise ValueError('Archived runtime commit changed')
+    parent=tp.pinned(migration['parent_descriptor'])
+    if (parent.get('profile_admission') is not None or
+            parent['qualification_plan']!=migration['parent_plan'] or parent['qualification']!=migration['parent_result']
+            or tp.pinned(migration['parent_plan'])!=plan):
+        raise ValueError('Migration does not bind the original exact-population descriptor/evidence')
+    expected_control=[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in CONTROL_PATHS]
+    expected_math=[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in MATH_PATHS]
+    if migration['controls']!=expected_control or migration['mathematics']!=expected_math:
+        raise ValueError('Migration source inventory/pins changed')
+    import hashlib
+    for row in expected_control+expected_math:
+        committed=subprocess.check_output(['git','show',commit+':'+row['relative']],cwd=old)
+        if hashlib.sha256(committed).hexdigest()!=row['old']['sha256']:
+            raise ValueError('Archived runtime source differs from its actual commit')
+    if any(r['old']['sha256']!=r['new']['sha256'] for r in expected_math):
+        raise ValueError('PROFILE migration changed protected mathematical/reader/PCA/sampler source')
+    expected_files=[]
+    for pin in _source_files():
+        rel=Path(pin['path']).relative_to(current)
+        expected_files.append(tp.pin(old/rel))
+    if (plan['source_files']!=expected_files or
+            plan['runner_source_sha256']!=tp.pin(old/'tools/st_world_policy/qualify_indexed_provider.py')['sha256']):
+        raise ValueError('Historical qualification source pins do not match the archived runtime')
+    return parent
+
+
+def prepare_control_migration(parent_descriptor, parent_runtime, output):
+    """Metadata proposal only; it never creates a review or launch approval."""
+    import subprocess
+    parent_pin=tp.pin(parent_descriptor); parent=tp.pinned(parent_pin)
+    old=Path(parent_runtime).resolve(); current=Path(__file__).resolve().parents[2]
+    migration={'schema':CONTROL_MIGRATION_SCHEMA,'scope':'PROFILE',
+        'parent_runtime':str(old),'parent_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=old,text=True).strip(),
+        'parent_descriptor':parent_pin,'parent_plan':parent['qualification_plan'],'parent_result':parent['qualification'],
+        'controls':[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in CONTROL_PATHS],
+        'mathematics':[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in MATH_PATHS],
+        'new_population_tensor_qualified':False,'formal_approved':False}
+    migration['identity']=identity_hash(migration)
+    plan=tp.pinned(parent['qualification_plan']); report=tp.pinned(parent['qualification'])
+    validate_receipt(plan,report,parent,control_migration=migration)
+    from starVLA.dataloader.st_world_targets import atomic_json
+    atomic_json(output,migration,immutable=True)
+    return migration
+
+
+def validate_plan(plan, *, rebuild=True, control_migration=None):
     if (plan.get('schema') != PLAN_SCHEMA or not _signed(plan) or
-            plan.get('runner_source_sha256') != file_sha256(__file__)):
+            (control_migration is None and plan.get('runner_source_sha256') != file_sha256(__file__))):
         raise ValueError('Indexed composition plan/source changed')
     if (plan.get('scope')!='SMOKE' or plan.get('formal_approved') is not False or
             type(plan.get('scenes')) is not int or not 1 <= plan['scenes'] <= 32 or
@@ -172,7 +253,11 @@ def validate_plan(plan, *, rebuild=True):
             plan['budget']['ram_peak_bytes']>8*GiB or plan['budget']['gpu_peak_bytes']>16*GiB or
             plan['budget']['max_logical_input_bytes']>64*GiB):
         raise ValueError('Indexed composition scope/budget is not the bounded registered smoke')
-    if plan.get('source_files') != _source_files():
+    if control_migration is not None:
+        if rebuild:
+            raise ValueError('Historical migration may validate completed evidence only, never rebuild its plan')
+        validate_control_migration(plan, control_migration)
+    elif plan.get('source_files') != _source_files():
         raise ValueError('Composition must bind the complete active implementation source list')
     for pin in plan['source_files']:
         if tp.pin(pin['path']) != pin:
@@ -338,9 +423,9 @@ def _checked_summary(actual, metrics):
         raise ValueError('Composition summary differs from recomputed full-tensor comparisons')
 
 
-def validate_receipt(plan, report, descriptor):
+def validate_receipt(plan, report, descriptor, *, control_migration=None):
     """Admission requires measured composition evidence, never path rebinding alone."""
-    validate_plan(plan, rebuild=False)
+    validate_plan(plan, rebuild=False, control_migration=control_migration)
     prior, _ = prior_evidence(plan['prior_result'],plan['prior_plan'])
     if (plan['requests'] != descriptor['requests'] or plan['request_index'] != descriptor['request_index'] or
             descriptor['sources'] != [{'index':plan['source_index'],'cache_identity':plan['current_identity']}] or
@@ -517,6 +602,8 @@ def parser():
     prepare=sub.add_parser('plan',help='CPU metadata/stat only, no image/weight/tensor reads')
     for name in ('request-index','source-index','teacher-config','prior-result','output'):prepare.add_argument('--'+name,required=True)
     prepare.add_argument('--max-seconds',type=int,default=900)
+    migration=sub.add_parser('prepare-profile-migration',help='Metadata-only explicit archived/control-source proposal; no approval')
+    for name in ('parent-descriptor','parent-runtime','output'):migration.add_argument('--'+name,required=True)
     execute=sub.add_parser('run',help='One GPU finite qualifier, no training/cache build')
     execute.add_argument('--plan',required=True);execute.add_argument('--output',required=True)
     return p
@@ -524,6 +611,9 @@ def parser():
 
 def main():
     a=parser().parse_args()
+    if a.command=='prepare-profile-migration':
+        d=prepare_control_migration(a.parent_descriptor,a.parent_runtime,a.output)
+        print(json.dumps({'status':'PROPOSED_NOT_APPROVED','identity':d['identity']}));return 0
     if a.command=='plan':
         p=make_plan(a.request_index,a.source_index,a.teacher_config,a.prior_result,max_seconds=a.max_seconds)
         out=Path(a.output)
