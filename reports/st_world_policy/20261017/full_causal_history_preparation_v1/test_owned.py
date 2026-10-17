@@ -20,7 +20,7 @@ from tools.st_world_policy import metadata_storage as m
 
 
 def admission():
-    return dict(schema='st_history64_owned_admission_v1',status='APPROVED_HISTORY64_PILOT_ONLY',limits=p.LIMITS.copy(),reviewer='/independent',hostname=p.socket.gethostname(),checkpoint_receipt=p.CP.copy(),output_root=str(p.ROOT),runtime=str(p.RUNTIME),issued_at_unix=0,latest_start_unix=100,valid_until_unix=1000)
+    return dict(schema='st_history64_owned_admission_v1',status='APPROVED_HISTORY64_PILOT_ONLY',limits=p.LIMITS.copy(),reviewer='/independent',hostname=p.socket.gethostname(),checkpoint_receipt=p.CP.copy(),output_root=str(p.ROOT),runtime=str(p.RUNTIME),control_root=str(p.CONTROL_ROOT),control_reserved_bytes=p.CONTROL_CAP,issued_at_unix=0,latest_start_unix=100,valid_until_unix=1000)
 
 @pytest.mark.parametrize('key,value',[('reviewer','/root/st_temporal_readiness_inventory'),('valid_until_unix',100),('output_root','/tmp/wrong'),('status','PROPOSED')])
 def test_admission_rejects(key,value):

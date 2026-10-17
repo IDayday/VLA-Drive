@@ -40,7 +40,9 @@
       0.0
     ],
     "automatic_retry": false,
-    "scene_list_sha256": "dee94e75957fd8e9734f1669b47552b5cf6c39f719aa9d3298bc87f94aac1c01"
+    "scene_list_sha256": "dee94e75957fd8e9734f1669b47552b5cf6c39f719aa9d3298bc87f94aac1c01",
+    "artifact_claim_max_bytes": 32505856,
+    "combined_artifact_control_cap_bytes": 33554432
   },
   "full_roles": {
     "train": {
@@ -61,58 +63,60 @@
     "future writer quiescence; no parallel original ledger writer",
     "Lead additive admission/registration in original ledger",
     "fresh CP lease covering actual monitor window and fresh statvfs",
-    "independent review of wired history64 controller/monitor parameterization; Lead signs actual admission"
+    "independent review of wired history64 controller/monitor parameterization; Lead signs actual admission",
+    "Lead explicitly admits and creates separate1MiB evidence directory; original metadata claim <=31MiB; combined <=32MiB",
+    "independent re-review H64-1/2/3 fix; no actual claim or dispatch occurred"
   ],
   "source_pins": [
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_causal_history.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/tools/st_world_policy/prepare_causal_history.py",
       "sha256": "b486d2233955d19179c7beb93e314681dda45664890d8bc7d59edc00f92b6d48"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_history.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/tools/st_world_policy/prepare_history.py",
       "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_future_metadata.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/tools/st_world_policy/prepare_future_metadata.py",
       "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_history.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/starVLA/dataloader/st_world_history.py",
       "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_metadata_index.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/starVLA/dataloader/st_world_metadata_index.py",
       "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/starVLA/dataloader/st_world_future_provenance.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/starVLA/dataloader/st_world_future_provenance.py",
       "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/tools/st_world_policy/prepare_current_teacher.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/tools/st_world_policy/prepare_current_teacher.py",
       "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
     }
   ],
-  "owned_controller": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+  "owned_controller": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
   "controller_sources": [
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
-      "sha256": "abb99e4fcdd4d312c0b2e8e7a9d5f65160575acc61ada6c24e0c342321d55d7c"
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/full_causal_history_preparation_v1/run_pilot_once.py",
+      "sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
       "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/supervise_once.py",
       "sha256": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/prepare_bindings.py",
       "sha256": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84"
     },
     {
-      "path": "/mnt/project/VLA-Drive-st-history-metadata-preparation-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
+      "path": "/mnt/project/VLA-Drive-st-history-pilot-boundary-fix-20261017/reports/st_world_policy/20261017/spatial_probe_actual_preparation_v1/observed_cli.py",
       "sha256": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643"
     }
   ],
@@ -160,5 +164,7 @@
       0.0
     ],
     "status": "PROPOSAL_NOT_AN_ADMISSION"
-  }
+  },
+  "control_root_proposal": "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2_controls",
+  "control_reserved_bytes": 1048576
 }
