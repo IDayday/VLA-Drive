@@ -1,0 +1,2521 @@
+{
+  "GPU_used": false,
+  "bootstrap": 2000,
+  "bootstrap_seed": 20261017,
+  "created_utc": "2026-10-17T10:30:24.521525+00:00",
+  "elapsed_seconds": 8.872132079675794,
+  "invalid": 0,
+  "logs": 16,
+  "metadata_read_accounting": "Conservative sum of full file size for each campaign JSON/CSV/source read-open, including repeated opens; at most128MiB. Payload extensions forbidden by read-open audit hook.",
+  "metadata_read_budget": {
+    "charged_read_open_bytes": 23527830,
+    "limit_bytes": 134217728,
+    "payload_read_opens": 0,
+    "read_opens": 5179
+  },
+  "no_training_stop_or_winner_selection": true,
+  "paired_valid": 1696,
+  "payload_bytes_read": 0,
+  "peak_RSS_bytes": 658350080,
+  "plan": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+    "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+  },
+  "policy": {
+    "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/POLICY.json",
+    "sha256": "ed465e3bedc8974c0bc43edd64ed73f55090010c314cccce8b9c9718c3e2e1b2"
+  },
+  "population": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "requested": 1696,
+  "results": [
+    {
+      "comparison": "C2_minus_C0",
+      "comparison_binding": "PREREGISTERED",
+      "control": {
+        "aggregate": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.9805424528301887,
+            "driving_direction_compliance": 0.9864386792452831,
+            "ego_progress": 0.855318067177579,
+            "no_at_fault_collisions": 0.9905660377358491,
+            "score": 0.9107664709785911,
+            "time_to_collision_within_bound": 0.9587264150943396
+          },
+          "scenes": 1696,
+          "zero_count": 48
+        },
+        "checkpoint": {
+          "adapter_source_sha256": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "completed": 1024,
+          "deployment_source_contract": {
+            "starVLA/cache/navsim_feature_cache.py": "323678961a15eb9d4a38a416cf57741f9a632031cc4185834f6d6443fe7cd0e3",
+            "starVLA/dataloader/foresight_dataset.py": "bf17f210e40387f57a18776c4af96c57bdab7abd5bf7c4921050614cca204b82",
+            "starVLA/dataloader/st_world_schema.py": "27562ef6de107afe3a26ebe98b95be61ca26b1f706da04cb4d98ff4be7b4961b",
+            "starVLA/model/framework/DDPForesight.py": "a960869b22a10354074be255c4556c09d97a95a7da573ae7205fd59c178f8b6f",
+            "starVLA/model/framework/QwenOFT.py": "2ced0c52f92b59d79d95d17578412cde53699da893e955efe1ea8c152abca272",
+            "starVLA/model/framework/__init__.py": "636c826cf5d26088f98522a0242537472b171d633ba01c8446b3dcddb4cabfdf",
+            "starVLA/model/framework/base_framework.py": "2d31a36278773dc4a266c94516335a2d87ec8eabd521b64d92cc5f678109ffb7",
+            "starVLA/model/framework/ddp_action_video_foresight.py": "a58f776be1866129b54e549896f30c2de7515fc911c3bc7b713ff466c91563d8",
+            "starVLA/model/framework/ddp_full_foresight.py": "11802d0ad8d686c5dd28448dc30c275b19a1e2be5e17d5ea979c755ab7bfefe6",
+            "starVLA/model/framework/share_tools.py": "8a584204b7b46a6db001541b9a2a6f5bcafc56bdb6e0bf16fc64343f63dc313f",
+            "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "8b82c4df58680876659943b1c9c4bc97979b9df8b7b6634bda4489eee98fff20",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "6f3e7b341b8b8f4d36a170f32b298edc2ab6719a2e25d556adc51712dea8c163",
+            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "8bbfdd3e459debd4a8b0246b6152999f956ac3877001adfcb0178c7f4ee9b931",
+            "starVLA/model/modules/foresight/config.py": "7117562fce5b54af6819f738461512a39095276a1d26d7051bc63ea115e8cf23",
+            "starVLA/model/modules/foresight/queries.py": "cbab52bba690736dace4409b6ca74cac31a52064598df82bdccf3341a73bf86e",
+            "starVLA/model/modules/foresight/tokens.py": "357e50f57ea9d6973ab3b1a648be1c843faeb4593d3ede18c146b1e7c0591caf",
+            "starVLA/model/modules/vlm/QWen3.py": "777a69c8f604c6525517ac2c8de5b7494579581e87b4f8de9a66c5275f81e49f",
+            "starVLA/model/modules/vlm/__init__.py": "32837be09f8d86d46781cf944d0a9d55bb5d33f5bc14f38e661c35da5ffb4159",
+            "starVLA/model/modules/vlm/qwen3_vl/configuration_qwen3_vl.py": "56f269fa492f953784197408ef30bad1ee2e8c4b2188d45e1401daa71700f8a2",
+            "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "82904015a044aaddf43637f75aa2ad0bc791c68b493a5e4c2bd275255b6b7049",
+            "starVLA/training/trainer_utils/trainer_tools.py": "bce78db91815e873a22e4d0abc73d91326693f469f9e0e45296295dc95a55b4b",
+            "tools/foresight/checkpoints.py": "0af14d825c85cb68e357a83c8b5d0627888119893a844e3456efc183dcd65de5"
+          },
+          "inference_contract": {
+            "dt_seconds": 0.5,
+            "flow_steps": 10,
+            "frame": "ego_t0_rear_axle",
+            "physical": "8x3_xy_yaw",
+            "precision": "FP32_master_eval_TF32_off",
+            "raw": "8x4_xy_sin_cos",
+            "scene_seed_protocol": "foresight-action-v1"
+          },
+          "master_initialization": "st_fp32_master_initialization_v1",
+          "native_checkpoint_sha256": "cf8b7b74f579df1abad7d303e50c2c04b1d976e5c346ed766d4fadd68dbcd6ae",
+          "native_receipt_sha256": "789ce37769e1d7c0cc550ebc3cb427eb5ec06be654f6c06e1b7d5b0acdcf0df3",
+          "parent_checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+          "parent_receipt_sha256": "ee317d181734e0d750a7bb28be82d9ccf91f954c5b7910862a86c4a29f3cc2f2",
+          "receipt_identity": "e8d92893269eccd2dbaf2d49f57bb88e327b347092f422977502c47a2b78080e",
+          "restoration": {
+            "action": "native_Flow_ZeRO2_FP32_masters_strict_prefix_load",
+            "encoder": "original_bound_parent_FP32_masters",
+            "optimizer_resume_conversion": false,
+            "prefix": "policy.action_head.",
+            "training_BF16_encoder_reused": false
+          },
+          "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1",
+          "run_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9",
+          "schema": "st_flow_deployment_checkpoint_v1",
+          "scope": "FORMAL",
+          "sha256": "ba0fe51bc6f3ae51e198b503a412bce9c8fabff7ab251d297b04a3fba7e79570",
+          "tag": "step_001024_1792207671595855958",
+          "training_numeric_execution_hash": "f8c10d8a1b0c0aae8a67adab92573a0222530f8dfbf2112921d5dd70b84ab0bf",
+          "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+          "weights_usable_for_formal_init": true
+        },
+        "export_identity": "772649659e2628098b68775e75d6029ff5a5ce8ce005edb29f2f5f6c061149d8",
+        "formal_registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+          "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+        },
+        "job_id": "C0_step001024_dev1696_seed42_v1",
+        "scenes_csv": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/SCENES.csv",
+          "sha256": "8deabaa9d8e469c10f7662636014498d9be3154a45e55d6551d7ecb8aa9b5b73"
+        },
+        "score_complete": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+          "sha256": "3a06edfabcb2f0fab62b055c290097abaae8d54d8dfba85551d2e37e4782738f"
+        },
+        "score_identity": "742c52f648190dba18d2dc83cc120c811daf406bf4acc21e0f308e38232d5bab"
+      },
+      "gain_concentration": {
+        "by_log": [
+          {
+            "gross_gain": 0.017868495674328133,
+            "gross_loss": 0.0037174783943003664,
+            "log": "2021.06.09.12.06.35_veh-35_01164_01494",
+            "net_sum": 0.014151017280027767,
+            "scenes": 115
+          },
+          {
+            "gross_gain": 0.013266591330707622,
+            "gross_loss": 0.013145408386713298,
+            "log": "2021.06.09.12.51.31_veh-35_01729_02626",
+            "net_sum": 0.00012118294399432461,
+            "scenes": 176
+          },
+          {
+            "gross_gain": 0.0013695192744416218,
+            "gross_loss": 0.0004936361072189754,
+            "log": "2021.06.09.14.50.36_veh-26_02826_02955",
+            "net_sum": 0.0008758831672226464,
+            "scenes": 25
+          },
+          {
+            "gross_gain": 0.0017242966703731044,
+            "gross_loss": 0.001113624257995549,
+            "log": "2021.06.09.17.23.18_veh-38_01598_01750",
+            "net_sum": 0.0006106724123775553,
+            "scenes": 36
+          },
+          {
+            "gross_gain": 0.00903249203243417,
+            "gross_loss": 0.0012020904439742353,
+            "log": "2021.06.09.20.26.11_veh-35_00970_01216",
+            "net_sum": 0.007830401588459934,
+            "scenes": 68
+          },
+          {
+            "gross_gain": 0.005776384011025426,
+            "gross_loss": 0.002673662798742815,
+            "log": "2021.06.23.17.31.36_veh-16_00016_00377",
+            "net_sum": 0.003102721212282611,
+            "scenes": 95
+          },
+          {
+            "gross_gain": 0.04912113120583905,
+            "gross_loss": 0.6062580486785843,
+            "log": "2021.07.09.15.53.28_veh-38_00184_02293",
+            "net_sum": -0.5571369174727453,
+            "scenes": 556
+          },
+          {
+            "gross_gain": 0.018970371076480363,
+            "gross_loss": 0.010542321400599852,
+            "log": "2021.07.09.20.26.06_veh-35_02793_03289",
+            "net_sum": 0.008428049675880511,
+            "scenes": 161
+          },
+          {
+            "gross_gain": 0.0015691957063712625,
+            "gross_loss": 0.5834110531116544,
+            "log": "2021.07.16.22.40.23_veh-38_00204_00360",
+            "net_sum": -0.5818418574052832,
+            "scenes": 15
+          },
+          {
+            "gross_gain": 0.007882423445607967,
+            "gross_loss": 2.285899087473009e-05,
+            "log": "2021.08.31.11.47.30_veh-40_00919_01000",
+            "net_sum": 0.007859564454733237,
+            "scenes": 27
+          },
+          {
+            "gross_gain": 0.01151652549492721,
+            "gross_loss": 0.0029232174300498626,
+            "log": "2021.08.31.14.01.15_veh-40_01576_01714",
+            "net_sum": 0.008593308064877347,
+            "scenes": 41
+          },
+          {
+            "gross_gain": 0.007951652808591558,
+            "gross_loss": 0.0010349081375188307,
+            "log": "2021.10.01.17.52.06_veh-28_01141_01264",
+            "net_sum": 0.006916744671072728,
+            "scenes": 28
+          },
+          {
+            "gross_gain": 0.01625965219615566,
+            "gross_loss": 0.0016350917564185163,
+            "log": "2021.10.05.07.49.39_veh-52_00770_00905",
+            "net_sum": 0.014624560439737144,
+            "scenes": 81
+          },
+          {
+            "gross_gain": 0.01883959338292862,
+            "gross_loss": 0.004544820992122833,
+            "log": "2021.10.05.08.11.15_veh-50_00437_00585",
+            "net_sum": 0.014294772390805788,
+            "scenes": 74
+          },
+          {
+            "gross_gain": 0.02228649211051187,
+            "gross_loss": 0.0012673201830590841,
+            "log": "2021.10.11.02.57.41_veh-50_01028_01289",
+            "net_sum": 0.021019171927452784,
+            "scenes": 81
+          },
+          {
+            "gross_gain": 0.041583280742413464,
+            "gross_loss": 0.0016563787179019185,
+            "log": "2021.10.11.02.57.41_veh-50_02155_02265",
+            "net_sum": 0.039926902024511546,
+            "scenes": 117
+          }
+        ],
+        "definition": "Descriptive only: rank positive scene deltas; log gain sums positive scene deltas before within-log cancellation. Shares use total gross positive gain, never tiny net gain.",
+        "gross_gain_sum": 0.2450180971631371,
+        "gross_loss_sum": 1.2356419197877297,
+        "negative_scene_count": 308,
+        "net_sum": -0.9906238226245926,
+        "positive_scene_count": 720,
+        "top_log_positive_gain_shares": {
+          "1": 0.20047960446420982,
+          "3": 0.461153299968423
+        },
+        "top_scene_positive_gain_shares": {
+          "1": 0.008141139187333541,
+          "10": 0.05500599255952106,
+          "50": 0.21191966015403255
+        }
+      },
+      "safety_transitions": {
+        "comfort": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "drivable_area_compliance": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "driving_direction_compliance": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "no_at_fault_collisions": {
+          "degraded": 2,
+          "equal": 1694,
+          "improved": 0
+        },
+        "time_to_collision_within_bound": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        }
+      },
+      "stage": "DIAGNOSTIC_1024",
+      "statistics": {
+        "by_log": {
+          "2021.06.09.12.06.35_veh-35_01164_01494": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0002953255780179764,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.0001230523241741545,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 115
+          },
+          "2021.06.09.12.51.31_veh-35_01729_02626": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 1.6524946908318885e-06,
+              "no_at_fault_collisions": 0.0,
+              "score": 6.88539454513208e-07,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 176
+          },
+          "2021.06.09.14.50.36_veh-26_02826_02955": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 8.408478405337316e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": 3.503532668890585e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 25
+          },
+          "2021.06.09.17.23.18_veh-38_01598_01750": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 4.071149415850307e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": 1.6963122566043205e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 36
+          },
+          "2021.06.09.20.26.11_veh-35_00970_01216": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.000276367114886817,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00011515296453617551,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 68
+          },
+          "2021.06.23.17.31.36_veh-16_00016_00377": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 7.83845358892456e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": 3.2660223287185375e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 95
+          },
+          "2021.07.09.15.53.28_veh-38_00184_02293": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.0016854830970046547,
+              "no_at_fault_collisions": -0.0017985611510791368,
+              "score": -0.0010020448155984628,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 556
+          },
+          "2021.07.09.20.26.06_veh-35_02793_03289": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.00012563552311869197,
+              "no_at_fault_collisions": 0.0,
+              "score": 5.2348134632798204e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 161
+          },
+          "2021.07.16.22.40.23_veh-38_00204_00360": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.06642803051817868,
+              "no_at_fault_collisions": -0.06666666666666667,
+              "score": -0.03878945716035221,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 15
+          },
+          "2021.08.31.11.47.30_veh-40_00919_01000": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0006986279515318194,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.0002910949798049347,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 27
+          },
+          "2021.08.31.14.01.15_veh-40_01576_01714": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0005030229111147548,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00020959287963115482,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 41
+          },
+          "2021.10.01.17.52.06_veh-28_01141_01264": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0005928638289490988,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.0002470265953954546,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 28
+          },
+          "2021.10.05.07.49.39_veh-52_00770_00905": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0004333203093255162,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00018055012888564375,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 81
+          },
+          "2021.10.05.08.11.15_veh-50_00437_00585": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0004636142397017415,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.0001931725998757539,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 74
+          },
+          "2021.10.11.02.57.41_veh-50_01028_01289": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0006265092396660792,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.0002594959497216393,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 81
+          },
+          "2021.10.11.02.57.41_veh-50_02155_02265": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0008190133748617774,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00034125557285907306,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 117
+          }
+        },
+        "control_defined_strata": {
+          "control_high": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.00013823199372280882,
+                0.00031711762654527064
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.000192307433162437,
+              "represented_logs": 16
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                5.7596664051171265e-05,
+                0.00013213234439386236
+              ],
+              "denominator_scenes": 1261,
+              "mean": 8.012809715101755e-05,
+              "represented_logs": 16
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "control_middle": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.013540929734425503,
+                0.0006978413236954119
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.004702055844263051,
+              "represented_logs": 15
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.013967458491776597,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.00516795865633075,
+              "represented_logs": 15
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.007981527629656177,
+                0.00029045987384127486
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.0028208407057675085,
+              "represented_logs": 15
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            }
+          },
+          "control_zero": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            }
+          }
+        },
+        "events": {
+          "ep_drop": {
+            "count": 2,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.00296100798088691
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0011792452830188679,
+              "represented_logs": 16
+            }
+          },
+          "high_any_drop": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.12866988481108405,
+                0.21839219953130232
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.1633624107850912,
+              "represented_logs": 16
+            },
+            "count": 206,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.09154343631496112,
+                0.1591468681581828
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.1214622641509434,
+              "represented_logs": 16
+            }
+          },
+          "high_large_drop": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "high_to_zero": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "net_zero_repair_rate": {
+            "bootstrap_defined": 2000,
+            "bootstrap_undefined": 0,
+            "ci95": [
+              -0.0029610079808869115,
+              0.0
+            ],
+            "denominator_scenes": 1696,
+            "mean": -0.0011792452830188679,
+            "represented_logs": 16
+          },
+          "new_zero": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0030700159395477883
+              ],
+              "denominator_scenes": 1648,
+              "mean": 0.0012135922330097086,
+              "represented_logs": 16
+            },
+            "count": 2,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.00296100798088691
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0011792452830188679,
+              "represented_logs": 16
+            }
+          },
+          "nonzero_persisted": {
+            "count": 1646,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9541361502931668,
+                0.9862930266052055
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9705188679245284,
+              "represented_logs": 16
+            }
+          },
+          "safety_gain_with_ep_drop": {
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "zero_persisted": {
+            "count": 48,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.013252498212047844,
+                0.04424041563677106
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.02830188679245283,
+              "represented_logs": 16
+            }
+          },
+          "zero_repaired": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          }
+        },
+        "logs": 16,
+        "metrics": {
+          "comfort": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                1.0,
+                1.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 1.0,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                1.0,
+                1.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 1.0,
+              "represented_logs": 16
+            }
+          },
+          "drivable_area_compliance": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9620643016006925,
+                0.9914908005251704
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9805424528301887,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9620643016006925,
+                0.9914908005251704
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9805424528301887,
+              "represented_logs": 16
+            }
+          },
+          "driving_direction_compliance": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9786584502013324,
+                0.9971618547698982
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9864386792452831,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9786584502013324,
+                0.9971618547698982
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9864386792452831,
+              "represented_logs": 16
+            }
+          },
+          "ego_progress": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.7959558460872719,
+                0.8871350791939996
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.8553180671775789,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.0026927141125614737,
+                0.00039337577661463453
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.0009299504354433772,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.003942148764701069,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.7954609798406427,
+                0.8862842005606476
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.8543881167421354,
+              "represented_logs": 16
+            }
+          },
+          "no_at_fault_collisions": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9836520068296788,
+                0.9992006713862749
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9905660377358491,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.0029610079808869115,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.0011792452830188679,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.004279076738609113,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9810361696200904,
+                0.9992006713862749
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9893867924528302,
+              "represented_logs": 16
+            }
+          },
+          "score": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.8797033858694279,
+                0.9293260451988339
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9107664709785911,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.0016224198392395227,
+                0.00016379514218948124
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.0005840942350380853,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.002355838289652328,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.8793870806984313,
+                0.9288522857587845
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.910182376743553,
+              "represented_logs": 16
+            }
+          },
+          "time_to_collision_within_bound": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9456288846458326,
+                0.974762727335185
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9587264150943396,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9456288846458326,
+                0.974762727335185
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9587264150943396,
+              "represented_logs": 16
+            }
+          }
+        },
+        "scenes": 1696,
+        "stopping_proxy": null
+      },
+      "treatment": {
+        "aggregate": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.9805424528301887,
+            "driving_direction_compliance": 0.9864386792452831,
+            "ego_progress": 0.8543881167421354,
+            "no_at_fault_collisions": 0.9893867924528302,
+            "score": 0.910182376743553,
+            "time_to_collision_within_bound": 0.9587264150943396
+          },
+          "scenes": 1696,
+          "zero_count": 50
+        },
+        "checkpoint": {
+          "adapter_source_sha256": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "completed": 1024,
+          "deployment_source_contract": {
+            "starVLA/cache/navsim_feature_cache.py": "323678961a15eb9d4a38a416cf57741f9a632031cc4185834f6d6443fe7cd0e3",
+            "starVLA/dataloader/foresight_dataset.py": "bf17f210e40387f57a18776c4af96c57bdab7abd5bf7c4921050614cca204b82",
+            "starVLA/dataloader/st_world_schema.py": "27562ef6de107afe3a26ebe98b95be61ca26b1f706da04cb4d98ff4be7b4961b",
+            "starVLA/model/framework/DDPForesight.py": "a960869b22a10354074be255c4556c09d97a95a7da573ae7205fd59c178f8b6f",
+            "starVLA/model/framework/QwenOFT.py": "2ced0c52f92b59d79d95d17578412cde53699da893e955efe1ea8c152abca272",
+            "starVLA/model/framework/__init__.py": "636c826cf5d26088f98522a0242537472b171d633ba01c8446b3dcddb4cabfdf",
+            "starVLA/model/framework/base_framework.py": "2d31a36278773dc4a266c94516335a2d87ec8eabd521b64d92cc5f678109ffb7",
+            "starVLA/model/framework/ddp_action_video_foresight.py": "a58f776be1866129b54e549896f30c2de7515fc911c3bc7b713ff466c91563d8",
+            "starVLA/model/framework/ddp_full_foresight.py": "11802d0ad8d686c5dd28448dc30c275b19a1e2be5e17d5ea979c755ab7bfefe6",
+            "starVLA/model/framework/share_tools.py": "8a584204b7b46a6db001541b9a2a6f5bcafc56bdb6e0bf16fc64343f63dc313f",
+            "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "8b82c4df58680876659943b1c9c4bc97979b9df8b7b6634bda4489eee98fff20",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "6f3e7b341b8b8f4d36a170f32b298edc2ab6719a2e25d556adc51712dea8c163",
+            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "8bbfdd3e459debd4a8b0246b6152999f956ac3877001adfcb0178c7f4ee9b931",
+            "starVLA/model/modules/foresight/config.py": "7117562fce5b54af6819f738461512a39095276a1d26d7051bc63ea115e8cf23",
+            "starVLA/model/modules/foresight/queries.py": "cbab52bba690736dace4409b6ca74cac31a52064598df82bdccf3341a73bf86e",
+            "starVLA/model/modules/foresight/tokens.py": "357e50f57ea9d6973ab3b1a648be1c843faeb4593d3ede18c146b1e7c0591caf",
+            "starVLA/model/modules/vlm/QWen3.py": "777a69c8f604c6525517ac2c8de5b7494579581e87b4f8de9a66c5275f81e49f",
+            "starVLA/model/modules/vlm/__init__.py": "32837be09f8d86d46781cf944d0a9d55bb5d33f5bc14f38e661c35da5ffb4159",
+            "starVLA/model/modules/vlm/qwen3_vl/configuration_qwen3_vl.py": "56f269fa492f953784197408ef30bad1ee2e8c4b2188d45e1401daa71700f8a2",
+            "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "82904015a044aaddf43637f75aa2ad0bc791c68b493a5e4c2bd275255b6b7049",
+            "starVLA/training/trainer_utils/trainer_tools.py": "bce78db91815e873a22e4d0abc73d91326693f469f9e0e45296295dc95a55b4b",
+            "tools/foresight/checkpoints.py": "0af14d825c85cb68e357a83c8b5d0627888119893a844e3456efc183dcd65de5"
+          },
+          "inference_contract": {
+            "dt_seconds": 0.5,
+            "flow_steps": 10,
+            "frame": "ego_t0_rear_axle",
+            "physical": "8x3_xy_yaw",
+            "precision": "FP32_master_eval_TF32_off",
+            "raw": "8x4_xy_sin_cos",
+            "scene_seed_protocol": "foresight-action-v1"
+          },
+          "master_initialization": "st_fp32_master_initialization_v1",
+          "native_checkpoint_sha256": "6d8251a510ab299c680a9ee51fc784bd23a84103260c31e435a32e4903a33d04",
+          "native_receipt_sha256": "67d755fcbb404dcd58555ef7fd613b0fb6646d353a6bd065a2a06066851697a7",
+          "parent_checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+          "parent_receipt_sha256": "ee317d181734e0d750a7bb28be82d9ccf91f954c5b7910862a86c4a29f3cc2f2",
+          "receipt_identity": "eebb3c66f17fab266c103457d9608b8f0756fe8855a0d36921809864979f4569",
+          "restoration": {
+            "action": "native_Flow_ZeRO2_FP32_masters_strict_prefix_load",
+            "encoder": "original_bound_parent_FP32_masters",
+            "optimizer_resume_conversion": false,
+            "prefix": "policy.action_head.",
+            "training_BF16_encoder_reused": false
+          },
+          "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1",
+          "run_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+          "schema": "st_flow_deployment_checkpoint_v1",
+          "scope": "FORMAL",
+          "sha256": "e3c9486ca272d915a9faeee03e505d945ce83cda7e897102e3737917fec54e9a",
+          "tag": "step_001024_1792224443976811073",
+          "training_numeric_execution_hash": "f8c10d8a1b0c0aae8a67adab92573a0222530f8dfbf2112921d5dd70b84ab0bf",
+          "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+          "weights_usable_for_formal_init": true
+        },
+        "export_identity": "05e7f0d57a9201d6d5de50305b4015711c20692ec63ac400e4a9a5cbda9363ac",
+        "formal_registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+          "sha256": "7d3dd8587aa9e3f2ee03d113eac9e0535eeadab27598da584f1dfe5a4bda572a"
+        },
+        "job_id": "C2_step001024_dev1696_seed42_v1",
+        "scenes_csv": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step001024_dev1696_seed42_v1/official_score/SCENES.csv",
+          "sha256": "f0798c93338ed1dc6d1606e8ef9b4822e40184da3e9524ac17eaba792ddf0d8a"
+        },
+        "score_complete": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+          "sha256": "3eeaa46c74d0ab6c9fbe4493848896250ea4811ba267aa2e92f3e24b043f3f03"
+        },
+        "score_identity": "6091b173e1d10a408ff65d3b767e0af4b2d62213f9400f12f6b625a0401ff6a6"
+      }
+    },
+    {
+      "comparison": "C3_minus_C0",
+      "comparison_binding": "PREREGISTERED",
+      "control": {
+        "aggregate": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.9805424528301887,
+            "driving_direction_compliance": 0.9864386792452831,
+            "ego_progress": 0.855318067177579,
+            "no_at_fault_collisions": 0.9905660377358491,
+            "score": 0.9107664709785911,
+            "time_to_collision_within_bound": 0.9587264150943396
+          },
+          "scenes": 1696,
+          "zero_count": 48
+        },
+        "checkpoint": {
+          "adapter_source_sha256": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "completed": 1024,
+          "deployment_source_contract": {
+            "starVLA/cache/navsim_feature_cache.py": "323678961a15eb9d4a38a416cf57741f9a632031cc4185834f6d6443fe7cd0e3",
+            "starVLA/dataloader/foresight_dataset.py": "bf17f210e40387f57a18776c4af96c57bdab7abd5bf7c4921050614cca204b82",
+            "starVLA/dataloader/st_world_schema.py": "27562ef6de107afe3a26ebe98b95be61ca26b1f706da04cb4d98ff4be7b4961b",
+            "starVLA/model/framework/DDPForesight.py": "a960869b22a10354074be255c4556c09d97a95a7da573ae7205fd59c178f8b6f",
+            "starVLA/model/framework/QwenOFT.py": "2ced0c52f92b59d79d95d17578412cde53699da893e955efe1ea8c152abca272",
+            "starVLA/model/framework/__init__.py": "636c826cf5d26088f98522a0242537472b171d633ba01c8446b3dcddb4cabfdf",
+            "starVLA/model/framework/base_framework.py": "2d31a36278773dc4a266c94516335a2d87ec8eabd521b64d92cc5f678109ffb7",
+            "starVLA/model/framework/ddp_action_video_foresight.py": "a58f776be1866129b54e549896f30c2de7515fc911c3bc7b713ff466c91563d8",
+            "starVLA/model/framework/ddp_full_foresight.py": "11802d0ad8d686c5dd28448dc30c275b19a1e2be5e17d5ea979c755ab7bfefe6",
+            "starVLA/model/framework/share_tools.py": "8a584204b7b46a6db001541b9a2a6f5bcafc56bdb6e0bf16fc64343f63dc313f",
+            "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "8b82c4df58680876659943b1c9c4bc97979b9df8b7b6634bda4489eee98fff20",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "6f3e7b341b8b8f4d36a170f32b298edc2ab6719a2e25d556adc51712dea8c163",
+            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "8bbfdd3e459debd4a8b0246b6152999f956ac3877001adfcb0178c7f4ee9b931",
+            "starVLA/model/modules/foresight/config.py": "7117562fce5b54af6819f738461512a39095276a1d26d7051bc63ea115e8cf23",
+            "starVLA/model/modules/foresight/queries.py": "cbab52bba690736dace4409b6ca74cac31a52064598df82bdccf3341a73bf86e",
+            "starVLA/model/modules/foresight/tokens.py": "357e50f57ea9d6973ab3b1a648be1c843faeb4593d3ede18c146b1e7c0591caf",
+            "starVLA/model/modules/vlm/QWen3.py": "777a69c8f604c6525517ac2c8de5b7494579581e87b4f8de9a66c5275f81e49f",
+            "starVLA/model/modules/vlm/__init__.py": "32837be09f8d86d46781cf944d0a9d55bb5d33f5bc14f38e661c35da5ffb4159",
+            "starVLA/model/modules/vlm/qwen3_vl/configuration_qwen3_vl.py": "56f269fa492f953784197408ef30bad1ee2e8c4b2188d45e1401daa71700f8a2",
+            "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "82904015a044aaddf43637f75aa2ad0bc791c68b493a5e4c2bd275255b6b7049",
+            "starVLA/training/trainer_utils/trainer_tools.py": "bce78db91815e873a22e4d0abc73d91326693f469f9e0e45296295dc95a55b4b",
+            "tools/foresight/checkpoints.py": "0af14d825c85cb68e357a83c8b5d0627888119893a844e3456efc183dcd65de5"
+          },
+          "inference_contract": {
+            "dt_seconds": 0.5,
+            "flow_steps": 10,
+            "frame": "ego_t0_rear_axle",
+            "physical": "8x3_xy_yaw",
+            "precision": "FP32_master_eval_TF32_off",
+            "raw": "8x4_xy_sin_cos",
+            "scene_seed_protocol": "foresight-action-v1"
+          },
+          "master_initialization": "st_fp32_master_initialization_v1",
+          "native_checkpoint_sha256": "cf8b7b74f579df1abad7d303e50c2c04b1d976e5c346ed766d4fadd68dbcd6ae",
+          "native_receipt_sha256": "789ce37769e1d7c0cc550ebc3cb427eb5ec06be654f6c06e1b7d5b0acdcf0df3",
+          "parent_checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+          "parent_receipt_sha256": "ee317d181734e0d750a7bb28be82d9ccf91f954c5b7910862a86c4a29f3cc2f2",
+          "receipt_identity": "e8d92893269eccd2dbaf2d49f57bb88e327b347092f422977502c47a2b78080e",
+          "restoration": {
+            "action": "native_Flow_ZeRO2_FP32_masters_strict_prefix_load",
+            "encoder": "original_bound_parent_FP32_masters",
+            "optimizer_resume_conversion": false,
+            "prefix": "policy.action_head.",
+            "training_BF16_encoder_reused": false
+          },
+          "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1",
+          "run_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9",
+          "schema": "st_flow_deployment_checkpoint_v1",
+          "scope": "FORMAL",
+          "sha256": "ba0fe51bc6f3ae51e198b503a412bce9c8fabff7ab251d297b04a3fba7e79570",
+          "tag": "step_001024_1792207671595855958",
+          "training_numeric_execution_hash": "f8c10d8a1b0c0aae8a67adab92573a0222530f8dfbf2112921d5dd70b84ab0bf",
+          "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+          "weights_usable_for_formal_init": true
+        },
+        "export_identity": "772649659e2628098b68775e75d6029ff5a5ce8ce005edb29f2f5f6c061149d8",
+        "formal_registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+          "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+        },
+        "job_id": "C0_step001024_dev1696_seed42_v1",
+        "scenes_csv": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/SCENES.csv",
+          "sha256": "8deabaa9d8e469c10f7662636014498d9be3154a45e55d6551d7ecb8aa9b5b73"
+        },
+        "score_complete": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+          "sha256": "3a06edfabcb2f0fab62b055c290097abaae8d54d8dfba85551d2e37e4782738f"
+        },
+        "score_identity": "742c52f648190dba18d2dc83cc120c811daf406bf4acc21e0f308e38232d5bab"
+      },
+      "gain_concentration": {
+        "by_log": [
+          {
+            "gross_gain": 0.004553345482882443,
+            "gross_loss": 0.006920474847090574,
+            "log": "2021.06.09.12.06.35_veh-35_01164_01494",
+            "net_sum": -0.0023671293642081315,
+            "scenes": 115
+          },
+          {
+            "gross_gain": 0.002675887288965728,
+            "gross_loss": 0.01686565182647598,
+            "log": "2021.06.09.12.51.31_veh-35_01729_02626",
+            "net_sum": -0.014189764537510252,
+            "scenes": 176
+          },
+          {
+            "gross_gain": 0.0002961372292938913,
+            "gross_loss": 0.001221109822169275,
+            "log": "2021.06.09.14.50.36_veh-26_02826_02955",
+            "net_sum": -0.0009249725928753838,
+            "scenes": 25
+          },
+          {
+            "gross_gain": 0.0003789068215178659,
+            "gross_loss": 0.002047603524532815,
+            "log": "2021.06.09.17.23.18_veh-38_01598_01750",
+            "net_sum": -0.001668696703014949,
+            "scenes": 36
+          },
+          {
+            "gross_gain": 0.002022500567747776,
+            "gross_loss": 0.0013513752812787105,
+            "log": "2021.06.09.20.26.11_veh-35_00970_01216",
+            "net_sum": 0.0006711252864690653,
+            "scenes": 68
+          },
+          {
+            "gross_gain": 0.001465791229058766,
+            "gross_loss": 0.0041437627486864415,
+            "log": "2021.06.23.17.31.36_veh-16_00016_00377",
+            "net_sum": -0.0026779715196276754,
+            "scenes": 95
+          },
+          {
+            "gross_gain": 0.018232884715705833,
+            "gross_loss": 0.6099738335705953,
+            "log": "2021.07.09.15.53.28_veh-38_00184_02293",
+            "net_sum": -0.5917409488548895,
+            "scenes": 556
+          },
+          {
+            "gross_gain": 0.009387639177075191,
+            "gross_loss": 0.016977428046035747,
+            "log": "2021.07.09.20.26.06_veh-35_02793_03289",
+            "net_sum": -0.007589788868960556,
+            "scenes": 161
+          },
+          {
+            "gross_gain": 0.0002798973991517961,
+            "gross_loss": 0.5836692363390598,
+            "log": "2021.07.16.22.40.23_veh-38_00204_00360",
+            "net_sum": -0.583389338939908,
+            "scenes": 15
+          },
+          {
+            "gross_gain": 0.0023049867997207985,
+            "gross_loss": 0.0003911389425933498,
+            "log": "2021.08.31.11.47.30_veh-40_00919_01000",
+            "net_sum": 0.0019138478571274486,
+            "scenes": 27
+          },
+          {
+            "gross_gain": 0.008515796172795187,
+            "gross_loss": 0.0019087340584741375,
+            "log": "2021.08.31.14.01.15_veh-40_01576_01714",
+            "net_sum": 0.0066070621143210495,
+            "scenes": 41
+          },
+          {
+            "gross_gain": 0.0050416808837254745,
+            "gross_loss": 0.0026777987009692916,
+            "log": "2021.10.01.17.52.06_veh-28_01141_01264",
+            "net_sum": 0.002363882182756183,
+            "scenes": 28
+          },
+          {
+            "gross_gain": 0.010626675006611852,
+            "gross_loss": 0.002671387450246865,
+            "log": "2021.10.05.07.49.39_veh-52_00770_00905",
+            "net_sum": 0.007955287556364987,
+            "scenes": 81
+          },
+          {
+            "gross_gain": 0.010524146363540154,
+            "gross_loss": 0.004975068764491275,
+            "log": "2021.10.05.08.11.15_veh-50_00437_00585",
+            "net_sum": 0.005549077599048879,
+            "scenes": 74
+          },
+          {
+            "gross_gain": 0.014087715102008236,
+            "gross_loss": 0.003678025192328238,
+            "log": "2021.10.11.02.57.41_veh-50_01028_01289",
+            "net_sum": 0.010409689909679998,
+            "scenes": 81
+          },
+          {
+            "gross_gain": 0.02696890478852454,
+            "gross_loss": 0.001177093130170781,
+            "log": "2021.10.11.02.57.41_veh-50_02155_02265",
+            "net_sum": 0.025791811658353758,
+            "scenes": 117
+          }
+        ],
+        "definition": "Descriptive only: rank positive scene deltas; log gain sums positive scene deltas before within-log cancellation. Shares use total gross positive gain, never tiny net gain.",
+        "gross_gain_sum": 0.11736289502832553,
+        "gross_loss_sum": 1.2606497222451987,
+        "negative_scene_count": 530,
+        "net_sum": -1.143286827216873,
+        "positive_scene_count": 499,
+        "top_log_positive_gain_shares": {
+          "1": 0.22979072544193457,
+          "3": 0.5051809994285595
+        },
+        "top_scene_positive_gain_shares": {
+          "1": 0.013058457877643127,
+          "10": 0.09047288476708223,
+          "50": 0.34816391816452735
+        }
+      },
+      "safety_transitions": {
+        "comfort": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "drivable_area_compliance": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "driving_direction_compliance": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "no_at_fault_collisions": {
+          "degraded": 2,
+          "equal": 1694,
+          "improved": 0
+        },
+        "time_to_collision_within_bound": {
+          "degraded": 0,
+          "equal": 1695,
+          "improved": 1
+        }
+      },
+      "stage": "DIAGNOSTIC_1024",
+      "statistics": {
+        "by_log": {
+          "2021.06.09.12.06.35_veh-35_01164_01494": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -4.940096064433261e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": -2.058373360180984e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 115
+          },
+          "2021.06.09.12.51.31_veh-35_01729_02626": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.00019349678914786235,
+              "no_at_fault_collisions": 0.0,
+              "score": -8.062366214494462e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 176
+          },
+          "2021.06.09.14.50.36_veh-26_02826_02955": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -8.879736891605372e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": -3.699890371501535e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 25
+          },
+          "2021.06.09.17.23.18_veh-38_01598_01750": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.00011124644686765711,
+              "no_at_fault_collisions": 0.0,
+              "score": -4.6352686194859695e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 36
+          },
+          "2021.06.09.20.26.11_veh-35_00970_01216": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 2.368677481654578e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": 9.86948950689802e-06,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 68
+          },
+          "2021.06.23.17.31.36_veh-16_00016_00377": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -6.765401733795509e-05,
+              "no_at_fault_collisions": 0.0,
+              "score": -2.8189173890817636e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 95
+          },
+          "2021.07.09.15.53.28_veh-38_00184_02293": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.001834853016639805,
+              "no_at_fault_collisions": -0.0017985611510791368,
+              "score": -0.0010642822821131106,
+              "time_to_collision_within_bound": 0.0017985611510791368
+            },
+            "scenes": 556
+          },
+          "2021.07.09.20.26.06_veh-35_02793_03289": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.00011313970984786529,
+              "no_at_fault_collisions": 0.0,
+              "score": -4.714154576994135e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 161
+          },
+          "2021.07.16.22.40.23_veh-38_00204_00360": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": -0.0666756275637186,
+              "no_at_fault_collisions": -0.06666666666666667,
+              "score": -0.03889262259599387,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 15
+          },
+          "2021.08.31.11.47.30_veh-40_00919_01000": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.00017011980952247113,
+              "no_at_fault_collisions": 0.0,
+              "score": 7.088325396768329e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 27
+          },
+          "2021.08.31.14.01.15_veh-40_01576_01714": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0003867548554724327,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00016114785644685486,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 41
+          },
+          "2021.10.01.17.52.06_veh-28_01141_01264": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.00020261847280768155,
+              "no_at_fault_collisions": 0.0,
+              "score": 8.442436366986368e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 28
+          },
+          "2021.10.05.07.49.39_veh-52_00770_00905": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.00023571222389226522,
+              "no_at_fault_collisions": 0.0,
+              "score": 9.821342662178997e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 81
+          },
+          "2021.10.05.08.11.15_veh-50_00437_00585": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.00017997008429342437,
+              "no_at_fault_collisions": 0.0,
+              "score": 7.498753512228216e-05,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 74
+          },
+          "2021.10.11.02.57.41_veh-50_01028_01289": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0003056162089640261,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00012851469024296295,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 81
+          },
+          "2021.10.11.02.57.41_veh-50_02155_02265": {
+            "delta": {
+              "comfort": 0.0,
+              "drivable_area_compliance": 0.0,
+              "driving_direction_compliance": 0.0,
+              "ego_progress": 0.0005290628032482826,
+              "no_at_fault_collisions": 0.0,
+              "score": 0.00022044283468678426,
+              "time_to_collision_within_bound": 0.0
+            },
+            "scenes": 117
+          }
+        },
+        "control_defined_strata": {
+          "control_high": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -6.005774874690641e-05,
+                7.070319155181528e-05
+              ],
+              "denominator_scenes": 1261,
+              "mean": -1.619481560847594e-05,
+              "represented_logs": 16
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -2.5024061977874828e-05,
+                2.94596631465887e-05
+              ],
+              "denominator_scenes": 1261,
+              "mean": -6.747839836866457e-06,
+              "represented_logs": 16
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "control_middle": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.01384308615451049,
+                0.00036748905509260526
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.004970788283450529,
+              "represented_logs": 15
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.013967458491776597,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.00516795865633075,
+              "represented_logs": 15
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.008078860239920603,
+                0.00015339593307512277
+              ],
+              "denominator_scenes": 387,
+              "mean": -0.002932242380316756,
+              "represented_logs": 15
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 387,
+              "mean": 0.0,
+              "represented_logs": 15
+            }
+          },
+          "control_zero": {
+            "comfort": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "drivable_area_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "driving_direction_compliance": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "ego_progress": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "no_at_fault_collisions": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "score": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "time_to_collision_within_bound": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0410958904109589
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.020833333333333332,
+              "represented_logs": 9
+            }
+          }
+        },
+        "events": {
+          "ep_drop": {
+            "count": 2,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.00296100798088691
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0011792452830188679,
+              "represented_logs": 16
+            }
+          },
+          "high_any_drop": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.259348843082168,
+                0.36850421872578987
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.29817605075337034,
+              "represented_logs": 16
+            },
+            "count": 376,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.1875,
+                0.2699707460158113
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.22169811320754718,
+              "represented_logs": 16
+            }
+          },
+          "high_large_drop": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "high_to_zero": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1261,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "net_zero_repair_rate": {
+            "bootstrap_defined": 2000,
+            "bootstrap_undefined": 0,
+            "ci95": [
+              -0.0029610079808869115,
+              0.0
+            ],
+            "denominator_scenes": 1696,
+            "mean": -0.0011792452830188679,
+            "represented_logs": 16
+          },
+          "new_zero": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0030700159395477883
+              ],
+              "denominator_scenes": 1648,
+              "mean": 0.0012135922330097086,
+              "represented_logs": 16
+            },
+            "count": 2,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.00296100798088691
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0011792452830188679,
+              "represented_logs": 16
+            }
+          },
+          "nonzero_persisted": {
+            "count": 1646,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9541361502931668,
+                0.9862930266052055
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9705188679245284,
+              "represented_logs": 16
+            }
+          },
+          "safety_gain_with_ep_drop": {
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          },
+          "zero_persisted": {
+            "count": 48,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.013252498212047844,
+                0.04424041563677106
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.02830188679245283,
+              "represented_logs": 16
+            }
+          },
+          "zero_repaired": {
+            "conditional_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 48,
+              "mean": 0.0,
+              "represented_logs": 9
+            },
+            "count": 0,
+            "full_population_rate": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            }
+          }
+        },
+        "logs": 16,
+        "metrics": {
+          "comfort": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                1.0,
+                1.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 1.0,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                1.0,
+                1.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 1.0,
+              "represented_logs": 16
+            }
+          },
+          "drivable_area_compliance": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9620643016006925,
+                0.9914908005251704
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9805424528301887,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9620643016006925,
+                0.9914908005251704
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9805424528301887,
+              "represented_logs": 16
+            }
+          },
+          "driving_direction_compliance": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9786584502013324,
+                0.9971618547698982
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9864386792452831,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.0,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9786584502013324,
+                0.9971618547698982
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9864386792452831,
+              "represented_logs": 16
+            }
+          },
+          "ego_progress": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.7959558460872719,
+                0.8871350791939996
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.8553180671775789,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.00292103752700483,
+                0.0001295823328620531
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.00114629524067078,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.004193792165006437,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.7951982336141044,
+                0.8860850291335832
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.8541717719369081,
+              "represented_logs": 16
+            }
+          },
+          "no_at_fault_collisions": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9836520068296788,
+                0.9992006713862749
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9905660377358491,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.0029610079808869115,
+                0.0
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.0011792452830188679,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.004279076738609113,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9810361696200904,
+                0.9992006713862749
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9893867924528302,
+              "represented_logs": 16
+            }
+          },
+          "score": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.8797033858694279,
+                0.9293260451988339
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9107664709785911,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                -0.0017126679120113965,
+                5.399465443102449e-05
+              ],
+              "denominator_scenes": 1696,
+              "mean": -0.0006741077990665525,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": -0.002460519445822453,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.8792897355603541,
+                0.9287588868459886
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9100923631795245,
+              "represented_logs": 16
+            }
+          },
+          "time_to_collision_within_bound": {
+            "control": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9456288846458326,
+                0.974762727335185
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9587264150943396,
+              "represented_logs": 16
+            },
+            "delta": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.0,
+                0.001145945776189843
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.0005896226415094339,
+              "represented_logs": 16
+            },
+            "equal_log_delta_sensitivity": 0.00011241007194244605,
+            "treatment": {
+              "bootstrap_defined": 2000,
+              "bootstrap_undefined": 0,
+              "ci95": [
+                0.9458619866484625,
+                0.974762727335185
+              ],
+              "denominator_scenes": 1696,
+              "mean": 0.9593160377358491,
+              "represented_logs": 16
+            }
+          }
+        },
+        "scenes": 1696,
+        "stopping_proxy": null
+      },
+      "treatment": {
+        "aggregate": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.9805424528301887,
+            "driving_direction_compliance": 0.9864386792452831,
+            "ego_progress": 0.8541717719369081,
+            "no_at_fault_collisions": 0.9893867924528302,
+            "score": 0.9100923631795245,
+            "time_to_collision_within_bound": 0.9593160377358491
+          },
+          "scenes": 1696,
+          "zero_count": 50
+        },
+        "checkpoint": {
+          "adapter_source_sha256": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+          "base_binding": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+          "completed": 1024,
+          "deployment_source_contract": {
+            "starVLA/cache/navsim_feature_cache.py": "323678961a15eb9d4a38a416cf57741f9a632031cc4185834f6d6443fe7cd0e3",
+            "starVLA/dataloader/foresight_dataset.py": "bf17f210e40387f57a18776c4af96c57bdab7abd5bf7c4921050614cca204b82",
+            "starVLA/dataloader/st_world_schema.py": "27562ef6de107afe3a26ebe98b95be61ca26b1f706da04cb4d98ff4be7b4961b",
+            "starVLA/model/framework/DDPForesight.py": "a960869b22a10354074be255c4556c09d97a95a7da573ae7205fd59c178f8b6f",
+            "starVLA/model/framework/QwenOFT.py": "2ced0c52f92b59d79d95d17578412cde53699da893e955efe1ea8c152abca272",
+            "starVLA/model/framework/__init__.py": "636c826cf5d26088f98522a0242537472b171d633ba01c8446b3dcddb4cabfdf",
+            "starVLA/model/framework/base_framework.py": "2d31a36278773dc4a266c94516335a2d87ec8eabd521b64d92cc5f678109ffb7",
+            "starVLA/model/framework/ddp_action_video_foresight.py": "a58f776be1866129b54e549896f30c2de7515fc911c3bc7b713ff466c91563d8",
+            "starVLA/model/framework/ddp_full_foresight.py": "11802d0ad8d686c5dd28448dc30c275b19a1e2be5e17d5ea979c755ab7bfefe6",
+            "starVLA/model/framework/share_tools.py": "8a584204b7b46a6db001541b9a2a6f5bcafc56bdb6e0bf16fc64343f63dc313f",
+            "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "8b82c4df58680876659943b1c9c4bc97979b9df8b7b6634bda4489eee98fff20",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "6f3e7b341b8b8f4d36a170f32b298edc2ab6719a2e25d556adc51712dea8c163",
+            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "8bbfdd3e459debd4a8b0246b6152999f956ac3877001adfcb0178c7f4ee9b931",
+            "starVLA/model/modules/foresight/config.py": "7117562fce5b54af6819f738461512a39095276a1d26d7051bc63ea115e8cf23",
+            "starVLA/model/modules/foresight/queries.py": "cbab52bba690736dace4409b6ca74cac31a52064598df82bdccf3341a73bf86e",
+            "starVLA/model/modules/foresight/tokens.py": "357e50f57ea9d6973ab3b1a648be1c843faeb4593d3ede18c146b1e7c0591caf",
+            "starVLA/model/modules/vlm/QWen3.py": "777a69c8f604c6525517ac2c8de5b7494579581e87b4f8de9a66c5275f81e49f",
+            "starVLA/model/modules/vlm/__init__.py": "32837be09f8d86d46781cf944d0a9d55bb5d33f5bc14f38e661c35da5ffb4159",
+            "starVLA/model/modules/vlm/qwen3_vl/configuration_qwen3_vl.py": "56f269fa492f953784197408ef30bad1ee2e8c4b2188d45e1401daa71700f8a2",
+            "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "82904015a044aaddf43637f75aa2ad0bc791c68b493a5e4c2bd275255b6b7049",
+            "starVLA/training/trainer_utils/trainer_tools.py": "bce78db91815e873a22e4d0abc73d91326693f469f9e0e45296295dc95a55b4b",
+            "tools/foresight/checkpoints.py": "0af14d825c85cb68e357a83c8b5d0627888119893a844e3456efc183dcd65de5"
+          },
+          "inference_contract": {
+            "dt_seconds": 0.5,
+            "flow_steps": 10,
+            "frame": "ego_t0_rear_axle",
+            "physical": "8x3_xy_yaw",
+            "precision": "FP32_master_eval_TF32_off",
+            "raw": "8x4_xy_sin_cos",
+            "scene_seed_protocol": "foresight-action-v1"
+          },
+          "master_initialization": "st_fp32_master_initialization_v1",
+          "native_checkpoint_sha256": "376ba33d14729e97622846eead7d68ea87f17cb6d3c87872d01ccb04d11d9e3c",
+          "native_receipt_sha256": "f22258f8094fcba3c071927db8e9733fffcf0a503b56f662b38ad42a2fc2d0ea",
+          "parent_checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+          "parent_receipt_sha256": "ee317d181734e0d750a7bb28be82d9ccf91f954c5b7910862a86c4a29f3cc2f2",
+          "receipt_identity": "15d9fadc96b2802b57a6347c17b514c841e2e1055e9512d86f6c57ba15e83b06",
+          "restoration": {
+            "action": "native_Flow_ZeRO2_FP32_masters_strict_prefix_load",
+            "encoder": "original_bound_parent_FP32_masters",
+            "optimizer_resume_conversion": false,
+            "prefix": "policy.action_head.",
+            "training_BF16_encoder_reused": false
+          },
+          "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1",
+          "run_identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999",
+          "schema": "st_flow_deployment_checkpoint_v1",
+          "scope": "FORMAL",
+          "sha256": "384027cb25e61dd8271616163093c17e8b57bd199c5f1d75e5f134d0b871b7d0",
+          "tag": "step_001024_1792229437292318665",
+          "training_numeric_execution_hash": "f8c10d8a1b0c0aae8a67adab92573a0222530f8dfbf2112921d5dd70b84ab0bf",
+          "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+          "weights_usable_for_formal_init": true
+        },
+        "export_identity": "3c95c43b6d8fa44152766c98b3d02cdb14898f9a8e71fa8d624d7e8de525ffe9",
+        "formal_registration": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+          "sha256": "024e0e86eec8f1c9d2a837a6c8a2b600f2e1f39805cf9984cc7a6e2466a852d2"
+        },
+        "job_id": "C3_step001024_dev1696_seed42_v1",
+        "scenes_csv": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step001024_dev1696_seed42_v1/official_score/SCENES.csv",
+          "sha256": "978b8c242d5f44274999e5c28fe53390bbf9c389cfff11e93dfc4cc6b8f6d84e"
+        },
+        "score_complete": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step001024_dev1696_seed42_v1/official_score/COMPLETE.json",
+          "sha256": "8076856d4c88d80bb711285bbf00cb5ebba36e9af95a6699affe0fa95afb5b2c"
+        },
+        "score_identity": "590466aede3a2170d5af294a57c7fb32ec20ca7e9ed4ce817d0a3029cd77afc0"
+      }
+    }
+  ],
+  "schema": "st_fixed_pair_csv_metadata_analysis_C2_C3_1024_v1",
+  "scoring_calls": 0,
+  "source_file": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "statistics_definitions": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "status": "CSV_METADATA_VERIFIED_PAYLOAD_REVALIDATION_NOT_RUN",
+  "unresolved": 0,
+  "verification_boundary": "Uses frozen load_population, _formal_binding, read_complete_export and paired_statistics. CSV SHA, full scene/log population, actual approved checkpoint lineage, export prediction receipt hashes, score/request protocol and fixed context metadata verified. load_run payload phase not executed under this explicit CSV+metadata-only authorization; no ledger/prediction/GT/cache/native payload opened. Saved scoring arrays, trajectory values and ego payloads not read/revalidated; raw progress/speed, parking proxy and ADE/FDE unavailable this bounded audit."
+}
