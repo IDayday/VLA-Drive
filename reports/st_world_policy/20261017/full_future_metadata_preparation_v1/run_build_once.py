@@ -186,6 +186,7 @@ def child_run(args):
 def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
     """Original bounded pipe loop with existing unreaped-session/pidfd ownership."""
     buffers={name:bytearray() for name in ('stdout','stderr')};peak=0;failure=None;counter=None;child=None;owner=None;leader=None
+    finished=False;monitor_error=None
     start=time.monotonic();selector=selectors.DefaultSelector()
     with s.lifetime_scope() as stopped:
         try:
@@ -216,22 +217,25 @@ def monitor(command,*,runtime,env,fd,root,s,m,obs,budget):
                             if not done and time.time()-path.stat().st_mtime>15:failure=failure or 'STALE_COUNTER'
                             total=counter['proc_self_io_delta']['rchar']+obs.proc_io()['rchar']-BOOT_IO['rchar']
                             if total>budget['read_bytes']:failure=failure or 'PARENT_CHILD_READ_LIMIT'
-                    except Exception:failure=failure or 'MONITOR_UNREADABLE'
+                    except Exception as exc:
+                        failure=failure or 'MONITOR_UNREADABLE'
+                        monitor_error=monitor_error or {'type':type(exc).__name__,'message':str(exc)[:2048]}
                     if peak>budget['rss_bytes']:failure=failure or 'RSS_LIMIT'
                     if now-START>=budget['wall_seconds']:failure=failure or 'WALL_LIMIT'
                 if failure and term_at is None:owner.send(signal.SIGTERM);term_at=now
                 if term_at is not None and now-term_at>=30:owner.send(signal.SIGKILL)
                 if term_at is not None and now-term_at>=40:raise RuntimeError('Owned cleanup exceeded grace')
             code=owner.finish(terminate=failure is not None,deadline=term_at+40 if term_at else None)
+            finished=True  # leader is reaped; later receipt errors must not clean it twice
             counter=read_counter(root)  # final snapshot, not a potentially older polling sample
-            return {'returncode':code,'failure':failure,'peak_aggregate_rss_bytes':peak,
+            return {'returncode':code,'failure':failure,'monitor_error':monitor_error,'peak_aggregate_rss_bytes':peak,
                 'invocation_seconds':time.monotonic()-START,'supervised_child_seconds':time.monotonic()-start,
                 'counters':counter,'stdout':bytes(buffers['stdout']).decode('utf8','replace'),
                 'stderr':bytes(buffers['stderr']).decode('utf8','replace'),
                 'cleanup':{'verified_processes':owner.verified,'live_owned_remaining':0}}
         except BaseException:
-            if owner is not None:owner.finish(terminate=True)
-            elif child is not None:s.abort_spawn_setup(child,leader)
+            if owner is not None and not finished:owner.finish(terminate=True)
+            elif owner is None and child is not None:s.abort_spawn_setup(child,leader)
             raise
         finally:
             selector.close()

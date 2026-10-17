@@ -93,3 +93,35 @@ def test_successful_start_cannot_be_reused(tmp_path):
 def test_control_hash_remains_mandatory(tmp_path):
     path=tmp_path/'control.json';path.write_text('{}')
     with pytest.raises(ValueError,match='changed'):m.pinned({'path':str(path),'sha256':'0'*64})
+
+
+def test_corrupt_final_counter_does_not_cleanup_reaped_leader_twice(tmp_path,monkeypatch):
+    # Real local pipes only, no child dispatch/model/cache/ledger access.
+    import os
+    reads=[]
+    for _ in range(2):
+        r,w=os.pipe();os.close(w);reads.append(os.fdopen(r,'rb'))
+    child=SimpleNamespace(pid=123,stdout=reads[0],stderr=reads[1])
+    class Owner:
+        verified=1
+        def __init__(self):self.finishes=0
+        def discover(self):return []
+        def leader_done(self):return True
+        def send(self,_):pass
+        def finish(self,**_):
+            self.finishes+=1
+            if self.finishes>1:raise FileNotFoundError('already reaped PID')
+            return 0
+        def close(self):pass
+    owner=Owner()
+    @contextmanager
+    def lifetime():yield {'signal':None}
+    supervisor=SimpleNamespace(lifetime_scope=lifetime,pidfd_open=lambda _:os.open('/dev/null',os.O_RDONLY),
+        OwnedSession=lambda _:owner,abort_spawn_setup=lambda *_:pytest.fail('already-owned cleanup'))
+    monkeypatch.setattr(m.subprocess,'Popen',lambda *a,**k:child)
+    (tmp_path/'CONTROL_BUILD_COUNTER_LOCK.json').write_text('')
+    (tmp_path/'CONTROL_BUILD_COUNTERS.json').write_text('corrupt counter')
+    with pytest.raises(json.JSONDecodeError):
+        m.monitor(['unused'],runtime=str(tmp_path),env={},fd=0,root=tmp_path,s=supervisor,
+            m=SimpleNamespace(process_tree_rss=lambda _:0),obs=SimpleNamespace(proc_io=lambda:m.BOOT_IO),budget=m.limits('dev'))
+    assert owner.finishes==1
