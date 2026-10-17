@@ -115,6 +115,8 @@ def run(args):
             from tools.st_world_policy.teacher_provider import load_descriptor, create_provider
             if registration["artifacts"]["teacher_manifest"] != provider_option["descriptor"]:
                 raise ValueError("Registered teacher dependency must be the explicit provider descriptor")
+            from tools.st_world_policy.teacher_provider import validate_training_manifest
+            validate_training_manifest(provider_option, registration["artifacts"]["data_manifest"])
             # Metadata-only provider preview. Dataset validation below reads the
             # small frozen PCA basis, but no teacher weights/target-cache tensors.
             # Acquire run ownership before allocating the actual teacher.
