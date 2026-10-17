@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_wrapper.py",
+    "reports/st_world_policy/20261017/full_causal_history_preparation_v1/test_owned.py",
+    "reports/st_world_policy/20261017/full_causal_history_pilot_independent_v1/test_independent.py",
+    "tests/st_world/test_history.py",
+    "-k",
+    "not real_tiny_owned_child and not collation"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 5.418216053396463,
+  "peak_child_rss_bytes": 644788224,
+  "maximum_live_child_rchar_bytes": 141349770,
+  "charged_parent_after_reap_rchar_bytes": 141430371,
+  "resource_limit_failure": null,
+  "cpu_affinity": [
+    8,
+    9
+  ],
+  "log_sha256": "ea17906e3890f584e166e8c208d49838375abd3310307f99d649ba3d4f381716",
+  "synthetic_fixtures_only": true,
+  "real_history_pilot_run": false
+}
