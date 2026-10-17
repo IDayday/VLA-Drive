@@ -1,0 +1,33 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "0,1",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/st-t1-native4-adapter-correctness-final-20261017/pytest",
+    "reports/st_world_policy/20261017/official_T1_native4_execution_v1/test_run_once.py",
+    "reports/st_world_policy/20261017/official_T1_native4_execution_v1/test_independent_deadline.py",
+    "/mnt/project/VLA-Drive-st-t1-native4-adapter-correctness-final-20261017/reports/st_world_policy/20261017/official_T1_native4_adapter_correctness_v1/test_adapter_independent.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 2.662305247038603,
+  "observed_peak_owned_descendant_rss_bytes": 432230400,
+  "observed_peak_output_allocated_bytes": 119808,
+  "sampling_interval_seconds": 0.1,
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "library_threads": 2,
+  "cuda_visible_devices": "",
+  "violation": null,
+  "actual_model_image_target_payload_reads": 0,
+  "actual_native_checkpoint_test": false,
+  "scope": "CPU synthetic adapter/comparator/control tests; no admission or resource permission"
+}
