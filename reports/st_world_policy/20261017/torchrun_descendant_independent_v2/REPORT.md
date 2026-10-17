@@ -1,0 +1,3 @@
+The single failed self-review negative from v1 now passes against commit 4568c57891542d04e8ad430c59ed67e67fc0d940. The change only extends the implementation-author exclusion; the previous 42 passing behavior tests are reused with the unchanged helper and monitor code.
+
+Independent rerun: **1 passed**, 0.574 seconds; CPU6/7; 9,001,194 logical read bytes; sampled RSS 78,778,368 bytes. No GPU, model data, process signals or workload dispatch. The v1 failure and historical T1 resource FAIL remain preserved. This is approval of the future narrow helper/adapter CPU behavior, not permission for another real 2→4 run or retroactive qualification of previous peak usage.
