@@ -16,6 +16,7 @@ def test_plan_keeps_registered_budget_source_and_own_parent(tmp_path):
     p = make(tmp_path)
     assert h.validate_plan(p) == p
     assert p['worker_source'].endswith('225b9af660cb0210208e2c46fc4216d0f151275b')
+    assert p['screen_dispatch_source'] == p['controller_source']
     assert p['SFT_updates'] == 100000 and p['RL_updates'] == 20000
     ranks = []
     for i in range(3):
@@ -29,7 +30,8 @@ def test_plan_keeps_registered_budget_source_and_own_parent(tmp_path):
     assert not any('navtest' in str(c).lower() for c in p['stages'].values())
 
 
-@pytest.mark.parametrize('field', ['RL_updates', 'SFT_updates', 'worker_source', 'training_seed'])
+@pytest.mark.parametrize('field', ['RL_updates', 'SFT_updates', 'worker_source', 'training_seed',
+                                 'screen_dispatch_source'])
 def test_plan_tampering_cannot_change_science(tmp_path, field):
     p = make(tmp_path); p[field] = 'changed'
     with pytest.raises(ValueError): h.validate_plan(p)
@@ -197,3 +199,42 @@ def test_stage_executor_publishes_physical_attempt_and_never_retries(tmp_path, m
     assert status['end_unix'] >= status['start_unix'] and status['child']['pid'] == os.getpid()
     with pytest.raises(ValueError, match='already been attempted'): h.stage_worker(control, 'sft_summary')
     assert len(calls) == 1
+
+
+@pytest.mark.parametrize('name', ['screen_0', 'screen_1', 'screen_2', 'endpoint_gate', 'formal_RL'])
+def test_stage_uses_compatible_dispatcher_but_keeps_numerical_worker_source(tmp_path, monkeypatch, name):
+    import os
+    p = make(tmp_path)
+    worker = tmp_path / 'worker'
+    dispatcher = Path(p['screen_dispatch_source'])
+    for source in (worker, dispatcher):
+        source.mkdir()
+        atomic_json(source / 'SOURCE_COMPLETE.json',
+                    dict(commit=source.name, git_archive_extraction_complete=True))
+    p['worker_source'] = str(worker)
+    control = tmp_path / 'control'; directory = control / 'stages' / name
+    directory.mkdir(parents=True)
+    atomic_json(control / 'plan.json', p)
+    atomic_json(directory / 'intent.json', dict(host='local', attempt='attempt',
+        plan_sha256=p['sha256'], command=p['stages'][name]))
+    monkeypatch.setattr(h, 'validate_plan', lambda value: value)
+    monkeypatch.setattr(h, 'require_dispatch', lambda: 'local')
+    monkeypatch.setattr(h, 'endpoint_ready', lambda value: True)
+    expected = dispatcher if name.startswith('screen_') else worker
+    class Child:
+        pid = os.getpid()
+        def wait(self): return 0
+    def spawn(command, **kwargs):
+        assert kwargs['cwd'] == expected
+        assert kwargs['env']['PYTHONPATH'] == str(expected)
+        assert kwargs['env']['CUDA_VISIBLE_DEVICES'] == ''
+        if name.startswith('screen_'):
+            assert '--ranks' in command
+            assert command[command.index('--source') + 1] == str(h.SOURCE)
+        return Child()
+    monkeypatch.setattr(h.subprocess, 'Popen', spawn)
+    h.stage_worker(control, name)
+    status = h.read(directory / 'status.json')
+    assert status['state'] == 'COMPLETE'
+    assert status['execution_source'] == str(expected)
+    assert status['numerical_worker_source'] == str(worker)

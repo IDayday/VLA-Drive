@@ -58,8 +58,9 @@ def plan(root, controller_source, screen_hosts, training_host):
                           '--qualification-root', gate, '--baseline-root', root / 'evaluations',
                           '--output', run),
     }
-    value = dict(schema='fm_transfer_B_endpoint_handoff_v1', root=str(root),
+    value = dict(schema='fm_transfer_B_endpoint_handoff_v2', root=str(root),
         controller_source=str(Path(controller_source).resolve()), worker_source=str(SOURCE),
+        screen_dispatch_source=str(Path(controller_source).resolve()),
         endpoint=str(checkpoint), screen=str(screen), hard_manifest=str(hard), gate=str(gate), run=str(run),
         screen_hosts=list(screen_hosts), training_host=training_host, stages=stages,
         training_seed=42, evaluation_seed=2101, SFT_updates=100000, RL_updates=20000,
@@ -187,13 +188,20 @@ def stage_worker(control, name):
         try:
             if not endpoint_ready(value):
                 raise ValueError('An unfinished SFT cannot enter any endpoint stage')
-            source = Path(value['worker_source'])
+            # The multihost --ranks interface was added after the immutable
+            # numerical worker snapshot. Run that CPU dispatcher from its
+            # compatible source; its explicit --source still pins every model
+            # and scoring worker to the original, qualified 225b snapshot.
+            source = Path(value['screen_dispatch_source'] if name in
+                          ('screen_0', 'screen_1', 'screen_2') else value['worker_source'])
             if read(source / 'SOURCE_COMPLETE.json') != dict(commit=source.name, git_archive_extraction_complete=True):
                 raise ValueError('Immutable qualified source is not sealed')
             env = dict(os.environ, PYTHONPATH=str(source), CUDA_VISIBLE_DEVICES='',
                 OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                 VLM_ATTN_IMPLEMENTATION='flash_attention_2', CUBLAS_WORKSPACE_CONFIG=':4096:8',
                 NO_ALBUMENTATIONS_UPDATE='1', TOKENIZERS_PARALLELISM='false')
+            status['execution_source'] = str(source)
+            status['numerical_worker_source'] = value['worker_source']
             with (directory / 'command.log').open('xb') as log:
                 child = subprocess.Popen(intent['command'], cwd=source, env=env, stdin=subprocess.DEVNULL,
                     stdout=log, stderr=subprocess.STDOUT)
