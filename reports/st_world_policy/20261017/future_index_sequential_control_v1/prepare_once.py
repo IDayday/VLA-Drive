@@ -4,10 +4,13 @@ import time
 START=time.monotonic()
 with open('/proc/self/io') as _io:BOOT_IO={k:int(v) for k,v in (line.split(':') for line in _io)}
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
+import signal
+import stat
 import sys
 from types import ModuleType,SimpleNamespace
 
@@ -23,12 +26,47 @@ PYTHON='/root/miniconda3/envs/ddp/bin/python'
 
 def read_source(path,sha):
     p=Path(path)
-    if not p.is_absolute() or '..' in p.parts or any(x.is_symlink() for x in (p,*p.parents)) or p.stat().st_size>1<<20:
+    if not p.is_absolute() or '..' in p.parts or any(x.is_symlink() for x in (p,*p.parents)):
         raise ValueError('Small canonical source required')
-    before=p.stat();raw=p.read_bytes();after=p.stat()
-    if (before.st_ino,before.st_size,before.st_mtime_ns)!=(after.st_ino,after.st_size,after.st_mtime_ns) or hashlib.sha256(raw).hexdigest()!=sha:
+    def identity(s):
+        return (s.st_dev,s.st_ino,s.st_mode,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+    before=p.lstat()
+    if not stat.S_ISREG(before.st_mode) or before.st_size>1<<20:
+        raise ValueError('Small regular source required')
+    # Nonblocking/no-follow also closes the lstat-to-open FIFO/symlink race.
+    fd=os.open(p,os.O_RDONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:
+        opened=os.fstat(fd)
+        if not stat.S_ISREG(opened.st_mode) or identity(before)!=identity(opened):
+            raise ValueError('Pinned source changed before open')
+        chunks=[];size=0
+        while size<=1<<20:
+            chunk=os.read(fd,min(64<<10,(1<<20)+1-size))
+            if not chunk:break
+            chunks.append(chunk);size+=len(chunk)
+        raw=b''.join(chunks)
+        after=os.fstat(fd);named=p.lstat()
+    finally:os.close(fd)
+    if (size>1<<20 or len(raw)!=before.st_size or identity(before)!=identity(after)
+            or identity(after)!=identity(named) or hashlib.sha256(raw).hexdigest()!=sha):
         raise ValueError('Pinned source changed')
     return raw
+
+
+@contextmanager
+def first_source_alarm(deadline):
+    """Bound bootstrap reads before the pinned finite adapter can be loaded."""
+    previous=signal.getsignal(signal.SIGALRM)
+    if signal.getitimer(signal.ITIMER_REAL)!=(0.,0.):
+        raise ValueError('Existing caller alarm must not be replaced')
+    remaining=deadline-time.monotonic()
+    if remaining<=0:raise TimeoutError('Whole wrapper wall deadline')
+    def expire(*_):raise TimeoutError('Whole wrapper wall deadline')
+    signal.signal(signal.SIGALRM,expire)
+    signal.setitimer(signal.ITIMER_REAL,remaining)
+    try:yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous)
 
 
 def load(path,sha,name):
@@ -47,9 +85,11 @@ def options():
 
 
 def main():
-    args=options();os.sched_setaffinity(0,{0,1});sys.dont_write_bytecode=True
-    finite=load(ADAPTER,ADAPTER_SHA,'reviewed_finite_controls')
-    with finite.whole_invocation_alarm(START+LIMITS['wall_seconds']):
+    deadline=START+LIMITS['wall_seconds']
+    with first_source_alarm(deadline):
+        args=options();os.sched_setaffinity(0,{0,1});sys.dont_write_bytecode=True
+        finite=load(ADAPTER,ADAPTER_SHA,'reviewed_finite_controls')
+    with finite.whole_invocation_alarm(deadline):
         return run(args,finite)
 
 
