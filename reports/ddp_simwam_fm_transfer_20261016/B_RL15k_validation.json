@@ -1,0 +1,112 @@
+{
+  "schema": "fm_transfer_B_RL15k_publication_validation_v1",
+  "status": "PASS_15K_EVIDENCE_NOT_FINAL_GOAL",
+  "observed_unix": 1792248710.659773,
+  "report_sha256": "9e6e579b474431899d33d443eb773885148d3a345dc68abdc31e3ec9e1710cfd",
+  "public_evidence_files": [
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_DEV_vs10k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_DEV.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_DEV_vs_own_SFT.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_DEV_safety_transitions.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_TRAIN_DIAGNOSTIC_vs10k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_TRAIN_DIAGNOSTIC.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_training_prefix.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL15k_DEV_native_minus_shift5.json",
+    "reports/ddp_simwam_fm_transfer_20261016/reproduce_B_RL15k_completion.py",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_15k.png",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_15k.pdf",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_DEV_through_15k.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_population.json",
+    "reports/ddp_simwam_fm_transfer_20261016/B_RL_update015000_saved_batch.json"
+  ],
+  "pairwise_analysis_crosschecks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    }
+  ],
+  "markdown_links_checked": 18,
+  "math_and_source_parity": "Qualified numerical paths reused; no actor, sampler, optimizer or evaluator change.",
+  "formal_source_files_checked": 64,
+  "formal_source_files_all_match": true,
+  "formal_training_live": {
+    "UTC": "2026-10-17T14:46:41.022855+00:00",
+    "trainer_pid": 354490,
+    "trainer_start_ticks": 1365925566,
+    "trainer_identity_live": true,
+    "actual_cwd": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+    "actual_PYTHONPATH": "/mnt/project/fm-transfer-20261016/source/225b9af660cb0210208e2c46fc4216d0f151275b",
+    "formal_source_files_checked": 64,
+    "mismatches": [],
+    "checkpoint_updates": 15700,
+    "phase": "READY",
+    "run_identity": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+    "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097"
+  },
+  "CPU_owners": {
+    "milestone_controller": {
+      "pid": 378345,
+      "start_ticks": 1364278483,
+      "live": true
+    },
+    "final_handoff": {
+      "pid": 398934,
+      "start_ticks": 1364944372,
+      "live": true
+    },
+    "endpoint_summary_waiter": {
+      "pid": 299256,
+      "start_ticks": 1362937948,
+      "live": true
+    },
+    "B20k_saved_batch_v3": {
+      "pid": 544793,
+      "start_ticks": 1368606709,
+      "live": true
+    },
+    "B20k_cost_capture_v2": {
+      "pid": 521881,
+      "start_ticks": 1367804034,
+      "live": true
+    },
+    "B20k_analysis_handoff": {
+      "pid": 538976,
+      "start_ticks": 1368390701,
+      "live": true
+    }
+  },
+  "milestones_complete": 34,
+  "milestones_pending": 2,
+  "final_Navtest_opened": false,
+  "figure_visually_inspected": true,
+  "figure_inspection_scope": "15k PNG previously rendered and inspected before publication.",
+  "private_individual_scene_records_omitted": true,
+  "new_training_variants": 0,
+  "new_seeds": 0,
+  "analysis_extra_rollouts": 0,
+  "analysis_optimizer_updates": 0,
+  "auxiliary_failed_attempt_preserved": true,
+  "auxiliary_failure_dispatch_to_exit_seconds": 1.45831298828125
+}
