@@ -79,3 +79,21 @@ env PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python \
 
 All variables above are genuinely pending receipts; none are fabricated paths or approvals.
 No teacher tensors, model weights or training are produced by these metadata APIs.
+
+
+## Reviewed outer invocation (supersedes the raw child examples for launch)
+
+Use the committed `run_build_once.py` through the exact independently pinned controller path. The two source runtimes and prepared registrations remain the paths above. Source review and the fresh role-specific resource admission must be complete. Variables name actual pending receipts, not fabricated approvals. Execute dev and train serially; there is no automatic retry. Do not rerun an existing migration or build.
+
+```bash
+: "${BUILD_ADMISSION_PATH:?independent exact role admission required}"
+: "${BUILD_ADMISSION_SHA256:?}"
+: "${REVIEWED_CONTROLLER_PATH:?absolute reviewed run_build_once.py required}"
+env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 \
+  /root/miniconda3/envs/ddp/bin/python "$REVIEWED_CONTROLLER_PATH" \
+  --admission "$BUILD_ADMISSION_PATH" --admission-sha256 "$BUILD_ADMISSION_SHA256"
+```
+
+The admission pins: schema `st_full_future_build_resource_admission_v1`; role `dev` or `train`; matching `PASS_BOUNDED_<ROLE>_BUILD_ONLY`; hostname; independent reviewer; finite issued/latest-start/expiry timestamps; exact `limits(role)`; controller path/hash; immutable PREPARATION; proposed policy; role registration; actual MIGRATED receipt; fresh CURRENT checkpoint commitments; current dispatch policy; and the three immutable monitor helper pins. It must cover the full 1800/14400 second invocation and 40 second cleanup. A source-review report alone is not a resource admission.
+
+Original prepared controls remain historical immutable evidence. The new separate administrative allocation is 4 MiB, making the final planned metadata budget 5620 MiB / 8 GiB. See `BOUNDED_BUILD_CONTROL.md` and its additive budget receipt; do not reuse the prior 128 MiB administrative scope.
