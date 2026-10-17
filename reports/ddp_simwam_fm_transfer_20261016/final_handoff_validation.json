@@ -1,0 +1,66 @@
+{
+  "schema": "fm_transfer_final_handoff_qualification_v1",
+  "source_commit": "ad73d13ec67d880a8be123f9526b575958cf8aff",
+  "controller_source_sha256": "07401801b8fcd12fdafe85f78f64f935129b692d792abe7254a266a40dde90e0",
+  "policy_sha256": "79cca8cfdb98ed7f46af554633c4734e61def4ee02ff656220415013b2082097",
+  "tests": {
+    "passed": 68,
+    "log_sha256": "b060257262ab8471b4d920425857bffb798995c44623b539bf5b6f7b45933bf6",
+    "receipt_sha256": "7d46aed5892b27c68b0d9a6e31fcdde181728587185eeb7e7f007644a9b8ba58",
+    "files": {
+      "tests/rl/test_fm_transfer_final_handoff.py": "b5a7ca6ee304261a038401f3681ccef0aa0fd546c3da5613da859a6c29561d30",
+      "tests/rl/test_fm_transfer_final_lock.py": "e8bbb1a1919b8e4007c2a0074789759f7ba3d01529dbd376d64e14d51df5ea28",
+      "tests/rl/test_fm_transfer_final_dispatch.py": "49873fa46454f7df5f0ad34ad284488f90cae7e3418e362ef40b8be12f24df8f",
+      "scripts/analysis/fm_transfer/final_handoff.py": "07401801b8fcd12fdafe85f78f64f935129b692d792abe7254a266a40dde90e0"
+    }
+  },
+  "actual_wait_gate": {
+    "status": "PASS_REAL_CPU_WAIT_GATE",
+    "elapsed_seconds": 1.9836833477020264,
+    "no_final_lock": true,
+    "no_resource_inventory": true,
+    "no_dispatch_stage": true
+  },
+  "actual_owner": {
+    "pid": 398934,
+    "start_ticks": 1364944372,
+    "status": "WAITING_FOR_BOTH_ENDPOINTS_AND_DEV",
+    "duplicate_owner_exit_code": 1,
+    "owner_unchanged": true
+  },
+  "formal_training_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "SFT_source": "4e0ce1f45b6778895648689228a5628432bd2616",
+  "evaluation_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "final_lock_dispatch_analysis_source": "d58485b08078a6319b2835793d8c79ffbbd3e9d5",
+  "new_model_predictions": 0,
+  "new_reward_calls": 0,
+  "new_optimizer_updates": 0,
+  "final_Navtest_started": false,
+  "B_snapshot": {
+    "utc": "2026-10-17T04:21:14.184915+00:00",
+    "updates_min": 87775,
+    "updates_max": 87775,
+    "live_ranks": 8,
+    "same_trainer": true,
+    "sealed_update": 86000
+  },
+  "milestone_snapshot": {
+    "status": "WAITING_FOR_SEALED_REGISTERED_MILESTONE",
+    "complete": 26,
+    "pending": 10,
+    "active": 0
+  },
+  "predeployment_failures": [
+    {
+      "scope": "private archive publisher",
+      "effect": "Rejected a pre-existing tracked report symlink before extraction; preserved unpublished empty directory; next archive preserved symlink without following it"
+    },
+    {
+      "scope": "CPU controller qualification",
+      "source": "436e2b888230a61b2d55a15c816cc08b44069a36",
+      "effect": "Rejected existing d584 git_sha seal schema before creating controller or dispatch",
+      "fix": "Accept commit/git_sha only when every supplied identity equals directory SHA and extraction completion is exactly true",
+      "log_sha256": "15e5cda10e6f122d36c1c1613981b50f0750ecbda8540ffbc6a26918ab70d726"
+    }
+  ]
+}
