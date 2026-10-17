@@ -1,0 +1,51 @@
+{
+  "tested_commit": "4a9ef2bee701a089e06df7aea2f8ae0cc1fca2df",
+  "helper_sha256": "747873b72ce6bcb2cfd3163bd89ce1560e4538d1069952d8deed176c349a67ef",
+  "actual_read_accounting": {
+    "role_limit_bytes": 274877906944,
+    "prior_read_bytes": 68166209851,
+    "sources": [
+      {
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json",
+          "sha256": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520"
+        },
+        "charged_read_bytes": 37533999575
+      },
+      {
+        "result": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json",
+          "sha256": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327"
+        },
+        "charged_read_bytes": 30632210276
+      }
+    ],
+    "remaining_read_bytes": 206711697093,
+    "scope": "sum per attempt max(hash admitted + nominal torch.load, proc rchar); includes in-flight admitted hash; not physical IO"
+  },
+  "actual_inputs_unchanged": {
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract/RESULT.json": "18a351f58be8e1b9c561a7e585a7bd6e600118d674bf2beafb5192de337b9327",
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_plan/RESULT.json": "dd765726eff1c937c31a1aca0f3cc47db8515f53790f84646ae1b94218857520",
+    "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/controls_581399eb_v2_metadata_only/PREPARATION.json": "34c174a6aa0c859a1b0a5f8b7dd800bbe189d51c770211b49c35d061e92b6431"
+  },
+  "preparation_runtime": {
+    "path": "/mnt/project/VLA-Drive-st-spatial-probe-runtime-v2-20261017",
+    "source_sha": "581399eb309677c20fe7464791b4f18685e947a6"
+  },
+  "runtime_clean": true,
+  "attempt_path": "/mnt/project/st-world-policy-20261016/audits/spatial_probe_actual_SP0_5000_v1/stages/dev_extract_manual_retry_v1",
+  "attempt_exists": false,
+  "inherited_monitor_and_ownership_AST_unchanged": {
+    "read_counter_snapshot": true,
+    "_supervise": true,
+    "supervise": true,
+    "OwnedSession": true,
+    "abort_spawn_setup": true,
+    "shared_mount": true,
+    "fresh_gpu": true,
+    "acquire": true
+  },
+  "dispatch": false,
+  "resource_approval": false,
+  "production_artifacts_written": false
+}
