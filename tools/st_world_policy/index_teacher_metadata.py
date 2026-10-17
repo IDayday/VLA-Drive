@@ -1,11 +1,11 @@
 """CPU-only metadata preparation; never instantiates a teacher or opens tensors."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
-from starVLA.dataloader.st_world_history import file_sha256
 from starVLA.dataloader.st_world_schema import TeacherFeatureContract, require_hash
-from starVLA.dataloader.st_world_metadata_index import build_index, MetadataIndex, MiB, GiB
+from starVLA.dataloader.st_world_metadata_index import build_index, MetadataIndex, MiB, GiB, version
 
 
 def parser():
@@ -37,11 +37,17 @@ def run(args):
         if bool(args.cache_root) != bool(args.expected_cache_identity):
             raise ValueError('A cache root and its original COMPLETE identity are required together')
         require_hash(args.contract_receipt_sha256, 'contract receipt hash')
-        if args.contract_receipt.stat().st_size > MiB:
+        before = version(args.contract_receipt)
+        if not 0 < before[2] <= MiB:
             raise ValueError('Contract receipt must be a small pinned existing artifact')
-        if file_sha256(args.contract_receipt) != args.contract_receipt_sha256:
+        with args.contract_receipt.open('rb') as stream:
+            receipt_bytes = stream.read(MiB + 1)
+        if version(args.contract_receipt) != before or len(receipt_bytes) != before[2]:
+            raise ValueError('Contract receipt changed during bounded read')
+        if hashlib.sha256(receipt_bytes).hexdigest() != args.contract_receipt_sha256:
             raise ValueError('Contract receipt checksum mismatch')
-        receipt = json.loads(args.contract_receipt.read_text())
+        # Parse exactly the bytes whose digest passed the pin, never reopen the path.
+        receipt = json.loads(receipt_bytes)
         if receipt.get('schema') not in ('st_teacher_cache_v1', 'st_fixed_teacher_qualification_plan_v1',
                                           'st_ondemand_qualification_plan_v1'):
             raise ValueError('Unrecognized teacher contract provenance receipt')
