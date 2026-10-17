@@ -1,0 +1,164 @@
+{
+  "calibration": {
+    "RNG_scope": "restoration path completed; no independent before/after RNG snapshots",
+    "actual_invocation_seconds": 407.84960361383855,
+    "cleanup": {
+      "live_owned_remaining": 0,
+      "verified_processes": 8
+    },
+    "coefficients_applied": false,
+    "independent_review": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_scale_real4_actual_review_v1/ACTUAL_REVIEW.json",
+      "sha256": "b2b80d66357a4e7657b6292b2e1443111f7b5caa44188045fb6abb7ce872f2b1"
+    },
+    "lifecycle_failure": "OWNED_DESCENDANTS_AFTER_LEADER_EXIT",
+    "logical_read_bytes": 51918585846,
+    "measurement": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2/result/MEASUREMENT.json",
+      "sha256": "4c3c6ec4b8ea1c934623623cedd76be6880c66afdd36b591efbfa15f7d734874"
+    },
+    "measurement_status": "MEASURED",
+    "model_state_assertion": true,
+    "new_teacher_tensor_bytes": 0,
+    "optimizer_updates": 0,
+    "proposal": {
+      "applied_to_training": false,
+      "ego_fm_weight_unchanged": 1.0,
+      "ratios": {
+        "delta": {
+          "gradient_ratio": 225.16335976262468,
+          "loss_ratio": 1.6396291934956382
+        },
+        "future": {
+          "gradient_ratio": 1.021185508959086,
+          "loss_ratio": 0.9954445849209375
+        }
+      },
+      "rule": "current_anchored_min_loss_and_shared_gradient_ratio_v1",
+      "statistical_optimality_claim": false,
+      "status": "PROPOSAL_ONLY",
+      "weights": {
+        "current": 1.0,
+        "delta": 1.6396291934956382,
+        "future": 0.9954445849209375
+      }
+    },
+    "result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2/RESULT.json",
+      "sha256": "fd4f19f067e0556f67771446a7c1a4a4070d2c854487943d7aa96cfb14597811"
+    },
+    "status": "FAILED_NO_AUTO_RETRY",
+    "third_attempt_started": false,
+    "unobserved_future_pair": "2s to 4s"
+  },
+  "checkpoint_budget_separate": true,
+  "consequence_runs": {
+    "C0": {
+      "completed": 4096,
+      "host": "training-vlawm-tsinghua-zt4-worker-0",
+      "pid": 276399,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "status": "COMPLETE",
+      "tag": "step_004096_1792214769814548316",
+      "updated_unix": 1792214791.3802476
+    },
+    "C1": {
+      "completed": 2115,
+      "host": "training-vlawm-tsinghua-zt4-worker-0",
+      "pid": 287121,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "status": "RUNNING",
+      "tag": "step_002048_1792241210502896211",
+      "updated_unix": 1792242288.469887
+    },
+    "C2": {
+      "completed": 2073,
+      "host": "training-rl-zt2-worker-0",
+      "pid": 1188401,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "status": "RUNNING",
+      "tag": "step_002048_1792241854582772390",
+      "updated_unix": 1792242278.7168012
+    },
+    "C3": {
+      "completed": 1772,
+      "host": "training-rl-zt2-worker-0",
+      "pid": 1190071,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "status": "RUNNING",
+      "tag": "step_001709_1792240868857837625",
+      "updated_unix": 1792242282.566057
+    },
+    "C4": {
+      "completed": 1658,
+      "host": "training-vlawm-tsinghua-zt4-worker-0",
+      "pid": 279870,
+      "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "status": "RUNNING",
+      "tag": "step_001536_1792240273592905776",
+      "updated_unix": 1792242283.0155609
+    }
+  },
+  "formal_ACTIVE_changed": false,
+  "full_future_indexes": "WAITING_ACTUAL_COMPLETE_AND_WRITER_EXIT",
+  "full_population_provider_profile": "NOT_RUN",
+  "future_target_mode": "same frozen FP32 teacher on demand with bounded RAM LRU",
+  "history_packing": {
+    "actual_history64": "NOT_RUN; static proposal only; no ledger mutation",
+    "correctness": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history_metadata_scale_independent_v2/REVIEW.json",
+      "sha256": "5bad2b2136ce5823975b5f0918c6965a184e5b397ad32a3cde8340f1f2c273ac"
+    },
+    "frozen_runtime": "/mnt/project/VLA-Drive-st-history-packed-runtime-v1-20261017",
+    "frozen_sha": "b847f5a99dd44ee5256362d380d9d96efb47d35b",
+    "integrated_source_hashes_match": true,
+    "resources": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/history_packing_resource_independent_v1/REVIEW.json",
+      "sha256": "f24b417bf984f2df437579a9fa3d2c0c2ff018d14307721c95b50698ec0f8934"
+    },
+    "source_pins": [
+      {
+        "path": "tools/st_world_policy/history_shards.py",
+        "sha256": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043"
+      },
+      {
+        "path": "tools/st_world_policy/prepare_causal_history.py",
+        "sha256": "87f9fb3f5e864962788198076618bdda3edc3d59e231b6ba9bd902080e5c3d63"
+      },
+      {
+        "path": "tools/st_world_policy/metadata_storage.py",
+        "sha256": "7016833537d54ed84081ed47a02163fa0f7462e1053e911726c9b6d09b08d448"
+      },
+      {
+        "path": "starVLA/dataloader/st_world_history.py",
+        "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+      }
+    ]
+  },
+  "lead_sha_before_report": "ac7584c9c8653c04971c003e3c89d0642174d71b",
+  "metadata_package_cap_bytes": 8589934592,
+  "metadata_train": {
+    "child_pid": 480140,
+    "complete": false,
+    "log_shards": 1176,
+    "logical_shard_bytes": 984972623,
+    "parent_pid": 480124,
+    "pids_present": [
+      true,
+      true
+    ],
+    "root_cap_bytes": 2147483648
+  },
+  "minimum_free_reserve_bytes": 1099511627776,
+  "new_future_teacher_tensor_bank_bytes": 0,
+  "new_multi_TB_prebuild": false,
+  "new_navtest": false,
+  "push_performed": false,
+  "reuse_existing_current_teacher": true,
+  "schema": "st_small_disk_progress_v18",
+  "user_cache_decision": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/OFFICIAL_RUNTIME_AND_STORAGE_DECISION_20261016.json",
+    "sha256": "85fff1705e388c2e01eb1d1b2eb76d66b1fb763e1a66b81cf33eb38f2efa37a6"
+  },
+  "utc": "2026-10-17T13:04:49.524421+00:00"
+}
