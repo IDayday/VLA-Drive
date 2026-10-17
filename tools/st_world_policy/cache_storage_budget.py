@@ -165,6 +165,8 @@ class StorageBudget:
                 "legacy_reservations": policy.get("legacy_reservations", [])}
         if "metadata_package" in policy:
             core["metadata_package"] = policy["metadata_package"]
+        if "frozen_w_package" in policy:
+            core["frozen_w_package"] = policy["frozen_w_package"]
         roots, ids, identities, declarations = [], set(), set(), {}
         for legacy, rows in ((True, core["legacy_reservations"]), (False, policy.get("claims", []))):
             for row in rows:
@@ -198,6 +200,18 @@ class StorageBudget:
                     declarations[str(root)] = row
         if core["ledger_reserve_bytes"] + sum(r["reserved_bytes"] for r in core["legacy_reservations"]) > core["cache_cap_bytes"]:
             _fail("legacy reservations exceed campaign cap")
+        frozen_w_rows = [r for r in declarations.values() if r.get("identity_kind") == "st_frozen_spatial_w_v1"]
+        if "frozen_w_package" in core:
+            from tools.st_world_policy.spatial_w_storage import validate_package as validate_frozen_w
+            validate_frozen_w(core, declarations)
+            # A W package reserves every declared byte once in this same
+            # campaign envelope, including claims not yet admitted by writers.
+            declared = (core["ledger_reserve_bytes"] + sum(r["reserved_bytes"] for r in core["legacy_reservations"])
+                        + sum(self._total(r) for r in declarations.values()))
+            if declared > core["cache_cap_bytes"]:
+                _fail("all declared claims exceed the original campaign cap")
+        elif frozen_w_rows:
+            _fail("typed frozen W claims require explicit additive package migration")
         if "metadata_package" in core:
             from tools.st_world_policy.metadata_storage import validate_package
             validate_package(core, declarations)

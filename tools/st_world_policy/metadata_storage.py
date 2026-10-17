@@ -148,8 +148,17 @@ def validate_package(core, declarations):
         b._fail("metadata package changed a baseline reservation")
     old_ids = {r["claim_id"] for r in old_legacy}
     added = sum(r["reserved_bytes"] for r in legacy.values() if r["claim_id"] not in old_ids)
+    if any(row.get("identity_kind") == "st_frozen_spatial_w_v1" for row in declarations.values()):
+        if "frozen_w_package" not in core:
+            b._fail("frozen W tensors are not metadata")
+        from tools.st_world_policy.spatial_w_storage import validate_package as validate_frozen_w
+        validate_frozen_w(core, declarations)
     for root, row in declarations.items():
         if root not in old_claims:
+            if row.get("identity_kind") == "st_frozen_spatial_w_v1":
+                # StorageBudget validates this entire separate typed package
+                # before reaching us. This is not a blanket unknown-kind bypass.
+                continue
             _registration(row)
             added += b.StorageBudget._total(row)
     if added > maximum:
@@ -211,6 +220,9 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
           package["baseline_policy_sha256"] != old_policy_sha256 or
           package["baseline_ledger_sha256"] != expected_old_ledger_sha256):
         b._fail("metadata package baseline not exact")
+    from tools.st_world_policy.spatial_w_storage import validate_migration as validate_frozen_w_migration
+    validate_frozen_w_migration(old, new, old_policy_sha256=old_policy_sha256,
+                              old_ledger_sha256=expected_old_ledger_sha256)
     q, _ = pinned_json(quiescence_receipt, quiescence_sha256)
     inventory, _ = pinned_json(pilot_inventory, pilot_inventory_sha256)
     bindings = {"old_policy_sha256": old_policy_sha256, "new_policy_sha256": new_policy_sha256,
@@ -348,6 +360,9 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
                       "new_core_sha256": b._digest(new.core),
                       "new_ledger_sha256": _sha((json.dumps(new_state, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()),
                       "metadata_package_reserved_bytes": validate_package(new.core, new.declarations)}
+            if "frozen_w_package" in new.core:
+                from tools.st_world_policy.spatial_w_storage import validate_package as validate_frozen_w
+                result["frozen_w_package_reserved_bytes"] = validate_frozen_w(new.core, new.declarations)
             if complete_path.exists():
                 completed = _json(complete_path.read_bytes())
                 comparable = dict(completed, completion_quiescence_sha256=active_q_sha,

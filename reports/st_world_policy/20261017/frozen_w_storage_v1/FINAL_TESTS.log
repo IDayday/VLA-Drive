@@ -1,0 +1,42 @@
+.............F.......................................................... [ 46%]
+........................................................................ [ 92%]
+...........                                                              [100%]
+=================================== FAILURES ===================================
+________ test_wrong_admission_rejected_without_ledger_mutation[overlap] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-540/test_wrong_admission_rejected_8')
+change = 'overlap'
+
+    @pytest.mark.parametrize('change',['no_package','wrong_kind','unknown_kind','signature_sha','signature_content',
+        'shape','dtype','amount','overlap','metadata_baseline','w_baseline','w_metadata_pin','max_plus_one'])
+    def test_wrong_admission_rejected_without_ledger_mutation(tmp_path,change):
+        f=fixture(tmp_path)
+        row=f.new_doc['claims'][-1]
+        if change=='no_package':del f.new_doc['frozen_w_package']
+        if change=='wrong_kind':row['identity_kind']=m.REG_SCHEMA
+        if change=='unknown_kind':row['identity_kind']='unreviewed_tensor'
+        if change=='signature_sha':row['signature_sha256']='f'*64
+        if change=='signature_content':Path(row['signature_path']).write_text('{}')
+        if change=='shape':row['tensor_schema']['W']['shape'][0]+=1
+        if change=='dtype':row['tensor_schema']['W']['dtype']='bfloat16'
+        if change=='amount':row['staging_bytes']+=1
+        if change=='overlap':row['root']=f.new_doc['claims'][-2]['root']+'/child'
+        if change=='metadata_baseline':f.new_doc['metadata_package']['maximum_bytes']-=1
+        if change=='w_baseline':f.new_doc['frozen_w_package']['baseline_claims'].pop(f.old_doc['claims'][0]['root'])
+        if change=='w_metadata_pin':f.new_doc['frozen_w_package']['metadata_package_sha256']='f'*64
+        if change=='max_plus_one':f.new_doc['frozen_w_package']['maximum_bytes']=b.GIB+1
+        if change in ('shape','dtype','amount','overlap'):
+            old_root=f.signatures[-1].claim['root']
+>           del f.new_doc['frozen_w_package']['members'][old_root]
+E           KeyError: '/tmp/pytest-of-root/pytest-540/test_wrong_admission_rejected_8/cache/w-S-P0-train-v1/child'
+
+tests/st_world/test_spatial_w_storage.py:178: KeyError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_spatial_w_storage.py::test_wrong_admission_rejected_without_ledger_mutation[overlap]
+1 failed, 154 passed, 1 warning in 13.42s
