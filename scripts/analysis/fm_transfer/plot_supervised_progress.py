@@ -75,7 +75,7 @@ def plot_learning(args):
             axes[1, column].plot(x, [reference['scenes'] - v['fully_safe_scenes'] for v in values],
                                 'o-', color=color, label=short_label + ': any safety fail', linewidth=1.4)
             axes[1, column].plot(x, [v['zero_scenes'] for v in values], 's--',
-                                's--', color=color, label=short_label + ': zero score', linewidth=1.3)
+                                color=color, label=short_label + ': zero score', linewidth=1.3)
             initial.append(f"{reference['modes'][mode]['mean_percent']['score']:.3f}")
         axes[0, column].set_title(f"{cohort}: {reference['scenes']} scenes / {reference['logs']} logs\n"
                                   f"Initial native/shift5 PDMS: {' / '.join(initial)}", fontsize=10)
@@ -85,6 +85,19 @@ def plot_learning(args):
         axes[1, column].set_ylabel('Scenes')
         axes[1, column].legend(fontsize=7.5, ncol=2)
         axes[1, column].set_ylim(bottom=0)
+        expected = [[], []]
+        for mode, _, _ in styles:
+            values = [row['populations'][cohort]['modes'][mode] for row in learned]
+            expected[0].append([v['mean_percent']['score'] for v in values])
+            expected[1].extend([[reference['scenes'] - v['fully_safe_scenes'] for v in values],
+                                [v['zero_scenes'] for v in values]])
+        for panel, curves in enumerate(expected):
+            lines = axes[panel, column].lines
+            if len(lines) != len(curves):
+                raise ValueError('Unexpected plotted curve count')
+            for line, y in zip(lines, curves):
+                if list(line.get_xdata()) != x or list(line.get_ydata()) != y:
+                    raise ValueError('Plotted coordinates do not match saved observations')
     for ax in axes.flat:
         ax.set_xticks(x)
         ax.set_xlabel('SFT optimizer updates (thousands)')
