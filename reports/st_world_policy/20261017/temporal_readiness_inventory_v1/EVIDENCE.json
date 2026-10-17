@@ -1,0 +1,78 @@
+{
+  "schema": "st_temporal_readiness_inventory_v1",
+  "recorded_utc": "2026-10-17T10:58:46.080626+00:00",
+  "base_commit": "ad2efc2eba9b283abf579a2d8829b2cecba3c911",
+  "scope": "source + published reports + bounded control JSON only; no actual model/image/teacher/prediction tensor reads",
+  "actual_control_bytes_read_for_pins": 239260,
+  "pins": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/REAL_HISTORY_EXTENSION_FULL_STATE.json",
+      "bytes": 220420,
+      "sha256": "b4dae97ebce5bd2e8153d2b32d8a7ec3dcdc2f96d459ff23ab43edcbe6e51416"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/PREINTEGRATION_REVIEW_WAVE4.md",
+      "bytes": 5926,
+      "sha256": "687888a10aec48ac8968693e5b63e1393af14aa11b771983710b9f26229b4cb5"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_WORLD_LIVE_NATIVE_RESTORE_REVIEW.json",
+      "bytes": 10070,
+      "sha256": "39b592831c02d8c67305c457ca8623135507fb6d97a4481ac0cf39f7f0fa5eb7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_adapter/HANDOFF.json",
+      "bytes": 2844,
+      "sha256": "cf5013ddcde37124cc7091561c1bb0bbcd67e182a3cbea0c9cd16ebdb5b23f60"
+    }
+  ],
+  "spatial_status_metadata": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/status.json",
+      "sha256": "50d489e1e42b81934a570170f4ceca3bc9467c11b2eb5d41ad294a2c533b4c73",
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1/status.json",
+      "sha256": "69de784041f0e6148da3ea534f00d253b4eb2a84fb69acfaf9d5943533b5800e",
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/status.json",
+      "sha256": "912ff91a3df94e478299ff6d45d602e8c133fd34c779c2f2ff9d6144e0725124",
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/status.json",
+      "sha256": "bcfa0f3bd5b215298b6eaa2f3ed6eb5791a2924c6bfab6084bf4409a3baf9eb3",
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT"
+    }
+  ],
+  "live_process_verified": false,
+  "test_result": {
+    "passed": 51,
+    "skipped": 5,
+    "failed": 0,
+    "seconds": 19.25,
+    "note": "optional actual processor/image tests explicitly unconfigured; fixture image tests use only pytest temporary pixels; CUDA hidden; CPU affinity 0,1; no real asset reads"
+  },
+  "history_source_unchanged_vs_actual_T1_9db31a83": [
+    "starVLA/model/modules/st_world/history_adapter.py",
+    "starVLA/model/framework/st_world_model.py",
+    "starVLA/dataloader/st_world_history.py"
+  ],
+  "changed_execution_files_vs_actual_T1_9db31a83": [
+    "tools/st_world_policy/checkpoints.py",
+    "tools/st_world_policy/official_runtime.py",
+    "tools/st_world_policy/train_world.py"
+  ],
+  "formal_training_or_approval_started": false
+}

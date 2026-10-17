@@ -1,0 +1,7 @@
+Command:
+env -u ST_QWEN_PROCESSOR -u ST_HISTORY_AUDIT_ROOT -u ST_CURRENT_DATA_ROOT CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 timeout 90 taskset -c 0,1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/st_world/test_history.py tests/st_world/test_history_adapter.py tests/st_world/test_requests.py tests/st_world/test_losses.py tests/st_world/test_student_wrapper.py -p no:cacheprovider
+
+51 passed, 5 skipped, 1 warning in 19.25s
+Warning: existing torch pynvml deprecation.
+Skip reason: optional ST_QWEN_PROCESSOR and real audited image assets deliberately unset under metadata-only lease.
+This compact receipt transcribes the actual command output; no real-image integration was rerun.
