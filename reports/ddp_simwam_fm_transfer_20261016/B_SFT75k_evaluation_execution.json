@@ -1,0 +1,223 @@
+{
+  "schema": "fm_transfer_B_SFT75k_evaluation_evidence_v1",
+  "captured_unix": 1792205899.5333672,
+  "status": "COMPLETE_75K_SFT_MILESTONE_NOT_SFT_ENDPOINT_OR_RL",
+  "training_source": "4e0ce1f45b6778895648689228a5628432bd2616",
+  "numerical_evaluation_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "analysis_checkout": "3a23d3cdaaa7fbb86ea60f9674d350f40b440e24",
+  "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update075000",
+  "checkpoint_seal": {
+    "schema": "fm_transfer_SFT_READY_v1",
+    "phase": "READY",
+    "world": 8,
+    "updates": 75000,
+    "cursor": 2400000,
+    "files_sha256": "80aec32b777c538f0beb27d1554049522ce58f40bb6b3caf77222560b5932f8a"
+  },
+  "export": {
+    "schema": "fm_transfer_original_entry_export_v1",
+    "stage": "SFT",
+    "architecture": "source_action_dit",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update075000",
+    "run_identity": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+    "updates": 75000,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update075000",
+      "model_sha256": "98880d41c5903e7306cfae52db77e2992d7a28220719cb8ef167f34ac2430fe4",
+      "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "B_SOURCE_ACTION_DIT",
+        "architecture": "source_action_dit",
+        "initialization": "source_random_initialization_seed42",
+        "max_updates": 100000,
+        "learning_rate": 0.0001,
+        "milestones": [
+          0,
+          10000,
+          25000,
+          50000,
+          75000,
+          100000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 75000,
+      "qualification": false
+    },
+    "original_frozen_prefix_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "qualification": false,
+    "weight_sha256": "f25b5e64c3248643f082acc644239dab0e64c4281ea0fa519b717f4dde25f998",
+    "config_sha256": "db68a8c6bf74ab69b644c462fa1189a388ea6ba5b9930c78f78fc971f2bcdfab",
+    "changed_attention_from_own_SFT": null,
+    "frozen_upstream_exact": true,
+    "deployment": "original VLAAgent observation/encoding/decoding; no cache, reference, scorer or LoRA wrapper",
+    "not_exact_resume_use_native_checkpoint": true,
+    "sha256": "9cf5c0329ec1e6c908ac712d29164a0b188cc68cc72ce4bf9ed2ac0dddcdcb79"
+  },
+  "evaluation_checks": {
+    "DEV": {
+      "host": "training-rl-zt2",
+      "observed_unix": 1792205899.3365479,
+      "pids": [
+        1179205,
+        1179207,
+        1179209,
+        1179211,
+        1179213,
+        1179215,
+        1179217,
+        1179219
+      ],
+      "all_workers_exited": true,
+      "original_entry_checks": 8,
+      "scene_count": 1696,
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 4337.294325923547,
+        "job_wall_seconds": 546.5392129421234,
+        "model_load_seconds": 961.7671466376632,
+        "generation_wall_seconds_sum": 2792.0337861645967,
+        "scoring_wait_seconds_sum": 209.49396285042167,
+        "missing": []
+      },
+      "raw_and_paired_means_equal": true,
+      "rank_record_sha256": [
+        "8394e5d37d788d4fa5e42f44d902590e9ffa7b27b5222be79f8e0788fa75bf2e",
+        "dac19f27f7c43953472b7a4b47f6c0f046fafe763de48c433e5fdcc31e2c6f0a",
+        "84e06d17c22877a892eb286d29bfa70e1647324fa34a64c0184ca5b6958190f0",
+        "741816427944cce504f1c51fc34ff8f49e84d3ef455fd8e32290e46f127105bb",
+        "0694131288ba73c57c2085df22ee669916f3ca6453fce4a12913a7816bdc4e0f",
+        "a65067e39a321cc3249a3505644726d764bcf40213d1872a1651c09c5d6d116c",
+        "3d8c9227cddff841cbc89da5f10b5dc0dd7b71ab48928dc34c43ca7f9cb6e8fc",
+        "1d108cc66284307bf7613d70b0576766a219e965dd6eac312ea8aa6797ec308e"
+      ]
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "host": "training-vlawm-tsinghua-zt4",
+      "observed_unix": 1792205899.5103052,
+      "pids": [
+        278185,
+        278188,
+        278191,
+        278194,
+        278197,
+        278200,
+        278203,
+        278206
+      ],
+      "all_workers_exited": true,
+      "original_entry_checks": 8,
+      "scene_count": 512,
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 2115.1872650329024,
+        "job_wall_seconds": 269.2123601436615,
+        "model_load_seconds": 894.3111180439591,
+        "generation_wall_seconds_sum": 954.578938446939,
+        "scoring_wait_seconds_sum": 78.2680649254471,
+        "missing": []
+      },
+      "raw_and_paired_means_equal": true,
+      "rank_record_sha256": [
+        "4175e16294081fe165af44ef965b6f693e786deda63281ab65c4f993e7765827",
+        "f82d382b470ed17d09d5e0c90a6ba3fcd3b192de8b95061ae03445fb81b21b92",
+        "101178021222e7e8a3d5392c787d3187ed1bc142f813dfbc1b41a85728376bb2",
+        "bb4aa0e181edb240792de7d0100e226df4da1612e765ffd2dcbf960f8972d72a",
+        "8ddff1d2b81512cea99f8f02d4794a3a229d7dd8b33053237a2795a2b7ab6415",
+        "89d498106a14cf60f9fd071c800d82511aa209a1c97abc59601ab7db76281684",
+        "293fa6b6fd7c8634f11a1daa4a69d9a10fb49d9e58babb80f551d563ec18c44f",
+        "fe4e03b4a55ca7cafe9d4eec7b8f12c420d4922f194e81e50cade53325ec2ac4"
+      ]
+    }
+  },
+  "copied_analysis": [
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_SFT_update075000_DEV_vs50k.json",
+      "sha256": "97fd672c266b702acd53e49adf96cfdf4d3734b5c29cfd71a9b818c355bce83e"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_SFT_update075000_DEV.json",
+      "sha256": "0fe3d51040648d28dd7ea68fb0a06da7b89b8b2a2a80d0cdaa95b38ede542629"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_SFT_update075000_TRAIN_DIAGNOSTIC_vs50k.json",
+      "sha256": "3a6a18ac54441890f6004cefff1eaff0b78ad0343123fe951b0e60ed9c4e6ba5"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_SFT_update075000_TRAIN_DIAGNOSTIC.json",
+      "sha256": "b13367beda11f6267123b322e5ec3b98852fe1675a50eb7283b7fffc903a0fe6"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/B_SFT75k_DEV_native_minus_shift5.json",
+      "sha256": "9e49b7981afe09a5a5e0a8f603b5be0f5cab90a6b615b737a7da3744103fc5e2"
+    }
+  ],
+  "analysis_new_predictions": 0,
+  "analysis_new_scores": 0,
+  "analysis_optimizer_updates": 0,
+  "formal_RL_started": false,
+  "final_Navtest_started": false,
+  "note": "No optimizer or recipe change. Worker time is shared elapsed time, not exclusive GPU time."
+}
