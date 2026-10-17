@@ -1,0 +1,959 @@
+{
+  "schema": "fm_transfer_A_RL20k_public_evidence_v1",
+  "captured_unix": 1792198480.7090926,
+  "status": "COMPLETE_A_RL_DEV_AND_TRAIN_NOT_FINAL_NAVTEST",
+  "run_identity": "78f81211d3da81bc86acf27d509b4cc7b6e58b849a13ed92fc1f5ceae80e72eb",
+  "training_source": "225b9af660cb0210208e2c46fc4216d0f151275b",
+  "numerical_evaluation_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "saved_batch_source": "fd440275edc3fdf40b2aaa46c38da1d038068902",
+  "analysis_checkout": "18a35886290f8a62a56f3585f25c4e6e6ed6c24c",
+  "analysis_local_changes": "plot legend space/footer only; no numerical analysis or actor changes",
+  "checkpoint": {
+    "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "files_sha256": "298b0ebcd152ae79872984e493cdab872cdf7afd8ea1a3fb0591b7eae68d3412",
+    "phase": "COMPLETE"
+  },
+  "export": {
+    "schema": "fm_transfer_original_entry_export_v1",
+    "stage": "RL",
+    "architecture": "ddp",
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "run_identity": "78f81211d3da81bc86acf27d509b4cc7b6e58b849a13ed92fc1f5ceae80e72eb",
+    "updates": 20000,
+    "new_SFT": {
+      "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/checkpoints/update020000",
+      "model_sha256": "ac52e9346080ce0e6bf27441935ac9aa6acbff239330b316bee36b560486579a",
+      "identity_sha256": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+      "config": {
+        "schema": "fm_transfer_SFT_v1",
+        "variant": "A_DDP_TIME",
+        "architecture": "ddp",
+        "initialization": "original_F_SFT_step100000",
+        "max_updates": 20000,
+        "learning_rate": 1e-05,
+        "milestones": [
+          0,
+          5000,
+          10000,
+          20000
+        ],
+        "seed": 42,
+        "evaluation_seed": 2101,
+        "global_batch": 32,
+        "per_rank_batch": 4,
+        "world": 8,
+        "FM_repeats": 8,
+        "time_sampling": "source continuous uniform quantile shifted5",
+        "objective": "source time-weighted velocity MSE",
+        "train_shift": 5.0,
+        "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.01,
+        "gradient_clip": 1.0,
+        "warmup_fraction": 0.03,
+        "scheduler": "warmup_cosine_min0.1",
+        "parameter_storage": "float32",
+        "operator_autocast": "bfloat16",
+        "loss_statistics": "float32",
+        "optimizer_states": "float32",
+        "upstream_frozen": true,
+        "condition_boundary": "before qwen_proj",
+        "save_every": 2000,
+        "inference_grids": [
+          "native_uniform10",
+          "shift5_10"
+        ],
+        "ddp": {
+          "find_unused_parameters": true,
+          "static_graph": false,
+          "bucket_cap_mb": 25,
+          "broadcast_buffers": false
+        }
+      },
+      "updates": 20000,
+      "qualification": false
+    },
+    "original_frozen_prefix_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "qualification": false,
+    "weight_sha256": "2654698ded1e05e05908d2570a60a246ec047b445ad5b5db70c4579b554f7f20",
+    "config_sha256": "abf254c91acbecb4682d3699643ddd003868e7677666861056db8fca59cf2f72",
+    "changed_attention_from_own_SFT": [
+      "model.transformer_blocks.0.attn1.to_q.weight",
+      "model.transformer_blocks.0.attn1.to_k.weight",
+      "model.transformer_blocks.0.attn1.to_v.weight",
+      "model.transformer_blocks.0.attn1.to_out.0.weight",
+      "model.transformer_blocks.1.attn1.to_q.weight",
+      "model.transformer_blocks.1.attn1.to_k.weight",
+      "model.transformer_blocks.1.attn1.to_v.weight",
+      "model.transformer_blocks.1.attn1.to_out.0.weight",
+      "model.transformer_blocks.2.attn1.to_q.weight",
+      "model.transformer_blocks.2.attn1.to_k.weight",
+      "model.transformer_blocks.2.attn1.to_v.weight",
+      "model.transformer_blocks.2.attn1.to_out.0.weight",
+      "model.transformer_blocks.3.attn1.to_q.weight",
+      "model.transformer_blocks.3.attn1.to_k.weight",
+      "model.transformer_blocks.3.attn1.to_v.weight",
+      "model.transformer_blocks.3.attn1.to_out.0.weight",
+      "model.transformer_blocks.4.attn1.to_q.weight",
+      "model.transformer_blocks.4.attn1.to_k.weight",
+      "model.transformer_blocks.4.attn1.to_v.weight",
+      "model.transformer_blocks.4.attn1.to_out.0.weight",
+      "model.transformer_blocks.5.attn1.to_q.weight",
+      "model.transformer_blocks.5.attn1.to_k.weight",
+      "model.transformer_blocks.5.attn1.to_v.weight",
+      "model.transformer_blocks.5.attn1.to_out.0.weight",
+      "model.transformer_blocks.6.attn1.to_q.weight",
+      "model.transformer_blocks.6.attn1.to_k.weight",
+      "model.transformer_blocks.6.attn1.to_v.weight",
+      "model.transformer_blocks.6.attn1.to_out.0.weight",
+      "model.transformer_blocks.7.attn1.to_q.weight",
+      "model.transformer_blocks.7.attn1.to_k.weight",
+      "model.transformer_blocks.7.attn1.to_v.weight",
+      "model.transformer_blocks.7.attn1.to_out.0.weight",
+      "model.transformer_blocks.8.attn1.to_q.weight",
+      "model.transformer_blocks.8.attn1.to_k.weight",
+      "model.transformer_blocks.8.attn1.to_v.weight",
+      "model.transformer_blocks.8.attn1.to_out.0.weight",
+      "model.transformer_blocks.9.attn1.to_q.weight",
+      "model.transformer_blocks.9.attn1.to_k.weight",
+      "model.transformer_blocks.9.attn1.to_v.weight",
+      "model.transformer_blocks.9.attn1.to_out.0.weight",
+      "model.transformer_blocks.10.attn1.to_q.weight",
+      "model.transformer_blocks.10.attn1.to_k.weight",
+      "model.transformer_blocks.10.attn1.to_v.weight",
+      "model.transformer_blocks.10.attn1.to_out.0.weight",
+      "model.transformer_blocks.11.attn1.to_q.weight",
+      "model.transformer_blocks.11.attn1.to_k.weight",
+      "model.transformer_blocks.11.attn1.to_v.weight",
+      "model.transformer_blocks.11.attn1.to_out.0.weight",
+      "model.transformer_blocks.12.attn1.to_q.weight",
+      "model.transformer_blocks.12.attn1.to_k.weight",
+      "model.transformer_blocks.12.attn1.to_v.weight",
+      "model.transformer_blocks.12.attn1.to_out.0.weight",
+      "model.transformer_blocks.13.attn1.to_q.weight",
+      "model.transformer_blocks.13.attn1.to_k.weight",
+      "model.transformer_blocks.13.attn1.to_v.weight",
+      "model.transformer_blocks.13.attn1.to_out.0.weight",
+      "model.transformer_blocks.14.attn1.to_q.weight",
+      "model.transformer_blocks.14.attn1.to_k.weight",
+      "model.transformer_blocks.14.attn1.to_v.weight",
+      "model.transformer_blocks.14.attn1.to_out.0.weight",
+      "model.transformer_blocks.15.attn1.to_q.weight",
+      "model.transformer_blocks.15.attn1.to_k.weight",
+      "model.transformer_blocks.15.attn1.to_v.weight",
+      "model.transformer_blocks.15.attn1.to_out.0.weight",
+      "model.transformer_blocks.16.attn1.to_q.weight",
+      "model.transformer_blocks.16.attn1.to_k.weight",
+      "model.transformer_blocks.16.attn1.to_v.weight",
+      "model.transformer_blocks.16.attn1.to_out.0.weight",
+      "model.transformer_blocks.17.attn1.to_q.weight",
+      "model.transformer_blocks.17.attn1.to_k.weight",
+      "model.transformer_blocks.17.attn1.to_v.weight",
+      "model.transformer_blocks.17.attn1.to_out.0.weight",
+      "model.transformer_blocks.18.attn1.to_q.weight",
+      "model.transformer_blocks.18.attn1.to_k.weight",
+      "model.transformer_blocks.18.attn1.to_v.weight",
+      "model.transformer_blocks.18.attn1.to_out.0.weight",
+      "model.transformer_blocks.19.attn1.to_q.weight",
+      "model.transformer_blocks.19.attn1.to_k.weight",
+      "model.transformer_blocks.19.attn1.to_v.weight",
+      "model.transformer_blocks.19.attn1.to_out.0.weight",
+      "model.transformer_blocks.20.attn1.to_q.weight",
+      "model.transformer_blocks.20.attn1.to_k.weight",
+      "model.transformer_blocks.20.attn1.to_v.weight",
+      "model.transformer_blocks.20.attn1.to_out.0.weight",
+      "model.transformer_blocks.21.attn1.to_q.weight",
+      "model.transformer_blocks.21.attn1.to_k.weight",
+      "model.transformer_blocks.21.attn1.to_v.weight",
+      "model.transformer_blocks.21.attn1.to_out.0.weight",
+      "model.transformer_blocks.22.attn1.to_q.weight",
+      "model.transformer_blocks.22.attn1.to_k.weight",
+      "model.transformer_blocks.22.attn1.to_v.weight",
+      "model.transformer_blocks.22.attn1.to_out.0.weight",
+      "model.transformer_blocks.23.attn1.to_q.weight",
+      "model.transformer_blocks.23.attn1.to_k.weight",
+      "model.transformer_blocks.23.attn1.to_v.weight",
+      "model.transformer_blocks.23.attn1.to_out.0.weight"
+    ],
+    "frozen_upstream_exact": true,
+    "deployment": "original VLAAgent observation/encoding/decoding; no cache, reference, scorer or LoRA wrapper",
+    "not_exact_resume_use_native_checkpoint": true,
+    "sha256": "430fa9c164b45844ec306f02adf2dcf64525dee5537295b64981127a2477b5fb"
+  },
+  "completion_audit": {
+    "schema": "fm_transfer_A_RL20k_completion_audit_v1",
+    "observed_unix": 1792198392.1109438,
+    "evidence_script_sha256": "d86824560a8b2f4ddf8ec2d18d989b799cb94fff4bcbb3bae035ca1882251f48",
+    "cohorts": {
+      "DEV": {
+        "host": "training-vlawm-tsinghua-zt",
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 3726298,
+            "start_ticks": 1363667432,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 1,
+            "pid": 3726597,
+            "start_ticks": 1363667450,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 2,
+            "pid": 3726747,
+            "start_ticks": 1363667460,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 3,
+            "pid": 3726890,
+            "start_ticks": 1363667469,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 4,
+            "pid": 3727030,
+            "start_ticks": 1363667478,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 5,
+            "pid": 3727160,
+            "start_ticks": 1363667486,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 6,
+            "pid": 3727295,
+            "start_ticks": 1363667495,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 7,
+            "pid": 3727439,
+            "start_ticks": 1363667505,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          }
+        ],
+        "process_probe": {
+          "pinned": [
+            {
+              "pid": 3726298,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726597,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726747,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726890,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727030,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727160,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727295,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727439,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8
+      },
+      "TRAIN_DIAGNOSTIC": {
+        "host": "training-vla-zt",
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 350828,
+            "start_ticks": 1363650872,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 1,
+            "pid": 350831,
+            "start_ticks": 1363650883,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 2,
+            "pid": 350834,
+            "start_ticks": 1363650892,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 3,
+            "pid": 350837,
+            "start_ticks": 1363650902,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 4,
+            "pid": 350840,
+            "start_ticks": 1363650912,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 5,
+            "pid": 350843,
+            "start_ticks": 1363650922,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 6,
+            "pid": 350846,
+            "start_ticks": 1363650939,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 7,
+            "pid": 350849,
+            "start_ticks": 1363650949,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          }
+        ],
+        "process_probe": {
+          "pinned": [
+            {
+              "pid": 350828,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350831,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350834,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350837,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350840,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350843,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350846,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350849,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8
+      }
+    },
+    "training_exit": {
+      "pinned": [
+        {
+          "pid": 231255,
+          "same_process": false,
+          "state": "ABSENT"
+        }
+      ],
+      "run_processes": []
+    },
+    "optimizer": {
+      "adam_states": 192,
+      "adam_steps": [
+        20000.0
+      ],
+      "scheduler_last_epoch": 20000,
+      "scheduler_last_lr": [
+        5e-05
+      ],
+      "checkpoint_files_sha256": "298b0ebcd152ae79872984e493cdab872cdf7afd8ea1a3fb0591b7eae68d3412",
+      "optimizer_file_sha256": "f8f652c4988e0824dd0e779c94b28e807d8163a19da84a83750232160ec42955"
+    },
+    "all_eight_training_results_complete": true,
+    "status": "PASS_COMPLETE_A_RL_NOT_FINAL_NAVTEST"
+  },
+  "completion_audit_sha256": "1942e8159ef66410872b6a54b8efe46e1d2d685a736880d31e8dc3b07d8aa7b5",
+  "evaluations": {
+    "DEV": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 1696,
+        "logical_single_candidate_evaluations": 3392,
+        "candidate_evaluations_per_grid": 1696,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 1696,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 3392,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 3400,
+        "cumulative_worker_wall_seconds": 2980.733999101445,
+        "job_wall_seconds": 374.3515865802765,
+        "model_load_seconds": 879.8978684954345,
+        "generation_wall_seconds_sum": 1609.762658784166,
+        "scoring_wait_seconds_sum": 204.70623276382685,
+        "missing": []
+      },
+      "worker_audit": {
+        "host": "training-vlawm-tsinghua-zt",
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 3726298,
+            "start_ticks": 1363667432,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 1,
+            "pid": 3726597,
+            "start_ticks": 1363667450,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 2,
+            "pid": 3726747,
+            "start_ticks": 1363667460,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 3,
+            "pid": 3726890,
+            "start_ticks": 1363667469,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 4,
+            "pid": 3727030,
+            "start_ticks": 1363667478,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 5,
+            "pid": 3727160,
+            "start_ticks": 1363667486,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 6,
+            "pid": 3727295,
+            "start_ticks": 1363667495,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 7,
+            "pid": 3727439,
+            "start_ticks": 1363667505,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          }
+        ],
+        "process_probe": {
+          "pinned": [
+            {
+              "pid": 3726298,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726597,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726747,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3726890,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727030,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727160,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727295,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 3727439,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 1696,
+        "physical_predictions": 3392,
+        "diagnostic_predictions": 8
+      },
+      "rank_record_sha256": [
+        "598b0f12144a9d5c941992bc779bd0fbbc995dc0432f89e7763446bbda5cd75d",
+        "d0263671051da1c80115b14b762a6ea9e18e30bd5c1180293a942c649cd8f08e",
+        "ada8eea5d22722f4ac376c4248c163193750d758fa5ca8db72b53cbb162e2422",
+        "de223a75e5170afabc0db22e152e16a41b506867f1eec13d94d7ce5dd877b67e",
+        "6e655ddf0c359af8e04f29fe0327ac8d6c8035af5526dab6ecc3c3a168297647",
+        "4064e1c1343c83cd66d2458a6a537e0f249d5736aa1e91af021f2d0632ed5201",
+        "33cb3bf0a46a8971c4dd636987243bd07b8298ad6c43d9f37c8466313f9fa64a",
+        "d121a7d863bf801573845e20abe50736de6535f698c5caf369da237ff2070c91"
+      ]
+    },
+    "TRAIN_DIAGNOSTIC": {
+      "cost": {
+        "schema": 2,
+        "logical_scenes": 512,
+        "logical_single_candidate_evaluations": 1024,
+        "candidate_evaluations_per_grid": 512,
+        "shared_GPU": true,
+        "note": "Two separately reported single-candidate grids. Summed worker time is not job wall or exclusive GPU compute.",
+        "provenance": "per-worker invocation ledger",
+        "worker_invocations": 8,
+        "complete_cost_accounting": true,
+        "new_scenes": 512,
+        "reused_scenes": 0,
+        "cumulative_physical_predictions": 1024,
+        "diagnostic_predictions": 8,
+        "physical_predictions_including_diagnostics": 1032,
+        "cumulative_worker_wall_seconds": 1612.0426619183272,
+        "job_wall_seconds": 203.24485039710999,
+        "model_load_seconds": 914.8813770059496,
+        "generation_wall_seconds_sum": 497.57108992896974,
+        "scoring_wait_seconds_sum": 72.26253659836948,
+        "missing": []
+      },
+      "worker_audit": {
+        "host": "training-vla-zt",
+        "workers": [
+          {
+            "rank": 0,
+            "pid": 350828,
+            "start_ticks": 1363650872,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 1,
+            "pid": 350831,
+            "start_ticks": 1363650883,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 2,
+            "pid": 350834,
+            "start_ticks": 1363650892,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 3,
+            "pid": 350837,
+            "start_ticks": 1363650902,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 4,
+            "pid": 350840,
+            "start_ticks": 1363650912,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 5,
+            "pid": 350843,
+            "start_ticks": 1363650922,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 6,
+            "pid": 350846,
+            "start_ticks": 1363650939,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          },
+          {
+            "rank": 7,
+            "pid": 350849,
+            "start_ticks": 1363650949,
+            "source": "/mnt/project/fm-transfer-20261016/source/45d2318d2dec265583860a26f891d8b79bb6068a"
+          }
+        ],
+        "process_probe": {
+          "pinned": [
+            {
+              "pid": 350828,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350831,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350834,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350837,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350840,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350843,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350846,
+              "same_process": false,
+              "state": "ABSENT"
+            },
+            {
+              "pid": 350849,
+              "same_process": false,
+              "state": "ABSENT"
+            }
+          ],
+          "run_processes": []
+        },
+        "all_pinned_workers_exited": true,
+        "closed_worker_invocations": 8,
+        "raw_original_checks_passed": 8,
+        "actual_scene_count": 512,
+        "physical_predictions": 1024,
+        "diagnostic_predictions": 8
+      },
+      "rank_record_sha256": [
+        "fc05263e42ad7795aa63bea8677d651a8f1522cc130ec680aaae8d325941a791",
+        "e8bf7f4405d1c3945cb40606744c4ae1763824e8a507314bdb4a78ad5a4d72da",
+        "4a7bd1fdc6ee9673337b82d095f8990bcfbef62aa06d617802b03c18a8ec203c",
+        "d925ed6bbaffe75640a74065a1c3fd86e0f641f28c66fe7db42865b23dbe9092",
+        "c9d3a64e045a95549face28299c8382e5623fd79ae561f245cf3842ab89f8a6a",
+        "105f52a86d009b6406f612b0e62754efbe921eb05190800ca0632d51b99a7e91",
+        "aa4249b8d0cb0c6da33222f733a2cdf8d7d8ae8d3c8f6220212fab8c6085d844",
+        "30a1efcb11c6c5f63ae71d49e4e159d90b18301f70dc1d1e9b8ec1d67b9b5faa"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "cohort": "DEV",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "DEV",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_NATIVE",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    },
+    {
+      "cohort": "TRAIN_DIAGNOSTIC",
+      "mode": "E_SHIFT5",
+      "independent_analysis_matches": true,
+      "tolerance": 1e-12
+    }
+  ],
+  "population_summary": {
+    "optimizer_updates": 20000,
+    "fresh_global_rollouts": 5000,
+    "scene_exposures": 40000,
+    "fresh_candidates": 320000,
+    "hard_population_scenes": 21367,
+    "padded_epoch_size": 21368,
+    "unique_scene_count": 21367,
+    "unique_log_count": 1064,
+    "scene_revisits_after_first_exposure": 18633,
+    "epoch_padding_exposures": 1,
+    "nonpadding_revisits_after_first_exposure": 18632,
+    "exposure_frequency_histogram": {
+      "1": 2735,
+      "2": 18631,
+      "3": 1
+    },
+    "distinct_chain_digests_in_journal": 40000,
+    "epochs": [
+      {
+        "epoch": 0,
+        "scene_exposures": 21368,
+        "padding_exposures": 1,
+        "unique_scene_count": 21367
+      },
+      {
+        "epoch": 1,
+        "scene_exposures": 18632,
+        "padding_exposures": 0,
+        "unique_scene_count": 18632
+      }
+    ]
+  },
+  "training_cost": {
+    "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1/checkpoints/update020000_inner0",
+    "checkpoint_updates": 20000,
+    "cumulative_rank_wall_seconds_by_phase": {
+      "rollout": 21033.373512083665,
+      "old_probability": 6552.569282414392,
+      "update": 81743.39186797105,
+      "scoring_wait": 5129.544690553099,
+      "scoring_cpu": 2442.575429102406
+    },
+    "max_rank_wall_seconds_by_phase": {
+      "rollout": 2711.3129259049892,
+      "old_probability": 841.9147509802133,
+      "update": 10220.138873334974,
+      "scoring_wait": 657.9795512054116,
+      "scoring_cpu": 311.71943403221667
+    },
+    "all_rank_phase_seconds": {
+      "rollout": [
+        2599.2407278809696,
+        2632.040673404932,
+        2711.3129259049892,
+        2654.8347330652177,
+        2642.2146564815193,
+        2641.7585445716977,
+        2571.714959992096,
+        2580.256290782243
+      ],
+      "old_probability": [
+        812.183521380648,
+        821.2427814267576,
+        841.9147509802133,
+        826.3291997779161,
+        821.5568485762924,
+        820.8251336961985,
+        803.7812194023281,
+        804.7358271740377
+      ],
+      "update": [
+        10216.896545289084,
+        10220.138873334974,
+        10218.265673577785,
+        10216.456590453163,
+        10218.403389710933,
+        10218.243389967829,
+        10217.824328983203,
+        10217.163076654077
+      ],
+      "scoring_wait": [
+        622.6145646236837,
+        651.0670633800328,
+        649.528642019257,
+        657.5684651639313,
+        640.8162315059453,
+        657.9795512054116,
+        624.5678359419107,
+        625.4023367129266
+      ],
+      "scoring_cpu": [
+        302.84285583533347,
+        304.5067507419735,
+        306.9092683773488,
+        307.290359640494,
+        306.3539271634072,
+        311.71943403221667,
+        301.6820039283484,
+        301.27082938328385
+      ]
+    },
+    "invocation_ledger": {
+      "schema": 3,
+      "provenance": "per-invocation records; RUNNING records are unclosed observations",
+      "cumulative_logical_updates": 20000,
+      "invocation_start_update": 0,
+      "invocation_effective_updates": 20000,
+      "invocation_updates_per_second": 1.1894571338297542,
+      "rate_basis": "finished invocation end-start updates / invocation wall",
+      "rate_window_seconds": 16814.393248124048,
+      "linear_remaining_training_hours": 0.0,
+      "cumulative_worker_wall_seconds": 134771.04034567624,
+      "invocation_worker_wall_seconds": 134515.1474454105,
+      "preparation_worker_wall_seconds_observed": 255.89290026575327,
+      "workers_missing_preparation_seconds": 0,
+      "aborted_invocation_worker_wall_seconds": 0,
+      "unclosed_invocation_worker_wall_seconds": 0,
+      "rollback_overhead_seconds": null,
+      "save_worker_wall_seconds": 791.1003424972296,
+      "physical_generated_candidates": 320000,
+      "physical_scored_candidates": 320000,
+      "worker_records": 8,
+      "incomplete_invocations": 0,
+      "missing": [
+        "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+        "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+      ],
+      "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+    },
+    "linear_remaining_training_hours": 0.0,
+    "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+  },
+  "gradient_diagnostic": {
+    "cumulative_worker_wall_seconds": 38.51751790754497,
+    "peak_GPU_bytes": 7387997696,
+    "new_candidates": 0,
+    "new_scoring_calls": 0,
+    "adapters_unchanged": true,
+    "source_total_loss_gradient_max_abs_by_rank": [
+      8.289191555377329e-11,
+      2.7490898446558276e-11,
+      8.731149137020111e-11,
+      5.954241544259276e-10,
+      5.820766091346741e-10,
+      5.623634891094298e-11,
+      5.4569682106375694e-11,
+      1.0186340659856796e-10
+    ]
+  },
+  "source_analysis_files": {
+    "scripts/analysis/fm_transfer/analyze_evaluation.py": "8e30d6d6b77af89d350310a0e9702acaf5810b7849d82490a91c0bf1d4b2012a",
+    "scripts/analysis/fm_transfer/analyze_safety_transitions.py": "c85c8a96d137886d79390062a18b5172429919dacd3c7121283d199b2f5170db",
+    "scripts/analysis/fm_transfer/analyze_grid_gap.py": "ab8c4eb8f307632f8b9e3ba1511212cc06633f969e9478b05ecc4814626a0265",
+    "scripts/analysis/fm_transfer/analyze_rl_population.py": "f9003127231cb112a72cd20ef23f0790d4283bd630842529ca586dafcab93d7b",
+    "scripts/analysis/fm_transfer/plot_rl_progress.py": "c9a2ec5003f12e592f0a6c87e28eab231ded6155adcc9f1a72d90a1b4d725e62"
+  },
+  "resource_release": {
+    "manually_released_pressure_workers": 0,
+    "other_real_and_unknown_workloads_preserved": true
+  },
+  "new_algorithms_or_training_changes": false,
+  "copied_analysis": [
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_DEV.json",
+      "sha256": "f23408a4b396589015815bbfb7c4fd21c61ec71bf552a1c3f08b4b125613441b"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_DEV_vs_own_SFT.json",
+      "sha256": "500d55f2b46f9b7c20dba75896d0992d48b966f6c50806f9f007f414eb2fce63"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_DEV_vs15k.json",
+      "sha256": "dab3f7875a3ba5f0b3d1dcc3e5688556d8d77fc69eb035448c097eae475bdec7"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_DEV_safety_transitions.json",
+      "sha256": "2b147eb8d4a6eb8f06f59e2a6e3b5a3c551bfdbd9af4e5e23f72514ea0828220"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_TRAIN_DIAGNOSTIC.json",
+      "sha256": "36bede146eb45dae0af2925066794a1e5872ed74e6d66ce0de5b5ce5996345e2"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_TRAIN_DIAGNOSTIC_vs_own_SFT.json",
+      "sha256": "4c909134a9f7bda503c9134b86a50a679486b87376c293df4f47df676e75c59f"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_TRAIN_DIAGNOSTIC_vs15k.json",
+      "sha256": "5d56381d94563dd60485a22b30a620edd7ca30defccc792e48d84cce5f538bf3"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_TRAIN_DIAGNOSTIC_safety_transitions.json",
+      "sha256": "a189305be87c307c6c4546d383a282a67c468731846fa451a9db508a3f60288e"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_complete_training.json",
+      "sha256": "50ce541adde43db526cc45a4a3de1e89a3bccaee5af5d2d7398b794ca2376aec"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_population.json",
+      "sha256": "5fc66b495885f12f1157a055cee9a39d93dfc9b6c764de52c00b2a92ac37d3fa"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_update020000_saved_batch.json",
+      "sha256": "e63bbb91eea0f1b271bbf6c51a71bc40141ab66e40b0b064242a0836f154a2bc"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL20k_DEV_native_minus_shift5.json",
+      "sha256": "b7c58ed9a5de735775ffeab8eab1fc1284f50fc7b7adc0fdf3d9f707c824f14f"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/reproduce_A_RL20k_completion.py",
+      "sha256": "d86824560a8b2f4ddf8ec2d18d989b799cb94fff4bcbb3bae035ca1882251f48"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_DEV_through_20k.png",
+      "sha256": "e7f96ecafeffdd97ba8c0311057b2c02fa984e046d4d2e8185a562c001fc466b"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_DEV_through_20k.pdf",
+      "sha256": "ef66b986e124912d59a6ad64b10c2dee34e3cf26c09a19d5ba37682cfb153aa8"
+    },
+    {
+      "path": "reports/ddp_simwam_fm_transfer_20261016/A_RL_DEV_through_20k.json",
+      "sha256": "3ade490d5935f50671a954edc2814014dc078835e5167b1ee0c411637b1b8baf"
+    }
+  ]
+}

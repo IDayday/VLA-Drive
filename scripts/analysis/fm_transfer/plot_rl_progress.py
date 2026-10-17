@@ -97,6 +97,8 @@ def main():
         ax.set_ylim(-.7, largest_count * 1.25 + 1)
     axes[0, 0].set_title('Actual single-candidate deployment score')
     axes[0, 0].set_ylabel('Canonical v1.1 PDMS (0-100)')
+    low, high = axes[0, 0].get_ylim()
+    axes[0, 0].set_ylim(low - .25 * (high - low), high)
     axes[0, 0].legend(fontsize=8, loc='lower right')
     axes[0, 1].set_title('RL gain vs each grid\'s own SFT + log-cluster 95% CI')
     axes[0, 1].set_ylabel('PDMS change (percentage points)')
@@ -110,7 +112,7 @@ def main():
     fig.text(.5, .028, f"DEV {reference['scenes']} scenes / {reference['logs']} logs; seed2101; no candidate selection. "
              'Training/inference seed uncertainty excluded.\n'
              'NC/DAC/TTC require full pass; violations are not all collisions. '
-             'Missing RL milestones (not extrapolated): ' + ', '.join(str(x) for x in missing),
+             'Missing RL milestones (not extrapolated): ' + (', '.join(str(x) for x in missing) or 'none'),
              ha='center', fontsize=8)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(paths[0], dpi=180)
