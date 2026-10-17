@@ -1,0 +1,78 @@
+{
+  "actual_dispatch_allowed_by_this_review": false,
+  "actual_efficiency": "UNKNOWN",
+  "candidate": "7056a949b45b61712e40170f0a226245fd70d89b",
+  "evidence_sha256": {
+    "INDEPENDENT_REGRESSION.txt": "c235a9ad250d562440cf94d58d70e37194b77043f7d93a9729bb0b7b0cb374ff",
+    "OWNER_REGRESSION.txt": "003c9717c996773f402b8785a17dab6a1ab5d7ea6fab2f9651f7ed904690d056",
+    "REVIEW.md": "3d1f2ef2b5a3d88b5e5684babfddb105bee4c7f7c33b1ac8aca7e6b8eafa037f",
+    "test_independent_lifetime.py": "2e7c29ac543e4d420af3af240b2cfcf20acaf5e6d7438b86e45d9ea83bb1553c"
+  },
+  "helper_sha256": {
+    "observed_cli.py": "c1af891b440663d75ca3b75c1227f5a7d4247d62319a566214848e0a5550f643",
+    "prepare_bindings.py": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84",
+    "supervise_once.py": "a29527dfbe23a4563a66266532f44644f5f184f4a8f59842883524632a63f2d6"
+  },
+  "independent_tests": {
+    "failed": 0,
+    "passed": 7,
+    "seconds": 2.27
+  },
+  "lead_helper_bytes_identical": true,
+  "lead_integration": "16c6e902",
+  "limits": {
+    "administrative_effective_budget_bytes": 1258291200,
+    "administrative_package_cap_bytes": 4294967296,
+    "same_ledger_bytes": 824633720832,
+    "teacher_report_reserve_bytes": 67108864,
+    "typed_W_package_max_bytes": 1073741824
+  },
+  "original_findings": {
+    "POST_SPAWN_SETUP": "PASS_CPU",
+    "SYS_01": "PASS_CPU",
+    "SYS_02": "PASS_CPU",
+    "SYS_03": "PASS_CPU",
+    "SYS_04": "PASS_CPU"
+  },
+  "owner_tests": {
+    "failed": 0,
+    "passed": 50,
+    "seconds": 3.42
+  },
+  "prior_FAIL_reviews_preserved": [
+    "b8e36e67dbb5487ca45cffdd50396c102883fc7a",
+    "ef6f6bdcd16d839d7e8f22ef59db74853997a5f2"
+  ],
+  "real_plan_admission": "PENDING_LEAD",
+  "remaining_conditions": [
+    "freeze_final_immutable_runtime_v2_and_rebuild_metadata_bindings",
+    "exact_fresh_lead_stage_admission",
+    "actual_fixed_role_plan_signature",
+    "v7_typed_W_migration_preserving_all_7_claims_and_teacher_64MiB_report_reserve",
+    "fresh_checkpoint_commitments_and_resource_leases"
+  ],
+  "resource_envelope": {
+    "address_space_limit_bytes": 2147483648,
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "cuda_visible_devices": "",
+    "independent_timeout_seconds": 60,
+    "owner_timeout_seconds": 90
+  },
+  "reviewer": "/root/st_learned_w_probe_efficiency",
+  "schema": "st_probe_controller_lifecycle_review_v3",
+  "scope": {
+    "dispatch": false,
+    "gpu": false,
+    "live_ledger_read_or_mutated": false,
+    "model_method_reopened": false,
+    "production_process_signal": false,
+    "real_model_or_image_read": false,
+    "real_plan_extract_fit": false
+  },
+  "source_cpu_review": "PASS",
+  "time_utc": "2026-10-17T07:17:16.002928+00:00",
+  "verdict": "SOURCE_CPU_PASS_BOUND_REAL_PLAN_PENDING"
+}
