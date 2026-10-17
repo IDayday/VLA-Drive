@@ -1,0 +1,63 @@
+{
+  "schema": "st_c0_c4_diagnostic_summary_v1",
+  "created_utc": "2026-10-17T12:32:58.049592+00:00",
+  "population": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+    "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+  },
+  "bootstrap": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "inputs": [
+    {
+      "arm": "C1_PDMS",
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C1_1024_SP2_5000_v2/RESULTS.json",
+      "sha256": "e637d7b3b0ccaba51c3850c64b62024f21adfe0994c672b8e032121d7a546166",
+      "verification_boundary": "CSV_METADATA_VERIFIED_PAYLOAD_REVALIDATION_NOT_RUN",
+      "checkpoint_receipt": "5bcfb80fb1d656c99ef68c324cab5f5587584721f4c38eb3a5ac7d5f265541c7"
+    },
+    {
+      "arm": "C2_D",
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C2_minus_C0_DIAGNOSTIC_1024_dev1696_v1/ANALYSIS.json",
+      "sha256": "84291b7b435d42b017a43da571638f43d8ed178a3acc3596c29c37cbc269bc8e",
+      "verification_boundary": "Verified CSV, export, prediction, ledger, GT and metadata hashes; reused scorer cache/native-weight receipts; no cache or model byte rehash, no scoring.",
+      "checkpoint_receipt": "67d755fcbb404dcd58555ef7fd613b0fb6646d353a6bd065a2a06066851697a7"
+    },
+    {
+      "arm": "C3_C",
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C3_minus_C0_DIAGNOSTIC_1024_dev1696_v1/ANALYSIS.json",
+      "sha256": "d021e669bf13a3db3575285510d35984e23c6adfaa13d29403779eba7398e52e",
+      "verification_boundary": "Verified CSV, export, prediction, ledger, GT and metadata hashes; reused scorer cache/native-weight receipts; no cache or model byte rehash, no scoring.",
+      "checkpoint_receipt": "f22258f8094fcba3c071927db8e9733fffcf0a503b56f662b38ad42a2fc2d0ea"
+    },
+    {
+      "arm": "C4_T",
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C4_minus_C0_DIAGNOSTIC_1024_dev1696_v1/ANALYSIS.json",
+      "sha256": "2dd5dde3d9d472fd8b6ae90e2d161ff8aab984ce52318e4009a749ffacedfe40",
+      "verification_boundary": "Verified CSV, export, prediction, ledger, GT and metadata hashes; reused scorer cache/native-weight receipts; no cache or model byte rehash, no scoring.",
+      "checkpoint_receipt": "3005fadcdf43c06198d376680b4453d8482cdb0c24f859c9d345af25f3621617"
+    }
+  ],
+  "stage": "DIAGNOSTIC_1024",
+  "source_sha": "112ef4c40c0b0f2e82df367b2a4a64e9fdcf3d30",
+  "new_scoring_calls": 0,
+  "new_inference_calls": 0,
+  "full_4096_result": false,
+  "training_schedule_changed": false,
+  "cache_tensor_bytes_added": 0
+}
