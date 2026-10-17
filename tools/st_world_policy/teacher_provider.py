@@ -148,6 +148,13 @@ def create_provider(record, *, device, executor_factory=None):
     return provider
 
 
+def runtime_metrics(provider, rank):
+    """Invocation counters are observability only, never a consumed cursor."""
+    return {'provider_identity': provider.identity['identity'], 'rank': rank,
+            'counter_scope': 'this_process_invocation_not_checkpoint_progress',
+            **provider.memory_report()}
+
+
 def prepare(requests, sources, teacher_config, qualification, output, *, limits):
     """Version metadata only. A numerical review is recorded, never promoted."""
     report = read_small(qualification)

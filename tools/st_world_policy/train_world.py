@@ -337,6 +337,10 @@ def run(args):
                   "pid": os.getpid(), "started_unix": time.time(), "source_sha": registration["source_sha"]}
 
         def write_status():
+            if provider is not None:
+                from tools.st_world_policy.teacher_provider import runtime_metrics
+                status['teacher_provider_runtime'] = runtime_metrics(provider, rank)
+                atomic_json(out / f'teacher_provider_rank{rank}.json', status['teacher_provider_runtime'])
             if rank == 0:
                 atomic_json(out / "status.json", {**status, **state, "updated_unix": time.time()})
 

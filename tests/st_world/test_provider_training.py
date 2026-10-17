@@ -12,7 +12,7 @@ from starVLA.dataloader.st_world_schema import identity_hash
 from starVLA.dataloader.st_world_targets import TeacherCacheWriter, TeacherCacheReader
 from starVLA.dataloader.st_world_ondemand import BoundedTeacherProvider
 from tools.st_world_policy.teacher_provider import (
-    pin, prepare, load_descriptor, create_provider, configure_smoke, validate_option)
+    pin, prepare, load_descriptor, create_provider, configure_smoke, validate_option, runtime_metrics)
 from tools.st_world_policy.provider_pca import register_provider_scope
 from tools.st_world_policy.teacher_pca import TeacherPCA
 from tools.st_world_policy.training_config import validate_config
@@ -185,6 +185,11 @@ def test_no_ram_mode_keeps_batch_layout_and_rng_at_cold_restore(tmp_path):
         assert torch.equal(first[name],repeated[name]) and torch.equal(first[name],resumed[name])
     assert [len(x) for x in executor.calls] == [2,2,1]*3
     assert p.memory_report()['resident_bytes'] == 0
+    metrics = runtime_metrics(p, rank=0)
+    assert metrics['batches'] == 9 and metrics['computed_images'] == 15
+    assert metrics['immutable_hits'] == 0 and metrics['tensor_disk_bytes'] == 0
+    assert metrics['counter_scope'] == 'this_process_invocation_not_checkpoint_progress'
+    assert p.state_dict() == checkpoint  # Counters are never training progress.
 
 
 def test_selectable_config_keeps_cell_basis_recipe_and_rejects_backend_change(tmp_path):

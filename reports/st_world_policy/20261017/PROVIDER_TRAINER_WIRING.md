@@ -37,6 +37,10 @@ uses the original ST DiT/Flow trainer; it is not an IQE Query experiment.
   before every teacher batch. The inspected `apply_official_model_runtime`
   changes module attention implementations/checkpointing, not global SDP flags;
   a later global mutation is rejected instead of silently accepted.
+  Each status boundary writes small per-rank `teacher_provider_rankN.json`
+  counters (batch calls, computed images, immutable/RAM hits, resident peak,
+  failures, zero tensor disk bytes). Rank0 status/final result includes its
+  counters. They reset per invocation and are not sampler/checkpoint progress.
 
 ## Deliberately restricted selectable mode
 
@@ -103,6 +107,9 @@ The 12 new cases cover scope/version pins, missing/incomplete qualification,
 partial-LRU rejection, strict factory, old dataset identity, masks, cold resume
 with batch-sensitive fixture arithmetic, no refit, and explicit configuration.
 Fixture tests are not real teacher or student numerical evidence.
+After the small runtime-counter addition, `PROVIDER_TRAINER_COUNTER_TEST.txt`
+records the same 12 wiring cases passing in 4.18 seconds. These are a focused
+recheck, not 12 additional unique tests to add to the 71-case suite.
 
 Not run: real student forward/backward using this provider; original-cache vs
 provider loss/gradient/update; new runtime native save/resume; NCCL; real trainer
