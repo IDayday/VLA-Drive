@@ -1,13 +1,19 @@
 """Typed <=1 GiB learned-W admission in the original campaign ledger.
 
 This is control validation, not extraction or native checkpoint qualification.
-Only bounded pinned JSON is read here. spatial_probe.cache_plan/load_world_checkpoint
+Only bounded JSON controls are read here. spatial_probe.cache_plan/load_world_checkpoint
 remain responsible for actual native shards and observation images before use.
 No torch import, second ledger, automatic migration or tensor cache construction.
 """
 from pathlib import Path
+from collections import OrderedDict
+from types import MappingProxyType
+import hashlib
 import math
+import os
 import re
+import stat
+import threading
 
 from tools.st_world_policy import cache_storage_budget as b
 
@@ -17,6 +23,13 @@ PACKAGE_MAX = b.GIB
 MAX_CLAIMS = 8
 ARMS = ('S-P0', 'S-P1', 'S-P2', 'S-P3')
 AMOUNTS = ('output_bytes', 'staging_bytes', 'metadata_bytes')
+
+# Only native run identity embeds the full training population. Other control
+# limits are unchanged. Keep a verified small projection, never that population.
+RUN_IDENTITY_LIMIT = 32 << 20
+RUN_IDENTITY_CACHE_SIZE = 8
+_RUN_IDENTITIES = OrderedDict()
+_RUN_IDENTITY_LOCK = threading.RLock()
 
 
 def _exact(value, fields, name):
@@ -59,6 +72,64 @@ def _requirements(scenes, tokens, hidden):
 def tensor_schema(binding):
     return {'W': {'dtype': 'float32', 'shape': [binding['memory_tokens'], binding['hidden_dim']]},
             'memory_valid': {'dtype': 'bool', 'shape': [binding['memory_tokens']], 'all_valid': True}}
+
+
+def _run_identity_projection(value):
+    """One bounded full read per immutable file version; <=8 tiny LRU entries.
+
+    A changed file is rejected, even if it claims the same semantic identity.
+    A new process can revalidate it in full. The extractor still checks native
+    tensors; this cache only avoids reparsing large training-population JSON.
+    """
+    from tools.st_world_policy.metadata_storage import _json, _version
+    path = b._path(str(value))
+    with _RUN_IDENTITY_LOCK:
+        before = path.lstat()
+        if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                or not 0 < before.st_size <= RUN_IDENTITY_LIMIT):
+            b._fail('frozen W run identity nonregular/shared/oversized')
+        version = _version(before)
+        cached = _RUN_IDENTITIES.get(str(path))
+        if cached is not None:
+            if cached['version'] != version:
+                b._fail('frozen W run identity changed after validation')
+            _RUN_IDENTITIES.move_to_end(str(path))
+            return cached
+        # O_NOFOLLOW closes a leaf-link race; O_NONBLOCK avoids waiting if a
+        # racing writer substitutes a special file. fstat/path versions must
+        # describe the same private regular file throughout read + validation.
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, 'rb') as stream:
+            opened = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1
+                    or _version(opened) != version):
+                b._fail('frozen W run identity changed before read')
+            raw = stream.read(RUN_IDENTITY_LIMIT + 1)
+            after = os.fstat(stream.fileno())
+        if (len(raw) != before.st_size or len(raw) > RUN_IDENTITY_LIMIT
+                or _version(after) != version or _version(path.lstat()) != version):
+            b._fail('frozen W run identity changed/oversized during read')
+        raw_sha = hashlib.sha256(raw).hexdigest()
+        run = _sealed(_json(raw))
+        if (run.get('schema') != 'st_world_training_v1'
+                or not isinstance(run.get('config'), dict)
+                or run.get('weights_usable_for_formal_init') is not True):
+            b._fail('frozen W run identity schema/config/formal origin differs')
+        _source(run.get('source_sha'))
+        for key in ('registration_sha256', 'base_binding'):
+            b._hash(run.get(key), 'frozen W run ' + key)
+        result = MappingProxyType(dict(
+            identity=run['identity'], config_sha256=b._digest(run['config']),
+            source_sha=run['source_sha'], registration_sha256=run['registration_sha256'],
+            base_binding=run['base_binding'], weights_usable_for_formal_init=True,
+            raw_sha256=raw_sha, bytes=len(raw), version=version))
+        # Parsing/canonical semantic hashing is part of the validated snapshot.
+        if b._path(str(path)) != path or _version(path.lstat()) != version:
+            b._fail('frozen W run identity changed during validation')
+        _RUN_IDENTITIES[str(path)] = result
+        while len(_RUN_IDENTITIES) > RUN_IDENTITY_CACHE_SIZE:
+            _RUN_IDENTITIES.popitem(last=False)
+        return result
 
 
 def validate_signature(signature):
@@ -201,17 +272,12 @@ def validate_signature(signature):
         b._fail('frozen W native rank inventory/termination differs')
     for name, value in receipt['files'].items():
         _token(name); b._hash(value['sha256'], 'native shard'); b._integer(value['bytes'], 'native shard bytes', positive=True)
-    # Full run identity is represented in the native receipt. Its config/source
-    # is additionally verified from the small content-addressed run identity.
+    # Validate the full immutable run identity once, keeping only bounded
+    # lineage/config digests. Every later write still checks its file version.
     identity_path = b._path(str(b._path(checkpoint['run']) / 'identity.json'))
-    with identity_path.open('rb') as stream:
-        before = os.fstat(stream.fileno()); raw = stream.read(CONTROL_LIMIT + 1); after = os.fstat(stream.fileno())
-    if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or len(raw) > CONTROL_LIMIT
-            or _version(before) != _version(after) or _version(after) != _version(identity_path.stat())):
-        b._fail('frozen W run identity changed/oversized')
-    run = _sealed(_json(raw))
-    if (run.get('schema') != 'st_world_training_v1' or run['identity'] != checkpoint['run_identity']
-            or run['config'] != cfg or run['source_sha'] != checkpoint['training_source_sha']
+    run = _run_identity_projection(identity_path)
+    if (run['identity'] != checkpoint['run_identity']
+            or run['config_sha256'] != b._digest(cfg) or run['source_sha'] != checkpoint['training_source_sha']
             or run['registration_sha256'] != binding['training_registration']['sha256']
             or run['base_binding'] != checkpoint['base_binding']
             or run['weights_usable_for_formal_init'] is not True):

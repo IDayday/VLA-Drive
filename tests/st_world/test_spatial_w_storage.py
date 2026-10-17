@@ -48,7 +48,11 @@ def signature_fixture(tmp_path, arm='S-P0', split='train', *, hidden=8, revision
     run = armroot / 'runs' / 'native'
     run_id = seal(dict(schema='st_world_training_v1', config=cfg, source_sha='1'*40,
         registration_sha256=reg_ref['sha256'], base_binding=base['binding_sha256'], weights_usable_for_formal_init=True))
-    write(run / 'identity.json', run_id)
+    # Train/dev fixtures share the same immutable run; do not rewrite its inode.
+    if (run / 'identity.json').exists():
+        assert json.loads((run / 'identity.json').read_text()) == run_id
+    else:
+        write(run / 'identity.json', run_id)
     files = {name:dict(bytes=1,sha256=b._digest(name)) for name in
         ('mp_rank_00_model_states.pt','bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt','rng_rank0.pt')}
     receipt = seal(dict(schema='st_native_checkpoint_v1', world_size=1, files=files,
