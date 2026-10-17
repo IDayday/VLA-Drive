@@ -32,6 +32,18 @@ def read(path):
     return json.loads(Path(path).read_text())
 
 
+def verify_source_snapshot(path):
+    """Accept the two existing publisher schemas, never a conflicting commit."""
+    path = Path(path)
+    seal = read(path / 'SOURCE_COMPLETE.json')
+    identities = [seal[k] for k in ('commit', 'git_sha') if k in seal]
+    if (len(path.name) != 40 or any(c not in '0123456789abcdef' for c in path.name)
+            or not identities or any(value != path.name for value in identities)
+            or seal.get('git_archive_extraction_complete') is not True):
+        raise ValueError('Controller and worker sources must be immutable published snapshots')
+    return seal
+
+
 def configuration(root, control_source, hosts):
     if not hosts or len(set(hosts)) != len(hosts):
         raise ValueError('Distinct candidate hosts required')
@@ -310,8 +322,7 @@ def main():
     source = Path(__file__).resolve().parents[3]
     value = configuration(ROOT, source, args.hosts)
     for path in (SOURCE, EVALUATION_SOURCE, source):
-        if read(path / 'SOURCE_COMPLETE.json') != dict(commit=path.name, git_archive_extraction_complete=True):
-            raise ValueError('Controller and worker sources must be immutable published snapshots')
+        verify_source_snapshot(path)
     args.control.mkdir(parents=True, exist_ok=True)
     with (ROOT / 'final_handoff.owner.lock').open('a') as guard:
         fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)

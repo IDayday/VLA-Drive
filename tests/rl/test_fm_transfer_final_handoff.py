@@ -14,6 +14,25 @@ def snapshot(count=8, prefix='p', *, free=70000, cpu=128, load=0):
                 owners=[], CPU_affinity=cpu, CPU_capacity=cpu, load=[load, load, load])
 
 
+@pytest.mark.parametrize('field', ['commit', 'git_sha'])
+def test_current_and_existing_legacy_source_seal_metadata(tmp_path, field):
+    source = tmp_path/('a'*40); source.mkdir()
+    seal = {field: source.name, 'git_archive_extraction_complete': True, 'created_unix': 123,
+            'purpose': 'CPU controller only'}
+    atomic_json(source/'SOURCE_COMPLETE.json', seal)
+    assert handoff.verify_source_snapshot(source) == seal
+
+
+@pytest.mark.parametrize('change', [{'git_sha': 'b'*40}, {'commit': 'b'*40},
+    {'git_archive_extraction_complete': False}, {'git_archive_extraction_complete': 1}])
+def test_source_seal_does_not_waive_conflicting_identity_or_incomplete_publish(tmp_path, change):
+    source = tmp_path/('a'*40); source.mkdir()
+    seal = dict(commit=source.name, git_archive_extraction_complete=True); seal.update(change)
+    atomic_json(source/'SOURCE_COMPLETE.json', seal)
+    with pytest.raises(ValueError, match='immutable published'):
+        handoff.verify_source_snapshot(source)
+
+
 def test_no_endpoint_gate_means_no_inventory_lock_or_launch(tmp_path, monkeypatch):
     def forbidden(*a, **kw):
         pytest.fail('No final activity before all registered endpoint evidence exists')
