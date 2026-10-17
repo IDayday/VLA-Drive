@@ -475,7 +475,10 @@ def _supervise(argv, *, cwd, env, cpus, descriptors, attempt, wall, rss, rss_rea
     except Exception as exc:
         remember_monitor_error('final_counter_snapshot', exc)
         reason = reason or 'MONITOR_UNREADABLE'
-    return dict(exit_code=code, limit_reason=reason, wall_seconds=time.monotonic() - started,
+    elapsed = time.monotonic() - started
+    if elapsed >= wall:
+        reason = reason or 'WALL_LIMIT'
+    return dict(exit_code=code, limit_reason=reason, wall_seconds=elapsed,
                 sampled_tree_rss_peak_bytes=maximum_rss, log_bytes_stored=log.stat().st_size,
                 log_bytes_received=emitted, counters=final_counters, first_monitor_error=first_monitor_error,
                 process_cleanup=dict(verified_processes=owner.verified, live_owned_remaining=0,
