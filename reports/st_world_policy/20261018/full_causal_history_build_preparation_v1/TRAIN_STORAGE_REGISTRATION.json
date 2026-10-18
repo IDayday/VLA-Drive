@@ -1,0 +1,110 @@
+{
+  "callback_protocol": "st_metadata_storage_check_v1",
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "tools.st_world_policy.prepare_causal_history",
+    "build",
+    "--student-root",
+    "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "--raw-log-root",
+    "/mnt/navsim/trainval_navsim_logs/trainval",
+    "--sensor-root",
+    "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+    "--fallback-sensor-root",
+    "/mnt/navsim/trainval_sensor_blobs/trainval",
+    "--partition",
+    "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+    "--scene-list",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+    "--split",
+    "train",
+    "--mode",
+    "registered",
+    "--max-scenes",
+    "101592",
+    "--seed",
+    "20261017",
+    "--tolerance",
+    "0.05",
+    "--target-times",
+    "0",
+    "--record-layout",
+    "packed_log_v1",
+    "--registration",
+    "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_BUILDER_BUDGET.json",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train"
+  ],
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "directory_patterns": [
+    "history_shards"
+  ],
+  "file_patterns": [
+    "METADATA_ADMISSION\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+    "BUILD\\.lock",
+    "PREPARE\\.lock",
+    "(?:resolved_config|SELECTED_SCENES|HISTORY_MANIFEST|TEACHER_REQUESTS|RESOURCE_COST|COMPLETE)\\.json(?:\\.[0-9a-f]+\\.partial)?",
+    "CONTROL_HISTORY_(?:STARTED|RESULT)\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+    "history_shards/[0-9]{6}_[0-9a-f]{16}\\.jsonseq(?:\\.[0-9a-f]+\\.partial)?"
+  ],
+  "inventory_strategy": "immutable_history_shards_v1",
+  "limits": {
+    "max_depth": 1,
+    "max_disk_bytes": 2146435072,
+    "max_entries": 9000,
+    "max_rss_bytes": 4294967296,
+    "max_seconds": 14400
+  },
+  "max_history_shards": 4096,
+  "max_scenes": 101592,
+  "max_source_read_bytes": 481036337152,
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train",
+  "read_mib_per_second": 32,
+  "record_layout": "packed_log_v1",
+  "schema": "st_metadata_build_registration_v1",
+  "source_pins": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_causal_history.py",
+      "sha256": "87f9fb3f5e864962788198076618bdda3edc3d59e231b6ba9bd902080e5c3d63"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_history.py",
+      "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/history_shards.py",
+      "sha256": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_future_metadata.py",
+      "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_history.py",
+      "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_metadata_index.py",
+      "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_future_provenance.py",
+      "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_current_teacher.py",
+      "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+    }
+  ],
+  "storage_requirements": {
+    "metadata_bytes": 66060288,
+    "output_bytes": 1879048192,
+    "staging_bytes": 201326592
+  },
+  "writer_kind": "history_preparation"
+}
