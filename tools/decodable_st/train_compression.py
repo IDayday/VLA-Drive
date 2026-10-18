@@ -9,7 +9,7 @@ from torch.nn import functional as F
 from safetensors.torch import load_file
 from starVLA.teachers.decodable_st.vigt_adapter import load_vigt_decoder
 from starVLA.teachers.decodable_st.source_registry import atomic_json,sha256
-from starVLA.model.modules.decodable_st.vigt_readout import ContextBottleneck
+from starVLA.model.modules.decodable_st.vigt_readout import ContextBottleneck,ContextPatchBottleneck
 from starVLA.model.modules.decodable_st.metrics import occupancy_counts,summarize_counts
 from .runtime import (source_sha,parameter_digest,numerical_policy,write_identity,
                       save_checkpoint,load_checkpoint)
@@ -42,7 +42,7 @@ def evaluate(model,decoder,rows,mean_context,device):
             "population":len(rows),"teacher_GT_quality":"NOT_ESTABLISHED"}
 
 
-def run(config,output,*,device="cuda",max_updates=1000,grid=16,resume=False,stop_after=None):
+def run(config,output,*,device="cuda",max_updates=1000,grid=16,resume=False,stop_after=None,readout="bilinear"):
     if max_updates>1000 or grid not in (16,32):raise ValueError("Bounded registered capacity pilot only")
     numerical_policy(42,device,.50);start=time.monotonic();output=Path(output)
     cache=Path(config["native_context_root"])
@@ -63,11 +63,13 @@ def run(config,output,*,device="cuda",max_updates=1000,grid=16,resume=False,stop
     channel_mean=torch.stack([x["context"].mean((0,2,3)) for x in train]).mean(0)
     channel_sq=torch.stack([x["context"].square().mean((0,2,3)) for x in train]).mean(0)
     std=(channel_sq-channel_mean.square()).clamp_min(1e-6).sqrt()[None,:,None,None].to(device)
-    model=ContextBottleneck(2048,decoder.contract,(grid,grid)).to(device)
+    if readout not in ("bilinear","patch"):raise ValueError("Unknown capacity mapping")
+    if readout=="patch" and grid!=32:raise ValueError("Second expansion is fixed at 1024 queries")
+    model=(ContextBottleneck if readout=="bilinear" else ContextPatchBottleneck)(2048,decoder.contract,(grid,grid)).to(device)
     optimizer=torch.optim.AdamW(model.parameters(),lr=1e-4,weight_decay=.001)
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda u:min((u+1)/200,1.)*(.1+.9*.5*(1+math.cos(math.pi*min(u,max_updates)/max_updates))))
     identity=write_identity(output,{"schema":"vigt_compression_pilot_v1","source_sha":source_sha(),"config":config,
-       "source_receipt_hash":sha256(cache/"ROUNDTRIP.json"),"max_updates":max_updates,"grid":grid,"seed":42,
+       "source_receipt_hash":sha256(cache/"ROUNDTRIP.json"),"max_updates":max_updates,"grid":grid,"seed":42,"readout":readout,
        "feature_standardization":"train48 channel std","loss":{"feature":1.,"teacher_logit_soft_bce":1.},
        "batch":1,"precision":"FP32 TF32 disabled","load_receipt":load_receipt,
        "train_tokens":[r["token"] for r in receipt["records"][:48]],"held_tokens":[r["token"] for r in receipt["records"]][48:64],
@@ -119,6 +121,7 @@ def run(config,output,*,device="cuda",max_updates=1000,grid=16,resume=False,stop
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("--config",required=True);p.add_argument("--output",required=True)
     p.add_argument("--device",default="cuda");p.add_argument("--max-updates",type=int,default=1000)
-    p.add_argument("--grid",type=int,default=16);p.add_argument("--resume",action="store_true");p.add_argument("--stop-after",type=int)
+    p.add_argument("--grid",type=int,default=16);p.add_argument("--readout",choices=("bilinear","patch"),default="bilinear")
+    p.add_argument("--resume",action="store_true");p.add_argument("--stop-after",type=int)
     a=p.parse_args();run(json.loads(Path(a.config).read_text()),a.output,device=a.device,max_updates=a.max_updates,
-                         grid=a.grid,resume=a.resume,stop_after=a.stop_after)
+                         grid=a.grid,resume=a.resume,stop_after=a.stop_after,readout=a.readout)

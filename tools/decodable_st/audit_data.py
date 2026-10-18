@@ -56,7 +56,7 @@ def run(config,output):
               "merged_lidar2ego_identity":bool(np.array_equal(current["lidar2ego"],np.eye(4))),
               "per_sensor_origins_available":False,"first_return_provenance_verified":False,
               "observed_free_labels":0,"no_hit_policy":"unknown","pcd_sha256":sha256(pcd),
-              "published_occ_path_exists":Path(current.get("occ_gt_final_path","")).is_file()})
+              "published_occ_path_exists":bool(current.get("occ_gt_final_path")) and Path(current["occ_gt_final_path"]).is_file()})
     result={"status":"INCONCLUSIVE","split_verified":True,"train_scenes":len(train_tokens),"dev_scenes":len(dev_tokens),
             "train_logs":len(train_logs),"dev_logs":len(dev_logs),"log_overlap":0,"token_overlap":0,
             "rows":rows,"seconds":time.monotonic()-start,"calibration_population":"64 train-only logs",
