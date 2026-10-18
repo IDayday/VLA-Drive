@@ -1,0 +1,43 @@
+{
+  "status": "PASS_NARROW_AST_AND_REGISTRATION",
+  "old_commit": "39e18192877fc9c30b8ea3635fd1f45be026798b",
+  "new_commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "changed_source_paths": [
+    "tools/st_world_policy/train_flow_policy.py"
+  ],
+  "removed_exact_logging_assignments": [
+    "normalization_seconds = 0.",
+    "normalization_tick = time.perf_counter()",
+    "normalization_seconds = time.perf_counter()-normalization_tick",
+    "per_rank[\"seconds\"][\"advantage_normalization\"] = normalization_seconds"
+  ],
+  "rest_of_complete_trainer_AST_identical": true,
+  "old_source_sha256": "be3ef51850fbbaa23387b3f66fdec93dfe129aae5bf4869af2386c9ef9480d16",
+  "new_source_sha256": "3126a07ad9dff63f8326a06b7aff12672e873273d7c8945e6294f45741264f44",
+  "registration_path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/REGISTRATION.json",
+  "registration_sha256": "c38c4275d0cc15574cf433619cc5abbd41044e3f7dc55b1c9b990cef1fd3f468",
+  "registration_bytes": 2345,
+  "config_artifact": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/CONFIG.json",
+    "sha256": "2aaa646f18850782595e512c071fe77538921390a830d97dddba93cde702cebf"
+  },
+  "config_bytes": 2270,
+  "execution": {
+    "family": "consequence",
+    "global_batch": 32,
+    "max_updates": 4096,
+    "micro_batch": 4,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 4,
+    "world_size": 4
+  },
+  "formal_init": false,
+  "actual_tests_reexecuted": false,
+  "models_loaded": false,
+  "data_payloads_read": false,
+  "score_calls": 0,
+  "gpu_calls": 0
+}

@@ -1,0 +1,11 @@
+# Narrow supplement: timing-only source and fixed four-update SMOKE
+
+This supplement binds `751fcfa2b41549ae16f7b3204aef8dd18b912016` and the exact SMOKE registration SHA `c38c4275d0cc15574cf433619cc5abbd41044e3f7dc55b1c9b990cef1fd3f468`. It inherits the 37 passing CPU/Gloo tests and source review at `39e18192877fc9c30b8ea3635fd1f45be026798b`; those records are retained unchanged in `rollout_scale_runtime_correctness_v1`.
+
+The only changed source file is `tools/st_world_policy/train_flow_policy.py`. Four added assignments initialize a timer, read `time.perf_counter()` around normalization, and record the elapsed time. After removing exactly those assignments, the complete trainer AST is identical to the reviewed implementation. No math, RNG, optimizer, data cursor, normalizer, receipt, or resume code changed. The new timer is a nested host-wall measurement within `official_feedback`: it includes dependency hashing and collective waiting. It must not be added a second time to total update costs or interpreted as exclusive CUDA kernel time.
+
+Only two real metadata files were read for this supplement: the registration (2345 bytes) and its hash-verified config (2270 bytes). The run is explicit C1 `scene_center_rollout_std_v1`, original BC/policy weights one, G4/MC50, seed42, 4 ranks, global32/micro4, sample limit32, stop_after4. The original 4096-step schedule and warmup100 remain intact. Config score calls are capped at640, runtime at900 seconds, with outputs marked unusable for formal initialization. No model, image, target or score-cache data was opened, and no test/model/score/GPU job was dispatched.
+
+The final machine-readable receipt also pins the submitted launcher bytes. That pin is identity linkage, not an independent systems/resource approval: the separate systems reviewer owns launcher process isolation, resource headroom, cleanup and wall-time enforcement. This supplement approves only implementation correctness for the exact bounded SMOKE. It does not authorize formal training, infer scientific benefit, or generalize to a different source/run/launcher.
+
+The original historical-C1 reuse finding is unchanged. It applies to a future matched comparison, not to equating this 32-scene SMOKE with the completed full TRAIN control. CUDA/NCCL/ZeRO2 native integration remains to be established by the actual bounded run.

@@ -1,0 +1,88 @@
+{
+  "schema": "independent_rollout_scale_smoke_correctness_v2",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "reviewed_at_utc": "2026-10-18T17:39:30.842449+00:00",
+  "status": "APPROVE_ROLLOUT_SCALE_SMOKE_IMPLEMENTATION_CORRECTNESS",
+  "binding": {
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/REGISTRATION.json",
+      "sha256": "c38c4275d0cc15574cf433619cc5abbd41044e3f7dc55b1c9b990cef1fd3f468"
+    },
+    "launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v1.py",
+      "sha256": "ae0c45f2d95e8ee9a249cdfdbcc7ea447f625637c150bc05a0a35e4e3bc0d00e"
+    }
+  },
+  "source_hashes": {
+    "starVLA/model/modules/flow_posttraining/advantage_scale.py": "3d721c3699ee9c5c6d070556262415dddea65140c3f7dad7a427e43fcc2e2a63",
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "af73f28313d8ddfe2d3b0e90a11a907d77b2568eb759368677ce1bbffe842260",
+    "tools/st_world_policy/flow_training_config.py": "33b1e28e2310cffdf30ae9e09e2cd25c05472b7f9f09eb597a34ea5dd04aa56d",
+    "tools/st_world_policy/train_flow_policy.py": "3126a07ad9dff63f8326a06b7aff12672e873273d7c8945e6294f45741264f44",
+    "tools/st_world_policy/flow_checkpoints.py": "9a2289a99a3292a0f27bf71d43f1555be1957e6e3f26a63e00e35e3bee7c3055",
+    "tests/st_world/test_advantage_scale.py": "7f5e0338888358c6678742ddd764bc191d367f9c3ba142a10f4cd714fb99e741",
+    "tests/st_world/test_flow_rollout_scale_integration.py": "e641cafb5b2a1f696cbec6b749e9ea1d6cfa1fa275daff269af25817a71e00a3"
+  },
+  "source_clean": true,
+  "inherited_evidence": {
+    "review_commit": "573b36544679df55d78378bc77047e7aeaa31a69",
+    "path": "reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/REVIEW.json",
+    "sha256": "658f67ea129d286ef32db1dbd2bb995f46ea1cee34bf69553bf6264bdfd23a37",
+    "source_sha": "39e18192877fc9c30b8ea3635fd1f45be026798b",
+    "cpu_gloo_tests_passed": 37,
+    "full_suite_reexecuted": false
+  },
+  "delta_check": {
+    "path": "DELTA_CHECK.json",
+    "sha256": "2bdc68645cb8559eacd1656471acb1f8be3a4643294e0e98a6adee10c083496c",
+    "result": "PASS",
+    "complete_AST_equal_after_removing_exact_four_timing_assignments": true,
+    "other_implementation_files_changed": false,
+    "math_rng_optimizer_receipt_resume_changes": false
+  },
+  "execution_scope": {
+    "family": "consequence",
+    "global_batch": 32,
+    "max_updates": 4096,
+    "micro_batch": 4,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "SMOKE",
+    "seed": 42,
+    "stop_after": 4,
+    "world_size": 4,
+    "feedback_max_calls": 640,
+    "runtime_max_seconds": 900,
+    "weights_usable_for_formal_init": false
+  },
+  "conditions": [
+    "Only this exact four-update SMOKE, source, registration and launcher identity are covered.",
+    "Separate independent systems/resource approval is required. The launcher hash here is identity binding, not a correctness reviewer substituting for resource approval.",
+    "Do not add advantage_normalization timing to official_feedback a second time; it is nested host wall, including hashing and collective waiting, not exclusive CUDA time.",
+    "Preserve original max_updates4096/warmup100, G4/MC50, BC1/policy1 and all registered execution semantics.",
+    "This receipt does not approve formal training, deployment, model quality, a different run, or use of SMOKE weights for formal initialization."
+  ],
+  "legacy_control_reuse": "Unchanged conditional old-C1 reuse conclusion from v1; this limited32-scene SMOKE is not a matched full-training scientific comparison.",
+  "not_tested_here": [
+    "Real CUDA/NCCL/ZeRO2 native integration",
+    "Actual model and image pipeline",
+    "Official scoring execution",
+    "Launcher resource/cleanup correctness",
+    "Planning gain or safety"
+  ],
+  "work_performed": {
+    "source_AST_static_comparison": true,
+    "registration_config_hash_validation": true,
+    "launcher_bytes_hash_validation": true,
+    "launcher_bytes": 13799,
+    "registration_config_bytes": 4615,
+    "real_model_loaded": false,
+    "real_dataset_payload_read": false,
+    "metric_cache_read": false,
+    "GPU_compute": false,
+    "official_score_calls": 0,
+    "dispatch": false,
+    "formal_training_approval": false
+  }
+}
