@@ -1,0 +1,163 @@
+{
+  "observed_unix": 1792283722.1768975,
+  "unique_GPU_count": 40,
+  "models": {
+    "A_DDP_TIME_RL_final_NAVTEST": {
+      "ranks": 8,
+      "raw_entry_checked": 8,
+      "scenes": 4550,
+      "measured_rate": null,
+      "rank_windows": 0
+    },
+    "A_DDP_TIME_SFT_final_NAVTEST": {
+      "ranks": 8,
+      "raw_entry_checked": 8,
+      "scenes": 5082,
+      "measured_rate": 7.1939587077122304,
+      "rank_windows": 8,
+      "ETA_inference_minutes": 16.365583695541396
+    },
+    "B_SOURCE_ACTION_DIT_RL_final_NAVTEST": {
+      "ranks": 12,
+      "raw_entry_checked": 12,
+      "scenes": 3878,
+      "measured_rate": 6.550469983758661,
+      "rank_windows": 12,
+      "ETA_inference_minutes": 21.036658490408094
+    },
+    "B_SOURCE_ACTION_DIT_SFT_final_NAVTEST": {
+      "ranks": 12,
+      "raw_entry_checked": 12,
+      "scenes": 6670,
+      "measured_rate": 5.987907648333114,
+      "rank_windows": 12,
+      "ETA_inference_minutes": 15.241829371245071
+    }
+  },
+  "schema": "Navtest_scaleout_execution_observation_v1",
+  "status": "ALL_40_WORKERS_PASSED_ORIGINAL_OBSERVATION_CHECK_RUNNING",
+  "prediction_source": "45d2318d2dec265583860a26f891d8b79bb6068a",
+  "dispatcher_source": "d58485b08078a6319b2835793d8c79ffbbd3e9d5",
+  "repartition_source": "85b4236b6506e3df8b9ab70fcbf92ebcf8a30e05",
+  "liveness_relay_source": "80a1d3e77fe047d816a721f74a488b7084f1cb78",
+  "original_lock_sha256": "4d7010f0c30cfa2e62a051db58e7f080c638ba1bdea44cfdb85446ac1df24524",
+  "reused_model_scenes": 12790,
+  "preserved_original_banks": true,
+  "numerical_inference_or_score_change": false,
+  "extra_training_or_seed": 0,
+  "canonical_analysis_concurrency": 4,
+  "dual_release_analysis_concurrency": 8,
+  "full_final_scores_ready": false,
+  "routes": {
+    "A_DDP_TIME_SFT": {
+      "shards": 8,
+      "hosts": {
+        "training-vlawm-tsinghua-zt": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    "A_DDP_TIME_RL": {
+      "shards": 8,
+      "hosts": {
+        "training-vlawm-tsinghua-zt2": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    "B_SOURCE_ACTION_DIT_SFT": {
+      "shards": 12,
+      "hosts": {
+        "training-vlawm-tsinghua-zt4": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "training-vla-zt": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "B_SOURCE_ACTION_DIT_RL": {
+      "shards": 12,
+      "hosts": {
+        "training-vlawm-tsinghua-zt6": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "training-vla-zt": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  },
+  "migration": {
+    "A_DDP_TIME_RL_final_NAVTEST": {
+      "old_shards": 2,
+      "new_shards": 8,
+      "reused_scenes": 3998,
+      "additional_predictions": 0,
+      "additional_scores": 0,
+      "wall_seconds": 416.2383941151202,
+      "scientific_fields_changed": false
+    },
+    "B_SOURCE_ACTION_DIT_RL_final_NAVTEST": {
+      "old_shards": 2,
+      "new_shards": 12,
+      "reused_scenes": 2393,
+      "additional_predictions": 0,
+      "additional_scores": 0,
+      "wall_seconds": 258.49240770190954,
+      "scientific_fields_changed": false
+    },
+    "A_DDP_TIME_SFT_final_NAVTEST": {
+      "old_shards": 2,
+      "new_shards": 8,
+      "reused_scenes": 4001,
+      "additional_predictions": 0,
+      "additional_scores": 0,
+      "wall_seconds": 415.17574455589056,
+      "scientific_fields_changed": false
+    },
+    "B_SOURCE_ACTION_DIT_SFT_final_NAVTEST": {
+      "old_shards": 2,
+      "new_shards": 12,
+      "reused_scenes": 2398,
+      "additional_predictions": 0,
+      "additional_scores": 0,
+      "wall_seconds": 251.26398078724742,
+      "scientific_fields_changed": false
+    }
+  }
+}
