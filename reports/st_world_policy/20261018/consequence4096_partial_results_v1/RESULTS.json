@@ -1,0 +1,60 @@
+{
+  "schema": "st_consequence4096_partial_results_v1",
+  "observed_utc": "2026-10-18T14:26:56.134121+00:00",
+  "status": "PARTIAL_MATRIX",
+  "scientific_training_endpoint": 4096,
+  "population": "fixed_complete_DEV",
+  "navtest_used": false,
+  "score_units": "PDMS_percent_100x_official",
+  "source_commit": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "pending": [
+    "C1_PDMS",
+    "C4_TTC"
+  ],
+  "arms": {
+    "C2": {
+      "analysis": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C2_minus_C0_COMMON_ENDPOINT_dev1696_v1/ANALYSIS.json",
+        "sha256": "87da937badafdabc1ece28835598861c52be79881c46098f0c47f248883cf4a4"
+      },
+      "scenes": 1696,
+      "logs": 16,
+      "control_mean": 91.13833459918325,
+      "treatment_mean": 91.13495916967732,
+      "paired_delta": -0.0033754295059551407,
+      "paired_delta_ci95": [
+        -0.0037562961865399073,
+        -0.0029009332965445364
+      ],
+      "bootstrap_repetitions": 2000,
+      "events": {
+        "new_zero": 0,
+        "zero_repaired": 0,
+        "zero_persisted": 45,
+        "high_to_zero": 0
+      }
+    },
+    "C3": {
+      "analysis": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C3_minus_C0_COMMON_ENDPOINT_dev1696_v1/ANALYSIS.json",
+        "sha256": "8fc549f5fd9f960fc75eab0b5cfb5573c1d61594ae852394d8f657a0967647ca"
+      },
+      "scenes": 1696,
+      "logs": 16,
+      "control_mean": 91.13833459918325,
+      "treatment_mean": 91.1700850972451,
+      "paired_delta": 0.03175049806184803,
+      "paired_delta_ci95": [
+        -0.003913222594705142,
+        0.06469707407426646
+      ],
+      "bootstrap_repetitions": 2000,
+      "events": {
+        "new_zero": 0,
+        "zero_repaired": 1,
+        "zero_persisted": 44,
+        "high_to_zero": 0
+      }
+    }
+  }
+}
