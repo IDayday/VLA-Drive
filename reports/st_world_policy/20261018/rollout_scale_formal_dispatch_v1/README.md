@@ -1,0 +1,11 @@
+# One formal rollout-scale arm: dispatch preparation
+
+The existing bounded PROFILE is still running. This preparation does not approve or launch formal training. The unique new arm uses the original S0, full TRAIN population, seed42, global32/world4/micro4, original4096 learning-rate clock, G4/MC50/repeat8 and ten-step deployment. Diagnostic weights are not reused. Completed legacy C1 is the matched control and is not rerun.
+
+The external launcher reuses the mature three-review gate, exact native checksum resume and optimizer-boundary pause. It pins runtime751fcfa2 and the one immutable registration. Its only dispatch adaptations are the correct source/registration, reviewed CPU affinity, selected-GPU process check and current remaining-write reservation. Six attempts include incomplete dispatch directories; fifteen native directories include partial states. A terminal checkpoint cannot start a continuation. No automatic retry or resume is configured.
+
+The monitor writes only this run's STOP_REQUESTED on a resource violation. GPU/RSS/free/native count are sampled every5seconds; whole output sizes every300seconds and at final exit, avoiding repeated large shared-filesystem metadata scans. These are sampled controls, not hard instantaneous quotas. A size violation can be observed up to300seconds late, including an in-flight native write of roughly12GiB plus the intervening small feedback records. The independent admission includes retained shared free space and other jobs' future writes. The launcher never controls or deletes those jobs' files.
+
+Current reservations:209GiB for this run,1TiB shared floor,4GiB unresolved old remaining claims and292GiB for the separately running IL job. This requires1529GiB free at invocation admission and protects1320GiB while running. Existing retained files already reduce filesystem free and are not charged twice. Fresh GPU, RAM, maps, disk and lease checks run under cooperative GPU/dispatch locks at every invocation.
+
+Evidence/correctness formal reviews are already bound. The complete two-window PROFILE, final independent efficiency review and the mature Lead gate remain required. No quality gain is required to launch the registered comparison, and no result-derived threshold is introduced.
