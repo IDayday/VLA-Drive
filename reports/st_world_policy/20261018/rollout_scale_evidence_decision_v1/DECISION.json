@@ -1,0 +1,520 @@
+{
+  "schema": "st_rollout_scale_evidence_decision_v1",
+  "status": "EVIDENCE_SUPPORTS_BOUNDED_VALIDATION_NOT_LAUNCH_APPROVAL",
+  "agent": "/root/consequence_next_hypothesis",
+  "decision": "Recommend implementing only the frozen candidate, independent implementation correctness review, then separately authorized bounded SMOKE/PROFILE; no formal or profile dispatch approval here.",
+  "method": "scene_center_rollout_std_v1",
+  "control": "legacy_scene_center_v1",
+  "proposal": {
+    "commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+    "markdown_sha256": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c",
+    "json_sha256": "c8294fed768a040b1de43a4153f68e753acd6f5539c7a5a11d63f640129884e9",
+    "unchanged": true
+  },
+  "authority": {
+    "research_evidence_recommendation_only": true,
+    "implementation_launch_approved_by_this_artifact": false,
+    "profile_launch_approved": false,
+    "formal_training_approved": false,
+    "resource_approval": false,
+    "dispatch_performed": false
+  },
+  "fixed_definition": {
+    "raw_A": "original FP32 scene-center",
+    "population": "same old-policy full optimizer rollout across all ranks, complete G4 candidates including zero A",
+    "numerator_global_recenter": false,
+    "std_correction": 1,
+    "epsilon_after_std": 1e-10,
+    "stats_dtype": "FP64",
+    "output_dtype": "FP32 detached",
+    "BC_weight": 1,
+    "policy_weight": 1,
+    "G": 4,
+    "MC": 50,
+    "Euler_steps": 10,
+    "maximum_reuse": 1
+  },
+  "gates_from_frozen_proposal": [
+    {
+      "id": "section4_population",
+      "status": "MET",
+      "evidence": {
+        "updates": 4096,
+        "scene_presentations": 131064,
+        "candidate_presentations": 524256,
+        "C1_nonzero_group_presentations": 80933,
+        "primary_and_derived_independent_reviews_bound": true
+      }
+    },
+    {
+      "id": "section4_per_update_amplitudes",
+      "status": "MET",
+      "evidence": {
+        "updates": 4096,
+        "normal_N128_updates": 4095,
+        "tail_N96_updates": 1,
+        "other_N_updates": 0,
+        "nonzero_group_sum": 80933,
+        "allzero_updates": 0,
+        "any_numeric_flags_updates": 0,
+        "max_rounding_bound_fraction": 5.067594008227943e-08,
+        "boundary3584": {
+          "policy_version": 3584,
+          "N": 128,
+          "zero_groups": 16,
+          "nonzero_groups": 16,
+          "sum_A": 7.152557373046875e-07,
+          "mean_A": 5.587935447692871e-09,
+          "M2": 5.94786137670944e-05,
+          "std_correction1": 0.0006843504522342221,
+          "energy_A": 5.9478613771091204e-05,
+          "max_abs_A": 0.0028017759323120117,
+          "delta_rounding": 7.5120938303197e-08,
+          "rounding_energy_bound": 7.223238875587493e-13,
+          "rounding_bound_fraction": 1.2144262311470099e-08,
+          "gain": 1461.2394141208283,
+          "constant_nonzero_groups": 0,
+          "numeric_flags_mask": 0,
+          "strata_mask": 11
+        }
+      },
+      "interpretation": "Fixed scalar distributions describe recorded population, not a coefficient selection or future gradient forecast."
+    },
+    {
+      "id": "section4_precision",
+      "status": "MET_FOR_RECORDED_A",
+      "evidence": {
+        "numeric_flags": {
+          "N_below_two": 0,
+          "constant_nonzero_group": 0,
+          "nonfinite_input_or_statistics": 0,
+          "nonzero_A_but_std_zero": 0,
+          "positive_std_le_epsilon": 0,
+          "rounding_bound_can_cover_all_energy": 0,
+          "std_zero": 0
+        },
+        "max_rounding_energy_bound_fraction": 5.067594008227943e-08,
+        "preexisting_unresolved_condition": "N*delta^2/sum(A^2) >= 1"
+      },
+      "scope": "Excludes dominance by this recorded rounding-residual bound; does not certify new model/collective execution or all numerical error sources."
+    },
+    {
+      "id": "section4_windows_safety_progress_strata",
+      "status": "MET_WITH_EXPLICIT_REWEIGHTING_RISK",
+      "evidence": {
+        "[0,1024)": {
+          "all_updates": 1024,
+          "nonzero_updates": 1024,
+          "safe_EP_only_updates": 521,
+          "DCT_discriminative_updates": 344,
+          "safe_EP_only_scale_median": 866.8665624301324,
+          "DCT_discriminative_scale_median": 13.464486676555731
+        },
+        "[1024,2048)": {
+          "all_updates": 1024,
+          "nonzero_updates": 1024,
+          "safe_EP_only_updates": 546,
+          "DCT_discriminative_updates": 334,
+          "safe_EP_only_scale_median": 904.3022344456907,
+          "DCT_discriminative_scale_median": 13.596418434613078
+        },
+        "[2048,3072)": {
+          "all_updates": 1024,
+          "nonzero_updates": 1024,
+          "safe_EP_only_updates": 645,
+          "DCT_discriminative_updates": 242,
+          "safe_EP_only_scale_median": 1152.0952261164277,
+          "DCT_discriminative_scale_median": 13.691773585720902
+        },
+        "[3072,4096)": {
+          "all_updates": 1024,
+          "nonzero_updates": 1024,
+          "safe_EP_only_updates": 694,
+          "DCT_discriminative_updates": 199,
+          "safe_EP_only_scale_median": 1370.1314307549987,
+          "DCT_discriminative_scale_median": 14.007766637977491
+        }
+      }
+    }
+  ],
+  "full_TRAIN_population": {
+    "counts": {
+      "C1_nonzero_candidate_presentations": 323724,
+      "EP_only_scene_presentations": 79586,
+      "candidate_pair_presentations": 786384,
+      "candidate_presentations": 524256,
+      "event_candidate_counts_D_C_T": [
+        3639,
+        125,
+        2398
+      ],
+      "ledgers": 4096,
+      "nonzero_advantage_scene_presentations": {
+        "C": 38,
+        "C1": 80933,
+        "D": 791,
+        "T": 520
+      },
+      "scene_presentations": 131064
+    },
+    "unique_scenes": 101592,
+    "unique_logs": 1176,
+    "repeated_scene_distribution": {
+      "1": 72120,
+      "2": 29472
+    },
+    "support_unique_population": {
+      "C1": {
+        "scene_presentations": 80933,
+        "unique_logs": 1148,
+        "unique_scenes": 62860
+      },
+      "EP_only": {
+        "scene_presentations": 79586,
+        "unique_logs": 1148,
+        "unique_scenes": 61745
+      },
+      "D": {
+        "scene_presentations": 791,
+        "unique_logs": 395,
+        "unique_scenes": 764
+      },
+      "C": {
+        "scene_presentations": 38,
+        "unique_logs": 31,
+        "unique_scenes": 37
+      },
+      "T": {
+        "scene_presentations": 520,
+        "unique_logs": 294,
+        "unique_scenes": 485
+      }
+    }
+  },
+  "support_vs_value_energy": {
+    "EP_only_nonzero_groups": 79586,
+    "nonzero_groups": 80933,
+    "EP_only_support_fraction": 0.9833566036103938,
+    "gated_signed_covariance_fractions": {
+      "float32_rounding": 3.616386537985868e-09,
+      "gated_Comfort": 0.15775331809983403,
+      "gated_EP": 0.3579864480934907,
+      "gated_TTC": 0.4842602301902908
+    },
+    "interpretation": "Gated terms include NC*DAC; no independent causal, metric-specific or parameter-gradient attribution."
+  },
+  "scale_strata": {
+    "all": {
+      "updates": 4096,
+      "std": {
+        "0.0": 0.00033741839296604943,
+        "0.25": 0.0008242567732794872,
+        "0.5": 0.0010993600908794162,
+        "0.75": 0.032026170660728256,
+        "0.9": 0.07685163244095503,
+        "0.99": 0.107997289235149,
+        "1.0": 0.14720991248557339
+      },
+      "scale": {
+        "0.0": 6.7930208124992815,
+        "0.25": 31.224463501180878,
+        "0.5": 909.6199853253308,
+        "0.75": 1213.2140360748988,
+        "0.9": 1501.8144080206312,
+        "0.99": 1992.0592290898323,
+        "1.0": 2963.678698252673
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 101592,
+      "unique_logs_in_member_batches": 1176
+    },
+    "allzero": {
+      "updates": 0,
+      "std": {
+        "0.0": null,
+        "0.25": null,
+        "0.5": null,
+        "0.75": null,
+        "0.9": null,
+        "0.99": null,
+        "1.0": null
+      },
+      "scale": {
+        "0.0": null,
+        "0.25": null,
+        "0.5": null,
+        "0.75": null,
+        "0.9": null,
+        "0.99": null,
+        "1.0": null
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 0,
+      "unique_logs_in_member_batches": 0
+    },
+    "safe_EP_only_update": {
+      "updates": 2406,
+      "std": {
+        "0.0": 0.0003812739209070323,
+        "0.25": 0.0007485435048818346,
+        "0.5": 0.0009325832199593104,
+        "0.75": 0.0011624630269244153,
+        "0.9": 0.0013734808189214155,
+        "0.99": 0.0019678338390352215,
+        "1.0": 0.002607619340541722
+      },
+      "scale": {
+        "0.0": 383.4915419223344,
+        "0.25": 860.2423516161407,
+        "0.5": 1072.290276907454,
+        "0.75": 1335.927557061417,
+        "0.9": 1589.4828400510833,
+        "0.99": 2037.960351813717,
+        "1.0": 2622.785569342094
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 65681,
+      "unique_logs_in_member_batches": 1173
+    },
+    "DCT_event_present_update": {
+      "updates": 1664,
+      "std": {
+        "0.0": 0.00033741839296604943,
+        "0.25": 0.0011430895213786697,
+        "0.5": 0.03677991476665769,
+        "0.75": 0.07685148352565913,
+        "0.9": 0.08694426889676704,
+        "0.99": 0.11738951657932548,
+        "1.0": 0.14720991248557339
+      },
+      "scale": {
+        "0.0": 6.7930208124992815,
+        "0.25": 13.012110538697847,
+        "0.5": 27.18875295278403,
+        "0.75": 874.8222216343516,
+        "0.9": 1240.7853618867712,
+        "0.99": 1954.7206728759359,
+        "1.0": 2963.678698252673
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 49224,
+      "unique_logs_in_member_batches": 1171
+    },
+    "DCT_metric_discriminative_update": {
+      "updates": 1119,
+      "std": {
+        "0.0": 0.0005489728671401711,
+        "0.25": 0.036562179333041706,
+        "0.5": 0.07305167088251684,
+        "0.75": 0.07939006417532612,
+        "0.9": 0.08874176903951413,
+        "0.99": 0.12017369611381867,
+        "1.0": 0.14720991248557339
+      },
+      "scale": {
+        "0.0": 6.7930208124992815,
+        "0.25": 12.596073186423354,
+        "0.5": 13.68894080792931,
+        "0.75": 27.350922598682903,
+        "0.9": 31.222208378915518,
+        "0.99": 720.4411421140148,
+        "1.0": 1821.583319866216
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 34158,
+      "unique_logs_in_member_batches": 1162
+    },
+    "D_metric_discriminative_update": {
+      "updates": 717,
+      "std": {
+        "0.0": 0.020240989113727417,
+        "0.25": 0.07371872141563134,
+        "0.5": 0.0768541946198664,
+        "0.75": 0.08553810828991901,
+        "0.9": 0.09432541377250217,
+        "0.99": 0.12354299080960031,
+        "1.0": 0.14720991248557339
+      },
+      "scale": {
+        "0.0": 6.7930208124992815,
+        "0.25": 11.690695747462355,
+        "0.5": 13.01165152591867,
+        "0.75": 13.565075186334584,
+        "0.9": 14.373063894793447,
+        "0.99": 19.124725395092668,
+        "1.0": 49.40470000951342
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 22336,
+      "unique_logs_in_member_batches": 1141
+    },
+    "C_metric_discriminative_update": {
+      "updates": 38,
+      "std": {
+        "0.0": 0.0010232872265454928,
+        "0.25": 0.03847039333670866,
+        "0.5": 0.05009403472376708,
+        "0.75": 0.06870882385542137,
+        "0.9": 0.0897423021881758,
+        "0.99": 0.11323054761948545,
+        "1.0": 0.12206598730586996
+      },
+      "scale": {
+        "0.0": 8.1922902624381,
+        "0.25": 14.555019660953967,
+        "0.5": 19.98466751625667,
+        "0.75": 26.101680501080057,
+        "0.9": 44.56844694521591,
+        "0.99": 898.2415807252482,
+        "1.0": 977.2426317209378
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 1215,
+      "unique_logs_in_member_batches": 573
+    },
+    "T_metric_discriminative_update": {
+      "updates": 493,
+      "std": {
+        "0.0": 0.0005489728671401711,
+        "0.25": 0.03203095381659713,
+        "0.5": 0.03207262819098114,
+        "0.75": 0.048915659791013893,
+        "0.9": 0.08476311867611513,
+        "0.99": 0.11133265756282003,
+        "1.0": 0.14019756022476504
+      },
+      "scale": {
+        "0.0": 7.1327917381980015,
+        "0.25": 20.44335090701099,
+        "0.5": 31.179234546275122,
+        "0.75": 31.219800777829498,
+        "0.9": 31.285197192592456,
+        "0.99": 1013.0332055433178,
+        "1.0": 1821.583319866216
+      },
+      "numeric_flags": {
+        "N_below_two": 0,
+        "constant_nonzero_group": 0,
+        "nonfinite_input_or_statistics": 0,
+        "nonzero_A_but_std_zero": 0,
+        "positive_std_le_epsilon": 0,
+        "rounding_bound_can_cover_all_energy": 0,
+        "std_zero": 0
+      },
+      "unique_scenes_in_member_batches": 15443,
+      "unique_logs_in_member_batches": 1115
+    }
+  },
+  "main_risk": {
+    "safe_EP_only_scale_median_over_DCT_discriminative_scale_median": 78.33259650639519,
+    "ratio_kind": "ratio of two marginal medians, not paired treatment/gradient/safety effect",
+    "cross_update_reweighting_real": true,
+    "same_batch_relative_gaps_preserved_ignoring_cast": true,
+    "global_absolute_safety_error_cost_preserved": false,
+    "safety_or_PDMS_gain_proved": false,
+    "no_new_cap_epsilon_multiplier_or_quality_gate": true,
+    "old_refresh1_reuse1_clip_not_post_update_trust_region": true
+  },
+  "still_needed_before_actual_profile": [
+    "Final explicit variant implementation and independent distributed correctness review",
+    "Collective prepare/failure-vote order; actual masks/tail/micro/MC denominator invariance; zero groups/allzero synthetic case; RNG and BC invariance; resume identity",
+    "Independent efficiency/resource review and Lead admission for final SHA/config/data/precision/topology",
+    "Bounded SMOKE/PROFILE only, original <=256-update contract, profile weights discarded"
+  ],
+  "still_needed_before_formal_comparison": [
+    "All implementation/profile requirements satisfied",
+    "Separate formal approval with strictly matched legacy control and fixed exposure/budget/endpoint",
+    "Full outcome and safety/progress/zero-score/parking/degradation evaluation under existing contract; no DEV parameter or epoch selection"
+  ],
+  "new_implementation_training_profile_or_gradient_runs": 0,
+  "inputs": {
+    "primary": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1/RESULT.json",
+      "bytes": 327728,
+      "sha256": "0a6a84d3652122aeb69760b5237a56c71fec269c16b4066e78a0ddb05876d8cc",
+      "read_count_this_decision": 1
+    },
+    "derived": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/rollout_scale_train_evidence_v1/RESULT.json",
+      "bytes": 1109160,
+      "sha256": "3c65efe7e228cccec1d211eec7e1652c29d729c8292b25e8baa706c1ebfeaff1",
+      "source_runtime_commit": "5751d4d0",
+      "source_sha256": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e"
+    },
+    "reviews_file": "REVIEW_BINDINGS.json"
+  },
+  "prior_run_cost_not_this_agent": {
+    "abrupt_kill_counter_may_lag_reads": 64,
+    "actual_json_read_bytes": 40911941,
+    "bootstrap_source_allowance_bytes": 131072,
+    "call_id": "776ba3a6deb37226ed1201e52c0470a23161b1ee6059ff4f434cac347517e445",
+    "cpu_seconds": 6.787497999999999,
+    "flush_every_reads": 64,
+    "independent_wall_seconds": 60,
+    "peak_rss_bytes": 98402304,
+    "precharged_read_bytes": 41047129,
+    "read_limit_bytes": 67108864,
+    "read_operations": 4115,
+    "reserved_once_only_allowance_bytes": 67108864,
+    "started_unix": 1792343577.1095524,
+    "wall_seconds": 15.749567110091448
+  },
+  "read_scope_file": "READ_SCOPE.json",
+  "decision_markdown_sha256": "3f3a557cc4e3a88902af3ff98ae8dd6d668ec993ec3aed7ed4ea3caed9f8005b"
+}

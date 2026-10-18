@@ -1,0 +1,643 @@
+{
+  "schema": "st_rollout_scale_primary_evidence_v1",
+  "status": "PRIMARY_COMPLETE_DERIVED_PENDING",
+  "decision": "NOT_YET_SEALED",
+  "training_approval": false,
+  "proposal_commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+  "proposal_markdown_sha256": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c",
+  "sources": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1/RESULT.json",
+      "bytes": 327728,
+      "sha256": "0a6a84d3652122aeb69760b5237a56c71fec269c16b4066e78a0ddb05876d8cc",
+      "read_count_this_decision": 1
+    },
+    {
+      "git_commit": "6010086f",
+      "file": "reports/st_world_policy/20261018/full_train_feedback_actual_v1/RESULTS.json",
+      "bytes": 32819,
+      "sha256": "118ff7589bcdc5c06177dd173f176feec51a7d96470d41168b18a1e4e7e34b57",
+      "read_count_this_decision": 2
+    },
+    {
+      "git_commit": "6010086f",
+      "file": "reports/st_world_policy/20261018/full_train_feedback_actual_v1/REPORT.md",
+      "bytes": 2366,
+      "sha256": "35d0a61dbadab3a3a491f58f6d0f251a77989165315fdec4fc4b0b69f9d7c8ac",
+      "read_count_this_decision": 2
+    }
+  ],
+  "primary_method": {
+    "runtime_commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+    "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+    "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+    "admission_sha256": "3e3030ab7ffc5af089ebf8beae6f8124c47be2cdcbf909c5bd6847d9edc39f68",
+    "shard_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "merge_exit_code": 0
+  },
+  "counts": {
+    "C1_nonzero_candidate_presentations": 323724,
+    "EP_only_scene_presentations": 79586,
+    "candidate_pair_presentations": 786384,
+    "candidate_presentations": 524256,
+    "event_candidate_counts_D_C_T": [
+      3639,
+      125,
+      2398
+    ],
+    "ledgers": 4096,
+    "nonzero_advantage_scene_presentations": {
+      "C": 38,
+      "C1": 80933,
+      "D": 791,
+      "T": 520
+    },
+    "scene_presentations": 131064
+  },
+  "unique_scenes": 101592,
+  "unique_logs": 1176,
+  "support_unique_population": {
+    "C": {
+      "scene_presentations": 38,
+      "unique_logs": 31,
+      "unique_scenes": 37
+    },
+    "C1": {
+      "scene_presentations": 80933,
+      "unique_logs": 1148,
+      "unique_scenes": 62860
+    },
+    "D": {
+      "scene_presentations": 791,
+      "unique_logs": 395,
+      "unique_scenes": 764
+    },
+    "EP_only": {
+      "scene_presentations": 79586,
+      "unique_logs": 1148,
+      "unique_scenes": 61745
+    },
+    "T": {
+      "scene_presentations": 520,
+      "unique_logs": 294,
+      "unique_scenes": 485
+    },
+    "nonempty_time_or_severity_diff_C1_float32_tie": {
+      "scene_presentations": 1031,
+      "unique_logs": 431,
+      "unique_scenes": 963
+    },
+    "nonempty_time_or_severity_diff_C1_float64_tie": {
+      "scene_presentations": 1031,
+      "unique_logs": 431,
+      "unique_scenes": 963
+    },
+    "nonempty_time_or_severity_diff_C_terminal_tie": {
+      "scene_presentations": 21,
+      "unique_logs": 14,
+      "unique_scenes": 19
+    },
+    "nonempty_time_or_severity_diff_D_terminal_tie": {
+      "scene_presentations": 788,
+      "unique_logs": 364,
+      "unique_scenes": 741
+    },
+    "nonempty_time_or_severity_diff_T_terminal_tie": {
+      "scene_presentations": 355,
+      "unique_logs": 208,
+      "unique_scenes": 331
+    },
+    "nonempty_time_or_severity_diff_safety_vector_tie": {
+      "scene_presentations": 1114,
+      "unique_logs": 450,
+      "unique_scenes": 1042
+    }
+  },
+  "centered_advantage_amplitude": {
+    "all_scene_presentations": {
+      "abs_A_per_candidate": {
+        "RMS": 0.035854726727711186,
+        "count": 524256,
+        "mean": 0.003613683133535185,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.0002162456512451172,
+          "0.75": 0.0008138418197631836,
+          "0.9": 0.0016427040100097656,
+          "0.99": 0.08333331346511841,
+          "1.0": 0.75
+        }
+      },
+      "groups": 131064,
+      "within_group_A_range": {
+        "RMS": 0.07948547790002349,
+        "count": 131064,
+        "mean": 0.00915146115179308,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.001170516014099121,
+          "0.75": 0.002538815140724182,
+          "0.9": 0.004391711950302124,
+          "0.99": 0.1666666865348816,
+          "1.0": 1.0
+        }
+      }
+    },
+    "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+    "nonzero_advantage_scene_presentations": {
+      "abs_A_per_candidate": {
+        "RMS": 0.04562735634665671,
+        "count": 323732,
+        "mean": 0.005852047572852304,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.000287473201751709,
+          "0.5": 0.000638127326965332,
+          "0.75": 0.001230001449584961,
+          "0.9": 0.0021625757217407227,
+          "0.99": 0.2298359733819962,
+          "1.0": 0.75
+        }
+      },
+      "groups": 80933,
+      "within_group_A_range": {
+        "RMS": 0.10115018452297075,
+        "count": 80933,
+        "mean": 0.014820000548584733,
+        "quantiles": {
+          "0.0": 2.0265579223632812e-06,
+          "0.25": 0.001345992088317871,
+          "0.5": 0.0021480321884155273,
+          "0.75": 0.0034742355346679688,
+          "0.9": 0.005501699447631837,
+          "0.99": 0.5833333134651184,
+          "1.0": 1.0
+        }
+      }
+    }
+  },
+  "reward_value_decomposition": {
+    "advantage_squared_sum": 673.9632923744268,
+    "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+    "max_absolute_rounding_residual": 1.1545905365117903e-07,
+    "signed_covariance_fractions": {
+      "float32_rounding": 3.616386537985868e-09,
+      "gated_Comfort": 0.15775331809983403,
+      "gated_EP": 0.3579864480934907,
+      "gated_TTC": 0.4842602301902908
+    },
+    "signed_covariance_numerators": {
+      "float32_rounding": 2.437311777639511e-06,
+      "gated_Comfort": 106.3199456495544,
+      "gated_EP": 241.26972518251583,
+      "gated_TTC": 326.3736191050462
+    }
+  },
+  "scene_exposure_distribution": {
+    "fraction_presentations_after_first_occurrence": 0.22486724043215528,
+    "fraction_unique_scenes_seen_multiple_times": 0.29010158280179543,
+    "histogram_scene_count_by_presentations": {
+      "1": 72120,
+      "2": 29472
+    },
+    "presentations_per_unique_scene": {
+      "RMS": 1.3675908556309473,
+      "count": 101592,
+      "mean": 1.2901015828017954,
+      "quantiles": {
+        "0.0": 1.0,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 2.0,
+        "0.9": 2.0,
+        "0.99": 2.0,
+        "1.0": 2.0
+      }
+    }
+  },
+  "terminal_C1_float32_ties": {
+    "conditional_time_difference_fraction_given_nonempty": 0.5916107382550335,
+    "eligible_pairs": 304768,
+    "eligible_scenes": 51943,
+    "empty_event_pairs": 298808,
+    "nonempty_event_pairs": 5960,
+    "per_component_nonempty_pairs": [
+      4164,
+      104,
+      1959
+    ],
+    "per_component_time_diff_pairs": [
+      2729,
+      49,
+      880
+    ],
+    "physical_time_or_severity_diff_pairs": 3526,
+    "physical_time_or_severity_diff_scenes": 1031,
+    "segment_diff_pairs": 1190,
+    "ttc_projection_diff_pairs": 943
+  },
+  "windows": {
+    "[0,1024)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 80671,
+        "EP_only_scene_presentations": 19734,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          1224,
+          68,
+          745
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 14,
+          "C1": 20168,
+          "D": 269,
+          "T": 163
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1151,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 14,
+          "unique_logs": 14,
+          "unique_scenes": 14
+        },
+        "C1": {
+          "scene_presentations": 20168,
+          "unique_logs": 1110,
+          "unique_scenes": 20168
+        },
+        "D": {
+          "scene_presentations": 269,
+          "unique_logs": 201,
+          "unique_scenes": 269
+        },
+        "EP_only": {
+          "scene_presentations": 19734,
+          "unique_logs": 1108,
+          "unique_scenes": 19734
+        },
+        "T": {
+          "scene_presentations": 163,
+          "unique_logs": 136,
+          "unique_scenes": 163
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 356,
+          "unique_logs": 249,
+          "unique_scenes": 356
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 356,
+          "unique_logs": 249,
+          "unique_scenes": 356
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 14,
+          "unique_logs": 11,
+          "unique_scenes": 14
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 278,
+          "unique_logs": 198,
+          "unique_scenes": 278
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 120,
+          "unique_logs": 100,
+          "unique_scenes": 120
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 382,
+          "unique_logs": 261,
+          "unique_scenes": 382
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 224.85675045326235,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1545905365117903e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.561682454390396e-09,
+          "gated_Comfort": 0.15966315718128346,
+          "gated_EP": 0.3617181863176553,
+          "gated_TTC": 0.4786186529393786
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 8.008683428406243e-07,
+          "gated_Comfort": 35.901338690891855,
+          "gated_EP": 81.33477595523567,
+          "gated_TTC": 107.62063500626644
+        }
+      }
+    },
+    "[1024,2048)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 81243,
+        "EP_only_scene_presentations": 19902,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          1036,
+          25,
+          642
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 10,
+          "C1": 20311,
+          "D": 245,
+          "T": 149
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1160,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 10,
+          "unique_logs": 9,
+          "unique_scenes": 10
+        },
+        "C1": {
+          "scene_presentations": 20311,
+          "unique_logs": 1114,
+          "unique_scenes": 20311
+        },
+        "D": {
+          "scene_presentations": 245,
+          "unique_logs": 188,
+          "unique_scenes": 245
+        },
+        "EP_only": {
+          "scene_presentations": 19902,
+          "unique_logs": 1112,
+          "unique_scenes": 19902
+        },
+        "T": {
+          "scene_presentations": 149,
+          "unique_logs": 122,
+          "unique_scenes": 149
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 295,
+          "unique_logs": 208,
+          "unique_scenes": 295
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 295,
+          "unique_logs": 208,
+          "unique_scenes": 295
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 1,
+          "unique_logs": 1,
+          "unique_scenes": 1
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 235,
+          "unique_logs": 169,
+          "unique_scenes": 235
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 95,
+          "unique_logs": 85,
+          "unique_scenes": 95
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 323,
+          "unique_logs": 228,
+          "unique_scenes": 323
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 207.77760433592755,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1179874703781678e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.301475664965625e-09,
+          "gated_Comfort": 0.15914543421840457,
+          "gated_EP": 0.3574700953347531,
+          "gated_TTC": 0.48338446714536726
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 6.859727044399209e-07,
+          "gated_Comfort": 33.06685706290105,
+          "gated_EP": 74.27428003039063,
+          "gated_TTC": 100.43646655666329
+        }
+      }
+    },
+    "[2048,3072)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 80732,
+        "EP_only_scene_presentations": 19901,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          800,
+          16,
+          521
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 5,
+          "C1": 20184,
+          "D": 158,
+          "T": 115
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1161,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 5,
+          "unique_logs": 4,
+          "unique_scenes": 5
+        },
+        "C1": {
+          "scene_presentations": 20184,
+          "unique_logs": 1118,
+          "unique_scenes": 20184
+        },
+        "D": {
+          "scene_presentations": 158,
+          "unique_logs": 129,
+          "unique_scenes": 158
+        },
+        "EP_only": {
+          "scene_presentations": 19901,
+          "unique_logs": 1118,
+          "unique_scenes": 19901
+        },
+        "T": {
+          "scene_presentations": 115,
+          "unique_logs": 95,
+          "unique_scenes": 115
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 222,
+          "unique_logs": 175,
+          "unique_scenes": 222
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 222,
+          "unique_logs": 175,
+          "unique_scenes": 222
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 4,
+          "unique_logs": 4,
+          "unique_scenes": 4
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 167,
+          "unique_logs": 139,
+          "unique_scenes": 167
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 79,
+          "unique_logs": 66,
+          "unique_scenes": 79
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 243,
+          "unique_logs": 187,
+          "unique_scenes": 243
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 136.34771395979422,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1175373343386141e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.5707083902794514e-09,
+          "gated_Comfort": 0.1551983975232515,
+          "gated_EP": 0.35492083103997346,
+          "gated_TTC": 0.4898807678660669
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 4.868579262316599e-07,
+          "gated_Comfort": 21.160946712518733,
+          "gated_EP": 48.392643949010754,
+          "gated_TTC": 66.79412281140684
+        }
+      }
+    },
+    "[3072,4096)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 81078,
+        "EP_only_scene_presentations": 20049,
+        "candidate_pair_presentations": 196560,
+        "candidate_presentations": 131040,
+        "event_candidate_counts_D_C_T": [
+          579,
+          16,
+          490
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 9,
+          "C1": 20270,
+          "D": 119,
+          "T": 93
+        },
+        "scene_presentations": 32760
+      },
+      "unique_scenes": 31825,
+      "unique_logs": 1157,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 9,
+          "unique_logs": 9,
+          "unique_scenes": 9
+        },
+        "C1": {
+          "scene_presentations": 20270,
+          "unique_logs": 1112,
+          "unique_scenes": 19699
+        },
+        "D": {
+          "scene_presentations": 119,
+          "unique_logs": 101,
+          "unique_scenes": 118
+        },
+        "EP_only": {
+          "scene_presentations": 20049,
+          "unique_logs": 1111,
+          "unique_scenes": 19488
+        },
+        "T": {
+          "scene_presentations": 93,
+          "unique_logs": 80,
+          "unique_scenes": 91
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 158,
+          "unique_logs": 132,
+          "unique_scenes": 158
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 158,
+          "unique_logs": 132,
+          "unique_scenes": 158
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 2,
+          "unique_logs": 2,
+          "unique_scenes": 2
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 108,
+          "unique_logs": 92,
+          "unique_scenes": 108
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 61,
+          "unique_logs": 55,
+          "unique_scenes": 61
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 166,
+          "unique_logs": 138,
+          "unique_scenes": 166
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 104.98122362544345,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1342750511067479e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 4.416149746752826e-09,
+          "gated_Comfort": 0.1542257045984616,
+          "gated_EP": 0.354997055291001,
+          "gated_TTC": 0.49077723569438775
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 4.636128041273038e-07,
+          "gated_Comfort": 16.19080318324268,
+          "gated_EP": 37.26802524787849,
+          "gated_TTC": 51.522394730709486
+        }
+      }
+    }
+  },
+  "full_feedback_payloads_read": 0,
+  "DEV_navtest_models_read": 0,
+  "counted_small_data_read_bytes": 398098
+}

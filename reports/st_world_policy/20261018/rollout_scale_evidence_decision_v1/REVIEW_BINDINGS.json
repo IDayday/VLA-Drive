@@ -1,0 +1,224 @@
+{
+  "schema": "st_rollout_scale_decision_review_bindings_v1",
+  "read_only": true,
+  "reviews": [
+    {
+      "git_commit": "941e55ae",
+      "file": "reports/st_world_policy/20261018/full_train_feedback_correctness_v1/REVIEW.json",
+      "bytes": 5803,
+      "sha256": "3384f871b44ab68f4b82e29cedb7926482143fd40344c2fa6fc0c6f2ba97da84",
+      "selected": {
+        "status": "APPROVE_FULL_TRAIN_FEEDBACK_ANALYSIS",
+        "source_commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+        "runtime": "/mnt/project/VLA-Drive-st-full-feedback-runtime-20261018",
+        "source_hashes": {
+          "tools/st_world_policy/analyze_full_feedback_support.py": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+          "tests/st_world/test_full_feedback_support.py": "932f8afb84658c764e29939b2c17418898937643160e7382b9a6c7ac9fac7629"
+        },
+        "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+        "findings": {
+          "blocking_errors": [],
+          "original_float32_rewards_and_A_preserved": true,
+          "pooled_exact_quantiles_not_averaged_shard_quantiles": true,
+          "nonzero_groups_keep_all_four_candidates": true,
+          "tail24_and_full32_batches": true,
+          "unique_support_scene_log_unions_and_repeat_exposures": true,
+          "gated_decomposition_signed_residual_preserved": true,
+          "zero_event_denominator_undefined": true,
+          "one_read_of_pinned_payload_then_BytesIO": true,
+          "immutable_identity_and_explicit_failure_resume": true,
+          "merge_requires_all_original_versions_and_counts": true
+        },
+        "formal_training_approved": false,
+        "scope": {
+          "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+          "expected_ledgers": 4096,
+          "expected_scene_presentations": 131064,
+          "expected_candidate_presentations": 524256,
+          "expected_pair_presentations": 786384,
+          "cpu_only": true,
+          "new_score_calls": 0,
+          "model_loads": 0,
+          "optimizer_updates": 0,
+          "DEV_Navtest_reads": 0
+        },
+        "validation": {
+          "author_tests_passed": 10,
+          "independent_tests_passed": 6,
+          "focused_union_assertion_rerun_passed": true,
+          "real_known_ledger_only": "a53a189d6603e316f5eaf2254fe85d3903e82ec27dce9167b143e6eddfff33c0",
+          "real_payload_reads": 1,
+          "final_source_real_replay": "PASS_ONE_AUTHORIZED_REAL_LEDGER_ONLY",
+          "full_population_payload_scan": false,
+          "known_replay_cpu_seconds": 1.84909,
+          "known_replay_peak_rss_bytes": 425480192,
+          "known_replay_actual_input_bytes": 4994007,
+          "fixture_resources": [
+            {
+              "label": "AUTHOR",
+              "command": [
+                "/root/miniconda3/envs/ddp/bin/python",
+                "-m",
+                "pytest",
+                "-q",
+                "-p",
+                "no:cacheprovider",
+                "tests/st_world/test_full_feedback_support.py"
+              ],
+              "cwd": "/mnt/project/VLA-Drive-st-consequence-resource-review-20261018",
+              "exit_code": 0,
+              "wall_seconds": 2.3188186399638653,
+              "cpu_seconds": 2.235696,
+              "child_cumulative_peak_rss_bytes": 458387456
+            },
+            {
+              "label": "INDEPENDENT",
+              "command": [
+                "/root/miniconda3/envs/ddp/bin/python",
+                "-m",
+                "pytest",
+                "-q",
+                "-p",
+                "no:cacheprovider",
+                "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/full_train_feedback_correctness_v1/test_independent_math.py"
+              ],
+              "cwd": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018",
+              "exit_code": 0,
+              "wall_seconds": 1.968623075634241,
+              "cpu_seconds": 1.849603,
+              "child_cumulative_peak_rss_bytes": 458387456
+            }
+          ]
+        },
+        "review_kind": "correctness"
+      }
+    },
+    {
+      "git_commit": "941e55ae",
+      "file": "reports/st_world_policy/20261018/full_train_feedback_systems_v1/REVIEW.json",
+      "bytes": 6552,
+      "sha256": "80344628797d03ab6cebcd47f0ed33639c5e5e9ecf7b396fe4d0783e1b9619c3",
+      "selected": {
+        "status": "PASS_BOUNDED_READ_ONLY_ANALYSIS",
+        "executable_runtime": {
+          "path": "/mnt/project/VLA-Drive-st-full-feedback-runtime-20261018",
+          "commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+          "dirty": false,
+          "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca"
+        },
+        "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+        "blocking_findings": [],
+        "approval_scope": {
+          "fixed_C1_TRAIN_ledgers": 4096,
+          "shards": 8,
+          "ledgers_per_shard": 512,
+          "payload_bytes": 14088142976,
+          "model_loads": 0,
+          "new_scores": 0,
+          "optimizer_updates": 0,
+          "GPU_contexts": 0,
+          "formal_training_approved": false
+        }
+      }
+    },
+    {
+      "git_commit": "941e55ae",
+      "file": "reports/st_world_policy/20261018/rollout_scale_design_correctness_v1/DESIGN_REVIEW.json",
+      "bytes": 4924,
+      "sha256": "a9e238fce9976461d92e4ed68f666221b2f992212de16f996be3159794424641",
+      "selected": {
+        "status": "PASS_DESIGN_MATH_EVIDENCE_PENDING",
+        "proposal_commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+        "proposal_artifacts": {
+          "ROLLOUT_SCALE_PROPOSAL.md": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c",
+          "ROLLOUT_SCALE_PROPOSAL.json": "c8294fed768a040b1de43a4153f68e753acd6f5539c7a5a11d63f640129884e9"
+        },
+        "findings": [
+          "FP32 scene centering retained; denominator is complete rollout centered-A std correction1 in FP64, plus1e-10 outside sqrt; no second numerator centering",
+          "Exact-zero G4 groups preserved, global all-zero valid rollout retains BC; invalid/empty feedback fails collectively",
+          "Full/tail and microbatch/rank partition arithmetic is consistent when the common scalar and actual N are fixed before slicing",
+          "Same-update positive scalar preserves surrogate clipping branch/sign/relative gaps, but not cross-update relative weights or original BC-policy balance",
+          "Zero-group inclusion may increase active candidate coefficients; complete-N reduction means total sparse-batch gradient amplification is not guaranteed",
+          "Single-reuse initial ratio near1 does not provide a post-update clipping guarantee",
+          "Common validation failure vote must precede all statistics collectives; mathematics tests are not runtime failure/collective certification"
+        ],
+        "blocking_design_bugs": [],
+        "pending_before_implementation_or_profile": [
+          "Complete independently checked TRAIN analysis and separate per-update std/scale, four windows, roundoff, EP-only and safety support strata",
+          "New explicit variant identity; preserve legacy default and original zero/constant-group, BC, RNG, MC and sampler behavior",
+          "Independent implementation and distributed error/reduction/resume checks; frozen tolerances justified by numeric reference",
+          "Separate bounded profile, systems/resource approval and Lead admission"
+        ],
+        "authority": {
+          "implementation_approved_by_this_review": false,
+          "profile_approved": false,
+          "formal_training_approved": false,
+          "resource_review": false,
+          "dispatch_performed": false
+        },
+        "review_kind": "independent_mathematical_design"
+      }
+    },
+    {
+      "git_commit": "941e55ae",
+      "file": "reports/st_world_policy/20261018/feedback_scale_correctness_review_v1/REVIEW.json",
+      "bytes": 4117,
+      "sha256": "b46b820af5e142963743160f48ef5b0d5794a28795f8dee8debdb99ab663acb8",
+      "selected": {
+        "status": "APPROVE_DERIVED_FEEDBACK_SCALE_ANALYSIS",
+        "source_hashes": {
+          "tools/st_world_policy/analyze_feedback_scale.py": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e",
+          "tools/st_world_policy/analyze_full_feedback_support.py": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+          "tests/st_world/test_feedback_scale.py": "f01f977e7463c4a07cd20fa998e1940c2fc83cb29ec975d5fe1f62bfdcef65ad"
+        },
+        "authority": {
+          "derived_read_only_analysis_only": true,
+          "profile_or_training_approved": false,
+          "resource_coapproval": false,
+          "GPU_or_scoring_approved": false,
+          "dispatch_performed": false
+        },
+        "review_kind": "correctness"
+      }
+    },
+    {
+      "git_commit": "941e55ae",
+      "file": "reports/st_world_policy/20261018/feedback_scale_systems_review_v1/REVIEW.json",
+      "bytes": 5961,
+      "sha256": "326e8adfd3ca169fb6b1819c0c46ea91550f8913441cb008bf5261fd6babaf06",
+      "selected": {
+        "status": "PASS_BOUNDED_DERIVED_ANALYSIS",
+        "source_sha256": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e",
+        "blocking_findings": [],
+        "scope": {
+          "original_payload_reads": 0,
+          "real_compact_reads_by_reviewer": 0,
+          "model_loads": 0,
+          "new_scores": 0,
+          "optimizer_updates": 0,
+          "new_rewards": 0,
+          "training_approval": false,
+          "remote_dispatch_by_reviewer": false,
+          "expected_ledgers": 4096,
+          "expected_scene_presentations": 131064,
+          "expected_candidates": 524256
+        },
+        "validation": {
+          "source_regression": {
+            "count": 10,
+            "status": "PASS",
+            "wall_seconds": 1.25,
+            "source_at_test": "e5393993",
+            "inherited_after": "8b00af41 changes only conservative counter-lag metadata 63→64; the new independent fault injection covers that change."
+          },
+          "independent_control_tests": {
+            "count": 5,
+            "status": "PASS",
+            "wall_seconds": 0.050924401730298996,
+            "source_sha256": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e"
+          }
+        }
+      }
+    }
+  ]
+}
