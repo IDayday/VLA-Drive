@@ -1,0 +1,80 @@
+{
+  "schema": "st_independent_narrow_review_v1",
+  "status": "PASS_CODE_AND_BOUNDED_CPU_FIXTURES",
+  "reviewer": "/root/temporal_narrow_review",
+  "source_commit": "6b0109249965f23f2cc88e6d7eacef05b055b7da",
+  "source_tree": "/mnt/project/VLA-Drive-st-full-history-controller-20261018",
+  "wrapper_sha256": "de927e745efa6ac6d325f50a8a49930a577803abdbc387da93365ecf9868c374",
+  "plan_sha256": "f6c96c1cb48d20b1143fc4fd38451e1ba4d6ae02ba71fe1ac7d8fae8ff1a2079",
+  "policy_sha256": "a1d00bfc6b891f3b328860ef476ce003853c49e3a08a3684c95e725d199d8f75",
+  "inherited": {
+    "native_metadata_v3_review": "de4724b2",
+    "exact_bridge_helper_review": "b0413df7",
+    "monitor_sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2",
+    "original_controller_sha256": "a8499c33fd778f5f68f285369086e3a19ad480d2e85ec5d7b9f51b1d06bfe016"
+  },
+  "findings": [],
+  "verified": [
+    "Only fixed train101592/dev1696 roles; exact scene manifest hash, bytes, role/student roots, original source paths/partitions and command budget are bound through SHA-pinned plan/registration.",
+    "Streaming selection hash handles actual30,071,766B train list under original admitted read accounting; no fake small JSON population or altered sampler/selection.",
+    "Original controls parses actual native builder command and validates expected options; role/selection/output/native registration are additionally exactly matched before controls.",
+    "Parent and owned child reuse the already reviewed current-runtime W bridge before importing metadata guard. Mathematical/source builder pins and histories remain unchanged.",
+    "Full role source adapts exact-count fixed constants/child-wrapper command while original owned monitor, accounting, postwait, cleanup and no-retry publication remain intact.",
+    "One nonblocking global FULL_POPULATION.lock in train_controls is held throughout parent run; train/dev cannot concurrently run. Role child uses original owned supervisor lock. Both plain control directories must exist and global lock is charged to retained train control1MiB.",
+    "Append-only policy adds exactly two declarations with2146435072+133169152 artifact bytes. All old claims and every nonclaims field unchanged relative to reviewed package-onlyv3.",
+    "Combined role limits retain original protected separate1MiB controls and all failed partials; expired CP/lease or altered role/source/disk/read/wall/RSS bindings reject."
+  ],
+  "roles": {
+    "train": {
+      "scenes": 101592,
+      "logs": 1176,
+      "cpus": [
+        10,
+        11
+      ],
+      "workers": 1,
+      "source_read_bytes": 481036337152,
+      "sampled_outer_rchar_limit": 549755813888,
+      "rss_bytes": 4294967296,
+      "wall_seconds": 14400,
+      "cleanup_seconds": 40,
+      "artifacts_MiB": 2047,
+      "controls_MiB": 1
+    },
+    "dev": {
+      "scenes": 1696,
+      "logs": 16,
+      "cpus": [
+        10,
+        11
+      ],
+      "workers": 1,
+      "source_read_bytes": 17179869184,
+      "sampled_outer_rchar_limit": 25769803776,
+      "rss_bytes": 4294967296,
+      "wall_seconds": 900,
+      "cleanup_seconds": 40,
+      "artifacts_MiB": 127,
+      "controls_MiB": 1
+    }
+  },
+  "tests": {
+    "command": "taskset -c 2,3 /root/miniconda3/envs/ddp/bin/python -B -m pytest -q -p no:cacheprovider <fixed owner>/test_full_role_binding.py",
+    "status": "18 passed",
+    "pytest_seconds": 0.77,
+    "log_sha256": "7b743624e4c4900b3218e1a8451cef2bd4c39ece619d9f07c3428cb33af311aa",
+    "scope": "Small temporary selection/lock/publication files and pinned source/JSON only; no real builder or live ledger."
+  },
+  "actual_admission_missing": [
+    "fresh independent actual per-role admission and covering CP/time/host",
+    "successful original package migration and original exact append-only claim admission",
+    "Lead-created both plain control roots; no duplicate INVOCATION; fresh CPU placement"
+  ],
+  "scope_limits": [
+    "No actual launch, GPU, SSH, live ledger, full population read, teacher/image/log/model payload access.",
+    "Original monitor read/RSS thresholds are sampled conservative enforcement plus final exact postwait counters, not an exact instantaneous physicalIO hard quota.",
+    "Native parser/options owner check inherited; not repeated. This is not a full-history completion or training/scientific readiness claim.",
+    "Train4hcap is a stop condition; source pacing lower bound is around12500s, so completion is not guaranteed and failed evidence must remain."
+  ],
+  "launch_approval": false
+}
