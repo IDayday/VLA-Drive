@@ -1,0 +1,609 @@
+{
+  "schema": "st_common_endpoint_analysis_handoff_v1",
+  "reviewer": "/root/spatial20k_evidence",
+  "created_utc": "2026-10-18T02:42:40.420821+00:00",
+  "source": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "runtime_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "commands": {
+    "C1": {
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COMMANDS.json",
+        "sha256": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421"
+      },
+      "original_command_unchanged": {
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C1_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C1_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C1_minus_C0",
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "Both full1696 score COMPLETE receipts, exact endpoint identity and Lead analysis authorization. Diagnostic512/1024 never cause scientific early elimination.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+        "sha256": "7176e78ccc287094e19ed51691d02b8dd4685866ea69bd96eb76a2e58c3d9bf4"
+      }
+    },
+    "C2": {
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/COMMANDS.json",
+        "sha256": "640832d3714e8f889183950b50147bc1dcd1c2238cd637f019221a3c2cb10467"
+      },
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C2_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C2_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C2_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "BothC0andC2 atsamefixedstage complete1696 export+score; actualexactnativeidentityandLeadanalysisauthorization. C3additionallyneedsnewimmutableplanversionbindingrealapproval/launch/runtimeidentity; thisplanC3formalbindingisnull.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+      }
+    },
+    "C3": {
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/COMMANDS.json",
+        "sha256": "c4f4c6498b29f42548b98a17c8d398e8cf2182f4ecb19c11197209774af12195"
+      },
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C3_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C3_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C3_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "C0 and C3 at the same fixed stage: exact complete native identity, full 1696 export and official score, plus Lead analysis authorization. 512/1024 remain diagnostic only.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+      }
+    },
+    "C4": {
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/COMMANDS.json",
+        "sha256": "334e8735f45da2f2fbf70d3b27e4e2cdabfdfa070c4549443533a3d57d125879"
+      },
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C4_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C4_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C4_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "C0 and C4 at the same fixed stage: exact complete native identity, full 1696 export and official score, plus Lead analysis authorization. 512/1024 remain diagnostic only.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+      }
+    }
+  },
+  "plans": {
+    "C1": {
+      "bindings": {
+        "C0": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "983aa66e1bf8919eeafe2511d6fd2bb41f1fccb4fbfe66493d5962e2f1416f6c"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+          },
+          "runtime_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9"
+        },
+        "C1": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "b84d65ed8e47bc8b6c33feff18a5d1c61a160d8950380868a3bec32352d7471b"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "fab95d5624450d7a93c140337e545c3ee4365e0298cf388af477111ea0a80efb"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930"
+          },
+          "runtime_identity": "9c279380654e586896608fc66be9dbcc45181d953b40271d6374dba5fc0847df"
+        }
+      },
+      "statistics": {
+        "bootstrap_replicates": 2000,
+        "bootstrap_seed": 20261017,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_unit": "paired_log_cluster",
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "zero_epsilon": 1e-08,
+        "high_score_threshold": 0.9,
+        "high_drop_threshold": 0.05,
+        "ep_drop_threshold": 0.05,
+        "moving_reference_m": 5.0,
+        "low_progress_m": 1.0,
+        "near_stop_speed_mps": 0.5,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "all_metrics_required": true
+      },
+      "population": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+      }
+    },
+    "C2": {
+      "bindings": {
+        "C0": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "983aa66e1bf8919eeafe2511d6fd2bb41f1fccb4fbfe66493d5962e2f1416f6c"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+          },
+          "runtime_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9"
+        },
+        "C2": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "7d3dd8587aa9e3f2ee03d113eac9e0535eeadab27598da584f1dfe5a4bda572a"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C2_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "5af307f55fe58bd734c629686413f363272014795fd880d45ab640b2678b613e"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "ab6c077f5633e769b8987bf95a869be0bb4f3164cfa7fe041a42e57b7bc2fae0"
+          },
+          "runtime_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0"
+        }
+      },
+      "statistics": {
+        "all_metrics_required": true,
+        "bootstrap_replicates": 2000,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_seed": 20261017,
+        "bootstrap_unit": "paired_log_cluster",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "ep_drop_threshold": 0.05,
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "high_drop_threshold": 0.05,
+        "high_score_threshold": 0.9,
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "low_progress_m": 1.0,
+        "moving_reference_m": 5.0,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "near_stop_speed_mps": 0.5,
+        "zero_epsilon": 1e-08
+      },
+      "population": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+      }
+    },
+    "C3": {
+      "bindings": {
+        "C0": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "983aa66e1bf8919eeafe2511d6fd2bb41f1fccb4fbfe66493d5962e2f1416f6c"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+          },
+          "runtime_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9"
+        },
+        "C3": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "024e0e86eec8f1c9d2a837a6c8a2b600f2e1f39805cf9984cc7a6e2466a852d2"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C3_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "91188c6a68420956d6c16cbd5b186a502d387a8b523bfd11e29eb704d8e5c1b0"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "7b9d57c3ae83d8ca37106927d037b26c7ec11600a4e5496548e412e9171f18c6"
+          },
+          "runtime_identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999"
+        }
+      },
+      "statistics": {
+        "all_metrics_required": true,
+        "bootstrap_replicates": 2000,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_seed": 20261017,
+        "bootstrap_unit": "paired_log_cluster",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "ep_drop_threshold": 0.05,
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "high_drop_threshold": 0.05,
+        "high_score_threshold": 0.9,
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "low_progress_m": 1.0,
+        "moving_reference_m": 5.0,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "near_stop_speed_mps": 0.5,
+        "zero_epsilon": 1e-08
+      },
+      "population": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+      }
+    },
+    "C4": {
+      "bindings": {
+        "C0": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "eb8fb8c357b12b553ae410f016f48684b9d29ae7fdb1179b5011217b2246b71f"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C0_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "983aa66e1bf8919eeafe2511d6fd2bb41f1fccb4fbfe66493d5962e2f1416f6c"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+          },
+          "runtime_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9"
+        },
+        "C4": {
+          "registration": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C4_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+            "sha256": "e87165448c893d660b796eaa3029d839fc684ef8bdf5f3e4a18467b094d0f8fa"
+          },
+          "approval": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C4_fulltrain_seed42_official_4096_v1/RUN_APPROVAL.json",
+            "sha256": "80300d7718c0410b9b1106efa898b6a32fbf02d8bfc5aa4c83ccfaee940e6a84"
+          },
+          "run_identity_file": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/identity.json",
+            "sha256": "33265715bb9fde71dab1e9821d8d5c9fcccaf5df424c75d108cabd2e573d5d8a"
+          },
+          "runtime_identity": "4e023061b8ac16114cc1f9e3b5e440cb2c3a23d524d562aa1276270567f5fbbb"
+        }
+      },
+      "statistics": {
+        "all_metrics_required": true,
+        "bootstrap_replicates": 2000,
+        "bootstrap_rng": "numpy.PCG64",
+        "bootstrap_seed": 20261017,
+        "bootstrap_unit": "paired_log_cluster",
+        "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+        "ep_drop_threshold": 0.05,
+        "estimand": "scene_weighted_mean_treatment_minus_control",
+        "high_drop_threshold": 0.05,
+        "high_score_threshold": 0.9,
+        "interval": "percentile_2.5_97.5_linear_quantile",
+        "low_progress_m": 1.0,
+        "moving_reference_m": 5.0,
+        "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+        "near_stop_speed_mps": 0.5,
+        "zero_epsilon": 1e-08
+      },
+      "population": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+      }
+    }
+  },
+  "status": {
+    "C0": {
+      "observed_training_step": 4096,
+      "observed_training_status": "COMPLETE",
+      "status_updated_unix": 1792214791.3802476,
+      "status_receipt_at_observation": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/status.json",
+        "sha256": "a95914b765661f1ed8be75edb4091e83995d7cc8b24ed13b44e81c08826536c3"
+      },
+      "job_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1",
+      "dependencies": {
+        "export/IDENTITY.json": {
+          "exists": true,
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export/IDENTITY.json",
+          "sha256": "db6809ddd3c453e39d2204fe55ca0ae3b2fc65676a4e258c5f0324cbdefaffd9"
+        },
+        "export/COMPLETE_rank0.json": {
+          "exists": true,
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export/COMPLETE_rank0.json",
+          "sha256": "dd8d46e35f000b76007f5e8f0c08e939ca9dc980bb9114c22d6fd471236f6951",
+          "small_summary": {
+            "requested": 1696
+          }
+        },
+        "official_score/IDENTITY.json": {
+          "exists": true,
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score/IDENTITY.json",
+          "sha256": "f01f981601742038a3fae975a0cadfdc24c6adda24efbbc3016a015c6a6b620e"
+        },
+        "official_score/COMPLETE.json": {
+          "exists": true,
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+          "sha256": "222d2f687de42d0fa686ce3dac0d01527b3630f9eb15a1e2eb3064724bd0b39b",
+          "small_summary": {
+            "status": "COMPLETE",
+            "requested_scenes": 1696,
+            "valid_scored": 1696,
+            "invalid": 0,
+            "unresolved": 0
+          }
+        }
+      },
+      "full_scoring_complete": true
+    },
+    "C1": {
+      "observed_training_step": 3846,
+      "observed_training_status": "RUNNING",
+      "status_updated_unix": 1792291356.3968244,
+      "status_receipt_at_observation": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/status.json",
+        "sha256": "d8e74b631b1de2642de345cb88f6cab8a967e673463605ba05ddd4549fbc55dd"
+      },
+      "job_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1",
+      "dependencies": {
+        "export/IDENTITY.json": {
+          "exists": false
+        },
+        "export/COMPLETE_rank0.json": {
+          "exists": false
+        },
+        "official_score/IDENTITY.json": {
+          "exists": false
+        },
+        "official_score/COMPLETE.json": {
+          "exists": false
+        }
+      },
+      "full_scoring_complete": false
+    },
+    "C2": {
+      "observed_training_step": 4096,
+      "observed_training_status": "COMPLETE",
+      "status_updated_unix": 1792290928.3617883,
+      "status_receipt_at_observation": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/status.json",
+        "sha256": "af6fe7de97c9c6155630bea4a77b61ae58b98be8bdb87e36f75c52de3da8d3df"
+      },
+      "job_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1",
+      "dependencies": {
+        "export/IDENTITY.json": {
+          "exists": true,
+          "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/export/IDENTITY.json",
+          "sha256": "962b8549058e4267438d60e7bcac7cf4f6ca750e0573b2a428b2dbbeb07b1eb2"
+        },
+        "export/COMPLETE_rank0.json": {
+          "exists": false
+        },
+        "official_score/IDENTITY.json": {
+          "exists": false
+        },
+        "official_score/COMPLETE.json": {
+          "exists": false
+        }
+      },
+      "full_scoring_complete": false
+    },
+    "C3": {
+      "observed_training_step": 4055,
+      "observed_training_status": "RUNNING",
+      "status_updated_unix": 1792291349.6132655,
+      "status_receipt_at_observation": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/status.json",
+        "sha256": "744cf85ff90d958607e75ae4651213572a56e04ccf193f8d36043ed78b2dd30b"
+      },
+      "job_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1",
+      "dependencies": {
+        "export/IDENTITY.json": {
+          "exists": false
+        },
+        "export/COMPLETE_rank0.json": {
+          "exists": false
+        },
+        "official_score/IDENTITY.json": {
+          "exists": false
+        },
+        "official_score/COMPLETE.json": {
+          "exists": false
+        }
+      },
+      "full_scoring_complete": false
+    },
+    "C4": {
+      "observed_training_step": 3772,
+      "observed_training_status": "RUNNING",
+      "status_updated_unix": 1792291352.1366632,
+      "status_receipt_at_observation": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/status.json",
+        "sha256": "5b529e64eda61b8218c387a9875ac94bf74431052e314ac5362d0f035fb84adf"
+      },
+      "job_root": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1",
+      "dependencies": {
+        "export/IDENTITY.json": {
+          "exists": false
+        },
+        "export/COMPLETE_rank0.json": {
+          "exists": false
+        },
+        "official_score/IDENTITY.json": {
+          "exists": false
+        },
+        "official_score/COMPLETE.json": {
+          "exists": false
+        }
+      },
+      "full_scoring_complete": false
+    }
+  },
+  "payloads_csv_bootstrap_model_calls": 0,
+  "dispatch": false,
+  "analysis_ready_now": false,
+  "existing_1024_adapter_reusable_without_change": false,
+  "adapter_reason": "run_fixed_pairs fixed C2/C3 DIAGNOSTIC_1024 commands, pins, outputs and consumed-attempt namespaces; native evaluate_campaign is already generic."
+}

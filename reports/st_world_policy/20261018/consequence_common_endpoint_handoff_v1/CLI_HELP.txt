@@ -1,0 +1,26 @@
+usage: evaluate_campaign.py [-h] --plan PLAN --population POPULATION
+                            --control-score CONTROL_SCORE --control-export
+                            CONTROL_EXPORT --treatment-score TREATMENT_SCORE
+                            --treatment-export TREATMENT_EXPORT --comparison
+                            COMPARISON --stage STAGE --output OUTPUT --scope
+                            {SMOKE,FORMAL}
+
+Paired analysis of existing score_world CSVs; never generate or score a
+policy. The scorer owns canonical semantics. This reader verifies its small
+receipts, prediction arrays and saved feedback, then joins by scene and log.
+Model weights, images and metric-cache payloads are not opened or rehashed.
+Full FORMAL bindings must be added by the lead after independent approval;
+SMOKE cannot select a run.
+
+options:
+  -h, --help            show this help message and exit
+  --plan PLAN
+  --population POPULATION
+  --control-score CONTROL_SCORE
+  --control-export CONTROL_EXPORT
+  --treatment-score TREATMENT_SCORE
+  --treatment-export TREATMENT_EXPORT
+  --comparison COMPARISON
+  --stage STAGE
+  --output OUTPUT
+  --scope {SMOKE,FORMAL}
