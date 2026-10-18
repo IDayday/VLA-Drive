@@ -23,10 +23,12 @@ from tools.st_world_policy import cache_storage_budget as b
 MIB = 1 << 20
 PACKAGE_MAX = 4 * b.GIB
 FULL_METADATA_PACKAGE_MAX = 8 * b.GIB
+CAUSAL_HISTORY_PACKAGE_MAX = 10 * b.GIB
 CONTROL_LIMIT = 16 * MIB
 REG_SCHEMA = "st_metadata_build_registration_v1"
 PACKAGE_SCHEMA = "st_metadata_storage_package_v1"
 FULL_METADATA_PACKAGE_SCHEMA = "st_metadata_storage_package_v2"
+CAUSAL_HISTORY_PACKAGE_SCHEMA = "st_metadata_storage_package_v3"
 MIGRATION_SCHEMA = "st_metadata_storage_migration_v1"
 
 
@@ -132,7 +134,7 @@ def _registration(row):
 
 
 def original_package(package):
-    """Verify the sole explicit 4→8 GiB metadata-envelope version transition.
+    """Verify the explicit 4→8→10 GiB metadata-envelope version chain.
 
     Keep the old package identity available to frozen-W claims. This does not
     enlarge a claim, the campaign cache cap, checkpoint allowance or RAM limit.
@@ -140,6 +142,17 @@ def original_package(package):
     """
     if package.get("schema") == PACKAGE_SCHEMA:
         return package
+    if package.get("schema") == CAUSAL_HISTORY_PACKAGE_SCHEMA:
+        if (type(package.get("maximum_bytes")) is not int or
+                package["maximum_bytes"] != CAUSAL_HISTORY_PACKAGE_MAX):
+            b._fail("metadata v3 requires the exact ten-GiB envelope")
+        previous_sha = package.get("previous_v2_package_sha256")
+        b._hash(previous_sha, "previous v2 metadata package")
+        previous = {k: v for k, v in package.items() if k != "previous_v2_package_sha256"}
+        previous.update(schema=FULL_METADATA_PACKAGE_SCHEMA, maximum_bytes=FULL_METADATA_PACKAGE_MAX)
+        if b._digest(previous) != previous_sha:
+            b._fail("metadata v3 changed its previous v2 package")
+        return original_package(previous)
     if package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA:
         b._fail("unknown metadata package")
     if type(package.get("maximum_bytes")) is not int or package["maximum_bytes"] != FULL_METADATA_PACKAGE_MAX:
@@ -238,10 +251,16 @@ def migrate_policy(*, old_policy, old_policy_sha256, new_policy, new_policy_sha2
     if "metadata_package" in old.core:
         if package != old.core["metadata_package"]:
             previous = old.core["metadata_package"]
-            if (previous.get("schema") != PACKAGE_SCHEMA or
-                    previous.get("maximum_bytes") != PACKAGE_MAX or
-                    package.get("schema") != FULL_METADATA_PACKAGE_SCHEMA or
-                    original_package(package) != previous):
+            v1_to_v2 = (previous.get("schema") == PACKAGE_SCHEMA and
+                        previous.get("maximum_bytes") == PACKAGE_MAX and
+                        package.get("schema") == FULL_METADATA_PACKAGE_SCHEMA and
+                        original_package(package) == previous)
+            v2_to_v3 = (previous.get("schema") == FULL_METADATA_PACKAGE_SCHEMA and
+                        previous.get("maximum_bytes") == FULL_METADATA_PACKAGE_MAX and
+                        package.get("schema") == CAUSAL_HISTORY_PACKAGE_SCHEMA and
+                        package.get("previous_v2_package_sha256") == b._digest(previous) and
+                        original_package(package) == original_package(previous))
+            if not (v1_to_v2 or v2_to_v3):
                 b._fail("migration changed original metadata package baseline")
     elif (package.get("schema") != PACKAGE_SCHEMA or
           package["baseline_claims"] != old.declarations or
