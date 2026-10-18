@@ -1,0 +1,120 @@
+{
+  "created_utc": "2026-10-18T15:27:29.898859+00:00",
+  "dispatch_approved": false,
+  "execution_status": "NOT_RUN",
+  "feature_research": "PAUSED_UNTOUCHED",
+  "formal_training_approved": false,
+  "mathematical_limitations": [
+    "Separate BF16 backward and FP32 microbatch summation are not bit-exact joint ZeRO2 accumulation",
+    "Using world_size1/global denominator32 differs in pre-backward scaling from original world4 followed by gradient averaging; low-precision rounding can differ",
+    "No Adam preconditioning, clip, optimizer update or scientific gain is measured",
+    "Single fixed boundary32 scenes is not a population-wide estimate"
+  ],
+  "metadata": {
+    "checkpoint_completed": 3584,
+    "manifest_read": false,
+    "native_epoch": 1,
+    "native_offset": 409,
+    "next_rollout_boundary": 3584,
+    "receipts": [
+      {
+        "bytes": 2928,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/checkpoints/step_003584_1792287137286076754/COMPLETE.json",
+        "sha256": "e80e3f1f54a4e5b8fe225fbf3b7ccfc5d1aa754587feeea77e5f92362259b45a"
+      },
+      {
+        "bytes": 3305,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_0_COMPLETE.json",
+        "sha256": "117920445b50b18d0018273aaf459982dd1cce8ac84de6155a85436bfd61f5cb"
+      },
+      {
+        "bytes": 3250,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_1_COMPLETE.json",
+        "sha256": "dd26a76eb5d3bb7baa7c32253e51dcdff6865c58ab3c8d6b1c3b118d19994d67"
+      },
+      {
+        "bytes": 3367,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_2_COMPLETE.json",
+        "sha256": "f7c7d4b1c9e242eabde0caee4330ee7beef802e03017772d46d6d8d6b0048528"
+      },
+      {
+        "bytes": 3306,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_3_COMPLETE.json",
+        "sha256": "94ff1cb1381e32e4b1570a94ce3e45cb9ff1c3ff41317ef7472147b4f3b1acd6"
+      }
+    ],
+    "tensor_payloads_read": false
+  },
+  "pending": [
+    "Final integrated source SHA and immutable registration binding",
+    "Independent systems approval and exact host/GPU allocation",
+    "Strict real source/environment/model/manifest/condition/CFM replay",
+    "Measured actual vectors and budget/cost; refuse mismatches without relaxed tolerances"
+  ],
+  "real_asset_access": {
+    "GPU": false,
+    "GT": false,
+    "full_manifest": false,
+    "images": false,
+    "metric_cache": false,
+    "model": false,
+    "score_calls": 0,
+    "small_receipt_bytes": 16156
+  },
+  "reviewer": "/root/road_proxy_correctness_review",
+  "schema": "st_flow_gradient_balance_correctness_v1",
+  "source_commit": "2dcdc52f237a3c8a79cbc78e79b38be87f557054",
+  "source_hashes": {
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+    "starVLA/model/modules/flow_posttraining/policy_snapshot.py": "afd19462f677e788b40621764838ff2d1e6fab415084ebda182b95b2e4de36cc",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "tests/st_world/test_audit_flow_gradient_balance.py": "441ff3c838a27bc540cb481f5e834ab154feac9f9b082cba72bac8d96954fd21",
+    "tools/foresight/student_state.py": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+    "tools/st_world_policy/audit_flow_gradient.py": "2f74a2a33258fdd28d795633debc70efa00b3c242caf651b55969e0ef8a8a830",
+    "tools/st_world_policy/audit_flow_gradient_balance.py": "a8c376a5c9cb35becebf9e2ec942cf7df176d0e6f156fd457e423f3f2b54a6e2",
+    "tools/st_world_policy/flow_checkpoints.py": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+    "tools/st_world_policy/train_flow_policy.py": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96"
+  },
+  "status": "VERIFIED_CPU_IMPLEMENTATION_PENDING_FINAL_BINDING",
+  "tests": {
+    "author_tests": 19,
+    "execution": {
+      "bounded_source_read_budget_bytes": 16777216,
+      "child_cpu_seconds": 5.812239,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/st_world/test_audit_flow_gradient_balance.py",
+        "/mnt/project/VLA-Drive-st-flow-gradient-balance-correctness-20261018/reports/st_world_policy/20261018/gradient_balance_correctness_v1/test_independent.py"
+      ],
+      "exit_code": 0,
+      "gpu_calls": 0,
+      "implementation_commit": "2dcdc52f",
+      "metric_cache_reads": 0,
+      "model_loads": 0,
+      "official_scoring_calls": 0,
+      "real_scene_reads": 0,
+      "rusage_maxrss_bytes": 711438336,
+      "sampled_peak_rss_bytes": 682987520,
+      "schema": "flow_gradient_balance_independent_cpu_review_v1",
+      "violation": null,
+      "wall_seconds": 6.31525419279933
+    },
+    "failed": 0,
+    "independent_tests": 5,
+    "passed": 24,
+    "skipped": 0
+  },
+  "verified": [
+    "Checkpoint completed3584 is the state before boundary3584 rollout; all4 original receipt hashes match",
+    "Saved epoch1/offset409 determines original next global32 through native sampler and strided rank assignment",
+    "BC original repeat8 and Beta(1.5,1) noise/time, train dropout, rank saved RNG and independent task generators",
+    "FPO eval-with-grad mode and eval checkpoint recomputation retain frozen old/current CFM identity; no policy dropout RNG consumption",
+    "Global BC denominator32 original scenes and FPO denominator128 real candidates; no second local-mean average",
+    "FP32 CPU accumulation of separate BF16 execution gradients; chunkedFP64 norms/dot/cross terms",
+    "Native model load/replay, frozen hashes, strict condition/ten-Euler/CFM checks and completed feedback ledger calls traced without executing real assets",
+    "Caller RNG restoration context protects success/failure at each audit rank"
+  ]
+}
