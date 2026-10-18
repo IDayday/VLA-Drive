@@ -1,0 +1,76 @@
+{
+  "environments_isolated": true,
+  "no_teacher_test_disjoint_claim": true,
+  "schema_version": "decodable_st_external_sources_v1",
+  "sources": [
+    {
+      "commit": "a0bab2af48c6485774778fec33d68364c70d5618",
+      "config_hash": "df082b5e2f024c1da17f8d33f6058ac89c82c29187545a1b6ee5a789738449a5",
+      "critical_source_hashes": {
+        "vigt/modules/implicit_decoder.py": "c69c1254c9427526a6774faefb537ea3da772e1c788620fd4c40afbec7fb5b77",
+        "vigt/vigt.py": "28e57d8f8e5f99d1c3907ce6418ce42345036822661a945e037b4ff72533b3f1",
+        "vigt/vigt_hf.py": "224e8b82772726e9ea9279bf5210eeb3cf8b590c7b72c0fc0063c97ef2079049"
+      },
+      "key_load_strict": true,
+      "known_split_overlap": [],
+      "license_sha256": "9a3a3f6416eff575353c4088731b6dc3d73cd2cb5e3b7c39344545be2b364d06",
+      "local_load_receipt_sha256": "b32c8175e626aa2821e9b6e3da8bc46edea4fd8a88c5ec5b6ee395250d2c71e6",
+      "local_load_status": "PASS",
+      "name": "ViGT",
+      "native_weight_random_completion": false,
+      "preprocess_hash": "01b81d792a9710d236a5be54a06678d6aec17e090e623966193d61f5bf22e96e",
+      "repo": "https://github.com/whesense/ViGT",
+      "source_license": "MIT",
+      "training_data_provenance": [
+        "nuScenes",
+        "nuPlan",
+        "Waymo",
+        "Argoverse2"
+      ],
+      "unknown_split_overlap": [
+        "NAVSIM train",
+        "NAVSIM dev",
+        "NAVSIM navtest"
+      ],
+      "weight_hashes": {
+        "model.safetensors": "f19b10d90904e3535c8ef4c00cb832e3fd5c6ba904bbc7c2421578ab0b93d69d"
+      },
+      "weight_license": "MIT",
+      "weight_revision": "df0601a7c5fa71ce813b49143dd5a3692b6ebc8d"
+    },
+    {
+      "commit": "fcda385371f8f40af5b8969ca5090be06f421358",
+      "config_hash": "739e8f79357c267c3f374a7440ae54e6fae5f4927c07f851b62918875983aa7a",
+      "critical_source_hashes": {
+        "internvl_chat/internvl/model/internvl_chat/modeling_internvl_chat_wm.py": "99bb771c3f2a2264ff89851b18c6fc59ce6533a2f93672e0ddff179166b7c215",
+        "internvl_chat/internvl/model/internvl_chat/point_decoder.py": "fa1420934d2c07c230b308f49f7fa29d6226139d2fc2852cd414f957753111f6",
+        "internvl_chat/internvl/train/internvl_chat_finetune_wm.py": "df974c3de34402f02b6e61a44fcc083db13ffa9aca9d42ac80b57b1641e1d60d"
+      },
+      "key_load_strict": true,
+      "known_split_overlap": [],
+      "license_sha256": "6f2ddfee857ac1f8103205d18047a504d357a834b72c6d54d6a6e0d08a6e1353",
+      "local_load_receipt_sha256": "2e752f9ef5654c69f3555c470a04aecb173898ea44f4722f1808b8b88e22b4af",
+      "local_load_status": "PASS",
+      "name": "SGDrive",
+      "native_weight_random_completion": false,
+      "preprocess_hash": "2ff106a66427b00c55e82e1d1e8170906f6b03157d5c8949d225aa5b8c7962aa",
+      "repo": "https://github.com/LogosRoboticsGroup/SGDrive",
+      "source_license": "MIT",
+      "training_data_provenance": [
+        "NAVSIM; exact stage1 training log population unknown"
+      ],
+      "unknown_split_overlap": [
+        "NAVSIM train",
+        "NAVSIM dev",
+        "NAVSIM navtest"
+      ],
+      "weight_hashes": {
+        "model.safetensors": "0a483311eff40bd6f058c0d6c8d84f467d0faec31f1d2581e03f08f891c5a00f"
+      },
+      "weight_license": "Apache-2.0 (HF model card)",
+      "weight_revision": "c6379bea8aaf635883b33fcc99499b59d42aad1e"
+    }
+  ],
+  "vigt_config_source": "Official inference notebook constructs default ViGTHFConfig; HF weight repository contains no config.json. Strict full-state load validated all keys.",
+  "vigt_query_encoding": "Original Identity default; no learned query encoding parameters in checkpoint. No non-Identity substitution."
+}

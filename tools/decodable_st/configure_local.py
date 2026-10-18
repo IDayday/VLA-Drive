@@ -24,6 +24,7 @@ def run(root,output,python):
         ["--config",str(root/"audits/data_job.json"),"--output",str(root/"data_train64_v2")])
     for name,module,receipt in [("native_batching","verify_batching","REAL_BATCHING.json"),
                                 ("native_DDP","verify_distributed","REAL_DDP.json"),
+                                ("distributed_recovery","summarize_distributed_recovery","DISTRIBUTED_RECOVERY.json"),
                                 ("decoder_precision","verify_decoder_precision","DECODER_PRECISION.json")]:
         job("audit",name,module,"audits/"+receipt,[],
             blocked_reason="Use the independently registered finite GPU verification command if its receipt is absent")

@@ -18,7 +18,7 @@ def run(root,output):
         rows=[json.loads(s) for s in (root/"runs"/name/"train.jsonl").read_text().splitlines()]
         if any(b["update"]<=a["update"] for a,b in zip(rows,rows[1:])):raise ValueError("Duplicate/nonmonotonic update records")
         with (output/(arm+"_LEARNING_CURVE.csv")).open("w") as f:
-            writer=csv.DictWriter(f,fieldnames=("update","scene_exposures","lr","gradient_norm",*terms));writer.writeheader()
+            writer=csv.DictWriter(f,fieldnames=("update","scene_exposures","lr","gradient_norm",*terms),lineterminator="\n");writer.writeheader()
             for r in rows:writer.writerow({**{k:r[k] for k in ("update","scene_exposures","lr","gradient_norm")},**r["losses"]})
         for ax,term in zip(axes,terms):
             ax.plot([r["update"] for r in rows],[r["losses"][term] for r in rows],label=arm,alpha=.8)

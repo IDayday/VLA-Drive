@@ -1,0 +1,204 @@
+{
+  "config_identity": "62c415849fc6782547a8ca19280a0dcb8a63e8cdf687019d1390a46e7337978f",
+  "phases": {
+    "audit": {
+      "status": "INCONCLUSIVE",
+      "jobs": [
+        {
+          "id": "baseline_identity",
+          "status": "PASS",
+          "sha256": "0c0de683de249f6aefa00fbe47889373166e6dc69ec9ae3fc0f9172908eb5a13",
+          "reused": true
+        },
+        {
+          "id": "data_coordinates",
+          "status": "INCONCLUSIVE",
+          "sha256": "6120a60ec10aa50e5d0cd01399c955fd08bc819dfa531c7a75ee436b4fe9be94",
+          "reused": true
+        },
+        {
+          "id": "native_batching",
+          "status": "PASS",
+          "sha256": "747057802ec1b3eff829bde1a4a7fecda4185288f1cb33a4e00f40121e7f3633",
+          "reused": true
+        },
+        {
+          "id": "native_DDP",
+          "status": "PASS",
+          "sha256": "1311b9cd598a4d1037473555a30ee4a9f791423552bdb3419c4e613aa611e083",
+          "reused": true
+        },
+        {
+          "id": "distributed_recovery",
+          "status": "INCONCLUSIVE",
+          "sha256": "a0763b655b697af13703004fd53ec0f518e32ca3fa549bb519f893b9dcd599f5",
+          "reused": true
+        },
+        {
+          "id": "decoder_precision",
+          "status": "PASS",
+          "sha256": "5b258c2f1c7d1b751606c4eddaba11df31d25fe07bcd5bb840ec60ae624e777f",
+          "reused": true
+        }
+      ]
+    },
+    "export": {
+      "status": "PASS",
+      "jobs": [
+        {
+          "id": "independent_teacher_free",
+          "status": "PASS",
+          "sha256": "6bfbf18365c416ca736566c6e2c02bf001bc8c041ab381fa14091d2741a6a26b",
+          "reused": true
+        },
+        {
+          "id": "trained_representation_teacher_free",
+          "status": "PASS",
+          "sha256": "b52985eded6fa12b111630f077759a4bac882b188624f9ecf2f1bfbca72d2add",
+          "reused": true
+        }
+      ]
+    },
+    "planning": {
+      "status": "BLOCKED",
+      "jobs": []
+    },
+    "representation": {
+      "status": "BLOCKED",
+      "jobs": []
+    },
+    "teacher": {
+      "status": "INCONCLUSIVE",
+      "jobs": [
+        {
+          "id": "ViGT",
+          "status": "PASS",
+          "sha256": "b32c8175e626aa2821e9b6e3da8bc46edea4fd8a88c5ec5b6ee395250d2c71e6",
+          "reused": true
+        },
+        {
+          "id": "SGDrive",
+          "status": "PASS",
+          "sha256": "be5798435a6f660c58e647803d190f898ccfabefad2f3c934d2205064e48838b",
+          "reused": true
+        }
+      ]
+    },
+    "tiny": {
+      "status": "INCONCLUSIVE",
+      "jobs": [
+        {
+          "id": "compression16_v1",
+          "status": "INCONCLUSIVE",
+          "sha256": "83f2862ef82faae967627cdd5a31b64b0d6c191588fa68f83d90161a4f635be1",
+          "reused": true
+        },
+        {
+          "id": "compression32_v1",
+          "status": "INCONCLUSIVE",
+          "sha256": "4c144d1f31185be31aefb97a985909fc24054c3ead1a29ee6e0229e36b6a0ac6",
+          "reused": true
+        },
+        {
+          "id": "compression32_patch_v1",
+          "status": "INCONCLUSIVE",
+          "sha256": "7bbacd2144d285f0bb1192e00bf1ff4116e0d10000248d9234f8aec1d5453926",
+          "reused": true
+        },
+        {
+          "id": "compression32_patch_frozen_v2",
+          "status": "INCONCLUSIVE",
+          "sha256": "1b9472c69016c5d11833e02e4a7582d3ddfd53d50a8016774d0a245ebd671253",
+          "reused": true
+        },
+        {
+          "id": "RS",
+          "status": "INCONCLUSIVE",
+          "sha256": "70a9cbd37b4ec116a62b384b34ce2dbcc54d4d87919d5da6acd090998e4a2788",
+          "reused": true
+        },
+        {
+          "id": "RS_gradient_v1_decoding",
+          "status": "INCONCLUSIVE",
+          "sha256": "6cf8342c17065b65e062ad2bcc80968f74e635a5cfdc5309e3f6be6a97a8364e",
+          "reused": true
+        },
+        {
+          "id": "RS_dev16_v1_decoding",
+          "status": "INCONCLUSIVE",
+          "sha256": "4c3604a281b6f238ecdcdc9fe06f52c16e96c78d63c1ffc2c578229fc418dd56",
+          "reused": true
+        },
+        {
+          "id": "Rfrozen",
+          "status": "INCONCLUSIVE",
+          "sha256": "055b2d66674bac47aec0c5cff9ab95e41570ff7350c3384073061f18098e1e4f",
+          "reused": true
+        },
+        {
+          "id": "Rfrozen_tiny64_v1_decoding",
+          "status": "INCONCLUSIVE",
+          "sha256": "777ac36c9f81d1c149c5e7fad2c93f5274372425dc8cbab2cfbbc96d5252fe43",
+          "reused": true
+        },
+        {
+          "id": "Rfrozen_dev16_v1_decoding",
+          "status": "INCONCLUSIVE",
+          "sha256": "05384079fcc92cd946e3d506e59e9a4b9ad834203f70030a99c3b2c3d586391b",
+          "reused": true
+        }
+      ]
+    }
+  },
+  "gates": {
+    "admitted_arms": {
+      "R0": false,
+      "RS": false,
+      "RST": false,
+      "RT": false,
+      "Rcap": false,
+      "Rdecode": false,
+      "Rfrozen": false,
+      "Rgt": false,
+      "Rjoint": false
+    },
+    "baseline_parity": "PASS",
+    "compression_acceptance": {
+      "compression16_v1": {
+        "false_free": 0.17368168999095407,
+        "occupied_iou": 0.735518400985175,
+        "status": "FAIL"
+      },
+      "compression32_patch_frozen_v2": {
+        "false_free": 0.03708827755015165,
+        "occupied_iou": 0.9162995594713657,
+        "status": "FAIL"
+      },
+      "compression32_patch_v1": {
+        "false_free": 0.0489011866120364,
+        "occupied_iou": 0.9120783793437771,
+        "status": "FAIL"
+      },
+      "compression32_v1": {
+        "false_free": 0.09812164103655617,
+        "occupied_iou": 0.8269821907782386,
+        "status": "FAIL"
+      }
+    },
+    "compression_measurement_scope": "Strict native teacher-prediction agreement proxy; true GT-relative protection is not measurable yet",
+    "engineering_verified": "INCONCLUSIVE",
+    "formal_blockers": [
+      "Independent teacher occupancy quality cannot be accepted from hit-only labels",
+      "SGDrive native physical horizon and ego compensation are unverified",
+      "Tested compression mappings have not met the fixed native decode protection"
+    ],
+    "formal_representation_admitted": false,
+    "planning_verified": "NOT_RUN",
+    "spatial_representation_verified": "INCONCLUSIVE",
+    "teacher_free_export_verified": "PASS",
+    "teacher_spatial_verified": "INCONCLUSIVE",
+    "teacher_temporal_driving_verified": "BLOCKED",
+    "teacher_temporal_native_verified": "INCONCLUSIVE",
+    "temporal_representation_verified": "NOT_RUN"
+  }
+}

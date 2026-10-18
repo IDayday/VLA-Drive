@@ -1,6 +1,6 @@
 """Two real CUDA ranks: S0 images, original DINO, native ViGT loss and AdamW.
 
-This is a single-update execution test, not a distributed scientific experiment.
+This is a bounded one-to-four-update execution/resume test, not a scientific experiment.
 The separate loss-reduction unit test checks unequal/empty rank equivalence.
 """
 import argparse
