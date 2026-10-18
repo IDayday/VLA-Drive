@@ -1,0 +1,40 @@
+{
+  "GPU_computation": false,
+  "GPU_queries_mocked": true,
+  "dispatches": 0,
+  "elapsed_seconds": 0.04829336516559124,
+  "only_changed_ast": [
+    "GPU_ADMISSION",
+    "validate_admission"
+  ],
+  "status": "PASS",
+  "tests": [
+    {
+      "accepted": true,
+      "name": "exact_threshold_accepts_shared_gpu",
+      "status": "PASS"
+    },
+    {
+      "accepted": true,
+      "name": "spare_memory_accepts_shared_gpu",
+      "status": "PASS"
+    },
+    {
+      "accepted": false,
+      "name": "one_mib_below_rejected",
+      "status": "PASS"
+    },
+    {
+      "accepted": false,
+      "name": "wrong_uuid_rejected",
+      "status": "PASS"
+    },
+    {
+      "accepted": false,
+      "name": "malformed_metadata_rejected",
+      "status": "PASS"
+    }
+  ],
+  "torch_imported": false,
+  "wrapper_sha256": "8afa0e9a9a0cdfe7b974081dd11fc5c264474fd5a081d7376781903567a6b579"
+}
