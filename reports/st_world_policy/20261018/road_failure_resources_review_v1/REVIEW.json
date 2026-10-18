@@ -1,0 +1,134 @@
+{
+  "allowed_execution_host": "training-vla-zt-worker-0",
+  "approval_scope": "Only exact fixed TRAIN failure-cohort CPU diagnostic resources; requires separate correctness review and Lead admission. Not training approval.",
+  "conditions": [
+    "Revalidate current policy, source, allowed host and capacity at dispatch.",
+    "Preserve one worker and all declared limits; no automatic retry, scene refill or call-budget reset.",
+    "Do not signal other real/unknown jobs or dispatch to withdrawn hosts.",
+    "Do not use this review to authorize formal proxy learning or feature-side work."
+  ],
+  "evidence_artifacts": [
+    {
+      "bytes": 2338,
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_failure_direction_v1/REGISTRATION.json",
+      "sha256": "c9c76ffd513fcf3cf59e1753358bd552b0635ae6394399e509d15c09dd9cda0a"
+    },
+    {
+      "bytes": 275245,
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_failure_direction_v1/BOUND_SELECTION.json",
+      "sha256": "02755da1e6563a6d3eea10ffd8258d0eff82e8a28d86509aca751d45fe143d5c"
+    },
+    {
+      "bytes": 447519,
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_failure_direction_v1/BOUND_SELECTION_BINDING_REPORT.json",
+      "sha256": "4ba74c4d1e05eec2dc5f9e2e5a99aed77081e0930862f5ce029c9f6fa2ede218"
+    },
+    {
+      "bytes": 129398,
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8"
+    },
+    {
+      "bytes": 1576,
+      "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+    },
+    {
+      "bytes": 2332,
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/road_direction_actual_v3/REPORT.md",
+      "sha256": "e3f25ec82fe84a1b5ccb6ab352ae6662c9ebdc32423278934383ac7e227fbc1a"
+    },
+    {
+      "bytes": 5031,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/REPORT.md",
+      "sha256": "b45f614f9f0120485ac1111d63da1bbfd305798931af235a4c8f2d264156510f"
+    },
+    {
+      "bytes": 1884,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/TEST_EXECUTION.json",
+      "sha256": "37efa166929d904e9d94e970d58389f136200750ffc3a84327ac3e9cd7424796"
+    },
+    {
+      "bytes": 689,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/TEST_OUTPUT.txt",
+      "sha256": "5970890da955582124e30e1abecf3e92b484826a54b9b5d9197b838d0975a2bf"
+    },
+    {
+      "bytes": 2838,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/test_resource_delta.py",
+      "sha256": "26d89dc9325a981c39dec35fd067eeedb111228d91b45f99e2c564df62add8a3"
+    },
+    {
+      "bytes": 3426,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/bounded_tests.py",
+      "sha256": "fbd74b9e80f3a096dc925964d7ea1cb0ec710e618051a76069dd41e3f6e2e775"
+    },
+    {
+      "bytes": 64479,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/SOURCE_AND_INPUT_PLAN_VERIFICATION.json",
+      "sha256": "6789c685c6aa5c2e7fb50df2543d4f11e832d0a8236cf2fdfecaf6bc41c3e649"
+    },
+    {
+      "bytes": 1078,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/LIVE_RESOURCE_SNAPSHOT.json",
+      "sha256": "3a44393ac8c587a66acbacfe4b9e9a79a79d1e737ef7acdb21a3ae770f7fa81e"
+    },
+    {
+      "bytes": 404,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-resources-20261018/reports/st_world_policy/20261018/road_failure_resources_review_v1/REVIEW_HARNESS_NOTE.json",
+      "sha256": "626143e9c1036b1e6897a4cb7ce00204f93cf5c5fbae8c40dfaa3ab7339d8163"
+    }
+  ],
+  "limits": {
+    "asset_read_bytes": 268435456,
+    "cache_expanded_bytes": 67108864,
+    "max_official_calls": 96,
+    "output_bytes": 1073741824,
+    "read_rate_bytes_per_second": 33554432,
+    "rss_and_address_space_bytes": 8589934592,
+    "scenes": 32,
+    "threads": 1,
+    "variants": 4,
+    "wall_seconds": 1800,
+    "workers": 1
+  },
+  "registration_sha256": "c9c76ffd513fcf3cf59e1753358bd552b0635ae6394399e509d15c09dd9cda0a",
+  "required_launch_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "cpu_affinity": [
+      0,
+      1
+    ],
+    "python": "/root/miniconda3/envs/ddp/bin/python"
+  },
+  "resources": {
+    "independent_test_waited_child_cpu_seconds": 8.930236,
+    "independent_tests_passed": 14,
+    "metric_cache_content_reads_by_reviewer": 0,
+    "model_loads_by_reviewer": 0,
+    "new_GPU_contexts": 0,
+    "new_official_calls_by_reviewer": 0,
+    "planned_worker_asset_bytes": 139626807,
+    "proxy_calls_by_reviewer": 0,
+    "worker_count": 1
+  },
+  "review_kind": "resources",
+  "reviewed_utc": "2026-10-18T19:09:38.978023+00:00",
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "schema": "road_direction_independent_review_v1",
+  "source_commit": "864619b0130fb3b220b577dd34b993ffeac97e27",
+  "source_hashes": {
+    "starVLA/dataloader/foresight_dataset.py": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "baa33371d2b000ccefa9d507289001ee67f7ee123c90ee32f6bdba105cb59a7a",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "starVLA/model/modules/st_world/consequence.py": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+    "tools/st_world_policy/consequence_smoke.py": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+    "tools/st_world_policy/road_failure_selection.py": "73c4faa38df5bfc9ee199b0734536941e9fd2bd30b01e2621506cd554868767f",
+    "tools/st_world_policy/run_road_direction.py": "7abdd436bbf47eae2b8e2bed3d796cd1e3d66e6500076b75076e4a2a998a2ea8"
+  },
+  "status": "APPROVE_ROAD_DIRECTION_EXECUTION"
+}

@@ -1,0 +1,1209 @@
+{
+  "registration_sha256": "c9c76ffd513fcf3cf59e1753358bd552b0635ae6394399e509d15c09dd9cda0a",
+  "source_commit": "864619b0130fb3b220b577dd34b993ffeac97e27",
+  "source_status_porcelain": "",
+  "source_hashes": {
+    "starVLA/dataloader/foresight_dataset.py": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "baa33371d2b000ccefa9d507289001ee67f7ee123c90ee32f6bdba105cb59a7a",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "starVLA/model/modules/st_world/consequence.py": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+    "tools/st_world_policy/consequence_smoke.py": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+    "tools/st_world_policy/road_failure_selection.py": "73c4faa38df5bfc9ee199b0734536941e9fd2bd30b01e2621506cd554868767f",
+    "tools/st_world_policy/run_road_direction.py": "7abdd436bbf47eae2b8e2bed3d796cd1e3d66e6500076b75076e4a2a998a2ea8"
+  },
+  "inherited_control_ast_equal_to_0d0d19dd": {
+    "Budget": false,
+    "bounded_unpack": true,
+    "owned_output_bytes": true,
+    "VerifiedContextEngine": true,
+    "supervise": false,
+    "_child_entry": true,
+    "parity_and_objective": true,
+    "tracking_diagnostics": true
+  },
+  "reviewed_deltas": {
+    "Budget": "Adds CPU measurement and optional CPU cap; read, write, hash, RSS, wall and throttle behavior retained.",
+    "supervise": "Uses exact versioned limits; rejects schema/selection mismatch; denominator derived from frozen frame. Owned-child spawn/RSS/output/deadline cleanup retained."
+  },
+  "registered_plan_bytes": 139626807,
+  "source_asset_bytes_sum": 130660606,
+  "context_bytes_sum": 8690956,
+  "context_count": 32,
+  "stat_only_match_count": 234,
+  "context_content_reads_by_reviewer": 0,
+  "input_stat_results": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-consequence-next-hypothesis-20261018/reports/st_world_policy/20261018/road_failure_direction_opportunity_v1/FRAME32.json",
+      "bytes": 159734,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1/index.json",
+      "bytes": 9549650,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-road-failure-direction-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.json",
+      "bytes": 63829,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7049,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1868,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "bytes": 2430,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a3fad93c8188b06f7c5306cae705e54960a4dc9778c783f86aa3597715e8c10c/REQUESTS.json",
+      "bytes": 209827,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a3fad93c8188b06f7c5306cae705e54960a4dc9778c783f86aa3597715e8c10c/attempt_00/RESULTS.pt",
+      "bytes": 3435552,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001431/rank_3_COMPLETE.json",
+      "bytes": 3473,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001431/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a3fad93c8188b06f7c5306cae705e54960a4dc9778c783f86aa3597715e8c10c/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a3fad93c8188b06f7c5306cae705e54960a4dc9778c783f86aa3597715e8c10c/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001431/rank_2_COMPLETE.json",
+      "bytes": 3412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001431/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7eb4269d5701cb6203ac3f6a0f1a546839c249e55c3cf35dfcc434163a27d0b7/REQUESTS.json",
+      "bytes": 209454,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7eb4269d5701cb6203ac3f6a0f1a546839c249e55c3cf35dfcc434163a27d0b7/attempt_00/RESULTS.pt",
+      "bytes": 3451808,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000342/rank_1_COMPLETE.json",
+      "bytes": 3454,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000342/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7eb4269d5701cb6203ac3f6a0f1a546839c249e55c3cf35dfcc434163a27d0b7/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7eb4269d5701cb6203ac3f6a0f1a546839c249e55c3cf35dfcc434163a27d0b7/attempt_00/ADMITTED.json",
+      "bytes": 1227,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a959938bb9bec1a119bde5c6c342801785fedb495505346a1c37b5d81c1f17b8/REQUESTS.json",
+      "bytes": 209823,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a959938bb9bec1a119bde5c6c342801785fedb495505346a1c37b5d81c1f17b8/attempt_00/RESULTS.pt",
+      "bytes": 3438176,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003146/rank_2_COMPLETE.json",
+      "bytes": 3369,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003146/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a959938bb9bec1a119bde5c6c342801785fedb495505346a1c37b5d81c1f17b8/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/a959938bb9bec1a119bde5c6c342801785fedb495505346a1c37b5d81c1f17b8/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/6948e73de02142bd1617d9683fa4dfd7511cc1358e8dfa0369598521a5cbec05/REQUESTS.json",
+      "bytes": 209827,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/6948e73de02142bd1617d9683fa4dfd7511cc1358e8dfa0369598521a5cbec05/attempt_00/RESULTS.pt",
+      "bytes": 3445472,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001345/rank_1_COMPLETE.json",
+      "bytes": 3381,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001345/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/6948e73de02142bd1617d9683fa4dfd7511cc1358e8dfa0369598521a5cbec05/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/6948e73de02142bd1617d9683fa4dfd7511cc1358e8dfa0369598521a5cbec05/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/531cc4795796b6f124387539a8b212edd49b5cd1adf92ed7861734523e2386c2/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/531cc4795796b6f124387539a8b212edd49b5cd1adf92ed7861734523e2386c2/attempt_00/RESULTS.pt",
+      "bytes": 3437856,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003945/rank_2_COMPLETE.json",
+      "bytes": 3398,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003945/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/531cc4795796b6f124387539a8b212edd49b5cd1adf92ed7861734523e2386c2/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/531cc4795796b6f124387539a8b212edd49b5cd1adf92ed7861734523e2386c2/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/9a9bc90d769d3b8cfa3730c4f67765917d0fc548acbc259514d2aacc62fcb9c8/REQUESTS.json",
+      "bytes": 209823,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/9a9bc90d769d3b8cfa3730c4f67765917d0fc548acbc259514d2aacc62fcb9c8/attempt_00/RESULTS.pt",
+      "bytes": 3439840,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001912/rank_0_COMPLETE.json",
+      "bytes": 3265,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001912/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/9a9bc90d769d3b8cfa3730c4f67765917d0fc548acbc259514d2aacc62fcb9c8/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/9a9bc90d769d3b8cfa3730c4f67765917d0fc548acbc259514d2aacc62fcb9c8/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/614d49b108ed40c2f795318d76158d76ea49bc880df7fc8f7e1e46af95d65659/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/614d49b108ed40c2f795318d76158d76ea49bc880df7fc8f7e1e46af95d65659/attempt_00/RESULTS.pt",
+      "bytes": 3425568,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001587/rank_0_COMPLETE.json",
+      "bytes": 3410,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001587/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/614d49b108ed40c2f795318d76158d76ea49bc880df7fc8f7e1e46af95d65659/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/614d49b108ed40c2f795318d76158d76ea49bc880df7fc8f7e1e46af95d65659/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/96130302b86fb88a89fce8fa18b5c413f5c585caae873bd40a9f52a2a1532805/REQUESTS.json",
+      "bytes": 209827,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/96130302b86fb88a89fce8fa18b5c413f5c585caae873bd40a9f52a2a1532805/attempt_00/RESULTS.pt",
+      "bytes": 3433760,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002440/rank_2_COMPLETE.json",
+      "bytes": 3456,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002440/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/96130302b86fb88a89fce8fa18b5c413f5c585caae873bd40a9f52a2a1532805/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/96130302b86fb88a89fce8fa18b5c413f5c585caae873bd40a9f52a2a1532805/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/f83a34e41b23f0598a301f103548273d0c710498003ebf90f6663eb497039008/REQUESTS.json",
+      "bytes": 209450,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/f83a34e41b23f0598a301f103548273d0c710498003ebf90f6663eb497039008/attempt_00/RESULTS.pt",
+      "bytes": 3445792,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000290/rank_3_COMPLETE.json",
+      "bytes": 3292,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000290/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/f83a34e41b23f0598a301f103548273d0c710498003ebf90f6663eb497039008/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/f83a34e41b23f0598a301f103548273d0c710498003ebf90f6663eb497039008/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ce32d6804257d306cc00e926deec6276cf592fce04b4a886cfe668161d5cc248/REQUESTS.json",
+      "bytes": 209446,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ce32d6804257d306cc00e926deec6276cf592fce04b4a886cfe668161d5cc248/attempt_00/RESULTS.pt",
+      "bytes": 3434272,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000935/rank_0_COMPLETE.json",
+      "bytes": 3322,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000935/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ce32d6804257d306cc00e926deec6276cf592fce04b4a886cfe668161d5cc248/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ce32d6804257d306cc00e926deec6276cf592fce04b4a886cfe668161d5cc248/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/aa9e9f40ab758e9b798c9c4ffe1213d35c407f639909a41c9f66fc330b318e75/REQUESTS.json",
+      "bytes": 209446,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/aa9e9f40ab758e9b798c9c4ffe1213d35c407f639909a41c9f66fc330b318e75/attempt_00/RESULTS.pt",
+      "bytes": 3437472,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000635/rank_2_COMPLETE.json",
+      "bytes": 3308,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000635/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/aa9e9f40ab758e9b798c9c4ffe1213d35c407f639909a41c9f66fc330b318e75/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/aa9e9f40ab758e9b798c9c4ffe1213d35c407f639909a41c9f66fc330b318e75/attempt_00/ADMITTED.json",
+      "bytes": 1226,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c857038fe27d76023934319e20d181071f287bbd99deaf27ccc028cbd3645c48/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c857038fe27d76023934319e20d181071f287bbd99deaf27ccc028cbd3645c48/attempt_00/RESULTS.pt",
+      "bytes": 3441248,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001382/rank_3_COMPLETE.json",
+      "bytes": 3261,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001382/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c857038fe27d76023934319e20d181071f287bbd99deaf27ccc028cbd3645c48/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c857038fe27d76023934319e20d181071f287bbd99deaf27ccc028cbd3645c48/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e0a04e714980da7d698fc611993b06894c2a242ed85148802fee42f5ab7b69d5/REQUESTS.json",
+      "bytes": 209823,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e0a04e714980da7d698fc611993b06894c2a242ed85148802fee42f5ab7b69d5/attempt_00/RESULTS.pt",
+      "bytes": 3437984,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001200/rank_2_COMPLETE.json",
+      "bytes": 3353,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001200/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e0a04e714980da7d698fc611993b06894c2a242ed85148802fee42f5ab7b69d5/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e0a04e714980da7d698fc611993b06894c2a242ed85148802fee42f5ab7b69d5/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c3a0414bab7a05a61208c1a315c0a73bfa227c5e33135b582bbe28b72ecfa27c/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c3a0414bab7a05a61208c1a315c0a73bfa227c5e33135b582bbe28b72ecfa27c/attempt_00/RESULTS.pt",
+      "bytes": 3435552,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001643/rank_2_COMPLETE.json",
+      "bytes": 3397,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001643/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c3a0414bab7a05a61208c1a315c0a73bfa227c5e33135b582bbe28b72ecfa27c/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/c3a0414bab7a05a61208c1a315c0a73bfa227c5e33135b582bbe28b72ecfa27c/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/3c072267fcae43619230163a14ac8957bfe77fae7ad6e4584a5e799cc5805c5e/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/3c072267fcae43619230163a14ac8957bfe77fae7ad6e4584a5e799cc5805c5e/attempt_00/RESULTS.pt",
+      "bytes": 3448416,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001424/rank_0_COMPLETE.json",
+      "bytes": 3232,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001424/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/3c072267fcae43619230163a14ac8957bfe77fae7ad6e4584a5e799cc5805c5e/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/3c072267fcae43619230163a14ac8957bfe77fae7ad6e4584a5e799cc5805c5e/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/394c0faa9040624426e7050d88220780db1a40b958159ed02227c75ff4357af7/REQUESTS.json",
+      "bytes": 209823,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/394c0faa9040624426e7050d88220780db1a40b958159ed02227c75ff4357af7/attempt_00/RESULTS.pt",
+      "bytes": 3437536,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001260/rank_1_COMPLETE.json",
+      "bytes": 3453,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001260/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/394c0faa9040624426e7050d88220780db1a40b958159ed02227c75ff4357af7/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/394c0faa9040624426e7050d88220780db1a40b958159ed02227c75ff4357af7/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e07b499f75e6bd30d98f69c9f3272949fdce4fa969a35264c39b67ed707af5d/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e07b499f75e6bd30d98f69c9f3272949fdce4fa969a35264c39b67ed707af5d/attempt_00/RESULTS.pt",
+      "bytes": 3433120,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001920/rank_1_COMPLETE.json",
+      "bytes": 3443,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001920/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e07b499f75e6bd30d98f69c9f3272949fdce4fa969a35264c39b67ed707af5d/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e07b499f75e6bd30d98f69c9f3272949fdce4fa969a35264c39b67ed707af5d/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/95f5099e2f888d7e27a5f58d9b376a4d261e2adc8fb5cfb632afbb8bbc47b150/REQUESTS.json",
+      "bytes": 209454,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/95f5099e2f888d7e27a5f58d9b376a4d261e2adc8fb5cfb632afbb8bbc47b150/attempt_00/RESULTS.pt",
+      "bytes": 3429728,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000691/rank_2_COMPLETE.json",
+      "bytes": 3321,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000691/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/95f5099e2f888d7e27a5f58d9b376a4d261e2adc8fb5cfb632afbb8bbc47b150/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/95f5099e2f888d7e27a5f58d9b376a4d261e2adc8fb5cfb632afbb8bbc47b150/attempt_00/ADMITTED.json",
+      "bytes": 1226,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e18c7daeb978efdd9389caabe9ca34e1854f7f2179d08f8a3ea6c360e2b63ff/REQUESTS.json",
+      "bytes": 209442,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e18c7daeb978efdd9389caabe9ca34e1854f7f2179d08f8a3ea6c360e2b63ff/attempt_00/RESULTS.pt",
+      "bytes": 3445728,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000514/rank_2_COMPLETE.json",
+      "bytes": 3348,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000514/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e18c7daeb978efdd9389caabe9ca34e1854f7f2179d08f8a3ea6c360e2b63ff/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8e18c7daeb978efdd9389caabe9ca34e1854f7f2179d08f8a3ea6c360e2b63ff/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7ccbffd394797148544d697d0763dcc4da14d095be990d2d1511f5ef2d5696dd/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7ccbffd394797148544d697d0763dcc4da14d095be990d2d1511f5ef2d5696dd/attempt_00/RESULTS.pt",
+      "bytes": 3452256,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003936/rank_2_COMPLETE.json",
+      "bytes": 3219,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003936/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7ccbffd394797148544d697d0763dcc4da14d095be990d2d1511f5ef2d5696dd/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/7ccbffd394797148544d697d0763dcc4da14d095be990d2d1511f5ef2d5696dd/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2aa148ed1700c4bf97ce1b922232008d3926cb4c51072eeb4a7b699eb23ff0df/REQUESTS.json",
+      "bytes": 209843,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2aa148ed1700c4bf97ce1b922232008d3926cb4c51072eeb4a7b699eb23ff0df/attempt_00/RESULTS.pt",
+      "bytes": 3448224,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001071/rank_2_COMPLETE.json",
+      "bytes": 3368,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001071/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2aa148ed1700c4bf97ce1b922232008d3926cb4c51072eeb4a7b699eb23ff0df/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2aa148ed1700c4bf97ce1b922232008d3926cb4c51072eeb4a7b699eb23ff0df/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8212c01a52ff2f45a23e78fbe291d5fb9d9cb8662a2a5895e9f38d65031d283c/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8212c01a52ff2f45a23e78fbe291d5fb9d9cb8662a2a5895e9f38d65031d283c/attempt_00/RESULTS.pt",
+      "bytes": 3431840,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002754/rank_1_COMPLETE.json",
+      "bytes": 3384,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002754/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8212c01a52ff2f45a23e78fbe291d5fb9d9cb8662a2a5895e9f38d65031d283c/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8212c01a52ff2f45a23e78fbe291d5fb9d9cb8662a2a5895e9f38d65031d283c/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/084b034b55bef508aa23616024172a43c0f2542363ebcdd27f89a0aa9621bde4/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/084b034b55bef508aa23616024172a43c0f2542363ebcdd27f89a0aa9621bde4/attempt_00/RESULTS.pt",
+      "bytes": 3439264,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001667/rank_1_COMPLETE.json",
+      "bytes": 3307,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001667/rank_1.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/084b034b55bef508aa23616024172a43c0f2542363ebcdd27f89a0aa9621bde4/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/084b034b55bef508aa23616024172a43c0f2542363ebcdd27f89a0aa9621bde4/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e3e6a8b4ba079c948925a73c16d608dcdf077c211b5e1fc55e23e6aade3a07ca/REQUESTS.json",
+      "bytes": 209835,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e3e6a8b4ba079c948925a73c16d608dcdf077c211b5e1fc55e23e6aade3a07ca/attempt_00/RESULTS.pt",
+      "bytes": 3433632,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003516/rank_3_COMPLETE.json",
+      "bytes": 3323,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003516/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e3e6a8b4ba079c948925a73c16d608dcdf077c211b5e1fc55e23e6aade3a07ca/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/e3e6a8b4ba079c948925a73c16d608dcdf077c211b5e1fc55e23e6aade3a07ca/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/643f36239edfe9be5dd3e63e721ea625567c00d5b8c3e37a4b962b920985a0a8/REQUESTS.json",
+      "bytes": 209835,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/643f36239edfe9be5dd3e63e721ea625567c00d5b8c3e37a4b962b920985a0a8/attempt_00/RESULTS.pt",
+      "bytes": 3436128,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001425/rank_0_COMPLETE.json",
+      "bytes": 3339,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001425/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/643f36239edfe9be5dd3e63e721ea625567c00d5b8c3e37a4b962b920985a0a8/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/643f36239edfe9be5dd3e63e721ea625567c00d5b8c3e37a4b962b920985a0a8/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ca3c01e526bc1cf26887b60a17e951529a03cf09efef14c7bd78a9fe592ab929/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ca3c01e526bc1cf26887b60a17e951529a03cf09efef14c7bd78a9fe592ab929/attempt_00/RESULTS.pt",
+      "bytes": 3452960,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003180/rank_0_COMPLETE.json",
+      "bytes": 3234,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003180/rank_0.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ca3c01e526bc1cf26887b60a17e951529a03cf09efef14c7bd78a9fe592ab929/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/ca3c01e526bc1cf26887b60a17e951529a03cf09efef14c7bd78a9fe592ab929/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/0427858cb1861c87173ee8bc1299acf9bab1532e9e498c2527c4a9cef2f5ebd5/REQUESTS.json",
+      "bytes": 209831,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/0427858cb1861c87173ee8bc1299acf9bab1532e9e498c2527c4a9cef2f5ebd5/attempt_00/RESULTS.pt",
+      "bytes": 3434528,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002001/rank_3_COMPLETE.json",
+      "bytes": 3363,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_002001/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/0427858cb1861c87173ee8bc1299acf9bab1532e9e498c2527c4a9cef2f5ebd5/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/0427858cb1861c87173ee8bc1299acf9bab1532e9e498c2527c4a9cef2f5ebd5/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/844762c4c4a9f0c8693ef9f7993aa2e1145a37a36db5498f79e54b8fc7261486/REQUESTS.json",
+      "bytes": 209450,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/844762c4c4a9f0c8693ef9f7993aa2e1145a37a36db5498f79e54b8fc7261486/attempt_00/RESULTS.pt",
+      "bytes": 3431328,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000932/rank_2_COMPLETE.json",
+      "bytes": 3348,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000932/rank_2.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/844762c4c4a9f0c8693ef9f7993aa2e1145a37a36db5498f79e54b8fc7261486/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/844762c4c4a9f0c8693ef9f7993aa2e1145a37a36db5498f79e54b8fc7261486/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/75db24ac000d849906282f9d931560f678581c0448f670399dc4b16055897096/REQUESTS.json",
+      "bytes": 209823,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/75db24ac000d849906282f9d931560f678581c0448f670399dc4b16055897096/attempt_00/RESULTS.pt",
+      "bytes": 3444128,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001962/rank_3_COMPLETE.json",
+      "bytes": 3367,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_001962/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/75db24ac000d849906282f9d931560f678581c0448f670399dc4b16055897096/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/75db24ac000d849906282f9d931560f678581c0448f670399dc4b16055897096/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2c0edaa613a82ad5725dd163798f413120600a21405388616509236479283969/REQUESTS.json",
+      "bytes": 209839,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2c0edaa613a82ad5725dd163798f413120600a21405388616509236479283969/attempt_00/RESULTS.pt",
+      "bytes": 3430496,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_004086/rank_3_COMPLETE.json",
+      "bytes": 3231,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_004086/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2c0edaa613a82ad5725dd163798f413120600a21405388616509236479283969/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/2c0edaa613a82ad5725dd163798f413120600a21405388616509236479283969/attempt_00/ADMITTED.json",
+      "bytes": 1229,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8f1ceb318596a5f81ab6bb40969f3a1743eb8f197c90fc40dadba3c5a950c26d/REQUESTS.json",
+      "bytes": 209450,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8f1ceb318596a5f81ab6bb40969f3a1743eb8f197c90fc40dadba3c5a950c26d/attempt_00/RESULTS.pt",
+      "bytes": 3443040,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000909/rank_3_COMPLETE.json",
+      "bytes": 3456,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000909/rank_3.pt",
+      "bytes": 233796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8f1ceb318596a5f81ab6bb40969f3a1743eb8f197c90fc40dadba3c5a950c26d/attempt_00/COMPLETE.json",
+      "bytes": 412,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback/8f1ceb318596a5f81ab6bb40969f3a1743eb8f197c90fc40dadba3c5a950c26d/attempt_00/ADMITTED.json",
+      "bytes": 1228,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/evaluate/pdm_score.py",
+      "bytes": 5560,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py",
+      "bytes": 23214,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py",
+      "bytes": 3376,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/simulation/batch_lqr.py",
+      "bytes": 21576,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/simulation/batch_kinematic_bicycle.py",
+      "bytes": 7387,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/utils/pdm_array_representation.py",
+      "bytes": 7873,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py",
+      "bytes": 8508,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/model/modules/st_world/consequence.py",
+      "bytes": 44517,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.14.13.27.42_veh-35_00842_00940/unknown/b7d63556b5035482/metric_cache.pkl",
+      "bytes": 485980,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.08.12.54.54_veh-26_02994_03970/unknown/332cfca2e8735845/metric_cache.pkl",
+      "bytes": 209504,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.05.12.22.28.35_veh-35_02138_02481/unknown/ea5cfd7d1d4855bd/metric_cache.pkl",
+      "bytes": 392184,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.07.16.18.06.21_veh-38_02197_03220/unknown/8be1ca37bb3c58c6/metric_cache.pkl",
+      "bytes": 766388,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1/2021.10.11.05.34.05_veh-50_00838_00947/unknown/272eaf251cd455f0/metric_cache.pkl",
+      "bytes": 158028,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.09.12.39.51_veh-26_04543_05321/unknown/21e4d39cf246521a/metric_cache.pkl",
+      "bytes": 531020,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.07.38.12_veh-50_01477_01565/unknown/3de80a41d5fe5a5c/metric_cache.pkl",
+      "bytes": 102816,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.09.15.14.27.22_veh-39_00868_01125/unknown/88403fe4fc4d5a04/metric_cache.pkl",
+      "bytes": 161836,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.01.19.16.42_veh-28_00392_00906/unknown/2d26144814d257aa/metric_cache.pkl",
+      "bytes": 148700,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.07.09.20.26.06_veh-35_01768_02782/unknown/3e553b8686f5592e/metric_cache.pkl",
+      "bytes": 420004,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.09.15.14.50.05_veh-28_01511_01690/unknown/c8aa24587f415e2e/metric_cache.pkl",
+      "bytes": 135964,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.07.38.12_veh-50_00245_00433/unknown/3656038ff04758ba/metric_cache.pkl",
+      "bytes": 155164,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.06.57.40_veh-50_01493_01624/unknown/e0d602f69525530e/metric_cache.pkl",
+      "bytes": 78868,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1/2021.08.17.14.32.33_veh-08_01576_01919/unknown/a47f8102a19858c7/metric_cache.pkl",
+      "bytes": 95240,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.01.13.28.54_veh-28_00995_01087/unknown/095eafbb5c8f5b02/metric_cache.pkl",
+      "bytes": 234848,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.23.18.23.38_veh-26_00069_00642/unknown/514617125cb1538b/metric_cache.pkl",
+      "bytes": 361800,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.09.14.18.43.41_veh-45_02503_03013/unknown/dc09d32dbd875efc/metric_cache.pkl",
+      "bytes": 55196,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.07.09.17.06.37_veh-35_02609_05015/unknown/ab474b12c76b536e/metric_cache.pkl",
+      "bytes": 300744,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1/2021.07.09.23.23.48_veh-26_00054_01295/unknown/fa4f1892b13d5669/metric_cache.pkl",
+      "bytes": 369004,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.11.07.12.18_veh-50_01571_01823/unknown/854ddb255f1e5a0a/metric_cache.pkl",
+      "bytes": 56024,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.09.14.50.36_veh-26_00598_00665/unknown/a8757b9d85935d3f/metric_cache.pkl",
+      "bytes": 318340,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.07.16.18.06.21_veh-38_03733_04300/unknown/08ef5394165354a7/metric_cache.pkl",
+      "bytes": 678964,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/flow-safe-improvement-20261013/metric_cache_v1/2021.06.14.11.44.56_veh-35_01983_02053/unknown/0f2d8e1ad7f85c16/metric_cache.pkl",
+      "bytes": 630340,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.08.17.16.48.45_veh-43_02070_02652/unknown/a85d2ddae7f15ecc/metric_cache.pkl",
+      "bytes": 157056,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.06.23.14.54.32_veh-16_01187_03336/unknown/80214e2f95295ed7/metric_cache.pkl",
+      "bytes": 249892,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.09.15.15.02.19_veh-39_00214_00558/unknown/cb4a65a6ded25853/metric_cache.pkl",
+      "bytes": 195804,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.01.19.16.42_veh-28_03887_04040/unknown/9e338e2bafac57a9/metric_cache.pkl",
+      "bytes": 213276,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.11.08.31.07_veh-50_00791_00954/unknown/2b5ac45dfc6f5273/metric_cache.pkl",
+      "bytes": 75744,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.04.38.41_veh-50_00014_00429/unknown/1b4399251c8652f0/metric_cache.pkl",
+      "bytes": 148796,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.08.31.11.47.30_veh-40_00393_00847/unknown/0d01ae798cae5cda/metric_cache.pkl",
+      "bytes": 101696,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.07.16.16.01.30_veh-38_03893_05253/unknown/ec24982bcf065ee1/metric_cache.pkl",
+      "bytes": 554256,
+      "size_matches_bound_receipt": true
+    },
+    {
+      "path": "/mnt/project/constrained-flow-noise-20261014/metric_cache_v1/2021.10.05.04.38.41_veh-50_00014_00429/unknown/52ce4f90b2405466/metric_cache.pkl",
+      "bytes": 147480,
+      "size_matches_bound_receipt": true
+    }
+  ],
+  "new_official_calls_by_reviewer": 0,
+  "models_loaded_by_reviewer": 0
+}
