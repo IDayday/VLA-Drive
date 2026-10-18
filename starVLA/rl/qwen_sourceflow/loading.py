@@ -30,6 +30,8 @@ def load_il(path, *, device='cpu', qualification=False, verify=True):
     # Every tensor is overwritten by the strictly loaded full trained model;
     # this constructor is never a substitute for generic initialization.
     model=QwenSourceFlowVLA(QWEN_PATH,ActionDiT(**ACTION_CONFIG))
-    state=torch.load(path/'model.pt',map_location='cpu',mmap=True,weights_only=True)
+    # Buffered storage reads avoid thousands of remote mmap page faults on
+    # Lustre. This changes file I/O only; dtype and strict tensor loading stay.
+    state=torch.load(path/'model.pt',map_location='cpu',mmap=False,weights_only=True)
     model.load_state_dict(state,strict=True)
     return model.to(device).eval(),info

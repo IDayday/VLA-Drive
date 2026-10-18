@@ -23,6 +23,15 @@ from starVLA.rl.simwam_recipe.reward_readouts import RewardService
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+def json_feedback(value):
+    """Lossless JSON representation of official NumPy arrays/scalars."""
+    if isinstance(value,np.ndarray):return value.tolist()
+    if isinstance(value,np.generic):return value.item()
+    if isinstance(value,dict):return {k:json_feedback(v) for k,v in value.items()}
+    if isinstance(value,(list,tuple)):return [json_feedback(v) for v in value]
+    return value
+
+
 @torch.no_grad()
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True);p.add_argument('--output',required=True)
@@ -67,6 +76,10 @@ def main():
         if (root/'identity.json').exists():
             if json.loads((root/'identity.json').read_text())!=identity:raise ValueError('Changed evaluation identity')
         else:atomic_json(root/'identity.json',identity)
+        layout=dict(world=a.world,scene_partition='tokens[rank::world]')
+        if (root/'layout.json').exists():
+            if json.loads((root/'layout.json').read_text())!=layout:raise ValueError('Active shard layout changed; require explicit drained migration')
+        else:atomic_json(root/'layout.json',layout)
     record=dict(invocation=inv,rank=a.rank,world=a.world,host=host,start_unix=time.time(),identity=identity['sha256'],
         model_loading_seconds=loaded,forward_seconds=0.,scoring_wait_seconds=0.,physical_inference=0,new=0,reused=0,status='RUNNING')
     invfile=root/'invocations'/f'{inv}.json';atomic_json(invfile,record)
@@ -76,6 +89,8 @@ def main():
             if dest.exists():
                 old=json.loads(dest.read_text())
                 if old['identity']!=identity['sha256'] or old['status']!='OK':raise ValueError('Invalid reused scene')
+                seal=old.pop('sha256')
+                if seal!=fingerprint(old):raise ValueError('Changed reused scene payload')
                 record['reused']+=1;continue
             obs=data.observation(token);batch=processor([obs]);state=torch.tensor([obs['proprio']],device=device,dtype=torch.float32)
             noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',2101,token)),dtype=torch.float32).to(device)
@@ -88,8 +103,9 @@ def main():
             tick=time.monotonic();scores=service.score((token,data.records[token]['log'],requested))
             record['scoring_wait_seconds']+=time.monotonic()-tick
             if len(scores)!=1 or scores[0]['status']!='OK':raise ValueError('Invalid official feedback; denominator retained')
-            atomic_json(dest,dict(identity=identity['sha256'],token=token,log=data.records[token]['log'],status='OK',
-                invocation=inv,normalized_action=raw[0].cpu().tolist(),requested_trajectory=requested[0].tolist(),feedback=scores[0]))
+            row=dict(identity=identity['sha256'],token=token,log=data.records[token]['log'],status='OK',
+                invocation=inv,normalized_action=raw[0].cpu().tolist(),requested_trajectory=requested[0].tolist(),feedback=json_feedback(scores[0]))
+            row['sha256']=fingerprint(row);atomic_json(dest,row)
             record['new']+=1;record['wall_seconds']=time.monotonic()-start;atomic_json(invfile,record)
         record['status']='COMPLETE'
     except BaseException:

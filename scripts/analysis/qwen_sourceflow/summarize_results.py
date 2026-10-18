@@ -11,6 +11,9 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation',required=True);p.add_argument('--output',required=True);a=p.parse_args()
     root=Path(a.evaluation);identity=json.loads((root/'identity.json').read_text())
     rows=[json.loads(p.read_text()) for p in (root/'scenes').glob('*.json')]
+    for row in rows:
+        sha=row.pop('sha256')
+        if fingerprint(row)!=sha:raise ValueError('Changed native evaluation payload')
     if (len(rows)!=identity['count'] or len({r['token'] for r in rows})!=len(rows) or
         any(r['identity']!=identity['sha256'] or r['status']!='OK' for r in rows)):
         raise ValueError('Incomplete/invalid evaluation population; no missing denominators allowed')
@@ -36,6 +39,7 @@ def main():
         forward_worker_seconds=sum(v['forward_seconds'] for v in inv),
         scoring_wait_worker_seconds=sum(v['scoring_wait_seconds'] for v in inv),
         GPU_cost_semantics='Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds')
+    if Path(a.output).exists():raise FileExistsError('Keep previous cost/report schema; use a new output')
     result['sha256']=fingerprint(result);atomic_json(a.output,result);print(json.dumps(result))
 
 

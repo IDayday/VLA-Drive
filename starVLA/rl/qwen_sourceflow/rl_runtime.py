@@ -45,7 +45,13 @@ class NativeRuntime:
         actor=NativeRecipeActor(model.policy.action_expert,cfg,self.conditions)
         return actor,None,None
 
-    def make_conditions(self,actor):return self.conditions
+    def make_conditions(self,actor):
+        # Loading a complete 13GB IL checkpoint can differ by >90s across
+        # ranks on shared storage. Finish startup on the main 20-minute NCCL
+        # group before entering the existing short Gloo transaction protocol.
+        # No chain/RNG/optimizer operation occurs in this synchronization.
+        if torch.distributed.is_initialized():torch.distributed.barrier()
+        return self.conditions
 
     def recipe_identity(self,cfg,args,condition_sha):
         return dict(schema='native_qwen_sourceflow_RL_v1',recipe=cfg,

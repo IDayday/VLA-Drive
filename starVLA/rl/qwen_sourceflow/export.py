@@ -41,7 +41,7 @@ def load_standalone(path, *, device='cpu'):
         if file_sha(path/'processor'/name)!=sha:raise ValueError('Standalone processor changed: '+name)
     cfg=json.loads((path/'processor/config.json').read_text())
     model=QwenSourceFlowVLA(None,ActionDiT(**ACTION_CONFIG),checkpoint_config=cfg)
-    state=torch.load(path/'model.pt',map_location='cpu',mmap=True,weights_only=True)
+    state=torch.load(path/'model.pt',map_location='cpu',mmap=False,weights_only=True)
     model.load_state_dict(state,strict=True)
     return model.to(device).eval().requires_grad_(False),QwenObservationProcessor(path/'processor'),info
 
@@ -50,5 +50,5 @@ def load_export(path,model,parent):
     path=Path(path);info=inspect_export(path)
     if info['parent_model_sha256']!=parent['files']['model.pt']:
         raise ValueError('Unsealed/wrong-parent native RL deployment export')
-    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',mmap=True,weights_only=True),strict=True)
+    model.load_state_dict(torch.load(path/'model.pt',map_location='cpu',mmap=False,weights_only=True),strict=True)
     return info
