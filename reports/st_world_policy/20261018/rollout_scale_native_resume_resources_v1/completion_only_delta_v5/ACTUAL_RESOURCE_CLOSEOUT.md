@@ -1,0 +1,15 @@
+# Actual native-resume resource closeout
+
+The existing A4 reference and new B2 + native-resume-to-B4 are complete. Existing comparison `4894507742bafd73ab951af0eab8a7203a63e7cf2b8c3dd99fa3271cc227fe89` reports `EXACT_REPLAY`. This review only reads those artifacts; it runs no new comparison, model, official scoring, GPU query, or test. Runtime `751fcfa2b41549ae16f7b3204aef8dd18b912016` and observer `468fe8f1ed20ef3abb2b2407413f92fb078f6b1d05f6cbfb2ed4e4b6e69f9692` remain unchanged.
+
+The actual aggregate is six trainer invocations, including the earlier failed starts, eight optimizer updates, 1024 admitted official calls, zero retries, and six native directories. Stat-only output size is **55,773,576,699 bytes**, including preserved earlier failures and admission metadata, below the 104 GiB envelope. A's symlink is counted once. Native payload bytes were not opened or rehashed. Old A receipts and old B's three metadata files retain their original hashes.
+
+All six EXIT receipts confirm owned cleanup; the two new B launchers returned zero. These are durable execution receipts. Current remote PID/GPU absence still requires Lead's fresh check; this reviewer does not claim an independently observed NVML result.
+
+The two new B admission-to-cleanup intervals sum to **576.03 seconds**. New controller START to final result receipt spans **652.53 seconds**, including the gap between its two invocations. Earlier v4 A/B overlapped and must not be summed as sequential controller wall time. The active budget remains `660 prior + 2940 controller + 120 comparison + 180 cleanup = 3900 seconds`. The old lease/deadline expired; the disclosed **8806.65-second calendar gap** was followed by a fresh B-only lease and namespace, not an extension of the expired authority.
+
+Reported per-group allocation intervals are A4 **317.288 s**, B2 **277.514 s**, and resumed B2 **276.329 s**. Their source scope is NCCL-ready through final frozen hash, excluding launcher/import/setup and final cleanup. Multiplying those intervals by four assigned GPUs gives an interval allocation estimate, not complete campaign GPU cost or measured GPU busy time. Exact full training CPU, live official-worker CPU, and full GPU costs are **NOT_MEASURED**. The existing CPU comparison records 4.732 s wall, 4.817 waited-child CPU seconds, and 665,030,656 bytes waited-child RSS high water.
+
+Cumulative sampled `/proc` counters are **535,633,866,814 rchar bytes** and **159,566,266,368 read_bytes bytes**. The former is below the 1 TiB guard. Prior v4 cumulative values are inherited once. These counters are observation lower bounds and cannot establish an exact physical IO total or a strict whole-tree byte quota. New initial/resumed sampled group RSS peaks are 127,644,020,736 / 139,283,886,080 bytes, each below 256 GiB.
+
+The audit consumed 147,934 bytes of small metadata and statted payloads; no large payload was read. `ACTUAL_RESOURCE_CLOSEOUT.json` contains source-bound receipts and denominators. This closes the finite recovery resource audit; it grants no new experiment permission, asserts no scientific gain, and does not change the ongoing formal job.
