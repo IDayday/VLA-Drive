@@ -1,0 +1,60 @@
+{
+  "schema": "independent_rollout_scale_profile_correctness_v1",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "status": "APPROVE_ROLLOUT_SCALE_PROFILE_IMPLEMENTATION_CORRECTNESS",
+  "binding": {
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/REGISTRATION.json",
+      "sha256": "a67ce92a7b5d366aea21b13cd7ae2e470f4d8f91bb089a9326311133a008cc08"
+    },
+    "launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v2.py",
+      "sha256": "1f2828ffed12d1f27bd78b143fb97ee65000c79f90a7742a9e593fb5564c9e30"
+    }
+  },
+  "source_review": "reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v2/REVIEW.json",
+  "real_smoke_review": {
+    "path": "reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/REVIEW.json",
+    "sha256": "bebecdae2a58b1822110afbc8137611ab0b59187ba0733c9ac83c0afda65a6bb",
+    "status": "PASS_REAL_FOUR_RANK_SMOKE"
+  },
+  "execution": {
+    "family": "consequence",
+    "global_batch": 32,
+    "max_updates": 4096,
+    "micro_batch": 4,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 101592,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 240,
+    "world_size": 4
+  },
+  "config_artifact": {
+    "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/CONFIG.json",
+    "sha256": "ef371aa0fc4839853f92c3aa306626d51b1e1c1b740d276162f6905418b1c629"
+  },
+  "data_manifest_artifact": {
+    "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/TRAINING_MANIFEST.json",
+    "sha256": "7597be2e8e69a54bc79892993e58c9341822fc0f4e756bdb33d3859f317e3971"
+  },
+  "bounds": {
+    "runtime_seconds": 7200,
+    "max_official_calls": 31744,
+    "candidate_presentations_without_retries": 30720,
+    "max_new_updates": 240
+  },
+  "conditions": [
+    "Onlyexact751source,registeredPROFILE and launcherbytes; separate systems/resource approval remains required.",
+    "Initializefromoriginalregistered S0 with fresh optimizer; do notcontinue SMOKEweights. Keep original4096LR horizon,warmup100,G32/micro4/world4,G4/MC50 andBC/policyweight1.",
+    "Full TRAIN manifest artifact is pinned; this correctness supplement does not rescan its101592entries. Original ordering/coverage relies on the audited manifestderivation and separate input/resource verification.",
+    "Respect sample_limit101592 andstop_after240/maxseconds7200/maxcalls31744. No automaticformal training afterward.",
+    "Noformalinitialization fromdiagnosticweights, noDEV/navtest/deployment."
+  ],
+  "real_resume_boundary": "Actual SMOKE nativechecksum andguardpassed; no newGPUresume test executed.",
+  "resource_approval": false,
+  "formal_training_approved": false,
+  "scientific_gain": "UNTESTED"
+}

@@ -1,0 +1,26 @@
+{
+  "header_path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/include/ATen/native/cuda/Reduce.cuh",
+  "header_sha256": "241f6d7d71b9f40875601fcce040a6697c2400dd5cafc1e1a510b045ac75b817",
+  "header_bytes": 48222,
+  "source_locations": {
+    "block_dimension": [
+      102,
+      110
+    ],
+    "fastest_reduction_configuration": [
+      998,
+      1045
+    ],
+    "input_vectorization_threshold": [
+      1065,
+      1071
+    ],
+    "block_x_reduce_offsets_ascending": [
+      661,
+      668
+    ]
+  },
+  "inference": "For contiguous [8,4] FP32 rows, dim0=4, dim1=8, block_width=4; input-vectorization dim0>128 condition is false. block_x_reduce offsets are1 then2, producing (r0+r1)+(r2+r3). Division by4 is exact scaling; the final subtraction retains the original FP32 behavior.",
+  "empirical_validation": "This same tree matches ALL16 saved CUDA raw tensor SHA256s and every normalized FP32 output exactly. No scene-specific tree choice and no tolerance widening.",
+  "boundary": "Header explains the observed fixed-shape path; not a universal CPU/CUDA bitwise equivalence claim for arbitrary shapes or future PyTorch versions."
+}

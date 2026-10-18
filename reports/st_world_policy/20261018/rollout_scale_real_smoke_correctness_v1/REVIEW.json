@@ -1,0 +1,77 @@
+{
+  "schema": "independent_real_rollout_scale_smoke_correctness_v1",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "status": "PASS_REAL_FOUR_RANK_SMOKE",
+  "reviewed_at_utc": "2026-10-18T17:54:31.758135+00:00",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "registration_sha256": "c38c4275d0cc15574cf433619cc5abbd41044e3f7dc55b1c9b990cef1fd3f468",
+  "run": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1",
+  "identity_hash": "765cb4ac03928a5d6fc5c989c407d9b29ce8f4ca37b7d69875b1f35b6e93814b",
+  "numeric_execution_hash": "58eab66464415e0ccbf2da5e322fa469c20b3fa811fa92b6c64bda0a9339a1e8",
+  "actual_audit": {
+    "path": "ACTUAL_AUDIT.json",
+    "sha256": "70b8ca73048c8f2e62b8e4ba05c98fee3015fced542c1e8990310306e99c906c"
+  },
+  "checks": {
+    "process": "Outer EXIT0 and trainer RESULT both present; monitor stop_request=null.",
+    "updates": "4 new updates,4ranks,128scene presentations over32unique TRAIN scenes,512actual G4 candidate feedback,25600MC points per old/current,BCrepeat8=1024.",
+    "feedback": "All512 valid_scored; feedback/rollout/context/protocol/old-policy/MC-coupling hashes validated from16small saved payloads.",
+    "normalization": "4 common128population receipts agree across4ranks; actual detached FP32 output/mask/rewards/raw SHA bindings verified; one fixed paired FP32 CUDA reduction tree and float64 denominator reproduce all16 outputs bitwise.",
+    "finite": "All recorded loss values, gradient norms,LR,timings finite; gradient norms positive; all4updates report nonzero sampled FP32-master changes.",
+    "freeze": "Runtime final frozen_encoder_unchanged=true and expected frozen hash retained; reviewer did not load the model independently.",
+    "official_optimizer": "Actual runtime reports each rank BF16 execution/gradient accumulation,FP32 master,required Adam moments with2xmaster element count; checked afterfirstupdate. Hash integrity of finalnative shards independently verified, not tensorloaded.",
+    "native_checkpoint": "Production verify_checkpoint once on lateststep4 only; all9native files SHA256 and exact inventory passed.",
+    "normalization_resume_guard": "Production verify_restored_normalization called on4ranks using lastconsumed commonhash;CPU RNG unchanged. This is a read-only guard, not training resume."
+  },
+  "checkpoint_verification": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827",
+    "receipt_identity": "f0ca6750ff40d31af1210e163cba7877e1d719da50043aaab66d5ef4620fc620",
+    "logical_bytes_read": 11473306504,
+    "wall_seconds": 12.033801393583417,
+    "cpu_seconds": 11.350129814,
+    "native_verify_calls_total": 1,
+    "model_tensor_load": false
+  },
+  "run_terminal_semantics": {
+    "result_status": "PAUSED",
+    "native_termination_reason": "RUNNING_CHECKPOINT",
+    "pause_intent": {
+      "completed": 4,
+      "reason": "BUDGET_PAUSED",
+      "reused_native_tag": "step_000004_1792345743083263827"
+    },
+    "pause_intent_sha256": "6acbc62c13f795e87c885375c8538e4ba9d0b434034e20c825833624045423f8",
+    "interpretation": "Bounded4update diagnostic completed successfully; original4096schedule training is resumable. Not MAX_STEPS4096."
+  },
+  "audit_failure_preserved": {
+    "initial_status": "CPU_SUM_REPLAY_ASSERTION_FAILED",
+    "cause": "Auditor initially used CPU torch.sum reduction order to demand CUDA raw tensor hash equality.",
+    "correction": "InstalledCUDA Reduce.cuh explains one fixed adjacent-pair tree, then validated exactly overall16payloads. No trainingimplementation change or tolerated numerical discrepancy.",
+    "files": [
+      "CPU_SUM_REPLAY_ATTEMPT.py",
+      "CPU_SUM_REPLAY_ATTEMPT_OUTPUT.txt",
+      "FP32_REDUCTION_ORDER_DIAGNOSIS.json",
+      "CUDA_REDUCTION_SOURCE_EVIDENCE.json"
+    ],
+    "checksum_not_repeated": true
+  },
+  "limitations": [
+    "No actualGPU/ZeRO continuation was performed in this diagnostic review; exact CPU tinyDiT resume/Gloo and prior runtime native maturity remain separate evidence.",
+    "Fourupdates on32repeated TRAIN scenes do not establish full-run throughput,learningconvergence,safety or scientificgain.",
+    "Noformal training or deployment approval; diagnostic weights remain invalid for formalinitialization.",
+    "Positiveglobalgradientnorm andmasterupdate do not measure isolatedpolicy-toBCgradientbalance after normalization."
+  ],
+  "work_performed": {
+    "new_gpu_calls": 0,
+    "new_scores": 0,
+    "new_optimizer_steps": 0,
+    "real_model_loaded_by_reviewer": false,
+    "final_readonly_audit_direct_bytes": 4023486,
+    "last_guard_payload_checksum_bytes": 957440,
+    "final_readonly_audit_cpu_seconds_including_import": 3.259895053,
+    "maxrss_kib": 614444
+  },
+  "scientific_gain": "UNTESTED",
+  "formal_training_approved": false
+}

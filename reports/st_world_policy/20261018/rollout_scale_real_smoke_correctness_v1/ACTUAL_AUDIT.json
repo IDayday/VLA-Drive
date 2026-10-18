@@ -1,0 +1,539 @@
+{
+  "status": "PASS_REAL_FOUR_RANK_SMOKE",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "run": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1",
+  "result": {
+    "allocation_wall_scope": "NCCL-ready through final frozen hash; launcher/import/setup and final cleanup excluded",
+    "allocation_wall_seconds": 301.5900182389887,
+    "completed": 4,
+    "counts": {
+      "BC_repeat8_presentations": 1024,
+      "actual_rollouts": 512,
+      "original_GT_scenes": 128,
+      "policy_MC_points_per_old_and_current": 25600
+    },
+    "epoch": 3,
+    "exposure": 128,
+    "formal_launch_approval": false,
+    "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+    "frozen_encoder_unchanged": true,
+    "host": "training-vlawm-tsinghua-zt5-worker-0",
+    "identity": "765cb4ac03928a5d6fc5c989c407d9b29ce8f4ca37b7d69875b1f35b6e93814b",
+    "last_advantage_scale_common_sha256": "4a8d2fe39f3dab113d99948f35e03dbc9851537ca473dcbcf0221b3255bbf2f5",
+    "last_completed_policy": {
+      "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+      "optimizer_step": 3,
+      "role": "old",
+      "state_hash": "eccd3eaf3a9e0f72d7e07e6fd84416bd43ffd28c71d0ebe261f2e2b5558fe37d",
+      "version": 3
+    },
+    "new_optimizer_updates": 4,
+    "offset": 1,
+    "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+    "pending_feedback": null,
+    "pending_old_policy": null,
+    "pid": 597061,
+    "policy_version": 4,
+    "profile_cpu_scope": "self_and_waited_children; live official scorer CPU not included",
+    "reuse_guard": {
+      "consumed": {},
+      "limits": {
+        "max_records": 1,
+        "max_reuses": 1,
+        "max_update_age": 1,
+        "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+      },
+      "retired_before": 4,
+      "schema": "fpo_reuse_v1"
+    },
+    "rng_stream_base_seed": 42,
+    "scientific_result": "NOT_EVALUATED",
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "started_unix": 1792345658.9145772,
+    "status": "PAUSED",
+    "tag": "step_000004_1792345743083263827",
+    "termination_reason": "RUNNING_CHECKPOINT"
+  },
+  "outer_exit": {
+    "child_maxrss_high_water_bytes": 25629659136,
+    "ended_unix": 1792345766.108442,
+    "exit_code": 0,
+    "resource_monitor": {
+      "elapsed_seconds": 312.02964828698896,
+      "exit_code": 0,
+      "sample_period_seconds": 5,
+      "scope": "sampled upper-bound RSS and owned driver GPU use; safe-boundary request, no hard instantaneous memory quota",
+      "status": "MONITOR_ENDED",
+      "stop_request": null
+    },
+    "scope": "waited child accounting; not wall time times workers",
+    "waited_child_cpu_seconds": 949.8066899999999
+  },
+  "identity_hash": "765cb4ac03928a5d6fc5c989c407d9b29ce8f4ca37b7d69875b1f35b6e93814b",
+  "numeric_execution_hash": "58eab66464415e0ccbf2da5e322fa469c20b3fa811fa92b6c64bda0a9339a1e8",
+  "validated_feedback_candidates": 512,
+  "scene_presentations": 128,
+  "unique_scenes": 32,
+  "normalized_advantages_dtype": "torch.float32",
+  "boundaries": [
+    {
+      "boundary": 0,
+      "common_sha256": "cfa19049b475171997af5729346df620de9667a94c4f2a3b83592b00703766b5",
+      "N": 128,
+      "nonzero_count": 88,
+      "std": 0.0008771553411523015,
+      "gain": 1140.0487907665715,
+      "all_tensor_hashes_and_cpu_formula_exact": true,
+      "raw_replay_tree": "FP32 ((r0+r1)+(r2+r3))/4; exact saved CUDA raw hash required",
+      "distributed_m2_absolute_error": 0.0
+    },
+    {
+      "boundary": 1,
+      "common_sha256": "947742adb0e8613e7f802be4febab37fc81b554704ba43730334bc25c0b96a11",
+      "N": 128,
+      "nonzero_count": 88,
+      "std": 0.0007288849686294983,
+      "gain": 1371.9584102336892,
+      "all_tensor_hashes_and_cpu_formula_exact": true,
+      "raw_replay_tree": "FP32 ((r0+r1)+(r2+r3))/4; exact saved CUDA raw hash required",
+      "distributed_m2_absolute_error": 0.0
+    },
+    {
+      "boundary": 2,
+      "common_sha256": "86eedb72eb2bd78ccc46ec4bd27311d58362ef04982c4554c584078983fda30c",
+      "N": 128,
+      "nonzero_count": 88,
+      "std": 0.0008586159417489805,
+      "gain": 1164.664939130445,
+      "all_tensor_hashes_and_cpu_formula_exact": true,
+      "raw_replay_tree": "FP32 ((r0+r1)+(r2+r3))/4; exact saved CUDA raw hash required",
+      "distributed_m2_absolute_error": 0.0
+    },
+    {
+      "boundary": 3,
+      "common_sha256": "4a8d2fe39f3dab113d99948f35e03dbc9851537ca473dcbcf0221b3255bbf2f5",
+      "N": 128,
+      "nonzero_count": 88,
+      "std": 0.000637932287507478,
+      "gain": 1567.5642428301662,
+      "all_tensor_hashes_and_cpu_formula_exact": true,
+      "raw_replay_tree": "FP32 ((r0+r1)+(r2+r3))/4; exact saved CUDA raw hash required",
+      "distributed_m2_absolute_error": 0.0
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "losses": {
+        "bc": 0.0021006108727306128,
+        "policy": -3.7137651816010475e-06,
+        "total": 0.00209689699113369
+      },
+      "gradient_norm": 0.1840260624885559,
+      "lr": 1.0000000000000001e-07,
+      "slowest_rank_seconds": 19.735474250046536,
+      "normalization_rank_max_seconds": 0.009119719034060836,
+      "peak_allocated_max": 12481722368,
+      "peak_reserved_max": 14172553216
+    },
+    {
+      "step": 2,
+      "losses": {
+        "bc": 0.0038949549198150635,
+        "policy": 1.278822310268879e-06,
+        "total": 0.0038962336257100105
+      },
+      "gradient_norm": 0.26872143149375916,
+      "lr": 2.0000000000000002e-07,
+      "slowest_rank_seconds": 13.972954340977594,
+      "normalization_rank_max_seconds": 0.004829598008655012,
+      "peak_allocated_max": 14119265792,
+      "peak_reserved_max": 16173236224
+    },
+    {
+      "step": 3,
+      "losses": {
+        "bc": 0.00395634351298213,
+        "policy": -2.1634477889165282e-06,
+        "total": 0.003954180050641298
+      },
+      "gradient_norm": 0.34912657737731934,
+      "lr": 3.0000000000000004e-07,
+      "slowest_rank_seconds": 14.0290290460689,
+      "normalization_rank_max_seconds": 0.004220728995278478,
+      "peak_allocated_max": 14119265792,
+      "peak_reserved_max": 16817061888
+    },
+    {
+      "step": 4,
+      "losses": {
+        "bc": 0.0027308533899486065,
+        "policy": 2.9187649488449097e-06,
+        "total": 0.0027337721548974514
+      },
+      "gradient_norm": 0.3210812509059906,
+      "lr": 4.0000000000000003e-07,
+      "slowest_rank_seconds": 13.795660675968975,
+      "normalization_rank_max_seconds": 0.004566141054965556,
+      "peak_allocated_max": 14119265792,
+      "peak_reserved_max": 16817061888
+    }
+  ],
+  "recorded_engine_checks": [
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 204875906,
+      "moment_elements": 409751812,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "95a7310889c84c71974a343f577c7091052de63cd4b44a5849aaee8fb241a576",
+      "policy_identity": "3749d5b90af5fee900ce4a8f13d248db0dd3b033a6c4616031039da14bb85548",
+      "schema": "st_official_engine_check_v1"
+    },
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 204875906,
+      "moment_elements": 409751812,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "95a7310889c84c71974a343f577c7091052de63cd4b44a5849aaee8fb241a576",
+      "policy_identity": "3749d5b90af5fee900ce4a8f13d248db0dd3b033a6c4616031039da14bb85548",
+      "schema": "st_official_engine_check_v1"
+    },
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 204875906,
+      "moment_elements": 409751812,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "95a7310889c84c71974a343f577c7091052de63cd4b44a5849aaee8fb241a576",
+      "policy_identity": "3749d5b90af5fee900ce4a8f13d248db0dd3b033a6c4616031039da14bb85548",
+      "schema": "st_official_engine_check_v1"
+    },
+    {
+      "execution_dtype": "bfloat16",
+      "gradient_accumulation_dtype": "bfloat16",
+      "master_dtype": "float32",
+      "master_elements": 204875906,
+      "moment_elements": 409751812,
+      "moments_required": true,
+      "optimizer": "torch.optim.AdamW",
+      "optimizer_layout_identity": "95a7310889c84c71974a343f577c7091052de63cd4b44a5849aaee8fb241a576",
+      "policy_identity": "3749d5b90af5fee900ce4a8f13d248db0dd3b033a6c4616031039da14bb85548",
+      "schema": "st_official_engine_check_v1"
+    }
+  ],
+  "engine_check_scope": "Actual runtime checks after first optimizer update; no independent model or Adam tensor deserialization.",
+  "checkpoint": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827",
+    "receipt_identity": "f0ca6750ff40d31af1210e163cba7877e1d719da50043aaab66d5ef4620fc620",
+    "wall_seconds": 12.033801393583417,
+    "cpu_seconds": 11.350129814,
+    "logical_checksum_bytes": 11473306504,
+    "files": [
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+        "bytes": 2458525488,
+        "sha256": "5e50661dfda62980fcee3b67007bccc9793de9f1bbea4a5eee917c19f39e37b3"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+        "bytes": 2458524592,
+        "sha256": "24ece3dfc3cc365e99d34b3e8c866c981405a1a35544772f5bb1ad7aa5f83185"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+        "bytes": 2458524592,
+        "sha256": "249d242b169101352f5b27a60b5c3034e7cb50988f64d806316e49260ca4e8c2"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+        "bytes": 2458524784,
+        "sha256": "95e55ea53e224c911f905e69c37e45d5c5d3be5d7207fac5de2d344ae6be13b2"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/mp_rank_00_model_states.pt",
+        "bytes": 1639145144,
+        "sha256": "ea1bf30ae601c199900140f338370c74a7a230178ff17b55c3e687917c97836e"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/rng_rank0.pt",
+        "bytes": 15428,
+        "sha256": "eec52d320218d63746d177b61d58eff1a34d1466c8bc1221badb0d0f90fc013b"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/rng_rank1.pt",
+        "bytes": 15492,
+        "sha256": "e6affd3234a3925786a65cc1052eb0ead3d0c8e7aa2c3764121f5721566dffa0"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/rng_rank2.pt",
+        "bytes": 15492,
+        "sha256": "48a2f5d2107f5752c4914a4bb930042c69a982d0ffd50431cf4577497d6373df"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/rng_rank3.pt",
+        "bytes": 15492,
+        "sha256": "1788281aeeb95e66c82e3b0002bbf11c9320628724b0501a27fc1f3c05ec0238"
+      }
+    ],
+    "native_verify_calls": 1,
+    "model_tensor_deserialization": false
+  },
+  "consumed_normalization_guard": {
+    "ranks": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "RNG_unchanged": true,
+    "payload_checksum_reads": [
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_0.pt",
+        "bytes": 239360,
+        "sha256": "30702d501af307f5a5019f5ca8fb65f1e420d84c179e1c29d8552e8daf805b8b"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_1.pt",
+        "bytes": 239360,
+        "sha256": "457b9705281efb79e4cb7860409e65e1f18c4df11feed32ea8df5864358f4260"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_2.pt",
+        "bytes": 239360,
+        "sha256": "f53d3f8f967019322f22f7dd39ebe32e29f8cfda71f7bd3ff4088ee8c0513a92"
+      },
+      {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_3.pt",
+        "bytes": 239360,
+        "sha256": "e2bfc365a4b7ffcbaa8a0ab608abe7000f4a8ce5904b65e44f0f556ad906da7e"
+      }
+    ]
+  },
+  "direct_read_inventory": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/RESULT.json",
+      "bytes": 1951,
+      "sha256": "6bc0ab0f23512c52bc4157c1805f1367868a89b9f889400169f8dea36d68be0a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/EXIT.json",
+      "bytes": 524,
+      "sha256": "8c2e617570815c56324516232146d73dc0f30119f1e183d82baf9653f1f3eab8"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/identity.json",
+      "bytes": 7459,
+      "sha256": "e4604da6668570f197c03d40623b229e28d4aff192c4eec0d126638e4fe789aa"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/steps.jsonl",
+      "bytes": 22595,
+      "sha256": "d5abd0e979258b70680bcab72821a63cf173a1a6919de7eade1ce58d57edf19a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/COMPLETE.json",
+      "bytes": 3007,
+      "sha256": "475a1f4a404fc009c47448b886974f25d60c581e25c770e801608f08266b4be9"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_0_COMPLETE.json",
+      "bytes": 9860,
+      "sha256": "61f2ba5a644ffb40d2f77492cd00eef2c4e96a14d6b8401245041f122d7695fc"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_0.pt",
+      "bytes": 239360,
+      "sha256": "f46f6d3e87047352ce5d5e8b447409332bdb3f6ac93351c241d7e852ef490ec0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_1_COMPLETE.json",
+      "bytes": 9680,
+      "sha256": "d9efcfeb245de5e5ff2c6d81407e5600c66d5ba91958c60e837e60a867f539b7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_1.pt",
+      "bytes": 239360,
+      "sha256": "ac2ab2945be91a54dcfd1261b9cb59cd9726afd9cf12223033bbba7c198553b0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_2_COMPLETE.json",
+      "bytes": 9798,
+      "sha256": "f14e2cefd1ba6df911d184bd74cb906706cf23471f1549bfb604f99b93c8212b"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_2.pt",
+      "bytes": 239360,
+      "sha256": "5d572573cdd98a0338a4df8ca5f5a985864bb9e6607fa2eeebac391dfda04f11"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_3_COMPLETE.json",
+      "bytes": 9740,
+      "sha256": "5d5ab690836d7a8178c6ad9e243009e1ba89651e652dadf71ccc0964ccb3da07"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000000/rank_3.pt",
+      "bytes": 239360,
+      "sha256": "d66a6e9a6edb36c64c9b5e7de640a9f65cff6c03ff5c062f1cdc10decd6393be"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_0_COMPLETE.json",
+      "bytes": 9622,
+      "sha256": "5206fb36c30060ffee47182fa22734e6f3dba0c02880ed4822d82617d5d56184"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_0.pt",
+      "bytes": 239360,
+      "sha256": "c7d4fb1404cefeba5d624580d7005f252b4c2f0d93af0fb25b829c079279b4c6"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_1_COMPLETE.json",
+      "bytes": 9861,
+      "sha256": "3b3297e9b27db4f5678f524f07160ba3ae0939998ab3630f519890a0c277c910"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_1.pt",
+      "bytes": 239360,
+      "sha256": "48194099315195943b150b1e377f2774811076d334ed06fa7d9b3eb52e1de829"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_2_COMPLETE.json",
+      "bytes": 9860,
+      "sha256": "e6a81359f071dfdaed9bdef71a0b52e46cd98ee0b9ede6ca72b006beb10302e0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_2.pt",
+      "bytes": 239360,
+      "sha256": "753323c7c3f3235775b5905a629b547e255380d05838f7e6034c1ea5681feee0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_3_COMPLETE.json",
+      "bytes": 9744,
+      "sha256": "0e27de4f6b73aea3220625babba4b3417abd2aff1cff114da1c6cbc9a67bea88"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000001/rank_3.pt",
+      "bytes": 239360,
+      "sha256": "089ead40e6ea9fe5d585925ff46f3073598acca7e0f8192997f008a8cdde06b7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_0_COMPLETE.json",
+      "bytes": 9793,
+      "sha256": "f1c5d650729b4d02ebe5ca499b7f5c5e01efc30a6feba2ba286e46a8a065e0b8"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_0.pt",
+      "bytes": 239360,
+      "sha256": "1c319e1e0769d727294c77fce8903aea70d28fd81e9546fbd5692e2f709b6427"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_1_COMPLETE.json",
+      "bytes": 9859,
+      "sha256": "d90331683c95cc5d681fa88c54cea56f4ac4e34629ee17ec9ff242eecc51956f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_1.pt",
+      "bytes": 239360,
+      "sha256": "57e2f11f932ec07ca00e6fafb353036d43df64cfb4a3c381d5dec04a9d854d06"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_2_COMPLETE.json",
+      "bytes": 9679,
+      "sha256": "dae5b78a778935378f438e4f2fcde619f96fb2f154ea3d63b41fb9695b36ceca"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_2.pt",
+      "bytes": 239360,
+      "sha256": "f5a16526dfb021e44fdcc1d1ddbb5ee840fa0b405bcce7b53929212056206b27"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_3_COMPLETE.json",
+      "bytes": 9739,
+      "sha256": "c3ad5576fa5a121a4add0339afdc534b802c64f290328f0e4e8e6f7b65758065"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000002/rank_3.pt",
+      "bytes": 239360,
+      "sha256": "4b3dae0d43e652291f8fcb3f5d8b72a4f50d71c879a49355edc7ce04f8abda01"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_0_COMPLETE.json",
+      "bytes": 9738,
+      "sha256": "8780c190ebdab1e5f4f6e13f752887466526aef6493af538db25085cbd084874"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_0.pt",
+      "bytes": 239360,
+      "sha256": "30702d501af307f5a5019f5ca8fb65f1e420d84c179e1c29d8552e8daf805b8b"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_1_COMPLETE.json",
+      "bytes": 9861,
+      "sha256": "61164dab1360f51aea586ae208cf783cb3c2f54083cb6cc05c5668ade675b7f7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_1.pt",
+      "bytes": 239360,
+      "sha256": "457b9705281efb79e4cb7860409e65e1f18c4df11feed32ea8df5864358f4260"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_2_COMPLETE.json",
+      "bytes": 9739,
+      "sha256": "629cd713ec5d94246d588253d0ed55f9f6f9e6efbaf989df76fe5e0ed8003e16"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_2.pt",
+      "bytes": 239360,
+      "sha256": "f53d3f8f967019322f22f7dd39ebe32e29f8cfda71f7bd3ff4088ee8c0513a92"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_3_COMPLETE.json",
+      "bytes": 9741,
+      "sha256": "5e21df741b4c4cd13cd35d7aabe540b47f2773c1a3a7439d09961a586431bbd2"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/rollouts/boundary_000003/rank_3.pt",
+      "bytes": 239360,
+      "sha256": "e2bfc365a4b7ffcbaa8a0ab608abe7000f4a8ce5904b65e44f0f556ad906da7e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/official_runtime/updated_engine_rank0.json",
+      "bytes": 469,
+      "sha256": "c9aa3abe69eb30ab15b977c632434d77e2daa3d4fe250e569fa58e9fe69aed58"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/official_runtime/updated_engine_rank1.json",
+      "bytes": 469,
+      "sha256": "c9aa3abe69eb30ab15b977c632434d77e2daa3d4fe250e569fa58e9fe69aed58"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/official_runtime/updated_engine_rank2.json",
+      "bytes": 469,
+      "sha256": "c9aa3abe69eb30ab15b977c632434d77e2daa3d4fe250e569fa58e9fe69aed58"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/official_runtime/updated_engine_rank3.json",
+      "bytes": 469,
+      "sha256": "c9aa3abe69eb30ab15b977c632434d77e2daa3d4fe250e569fa58e9fe69aed58"
+    }
+  ],
+  "direct_read_bytes": 4023486,
+  "wall_seconds": 0.1484630648046732,
+  "cpu_seconds": 3.259895053,
+  "maxrss_kib": 614444,
+  "reviewer_model_loaded": false,
+  "reviewer_gpu_used": false,
+  "new_score_calls": 0,
+  "new_optimizer_steps": 0,
+  "real_GPU_resume_executed": false,
+  "prior_cpu_sum_replay_failed_and_retained": true,
+  "scientific_gain": "UNTESTED",
+  "formal_training_approved": false
+}
