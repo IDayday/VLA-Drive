@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 import torch
-from .contracts import ROOT,require_dispatch,source_files,file_sha
+from .contracts import ROOT,require_dispatch,source_files,file_sha,configure_native_numerics
 from .recipe import load_recipe
 from .loading import load_il,inspect_il
 from .data import RawSceneData
@@ -24,6 +24,7 @@ class NativeRuntime:
         parser.add_argument('--data',default=str(ROOT/'data/TRAIN_v3'))
 
     def load_recipe(self,args):
+        configure_native_numerics()
         cfg=load_recipe(args.config)
         self.parent=inspect_il(args.il_checkpoint,qualification=args.qualification)
         if not args.qualification:

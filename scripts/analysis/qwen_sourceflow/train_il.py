@@ -17,7 +17,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import yaml
-from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files,runtime_identity
+from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files,runtime_identity,configure_native_numerics
 from starVLA.rl.qwen_sourceflow.data import RawSceneData
 from starVLA.rl.qwen_sourceflow.il_optimization import parameter_groups,set_stage,lr_scale
 from starVLA.rl.qwen_sourceflow import il_checkpoint
@@ -40,7 +40,7 @@ def main():
     p.add_argument('--data',default=str(ROOT/'data/TRAIN_v3'));p.add_argument('--resume')
     p.add_argument('--qualification',action='store_true');p.add_argument('--stop-after',type=int)
     p.add_argument('--qualification-interface-updates',type=int)
-    a=p.parse_args();host=require_dispatch();cfg=yaml.safe_load(Path(a.config).read_text())
+    a=p.parse_args();host=require_dispatch();cfg=yaml.safe_load(Path(a.config).read_text());configure_native_numerics()
     world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
     if not a.qualification and world!=8:raise ValueError('Formal native IL requires one authorized eight-GPU host')
     if a.qualification_interface_updates is not None:

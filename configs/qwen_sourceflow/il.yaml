@@ -23,6 +23,11 @@ parent_selection: highest_complete_DEV_PDMS_among_registered_milestones
 metric: canonical_NAVSIM_v1.1
 inference: single_candidate_source_shift5_ODE_K10
 precision:
+  deterministic_algorithms: true
+  cudnn_benchmark: false
+  allow_tf32: false
+  allow_bf16_reduced_precision_reduction: false
+  cublas_workspace: ':4096:8'
   parameter_storage: float32
   optimizer_state: float32
   forward_autocast: bfloat16

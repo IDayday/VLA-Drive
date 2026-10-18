@@ -13,7 +13,7 @@ import traceback
 import uuid
 import numpy as np
 import torch
-from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files
+from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files,configure_native_numerics
 from starVLA.rl.qwen_sourceflow.data import RawSceneData
 from starVLA.rl.qwen_sourceflow.loading import load_il
 from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
@@ -30,7 +30,7 @@ def main():
     p.add_argument('--rank',type=int,default=0);p.add_argument('--world',type=int,default=1)
     p.add_argument('--qualification',action='store_true');p.add_argument('--limit',type=int)
     p.add_argument('--parent-selection');p.add_argument('--rl-export',help='Sealed FP32 merged native action export')
-    a=p.parse_args();host=require_dispatch();torch.set_num_threads(4);torch.cuda.set_device(0)
+    a=p.parse_args();host=require_dispatch();configure_native_numerics();torch.set_num_threads(4);torch.cuda.set_device(0)
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     if a.limit and not a.qualification:raise ValueError('No partial population in formal evaluation')
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
