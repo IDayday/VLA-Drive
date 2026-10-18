@@ -1,0 +1,45 @@
+{
+  "CPU_tests": {
+    "control": 8,
+    "diagnostic": 9
+  },
+  "confirmed_defect": "Cleanup RuntimeError masks primary inference error held by exception traceback",
+  "counterexample_boundaries": [
+    "Original heavy inference root exception was masked and cannot be recovered",
+    "Minimal CUDA success is not full model diagnostic success",
+    "Successful lifetime guard remains strict; failed arm propagates error and never loads next arm"
+  ],
+  "historical_primary_error": "UNKNOWN_NOT_RECORDED",
+  "model_math_changed": false,
+  "new_attempt_root": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2",
+  "old_failure_path": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v1/ERROR.json",
+  "pins": {
+    "BINDING.json": "cca84c91a525fd98fe49f277d4dcfaa2ea199f07fbf8933c44a22a87a764fb94",
+    "CONTROL_TEST.log": "b3388192dde96ab483762726756d949182a30d8019e3a1aefc831cabd9f9da59",
+    "SELECTED_SCENES.json": "77ebc29d9273c309afbbb3e596eb95ac947fbe51d96830f31f7552ca00881947",
+    "TEST.log": "a654a6c15bc966092a4033e13a952db5586b088cfaec5a7f33ef4a7c7617f691",
+    "control.py": "f348dd2a13c683d17c79e42728b45e946694148d0be1cefde21695c2c4f546b1",
+    "diagnose.py": "0bebc9aa89fe9485075887466c363033c7529c28c70d4bf41509a954b5a44bc1",
+    "launch_once.sh": "ffc3e2d0da08b411187098e3ccc5d99175ed22ad4ea53b3dde5cd67d6931ff44"
+  },
+  "real_minimal_GPU_check": {
+    "corrected": {
+      "result": "SUCCEEDED_EXACT_8",
+      "workspace": ":4096:8"
+    },
+    "cuda": "12.4",
+    "gpu_uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+    "host": "training-vlawm-tsinghua-zt2-worker-0",
+    "operation": "8x8 FP32 CUDA torch.mm, deterministic algorithms enabled, no model/checkpoint",
+    "torch": "2.5.1+cu124",
+    "unconfigured": {
+      "result": "RuntimeError requiring CUBLAS_WORKSPACE_CONFIG",
+      "wall_seconds": 0.4757523126900196,
+      "workspace": null
+    }
+  },
+  "schema": "st_channel_diagnostic_local_fix_evidence_v1",
+  "source_reference": "https://docs.pytorch.org/docs/2.5/generated/torch.use_deterministic_algorithms.html",
+  "training_performed": false,
+  "weights_changed": false
+}
