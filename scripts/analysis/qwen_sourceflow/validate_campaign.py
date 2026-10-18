@@ -101,6 +101,17 @@ class CampaignTests(unittest.TestCase):
                 self.queue.ensure_training('train','canonical',{},'output',qualification=False)
             available.assert_not_called()
 
+    def test_merged_weights_wait_for_completed_ODE_parity(self):
+        name='canonical_update005000_export';out=self.root/'exports/canonical_update005000';out.mkdir(parents=True)
+        (out/'COMPLETE').write_text('{}');atomic_json(self.queue.task_path(name),dict(name=name,workers=[]))
+        parity=name+'_parity';atomic_json(self.queue.task_path(parity),dict(name=parity,workers=[]))
+        report=self.queue.control/'parity'/(name+'.json');report.parent.mkdir()
+        atomic_json(report,dict(status='PASS',bundle=str(out)))
+        with patch.object(self.queue,'done',side_effect=lambda task:task!=parity):
+            self.assertIsNone(self.queue.ensure_export('canonical',5000,self.root/'run'))
+        with patch.object(self.queue,'done',return_value=True):
+            self.assertEqual(self.queue.ensure_export('canonical',5000,self.root/'run'),out)
+
     def test_withdrawn_host_is_rejected_before_dispatch(self):
         with patch.object(module,'allowed_hosts',return_value=[]),patch.object(module,'launch') as launch:
             with self.assertRaises(PermissionError):

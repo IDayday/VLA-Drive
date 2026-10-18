@@ -174,7 +174,25 @@ class Campaign:
         name=f'{variant}_update{update:06d}_export';output=self.root/'exports'/f'{variant}_update{update:06d}'
         if self.task_path(name).exists():
             if self.done(name) and not (output/'COMPLETE').exists():raise ValueError('Export exited without a sealed bundle')
-            return output if self.done(name) else None
+            if not self.done(name):return None
+            parity=name+'_parity';report=self.control/'parity'/(name+'.json')
+            if report.exists():
+                record=read(report)
+                if record['status']!='PASS' or record['bundle']!=str(output):raise ValueError('Invalid deployed ODE parity')
+                if not self.task_path(parity).exists():raise ValueError('Unattributed deployment parity result')
+                if not self.done(parity):return None
+                return output
+            if self.task_path(parity).exists():
+                if self.done(parity):raise ValueError('Parity process exited without a result')
+                return None
+            routes,_=available(self.reserved(),min_free_MiB=32000)
+            if routes:
+                checkpoint=Path(run)/'checkpoints'/f'update{update:06d}_inner0'
+                report.parent.mkdir(parents=True,exist_ok=True)
+                self.submit(parity,'scripts.analysis.qwen_sourceflow.validate_rl_deployment',
+                    ['--checkpoint',str(checkpoint),'--bundle',str(output),'--output',str(report)],
+                    [max(routes,key=lambda row:row['free_MiB'])],self.analysis)
+            return None
         checkpoint=Path(run)/'checkpoints'/f'update{update:06d}_inner0'
         if not (checkpoint/'COMPLETE').exists():return None
         # One CPU export at a time bounds complete-model reconstruction on the
@@ -257,7 +275,8 @@ class Campaign:
                 config_sha256=file_sha(Path(self.training['path'])/f'configs/qwen_sourceflow/rl_{v}.yaml')) for v in VARIANTS},
             DEV_updates=[0,*MILESTONES],RL_selection_rule='highest DEV canonical PDMS among 5k/10k/20k/35k/50k; exact tie later',
             primary_comparison='fixed 50k endpoints; DEV-selected trained checkpoints separately reported',
-            final_NAVTEST='Only after both 50k endpoints and all registered DEV results are locked; seed2101 single shift5 ODE',
+            final_NAVTEST='RL Navtest only after both 50k endpoints and all registered DEV are locked; seed2101 single shift5 ODE',
+            IL_baseline_NAVTEST='After IL selection is frozen; measured independently and never used for RL config/checkpoint selection',
             qualification_weights_excluded=True)
         if registration.exists() and read(registration)!=body:raise ValueError('Registered campaign identity changed')
         if not registration.exists():atomic_json(registration,body)

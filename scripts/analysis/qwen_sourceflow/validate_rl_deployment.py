@@ -22,10 +22,13 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--checkpoint',required=True)
     p.add_argument('--bundle',required=True);p.add_argument('--output',required=True);a=p.parse_args()
     require_dispatch();configure_native_numerics();torch.set_num_threads(4);torch.cuda.set_device(0)
+    output=Path(a.output);output.parent.mkdir(parents=True,exist_ok=True)
+    if output.exists():raise FileExistsError('Preserve the previous numerical validation')
     path=Path(a.checkpoint);info=json.loads((path/'identity.json').read_text())
     export=inspect_export(a.bundle)
-    if info['purpose']=='formal' or export['checkpoint']!=str(path.resolve()) or not export['qualification']:
-        raise ValueError('Only the explicitly matched qualification export is accepted')
+    qualification=info['purpose']!='formal'
+    if export['checkpoint']!=str(path.resolve()) or export['qualification']!=qualification:
+        raise ValueError('Require the explicitly matched formal/qualification export')
     files=json.loads((path/'files.json').read_text());seal=json.loads((path/'COMPLETE').read_text())
     if file_sha(path/'files.json')!=seal['files_sha256'] or any(file_sha(path/n)!=files[n] for n in ('identity.json','optimizer.pt')):
         raise ValueError('Changed original adapter checkpoint')
@@ -33,12 +36,12 @@ def main():
     del data
     state=torch.tensor([obs['proprio']],device='cuda',dtype=torch.float32)
     noise=torch.randn((1,8,3),generator=torch.Generator().manual_seed(seed_for('native_qwen_sourceflow_ODE',2101,token))).cuda()
-    model,parent=load_il(info['IL_parent']['path'],device='cuda',qualification=True)
+    model,parent=load_il(info['IL_parent']['path'],device='cuda',qualification=qualification)
     actor=NativeRecipeActor(model.policy.action_expert,info['recipe'])
     saved=torch.load(path/'optimizer.pt',map_location='cpu',weights_only=False)
     restore_adapters(actor,saved['adapters'])
     active=sum(bool(torch.count_nonzero(v)) for k,v in saved['adapters'].items() if k.endswith('lora_B'))
-    if active!=len(actor.closure['adapters']):raise AssertionError('Require every real nonzero LoRA B projection')
+    if qualification and active!=len(actor.closure['adapters']):raise AssertionError('Require every real nonzero LoRA B projection in this learning qualification')
     batch=QwenObservationProcessor(QWEN_PATH)([obs])
     with torch.autocast('cuda',dtype=torch.bfloat16):condition=model.encode_condition(batch,state)
     expected=model.policy.sample_ode(condition,noise).cpu()
@@ -52,7 +55,8 @@ def main():
     report=dict(schema='native_actual_LoRA_merged_ODE_v1',status='PASS',checkpoint=str(path),bundle=a.bundle,
         updates=seal['updates'],nonzero_B_projections=active,normalized_max_abs=error,
         physical_max_abs_xy_m_heading_rad=physical,tolerance=dict(atol=1e-5,rtol=1e-5),
-        raw_images=True,source_shift=5,steps=10,candidates=1,qualification_only=True,
+        raw_images=True,source_shift=5,steps=10,candidates=1,qualification_only=qualification,
+        numerical_validation_only=True,
         deployment_reads_generic_weights=False,deployment_reads_training_labels_cache_teacher_scorer=False)
     try:torch.testing.assert_close(actual,expected,atol=1e-5,rtol=1e-5)
     except AssertionError:
