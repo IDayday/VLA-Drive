@@ -31,7 +31,8 @@ def run(config,output,device="cuda"):
             raise ValueError("Navtest requires a frozen accepted full-population final method")
     elif config.get("scope")=="engineering" and not 0<limit<=8:
         raise ValueError("Development engineering smoke is bounded to eight scenes")
-    model=torch.load(exported/"student.pt",map_location="cpu",weights_only=False).to(device).eval()
+    from starVLA.model.modules.decodable_st.export_loader import load_trusted_export
+    model,_=load_trusted_export(exported,device)
     if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError("Canonical export requires FP32 parameters")
     count=min(limit or len(data),len(data));banks={};start=time.monotonic()
     for kind in ("q0","q_final"):

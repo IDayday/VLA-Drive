@@ -79,7 +79,42 @@ def run(config,output,device="cuda",run_root=None,planner_root=None):
     return export_loaded(model,output,provenance)
 
 
+def export_representation_overlay(base_export,run_root,output,device="cuda"):
+    """Reuse identical immutable base bytes instead of another 12GB checkpoint.
+
+    This is a no-reader P1 export. The base bundle's engineering reader is retained
+    but explicitly disabled; it is not an accepted P3 model.
+    """
+    from safetensors.torch import save_file
+    from starVLA.model.modules.decodable_st.training_state import TrainableDelta
+    numerical_policy(42,device,.65)
+    base_export=Path(base_export);run_root=Path(run_root);output=Path(output)
+    base=json.loads((base_export/"manifest.json").read_text());identity=json.loads((run_root/"identity.json").read_text())
+    if base["provenance"]["baseline_identity"]!=identity["baseline_identity"]:raise ValueError("Overlay baseline differs")
+    if sha256(base_export/"student.pt")!=base["weights_sha256"]:raise ValueError("Base export modified")
+    model=torch.load(base_export/"student.pt",map_location="cpu",weights_only=False).to(device).eval()
+    state=torch.load(run_root/"latest.pt",map_location="cpu",weights_only=False)
+    if state["identity"]!=identity["identity"]:raise ValueError("Overlay run identity mismatch")
+    names=[r["name"] for r in identity["trainable_inventory"]]
+    TrainableDelta(model,names).load_state_dict(state["model"],strict=True);model.reader_enabled=False
+    probe=torch.load(base_export/"current_only_probe.pt",map_location="cpu",weights_only=False)
+    with torch.no_grad():trajectory=model.predict_action(probe["observation"],initial_noise=probe["noise"].to(device))
+    output.mkdir(parents=True,exist_ok=False)
+    os.link(base_export/"student.pt",output/"student.pt")
+    save_file({k:v.contiguous() for k,v in state["model"].items()},str(output/"representation.safetensors"))
+    model.baseline.qwen_vl_interface.processor.save_pretrained(output/"processor")
+    torch.save({"observation":probe["observation"],"noise":probe["noise"],"trajectory":trajectory.cpu()},output/"current_only_probe.pt")
+    record={**base,"source_sha":source_sha(),"reader_enabled":False,"base_bytes_hardlinked":True,
+        "overlay":{"file":"representation.safetensors","sha256":sha256(output/"representation.safetensors"),"inventory":names},
+        "provenance":{"baseline_identity":identity["baseline_identity"],"run_identity":identity["identity"],"progress":state["progress"],
+                      "scope":"P1 trained representation, reader disabled; no formal planning benefit claim"}}
+    atomic_json(output/"manifest.json",record);return record
+
+
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("--config",required=True);p.add_argument("--output",required=True)
-    p.add_argument("--run-root");p.add_argument("--planner-root");p.add_argument("--device",default="cuda");a=p.parse_args()
-    run(json.loads(Path(a.config).read_text()),a.output,a.device,a.run_root,a.planner_root)
+    p.add_argument("--run-root");p.add_argument("--planner-root");p.add_argument("--overlay-base");p.add_argument("--device",default="cuda");a=p.parse_args()
+    if a.overlay_base:
+        if not a.run_root:raise ValueError("Overlay requires an exact completed representation run")
+        export_representation_overlay(a.overlay_base,a.run_root,a.output,a.device)
+    else:run(json.loads(Path(a.config).read_text()),a.output,a.device,a.run_root,a.planner_root)

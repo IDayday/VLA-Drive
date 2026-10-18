@@ -1,6 +1,5 @@
 """Independent deployment process: teacher import and artifact reads are denied."""
 import argparse
-import hashlib
 import importlib.abc
 import json
 from pathlib import Path
@@ -20,16 +19,13 @@ def run(root,device="cuda"):
     import torch
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
     root=Path(root);record=json.loads((root/"manifest.json").read_text())
-    h=hashlib.sha256()
-    with (root/"student.pt").open("rb") as f:
-        for block in iter(lambda:f.read(8<<20),b""):h.update(block)
-    if h.hexdigest()!=record["weights_sha256"]:raise ValueError("Export checksum mismatch")
     forbidden=("/weights/vigt/","/weights/sgdrive/","/external/ViGT/","/external/SGDrive/","native_v1/","dino_targets_v1")
     def deny_reads(event,args):
         if event=="open" and args and isinstance(args[0],str) and any(s in args[0] for s in forbidden):
             raise PermissionError("Teacher/target artifact access denied: "+args[0])
     sys.addaudithook(deny_reads)
-    start=time.monotonic();model=torch.load(root/"student.pt",map_location="cpu",weights_only=False).to(device).eval()
+    from starVLA.model.modules.decodable_st.export_loader import load_trusted_export
+    start=time.monotonic();model,record=load_trusted_export(root,device)
     probe=torch.load(root/"current_only_probe.pt",map_location="cpu",weights_only=False)
     with torch.no_grad():
         prediction=model.predict_action(probe["observation"],initial_noise=probe["noise"].to(device))
