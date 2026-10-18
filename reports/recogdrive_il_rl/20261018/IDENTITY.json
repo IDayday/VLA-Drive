@@ -1,0 +1,52 @@
+{
+  "RL_frozen_reference_bitwise_equals_IL": true,
+  "checkpoints": {
+    "IL": {
+      "epoch": 199,
+      "global_step": 44400,
+      "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-2B-IL/ReCogDrive_Diffusion_Planner_2B_IL.ckpt",
+      "repo": "owl10/ReCogDrive-2B-IL",
+      "revision": "0fa96f2159d5bc0f816ecd3818f00541db9db6ff",
+      "sha256": "4569221da6962d4e26d21a463cd70c06a7ad4d76654943fb3870086f43bdb443"
+    },
+    "RL": {
+      "epoch": 24,
+      "global_step": 8325,
+      "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-2B-RL/ReCogDrive_Diffusion_Planner_2B_RL.ckpt",
+      "repo": "owl10/ReCogDrive-2B-RL",
+      "revision": "7346ede73f03ed577811024f1a5d16fb063a47b9",
+      "sha256": "23fb949b10387efeff87e093703d5faf41b61b9e5ead16d4076661e3c7c08a20"
+    }
+  },
+  "current_manifest": "/mnt/project/recogdrive-stage2-evaluation-artifacts/20261006/navtest_current_manifest_v1.json",
+  "draws": 8,
+  "logs": 136,
+  "loss": "unmodified original forward: normalized-GT epsilon prediction MSE, Uniform integer t in [0,99]",
+  "loss_mode": "eval/no_grad; same scene-bound seed and same vectorized Monte Carlo draws for IL/RL",
+  "manifest_sha256": "7ef1218c6fc703f2d64b0b5de66bcaea71dcfe8d834e407811d22b56636fb981",
+  "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+  "metric_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+  "official_reported_PDMS": {
+    "IL": 86.5,
+    "RL": 90.8
+  },
+  "official_reported_source": "https://github.com/xiaomi-research/recogdrive#checkpoint",
+  "official_revision": "6b8d8f5e01346c71094651c81dcaf66405dbc04e",
+  "official_source": "/mnt/project/recogdrive-stage2-optimized-artifacts/20261005/reference_sources/recogdrive",
+  "optimizer_updates": 0,
+  "precision": "official BF16 VLM -> full FP32 hidden sequence; FP32 planner/loss; TF32 disabled",
+  "reference_tensors": 347,
+  "sampling_seed": 42,
+  "scenes": 12146,
+  "schema": "recogdrive_released_IL_RL_paired_navtest_v1",
+  "split": "navtest",
+  "stage1": {
+    "config_sha256": "6c7249180e5312db63e2279d06232a920f077157d56491bb59de319ed37c8656",
+    "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-VLM-2B",
+    "repo": "owl10/ReCogDrive-VLM-2B",
+    "revision": "16873acca08e3c04ab229b3d973f39aeba9db68d",
+    "sha256": "79fb39297e322cd2d3dc68d4f23b86ff85806b336a4d5d0ed5db9b66e4034a3c"
+  },
+  "target_sha256": "5c0095ea832aeb76f1155d56ec03436a0551d1290bea19e24a71ed99f245663c",
+  "trajectory": "unmodified get_action: five-step DDIM, deterministic=False, one candidate, scene seed42"
+}
