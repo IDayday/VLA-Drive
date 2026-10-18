@@ -1,0 +1,110 @@
+{
+  "schema": "st_spatial20k_actual_correctness_audit_v1",
+  "status": "PASS",
+  "reviewer": "/root/spatial20k_correctness",
+  "reviewed_at_utc": "2026-10-18T02:22:36.903338+00:00",
+  "fingerprint": {
+    "registration_sha256": "d9c9826f34464a05421c84f61a49c6c3f0cdb27dac9770dee90b28377d6b4e48",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "12d8ceaa7684dbb4a2e01b05fb893b1dd7123e932c70f50758d1f9cfdd94e6a5",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "45952423f4161eee058eedf09d62e8707cad1cc0d7a3c4799cb51de1713d3bee",
+      "target_contract": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 20000,
+      "world_size": 4
+    },
+    "run_id": "SP3_fulltrain_seed42_official_20k_v1"
+  },
+  "parent_fingerprint": {
+    "registration_sha256": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "7df752e6040afe1d11d13cf416f19c4f82f052a1f92fd2621175ca040f8f8728",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "6153031f1f307bf2b3683432842c1e3b2605bf350b98c402375ef2972246e73b",
+      "target_contract": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 5000,
+      "world_size": 4
+    },
+    "run_id": "SP3_fulltrain_seed42_official_5k_v1"
+  },
+  "parent_state": {
+    "completed": 5000,
+    "counts": {
+      "current": 17693835264,
+      "ego_scenes": 159992
+    },
+    "epoch": 1,
+    "exposure": 159992,
+    "identity": "bc0680b480dc4913d56effb366a9429ee3668f506dc5e1ab62e0991debaa1127",
+    "offset": 1825,
+    "tag": "step_005000_1792224403643960209",
+    "termination_reason": "RUNNING_CHECKPOINT"
+  },
+  "config_exact_registered_proposal": true,
+  "recipe_unchanged_except_stop_and_native_parent": true,
+  "max_schedule_updates": 20000,
+  "additional_updates_ceiling": 15000,
+  "first_invocation_resume_flag": false,
+  "world_size": 4,
+  "global_batch": 32,
+  "source_pins_unchanged": {
+    "tools/st_world_policy/budget_extension.py": "ca9e02555c1bbdb4dbdd3cb0f52d7ec36a7b56561826c3cae637e79197035e08",
+    "tools/st_world_policy/train_world.py": "69d63da3f354ae6a05af13cea5d3b296bb49affc10fb152c24f626e648979418",
+    "tools/st_world_policy/training_config.py": "a575e55c74fec2dc60d04d3686f22392e7a13b5a36f1b23a2641a61bb2530d2a"
+  },
+  "native_state_load_evidence": "INHERITED_REAL_FOUR_RANK",
+  "current_parent_payload_inventory": "NAMES_AND_SIZES_MATCH_RECEIPT",
+  "native_checkpoint_payload_bytes_read": 0,
+  "new_model_or_teacher_runs": 0,
+  "checkpoint_commitments": {
+    "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/spatial20k_checkpoint_resource_v1/CHECKPOINT_COMMITMENTS_4143G.json",
+    "sha256": "45132e38ed4467c008c9b6a3823634bbbec8b9f746025fb084c2036331f97c10"
+  },
+  "retained_and_new_commitments_gib": 4143,
+  "launch_fd_argv_and_negative_test_source": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/test_launcher.py",
+    "sha256": "ff3c49dc2367a46a67eec6571c2da98866cf8ecabd842b8e9a7c03add0c4d080"
+  },
+  "launcher_cpu_tests": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/LAUNCHER_TESTS.log",
+    "sha256": "8fdb5754d0e9877243529e5d3374aa52830468dca37489056a9f78dda0ced461"
+  },
+  "launcher": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/spatial20k_actual_preparation_v1/launch20k_once.py",
+    "sha256": "e175da58b7e9f0b128c3059c13ab3a2dd7b0c65063daead80a6253165efe79e2"
+  },
+  "limitations": [
+    "Metadata-only changed-scope review; real strict payload hashing/loading occurs once in the unchanged native trainer.",
+    "Exact state restoration does not imply bitwise future gradients under production FA2.",
+    "This review does not dispatch, grant other review roles, or approve another invocation/resume.",
+    "Fresh actual GPU occupancy and free-space checks remain mandatory in the launcher."
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "schema": "st_world_review_v1",
+  "status": "PASS",
+  "role": "correctness",
+  "reviewer_agent": "/root/spatial20k_correctness",
+  "reviewed_at_utc": "2026-10-18T02:22:26.527939+00:00",
+  "fingerprint": {
+    "registration_sha256": "d128c7e1f1dfaa878d50f9644779a5283a32a9acdc02ac6373919496ac6d5b30",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "d4a4980d9b643f08aa6c6e71ac5e8c0557f99cc55fe069cd1d5f93043a852440",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "d2820573b5989cd0e54056ea17e943d2d6a19c1318de152635b61843e9cac459",
+      "target_contract": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 20000,
+      "world_size": 4
+    },
+    "run_id": "SP2_fulltrain_seed42_official_20k_v1"
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/SP2/AUDIT.json",
+      "sha256": "12a70a48259d5842ab579cf79dd006cdce071a02d7a514155d570b18f11232cc"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/spatial20k_actual_preparation_v1/launch20k_once.py",
+      "sha256": "e175da58b7e9f0b128c3059c13ab3a2dd7b0c65063daead80a6253165efe79e2"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/reviews/CORRECTNESS.json",
+      "sha256": "c25e5f4efcd13d2d441897d8faf45d8a93a59e825e7f8109cf7d51898e4cca67"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/LAUNCHER_TESTS.log",
+      "sha256": "8fdb5754d0e9877243529e5d3374aa52830468dca37489056a9f78dda0ced461"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/test_launcher.py",
+      "sha256": "ff3c49dc2367a46a67eec6571c2da98866cf8ecabd842b8e9a7c03add0c4d080"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/spatial20k_native_continuation_preparation_v1/REGISTRATION_AND_APPROVAL.md",
+      "sha256": "25cd13b46630d1ebd1b90d507c8261e6d23e9cb22a9c6f8174373e3f23f39820"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_WORLD_LIVE_NATIVE_RESTORE_REVIEW.json",
+      "sha256": "39b592831c02d8c67305c457ca8623135507fb6d97a4481ac0cf39f7f0fa5eb7"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_WORLD_RESUME_EXECUTION_REVIEW.json",
+      "sha256": "92feea11869eb6fe5dd70bf95ee5e3d8d8fc28a4e77243c8fd75c8cc3efc8475"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_FA2_AA_VARIABILITY.json",
+      "sha256": "dfb692abf91564ca5d17f426bcdd0bc4582f5e0a43baaaf6f8817af772826745"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/correctness/OFFICIAL_RUNTIME_BOUNDARY_FIX_REVIEW.json",
+      "sha256": "8a68fc16795efceebf128a8e8f15a6eaf072c86234eb0cb45d810fdbf3fa9c20"
+    }
+  ],
+  "decision_scope": "Only first native SP2 continuation from exact5000 to common20000, unchanged source, recipe and data.",
+  "limits": [
+    "Metadata-only changed-scope review; real strict payload hashing/loading occurs once in the unchanged native trainer.",
+    "Exact state restoration does not imply bitwise future gradients under production FA2.",
+    "This review does not dispatch, grant other review roles, or approve another invocation/resume.",
+    "Fresh actual GPU occupancy and free-space checks remain mandatory in the launcher."
+  ]
+}
