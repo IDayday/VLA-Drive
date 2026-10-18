@@ -1,0 +1,180 @@
+{
+  "actual_gradient_execution": "NOT_RUN",
+  "budget": {
+    "max_output_bytes": 8388608,
+    "max_read_bytes": 206158430208,
+    "max_rss_bytes": 68719476736,
+    "max_seconds": 1800
+  },
+  "conditions": [
+    "Independent resource approval and Lead host/GPU/window admission required before --execute; this file is not a dispatch",
+    "Use exact frozen runtime83679937 and immutable registration715ccad8; no source or population changes",
+    "Only original next32 TRAIN scenes, original world4 rank order/micro4, repeat8 BC with saved native rank RNG, FPO eval MC50 and existing feedback",
+    "Strict model/environment/frozen/condition/ten-Euler/old-current CFM identity checks must succeed; mismatch aborts without relaxed tolerance",
+    "Report separate BF16 backward then FP32 CPU summation; do not call it the exact original joint ZeRO2 gradient or optimizer update",
+    "Keep zero optimizer updates/new scoring; no metric cache read; no changes to weights or active training",
+    "Systems wrapper must enforce registered host/GPU and hard process limits; module budget checks alone are not full systems admission",
+    "Only one3584 boundary: no global conclusion about dominance, convergence or scientific gain from this diagnostic alone",
+    "Use this exact wrapper and helper hashes, no arbitrary child command; immutable attempt once with no automatic retry",
+    "Lead must maintain empty registered GPU and cooperative GPU/run locks; locks do not reserve against unrelated schedulers",
+    "RSS/read/output are observed process-tree limits with 0.2-second sampling and cleanup latency, not absolute OS ceilings; retain resource reviewer semantics"
+  ],
+  "created_utc": "2026-10-18T15:50:07.405451+00:00",
+  "dispatch_performed": false,
+  "feature_research": "PAUSED_UNTOUCHED",
+  "final_preflight": {
+    "command": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m tools.st_world_policy.audit_flow_gradient_balance --registration /mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/REGISTRATION.json",
+    "cwd": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+    "exit_code": 0,
+    "stderr": "One existing pynvml deprecation warning; no CUDA initialization",
+    "stdout": {
+      "GT_model_manifest_read": false,
+      "boundary": 3584,
+      "execution": "NOT_RUN",
+      "registered_budget": {
+        "max_output_bytes": 8388608,
+        "max_read_bytes": 206158430208,
+        "max_rss_bytes": 68719476736,
+        "max_seconds": 1800
+      },
+      "status": "SMALL_RECEIPTS_VALIDATED"
+    }
+  },
+  "formal_training_approved": false,
+  "helper_sha256": {
+    "prepare_bindings.py": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84",
+    "supervise_once.py": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+  },
+  "independent_resource_review": {
+    "path": "/mnt/project/VLA-Drive-st-consequence-resource-review-20261018/reports/st_world_policy/20261018/gradient_balance_independent_resources_v1/RESOURCE_REVIEW.json",
+    "reviewer": "/root/consequence_runtime_resource_review",
+    "sha256": "226d89ac03fabd4b813870810faa4deba09eab3b49fe35fd7f509197f31eec35",
+    "tests_passed": 9
+  },
+  "mathematical_limitations": [
+    "Separate BF16 backward and FP32 microbatch summation are not bit-exact joint ZeRO2 accumulation",
+    "Using world_size1/global denominator32 differs in pre-backward scaling from original world4 followed by gradient averaging; low-precision rounding can differ",
+    "No Adam preconditioning, clip, optimizer update or scientific gain is measured",
+    "Single fixed boundary32 scenes is not a population-wide estimate"
+  ],
+  "native_metadata": {
+    "checkpoint_completed": 3584,
+    "manifest_read": false,
+    "native_epoch": 1,
+    "native_offset": 409,
+    "next_rollout_boundary": 3584,
+    "receipts": [
+      {
+        "bytes": 2928,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/checkpoints/step_003584_1792287137286076754/COMPLETE.json",
+        "sha256": "e80e3f1f54a4e5b8fe225fbf3b7ccfc5d1aa754587feeea77e5f92362259b45a"
+      },
+      {
+        "bytes": 3305,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_0_COMPLETE.json",
+        "sha256": "117920445b50b18d0018273aaf459982dd1cce8ac84de6155a85436bfd61f5cb"
+      },
+      {
+        "bytes": 3250,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_1_COMPLETE.json",
+        "sha256": "dd26a76eb5d3bb7baa7c32253e51dcdff6865c58ab3c8d6b1c3b118d19994d67"
+      },
+      {
+        "bytes": 3367,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_2_COMPLETE.json",
+        "sha256": "f7c7d4b1c9e242eabde0caee4330ee7beef802e03017772d46d6d8d6b0048528"
+      },
+      {
+        "bytes": 3306,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_3_COMPLETE.json",
+        "sha256": "94ff1cb1381e32e4b1570a94ce3e45cb9ff1c3ff41317ef7472147b4f3b1acd6"
+      }
+    ],
+    "tensor_payloads_read": false
+  },
+  "not_validated": [
+    "Actual GPU native-model/condition/CFM exact replay",
+    "Real BC/FPO gradient values or direction",
+    "Actual memory/time/read headroom",
+    "Joint ZeRO2 backward/Adam/clip update (outside scope)"
+  ],
+  "prior_computational_review": {
+    "commit": "c34a37f27d5d8c9a3846125114f50f3334f5fe6c",
+    "path": "reports/st_world_policy/20261018/gradient_balance_correctness_v1/REVIEW.json",
+    "sha256": "8858439a3dff40fd3f350078d20974c11369f92bf2e44c419372e156f8e0c7d6",
+    "source_commit": "2dcdc52f237a3c8a79cbc78e79b38be87f557054",
+    "test_result": "24 CPU tests passed; all9 covered source hashes unchanged in final runtime; not rerun as new evidence"
+  },
+  "prior_execution_review_sha256": "dff4db84203b3d82930ec03035166d0a88f36d3bde023efb6976a58b0ea4cdc8",
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/REGISTRATION.json",
+  "registration_sha256": "715ccad8839c9486f5a0b40f934da23ff4036247c8c448516788e77c7e490aab",
+  "resource": {
+    "cpu_threads": 2,
+    "gpu_uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+    "host": "training-vla-zt-worker-0"
+  },
+  "review_kind": "correctness",
+  "review_real_asset_access": {
+    "GPU": false,
+    "GT": false,
+    "full_manifest": false,
+    "images": false,
+    "metric_cache": false,
+    "models": false,
+    "scoring_calls": 0,
+    "small_receipts_and_config_only": true
+  },
+  "reviewer": "/root/road_proxy_correctness_review",
+  "schema": "st_flow_gradient_balance_wrapper_correctness_review_v1",
+  "source_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "source_hashes": {
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+    "starVLA/model/modules/flow_posttraining/policy_snapshot.py": "afd19462f677e788b40621764838ff2d1e6fab415084ebda182b95b2e4de36cc",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "tests/st_world/test_audit_flow_gradient_balance.py": "441ff3c838a27bc540cb481f5e834ab154feac9f9b082cba72bac8d96954fd21",
+    "tools/foresight/student_state.py": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+    "tools/st_world_policy/audit_flow_gradient.py": "2f74a2a33258fdd28d795633debc70efa00b3c242caf651b55969e0ef8a8a830",
+    "tools/st_world_policy/audit_flow_gradient_balance.py": "a8c376a5c9cb35becebf9e2ec942cf7df176d0e6f156fd457e423f3f2b54a6e2",
+    "tools/st_world_policy/flow_checkpoints.py": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+    "tools/st_world_policy/train_flow_policy.py": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96"
+  },
+  "source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "status": "APPROVE_GRADIENT_BALANCE_EXECUTION",
+  "verified": [
+    "Checkpoint completed3584 is the state before boundary3584 rollout; all4 original receipt hashes match",
+    "Saved epoch1/offset409 determines original next global32 through native sampler and strided rank assignment",
+    "BC original repeat8 and Beta(1.5,1) noise/time, train dropout, rank saved RNG and independent task generators",
+    "FPO eval-with-grad mode and eval checkpoint recomputation retain frozen old/current CFM identity; no policy dropout RNG consumption",
+    "Global BC denominator32 original scenes and FPO denominator128 real candidates; no second local-mean average",
+    "FP32 CPU accumulation of separate BF16 execution gradients; chunkedFP64 norms/dot/cross terms",
+    "Native model load/replay, frozen hashes, strict condition/ten-Euler/CFM checks and completed feedback ledger calls traced without executing real assets",
+    "Caller RNG restoration context protects success/failure at each audit rank",
+    "All9 previously reviewed source hashes match final runtime",
+    "Exact registered source commit and source paths validated by actual CLI metadata-only path",
+    "Final registration native3584 checkpoint and four rollout receipt hashes match independently reviewed evidence"
+  ],
+  "wrapper_path": "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/gradient_balance_systems_v1/supervise_gradient_once.py",
+  "wrapper_sha256": "ecb122a09b67ebc266c949bc5f7f7771c12b3b0cbee5712b57fcb7d10a722b20",
+  "wrapper_source_sha": "b74c1ae0bba51236fffd5fcee2ab732dce118e19",
+  "wrapper_tests": {
+    "GPU_calls": 0,
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q reports/st_world_policy/20261018/gradient_balance_correctness_v1/test_wrapper_independent.py",
+    "failed": 0,
+    "passed": 7,
+    "path": "reports/st_world_policy/20261018/gradient_balance_correctness_v1/test_wrapper_independent.py",
+    "real_assets_read": false,
+    "scoring_calls": 0,
+    "sha256": "900f94f8fd8a8f65305d2d3f79f15263126c58704e86eae7c9a261d068cbe750",
+    "skip": 0,
+    "wall_seconds_pytest_reported": 0.21
+  },
+  "wrapper_verified": [
+    "Read admission calls original torch/hash/safetensors function exactly once with original arguments/results/exceptions; accounting before call, no RNG draws or reseeding",
+    "Independent synthetic RNG and alias tests: consumption equals unwrapped callable and unrelated functions remain unchanged",
+    "Child invokes fixed reviewed diagnostic with only registration and --execute; no numeric/backend/optimizer/loss modifications",
+    "From-import aliases accounted, mmap full-file admissions recorded before load; observer limits remain sampled, not hard cgroup limits",
+    "Exact source/registration/wrapper/helper/reviewer/host/GPU/policy/time admission enforced; malformed review refused before GPU query",
+    "Owned process/session helper only reused; no feature workflow main is called",
+    "Independent resource review supplies nine process/limits fixtures; this review does not present those as newly executed correctness fixtures"
+  ]
+}
