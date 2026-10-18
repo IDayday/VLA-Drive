@@ -1,0 +1,152 @@
+{
+  "actual_model_calls": 0,
+  "actual_new_updates": 0,
+  "actual_official_calls": 0,
+  "binding_check_harness_correction": "Initial check incorrectly expected numeric CUDA indices; actual sealed controller, worker environment, and leases consistently use exact GPU UUID strings. Corrected reviewer assumption; no production file changed.",
+  "binding_file": {
+    "bytes": 3830,
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/BINDING_DRAFT.json",
+    "sha256": "cf901802b08c5289b26fe366f19d471caee803ca9fd9ff844b3cc31f470b4661"
+  },
+  "binding_sha256": "0a6e0eb53db85a946ccae9c9bed86ccce89eb90f5e466c90aa700df2fad7177c",
+  "bytes_read_this_binding_check": 201140,
+  "compare_CPU_and_wall_seconds": 120,
+  "controller_commit": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+  "controller_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+  "correctness_result_not_asserted": true,
+  "dispatch_started": false,
+  "fresh_RAM_and_GPU_recheck": "Required by route_checks/fresh_gpu_v3 at actual Lead launch; this binding check did not query GPU or reserve resources.",
+  "large_payload_reads": 0,
+  "leases": {
+    "continuous": {
+      "authorization": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "cuda_visible_devices_by_host": {
+        "training-vlawm-tsinghua-zt6-worker-0": "GPU-b0791af0-258f-af14-d2fa-5683d795c5b4,GPU-30077d20-8876-bcfe-609e-ee7c140e6770,GPU-6c1b062c-144b-5314-b423-b73030e1ce29,GPU-b4cae444-823a-156a-f794-bd5ca40b3c18"
+      },
+      "gpu_uuids_by_host": {
+        "training-vlawm-tsinghua-zt6-worker-0": [
+          "GPU-b0791af0-258f-af14-d2fa-5683d795c5b4",
+          "GPU-30077d20-8876-bcfe-609e-ee7c140e6770",
+          "GPU-6c1b062c-144b-5314-b423-b73030e1ce29",
+          "GPU-b4cae444-823a-156a-f794-bd5ca40b3c18"
+        ]
+      },
+      "hostnames": [
+        "training-vlawm-tsinghua-zt6-worker-0"
+      ],
+      "max_invocation_seconds": 1800,
+      "purpose": "Isolated instrumented751 native4 vs2+2 SMOKE; no formal initialization",
+      "schema": "st_training_resource_lease_v1",
+      "valid_from_unix": 1792354552.4153557,
+      "valid_until_unix": 1792361753.4153557,
+      "world_size": 4
+    },
+    "interrupted": {
+      "authorization": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "cuda_visible_devices_by_host": {
+        "training-vlawm-tsinghua-zt6-worker-0": "GPU-f1784442-c8f0-767b-a0cc-e3675643e318,GPU-2fb29b99-d8a1-0bae-9b16-2a0c97f0351a,GPU-418ae714-b62c-9b41-070b-065281c57cbd,GPU-b41079a0-8114-e9b0-55d6-4ea93daea76f"
+      },
+      "gpu_uuids_by_host": {
+        "training-vlawm-tsinghua-zt6-worker-0": [
+          "GPU-f1784442-c8f0-767b-a0cc-e3675643e318",
+          "GPU-2fb29b99-d8a1-0bae-9b16-2a0c97f0351a",
+          "GPU-418ae714-b62c-9b41-070b-065281c57cbd",
+          "GPU-b41079a0-8114-e9b0-55d6-4ea93daea76f"
+        ]
+      },
+      "hostnames": [
+        "training-vlawm-tsinghua-zt6-worker-0"
+      ],
+      "max_invocation_seconds": 1800,
+      "purpose": "Isolated instrumented751 native4 vs2+2 SMOKE; no formal initialization",
+      "schema": "st_training_resource_lease_v1",
+      "valid_from_unix": 1792354552.4153557,
+      "valid_until_unix": 1792361753.4153557,
+      "world_size": 4
+    }
+  },
+  "owned_cleanup_seconds": 180,
+  "review_kind": "resources",
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "route": {
+    "gpu_uuids": [
+      "GPU-b0791af0-258f-af14-d2fa-5683d795c5b4",
+      "GPU-30077d20-8876-bcfe-609e-ee7c140e6770",
+      "GPU-6c1b062c-144b-5314-b423-b73030e1ce29",
+      "GPU-b4cae444-823a-156a-f794-bd5ca40b3c18",
+      "GPU-f1784442-c8f0-767b-a0cc-e3675643e318",
+      "GPU-2fb29b99-d8a1-0bae-9b16-2a0c97f0351a",
+      "GPU-418ae714-b62c-9b41-070b-065281c57cbd",
+      "GPU-b41079a0-8114-e9b0-55d6-4ea93daea76f"
+    ],
+    "gpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "host": "training-vlawm-tsinghua-zt6",
+    "hostname": "training-vlawm-tsinghua-zt6-worker-0",
+    "valid_from_unix": 1792354552.4153557,
+    "valid_until_unix": 1792361753.4153557
+  },
+  "status": "PASS_RESOURCE_BINDING_METADATA_ONLY",
+  "total_envelope_seconds": 3900,
+  "training_controller_seconds": 3600,
+  "verified_small_controls": [
+    {
+      "bytes": 3830,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/BINDING_DRAFT.json",
+      "sha256": "cf901802b08c5289b26fe366f19d471caee803ca9fd9ff844b3cc31f470b4661"
+    },
+    {
+      "bytes": 3679,
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/RESOURCE_LAYOUT.json",
+      "sha256": "d5b4dbd394b9ef2563b8bffee4bc0da2336d4e74235844ed99d75ce2b97d2dfb"
+    },
+    {
+      "bytes": 1576,
+      "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+    },
+    {
+      "bytes": 129398,
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8"
+    },
+    {
+      "bytes": 290,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    {
+      "bytes": 57599,
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/training_integration_v1/real32/TRAINING_MANIFEST.json",
+      "sha256": "19a4429f6341ee9f39c05118545c816433231b397217da887a81e4ad38cffc5b"
+    },
+    {
+      "bytes": 973,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/continuous_RESOURCE_LEASE.json",
+      "sha256": "d2ddae3ccf8e840ec8e812dbc1772f468c97766acfefb91ae1566de6544d131e"
+    },
+    {
+      "bytes": 973,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/interrupted_RESOURCE_LEASE.json",
+      "sha256": "7a82b38d9dafc88fcab6b486210137f30469fcf561b0f23a48ecc923d33dde4e"
+    },
+    {
+      "bytes": 2532,
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f"
+    },
+    {
+      "bytes": 290,
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    }
+  ]
+}

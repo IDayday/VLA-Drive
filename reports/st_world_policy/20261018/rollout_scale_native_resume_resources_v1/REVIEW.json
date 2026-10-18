@@ -1,0 +1,94 @@
+{
+  "GPU_calls": 0,
+  "actual_model_calls": 0,
+  "actual_new_optimizer_updates": 0,
+  "actual_official_calls": 0,
+  "approved_unix": 1792354774.1731493,
+  "binding_file": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v1_admission/BINDING_DRAFT.json",
+    "sha256": "cf901802b08c5289b26fe366f19d471caee803ca9fd9ff844b3cc31f470b4661"
+  },
+  "binding_sha256": "0a6e0eb53db85a946ccae9c9bed86ccce89eb90f5e466c90aa700df2fad7177c",
+  "controller_commit": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+  "controller_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+  "correctness_result": "INDEPENDENT_REVIEW_REQUIRED_NOT_ASSERTED_HERE",
+  "dispatch_started": false,
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/FINAL_REVIEW.md",
+      "sha256": "03a247cab6e7c1b3d0fbbd7cb0e7e22f621ac18b39c8ab01687cbcf8344cfe45"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/FINAL_BINDING_AUDIT.json",
+      "sha256": "0aea136529058f443008b6a86d8541f246d5e73a8f5fef584668d9ad3a960747"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/CPU_LIFECYCLE_RESULTS.json",
+      "sha256": "92fdd716a158c7150c9ffaeeac7880dd658b405038863a646eaf332c093bf4ca"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/cpu_lifecycle_review.py",
+      "sha256": "e54dce7af9d6b4cb7493187e61e07184f213c6487eb9947e150084eb30e06a59"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/RESOURCE_LAYOUT.json",
+      "sha256": "d5b4dbd394b9ef2563b8bffee4bc0da2336d4e74235844ed99d75ce2b97d2dfb"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/SHARED_STORAGE_PLAN.json",
+      "sha256": "da4d630050c527df4f630c45704525a39a07f237759266582c846c1844cde30d"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ORIGINAL_S0_STAT_ONLY.json",
+      "sha256": "79d92d13abeb7d170236a0c8014b16ee8706b7019421a66c7f3bf849ede55098"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/READ_BUDGET_ADJUSTMENT.md",
+      "sha256": "b3f543f289186a4f96790e30cb9a7672248d4f6580bcf9adcdcf1a3b240ea0a7"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/DRAFT_SOURCE_FINDINGS.json",
+      "sha256": "eca59c1f9a8844736a0e88ac238ed2c6b2b96ae5c56effb4e29df93e4f58f4b1"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/FIRST_ATTEMPT_TORCH_IMPORT_RESULTS.json",
+      "sha256": "f22402a863c0faf471161cb119d04a46fd61eb6e657372acfbcb8c8424aae8b2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/FIRST_ATTEMPT_FAILURE.txt",
+      "sha256": "b17499d425896f4d8f86f11259a34fbf14dbbf993e4b1fee2e42329bc804ef53"
+    }
+  ],
+  "large_payload_reads": 0,
+  "resource_admission_guards": [
+    "Lead-only dispatch after separate Correctness PASS",
+    "Actual fresh GPU UUID/availability/RAM/storage/software/policy/mount and remaining lease checks must pass",
+    "No source/binding/pin change",
+    "8updates,1024calls,zero retry,3invocations,104GiB outputs",
+    "One world4 heavy reconstruction at once; compute/load may overlap",
+    "3600s trainer/controller+120s bounded comparison+180s cleanup=3900s total",
+    "Sampled RSS/GPU/IO/output are guards, not hard allocation or physical IO quotas",
+    "Diagnostic weights never formal initialization; active zt5 formal unchanged"
+  ],
+  "review_cost": {
+    "CPU_limit_seconds": 60,
+    "CPU_measured_final_harness_seconds": 0.17438299999999998,
+    "Torch_imported_final_harness": false,
+    "control_read_limit_bytes": 8388608,
+    "first_harness_dependency_import_disclosed": true,
+    "new_tests": 4,
+    "new_tests_passed": 4,
+    "old_endpoint_tests_rerun": false,
+    "selected_control_read_upper_bound_bytes": 7340032
+  },
+  "review_kind": "resources",
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "runtime_source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "schema": "st_native_resume_independent_resources_review_v1",
+  "scope": "Only finite native continuous4 versus pause2+resume2 SMOKE resources and controller lifecycle; no new formal approval.",
+  "source_hashes": {
+    "resources/st_endpoint_supervisor_v1.py": "a2e24537b9749258417e390be705d4d5d4e6f775986ca479a1c67c4330759a3e",
+    "resources/st_rollout_resume_smoke_v1.py": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e"
+  },
+  "status": "PASS"
+}

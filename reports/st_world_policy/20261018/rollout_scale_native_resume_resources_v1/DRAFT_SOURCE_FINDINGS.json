@@ -1,0 +1,33 @@
+{
+  "accepted_adjustment": {
+    "basis": "Parent approved 2026-10-18; actual source-native reconstruction approx37.60GB across12rank invocations plus rank0 validation exceeds draft512GiB. Original trainer/source remains unchanged.",
+    "draft_monitor_read_bytes": 549755813888,
+    "measurement_boundary": "Sampled rchar/read_bytes are lower bounds across mmap and exited short-lived process gaps; not physical IO, throughput guarantee, or exact resource quota.",
+    "new_total_sampled_rchar_guard_bytes": 1099511627776
+  },
+  "examined_unix": 1792353977.397922,
+  "findings": [
+    {
+      "id": "R1",
+      "issue": "stop_owned may set cleanup_complete=False without throwing. execute must fail closed rather than return execution complete.",
+      "location": "execute final cleanup",
+      "resolution": "IMPLEMENTER_NOTIFIED_PENDING_FINAL_SOURCE"
+    },
+    {
+      "id": "R2",
+      "issue": "seen.update replaces sampled IO counters; initial/resume reset counters. Full SMOKE budget needs monotonic per-PID/start accounting plus persisted initial totals and resume inheritance.",
+      "location": "execute sampled IO accounting",
+      "resolution": "IMPLEMENTER_NOTIFIED_PENDING_FINAL_SOURCE"
+    }
+  ],
+  "gpu_calls": 0,
+  "large_payload_reads": 0,
+  "new_model_calls": 0,
+  "official_calls": 0,
+  "review_kind": "resources",
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "source_clean_commit": null,
+  "source_path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018/resources/st_rollout_resume_smoke_v1.py",
+  "source_sha256": "7f297e24a9bc7ba48c1c20481090979d881baebe4874214ac83c91fb71b92236",
+  "status": "DRAFT_SOURCE_FINDINGS_NOT_EXECUTION_APPROVAL"
+}

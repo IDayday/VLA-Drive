@@ -1,0 +1,117 @@
+{
+  "CPU_seconds_self_and_waited_children": 0.17438299999999998,
+  "GPU_calls": 0,
+  "cases": [
+    {
+      "case": "SIGTERM_before_Popen_return",
+      "charged_attempts": 1,
+      "production_dispatch": false,
+      "real_short_lived_children": 1,
+      "residual_children": [],
+      "result": {
+        "invocations_started": 1,
+        "new_formal_updates": 0,
+        "phase": "initial",
+        "results": {},
+        "stats": {
+          "IO_scope": "Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota",
+          "peak_aggregate_RSS": 0,
+          "sampled_rchar": 0,
+          "sampled_read_bytes": 0
+        },
+        "status": "PARTIAL_OR_FAILED",
+        "stop_reason": "RuntimeError('OPERATOR_SIGNAL_15')",
+        "weights_usable_for_formal_init": false
+      },
+      "status": "PASS"
+    },
+    {
+      "case": "SIGINT_before_Popen_return",
+      "charged_attempts": 1,
+      "production_dispatch": false,
+      "real_short_lived_children": 1,
+      "residual_children": [],
+      "result": {
+        "invocations_started": 1,
+        "new_formal_updates": 0,
+        "phase": "initial",
+        "results": {},
+        "stats": {
+          "IO_scope": "Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota",
+          "peak_aggregate_RSS": 0,
+          "sampled_rchar": 0,
+          "sampled_read_bytes": 0
+        },
+        "status": "PARTIAL_OR_FAILED",
+        "stop_reason": "RuntimeError('OPERATOR_SIGNAL_2')",
+        "weights_usable_for_formal_init": false
+      },
+      "status": "PASS"
+    },
+    {
+      "case": "LAUNCH_write_failure",
+      "charged_attempts": 1,
+      "production_dispatch": false,
+      "real_short_lived_children": 1,
+      "residual_children": [],
+      "result": {
+        "invocations_started": 1,
+        "new_formal_updates": 0,
+        "phase": "initial",
+        "results": {},
+        "stats": {
+          "IO_scope": "Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota",
+          "peak_aggregate_RSS": 0,
+          "sampled_rchar": 0,
+          "sampled_read_bytes": 0
+        },
+        "status": "PARTIAL_OR_FAILED",
+        "stop_reason": "OSError('independent CPU fixture receipt failure')",
+        "weights_usable_for_formal_init": false
+      },
+      "status": "PASS"
+    },
+    {
+      "case": "cleanup_unconfirmed",
+      "charged_attempts": 2,
+      "production_dispatch": false,
+      "real_short_lived_children": 2,
+      "residual_children": [],
+      "result": {
+        "invocations_started": 2,
+        "new_formal_updates": 0,
+        "phase": "initial",
+        "results": {
+          "continuous": {
+            "fixture": true
+          },
+          "interrupted": {
+            "fixture": true
+          }
+        },
+        "stats": {
+          "IO_scope": "Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota",
+          "peak_aggregate_RSS": 16896000,
+          "sampled_rchar": 1040224,
+          "sampled_read_bytes": 0
+        },
+        "status": "PARTIAL_OR_FAILED",
+        "stop_reason": "OWNED_CLEANUP_UNCONFIRMED",
+        "weights_usable_for_formal_init": false
+      },
+      "status": "PASS"
+    }
+  ],
+  "children_max_peak_RSS_bytes": 25911296,
+  "large_payload_reads": 0,
+  "model_calls": 0,
+  "official_calls": 0,
+  "post_cases_current_RSS_bytes": 23805952,
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "scope": "Controller lifecycle only. Synthetic route/completion; real CPU Popen/signals/cleanup.",
+  "self_peak_RSS_bytes": 2095808512,
+  "source": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018/resources/st_rollout_resume_smoke_v1.py",
+  "source_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+  "torch_imported": false,
+  "wall_seconds": 0.15789940394461155
+}
