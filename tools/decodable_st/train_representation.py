@@ -23,7 +23,12 @@ def load_model(config,device,arm,seed):
     m=json.loads(Path(config["baseline_manifest"]).read_text())
     if m["status"]!="IDENTITY_VERIFIED":raise ValueError("BLOCKED_BASELINE_IDENTITY")
     identity=json.loads((Path(m["run"])/"identity.json").read_text())
-    base=load_student(m["run"],m["tag"],identity,device=device,precision="fp32",strip=False).requires_grad_(False).eval()
+    if config.get("baseline_state_cache"):
+        from .baseline_state_cache import load
+        base=load(config,m,identity,device)
+    else:
+        base=load_student(m["run"],m["tag"],identity,device=device,precision="fp32",strip=False)
+    base.requires_grad_(False).eval()
     spatial=SpatialContract(256,256,256,(-40.,-40.,-1.),(40.,40.,5.4)) if arm not in ("R0","RT") else None
     temporal=None
     if arm in ("RT","RST","Rjoint"):
