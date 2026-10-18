@@ -1,0 +1,364 @@
+{
+  "artifacts": {
+    "collector": "inventory_allowed.py",
+    "snapshot": "CAPACITY_SNAPSHOT.json",
+    "snapshot_sha256": "ed9412027cd035d1ed19e43987e869e2e3ea662420718fb0ec492ee1d5039a31"
+  },
+  "authorization_path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+  "capacity": {
+    "confirmed_owned_pressure_gpus": 0,
+    "cpu_note": "128 affinity CPUs per host; accessible cgroup v1 CPU quotas are unlimited (-1). Load is a host snapshot, not a CPU reservation. MemAvailable is host-level memory availability.",
+    "entry_failures": 0,
+    "hosts_reached": 8,
+    "lead_protected_gpus": 2,
+    "real_or_unknown_observed_compute_processes": 0,
+    "shared_storage_note": "All hosts report the same /mnt/project filesystem free capacity; do not sum 8 copies of that free-space observation.",
+    "unreserved_empty_gpu_snapshots": 62,
+    "visible_gpus": 64
+  },
+  "current_consequence_workloads": {
+    "C0_C4_final4096_dev_evaluation": [
+      {
+        "cell": "C0",
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "222d2f687de42d0fa686ce3dac0d01527b3630f9eb15a1e2eb3064724bd0b39b",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C1",
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "11d31f2b41465295b6c84a65df8e3ee8a01c74d6d10c19bb604ff12b7cfcedff",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C2",
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "69b639f0831fb67768d8d9f7e2790c08bbfeb25ca1fc0af767e071f6d0023401",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C3",
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "56de271815c9c3e3073f5024bcb08efa41b00b4074ecb3dc5e9036655bb5df3a",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C4",
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "75982c5291dd83d35e6b54b020947cdb88d78c2d52f88f73cf2d711a6a89bcd0",
+        "status": "COMPLETE"
+      }
+    ],
+    "C0_C4_formal_training": [
+      {
+        "cell": "C0",
+        "completed": 4096,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "policy_version": 4096,
+        "sha256": "0af2b4ad9741161f5e03a8e78520df5e80e8d1e21f7127a8a00c65b4fb0a7a4d",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C1",
+        "completed": 4096,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "policy_version": 4096,
+        "sha256": "cc7b9333eda086b330dc87fbda7dc4c8da404b34e54368916aadaad8c3ef08e2",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C2",
+        "completed": 4096,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "policy_version": 4096,
+        "sha256": "e2127859b6c0f96c19a32f0246bbe8e02e541d9701649c3bd2253b3d12df9fb4",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C3",
+        "completed": 4096,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "policy_version": 4096,
+        "sha256": "5514cc593ccca13af3130bb7b8bbed22272c3f092418fc5e9b6ff1d0125fdefb",
+        "status": "COMPLETE"
+      },
+      {
+        "cell": "C4",
+        "completed": 4096,
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "policy_version": 4096,
+        "sha256": "d44aae1e4e4cc5d36b47b698c881595ad1c0cf60c86e46dbc471a68a78831286",
+        "status": "COMPLETE"
+      }
+    ],
+    "fixed_gradient_diagnostic": "Lead reports GPU7 already running; preserve its registered single-GPU next32 scope even while GPU memory snapshot is almost empty. No expansion, duplicate attempt or retry.",
+    "local_gpu0": "Lead reserved for a new consequence task; preserve regardless of current occupancy snapshot.",
+    "road_direction_fixed32_v3": "Existing registration status REGISTERED_NOT_EXECUTED was observed; Lead owns its dispatch, current runtime state, and GPU0 reservation. Do not infer absence of a process from registration status."
+  },
+  "freshness_and_admission": [
+    "Empty snapshot does not reserve a GPU; recheck immediately before dispatch.",
+    "No pressure process was observed, so this report authorizes no process termination.",
+    "Latest pressure automation may race new admission; Lead must coordinate its owned lock/automation policy.",
+    "Do not use withdrawn hosts or restore paused feature, expert/scorer, MOPD or held SimWAM work."
+  ],
+  "host_summary": [
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-rl-zt2",
+      "load_1_5_15": [
+        "3.27",
+        "5.55",
+        "8.72"
+      ],
+      "mem_available_gib": 506.0,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vla-zt",
+      "load_1_5_15": [
+        "12.58",
+        "13.27",
+        "14.62"
+      ],
+      "mem_available_gib": 838.5,
+      "protected_gpu_indices": [
+        0,
+        7
+      ],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt",
+      "load_1_5_15": [
+        "8.21",
+        "13.36",
+        "17.20"
+      ],
+      "mem_available_gib": 910.7,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt2",
+      "load_1_5_15": [
+        "3.68",
+        "7.60",
+        "8.67"
+      ],
+      "mem_available_gib": 949.6,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt3",
+      "load_1_5_15": [
+        "3.87",
+        "8.05",
+        "12.14"
+      ],
+      "mem_available_gib": 870.5,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt4",
+      "load_1_5_15": [
+        "8.81",
+        "12.93",
+        "14.43"
+      ],
+      "mem_available_gib": 895.6,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt5",
+      "load_1_5_15": [
+        "17.43",
+        "20.52",
+        "22.04"
+      ],
+      "mem_available_gib": 969.6,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    },
+    {
+      "cpu_quota_verified": true,
+      "effective_cpu_quota": 128,
+      "empty_gpu_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_models": [
+        "NVIDIA A800-SXM4-80GB"
+      ],
+      "host": "training-vlawm-tsinghua-zt6",
+      "load_1_5_15": [
+        "12.73",
+        "17.15",
+        "17.29"
+      ],
+      "mem_available_gib": 840.6,
+      "protected_gpu_indices": [],
+      "shared_disk_available_gib": 3818.4,
+      "status": "OBSERVED"
+    }
+  ],
+  "latest_user_resource_instruction": "可用资源尽可能用上",
+  "no_new_matrix_recommended": true,
+  "observed_utc": "2026-10-18T15:57:51.128451+00:00",
+  "policy_sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8",
+  "probe_limits": {
+    "gpu_resets": 0,
+    "jobs_started": 0,
+    "lead_only_dispatch": true,
+    "maximum_parallel_hosts": 2,
+    "probe_rounds": 2,
+    "processes_signalled": 0,
+    "raw_cmdlines_or_credentials_committed": false,
+    "remote_entry": "Existing SSH aliases from /root/.ssh/config; no credentials copied",
+    "task_elapsed_seconds": 192.02190518379211,
+    "timeout_per_host_seconds": 15,
+    "total_probe_elapsed_seconds": 2.7212533336132765,
+    "total_task_budget_seconds": 180
+  },
+  "recommendations": [
+    {
+      "action": "Keep the GPU7 gradient diagnostic and GPU0 consequence task in their existing allocations; run independent already-authorized consequence result analysis concurrently on available CPU capacity.",
+      "additional_gpu_claim": 0,
+      "priority": 1
+    },
+    {
+      "action": "When an existing registered consequence queue has pending independent diagnostic/export/scoring shards, place them across rl-zt2 and Tsinghua hosts after fresh host/UUID/CPU and approval checks. Prefer spreading independent jobs to available hosts while preserving each approved world size and numeric recipe.",
+      "capacity_candidates": "rl-zt2 GPUs 0-7; Tsinghua zt, zt2, zt3, zt4, zt5, zt6 GPUs 0-7; local GPUs 1-6",
+      "condition": "This inventory found completed C0-C4 training and final evaluation, not a verified unfinished GPU backlog. Lead must name existing pending work before admission.",
+      "priority": 2
+    },
+    {
+      "action": "Use additional CPU workers for already-requested consequence comparison, paired-log statistics and registered CPU scoring preparation where independent ownership and existing budgets permit.",
+      "condition": "Completed final4096 scores should be reused; do not rescore or retrain completed cells merely to occupy resources.",
+      "priority": 3
+    }
+  ],
+  "report_utc": "2026-10-18T15:59:10.021899+00:00",
+  "reviewer": "/root/consequence_runtime_resource_review",
+  "schema": "consequence_resource_dispatch_recommendation_v1",
+  "scope": "Only currently allowed hosts; feature pause and previous expert/scorer/MOPD/held SimWAM scopes remain in force",
+  "status": "READ_ONLY_CAPACITY_VERIFIED_NO_DISPATCH"
+}
