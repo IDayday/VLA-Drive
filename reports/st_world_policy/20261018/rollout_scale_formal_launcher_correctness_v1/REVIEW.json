@@ -1,0 +1,128 @@
+{
+  "schema": "st_external_formal_control_correctness_v1",
+  "status": "PASS_EXTERNAL_FORMAL_CONTROL_CORRECTNESS",
+  "role": "correctness",
+  "reviewer_agent": "/root/road_proxy_correctness_review",
+  "reviewed_utc": "2026-10-18T18:17:01.537815+00:00",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "registration_sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f",
+  "run_id": "C1_rollout_std_fulltrain_seed42_official_4096_v1",
+  "exact_external_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_reviewed_rollout_scale_formal_v1.py",
+      "sha256": "ff8ad61230594458438c15d7451b5a9519b96cfe9b773804e190adf138386e29",
+      "bytes": 13732
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_formal_v1.py",
+      "sha256": "3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38",
+      "bytes": 6989
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/observe_formal_flow_cpu_v1.py",
+      "sha256": "67cb7eb1d0ab95512132e69b6f2eaaaa23f3841d9b6022dbd1245b95be08c5ff",
+      "bytes": 4095
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/FORMAL_STORAGE_RESERVES.json",
+      "sha256": "5aa27a68d383793ff13b43cf9084da3416609ab25badbdb8bdc913d8b2c230c2",
+      "bytes": 1287
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f",
+      "bytes": 2532
+    }
+  ],
+  "scope": "Independent external launch/monitor control correctness only. No replacement of existing model correctness signature, no live resource or efficiency sign-off, no dispatch.",
+  "tests": {
+    "passed": 29,
+    "failed": 0,
+    "pytest_seconds": 3.28,
+    "execution": {
+      "exit_code": 0,
+      "wall_seconds": 4.4772266484797,
+      "child_cpu_seconds": 4.366125,
+      "max_rss_kib": 652596,
+      "sampled_peak_rss_bytes": 639184896,
+      "cpu_limit_s": 50,
+      "rss_stop_limit_bytes": 2147483648,
+      "killed_by_guard": false,
+      "no_gpu": true,
+      "no_dispatch": true,
+      "source_unchanged": true
+    },
+    "kind": "Synthetic filesystem/process/GPU-query fixtures; mature approval gate exercised with real tiny artifact hashes."
+  },
+  "resolved_findings": [
+    {
+      "issue": "Six-invocation cap formerly counted only durable LAUNCH receipts, missing interrupted attempts.",
+      "fix": "Count all immediate invocation directories before fresh/resume branch, retain partial directories; create directory before any dispatch.",
+      "test": "test_six_attempt_limit_counts_partial_directories"
+    },
+    {
+      "issue": "Boolean bytes accepted because bool is an int subclass.",
+      "fix": "Require type(bytes) is int and nonnegative.",
+      "test": "test_storage_refuses_invalid_reservations[bool]"
+    }
+  ],
+  "verified_controls": [
+    "Exact single registration SHA, source SHA and run/output identity; mature independent three-role PASS gate and fingerprint/artifact integrity.",
+    "All launcher, monitor, observer and immutable storage artifact hashes must be present in efficiency review; stale control hash is rejected before dispatch.",
+    "Any selected-GPU compute PID rejects admission even when memory=0MiB and utilization=0%; UUID mismatch, occupied memory, malformed query refuse.",
+    "Six total invocation directories including partial attempts; per-run fifteen native directory ceiling includes incomplete directories and projected remaining periodic/pause writes.",
+    "Terminal native checkpoint rejected before fresh resources or dispatch; ordinary resource rejection creates no invocation.",
+    "No automatic restart loop; one training Popen plus one CPU observer; only explicit resume passes --resume, with existing-stop acknowledgment.",
+    "Original registered 4096 optimizer clock/warmup not overridden; no new horizon assigned on resume.",
+    "Storage admission reserves own209GiB+shared1024GiB+old4GiB+other292GiB=1529GiB; monitor retains shared+old+other=1320GiB floor.",
+    "Monitor only requests this exact run STOP_REQUESTED, preserves operator reason, never signals another process or creates absent run.",
+    "RSS/GPU/free/native sampled every5s; recursive output accounting first/300s/final, explicitly sampled rather than instantaneous quota."
+  ],
+  "limits": [
+    "No real GPU, model, training, scoring or dispatch was performed for this review.",
+    "Current availability, true external remaining-write estimates, lease and active writers belong to independent Systems review and launch-time checks.",
+    "PROFILE240 efficiency approval remains separate; this report does not allow bypassing the three-role formal gate.",
+    "Original 2GiB RLIMIT_AS attempt failed torch shared-library mapping before sixteen launcher tests; twelve unrelated tests passed. Full log retained. Corrected run bounded actual RSS rather than virtual mappings and all29 passed.",
+    "This review does not certify hard instantaneous storage quotas or crash-free execution; safe-boundary STOP and existing outer timeout remain operational boundaries."
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/test_external_controls.py",
+      "sha256": "c829dea80c544054fee8e9e1599e694a7d75595277267ae3e4b028a933b83656",
+      "bytes": 13679
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_BINDING.json",
+      "sha256": "f16547eb602a51b26676f2c9cee93602ff749a9658cf979e2790d281a6a4b688",
+      "bytes": 592
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_EXECUTION.json",
+      "sha256": "96871f12e51d5948f8383e5e52766b2c7cd190955d2917706a0fe322fb6426e4",
+      "bytes": 309
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_OUTPUT.txt",
+      "sha256": "77b3639e92876dea5017590e08b86e207ac0126bfde47f5931c873e7a921eb2e",
+      "bytes": 770
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_BINDING_INITIAL.json",
+      "sha256": "f16547eb602a51b26676f2c9cee93602ff749a9658cf979e2790d281a6a4b688",
+      "bytes": 592
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_EXECUTION_INITIAL.json",
+      "sha256": "8a259526fdd56999b20f09107863e70979b39b7b8052046c495e52ddaa9e255f",
+      "bytes": 259
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_launcher_correctness_v1/TEST_OUTPUT_INITIAL.txt",
+      "sha256": "c528250c775099655c80816b85a45ce8f27c0a013d5ebb83779ace15697e48c8",
+      "bytes": 242667
+    }
+  ],
+  "training_started": false,
+  "model_source_modified": false,
+  "existing_formal_correctness_overwritten": false
+}
