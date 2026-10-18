@@ -29,6 +29,19 @@ def match_means(dual, canonical):
                 raise ValueError('Independent canonical summaries disagree')
 
 
+def match_safety(dual_pair, canonical_pair):
+    # The canonical analyzer additionally reports mean_delta; the dual-release
+    # analyzer's transition schema contains only event counts. Compare the
+    # common fields explicitly instead of mistaking that extension for a fault.
+    for metric, events in dual_pair['safety_transitions'].items():
+        other = canonical_pair['safety_transitions'][metric]
+        if any(events[key] != other[key] for key in ('new_violation', 'recovery')):
+            raise ValueError('Independent safety transition counts disagree')
+    for key in ['reference_safe_new_joint_violation', 'nonzero_to_zero', 'zero_to_nonzero']:
+        if dual_pair[key] != canonical_pair[key]:
+            raise ValueError('Independent safety summaries disagree')
+
+
 def collect(root):
     root = Path(root)
     locked = read(root/'final_navtest/LOCK.json')
@@ -65,9 +78,11 @@ def collect(root):
                     raise ValueError('Pair and independent means disagree')
                 if version == 'v1.1':
                     p = c['modes'][mode]['paired_comparison']
-                    for key in ['safety_transitions', 'reference_safe_new_joint_violation', 'nonzero_to_zero', 'zero_to_nonzero']:
-                        if row['paired'][key] != p[key]:
-                            raise ValueError('Independent safety summaries disagree')
+                    match_safety(row['paired'], p)
+                    for metric, transition in p['safety_transitions'].items():
+                        expected = row['mean'][metric] - results[sft]['versions'][version][mode]['mean'][metric]
+                        if abs(expected-transition['mean_delta']) > 1e-12:
+                            raise ValueError('Safety metric means disagree')
         results[name] = d
     original = load(root/'pdms_versions/analysis/ORIGINAL_F_SFT.json')
     results['ORIGINAL_F_SFT'] = original
