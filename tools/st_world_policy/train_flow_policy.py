@@ -232,6 +232,9 @@ def numeric_execution(cfg, binding):
         value.update(schema="st_flow_numeric_execution_v3",
             encoder="frozen_BF16_execution_eval_official_FA2",
             official_execution=official)
+    if cfg["fpo"]["advantage"] == "scene_center_rollout_std_v1":
+        from starVLA.model.modules.flow_posttraining.advantage_scale import normalization_contract
+        value["advantage_normalization"] = normalization_contract()
     return value
 
 
@@ -358,7 +361,16 @@ def _save_torch(path, value):
     temporary.replace(path)
 
 
-def save_update_feedback(folder, rollout, comparison, feedback, *, numeric_hash, rank):
+def feedback_scale_identity(rollout, feedback):
+    return {"rollout_id": rollout.rollout_id, "feedback_hash": fingerprint({
+        "rollout_id": feedback.rollout_id, "protocol": feedback.score_protocol_hash,
+        "contexts": feedback.context_hashes, "reward_kind": feedback.reward_kind,
+        "rewards": feedback.rewards.cpu().tolist(), "valid": feedback.valid.cpu().tolist(),
+        "statuses": feedback.statuses})}
+
+
+def save_update_feedback(folder, rollout, comparison, feedback, *, numeric_hash, rank,
+                         normalization=None, normalized_advantages=None):
     """Small audit payload, not a second multi-GB policy checkpoint.
 
     Full generated raw endpoints, generation noise, shared CFM noise/time, old
@@ -371,6 +383,33 @@ def save_update_feedback(folder, rollout, comparison, feedback, *, numeric_hash,
                 "feedback": {"protocol": feedback.score_protocol_hash, "contexts": feedback.context_hashes,
                              "reward_kind": feedback.reward_kind, "rewards": feedback.rewards.cpu().tolist(),
                              "statuses": feedback.statuses}}
+    if normalization is not None:
+        from starVLA.model.modules.flow_posttraining.advantage_scale import receipt_sha256
+        common = normalization["common"]
+        local = normalization["local"]
+        if (receipt_sha256(common) != normalization["common_sha256"]
+                or local["rank"] != rank
+                or common["rank_records"][rank] != {k: v for k, v in local.items() if k != "identity"}
+                or local["identity"] != feedback_scale_identity(rollout, feedback)
+                or local["local_identity_sha256"] != receipt_sha256(local["identity"])
+                or local["local_count"] != feedback.rewards.numel()
+                or local["rewards_sha256"] != tensor_hash(feedback.rewards)
+                or local["valid_sha256"] != tensor_hash(feedback.valid)
+                or common["identity"]["numeric_execution_hash"] != numeric_hash
+                or common["identity"]["old_policy"] != rollout.policy.__dict__
+                or common["identity"]["score_protocol_hash"] != feedback.score_protocol_hash
+                or common["identity"]["reward_kind"] != feedback.reward_kind
+                or normalized_advantages is None
+                or normalized_advantages.shape != feedback.rewards.shape
+                or normalized_advantages.dtype != torch.float32
+                or normalized_advantages.requires_grad
+                or not torch.isfinite(normalized_advantages).all()
+                or tensor_hash(normalized_advantages) != normalization["local"]["normalized_advantages_sha256"]):
+            raise ValueError("Rollout normalization and feedback identities differ")
+        identity["advantage_normalization"] = normalization
+        identity["normalized_advantages_sha256"] = tensor_hash(normalized_advantages)
+    elif normalized_advantages is not None:
+        raise ValueError("Normalized advantages require their complete-rollout receipt")
     # Canonicalize tuples so an idempotent JSON reload compares identically.
     identity = json.loads(json.dumps(identity))
     receipt_path = folder / f"rank_{rank}_COMPLETE.json"
@@ -381,12 +420,37 @@ def save_update_feedback(folder, rollout, comparison, feedback, *, numeric_hash,
         _verified_artifact(receipt["payload"])
         return receipt
     path = folder / f"rank_{rank}.pt"
-    _save_torch(path, {"schema": "st_flow_update_feedback_v1", "identity": identity,
-                      "rollout": rollout.state_dict(), "comparison": comparison.state_dict(),
-                      "feedback": feedback.state_dict()})
+    payload = {"schema": "st_flow_update_feedback_v1", "identity": identity,
+               "rollout": rollout.state_dict(), "comparison": comparison.state_dict(),
+               "feedback": feedback.state_dict()}
+    if normalization is not None:
+        payload.update(schema="st_flow_update_feedback_v2",
+            normalized_advantages=normalized_advantages.detach().cpu().clone())
+    _save_torch(path, payload)
     receipt = {"identity": identity, "payload": artifact(path)}
     atomic_json(receipt_path, receipt, immutable=True)
     return receipt
+
+
+def verify_restored_normalization(out, state, *, rank, numeric_hash):
+    """A native boundary resumes after the last consumed rollout, never inside it."""
+    from starVLA.model.modules.flow_posttraining.advantage_scale import receipt_sha256
+    expected = state.get("last_advantage_scale_common_sha256")
+    if state["completed"] == 0:
+        if expected is not None:
+            raise ValueError("Initial native boundary has a consumed normalization receipt")
+        return
+    folder = Path(out) / "rollouts" / f"boundary_{state['completed']-1:06d}"
+    receipt = read_json(folder / f"rank_{rank}_COMPLETE.json")
+    norm = receipt["identity"].get("advantage_normalization", {})
+    common = norm.get("common", {})
+    if (not expected or norm.get("common_sha256") != expected
+            or receipt_sha256(common) != expected
+            or norm.get("local", {}).get("rank") != rank
+            or common.get("identity", {}).get("numeric_execution_hash") != numeric_hash
+            or common.get("identity", {}).get("old_policy") != state["last_completed_policy"]):
+        raise ValueError("Native resume differs from its last consumed normalization receipt")
+    _verified_artifact(receipt["payload"])
 
 
 class OfficialFeedbackLedger:
@@ -686,6 +750,8 @@ def run(args):
                  "reuse_guard": guard.state_dict(), "rng_stream_base_seed": execution["seed"],
                  "frozen_encoder_hash": frozen_before, "last_completed_policy": None,
                  "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary"}
+        if fpo.advantage == "scene_center_rollout_std_v1":
+            state["last_advantage_scale_common_sha256"] = None
         if args.resume:
             resolution = collective_call(lambda: resolve_latest(out / "checkpoints", identity=signature,
                 world_size=world) if rank == 0 else None, "latest complete native Flow checkpoint")
@@ -704,6 +770,9 @@ def run(args):
                     or state["rng_stream_base_seed"] != execution["seed"] or state["frozen_encoder_hash"] != frozen_before):
                 raise ValueError("Native optimizer boundary/policy/RNG/frozen encoder differs from resume")
             guard.load_state_dict(state["reuse_guard"])
+            if fpo.advantage == "scene_center_rollout_std_v1":
+                collective_call(lambda: verify_restored_normalization(out, state, rank=rank,
+                    numeric_hash=numeric_hash), "consumed rollout normalization at native resume")
             if official_policy is not None:
                 engine_check = collective_call(lambda: verify_official_engine(
                     engine, client_optimizer, official_policy, require_moments=state["completed"] > 0),
@@ -795,6 +864,7 @@ def run(args):
             torch.cuda.synchronize()
             encoding_seconds = time.perf_counter()-tick-data_seconds
             rollout = feedback = comparison = advantages = old_identity = None
+            normalization = None
             scoring_seconds = 0.
             rollout_seconds = old_cfm_seconds = 0.
             official_statistics = None
@@ -847,7 +917,25 @@ def run(args):
                 expected_contexts = tuple(e["metric_cache"]["sha256"] for e in entries)
                 collective_call(lambda: guard.check(rollout, feedback, active_old=old_identity,
                     optimizer_step=state["completed"], expected_context_hashes=expected_contexts), "feedback freshness guard")
-                advantages = group_centered_advantages(feedback.rewards, feedback.valid).flatten()
+                if fpo.advantage == "scene_center_rollout_std_v1":
+                    from starVLA.model.modules.flow_posttraining.advantage_scale import normalize_rollout_advantages
+                    # Only noncollective dependency preparation is wrapped here.
+                    # The normalizer votes on local errors before its own collectives.
+                    common_scale_id, local_scale_id = collective_call(lambda: (
+                        {"old_policy": old_identity.__dict__, "numeric_execution_hash": numeric_hash,
+                         "score_protocol_hash": feedback.score_protocol_hash,
+                         "reward_kind": feedback.reward_kind, "global_scene_count": len(global_ids),
+                         "global_scene_ids": [data.entries[i]["scene_id"] for i in global_ids]},
+                        feedback_scale_identity(rollout, feedback)),
+                        "complete rollout normalization dependencies")
+                    with record_function("flow.complete_rollout_advantage_scale"):
+                        advantages, normalization = normalize_rollout_advantages(
+                            feedback.rewards, feedback.valid, collective_device=torch.device("cuda", local),
+                            expected_global_count=4*len(global_ids), common_identity=common_scale_id,
+                            local_identity=local_scale_id)
+                    advantages = advantages.flatten()
+                else:
+                    advantages = group_centered_advantages(feedback.rewards, feedback.valid).flatten()
                 official_statistics = {"valid_candidates": int(feedback.valid.sum()),
                     "zero_advantage_scenes": int((advantages.view(-1, 4) == 0).all(1).sum()),
                     "mean_reward": float(feedback.rewards.mean()),
@@ -862,7 +950,10 @@ def run(args):
                 del matched_old
                 del old
                 collective_call(lambda: save_update_feedback(out / "rollouts" / f"boundary_{state['completed']:06d}",
-                    rollout, comparison, feedback, numeric_hash=numeric_hash, rank=rank), "actual rollout/MC feedback audit receipt")
+                    rollout, comparison, feedback, numeric_hash=numeric_hash, rank=rank,
+                    normalization=normalization,
+                    normalized_advantages=advantages.view(-1, 4) if normalization is not None else None),
+                    "actual rollout/MC feedback audit receipt")
                 torch.cuda.synchronize()
                 old_cfm_seconds = time.perf_counter()-stage_tick
             lr = learning_rate(state["completed"], opt["lr"], opt["minimum_lr"], opt["warmup"], execution["max_updates"])
@@ -901,6 +992,8 @@ def run(args):
                 guard.commit_consumed(rollout, feedback, active_old=old_identity, optimizer_step=state["completed"],
                                        expected_context_hashes=expected_contexts)
                 state["last_completed_policy"] = old_identity.__dict__
+                if normalization is not None:
+                    state["last_advantage_scale_common_sha256"] = normalization["common_sha256"]
             state["completed"] += 1
             if official_policy is not None and state["completed"] == initial_step + 1:
                 engine_check = collective_call(lambda: verify_official_engine(
@@ -929,6 +1022,10 @@ def run(args):
                             "snapshot_rollout": rollout_seconds, "official_feedback": scoring_seconds,
                             "old_CFM": old_cfm_seconds, "current_BC_FPO_backward_optimizer": backward_seconds},
                 "peak_allocated": torch.cuda.max_memory_allocated(), "peak_reserved": torch.cuda.max_memory_reserved()}
+            if normalization is not None:
+                per_rank["advantage_normalization"] = {
+                    "common_sha256": normalization["common_sha256"],
+                    **{k: normalization["common"][k] for k in ("count", "mean", "std", "gain", "all_zero")}}
             all_rank = [None] * world
             dist.all_gather_object(all_rank, per_rank)
             if rank == 0:

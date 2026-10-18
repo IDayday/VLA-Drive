@@ -31,9 +31,11 @@ class FPOConfig:
             raise ValueError("FPO ratio clip must be finite and in (0,1)")
         if self.log_ratio_clip != 3.0:
             raise ValueError("Pinned FPO reference clamps each MC difference at +/-3")
-        if (self.coordinate_reduction, self.interpolation_time, self.policy_loss_mode,
-            self.advantage) != ("mean", "uniform_0_1", "eval_with_grad", "within_scene_center_only"):
+        if (self.coordinate_reduction, self.interpolation_time, self.policy_loss_mode
+            ) != ("mean", "uniform_0_1", "eval_with_grad"):
             raise ValueError("Unsupported FPO semantics; register a separate adaptation")
+        if self.advantage not in ("within_scene_center_only", "scene_center_rollout_std_v1"):
+            raise ValueError("Unsupported FPO advantage adaptation")
 
     @classmethod
     def from_dict(cls, value: Mapping):

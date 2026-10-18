@@ -67,6 +67,8 @@ def validate_config(cfg):
             or not isinstance(weight, (int, float)) or not math.isfinite(weight)
             or (weight != 0 if cfg["cell"] == "C0" else weight <= 0)):
         raise ValueError("Original BC weight=1 and explicit positive C1--C4 policy coefficient required")
+    if fpo.advantage == "scene_center_rollout_std_v1" and (cfg["cell"] != "C1" or weight != 1.):
+        raise ValueError("Rollout-scale study changes only C1 advantage normalization; policy weight stays one")
     opt = cfg["optimizer"]
     exact_fields(opt, {"lr", "minimum_lr", "warmup", "betas", "eps", "weight_decay", "clip"}, "Optimizer")
     if any(isinstance(opt[k], bool) or not isinstance(opt[k], (int, float)) or not math.isfinite(opt[k])

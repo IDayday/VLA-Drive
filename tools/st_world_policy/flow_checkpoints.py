@@ -136,6 +136,11 @@ def flow_checkpoint_identity(registration_path, tag):
         raise ValueError("Official runtime and numeric checkpoint version disagree")
     if official is not None:
         expected.update(encoder="frozen_BF16_execution_eval_official_FA2", official_execution=official)
+    if cfg["fpo"]["advantage"] == "scene_center_rollout_std_v1":
+        if numeric_schema == "st_flow_numeric_execution_v1":
+            raise ValueError("Rollout-scale adaptation cannot relabel a legacy initialization")
+        from starVLA.model.modules.flow_posttraining.advantage_scale import normalization_contract
+        expected["advantage_normalization"] = normalization_contract()
     if numeric != expected or identity_hash(numeric) != identity["numeric_execution_hash"]:
         raise ValueError("Flow numeric execution identity changed or precision was relabeled")
     repo = Path(__file__).resolve().parents[2]
