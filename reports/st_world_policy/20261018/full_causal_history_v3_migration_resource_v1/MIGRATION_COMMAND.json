@@ -1,0 +1,87 @@
+{
+  "actual_dispatch": false,
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "60s",
+    "/usr/bin/taskset",
+    "-c",
+    "10,11",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-B",
+    "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/migrate_v3.py",
+    "--execute",
+    "--old-policy",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_history32_preparation_v1/actual_preparation/PROPOSED_POLICY.json",
+    "--old-policy-sha256",
+    "c77dca4739f3026940b8a56821cfd4bd222c643cdf9e4e07e5b9efba21a82163",
+    "--new-policy",
+    "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/metadata_v3/PACKAGE_ONLY_POLICY_PROPOSAL.json",
+    "--new-policy-sha256",
+    "744666144432007438c1030ca8144369de38df521bf34fbe2d4a092913d97b0e",
+    "--expected-old-ledger-sha256",
+    "fef4ff7b309117e6137ca40ae771a07c08bdf3fea12d215d0a065ec86560afdb",
+    "--quiescence-receipt",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/full_causal_history_actual_v1/QUIESCENCE.json",
+    "--quiescence-sha256",
+    "e8d49079211ccca9552cbd9fd604c5505cc4666e85969d66965808bbfd3d2c9c",
+    "--pilot-inventory",
+    "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_v3_migration_resource_v1/NO_PILOT_ADOPTIONS.json",
+    "--pilot-inventory-sha256",
+    "1c3b4503a88d29dfdffe9e75415e7b8161e59f9d25c6891b2db913f3660c4d23",
+    "--checkpoint-receipt",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/full_causal_history_actual_v1/RETAINED_CHECKPOINT_COMMITMENTS.json",
+    "--checkpoint-sha256",
+    "17ef0557d3f438a5d4c861819b6299ef21e457abf82fa1ab5152913e34b93a29"
+  ],
+  "automatic_retry": false,
+  "bounds": {
+    "cleanup_seconds": 10,
+    "logical_read_planning_bytes": 268435456,
+    "rss_planning_bytes": 1073741824,
+    "rss_read_semantics": "Inherited admission budgets with actual process accounting, not new cgroup/OS hard quotas",
+    "wall_enforced": "GNU timeout",
+    "wall_seconds": 60
+  },
+  "control_root": "/mnt/project/st-world-policy-20261016/audits/full_causal_history_preparation_v1/migration_v3_controls",
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "cpu_placement_note": "Matches actual local10/11 snapshot; history handoff2/3 is only an example prefix and helper has no fixed CPU selector.",
+  "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "2",
+    "NUMEXPR_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018"
+  },
+  "helper": {
+    "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/migrate_v3.py",
+    "sha256": "e9eaef1db528a76cbdaf10b4b8d634fb93dc8306bd23f9e67606a4ceaee677f7"
+  },
+  "helper_commit": "a1c53cbc",
+  "metadata_storage_sha256": "65644ac00b6a395bf2e1eb498e9f221a3cdebee63a027857513b1f50118151a6",
+  "output_files": {
+    "resource_result": "/mnt/project/st-world-policy-20261016/audits/full_causal_history_preparation_v1/migration_v3_controls/RESOURCE_RESULT.json",
+    "stderr": "/mnt/project/st-world-policy-20261016/audits/full_causal_history_preparation_v1/migration_v3_controls/STDERR.log",
+    "stdout": "/mnt/project/st-world-policy-20261016/audits/full_causal_history_preparation_v1/migration_v3_controls/STDOUT.json"
+  },
+  "quiescence": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/full_causal_history_actual_v1/QUIESCENCE.json",
+    "sha256": "e8d49079211ccca9552cbd9fd604c5505cc4666e85969d66965808bbfd3d2c9c"
+  },
+  "runtime_commit": "eae8922d72b3881c0c162e96b8dd67e7c15a41c7",
+  "schema": "st_explicit_original_metadata_migration_command_v1",
+  "scope": "Package-only explicit8to10GiB amendment on same globalledger; no build or new typed claim.",
+  "separate_control_bytes": 1048576,
+  "status": "READY_FOR_LEAD_EXPLICIT_MIGRATION",
+  "storage_binding": {
+    "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/storage_binding.py",
+    "sha256": "0e2038299e62b00190ea740914f5d83eed35436d1a1746fb6d32c9a9d17117e6"
+  }
+}
