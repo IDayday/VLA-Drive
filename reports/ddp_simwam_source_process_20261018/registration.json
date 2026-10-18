@@ -1,0 +1,62 @@
+{
+  "schema": "simwam_source_process_registration_v1",
+  "registered_unix": 1792293309.9965632,
+  "upstream_commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "user_instruction": "\u5c3d\u53ef\u80fd\u5b8c\u5168\u7167\u642csimwam\u7684RL\u8bad\u7ec3\u8fc7\u7a0b\uff0c\u7528\u4ec0\u4e48\u6570\u636e\uff0c\u600e\u4e48\u8bad\uff0c\u8bad\u591a\u4e45\u90fd\u5c3d\u53ef\u80fd\u4e00\u81f4\uff1b\u7528\u53ef\u7528\u8d44\u6e90\u5c3d\u5feb\u8bad\u7ec3",
+  "SFT": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+  "SFT_files_sha256": "a1c16de21ad305d2817f6ba0386005134f3362f1b67e84bdcc04d60dbfca45f3",
+  "formal_runs": {
+    "UPSTREAM_DATA": {
+      "config": "configs/flow_rl/simwam_upstream_data_long.yaml",
+      "manifest": "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+      "manifest_sha256": "d8ee28e06b69633ba78201d75b4204b03143b4158ab8dfb036c13767399b10a9",
+      "max_updates": 170000,
+      "training_seed": 42,
+      "evaluation_seed": 2101
+    },
+    "OWN_DATA_CONTROL": {
+      "config": "configs/flow_rl/simwam_own_data_long.yaml",
+      "manifest": "/mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json",
+      "manifest_sha256": "cc6017f0740c080dfae73f36ddc24bb657ae2996a8440b7c035ad4821612ec4a",
+      "max_updates": 170000,
+      "training_seed": 42,
+      "evaluation_seed": 2101
+    }
+  },
+  "released_weight_budget_note": "README labels released RL step20000; default config20000; CLI170000. Do not claim 170k produced published91.9.",
+  "main_run": "UPSTREAM_DATA",
+  "control": "OWN_DATA_CONTROL isolates dataset choice under same longer budget",
+  "own_data_scenes": 21836,
+  "data_overlap": 15904,
+  "milestones": [
+    0,
+    5000,
+    20000,
+    50000,
+    100000,
+    170000
+  ],
+  "Navtest_fixed_observations": [
+    20000,
+    170000
+  ],
+  "Navtest_checkpoint_selection": false,
+  "evaluation_grids": [
+    "E_NATIVE",
+    "E_SHIFT5"
+  ],
+  "evaluation_metrics": [
+    "canonical_v1.1",
+    "official_v1.0_separate_rescore"
+  ],
+  "adaptations": [
+    "same B100k IL and original frozen Qwen; no Wan/video model substitution",
+    "DDP eight-by-four normalization/heading pair and original decoder retained",
+    "previously qualified FP32 actor/latent/optimizer and DDP layout retained",
+    "source tokens excluding352 locked DEV scenes; local source-loader order frozen",
+    "canonical independent scoring; infrastructure failures abort, never reward0"
+  ],
+  "algorithm_additions": [],
+  "old_runs_unchanged": true,
+  "sha256": "3af0c7169b720800c776877d5a60d74c08213d1dddccee5d6d20356314c6dd04"
+}

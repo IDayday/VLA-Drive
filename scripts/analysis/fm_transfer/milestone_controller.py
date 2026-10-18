@@ -147,7 +147,7 @@ def capacity_dispatch_plan(ready,active,hosts,host_uuids,probe=resource_probe,pa
     return dispatch_plan(ready,active,eligible),observations
 
 
-def main():
+def main(runtime=None):
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation-source',required=True)
     p.add_argument('--dispatch-source',required=True);p.add_argument('--host',required=True)
     p.add_argument('--additional-hosts',nargs='*',default=[],help='Independent registered milestones may use these authorized hosts')
@@ -174,7 +174,7 @@ def main():
     identity=dict(schema='fm_transfer_finite_SFT_RL_evaluation_queue_v3',host=a.host,hosts=hosts,
         host_GPU_uuids=host_uuids,
         evaluation_source=str(evaluation),dispatch_source=str(dispatcher),
-        analysis_source=str(analysis_source),jobs=list(jobs(root,a.include_rl)),script_sha256=file_sha(__file__))
+        analysis_source=str(analysis_source),jobs=list(runtime.jobs(root) if runtime is not None else jobs(root,a.include_rl)),script_sha256=file_sha(__file__))
     path=control/'identity.json'
     if path.exists() and json.loads(path.read_text())!=identity:raise ValueError('Changed queue; use explicit migration')
     atomic_json(path,identity)
@@ -187,7 +187,7 @@ def main():
             for host in hosts:worker_allowed(host)
             ready=[];active=[];complete=[];pending=[]
             for job in identity['jobs']:
-                if initial_A_reused(root,job):complete.append(dict(**job,reused=True));continue
+                if runtime is None and initial_A_reused(root,job):complete.append(dict(**job,reused=True));continue
                 output=Path(job['output']);receipts=[json.loads(q.read_text()) for q in sorted(output.glob('dispatches/*.json'))]
                 if receipts:
                     if len(receipts)!=8 or {r['rank'] for r in receipts}!=set(range(8)):
@@ -203,7 +203,8 @@ def main():
                             require_dispatch()
                             subprocess.run([PYTHON,'-m','scripts.analysis.simwam_recipe.analyze_evaluation',
                                 '--evaluation',str(output),'--output',str(analysis)],cwd=evaluation,env=env,check=True)
-                        reference=reference_for(root,job);paired=root/'analysis'/(output.name+'_paired_initial.json' if job['stage']=='SFT' else output.name+'_paired_own_SFT.json')
+                        reference=runtime.reference_for(root,job) if runtime is not None else reference_for(root,job)
+                        paired=root/'analysis'/(output.name+'_paired_initial.json' if job['stage']=='SFT' else output.name+'_paired_own_SFT.json')
                         if reference and not paired.exists():
                             require_dispatch()
                             analysis_env=dict(env);analysis_env['PYTHONPATH']=str(analysis_source)
