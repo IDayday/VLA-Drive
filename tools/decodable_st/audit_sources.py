@@ -18,7 +18,8 @@ def run(config,output):
         source=root/"external"/name;verify_source(source,commit)
         license=source/"LICENSE";local=json.loads((root/receipt).read_text())
         records.append({"name":name,"repo":repo,"commit":commit,"weight_revision":revision,
-              "weight_hashes":{Path(weight).name:sha256(root/weight)},"license":"MIT","license_sha256":sha256(license),
+              "weight_hashes":{Path(weight).name:sha256(root/weight)},"source_license":"MIT","license_sha256":sha256(license),
+              "weight_license":"MIT" if name=="ViGT" else "Apache-2.0 (HF model card)",
               "config_hash":sha256(root/cfg),"preprocess_hash":sha256(Path(__file__).with_name("audit_teacher.py") if name=="ViGT" else source/"navsim/agents/intervl_agent_wm.py"),
               "training_data_provenance":provenance,"known_split_overlap":[],"unknown_split_overlap":["NAVSIM train","NAVSIM dev","NAVSIM navtest"],
               "local_load_status":local["status"],"local_load_receipt_sha256":sha256(root/receipt),

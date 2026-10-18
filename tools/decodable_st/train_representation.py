@@ -178,7 +178,10 @@ def run(config,output,*,arm="RS",seed=42,device="cuda",max_updates=1000,resume=F
            "seconds":time.monotonic()-start,"gpu_hours":(time.monotonic()-start)/3600,
            "peak_allocated_bytes":torch.cuda.max_memory_allocated() if device.startswith("cuda") else 0,
            "frozen_decoders_unchanged":True,"scientific_capability":"Requires full decoding and independent labels; loss decrease is insufficient"}
-        atomic_json(output/"RESULT.json",result);return result
+        atomic_json(output/"RESULT.json",result)
+        atomic_json(output/"state.json",{"status":"INCONCLUSIVE","update":step,"training_complete":step==max_updates,
+                    "process_active":False,"reason":"training ended; capability evaluation is separate"})
+        return result
     except Exception as exc:
         import traceback
         atomic_json(output/"state.json",{"status":"FAIL","update":step,"error":repr(exc),"traceback":traceback.format_exc()});raise
