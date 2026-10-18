@@ -1,0 +1,120 @@
+{
+  "actual_input_verification": {
+    "bytes": 61888,
+    "path": "/mnt/project/VLA-Drive-st-road-failure-selection-correctness-20261018/reports/st_world_policy/20261018/road_failure_selection_correctness_v1/REAL_INPUT_VERIFICATION.json",
+    "sha256": "190c9629efe104918bebcfda2bcbbeee42e079621127a055a0ce485c983b9fa8"
+  },
+  "actual_official_calls": 0,
+  "actual_proxy_calls": 0,
+  "approval_scope": "One fixed32 TRAIN local command-space diagnostic, at most96 new official calls from three unchanged perturbations per scene; no policy training or generalization claim",
+  "conditions": [
+    "Lead obtains separate independent resource approval and creates exact current host/time/policy-bound admission; reviewer does not dispatch",
+    "Execute only clean864619b0 runtime with exact registered hashes and bound selection; no proxy smoothing/step/geometry tolerance changes or scene replacement",
+    "CUDA hidden, one numerical CPU worker/thread, registered1800s/8GiB/256MiB reads/1GiB output/32MiB per second limits; no automatic budget expansion",
+    "Three perturbed variants only; failed and interrupted calls consume96 budget across all manual attempts; explicit new Lead admission needed for resuming never-started scenes",
+    "Report all32 requested rows, undefineds, common-valid denominators and known-repair lower bound; no subset-only claim presented as full population",
+    "All originals DAC0/PDMS0 means high-to-zero and non-degradation alone are uninformative; report NC/TTC/comfort/EP conditional changes separately",
+    "This selected discriminative TRAIN cohort spans historical policy versions and is not a uniform current-checkpoint failure sample; no DEV/policy/DFQL benefit is authorized"
+  ],
+  "created_utc": "2026-10-18T19:08:57.658741+00:00",
+  "cuda_initialized": false,
+  "decode_gate": {
+    "raw_dtype": "float32_exact_widening",
+    "xy": "constant_rounding_plus_half_ULP_product_and_sum_plus_float64_roundoff",
+    "yaw_periodic_tolerance_rad": 9.5367431640625e-07,
+    "yaw_tolerance_is_not_gpu_error_theorem": true
+  },
+  "dispatch_performed": false,
+  "evidence": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_failure_direction_v1/BOUND_SELECTION.json",
+    "sha256": "02755da1e6563a6d3eea10ffd8258d0eff82e8a28d86509aca751d45fe143d5c"
+  },
+  "formal_training_approved": false,
+  "frame": {
+    "bytes": 159734,
+    "path": "/mnt/project/VLA-Drive-st-consequence-next-hypothesis-20261018/reports/st_world_policy/20261018/road_failure_direction_opportunity_v1/FRAME32.json",
+    "sha256": "5ea6524267bc4e02fde7bfd79389ba774bea3f77821898b2471b369f316b1841"
+  },
+  "limits": {
+    "asset_read_bytes": 268435456,
+    "cache_expanded_bytes": 67108864,
+    "max_official_calls": 96,
+    "output_bytes": 1073741824,
+    "read_rate_bytes_per_second": 33554432,
+    "rss_and_address_space_bytes": 8589934592,
+    "scenes": 32,
+    "threads": 1,
+    "variants": 4,
+    "wall_seconds": 1800,
+    "workers": 1
+  },
+  "metric_cache_content_reads": 0,
+  "model_loads": 0,
+  "not_validated": [
+    "New32 actual metric caches/map geometry/parity outcomes",
+    "Actual finite-difference direction definition rate",
+    "Official direction repair/PDMS/safety outcomes",
+    "Runtime complete resource envelope, which needs the separate resource reviewer"
+  ],
+  "real_asset_read_bytes": 130538595,
+  "real_unique_logs": 31,
+  "real_verified_counts": {
+    "exact_saved_raw": 32,
+    "failed_DAC_0": 32,
+    "full_8x4_raw": 32,
+    "native_t0_false": 32
+  },
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_failure_direction_v1/REGISTRATION.json",
+  "registration_sha256": "c9c76ffd513fcf3cf59e1753358bd552b0635ae6394399e509d15c09dd9cda0a",
+  "remaining_correctness_blockers": [],
+  "review_kind": "correctness",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "runtime": "/mnt/project/VLA-Drive-st-road-failure-direction-20261018",
+  "schema": "road_failure_direction_correctness_review_v1",
+  "selection_hash": "23cca9e7af152ebc3dede70e9d7d06e79ae68b8d60ae78e923c96b3bb85fc1a2",
+  "source_commit": "864619b0130fb3b220b577dd34b993ffeac97e27",
+  "source_hashes": {
+    "starVLA/dataloader/foresight_dataset.py": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "baa33371d2b000ccefa9d507289001ee67f7ee123c90ee32f6bdba105cb59a7a",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "starVLA/model/modules/st_world/consequence.py": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+    "tools/st_world_policy/consequence_smoke.py": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+    "tools/st_world_policy/road_failure_selection.py": "73c4faa38df5bfc9ee199b0734536941e9fd2bd30b01e2621506cd554868767f",
+    "tools/st_world_policy/run_road_direction.py": "7abdd436bbf47eae2b8e2bed3d796cd1e3d66e6500076b75076e4a2a998a2ea8"
+  },
+  "status": "APPROVE_ROAD_DIRECTION_EXECUTION",
+  "tests": {
+    "existing_adapter_tests": 22,
+    "existing_test_log": {
+      "bytes": 690,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-selection-correctness-20261018/reports/st_world_policy/20261018/road_failure_selection_correctness_v1/EXISTING_TARGETED_TESTS.txt",
+      "sha256": "afcca9515f5541b7433e783cd05147628992f1244501f15b22c2911aeb9b4294"
+    },
+    "failed": 0,
+    "independent_test_log": {
+      "bytes": 688,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-selection-correctness-20261018/reports/st_world_policy/20261018/road_failure_selection_correctness_v1/INDEPENDENT_TESTS.txt",
+      "sha256": "dc066ad16e7ca077aeca86c5fc60ad4106da0323f1ad3c2ed8a0a639925b2d02"
+    },
+    "independent_test_resources": {
+      "bytes": 400,
+      "path": "/mnt/project/VLA-Drive-st-road-failure-selection-correctness-20261018/reports/st_world_policy/20261018/road_failure_selection_correctness_v1/INDEPENDENT_TEST_RESOURCES.json",
+      "sha256": "ed442f3785ad96fc4975d49ec34830adb6700b34f652d1e5bd3bc352a1206bfd"
+    },
+    "initial_tool_failure": "/usr/bin/time absent; preserved error log; no test or experiment was executed in that failed invocation",
+    "new_independent_counterexamples": 5,
+    "passed": 27,
+    "skipped": 0
+  },
+  "verified": [
+    "Exact frozen32 scene order and source frame, arbitrary saved old-policy boundary/rank/slot/candidate, train membership, six receipts and strict hashes",
+    "Actual execution load_inputs verified all32 saved FP32 raw actions and canonical physical requests/reference/contexts/labels and native t0; not merely binder output",
+    "Failed candidate chosen by fixed seeded hash among actual DAC0 candidates; safe sibling by identical rule among actual same-context DAC1 candidates; witness is not a target or new deployed candidate",
+    "Original canonical record reused only after full request/trajectory/context/reference/receipt checks; no original re-score, no valid0 substitute for scoring errors",
+    "Full raw[8,4] negative/positive/random L2=.005 including sin/cos; proxy, decoder, finite-difference gates, periodic yaw and1e-9 geometry tolerance unchanged from0d",
+    "All requested rows retained, including undefined/failed/interrupted; repair numerator reports common-valid subset and lower bound over fixed32, empty valid subset isNA",
+    "96 durable total calls, at most3 per scene, no original/retry/uncertain duplicate; charge precedes actual score and run lock serializes shared output",
+    "Exact source/registration/evidence, two distinct independent reviewers, current host/time/policy and Lead admission still required; no execution permission from preparation alone"
+  ]
+}
