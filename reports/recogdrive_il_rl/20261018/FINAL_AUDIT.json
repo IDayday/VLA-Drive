@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "scenes": 12146,
+  "logs": 136,
+  "paired_loss_draws": 97168,
+  "all_canonical_scores_valid": true,
+  "paired_noise_and_time_exact": true,
+  "paired_canonical_cache_hash_exact": true,
+  "score_prediction_receipt_hash_exact": true,
+  "summary_matches_two_independent_canonical_aggregates": true,
+  "inference_source_commits": [
+    "363f6bd075147f315539df5dc20c204772075be2",
+    "9a205977c3a1b25133ad98ef47c8b3019b64fe49"
+  ],
+  "inference_module_sha256": "998e2e0b9f67cd9f5d665e4fdacb4b8eb582245a56d56b453bc420256641527c",
+  "analysis_source_sha": "9a53d3e10881f73bf994c600c1b8637255a78fef",
+  "analysis_module_sha256": "7372277633ef89cc29955adbeb755cd3aed34646d20d6106a23e7ae4541850d1",
+  "result_sha256": "7cf9e01e3225dc1f3e3bcb83cd7af77a1fdfbae94d27dd271c5cd3f3fbf0e195",
+  "per_scene_csv_sha256": "f2304e2cf6ed63620adfc3fbe9f202bb0b8ee50ba16451b580f465648fc435df",
+  "start_utc": "2026-10-18T00:25:44.630395+00:00",
+  "complete_utc": "2026-10-18T00:49:29+00:00",
+  "full_inference_scoring_wall_seconds": 1424.369605064392,
+  "approximate_GPU_worker_residency_hours": 2.3587958141830234,
+  "GPU_cost_definition": "Sum of own GPU worker residence including model load, shared contention and I/O; first-attempt exit uses handoff end, second uses completion receipt mtime. Not CUDA kernel time or dedicated-device benchmark.",
+  "peak_allocated_GiB": 5.222312927246094,
+  "CPU_scoring_workers_per_model": 4,
+  "CPU_busy_hours": "not separately measured",
+  "optimizer_updates": 0,
+  "owned_evaluation_processes_remaining": [],
+  "execution_handoff": {
+    "reason": "Swap remaining rank0 to faster GPU7 and rank7 to cohosted GPU0; same scene-bound RNG and exact existing shard ownership, preserve all completed records",
+    "first_GPU_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "resumed_GPU_order": [
+      7,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+    ],
+    "stopped_only_owned_evaluation": true,
+    "old_owned_processes_remaining": []
+  },
+  "validation_notes": [
+    "Native entrypoint parity ran on original first scene of each original shard; four scenes also bitwise matched one-shard smoke vs eight-shard full run.",
+    "Legacy resumed worker receipts hardcoded parity_first_scene=True even when all initial scenes were reused; this flag is NOT additional parity evidence. Final code records actual parity token and reused/new scene counts. Numerical execution unchanged.",
+    "Initial aggregate stopped on the abbreviated TTC field name; corrected to canonical time_to_collision_within_bound without changing any scores or inference.",
+    "All runtime code and model outputs preserved; no training, selection, evaluator changes or unrelated process signals."
+  ]
+}

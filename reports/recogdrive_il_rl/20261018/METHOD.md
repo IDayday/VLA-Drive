@@ -2,7 +2,7 @@
 
 本次直接回答：RL 提高 PDMS 时，是否牺牲了对真实 ego GT 的拟合？
 使用完整 NAVSIM v1 Navtest（12146 场景、136 logs），不训练、不选方法或检查点。
-结果见本目录完成后的 `RESULTS_ZH.md`；本文件是固定测量合同，不是效果结论。
+结果见本目录 `RESULTS_ZH.md`；本文件是固定测量合同，不是效果结论。
 
 ## 权重
 
@@ -74,6 +74,8 @@ python -m tools.recogdrive_stage2.summarize_il_rl \
   --output /mnt/project/recogdrive-il-rl-navtest-20261018/paired_full_v1
 ```
 
-前两项已经执行；汇总必须等完整 bank 完成，拒绝 smoke 或缺失场景。
+以上三项均已实际执行，完整 bank 已完成；汇总拒绝 smoke 或缺失场景。
+本次为缩短共享卡尾部耗时，使用同一命令将 --gpus 改为 7,1,2,3,4,5,6,0 续算；
+科学身份、8分片映射和执行模块字节不变。原始与续算记录分别见 EXECUTION.json / EXECUTION_RESUME.json。
 资源列表是本次实际记录，重新启动前须再检查授权、显存与进程；不固定占八卡。
 恢复可复用匹配身份和文件 hash 的已有逐场景结果，不重采样已经完成的场景。

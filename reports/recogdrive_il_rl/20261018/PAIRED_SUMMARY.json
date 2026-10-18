@@ -1,0 +1,406 @@
+{
+  "L2_by_physical_time_m": {
+    "IL": [
+      0.05803847827683575,
+      0.11125197582211463,
+      0.2213281200419253,
+      0.3881776327135481,
+      0.6076473701412319,
+      0.8705799509641392,
+      1.1730408206381635,
+      1.5098612217749237
+    ],
+    "RL": [
+      0.3054236585671374,
+      0.5494813826856403,
+      0.4407235559814627,
+      0.49298129115023004,
+      0.6821772870380326,
+      0.9544840013287174,
+      1.3905844802070466,
+      1.8344860313781202
+    ]
+  },
+  "bootstrap": {
+    "reduction": "pooled scene sum / pooled scene count; not equal-weight log means",
+    "replicates": 5000,
+    "seed": 20261018,
+    "unit": "log"
+  },
+  "comparison": {
+    "ADE_m": {
+      "IL": 0.6174906966657246,
+      "RL": 0.8312927110695121,
+      "RL_minus_IL": 0.2138020144037874,
+      "paired_95CI": [
+        0.18975517152412658,
+        0.2389281405529574
+      ],
+      "relative_change_percent": 34.62432965520905,
+      "scenes_RL_higher": 9856,
+      "scenes_RL_lower": 2290,
+      "scenes_equal": 0
+    },
+    "FDE_m": {
+      "IL": 1.5098612217749237,
+      "RL": 1.8344860313781202,
+      "RL_minus_IL": 0.32462480960319656,
+      "paired_95CI": [
+        0.2631168291333092,
+        0.39207774260137607
+      ],
+      "relative_change_percent": 21.500307771437587,
+      "scenes_RL_higher": 7771,
+      "scenes_RL_lower": 4375,
+      "scenes_equal": 0
+    },
+    "IL_noise_MSE": {
+      "IL": 0.00922977679846331,
+      "RL": 0.013611648664518677,
+      "RL_minus_IL": 0.004381871866055368,
+      "paired_95CI": [
+        0.004014347490017319,
+        0.004736390787567143
+      ],
+      "relative_change_percent": 47.475382793491995,
+      "scenes_RL_higher": 10851,
+      "scenes_RL_lower": 1295,
+      "scenes_equal": 0
+    },
+    "XY_MSE_m2": {
+      "IL": 0.5356290631266314,
+      "RL": 0.7347465877909022,
+      "RL_minus_IL": 0.19911752466427077,
+      "paired_95CI": [
+        0.1662734503644002,
+        0.23290471007910277
+      ],
+      "relative_change_percent": 37.17451840681696,
+      "scenes_RL_higher": 8982,
+      "scenes_RL_lower": 3164,
+      "scenes_equal": 0
+    },
+    "comfort": {
+      "IL": 0.9996706734727482,
+      "RL": 1.0,
+      "RL_minus_IL": 0.00032932652725177014,
+      "paired_95CI": [
+        7.493444873509441e-05,
+        0.0006894457092690638
+      ],
+      "relative_change_percent": 0.03294350189426698,
+      "scenes_RL_higher": 4,
+      "scenes_RL_lower": 0,
+      "scenes_equal": 12142
+    },
+    "drivable_area_compliance": {
+      "IL": 0.9471430923760908,
+      "RL": 0.9776057961468796,
+      "RL_minus_IL": 0.030462703770788736,
+      "paired_95CI": [
+        0.024618914250682997,
+        0.03703711031965879
+      ],
+      "relative_change_percent": 3.216272600834502,
+      "scenes_RL_higher": 435,
+      "scenes_RL_lower": 65,
+      "scenes_equal": 11646
+    },
+    "driving_direction_compliance": {
+      "IL": 0.9802404083648938,
+      "RL": 0.9669850156430101,
+      "RL_minus_IL": -0.013255392721883748,
+      "paired_95CI": [
+        -0.020583934724483402,
+        -0.007725073449085484
+      ],
+      "relative_change_percent": -1.3522593650260317,
+      "scenes_RL_higher": 36,
+      "scenes_RL_lower": 267,
+      "scenes_equal": 11843
+    },
+    "ego_progress": {
+      "IL": 0.8076184354315326,
+      "RL": 0.8600252501658924,
+      "RL_minus_IL": 0.05240681473435995,
+      "paired_95CI": [
+        0.043794096431738934,
+        0.060805045734414136
+      ],
+      "relative_change_percent": 6.48905627152474,
+      "scenes_RL_higher": 6360,
+      "scenes_RL_lower": 1796,
+      "scenes_equal": 3990
+    },
+    "heading_MAE_rad": {
+      "IL": 0.025281168060614385,
+      "RL": 0.03149902287215016,
+      "RL_minus_IL": 0.006217854811535778,
+      "paired_95CI": [
+        0.005635095059826986,
+        0.00681350813270334
+      ],
+      "relative_change_percent": 24.59480826450653,
+      "scenes_RL_higher": 8742,
+      "scenes_RL_lower": 3404,
+      "scenes_equal": 0
+    },
+    "native_validation_L1_mixed_units": {
+      "IL": 0.2512600338778882,
+      "RL": 0.3408458904744608,
+      "RL_minus_IL": 0.08958585659657259,
+      "paired_95CI": [
+        0.0799020968039934,
+        0.09988781992452542
+      ],
+      "relative_change_percent": 35.654638429329786,
+      "scenes_RL_higher": 10048,
+      "scenes_RL_lower": 2098,
+      "scenes_equal": 0
+    },
+    "no_at_fault_collisions": {
+      "IL": 0.9807343981557715,
+      "RL": 0.9815988802898074,
+      "RL_minus_IL": 0.0008644821340358966,
+      "paired_95CI": [
+        -0.002197592981019071,
+        0.0038656535711184214
+      ],
+      "relative_change_percent": 0.08814640698455722,
+      "scenes_RL_higher": 111,
+      "scenes_RL_lower": 94,
+      "scenes_equal": 11941
+    },
+    "noise_MSE_x": {
+      "IL": 0.00956254694335317,
+      "RL": 0.017509018814130705,
+      "RL_minus_IL": 0.007946471870777535,
+      "paired_95CI": [
+        0.007009711266274949,
+        0.008866248432879687
+      ],
+      "relative_change_percent": 83.09995148626221,
+      "scenes_RL_higher": 10609,
+      "scenes_RL_lower": 1537,
+      "scenes_equal": 0
+    },
+    "noise_MSE_y": {
+      "IL": 0.005403910287678264,
+      "RL": 0.008378623640789269,
+      "RL_minus_IL": 0.002974713353111006,
+      "paired_95CI": [
+        0.002650083912948976,
+        0.0032932445343327793
+      ],
+      "relative_change_percent": 55.047422972468716,
+      "scenes_RL_higher": 11026,
+      "scenes_RL_lower": 1120,
+      "scenes_equal": 0
+    },
+    "noise_MSE_yaw": {
+      "IL": 0.01272287236068209,
+      "RL": 0.014947302326612238,
+      "RL_minus_IL": 0.002224429965930147,
+      "paired_95CI": [
+        0.0014020748760790894,
+        0.0029850135862214858
+      ],
+      "relative_change_percent": 17.483708889545866,
+      "scenes_RL_higher": 10595,
+      "scenes_RL_lower": 1551,
+      "scenes_equal": 0
+    },
+    "score": {
+      "IL": 0.8635178991203485,
+      "RL": 0.9064928291620712,
+      "RL_minus_IL": 0.04297493004172287,
+      "paired_95CI": [
+        0.036574527075854214,
+        0.049534553575506485
+      ],
+      "relative_change_percent": 4.976727186025975,
+      "scenes_RL_higher": 6492,
+      "scenes_RL_lower": 1847,
+      "scenes_equal": 3807
+    },
+    "time_to_collision_within_bound": {
+      "IL": 0.9414622097809978,
+      "RL": 0.9524946484439322,
+      "RL_minus_IL": 0.0110324386629343,
+      "paired_95CI": [
+        0.0052295462366935795,
+        0.017030042190446695
+      ],
+      "relative_change_percent": 1.1718408395277713,
+      "scenes_RL_higher": 321,
+      "scenes_RL_lower": 187,
+      "scenes_equal": 11638
+    }
+  },
+  "failed": 0,
+  "identity": {
+    "RL_frozen_reference_bitwise_equals_IL": true,
+    "checkpoints": {
+      "IL": {
+        "epoch": 199,
+        "global_step": 44400,
+        "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-2B-IL/ReCogDrive_Diffusion_Planner_2B_IL.ckpt",
+        "repo": "owl10/ReCogDrive-2B-IL",
+        "revision": "0fa96f2159d5bc0f816ecd3818f00541db9db6ff",
+        "sha256": "4569221da6962d4e26d21a463cd70c06a7ad4d76654943fb3870086f43bdb443"
+      },
+      "RL": {
+        "epoch": 24,
+        "global_step": 8325,
+        "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-2B-RL/ReCogDrive_Diffusion_Planner_2B_RL.ckpt",
+        "repo": "owl10/ReCogDrive-2B-RL",
+        "revision": "7346ede73f03ed577811024f1a5d16fb063a47b9",
+        "sha256": "23fb949b10387efeff87e093703d5faf41b61b9e5ead16d4076661e3c7c08a20"
+      }
+    },
+    "current_manifest": "/mnt/project/recogdrive-stage2-evaluation-artifacts/20261006/navtest_current_manifest_v1.json",
+    "draws": 8,
+    "logs": 136,
+    "loss": "unmodified original forward: normalized-GT epsilon prediction MSE, Uniform integer t in [0,99]",
+    "loss_mode": "eval/no_grad; same scene-bound seed and same vectorized Monte Carlo draws for IL/RL",
+    "manifest_sha256": "7ef1218c6fc703f2d64b0b5de66bcaea71dcfe8d834e407811d22b56636fb981",
+    "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+    "metric_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+    "official_reported_PDMS": {
+      "IL": 86.5,
+      "RL": 90.8
+    },
+    "official_reported_source": "https://github.com/xiaomi-research/recogdrive#checkpoint",
+    "official_revision": "6b8d8f5e01346c71094651c81dcaf66405dbc04e",
+    "official_source": "/mnt/project/recogdrive-stage2-optimized-artifacts/20261005/reference_sources/recogdrive",
+    "optimizer_updates": 0,
+    "precision": "official BF16 VLM -> full FP32 hidden sequence; FP32 planner/loss; TF32 disabled",
+    "reference_tensors": 347,
+    "sampling_seed": 42,
+    "scenes": 12146,
+    "schema": "recogdrive_released_IL_RL_paired_navtest_v1",
+    "split": "navtest",
+    "stage1": {
+      "config_sha256": "6c7249180e5312db63e2279d06232a920f077157d56491bb59de319ed37c8656",
+      "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-VLM-2B",
+      "repo": "owl10/ReCogDrive-VLM-2B",
+      "revision": "16873acca08e3c04ab229b3d973f39aeba9db68d",
+      "sha256": "79fb39297e322cd2d3dc68d4f23b86ff85806b336a4d5d0ed5db9b66e4034a3c"
+    },
+    "target_sha256": "5c0095ea832aeb76f1155d56ec03436a0551d1290bea19e24a71ed99f245663c",
+    "trajectory": "unmodified get_action: five-step DDIM, deterministic=False, one candidate, scene seed42"
+  },
+  "limitations": [
+    "One released IL-to-RL lineage, not independent training replicates.",
+    "IL loss is 8 paired uniform-noise/time draws per scene, not an exact integral.",
+    "One shared trajectory sampling seed42; no best-of-N or GT selection.",
+    "Navtest is used only for requested post-hoc evaluation, no training or method selection.",
+    "XY ADE/FDE and epsilon MSE are different objectives; validation L1 mixes meters/radians."
+  ],
+  "logs": 136,
+  "scenes": 12146,
+  "time_bins": {
+    "0-9": {
+      "IL": 0.07255607141989585,
+      "RL": 0.10493072113797508,
+      "RL_minus_IL": 0.03237464971807922,
+      "count": 9670
+    },
+    "10-19": {
+      "IL": 0.01173210206213573,
+      "RL": 0.015190279914112368,
+      "RL_minus_IL": 0.0034581778519766388,
+      "count": 9949
+    },
+    "20-29": {
+      "IL": 0.004059666645222007,
+      "RL": 0.004189513460562331,
+      "RL_minus_IL": 0.00012984681534032434,
+      "count": 9586
+    },
+    "30-39": {
+      "IL": 0.001964607861187584,
+      "RL": 0.00222461290216985,
+      "RL_minus_IL": 0.0002600050409822657,
+      "count": 9773
+    },
+    "40-49": {
+      "IL": 0.0010060623649646018,
+      "RL": 0.0015155325914407965,
+      "RL_minus_IL": 0.0005094702264761948,
+      "count": 9601
+    },
+    "50-59": {
+      "IL": 0.0005561321360011858,
+      "RL": 0.0012367256150565924,
+      "RL_minus_IL": 0.0006805934790554067,
+      "count": 9858
+    },
+    "60-69": {
+      "IL": 0.0003001530083307106,
+      "RL": 0.000891512763503179,
+      "RL_minus_IL": 0.0005913597551724685,
+      "count": 9681
+    },
+    "70-79": {
+      "IL": 0.00015168599678705712,
+      "RL": 0.0009692040097874972,
+      "RL_minus_IL": 0.0008175180130004401,
+      "count": 9588
+    },
+    "80-89": {
+      "IL": 6.412806855607762e-05,
+      "RL": 0.0012532220985272532,
+      "RL_minus_IL": 0.0011890940299711756,
+      "count": 9695
+    },
+    "90-99": {
+      "IL": 2.6574946037191788e-05,
+      "RL": 0.0038999662911044547,
+      "RL_minus_IL": 0.003873391345067263,
+      "count": 9767
+    }
+  },
+  "valid": true,
+  "zero_transfer_groups": {
+    "both_positive": {
+      "ADE_delta_m": 0.21461339252043343,
+      "IL_loss_delta": 0.004632651146023157,
+      "PDMS_delta": 0.015736466947421927,
+      "logs": 136,
+      "scenes": 11141
+    },
+    "both_zero": {
+      "ADE_delta_m": 0.17661097275488305,
+      "IL_loss_delta": 0.00040408739500201067,
+      "PDMS_delta": 0.0,
+      "logs": 78,
+      "scenes": 330
+    },
+    "new_zero": {
+      "ADE_delta_m": 0.28289577722745507,
+      "IL_loss_delta": 0.0026454389502951494,
+      "PDMS_delta": -0.8582950554975372,
+      "logs": 64,
+      "scenes": 152
+    },
+    "zero_repaired": {
+      "ADE_delta_m": 0.19990378915978663,
+      "IL_loss_delta": 0.0020542900697303667,
+      "PDMS_delta": 0.9122645706714416,
+      "logs": 95,
+      "scenes": 523
+    }
+  },
+  "zero_transitions": {
+    "IL_positive_RL_zero": 152,
+    "IL_zero_RL_positive": 523,
+    "PDMS_down": 1847,
+    "PDMS_equal": 3807,
+    "PDMS_up": 6492,
+    "PDMS_up_ADE_up": 5272,
+    "PDMS_up_IL_loss_up": 5730,
+    "both_positive": 11141,
+    "both_zero": 330
+  }
+}
