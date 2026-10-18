@@ -1,0 +1,287 @@
+{
+  "schema": "st_scene_center_rollout_scale_proposal_v1",
+  "status": "NOT_APPROVED",
+  "agent": "/root/consequence_next_hypothesis",
+  "owned_path": "reports/st_world_policy/20261018/consequence_next_hypothesis_v1",
+  "proposal_markdown": {
+    "file": "ROLLOUT_SCALE_PROPOSAL.md",
+    "sha256": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c"
+  },
+  "implementation_performed": false,
+  "math_tests_executed_by_this_agent": false,
+  "full_train_feedback_outputs_read": false,
+  "GPU_model_or_scoring_executed": false,
+  "formal_training_approved": false,
+  "source_baseline": "336e41cda741b58d1a82f798ccd0902d17e88d94",
+  "actual_legacy_training_source": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "lead_integration_of_prior_evidence": "237f608e",
+  "scope": {
+    "contract": "WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md section12.2 wave2C",
+    "maximum_update_methods": 2,
+    "methods": [
+      "legacy_scene_center_v1",
+      "scene_center_rollout_std_v1"
+    ],
+    "reward_cell": "C1-PDMS only",
+    "feature_history_teacher_research": "PAUSED",
+    "prohibited_searches": [
+      "per_scene_std",
+      "fixed_scale",
+      "epsilon_sweep",
+      "batch_or_G_sweep",
+      "policy_weight_sweep",
+      "DEV_selection"
+    ],
+    "mathematical_or_empirical_safety_guarantee": false
+  },
+  "official_source_evidence": {
+    "fpo_commit": "418c2554f7cd22d52e14c07d951280929d73bf2f",
+    "fpo_learn": {
+      "file": "gridworld/models/fpo.py",
+      "symbol": "FPO.learn",
+      "lines": [
+        158,
+        166
+      ],
+      "default": "whole_collected_rollout_GAE_center_then_std_normalization_before_shuffle",
+      "epsilon": 1e-10,
+      "positive_advantage": false,
+      "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd"
+    },
+    "fpo_default_config": {
+      "file": "gridworld/main.py",
+      "configured_timesteps_per_batch": 2048,
+      "actual_population": "all transitions in that collected rollout, not guaranteed exactly2048",
+      "mc_samples": 50
+    },
+    "extra_pinned_files": [
+      {
+        "file": "gridworld/models/ppo.py",
+        "symbol": "PPO.calculate_gae",
+        "bytes": 29473,
+        "sha256": "1a5e6f09e2d22719789cf1efc7ef31fb6ff337592512c321751e0d15171b8867",
+        "local_equals_git_equals_official_raw": true,
+        "GAE_dtype": "torch.float32"
+      },
+      {
+        "file": "gridworld/requirements.txt",
+        "bytes": 509,
+        "sha256": "f9e51b8a95b7b067609cc852687925e9677223f93dc087331b7ddc9f00e37836",
+        "local_equals_git_equals_official_raw": true,
+        "torch_pin": "2.2.2"
+      }
+    ],
+    "pytorch_std": {
+      "tag": "v2.2.2",
+      "commit": "39901f229520a5256505ec24782f716ee7ddc843",
+      "file": "torch/_torch_docs.py",
+      "bytes": 414494,
+      "sha256": "ed8b8fd626094c306742f03038a707d193be817bb53e25c747763f569d759655",
+      "verification": "official GitHub API tag resolution plus bounded fixed-commit official raw source read",
+      "local_pytorch_222_runtime_executed": false,
+      "correction_default": 1,
+      "doc_url": "https://github.com/pytorch/pytorch/blob/39901f229520a5256505ec24782f716ee7ddc843/torch/_torch_docs.py"
+    },
+    "paper_url": "https://arxiv.org/html/2507.21053v2",
+    "paper_sections": [
+      "Eq5-8",
+      "AppendixA.1.4",
+      "TableA.2",
+      "TableA.3"
+    ]
+  },
+  "proposed_normalizer": {
+    "raw_advantage": "legacy FP32 reward minus FP32 mean over complete scene G4",
+    "normalized_advantage": "cast_FP32(cast_FP64(raw_advantage)/(sample_std64+1e-10))",
+    "numerator_global_recentering": false,
+    "denominator_population": "all valid complete-scene G4 candidates across all DDP ranks for exactly one old-policy optimizer rollout",
+    "include_zero_advantages": true,
+    "include_valid_zero_scores": true,
+    "include_valid_all_failure_groups": true,
+    "normalization_dimensions_excluded": [
+      "MC50",
+      "trajectory_points8",
+      "Flow_steps10",
+      "other_update_or_epoch",
+      "whole_TRAIN",
+      "only_active_groups"
+    ],
+    "group_size": 4,
+    "correction": 1,
+    "epsilon": 1e-10,
+    "epsilon_placement": "after sqrt, added to std",
+    "epsilon_and_correction_basis": "fixed official FPO default and its pinned torch2.2.2, not data or DEV tuning",
+    "denominator_input": "scene-centered A, not raw reward",
+    "statistics_dtype": "float64",
+    "output_dtype": "float32",
+    "statistics_and_output_detached": true,
+    "statistics_algorithm": "local noncollective prepare/catch; common failure vote; all_reduce int64 count and FP64 sum; global mean; all_reduce FP64 centered second moment; sqrt(M2/(N-1)); reuse same scale for all microbatches",
+    "all_zero_valid_rollout": "std0, normalized A remains exact0, original BC and exposure continue",
+    "invalid_rollout": "synchronized fail before backward; no candidate dropping or partial-group renormalization",
+    "N_lt2_or_nonzero_A_with_zero_std": "synchronized fail, no fallback scale",
+    "normal_N": 128,
+    "normal_variance_denominator": 127,
+    "tail24_N": 96,
+    "tail24_variance_denominator": 95,
+    "local_empty_mask": "neutral statistic contribution and same collective order; not authorization to run unsupported empty-scene rank trainer paths",
+    "global_empty_mask": "fail; no optimizer update",
+    "same_batch_positive_scalar_only": true,
+    "across_update_objective_weights_change": true
+  },
+  "unchanged": {
+    "bc_weight": 1,
+    "policy_weight": 1,
+    "G": 4,
+    "MC": 50,
+    "Flow_steps": 10,
+    "action_coordinates": "8x4",
+    "Qwen": "frozen",
+    "BC": "original Beta1.5,1; noise_s.999; repeat8 mean; train/dropout",
+    "policy_CFM": "original eval_with_grad; saved old/current noise-time coupling; coordinate mean; MC mean",
+    "ratio_clip": 0.2,
+    "MC_difference_clip": 3,
+    "old_refresh_updates": 1,
+    "maximum_reuse": 1,
+    "formal_budget_proposed": "matched original4096 exploration clock only after independent profile and approval",
+    "statistics_do_not_modify_RNG_or_skip_zero_A_CFM": true
+  },
+  "known_fixed_boundary_evidence": {
+    "boundary": 3584,
+    "scenes": 32,
+    "candidates": 128,
+    "nonzero_scene_groups": 16,
+    "EP_only_nonzero_groups": 16,
+    "D_C_T_event_candidates": [
+      0,
+      0,
+      0
+    ],
+    "policy_over_BC_gradient_norm": 0.0006131694360185753,
+    "extrapolation_to_full_training": false,
+    "empirical_training_coefficient_selected": false,
+    "gradient_math_receipt_sha256": "7ffd159b3dda244b40dec03ad09c3142f47bc50c395d1be70bda9127c8203a2b",
+    "mathematical_completion_vs_supervision": "DIAGNOSTIC_COMPLETE result; supervisor STOPPED_NO_AUTO_RETRY reviewed separately"
+  },
+  "full_TRAIN_evidence_gate": {
+    "status": "PENDING_FULL_AUDIT_RESULTS",
+    "existing_analyzer_source": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+    "expected_consumed_boundaries": 4096,
+    "expected_scene_presentations": 131064,
+    "expected_candidate_presentations": 524256,
+    "legacy_nonzero_scene_presentations_crosscheck": 80933,
+    "fixed_windows": [
+      [
+        0,
+        1024
+      ],
+      [
+        1024,
+        2048
+      ],
+      [
+        2048,
+        3072
+      ],
+      [
+        3072,
+        4096
+      ]
+    ],
+    "fixed_quantiles": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      0.9,
+      0.99,
+      1
+    ],
+    "use_per_boundary_centered_A_receipts_not_reread_payloads": true,
+    "needed_per_update": [
+      "N",
+      "zero_and_nonzero_group_counts",
+      "sum_A",
+      "sum_A_squared",
+      "sample_std",
+      "max_abs_A",
+      "scale_1_over_std_plus_fixed_epsilon",
+      "float32_rounding_and_reconstruction_evidence"
+    ],
+    "condition_flags": {
+      "safe_EP_only_update": "at least one nonzero group, every nonzero group EP-only, all D/C/T events empty",
+      "safety_event_present_update": "at least one D/C/T event; reported separately for D,C,T",
+      "safety_metric_discriminative_update": "at least one scene group varies in corresponding D/C/T terminal metric"
+    },
+    "denominators": [
+      "update",
+      "scene_presentation",
+      "unique_scene",
+      "unique_log",
+      "policy_window",
+      "all_zero_update"
+    ],
+    "numerical_watchlist": [
+      "std0",
+      "0<std<=epsilon",
+      "nonzero_A_and_std0",
+      "nonfinite",
+      "constant_group_nonzero_A",
+      "N*max_rounding_residual_squared >= sum_A_squared implies unresolved bound, not proof of rounding dominance"
+    ],
+    "eligibility_for_limited_profile": "identity and independent audit complete; nonzero signal in all four fixed windows beyond boundary3584; numerical issues resolved; per-update amplitude and EP/safety scaling asymmetry fully reported; separate correctness and systems approval still required",
+    "automatic_gain_or_safety_threshold_defined": false,
+    "missing_or_unreliable_signal": "hold design; do not change epsilon, add gain cap, select a fixed multiplier, or change population to pass",
+    "zero_safety_support": "cannot directly authorize formal safety/planning-benefit comparison"
+  },
+  "risks": [
+    "Only same-update relative gaps are preserved; EP-only small-variance updates may be amplified more than rare collision updates",
+    "Changes data-dependent policy-versus-BC weights across updates and Adam/clipping behavior; no global absolute safety-error cost preservation",
+    "Global numerator recentering would give legacy zero groups spurious signal from FP32 mean residual",
+    "Global std over128 correlated candidates differs from official approximately2048 transition GAE population; correction1 does not remove correlation",
+    "Numerical or tiny progress differences and sparse active groups may be amplified; no new event information",
+    "Reward-dependent scale is not an unbiased policy-gradient correction",
+    "Old refresh1 and reuse1 yield initial ratio near1; clip0.2 usually inactive before sole update and gives no post-update trust-region/KL/safety guarantee",
+    "Source adaptation gap is explicit semantics, not a diagnosed bug; no gain claim",
+    "Including zero groups can increase active-candidate normalized coefficients, but loss still divides by full N; across-batch total gradient depends on active fraction, Jacobians and cancellation"
+  ],
+  "later_profile_and_formal_gates": {
+    "current_launch_permission": false,
+    "max_contract_profile_updates_per_method": 256,
+    "profile_weights_discarded": true,
+    "final_integrated_SHA_config_data_precision_topology_lease_required": true,
+    "legacy_historical_control_reuse_requires_independent_equivalence_review": true,
+    "new_variant_onpolicy_rollouts_and_scores_required_if_later_approved": true,
+    "old_C1_ledger_not_reused_as_permanent_training_rollouts": true,
+    "formal_outcomes": [
+      "full_population_PDMS",
+      "NC_DAC_TTC",
+      "EP_Comfort",
+      "valid_zero_score",
+      "failures_and_validity",
+      "paired_scene_log_degradation_and_improvement",
+      "stopping_or_low_progress"
+    ],
+    "training_risks_to_report": [
+      "per_update_EP_safety_scale_distributions",
+      "raw_advantage_support",
+      "policy_BC_gradient_scale",
+      "ratio_and_gradient_clip_statistics",
+      "nonfinite",
+      "resource_cost"
+    ],
+    "evaluation_selection": "same preregistered endpoint; no DEV coefficient/epsilon/epoch selection",
+    "automatic_retry_or_tuning": false
+  },
+  "planned_implementation_validation_not_run_by_this_agent": [
+    "pinned std correction1 epsilon reference",
+    "FP32 global-recenter zero-group counterexample",
+    "all-zero valid and valid zero score cases",
+    "partial real failure and global empty mask collective failure",
+    "one-rank local validation failure before all statistic collectives",
+    "tail24 and unequal rank partitions",
+    "full-batch versus DDP/microbatch/MC-chunk loss and gradient equivalence",
+    "positive scale surrogate gradient identity",
+    "detached reward and statistic paths",
+    "normalization receipt recovery and legacy config isolation"
+  ]
+}
