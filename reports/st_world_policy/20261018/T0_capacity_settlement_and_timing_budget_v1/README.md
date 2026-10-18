@@ -1,0 +1,9 @@
+# Completed T0 hold settlement and bounded timing proposal
+
+The four-update T0 capacity run reached 4 updates and 128 exposures. Its existing monitor reports zero owned processes after cleanup and no monitor or cleanup error. Both native run and dispatch locks were available. Nine checkpoint payload sizes and the 54-file output inventory were checked using file statistics; no tensor contents were read.
+
+Lead authorized closing the unused part of this one-shot 80 GiB advisory hold while retaining every file. Actual retained output is 37,386,686,464 bytes, leaving 48,512,659,456 bytes of unused hold. The profile cannot resume or retry under this settlement. The original 4,143 GiB scientific checkpoint commitment is unchanged; this separately reserved profile is not credited against that original budget. Nothing was deleted and no live ledger was edited.
+
+A new **40 GiB** inclusive timing hold is a feasible bounded proposal at the recorded free-space snapshot. It covers the measured native checkpoint size plus roughly 5.56 GB for growth, logs and partial output. The proposal requires a fresh 240-update run, `save_every=stop_after=240`, the original 20k learning-rate timeline, one checkpoint directory maximum, no resume and no automatic retry. The existing native save logic reuses a just-written periodic boundary when annotating the subsequent budget pause; it does not need a second checkpoint solely to mark that pause.
+
+This is not a launch admission. The actual timing controller must be independently reviewed, enforce its inclusive bound, preserve partial-write evidence, and pass fresh GPU and storage checks. The estimate is based on actual storage size, not a claim that the timing run has already executed. Full scientific checkpoint, cache, metadata, floor and four evaluation-output obligations remain reserved. Current residual headroom is small and recorded explicitly.
