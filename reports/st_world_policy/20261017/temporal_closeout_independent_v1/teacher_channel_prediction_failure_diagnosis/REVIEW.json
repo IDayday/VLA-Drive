@@ -1,0 +1,96 @@
+{
+  "schema": "st_teacher_channel_diagnostic_failure_review_v1",
+  "status": "CHANGES_REQUESTED_LOCAL_DIAGNOSTIC_LIFETIME_AND_STARTUP",
+  "reviewer": "/root/temporal_narrow_review",
+  "reviewed_at_utc": "2026-10-18T01:43:08.935937+00:00",
+  "frozen_source": "38c9c221f4cdb2967f95ecfe3624fabe571caeb3",
+  "actual_status": "FAILED_NO_AUTO_RETRY",
+  "actual_error": "Previous full model remains live; second load forbidden",
+  "actual_primary_error": "NOT_RECOVERABLE_FROM_SAVED_RECEIPTS; exception chain/traceback was not serialized",
+  "established_code_bug": {
+    "location": "diagnose.py::run_arm finally lines100-102",
+    "mechanism": "A primary prediction/encode exception retains model via its active traceback frame. finally deletes only its own local model then sees the weak reference alive and raises a replacement RuntimeError. ERROR and child accounting serialize only replacement type/message, hiding the original computation error.",
+    "evidence": "Exact run_arm AST, plain Python model, injected ValueError: reproduced replacement RuntimeError with original ValueError in __context__; model releases after exception frames clear. Success path releases and genuine external references still reject.",
+    "actual_model_leak_proven": false
+  },
+  "startup_gap": {
+    "location": "diagnose.py::execute deterministic algorithms=True; control child env and shell launcher",
+    "CUBLAS_WORKSPACE_CONFIG_explicitly_bound": false,
+    "actual_child_value_recorded": false,
+    "interpretation": "Missing deterministic cuBLAS preflight is a concrete launch-contract gap and plausible hidden primary error, not established actual root cause or operator location.",
+    "reuse": "Existing independently reviewed temporal_scale_real4_failure_review_v1/FIX_REVIEW.md startup approach: fixed :4096:8 before child Python/CUDA, reject conflicting inherited setting, record preflight before expensive payload load."
+  },
+  "preserved_actual_evidence": {
+    "target_common256_prefix_exact": true,
+    "target_common256_prefix_max_abs": 0.0,
+    "ARM_256_result_exists": false,
+    "paired_metrics_available": false,
+    "outer_failure": "OWNED_DESCENDANTS_AFTER_LEADER_EXIT",
+    "cleanup_live_owned_remaining": 0,
+    "charged_parent_child_rchar_bytes": 89829602285,
+    "wall_seconds": 279.88541182875633,
+    "peak_RSS_bytes": 25662513152
+  },
+  "minimal_correction_scope": [
+    "Preserve original exception type/message/full formatted traceback before cleanup; do not let weakref cleanup replace the primary failure. Do not silently continue to the second model after any first-arm failure.",
+    "Retain weakref verification on successful first-arm exit. Prefer an inner model-owning helper and outer lifecycle boundary so exception frames can be released before testing the weakref; capture only serialized error, never a live traceback/model in output state. Genuine retained models must still refuse second load.",
+    "Pin/check deterministic CUBLAS workspace before child Python/CUDA and persist actual preflight. Keep TF32-off, eval-FP32 and all model/target/request mathematics unchanged.",
+    "Add tiny negatives: prediction raises sentinel, RNG/metric extraction raises sentinel, success deallocates, genuine external reference blocks, and invalid/unset/conflicting startup configuration fails before checkpoint loading.",
+    "Use new isolated attempt/output and finite resource admission preserving failed evidence/cost. No automatic rerun or overwrite of frozen38c9 implementation."
+  ],
+  "why_existing_tests_missed": "Tiny sequential test covers only successful CPU encode/readout with mocked CUDA. It never injects an exception while a predict_current frame retains model, and it cannot exercise CUDA deterministic workspace requirements. Prior narrow reviews inherited this gap; model runtime success was explicitly untested.",
+  "rerun_performed": false,
+  "model_loads": 0,
+  "GPU": false,
+  "SSH": false,
+  "source_modified": false,
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v1/ERROR.json",
+      "sha256": "824e212a96a9ab6026459ec44537a73f644e9949511460d2451b4319f6af9d67",
+      "bytes": 129
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v1/TARGET_PREFIX_CHECK.json",
+      "sha256": "4eee9d0df54164b5e52d30b376880c3e135d0b320d0bf4576e03b43e6aea0676",
+      "bytes": 111256
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v1_controls/RESULT.json",
+      "sha256": "57e544bfe3bdf524e1504beba24af576ecced3b906fbf98aae2fb28d9683915c",
+      "bytes": 5662
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/diagnose.py",
+      "sha256": "3a7d5a45cbe5cddf64880f5e230228a6d6e6c3e23b5a51363698440ad77fb918",
+      "bytes": 14964
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/control.py",
+      "sha256": "5031b6bfbcd56e298a6cd3566ce7e31adef435d10854a9fac1f7c885de2a188b",
+      "bytes": 14148
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/launch_once.sh",
+      "sha256": "ffc3e2d0da08b411187098e3ccc5d99175ed22ad4ea53b3dde5cd67d6931ff44",
+      "bytes": 177
+    }
+  ],
+  "reproduction": {
+    "success_releases_plain_model": true,
+    "primary_exception_masked_by_weakref_guard": true,
+    "masked_primary_type": "ValueError",
+    "masked_primary_message": "PRIMARY_SENTINEL_FROM_ENCODE",
+    "no_real_model_leak_after_exception_frames_release": true,
+    "genuine_external_reference_still_rejected": true,
+    "actual_diagnostic_source_sha256": "3a7d5a45cbe5cddf64880f5e230228a6d6e6c3e23b5a51363698440ad77fb918",
+    "test_scope": "exact run_arm AST with plain Python model and stub numpy/torch; no actual imports or payloads",
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "rss_bytes": 16678912,
+    "actual_model_loaded": false,
+    "gpu": false
+  }
+}
