@@ -15,7 +15,7 @@ from starVLA.teachers.decodable_st.source_registry import atomic_json
 
 
 @torch.no_grad()
-def run(run_root,output,device="cuda"):
+def run(run_root,output,device="cuda",evaluation_config=None):
     numerical_policy(42,device,.60);start=time.monotonic();run_root=Path(run_root);output=Path(output);output.mkdir(parents=True,exist_ok=True)
     identity=json.loads((run_root/"identity.json").read_text());config=identity["config"]
     model,_,_=load_model(config,device,identity["arm"],identity["seed"])
@@ -23,7 +23,15 @@ def run(run_root,output,device="cuda"):
     if checkpoint["identity"]!=identity["identity"]:raise ValueError("Evaluation checkpoint identity mismatch")
     TrainableDelta(model,[r["name"] for r in identity["trainable_inventory"]]).load_state_dict(checkpoint["model"],strict=True)
     decoder,_=load_vigt_decoder(config["vigt_weights"],json.loads(Path(config["vigt_config"]).read_text()));decoder.to(device)
-    data,rows,lookup=load_data(config);model.eval();outputs=[];counts=torch.zeros(5,dtype=torch.long)
+    data_config=dict(config)
+    if evaluation_config:
+        if set(evaluation_config)!={"current_root","selection","native_context_root"}:raise ValueError("Held-out override may change only population and targets")
+        baseline=json.loads(Path(config["baseline_manifest"]).read_text())
+        if evaluation_config["current_root"]!=baseline["data"]["dev"]["root"]:raise ValueError("Only registered development data admitted")
+        training=json.loads(Path(config["selection"]).read_text());held=json.loads(Path(evaluation_config["selection"]).read_text())
+        if {r["log"] for r in training}&{r["log"] for r in held}:raise ValueError("Tiny training/development log overlap")
+        data_config.update(evaluation_config)
+    data,rows,lookup=load_data(data_config);model.eval();outputs=[];counts=torch.zeros(5,dtype=torch.long)
     pairs=[];mean_context=None;fixed_xyz=None;action_drift=[]
     x=torch.linspace(.5,39.5,64,device=device);y=torch.linspace(-20,20,64,device=device)
     xx,yy=torch.meshgrid(x,y,indexing="ij")
@@ -33,12 +41,13 @@ def run(run_root,output,device="cuda"):
     from starVLA.model.modules.foresight.losses import masked_regression
     for row in rows:
         example,labels=data[lookup[row["token"]]];representation=model(observation(example))
-        teacher=load_file(str(Path(config["native_context_root"])/(row["token"]+".safetensors")))
+        teacher=load_file(str(Path(data_config["native_context_root"])/(row["token"]+".safetensors")))
         logits=decoder(representation.predicted_spatial_context,teacher["xyz"].to(device)).cpu()
         if fixed_xyz is None:fixed_xyz=teacher["xyz"]
         elif not torch.equal(fixed_xyz,teacher["xyz"]):raise ValueError("Negative-control query coordinates differ")
         pairs.append((logits,teacher["logits"]))
-        mean_context=teacher["context"].clone()/len(rows) if mean_context is None else mean_context+teacher["context"]/len(rows)
+        if not evaluation_config:
+            mean_context=teacher["context"].clone()/len(rows) if mean_context is None else mean_context+teacher["context"]/len(rows)
         c=occupancy_counts(logits>=0,teacher["logits"]>=0,torch.ones_like(logits,dtype=torch.bool));counts+=c
         dino,_=masked_regression(model.dino_prediction(representation),labels["current_dino"][None].to(device),labels["current_dino_valid"][None,:,None].to(device))
         outputs.append({**row,"native_teacher_agreement":summarize_counts(c),"DINO_MSE":dino.item(),
@@ -59,6 +68,12 @@ def run(run_root,output,device="cuda"):
                 old=model.baseline.predict_action([example],initial_noise=noise.clone())
             action_drift.append({"token":row["token"],"mean_xy_displacement_m":(new[...,:2]-old[...,:2]).norm(dim=-1).mean().item(),
                                  "max_abs_component_change":(new-old).abs().max().item()})
+    if evaluation_config:
+        # Negative-control mean is fitted exclusively on the original train64.
+        train_rows=json.loads(Path(config["selection"]).read_text())
+        for row in train_rows:
+            c=load_file(str(Path(config["native_context_root"])/(row["token"]+".safetensors")))["context"]
+            mean_context=c.clone()/len(train_rows) if mean_context is None else mean_context+c/len(train_rows)
     mean_logits=decoder(mean_context.to(device),fixed_xyz.to(device)).cpu()
     constant_logits=decoder(torch.zeros_like(mean_context,device=device),fixed_xyz.to(device)).cpu()
     controls={k:torch.zeros(5,dtype=torch.long) for k in ("scene_shuffled_student","mean_training_teacher_context","zero_context")}
@@ -66,7 +81,7 @@ def run(run_root,output,device="cuda"):
         for key,value in [("scene_shuffled_student",pairs[(i+1)%len(pairs)][0]),("mean_training_teacher_context",mean_logits),("zero_context",constant_logits)]:
             controls[key]+=occupancy_counts(value>=0,target>=0,torch.ones_like(target,dtype=torch.bool))
     result={"status":"INCONCLUSIVE","arm":identity["arm"],"run_identity":identity["identity"],"progress":checkpoint["progress"],
-        "population":"same 64 training scenes used for tiny fit; NOT a held-out ability claim","scenes":len(rows),
+        "population":"fixed independent development logs; teacher agreement only" if evaluation_config else "same 64 training scenes used for tiny fit; NOT a held-out ability claim","scenes":len(rows),
         "native_teacher_agreement":summarize_counts(counts),"mean_DINO_MSE":sum(x["DINO_MSE"] for x in outputs)/len(outputs),
         "negative_controls":{k:summarize_counts(v) for k,v in controls.items()},
         "same_noise_no_reader_action_drift_train8":action_drift,
@@ -77,4 +92,5 @@ def run(run_root,output,device="cuda"):
 
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("--run-root",required=True);p.add_argument("--output",required=True);p.add_argument("--device",default="cuda")
-    a=p.parse_args();run(a.run_root,a.output,a.device)
+    p.add_argument("--evaluation-config")
+    a=p.parse_args();run(a.run_root,a.output,a.device,json.loads(Path(a.evaluation_config).read_text()) if a.evaluation_config else None)
