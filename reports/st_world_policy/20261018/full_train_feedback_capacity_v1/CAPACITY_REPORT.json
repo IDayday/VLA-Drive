@@ -52,7 +52,7 @@
     "recommendation": "Use deterministic disjoint ledger shards balanced by statted payload bytes, 8 CPU-only single-thread workers across 4 currently allowed hosts. Bind every ledger/receipt/payload declared hash once; precharge full-file verification plus nominal torch.load, use a shared aggregate read/output/deadline budget, stop without retry on mismatch/overrun. Do not add new scoring or GPU work.",
     "threads_per_worker": 1,
     "total_workers": 8,
-    "wall_budget_assessment": "Metadata establishes finite bytes, not measured deserialization/analysis throughput. 20 minutes is a proposed stop limit; the prior 32-ledger 1.11-second reference is not a full-run measurement.",
+    "wall_budget_assessment": "Metadata establishes finite bytes, not measured deserialization/analysis throughput. 20 minutes is a proposed stop limit; the prior one-ledger/32-scene 1.11-second reference is not a full-run measurement.",
     "weighted_eight_worker_shard_estimates": [
       {
         "ledgers": 512,
