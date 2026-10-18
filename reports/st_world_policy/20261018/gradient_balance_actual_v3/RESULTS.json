@@ -1,0 +1,240 @@
+{
+  "GPU": {
+    "allocated_peak_bytes": 7385335808,
+    "host": "training-vlawm-tsinghua-zt2-worker-0",
+    "model": "NVIDIA A800-SXM4-80GB",
+    "reserved_peak_bytes": 7908360192,
+    "shared_resource_admission": true,
+    "uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897"
+  },
+  "actual_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3/RESULT.json",
+    "sha256": "7ffd159b3dda244b40dec03ad09c3142f47bc50c395d1be70bda9127c8203a2b"
+  },
+  "admission": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/ADMISSION.json",
+    "sha256": "3a4f3b12a5dffe338f4e21d201efbc9be5873b972d25254ae147e3cda8ae467a"
+  },
+  "automatic_retry": false,
+  "backward_counts": {
+    "bc": 8,
+    "policy": 8
+  },
+  "feature_side": "PAUSED",
+  "gradient_groups": {
+    "DiT": {
+      "bc_l2": 0.05454070610356159,
+      "bc_squared_l2": 0.002974688622275081,
+      "combined_gradient_l2": 0.05454287005954837,
+      "cosine": 0.05254449721836499,
+      "dot": 1.1718993574258184e-07,
+      "elements": 802967040,
+      "first_order_BC_change_under_combined_descent_per_unit_lr": -0.0029748058122108234,
+      "first_order_policy_change_under_combined_descent_per_unit_lr": -1.1886212195546878e-07,
+      "policy_l2": 4.089237352963194e-05,
+      "policy_squared_l2": 1.6721862128869431e-09,
+      "weighted_cross_term": 2.3437987148516368e-07,
+      "weighted_policy_l2": 4.089237352963194e-05,
+      "weighted_policy_over_bc": 0.0007497587847870126
+    },
+    "all": {
+      "bc_l2": 0.1620324978158801,
+      "bc_squared_l2": 0.02625453034845319,
+      "combined_gradient_l2": 0.1620312350504816,
+      "cosine": -0.013016374135059915,
+      "dot": -2.0954378098020477e-07,
+      "elements": 819503620,
+      "first_order_BC_change_under_combined_descent_per_unit_lr": -0.026254320804672212,
+      "first_order_policy_change_under_combined_descent_per_unit_lr": 1.9967268779621644e-07,
+      "policy_l2": 9.935337530244424e-05,
+      "policy_squared_l2": 9.871093183988339e-09,
+      "weighted_cross_term": -4.1908756196040955e-07,
+      "weighted_policy_l2": 9.935337530244424e-05,
+      "weighted_policy_over_bc": 0.0006131694360185753
+    },
+    "other_action": {
+      "bc_l2": 0.14757821192381507,
+      "bc_squared_l2": 0.021779328634630474,
+      "combined_gradient_l2": 0.14757715998099463,
+      "cosine": -0.012596992775920036,
+      "dot": -1.588960190222144e-07,
+      "elements": 11028484,
+      "first_order_BC_change_under_combined_descent_per_unit_lr": -0.02177916973861145,
+      "first_order_policy_change_under_combined_descent_per_unit_lr": 1.5159055536946505e-07,
+      "policy_l2": 8.547200508206966e-05,
+      "policy_squared_l2": 7.305463652749343e-09,
+      "weighted_cross_term": -3.177920380444288e-07,
+      "weighted_policy_l2": 8.547200508206966e-05,
+      "weighted_policy_over_bc": 0.0005791641189296509
+    },
+    "qwen_proj": {
+      "bc_l2": 0.03873645687911634,
+      "bc_squared_l2": 0.0015005130915476392,
+      "combined_gradient_l2": 0.038732135360647964,
+      "cosine": -0.1449559733265282,
+      "dot": -1.678376977005722e-07,
+      "elements": 5508096,
+      "first_order_BC_change_under_combined_descent_per_unit_lr": -0.0015003452538499386,
+      "first_order_policy_change_under_combined_descent_per_unit_lr": 1.6694425438222013e-07,
+      "policy_l2": 2.98905222161148e-05,
+      "policy_squared_l2": 8.934433183520525e-10,
+      "weighted_cross_term": -3.356753954011444e-07,
+      "weighted_policy_l2": 2.98905222161148e-05,
+      "weighted_policy_over_bc": 0.0007716380026545337
+    }
+  },
+  "independent_actual_result_review": "PENDING",
+  "interpretation_limits": [
+    "One fixed training boundary; no Adam/preconditioning/clip/update/gain inference. Separate BF16 backward and FP32 summation differ from joint ZeRO2 rounding; cross-device rank RNG mapped to one identical GPU architecture.",
+    "A single fixed training boundary, not a population estimate or Adam/ZeRO2 update decomposition.",
+    "Total-score differences in this same batch are EP-only; sparse safety evidence cannot be inferred from this batch.",
+    "Supervisor exit accounting failed; sampled RSS maximum is observed, not a proof of every instant. Original failure and completed mathematical receipt both preserved.",
+    "No automatic coefficient change, extra training, new feedback, model update, or rerun follows from this result."
+  ],
+  "math_source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "mathematical_runtime_resources": {
+    "logical_read_bytes": 25640522591,
+    "peak_RSS_bytes": 26418532352,
+    "seconds": 437.12087038345635
+  },
+  "mathematical_status": "DIAGNOSTIC_COMPLETE",
+  "population": {
+    "candidate_feedback": 128,
+    "cell": "C1",
+    "checkpoint_step": 3584,
+    "micro_batch": 4,
+    "original_ranks": 4,
+    "scenes": 32
+  },
+  "rank_summary": [
+    {
+      "current_CFM": [
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "363d642197b51011f9c8f10b8260f6cf962401fa17dde67f6d50aefc8b5cc599"
+        },
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "f7a799e72198e34739c9248cc910a44bb8446bb1a8fafad32bb245e17fa33d62"
+        }
+      ],
+      "losses_global_contribution": {
+        "bc": 0.0005908354360144585,
+        "policy": -9.313225746154785e-10
+      },
+      "nonzero_advantages": 16,
+      "rank": 0,
+      "zero_advantage_scenes": 4
+    },
+    {
+      "current_CFM": [
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "c70097caff4592e138a7753f1443d2c7fbaa990f06509a934f9114648417f4d1"
+        },
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "02cc493aebc2f9183492df313ab508e440e5ff995aa83866372a4973465e3a7b"
+        }
+      ],
+      "losses_global_contribution": {
+        "bc": 0.0004586801369441673,
+        "policy": 1.862645149230957e-09
+      },
+      "nonzero_advantages": 12,
+      "rank": 1,
+      "zero_advantage_scenes": 5
+    },
+    {
+      "current_CFM": [
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "302c8030f9eb0134b995a0e22ca733e7cf196e7dcef943aee6c8fdb07f6c8714"
+        },
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "7c1e01145746ea964e323b6e419510780f6d7120eab2931daab5bf708f413b94"
+        }
+      ],
+      "losses_global_contribution": {
+        "bc": 0.00033928267657756805,
+        "policy": 1.862645149230957e-09
+      },
+      "nonzero_advantages": 20,
+      "rank": 2,
+      "zero_advantage_scenes": 3
+    },
+    {
+      "current_CFM": [
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "eac593ca928fcd1697db83e98558ef34028c1fe6675a5a73be971a3f2d10acd8"
+        },
+        {
+          "bit_exact": true,
+          "elements": 800,
+          "sha256": "52fb0960894bcce794038b0a6c1b128999d1a456f9f4bce85742f5b492d39f44"
+        }
+      ],
+      "losses_global_contribution": {
+        "bc": 0.0003753085475182161,
+        "policy": 2.7939677238464355e-09
+      },
+      "nonzero_advantages": 16,
+      "rank": 3,
+      "zero_advantage_scenes": 4
+    }
+  ],
+  "registration": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/REGISTRATION.json",
+    "sha256": "6a48f942e8b57f568d74be0bd92cab389daa6140d0a0307896acd40da3358770"
+  },
+  "resource_accounting": {
+    "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+    "charged_read_bytes": 73841978011,
+    "error": {
+      "message": "Missing live RSS counter",
+      "type": "RuntimeError"
+    },
+    "exit_code": 0,
+    "final_monitor_error": {
+      "message": "Missing live RSS counter",
+      "type": "RuntimeError"
+    },
+    "known_nominal_read_bytes": 73841978011,
+    "live_owned_remaining": 0,
+    "no_RLIMIT_AS": true,
+    "observed_physical_read_bytes": 30819545088,
+    "observed_rchar_bytes": 26283170053,
+    "optimizer_steps": 0,
+    "output_bytes_before_receipt": 308644,
+    "peak_observed_RSS_bytes": 27565686784,
+    "real_scoring_calls": 0,
+    "reason": "MONITOR_OR_CHILD_SETUP_FAILURE",
+    "status": "STOPPED_NO_AUTO_RETRY",
+    "wall_seconds": 442.45166650786996
+  },
+  "retention": {
+    "caller_RNG_unchanged": true,
+    "encoder_calls": {
+      "language": 8,
+      "visual": 8
+    },
+    "metric_cache_read": false,
+    "new_score_calls": 0,
+    "optimizer_steps": 0,
+    "original_weights_unchanged": true
+  },
+  "status": "MATHEMATICAL_DIAGNOSTIC_COMPLETE_SUPERVISOR_EXIT_ACCOUNTING_FAILURE",
+  "supervisor_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/RUNTIME_ATTEMPT/SUPERVISOR_RESULT.json",
+    "sha256": "80aedaec45221c99c903ec01442d50f9fb2cecfcfac76cd96f1c79acebaa937c"
+  }
+}
