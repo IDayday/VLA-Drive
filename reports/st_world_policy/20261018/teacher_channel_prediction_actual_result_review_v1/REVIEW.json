@@ -1,0 +1,83 @@
+{
+  "status": "PASS_RESULT_METADATA_AND_ARITHMETIC_WITH_RETAINED_CONTROL_FAILURE",
+  "reviewer": "/root/temporal_narrow_review",
+  "evidence_pins": {
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2/RESULT.json": "6b2b4f6c037b15c3b6f78bca366da57f06ec29f339a55b7e25240bcad97eb0ed",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2/TARGET_PREFIX_CHECK.json": "4eee9d0df54164b5e52d30b376880c3e135d0b320d0bf4576e03b43e6aea0676",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2/INVOCATION.json": "e34a90c58156d2105b144cef84478e9cf4bcbee656a43acf6a15e07f50f3f031",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2_controls/RESULT.json": "0aac755cc986fcc8547f805e2ef2d4cc34b686752dd46efa84787df207a45452",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2/ARM_256.json": "02caa1f26b4dae93ed67d19ae241ced2215bf7d58e29baee1c7045f88743cb7d",
+    "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2/ARM_384.json": "43e139eeebf7da19b5b541b69402adc936be5c09ebebab1d003e8f11ee503ba7"
+  },
+  "source_review_inherited": {
+    "commit": "00840b1a",
+    "fixed_source": "0388faff949401ceb777176bab2e64311e6f23e9"
+  },
+  "scenes": 8,
+  "logs": 8,
+  "valid_requests": 2304,
+  "requests_per_scene": 288,
+  "views": 3,
+  "positions_per_view": 96,
+  "prefix": {
+    "exact_equal": true,
+    "max_abs": 0,
+    "scope": "Actual native PCA256 target equals first256 of actual384 basis; no new tensor calculation in review."
+  },
+  "common256": {
+    "arm256_mse": 1.5378284187008244,
+    "arm384_mse": 1.5440371763361453,
+    "delta256_minus384": -0.006208757635320916,
+    "relative_error_reduction_percent": 0.40211192647924276,
+    "zero_prediction_mse": 3.206032351729147,
+    "arm256_relative_sse_to_zero": 0.4796671555330405,
+    "arm384_relative_sse_to_zero": 0.48160374161645053,
+    "scenes_lower_error256": 6
+  },
+  "tail128": {
+    "arm384_mse": 0.49399273624504453,
+    "zero_prediction_mse": 0.5094826225841023,
+    "relative_sse_to_zero": 0.9695968308781703,
+    "error_reduction_vs_zero_percent": 3.040316912182972,
+    "arm256": "NOT_PREDICTED_NOT_ZERO_ERROR"
+  },
+  "arm384_full_mse": 1.1940223629724454,
+  "arm384_decomposition": 1.1940223629724451,
+  "arithmetic_checks": [
+    "SSE/elements=MSE",
+    "SSE/target_energy=relative_SSE",
+    "mean per-componentMSE=blockMSE",
+    "mean(variance+mean^2)=zero-MSE",
+    "per-scene SSE/energy/count sums match aggregate",
+    "384MSE=(256commonMSE+128tailMSE)/384",
+    "all2304 requests valid unique within scene/view"
+  ],
+  "controller": {
+    "status": "FAILED_NO_AUTO_RETRY",
+    "child_returncode": 0,
+    "failure": "OWNED_DESCENDANTS_AFTER_LEADER_EXIT",
+    "cleanup": {
+      "live_owned_remaining": 0,
+      "verified_processes": 10
+    },
+    "wall_seconds": 953.8732715453953,
+    "charged_rchar_bytes": 175753973541,
+    "peak_rss_bytes": 27165855744,
+    "automatic_retry": false
+  },
+  "actual_runtime": {
+    "cublas_workspace_config": ":4096:8",
+    "cuda_version": "12.4",
+    "cudnn_tf32": false,
+    "deterministic_algorithms": true,
+    "matmul_tf32": false,
+    "torch_version": "2.5.1+cu124"
+  },
+  "interpretation": [
+    "A complete matched8-training-scene eval-FP32 feature diagnostic is available; it is not a clean controller success.",
+    "The shared256 error is slightly lower for256 on these scenes, and the384 tail is only about3% better than zero. This supports a limited fit/target-energy observation, not a causal gradient-conflict finding.",
+    "Full384MSE cannot be directly compared with256MSE as training superiority: the low-energy tail changes the denominator. Neither model was trained/updated by this diagnostic.",
+    "Single seed,8fixed training scenes, no held-out/generalization or planning measurement, no gradients. Existing256-vs384 training loss mean has different common-block coefficient; do not infer pure capacity causality.",
+    "No model, teacher, image, tensor payload, simulator or bootstrap was loaded or run by this reviewer. No retry requested solely to turn controller status green."
+  ]
+}
