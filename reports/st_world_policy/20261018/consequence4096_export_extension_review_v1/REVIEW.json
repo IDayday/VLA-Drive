@@ -1,0 +1,46 @@
+{
+  "schema": "st_independent_source_review_v1",
+  "reviewer_agent": "/root/spatial20k_evidence",
+  "reviewed_utc": "2026-10-18T13:55:07.132166+00:00",
+  "status": "PASS",
+  "scope": "Fixed authorized zt4 addition to existing exporter host allowlist; no scientific/runtime/main changes",
+  "helper": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_route_extension_v1/export_once.py",
+    "sha256": "c69fa15e42e8c43973ceba41ed05d4caec21fae5d193176aea5fe3a97d8ef5a0"
+  },
+  "original_exporter": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v5.py",
+    "sha256": "ad0ee24987bdba9ee3fbc46a5efbdb1445b0a6a69d4d588fc32e960738b876bf"
+  },
+  "live_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "787753e8674b7d90a891b5c77d20968df788cf261b6755423d595f28d40b7276"
+  },
+  "campaign_authorization": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+    "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+  },
+  "test": {
+    "command": "python reports/st_world_policy/20261018/consequence4096_export_extension_review_v1/test_extension.py",
+    "passed": 6,
+    "failed": 0,
+    "duration_seconds": 0.043,
+    "scope": "Source AST and small policy/authorization JSON only; no heavyweight imports or worker launched"
+  },
+  "checks": [
+    "Exact source SHA before AST parse",
+    "Exactly one AST value differs: ROUTE_HOSTS_V3 appends training-vlawm-tsinghua-zt4",
+    "Original source AST exactly restored by reverting only that assignment",
+    "Live policy and campaign authorization both contain zt4",
+    "Original policy/authorization/bans still reject unapproved aliases",
+    "Original environment/GPU UUID and idle/shared lock/disk/memory/native inventory/receipt/inference/timeout/call/admission checks unchanged",
+    "Original two time checks and route pin verification unchanged",
+    "Launch receipt records actual adapter SHA through __file__"
+  ],
+  "remaining_requirements": [
+    "Lead must issue fixed C1/C4 routes and run original fresh admission checks on actual target host",
+    "This source review is not a resource reservation, model test, export result or dispatch approval"
+  ],
+  "dispatched": false,
+  "payloads_read": false
+}
