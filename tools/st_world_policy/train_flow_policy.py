@@ -865,6 +865,7 @@ def run(args):
             encoding_seconds = time.perf_counter()-tick-data_seconds
             rollout = feedback = comparison = advantages = old_identity = None
             normalization = None
+            normalization_seconds = 0.
             scoring_seconds = 0.
             rollout_seconds = old_cfm_seconds = 0.
             official_statistics = None
@@ -919,6 +920,7 @@ def run(args):
                     optimizer_step=state["completed"], expected_context_hashes=expected_contexts), "feedback freshness guard")
                 if fpo.advantage == "scene_center_rollout_std_v1":
                     from starVLA.model.modules.flow_posttraining.advantage_scale import normalize_rollout_advantages
+                    normalization_tick = time.perf_counter()
                     # Only noncollective dependency preparation is wrapped here.
                     # The normalizer votes on local errors before its own collectives.
                     common_scale_id, local_scale_id = collective_call(lambda: (
@@ -934,6 +936,7 @@ def run(args):
                             expected_global_count=4*len(global_ids), common_identity=common_scale_id,
                             local_identity=local_scale_id)
                     advantages = advantages.flatten()
+                    normalization_seconds = time.perf_counter()-normalization_tick
                 else:
                     advantages = group_centered_advantages(feedback.rewards, feedback.valid).flatten()
                 official_statistics = {"valid_candidates": int(feedback.valid.sum()),
@@ -1023,6 +1026,9 @@ def run(args):
                             "old_CFM": old_cfm_seconds, "current_BC_FPO_backward_optimizer": backward_seconds},
                 "peak_allocated": torch.cuda.max_memory_allocated(), "peak_reserved": torch.cuda.max_memory_reserved()}
             if normalization is not None:
+                # Included in official_feedback wall time; do not add twice.
+                # Includes identity/hash preparation and collective waiting.
+                per_rank["seconds"]["advantage_normalization"] = normalization_seconds
                 per_rank["advantage_normalization"] = {
                     "common_sha256": normalization["common_sha256"],
                     **{k: normalization["common"][k] for k in ("count", "mean", "std", "gain", "all_zero")}}
