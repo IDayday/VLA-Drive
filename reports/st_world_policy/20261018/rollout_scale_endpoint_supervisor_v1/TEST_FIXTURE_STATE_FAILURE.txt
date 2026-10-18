@@ -1,0 +1,44 @@
+.....................F.....................                              [100%]
+=================================== FAILURES ===================================
+____ test_cpu_phase_checks_only_owned_exporters_leaves_new_gpu_users_alone _____
+
+isolated = PosixPath('/tmp/pytest-of-root/pytest-803/test_cpu_phase_checks_only_own0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd18881f760>
+
+    def test_cpu_phase_checks_only_owned_exporters_leaves_new_gpu_users_alone(isolated,monkeypatch):
+        folder=s.OUTPUT/'control/invocations/export_rank0/a'
+        put(folder/'ADMISSION.json',{'fixture':'charged'})
+        with pytest.raises(ValueError,match='Unresolved'):s.ensure_exports_exited(s.OUTPUT/'control')
+        put(folder/'EXIT.json',{'owned_cleanup_complete':True,'owned_IDs':{'123':{'start_ticks':7}}})
+        monkeypatch.setattr(s,'process_tree',lambda pid:{})
+        s.ensure_exports_exited(s.OUTPUT/'control')
+        monkeypatch.setattr(s,'process_tree',lambda pid:{pid:{'start_ticks':7}})
+>       with pytest.raises(ValueError,match='still alive'):s.ensure_exports_exited(s.OUTPUT/'control')
+
+tests/st_world/test_endpoint_supervisor.py:179:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+control = PosixPath('/tmp/pytest-of-root/pytest-803/test_cpu_phase_checks_only_own0/job/control')
+
+    def ensure_exports_exited(control):
+        """CPU phases release OUR export sessions; unrelated new GPU users are safe."""
+        for admission in (Path(control)/'invocations').glob('export_rank*/*/ADMISSION.json'):
+            exit_path=admission.with_name('EXIT.json')
+            if not exit_path.is_file():raise ValueError('Unresolved owned export invocation; inspect before CPU scoring')
+            exited=small(exit_path)
+            if not exited.get('owned_cleanup_complete'):raise ValueError('Owned export cleanup unconfirmed')
+            for raw_pid,old in exited.get('owned_IDs',{}).items():
+                pid=int(raw_pid);current=process_tree(pid).get(pid)
+>               if current and current['state']!='Z' and current['start_ticks']==old['start_ticks']:
+E               KeyError: 'state'
+
+resources/st_endpoint_supervisor_v1.py:471: KeyError
+=============================== warnings summary ===============================
+tests/st_world/test_endpoint_supervisor.py::test_exact_endpoint_complete_population_and_no_early_fallback
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/st_world/test_endpoint_supervisor.py::test_cpu_phase_checks_only_owned_exporters_leaves_new_gpu_users_alone
+1 failed, 42 passed, 1 warning in 3.87s

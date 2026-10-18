@@ -1,0 +1,19 @@
+usage: st_endpoint_supervisor_v1.py [-h] [--status] [--admission ADMISSION]
+                                    [--admission-sha256 ADMISSION_SHA256]
+                                    [--phase {export,score,analysis}]
+                                    [--execute] [--resume]
+
+Lead-only fixed4096 DEV endpoint supervisor; no automatic dispatch or retry.
+External control only. Frozen runtime751 supplies every model, export,
+canonical score and paired-analysis operation. A real endpoint and fresh
+independent admission are mandatory; status/--help never launches anything.
+
+options:
+  -h, --help            show this help message and exit
+  --status              Report fixed scope without any checkpoint/model/GPU
+                        read
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256
+  --phase {export,score,analysis}
+  --execute
+  --resume
