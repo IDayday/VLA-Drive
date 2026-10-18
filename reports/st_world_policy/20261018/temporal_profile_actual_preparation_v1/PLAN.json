@@ -1,0 +1,533 @@
+{
+  "absence_of_history_does_not_block_T0": true,
+  "actual_small_inputs": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "current_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/COMPLETE.json",
+      "sha256": "0c1c913e72733191fc47cf1969b2fb8462b1081ae8c893b656b7aba5d022ad3f"
+    },
+    "current_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1/COMPLETE.json",
+      "sha256": "8c44a8994e38a481ffcb1d06d77615e77328686c370f32e9954354358ecd4b02"
+    },
+    "current_registration": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/REGISTRATION.json",
+      "sha256": "f7bad022b4aae85c5925b0a1afa143077aa0764efc1849d80f622d092beebbec"
+    },
+    "decision": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+      "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081"
+    },
+    "full_profile_descriptor": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+      "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163"
+    },
+    "future_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json",
+      "sha256": "16c47d6603144dcabe0c764f85c23c231bb0edfaf347d869f93c34d79bdc5438"
+    },
+    "pca_fit_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1/COMPLETE.json",
+      "sha256": "952333bf289508a904b3b3c726ad840bc0557828fdb4b08f5f0b3bf508c6ab56"
+    },
+    "pca_receipt": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/PCA.json",
+      "sha256": "f4a0845dd0244da29a30dec9f482f4ef801dfdbc80cbd34ad3ebb508b0885067"
+    },
+    "reference_config": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/CONFIG.json",
+      "sha256": "2ec8df5c996c51ef0b7b40707c0e66179643bcc5cac317ec4d53d31d0d85b13f"
+    },
+    "train_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/COMPLETE.json",
+      "sha256": "07cdbbd00d7c9be219c23c75bf75aee4651cad6c93b136a0f2b19b4bdca4a148"
+    }
+  },
+  "base_binding": {
+    "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+    "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+  },
+  "cases": {
+    "T0_capacity4": {
+      "automatic_dispatch": false,
+      "bind_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/bind_prepared.py",
+        "--case",
+        "T0_capacity4"
+      ],
+      "cell": "T0",
+      "control_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control",
+      "expected_inputs": {
+        "cell": "T0",
+        "decision": {
+          "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+          "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081"
+        },
+        "full_profile_descriptor": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+          "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163"
+        },
+        "max_seconds": 3600,
+        "micro_batch": 1,
+        "profile_mode": "none",
+        "scope": "PROFILE",
+        "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/runs",
+        "world_size": 4
+      },
+      "exposures": 128,
+      "formal_permission": false,
+      "fresh_base_initialization": true,
+      "native_training_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nnodes=1",
+        "--nproc_per_node=4",
+        "-m",
+        "tools.st_world_policy.train_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/REGISTRATION.json"
+      ],
+      "per_rank_exposures": 32,
+      "preparation_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/configured",
+      "prepare_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.temporal_formal",
+        "--full-profile-descriptor",
+        "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+        "--source-migration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/SOURCE_MIGRATION.json",
+        "--decision",
+        "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+        "--pca-fit-cache-root",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+        "--pca-fit-cache-index",
+        "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "--world-size",
+        "4",
+        "--micro-batch",
+        "1",
+        "--scope",
+        "PROFILE",
+        "--max-seconds",
+        "3600",
+        "--cell",
+        "T0",
+        "--profile-mode",
+        "none",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/configured",
+        "--training-output-root",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/runs"
+      ],
+      "prepare_cwd": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+      "prepared_exists": false,
+      "profile_checkpoint_reuse": false,
+      "profile_mode": "none",
+      "registration_exists": false,
+      "run_id": "T0_fulltrain_seed42_profile4_world4_micro1_global32_v1",
+      "source_migration_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.qualify_indexed_provider",
+        "prepare-profile-migration",
+        "--parent-descriptor",
+        "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+        "--parent-runtime",
+        "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/SOURCE_MIGRATION.json"
+      ],
+      "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/runs",
+      "updates": 4
+    },
+    "T0_timing240": {
+      "automatic_dispatch": false,
+      "bind_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/bind_prepared.py",
+        "--case",
+        "T0_timing240"
+      ],
+      "cell": "T0",
+      "control_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control",
+      "expected_inputs": {
+        "cell": "T0",
+        "decision": {
+          "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+          "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081"
+        },
+        "full_profile_descriptor": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+          "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163"
+        },
+        "max_seconds": 3600,
+        "micro_batch": 1,
+        "profile_mode": "timing",
+        "scope": "PROFILE",
+        "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control/runs",
+        "world_size": 4
+      },
+      "exposures": 7680,
+      "formal_permission": false,
+      "fresh_base_initialization": true,
+      "native_training_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nnodes=1",
+        "--nproc_per_node=4",
+        "-m",
+        "tools.st_world_policy.train_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control/REGISTRATION.json"
+      ],
+      "per_rank_exposures": 1920,
+      "preparation_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/metadata/configured",
+      "prepare_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.temporal_formal",
+        "--full-profile-descriptor",
+        "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+        "--source-migration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/metadata/SOURCE_MIGRATION.json",
+        "--decision",
+        "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+        "--pca-fit-cache-root",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+        "--pca-fit-cache-index",
+        "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "--world-size",
+        "4",
+        "--micro-batch",
+        "1",
+        "--scope",
+        "PROFILE",
+        "--max-seconds",
+        "3600",
+        "--cell",
+        "T0",
+        "--profile-mode",
+        "timing",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/metadata/configured",
+        "--training-output-root",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control/runs"
+      ],
+      "prepare_cwd": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+      "prepared_exists": false,
+      "profile_checkpoint_reuse": false,
+      "profile_mode": "timing",
+      "registration_exists": false,
+      "run_id": "T0_fulltrain_seed42_profile240_world4_micro1_global32_v1",
+      "source_migration_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.qualify_indexed_provider",
+        "prepare-profile-migration",
+        "--parent-descriptor",
+        "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+        "--parent-runtime",
+        "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/metadata/SOURCE_MIGRATION.json"
+      ],
+      "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control/runs",
+      "updates": 240
+    },
+    "T4_capacity4": {
+      "automatic_dispatch": false,
+      "bind_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/bind_prepared.py",
+        "--case",
+        "T4_capacity4"
+      ],
+      "cell": "T4",
+      "control_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/training_control",
+      "expected_inputs": {
+        "cell": "T4",
+        "decision": {
+          "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+          "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081"
+        },
+        "full_profile_descriptor": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+          "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163"
+        },
+        "max_seconds": 3600,
+        "micro_batch": 1,
+        "profile_mode": "none",
+        "scope": "PROFILE",
+        "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/training_control/runs",
+        "world_size": 4
+      },
+      "exposures": 128,
+      "formal_permission": false,
+      "fresh_base_initialization": true,
+      "native_training_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nnodes=1",
+        "--nproc_per_node=4",
+        "-m",
+        "tools.st_world_policy.train_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/training_control/REGISTRATION.json"
+      ],
+      "per_rank_exposures": 32,
+      "preparation_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/metadata/configured",
+      "prepare_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.temporal_formal",
+        "--full-profile-descriptor",
+        "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+        "--source-migration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/metadata/SOURCE_MIGRATION.json",
+        "--decision",
+        "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+        "--pca-fit-cache-root",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+        "--pca-fit-cache-index",
+        "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "--world-size",
+        "4",
+        "--micro-batch",
+        "1",
+        "--scope",
+        "PROFILE",
+        "--max-seconds",
+        "3600",
+        "--cell",
+        "T4",
+        "--profile-mode",
+        "none",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/metadata/configured",
+        "--training-output-root",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/training_control/runs",
+        "--history-complete",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train/COMPLETE.json"
+      ],
+      "prepare_cwd": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+      "prepared_exists": false,
+      "profile_checkpoint_reuse": false,
+      "profile_mode": "none",
+      "registration_exists": false,
+      "run_id": "T4_fulltrain_seed42_profile4_world4_micro1_global32_v1",
+      "source_migration_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.qualify_indexed_provider",
+        "prepare-profile-migration",
+        "--parent-descriptor",
+        "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+        "--parent-runtime",
+        "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/metadata/SOURCE_MIGRATION.json"
+      ],
+      "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_capacity4/training_control/runs",
+      "updates": 4
+    },
+    "T4_timing240": {
+      "automatic_dispatch": false,
+      "bind_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/bind_prepared.py",
+        "--case",
+        "T4_timing240"
+      ],
+      "cell": "T4",
+      "control_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/training_control",
+      "expected_inputs": {
+        "cell": "T4",
+        "decision": {
+          "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+          "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081"
+        },
+        "full_profile_descriptor": {
+          "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+          "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163"
+        },
+        "max_seconds": 3600,
+        "micro_batch": 1,
+        "profile_mode": "timing",
+        "scope": "PROFILE",
+        "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/training_control/runs",
+        "world_size": 4
+      },
+      "exposures": 7680,
+      "formal_permission": false,
+      "fresh_base_initialization": true,
+      "native_training_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nnodes=1",
+        "--nproc_per_node=4",
+        "-m",
+        "tools.st_world_policy.train_world",
+        "--registration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/training_control/REGISTRATION.json"
+      ],
+      "per_rank_exposures": 1920,
+      "preparation_output": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/metadata/configured",
+      "prepare_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.temporal_formal",
+        "--full-profile-descriptor",
+        "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+        "--source-migration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/metadata/SOURCE_MIGRATION.json",
+        "--decision",
+        "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+        "--pca-fit-cache-root",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+        "--pca-fit-cache-index",
+        "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "--world-size",
+        "4",
+        "--micro-batch",
+        "1",
+        "--scope",
+        "PROFILE",
+        "--max-seconds",
+        "3600",
+        "--cell",
+        "T4",
+        "--profile-mode",
+        "timing",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/metadata/configured",
+        "--training-output-root",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/training_control/runs",
+        "--history-complete",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train/COMPLETE.json"
+      ],
+      "prepare_cwd": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+      "prepared_exists": false,
+      "profile_checkpoint_reuse": false,
+      "profile_mode": "timing",
+      "registration_exists": false,
+      "run_id": "T4_fulltrain_seed42_profile240_world4_micro1_global32_v1",
+      "source_migration_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "-m",
+        "tools.st_world_policy.qualify_indexed_provider",
+        "prepare-profile-migration",
+        "--parent-descriptor",
+        "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+        "--parent-runtime",
+        "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/metadata/SOURCE_MIGRATION.json"
+      ],
+      "training_output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T4_timing240/training_control/runs",
+      "updates": 240
+    }
+  },
+  "created_utc": "2026-10-18T02:50:10.597003+00:00",
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+    "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+  },
+  "execution_files": {
+    "tools/st_world_policy/check_formal_approval.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/check_formal_approval.py",
+      "sha256": "e46632f71b2385a431d4dc58003177e682620f29dfc239dd9088e135647e903e"
+    },
+    "tools/st_world_policy/metadata_storage.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/metadata_storage.py",
+      "sha256": "65644ac00b6a395bf2e1eb498e9f221a3cdebee63a027857513b1f50118151a6"
+    },
+    "tools/st_world_policy/profile_pipeline.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/profile_pipeline.py",
+      "sha256": "0991afa9ef8eaae3097bf9b17cab557544a45a9adf10a46d30f3f57f817b5693"
+    },
+    "tools/st_world_policy/qualify_indexed_provider.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/qualify_indexed_provider.py",
+      "sha256": "d90c955bfcb800d832d860766b088484ff5ab4f9dcbc0de0f7ef0db0a089d881"
+    },
+    "tools/st_world_policy/teacher_provider.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/teacher_provider.py",
+      "sha256": "4b068b3aa9920cbebb1e6a7d13a558c4cb953b5b624faf621379b0cf8581b591"
+    },
+    "tools/st_world_policy/temporal_formal.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/temporal_formal.py",
+      "sha256": "54b2881a8821cef0a0c54de6d065b4cd2df24163aeaaf7680ce77dc41cbc67ae"
+    },
+    "tools/st_world_policy/train_world.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    "tools/st_world_policy/training_config.py": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/tools/st_world_policy/training_config.py",
+      "sha256": "87cb75dc7c948a8c37911fd2037794a48a50a5aae6d8153b867eaf0dc32ced97"
+    }
+  },
+  "formal_permission": false,
+  "history": {
+    "exists": false,
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train/COMPLETE.json",
+    "required_only_for": [
+      "T4_capacity4",
+      "T4_timing240"
+    ]
+  },
+  "model_payload_opened": false,
+  "order": [
+    "T0_capacity4",
+    "T4_capacity4",
+    "T0_timing240",
+    "T4_timing240"
+  ],
+  "qualification_rule": "No timing follow-up until its exact cell capacity has clean native and controller completion; T0 throughput may proceed while T4 awaits history if independently admitted.",
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+    "reports_only_descendant_permitted_by_native_source_fingerprint": true,
+    "source_sha": "38f86a15a92171e583bb5019cce89a63fb7a1d43"
+  },
+  "schema": "st_temporal_global32_profile_actual_preparation_v1",
+  "scope_of_executable_supervisor": "T0_capacity4 CPU metadata only; other cases remain recipes, no dispatch entry yet",
+  "source_migration_argv": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-B",
+    "-m",
+    "tools.st_world_policy.qualify_indexed_provider",
+    "prepare-profile-migration",
+    "--parent-descriptor",
+    "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+    "--parent-runtime",
+    "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+    "--output",
+    "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/SOURCE_MIGRATION.json"
+  ],
+  "status": "EXACT_COMMANDS_PREPARED_NOT_EXECUTED",
+  "training_started": false
+}

@@ -1,0 +1,72 @@
+{
+  "metadata_per_case": {
+    "aggregate_rss_bytes": 4294967296,
+    "cleanup_seconds": 40,
+    "cpu_cores": 2,
+    "gpus": 0,
+    "logical_read_cap_bytes": 68719476736,
+    "note": "History attachment and repeated native scope validation add work; bounds are proposed ceilings, not predictions.",
+    "original_full_provider_reference": {
+      "evidence": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/controls/RESULT.json",
+        "sha256": "40d0914e608632ca9f43e30adf5fabf34abe5c331d207eb3d465413fddf9eeda"
+      },
+      "peak_rss_bytes": 707788800,
+      "read_bytes": 9664516953,
+      "wall_seconds": 178.6231238860637
+    },
+    "output_bytes": 8388608,
+    "threads": 2,
+    "wall_seconds": 1500
+  },
+  "no_fresh_resource_lease": true,
+  "no_gpu_inventory_or_signals_executed": true,
+  "prior_T3_world1_capacity": {
+    "evidence": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/EXIT_initial.json",
+      "sha256": "20933b53c6b1d7f5c96c38effa2c8247649f44fb09d135769c40e4e4d98490ab"
+    },
+    "global_batch": 2,
+    "logical_reads_bytes": 96499264235,
+    "not_a_world4_or_throughput_measurement": true,
+    "peak_rss_bytes": 26880626688,
+    "sample_limit": 32,
+    "updates": 4,
+    "wall_seconds": 635.9094966556877
+  },
+  "schema": "st_temporal_global32_profile_proposed_resources_v1",
+  "sequence": {
+    "all_four_80GiB_slots_are_not_issued": true,
+    "checkpoints_retained": true,
+    "max_native_updates": 488,
+    "max_scene_exposures": 15616,
+    "max_simultaneous_profiles": 1,
+    "maximum_gpu_hours_if_all_hit_native_1h_ceiling": 16,
+    "maximum_gpu_hours_including_four_outer_and_cleanup_envelopes": 17.333333333333332,
+    "no_automatic_retry": true,
+    "per_cell_steady_updates": 200,
+    "prior_profiles_never_formal_initializers": true,
+    "reservation_policy": "Admit one 80GiB slot per actual invocation against fresh remaining commitments; old outputs stay charged. Resource owner may reconcile only proven occupied vs remaining bytes, not silently reuse old holds.",
+    "total_steady_updates": 400
+  },
+  "status": "PROPOSED_NOT_ADMITTED",
+  "training_per_case": {
+    "aggregate_rss_bytes": 206158430208,
+    "checkpoint_reservation_bytes": 85899345920,
+    "cleanup_seconds": 180,
+    "cpu_cores": 8,
+    "cpu_threads_per_rank": 2,
+    "exclusive_devices": true,
+    "gpu_memory_bytes_each": 85899345920,
+    "gpus": 4,
+    "loader_workers": 0,
+    "logical_read_stop_bytes": 1099511627776,
+    "native_seconds": 3600,
+    "new_teacher_tensor_disk_bytes": 0,
+    "outer_seconds": 3720,
+    "proposed_minimum_free_bytes_each": 81604378624,
+    "reason": "Four native ranks each load original student/teacher and validate metadata. Old world1 RSS and VRAM are not world4 qualification.",
+    "rss_sample_seconds": 1,
+    "storage_sample_seconds": 10
+  }
+}
