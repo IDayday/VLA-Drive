@@ -10,6 +10,13 @@ new safety objective, curriculum, search, learned noise, replay, or seed matrix.
 Training and evaluation completion must be established from actual receipts;
 configuration arithmetic is not a result.
 
+2026-10-18 14:47 UTC: both fixed **20k full Navtest observations are complete**,
+including native/shift5 ODE and official v1.0/v1.1. See the
+[full results and version explanation](navtest_20k_results.md). The main
+source-data run gains +0.3087 points in v1.1 native ODE, with a zero-crossing
+log-bootstrap interval and NC/TTC regressions. The 170k training endpoints
+remain in progress; the earlier launch/progress pages are historical snapshots.
+
 ## Source and version boundary
 
 Upstream: [H-EmbodVis/SimWAM](https://github.com/H-EmbodVis/SimWAM/tree/1433ee7e06a62bd8b89da74455df0d82bda7b726),
