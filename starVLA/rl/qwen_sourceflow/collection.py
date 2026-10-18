@@ -25,13 +25,16 @@ def collect(actor, condition, token, log, service, generator, *, variant, versio
     sampling_check=None
     if actor.record_sampling_terms:
         if len(actor.sampling_terms)!=3:raise ValueError('Actual source stochastic sampling window changed')
+        errors=[]
         for i,(mean,std) in enumerate(actor.sampling_terms):
-            torch.testing.assert_close(mean,old['mean'][:,i],rtol=0,atol=0)
-            torch.testing.assert_close(torch.tensor(std,device=old['std'].device,dtype=torch.float32),old['std'][i],rtol=0,atol=0)
-        sampling_check=dict(status='PASS',actual_sample_vs_recompute_mean_std='exact',steps=[7,8,9])
+            errors.append(dict(step=int(indices[i]),mean_max_abs=float((mean-old['mean'][:,i]).abs().max()),
+                std_abs=float((torch.tensor(std,device=old['std'].device,dtype=torch.float32)-old['std'][i]).abs())))
+        sampling_check=dict(status='PASS' if all(e['mean_max_abs']==0 and e['std_abs']==0 for e in errors) else 'FAIL',
+            actual_sample_vs_recompute_mean_std='exact_required',steps=errors)
     torch.cuda.synchronize();probability_seconds=time.monotonic()-begin
     return dict(cond_bg=condition,chain=chain.detach(),timesteps=times,deltas=deltas,stoch_idx=indices,
         old_logp=old_logp,rewards=rewards,old_probability=old,records=records,token=token,log=log,
         behavior_version=version,noise_audit=copy.deepcopy(actor._noise_audit),qualification_sampling_check=sampling_check,
+        qualification_sample_terms=copy.deepcopy(actor.sampling_terms) if actor.record_sampling_terms else None,
         seconds=dict(rollout=rollout_seconds,scoring_wait=scoring_seconds,old_probability=probability_seconds,
             scoring_cpu=sum(r['scoring_seconds'] for r in records)),protocol_sha256=service.protocol['sha256'])

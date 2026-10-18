@@ -71,7 +71,9 @@ class NativeRecipeActor(RecipeActor):
         self._reference_calls+=int(use_ref);self._velocity_calls+=int(not use_ref)
         runner=self.reference_runner if use_ref else self.current_runner
         with torch.autocast(self.device.type,enabled=False):
-            value=runner(latents_action.float(),timestep_action.float(),cond)
+            # Saved chain[:, k] has a different batch stride from the actual
+            # rollout state. Pin the same GEMM input layout before both paths.
+            value=runner(latents_action.float().contiguous(),timestep_action.float().contiguous(),cond)
         if not torch.isfinite(value).all():raise FloatingPointError('Nonfinite native source velocity')
         return value
 

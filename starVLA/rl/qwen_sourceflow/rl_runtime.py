@@ -71,3 +71,8 @@ class NativeRuntime:
         result.update(frozen_observation_before=self.observation_before,frozen_observation_after=after,
             prefill_calls_this_invocation=self.conditions.prefill_calls,prefill_seconds_this_invocation=self.conditions.prefill_seconds,
             prefill_cost_included_in_rollout=True)
+
+    def validate_collection(self,rollout):
+        check=rollout['qualification_sampling_check']
+        if check and check['status']!='PASS':
+            raise ValueError('Actual sampling/recompute mismatch; full partial chain retained: '+repr(check))

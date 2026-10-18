@@ -13,6 +13,26 @@ from .contracts import file_sha
 from .il_optimization import validate_optimizer
 
 
+def publish_identity(root, identity, *, resume):
+    """Rank0 owns publication; late ranks must not misread it as an old run."""
+    rank=dist.get_rank() if dist.is_initialized() else 0
+    if dist.is_initialized():dist.barrier()
+    path=Path(root)/'identity.json';error=None
+    try:
+        if rank==0:
+            if path.exists():
+                if not resume or json.loads(path.read_text())!=identity:
+                    raise ValueError('Existing run requires exact resume')
+            else:atomic_json(path,identity)
+    except Exception as exc:error=repr(exc)
+    common.check_errors(error)
+    error=None
+    try:
+        if json.loads(path.read_text())!=identity:raise ValueError('Ranks disagree on IL identity')
+    except Exception as exc:error=repr(exc)
+    common.check_errors(error)
+
+
 def save(root,model,optimizer,scheduler,state,identity):
     rank=dist.get_rank() if dist.is_initialized() else 0
     world=dist.get_world_size() if dist.is_initialized() else 1

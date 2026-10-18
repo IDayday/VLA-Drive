@@ -200,6 +200,7 @@ def main(runtime=None):
                     if runtime is not None and hasattr(runtime,'collect'):
                         rollout=runtime.collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
                                                 variant=cfg['variant'],version=version,progress=invocation.event)
+                        if hasattr(runtime,'validate_collection'):runtime.validate_collection(rollout)
                     else:
                         rollout=collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
                                         act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version,progress=invocation.event)

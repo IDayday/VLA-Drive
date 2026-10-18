@@ -74,9 +74,7 @@ def main():
         data_identity=data.sha,initialization_identity=json.loads(Path(a.initialization).with_suffix('.identity.json').read_text()),
         qwen_identity=json.loads((ROOT/'assets/qwen_identity.json').read_text()),source_files=source_files())
     identity['sha256']=fingerprint(identity)
-    if (out/'identity.json').exists():
-        if not a.resume or json.loads((out/'identity.json').read_text())!=identity:raise ValueError('Existing run requires exact resume')
-    elif rank==0:atomic_json(out/'identity.json',identity)
+    il_checkpoint.publish_identity(out,identity,resume=bool(a.resume))
     state=dict(updates=0,cursor=0,phase='READY')
     random.seed(42+rank);np.random.seed(42+rank);torch.manual_seed(42+rank)
     if a.resume:state=il_checkpoint.restore(a.resume,model,optimizer,scheduler,identity)

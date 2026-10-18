@@ -18,22 +18,22 @@ from starVLA.rl.qwen_sourceflow.loading import inspect_il
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
-def jobs(root):
+def jobs(root,il_run):
     for update in (20000,40000,60000,80000,100000):
         yield dict(name=f'IL_update{update:06d}_DEV',update=update,
-            checkpoint=str(root/'runs/IL_seed42_v1/checkpoints'/f'update{update:06d}'),
+            checkpoint=str(il_run/'checkpoints'/f'update{update:06d}'),
             output=str(root/'evaluations'/f'IL_update{update:06d}_DEV'),
             summary=str(root/'analysis'/f'IL_update{update:06d}_DEV.json'))
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--root',default=str(ROOT));p.add_argument('--once',action='store_true');a=p.parse_args()
-    require_dispatch();source=Path(a.source).resolve();root=Path(a.root);control=root/'milestone_queue';control.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--root',default=str(ROOT));p.add_argument('--il-run',required=True);p.add_argument('--control-dir',required=True);p.add_argument('--once',action='store_true');a=p.parse_args()
+    require_dispatch();source=Path(a.source).resolve();root=Path(a.root);control=Path(a.control_dir);control.mkdir(parents=True,exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Queue owner must be CPU-only')
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()
     if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Evaluation snapshot must be immutable')
-    identity=dict(schema='native_IL_five_DEV_queue_v1',source=str(source),source_sha=sha,jobs=list(jobs(root)))
+    identity=dict(schema='native_IL_five_DEV_queue_v1',source=str(source),source_sha=sha,jobs=list(jobs(root,Path(a.il_run))))
     if (control/'identity.json').exists() and json.loads((control/'identity.json').read_text())!=identity:raise ValueError('Changed queue identity')
     atomic_json(control/'identity.json',identity)
     atomic_json(control/'owner.json',dict(pid=os.getpid(),start_unix=time.time()))
