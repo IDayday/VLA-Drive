@@ -1,0 +1,47 @@
+{
+  "schema": "rollout_scale_implementation_v1",
+  "status": "IMPLEMENTED_CPU_GLOO_TESTED_NOT_FORMAL_APPROVAL",
+  "created_utc": "2026-10-18T17:26:07.463036+00:00",
+  "source_start_commit": "941e55aef135cf596dd374029146780c3a807d58",
+  "branch": "impl/rollout-scale-20261018",
+  "method": "scene_center_rollout_std_v1",
+  "owned_source": {
+    "starVLA/model/modules/flow_posttraining/advantage_scale.py": {
+      "bytes": 14278,
+      "sha256": "eb8310f285c2f70d2e06428ba5410b0bb9695ec6693af02ba04be931d1874f9d"
+    },
+    "tests/st_world/test_advantage_scale.py": {
+      "bytes": 16113,
+      "sha256": "b7bee9b494116eec111e164cc0b75393d3ec16a365972dc697b5195b1746846c"
+    }
+  },
+  "tests": {
+    "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 timeout --signal=TERM --kill-after=5 120 /root/miniconda3/envs/ddp/bin/python -m pytest tests/st_world/test_advantage_scale.py -q",
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "warning": "existing pynvml package deprecation",
+    "pytest_wall_seconds": 3.6,
+    "log_sha256": "0b2a6b202c853473f2652baf263c342f986d5004daafdc94cbf16595fd4c244d",
+    "gloo_processes": 2,
+    "gloo_threads_per_process": 1,
+    "gloo_timeout_seconds": 20,
+    "distributed_scenarios": 14
+  },
+  "scope": {
+    "synthetic_tensors": true,
+    "GPU": false,
+    "model_or_checkpoint_loaded": false,
+    "real_reward_or_scene_access": false,
+    "official_scoring": false,
+    "optimizer_updates": 0,
+    "RNG_consumed_by_normalizer": false,
+    "shared_trainer_or_config_modified": false
+  },
+  "remaining": [
+    "Lead trainer/config/native-receipt integration",
+    "Independent correctness and systems review bound to integrated commit",
+    "Actual NCCL and real bounded pipeline SMOKE/PROFILE",
+    "Formal permission and scientific evaluation remain separate"
+  ]
+}
