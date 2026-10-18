@@ -34,7 +34,7 @@ MSE384 = (256 MSE_common + 128 MSE_tail) / 384.
 
 只有左侧不能确定 dot 的符号；两次训练还具有不同参数、输出头和坐标系数。先在已明确共享、两项均有梯度的参数上区分 FM、公共 256 和额外 128，后两项均用原 384 分母，并核验其梯度和等于原辅助梯度。`DDPForesight.encode_current/build_planner_condition` 确认最终 gathered W 与 action states 是同一语言输出的不同分支，不能以 `grad(FM, gathered_W)` 代替共享语言路径。若做分布式统计，应先正确合并梯度，再求 dot/cosine，不能平均各 rank 的 cosine。
 
-已有 `calibration_measurement.py::{shared_groups,measure,gradient_summary}` 可提供随机状态保护、独立干净模型副本、无 optimizer 更新和分组统计，但只覆盖末层语言 block/W queries，且是单进程。`measure` 当前严格要求 ego/current/future/delta 四项；它**不是现成的 SP2 common/tail CLI**。后续若获授权，所需只是给这些既有诊断补上明确的公共/尾部任务接线及加和校验；不能称已测整个 LLM 或获得 ZeRO2 等价性。本次没有改动或执行该路径。
+已有 `calibration_measurement.py::{shared_groups,measure,gradient_summary}` 可提供随机状态保护、独立干净模型副本、无 optimizer 更新和分组统计，但只覆盖末层语言 block/W queries，且是单进程。`measure` 当前严格要求 ego/current/future/delta 四项；它**不是现成的 SP2 common/tail CLI**。在现有授权范围内落实具体诊断预算后，所需只是给这些既有诊断补上明确的公共/尾部任务接线及加和校验；不能称已测整个 LLM 或获得 ZeRO2 等价性。本次没有改动或执行该路径。
 
 论文支持的是条件性顺序。DINO-Foresight 的 PCA 消融和损失消融见全文附录 A.1/A.5：Table 10 的 MSE 与 SmoothL1 结果接近，不能推出稳健损失普遍胜出；固定官方源码确认逐通道标准化、非白化 PCA 和默认 `SmoothL1(beta=0.1)`。[论文全文](https://arxiv.org/html/2412.11673v2)、[固定 PCA 源码](https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/pca.py)、[固定损失源码](https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/src/dino_f.py)。
 
