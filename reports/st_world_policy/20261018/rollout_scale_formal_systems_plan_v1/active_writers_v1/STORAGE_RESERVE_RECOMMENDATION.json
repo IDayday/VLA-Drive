@@ -1,0 +1,58 @@
+{
+  "schema": "formal_storage_reserve_recommendation_v1",
+  "status": "DRAFT_ADMISSION_INPUT_NOT_LAUNCH_APPROVAL",
+  "GiB_bytes": 1073741824,
+  "own_formal_GiB": 209,
+  "shared_free_floor_GiB": 1024,
+  "unresolved_existing_claims_GiB": 4,
+  "other_active_IL_remaining_GiB": 292,
+  "total_free_admission_GiB": 1529,
+  "total_free_admission_bytes": 1641751248896,
+  "derivation": {
+    "full_qualification_checkpoint_file_stats": {
+      "optimizer.pt": 26785012259,
+      "COMPLETE": 197,
+      "rank1.pt": 14360,
+      "rank0.pt": 14360,
+      "identity.json": 208171,
+      "files.json": 421,
+      "model.pt": 13392370565
+    },
+    "full_qualification_checkpoint_bytes": 40177620333,
+    "full_checkpoint_registered_cap_bytes": 40802189312,
+    "registration_estimate_not_runtime_hard_cap": true,
+    "measured_headroom_per_full_checkpoint_bytes": 624568979,
+    "peak_complete_and_inflight_checkpoint_count": 8,
+    "existing_1000step_checkpoint_file_stats": {
+      "rank7.pt": 14360,
+      "rank3.pt": 14424,
+      "rank2.pt": 14360,
+      "optimizer.pt": 1596573682,
+      "rank4.pt": 14360,
+      "COMPLETE": 204,
+      "rank1.pt": 14360,
+      "rank5.pt": 14360,
+      "rank6.pt": 14424,
+      "rank0.pt": 14360,
+      "identity.json": 209061,
+      "files.json": 913,
+      "model.pt": 13392370565
+    },
+    "existing_1000step_checkpoint_bytes": 14989269433,
+    "future_small_logs_metadata_allowance_bytes": 1073741824,
+    "formula": "ceil((8*38GiB - already occupied checkpoint bytes + 1GiB future small logs/metadata)/GiB)",
+    "subtract_existing_once": true,
+    "retired_payload_space_not_assumed_until_existing_verified": true
+  },
+  "storage_semantics": {
+    "metric": "peak additional simultaneous occupancy, not cumulative checkpoint write traffic",
+    "all_hosts_share_one_project_filesystem": true,
+    "no_duplicate_host_free_sum": true,
+    "no_checkpoint_cleanup_requested_or_performed": true,
+    "completed_or_paused_other_tasks_future_writes_not_automatically_reserved": true,
+    "profile_future_allowance": "zero only after completion and all owned processes exit; occupied files remain in df accounting",
+    "runtime_rule": "Recheck fresh free space and active-writer set at admission. Own monitor preserves floor plus other remaining commitments; if external footprint exceeds projection, safely stop only owned formal run."
+  },
+  "snapshot_free_bytes": 3544741150720,
+  "snapshot_headroom_after_all_reserves_bytes": 1902989901824
+}
