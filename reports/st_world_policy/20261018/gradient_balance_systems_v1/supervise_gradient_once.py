@@ -269,7 +269,8 @@ def validate_admission(path):
         pin=a['reviews'][kind];review=small_json(pin['path'],pin['sha256'])
         if (review.get('status')!='APPROVE_GRADIENT_BALANCE_EXECUTION' or review.get('review_kind')!=kind
             or review.get('reviewer') in (None,'','/root/road_proxy_systems_review')
-            or review.get('registration_sha256')!=REG_SHA or review.get('wrapper_sha256')!=self_hash):
+            or review.get('source_sha')!=SOURCE or review.get('registration_sha256')!=REG_SHA
+            or review.get('wrapper_sha256')!=self_hash):
             raise ValueError('Independent exact '+kind+' review required')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=RUNTIME,text=True,timeout=10).strip()!=SOURCE:
         raise ValueError('Frozen runtime changed')
