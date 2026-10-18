@@ -57,3 +57,21 @@ timeout 120s taskset -c 12,13 env CUDA_VISIBLE_DEVICES='' \
 Result14 passed (one installed-pynvml deprecation warning), no GPU and no actual
 source image/raw/model reads. Two metadata-only census commands and actual
 resource evidence are retained in their JSONs. No builder has been started.
+
+The initial14-test result is retained, not treated as final qualification.
+After the independent missing-view/root-precedence counterexamples, the narrow
+fix was tested with the reviewer's original test file as well:
+
+```bash
+cd /mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018
+env CUDA_VISIBLE_DEVICES='' PYTHONPATH=. taskset -c 12,13 timeout 120 \
+ python -m pytest -q \
+ reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/test_resume.py \
+ /mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/history_resume_strict_correctness_v1/test_independent_resume.py
+```
+
+Observed24 passed in4.41s, recorded in `TEST_PATH_SELECTION_FIX.log` and
+`PATH_SELECTION_FIX.json`. Independent admission must bind the updated helper
+and `ADMISSION_PROPOSAL.json` hashes; the old helper is not approved. The plan,
+entry, original native source and resource limits are unchanged. No real
+source-image rehash or resumed builder is included in this verification.

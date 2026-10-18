@@ -92,6 +92,11 @@ The resume overlay:
 2. Retains the original fresh hashing of raw logs and current/ego records. For
    every reused scene, actual raw SHA and current-record identity must equal
    those recorded in the committed history; causal offsets/tolerance/log match.
+   Re-executes native `causal_frames` on those actual raw frames and compares
+   the selected token/timestamp/offset. Every camera, including missing views,
+   re-executes native `resolve_camera_path` with the original ordered roots.
+   Changed absence, root precedence, resolved path or sensor exposure fails;
+   it cannot silently keep an old mask or rebuild the committed record.
 3. Rehashes each distinct historical image against its old committed SHA on
    first use, with before/after dev/inode/size/mtime/ctime checks. It checks the
    same full version for subsequent repeated references. Same-path mutations,
@@ -125,9 +130,26 @@ bind a fresh reconciled checkpoint obligation receipt that fits for the entire
 attempt, current free space, writer quiescence and the original nonblocking
 global/ledger locks. No outdated3.701TB remaining number is hardcoded.
 
-Author CPU tests:14 passed. They include same-size/restored-mtime corruption,
+Initial author CPU tests:14 passed. They include same-size/restored-mtime corruption,
 post-verification inode replacement, source/causal mismatch, shard checksum/
 self-hash/prefix corruption, original uncovered-scene equivalence, scoped
 parser and budget restoration, and preservation of first child failure evidence.
 These are generated-file fixtures, not a new real-image resume or independent
 PASS. Actual78,657-scene reuse/22,935-scene completion remains NOT_EXECUTED.
+
+## Independent counterexamples and narrow correction
+
+Independent review of commit `1cedf897` found that input bytes could be unchanged
+while the chosen image path changes: a previously missing image can appear,
+or a newly present primary-root file can supersede an old fallback. The first
+14 tests did not cover these cases. That implementation is not qualified for
+real resume. The correction above retains the existing writer and once-per-
+unique-image SHA verification; only frame/path selection is re-evaluated.
+
+`TEST.log` preserves the original evidence. `TEST_PATH_SELECTION_FIX.log`
+records24 passed in4.41s:18 owner tests plus6 tests from the independent
+reviewer's unchanged source. Added tests also cover a view disappearing,
+unchanged missing views, unchanged fallback selection, and selected-frame
+identity mismatch. These are fixture tests; independent acceptance remains
+separate. `PATH_SELECTION_FIX.json` binds the exact amended helper, proposal,
+entry, unchanged plan and both test sources. No real builder was launched.

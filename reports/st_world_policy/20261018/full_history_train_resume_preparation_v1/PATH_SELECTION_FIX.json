@@ -1,0 +1,58 @@
+{
+  "admission_proposal": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/ADMISSION_PROPOSAL.json",
+    "sha256": "342ef855554c356c05b615b1727b0c243f163f6da8111d3d975db40fd1fe71be"
+  },
+  "budgets_changed": false,
+  "counterexamples": [
+    "missing image later appears",
+    "new primary-root file supersedes old fallback"
+  ],
+  "cpu_test_command": "env CUDA_VISIBLE_DEVICES='' PYTHONPATH=. taskset -c 12,13 timeout 120 python -m pytest -q reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/test_resume.py /mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/history_resume_strict_correctness_v1/test_independent_resume.py",
+  "created_utc": "2026-10-18T14:26:40.190626+00:00",
+  "entry": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/run_resume_once.py",
+    "sha256": "04099e59b7c137ab1520b647a0529c867904107fa0fd8942de2ac0f49f948858"
+  },
+  "fix": "Re-run original causal_frames and every resolve_camera_path using ordered roots, including absent views; reject changed frame/token/timestamp/path/mask before committed-record reuse.",
+  "helper": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/resume_records.py",
+    "sha256": "22d059a9753ae2a2dadbea6db2ab97a67a8993804372a53d2341929a4079a360"
+  },
+  "independent_correctness_verdict": "PENDING",
+  "native_source_changed": false,
+  "native_writer_changed": false,
+  "observed_cpu_tests": {
+    "failed": 0,
+    "own": 18,
+    "passed": 24,
+    "reviewer_file": 6,
+    "seconds": 4.41
+  },
+  "original_test_log_preserved": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/TEST.log",
+    "sha256": "9596ef5904c9d672b00577424dd74943633fc9fd1bc3e9190078315ee252a800"
+  },
+  "plan": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/FULL_ROLE_PLAN.json",
+    "sha256": "00746c8aa133558369bee39dc4d011ccc5a36bc0d2a352fc0c7ccf8f7e6c5d34"
+  },
+  "real_history_resume_executed": false,
+  "resource_admission": "NOT_ISSUED",
+  "schema": "st_history_resume_path_selection_fix_v1",
+  "supersedes_source_commit": "1cedf89786bfd52c4a903164c06c9d66a80a73f8",
+  "test_log": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/TEST_PATH_SELECTION_FIX.log",
+    "sha256": "23382d659c9a4ba570225d5bc073e9705c8ced85d7bc947d406573495364542e"
+  },
+  "test_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/test_resume.py",
+      "sha256": "e0526207a7730515a4b3946c9d91edc7bed2c45f530ff8ac1786424a4b7a15fb"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/history_resume_strict_correctness_v1/test_independent_resume.py",
+      "sha256": "6e12c7d394fbd6b40fc7fc0681caccb2e2ebe373716810d12c36b0acebb30559"
+    }
+  ]
+}

@@ -116,7 +116,7 @@ class CommittedHistoryRecords:
         self.verified_images[key] = (dict(ref), self._version(after))
         self.rehashed_image_bytes += amount
 
-    def get(self, token, log, current, raw_sha, *, offsets, tolerance, sensor_roots):
+    def get(self, token, log, current, raw_sha, *, frames, offsets, tolerance, sensor_roots):
         row = self.rows.get(token)
         if row is None:
             self.new += 1
@@ -134,12 +134,35 @@ class CommittedHistoryRecords:
                 record['offsets_s'] != list(offsets) or
                 record['timestamp_tolerance_s'] != tolerance):
             raise ValueError('Committed history differs from actual source/current/causal contract')
+        # A source-log SHA alone does not bind mutable sensor-root contents.
+        # Re-run the native causal selection and ordered path resolution even
+        # for absent views: a new file or higher-priority root must not silently
+        # change the original mask/path while we reuse its committed record.
+        raw_current, past = self.history.causal_frames(frames, token, offsets, tolerance)
+        t0 = int(raw_current['timestamp'])
+        if (current['token'] != token or current['log'] != log or
+                current['timestamp'] != t0 or len(current['image_paths']) != len(self.history.VIEWS)):
+            raise ValueError('Current observation/raw-log binding changed')
         roots = [Path(p).resolve() for p in sensor_roots]
-        for frame in record['frames']:
-            for view in frame['views']:
+        for frame, selected in zip(record['frames'], past):
+            selected_token = selected['token'] if selected is not None else None
+            selected_time = int(selected['timestamp']) if selected is not None else None
+            selected_offset = (selected_time - t0) / 1e6 if selected_time is not None else None
+            if (frame['token'] != selected_token or frame['timestamp_us'] != selected_time or
+                    frame['actual_offset_s'] != selected_offset):
+                raise ValueError('Committed causal frame selection changed')
+            for name, view in zip(self.history.VIEWS, frame['views']):
+                meta = selected.get('cams', {}).get(name) if selected is not None else None
+                path = self.history.resolve_camera_path(meta['data_path'], sensor_roots) if meta else None
                 ref = view['image']
+                if ((path is None) != (ref is None) or view['valid'] != (path is not None) or
+                        (path is not None and str(path.resolve()) != ref['path'])):
+                    raise ValueError('Committed camera path/absence changed in ordered sensor roots')
                 if ref is None:
                     continue
+                sensor_time = int(meta['timestamp']) if 'timestamp' in meta else None
+                if sensor_time != view['sensor_timestamp_us'] or (sensor_time is not None and sensor_time > t0):
+                    raise ValueError('Committed sensor exposure timestamp changed')
                 self._verify_image(ref, roots)
                 # Original image_reference charges a full-file header bound and
                 # actual full-file SHA. Neither is repeated on this resume path.
@@ -157,6 +180,7 @@ class CommittedHistoryRecords:
             rehashed_unique_image_bytes=self.rehashed_image_bytes,
             saved_registered_image_reference_bytes=self.saved_history_image_reference_bytes-self.rehashed_image_bytes,
             source_raw_hash_and_current_identity_rechecked=True,
+            native_causal_frames_and_all_ordered_view_paths_rechecked=True,
             current_teacher_image_path_unchanged=True,
             image_reuse_contract='each unique image rehashed against prior SHA; repeat uses same-invocation dev/ino/size/mtime/ctime')
 
@@ -200,7 +224,7 @@ def resume_original_writer(*, writer, original, bounded, history, schema, record
                        raw_log_sha256, offsets_s=(-1.0, -0.5), tolerance_s=.05):
         records = state['records']
         result = records.get(token, log, current_record, raw_log_sha256,
-            offsets=offsets_s, tolerance=tolerance_s, sensor_roots=sensor_roots)
+            frames=frames, offsets=offsets_s, tolerance=tolerance_s, sensor_roots=sensor_roots)
         if result is None:
             return build(frames, token, log, current_record, sensor_roots,
                 raw_log_sha256=raw_log_sha256, offsets_s=offsets_s,

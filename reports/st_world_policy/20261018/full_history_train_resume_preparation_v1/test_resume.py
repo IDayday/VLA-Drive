@@ -51,7 +51,7 @@ def cache(p):
 
 def get(c, p, **kwargs):
     root, images, frames, current, record, census, limits = p
-    args=dict(offsets=(-1.,-.5), tolerance=.05, sensor_roots=[images])
+    args=dict(frames=frames, offsets=(-1.,-.5), tolerance=.05, sensor_roots=[images])
     args.update(kwargs)
     return c.get('t2','log',current,'a'*64,**args)
 
@@ -81,6 +81,49 @@ def test_after_first_hash_same_content_replacement_rejected_by_inode(tmp_path):
     with pytest.raises(ValueError,match='after this invocation'):get(c,p)
 
 
+def replace_committed(p, record):
+    raw = record_bytes(record)
+    (p[0]/'history_shards'/p[5]['rows'][0]['name']).write_bytes(raw)
+    p[5]['rows'][0].update(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+    p[4] = record
+
+
+def test_missing_view_stays_missing_but_later_file_rejected(tmp_path):
+    p=list(package(tmp_path))
+    image=Path(p[4]['frames'][0]['views'][0]['image']['path'])
+    raw=image.read_bytes();image.unlink()
+    old=history.build_history_record(p[2],'t2','log',p[3],[p[1]],raw_log_sha256='a'*64)
+    assert old['frames'][0]['views'][0]['valid'] is False
+    replace_committed(p,old)
+    c=cache(p)
+    assert get(c,p)==old
+    image.write_bytes(raw)
+    with pytest.raises(ValueError,match='path/absence'):get(c,p)
+
+
+def test_primary_root_takes_precedence_even_for_identical_image_bytes(tmp_path):
+    p=package(tmp_path);primary=tmp_path/'primary';primary.mkdir()
+    c=cache(p)
+    assert get(c,p,sensor_roots=[primary,p[1]])==p[4]
+    image=Path(p[4]['frames'][0]['views'][0]['image']['path'])
+    (primary/image.name).write_bytes(image.read_bytes())
+    with pytest.raises(ValueError,match='path/absence'):
+        get(c,p,sensor_roots=[primary,p[1]])
+
+
+def test_committed_view_removed_rejected_without_rebuilding(tmp_path):
+    p=package(tmp_path);c=cache(p)
+    Path(p[4]['frames'][0]['views'][0]['image']['path']).unlink()
+    with pytest.raises(ValueError,match='path/absence'):get(c,p)
+    assert c.new==0 and c.reused==0
+
+
+def test_actual_causal_frame_selection_is_rechecked(tmp_path):
+    p=package(tmp_path);c=cache(p);frames=copy.deepcopy(p[2])
+    frames[0]['token']='changed-past-token'
+    with pytest.raises(ValueError,match='causal frame selection'):get(c,p,frames=frames)
+
+
 @pytest.mark.parametrize('field',['raw','current','tolerance','offset'])
 def test_source_and_causal_contract_mismatch_rejected(tmp_path,field):
     p=package(tmp_path);c=cache(p)
@@ -90,7 +133,7 @@ def test_source_and_causal_contract_mismatch_rejected(tmp_path,field):
     if field=='tolerance':tolerance=.04
     if field=='offset':offsets=(-1.,)
     with pytest.raises(ValueError,match='source/current/causal'):
-        c.get('t2','log',current,raw,offsets=offsets,tolerance=tolerance,sensor_roots=[p[1]])
+        c.get('t2','log',current,raw,frames=p[2],offsets=offsets,tolerance=tolerance,sensor_roots=[p[1]])
 
 
 @pytest.mark.parametrize('kind',['checksum','missing','extra','selfhash','prefix'])
