@@ -1,0 +1,82 @@
+{
+  "schema": "st_rollout_resume_smoke_correctness_delta_v2_review",
+  "status": "PASS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "recorded_utc": "2026-10-18T20:29:12.573245+00:00",
+  "binding_sha256": "396accfd1ea8691ded34c2d1969e653e294f69fd90340c08478ba64e0e6a351b",
+  "binding_artifact": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2_admission/BINDING_DRAFT.json",
+    "sha256": "4e3fcc3cb13e2d77a9efa9f7b382b4825d35fa09bb02f11bb6a18fed3a6f02a9"
+  },
+  "controller_commit": "01d8dc4733feb98e562eb9a4f66bd4e56c9db114",
+  "controller_sha256": "763aa49047179040ecb130ec5a843272b656dab25a089a47cf937063d811f137",
+  "runtime_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "parent_source_review": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/REVIEW.json",
+    "sha256": "9f8549d73fd743161bae0b1a59c58a0b5c96d3bef27adb3b326772dad85ee24a"
+  },
+  "parent_binding_review_historical_only": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/BOUND_REVIEW.json",
+    "sha256": "eba90bf397a8a53010c251d0ca65b1c724a626739934b0e7c75dc84bb9954b7f"
+  },
+  "review_scope": [
+    "Cold route_checks tools import bootstrap",
+    "New immutable v2 output namespace",
+    "Exact fresh v2 metadata binding"
+  ],
+  "findings": {
+    "actual_v1_failure": "Cold outer driver could not import tools in fresh_environment_v3; no trainer or official score started.",
+    "original_test_gap": "Original51 fixtures mocked route_checks and did not exercise this cold actual metadata import. Historical approvals/results remain unchanged and the actual failure is preserved.",
+    "repair": "Insert exact frozen RUNTIME sys.path before helpers in route_checks; ROOT explicitly v2 avoids modifying immutable prepared v1 metadata.",
+    "AST_confirmation": "After normalizing only these two edits, complete controller AST equals parent19a5.",
+    "negative_test": "Old19a5 in isolated-I cold process reproduces ModuleNotFoundError tools.",
+    "positive_test": "New01d8 in isolated-I cold process imports actual751 training_config and compares actual CPU environment metadata, then deliberately stops before mount/GPU/model/trainer checks."
+  },
+  "approved_scope": "Same finite disposable SMOKE only:8 total optimizer updates,1024 official calls total,zero retries,32TRAIN,original4096/warm100 schedule; no formal initializer.",
+  "new_budget": false,
+  "prior_v1_consumed_updates": 0,
+  "prior_v1_consumed_official_calls": 0,
+  "new_actual_GPU_native_resume_result": "PENDING_REAL_EXECUTION",
+  "formal_training_approval": false,
+  "required_before_dispatch": [
+    "Independent Systems approval for this exact new binding",
+    "Fresh controller live host/UUID/RAM/disk/ownership/time checks",
+    "Lead sole dispatcher"
+  ],
+  "tests": {
+    "affected_cases_passed": 2,
+    "old51_suite_rerun": false,
+    "no_model_native_image_payload_read": true,
+    "GPU_calls": 0,
+    "official_calls": 0
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/TEST_RESULT.json",
+      "sha256": "4667eb58461c0f50c9de7aeef1f98a1986fa93a13b154863888ee26c49edac1e"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/BINDING_VERIFICATION.json",
+      "sha256": "c1d01f14f7a225220ba0dc44e8ddce4c70a830d8c713d93c4a4f8c90049359a3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/cold_metadata_probe.py",
+      "sha256": "e641e79e4d974ca02043e22f1397dd1b51dc8953f3c9564f0756c1ff8c232351"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/run_delta_review.py",
+      "sha256": "3afa4a9f6fd380c290873a72f88319876b517bae4bb344a646cc72bbb7946598"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/REVIEW.json",
+      "sha256": "9f8549d73fd743161bae0b1a59c58a0b5c96d3bef27adb3b326772dad85ee24a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/NARROW_TEST.log",
+      "sha256": "927a192030bb930ee23c30c7d1cf417a9a050092de14d782a62231ec32f3871b"
+    }
+  ],
+  "old_evidence_preserved": true,
+  "runtime751_and_formal_run_unchanged": true
+}

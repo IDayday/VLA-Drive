@@ -1,0 +1,35 @@
+{
+  "schema": "native_resume_cold_import_delta_test_v2",
+  "parent": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+  "source": "01d8dc4733feb98e562eb9a4f66bd4e56c9db114",
+  "controller_sha256": "763aa49047179040ecb130ec5a843272b656dab25a089a47cf937063d811f137",
+  "AST_only_changes": [
+    "ROOTv1->v2",
+    "route_checks imports runtime path before helpers"
+  ],
+  "tests": [
+    {
+      "source": "old19a5",
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "stdout": "{\"status\": \"REPRODUCED_OLD_COLD_IMPORT_FAILURE\", \"error\": \"No module named 'tools'\", \"GPU_calls\": 0, \"trainer_calls\": 0, \"model_loads\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "source": "01d8dc4733feb98e562eb9a4f66bd4e56c9db114",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"status\": \"PASS_COLD_METADATA_IMPORT\", \"module\": \"/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/training_config.py\", \"GPU_calls\": 0, \"trainer_calls\": 0, \"model_loads\": 0}\n",
+      "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+    }
+  ],
+  "wall_seconds": 4.204166240990162,
+  "waited_child_CPU_seconds": 3.9334189999999998,
+  "maximum_child_RSS_bytes": 657649664,
+  "sequential_children_no_concurrent_process_groups": true,
+  "previous51_suite_rerun": false,
+  "GPU_calls": 0,
+  "official_calls": 0,
+  "trainer_calls": 0,
+  "model_native_image_payload_loads": 0
+}
