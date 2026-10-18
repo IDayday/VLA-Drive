@@ -1,0 +1,612 @@
+{
+  "schema": "independent_initial_boundary_match_v1",
+  "status": "PASS_INITIAL_BOUNDARY_EXACT_MATCH",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "scope": "Only step0 rollout before any optimizer update;4rank32scene128candidate",
+  "runs": {
+    "legacy": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+    "profile": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1"
+  },
+  "boundary": 0,
+  "rows": [
+    {
+      "rank": 0,
+      "scene_ids_order_equal": true,
+      "scene_ids": [
+        "04fad1655cf6567d",
+        "14b44023a6c85565",
+        "2a115e4d42ea5063",
+        "a80042e5ec0d55db",
+        "335db6fc7ff25773",
+        "88c17ac7d9fc5cbc",
+        "0e838454f16f5573",
+        "9ff1b65c1a0656db"
+      ],
+      "observations_equal": true,
+      "conditions_equal": true,
+      "old_policy_equal": true,
+      "old_policy_legacy": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "old_policy_profile": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "rollout_id_equal": true,
+      "raw_actions": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "cb9d1eb0db94f435579ef6746bf095c896a8eb5d30eca0cb43b2005a3de98022",
+        "profile_sha256": "cb9d1eb0db94f435579ef6746bf095c896a8eb5d30eca0cb43b2005a3de98022"
+      },
+      "initial_noise": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "1baac2af896031da5c3ec16bf6977e151ff262428d1bdd47f6d72bf291d2b9e4",
+        "profile_sha256": "1baac2af896031da5c3ec16bf6977e151ff262428d1bdd47f6d72bf291d2b9e4"
+      },
+      "reward": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "634001747570fecbd2c51b51df1d5c3d1a8067e324919c15dcd3d4b075bbb96d",
+        "profile_sha256": "634001747570fecbd2c51b51df1d5c3d1a8067e324919c15dcd3d4b075bbb96d"
+      },
+      "valid": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.bool",
+        "profile_dtype": "torch.bool",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a",
+        "profile_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a"
+      },
+      "statuses_equal": true,
+      "context_hashes_equal": true,
+      "score_protocol_equal": true,
+      "old_cfm": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "59d40862c6fbfb105d5aaa2c87bd9fa90c75d86bf54cf79c9c33033fa6f311c1",
+        "profile_sha256": "59d40862c6fbfb105d5aaa2c87bd9fa90c75d86bf54cf79c9c33033fa6f311c1"
+      },
+      "mc_noise": {
+        "equal": true,
+        "shape": [
+          32,
+          50,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "4ecc08d30f393525eca5b25786ac3bd6731ac93db7492287e2373faa43e58b55",
+        "profile_sha256": "4ecc08d30f393525eca5b25786ac3bd6731ac93db7492287e2373faa43e58b55"
+      },
+      "mc_times": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "d02db4545314ed328b73a4c621fed90026d8947137060fa2564ad53ac416f07a",
+        "profile_sha256": "d02db4545314ed328b73a4c621fed90026d8947137060fa2564ad53ac416f07a"
+      }
+    },
+    {
+      "rank": 1,
+      "scene_ids_order_equal": true,
+      "scene_ids": [
+        "d1b9cbd17ba452ab",
+        "78a8df901b5c55c7",
+        "db3520413f575966",
+        "32f720ded89d5542",
+        "3072f80406be50eb",
+        "5f7f272ab0db566c",
+        "4dc71b41533d5752",
+        "3cd1fbcfe29050bc"
+      ],
+      "observations_equal": true,
+      "conditions_equal": true,
+      "old_policy_equal": true,
+      "old_policy_legacy": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "old_policy_profile": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "rollout_id_equal": true,
+      "raw_actions": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "e2781bbbbdb0a58dbfe431882b80cfae13f2a8a8cebda8e13c75116a444e5ef9",
+        "profile_sha256": "e2781bbbbdb0a58dbfe431882b80cfae13f2a8a8cebda8e13c75116a444e5ef9"
+      },
+      "initial_noise": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "06e09253decc111463c321f0b8491b652b5ca8b211848d382fe4384b6d311cb5",
+        "profile_sha256": "06e09253decc111463c321f0b8491b652b5ca8b211848d382fe4384b6d311cb5"
+      },
+      "reward": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "a2b41ccc48a055c374762829f96953a91cd171eac572194f348e7d836099a369",
+        "profile_sha256": "a2b41ccc48a055c374762829f96953a91cd171eac572194f348e7d836099a369"
+      },
+      "valid": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.bool",
+        "profile_dtype": "torch.bool",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a",
+        "profile_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a"
+      },
+      "statuses_equal": true,
+      "context_hashes_equal": true,
+      "score_protocol_equal": true,
+      "old_cfm": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "7c9c465488cf45a8711fe461c9adac54f71443dab73436cd5c17d9c4bcaffed3",
+        "profile_sha256": "7c9c465488cf45a8711fe461c9adac54f71443dab73436cd5c17d9c4bcaffed3"
+      },
+      "mc_noise": {
+        "equal": true,
+        "shape": [
+          32,
+          50,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "7c525a0162ad70498650c08d3735a58f4fe63e62969c79d89a0bb0ce7ae84bd0",
+        "profile_sha256": "7c525a0162ad70498650c08d3735a58f4fe63e62969c79d89a0bb0ce7ae84bd0"
+      },
+      "mc_times": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "619ee799c879a0a9d3d12bc7f368d969121cc716b95307bec6a128c27fa8a2e2",
+        "profile_sha256": "619ee799c879a0a9d3d12bc7f368d969121cc716b95307bec6a128c27fa8a2e2"
+      }
+    },
+    {
+      "rank": 2,
+      "scene_ids_order_equal": true,
+      "scene_ids": [
+        "eb7a24c03d535f65",
+        "637eaf0fc05d5195",
+        "40c82092fc735d78",
+        "ef6b0444981f58d7",
+        "d7e4f49fa4295009",
+        "a68b6530ac8d5205",
+        "091ab0ec0a7b570f",
+        "74aec3cc13bd51ed"
+      ],
+      "observations_equal": true,
+      "conditions_equal": true,
+      "old_policy_equal": true,
+      "old_policy_legacy": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "old_policy_profile": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "rollout_id_equal": true,
+      "raw_actions": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "f92489867fb68869b0efb5f19a62e32d7d573f89d85b7672fa603c8bda01765c",
+        "profile_sha256": "f92489867fb68869b0efb5f19a62e32d7d573f89d85b7672fa603c8bda01765c"
+      },
+      "initial_noise": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "fc6869a9c045e9b920024cab44f2f30093bef6640625fa6bd4acbac184db9959",
+        "profile_sha256": "fc6869a9c045e9b920024cab44f2f30093bef6640625fa6bd4acbac184db9959"
+      },
+      "reward": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "f6c57610e22e2620433e10a9b72596383ebde2084eb2aaa6749c4f9fa1f071de",
+        "profile_sha256": "f6c57610e22e2620433e10a9b72596383ebde2084eb2aaa6749c4f9fa1f071de"
+      },
+      "valid": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.bool",
+        "profile_dtype": "torch.bool",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a",
+        "profile_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a"
+      },
+      "statuses_equal": true,
+      "context_hashes_equal": true,
+      "score_protocol_equal": true,
+      "old_cfm": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "5b78e4efa1429c2ed2491a8c53ca5118cc764ca42cedc7dadf67e96f4a2b21da",
+        "profile_sha256": "5b78e4efa1429c2ed2491a8c53ca5118cc764ca42cedc7dadf67e96f4a2b21da"
+      },
+      "mc_noise": {
+        "equal": true,
+        "shape": [
+          32,
+          50,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "0a527483268d1c203d4424d3225a1b75683e7fe686f1506b6a2719d80c7591fe",
+        "profile_sha256": "0a527483268d1c203d4424d3225a1b75683e7fe686f1506b6a2719d80c7591fe"
+      },
+      "mc_times": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "a2442ed67fffc9b33e377aa528c0d2ea9dbc6dc38c446156f187609b2adedcfb",
+        "profile_sha256": "a2442ed67fffc9b33e377aa528c0d2ea9dbc6dc38c446156f187609b2adedcfb"
+      }
+    },
+    {
+      "rank": 3,
+      "scene_ids_order_equal": true,
+      "scene_ids": [
+        "ed78a4ef17895804",
+        "6fe67fa532545a5b",
+        "e4a7d085f5485900",
+        "bfe06cb806ea5fb0",
+        "0f7c5e978f3d5cdb",
+        "fb3b27ca62485f5a",
+        "4be5f301f9d15841",
+        "86c4140e2c9a5a93"
+      ],
+      "observations_equal": true,
+      "conditions_equal": true,
+      "old_policy_equal": true,
+      "old_policy_legacy": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "old_policy_profile": {
+        "version": 0,
+        "optimizer_step": 0,
+        "state_hash": "0e8a4220b1df53a3bbc60ad77cbeafc643246226ca5c10074365e144c96a72d4",
+        "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+        "role": "old"
+      },
+      "rollout_id_equal": true,
+      "raw_actions": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "adc49fddada6d516629f06e4b5cb2659e5260b28db96dc1bc3293734b0327388",
+        "profile_sha256": "adc49fddada6d516629f06e4b5cb2659e5260b28db96dc1bc3293734b0327388"
+      },
+      "initial_noise": {
+        "equal": true,
+        "shape": [
+          8,
+          4,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "e272228518ebfc62daccff2cb638d2a0e23bfbb3067ab0e69e374b8eebdd54ae",
+        "profile_sha256": "e272228518ebfc62daccff2cb638d2a0e23bfbb3067ab0e69e374b8eebdd54ae"
+      },
+      "reward": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "d24cf9386ffa56f66f074f245fe09ecb9d05fb9bf8b203b83ef83814408d86fc",
+        "profile_sha256": "d24cf9386ffa56f66f074f245fe09ecb9d05fb9bf8b203b83ef83814408d86fc"
+      },
+      "valid": {
+        "equal": true,
+        "shape": [
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.bool",
+        "profile_dtype": "torch.bool",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a",
+        "profile_sha256": "8b7858bf13b8843cd06cb2a163960c433087d3934ec43c5ae65e716d4d60ab5a"
+      },
+      "statuses_equal": true,
+      "context_hashes_equal": true,
+      "score_protocol_equal": true,
+      "old_cfm": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "aaf997503a818f8ee465a57a4af8470ea4fcdb4a35c25a20d45dbabbaefd9d63",
+        "profile_sha256": "aaf997503a818f8ee465a57a4af8470ea4fcdb4a35c25a20d45dbabbaefd9d63"
+      },
+      "mc_noise": {
+        "equal": true,
+        "shape": [
+          32,
+          50,
+          8,
+          4
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "dffeddc8c65b57b5aeb1dcc0365e056c10fd962640c76b8948899cc4ce537055",
+        "profile_sha256": "dffeddc8c65b57b5aeb1dcc0365e056c10fd962640c76b8948899cc4ce537055"
+      },
+      "mc_times": {
+        "equal": true,
+        "shape": [
+          32,
+          50
+        ],
+        "legacy_dtype": "torch.float32",
+        "profile_dtype": "torch.float32",
+        "max_abs_delta": 0.0,
+        "legacy_sha256": "e3202c83c63dfcbe24502f87df9fc424a2794a3dfe41084c1fdf19ce8a71a6b5",
+        "profile_sha256": "e3202c83c63dfcbe24502f87df9fc424a2794a3dfe41084c1fdf19ce8a71a6b5"
+      }
+    }
+  ],
+  "physical_trajectories": {
+    "status": "NOT_STORED_IN_AUTHORIZED_ROLLOUT_PAYLOAD",
+    "actual_official_request_read": false,
+    "inference": "Identical raw actions and unchanged decode code/runtime support identical physical inputs, but actual submitted physical arrays were not read in this artifact."
+  },
+  "limits": [
+    "This confirms initial matched inputs and candidates, not equality after the deliberately changed update definition.",
+    "Source/run/config identities differ intentionally; equality of complete output files or comparison IDs is not required."
+  ],
+  "read_inventory": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_0_COMPLETE.json",
+      "bytes": 3361,
+      "sha256": "d01357a7a9cdef2425a5a3ec743232bd8f67be8b4399feb397aef6d0116ea7f4"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_0.pt",
+      "bytes": 233796,
+      "sha256": "c3bfe974f0f5f3808feb4e376ba6b3d5c6ccd419de469e05cfb5d2a6f2ed0403"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_0_COMPLETE.json",
+      "bytes": 9751,
+      "sha256": "dd94b566db358aa70cca7f4fb69842c7e65dd4eb5094b1f7ba62b6a67fae4b0c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_0.pt",
+      "bytes": 239360,
+      "sha256": "eedf7638daf0ba0a984c01d717e6088d905fcb661eca15ddedb1178ebfd7bc82"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_1_COMPLETE.json",
+      "bytes": 3364,
+      "sha256": "a6b4851a5af3a588417737c7a282f3691af114fc80d298545e31c3c466a035ef"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_1.pt",
+      "bytes": 233796,
+      "sha256": "1ea8eb88fda2322b033b3b7b22f2b012fb5611c69cba05c616b05f45f13e047b"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_1_COMPLETE.json",
+      "bytes": 9754,
+      "sha256": "807eda8d8bc4496b6d02b50edbcd5a5f069e257479b54228b972b0a9eaf4f53c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_1.pt",
+      "bytes": 239360,
+      "sha256": "ceb656fa74fcf49f56d6ea414f49c934e06b93727b1045b979b078b2b07b1d37"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_2_COMPLETE.json",
+      "bytes": 3301,
+      "sha256": "1ab0872dd5deba84429eff07882a9e0e8b6d7f6e056dc35c39d5f53acbd51fff"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_2.pt",
+      "bytes": 233796,
+      "sha256": "91f4a23b26ea13bae145f8a75efa13c8f9912d65ac6a36d6d000478251606c93"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_2_COMPLETE.json",
+      "bytes": 9691,
+      "sha256": "e4f4d4552eb06a2e6edf658a57f361613efa5975bad2beb63d81d7e2eeda895a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_2.pt",
+      "bytes": 239360,
+      "sha256": "84252645d7afaadefab3de834cbfd4a4ba2e7aabfbe1b4ae8a91d08b824e2a0f"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_3_COMPLETE.json",
+      "bytes": 3304,
+      "sha256": "8c8f2c888c8337e3c6f8b8766c2ffe200343e93d07dbceb5c92b08331e017875"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_000000/rank_3.pt",
+      "bytes": 233796,
+      "sha256": "21ad676e7208d77155f6940af5a7b324b6fb6a86f2716e4396a4d28939007be1"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_3_COMPLETE.json",
+      "bytes": 9694,
+      "sha256": "498415b1f543e6131698a66621d12c3b83b858a1daee72a39f8590d1f64a8fe0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/runs/C1_rollout_std_profile_v1/rollouts/boundary_000000/rank_3.pt",
+      "bytes": 239360,
+      "sha256": "d04d34713d0d341b12726e6074828b5f2937d191791258fd7bbede5390048ae7"
+    }
+  ],
+  "read_bytes": 1944844,
+  "wall_seconds": 0.08327985741198063,
+  "cpu_seconds": 0.03347788699999987,
+  "maxrss_kib": 431104,
+  "new_scores": 0,
+  "new_optimizer_updates": 0,
+  "gpu_compute": false,
+  "model_loaded": false
+}
