@@ -71,6 +71,17 @@ def owned_output_bytes(root):
 class LimitError(RuntimeError): pass
 
 
+class GeometryParityError(ValueError):
+    def __init__(self, audit):
+        super().__init__('REAL_OFFICIAL_GEOMETRY_PARITY_FAILURE')
+        self.audit = audit
+
+
+def require_geometry_parity(audit):
+    if max(audit[k] for k in ('command_xy_error_m','command_yaw_error_rad','corner_max_error_m')) > 1e-9:
+        raise GeometryParityError(audit)
+
+
 class Budget:
     def __init__(self, root, limits=LIMITS):
         self.root=Path(root);self.limits=limits;self.started=time.monotonic()
@@ -252,14 +263,54 @@ def load_inputs(evidence,budget):
     return loaded
 
 
-def parity_and_objective(raw,request,cache,engine):
+def command_geometry_audit(physical,initial_state,action_sampling,sampling,vehicle):
+    """No map, LQR or score call: compare the commanded geometry only."""
     import numpy as np
     import torch
     from starVLA.model.modules.flow_posttraining.road_margin_proxy import (
-        AnchoredDecode,CommandRoadCost,Footprint,RoadUnion,command_poses,footprint_corners,periodic_difference)
+        Footprint,command_poses,command_time_grid,footprint_corners,periodic_difference)
     from navsim.common.dataclasses import Trajectory
     from navsim.evaluate.pdm_score import transform_trajectory,get_trajectory_as_array
     from navsim.planning.simulation.planner.pdm_planner.utils.pdm_array_representation import state_array_to_coords_array
+    physical=np.asarray(physical,dtype=np.float64)
+    initial=torch.tensor(initial_state.rear_axle.serialize(),dtype=torch.float64)
+    poses,_=command_poses(torch.from_numpy(physical),initial,initial_state.time_us)
+    trajectory=transform_trajectory(Trajectory(physical,action_sampling),initial_state)
+    official=get_trajectory_as_array(trajectory,sampling,initial_state.time_point)
+    corners=footprint_corners(poses,Footprint.from_vehicle(vehicle)).detach().numpy()
+    official_corners=state_array_to_coords_array(official[None],vehicle)[0,:,:4]
+    values=poses.detach().numpy()
+    xy_error=values[:,:2]-official[:,:2]
+    yaw_error=periodic_difference(poses[:,2],torch.tensor(official[:,2])).numpy()
+    corner_error=corners-official_corners
+    if not all(np.isfinite(x).all() for x in (values,official,corners,official_corners)):
+        raise ValueError('NONFINITE_OFFICIAL_OR_PROXY_GEOMETRY')
+    source_us,target_us=command_time_grid(initial_state.time_us)
+    # Read source knots from the real official trajectory, not our grid helper.
+    official_source=[p.time_us for p in trajectory.get_sampled_trajectory()]
+    official_times=np.arange(0.,sampling.time_horizon+sampling.interval_length,sampling.interval_length)
+    official_times+=initial_state.time_point.time_s
+    official_target=np.clip([int(t*1e6) for t in official_times],trajectory.start_time.time_us,trajectory.end_time.time_us)
+    def worst(error):
+        index=np.unravel_index(np.argmax(abs(error)),error.shape)
+        return {'index':list(map(int,index)),'signed_error':float(error[index])}
+    return {'command_xy_error_m':float(abs(xy_error).max()),
+        'command_yaw_error_rad':float(abs(yaw_error).max()),'corner_max_error_m':float(abs(corner_error).max()),
+        'geometry_parity_tolerance':1e-9,'initial_time_us':initial_state.time_us,
+        'initial_rear_axle':initial.tolist(),'timepoint_seconds':initial_state.time_point.time_s,
+        'legacy_division_seconds':initial_state.time_us/1e6,
+        'proxy_source_time_us':source_us.tolist(),'proxy_target_time_us':target_us.tolist(),
+        'official_source_time_us':official_source,'official_target_time_us':official_target.tolist(),
+        'worst_xy':worst(xy_error),'worst_yaw':worst(yaw_error),'worst_corner':worst(corner_error),
+        'proxy_poses':values.tolist(),'official_poses':official[:,:3].tolist(),
+        'proxy_corners':corners.tolist(),'official_corners':official_corners.tolist(),
+        'official_score_calls':0,'includes_LQR':False}
+
+
+def parity_and_objective(raw,request,cache,engine):
+    import torch
+    from starVLA.model.modules.flow_posttraining.road_margin_proxy import (
+        AnchoredDecode,CommandRoadCost,Footprint,RoadUnion)
     gate=decode_discrepancy_gate(raw,request.trajectory)
     actual=Footprint.from_vehicle(cache.ego_state.car_footprint.vehicle_parameters)
     scored=Footprint.from_vehicle(engine.scorer._vehicle_parameters)
@@ -272,19 +323,13 @@ def parity_and_objective(raw,request,cache,engine):
     if len(area._geometries)>100000:raise LimitError('MAP_POLYGON_COUNT_CAP')
     decoder=AnchoredDecode(raw.double(),torch.as_tensor(request.trajectory,dtype=torch.float64))
     initial=torch.tensor(cache.ego_state.rear_axle.serialize(),dtype=torch.float64)
-    poses,_=command_poses(decoder(raw.double()),initial,cache.ego_state.time_us)
-    official=get_trajectory_as_array(transform_trajectory(Trajectory(request.trajectory,engine.action_sampling),cache.ego_state),engine.sampling,cache.ego_state.time_point)
-    corners=footprint_corners(poses,scored)
-    official_corners=state_array_to_coords_array(official[None],engine.scorer._vehicle_parameters)[0,:,:4]
-    xy=float(np.max(abs(poses.detach().numpy()[:,:2]-official[:,:2])))
-    yaw=float(periodic_difference(poses[:,2],torch.tensor(official[:,2])).abs().max())
-    corner=float(np.max(abs(corners.detach().numpy()-official_corners)))
-    if max(xy,yaw,corner)>1e-9:raise ValueError('REAL_OFFICIAL_GEOMETRY_PARITY_FAILURE')
+    audit=command_geometry_audit(decoder(raw.double()).numpy(),cache.ego_state,
+        engine.action_sampling,engine.sampling,engine.scorer._vehicle_parameters)
+    audit.update(decode_gate=gate,vehicle=asdict(actual))
+    require_geometry_parity(audit)
     road=RoadUnion.from_map(area)
     objective=CommandRoadCost(decoder,road,scored,initial,cache.ego_state.time_us)
-    return objective,{'decode_gate':gate,'vehicle':asdict(actual),'command_xy_error_m':xy,
-                     'command_yaw_error_rad':yaw,'corner_max_error_m':corner,
-                     'segments':len(road.segments),'geometry_parity_tolerance':1e-9}
+    return objective,{**audit,'segments':len(road.segments)}
 
 
 def tracking_diagnostics(command,executed):
@@ -374,6 +419,9 @@ def run_worker(reg,admission):
                 # No substitute scene, epsilon or trajectory; maintain original denominator.
                 result={'scene_id':item['scene_id'],'status':'UNDEFINED_DIRECTION' if isinstance(error,DiagnosticUndefined) else 'FAILED',
                         'error_type':type(error).__name__,'error':str(error),'original_metrics':record['metrics']}
+                if isinstance(error,GeometryParityError):
+                    budget.write(scene/'NUMERICAL_PARITY_FAILURE.json',error.audit)
+                    result['numerical_parity']=error.audit
                 # Signal/time/RSS exceptions must end this worker, not continue scoring.
                 if isinstance(error,(LimitError,MemoryError)):raise
                 budget.write(scene/'SCENE_RESULT.json',result)

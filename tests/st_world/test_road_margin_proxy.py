@@ -73,7 +73,7 @@ def official(physical,pose,time_us):
     return array[:,:3],corners
 
 
-@pytest.mark.parametrize('time_us',[0,1000001,1630000000123456])
+@pytest.mark.parametrize('time_us',[0,1000001,1630000000123456,1630000000000003,1630000000000004,1630000000000008])
 @pytest.mark.parametrize('origin_yaw',[0.,3.13,-3.12])
 def test_official_interpolation_and_rear_axle_parity(time_us,origin_yaw):
     physical=decode_ego(raw_fixture());physical[:,2]=torch.tensor([3.12,-3.13,-3.,2.9,2.8,-2.9,-2.8,-2.7])
@@ -82,6 +82,17 @@ def test_official_interpolation_and_rear_axle_parity(time_us,origin_yaw):
     expected,corners=official(physical,origin,time_us)
     np.testing.assert_allclose(poses.detach().numpy(),expected,rtol=0,atol=1e-10)
     np.testing.assert_allclose(footprint_corners(poses,V).numpy(),corners,rtol=0,atol=1e-10)
+
+
+def test_epoch_multiplication_matches_actual_official_knots():
+    from starVLA.model.modules.flow_posttraining.road_margin_proxy import command_time_grid
+    from nuplan.common.actor_state.state_representation import TimePoint
+    t=1630000000000003
+    assert t/1e6!=TimePoint(t).time_s
+    source,target=command_time_grid(t)
+    assert source.tolist()==[t]+[int(s*1e6) for s in np.arange(0.,4.,.5)+.5+TimePoint(t).time_s]
+    expected=np.clip([int(s*1e6) for s in np.arange(0.,4.+.1,.1)+TimePoint(t).time_s],source[0],source[-1])
+    np.testing.assert_array_equal(target,expected)
 
 
 def test_yaw_wrap_interpolation_uses_short_arc_and_t0_fixed():

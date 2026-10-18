@@ -116,6 +116,22 @@ class AnchoredDecode:
                 'bitwise_cpu_gpu_equivalence_claimed': False}
 
 
+def command_time_grid(initial_time_us):
+    """Official TimePoint multiplication, then numpy timestamp truncation.
+
+    Division by 1e6 is mathematically equivalent but differs by an epoch-scale
+    float64 ULP for some timestamps; subsequent int() can shift a knot by 1us.
+    """
+    if type(initial_time_us) is not int or initial_time_us < 0:
+        raise ValueError('Expected the actual nonnegative integer initial timestamp')
+    start_s = initial_time_us * 1e-6  # nuplan TimePoint.time_s, NOT division
+    source_us = np.array([initial_time_us] + [int(t*1e6) for t in
+        (np.arange(0., 4., .5) + .5 + start_s)], dtype=np.int64)
+    target_us = np.clip(np.array([int(t*1e6) for t in
+        np.arange(0., 4.+.1, .1) + start_s], dtype=np.int64), source_us[0], source_us[-1])
+    return source_us, target_us
+
+
 def command_poses(physical, initial_pose, initial_time_us):
     """Differentiable counterpart of official transform/interpolation, 41 poses.
 
@@ -138,11 +154,7 @@ def command_poses(physical, initial_pose, initial_time_us):
     angular = knots[:, 2].detach().numpy()
     unwrap_offset = np.unwrap(angular) - angular
     unwrapped = knots[:, 2] + torch.from_numpy(unwrap_offset)
-    start_s = initial_time_us / 1e6
-    source_us = np.array([initial_time_us] + [int(t*1e6) for t in
-        (np.arange(0., 4., .5) + .5 + start_s)], dtype=np.int64)
-    target_us = np.clip(np.array([int(t*1e6) for t in
-        np.arange(0., 4.+.1, .1) + start_s], dtype=np.int64), source_us[0], source_us[-1])
+    source_us, target_us = command_time_grid(initial_time_us)
     indices = np.clip(np.searchsorted(source_us, target_us, side='right') - 1, 0, 7)
     weights = torch.from_numpy((target_us - source_us[indices]) /
                               (source_us[indices+1] - source_us[indices]))

@@ -31,6 +31,52 @@ def test_xy_analytical_envelope_and_yaw_tolerance():
     with pytest.raises(ValueError,match='float32'):r.decode_discrepancy_gate(raw.double(),saved)
 
 
+def test_geometry_error_retains_diagnostics_without_relaxing_gate():
+    audit={'command_xy_error_m':1.1e-9,'command_yaw_error_rad':0.,'corner_max_error_m':0.,
+        'proxy_source_time_us':[1,2],'official_source_time_us':[1,3]}
+    with pytest.raises(r.GeometryParityError,match='REAL_OFFICIAL_GEOMETRY') as error:
+        r.require_geometry_parity(audit)
+    assert error.value.audit==audit
+    exact={**audit,'command_xy_error_m':1e-9}
+    r.require_geometry_parity(exact)
+
+
+def test_epoch_time_only_replay_explains_synthetic_failure(monkeypatch):
+    import sys
+    from starVLA.model.modules.flow_posttraining import road_margin_proxy as proxy
+    from tools.st_world_policy.diagnose_road_time_parity import legacy_time_grid
+    sys.path.insert(0,str(r.ROOT/'navsim_v1.1/navsim'))
+    from nuplan.common.actor_state.ego_state import EgoState
+    from nuplan.common.actor_state.state_representation import StateSE2,StateVector2D,TimePoint
+    from nuplan.common.actor_state.vehicle_parameters import get_pacifica_parameters
+    from nuplan.planning.simulation.trajectory.trajectory_sampling import TrajectorySampling
+    vehicle=get_pacifica_parameters()
+    state=EgoState.build_from_rear_axle(StateSE2(500000.,4200000.,.37),StateVector2D(4.,.2),
+        StateVector2D(.1,.3),.01,TimePoint(1630000000000003),vehicle)
+    physical=decode_ego(fixture_raw()).double().numpy()
+    args=(physical,state,TrajectorySampling(num_poses=8,interval_length=.5),
+        TrajectorySampling(num_poses=40,interval_length=.1),vehicle)
+    corrected=r.command_geometry_audit(*args)
+    with monkeypatch.context() as context:
+        context.setattr(proxy,'command_time_grid',legacy_time_grid)
+        legacy=r.command_geometry_audit(*args)
+    assert legacy['command_xy_error_m']>1e-9
+    assert legacy['proxy_source_time_us']!=legacy['official_source_time_us']
+    assert corrected['proxy_source_time_us']==corrected['official_source_time_us']
+    assert corrected['proxy_target_time_us']==corrected['official_target_time_us']
+    r.require_geometry_parity(corrected)
+    with pytest.raises(r.GeometryParityError):r.require_geometry_parity(legacy)
+    assert len(legacy['proxy_corners'])==len(legacy['official_corners'])==41
+    json.dumps(legacy,allow_nan=False)
+
+
+def test_geometry_replay_no_admission_refuses_before_reads(tmp_path,monkeypatch):
+    from tools.st_world_policy import diagnose_road_time_parity as d
+    def forbidden(*args,**kwargs):raise AssertionError('No cache replay may run')
+    monkeypatch.setattr(d,'execute',forbidden)
+    assert d.main(['--execute','--plan',str(tmp_path/'missing')])==2
+
+
 def test_xy_envelope_covers_many_finite_fp32_commands():
     for multiplier in (.00001,.01,1,100,10000):
         raw=fixture_raw();raw[:,:2]*=multiplier

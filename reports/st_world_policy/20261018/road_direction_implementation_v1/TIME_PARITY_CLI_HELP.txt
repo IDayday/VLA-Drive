@@ -1,0 +1,19 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: diagnose_road_time_parity.py [-h] (--prepare | --execute) --plan PLAN
+                                    [--output-root OUTPUT_ROOT]
+                                    [--admission ADMISSION]
+                                    [--admission-sha256 ADMISSION_SHA256]
+
+One geometry-only replay of the nine fixed v2 parity failures; never scores.
+Prepare reads small existing receipts only. Execute is for the Lead after an
+exact admission; it reads those nine original caches, not rollouts or weights.
+
+options:
+  -h, --help            show this help message and exit
+  --prepare
+  --execute
+  --plan PLAN
+  --output-root OUTPUT_ROOT
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256
