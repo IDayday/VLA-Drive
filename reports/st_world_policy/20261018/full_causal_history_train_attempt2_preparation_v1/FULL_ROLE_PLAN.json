@@ -1,0 +1,329 @@
+{
+  "append_only_policy_proposal": {
+    "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/FULL_ROLES_POLICY_PROPOSAL.json",
+    "sha256": "a1d00bfc6b891f3b328860ef476ce003853c49e3a08a3684c95e725d199d8f75"
+  },
+  "conservative_metadata_MiB": {
+    "corrected_diagnostic_hold": 16,
+    "failed_train_attempt1_control_retained": 1,
+    "full_history_including_both_controls": 2176,
+    "maximum": 10240,
+    "remaining": 142,
+    "retained": 7904,
+    "separate_migration_controls": 1,
+    "total": 10098
+  },
+  "control_MiB_per_role": 1,
+  "global_lock_charged_to": "train_controls",
+  "inherited_plan": {
+    "path": "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/PREPARATION_PLAN.json",
+    "sha256": "cf2ca70906592baba626ed03282466919dd6c58277467ccbd9b5745054dfac3a"
+  },
+  "ledger_or_policy_mutated": false,
+  "one_builder_globally": true,
+  "roles": {
+    "dev": {
+      "builder_budget": {
+        "path": "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/DEV_BUILDER_BUDGET.json",
+        "sha256": "40fa03484ecb5504144a90a2303a1a08f44cdb494f39a8e356737b2aba44750a"
+      },
+      "control_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev_controls",
+      "expected_registration": {
+        "callback_protocol": "st_metadata_storage_check_v1",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.prepare_causal_history",
+          "build",
+          "--student-root",
+          "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+          "--raw-log-root",
+          "/mnt/navsim/trainval_navsim_logs/trainval",
+          "--sensor-root",
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+          "--fallback-sensor-root",
+          "/mnt/navsim/trainval_sensor_blobs/trainval",
+          "--partition",
+          "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+          "--scene-list",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--split",
+          "dev",
+          "--mode",
+          "registered",
+          "--max-scenes",
+          "1696",
+          "--seed",
+          "20261017",
+          "--tolerance",
+          "0.05",
+          "--target-times",
+          "0",
+          "--record-layout",
+          "packed_log_v1",
+          "--registration",
+          "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/DEV_BUILDER_BUDGET.json",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev"
+        ],
+        "cpu_affinity": [
+          10,
+          11
+        ],
+        "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+        "directory_patterns": [
+          "history_shards"
+        ],
+        "file_patterns": [
+          "METADATA_ADMISSION\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+          "BUILD\\.lock",
+          "PREPARE\\.lock",
+          "(?:resolved_config|SELECTED_SCENES|HISTORY_MANIFEST|TEACHER_REQUESTS|RESOURCE_COST|COMPLETE)\\.json(?:\\.[0-9a-f]+\\.partial)?",
+          "CONTROL_HISTORY_(?:STARTED|RESULT)\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+          "history_shards/[0-9]{6}_[0-9a-f]{16}\\.jsonseq(?:\\.[0-9a-f]+\\.partial)?"
+        ],
+        "inventory_strategy": "immutable_history_shards_v1",
+        "limits": {
+          "max_depth": 1,
+          "max_disk_bytes": 133169152,
+          "max_entries": 256,
+          "max_rss_bytes": 4294967296,
+          "max_seconds": 900
+        },
+        "max_history_shards": 64,
+        "max_scenes": 1696,
+        "max_source_read_bytes": 17179869184,
+        "output_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev",
+        "read_mib_per_second": 32,
+        "record_layout": "packed_log_v1",
+        "schema": "st_metadata_build_registration_v1",
+        "source_pins": [
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_causal_history.py",
+            "sha256": "87f9fb3f5e864962788198076618bdda3edc3d59e231b6ba9bd902080e5c3d63"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_history.py",
+            "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/history_shards.py",
+            "sha256": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_future_metadata.py",
+            "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_history.py",
+            "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_metadata_index.py",
+            "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_future_provenance.py",
+            "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_current_teacher.py",
+            "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+          }
+        ],
+        "storage_requirements": {
+          "metadata_bytes": 15728640,
+          "output_bytes": 100663296,
+          "staging_bytes": 16777216
+        },
+        "writer_kind": "history_preparation"
+      },
+      "logs": 16,
+      "output_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev",
+      "population_complete": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/COMPLETE.json",
+        "sha256": "507fc43edea637fa35c16c97d89a09b695907ad653030dbafd17da78a312efb6"
+      },
+      "registration": {
+        "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/DEV_STORAGE_REGISTRATION.json",
+        "sha256": "a0ecb3bb9860602b34d60727ea89a2d516f5216756e65bb22dadd7bc109e8512"
+      },
+      "scenes": 1696,
+      "selection": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+        "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+      },
+      "selection_bytes": 502548,
+      "student_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1"
+    },
+    "train": {
+      "builder_budget": {
+        "path": "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_BUILDER_BUDGET.json",
+        "sha256": "777152433d3a9d2488cb387f2015391b1051d6cde847d36a9ef3c255e27e6d77"
+      },
+      "control_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls_attempt2",
+      "expected_registration": {
+        "callback_protocol": "st_metadata_storage_check_v1",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.prepare_causal_history",
+          "build",
+          "--student-root",
+          "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+          "--raw-log-root",
+          "/mnt/navsim/trainval_navsim_logs/trainval",
+          "--sensor-root",
+          "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+          "--fallback-sensor-root",
+          "/mnt/navsim/trainval_sensor_blobs/trainval",
+          "--partition",
+          "/mnt/project/VLA-Drive-st-history-population-agent-20261016/reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json",
+          "--scene-list",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+          "--split",
+          "train",
+          "--mode",
+          "registered",
+          "--max-scenes",
+          "101592",
+          "--seed",
+          "20261017",
+          "--tolerance",
+          "0.05",
+          "--target-times",
+          "0",
+          "--record-layout",
+          "packed_log_v1",
+          "--registration",
+          "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_BUILDER_BUDGET.json",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train"
+        ],
+        "cpu_affinity": [
+          10,
+          11
+        ],
+        "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+        "directory_patterns": [
+          "history_shards"
+        ],
+        "file_patterns": [
+          "METADATA_ADMISSION\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+          "BUILD\\.lock",
+          "PREPARE\\.lock",
+          "(?:resolved_config|SELECTED_SCENES|HISTORY_MANIFEST|TEACHER_REQUESTS|RESOURCE_COST|COMPLETE)\\.json(?:\\.[0-9a-f]+\\.partial)?",
+          "CONTROL_HISTORY_(?:STARTED|RESULT)\\.json(?:\\.[a-z0-9_]+\\.tmp)?",
+          "history_shards/[0-9]{6}_[0-9a-f]{16}\\.jsonseq(?:\\.[0-9a-f]+\\.partial)?"
+        ],
+        "inventory_strategy": "immutable_history_shards_v1",
+        "limits": {
+          "max_depth": 1,
+          "max_disk_bytes": 2146435072,
+          "max_entries": 9000,
+          "max_rss_bytes": 4294967296,
+          "max_seconds": 14400
+        },
+        "max_history_shards": 4096,
+        "max_scenes": 101592,
+        "max_source_read_bytes": 481036337152,
+        "output_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train",
+        "read_mib_per_second": 32,
+        "record_layout": "packed_log_v1",
+        "schema": "st_metadata_build_registration_v1",
+        "source_pins": [
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_causal_history.py",
+            "sha256": "87f9fb3f5e864962788198076618bdda3edc3d59e231b6ba9bd902080e5c3d63"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_history.py",
+            "sha256": "ce75c87cf8199f2b666fa7ec36cd07478fb83107ef87a83dcca70eb5b839a836"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/history_shards.py",
+            "sha256": "53f85bf7e4f24cc3e0d6228b102df7350624f5dff433e04940a5922b6d32a043"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_future_metadata.py",
+            "sha256": "30cf346e49ad88da30c61990dbe24863727e3979c711df74e2e58b97b4e7e281"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_history.py",
+            "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_metadata_index.py",
+            "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/starVLA/dataloader/st_world_future_provenance.py",
+            "sha256": "3e8aceda843ec9724476c09f6c3c6738c1bf52a4a138c9e43084ba27ce4f0772"
+          },
+          {
+            "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/prepare_current_teacher.py",
+            "sha256": "e5b68a4467ff295b683c7f7f06cc7c0afbb268ff02c77e229c92433d42ad846d"
+          }
+        ],
+        "storage_requirements": {
+          "metadata_bytes": 66060288,
+          "output_bytes": 1879048192,
+          "staging_bytes": 201326592
+        },
+        "writer_kind": "history_preparation"
+      },
+      "logs": 1176,
+      "output_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train",
+      "population_complete": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/COMPLETE.json",
+        "sha256": "0c1c913e72733191fc47cf1969b2fb8462b1081ae8c893b656b7aba5d022ad3f"
+      },
+      "registration": {
+        "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_STORAGE_REGISTRATION.json",
+        "sha256": "329eb69e5048022f422df2f6f112436b67c32479d37e62d7ce01515f30ded702"
+      },
+      "scenes": 101592,
+      "selection": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+        "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+      },
+      "selection_bytes": 30071766,
+      "student_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+    }
+  },
+  "runtime": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "schema": "st_full_causal_history_role_binding_v1",
+  "source_sha": "eae8922d72b3881c0c162e96b8dd67e7c15a41c7",
+  "status": "PREPARED_NOT_ADMITTED",
+  "versioned_attempt": {
+    "additional_typed_artifact_allocation_bytes": 0,
+    "attempt": 2,
+    "automatic_retry": false,
+    "failed_invocation": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls/INVOCATION.json",
+      "sha256": "ce74bffbc1728bdc769d1e02e973e8feaedb39567477157e1f35f12f1ffa991a"
+    },
+    "failed_result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls/RESULT.json",
+      "sha256": "c953389bab729d8b64f655d08174ba4b6a2ad0e60fff64a2aed2afe8a60776d3"
+    },
+    "global_lock_unchanged": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls/FULL_POPULATION.lock",
+    "new_control_allocation_bytes": 1048576,
+    "new_control_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls_attempt2",
+    "new_read_allowance_bytes": 549755813888,
+    "new_read_allowance_is_explicit_additional": true,
+    "old_control_root_retained": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls",
+    "old_fallback_charge_bytes_preserved": 549755813888,
+    "old_fallback_is_measured_read_bytes": false,
+    "previous_plan": {
+      "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/FULL_ROLE_PLAN.json",
+      "sha256": "f6c96c1cb48d20b1143fc4fd38451e1ba4d6ae02ba71fe1ac7d8fae8ff1a2079"
+    },
+    "role": "train",
+    "same_artifact_root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train",
+    "same_typed_registration": {
+      "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_STORAGE_REGISTRATION.json",
+      "sha256": "329eb69e5048022f422df2f6f112436b67c32479d37e62d7ce01515f30ded702"
+    }
+  }
+}

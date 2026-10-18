@@ -1,0 +1,105 @@
+{
+  "actual_previous_total_read_bytes": null,
+  "admission_proposal": {
+    "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/ADMISSION_PROPOSAL.json",
+    "sha256": "defd8a458d638a597e938f932668996238a97d7ffbc92449e7580bbb069dc7d5"
+  },
+  "checkpoint_receipt": {
+    "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/checkpoint_remaining_reconciliation_v1/CHECKPOINT_COMMITMENTS_REMAINING_V2.json",
+    "sha256": "7b88fcbf0a4b4505aa251fdbf2e146c6b94dd3fcb15cef8269cee4d1989fa60c"
+  },
+  "command_template": {
+    "argv_prefix": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=40s",
+      "14440s",
+      "/usr/bin/taskset",
+      "-c",
+      "10,11",
+      "/root/miniconda3/envs/ddp/bin/python",
+      "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/run_full_history_once.py",
+      "--role",
+      "train"
+    ],
+    "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "2",
+      "OMP_NUM_THREADS": "2",
+      "OPENBLAS_NUM_THREADS": "2",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "remaining_args": [
+      "--admission",
+      "<independently-issued-actual-path>",
+      "--admission-sha256",
+      "<actual-sha256>"
+    ],
+    "stderr": "/dev/null",
+    "stdout": "/dev/null"
+  },
+  "control_root_to_be_created_by_lead": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls_attempt2",
+  "cumulative_old_fallback_plus_new_authorized_read_bytes": 1099511627776,
+  "failed_invocation": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls/INVOCATION.json",
+    "sha256": "ce74bffbc1728bdc769d1e02e973e8feaedb39567477157e1f35f12f1ffa991a"
+  },
+  "failed_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls/RESULT.json",
+    "sha256": "c953389bab729d8b64f655d08174ba4b6a2ad0e60fff64a2aed2afe8a60776d3"
+  },
+  "fresh_ledger": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+    "sha256": "b6949904cd5f9c98f4cd548f27643b327c094fd5a8d5c90dc78e172ca30ddc94"
+  },
+  "launched": false,
+  "lead_next_steps": [
+    "Create the one new empty plain control directory; do not modify original train_controls.",
+    "Independent reviewer checks the exact plan-only wrapper change, fresh capacity and unmodified native disk check, then issues actual admission from proposal.",
+    "Lead alone executes one --role train call with new wrapper and actual admission; no automatic retry."
+  ],
+  "ledger_mutated": false,
+  "metadata_cap_MiB": 10240,
+  "metadata_remaining_MiB": 142,
+  "metadata_total_MiB": 10098,
+  "new_control_reserved_bytes": 1048576,
+  "old_control_reserved_bytes_retained": 1048576,
+  "plan": {
+    "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/FULL_ROLE_PLAN.json",
+    "sha256": "a6ea02aa66ff98a51284272f024136d51867e1e999a04a78f9f03ecee4219ed3"
+  },
+  "previous_builder_payload_read_bytes": 0,
+  "previous_builder_payload_zero_basis": "Original run_parent calls publish_guarded before launching owned child. Failure is START_PUBLICATION, cleanup NOT_STARTED, no child monitor result, output root absent and ledger unchanged. Bootstrap metadata reads are not measured by the fallback receipt.",
+  "schema": "st_full_causal_history_attempt2_handoff_v1",
+  "source_changes": {
+    "exact_textual_change": "Only PLAN_SHA literal replaced. HERE and PLAN_PATH naturally resolve to this new owned directory.",
+    "helper": {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/storage_binding.py",
+      "sha256": "0e2038299e62b00190ea740914f5d83eed35436d1a1746fb6d32c9a9d17117e6"
+    },
+    "helper_byte_identical": true,
+    "native_budget_or_builder_or_monitor_changed": false,
+    "native_runtime": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+    "original_wrapper": {
+      "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/run_full_history_once.py",
+      "sha256": "de927e745efa6ac6d325f50a8a49930a577803abdbc387da93365ecf9868c374"
+    },
+    "runtime_source_sha": "eae8922d72b3881c0c162e96b8dd67e7c15a41c7",
+    "wrapper": {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/run_full_history_once.py",
+      "sha256": "09b526a9375c5c1c4df6a2a67e07a5f5ab91ca6ea3a061365f0460c435922063"
+    }
+  },
+  "status": "PREPARED_PENDING_INDEPENDENT_RESOURCE_ADMISSION",
+  "tests": "AST parse and byte comparison: original wrapper differs only by the single PLAN_SHA literal; helper byte identical. Original source/18 fixtures inherited; not rerun.",
+  "typed_train_2047MiB_not_double_counted": true,
+  "unchanged_claim_registration": {
+    "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/TRAIN_STORAGE_REGISTRATION.json",
+    "sha256": "329eb69e5048022f422df2f6f112436b67c32479d37e62d7ce01515f30ded702"
+  },
+  "unchanged_policy": {
+    "path": "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/FULL_ROLES_POLICY_PROPOSAL.json",
+    "sha256": "a1d00bfc6b891f3b328860ef476ce003853c49e3a08a3684c95e725d199d8f75"
+  }
+}

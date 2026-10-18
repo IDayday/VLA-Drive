@@ -1,0 +1,5 @@
+Attempt1 failed before the child builder started. Its original INVOCATION and FAILED_NO_AUTO_RETRY receipt remain intact. The512 GiB figure is the original conservative exception charge, not measured reads; actual bootstrap reading is unknown.
+
+Attempt2 keeps the same absent train artifact root, typed registration, builder, runtime, metadata policy and global lock. Only an independent1 MiB control directory and a new immutable plan binding are added. The wrapper is byte-identical to the reviewed source except for its PLAN_SHA literal; storage_binding is copied byte-for-byte. Metadata commitments become10,098/10,240 MiB. The2,047 MiB typed artifact claim is not reserved twice.
+
+The reconciled checkpoint receipt uses stat-proven consumed bytes and passes the unchanged native disk formula. A fresh independent resource admission is required before the Lead runs this one attempt. It has a new explicit512 GiB logical-read limit,448 GiB paced source limit,4 GiB RSS and14,400+40 seconds. No automatic retry, payload read, GPU or ledger write was performed here.
