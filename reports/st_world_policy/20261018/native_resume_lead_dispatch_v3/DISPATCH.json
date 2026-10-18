@@ -1,0 +1,66 @@
+{
+  "actual_admission": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3_admission/ADMISSION.json",
+    "sha256": "b2394d018d1a665744d5e4d04b89723652bc6c9804376f00d520a9441848c9b0"
+  },
+  "binding_draft": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3_admission/BINDING_DRAFT.json",
+    "sha256": "f4c57bcf93be1d2a5a3712322b87385c725d68e5c698a3dcd6611d87751db46a"
+  },
+  "diagnostic_weights_usable_for_formal_init": false,
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8"
+  },
+  "driver_launch": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3_admission/INITIAL_DRIVER_LAUNCH.json",
+    "sha256": "96e0f77077314d350b9b4796be1ebc3dc9ff56eafb3a9240bc4d1236774fc35f"
+  },
+  "features_paused": true,
+  "formal_training_changed": false,
+  "independent_affected_test_results": {
+    "correctness": "10 passed /40 deselected",
+    "implementation": "8 passed /39 deselected",
+    "resources": "3 CPU process cases +3 monitor fixtures passed; no old whole-suite repeat"
+  },
+  "new_scientific_arms_started": 0,
+  "observer_controller_sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228",
+  "observer_source_commit": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+  "original_formal_runtime_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "prior_failures": {
+    "v1": "Cold controller import failed before trainer launch; preserved source19a5 and namespace",
+    "v2": "One real torchrun trainer invocation; SID-only monitor rejected owned ranks. Zero optimizer/score calls, no arm run/native. SID-only sampled CPU/IO/RSS is a lower bound. Exact workers live-inspected exited before v3."
+  },
+  "recorded_utc": "2026-10-18T20:51:06.551189+00:00",
+  "remaining": "Actual4 versus2+2 native load and replay comparison; no success claim at startup",
+  "resource_snapshot": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/RESOURCE_SNAPSHOT_20261018T203939Z.json",
+    "sha256": "83312eb135fc6c0a805d834d5c7e161d8a481076064bb36c0bf90e4752dabd5b"
+  },
+  "retained_budget": {
+    "cleanup_seconds": 180,
+    "comparison_seconds": 120,
+    "global_upper_seconds": 3900,
+    "maximum_new_trainer_invocations": 3,
+    "new_training_seconds": 3540,
+    "official_calls": 1024,
+    "output_bytes": 111669149696,
+    "prior_actual_failed_trainer_invocations": 1,
+    "prior_wall_seconds_reserved": 60,
+    "retries": 0,
+    "total_new_optimizer_updates": 8,
+    "total_trainer_invocations": 4
+  },
+  "reviews": {
+    "correctness": {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/BOUND_REVIEW.json",
+      "sha256": "b48f17f7a7c39a9833c576e7917938b874440059e742632de4719076f26da2be"
+    },
+    "resources": {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/REVIEW.json",
+      "sha256": "6bd8924316fe44e15bdfe738ea41701c34279b5238a74e3a299424264960a99b"
+    }
+  },
+  "schema": "st_native_resume_lead_actual_dispatch_v3",
+  "state": "ACTUAL_INITIAL_DRIVER_STARTED_RESULT_PENDING"
+}
