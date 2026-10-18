@@ -81,3 +81,20 @@ def test_fixed_milestone_queue_has_two_grids_in_each_unchanged_worker(tmp_path):
     assert {j['update'] for j in jobs}=={5000,20000,50000,100000,170000}
     assert {j['cohort'] for j in jobs}=={'DEV','TRAIN_DIAGNOSTIC'}
     assert all('B_SOURCE_ACTION_DIT_SFT_update100000' in ProcessEvaluations.reference_for(tmp_path,j) for j in jobs)
+
+
+def test_navtest_lock_first_publication_creates_nested_parent(tmp_path):
+    from scripts.analysis.fm_transfer.source_process_navtest import publish_lock
+    path=tmp_path/'navtest/update020000/final_navtest/LOCK.json'
+    value=dict(observed_update=20000,status='LOCKED_BEFORE_FINAL_NAVTEST')
+    publish_lock(path,value)
+    assert json.loads(path.read_text())==value
+    assert list(path.parent.iterdir())==[path]
+
+
+def test_navtest_lock_republication_preserves_existing_selection(tmp_path):
+    from scripts.analysis.fm_transfer.source_process_navtest import publish_lock
+    path=tmp_path/'LOCK.json';path.write_text('{"original": true}\n')
+    original=path.read_bytes()
+    with pytest.raises(FileExistsError):publish_lock(path,dict(original=False))
+    assert path.read_bytes()==original

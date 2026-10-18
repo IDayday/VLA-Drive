@@ -16,6 +16,14 @@ STAGES=(20000,170000)
 OLD_ASSETS=Path('/mnt/project/fm-transfer-20261016/final_navtest/LOCK.json')
 
 
+def publish_lock(output,value):
+    """Publish after validation, including on the first nested observation."""
+    output=Path(output)
+    if output.exists():raise FileExistsError('Preserve the fixed checkpoint selection')
+    output.parent.mkdir(parents=True,exist_ok=True)
+    atomic_json(output,value)
+
+
 def checkpoint_for(mode, update):
     if mode not in MODES or update not in STAGES:raise ValueError('Unregistered Navtest observation')
     return ROOT/'runs'/f'{mode}_seed42_v1'/'checkpoints'/f'update{update:06d}_inner0'
@@ -104,7 +112,7 @@ def make_lock(update,source,output):
         old_asset_lock_sha256=file_sha(OLD_ASSETS),milestone_evidence=evidence,
         Navtest_scores_read_for_selection=False,historically_observed_Navtest_not_fully_blind=True,
         unix=time.time(),lock_implementation_sha256=file_sha(__file__))
-    value['sha256']=fingerprint(value);atomic_json(output,value);return value
+    value['sha256']=fingerprint(value);publish_lock(output,value);return value
 
 
 class SourceNavtestDispatch:

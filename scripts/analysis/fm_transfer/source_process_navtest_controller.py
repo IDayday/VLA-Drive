@@ -17,6 +17,8 @@ from scripts.analysis.fm_transfer.final_handoff import (
 from scripts.analysis.fm_transfer.milestone_controller import worker_allowed
 from scripts.analysis.fm_transfer.source_process_navtest import ready,STAGES
 from scripts.analysis.fm_transfer.final_lock import authenticated
+from scripts.analysis.fm_transfer import dispatch_final_evaluation as dispatch
+from scripts.analysis.fm_transfer.dispatch_liveness_relay import make_proof
 from starVLA.rl.fm_transfer.source_process import ROOT,MODES
 from starVLA.rl.fm_transfer.contracts import require_dispatch
 from starVLA.rl.simwam_recipe.contracts import fingerprint,file_sha
@@ -28,13 +30,27 @@ V10_SOURCE='/mnt/project/fm-transfer-20261016/upstream/navsim_versions/9f3ea68ff
 V10_CACHE='/mnt/project/fm-transfer-20261016/pdms_versions/v1.0/metric_cache_navtest'
 
 
+def dispatch_partition(control,lock,mode,plan,host,value,source):
+    """The coordinator owns remote PID checks; each host still owns admission."""
+    rows=[d for d in plan['assignments'] if d['host']==host]
+    proof=control/'pid_proofs'/f'{mode}_{host}_{time.time_ns()}.json'
+    make_proof(lock.parent,dispatch,proof)
+    return stage(control,mode+'_'+host,[PYTHON,'-m','scripts.analysis.fm_transfer.dispatch_liveness_relay',
+        '--proof',str(proof),'--dispatcher-source',str(source),'--runtime','source_process','--',
+        '--lock',str(lock),'--source',value['evaluation_source'],'--model',mode,'--shards',str(plan['shards']),
+        '--ranks',','.join(str(d['rank']) for d in rows),'--gpus',','.join(str(d['gpu']) for d in rows)],
+        host=host,source=source)
+
+
 def tick(update,value,source):
     missing=ready(update)
     if missing:return dict(status='WAITING_FOR_REGISTERED_MILESTONES',missing=missing,Navtest_opened=False)
     root=ROOT/'navtest'/f'update{update:06d}';control=root/'controller';control.mkdir(parents=True,exist_ok=True)
     lock=root/'final_navtest/LOCK.json'
+    lock.parent.mkdir(parents=True,exist_ok=True)
     stage(control,'lock',[PYTHON,'-m','scripts.analysis.fm_transfer.source_process_navtest',
-        '--update',str(update),'--source',value['evaluation_source'],'--output',str(lock)],source=source)
+        '--update',str(update),'--source',value['evaluation_source'],'--output',str(lock)],
+        source=Path(value.get('lock_source',source)))
     selection=authenticated(lock);routes_path=control/'routes.json'
     routes=read(routes_path) if routes_path.exists() else {}
     states={mode:model_state(root,mode,plan,evaluation_source=value['evaluation_source']) for mode,plan in routes.items()}
@@ -53,11 +69,7 @@ def tick(update,value,source):
         planned=allocate(absent,devices);routes.update(planned);atomic_json(routes_path,routes)
         for mode,plan in planned.items():
             for host in dict.fromkeys(d['host'] for d in plan['assignments']):
-                rows=[d for d in plan['assignments'] if d['host']==host]
-                stage(control,mode+'_'+host,[PYTHON,'-m','scripts.analysis.fm_transfer.dispatch_source_navtest',
-                    '--lock',str(lock),'--source',value['evaluation_source'],'--model',mode,'--shards',str(plan['shards']),
-                    '--ranks',','.join(str(d['rank']) for d in rows),'--gpus',','.join(str(d['gpu']) for d in rows)],
-                    host=host,source=source)
+                dispatch_partition(control,lock,mode,plan,host,value,source)
         if planned:return dict(status='PARTITIONS_STARTED',routes=routes,Navtest_opened=True)
     completed={}
     for mode,s in states.items():
@@ -80,10 +92,12 @@ def tick(update,value,source):
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--evaluation-source',required=True)
+    p.add_argument('--lock-source',help='Explicit immutable lock publisher for an inspected controller handoff')
     p.add_argument('--hosts',nargs='+',required=True);p.add_argument('--once',action='store_true');a=p.parse_args()
     require_dispatch()
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('CPU-only controller')
     source=Path(__file__).resolve().parents[3];verify_source_snapshot(source);verify_source_snapshot(a.evaluation_source)
+    lock_source=Path(a.lock_source).resolve() if a.lock_source else source;verify_source_snapshot(lock_source)
     if len(set(a.hosts))!=len(a.hosts):raise ValueError('Duplicate hosts')
     for host in a.hosts:worker_allowed(host)
     # The two queue owners have disjoint candidate hosts, including pre-CUDA loading.
@@ -92,6 +106,7 @@ def main():
     control=ROOT/'navtest_controller';control.mkdir(exist_ok=True)
     value=dict(schema='source_process_fixed_navtest_controller_v1',hosts=a.hosts,evaluation_source=a.evaluation_source,
         controller_source=str(source),updates=list(STAGES),models=list(MODES),seed=2101,
+        lock_source=str(lock_source),
         registration_sha256=file_sha(ROOT/'registration.json'),no_automatic_retry=True)
     value['sha256']=fingerprint(value)
     with (control/'owner.lock').open('a') as guard:

@@ -46,3 +46,26 @@ def test_receipt_and_seal_cannot_be_substituted(tmp_path):
     path.write_text(json.dumps(proof))
     with pytest.raises(ValueError, match='unsealed'):
         load_proof(path, queue, now=1010)
+
+
+def test_make_proof_checks_actual_receipts_and_never_overwrites(tmp_path):
+    from types import SimpleNamespace
+    from scripts.analysis.fm_transfer.dispatch_liveness_relay import make_proof
+    _,queue,_,record=fixture_proof(tmp_path);called=[]
+    dispatch=SimpleNamespace(__file__=__file__,authenticated=lambda p:json.loads(p.read_text()),
+        live=lambda r:called.append(r) or True)
+    path=tmp_path/'proofs/fresh.json';proof=make_proof(queue,dispatch,path)
+    assert called==[record]
+    assert load_proof(path,queue)['checks'][record['sha256']]['alive'] is True
+    with pytest.raises(FileExistsError):make_proof(queue,dispatch,path)
+
+
+def test_make_proof_does_not_translate_ssh_failure_into_dead_worker(tmp_path):
+    from types import SimpleNamespace
+    from scripts.analysis.fm_transfer.dispatch_liveness_relay import make_proof
+    _,queue,_,_=fixture_proof(tmp_path)
+    def unavailable(_):raise RuntimeError('SSH unavailable')
+    dispatch=SimpleNamespace(__file__=__file__,authenticated=lambda p:json.loads(p.read_text()),live=unavailable)
+    path=tmp_path/'failed.json'
+    with pytest.raises(RuntimeError,match='SSH unavailable'):make_proof(queue,dispatch,path)
+    assert not path.exists()

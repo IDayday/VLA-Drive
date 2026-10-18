@@ -18,6 +18,24 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
+def make_proof(queue, dispatch, output):
+    """Coordinator checks actual PIDs; the remote dispatcher seals the queue again."""
+    queue=Path(queue).resolve();output=Path(output)
+    if output.exists():raise FileExistsError('Preserve the prior PID inventory')
+    value=dict(schema='final_dispatch_pid_relay_v1',queue=str(queue),started_unix=time.time(),
+        dispatcher_sha256=hashlib.sha256(Path(dispatch.__file__).read_bytes()).hexdigest(),
+        receipt_files={},checks={})
+    for path in sorted(queue.glob('workers/*/*.json')):
+        record=dispatch.authenticated(path)
+        value['receipt_files'][str(path.resolve())]=hashlib.sha256(path.read_bytes()).hexdigest()
+        value['checks'][record['sha256']]=dict(record=record,alive=dispatch.live(record))
+    value['finished_unix']=time.time();value['sha256']=digest(value)
+    from starVLA.rl.flow_grpo.transactions import atomic_json
+    output.parent.mkdir(parents=True,exist_ok=True);atomic_json(output,value)
+    load_proof(output,queue)  # Refuse an already stale/changed inventory before dispatch.
+    return value
+
+
 def load_proof(path, queue, now=None):
     proof = json.loads(Path(path).read_text())
     body = {k: v for k, v in proof.items() if k != 'sha256'}
@@ -49,6 +67,7 @@ def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--proof', required=True)
     parser.add_argument('--dispatcher-source', required=True)
+    parser.add_argument('--runtime', choices=('final','source_process'), default='final')
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     source = Path(args.dispatcher_source).resolve()
@@ -68,7 +87,11 @@ def main():
     dispatch.previous_attempts = previous_attempts
     arguments = args.arguments[1:] if args.arguments[:1] == ['--'] else args.arguments
     sys.argv = [str(Path(dispatch.__file__)), *arguments]
-    dispatch.main()
+    if args.runtime=='source_process':
+        runtime=importlib.import_module('scripts.analysis.fm_transfer.source_process_navtest').SourceNavtestDispatch()
+        dispatch.main(runtime=runtime)
+    else:
+        dispatch.main()
 
 
 if __name__ == '__main__':

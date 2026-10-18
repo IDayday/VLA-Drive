@@ -1,6 +1,7 @@
 # SimWAM source-data and published-command process replication
 
 实际启动状态、资源和首100步成本：[中文进展](launch_status_zh.md)。
+20k开发评价、当前训练进度及Navtest队列恢复：[20k进展](progress_20k_20261018.md)。
 
 This is a new, registered experiment requested on 2026-10-18. It keeps the
 qualified B source ActionDiT and copies the locked SimWAM RL process as closely
