@@ -1,0 +1,142 @@
+{
+  "all_original_DAC_equal_1": true,
+  "charged_official_calls": 21,
+  "complete_scenes": 7,
+  "requested_scenes": 32,
+  "road_repair_denominator": 0,
+  "schema": "road_direction_execution_v1",
+  "selection_hash": "495547e8f320a975fd31bc5652ee9d372fc03315cd70abd112190f2971703030",
+  "status": "PARTIAL_OR_UNDEFINED",
+  "supervisor": {
+    "attempt_id": "lead_20261018T1602_v3_maps_bound",
+    "cleanup_error": null,
+    "elapsed_seconds": 61.16078422963619,
+    "monitor_error": null,
+    "owned_worker_exit_confirmed": true,
+    "owned_worker_pid": 912268,
+    "parent_child_tracker_peak_rss_bytes": 1520934912,
+    "resource_tracker_pid": 912267,
+    "stop_reason": null,
+    "worker_exit_code": 0
+  },
+  "unresolved_or_undefined_scenes": 25,
+  "valid_subset_only_direction_contrasts": {
+    "negative_minus_positive": {
+      "common_valid_scenes": 7,
+      "mean_custom_executed_cost_difference_m": -3.473805740146088e-05
+    },
+    "negative_minus_random": {
+      "common_valid_scenes": 7,
+      "mean_custom_executed_cost_difference_m": -1.3002902314237781e-05
+    }
+  },
+  "valid_subset_only_risk": {
+    "negative": {
+      "high_to_zero": 0,
+      "mean_component_differences_vs_original": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": -7.935229836894145e-05,
+        "no_at_fault_collisions": 0.0,
+        "score": -3.306345765370049e-05,
+        "time_to_collision_within_bound": 0.0
+      },
+      "mean_official_score_valid_subset": 0.8742908785097651,
+      "new_DAC_failures": 0,
+      "new_NC_failures": 0,
+      "new_TTC_failures": 0,
+      "valid_scenes": 7,
+      "zero_scores": 0
+    },
+    "original": {
+      "high_to_zero": 0,
+      "mean_component_differences_vs_original": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": 0.0,
+        "no_at_fault_collisions": 0.0,
+        "score": 0.0,
+        "time_to_collision_within_bound": 0.0
+      },
+      "mean_official_score_valid_subset": 0.8743239419674189,
+      "new_DAC_failures": 0,
+      "new_NC_failures": 0,
+      "new_TTC_failures": 0,
+      "valid_scenes": 7,
+      "zero_scores": 0
+    },
+    "positive": {
+      "high_to_zero": 0,
+      "mean_component_differences_vs_original": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": 7.877555606656499e-05,
+        "no_at_fault_collisions": 0.0,
+        "score": 3.282314836107668e-05,
+        "time_to_collision_within_bound": 0.0
+      },
+      "mean_official_score_valid_subset": 0.8743567651157799,
+      "new_DAC_failures": 0,
+      "new_NC_failures": 0,
+      "new_TTC_failures": 0,
+      "valid_scenes": 7,
+      "zero_scores": 0
+    },
+    "random": {
+      "high_to_zero": 0,
+      "mean_component_differences_vs_original": {
+        "comfort": 0.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 0.0,
+        "ego_progress": 0.00021520319717443264,
+        "no_at_fault_collisions": 0.0,
+        "score": 8.966799882269085e-05,
+        "time_to_collision_within_bound": 0.0
+      },
+      "mean_official_score_valid_subset": 0.8744136099662415,
+      "new_DAC_failures": 0,
+      "new_NC_failures": 0,
+      "new_TTC_failures": 0,
+      "valid_scenes": 7,
+      "zero_scores": 0
+    }
+  },
+  "status_counts": [
+    {
+      "status": "COMPLETE",
+      "reason": null,
+      "count": 7
+    },
+    {
+      "status": "UNDEFINED_DIRECTION",
+      "reason": "ZERO_OR_NONFINITE_GRADIENT",
+      "count": 16
+    },
+    {
+      "status": "UNDEFINED_DIRECTION",
+      "reason": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "count": 9
+    }
+  ],
+  "direction_wins": {
+    "positive": 7,
+    "random": 7
+  },
+  "artifact": "/mnt/project/st-world-policy-20261016/audits/consequence/road_direction_fixed32_v3/RESULT_lead_20261018T1602_v3_maps_bound.json",
+  "artifact_sha256": "02982279353a2043117c08ff5e4eed3b0b4e4595eb2c591d321f5797115f5e53",
+  "source_commit": "0d0d19dd5ce2d2fd583d2cc265289e47649ca594",
+  "new_official_calls": 21,
+  "prior_v2_calls_preserved": 12,
+  "cumulative_official_calls": 33,
+  "scientific_status": "ROAD_REPAIR_NOT_IDENTIFIABLE_ON_ALL_DAC1_POPULATION",
+  "first_admission_failure": "maps_root omitted by Lead, failed before any scene STARTED or official call; receipt retained; explicit resume only untouched scenes with original maps root",
+  "source_compatibility": "all32 geometry audits passed original1e-9 tolerance",
+  "worker_resources": {
+    "elapsed_seconds": 57.075574804097414,
+    "logical_asset_bytes": 26113939,
+    "max_rss_bytes": 886108160
+  }
+}
