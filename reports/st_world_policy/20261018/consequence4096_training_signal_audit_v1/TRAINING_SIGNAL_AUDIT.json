@@ -1,0 +1,3515 @@
+{
+  "schema": "st_consequence4096_scalar_training_audit_v1",
+  "utc": "2026-10-18T14:14:08.150294+00:00",
+  "scope": "The actual C0-C4 fulltrain seed42 official4096 runs only; no DEV results used to select windows or tune.",
+  "analysis_source_base_sha": "cef257107dd802bc1b5ef9c88cb996a4c77fabe9",
+  "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "windows_predefined": {
+    "all_1_4096": [
+      1,
+      4096
+    ],
+    "1_1024": [
+      1,
+      1024
+    ],
+    "1025_2048": [
+      1025,
+      2048
+    ],
+    "2049_3072": [
+      2049,
+      3072
+    ],
+    "3073_4096": [
+      3073,
+      4096
+    ]
+  },
+  "scalar_jsonl_read_budget_bytes": 134217728,
+  "prior_reconnaissance_reserved_bytes": 1048576,
+  "payloads_read": false,
+  "official_scoring_performed": false,
+  "arms": {
+    "C0": {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1",
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/steps.jsonl",
+        "bytes": 11552960,
+        "sha256": "9acd7edecdb487f2c67f3bda879fd592c5214e6aa8f7656cf41e304e51d036bf"
+      },
+      "result_identity": "484fc7d2db6ceba5fb531e4f42423471a2730df4a2afc8ce8ce711dbfc435aa9",
+      "result_completed": 4096,
+      "result_new_optimizer_updates_last_invocation_only": 4096,
+      "frozen_encoder_unchanged_recorded": true,
+      "frozen_encoder_hash_recorded": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "unique_scene_ids_in_scalar_log": 101592,
+      "sample_order_and_lr_sha256": "5520bec08baf153360b680219280c3a178954679a8311175fb1ff3ce3f91f7a8",
+      "recipe": {
+        "cell": "C0",
+        "execution": {
+          "family": "consequence",
+          "global_batch": 32,
+          "max_updates": 4096,
+          "micro_batch": 4,
+          "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+          "sample_limit": 0,
+          "scope": "FORMAL",
+          "seed": 42,
+          "stop_after": 4096,
+          "world_size": 4
+        },
+        "fpo": {
+          "advantage": "within_scene_center_only",
+          "coordinate_reduction": "mean",
+          "interpolation_time": "uniform_0_1",
+          "log_ratio_clip": 3.0,
+          "mc_samples": 50,
+          "policy_loss_mode": "eval_with_grad",
+          "ratio_clip": 0.2
+        },
+        "loss": {
+          "bc_weight": 1.0,
+          "policy_weight": 0.0
+        },
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "clip": 1.0,
+          "eps": 1e-08,
+          "lr": 1e-05,
+          "minimum_lr": 5e-07,
+          "warmup": 100,
+          "weight_decay": 0.001
+        }
+      },
+      "feedback_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+      "training_identity_sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a",
+      "windows": {
+        "all_1_4096": {
+          "updates": 4096,
+          "first_step": 1,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 131064,
+            "BC_repeat8_presentations": 1048512,
+            "actual_rollouts": 0,
+            "policy_MC_points_per_old_and_current": 0
+          },
+          "loss": {
+            "bc": {
+              "count": 4096,
+              "mean": 0.004382658779434223,
+              "min": 0.0014494232600554824,
+              "p50": 0.004023028304800391,
+              "p95": 0.007705097319558263,
+              "max": 0.015477660112082958
+            },
+            "policy": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 4096,
+              "mean": 0.004382658779434223,
+              "min": 0.0014494232600554824,
+              "p50": 0.004023028304800391,
+              "p95": 0.007705097319558263,
+              "max": 0.015477660112082958
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 4096,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 4096,
+            "mean": 0.3778572045148394,
+            "min": 0.05504271015524864,
+            "p50": 0.35048338770866394,
+            "p95": 0.6662173271179199,
+            "max": 2.038806915283203
+          },
+          "lr": {
+            "count": 4096,
+            "mean": 5.24627685546875e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 5.2443984382534405e-06,
+            "p95": 9.939189197087351e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 4096,
+            "mean": 4082.651123046875,
+            "min": 4062,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 4096,
+            "mean": 3.2649103185455886e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 3.2695243135094643e-06,
+            "p95": 6.3015613704919815e-06,
+            "max": 7.655471563339233e-06
+          },
+          "fp32_master_verified_updates": 4096,
+          "slowest_rank_update_seconds": {
+            "count": 4096,
+            "mean": 2.1530480898190945,
+            "min": 1.7388814557343721,
+            "p50": 2.1097173374146223,
+            "p95": 2.34128077654168,
+            "max": 20.330990867689252
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 8818.88497589901,
+          "official_admitted_calls_cumulative_at_end": 0,
+          "gradient_norm_above_configured_clip_updates": 23,
+          "feedback": {
+            "status": "NOT_APPLICABLE_C0_NO_FEEDBACK"
+          }
+        },
+        "1_1024": {
+          "updates": 1024,
+          "first_step": 1,
+          "last_step": 1024,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 0,
+            "policy_MC_points_per_old_and_current": 0
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.005313165050210955,
+              "min": 0.002082954626530409,
+              "p50": 0.004966441309079528,
+              "p95": 0.008902299078181386,
+              "max": 0.015477660112082958
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.005313165050210955,
+              "min": 0.002082954626530409,
+              "p50": 0.004966441309079528,
+              "p95": 0.008902299078181386,
+              "max": 0.015477660112082958
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.458735317341052,
+            "min": 0.1319485306739807,
+            "p50": 0.42553330957889557,
+            "p95": 0.7832590639591215,
+            "max": 2.038806915283203
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.150039040249117e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 9.626908049788091e-06,
+            "p95": 9.996308354273356e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.966796875,
+            "min": 4076,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 5.627082849013476e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 5.771347787231207e-06,
+            "p95": 6.805639714002608e-06,
+            "max": 7.655471563339233e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 2.160072858652711,
+            "min": 1.9833585750311613,
+            "p50": 2.109596480615437,
+            "p95": 2.5865874014794827,
+            "max": 4.336268616840243
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 2211.914607260376,
+          "official_admitted_calls_cumulative_at_end": 0,
+          "gradient_norm_above_configured_clip_updates": 18,
+          "feedback": {
+            "status": "NOT_APPLICABLE_C0_NO_FEEDBACK"
+          }
+        },
+        "1025_2048": {
+          "updates": 1024,
+          "first_step": 1025,
+          "last_step": 2048,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 0,
+            "policy_MC_points_per_old_and_current": 0
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.004835579645941834,
+              "min": 0.002161959186196327,
+              "p50": 0.004516834858804941,
+              "p95": 0.007893528463318944,
+              "max": 0.013740980997681618
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.004835579645941834,
+              "min": 0.002161959186196327,
+              "p50": 0.004516834858804941,
+              "p95": 0.007893528463318944,
+              "max": 0.013740980997681618
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.40958457633678336,
+            "min": 0.14827054738998413,
+            "p50": 0.38177450001239777,
+            "p95": 0.700516295433044,
+            "max": 1.2055269479751587
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 7.228333942989206e-06,
+            "min": 5.44040213228443e-06,
+            "p50": 7.282785245619271e-06,
+            "p95": 8.671141331037787e-06,
+            "max": 8.800850589034681e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.798828125,
+            "min": 4080,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 4.466737096198159e-06,
+            "min": 2.876855432987213e-06,
+            "p50": 4.476867616176605e-06,
+            "p95": 5.6125758419511835e-06,
+            "max": 6.663613021373749e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 2.208401489449898,
+            "min": 1.9730654805898666,
+            "p50": 2.11686306912452,
+            "p95": 2.3682145496830342,
+            "max": 20.330990867689252
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 2261.4031251966953,
+          "official_admitted_calls_cumulative_at_end": 0,
+          "gradient_norm_above_configured_clip_updates": 3,
+          "feedback": {
+            "status": "NOT_APPLICABLE_C0_NO_FEEDBACK"
+          }
+        },
+        "2049_3072": {
+          "updates": 1024,
+          "first_step": 2049,
+          "last_step": 3072,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 0,
+            "policy_MC_points_per_old_and_current": 0
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.0039693725806273505,
+              "min": 0.0017542613204568624,
+              "p50": 0.003641117364168167,
+              "p95": 0.006864759628660976,
+              "max": 0.011701522395014763
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.0039693725806273505,
+              "min": 0.0017542613204568624,
+              "p50": 0.003641117364168167,
+              "p95": 0.006864759628660976,
+              "max": 0.011701522395014763
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.34929258438933175,
+            "min": 0.09764755517244339,
+            "p50": 0.3265109956264496,
+            "p95": 0.5983071237802502,
+            "max": 1.5288375616073608
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 3.6093078626591393e-06,
+            "min": 1.960595333109733e-06,
+            "p50": 3.5641497515072224e-06,
+            "p95": 5.245705468789066e-06,
+            "max": 5.436670699540625e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4083.66015625,
+            "min": 4076,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 2.2992290755752265e-06,
+            "min": 1.1585652828216553e-06,
+            "p50": 2.288026735186577e-06,
+            "p95": 3.353273496031761e-06,
+            "max": 4.30084764957428e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 2.1308595010414138,
+            "min": 1.972319008782506,
+            "p50": 2.1116778319701552,
+            "p95": 2.287622318975627,
+            "max": 3.543423382565379
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 2182.0001290664077,
+          "official_admitted_calls_cumulative_at_end": 0,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "NOT_APPLICABLE_C0_NO_FEEDBACK"
+          }
+        },
+        "3073_4096": {
+          "updates": 1024,
+          "first_step": 3073,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 32760,
+            "BC_repeat8_presentations": 262080,
+            "actual_rollouts": 0,
+            "policy_MC_points_per_old_and_current": 0
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.0034125178409567525,
+              "min": 0.0014494232600554824,
+              "p50": 0.003059833310544491,
+              "p95": 0.0059911112999543525,
+              "max": 0.013438651338219643
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.0034125178409567525,
+              "min": 0.0014494232600554824,
+              "p50": 0.003059833310544491,
+              "p95": 0.0059911112999543525,
+              "max": 0.013438651338219643
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.2938163399921905,
+            "min": 0.05504271015524864,
+            "p50": 0.2741652578115463,
+            "p95": 0.5099251478910446,
+            "max": 1.1488728523254395
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.974265759775393e-07,
+            "min": 5.000014679537673e-07,
+            "p50": 8.803795206567664e-07,
+            "p95": 1.8229058200333054e-06,
+            "max": 1.957902326997114e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4077.1787109375,
+            "min": 4062,
+            "p50": 4078.0,
+            "p95": 4083.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 6.665922533954927e-07,
+            "min": 2.915039658546448e-07,
+            "p50": 5.927868187427521e-07,
+            "p95": 1.2060627341270447e-06,
+            "max": 1.475214958190918e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 2.112858510132355,
+            "min": 1.7388814557343721,
+            "p50": 2.0999957220628858,
+            "p95": 2.2526935655623674,
+            "max": 2.590650986880064
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 2163.5671143755317,
+          "official_admitted_calls_cumulative_at_end": 0,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "NOT_APPLICABLE_C0_NO_FEEDBACK"
+          }
+        }
+      }
+    },
+    "C1": {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/steps.jsonl",
+        "bytes": 18533441,
+        "sha256": "3cc6674464ac4f9ed6e3b4b066c7f9c1f4212afe8687b788654b91929282ab1c"
+      },
+      "result_identity": "9c279380654e586896608fc66be9dbcc45181d953b40271d6374dba5fc0847df",
+      "result_completed": 4096,
+      "result_new_optimizer_updates_last_invocation_only": 773,
+      "frozen_encoder_unchanged_recorded": true,
+      "frozen_encoder_hash_recorded": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "unique_scene_ids_in_scalar_log": 101592,
+      "sample_order_and_lr_sha256": "5520bec08baf153360b680219280c3a178954679a8311175fb1ff3ce3f91f7a8",
+      "recipe": {
+        "cell": "C1",
+        "execution": {
+          "family": "consequence",
+          "global_batch": 32,
+          "max_updates": 4096,
+          "micro_batch": 4,
+          "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+          "sample_limit": 0,
+          "scope": "FORMAL",
+          "seed": 42,
+          "stop_after": 4096,
+          "world_size": 4
+        },
+        "fpo": {
+          "advantage": "within_scene_center_only",
+          "coordinate_reduction": "mean",
+          "interpolation_time": "uniform_0_1",
+          "log_ratio_clip": 3.0,
+          "mc_samples": 50,
+          "policy_loss_mode": "eval_with_grad",
+          "ratio_clip": 0.2
+        },
+        "loss": {
+          "bc_weight": 1.0,
+          "policy_weight": 1.0
+        },
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "clip": 1.0,
+          "eps": 1e-08,
+          "lr": 1e-05,
+          "minimum_lr": 5e-07,
+          "warmup": 100,
+          "weight_decay": 0.001
+        }
+      },
+      "feedback_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+      "training_identity_sha256": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930",
+      "windows": {
+        "all_1_4096": {
+          "updates": 4096,
+          "first_step": 1,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 131064,
+            "BC_repeat8_presentations": 1048512,
+            "actual_rollouts": 524256,
+            "policy_MC_points_per_old_and_current": 26212800
+          },
+          "loss": {
+            "bc": {
+              "count": 4096,
+              "mean": 0.004384514070579826,
+              "min": 0.0014433586038649082,
+              "p50": 0.0040253461338579655,
+              "p95": 0.007714645471423864,
+              "max": 0.015363509766757488
+            },
+            "policy": {
+              "count": 4096,
+              "mean": -6.644995664828457e-11,
+              "min": -1.1641532182693481e-08,
+              "p50": 0.0,
+              "p95": 5.122274160385132e-09,
+              "max": 1.1175870895385742e-08
+            },
+            "total": {
+              "count": 4096,
+              "mean": 0.0043845140052667375,
+              "min": 0.0014433604665100574,
+              "p50": 0.004025344969704747,
+              "p95": 0.0077146453550085425,
+              "max": 0.015363514423370361
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 4096,
+            "mean": 2.550109456933569e-09,
+            "min": 0.0,
+            "p50": 1.862645149230957e-09,
+            "p95": 6.51925802230835e-09,
+            "max": 1.1641532182693481e-08
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 4096,
+            "mean": 0.37830086547000974,
+            "min": 0.057420454919338226,
+            "p50": 0.3510170727968216,
+            "p95": 0.6671963483095169,
+            "max": 2.1419849395751953
+          },
+          "lr": {
+            "count": 4096,
+            "mean": 5.24627685546875e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 5.2443984382534405e-06,
+            "p95": 9.939189197087351e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 4096,
+            "mean": 4082.636962890625,
+            "min": 4058,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 4096,
+            "mean": 3.2686131844483768e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 3.275461494922638e-06,
+            "p95": 6.300513632595539e-06,
+            "max": 7.703900337219238e-06
+          },
+          "fp32_master_verified_updates": 4096,
+          "slowest_rank_update_seconds": {
+            "count": 4096,
+            "mean": 16.89430166786633,
+            "min": 14.299902956932783,
+            "p50": 16.57120048813522,
+            "p95": 19.38595874607563,
+            "max": 26.33006468601525
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 69199.05963158049,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 25,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 131064,
+            "valid_candidate_presentations": 524256,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 50131,
+            "zero_advantage_scene_fraction": 0.3824925227369835,
+            "nonzero_advantage_scene_presentations": 80933,
+            "nonzero_advantage_scene_fraction": 0.6175074772630165,
+            "updates_with_at_least_one_nonzero_advantage_scene": 4096,
+            "updates_with_only_zero_advantage_scenes": 0,
+            "candidate_weighted_mean_reward": 0.940989190503943,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9409891907905307,
+              "no_at_fault_collisions": 0.9998254669474456,
+              "drivable_area_compliance": 0.993058734663981,
+              "ego_progress": 0.8729575273529627,
+              "time_to_collision_within_bound": 0.9954258987975341,
+              "comfort": 0.9990004883110541,
+              "driving_direction_compliance": 0.9860850424220229
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00694126533601902,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00457410120246593,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.00017453305255443752,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 16384,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 4096
+          }
+        },
+        "1_1024": {
+          "updates": 1024,
+          "first_step": 1,
+          "last_step": 1024,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.005311961815095856,
+              "min": 0.00207697506994009,
+              "p50": 0.004961119266226888,
+              "p95": 0.008802160900086163,
+              "max": 0.015363509766757488
+            },
+            "policy": {
+              "count": 1024,
+              "mean": -1.944044925039634e-11,
+              "min": -8.847564458847046e-09,
+              "p50": 0.0,
+              "p95": 5.3201802074909e-09,
+              "max": 9.313225746154785e-09
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.0053119617894026305,
+              "min": 0.002076968550682068,
+              "p50": 0.004961121361702681,
+              "p95": 0.008802164578810332,
+              "max": 0.015363514423370361
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 2.5898998501361348e-09,
+            "min": 0.0,
+            "p50": 2.3283064365386963e-09,
+            "p95": 6.51925802230835e-09,
+            "max": 9.313225746154785e-09
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.4595064917957643,
+            "min": 0.13454647362232208,
+            "p50": 0.4277915358543396,
+            "p95": 0.76986671090126,
+            "max": 2.1419849395751953
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.150039040249117e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 9.626908049788091e-06,
+            "p95": 9.996308354273356e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.943359375,
+            "min": 4078,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 5.63375409967648e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 5.781417712569237e-06,
+            "p95": 6.8051798734813915e-06,
+            "max": 7.703900337219238e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.868399154569488,
+            "min": 14.46806287765503,
+            "p50": 16.757390236482024,
+            "p95": 18.321288311947136,
+            "max": 26.33006468601525
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 17273.240734279156,
+          "official_admitted_calls_cumulative_at_end": 131072,
+          "gradient_norm_above_configured_clip_updates": 18,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 12600,
+            "zero_advantage_scene_fraction": 0.384521484375,
+            "nonzero_advantage_scene_presentations": 20168,
+            "nonzero_advantage_scene_fraction": 0.615478515625,
+            "updates_with_at_least_one_nonzero_advantage_scene": 1024,
+            "updates_with_only_zero_advantage_scenes": 0,
+            "candidate_weighted_mean_reward": 0.9382330446242122,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9382330447363241,
+              "no_at_fault_collisions": 0.999603271484375,
+              "drivable_area_compliance": 0.99066162109375,
+              "ego_progress": 0.8706592890200856,
+              "time_to_collision_within_bound": 0.9943161010742188,
+              "comfort": 0.9989471435546875,
+              "driving_direction_compliance": 0.9848976135253906
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00933837890625,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00568389892578125,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000396728515625,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024
+          }
+        },
+        "1025_2048": {
+          "updates": 1024,
+          "first_step": 1025,
+          "last_step": 2048,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.0048429646924432745,
+              "min": 0.002178024733439088,
+              "p50": 0.004510695114731789,
+              "p95": 0.00789293083362281,
+              "max": 0.013868260197341442
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 1.864464138634503e-11,
+              "min": -9.313225746154785e-09,
+              "p50": 0.0,
+              "p95": 5.122274160385132e-09,
+              "max": 1.1175870895385742e-08
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.004842964721547105,
+              "min": 0.002178026596084237,
+              "p50": 0.00451069395057857,
+              "p95": 0.007892926875501869,
+              "max": 0.013868260197341442
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 2.526121534174308e-09,
+            "min": 0.0,
+            "p50": 1.862645149230957e-09,
+            "p95": 6.51925802230835e-09,
+            "max": 1.1175870895385742e-08
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.41051734033680987,
+            "min": 0.12461894750595093,
+            "p50": 0.38103191554546356,
+            "p95": 0.6949369162321088,
+            "max": 1.2410916090011597
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 7.228333942989206e-06,
+            "min": 5.44040213228443e-06,
+            "p50": 7.282785245619271e-06,
+            "p95": 8.671141331037787e-06,
+            "max": 8.800850589034681e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.7841796875,
+            "min": 4079,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 4.4767193205785816e-06,
+            "min": 2.8349459171295166e-06,
+            "p50": 4.470115527510643e-06,
+            "p95": 5.6300777941942215e-06,
+            "max": 6.619840860366821e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.32789729195065,
+            "min": 14.3939148504287,
+            "p50": 16.30169566720724,
+            "p95": 17.48890363788232,
+            "max": 20.91790926270187
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16719.766826957464,
+          "official_admitted_calls_cumulative_at_end": 262144,
+          "gradient_norm_above_configured_clip_updates": 5,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 12457,
+            "zero_advantage_scene_fraction": 0.380157470703125,
+            "nonzero_advantage_scene_presentations": 20311,
+            "nonzero_advantage_scene_fraction": 0.619842529296875,
+            "updates_with_at_least_one_nonzero_advantage_scene": 1024,
+            "updates_with_only_zero_advantage_scenes": 0,
+            "candidate_weighted_mean_reward": 0.9398033067991491,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9398033073493474,
+              "no_at_fault_collisions": 0.9998741149902344,
+              "drivable_area_compliance": 0.992095947265625,
+              "ego_progress": 0.8718955628718883,
+              "time_to_collision_within_bound": 0.9951019287109375,
+              "comfort": 0.9988784790039062,
+              "driving_direction_compliance": 0.9868659973144531
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.007904052734375,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.0048980712890625,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000125885009765625,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024
+          }
+        },
+        "2049_3072": {
+          "updates": 1024,
+          "first_step": 2049,
+          "last_step": 3072,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003971651928395659,
+              "min": 0.0017563709989190102,
+              "p50": 0.0036466072779148817,
+              "p95": 0.006854136125184595,
+              "max": 0.0115958321839571
+            },
+            "policy": {
+              "count": 1024,
+              "mean": -8.424194675171748e-11,
+              "min": -9.778887033462524e-09,
+              "p50": 0.0,
+              "p95": 5.122274160385132e-09,
+              "max": 1.1175870895385742e-08
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003971651841766288,
+              "min": 0.0017563742585480213,
+              "p50": 0.0036466061137616634,
+              "p95": 0.006854133890010415,
+              "max": 0.011595836840569973
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 2.581259650469292e-09,
+            "min": 0.0,
+            "p50": 1.862645149230957e-09,
+            "p95": 6.51925802230835e-09,
+            "max": 1.1175870895385742e-08
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.3496765679883538,
+            "min": 0.10115355253219604,
+            "p50": 0.3245857208967209,
+            "p95": 0.5927789986133575,
+            "max": 1.4612743854522705
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 3.6093078626591393e-06,
+            "min": 1.960595333109733e-06,
+            "p50": 3.5641497515072224e-06,
+            "p95": 5.245705468789066e-06,
+            "max": 5.436670699540625e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4083.6318359375,
+            "min": 4074,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 2.297184630961624e-06,
+            "min": 1.1492520570755005e-06,
+            "p50": 2.273867721669376e-06,
+            "p95": 3.3655203878879545e-06,
+            "max": 4.094559699296951e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 17.639522992243656,
+            "min": 14.345270151272416,
+            "p50": 18.05572989024222,
+            "p95": 19.96017320305109,
+            "max": 21.751404583454132
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 18062.871544057503,
+          "official_admitted_calls_cumulative_at_end": 393216,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 12584,
+            "zero_advantage_scene_fraction": 0.384033203125,
+            "nonzero_advantage_scene_presentations": 20184,
+            "nonzero_advantage_scene_fraction": 0.615966796875,
+            "updates_with_at_least_one_nonzero_advantage_scene": 1024,
+            "updates_with_only_zero_advantage_scenes": 0,
+            "candidate_weighted_mean_reward": 0.9422360937023768,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9422360940140757,
+              "no_at_fault_collisions": 0.9999160766601562,
+              "drivable_area_compliance": 0.993896484375,
+              "ego_progress": 0.8740811487680439,
+              "time_to_collision_within_bound": 0.9960250854492188,
+              "comfort": 0.9993133544921875,
+              "driving_direction_compliance": 0.9862785339355469
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.006103515625,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00397491455078125,
+            "candidate_NC_mean_penalty_not_failure_fraction": 8.392333984375e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024
+          }
+        },
+        "3073_4096": {
+          "updates": 1024,
+          "first_step": 3073,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 32760,
+            "BC_repeat8_presentations": 262080,
+            "actual_rollouts": 131040,
+            "policy_MC_points_per_old_and_current": 6552000
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003411477846384514,
+              "min": 0.0014433586038649082,
+              "p50": 0.003067331970669329,
+              "p95": 0.005981428222730752,
+              "max": 0.013611363247036934
+            },
+            "policy": {
+              "count": 1024,
+              "mean": -1.807620719773695e-10,
+              "min": -1.1641532182693481e-08,
+              "p50": 0.0,
+              "p95": 5.122274160385132e-09,
+              "max": 1.0710209608078003e-08
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.0034114776683509263,
+              "min": 0.0014433604665100574,
+              "p50": 0.0030673284782096744,
+              "p95": 0.005981424800120289,
+              "max": 0.013611355796456337
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 2.5031567929545417e-09,
+            "min": 0.0,
+            "p50": 1.862645149230957e-09,
+            "p95": 6.05359673500061e-09,
+            "max": 1.1641532182693481e-08
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.293503061759111,
+            "min": 0.057420454919338226,
+            "p50": 0.27341464161872864,
+            "p95": 0.5111361891031265,
+            "max": 1.1467928886413574
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.974265759775393e-07,
+            "min": 5.000014679537673e-07,
+            "p50": 8.803795206567664e-07,
+            "p95": 1.8229058200333054e-06,
+            "max": 1.957902326997114e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4077.1884765625,
+            "min": 4058,
+            "p50": 4078.0,
+            "p95": 4083.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 6.667946865768215e-07,
+            "min": 2.859160304069519e-07,
+            "p50": 5.895271897315979e-07,
+            "p95": 1.2071599485352632e-06,
+            "max": 1.471489667892456e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.741387232701527,
+            "min": 14.299902956932783,
+            "p50": 16.26218887604773,
+            "p95": 19.50785194830969,
+            "max": 22.494325464591384
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 17143.180526286364,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32760,
+            "valid_candidate_presentations": 131040,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 12490,
+            "zero_advantage_scene_fraction": 0.38125763125763124,
+            "nonzero_advantage_scene_presentations": 20270,
+            "nonzero_advantage_scene_fraction": 0.6187423687423688,
+            "updates_with_at_least_one_nonzero_advantage_scene": 1024,
+            "updates_with_only_zero_advantage_scenes": 0,
+            "candidate_weighted_mean_reward": 0.9436849750405557,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9436849752128612,
+              "no_at_fault_collisions": 0.9999084249084249,
+              "drivable_area_compliance": 0.9955815018315018,
+              "ego_progress": 0.8751946549255438,
+              "time_to_collision_within_bound": 0.9962606837606838,
+              "comfort": 0.9988629426129426,
+              "driving_direction_compliance": 0.9862980769230769
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.004418498168498153,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.003739316239316226,
+            "candidate_NC_mean_penalty_not_failure_fraction": 9.157509157509125e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024
+          }
+        }
+      }
+    },
+    "C2": {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1",
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/steps.jsonl",
+        "bytes": 18223658,
+        "sha256": "5cdfa391e981c970d29e51dcd4756443094fd183ef19338b816707e2387d8226"
+      },
+      "result_identity": "8546db0550f0b3e30ec6df98cc7cc111875ae16b593f8e320ac7c7d054f5e2a0",
+      "result_completed": 4096,
+      "result_new_optimizer_updates_last_invocation_only": 633,
+      "frozen_encoder_unchanged_recorded": true,
+      "frozen_encoder_hash_recorded": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "unique_scene_ids_in_scalar_log": 101592,
+      "sample_order_and_lr_sha256": "5520bec08baf153360b680219280c3a178954679a8311175fb1ff3ce3f91f7a8",
+      "recipe": {
+        "cell": "C2",
+        "execution": {
+          "family": "consequence",
+          "global_batch": 32,
+          "max_updates": 4096,
+          "micro_batch": 4,
+          "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+          "sample_limit": 0,
+          "scope": "FORMAL",
+          "seed": 42,
+          "stop_after": 4096,
+          "world_size": 4
+        },
+        "fpo": {
+          "advantage": "within_scene_center_only",
+          "coordinate_reduction": "mean",
+          "interpolation_time": "uniform_0_1",
+          "log_ratio_clip": 3.0,
+          "mc_samples": 50,
+          "policy_loss_mode": "eval_with_grad",
+          "ratio_clip": 0.2
+        },
+        "loss": {
+          "bc_weight": 1.0,
+          "policy_weight": 1.0
+        },
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "clip": 1.0,
+          "eps": 1e-08,
+          "lr": 1e-05,
+          "minimum_lr": 5e-07,
+          "warmup": 100,
+          "weight_decay": 0.001
+        }
+      },
+      "feedback_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+      "training_identity_sha256": "ab6c077f5633e769b8987bf95a869be0bb4f3164cfa7fe041a42e57b7bc2fae0",
+      "windows": {
+        "all_1_4096": {
+          "updates": 4096,
+          "first_step": 1,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 131064,
+            "BC_repeat8_presentations": 1048512,
+            "actual_rollouts": 524256,
+            "policy_MC_points_per_old_and_current": 26212800
+          },
+          "loss": {
+            "bc": {
+              "count": 4096,
+              "mean": 0.004384552964353361,
+              "min": 0.0014479460660368204,
+              "p50": 0.004032619995996356,
+              "p95": 0.00770060287322849,
+              "max": 0.01546915527433157
+            },
+            "policy": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 4096,
+              "mean": 0.004384552964353361,
+              "min": 0.0014479460660368204,
+              "p50": 0.004032619995996356,
+              "p95": 0.00770060287322849,
+              "max": 0.01546915527433157
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 4096,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 4096,
+            "mean": 0.37826103175302705,
+            "min": 0.054711636155843735,
+            "p50": 0.3500259518623352,
+            "p95": 0.6668045222759247,
+            "max": 2.1275782585144043
+          },
+          "lr": {
+            "count": 4096,
+            "mean": 5.24627685546875e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 5.2443984382534405e-06,
+            "p95": 9.939189197087351e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 4096,
+            "mean": 4082.666748046875,
+            "min": 4059,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 4096,
+            "mean": 3.26978706555181e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 3.279477823525667e-06,
+            "p95": 6.293412297964096e-06,
+            "max": 7.774680852890015e-06
+          },
+          "fp32_master_verified_updates": 4096,
+          "slowest_rank_update_seconds": {
+            "count": 4096,
+            "mean": 16.330381909373955,
+            "min": 14.283287731930614,
+            "p50": 16.288751657120883,
+            "p95": 17.51287623681128,
+            "max": 29.263139007613063
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 66889.24430079572,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 23,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 131064,
+            "valid_candidate_presentations": 524256,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 130277,
+            "zero_advantage_scene_fraction": 0.9939953000061039,
+            "nonzero_advantage_scene_presentations": 787,
+            "nonzero_advantage_scene_fraction": 0.006004699993896079,
+            "updates_with_at_least_one_nonzero_advantage_scene": 713,
+            "updates_with_only_zero_advantage_scenes": 3383,
+            "candidate_weighted_mean_reward": -0.006958432521516206,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9409662113517165,
+              "no_at_fault_collisions": 0.9998216520173351,
+              "drivable_area_compliance": 0.9930415674784838,
+              "ego_progress": 0.8729285954885508,
+              "time_to_collision_within_bound": 0.9954182689373131,
+              "comfort": 0.9990043032411646,
+              "driving_direction_compliance": 0.9860755050967466
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.006958432521516178,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.004581731062686889,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.00017834798266491703,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 16384,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 4096,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.006958432521516206
+          }
+        },
+        "1_1024": {
+          "updates": 1024,
+          "first_step": 1,
+          "last_step": 1024,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.005316228462561412,
+              "min": 0.002082954626530409,
+              "p50": 0.004990290384739637,
+              "p95": 0.00882415869273245,
+              "max": 0.01546915527433157
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.005316228462561412,
+              "min": 0.002082954626530409,
+              "p50": 0.004990290384739637,
+              "p95": 0.00882415869273245,
+              "max": 0.01546915527433157
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.4592563032056205,
+            "min": 0.13140684366226196,
+            "p50": 0.42584140598773956,
+            "p95": 0.789667689800262,
+            "max": 2.1275782585144043
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.150039040249117e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 9.626908049788091e-06,
+            "p95": 9.996308354273356e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4085.03515625,
+            "min": 4076,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 5.6418691856130465e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 5.7756551541388035e-06,
+            "p95": 6.8402499891817565e-06,
+            "max": 7.774680852890015e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.501136779619628,
+            "min": 14.468555457890034,
+            "p50": 16.396079009398818,
+            "p95": 17.728993657696993,
+            "max": 29.263139007613063
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16897.1640623305,
+          "official_admitted_calls_cumulative_at_end": 131072,
+          "gradient_norm_above_configured_clip_updates": 17,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32503,
+            "zero_advantage_scene_fraction": 0.991912841796875,
+            "nonzero_advantage_scene_presentations": 265,
+            "nonzero_advantage_scene_fraction": 0.008087158203125,
+            "updates_with_at_least_one_nonzero_advantage_scene": 230,
+            "updates_with_only_zero_advantage_scenes": 794,
+            "candidate_weighted_mean_reward": -0.0094146728515625,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9381684291075285,
+              "no_at_fault_collisions": 0.9996070861816406,
+              "drivable_area_compliance": 0.9905853271484375,
+              "ego_progress": 0.8705672738484707,
+              "time_to_collision_within_bound": 0.9943313598632812,
+              "comfort": 0.998931884765625,
+              "driving_direction_compliance": 0.9848976135253906
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.0094146728515625,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00566864013671875,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000392913818359375,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.0094146728515625
+          }
+        },
+        "1025_2048": {
+          "updates": 1024,
+          "first_step": 1025,
+          "last_step": 2048,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.004840675646846648,
+              "min": 0.002170074265450239,
+              "p50": 0.0045221284963190556,
+              "p95": 0.007883328944444655,
+              "max": 0.013799695298075676
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.004840675646846648,
+              "min": 0.002170074265450239,
+              "p50": 0.0045221284963190556,
+              "p95": 0.007883328944444655,
+              "max": 0.013799695298075676
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.410980992965051,
+            "min": 0.1295323520898819,
+            "p50": 0.38316838443279266,
+            "p95": 0.6963209480047226,
+            "max": 1.274957299232483
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 7.228333942989206e-06,
+            "min": 5.44040213228443e-06,
+            "p50": 7.282785245619271e-06,
+            "p95": 8.671141331037787e-06,
+            "max": 8.800850589034681e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.849609375,
+            "min": 4080,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 4.474780033625336e-06,
+            "min": 2.9085204005241394e-06,
+            "p50": 4.482688382267952e-06,
+            "p95": 5.6554668844910335e-06,
+            "max": 6.712973117828369e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.37826647381371,
+            "min": 14.363764192909002,
+            "p50": 16.354454687796533,
+            "p95": 17.47517236340791,
+            "max": 20.390073761343956
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16771.34486918524,
+          "official_admitted_calls_cumulative_at_end": 262144,
+          "gradient_norm_above_configured_clip_updates": 4,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32523,
+            "zero_advantage_scene_fraction": 0.992523193359375,
+            "nonzero_advantage_scene_presentations": 245,
+            "nonzero_advantage_scene_fraction": 0.007476806640625,
+            "updates_with_at_least_one_nonzero_advantage_scene": 219,
+            "updates_with_only_zero_advantage_scenes": 805,
+            "candidate_weighted_mean_reward": -0.0079345703125,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9397385149240836,
+              "no_at_fault_collisions": 0.9998817443847656,
+              "drivable_area_compliance": 0.9920654296875,
+              "ego_progress": 0.8718697731088896,
+              "time_to_collision_within_bound": 0.9950027465820312,
+              "comfort": 0.9989013671875,
+              "driving_direction_compliance": 0.98681640625
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.0079345703125,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00499725341796875,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000118255615234375,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.0079345703125
+          }
+        },
+        "2049_3072": {
+          "updates": 1024,
+          "first_step": 2049,
+          "last_step": 3072,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.0039702861133719125,
+              "min": 0.0017554531805217266,
+              "p50": 0.0036440559197217226,
+              "p95": 0.0067935769679024795,
+              "max": 0.011661402881145477
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.0039702861133719125,
+              "min": 0.0017554531805217266,
+              "p50": 0.0036440559197217226,
+              "p95": 0.0067935769679024795,
+              "max": 0.011661402881145477
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.3492705904209288,
+            "min": 0.10058791190385818,
+            "p50": 0.32555489242076874,
+            "p95": 0.5995515197515482,
+            "max": 1.4607490301132202
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 3.6093078626591393e-06,
+            "min": 1.960595333109733e-06,
+            "p50": 3.5641497515072224e-06,
+            "p95": 5.245705468789066e-06,
+            "max": 5.436670699540625e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4083.69140625,
+            "min": 4075,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 2.2955333682794787e-06,
+            "min": 1.1632218956947327e-06,
+            "p50": 2.2728927433490753e-06,
+            "p95": 3.35953664034605e-06,
+            "max": 4.148110747337341e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.302080007348195,
+            "min": 14.324467021971941,
+            "p50": 16.307344793342054,
+            "p95": 17.32673464315012,
+            "max": 18.699415005743504
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16693.32992752455,
+          "official_admitted_calls_cumulative_at_end": 393216,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32609,
+            "zero_advantage_scene_fraction": 0.995147705078125,
+            "nonzero_advantage_scene_presentations": 159,
+            "nonzero_advantage_scene_fraction": 0.004852294921875,
+            "updates_with_at_least_one_nonzero_advantage_scene": 151,
+            "updates_with_only_zero_advantage_scenes": 873,
+            "candidate_weighted_mean_reward": -0.0059814453125,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9423671021947355,
+              "no_at_fault_collisions": 0.9999008178710938,
+              "drivable_area_compliance": 0.9940185546875,
+              "ego_progress": 0.8741727826084782,
+              "time_to_collision_within_bound": 0.9960861206054688,
+              "comfort": 0.9993057250976562,
+              "driving_direction_compliance": 0.9862823486328125
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.0059814453125,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00391387939453125,
+            "candidate_NC_mean_penalty_not_failure_fraction": 9.918212890625e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.0059814453125
+          }
+        },
+        "3073_4096": {
+          "updates": 1024,
+          "first_step": 3073,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 32760,
+            "BC_repeat8_presentations": 262080,
+            "actual_rollouts": 131040,
+            "policy_MC_points_per_old_and_current": 6552000
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003411021634633471,
+              "min": 0.0014479460660368204,
+              "p50": 0.00306314614135772,
+              "p95": 0.006024681078270074,
+              "max": 0.01339101605117321
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003411021634633471,
+              "min": 0.0014479460660368204,
+              "p50": 0.00306314614135772,
+              "p95": 0.006024681078270074,
+              "max": 0.01339101605117321
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.29353624042050797,
+            "min": 0.054711636155843735,
+            "p50": 0.27229975163936615,
+            "p95": 0.5128586322069167,
+            "max": 1.1594396829605103
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.974265759775393e-07,
+            "min": 5.000014679537673e-07,
+            "p50": 8.803795206567664e-07,
+            "p95": 1.8229058200333054e-06,
+            "max": 1.957902326997114e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4077.0908203125,
+            "min": 4059,
+            "p50": 4078.0,
+            "p95": 4084.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 6.669656746893793e-07,
+            "min": 2.8312206268310547e-07,
+            "p50": 5.910405889153481e-07,
+            "p95": 1.2069940567016602e-06,
+            "max": 1.4845281839370728e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.140044376714286,
+            "min": 14.283287731930614,
+            "p50": 16.104450832121074,
+            "p95": 17.428551255073398,
+            "max": 23.490523763000965
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16527.40544175543,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32760,
+            "valid_candidate_presentations": 131040,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32642,
+            "zero_advantage_scene_fraction": 0.9963980463980464,
+            "nonzero_advantage_scene_presentations": 118,
+            "nonzero_advantage_scene_fraction": 0.003601953601953589,
+            "updates_with_at_least_one_nonzero_advantage_scene": 113,
+            "updates_with_only_zero_advantage_scenes": 911,
+            "candidate_weighted_mean_reward": -0.004502442002442002,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9435914401055228,
+              "no_at_fault_collisions": 0.999896978021978,
+              "drivable_area_compliance": 0.995497557997558,
+              "ego_progress": 0.8751050837575713,
+              "time_to_collision_within_bound": 0.9962530525030525,
+              "comfort": 0.9988782051282051,
+              "driving_direction_compliance": 0.9863057081807082
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.0045024420024419864,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.0037469474969474836,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.00010302197802203317,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.004502442002442002
+          }
+        }
+      }
+    },
+    "C3": {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1",
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/steps.jsonl",
+        "bytes": 18218929,
+        "sha256": "38cc12a1913abd06c19f195e95a2f7c7fbe2e47b20a04252e44a0777478fcce7"
+      },
+      "result_identity": "4b2c54f241b13cfdb9518f23b8759d51142c84a53db28826366fc7d280314999",
+      "result_completed": 4096,
+      "result_new_optimizer_updates_last_invocation_only": 671,
+      "frozen_encoder_unchanged_recorded": true,
+      "frozen_encoder_hash_recorded": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "unique_scene_ids_in_scalar_log": 101592,
+      "sample_order_and_lr_sha256": "5520bec08baf153360b680219280c3a178954679a8311175fb1ff3ce3f91f7a8",
+      "recipe": {
+        "cell": "C3",
+        "execution": {
+          "family": "consequence",
+          "global_batch": 32,
+          "max_updates": 4096,
+          "micro_batch": 4,
+          "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+          "sample_limit": 0,
+          "scope": "FORMAL",
+          "seed": 42,
+          "stop_after": 4096,
+          "world_size": 4
+        },
+        "fpo": {
+          "advantage": "within_scene_center_only",
+          "coordinate_reduction": "mean",
+          "interpolation_time": "uniform_0_1",
+          "log_ratio_clip": 3.0,
+          "mc_samples": 50,
+          "policy_loss_mode": "eval_with_grad",
+          "ratio_clip": 0.2
+        },
+        "loss": {
+          "bc_weight": 1.0,
+          "policy_weight": 1.0
+        },
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "clip": 1.0,
+          "eps": 1e-08,
+          "lr": 1e-05,
+          "minimum_lr": 5e-07,
+          "warmup": 100,
+          "weight_decay": 0.001
+        }
+      },
+      "feedback_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+      "training_identity_sha256": "7b9d57c3ae83d8ca37106927d037b26c7ec11600a4e5496548e412e9171f18c6",
+      "windows": {
+        "all_1_4096": {
+          "updates": 4096,
+          "first_step": 1,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 131064,
+            "BC_repeat8_presentations": 1048512,
+            "actual_rollouts": 524256,
+            "policy_MC_points_per_old_and_current": 26212800
+          },
+          "loss": {
+            "bc": {
+              "count": 4096,
+              "mean": 0.004382844063030689,
+              "min": 0.0014349250122904778,
+              "p50": 0.004035099409520626,
+              "p95": 0.0077187970746308565,
+              "max": 0.015516012907028198
+            },
+            "policy": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 4096,
+              "mean": 0.004382844063030689,
+              "min": 0.0014349250122904778,
+              "p50": 0.004035099409520626,
+              "p95": 0.0077187970746308565,
+              "max": 0.015516012907028198
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 4096,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 4096,
+            "mean": 0.3779230893815111,
+            "min": 0.053660981357097626,
+            "p50": 0.3497002422809601,
+            "p95": 0.6631795018911362,
+            "max": 2.065570592880249
+          },
+          "lr": {
+            "count": 4096,
+            "mean": 5.24627685546875e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 5.2443984382534405e-06,
+            "p95": 9.939189197087351e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 4096,
+            "mean": 4082.6640625,
+            "min": 4056,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 4096,
+            "mean": 3.266361750520197e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 3.2745301723480225e-06,
+            "p95": 6.3087791204452515e-06,
+            "max": 7.68899917602539e-06
+          },
+          "fp32_master_verified_updates": 4096,
+          "slowest_rank_update_seconds": {
+            "count": 4096,
+            "mean": 16.575006330740052,
+            "min": 14.12364212051034,
+            "p50": 16.54745609499514,
+            "p95": 17.736207397654653,
+            "max": 23.846606988459826
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 67891.22593071125,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 22,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 131064,
+            "valid_candidate_presentations": 524256,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 131025,
+            "zero_advantage_scene_fraction": 0.9997024354513825,
+            "nonzero_advantage_scene_presentations": 39,
+            "nonzero_advantage_scene_fraction": 0.0002975645486175127,
+            "updates_with_at_least_one_nonzero_advantage_scene": 39,
+            "updates_with_only_zero_advantage_scenes": 4057,
+            "candidate_weighted_mean_reward": -0.0001754867850820973,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9408480748366487,
+              "no_at_fault_collisions": 0.9998245132149179,
+              "drivable_area_compliance": 0.992923304645059,
+              "ego_progress": 0.8728094255631744,
+              "time_to_collision_within_bound": 0.9954106390770922,
+              "comfort": 0.9990081181712751,
+              "driving_direction_compliance": 0.986079320026857
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.007076695354941043,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.004589360922907848,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.0001754867850820574,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 16384,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 4096,
+            "reward_nonzero_candidate_fraction": null,
+            "NC_nonzero_penalty_fraction_bounds_from_0_0p5_1": [
+              0.0001754867850820574,
+              0.0003509735701641148
+            ]
+          }
+        },
+        "1_1024": {
+          "updates": 1024,
+          "first_step": 1,
+          "last_step": 1024,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.005315539739740416,
+              "min": 0.002082954626530409,
+              "p50": 0.004987804451957345,
+              "p95": 0.008845685236155986,
+              "max": 0.015516012907028198
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.005315539739740416,
+              "min": 0.002082954626530409,
+              "p50": 0.004987804451957345,
+              "p95": 0.008845685236155986,
+              "max": 0.015516012907028198
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.45949609942908864,
+            "min": 0.132147878408432,
+            "p50": 0.42813678085803986,
+            "p95": 0.7855883479118346,
+            "max": 2.065570592880249
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.150039040249117e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 9.626908049788091e-06,
+            "p95": 9.996308354273356e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.9736328125,
+            "min": 4076,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 5.63836593991951e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 5.775116733275354e-06,
+            "p95": 6.810831837356089e-06,
+            "max": 7.68899917602539e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.655926602550608,
+            "min": 14.135549975559115,
+            "p50": 16.61042629275471,
+            "p95": 17.816767195053398,
+            "max": 22.239125587046146
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 17055.668841011822,
+          "official_admitted_calls_cumulative_at_end": 131072,
+          "gradient_norm_above_configured_clip_updates": 17,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32753,
+            "zero_advantage_scene_fraction": 0.999542236328125,
+            "nonzero_advantage_scene_presentations": 15,
+            "nonzero_advantage_scene_fraction": 0.000457763671875,
+            "updates_with_at_least_one_nonzero_advantage_scene": 15,
+            "updates_with_only_zero_advantage_scenes": 1009,
+            "candidate_weighted_mean_reward": -0.000408172607421875,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.93799879468443,
+              "no_at_fault_collisions": 0.9995918273925781,
+              "drivable_area_compliance": 0.99041748046875,
+              "ego_progress": 0.8703739830663646,
+              "time_to_collision_within_bound": 0.9943695068359375,
+              "comfort": 0.9989395141601562,
+              "driving_direction_compliance": 0.9848899841308594
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00958251953125,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.0056304931640625,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000408172607421875,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction": null,
+            "NC_nonzero_penalty_fraction_bounds_from_0_0p5_1": [
+              0.000408172607421875,
+              0.00081634521484375
+            ]
+          }
+        },
+        "1025_2048": {
+          "updates": 1024,
+          "first_step": 1025,
+          "last_step": 2048,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.004836040742475234,
+              "min": 0.002164644654840231,
+              "p50": 0.004528109449893236,
+              "p95": 0.007857089769095181,
+              "max": 0.013631219044327736
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.004836040742475234,
+              "min": 0.002164644654840231,
+              "p50": 0.004528109449893236,
+              "p95": 0.007857089769095181,
+              "max": 0.013631219044327736
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.40939093586348463,
+            "min": 0.14930656552314758,
+            "p50": 0.38314738869667053,
+            "p95": 0.6983214765787121,
+            "max": 1.3313955068588257
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 7.228333942989206e-06,
+            "min": 5.44040213228443e-06,
+            "p50": 7.282785245619271e-06,
+            "p95": 8.671141331037787e-06,
+            "max": 8.800850589034681e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.8251953125,
+            "min": 4080,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 4.458986243349727e-06,
+            "min": 2.86102294921875e-06,
+            "p50": 4.472443833947182e-06,
+            "p95": 5.573825910687447e-06,
+            "max": 6.707850843667984e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.557595313621277,
+            "min": 14.811502151191235,
+            "p50": 16.537570893764496,
+            "p95": 17.60977547448128,
+            "max": 23.846606988459826
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16954.977601148188,
+          "official_admitted_calls_cumulative_at_end": 262144,
+          "gradient_norm_above_configured_clip_updates": 3,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32759,
+            "zero_advantage_scene_fraction": 0.999725341796875,
+            "nonzero_advantage_scene_presentations": 9,
+            "nonzero_advantage_scene_fraction": 0.000274658203125,
+            "updates_with_at_least_one_nonzero_advantage_scene": 9,
+            "updates_with_only_zero_advantage_scenes": 1015,
+            "candidate_weighted_mean_reward": -0.0001220703125,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9396243700886678,
+              "no_at_fault_collisions": 0.9998779296875,
+              "drivable_area_compliance": 0.9919509887695312,
+              "ego_progress": 0.8717358419828432,
+              "time_to_collision_within_bound": 0.9950180053710938,
+              "comfort": 0.9989013671875,
+              "driving_direction_compliance": 0.9868392944335938
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00804901123046875,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00498199462890625,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.0001220703125,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction": null,
+            "NC_nonzero_penalty_fraction_bounds_from_0_0p5_1": [
+              0.0001220703125,
+              0.000244140625
+            ]
+          }
+        },
+        "2049_3072": {
+          "updates": 1024,
+          "first_step": 2049,
+          "last_step": 3072,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003968684015944746,
+              "min": 0.0017594521632418036,
+              "p50": 0.00363435922190547,
+              "p95": 0.006842012726701794,
+              "max": 0.011681729927659035
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003968684015944746,
+              "min": 0.0017594521632418036,
+              "p50": 0.00363435922190547,
+              "p95": 0.006842012726701794,
+              "max": 0.011681729927659035
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.34892268102703383,
+            "min": 0.09631486982107162,
+            "p50": 0.32655858993530273,
+            "p95": 0.5930576741695402,
+            "max": 1.5023499727249146
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 3.6093078626591393e-06,
+            "min": 1.960595333109733e-06,
+            "p50": 3.5641497515072224e-06,
+            "p95": 5.245705468789066e-06,
+            "max": 5.436670699540625e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4083.6044921875,
+            "min": 4077,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 2.3003283571298994e-06,
+            "min": 1.1525116860866547e-06,
+            "p50": 2.273518475703895e-06,
+            "p95": 3.351375926285982e-06,
+            "max": 4.14624810218811e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.583105016525224,
+            "min": 14.642468433827162,
+            "p50": 16.556018013507128,
+            "p95": 17.810707856621594,
+            "max": 19.102144591510296
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16981.09953692183,
+          "official_admitted_calls_cumulative_at_end": 393216,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32763,
+            "zero_advantage_scene_fraction": 0.999847412109375,
+            "nonzero_advantage_scene_presentations": 5,
+            "nonzero_advantage_scene_fraction": 0.000152587890625,
+            "updates_with_at_least_one_nonzero_advantage_scene": 5,
+            "updates_with_only_zero_advantage_scenes": 1019,
+            "candidate_weighted_mean_reward": -9.5367431640625e-05,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9421435349187862,
+              "no_at_fault_collisions": 0.9999046325683594,
+              "drivable_area_compliance": 0.9938201904296875,
+              "ego_progress": 0.873994034362198,
+              "time_to_collision_within_bound": 0.9959945678710938,
+              "comfort": 0.9993209838867188,
+              "driving_direction_compliance": 0.9862594604492188
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.0061798095703125,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00400543212890625,
+            "candidate_NC_mean_penalty_not_failure_fraction": 9.5367431640625e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction": null,
+            "NC_nonzero_penalty_fraction_bounds_from_0_0p5_1": [
+              9.5367431640625e-05,
+              0.00019073486328125
+            ]
+          }
+        },
+        "3073_4096": {
+          "updates": 1024,
+          "first_step": 3073,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 32760,
+            "BC_repeat8_presentations": 262080,
+            "actual_rollouts": 131040,
+            "policy_MC_points_per_old_and_current": 6552000
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003411111753962359,
+              "min": 0.0014349250122904778,
+              "p50": 0.003062220523133874,
+              "p95": 0.005988729535602031,
+              "max": 0.013567700982093811
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003411111753962359,
+              "min": 0.0014349250122904778,
+              "p50": 0.003062220523133874,
+              "p95": 0.005988729535602031,
+              "max": 0.013567700982093811
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.29388264120643726,
+            "min": 0.053660981357097626,
+            "p50": 0.2753436267375946,
+            "p95": 0.5057047218084334,
+            "max": 1.1216500997543335
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.974265759775393e-07,
+            "min": 5.000014679537673e-07,
+            "p50": 8.803795206567664e-07,
+            "p95": 1.8229058200333054e-06,
+            "max": 1.957902326997114e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4077.2529296875,
+            "min": 4056,
+            "p50": 4078.0,
+            "p95": 4083.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 6.677664616816514e-07,
+            "min": 2.9243528842926025e-07,
+            "p50": 5.904585123062134e-07,
+            "p95": 1.2093689292669294e-06,
+            "max": 1.4454126358032227e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.5033983902631,
+            "min": 14.12364212051034,
+            "p50": 16.475121788680553,
+            "p95": 17.59680915316567,
+            "max": 22.272294832393527
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16899.479951629415,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32760,
+            "valid_candidate_presentations": 131040,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32750,
+            "zero_advantage_scene_fraction": 0.9996947496947497,
+            "nonzero_advantage_scene_presentations": 10,
+            "nonzero_advantage_scene_fraction": 0.00030525030525030417,
+            "updates_with_at_least_one_nonzero_advantage_scene": 10,
+            "updates_with_only_zero_advantage_scenes": 1014,
+            "candidate_weighted_mean_reward": -7.631257631257631e-05,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9436262779269532,
+              "no_at_fault_collisions": 0.9999236874236874,
+              "drivable_area_compliance": 0.9955051892551893,
+              "ego_progress": 0.8751344104645716,
+              "time_to_collision_within_bound": 0.9962606837606838,
+              "comfort": 0.9988705738705739,
+              "driving_direction_compliance": 0.986328601953602
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.004494810744810729,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.003739316239316226,
+            "candidate_NC_mean_penalty_not_failure_fraction": 7.631257631257604e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction": null,
+            "NC_nonzero_penalty_fraction_bounds_from_0_0p5_1": [
+              7.631257631257604e-05,
+              0.00015262515262515208
+            ]
+          }
+        }
+      }
+    },
+    "C4": {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1",
+      "steps": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/steps.jsonl",
+        "bytes": 18219598,
+        "sha256": "3338a351a2449955325dd2b48b684c12f907799377632abd233d13795359a53c"
+      },
+      "result_identity": "4e023061b8ac16114cc1f9e3b5e440cb2c3a23d524d562aa1276270567f5fbbb",
+      "result_completed": 4096,
+      "result_new_optimizer_updates_last_invocation_only": 829,
+      "frozen_encoder_unchanged_recorded": true,
+      "frozen_encoder_hash_recorded": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+      "unique_scene_ids_in_scalar_log": 101592,
+      "sample_order_and_lr_sha256": "5520bec08baf153360b680219280c3a178954679a8311175fb1ff3ce3f91f7a8",
+      "recipe": {
+        "cell": "C4",
+        "execution": {
+          "family": "consequence",
+          "global_batch": 32,
+          "max_updates": 4096,
+          "micro_batch": 4,
+          "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+          "sample_limit": 0,
+          "scope": "FORMAL",
+          "seed": 42,
+          "stop_after": 4096,
+          "world_size": 4
+        },
+        "fpo": {
+          "advantage": "within_scene_center_only",
+          "coordinate_reduction": "mean",
+          "interpolation_time": "uniform_0_1",
+          "log_ratio_clip": 3.0,
+          "mc_samples": 50,
+          "policy_loss_mode": "eval_with_grad",
+          "ratio_clip": 0.2
+        },
+        "loss": {
+          "bc_weight": 1.0,
+          "policy_weight": 1.0
+        },
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "clip": 1.0,
+          "eps": 1e-08,
+          "lr": 1e-05,
+          "minimum_lr": 5e-07,
+          "warmup": 100,
+          "weight_decay": 0.001
+        }
+      },
+      "feedback_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+      "training_identity_sha256": "33265715bb9fde71dab1e9821d8d5c9fcccaf5df424c75d108cabd2e573d5d8a",
+      "windows": {
+        "all_1_4096": {
+          "updates": 4096,
+          "first_step": 1,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 131064,
+            "BC_repeat8_presentations": 1048512,
+            "actual_rollouts": 524256,
+            "policy_MC_points_per_old_and_current": 26212800
+          },
+          "loss": {
+            "bc": {
+              "count": 4096,
+              "mean": 0.004382157912232287,
+              "min": 0.0014342482900246978,
+              "p50": 0.004033994860947132,
+              "p95": 0.007708044024184346,
+              "max": 0.015477391891181469
+            },
+            "policy": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 4096,
+              "mean": 0.004382157912232287,
+              "min": 0.0014342482900246978,
+              "p50": 0.004033994860947132,
+              "p95": 0.007708044024184346,
+              "max": 0.015477391891181469
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 4096,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 4096,
+            "mean": 0.3780362115658136,
+            "min": 0.06080527976155281,
+            "p50": 0.35100652277469635,
+            "p95": 0.6685570031404495,
+            "max": 2.125839948654175
+          },
+          "lr": {
+            "count": 4096,
+            "mean": 5.24627685546875e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 5.2443984382534405e-06,
+            "p95": 9.939189197087351e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 4096,
+            "mean": 4082.695068359375,
+            "min": 4062,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 4096,
+            "mean": 3.268614978790829e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 3.268476575613022e-06,
+            "p95": 6.299000233411789e-06,
+            "max": 7.737427949905396e-06
+          },
+          "fp32_master_verified_updates": 4096,
+          "slowest_rank_update_seconds": {
+            "count": 4096,
+            "mean": 17.17307661950963,
+            "min": 14.013544503599405,
+            "p50": 16.68914216198027,
+            "p95": 19.813141338992864,
+            "max": 23.192140229046345
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 70340.92183351144,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 25,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 131064,
+            "valid_candidate_presentations": 524256,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 130540,
+            "zero_advantage_scene_fraction": 0.9960019532442166,
+            "nonzero_advantage_scene_presentations": 524,
+            "nonzero_advantage_scene_fraction": 0.003998046755783413,
+            "updates_with_at_least_one_nonzero_advantage_scene": 495,
+            "updates_with_only_zero_advantage_scenes": 3601,
+            "candidate_weighted_mean_reward": -0.004537859366643795,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9409264232225718,
+              "no_at_fault_collisions": 0.9998359580052494,
+              "drivable_area_compliance": 0.9929690838063847,
+              "ego_progress": 0.8728809177142802,
+              "time_to_collision_within_bound": 0.9954621406335836,
+              "comfort": 0.9990119331013856,
+              "driving_direction_compliance": 0.9860650140389428
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.007030916193615289,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.004537859366416375,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.00016404199475061887,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 16384,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 4096,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.004537859366643795
+          }
+        },
+        "1_1024": {
+          "updates": 1024,
+          "first_step": 1,
+          "last_step": 1024,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.005308802873287277,
+              "min": 0.002082954626530409,
+              "p50": 0.0049608489498496056,
+              "p95": 0.008850125176832079,
+              "max": 0.015477391891181469
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.005308802873287277,
+              "min": 0.002082954626530409,
+              "p50": 0.0049608489498496056,
+              "p95": 0.008850125176832079,
+              "max": 0.015477391891181469
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.4593045929505024,
+            "min": 0.13341261446475983,
+            "p50": 0.42377957701683044,
+            "p95": 0.7690435051918028,
+            "max": 2.125839948654175
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.150039040249117e-06,
+            "min": 1.0000000000000001e-07,
+            "p50": 9.626908049788091e-06,
+            "p95": 9.996308354273356e-06,
+            "max": 1e-05
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.9716796875,
+            "min": 4076,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 5.638773152849552e-06,
+            "min": 1.0058283805847168e-07,
+            "p50": 5.785143002867699e-06,
+            "p95": 6.822310388088226e-06,
+            "max": 7.737427949905396e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.33508049489683,
+            "min": 14.013544503599405,
+            "p50": 16.272824028506875,
+            "p95": 17.712023820169268,
+            "max": 22.242136916145682
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16727.122426774353,
+          "official_admitted_calls_cumulative_at_end": 131072,
+          "gradient_norm_above_configured_clip_updates": 19,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32599,
+            "zero_advantage_scene_fraction": 0.994842529296875,
+            "nonzero_advantage_scene_presentations": 169,
+            "nonzero_advantage_scene_fraction": 0.005157470703125,
+            "updates_with_at_least_one_nonzero_advantage_scene": 159,
+            "updates_with_only_zero_advantage_scenes": 865,
+            "candidate_weighted_mean_reward": -0.0055999755859375,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9381276582873183,
+              "no_at_fault_collisions": 0.999603271484375,
+              "drivable_area_compliance": 0.9905166625976562,
+              "ego_progress": 0.87049919078786,
+              "time_to_collision_within_bound": 0.9944000244140625,
+              "comfort": 0.9989471435546875,
+              "driving_direction_compliance": 0.9848747253417969
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00948333740234375,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.0055999755859375,
+            "candidate_NC_mean_penalty_not_failure_fraction": 0.000396728515625,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.0055999755859375
+          }
+        },
+        "1025_2048": {
+          "updates": 1024,
+          "first_step": 1025,
+          "last_step": 2048,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.004839004678387937,
+              "min": 0.0021673645824193954,
+              "p50": 0.0045103710144758224,
+              "p95": 0.007879474712535736,
+              "max": 0.013576008379459381
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.004839004678387937,
+              "min": 0.0021673645824193954,
+              "p50": 0.0045103710144758224,
+              "p95": 0.007879474712535736,
+              "max": 0.013576008379459381
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.41015314307878725,
+            "min": 0.1384333223104477,
+            "p50": 0.38025325536727905,
+            "p95": 0.6907179385423657,
+            "max": 1.2166643142700195
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 7.228333942989206e-06,
+            "min": 5.44040213228443e-06,
+            "p50": 7.282785245619271e-06,
+            "p95": 8.671141331037787e-06,
+            "max": 8.800850589034681e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4084.865234375,
+            "min": 4079,
+            "p50": 4085.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 4.466759443211288e-06,
+            "min": 2.8312206268310547e-06,
+            "p50": 4.462432116270065e-06,
+            "p95": 5.620345473289489e-06,
+            "max": 6.674556061625481e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.352543914419584,
+            "min": 14.356595112010837,
+            "p50": 16.324480548501015,
+            "p95": 17.58226688802242,
+            "max": 22.40186346694827
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 16745.004968365654,
+          "official_admitted_calls_cumulative_at_end": 262144,
+          "gradient_norm_above_configured_clip_updates": 4,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32627,
+            "zero_advantage_scene_fraction": 0.995697021484375,
+            "nonzero_advantage_scene_presentations": 141,
+            "nonzero_advantage_scene_fraction": 0.004302978515625,
+            "updates_with_at_least_one_nonzero_advantage_scene": 133,
+            "updates_with_only_zero_advantage_scenes": 891,
+            "candidate_weighted_mean_reward": -0.00490570068359375,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9397610246394582,
+              "no_at_fault_collisions": 0.9999008178710938,
+              "drivable_area_compliance": 0.9920425415039062,
+              "ego_progress": 0.8718556378438077,
+              "time_to_collision_within_bound": 0.9950942993164062,
+              "comfort": 0.9989242553710938,
+              "driving_direction_compliance": 0.9868087768554688
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00795745849609375,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00490570068359375,
+            "candidate_NC_mean_penalty_not_failure_fraction": 9.918212890625e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.00490570068359375
+          }
+        },
+        "2049_3072": {
+          "updates": 1024,
+          "first_step": 2049,
+          "last_step": 3072,
+          "counts": {
+            "original_GT_scenes": 32768,
+            "BC_repeat8_presentations": 262144,
+            "actual_rollouts": 131072,
+            "policy_MC_points_per_old_and_current": 6553600
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003969186532913227,
+              "min": 0.0017444374971091747,
+              "p50": 0.0036352359456941485,
+              "p95": 0.00683452049270272,
+              "max": 0.011619152501225471
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003969186532913227,
+              "min": 0.0017444374971091747,
+              "p50": 0.0036352359456941485,
+              "p95": 0.00683452049270272,
+              "max": 0.011619152501225471
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.34894318952865433,
+            "min": 0.10049685090780258,
+            "p50": 0.3261614292860031,
+            "p95": 0.5985676586627959,
+            "max": 1.4769645929336548
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 3.6093078626591393e-06,
+            "min": 1.960595333109733e-06,
+            "p50": 3.5641497515072224e-06,
+            "p95": 5.245705468789066e-06,
+            "max": 5.436670699540625e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4083.552734375,
+            "min": 4077,
+            "p50": 4084.0,
+            "p95": 4086.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 2.3006207285902747e-06,
+            "min": 1.1278316378593445e-06,
+            "p50": 2.2938475012779236e-06,
+            "p95": 3.337860107421875e-06,
+            "max": 4.241243004798889e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 19.15417861246715,
+            "min": 17.316026490181684,
+            "p50": 19.130989636294544,
+            "p95": 20.4699880621396,
+            "max": 21.821052120998502
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 19613.87889916636,
+          "official_admitted_calls_cumulative_at_end": 393216,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32768,
+            "valid_candidate_presentations": 131072,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32655,
+            "zero_advantage_scene_fraction": 0.996551513671875,
+            "nonzero_advantage_scene_presentations": 113,
+            "nonzero_advantage_scene_fraction": 0.003448486328125,
+            "updates_with_at_least_one_nonzero_advantage_scene": 107,
+            "updates_with_only_zero_advantage_scenes": 917,
+            "candidate_weighted_mean_reward": -0.00399017333984375,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9422109647820622,
+              "no_at_fault_collisions": 0.9999122619628906,
+              "drivable_area_compliance": 0.9938735961914062,
+              "ego_progress": 0.8740658383489103,
+              "time_to_collision_within_bound": 0.9960098266601562,
+              "comfort": 0.9993133544921875,
+              "driving_direction_compliance": 0.9862594604492188
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00612640380859375,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.00399017333984375,
+            "candidate_NC_mean_penalty_not_failure_fraction": 8.7738037109375e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.00399017333984375
+          }
+        },
+        "3073_4096": {
+          "updates": 1024,
+          "first_step": 3073,
+          "last_step": 4096,
+          "counts": {
+            "original_GT_scenes": 32760,
+            "BC_repeat8_presentations": 262080,
+            "actual_rollouts": 131040,
+            "policy_MC_points_per_old_and_current": 6552000
+          },
+          "loss": {
+            "bc": {
+              "count": 1024,
+              "mean": 0.003411637564340708,
+              "min": 0.0014342482900246978,
+              "p50": 0.0030600017635151744,
+              "p95": 0.0059984405525028706,
+              "max": 0.013382518664002419
+            },
+            "policy": {
+              "count": 1024,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "total": {
+              "count": 1024,
+              "mean": 0.003411637564340708,
+              "min": 0.0014342482900246978,
+              "p50": 0.0030600017635151744,
+              "p95": 0.0059984405525028706,
+              "max": 0.013382518664002419
+            }
+          },
+          "absolute_policy_loss": {
+            "count": 1024,
+            "mean": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "gradient_norm_combined_bc_and_policy": {
+            "count": 1024,
+            "mean": 0.2937439207053103,
+            "min": 0.06080527976155281,
+            "p50": 0.2747275084257126,
+            "p95": 0.5143966048955908,
+            "max": 1.1671223640441895
+          },
+          "lr": {
+            "count": 1024,
+            "mean": 9.974265759775393e-07,
+            "min": 5.000014679537673e-07,
+            "p50": 8.803795206567664e-07,
+            "p95": 1.8229058200333054e-06,
+            "max": 1.957902326997114e-06
+          },
+          "sampled_changed_master_elements": {
+            "count": 1024,
+            "mean": 4077.390625,
+            "min": 4062,
+            "p50": 4078.0,
+            "p95": 4084.0,
+            "max": 4086
+          },
+          "maximum_sampled_master_abs_change": {
+            "count": 1024,
+            "mean": 6.683065905122021e-07,
+            "min": 2.8312206268310547e-07,
+            "p50": 5.932524800300598e-07,
+            "p95": 1.2088567018508911e-06,
+            "max": 1.471489667892456e-06
+          },
+          "fp32_master_verified_updates": 1024,
+          "slowest_rank_update_seconds": {
+            "count": 1024,
+            "mean": 16.850503456254955,
+            "min": 14.599948160350323,
+            "p50": 16.521011417731643,
+            "p95": 19.52715684622526,
+            "max": 23.192140229046345
+          },
+          "summed_update_seconds_excluding_checkpoint_setup_cleanup": 17254.915539205074,
+          "official_admitted_calls_cumulative_at_end": 524256,
+          "gradient_norm_above_configured_clip_updates": 1,
+          "feedback": {
+            "status": "VALID_SCALAR_SUMMARIES",
+            "scene_presentations": 32760,
+            "valid_candidate_presentations": 131040,
+            "invalid_candidate_presentations_in_completed_updates": 0,
+            "zero_advantage_scene_presentations": 32659,
+            "zero_advantage_scene_fraction": 0.9969169719169719,
+            "nonzero_advantage_scene_presentations": 101,
+            "nonzero_advantage_scene_fraction": 0.003083028083028072,
+            "updates_with_at_least_one_nonzero_advantage_scene": 96,
+            "updates_with_only_zero_advantage_scenes": 928,
+            "candidate_weighted_mean_reward": -0.003655372406282122,
+            "candidate_weighted_metrics_mean": {
+              "score": 0.9436066995457589,
+              "no_at_fault_collisions": 0.999927503052503,
+              "drivable_area_compliance": 0.9954441391941392,
+              "ego_progress": 0.8751035465105188,
+              "time_to_collision_within_bound": 0.9963446275946276,
+              "comfort": 0.9988629426129426,
+              "driving_direction_compliance": 0.9863171550671551
+            },
+            "candidate_DAC_failure_fraction_from_binary_mean": 0.00455586080586079,
+            "candidate_TTC_failure_fraction_from_binary_mean": 0.0036553724053723924,
+            "candidate_NC_mean_penalty_not_failure_fraction": 7.249694749700275e-05,
+            "ratio_max_abs_from_one_per_rank_update": {
+              "count": 4096,
+              "mean": 0.0,
+              "min": 0.0,
+              "p50": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "rank_updates_with_ratio_outside_0p8_1p2": 0,
+            "outer_ratio_clip_active_fraction": 0.0,
+            "outer_ratio_clip_inference": "All evaluated ratios inside clip range",
+            "internal_per_MC_log_ratio_clip_active_fraction": null,
+            "fresh_old_version_matches_previous_optimizer_step": true,
+            "distinct_logged_old_state_hashes": 1024,
+            "reward_nonzero_candidate_fraction_from_binary_mean": 0.003655372406282122
+          }
+        }
+      }
+    }
+  },
+  "source_semantics": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/train_flow_policy.py",
+      "sha256": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96",
+      "symbols": [
+        "feedback_from_records",
+        "FlowTrainingModule.forward",
+        "train: old snapshot, official_statistics, per_rank/log writing"
+      ]
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/starVLA/model/modules/flow_posttraining/fpo_objective.py",
+      "sha256": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+      "symbols": [
+        "fpo_ratio",
+        "group_centered_advantages",
+        "fpo_surrogate"
+      ]
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/ddpolicy_vehicle/optimizer_safety.py",
+      "sha256": "57cc85ee8acedbbd4f53678b022e6898154e5f06f5b9980fd123c9c83e982aad",
+      "symbols": [
+        "capture_master_samples",
+        "master_update_evidence"
+      ]
+    }
+  ],
+  "small_control_pins": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1611,
+      "sha256": "0af2b4ad9741161f5e03a8e78520df5e80e8d1e21f7127a8a00c65b4fb0a7a4d"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/resolved_config.json",
+      "bytes": 2369,
+      "sha256": "7214d462d642583eceb1fc0cef6ba4be41c11c4f6176a9e89d935e799467bfc6"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7044,
+      "sha256": "48927fda84ab0035ebcc7dc8e6f86fc3d4813411ac9f3fbaabdea979bef18c4a"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1868,
+      "sha256": "cc7b9333eda086b330dc87fbda7dc4c8da404b34e54368916aadaad8c3ef08e2"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/resolved_config.json",
+      "bytes": 2374,
+      "sha256": "f1c4cc851d2e055cc7e2cb10c08e032574c424e4aa8b8f27d46007774a6bba0e"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7049,
+      "sha256": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1859,
+      "sha256": "e2127859b6c0f96c19a32f0246bbe8e02e541d9701649c3bd2253b3d12df9fb4"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/resolved_config.json",
+      "bytes": 2374,
+      "sha256": "9d9f17a75b20483deb79b6c938c669b26158750b6dff931778edcd362ffdbadd"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7049,
+      "sha256": "ab6c077f5633e769b8987bf95a869be0bb4f3164cfa7fe041a42e57b7bc2fae0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1859,
+      "sha256": "5514cc593ccca13af3130bb7b8bbed22272c3f092418fc5e9b6ff1d0125fdefb"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/resolved_config.json",
+      "bytes": 2374,
+      "sha256": "d8987f3e467fd66e67e2274ccaf2046dc4eb63c00e79ae5837c0b8a83b3c87ba"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7049,
+      "sha256": "7b9d57c3ae83d8ca37106927d037b26c7ec11600a4e5496548e412e9171f18c6"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/RESULT.json",
+      "bytes": 1869,
+      "sha256": "d44aae1e4e4cc5d36b47b698c881595ad1c0cf60c86e46dbc471a68a78831286"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/resolved_config.json",
+      "bytes": 2374,
+      "sha256": "0a7682a92ad21661e122df6b208dcca1d12c7ffe66b0ff59cfc09384b826ad19"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/identity.json",
+      "bytes": 7049,
+      "sha256": "33265715bb9fde71dab1e9821d8d5c9fcccaf5df424c75d108cabd2e573d5d8a"
+    }
+  ],
+  "scalar_bytes_read_this_scan": 84748586,
+  "cumulative_scalar_bytes_upper_bound": 85797162,
+  "matched_sample_order_and_lr_across_all_arms": true,
+  "missing_measurements": {
+    "policy_only_gradient_norm": null,
+    "BC_only_gradient_norm": null,
+    "policy_to_BC_gradient_ratio_or_cosine": null,
+    "full_parameter_delta_norm": null,
+    "per_candidate_advantage_distribution": null,
+    "NC_failure_count_exact": null,
+    "infrastructure_failed_attempts_before_completed_steps": null,
+    "canonical_zero_score_candidate_count": null,
+    "event_first_time_or_severity_distribution": null,
+    "post_update_policy_ratio": null
+  },
+  "limitations": [
+    "Only completed-update scalar summaries are read. Full inference/feedback files and model weights are not read or reverified.",
+    "Exposure counts include repeated training scenes. Unique scene count comes from recorded sample IDs, not an independent dataset audit.",
+    "Combined gradient and sampled master changes prove total optimization; they do not isolate causal contribution from the policy term.",
+    "Fresh old=current and within-scene centered advantage make the pre-update policy scalar approximately zero and the ratio approximately one. This does not imply zero policy gradient.",
+    "Binary DAC/TTC means identify candidate failure frequencies. NC has 0/0.5/1 penalties, so its mean identifies weighted penalty but not exact failure frequency.",
+    "All-negative equal-reward groups have zero centered advantage despite real failures. Zero-advantage rate measures missing within-scene ranking contrast, not absence of all failures.",
+    "4096 update timing is descriptive, excludes checkpoint/setup/cleanup, and is not a dedicated isolated performance profile.",
+    "No conclusion about final heldout efficacy is established by training scalars. Final fixed DEV scoring is separate."
+  ]
+}
