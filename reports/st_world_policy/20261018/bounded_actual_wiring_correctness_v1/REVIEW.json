@@ -1,0 +1,46 @@
+{
+  "schema": "st_bounded_actual_wiring_independent_correctness_v1",
+  "reviewer": "/root/spatial20k_correctness",
+  "reviewed_at_utc": "2026-10-18T14:01:33.234033+00:00",
+  "status": "PASS_CODE_WIRING_ONLY",
+  "dispatch": false,
+  "actual_resource_admission_approved": false,
+  "actual_gpu_capacity_result": "UNTESTED",
+  "large_payloads_read": false,
+  "tests": [
+    {
+      "cwd": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018",
+      "argv": [
+        "python",
+        "-B",
+        "reports/st_world_policy/20261018/final4096_score_lease_v1/test_score_lease.py"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018",
+      "argv": [
+        "python",
+        "-B",
+        "reports/st_world_policy/20261018/bounded_actual_wiring_correctness_v1/test_sp_resume_metadata.py"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018",
+      "argv": [
+        "python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "reports/st_world_policy/20261018/temporal_T0_profile4_actual_binding_v1/test_controller.py"
+      ],
+      "returncode": 0
+    }
+  ],
+  "report_sha256": "456357c5c50000e59695a942509b0ae03241444f2b0327affc9deb19b42cccc3",
+  "test_output_sha256": "dd41a38f0836ac9e35a60ebe8015f7b804426acc02f48f50b113425f0f634f09"
+}
