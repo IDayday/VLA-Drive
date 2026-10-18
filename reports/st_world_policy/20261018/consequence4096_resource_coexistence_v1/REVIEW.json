@@ -1,0 +1,102 @@
+{
+  "C2_C3_new_score_execution_lease_review": "WAITING_ACTUAL_LEASES",
+  "campaign_export_slots_available": 4,
+  "campaign_score_slots_available": 2,
+  "candidates_per_scene": 1,
+  "checked_at_unix": 1792332280.5752242,
+  "coexistence": {
+    "T0_cpu_affinity": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "T0_gpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "exclusive_performance_claim": false,
+    "export_gpu_ids": [
+      4,
+      5
+    ],
+    "exports_threads_per_job": 2,
+    "max_campaign_score_coordinators": 2,
+    "max_campaign_score_workers_total": 4,
+    "shared_CPU_and_IO": true
+  },
+  "dev_scenes_per_job": 1696,
+  "dispatch_performed": false,
+  "fresh_guard_required": true,
+  "gpu_locks": [
+    "AVAILABLE",
+    "AVAILABLE"
+  ],
+  "gpu_observation": [
+    {
+      "free_mib": 81153,
+      "index": 4,
+      "used_mib": 0,
+      "utilization_percent": 0,
+      "uuid": "GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f"
+    },
+    {
+      "free_mib": 81153,
+      "index": 5,
+      "used_mib": 0,
+      "utilization_percent": 0,
+      "uuid": "GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f"
+    }
+  ],
+  "helper": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_route_extension_v1/export_once.py",
+    "sha256": "c69fa15e42e8c43973ceba41ed05d4caec21fae5d193176aea5fe3a97d8ef5a0"
+  },
+  "host": "training-vlawm-tsinghua-zt4-worker-0",
+  "inherited_launcher": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/launch_formal_dev_export_v5.py",
+    "sha256": "ad0ee24987bdba9ee3fbc46a5efbdb1445b0a6a69d4d588fc32e960738b876bf"
+  },
+  "new_checkpoint_bytes": 0,
+  "new_teacher_cache_bytes": 0,
+  "note": "This does not approve an expired score route. Existing full-dev policy remains; original exporter guards and separate correctness review apply. No task was signalled.",
+  "observed_at_unix": 1792332207.4815576,
+  "reviewer": "/root/spatial20k_efficiency",
+  "routes": {
+    "C1": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C1_step004096_dev1696_seed42_v1/ROUTE.json",
+      "sha256": "f5507b9cb2a96ac728b555c6d66f5ebb335cd8f93e23f6391b8783ceb6bc8647"
+    },
+    "C4": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C4_step004096_dev1696_seed42_v1/ROUTE.json",
+      "sha256": "53e27c1f49c94b05ef44230ba16dac644339d419f4998dcddf8b1a6f7bc1a099"
+    }
+  },
+  "schema": "st_C1_C4_dev_export_resource_coexistence_v1",
+  "scientific_changes": false,
+  "score_calls_per_job": 1728,
+  "solver": "original_Euler_10",
+  "status": "PASS_NARROW_RESOURCE_REVIEW",
+  "storage": {
+    "checkpoint_commitments": {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/spatial20k_resume_resources_v1/CHECKPOINT_COMMITMENTS_REMAINING_V3.json",
+      "sha256": "a35840762294900c9c0c1274c9a6ed770ff5ebcab2e49847005af3bcdf0e6d43"
+    },
+    "conservative_additional_four_C1_C4_endpoint_outputs": 4294967296,
+    "floor": 1099511627776,
+    "free_bytes": 4307222704128,
+    "headroom_bytes": 16119720332,
+    "metadata": 10737418240,
+    "quota_verified": false,
+    "remaining_checkpoints": 2266025903732,
+    "required_bytes": 4291102983796,
+    "single_T0_output": 85899345920,
+    "whole_cache": 824633720832
+  }
+}
