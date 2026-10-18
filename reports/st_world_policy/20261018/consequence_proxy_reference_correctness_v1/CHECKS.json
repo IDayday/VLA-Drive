@@ -1,0 +1,77 @@
+{
+  "status": "PASS_REFERENCE",
+  "arithmetic_checks": 10,
+  "cli_checks": 3,
+  "invocations": [
+    {
+      "name": "reference",
+      "exit_code": 0,
+      "result": "PASS",
+      "sampled_peak_rss_bytes": 888492032,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-consequence-proxy-evidence-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/reference.py",
+        "--official-source",
+        "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dfql/agents/dfql.py",
+        "--output",
+        "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence_proxy_reference_correctness_v1/CPU_REFERENCE_INDEPENDENT.json"
+      ],
+      "expected_error": null
+    },
+    {
+      "name": "help",
+      "exit_code": 0,
+      "result": "PASS",
+      "sampled_peak_rss_bytes": 8192,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-consequence-proxy-evidence-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/reference.py",
+        "--help"
+      ],
+      "expected_error": null
+    },
+    {
+      "name": "wrong_upstream_hash",
+      "exit_code": 1,
+      "result": "PASS",
+      "sampled_peak_rss_bytes": 484114432,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-consequence-proxy-evidence-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/reference.py",
+        "--official-source",
+        "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence_proxy_reference_correctness_v1/wrong_upstream_fixture.py",
+        "--output",
+        "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence_proxy_reference_correctness_v1/MUST_NOT_EXIST.json"
+      ],
+      "expected_error": "Official actor source hash mismatch"
+    },
+    {
+      "name": "immutable_result",
+      "exit_code": 1,
+      "result": "PASS",
+      "sampled_peak_rss_bytes": 8192,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-B",
+        "/mnt/project/VLA-Drive-st-consequence-proxy-evidence-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/reference.py",
+        "--official-source",
+        "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dfql/agents/dfql.py",
+        "--output",
+        "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence_proxy_reference_correctness_v1/CPU_REFERENCE_INDEPENDENT.json"
+      ],
+      "expected_error": "Evidence output is immutable"
+    }
+  ],
+  "elapsed_seconds": 10.912089558318257,
+  "max_rss_limit_bytes": 2147483648,
+  "max_time_seconds": 120,
+  "output_limit_bytes": 1048576,
+  "cuda_visible_devices": "",
+  "environment_modified": false,
+  "source_sha256": "479238d0a524e3c1cde786ea327003dbb4d5b275389be6b6e75b70c7cba5cb47",
+  "model_or_navigation_executed": false,
+  "formal_approval": false
+}
