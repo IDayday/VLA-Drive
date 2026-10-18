@@ -1,0 +1,134 @@
+{
+  "schema": "full_train_feedback_systems_review_v1",
+  "status": "PASS_BOUNDED_READ_ONLY_ANALYSIS",
+  "reviewer_agent": "/root/full_feedback_systems_review",
+  "independent_of_implementation": true,
+  "reviewed_utc": "2026-10-18T16:49:24.305432+00:00",
+  "author_commit": "c830a8932d60a792a6489ecd3504db3abda85dbf",
+  "executable_runtime": {
+    "path": "/mnt/project/VLA-Drive-st-full-feedback-runtime-20261018",
+    "commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+    "dirty": false,
+    "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca"
+  },
+  "plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+  "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+  "resource_policy_sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8",
+  "approval_scope": {
+    "fixed_C1_TRAIN_ledgers": 4096,
+    "shards": 8,
+    "ledgers_per_shard": 512,
+    "payload_bytes": 14088142976,
+    "model_loads": 0,
+    "new_scores": 0,
+    "optimizer_updates": 0,
+    "GPU_contexts": 0,
+    "formal_training_approved": false
+  },
+  "execution_conditions": {
+    "lead_only_dispatch": true,
+    "hosts": [
+      "training-vlawm-tsinghua-zt3-worker-0",
+      "training-vlawm-tsinghua-zt4-worker-0",
+      "training-vlawm-tsinghua-zt5-worker-0",
+      "training-vlawm-tsinghua-zt6-worker-0"
+    ],
+    "shard_host_mapping": "shard // 2 selects hosts in the listed order",
+    "workers_per_host": 2,
+    "cpu_affinity_each_host": [
+      112,
+      113
+    ],
+    "threads_per_worker": 1,
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "max_total_logical_read_bytes": 34359738368,
+    "worker_read_quota_bytes": 4261412864,
+    "control_read_reserve_bytes": 268435456,
+    "max_live_and_reserved_output_bytes": 134217728,
+    "worker_output_quota_bytes": 12582912,
+    "merge_output_quota_bytes": 16777216,
+    "control_output_reserve_bytes": 16777216,
+    "max_common_wall_seconds": 1200,
+    "outer_launcher": "Lead GNU timeout per owned worker: TERM at common deadline minus 10 seconds, KILL five seconds later; same common deadline for merge, no unrelated PID signals.",
+    "worker_sustained_actual_read_rate_bytes_per_second": 4194304,
+    "worker_token_burst_bytes": 8388608,
+    "aggregate_sustained_rate_bytes_per_second": 33554432,
+    "aggregate_worst_burst_bytes": 67108864,
+    "rss_check_bytes": 2147483648,
+    "rss_semantics": "Sampled/enforced at IO/record boundaries via ru_maxrss; not a kernel instantaneous RSS ceiling.",
+    "no_deadline_reset_or_automatic_retry": true,
+    "resume": "Explicit, unchanged plan/deadline; persists consumed read/output reservations and token debt.",
+    "refresh_current_host_policy_before_dispatch": true,
+    "unrelated_processes_protected": true,
+    "feature_hold_preserved": true
+  },
+  "checks": [
+    "Independent capacity recomputation: all eight shards have 512 distinct ledgers; total payload 14,088,142,976 bytes.",
+    "8 worker read quotas plus control reserve exactly equal 32 GiB; payload reads and nominal BytesIO load both precharged.",
+    "Actual bytes read and nominal loads are separate; request/admission/complete/rank receipts are charged; bootstrap reserves 64 KiB per entry.",
+    "Final shard BUDGET, including SHARD_COMPLETE output, is verified by merge.",
+    "Bounded token bucket cannot accrue more than 8 MiB credit; interrupted reservation is preserved on resume.",
+    "Immutable common execution deadline; flock prevents duplicate worker; atomic output keeps valid receipts and failures.",
+    "Source and plan digests reject changed code, limits, stale outputs or wrong input identities.",
+    "No model, official scorer, metric-cache, rollout payload, DEV or NAVTEST read occurs on this path.",
+    "Merge requires every ledger, unique policy version and exact original exposure/candidate counts."
+  ],
+  "independent_tests": {
+    "control_test_count": 8,
+    "control_result": "PASS",
+    "control_wall_seconds": 0.16718843206763268,
+    "source_regression_tests": 10,
+    "source_regression_result": "PASS",
+    "source_regression_wall_seconds": 1.99,
+    "warning": "pynvml package FutureWarning; no package change or CUDA context"
+  },
+  "cross_host_lock_evidence": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1_controls/LOCK_READY.json",
+      "sha256": "5d0a369332acf138db4116e200ed701bdef47414e9ebd377326fc269ee682256",
+      "bytes": 91,
+      "status": "HOLDER_READY"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1_controls/LOCK_CHALLENGE.json",
+      "sha256": "7ee9fe693057e6f75ca41af2321f151c5a98eee921d2f1952a4faaf8c2921321",
+      "bytes": 90,
+      "status": "PASS_CONCURRENT_LOCK_REFUSED"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1_controls/LOCK_AFTER_RELEASE.json",
+      "sha256": "578ae57e46b64fdd6e15ca7ce1f70760e2bcf285f0bae166cf316e29d2d37d01",
+      "bytes": 115,
+      "status": "PASS_RELEASED_LOCK_ACQUIRED"
+    }
+  ],
+  "host_preflight_evidence": {
+    "source": "Lead read-only snapshot at 16:40 UTC, plus independently read cross-host lock receipts",
+    "available_cpus_per_host": 128,
+    "cpu_idle_percent_range": [
+      78,
+      96
+    ],
+    "reported_available_RAM_bytes_lower_bound": 800000000000,
+    "shared_project_free_TiB_approx": 3.6,
+    "cpu_psi": "NOT_AVAILABLE",
+    "cgroup_v2_telemetry": "NOT_AVAILABLE"
+  },
+  "actual_full_analysis_throughput": "NOT_MEASURED_YET",
+  "review_training_payload_reads": 0,
+  "review_remote_workers": 0,
+  "limitations": [
+    "The author one-ledger result is from earlier source hash 77d1bfabccdc55805016f3c6edfc14bcd48a54a145056a9a84020c36c41f8acc; retained only as earlier mathematical/capacity evidence, not final-source full throughput.",
+    "No claim that sustained rate excludes the explicitly admitted burst; no strict arbitrary-one-second rate claim.",
+    "Output quota means retained/reserved artifact capacity; repeated atomic budget-state rewrite I/O is not presented as output capacity or measured throughput.",
+    "Outer timeout and actual runtime registration remain Lead execution obligations; this review does not dispatch.",
+    "Full-run scores or scientific conclusions remain uncomputed."
+  ],
+  "blocking_findings": []
+}
