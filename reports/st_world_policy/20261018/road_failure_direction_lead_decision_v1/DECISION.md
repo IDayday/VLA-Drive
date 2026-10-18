@@ -1,0 +1,7 @@
+# Lead decision after the actual road-failure diagnostic
+
+Accept the independent evidence review and close this fixed32-case diagnostic. Preserve all original records and30 undefined results. The negative command-space direction repaired canonical DAC in the two fully defined cases; positive repaired neither and one random direction also repaired a case. The observed repair lower bound2/32 is a requested-cohort count, not a confidence interval or a generalization result.
+
+Both observed repairs cross millimetre-scale executed road margins. The EP jump mainly reflects the canonical DAC progress gate, while raw progress barely changes. These results establish neither a broadly usable gradient nor an improved trained policy. No proxy/DFQL/C5/G8 training is admitted, no refill/retry or tolerance change is made, and the unused90-call ceiling is not a new experiment budget.
+
+The independent reviewers and Lead have separate roles: correctness verified the exact adapter, resources bounded its execution, and evidence interpreted actual results. This Lead decision grants no additional compute. The original C1 rollout-scale4096 formal comparison continues from its own reviewed original-S0 initialization and retains the fixed endpoint, data, loss, precision and DEV comparison. The feature route remains paused by the user. A new proxy proposal would require prior primary-source evidence and a new affected-scope review before implementation or execution.
