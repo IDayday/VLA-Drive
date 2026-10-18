@@ -23,20 +23,40 @@ def run(run_root,output,device="cuda"):
     TrainableDelta(model,[r["name"] for r in identity["trainable_inventory"]]).load_state_dict(checkpoint["model"],strict=True)
     decoder,_=load_vigt_decoder(config["vigt_weights"],json.loads(Path(config["vigt_config"]).read_text()));decoder.to(device)
     data,rows,lookup=load_data(config);model.eval();outputs=[];counts=torch.zeros(5,dtype=torch.long)
+    pairs=[];mean_context=None;fixed_xyz=None
+    x=torch.linspace(.5,39.5,64,device=device);y=torch.linspace(-20,20,64,device=device)
+    xx,yy=torch.meshgrid(x,y,indexing="ij")
+    slices=torch.stack([torch.stack((xx,yy,torch.full_like(xx,z)),-1) for z in (.5,1.5)]).reshape(1,-1,3)
+    def decode_chunks(context,xyz):
+        return torch.cat([decoder(context,q).cpu() for q in xyz.split(1024,dim=1)],1)
     from starVLA.model.modules.foresight.losses import masked_regression
     for row in rows:
         example,labels=data[lookup[row["token"]]];representation=model(observation(example))
         teacher=load_file(str(Path(config["native_context_root"])/(row["token"]+".safetensors")))
         logits=decoder(representation.predicted_spatial_context,teacher["xyz"].to(device)).cpu()
+        if fixed_xyz is None:fixed_xyz=teacher["xyz"]
+        elif not torch.equal(fixed_xyz,teacher["xyz"]):raise ValueError("Negative-control query coordinates differ")
+        pairs.append((logits,teacher["logits"]))
+        mean_context=teacher["context"].clone()/len(rows) if mean_context is None else mean_context+teacher["context"]/len(rows)
         c=occupancy_counts(logits>=0,teacher["logits"]>=0,torch.ones_like(logits,dtype=torch.bool));counts+=c
         dino,_=masked_regression(model.dino_prediction(representation),labels["current_dino"][None].to(device),labels["current_dino_valid"][None,:,None].to(device))
         outputs.append({**row,"native_teacher_agreement":summarize_counts(c),"DINO_MSE":dino.item(),
              "feature_rmse":(representation.predicted_spatial_context.cpu()-teacher["context"]).square().mean().sqrt().item()})
         # Only bounded low-resolution samples are retained, not dense full-dataset BEV.
         save_file({"xyz":teacher["xyz"],"student_logits":logits,"teacher_logits":teacher["logits"]},str(output/(row["token"]+".safetensors")))
+        if len(outputs)<=32:
+            save_file({"xyz":slices.cpu(),"student_logits":decode_chunks(representation.predicted_spatial_context,slices),
+                       "teacher_logits":decode_chunks(teacher["context"].to(device),slices)},str(output/(row["token"]+".slices.safetensors")))
+    mean_logits=decoder(mean_context.to(device),fixed_xyz.to(device)).cpu()
+    constant_logits=decoder(torch.zeros_like(mean_context,device=device),fixed_xyz.to(device)).cpu()
+    controls={k:torch.zeros(5,dtype=torch.long) for k in ("scene_shuffled_student","mean_training_teacher_context","zero_context")}
+    for i,(_,target) in enumerate(pairs):
+        for key,value in [("scene_shuffled_student",pairs[(i+1)%len(pairs)][0]),("mean_training_teacher_context",mean_logits),("zero_context",constant_logits)]:
+            controls[key]+=occupancy_counts(value>=0,target>=0,torch.ones_like(target,dtype=torch.bool))
     result={"status":"INCONCLUSIVE","arm":identity["arm"],"run_identity":identity["identity"],"progress":checkpoint["progress"],
         "population":"same 64 training scenes used for tiny fit; NOT a held-out ability claim","scenes":len(rows),
         "native_teacher_agreement":summarize_counts(counts),"mean_DINO_MSE":sum(x["DINO_MSE"] for x in outputs)/len(outputs),
+        "negative_controls":{k:summarize_counts(v) for k,v in controls.items()},
         "per_scene":outputs,"seconds":time.monotonic()-start,"gpu_hours":(time.monotonic()-start)/3600,
         "independent_GT_occupancy":"BLOCKED_OBSERVED_FREE_PROVENANCE","planning":"NOT_RUN"}
     atomic_json(output/"DECODING_REPORT.json",result);return result
