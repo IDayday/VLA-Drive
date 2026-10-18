@@ -1,0 +1,259 @@
+{
+  "C1_C4": {
+    "extra_compile_worker_pools_observed": true,
+    "live_exporters": true,
+    "phase": "Original S0 native weight reconstruction observed in bounded log tails"
+  },
+  "C2_C3": {
+    "gpu_visible_environment": "",
+    "live_score_coordinators": true,
+    "official_score_roots_present": true,
+    "workers_per_job_observed": 2
+  },
+  "SP3": {
+    "last_update_record": 11582,
+    "native_completed_observed": 11582,
+    "new_timeout_and_four_native_ranks_live": true,
+    "new_update_after11582_seen": false,
+    "old_status_file_is_not_new_process_liveness": true
+  },
+  "T0": {
+    "capacity_result": "NOT_YET_COMPLETE",
+    "existing_monitor_latest": {
+      "active_owned": 6,
+      "elapsed_seconds": 232.07396865077317,
+      "reason": null,
+      "rss_peak_bytes": 5708963840
+    },
+    "live_timeout_and_four_native_ranks": true,
+    "native_result_present": false
+  },
+  "actions": {
+    "continuous_poll": false,
+    "launched": false,
+    "new_monitor_started": false,
+    "payload_read": false,
+    "signalled": false
+  },
+  "hosts": [
+    {
+      "checked_at_unix": 1792332448.4170883,
+      "descendant_count": 6,
+      "free_bytes": 4306174976000,
+      "gpus": [
+        "0, GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00, 4, 81150, 0",
+        "1, GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897, 425, 80728, 0",
+        "2, GPU-b66ce64d-2b82-4ad3-f917-6ce384dfd9b6, 425, 80728, 0",
+        "3, GPU-220170c8-e900-2090-9c71-5eb562f2d0c0, 425, 80728, 0"
+      ],
+      "host": "training-vlawm-tsinghua-zt2-worker-0",
+      "loadavg": [
+        7.48681640625,
+        5.7236328125,
+        4.5751953125
+      ],
+      "mem_available_kib": 985621404,
+      "roots": [
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "9aaed420a06809a2451c77342e8c37b5f65b4b087b99451d6265dff4661ea3ef",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "0,1,2,3",
+            "MKL_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_20k_v1_resource_v2/resume_invocations/913c5baf7131488cde98956b2ce267ff1a7d4fd1d90d1634c4b9f0512cc31b3d/LAUNCH.json",
+            "sha256": "8ec6354e224c65c002e4b0b00130f178f85ab3a0af264715ef51721948fb2d2b"
+          },
+          "launch_startticks_matched": false,
+          "launch_time": 1792332276.006032,
+          "pid": 1641201,
+          "startticks": 1377107153,
+          "state": "S"
+        }
+      ],
+      "states": {
+        "D": 3,
+        "I": 1,
+        "S": 2
+      },
+      "summed_RSS_kib_upper_bound": 8162572,
+      "torchinductor_worker_processes": 0
+    },
+    {
+      "checked_at_unix": 1792332448.429583,
+      "descendant_count": 76,
+      "free_bytes": 4306174976000,
+      "gpus": [
+        "0, GPU-de0a113d-0ee7-6d02-f202-38ed7a2eba42, 1145, 80008, 0",
+        "1, GPU-9d5086e9-c3c6-960a-702d-d1c5870b6b9f, 1241, 79912, 0",
+        "2, GPU-a3f83a36-3e49-431e-4440-35f9e4d01a59, 1241, 79912, 0",
+        "3, GPU-4fe15b93-9f87-08ea-699d-40375083da94, 1145, 80008, 0",
+        "4, GPU-b4cc3837-84f9-01b3-6610-a3d814cf383f, 4, 81150, 0",
+        "5, GPU-0e051448-fccb-5aa8-1389-460e0aa8a46f, 4, 81150, 0"
+      ],
+      "host": "training-vlawm-tsinghua-zt4-worker-0",
+      "loadavg": [
+        14.06982421875,
+        11.72265625,
+        11.10791015625
+      ],
+      "mem_available_kib": 931362820,
+      "roots": [
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "a9651e9a84f5e1128204739c10e0d0d8f24f6c9427a79468dcc4d4c4dce9b024",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "0,1,2,3",
+            "MKL_NUM_THREADS": "2",
+            "OMP_NUM_THREADS": "2",
+            "OPENBLAS_NUM_THREADS": "2"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/LAUNCH_initial.json",
+            "sha256": "b89a6319f9daf04f16964fb518f60c6f4a7da6a1735e3be28a9396d3d93dbd22"
+          },
+          "launch_startticks_matched": true,
+          "launch_time": 1792332309.3039408,
+          "pid": 439872,
+          "startticks": 1377110425,
+          "state": "S"
+        },
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "b8f78756ad112c1d9b2aa15e45d1cb54b18db531ba6dfb28fc64b0a2b0cbf34a",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "4",
+            "MKL_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C1_step004096_dev1696_seed42_v1/invocations/1792332336398343643/LAUNCH.json",
+            "sha256": "d50562784770545ccbca6d489be880443cfac6b0d44114139a49a9c1746b327d"
+          },
+          "launch_startticks_matched": false,
+          "launch_time": 1792332336.4062436,
+          "pid": 440597,
+          "startticks": 1377113135,
+          "state": "S"
+        },
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "209ff8d0d4f29d4a816db76a65e1b8d1d59207859b24b6ff9d056f47ed6ee545",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "5",
+            "MKL_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C4_step004096_dev1696_seed42_v1/invocations/1792332344932429464/LAUNCH.json",
+            "sha256": "07fa90b82eb924f317390afadb1ac21289d3854f63bfd299b23d5f75196ca469"
+          },
+          "launch_startticks_matched": false,
+          "launch_time": 1792332344.9402132,
+          "pid": 440764,
+          "startticks": 1377113989,
+          "state": "S"
+        }
+      ],
+      "states": {
+        "D": 3,
+        "I": 3,
+        "S": 70
+      },
+      "summed_RSS_kib_upper_bound": 33496392,
+      "torchinductor_worker_processes": 66
+    },
+    {
+      "checked_at_unix": 1792332448.4199688,
+      "descendant_count": 10,
+      "free_bytes": 4306174976000,
+      "gpus": [],
+      "host": "training-vlawm-tsinghua-zt-worker-0",
+      "loadavg": [
+        25.53662109375,
+        22.9755859375,
+        18.658203125
+      ],
+      "mem_available_kib": 868607112,
+      "roots": [
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "7ec8b988cd743888cfcf9f4301b5ffed7fc17ffa51412b66f6cde1a9a4c01f4a",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "MKL_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C2_step004096_dev1696_seed42_v1/score_invocations/1792332366942097188/LAUNCH.json",
+            "sha256": "a44fda375538f4e49c2d6db6870771f361e7212532ec13d320ffa1a07000d25e"
+          },
+          "launch_startticks_matched": false,
+          "launch_time": 1792332366.9649334,
+          "pid": 2408799,
+          "startticks": 1377115737,
+          "state": "S"
+        },
+        {
+          "argv_matches_actual_launch": true,
+          "command_hash": "dd6d504f4d66ae703de6457f9b75aaac576a7c2a591a4f692fc7e2a7980f2e59",
+          "cwd_matches_actual_launch": true,
+          "environment": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "MKL_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "launch": {
+            "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C3_step004096_dev1696_seed42_v1/score_invocations/1792332373875035886/LAUNCH.json",
+            "sha256": "d41a685eac5fc1dd3adf55cd12a586ba5f4f6fce85cae6b7c6b0b03ce7da41d7"
+          },
+          "launch_startticks_matched": false,
+          "launch_time": 1792332373.8846126,
+          "pid": 2419004,
+          "startticks": 1377116429,
+          "state": "S"
+        }
+      ],
+      "states": {
+        "I": 1,
+        "R": 2,
+        "S": 7
+      },
+      "summed_RSS_kib_upper_bound": 4642528,
+      "torchinductor_worker_processes": 0
+    }
+  ],
+  "limitations": [
+    "Single snapshot does not quantify shared IO contention or establish a hang",
+    "SP3 has not yet produced an update beyond11582",
+    "T0 capacity has not yet reached a native terminal result",
+    "Two exporters create TorchInductor worker pools; mostly sleeping at this snapshot, not constrained solely by BLAS thread count",
+    "Raw process command inventory retained only in temporary local diagnostic file and not committed"
+  ],
+  "reviewer": "/root/spatial20k_efficiency",
+  "schema": "st_actual_dispatch_startup_snapshot_v1",
+  "status": "LIVE_INITIALIZATION_OBSERVED_NOT_YET_NEW_UPDATE_CONFIRMED",
+  "storage": {
+    "checkpoint_commitments": {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/spatial20k_resume_resources_v1/CHECKPOINT_COMMITMENTS_REMAINING_V3.json",
+      "sha256": "a35840762294900c9c0c1274c9a6ed770ff5ebcab2e49847005af3bcdf0e6d43"
+    },
+    "headroom_bytes": 15071992204,
+    "observed_free_bytes": 4306174976000,
+    "preserved_floor_bytes": 1099511627776,
+    "quota_verified": false,
+    "required_including_T0_and_four_evaluation_outputs_bytes": 4291102983796
+  }
+}
