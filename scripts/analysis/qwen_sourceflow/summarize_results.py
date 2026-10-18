@@ -27,8 +27,17 @@ def main():
         if isinstance(rows[0]['feedback']['metrics'][k],(int,float))}
     inv=[json.loads(p.read_text()) for p in (root/'invocations').glob('*.json')]
     if any(v['status']=='RUNNING' for v in inv):raise ValueError('Evaluation workers still running')
-    start=min(v['start_unix']-v['model_loading_seconds'] for v in inv);end=max(v['end_unix'] for v in inv)
-    result=dict(status='COMPLETE',checkpoint=identity['checkpoint'],cohort=identity['cohort'],
+    # Legacy start_unix was written after scorer/processor construction. The
+    # completed total monotonic wall includes that work; recover its real start
+    # rather than subtracting only model loading from the later timestamp.
+    start=min(v['end_unix']-v['wall_seconds'] for v in inv);end=max(v['end_unix'] for v in inv)
+    export=identity.get('rl_export')
+    result=dict(schema='native_evaluation_summary_v2',status='COMPLETE',
+        policy_type='RL_MERGED' if export else 'IL',evaluation=str(root.resolve()),
+        checkpoint=export['checkpoint'] if export else identity['checkpoint'],
+        IL_parent_checkpoint=identity['checkpoint'],
+        model_sha256=export['model_sha256'] if export else identity['parent_model_sha256'],
+        rl_export=export,cohort=identity['cohort'],
         seed=identity['seed'],metric=identity['metric'],inference=identity['inference'],
         qualification=identity['qualification'],full_population=identity['full_population'],
         scenes=len(rows),logs=len({r['log'] for r in rows}),means=means,PDMS=100*means['score'],

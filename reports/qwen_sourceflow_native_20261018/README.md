@@ -69,6 +69,7 @@ RL固定作者公开hard list与TRAIN交集17037，排除352个DEV重叠；成�
 | [独立部署](qualification_standalone_deployment.json) | 不读取通用模型权重、teacher/训练cache/scorer，raw图像到完整10步ODE与原完整IL模型逐值一致 |
 | [实际非零LoRA合并部署](qualification_actual_RL_merged_deployment.json) | 240个projection的B均非零；完整raw-image ODE合并前后归一化最大误差4.77e-6，物理x/y/heading最大误差0.000122m/0.000080m/0.00000763rad |
 | [官方评分连通](qualification_ODE_scoring.json) | 2个真实TRAIN场景，原始图像→单候选ODE→官方canonical v1.1；完整分母、无异常填0 |
+| [更新后Flow实际评分](qualification_updated_RL_ODE_score.json) | 上述实际4次RL更新合并后重新原始图像推理、2个TRAIN场景独立评分；IL父模型和实际RL权重身份分开保存 |
 | [共享故障事务](qualification_recovery_shared.json) | 两rank CPU/Gloo 12种故障与inner恢复；不完整collection不发布latest |
 | [实际两卡collection故障](qualification_actual_collection_failure.json) | 16条真实候选已评分，rank1在advantage提交前注入故障；两rank保留完整未finalize链，latest仍为READY0，未发布行为/假优势，物理费用保留 |
 
@@ -94,9 +95,13 @@ RL固定作者公开hard list与TRAIN交集17037，排除352个DEV重叠；成�
 
 分析工具另修复一处旧20k预算硬编码：ETA现在读取实际run的max_steps，适用于20k/50k/170k；资格run不输出正式训练ETA。已执行三预算检查及两条实际资格日志汇总，见 [RL资格成本](qualification_RL_cost.json)。这只改变派生统计，不改任何训练数学。
 
+[评价元数据v2](qualification_evaluation_metadata_v2.json) 明确区分实际评价的RL权重和它的IL父模型，防止汇总表把父checkpoint误写成被评模型；IL选择拒绝RL汇总。端到端wall从完成记录的total wall恢复，包含旧时间戳遗漏的processor/scorer启动间隔。既有轨迹/分数未改、未重跑，旧摘要保留。运行中的IL/DEV队列快照不热修改，后续可对其原记录重算派生统计。
+
 ## 资源、成本与下一步执行
 
 已核对当前授权八个主机、**64个不同物理GPU UUID**，没有把SSH别名算成额外GPU。正式IL占一台8卡；其余资源用于并行资格验收、合并部署验证及后续全量DEV/Navtest分片。vla-zt2与临时撤销主机不派发，其他项目真实进程不停止。压力占用脚本保持关闭。资源数量不改变单IL、两RL、单seed的研究范围。
+
+实际资源核对与派发边界见 [resource_routing_snapshot.json](resource_routing_snapshot.json)；该文件是观察快照，不把64个授权物理GPU宣称为此刻全部空闲或全部由本任务占用。
 
 8卡完整IL短profile的update中位数 **4.589秒**、峰值 **75.014GB**；完整恢复点保存78.76秒，model＋optimizer约38GiB。按该短窗口推算100k约 **5.38天、1033 GPU-hours**，不含评价/准备和未来共享扰动。不是已观测终点ETA。正式接口阶段约2.3秒/step，不能用它外推完整训练。完整IL保留全部五个里程碑及两个rolling恢复点，预计266GiB；旧实验/失败/资格权重不清理。
 

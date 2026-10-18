@@ -1,0 +1,27 @@
+{
+  "schema": "native_resource_inventory_snapshot_v1",
+  "observed_unix": 1792343347.131652,
+  "unique_physical_GPUs": 64,
+  "duplicates": [],
+  "hosts": [
+    "training-rl-zt2",
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-tsinghua-zt2",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-tsinghua-zt5",
+    "training-vlawm-tsinghua-zt6"
+  ],
+  "formal_IL": {
+    "host": "training-vlawm-tsinghua-zt",
+    "GPUs": 8,
+    "source": "d4d0012",
+    "run": "IL_seed42_v2"
+  },
+  "dispatch_rule": "Live authorization, two observations of free memory and visible owners, physical UUID deduplication, no eviction. Sharing allowed only within measured headroom.",
+  "independent_work": "Actual native IL/RL recovery, both reward qualifications, export/raw-image ODE/scoring, then all registered complete DEV/Navtest shards.",
+  "formal_RL_dependency": "Both 50k lines require the same fully trained, DEV-selected IL parent; qualification weights are excluded.",
+  "pressure_fillers": false,
+  "other_projects_unchanged": true
+}

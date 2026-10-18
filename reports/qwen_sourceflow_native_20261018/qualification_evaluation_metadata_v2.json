@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "schema": "native_evaluation_derived_metadata_v2",
+  "changes": [
+    "Expose evaluated RL checkpoint/model hash separately from its complete IL parent",
+    "Recover job elapsed span from completed invocation total wall, including processor/scorer setup",
+    "Reject an RL summary as IL checkpoint selection evidence"
+  ],
+  "unchanged": [
+    "requested trajectories",
+    "simulated trajectories",
+    "official metrics",
+    "candidate population",
+    "all inference weights"
+  ],
+  "tests": [
+    "Both existing real IL and updated RL evaluation sets summarized without another forward",
+    "Single-worker elapsed span equals its total worker wall within 1e-5 seconds",
+    "Real RL summary rejected by IL freeze before any selection publication"
+  ],
+  "scope": "Derived metadata and selection guard only. No changes to the running immutable IL source. Legacy summaries preserved."
+}

@@ -13,7 +13,10 @@ def main():
     if Path(a.output).exists():raise FileExistsError('IL parent is immutable')
     candidates=[]
     for path in a.summaries:
-        summary=json.loads(Path(path).read_text());parent=inspect_il(summary['checkpoint'])
+        summary=json.loads(Path(path).read_text())
+        if summary.get('policy_type','IL')!='IL' or summary.get('rl_export') is not None:
+            raise ValueError('An updated RL policy cannot supply IL parent-selection scores')
+        parent=inspect_il(summary['checkpoint'])
         candidates.append(dict(updates=parent['seal']['updates'],summary_path=str(Path(path).resolve()),
             summary_sha256=file_sha(path),PDMS=summary['means']['score'],checkpoint=parent['path'],
             model_sha256=parent['files']['model.pt'],training_identity=parent['identity']['sha256']))

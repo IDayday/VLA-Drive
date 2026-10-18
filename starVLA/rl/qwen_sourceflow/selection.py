@@ -17,6 +17,8 @@ def validate_selection(path,parent):
         if file_sha(candidate['summary_path'])!=candidate['summary_sha256']:
             raise ValueError('Changed DEV evidence')
         summary=json.loads(Path(candidate['summary_path']).read_text())
+        if summary.get('policy_type','IL')!='IL' or summary.get('rl_export') is not None:
+            raise ValueError('RL evaluation cannot become IL selection evidence')
         if (summary['cohort']!='DEV' or summary['status']!='COMPLETE' or summary['qualification'] or
             summary['metric']!='canonical_NAVSIM_v1.1' or summary['seed']!=2101 or
             summary['inference']!='single_candidate_source_shift5_ODE_K10' or not summary['full_population']):
