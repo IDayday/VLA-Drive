@@ -1,0 +1,75 @@
+{
+  "base_commit": "01d8dc4733feb98e562eb9a4f66bd4e56c9db114",
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v3-20261018/resources/st_rollout_resume_smoke_v1.py",
+    "sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228"
+  },
+  "runtime_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "endpoint_helper": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v3-20261018/resources/st_endpoint_supervisor_v1.py",
+    "sha256": "a2e24537b9749258417e390be705d4d5d4e6f775986ca479a1c67c4330759a3e"
+  },
+  "mature_PPID_monitor": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_formal_v1.py",
+    "sha256": "3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38"
+  },
+  "prior_failed_launch": {
+    "consumed_trainer_invocations": 1,
+    "consumed_optimizer_updates": 0,
+    "consumed_official_calls": 0,
+    "wall_seconds_reserved": 60,
+    "initial_result": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/initial_RESULT.json",
+      "sha256": "715ab6be3eceb384a13272f050f8664992d8a6349f64fa6b1240ebe4fbb4729b"
+    },
+    "admission": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/ADMISSION.json",
+      "sha256": "4e850b6e2af367774c131d5d12d2e5d5ae2a35171fed5a8c840ea4ed602d1858"
+    },
+    "launch": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/LAUNCH.json",
+      "sha256": "7dcdba630833a6c8bde130e633daec056d789bfe0a65024444aaf566aab95fef"
+    },
+    "exit": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/EXIT.json",
+      "sha256": "ae81fac224457cbb4414aa7ad293aad449c53f2585ccc3024338ca5d060c403e"
+    },
+    "prior_IO_is_SID_sampled_lower_bound": true
+  },
+  "new_root": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3",
+  "limits": {
+    "scope": "SMOKE",
+    "world": 4,
+    "global_batch": 32,
+    "micro_batch": 4,
+    "accumulation": 2,
+    "max_updates": 4096,
+    "warmup": 100,
+    "stop_after": 4,
+    "total_new_updates": 8,
+    "primary_calls": 1024,
+    "retry_calls": 0,
+    "global_calls": 1024,
+    "arm_calls": 512,
+    "max_invocations": 4,
+    "prior_invocations": 1,
+    "new_invocations": 3,
+    "wall_seconds": 3540,
+    "prior_wall_seconds": 60,
+    "grace_seconds": 60,
+    "group_RSS_bytes": 274877906944,
+    "aggregate_RSS_bytes": 549755813888,
+    "GPU_driver_bytes": 51539607552,
+    "fresh_RAM_bytes": 687194767360,
+    "output_bytes": 111669149696,
+    "native_directories": 8,
+    "native_directory_bytes": 12884901888,
+    "monitor_read_bytes": 1099511627776,
+    "launch_shared_free_bytes": 1754494140416,
+    "runtime_shared_free_bytes": 1642824990720
+  },
+  "real_GPU_calls": 0,
+  "real_scoring_calls": 0,
+  "real_model_payload_read_bytes": 0,
+  "remaining_state": "WAITING_FRESH_REAL_BINDING_AND_TWO_INDEPENDENT_REVIEWS"
+}

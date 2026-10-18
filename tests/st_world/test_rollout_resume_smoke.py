@@ -22,6 +22,8 @@ def put(path,value):
 @pytest.fixture
 def isolated(tmp_path,monkeypatch):
     monkeypatch.setattr(s,'ROOT',tmp_path/'owned_smoke');monkeypatch.setattr(s,'write',put)
+    monkeypatch.setattr(s,'PRIOR_ROOT',tmp_path/'synthetic_prior')
+    put(s.PRIOR_ROOT/'control/initial_RESULT.json',{'stats':{'sampled_rchar':16348730,'sampled_read_bytes':24576}})
     return tmp_path
 
 
@@ -190,9 +192,158 @@ def test_real_owned_child_fault_has_one_charged_attempt_no_residual(isolated,mon
 
 def test_resource_and_scientific_budgets_are_finite_and_no_implicit_retry():
     assert s.LIMITS['total_new_updates']==8 and s.LIMITS['global_calls']==1024
-    assert s.LIMITS['retry_calls']==0 and s.LIMITS['max_invocations']==3
+    assert s.LIMITS['retry_calls']==0 and s.LIMITS['max_invocations']==4
+    assert s.LIMITS['prior_invocations']==1 and s.LIMITS['new_invocations']==3
+    assert s.LIMITS['prior_wall_seconds']+s.LIMITS['wall_seconds']+120+180==3900
     assert s.LIMITS['max_updates']==4096 and s.LIMITS['stop_after']==4
     assert s.LIMITS['output_bytes']==104*2**30 and s.LIMITS['aggregate_RSS_bytes']==512*2**30
+
+
+def wait_cpu_fixture(predicate):
+    import time
+    deadline=time.monotonic()+8
+    while time.monotonic()<deadline:
+        value=predicate()
+        if value:return value
+        time.sleep(.02)
+    raise AssertionError('Bounded CPU process fixture did not become ready')
+
+
+def cpu_job(child):
+    return {'child':child,'owned':{},'start_ticks':None}
+
+
+def test_ddp_ownership_real_nested_setsid_and_foreign_gpu_refusal(tmp_path,monkeypatch):
+    import os
+    import sys
+    grand=tmp_path/'grand';child_pid=tmp_path/'rank'
+    grand_code=f"import os,time;from pathlib import Path;Path({str(grand)!r}).write_text(str(os.getpid()));time.sleep(60)"
+    rank_code=f"import os,subprocess,sys,time;from pathlib import Path;Path({str(child_pid)!r}).write_text(str(os.getpid()));subprocess.Popen([sys.executable,'-c',{grand_code!r}],start_new_session=True);time.sleep(60)"
+    root_code=f"import subprocess,sys,time;subprocess.Popen([sys.executable,'-c',{rank_code!r}],start_new_session=True);time.sleep(60)"
+    child=subprocess.Popen([sys.executable,'-c',root_code],start_new_session=True,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    foreign=subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)'],start_new_session=True,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    job=cpu_job(child)
+    try:
+        wait_cpu_fixture(lambda:grand.exists() and child_pid.exists())
+        rank=int(child_pid.read_text());nested=int(grand.read_text())
+        owned=s.owned_processes(job)
+        assert {child.pid,rank,nested}<=owned.keys()
+        assert rank not in s.helper().session_members(child.pid,job['start_ticks'])
+        assert all(s.process_record(pid)['sid']==pid for pid in (child.pid,rank,nested))
+        ep=s.helper();route={'gpu_uuids':['fixture_GPU'],'gpus':[0]}
+        def nvml(pid):
+            def output(argv,**kw):
+                return f'fixture_GPU, {pid}, 1\n' if '--query-compute-apps=gpu_uuid,pid,used_gpu_memory' in argv else 'fixture_GPU, 1\n'
+            return output
+        monkeypatch.setattr(ep.subprocess,'check_output',nvml(rank))
+        ep.gpu_monitor(route,owned) # Actual owned new-session rank is accepted.
+        monkeypatch.setattr(ep.subprocess,'check_output',nvml(foreign.pid))
+        with pytest.raises(ValueError,match='Unknown/foreign'):ep.gpu_monitor(route,owned)
+        s.stop_smoke_owned([job])
+        assert job['cleanup_complete'] and child.poll() is not None
+        assert not any(row['state']!='Z' for row in s.owned_processes(job).values())
+        assert foreign.poll() is None
+    finally:
+        s.stop_smoke_owned([job])
+        if foreign.poll() is None:foreign.terminate()
+        foreign.wait(timeout=5)
+
+
+def test_ddp_ownership_proven_child_session_survives_root_and_leader_exit(tmp_path):
+    import os
+    import signal
+    import sys
+    leader_path=tmp_path/'leader';orphan_path=tmp_path/'orphan';go=tmp_path/'go';release=tmp_path/'release'
+    # The rank leader is first observed while PPID-proven. It subsequently
+    # forks a same-session child and exits; that new orphan is not SID=root.
+    leader_code=f"import os,time;from pathlib import Path;Path({str(leader_path)!r}).write_text(str(os.getpid()));\nwhile not Path({str(go)!r}).exists():time.sleep(.01)\npid=os.fork()\nif pid==0:\n Path({str(orphan_path)!r}).write_text(str(os.getpid()));time.sleep(60)\nelse:\n while not Path({str(release)!r}).exists():time.sleep(.01)\n os._exit(0)"
+    root_code=f"import subprocess,sys,time;subprocess.Popen([sys.executable,'-c',{leader_code!r}],start_new_session=True);time.sleep(60)"
+    child=subprocess.Popen([sys.executable,'-c',root_code],start_new_session=True,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    job=cpu_job(child)
+    try:
+        wait_cpu_fixture(leader_path.exists);leader=int(leader_path.read_text())
+        assert leader in s.owned_processes(job)
+        os.kill(child.pid,signal.SIGTERM);child.wait(timeout=5)
+        go.touch();wait_cpu_fixture(orphan_path.exists);orphan=int(orphan_path.read_text())
+        owned=wait_cpu_fixture(lambda:(rows if orphan in (rows:=s.owned_processes(job)) else None))
+        assert owned[orphan]['sid']==leader and owned[orphan]['ppid']!=child.pid
+        release.touch()
+        wait_cpu_fixture(lambda:orphan in s.owned_processes(job) and s.process_record(orphan)['ppid']!=leader)
+        s.stop_smoke_owned([job]);assert job['cleanup_complete']
+        assert not any(row['state']!='Z' for row in s.owned_processes(job).values())
+    finally:s.stop_smoke_owned([job])
+
+
+def test_ddp_ownership_reused_pid_and_exited_uncaptured_root_are_not_seeds(monkeypatch):
+    fake=SimpleNamespace(pid=100,poll=lambda:0)
+    row={'pid':100,'ppid':1,'start_ticks':200,'sid':100,'state':'S','rss':1}
+    monkeypatch.setattr(s,'process_table',lambda:{100:row})
+    assert s.owned_processes(cpu_job(fake))=={}
+    job={'child':fake,'start_ticks':100,'owned':{100:{**row,'start_ticks':100}},'owned_sessions':{100:100}}
+    assert s.owned_processes(job)=={}
+    # A historical session integer without any currently verified live member
+    # cannot prove a foreign orphan is ours after that SID has been recycled.
+    monkeypatch.setattr(s,'process_table',lambda:{200:{**row,'pid':200,'sid':100,'ppid':1,'start_ticks':300}})
+    assert s.owned_processes(job)=={}
+
+
+def test_ddp_ownership_prior_one_plus_partial_intents_consume_total_cap(tmp_path,monkeypatch):
+    control=tmp_path/'control'
+    for unit in ('initial_continuous','initial_interrupted'):
+        (control/'invocations'/unit/'partial').mkdir(parents=True)
+    calls=[]
+    def claim(root,unit,**kwargs):
+        calls.append(unit);path=Path(root)/'invocations'/unit/'partial';path.mkdir(parents=True);return path
+    monkeypatch.setattr(s,'helper',lambda:SimpleNamespace(claim_invocation=claim))
+    s.claim_smoke_invocation(control,'resume_interrupted',binding_sha='synthetic',argv=['CPU fixture only'])
+    assert calls==['resume_interrupted']
+    with pytest.raises(ValueError,match='including prior failed launch'):
+        s.claim_smoke_invocation(control,'resume_interrupted',binding_sha='synthetic',argv=[])
+    assert calls==['resume_interrupted']
+
+
+def test_ddp_ownership_gpu_snapshot_race_refresh_still_refuses_foreign(monkeypatch):
+    calls=[]
+    def monitor(route,owned):
+        calls.append(set(owned))
+        if 123 not in owned:raise ValueError('Unknown/foreign process on endpoint GPU; stopping owned work only')
+        return {'fixture_GPU':1}
+    ep=SimpleNamespace(gpu_monitor=monitor)
+    monkeypatch.setattr(s,'owned_processes',lambda job:{123:{'start_ticks':1}})
+    assert s.monitor_smoke_gpu(ep,{},[{'synthetic':'owned lineage'}],{})=={'fixture_GPU':1}
+    assert calls==[set(),{123}]
+    calls.clear();monkeypatch.setattr(s,'owned_processes',lambda job:{})
+    with pytest.raises(ValueError,match='Unknown/foreign'):
+        s.monitor_smoke_gpu(ep,{},[{'synthetic':'different lineage'}],{})
+    assert calls==[set(),set()]
+
+
+def test_ddp_ownership_group_ready_uses_cross_session_live_rank(tmp_path,monkeypatch):
+    run=tmp_path/'run';identity={'source_sha':s.SOURCE};identity['identity']=s.digest(identity)
+    put(run/'identity.json',identity);put(run/'initialization.json',{})
+    for rank in range(4):put(run/'official_runtime'/f'initial_engine_rank{rank}.json',{})
+    put(run/'status.json',{'identity':identity['identity'],'source_sha':s.SOURCE,'started_unix':2,'pid':123})
+    (run/'checkpoints/step_000000_fixture').mkdir(parents=True);put(run/'checkpoints/step_000000_fixture/COMPLETE.json',{})
+    monkeypatch.setattr(s,'owned_processes',lambda job:{123:{'synthetic':'new session rank'}})
+    monkeypatch.setattr(s,'inspect_native',lambda *a,**kw:{})
+    assert s.group_ready(run,{'started_unix':1})
+    monkeypatch.setattr(s,'owned_processes',lambda job:{})
+    with pytest.raises(ValueError,match='owned invocation'):s.group_ready(run,{'started_unix':1})
+
+
+def test_ddp_ownership_prior_launch_pins_and_io_are_not_reset(isolated):
+    prior=s.PRIOR_ROOT;attempt=prior/'control/invocations/initial_continuous/1'
+    result={'stats':{'sampled_rchar':16348730,'sampled_read_bytes':24576},'invocations_started':1,
+        'status':'PARTIAL_OR_FAILED','stop_reason':'Unknown/foreign process on endpoint GPU'}
+    (prior/'control/initial_RESULT.json').write_text(json.dumps(result))
+    for name,value in [('ADMISSION.json',{'fixture':'charged'}),('LAUNCH.json',{'fixture':'actual Popen'}),
+                       ('EXIT.json',{'owned_cleanup_complete':True})]:put(attempt/name,value)
+    record=s.prior_failed_launch()
+    assert record['consumed_trainer_invocations']==1 and record['consumed_optimizer_updates']==0
+    assert record['wall_seconds_reserved']==60
+    assert s.pinned(record['initial_result'])['stats']==result['stats']
+    (prior/'continuous/runs/unknown_actual_state').mkdir(parents=True)
+    with pytest.raises(ValueError,match='real run state'):s.prior_failed_launch()
 
 
 @pytest.mark.parametrize('bad',['valid','observer','runtime','rank','snapshot','native_pin','RNG','foreign_save'])

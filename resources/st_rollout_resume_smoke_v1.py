@@ -6,6 +6,7 @@ prepare/initial/resume; compare reads only this experiment's audit artifacts.
 """
 from __future__ import annotations
 import argparse
+import ast
 import fcntl
 import hashlib
 import importlib.util
@@ -23,7 +24,11 @@ from types import SimpleNamespace
 CAMPAIGN=Path('/mnt/project/st-world-policy-20261016')
 RUNTIME=Path('/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018')
 SOURCE='751fcfa2b41549ae16f7b3204aef8dd18b912016'
-ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v2'
+ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v3'
+PRIOR_ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v2'
+OWNERSHIP_MONITOR=CAMPAIGN/'resources/monitor_rollout_scale_formal_v1.py'
+OWNERSHIP_MONITOR_SHA='3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38'
+_MATURE_STAT=None
 FORMAL=CAMPAIGN/'formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json'
 FORMAL_SHA='928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f'
 MANIFEST=CAMPAIGN/'audits/flow_policy/training_integration_v1/real32/TRAINING_MANIFEST.json'
@@ -35,8 +40,8 @@ PYTHON='/root/miniconda3/envs/ddp/bin/python'
 PAUSE_MARKER='owned observer control after engine native2 save, before COMPLETE and next optimizer\n'
 LIMITS={'scope':'SMOKE','world':4,'global_batch':32,'micro_batch':4,'accumulation':2,
     'max_updates':4096,'warmup':100,'stop_after':4,'total_new_updates':8,'primary_calls':1024,
-    'retry_calls':0,'global_calls':1024,'arm_calls':512,'max_invocations':3,
-    'wall_seconds':3600,'grace_seconds':60,'group_RSS_bytes':256*2**30,
+    'retry_calls':0,'global_calls':1024,'arm_calls':512,'max_invocations':4,'prior_invocations':1,'new_invocations':3,
+    'wall_seconds':3540,'prior_wall_seconds':60,'grace_seconds':60,'group_RSS_bytes':256*2**30,
     'aggregate_RSS_bytes':512*2**30,'GPU_driver_bytes':48*2**30,
     'fresh_RAM_bytes':640*2**30,'output_bytes':104*2**30,'native_directories':8,
     'native_directory_bytes':12*2**30,'monitor_read_bytes':1024*2**30,
@@ -78,6 +83,120 @@ def pinned(ref):
 
 
 def write(path,value):helper().immutable(path,value)
+
+
+def process_record(pid):
+    """Mature formal PPID/start/RSS reader plus needed lifecycle metadata."""
+    global _MATURE_STAT
+    if _MATURE_STAT is None:
+        if sha(OWNERSHIP_MONITOR)!=OWNERSHIP_MONITOR_SHA:raise ValueError('Mature PPID source changed')
+        tree=ast.parse(OWNERSHIP_MONITOR.read_text());nodes=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='stat']
+        if len(nodes)!=1:raise ValueError('Mature process stat helper absent')
+        namespace={'Path':Path,'os':os};exec(compile(ast.Module(body=nodes,type_ignores=[]),str(OWNERSHIP_MONITOR),'exec'),namespace)
+        _MATURE_STAT=namespace['stat']
+    row=_MATURE_STAT(pid);fields=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()
+    if row['start_ticks']!=int(fields[19]):raise ProcessLookupError('PID changed during ownership read')
+    return {**row,'rss':row['rss_bytes'],'state':fields[0],'pgrp':int(fields[2]),'sid':int(fields[3]),
+        'cpu_seconds':sum(int(fields[index]) for index in (11,12,13,14))/os.sysconf('SC_CLK_TCK')}
+
+
+def process_table():
+    table={}
+    for path in Path('/proc').iterdir():
+        if path.name.isdigit():
+            try:table[int(path.name)]=process_record(int(path.name))
+            except (OSError,ValueError,IndexError):pass
+    return table
+
+
+def owned_processes(job):
+    """PPID closure, then retained PID/start and proven child-session ownership.
+
+    Torch elastic ranks call setsid. SID equality to timeout is insufficient.
+    A new SID is retained only after its leader was proven in the owned PPID
+    tree. No NVML PID is used as an ownership seed. Unobserved unknowns fail.
+    """
+    table=process_table();root=job['child'].pid;known=job.setdefault('owned',{});sessions=job.setdefault('owned_sessions',{})
+    if job.get('start_ticks') is None and job['child'].poll() is None and root in table:job['start_ticks']=table[root]['start_ticks']
+    owned={pid:row for pid,row in table.items() if pid in known and row['start_ticks']==known[pid]['start_ticks']}
+    if root in table and table[root]['start_ticks']==job.get('start_ticks'):owned[root]=table[root]
+    while True:
+        for pid,row in owned.items():
+            if pid==row['sid']:sessions[pid]=row['start_ticks']
+        added={}
+        for pid,row in table.items():
+            if pid in owned:continue
+            parent=owned.get(row['ppid']);leader=table.get(row['sid']);stamp=sessions.get(row['sid'])
+            via_parent=parent is not None and row['start_ticks']>=parent['start_ticks']
+            session_continuous=(leader is not None and leader['start_ticks']==stamp) or any(
+                member['sid']==row['sid'] and member['state']!='Z' for member in owned.values())
+            via_session=stamp is not None and row['start_ticks']>=stamp and session_continuous
+            if via_parent or via_session:added[pid]=row
+        if not added:break
+        owned.update(added)
+    known.update(owned);return owned
+
+
+def stop_smoke_owned(jobs):
+    """Signal only individually reverified known descendants, across setsid."""
+    previous={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+    def active(job):return {pid:row for pid,row in owned_processes(job).items() if row['state']!='Z'}
+    def send(job,signum):
+        for pid,row in active(job).items():
+            try:
+                current=process_record(pid)
+                if current['start_ticks']==row['start_ticks']:os.kill(pid,signum)
+            except (FileNotFoundError,ProcessLookupError):pass
+    try:
+        for sig in previous:signal.signal(sig,signal.SIG_IGN)
+        for job in jobs:send(job,signal.SIGTERM)
+        deadline=time.monotonic()+60
+        while any(active(job) for job in jobs) and time.monotonic()<deadline:time.sleep(.1)
+        for job in jobs:
+            send(job,signal.SIGKILL)
+            try:job['child'].wait(timeout=5)
+            except subprocess.TimeoutExpired:job['cleanup_error']='OWNED_ROOT_EXIT_NOT_CONFIRMED'
+            job['cleanup_complete']=job['child'].poll() is not None and not active(job)
+    finally:
+        for sig,value in previous.items():signal.signal(sig,value)
+
+
+def monitor_smoke_gpu(ep,route,jobs,currently_owned):
+    """One ownership-only refresh closes the snapshot-to-NVML fork race.
+
+    Never seed ownership from the reported GPU PID, command, or GPU UUID.
+    A still-unknown PID after fresh PPID/start discovery is rejected unchanged.
+    This is not an official scoring/trainer retry.
+    """
+    try:return ep.gpu_monitor(route,currently_owned)
+    except ValueError as error:
+        if not str(error).startswith('Unknown/foreign process on endpoint GPU'):raise
+        refreshed={}
+        for job in jobs:refreshed.update(owned_processes(job))
+        return ep.gpu_monitor(route,refreshed)
+
+
+def prior_failed_launch():
+    records=list(PRIOR_ROOT.glob('control/invocations/*/*/ADMISSION.json'))
+    result=read(PRIOR_ROOT/'control/initial_RESULT.json')
+    if (len(records)!=1 or result['invocations_started']!=1 or result['status']!='PARTIAL_OR_FAILED'
+            or 'Unknown/foreign process' not in result['stop_reason']):raise ValueError('Prior failed launch accounting changed')
+    path=records[0];exited=read(path.with_name('EXIT.json'))
+    if not exited['owned_cleanup_complete']:raise ValueError('Prior source did not confirm owned cleanup; Lead must inspect')
+    if any(PRIOR_ROOT.glob('*/runs/*')):raise ValueError('Prior failed launch has real run state; never assume zero updates/calls')
+    prior_exited(PRIOR_ROOT/'control')
+    return {'consumed_trainer_invocations':1,'consumed_optimizer_updates':0,'consumed_official_calls':0,
+        'wall_seconds_reserved':60,'initial_result':pin(PRIOR_ROOT/'control/initial_RESULT.json'),
+        'admission':pin(path),'launch':pin(path.with_name('LAUNCH.json')),'exit':pin(path.with_name('EXIT.json')),
+        'prior_IO_is_SID_sampled_lower_bound':True}
+
+
+def claim_smoke_invocation(control,unit,*,binding_sha,argv):
+    if unit not in ('initial_continuous','initial_interrupted','resume_interrupted'):raise ValueError('Unknown SMOKE invocation unit')
+    claimed=[p for p in Path(control).glob('invocations/*/*') if p.is_dir()]
+    if LIMITS['prior_invocations']+len(claimed)>=LIMITS['max_invocations']:
+        raise ValueError('SMOKE total trainer invocation cap including prior failed launch exhausted')
+    return helper().claim_invocation(control,unit,resume=False,binding_sha=binding_sha,argv=argv)
 
 
 def inspect_native(folder,*,identity=None,completed=None):
@@ -160,7 +279,8 @@ def draft_binding(output,layout_ref,valid_seconds):
         path=output/(arm+'_RESOURCE_LEASE.json');write(path,lease);leases[arm]=pin(path)
     binding={'source_sha':SOURCE,'controller_sha256':sha(__file__),'limits':LIMITS,'root':str(ROOT),'manifest':pin(MANIFEST),
         'environment':pin(output/'ENVIRONMENT.json'),'dispatch_policy':pin(ep.DISPATCH_POLICY),'authorization':pin(ep.AUTHORIZATION),
-        'resource_layout':layout_ref,'leases':leases,
+        'resource_layout':layout_ref,'leases':leases,'prior_failed_launch':prior_failed_launch(),
+        'ownership_monitor':pin(OWNERSHIP_MONITOR),
         'route':{'host':layout['host'],'hostname':host,'gpus':list(range(8)),'gpu_uuids':uuids,
             'valid_from_unix':now-1,'valid_until_unix':now+valid_seconds}}
     path=output/'BINDING_DRAFT.json';write(path,{'schema':'st_rollout_resume_smoke_binding_draft_v1',
@@ -175,7 +295,9 @@ def admission(path,checksum):
     if (receipt['schema']!='st_rollout_resume_smoke_admission_v1' or receipt['status']!='APPROVED'
             or receipt['binding_sha256']!=digest(binding) or binding['controller_sha256']!=sha(__file__)
             or binding['source_sha']!=SOURCE or binding['limits']!=LIMITS
-            or binding['root']!=str(ROOT) or binding['manifest']!=pin(MANIFEST)):
+            or binding['root']!=str(ROOT) or binding['manifest']!=pin(MANIFEST)
+            or binding['prior_failed_launch']!=prior_failed_launch()
+            or binding['ownership_monitor']!={'path':str(OWNERSHIP_MONITOR),'sha256':OWNERSHIP_MONITOR_SHA}):
         raise ValueError('Foreign/stale SMOKE admission')
     names=[]
     for kind in ('correctness','resources'):
@@ -225,7 +347,9 @@ def prepare(binding):
     plan() # Strict legal32 and actual initial native stat before any writes.
     ROOT.mkdir(parents=True,exist_ok=False);write(ROOT/'BINDING.json',binding)
     write(ROOT/'BUDGET.json',{'limits':LIMITS,'weights_usable_for_formal_init':False,'source_sha':SOURCE,
-        'audit_worker_sha256':sha(__file__),'original_trainer_modified':False})
+        'audit_worker_sha256':sha(__file__),'original_trainer_modified':False,
+        'prior_failed_launch':binding['prior_failed_launch'],'maximum_new_trainer_invocations':3,
+        'total_wall_accounting_seconds':60+3540+120+180})
     for arm in ('continuous','interrupted'):
         folder=ROOT/arm;folder.mkdir();cfg=json.loads(json.dumps(base))
         cfg['execution'].update(scope='SMOKE',sample_limit=32,stop_after=4)
@@ -262,7 +386,7 @@ def group_ready(run,job):
     if (identity['source_sha']!=SOURCE or digest({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']
             or status['identity']!=identity['identity'] or status['source_sha']!=SOURCE
             or status['started_unix']<job['started_unix']
-            or status['pid'] not in helper().session_members(job['child'].pid,job['start_ticks'])):
+            or status['pid'] not in owned_processes(job)):
         raise ValueError('Heavy-load gate is not from the actual owned invocation')
     for path in (run/'checkpoints').glob('step_000000_*'):
         if (path/'COMPLETE.json').exists():
@@ -342,8 +466,8 @@ def execute(phase,receipt,binding):
     if read(ROOT/'BINDING.json')!=binding:raise ValueError('Prepared SMOKE binding changed')
     control=ROOT/'control';control.mkdir(exist_ok=True);locks=[];jobs=[];stop=[]
     start_path=control/'START.json'
-    if phase=='initial':write(start_path,{'started_unix':time.time(),'deadline_unix':time.time()+3600,'binding_sha256':digest(binding)})
-    start=read(start_path);deadline=start['deadline_unix']-60
+    if phase=='initial':write(start_path,{'started_unix':time.time(),'deadline_unix':time.time()+LIMITS['wall_seconds'],'binding_sha256':digest(binding)})
+    start=read(start_path);deadline=start['deadline_unix']
     old_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
     def interrupted(signum,frame):
         if not stop:stop.append(signum)
@@ -358,7 +482,7 @@ def execute(phase,receipt,binding):
             '--standalone','--nnodes=1','--nproc_per_node=4',str(Path(__file__).resolve()),'worker',
             '--registration',str(ROOT/arm/'REGISTRATION.json'),'--audit-output',str(ROOT/arm/'observer')]
         if resume:argv+=['--resume']
-        attempt=ep.claim_invocation(control,unit,resume=False,binding_sha=digest(binding),argv=argv)
+        attempt=claim_smoke_invocation(control,unit,binding_sha=digest(binding),argv=argv)
         for gpu,uuid in zip(ids,uuids):helpers['fresh_gpu_v3']({'gpu':gpu,'gpu_uuid':uuid})
         check_stop()
         env={**os.environ,**ep.THREAD_ENV,'CUDA_VISIBLE_DEVICES':','.join(uuids)}
@@ -374,11 +498,11 @@ def execute(phase,receipt,binding):
             raise
         finally:
             if log is not None:log.close()
-        tree=ep.session_members(child.pid);job['owned'].update(tree);job['start_ticks']=tree.get(child.pid,{}).get('start_ticks')
+        tree=owned_processes(job)
         write(attempt/'LAUNCH.json',{'pid':child.pid,'argv':argv,'cwd':str(RUNTIME),'source_sha':SOURCE,
             'audit_worker_sha256':sha(__file__),'admission_sha256':digest(receipt),'started_unix':time.time()})
         check_stop()
-    prior_stats={} if phase=='initial' else read(control/'initial_RESULT.json')['stats']
+    prior_stats=read(PRIOR_ROOT/'control/initial_RESULT.json')['stats'] if phase=='initial' else read(control/'initial_RESULT.json')['stats']
     prior_rchar=prior_stats.get('sampled_rchar',0);prior_read=prior_stats.get('sampled_read_bytes',0)
     reason=None;stats={'peak_aggregate_RSS':0,'sampled_rchar':prior_rchar,'sampled_read_bytes':prior_read,
         'IO_scope':'Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota'}
@@ -399,9 +523,9 @@ def execute(phase,receipt,binding):
                 pause=read(ROOT/'PAUSE_REQUEST.json')
                 if pause['run']!=str(run_path('interrupted')) or pause['completed']!=2:raise ValueError('Foreign pause request')
                 requested=True
-            aggregate=0
+            aggregate=0;currently_owned={}
             for job in jobs:
-                tree=ep.session_members(job['child'].pid,job['start_ticks']);job['owned'].update(tree)
+                tree=owned_processes(job);currently_owned.update(tree)
                 for pid,row in tree.items():
                     old=seen.get(pid,{})
                     if old.get('start_ticks')==row['start_ticks']:
@@ -418,7 +542,7 @@ def execute(phase,receipt,binding):
             stats['peak_aggregate_RSS']=max(stats['peak_aggregate_RSS'],aggregate)
             if aggregate>LIMITS['aggregate_RSS_bytes']:raise ValueError('SMOKE aggregate RSS cap')
             if time.monotonic()-last_GPU>=5:
-                ep.LIMITS['GPU_driver_bytes']=LIMITS['GPU_driver_bytes'];ep.gpu_monitor(route,seen);last_GPU=time.monotonic()
+                ep.LIMITS['GPU_driver_bytes']=LIMITS['GPU_driver_bytes'];monitor_smoke_gpu(ep,route,jobs,currently_owned);last_GPU=time.monotonic()
             if time.monotonic()-last_IO>=10:
                 files=[p for p in ROOT.rglob('*') if p.is_file()]
                 if sum(p.stat().st_size for p in files)>LIMITS['output_bytes']:raise ValueError('SMOKE output cap')
@@ -447,7 +571,7 @@ def execute(phase,receipt,binding):
         else:results={'interrupted':validate_result('interrupted',4,2)}
     except BaseException as error:reason=repr(error);results={}
     finally:
-        try:ep.stop_owned(jobs)
+        try:stop_smoke_owned(jobs)
         except BaseException as error:reason='CLEANUP_UNCONFIRMED: '+repr(error)
         if any(not job.get('cleanup_complete',False) for job in jobs):reason=reason or 'OWNED_CLEANUP_UNCONFIRMED'
         for job in jobs:
@@ -457,7 +581,8 @@ def execute(phase,receipt,binding):
         for handle in reversed(locks):handle.close()
     result={'status':'EXECUTION_COMPLETE_PENDING_COMPARISON' if reason is None else 'PARTIAL_OR_FAILED',
         'phase':phase,'stop_reason':reason,'stats':stats,'results':results,'invocations_started':len(jobs),
-        'weights_usable_for_formal_init':False,'new_formal_updates':0}
+        'weights_usable_for_formal_init':False,'new_formal_updates':0,
+        'prior_consumed_trainer_invocations':1,'total_trainer_invocation_cap':4}
     write(control/(phase+'_RESULT.json'),result);return result
 
 
