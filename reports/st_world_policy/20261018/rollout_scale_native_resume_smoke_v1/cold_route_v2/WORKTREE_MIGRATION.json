@@ -1,0 +1,20 @@
+{
+  "reason": "Preserve original v1 absolute source/review pins after own uncommitted fix",
+  "original_worktree": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018",
+  "new_worktree": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v2-20261018",
+  "base_commit": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+  "patch_sha256": "12810b61c69cc6bb3565ff30a5c0bfd9d2fc1763c4655d6dbc82827866054df2",
+  "files": {
+    "resources/st_rollout_resume_smoke_v1.py": {
+      "v1_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+      "v2_sha256": "763aa49047179040ecb130ec5a843272b656dab25a089a47cf937063d811f137"
+    },
+    "tests/st_world/test_rollout_resume_smoke.py": {
+      "v1_sha256": "cac7427bacc2d5fe53422ee6e1315363f62250db44696b80a281b65342140685",
+      "v2_sha256": "af6594783952b5355e031c076950ff076e4ad18146146c67f236c8f1d57f94d4"
+    }
+  },
+  "operations": "git diff patch preserved; applied only to new isolated worktree; moved own untracked evidence; restored only two just-edited owned files from original19a bytes; no reset/stash/user edit touched",
+  "lossless_patch_archive": "OWNED_PATCH_BEFORE_MIGRATION.patch.gz",
+  "decoded_patch_sha256": "12810b61c69cc6bb3565ff30a5c0bfd9d2fc1763c4655d6dbc82827866054df2"
+}

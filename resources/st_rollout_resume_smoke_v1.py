@@ -23,7 +23,7 @@ from types import SimpleNamespace
 CAMPAIGN=Path('/mnt/project/st-world-policy-20261016')
 RUNTIME=Path('/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018')
 SOURCE='751fcfa2b41549ae16f7b3204aef8dd18b912016'
-ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v1'
+ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v2'
 FORMAL=CAMPAIGN/'formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json'
 FORMAL_SHA='928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f'
 MANIFEST=CAMPAIGN/'audits/flow_policy/training_integration_v1/real32/TRAINING_MANIFEST.json'
@@ -191,6 +191,7 @@ def admission(path,checksum):
 
 
 def route_checks(binding,*,initial):
+    if str(RUNTIME) not in sys.path:sys.path.insert(0,str(RUNTIME))
     ep=helper();helpers=ep.mature_helpers()
     if (binding['dispatch_policy']['path']!=str(ep.DISPATCH_POLICY)
             or binding['authorization']['path']!=str(ep.AUTHORIZATION)):raise ValueError('Actual live policy/auth paths required')

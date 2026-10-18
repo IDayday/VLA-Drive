@@ -323,3 +323,13 @@ def test_two_local_independent_reviews_do_not_require_new_formal_gate(isolated,m
     if bad=='valid':assert s.admission(path,s.sha(path))[1]==binding
     else:
         with pytest.raises(ValueError):s.admission(path,s.sha(path))
+
+
+@pytest.mark.parametrize('source',['old','new'])
+def test_cold_route_initial_process_imports_real_exact_runtime_metadata(source):
+    probe=FILE.parents[1]/'reports/st_world_policy/20261018/rollout_scale_native_resume_smoke_v1/cold_route_v2/cold_route_probe.py'
+    result=subprocess.run(['/root/miniconda3/envs/ddp/bin/python','-I',str(probe),'--source',source],
+        cwd='/tmp',env={**__import__('os').environ,'CUDA_VISIBLE_DEVICES':''},text=True,capture_output=True,timeout=30)
+    assert result.returncode==0,result.stdout+result.stderr
+    expected='REPRODUCED_ModuleNotFoundError_tools' if source=='old' else 'REAL_FROZEN_ENVIRONMENT_IMPORT_OK'
+    assert json.loads(result.stdout)['outcome']==expected
