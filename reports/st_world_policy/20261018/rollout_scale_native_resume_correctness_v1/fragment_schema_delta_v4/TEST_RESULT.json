@@ -1,0 +1,51 @@
+{
+  "schema": "independent_real_ds_fragment_v4_test",
+  "source": "4299bd70915ff9517e61b9bf33a74d46df839496",
+  "controller_sha256": "468fe8f1ed20ef3abb2b2407413f92fb078f6b1d05f6cbfb2ed4e4b6e69f9692",
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v4-20261018/tests/st_world/test_rollout_resume_smoke.py",
+    "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/fragment_schema_delta_v4/test_ds_fragment_schema.py",
+    "-k",
+    "ds_fragment or resource_and_scientific_budgets"
+  ],
+  "exit_code": 0,
+  "stop_reason": null,
+  "sampled_50ms_aggregate_RSS_bytes": 686125056,
+  "test_only_environment": {
+    "TORCHINDUCTOR_COMPILE_THREADS": "1"
+  },
+  "wall_seconds": 6.660601833835244,
+  "waited_child_CPU_seconds": 6.112875,
+  "maximum_child_RSS_bytes": 709496832,
+  "unchanged_function_AST": [
+    "engine_snapshot",
+    "install_observer",
+    "worker",
+    "consumed_receipt",
+    "verify_load_witness",
+    "compare",
+    "validate_pause_marker",
+    "archive_owned_pause",
+    "validate_pause_ack",
+    "inspect_native",
+    "selected_native",
+    "validate_result",
+    "owned_processes",
+    "stop_smoke_owned",
+    "monitor_smoke_gpu",
+    "group_ready",
+    "route_checks"
+  ],
+  "serializer_only_adds_explicit_real_fragment_schema": true,
+  "endpoint_helper_unchanged": true,
+  "old51_DDP_and_cold_tests_rerun": false,
+  "GPU_calls": 0,
+  "official_score_calls": 0,
+  "model_or_native_tensor_loads": 0,
+  "real_class": "Installed DeepSpeed fragment_address and real public ZeroOptimizer.state_dict on4-element CPU carrier",
+  "pickle_boundary": "Tests unpickle only their own tiny trusted dataclass fixture, never native data.pkl"
+}
