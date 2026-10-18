@@ -672,5 +672,175 @@
     "repair": "Preserve failed attempt; create registered stage output parents; restart same immutable controller",
     "algorithm_or_training_state_changed": false,
     "regression_tests": "11 passed: tests/rl/test_simwam_source_process.py"
+  },
+  "post_recovery": {
+    "observed_utc": "2026-10-18T13:57:52.858744+00:00",
+    "controller_source": "b2691f3ee1e8cb64432f7cf7dd7b53f5220904c4",
+    "lock_source": "1170cb5dfbeb1e86b6943b460ff2ebd80b251651",
+    "controller_status": {
+      "owner": {
+        "pid": 852579,
+        "start_ticks": 1377044165,
+        "unix": 1792331829.7826939
+      },
+      "observed_unix": 1792331834.8345094,
+      "results": {
+        "20000": {
+          "status": "WAITING_FOR_WORKERS_OR_CAPACITY",
+          "states": {
+            "UPSTREAM_DATA": {
+              "status": "RUNNING",
+              "reserved": [
+                "GPU-f679bff0-a4a2-ae4f-0b85-74c519b45a9c",
+                "GPU-562375d4-b1d6-f0d9-a68d-5a81e5272907",
+                "GPU-b8a35758-a506-a8a1-dca7-499c485068fc",
+                "GPU-72a7d08b-16b7-7c64-a324-a08e043c6006",
+                "GPU-f35ae00b-0c9c-c01c-efba-e527cdd32f76",
+                "GPU-cba744b9-96c8-c3e2-f836-2f0126c038a0",
+                "GPU-017ee82b-e9ff-1f6c-547e-ca2ccf3363ac",
+                "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+                "GPU-f0cd16db-c7f6-2226-c901-d1809277060e",
+                "GPU-27c69c7c-eb37-82fb-6fa0-0777abd64056",
+                "GPU-51b3887b-3158-ece3-aa70-a52adb25160b",
+                "GPU-31f9e6ef-4c0d-b5e0-7ddf-527f4a7dbcbc",
+                "GPU-9bc364f5-5bf1-4ea5-d9fa-ee62b41cc79f",
+                "GPU-76726c77-ffe3-6f10-fb08-7782dac5d840",
+                "GPU-7d8d39a1-1f02-4099-1aaa-d3cc35c6d542",
+                "GPU-91fd88e4-a388-6b59-e684-13a463606f9e",
+                "GPU-ceb0d9a7-7b64-2fb1-cb83-962861ec73b9",
+                "GPU-9e303222-565f-9aee-caa7-625ee7f12096",
+                "GPU-37f16ed7-3b1b-4cb7-2462-70ef5abbd287",
+                "GPU-cab4a3fa-dc7f-0762-9b23-8e0e8959e57a"
+              ],
+              "completed_shards": 0
+            },
+            "OWN_DATA_CONTROL": {
+              "status": "RUNNING",
+              "reserved": [
+                "GPU-5d1dca72-ef65-13ce-ef85-2fde0bb2e62c",
+                "GPU-4604e9db-bf91-9dd3-1b79-deb94646aa63",
+                "GPU-3bad9a14-f891-5982-524b-b4a13a3cb734",
+                "GPU-e9cb846f-5ccf-504c-5537-e2da39e661fd",
+                "GPU-ba6629ed-35db-198b-d353-d6048cbdf36b",
+                "GPU-c976d64e-44ea-d8bd-a026-d1c1f14d4db6",
+                "GPU-e2a93cb8-47e2-0b2f-952e-bcfa5403ad24",
+                "GPU-28ad5baf-48e8-8ea7-2e0b-514cc7f2d690",
+                "GPU-a7b3b440-0f0e-d35e-508a-98b368e9a753",
+                "GPU-07454d91-a706-9214-2999-0ec63e16c489",
+                "GPU-69f7a391-b4e5-fefd-2b4e-721834060a20",
+                "GPU-a4a674df-d68f-fa69-13be-0f089a4cd6af",
+                "GPU-b0791af0-258f-af14-d2fa-5683d795c5b4",
+                "GPU-30077d20-8876-bcfe-609e-ee7c140e6770",
+                "GPU-6c1b062c-144b-5314-b423-b73030e1ce29",
+                "GPU-b4cae444-823a-156a-f794-bd5ca40b3c18",
+                "GPU-f1784442-c8f0-767b-a0cc-e3675643e318",
+                "GPU-2fb29b99-d8a1-0bae-9b16-2a0c97f0351a",
+                "GPU-418ae714-b62c-9b41-070b-065281c57cbd",
+                "GPU-b41079a0-8114-e9b0-55d6-4ea93daea76f"
+              ],
+              "completed_shards": 0
+            }
+          },
+          "completed": {},
+          "Navtest_opened": true,
+          "final_lock_sha256": "37d0e39203edeece204513bcb8bc6c8fa60388efcae8e17cb674b5dc0e4cef03"
+        }
+      },
+      "status": "WAITING"
+    },
+    "receipt": "/mnt/project/simwam-source-process-20261018/navtest_recovery/partial_20261018T135645Z/DISPATCH_COMPLETE.json",
+    "receipt_sha256": "9c4b72f2a5a3d58a7a8cae9d45bc7c6d02874be7bb070bfe59f6b1be117ff62d",
+    "validation": "68 tests passed: source process, PID relay, final dispatch, final handoff; both changed CLI help paths passed",
+    "training": {
+      "UPSTREAM_DATA": {
+        "rank_updates": [
+          21560,
+          21560,
+          21560,
+          21560,
+          21560,
+          21560,
+          21560,
+          21560
+        ],
+        "latest": {
+          "checkpoint": "/mnt/project/simwam-source-process-20261018/runs/UPSTREAM_DATA_seed42_v1/checkpoints/update021500_inner0",
+          "updates": 21500,
+          "files_sha256": "e85806cfbae45230efa498cdae0b7a74fb1da1a26168b3c703fc6bb9223fcaa8"
+        }
+      },
+      "OWN_DATA_CONTROL": {
+        "rank_updates": [
+          21436,
+          21436,
+          21436,
+          21436,
+          21436,
+          21436,
+          21436,
+          21436
+        ],
+        "latest": {
+          "checkpoint": "/mnt/project/simwam-source-process-20261018/runs/OWN_DATA_CONTROL_seed42_v1/checkpoints/update021400_inner0",
+          "updates": 21400,
+          "files_sha256": "fb06ea46a9ff8d574f1997975db6d54a58006f66f0ae3cfb0779d48aacc08871"
+        }
+      }
+    },
+    "evaluation": {
+      "UPSTREAM_DATA": {
+        "dispatched": 20,
+        "unique_GPUs": 20,
+        "reporting": 20,
+        "completed_scenes": 3096,
+        "total_scenes": 12146,
+        "statuses": {
+          "15": "RUNNING",
+          "7": "RUNNING",
+          "6": "RUNNING",
+          "13": "RUNNING",
+          "14": "RUNNING",
+          "0": "RUNNING",
+          "2": "RUNNING",
+          "12": "RUNNING",
+          "4": "RUNNING",
+          "18": "RUNNING",
+          "16": "RUNNING",
+          "9": "RUNNING",
+          "19": "RUNNING",
+          "10": "RUNNING",
+          "8": "RUNNING",
+          "1": "RUNNING",
+          "11": "RUNNING",
+          "5": "RUNNING",
+          "3": "RUNNING",
+          "17": "RUNNING"
+        },
+        "final_score_available": false
+      },
+      "OWN_DATA_CONTROL": {
+        "dispatched": 20,
+        "unique_GPUs": 20,
+        "reporting": 13,
+        "completed_scenes": 536,
+        "total_scenes": 12146,
+        "statuses": {
+          "7": "RUNNING",
+          "6": "RUNNING",
+          "0": "RUNNING",
+          "2": "RUNNING",
+          "12": "RUNNING",
+          "4": "RUNNING",
+          "9": "RUNNING",
+          "10": "RUNNING",
+          "8": "RUNNING",
+          "1": "RUNNING",
+          "11": "RUNNING",
+          "5": "RUNNING",
+          "3": "RUNNING"
+        },
+        "final_score_available": false
+      }
+    }
   }
 }
