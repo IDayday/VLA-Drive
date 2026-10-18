@@ -1,0 +1,83 @@
+{
+  "comparison": {
+    "continuous": "freshS0 -> 4updates",
+    "explicit_retry_headroom": "must be declared in final registration and shared durable budgets; not yet set by this contract",
+    "no_third_AA_run": true,
+    "primary_official_calls": 1024,
+    "stopped": "fresh sameS0 -> exact2updates -> complete native2 -> new process same run identity -> 2additional updates",
+    "total_optimizer_updates": 8
+  },
+  "continuous_comparison": {
+    "BC_draws": "NOT_DIRECTLY_OBSERVED. Saved BC streams and subsequent loss/state are indirect evidence only; no claim to directly compared BC noise/time or full gradients.",
+    "if_prefix_bitwise_equal": "Demand bitwise corresponding post-resume3/4 stored draws/state and actual updates. Any new divergence is REPLAY_DIVERGENCE; do not expand tolerance or run a third reference.",
+    "if_prefix_numerically_different": "Report independent BF16 execution variability separately. The empirical first2 A/A envelope is descriptive, not a guaranteed4step bound. Do not call independent cross-run continuation exact. Strict own-save-to-loaded-state/RNG restore requirements remain unchanged.",
+    "prefix": "continuous/stopped first2 fresh updates provide the ONLY budgeted independent A/A reference. Compare per-rank IDs, actual saved generation/CFM draws, raw/reward/normalized A, losses/LR and full logical native/master/moment state at2.",
+    "update_metrics": [
+      "FP64 delta theta_k-theta_k-1; maxabs, L2, relative delta error and cosine where nonzero",
+      "per-loss absolute/relative differences, physical trajectory max/ADE/yaw",
+      "full tensor hashes before relative summaries; huge absolute parameter norm never substitutes for actual update comparison"
+    ]
+  },
+  "final_approval_boundary": "No GPU/score dispatch approval until final clean external controller+audit worker and exact bounded registration receive independent source/correctness/resources review. Only Lead dispatches. Diagnostic weights never initialize formal; formal751/current running training untouched.",
+  "minimum_artifacts": [
+    "immutable registration/config/source/worker/protocol/data/route budget bindings for both runs",
+    "actual clean native COMPLETE/selected2 RESUME_RESOLUTION and rank RNG file receipts",
+    "per-rank SAVE0/2/4 and LOAD2 module+master+Adam/group/client-state hash audits",
+    "capture/restore RNG before-after audits proving zero observer consumption",
+    "last consumed normalization receipts/commonhash and actual next saved boundary2/3 debug payload identities",
+    "steps.jsonl actual IDs/LR/loss/master update evidence; source epoch-exhaustion-derived next IDs",
+    "all-rank collective error/failure cleanup and no extra update/call receipts",
+    "comparison report separating strict native restore, stochastic stream/cursor continuity, independent AA numerical behavior and limitations"
+  ],
+  "observer_boundaries": {
+    "allowed": [
+      "wrap original engine.save_checkpoint and load_checkpoint exactly once without changing args, returns or original exceptions",
+      "wrap original capture_rng and restore_rng; use saved original references internally to avoid recursive hooks",
+      "strict read-only chunk hashes of required full tensor subtrees, ordered groups and consumed client state",
+      "save only small audit receipts with a separate worker source/version identity",
+      "all ranks vote ordinary audit failures before entering an original collective or after its return; owned group exits consistently"
+    ],
+    "forbidden": [
+      "change751 files",
+      "wrap BC forward or sample extra BC noise",
+      "change model/DiT/CFM/loss/dropout/train/eval/gradients or kernel flags",
+      "reset/advance training RNG for audit",
+      "call an original function twice or replace its return",
+      "pretend instrumented worker is unmodified pure751",
+      "load/decode extraGB native for this correctness preparation"
+    ]
+  },
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "schema": "rollout_native_resume_observability_contract_v1",
+  "scientific_recipe": {
+    "BC_repeat": 8,
+    "Euler_steps": 10,
+    "MC": 50,
+    "accumulation": 2,
+    "advantage": "scene_center_rollout_std_v1",
+    "global_scenes": 32,
+    "max_updates": 4096,
+    "micro_batch": 4,
+    "ranks_per_run": 4,
+    "rollout_G": 4,
+    "seed": 42,
+    "stop_after": 4,
+    "warmup": 100
+  },
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "status": "PREDECLARED_WAITING_AUDIT_WORKER_SOURCE_REVIEW",
+  "stopping": "Both configurations keep stop_after4 and max4096. Request STOP on real stopped-arm completed2 through the native safe operator mechanism, optionally audit-save-boundary rank0 writes its own STOP_REQUESTED. Any3+1 is a failed2+2 protocol, never relabeled. Pause step4 remains BUDGET_PAUSED/RUNNING_CHECKPOINT, not MAX_STEPS4096.",
+  "strict_restore": {
+    "hashing": "Named logical key, dtype, shape, exact raw bytes in bounded chunks; preserve native ordered group mapping and distinguish optimizer param IDs from stable group order. Reject unknown trainable state rather than repr/ignore; audit RNG before/after must be identical.",
+    "normalization": "Verify native2 state.last_advantage_scale_common_sha256 against completed-1 boundary1 all-rank common/local receipts and exact saved payload checksum, before saved RNG restoration; no stale normalization is reused for the next rollout.",
+    "reference": "stopped arm own actual native2 SAVE audit, never the independent continuous model",
+    "scope": [
+      "all BF16 execution module parameters and buffers",
+      "complete FP32 master tensors using same ZeRO public state schema and padding metadata",
+      "all Adam exp_avg,exp_avg_sq,step and ordered param_groups hyperparameters",
+      "engine.global_steps, consumed epoch/offset/exposure/counts/policy version, reuse_guard and last consumed normalizer receipt",
+      "Python,NumPy,CPU Torch,current CUDA and rollout_noise/policy_noise/policy_time/bc_noise/bc_time states after original restore_rng returns"
+    ],
+    "tolerance": "bitwise zero tolerance, dtype/shape/key inventory exact"
+  }
+}

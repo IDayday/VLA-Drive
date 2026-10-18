@@ -1,0 +1,122 @@
+{
+  "GPU_or_score_calls": 0,
+  "direct_pinned_source_and_small_receipt_bytes": 291388,
+  "existing_optimizer_receipt_scope": "verify_official_engine checks correct BF16 execution/gradient dtype, FP32 master/moments dtype/shape, parameter layout and counts; no value hashes.",
+  "existing_saved_debug_payload": [
+    "raw generated actions",
+    "generation initial_noise",
+    "CFM comparison.samples noise/time",
+    "old CFM",
+    "official rewards/valid/context/status",
+    "normalized_advantages and common/local normalization receipts"
+  ],
+  "inspected_utc": "2026-10-18T19:55:00.892723+00:00",
+  "native_ZeRO_public_state_keys": [
+    "single_partition_of_fp32_groups",
+    "base_optimizer_state",
+    "partition_count",
+    "group_paddings",
+    "zero_stage"
+  ],
+  "native_large_model_tensor_reads": 0,
+  "no_seed_reset_after_restore": true,
+  "not_directly_saved": [
+    "BC forward noise/time draws",
+    "full gradients",
+    "complete live optimizer tensor contents after load"
+  ],
+  "prior_real_evidence": {
+    "bytes": 4956,
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/REVIEW.json",
+    "scope": "real4update/4rank scoring/save + CPU normalization restore guard; explicitly no actual GPU native continuation",
+    "sha256": "bebecdae2a58b1822110afbc8137611ab0b59187ba0733c9ac83c0afda65a6bb"
+  },
+  "read_budget_bytes": 8388608,
+  "resume_source_offsets": {
+    "actual_batch_ids": 52422,
+    "native_load": 46808,
+    "normalization_guard": 47824,
+    "official_optimizer_check": 48036,
+    "optimizer_loop": 51209,
+    "restore_rng_last": 48523,
+    "terminal_guard": 49446
+  },
+  "scheduler": "No scheduler object is constructed/passed; lr is the original stateless learning_rate(completed,base,min,warmup,horizon). load_lr_scheduler_states=True does not prove an actual scheduler exists.",
+  "schema": "rollout_native_resume_code_read_v1",
+  "source_pins": [
+    {
+      "bytes": 71347,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/train_flow_policy.py",
+      "sha256": "3126a07ad9dff63f8326a06b7aff12672e873273d7c8945e6294f45741264f44"
+    },
+    {
+      "bytes": 8482,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/training_state.py",
+      "sha256": "8af70592caa5c3d1ac97d20b116543b6c7736a544120641b3b984de9e2f008c3"
+    },
+    {
+      "bytes": 4742,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/foresight/student_state.py",
+      "sha256": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c"
+    },
+    {
+      "bytes": 1779,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/ddpolicy_vehicle/training_state.py",
+      "sha256": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f"
+    },
+    {
+      "bytes": 18569,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/official_runtime.py",
+      "sha256": "228712451b365d0cdf44dee8e96c803f05273ced3856fa6cb214ddb5ae5008f5"
+    },
+    {
+      "bytes": 21712,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/fp32_master_init.py",
+      "sha256": "fe2f8ad5c737ca49d5aa6e5435335a5b248a05527c25545635cb1ee43cad35dd"
+    },
+    {
+      "bytes": 7943,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/flow_training_config.py",
+      "sha256": "33b1e28e2310cffdf30ae9e09e2cd25c05472b7f9f09eb597a34ea5dd04aa56d"
+    },
+    {
+      "bytes": 14409,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/starVLA/model/modules/flow_posttraining/advantage_scale.py",
+      "sha256": "3d721c3699ee9c5c6d070556262415dddea65140c3f7dad7a427e43fcc2e2a63"
+    },
+    {
+      "bytes": 12106,
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/starVLA/model/modules/flow_posttraining/policy_snapshot.py",
+      "sha256": "afd19462f677e788b40621764838ff2d1e6fab415084ebda182b95b2e4de36cc"
+    },
+    {
+      "bytes": 121833,
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/runtime/zero/stage_1_and_2.py",
+      "sha256": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6"
+    },
+    {
+      "bytes": 3510,
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/checkpoint/constants.py",
+      "sha256": "150e79886bcbc625e2b638ad55f7a9c77faf2eb3f1ec9f9bb727cb506c8f1827"
+    }
+  ],
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "verified_native_save_order": [
+    "saved_rng = capture_rng",
+    "engine.save_checkpoint",
+    "_save_torch(folder / f\"rng_rank",
+    "dist.barrier()",
+    "checkpoint_receipt(folder",
+    "restore_rng(saved_rng"
+  ],
+  "verified_resume_order": [
+    "native_load",
+    "normalization_guard",
+    "official_optimizer_check",
+    "restore_rng_last",
+    "terminal_guard",
+    "optimizer_loop",
+    "actual_batch_ids"
+  ],
+  "weights_images_targets_context_reads": 0
+}
