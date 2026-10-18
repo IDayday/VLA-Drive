@@ -71,7 +71,7 @@ Every input read is preceded by an in-memory size+1 admission under 64 MiB.
 The bounded bootstrap plan is read once and charged; the 128 KiB source allowance
 covers the new source and pinned helper. The initial receipt reserves the full
 64 MiB. Counters flush every 64 reads, on success and on handled failure. After
-SIGKILL a checkpoint can lag at most 63 completed reads; the full allowance
+SIGKILL a checkpoint can lag at most 64 completed reads (including a flush interrupted before atomic replace); the full allowance
 remains reserved, cannot be reclaimed from that lag, and no COMPLETE result is
 published. This avoids the primary merge's costly per-record fsync pattern while
 retaining all hash checks. Shared-storage throughput for this call is unmeasured;

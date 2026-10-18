@@ -158,7 +158,7 @@ class ReadBudget:
         self.state = {'call_id': call_id, 'read_limit_bytes': READ_LIMIT, 'precharged_read_bytes': BOOTSTRAP_BYTES + bootstrap_plan_bytes + (1 if bootstrap_plan_bytes else 0),
                       'actual_json_read_bytes': bootstrap_plan_bytes, 'bootstrap_source_allowance_bytes': BOOTSTRAP_BYTES,
                       'reserved_once_only_allowance_bytes': READ_LIMIT, 'read_operations': 0,
-                      'flush_every_reads': 64, 'abrupt_kill_counter_may_lag_reads': 63,
+                      'flush_every_reads': 64, 'abrupt_kill_counter_may_lag_reads': 64,
                       'started_unix': time.time(), 'independent_wall_seconds': WALL_SECONDS}
         self.save()
     def save(self):
