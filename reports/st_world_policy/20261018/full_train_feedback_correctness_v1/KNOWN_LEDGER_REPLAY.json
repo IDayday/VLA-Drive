@@ -1,0 +1,125 @@
+{
+  "status": "PASS_ONE_AUTHORIZED_REAL_LEDGER_ONLY",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "source_commit": "c830a8932d60a792a6489ecd3504db3abda85dbf",
+  "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+  "plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+  "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+  "ledger": "a53a189d6603e316f5eaf2254fe85d3903e82ec27dce9167b143e6eddfff33c0",
+  "payload_sha256": "8019dd29b17efa79c1fd1a7211bdf09a0b5be93931db75cd4db95ad9a3fb122f",
+  "payload_reads": 1,
+  "payload_bytes": 3441888,
+  "legacy_matches_exact": true,
+  "pooled_quantiles_match_numpy_linear": true,
+  "population": {
+    "scenes": 32,
+    "candidates": 128,
+    "C1_active_scenes": 16,
+    "EP_only_scenes": 16,
+    "D_C_T_events": [
+      0,
+      0,
+      0
+    ]
+  },
+  "pooled_amplitude": {
+    "all_scene_presentations": {
+      "groups": 32,
+      "abs_A_per_candidate": {
+        "count": 128,
+        "mean": 0.00037895888090133667,
+        "RMS": 0.000681671966628121,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 1.996755599975586e-05,
+          "0.75": 0.0005713403224945068,
+          "0.9": 0.0012003660202026367,
+          "0.99": 0.002344770431518556,
+          "1.0": 0.0028017759323120117
+        }
+      },
+      "within_group_A_range": {
+        "count": 32,
+        "mean": 0.0011175740510225296,
+        "RMS": 0.0017690503392679545,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.00020241737365722656,
+          "0.75": 0.002036184072494507,
+          "0.9": 0.0027537167072296145,
+          "0.99": 0.004494802355766297,
+          "1.0": 0.004509270191192627
+        }
+      }
+    },
+    "nonzero_advantage_scene_presentations": {
+      "groups": 16,
+      "abs_A_per_candidate": {
+        "count": 64,
+        "mean": 0.0007579177618026733,
+        "RMS": 0.0009640297402950284,
+        "quantiles": {
+          "0.0": 3.993511199951172e-05,
+          "0.25": 0.00033621490001678467,
+          "0.5": 0.0005774497985839844,
+          "0.75": 0.0010939985513687134,
+          "0.9": 0.0014689266681671147,
+          "0.99": 0.002579399347305297,
+          "1.0": 0.0028017759323120117
+        }
+      },
+      "within_group_A_range": {
+        "count": 16,
+        "mean": 0.002235148102045059,
+        "RMS": 0.0025018149823134665,
+        "quantiles": {
+          "0.0": 0.0004048347473144531,
+          "0.25": 0.0014048069715499878,
+          "0.5": 0.0020734071731567383,
+          "0.75": 0.0027047842741012573,
+          "0.9": 0.0038694143295288086,
+          "0.99": 0.0045022696256637575,
+          "1.0": 0.004509270191192627
+        }
+      }
+    },
+    "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles."
+  },
+  "input_pins": {
+    "COMPLETE": "e1d40b12cd35e022be2ecd309b7f7195c5b53133bf66c724f13a362e850e863f",
+    "REQUESTS": "e6a0400b7d22ed38f8a26cd11f1ced8f68d8dec97c06fca85a78439d380ba9b6",
+    "ADMITTED": "d7b979b5bd9c32deb20a4b156020ee42add49e6500942ebff3303ec1acddc32e",
+    "RESULTS": "8019dd29b17efa79c1fd1a7211bdf09a0b5be93931db75cd4db95ad9a3fb122f",
+    "rank_COMPLETE": [
+      "117920445b50b18d0018273aaf459982dd1cce8ac84de6155a85436bfd61f5cb",
+      "dd26a76eb5d3bb7baa7c32253e51dcdff6865c58ab3c8d6b1c3b118d19994d67",
+      "f7c7d4b1c9e242eabde0caee4330ee7beef802e03017772d46d6d8d6b0048528",
+      "94ff1cb1381e32e4b1570a94ce3e45cb9ff1c3ff41317ef7472147b4f3b1acd6"
+    ]
+  },
+  "budget": {
+    "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+    "label": "independent_known_ledger",
+    "deadline_unix": 1792342177.4624166,
+    "logical_read_bytes": 7108475,
+    "actual_read_bytes": 3666587,
+    "nominal_load_bytes": 3441888,
+    "output_reserved_bytes": 0,
+    "failed_attempts": 0,
+    "io_tokens": 5007333.0,
+    "io_updated_unix": 1792342072.5457938
+  },
+  "other_metadata_bytes": 1327420,
+  "total_actual_asset_and_metadata_read_bytes": 4994007,
+  "wall_seconds": 1.856297716498375,
+  "cpu_seconds": 1.84909,
+  "peak_rss_bytes": 425480192,
+  "full_ledger_scan": false,
+  "model_loads": 0,
+  "new_score_calls": 0,
+  "optimizer_updates": 0,
+  "DEV_Navtest_reads": 0,
+  "formal_training_approved": false
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "full_train_feedback_independent_correctness_review_v1",
+  "status": "APPROVE_FULL_TRAIN_FEEDBACK_ANALYSIS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "created_utc": "2026-10-18T16:51:00.440618+00:00",
+  "author_commit": "c830a8932d60a792a6489ecd3504db3abda85dbf",
+  "source_commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+  "runtime": "/mnt/project/VLA-Drive-st-full-feedback-runtime-20261018",
+  "source_hashes": {
+    "tools/st_world_policy/analyze_full_feedback_support.py": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+    "tests/st_world/test_full_feedback_support.py": "932f8afb84658c764e29939b2c17418898937643160e7382b9a6c7ac9fac7629"
+  },
+  "plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+  "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+  "scope": {
+    "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+    "expected_ledgers": 4096,
+    "expected_scene_presentations": 131064,
+    "expected_candidate_presentations": 524256,
+    "expected_pair_presentations": 786384,
+    "cpu_only": true,
+    "new_score_calls": 0,
+    "model_loads": 0,
+    "optimizer_updates": 0,
+    "DEV_Navtest_reads": 0
+  },
+  "findings": {
+    "blocking_errors": [],
+    "original_float32_rewards_and_A_preserved": true,
+    "pooled_exact_quantiles_not_averaged_shard_quantiles": true,
+    "nonzero_groups_keep_all_four_candidates": true,
+    "tail24_and_full32_batches": true,
+    "unique_support_scene_log_unions_and_repeat_exposures": true,
+    "gated_decomposition_signed_residual_preserved": true,
+    "zero_event_denominator_undefined": true,
+    "one_read_of_pinned_payload_then_BytesIO": true,
+    "immutable_identity_and_explicit_failure_resume": true,
+    "merge_requires_all_original_versions_and_counts": true
+  },
+  "validation": {
+    "author_tests_passed": 10,
+    "independent_tests_passed": 6,
+    "focused_union_assertion_rerun_passed": true,
+    "real_known_ledger_only": "a53a189d6603e316f5eaf2254fe85d3903e82ec27dce9167b143e6eddfff33c0",
+    "real_payload_reads": 1,
+    "final_source_real_replay": "PASS_ONE_AUTHORIZED_REAL_LEDGER_ONLY",
+    "full_population_payload_scan": false,
+    "known_replay_cpu_seconds": 1.84909,
+    "known_replay_peak_rss_bytes": 425480192,
+    "known_replay_actual_input_bytes": 4994007,
+    "fixture_resources": [
+      {
+        "label": "AUTHOR",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "tests/st_world/test_full_feedback_support.py"
+        ],
+        "cwd": "/mnt/project/VLA-Drive-st-consequence-resource-review-20261018",
+        "exit_code": 0,
+        "wall_seconds": 2.3188186399638653,
+        "cpu_seconds": 2.235696,
+        "child_cumulative_peak_rss_bytes": 458387456
+      },
+      {
+        "label": "INDEPENDENT",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/full_train_feedback_correctness_v1/test_independent_math.py"
+        ],
+        "cwd": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018",
+        "exit_code": 0,
+        "wall_seconds": 1.968623075634241,
+        "cpu_seconds": 1.849603,
+        "child_cumulative_peak_rss_bytes": 458387456
+      }
+    ]
+  },
+  "evidence_sha256": {
+    "KNOWN_LEDGER_REPLAY.json": "4ac166cd36e7407df8201e68b4d7c44993af55ccaf50729321953aa9d552691d",
+    "INDEPENDENT_TEST_LOG.txt": "5fcd8e4f1b5958791bed357db4dea859a6425bb8c0de3a066b13eb45252cde3e",
+    "AUTHOR_LAUNCH_FAILURE.txt": "205f1d85eaf9c0d2e8a7fe430f93ed112733a88a51198f2b821012d21158ace3",
+    "UNIQUE_UNION_DELTA_LOG.txt": "740facf04dd4ab1ee741e22bf05551e4c1c9d25a06cc480f526cca6bdda769a1",
+    "FIXTURE_EXECUTION.json": "84ffb146b6df9748e2f6a8ee8714915bd9f4a0c1386c1f679525556f6949a65b",
+    "KNOWN_LEDGER_LOG.txt": "8b9a57950e1877e50d49f8683993cddb9e94514d80317b34888f7fd2fef33164",
+    "test_independent_math.py": "3faf333c06146898a5ac755bbd96e11ed333d2f9ada1c503f9c7b4f496e0e0b6",
+    "check_known_ledger.py": "c8b23336e97100743bc0b3ce58607a457d991c4aa1a3f3f2b3f7b3bff284cc83",
+    "INDEPENDENT_LAUNCH_FAILURE.txt": "205f1d85eaf9c0d2e8a7fe430f93ed112733a88a51198f2b821012d21158ace3",
+    "REVIEW.md": "f9c6dca7fdc7ea4c06637405c6ea95f691012cbc3ee77c13302f5ac418384f41",
+    "AUTHOR_TEST_LOG.txt": "205a87a1c24f77845b6b0844f53e16ba9059a4d5be15bf5c6620f7eec9275ea9",
+    "run_fixture_checks.py": "f4afcdf663ea8a800f5a9ba88d1d912286e90004dd9c15d0ea90dde78e248a50"
+  },
+  "conditions": [
+    "Only exact source/plan/fixed TRAIN run and immutable output namespace",
+    "Fresh independent resource approval and Lead admission/dispatch; reviewer does not sign host/IO/resource availability",
+    "Preserve bounded CPU-only topology, persisted read/output budgets and common immutable deadline; no automatic retry",
+    "No full COMPLETE claim until actual merge reconciles4096 versions and original counts",
+    "Keep presentation-weighted statistics separate from unique scene/log support; no IID or parameter-gradient/causal inference",
+    "No model/checkpoint/GT/image/metric-cache/DEV/Navtest access or new scoring in analysis",
+    "Do not overwrite failures or reinterpret empty-event denominator as negative evidence",
+    "No new training approval and feature-side work remains paused"
+  ],
+  "resource_review_signed": false,
+  "formal_training_approved": false,
+  "reviewer_dispatched": false,
+  "feature_research": "PAUSED_UNTOUCHED"
+}
