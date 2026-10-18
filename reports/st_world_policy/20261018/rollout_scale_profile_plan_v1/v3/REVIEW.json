@@ -1,0 +1,163 @@
+{
+  "schema": "rollout_scale_profile_systems_final_review_v1",
+  "status": "PASS_BOUNDED_240_UPDATE_PROFILE_ONLY",
+  "reviewed_utc": "2026-10-18T17:54:56.851037+00:00",
+  "binding": {
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/REGISTRATION.json",
+      "sha256": "a67ce92a7b5d366aea21b13cd7ae2e470f4d8f91bb089a9326311133a008cc08"
+    },
+    "launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v2.py",
+      "sha256": "1f2828ffed12d1f27bd78b143fb97ee65000c79f90a7742a9e593fb5564c9e30"
+    }
+  },
+  "monitor": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_owned_run_v2.py",
+    "sha256": "b24a26a27e79cd71919ae2e769061e5b6b033d5993c9fde8260f0065098b2ce2"
+  },
+  "smoke_completion": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/SMOKE_COMPLETION.json",
+    "sha256": "e6dd414883e4e3952bb0806326591d8f907829ed811f534a832bef4ed865c1ca"
+  },
+  "independent_smoke_correctness": {
+    "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/ACTUAL_AUDIT.json",
+    "sha256": "70b8ca73048c8f2e62b8e4ba05c98fee3015fced542c1e8990310306e99c906c"
+  },
+  "pre_review": {
+    "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/PRE_REVIEW.json",
+    "sha256": "f68b66934ddfb74993f529561784d4b267762d5018ac5c99467d67ac8385b689"
+  },
+  "actual_smoke_resource_evidence": {
+    "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/ACTUAL_SMOKE_RESOURCE_EVIDENCE.json",
+    "sha256": "702ff6195104604a376e3ad33245ca2049ee998c8cad0638e597ffdc6abb4639"
+  },
+  "tests": {
+    "type": "independent synthetic control tests",
+    "passed": 15,
+    "failed": 0,
+    "duration_seconds": 0.042,
+    "source": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/test_profile_resource_delta.py",
+      "sha256": "fadf095373fa67d8258bd5a6f392cf180f4dcfb538c55b8633b224b7d31d9409"
+    },
+    "log": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/SYNTHETIC_TEST.log",
+      "sha256": "629dd6ee540cf6862202ce1c6e129400896a4e5b23f0a025862ca05cfc576659"
+    }
+  },
+  "profile_artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/CONFIG.json",
+      "sha256": "ef371aa0fc4839853f92c3aa306626d51b1e1c1b740d276162f6905418b1c629"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/TRAINING_MANIFEST.json",
+      "sha256": "7597be2e8e69a54bc79892993e58c9341822fc0f4e756bdb33d3859f317e3971"
+    },
+    "environment": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    "resource_lease": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/RESOURCE_LEASE.json",
+      "sha256": "dd7157796e741411ee5e0cf7e7827b9ee64b5d21e3e8784a961fef1f6dbb8ed9"
+    },
+    "target_contract": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/TARGET_CONTRACT.json",
+      "sha256": "06b38004e7bc43d199b538558a74c21361d05c8ffc06d4feee954e25a5ca06f1"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/NO_TEACHER.json",
+      "sha256": "211f1d4177be892089e496dc90ba514c90e7610aefe8b2cc26faa9e2149ce020"
+    }
+  },
+  "execution_budget": {
+    "host": "training-vlawm-tsinghua-zt5-worker-0",
+    "gpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "world_size": 4,
+    "microbatch_per_rank": 4,
+    "accumulation_steps": 2,
+    "global_batch": 32,
+    "max_new_updates": 240,
+    "timing_windows": [
+      {
+        "warmup_updates": 20,
+        "steady_updates": 100
+      },
+      {
+        "warmup_updates": 20,
+        "steady_updates": 100
+      }
+    ],
+    "training_clock_updates": 4096,
+    "lr_warmup_updates": 100,
+    "primary_official_score_calls": 30720,
+    "max_official_score_calls_including_retry": 31744,
+    "train_max_seconds": 7200,
+    "outer_term_seconds": 7500,
+    "outer_kill_delay_seconds": 180,
+    "lease_seconds": 10800,
+    "cpu_affinity": "0-15",
+    "global_cpu_scorers": 4,
+    "sampled_owned_tree_rss_limit_bytes": 274877906944,
+    "sampled_owned_gpu_used_limit_bytes_per_gpu": 51539607552,
+    "aggregate_smoke_and_profile_output_limit_bytes": 103079215104,
+    "aggregate_native_directory_limit": 6,
+    "minimum_shared_free_bytes": 1099511627776,
+    "automatic_resume": false,
+    "weights_usable_for_formal_init": false
+  },
+  "approval_scope": {
+    "candidate": "scene_center_rollout_std_v1",
+    "stage": "PROFILE",
+    "invocations": 1,
+    "host": "training-vlawm-tsinghua-zt5-worker-0",
+    "gpu_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "max_new_optimizer_updates": 240,
+    "scientific_recipe_changes": "Only the registered normalizer; no new model/precision/target/source/topology change",
+    "initialization": "Original bound S0, not the four-step SMOKE weights",
+    "population": "Original 101592-scene population and sampler order; metadata-only PROFILE scope derivation",
+    "windows": "Two contiguous 20-warmup + 100-steady windows; no stitched resume window",
+    "formal_training_allowed": false,
+    "profile_weights_usable_for_formal_initialization": false,
+    "automatic_retry_or_resume": false,
+    "automatic_followup": false
+  },
+  "required_launch_conditions": [
+    "Exact independent correctness review and this systems receipt are hash-pinned in admission for this registration and launcher",
+    "No active SMOKE process remains; fresh_host must pass again before and after cooperative allocation locks",
+    "Fresh selected GPU UUIDs match lease and contain no real/unknown compute process; do not stop other jobs",
+    "Same immutable runtime and source fingerprint; all registration artifacts pass launcher verification",
+    "Original resource lease has at least invocation_seconds+480 remaining; no unreviewed extension",
+    "Aggregate SMOKE+PROFILE outputs include retained evidence and remain monitored under 96GiB and six native-directory limits",
+    "Owned monitor remains active; unknown selected-GPU driver PIDs or monitoring errors request only this run safe stop"
+  ],
+  "boundaries": [
+    "The actual four-step smoke is functional/resource evidence, not a steady-state performance or scientific gain claim",
+    "The reviewer checked small metadata and receipt/stat sizes only; full native checksum and tensor arithmetic are attributed to the independent correctness audit",
+    "The reviewer did not read the 176440219-byte full manifest body; its pinned scope-only derivation is verified by the Lead/correctness workflow and launcher",
+    "No new GPU resume invocation was performed; existing recovery tests/native checkpoint evidence are inherited without claiming a new runtime-resume measurement",
+    "Resource limits are five-second sampled safe-boundary guards, not instantaneous hard quotas",
+    "RSS is a process-sum upper bound; driver GPU used memory and CUDA reserved telemetry are distinct",
+    "Historical zt4 speed is a reference, not a same-host causal control for this zt5 run"
+  ],
+  "formal_training_approved": false,
+  "experiments_dispatched_by_reviewer": false,
+  "model_payload_or_large_manifest_read_by_reviewer": false
+}

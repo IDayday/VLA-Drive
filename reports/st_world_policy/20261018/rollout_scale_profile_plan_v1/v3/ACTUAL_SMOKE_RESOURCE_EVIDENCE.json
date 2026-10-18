@@ -1,0 +1,147 @@
+{
+  "schema": "rollout_scale_smoke_systems_actual_v1",
+  "status": "PASS_ACTUAL_BOUNDED_SMOKE_RESOURCE_EVIDENCE",
+  "reviewed_utc": "2026-10-18T17:52:57.000655+00:00",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "profile_registration": {
+    "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/REGISTRATION.json",
+    "sha256": "a67ce92a7b5d366aea21b13cd7ae2e470f4d8f91bb089a9326311133a008cc08"
+  },
+  "artifacts": {
+    "result": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/RESULT.json",
+      "sha256": "6bc0ab0f23512c52bc4157c1805f1367868a89b9f889400169f8dea36d68be0a"
+    },
+    "exit": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/EXIT.json",
+      "sha256": "8c2e617570815c56324516232146d73dc0f30119f1e183d82baf9653f1f3eab8"
+    },
+    "launch": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/LAUNCH.json",
+      "sha256": "60926b614d55c8c7ec0a87e48dd9557697220200b41c633c30a0c6cad0c8d524"
+    },
+    "resource_monitor": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/RESOURCE_MONITOR.jsonl",
+      "sha256": "ae360f2c95254009ef0a479a0d208554d86b9f0fadc531d09851887850cf1d64"
+    },
+    "steps": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/steps.jsonl",
+      "sha256": "d5abd0e979258b70680bcab72821a63cf173a1a6919de7eade1ce58d57edf19a"
+    },
+    "checkpoint_costs": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoint_costs.jsonl",
+      "sha256": "84979188524b1f2398e35ae9d7d85ba1cd8edfe8f822052a215b359531fe2454"
+    },
+    "pause_intent": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/PAUSE_INTENT.json",
+      "sha256": "6acbc62c13f795e87c885375c8538e4ba9d0b434034e20c825833624045423f8"
+    }
+  },
+  "new_optimizer_updates": 4,
+  "valid_official_scores": 512,
+  "scene_presentations": 128,
+  "bounded_status": "PAUSED",
+  "pause_reason": "BUDGET_PAUSED",
+  "frozen_encoder_unchanged_reported": true,
+  "finite_logged_losses_and_gradients": true,
+  "master_update_verified_each_step": true,
+  "resource_sample_count": 61,
+  "resource_monitor_errors": 0,
+  "stop_requested": false,
+  "resource_peaks": {
+    "rss_sum_upper_bound_bytes": 124455301120,
+    "driver_gpu_used_bytes": 18985517056,
+    "cuda_allocated_bytes": 14119265792,
+    "cuda_reserved_bytes": 16817061888,
+    "output_bytes_sampled": 27882898404,
+    "logs_bytes_sampled": 81136,
+    "minimum_shared_free_bytes": 3570843398144
+  },
+  "timing": {
+    "scope": "four-step functional smoke only, not a steady-state benchmark",
+    "slowest_rank_update_seconds": [
+      19.735474250046536,
+      13.972954340977594,
+      14.0290290460689,
+      13.795660675968975
+    ],
+    "normalizer_seconds_min": 0.004207298974506557,
+    "normalizer_seconds_max": 0.009119719034060836,
+    "normalizer_scope": "preparation/hash/vote/collective/wait region, not isolated kernel",
+    "driver_monitor_wall_seconds": 312.02964828698896,
+    "allocation_wall_seconds": 301.5900182389887,
+    "waited_child_cpu_seconds": 949.8066899999999,
+    "native_save_seconds": [
+      7.021585049107671,
+      15.415424103033729,
+      14.064055096940137
+    ]
+  },
+  "native_checkpoints": [
+    {
+      "tag": "step_000000_1792345658929974771",
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000000_1792345658929974771/COMPLETE.json",
+        "sha256": "2218dc189dc0c384bba24dc3a9bf7402e9c45c7a36c5b3b49e8f96c3fa5e798c"
+      },
+      "optimizer_step": 0,
+      "payload_bytes_receipt_and_stat": 4917269512,
+      "payload_hashes_recomputed_by_this_reviewer": false
+    },
+    {
+      "tag": "step_000002_1792345699741236684",
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000002_1792345699741236684/COMPLETE.json",
+        "sha256": "61d15101c5837c703eb3864c4e4eb9923384bb7be0e831fe83a65e8ad7a10030"
+      },
+      "optimizer_step": 2,
+      "payload_bytes_receipt_and_stat": 11473306504,
+      "payload_hashes_recomputed_by_this_reviewer": false
+    },
+    {
+      "tag": "step_000004_1792345743083263827",
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/runs/C1_rollout_std_smoke_v1/checkpoints/step_000004_1792345743083263827/COMPLETE.json",
+        "sha256": "475a1f4a404fc009c47448b886974f25d60c581e25c770e801608f08266b4be9"
+      },
+      "optimizer_step": 4,
+      "payload_bytes_receipt_and_stat": 11473306504,
+      "payload_hashes_recomputed_by_this_reviewer": false
+    }
+  ],
+  "projected_native_storage_for_budget_only": {
+    "smoke_existing_count": 3,
+    "profile_planned_count": 2,
+    "combined_planned_count": 5,
+    "initial_payload_bytes": 4917269512,
+    "mature_payload_bytes": 11473306504,
+    "combined_five_payload_bytes": 44254458536,
+    "max_native_directories": 6,
+    "total_study_output_limit_bytes": 103079215104,
+    "note": "Capacity estimate from actual receipt/stat sizes, not new PROFILE output or measured PROFILE speed"
+  },
+  "profile_configuration_checks": {
+    "preserves_optimizer_and_losses": true,
+    "original_base_binding": true,
+    "original_4096_lr_axis": true,
+    "warmup_100": true,
+    "global_batch_32": true,
+    "world4_micro4_accum2": true,
+    "full_population_101592": true,
+    "stop_after_240": true,
+    "profile_timing_mode": true,
+    "official_primary_calls": 30720,
+    "official_calls_hardlimit": 31744,
+    "two_windows_20warm_100steady": true,
+    "profile_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/profiles/scene_center_rollout_std_v1_fulltrain240/TRAINING_MANIFEST.json",
+      "sha256": "7597be2e8e69a54bc79892993e58c9341822fc0f4e756bdb33d3859f317e3971"
+    },
+    "profile_manifest_size_bytes": 176440219,
+    "large_manifest_body_read_by_reviewer": false,
+    "large_manifest_content_validation_owner": "Lead derivation + independent correctness review",
+    "new_training_or_model_payload_read_by_reviewer": false
+  },
+  "profile_launch_approval": false,
+  "pending": "Final SMOKE completion receipt and independent correctness review before exact final PROFILE admission"
+}
