@@ -86,6 +86,9 @@ def gates(cfg):
          "spatial_representation_verified":"NOT_RUN","temporal_representation_verified":"NOT_RUN",
          "planning_verified":"NOT_RUN","teacher_free_export_verified":"NOT_RUN"}
     root=Path(cfg["artifact_root"])
+    tiny=root/"runs/RS_gradient_v1/RESULT.json"
+    if tiny.exists() and json.loads(tiny.read_text()).get("training_complete"):
+        result["spatial_representation_verified"]="INCONCLUSIVE"
     parity=root/"audits/S0_PREFIX_CACHED_PARITY.json"
     if parity.exists():result["baseline_parity"]=json.loads(parity.read_text())["status"]
     capacity={}

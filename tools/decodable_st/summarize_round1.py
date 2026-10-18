@@ -21,6 +21,7 @@ def run(root,output):
     baseline=read("audits/baseline_manifest.json");sources=read("audits/external_sources.v2.lock.json")
     native={k:read(v,"teacher") for k,v in [("ViGT","vigt_train64_native_v1/ROUNDTRIP.json"),("SGDrive","sgdrive_train64_native_v1/ROUNDTRIP.json")]}
     read("sgdrive_train2_native_v1/ROUNDTRIP.json","teacher")
+    native_dev=read("vigt_dev16_native_v1/ROUNDTRIP.json","teacher")
     data=read("data_train64_v2/DATA_COORDINATE_AUDIT.json","labels",False)
     capacity={}
     for name in ("compression16_v1","compression32_v1","compression32_patch_v1","compression32_patch_frozen_v2"):
@@ -30,12 +31,15 @@ def run(root,output):
     for arm,name in [("RS","RS_gradient_v1"),("Rfrozen","Rfrozen_tiny64_v1")]:
         r=read(f"runs/{name}/RESULT.json","student_tiny");identity=read(f"runs/{name}/identity.json")
         evaluation=read(f"evaluations/{name}/DECODING_REPORT.json","student_evaluation")
+        heldout=read(f"evaluations/{arm}_dev16_v1/DECODING_REPORT.json","student_evaluation")
         if evaluation:
             # Per-scene metrics are numbers and public opaque identifiers, not RGB.
             atomic_json(out/(arm+"_DECODING.json"),evaluation)
+        if heldout:atomic_json(out/(arm+"_DEV16_DECODING.json"),heldout)
         learners[arm]={"run":r,"source_sha":identity["source_sha"],"identity":identity["identity"],
                        "trainable_parameters":sum(p["elements"] for p in identity["trainable_inventory"]),
-                       "LoRA_modules":identity["lora_modules"],"evaluation":None if evaluation is None else {k:v for k,v in evaluation.items() if k!="per_scene"}}
+                       "LoRA_modules":identity["lora_modules"],"evaluation":None if evaluation is None else {k:v for k,v in evaluation.items() if k!="per_scene"},
+                       "heldout_dev16":None if heldout is None else {k:v for k,v in heldout.items() if k!="per_scene"}}
     read("runs/RS_gradient_v1/segments/update203_RESULT.json","student_tiny")
     # This checkpoint is the preserved first two-update segment; its historical
     # wall timer was observed before RESULT was replaced by the next segment.
@@ -61,6 +65,12 @@ def run(root,output):
     export=read("engineering_export_v2/manifest.json")
     if deploy:
         deploy={**deploy,"median_latency_seconds":statistics.median(deploy["latency_seconds"]),"export_weight_sha256":export["weights_sha256"]}
+    final_deploy=read("representation_export1000_v1/DEPLOYMENT_REPORT.json")
+    final_export=read("representation_export1000_v1/manifest.json")
+    if final_deploy:
+        final_deploy={**final_deploy,"median_latency_seconds":statistics.median(final_deploy["latency_seconds"]),
+                      "base_weight_sha256":final_export["weights_sha256"],"overlay_sha256":final_export["overlay"]["sha256"]}
+    paired_latency=read("audits/DEPLOYMENT_PAIRED_COST.json")
     read("runs/planner_engineering_v1/RESULT.json","planner_engineering")
     read("planning_engineering_dev8_v1/EXPORT.json","planning_export")
     scores={}
@@ -82,6 +92,13 @@ def run(root,output):
             "teacher_native_interface":{k:{"status":v["status"],"scenes":len(v.get("records",v.get("rows",[]))),"seconds":v["seconds"]} for k,v in native.items()},
             "data":{k:data[k] for k in ("train_scenes","train_logs","dev_scenes","dev_logs","log_overlap","token_overlap","independent_occupancy_quality")},
             "capacity":capacity,"learners":learners,"operator_checks":probes,"recovery":recovery,"deployment":deploy,
+            "representation_1000_export":final_deploy,"paired_deployment_latency":paired_latency,"sparse_cache":cache,
+            "heldout_teacher_interface":None if not native_dev else {"status":native_dev["status"],"seconds":native_dev["seconds"],
+                "scenes":len(native_dev.get("records",native_dev.get("rows",[])))},
+            "metric_conventions":{"false_free":"FN/(TP+FN) relative to native teacher predictions, not measured false-free against reliable GT",
+                "region_unknown_counts":"Excluded spatial-region samples, not an independently verified observed-free/unknown map",
+                "action_drift_train8_field":"Historical field name: first eight of the report's actual train or dev population; no-reader LoRA drift",
+                "capacity_clean_repeat":"Same seed and capacity, clean frozen source repeat; not another training seed or expansion"},
             "engineering_dev8_only":scores,"engineering_failure_transitions":transitions,
             "gradient_calibration":{k:v for k,v in (gradient or {}).items() if k!="parameter_groups"},
             "states":{"engineering_verified":"INCONCLUSIVE","teacher_spatial_verified":"INCONCLUSIVE","teacher_temporal_native_verified":"INCONCLUSIVE",
