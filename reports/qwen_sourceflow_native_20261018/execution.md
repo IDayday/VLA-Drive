@@ -89,6 +89,18 @@ CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.compare_rl
 
 比较adapter、Adam、scheduler、所有rank RNG、逻辑计数、原chain、old probability、advantage和behavior identity，结果PASS。耗时本来会不同，因此不要求时间计数相等；不把时间排除解释为物理重算费用消失。
 
+另一次两卡真实资格训练使用 `--fault before_finalize --fault-rank 1`，让16条真实轨迹完成评分后、global advantage提交前故意失败。训练进程非零退出是该测试的预期结果；随后实际执行：
+
+```bash
+cd /mnt/project/VLA-Drive-qwen-sourceflow-native-20261018
+CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.audit_collection_failure \
+  --run "$QSF_ROOT/qualification/RL_failure_before_finalize" \
+  --dispatch "$QSF_ROOT/dispatch/native_failure_before_finalize" \
+  --output "$QSF_ROOT/validation/actual_native_collection_failure.json"
+```
+
+审计证明最新合法恢复点仍为READY/update0，物理评分16、已提交算法候选0，失败链没有advantage，也没有COMPLETE标记。此审计只读，不改写原失败目录。
+
 正式RL入口同一模块，但不得带 `--qualification`：必须提供完整登记IL checkpoint和 `--parent-selection frozen_IL_parent.json`。runtime检查全部五个完整DEV及immutable父模型；因此现在不能用资格模型提前启动正式50k。
 
 ## 已执行的合并与独立部署

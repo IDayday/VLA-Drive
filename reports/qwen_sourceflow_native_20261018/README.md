@@ -63,12 +63,14 @@ RL固定作者公开hard list与TRAIN交集17037，排除352个DEV重叠；成�
 | [8卡profile](qualification_eight_GPU_profile.json) | 完整模型、FP32 Adam、global32；接口1步＋完整5步；测得真实吞吐和显存 |
 | [身份发布](qualification_IL_identity_publication.json) | 实际两rank：迟到rank、重复启动、原身份恢复、跨rank错配及不覆盖检查 |
 | [真实8卡GRPO](qualification_actual_RL.json) | 原始图像、64条真实策略候选和canonical反馈；四次实际Adam更新；240投影/480 LoRA张量；Qwen/provider/reference hash保持 |
+| [实际任务梯度证据](qualification_actual_optimizer_moments.json) | 两组各240个A、240个B均有非零Adam一阶动量且step=4；AdamW weight decay不进入该动量，不能仅以参数数值变化冒充任务梯度 |
 | [真实GRPO inner恢复](qualification_actual_RL_resume.json) | 在inner2停止再完成inner3/4，与连续4步的adapter/Adam/scheduler/RNG/旧链/旧概率/优势逐值一致 |
 | [两奖励配置实际对照](qualification_actual_reward_pair.json) | 各自8卡、64条真实候选、4次inner；初始完整chain、old probability、官方反馈逐值一致，配置仅reward EP权重和variant不同 |
 | [独立部署](qualification_standalone_deployment.json) | 不读取通用模型权重、teacher/训练cache/scorer，raw图像到完整10步ODE与原完整IL模型逐值一致 |
 | [实际非零LoRA合并部署](qualification_actual_RL_merged_deployment.json) | 240个projection的B均非零；完整raw-image ODE合并前后归一化最大误差4.77e-6，物理x/y/heading最大误差0.000122m/0.000080m/0.00000763rad |
 | [官方评分连通](qualification_ODE_scoring.json) | 2个真实TRAIN场景，原始图像→单候选ODE→官方canonical v1.1；完整分母、无异常填0 |
 | [共享故障事务](qualification_recovery_shared.json) | 两rank CPU/Gloo 12种故障与inner恢复；不完整collection不发布latest |
+| [实际两卡collection故障](qualification_actual_collection_failure.json) | 16条真实候选已评分，rank1在advantage提交前注入故障；两rank保留完整未finalize链，latest仍为READY0，未发布行为/假优势，物理费用保留 |
 
 实际GRPO使用仅训练4步的资格IL父模型，8组中1组有真实PG，其他组按源语义保留anchor；同一全局梯度更新所有rank。两个TRAIN ODE评分均为合法0分，**只能证明数据/推理/评分链路运行，不能当新模型效果、正式基线或RL结论**。资格权重不进入正式IL/RL初始化。
 
