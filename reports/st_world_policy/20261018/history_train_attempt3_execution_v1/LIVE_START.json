@@ -1,0 +1,52 @@
+{
+  "schema": "st_history_attempt3_live_start_v1",
+  "observed_utc": "2026-10-18T14:35:14.472483+00:00",
+  "host": "training-vla-zt-worker-0",
+  "status_at_observation": "RUNNING_VERIFIED_PROC",
+  "native_completion": false,
+  "handles": [
+    {
+      "pid": 868335,
+      "process_state": "S",
+      "ppid": 868328,
+      "start_ticks": 1377247152,
+      "cmdline_sha256": "33c5687ec4256a9583accb3c6d05fd57dd03defc46738978b61336a6069279c2",
+      "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018"
+    },
+    {
+      "pid": 868336,
+      "process_state": "S",
+      "ppid": 868335,
+      "start_ticks": 1377247154,
+      "cmdline_sha256": "15614cd45971c0a65e1e6a653da3fd6e899e3405e2096aa61f8a4b536e93a5e9",
+      "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018"
+    },
+    {
+      "pid": 868403,
+      "process_state": "I",
+      "ppid": 868336,
+      "start_ticks": 1377247648,
+      "cmdline_sha256": "04ba8935e039a69715b3e69a9a9214727b4fa9f6ca5abbd93e8dd81a26f1534f",
+      "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018"
+    }
+  ],
+  "invocation": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train_controls_attempt3/INVOCATION.json",
+    "sha256": "83b42bc83de7f5ee72f1ee24f4fc85bfdae54f78f28627de5de21ca4aaff00ea"
+  },
+  "tool_session": 17606,
+  "entry_helper_commit": "65b64849458a0545dff97f4113c28f5ccdbcbe02",
+  "integrated_commit": "688d286d83909dd76333ab10736cce964c393510",
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "gpu_count": 0,
+  "expected_reused_scenes": 78657,
+  "expected_new_scenes": 22935,
+  "total_manifest_scenes": 101592,
+  "automatic_retry": false,
+  "old_evidence_preserved": true,
+  "scope": "Existing full TRAIN causal history metadata continuation; no teacher feature extraction or optimizer update",
+  "completion_condition": "Original full manifests and COMPLETE plus native counters and zero owned descendants; live snapshot alone is not completion"
+}
