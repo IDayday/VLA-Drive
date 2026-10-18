@@ -1,0 +1,45 @@
+{
+  "status": "FAIL",
+  "source_commit": "380c8f5419a197fbd60d47e028caa029a2e5a0dd",
+  "controller_sha256": "8b67d43d0652fac994778e89d7be42206b8e05b7da2379058bc22fdfdb957342",
+  "controller_sha256_after": "8b67d43d0652fac994778e89d7be42206b8e05b7da2379058bc22fdfdb957342",
+  "commands": [
+    {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "/mnt/project/VLA-Drive-st-endpoint-supervisor-20261018/tests/st_world/test_endpoint_supervisor.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.93698245100677
+    },
+    {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "/mnt/project/VLA-Drive-st-endpoint-supervisor-resources-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_resources_v1/FINAL_REPRODUCTIONS.py"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 0.10791964270174503
+    }
+  ],
+  "wall_seconds": 5.045037629082799,
+  "waited_child_CPU_seconds": 4.774022,
+  "sampled_tree_peak_RSS_bytes": 642142208,
+  "stop_reason": null,
+  "limits": {
+    "wall_seconds": 600,
+    "CPU_seconds": 120,
+    "RSS_bytes": 2147483648,
+    "output_bytes": 33554432
+  },
+  "actual_GPU_contexts": 0,
+  "actual_model_loads": 0,
+  "actual_DEV_payloads_read": 0,
+  "actual_metric_caches_read": 0,
+  "actual_official_calls": 0,
+  "utc": "2026-10-18T19:34:43.698097+00:00"
+}

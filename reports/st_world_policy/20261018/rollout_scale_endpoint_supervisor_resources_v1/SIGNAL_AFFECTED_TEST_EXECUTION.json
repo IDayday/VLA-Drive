@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "source_commit": "82e8f9dcba7d3323ca15491fdfe7f6e5481922ff",
+  "controller_sha256": "a2e24537b9749258417e390be705d4d5d4e6f775986ca479a1c67c4330759a3e",
+  "controller_sha256_after": "a2e24537b9749258417e390be705d4d5d4e6f775986ca479a1c67c4330759a3e",
+  "commands": [
+    {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "/mnt/project/VLA-Drive-st-endpoint-supervisor-20261018/tests/st_world/test_endpoint_supervisor.py",
+        "-k",
+        "log_and_post_Popen_receipt_failure or complete_owned_session_cleanup or real_owned_cpu_process_cleanup"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.6893824059516191
+    }
+  ],
+  "wall_seconds": 0.6898452006280422,
+  "waited_child_CPU_seconds": 0.5706450000000001,
+  "sampled_tree_peak_RSS_bytes": 69279744,
+  "stop_reason": null,
+  "limits": {
+    "wall_seconds": 600,
+    "CPU_seconds": 120,
+    "RSS_bytes": 2147483648,
+    "output_bytes": 33554432
+  },
+  "actual_GPU_contexts": 0,
+  "actual_model_loads": 0,
+  "actual_DEV_payloads_read": 0,
+  "actual_metric_caches_read": 0,
+  "actual_official_calls": 0,
+  "utc": "2026-10-18T19:40:41.131160+00:00"
+}
