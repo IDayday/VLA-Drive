@@ -1,0 +1,14 @@
+usage: diagnose_road_direction.py [-h] --mode {prepare} [--evidence EVIDENCE]
+                                  --output OUTPUT
+
+Prepare the fixed 32-TRAIN road direction diagnostic for independent review.
+This entry is intentionally preparation-only: it reads the already committed
+small evidence document, never a rollout, metric cache, model, or score
+service. Real execution requires a separate Lead admission and independently
+reviewed invocation. Geometry APIs are in flow_posttraining.road_margin_proxy.
+
+options:
+  -h, --help           show this help message and exit
+  --mode {prepare}
+  --evidence EVIDENCE
+  --output OUTPUT      New immutable JSON path, at most 2MiB

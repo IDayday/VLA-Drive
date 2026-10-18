@@ -1,0 +1,103 @@
+{
+  "canonical_score_backend": "ConsequenceEngine; fixed official reference per candidate; no reward edits",
+  "constants": {
+    "finite_difference_absolute": 1e-06,
+    "finite_difference_relative": 0.0001,
+    "finite_difference_steps": [
+      0.0001,
+      1e-05
+    ],
+    "margin_m": 0.1,
+    "max_corner_shift_m": 0.15,
+    "max_yaw_shift_rad": 0.025,
+    "min_gradient_norm": 1e-12,
+    "raw_l2_step": 0.005,
+    "scale_m": 0.1,
+    "sin_cos_min_radius": 0.25
+  },
+  "created_utc": "2026-10-18T15:05:32.114282+00:00",
+  "decode_boundary": "stored original GPU physical + float64 original decode delta; independent approval required",
+  "dispatch_authorized": false,
+  "evidence": {
+    "path": "/mnt/project/VLA-Drive-st-consequence-road-proxy-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.json",
+    "sha256": "1dc9da0bbde392e6296d8fee943eb1fdf6299a8eab4af5af4a866ee0c72f182a"
+  },
+  "existing_DAC": {
+    "0.0": 0,
+    "1.0": 32
+  },
+  "gpu_calls": 0,
+  "implementation": {
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "f3b112d62765c362c78b1ffc8c1b32b3695df7af52fd238bd1c7290ba6c07bfd",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f"
+  },
+  "independent_correctness": "PENDING",
+  "independent_resources": "PENDING",
+  "limitation": "All originals DAC=1; no road-repair denominator; no policy-learning conclusion",
+  "log_count": 31,
+  "new_official_calls": 0,
+  "policy": {
+    "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "optimizer_step": 4095,
+    "role": "old",
+    "state_hash": "0b0fa1f63de40e5663666ea0b09177d7bc22eeeac927189c26823a8c07df5695",
+    "version": 4095
+  },
+  "proposed_real_budget": {
+    "cpu_workers": 2,
+    "max_official_calls_including_retries": 128,
+    "max_variants_per_scene": 4,
+    "output_bytes": 1073741824,
+    "read_rate_bytes_per_second": 33554432,
+    "rss_bytes": 8589934592,
+    "threads_per_worker": 1,
+    "wall_seconds": 1800
+  },
+  "real_execution_prerequisites": [
+    "independent correctness approval of exact code and anchored decode",
+    "independent resource admission and source/software hashes",
+    "fresh bounded read budget for rollout and all32 metric-cache schemas/vehicle checks",
+    "official interpolation/footprint parity on every actual scene",
+    "unchanged fixed32 selection; unresolved scenes retained in all denominators"
+  ],
+  "scene_count": 32,
+  "schema": "road_direction_preparation_v1",
+  "selected_scene_ids": [
+    "1c26611ba7625b98",
+    "0824b1327b715e67",
+    "a3c04b44e71f59d7",
+    "18c080c7deeb5788",
+    "726d0da6f65e5035",
+    "3fed44bd20ec568f",
+    "d8d639092d3557b8",
+    "133c9af5a236502d",
+    "ab91a11a7f0c5e11",
+    "4f13d34cbed75ce1",
+    "375df4f661dd5133",
+    "d05ca951aed955cd",
+    "594c142e00fc53eb",
+    "a31f5736e4c658c4",
+    "f2f189861ec3551a",
+    "0817567392dd5499",
+    "068610b7333f5272",
+    "7837d9aa8c285e14",
+    "eca57e3cc5ff59eb",
+    "429854b6e1a257a5",
+    "0bb137f447f45039",
+    "97c6b7c64014592c",
+    "9d6278b9716a5f20",
+    "261964b9701e5ee5",
+    "3c2afc4f41fc5a45",
+    "6d45fada798554de",
+    "66957e8032bf54ca",
+    "f9c4cdf7e6015b7d",
+    "3e398230588f55ef",
+    "09dd0a5d0ec15e6d",
+    "32ed21b287225148",
+    "180c607edb1c5291"
+  ],
+  "selection_hash": "495547e8f320a975fd31bc5652ee9d372fc03315cd70abd112190f2971703030",
+  "status": "PREPARED_NOT_EXECUTED",
+  "surrogate": "command-space four-corner signed road-union margin; excludes LQR/bicycle gradient",
+  "training_updates": 0
+}
