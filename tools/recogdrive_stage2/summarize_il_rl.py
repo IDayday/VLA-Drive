@@ -26,15 +26,25 @@ def summarize(root, replicates=5000):
         row=dict(token=item['token'],log=item['log'])
         if d['losses']['IL']['times']!=d['losses']['RL']['times'] or d['losses']['IL']['noise_sha256']!=d['losses']['RL']['noise_sha256']:
             raise ValueError('Unpaired Monte Carlo samples')
+        cache_hashes=[]
         for name in ['IL','RL']:
             s=read(root/(name+'_scores')/'records'/f"{item['token']}.json")
             if s['status']!='ok' or s['log']!=item['log']:raise ValueError('Missing/invalid canonical score')
+            receipt=read(root/name/'predictions'/f"{item['token']}.json")
+            if receipt['identity_sha256']!=ident or s['proposal_sha256']!=receipt['proposal_sha256']:
+                raise ValueError('Score belongs to a different sampled trajectory')
+            cache_hashes.append(s['metric_cache_sha256'])
+            loss=d['losses'][name]
+            if len(loss['draws'])!=identity['draws'] or len(loss['times'])!=identity['draws']:
+                raise ValueError('Incomplete paired loss draws')
+            if not np.isfinite(loss['draws']).all():raise ValueError('Nonfinite loss draws')
             row[name+'_IL_noise_MSE']=d['losses'][name]['mean']
             for k,v in d['metrics'][name].items():
                 if isinstance(v,(int,float)):row[name+'_'+k]=v
             for k in score_names:row[name+'_'+k]=s[k]
             for c, v in zip(['x','y','yaw'],d['losses'][name]['per_channel']):row[name+'_noise_MSE_'+c]=v
             per_time[name].append(d['metrics'][name]['L2_by_time_m'])
+        if cache_hashes[0]!=cache_hashes[1]:raise ValueError('IL/RL used different canonical environments')
         for t,il,rl in zip(d['losses']['IL']['times'],d['losses']['IL']['draws'],d['losses']['RL']['draws']):
             if not 0<=t<100:raise ValueError('Wrong diffusion time distribution')
             b=bins[str(t//10)];b['count']+=1;b['IL_sum']+=il;b['RL_sum']+=rl
@@ -49,6 +59,7 @@ def summarize(root, replicates=5000):
     comparison={}
     for key in names:
         il=np.array([r['IL_'+key] for r in rows]);rl=np.array([r['RL_'+key] for r in rows]);delta=rl-il
+        if not np.isfinite(il).all() or not np.isfinite(rl).all():raise ValueError('Nonfinite metric')
         sums=np.bincount(group,weights=delta,minlength=len(logs))
         boot=sums[samples].sum(1)/denominators
         comparison[key]=dict(IL=float(il.mean()),RL=float(rl.mean()),RL_minus_IL=float(delta.mean()),
