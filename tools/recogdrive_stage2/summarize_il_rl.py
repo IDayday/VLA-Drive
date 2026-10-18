@@ -97,7 +97,7 @@ def summarize(root, replicates=5000):
             'XY ADE/FDE and epsilon MSE are different objectives; validation L1 mixes meters/radians.'])
     atomic_json(root/'PAIRED_SUMMARY.json',summary)
     with (root/'paired_scenes.csv').open('w') as f:
-        w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+        w=csv.DictWriter(f,fieldnames=list(rows[0]),lineterminator='\n');w.writeheader();w.writerows(rows)
     print(json.dumps({k:comparison[k] for k in ['IL_noise_MSE','ADE_m','FDE_m','score']},indent=2))
     return summary
 
