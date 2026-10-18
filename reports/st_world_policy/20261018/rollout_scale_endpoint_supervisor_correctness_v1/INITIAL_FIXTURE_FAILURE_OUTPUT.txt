@@ -1,0 +1,208 @@
+.................................................FFFFF...                [100%]
+=================================== FAILURES ===================================
+______ test_wrong_or_stale_load_audit_never_frees_heavy_loader[identity] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-809/test_wrong_or_stale_load_audit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86f4f348b0>
+change = 'identity'
+
+    @pytest.mark.parametrize('change',['identity','master','stale'])
+    def test_wrong_or_stale_load_audit_never_frees_heavy_loader(tmp_path,monkeypatch,change):
+     isolated(tmp_path,monkeypatch);folder,invocation,audit,expected=make_load(tmp_path)
+>    assert s.load_finished(0,{123:{}},after=0.,expected=expected)
+
+../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+resources/st_endpoint_supervisor_v1.py:360: in load_finished
+    checkpoint=require_export_identity(signature,expected)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = {'candidates_per_scene': 1, 'checkpoint': {'completed': 4096, 'native_checkpoint_sha256': 'ddddddddddddddddddddddddddd...ty': '8fed34787a96658de315bc20a8664fcaab3f793043eb8c04473f57cfbee10747', 'precision': 'FP32_master_eval_TF32_off', ...}
+expected = {'native_checkpoint_sha256': 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd', 'native_receipt_sha25... 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'registration': '/fixture/REGISTRATION.json', ...}
+
+    def require_export_identity(signature,expected):
+        checkpoint=signature['checkpoint']
+        if (digest({k:v for k,v in signature.items() if k!='identity'})!=signature['identity']
+                or signature['source_sha']!=SOURCE or signature['world_size']!=4
+                or signature['seed']!=42 or signature['precision']!='FP32_master_eval_TF32_off'
+                or signature['solver']!='original_Euler_10' or signature['candidates_per_scene']!=1
+>               or signature['requested_scenes']!=1696 or signature['targets_read'] is not False
+                or signature['teacher_cache_read'] is not False or signature['scorer'] is not None
+                or signature['selected_scenes_sha256']!=expected['selected_scenes_sha256']
+                or signature['observations']['manifest_sha256']!=expected['manifest_sha256']
+                or checkpoint['completed']!=4096 or checkpoint['tag']!=expected['tag']
+                or checkpoint['run_identity']!=expected['run_identity'] or checkpoint['scope']!='FORMAL'
+                or checkpoint['weights_usable_for_formal_init'] is not True
+                or checkpoint['receipt_identity']!=expected['receipt_identity']
+                or checkpoint['native_receipt_sha256']!=expected['native_receipt_sha256']
+                or checkpoint['native_checkpoint_sha256']!=expected['native_checkpoint_sha256']
+                or digest({k:v for k,v in checkpoint.items() if k!='sha256'})!=checkpoint['sha256']):
+E               KeyError: 'requested_scenes'
+
+resources/st_endpoint_supervisor_v1.py:335: KeyError
+_______ test_wrong_or_stale_load_audit_never_frees_heavy_loader[master] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-809/test_wrong_or_stale_load_audit1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86f4e83be0>
+change = 'master'
+
+    @pytest.mark.parametrize('change',['identity','master','stale'])
+    def test_wrong_or_stale_load_audit_never_frees_heavy_loader(tmp_path,monkeypatch,change):
+     isolated(tmp_path,monkeypatch);folder,invocation,audit,expected=make_load(tmp_path)
+>    assert s.load_finished(0,{123:{}},after=0.,expected=expected)
+
+../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+resources/st_endpoint_supervisor_v1.py:360: in load_finished
+    checkpoint=require_export_identity(signature,expected)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = {'candidates_per_scene': 1, 'checkpoint': {'completed': 4096, 'native_checkpoint_sha256': 'ddddddddddddddddddddddddddd...ty': '8fed34787a96658de315bc20a8664fcaab3f793043eb8c04473f57cfbee10747', 'precision': 'FP32_master_eval_TF32_off', ...}
+expected = {'native_checkpoint_sha256': 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd', 'native_receipt_sha25... 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'registration': '/fixture/REGISTRATION.json', ...}
+
+    def require_export_identity(signature,expected):
+        checkpoint=signature['checkpoint']
+        if (digest({k:v for k,v in signature.items() if k!='identity'})!=signature['identity']
+                or signature['source_sha']!=SOURCE or signature['world_size']!=4
+                or signature['seed']!=42 or signature['precision']!='FP32_master_eval_TF32_off'
+                or signature['solver']!='original_Euler_10' or signature['candidates_per_scene']!=1
+>               or signature['requested_scenes']!=1696 or signature['targets_read'] is not False
+                or signature['teacher_cache_read'] is not False or signature['scorer'] is not None
+                or signature['selected_scenes_sha256']!=expected['selected_scenes_sha256']
+                or signature['observations']['manifest_sha256']!=expected['manifest_sha256']
+                or checkpoint['completed']!=4096 or checkpoint['tag']!=expected['tag']
+                or checkpoint['run_identity']!=expected['run_identity'] or checkpoint['scope']!='FORMAL'
+                or checkpoint['weights_usable_for_formal_init'] is not True
+                or checkpoint['receipt_identity']!=expected['receipt_identity']
+                or checkpoint['native_receipt_sha256']!=expected['native_receipt_sha256']
+                or checkpoint['native_checkpoint_sha256']!=expected['native_checkpoint_sha256']
+                or digest({k:v for k,v in checkpoint.items() if k!='sha256'})!=checkpoint['sha256']):
+E               KeyError: 'requested_scenes'
+
+resources/st_endpoint_supervisor_v1.py:335: KeyError
+________ test_wrong_or_stale_load_audit_never_frees_heavy_loader[stale] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-809/test_wrong_or_stale_load_audit2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86f4f7d270>
+change = 'stale'
+
+    @pytest.mark.parametrize('change',['identity','master','stale'])
+    def test_wrong_or_stale_load_audit_never_frees_heavy_loader(tmp_path,monkeypatch,change):
+     isolated(tmp_path,monkeypatch);folder,invocation,audit,expected=make_load(tmp_path)
+>    assert s.load_finished(0,{123:{}},after=0.,expected=expected)
+
+../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+resources/st_endpoint_supervisor_v1.py:360: in load_finished
+    checkpoint=require_export_identity(signature,expected)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = {'candidates_per_scene': 1, 'checkpoint': {'completed': 4096, 'native_checkpoint_sha256': 'ddddddddddddddddddddddddddd...ty': '8fed34787a96658de315bc20a8664fcaab3f793043eb8c04473f57cfbee10747', 'precision': 'FP32_master_eval_TF32_off', ...}
+expected = {'native_checkpoint_sha256': 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd', 'native_receipt_sha25... 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'registration': '/fixture/REGISTRATION.json', ...}
+
+    def require_export_identity(signature,expected):
+        checkpoint=signature['checkpoint']
+        if (digest({k:v for k,v in signature.items() if k!='identity'})!=signature['identity']
+                or signature['source_sha']!=SOURCE or signature['world_size']!=4
+                or signature['seed']!=42 or signature['precision']!='FP32_master_eval_TF32_off'
+                or signature['solver']!='original_Euler_10' or signature['candidates_per_scene']!=1
+>               or signature['requested_scenes']!=1696 or signature['targets_read'] is not False
+                or signature['teacher_cache_read'] is not False or signature['scorer'] is not None
+                or signature['selected_scenes_sha256']!=expected['selected_scenes_sha256']
+                or signature['observations']['manifest_sha256']!=expected['manifest_sha256']
+                or checkpoint['completed']!=4096 or checkpoint['tag']!=expected['tag']
+                or checkpoint['run_identity']!=expected['run_identity'] or checkpoint['scope']!='FORMAL'
+                or checkpoint['weights_usable_for_formal_init'] is not True
+                or checkpoint['receipt_identity']!=expected['receipt_identity']
+                or checkpoint['native_receipt_sha256']!=expected['native_receipt_sha256']
+                or checkpoint['native_checkpoint_sha256']!=expected['native_checkpoint_sha256']
+                or digest({k:v for k,v in checkpoint.items() if k!='sha256'})!=checkpoint['sha256']):
+E               KeyError: 'requested_scenes'
+
+resources/st_endpoint_supervisor_v1.py:335: KeyError
+________ test_post_popen_receipt_failure_cleans_actual_owned_cpu_child _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-809/test_post_popen_receipt_failur0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86f4f6e080>
+
+    def test_post_popen_receipt_failure_cleans_actual_owned_cpu_child(tmp_path,monkeypatch):
+     isolated(tmp_path,monkeypatch)
+     binding,documents,_=t.endpoint_fixture(tmp_path/'fixture',monkeypatch)
+     binding['route']={}
+     helpers={'check_route_time_v3':lambda *args:None}
+     monkeypatch.setattr(s,'mature_helpers',lambda:helpers)
+     monkeypatch.setattr(s,'route_checks',lambda *args:{})
+     from tools.st_world_policy import score_world
+     monkeypatch.setattr(score_world,'read_complete_export',lambda path:({'world_size':4,'source_sha':s.SOURCE,'checkpoint':{'completed':4096}},[None]*1696))
+     monkeypatch.setattr(s,'argv_for',lambda *args,**kwargs:[sys.executable,'-c','import time;time.sleep(60)'])
+     original_put=t.immutable
+     def receipt_failure(path,value):
+      if Path(path).name=='LAUNCH.json':raise OSError('Independent injected receipt write failure')
+      return original_put(path,value)
+     monkeypatch.setattr(s,'immutable',receipt_failure)
+     children=[];popen=subprocess.Popen
+     def capture(*args,**kwargs):
+      child=popen(*args,**kwargs);children.append(child);return child
+     monkeypatch.setattr(s.subprocess,'Popen',capture)
+     try:
+>     result=s.execute('score',{'fixture':'admission'},binding,documents,resume=False)
+
+../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py:95: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+resources/st_endpoint_supervisor_v1.py:528: in execute
+    require_export_identity(export,expected_load)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = {'checkpoint': {'completed': 4096}, 'source_sha': '751fcfa2b41549ae16f7b3204aef8dd18b912016', 'world_size': 4}
+expected = {'manifest_sha256': 'e55c8d173e6e916299a99c8a06d65db13c4583b57817250ee96732dde93bd5d6', 'native_checkpoint_sha256': 'b...66a99a6390f54b947ce70fd7', 'receipt_identity': 'd011388c0ef24ba3d0f796740564da2a859fe9c4e6c23c5d74f78777c526fd4b', ...}
+
+    def require_export_identity(signature,expected):
+        checkpoint=signature['checkpoint']
+>       if (digest({k:v for k,v in signature.items() if k!='identity'})!=signature['identity']
+                or signature['source_sha']!=SOURCE or signature['world_size']!=4
+                or signature['seed']!=42 or signature['precision']!='FP32_master_eval_TF32_off'
+                or signature['solver']!='original_Euler_10' or signature['candidates_per_scene']!=1
+                or signature['requested_scenes']!=1696 or signature['targets_read'] is not False
+                or signature['teacher_cache_read'] is not False or signature['scorer'] is not None
+                or signature['selected_scenes_sha256']!=expected['selected_scenes_sha256']
+                or signature['observations']['manifest_sha256']!=expected['manifest_sha256']
+                or checkpoint['completed']!=4096 or checkpoint['tag']!=expected['tag']
+                or checkpoint['run_identity']!=expected['run_identity'] or checkpoint['scope']!='FORMAL'
+                or checkpoint['weights_usable_for_formal_init'] is not True
+                or checkpoint['receipt_identity']!=expected['receipt_identity']
+                or checkpoint['native_receipt_sha256']!=expected['native_receipt_sha256']
+                or checkpoint['native_checkpoint_sha256']!=expected['native_checkpoint_sha256']
+                or digest({k:v for k,v in checkpoint.items() if k!='sha256'})!=checkpoint['sha256']):
+E               KeyError: 'identity'
+
+resources/st_endpoint_supervisor_v1.py:331: KeyError
+_ test_rehashed_native_metadata_cannot_promote_nonterminal_boundary[termination_reason-RUNNING_CHECKPOINT] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-809/test_rehashed_native_metadata_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86f4df8790>
+key = 'termination_reason', value = 'RUNNING_CHECKPOINT'
+
+    @pytest.mark.parametrize('key,value',[('termination_reason','RUNNING_CHECKPOINT'),('completed',4095),('policy_version',4095),('pending_feedback',{'synthetic':'pending'})])
+    def test_rehashed_native_metadata_cannot_promote_nonterminal_boundary(tmp_path,monkeypatch,key,value):
+     binding,documents,folder=t.endpoint_fixture(tmp_path,monkeypatch)
+     record=json.loads((folder/'COMPLETE.json').read_text());record['state'][key]=value
+     record['receipt_identity']=s.digest({k:v for k,v in record.items() if k!='receipt_identity'})
+     binding['checkpoint']['complete']=t.put(folder/'COMPLETE.json',record)
+     binding['checkpoint']['receipt_identity']=record['receipt_identity']
+>    with pytest.raises(ValueError,match='optimizer endpoint'):
+E    Failed: DID NOT RAISE <class 'ValueError'>
+
+../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py:115: Failed
+=============================== warnings summary ===============================
+VLA-Drive-st-endpoint-supervisor-20261018/tests/st_world/test_endpoint_supervisor.py::test_exact_endpoint_complete_population_and_no_early_fallback
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py::test_wrong_or_stale_load_audit_never_frees_heavy_loader[identity]
+FAILED ../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py::test_wrong_or_stale_load_audit_never_frees_heavy_loader[master]
+FAILED ../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py::test_wrong_or_stale_load_audit_never_frees_heavy_loader[stale]
+FAILED ../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py::test_post_popen_receipt_failure_cleans_actual_owned_cpu_child
+FAILED ../VLA-Drive-st-endpoint-supervisor-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_endpoint_supervisor_correctness_v1/test_independent_supervisor.py::test_rehashed_native_metadata_cannot_promote_nonterminal_boundary[termination_reason-RUNNING_CHECKPOINT]
+5 failed, 52 passed, 1 warning in 4.75s

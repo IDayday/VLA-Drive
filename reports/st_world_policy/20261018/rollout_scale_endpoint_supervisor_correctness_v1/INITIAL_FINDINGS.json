@@ -1,0 +1,15 @@
+{
+  "schema": "endpoint_supervisor_preseal_findings_v1",
+  "status": "PRESEAL_FINDINGS_SENT_TO_OWNER_NOT_APPROVAL",
+  "inspected_base_commit": "015cb432900ff34492fb10578cc0fee6dfc1e8d5",
+  "implementation_worktree": "/mnt/project/VLA-Drive-st-endpoint-supervisor-20261018",
+  "findings": [
+    {"id":"S1", "location":"claim_invocation", "problem":"Counting only ADMISSION.json permits an empty claimed attempt directory to escape the two-invocation ceiling after a write failure.", "required_boundary":"All claimed attempt directories consume the bounded attempt budget; missing evidence cannot become an implicit new run."},
+    {"id":"S2", "location":"load_finished", "problem":"Current rank/world/output/PID/time checks do not bind the LOAD_AUDIT to the current exact export/checkpoint and strict FP32 master restoration.", "required_boundary":"Unrelated or stale load evidence cannot release a heavy-loader slot."},
+    {"id":"S3", "location":"execute.launch after Popen before LAUNCH receipt", "problem":"A receipt publication/process inspection failure occurs before the returned job is appended, allowing the just-started owned child to escape monitor cleanup.", "required_boundary":"Track and clean the exact owned child immediately after Popen; preserve its consumed admission."},
+    {"id":"S4", "location":"binding storage_reservations + route_checks + immutable BINDING/resume digest", "problem":"A storage snapshot older than300s must be refreshed after export, but refreshing it changes the globally immutable binding and resume identity, blocking legitimate later phases.", "required_boundary":"Stable science/checkpoint/output identity must remain immutable while fresh execution resource evidence is renewed explicitly. Do not remove freshness or permit scientific identity changes."},
+    {"id":"S5", "location":"stop_owned active-check/killpg race", "problem":"A child can naturally exit between confirmed-owned active inspection and killpg, raising ESRCH and skipping EXIT receipts.", "required_boundary":"A confirmed naturally exited owned session may be recorded as clean; other cleanup failures remain errors and unknown processes are never signaled."}
+  ],
+  "actual_model_or_GPU_or_scoring_calls": 0,
+  "final_source_review": "WAITING_OWNER_CLEAN_COMMIT"
+}
