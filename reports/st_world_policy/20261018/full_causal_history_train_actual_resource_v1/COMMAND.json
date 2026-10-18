@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "14440s",
+    "/usr/bin/taskset",
+    "-c",
+    "10,11",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/run_full_history_once.py",
+    "--role",
+    "train",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_actual_resource_v1/ACTUAL_ADMISSION.json",
+    "--admission-sha256",
+    "f477282da34f17648600d16d0f68cbd85cd30e4baa7c88790a241895fe1fd97f"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "native_cleanup_seconds": 40,
+  "native_work_seconds": 14400,
+  "no_automatic_retry": true,
+  "outer_fallback_kill_after_seconds": 40,
+  "outer_fallback_term_seconds": 14440,
+  "role": "train",
+  "run_by_reviewer": false,
+  "schema": "st_reviewed_single_command_v1",
+  "stderr": "/dev/null",
+  "stdin": "/dev/null",
+  "stdout": "/dev/null"
+}
