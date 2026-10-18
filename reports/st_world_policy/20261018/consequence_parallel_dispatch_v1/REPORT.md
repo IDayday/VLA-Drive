@@ -1,0 +1,13 @@
+# Consequence-only resource dispatch
+
+A fresh allowed-host snapshot is included. Only Tsinghua-zt had active GPU occupancy at that instant: the protected native QwenSourceFlow IL job uses its eight devices. All other allowed hosts reported0MiB /0%; utilization alone is not treated as ownership clearance. The subsequent exact formal launcher rechecked GPU UUIDs and absence of compute processes, CPU/RAM/maps/free space/current policy and lease before dispatch.
+
+After the actual240-update PROFILE completed with exit0 and its independent Systems review sealed PASS, the Lead launched the sole registered C1 scene-centered-rollout-standard-deviation arm on Tsinghua-zt5 GPUs0–3, runtime751fcfa2. The immutable review-bound source uses original S0 initialization and matched fresh optimizer; no diagnostic/profile weights are promoted. The original4096-step clock, global32, micro4, G4, MC50, repeat8, GT/FM anchor, precision and single Euler10 deployed trajectory remain registered. This is a scientific normalization comparison; no planning gain is claimed before the fixed endpoint evaluation.
+
+The mature external controls limit each invocation to8h plus save/cleanup grace, at most6 invocations and15 native directories across the run. No automatic retry, stop acknowledgement or evaluation dispatch is enabled. An explicit continuation must resolve the newest complete checkpoint from this run, preserving its optimizer/RNG/consumed cursor and4096 endpoint. The separate protected job's future writes are reserved rather than ignored.
+
+In parallel, the exact32-scene road-failure diagnostic was admitted after independent correctness and resource reviews. It runs on local CPU0–1 with CUDA hidden, single worker/thread,1800s,8GiB aggregate RSS,256MiB bounded asset reads,1GiB outputs and96 total new official calls at most. It cannot train, alter proxy step/geometry or replace undefined cases. Its original failed candidate and safe sibling are real canonical records in the same context.
+
+Feature/history/teacher development stays paused. Additional GPU reservations are not fabricated by restarting held work or duplicating this one trial. The fixed4096 endpoint DEV evaluation has a statically reviewed four-rank plan on available Tsinghua-zt6; it must wait for this actual checkpoint and fresh source/lease admission. Its external supervisor is being prepared concurrently. There is no new Navtest or ACTIVE change.
+
+LAUNCH_SUMMARY records the initial loading state, not proof of a successful optimizer update. A separate first-update health receipt follows only after actual parameters/loss/gradient/feedback are observed.
