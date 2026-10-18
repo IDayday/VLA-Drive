@@ -60,6 +60,9 @@ therefore allow128 MiB total outputs and4 GiB reads. The native paired outputs
 retain the original ~15.94 MiB cap; controls reserve16 MiB for RESULT and64 KiB
 for actual bindings, admission and session receipts. A shared nonblocking serial
 lock prevents these four adapters running concurrently on the fixed CPUs0/1.
+The child inherits this shared serial FD, so a parent crash cannot release
+cross-arm exclusion while its analysis child is still alive. The parent also
+holds the per-arm lock.
 No automatic retry or fresh allowance for a consumed session is supported.
 
 The preparation does **not** claim 4096 has been analyzed or the new wrapper has
@@ -68,17 +71,19 @@ pending the actual scoring dependencies and Lead execution/review.
 
 ## Commands after the corresponding official score completes
 
-Use this absolute script (or its identical cherry-picked copy):
+Use the integrated script below. The original author copy is retained as evidence,
+but lacks the subsequently reviewed child-held cross-arm lock fix and must not
+be dispatched. The native analyzer and statistical definitions are unchanged.
 
 ```bash
-/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --help
+/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --help
 
 # Example: C2 can run first; no need to wait for C1/C3/C4.
 # --bind reads only small actual receipts, pins them immutably, and never dispatches.
-/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --arm C2 --bind
+/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --arm C2 --bind
 
 # Lead executes only after checking the generated actual binding and resource availability.
-/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --arm C2 --execute
+/root/miniconda3/envs/ddp/bin/python /mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py --arm C2 --execute
 ```
 
 For C1/C3/C4 change only `--arm`. Each invocation keeps that arm's original plan,

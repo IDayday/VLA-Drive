@@ -226,7 +226,9 @@ def run(arm):
             'automatic_retry': False}, cap=8 * 1024)
         meter = module.ReadMeter(spent=budget['binding_process_rchar_bytes'])
         try:
-            pair = module.run_pair(command, budget, core, supervisor, observer, metadata, lock, meter)
+            # Keep the cross-arm lock in the child as well: a parent failure
+            # must not admit another CPU0/1 analysis before this child exits.
+            pair = module.run_pair(command, budget, core, supervisor, observer, metadata, serial, meter)
             meter.parent(observer.proc_io())
             result = {'status': 'COMPLETE', 'pair': pair, 'charged_whole_process_rchar_bytes': meter.total,
                       'max_invocations': 1, 'automatic_retry': False}
