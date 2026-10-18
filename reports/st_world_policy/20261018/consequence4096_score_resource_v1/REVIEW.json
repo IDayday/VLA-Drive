@@ -1,0 +1,87 @@
+{
+  "actual_dispatch": false,
+  "budget": {
+    "automatic_retry": false,
+    "cleanup_seconds": 60,
+    "coordinators": 2,
+    "gpu_count": 0,
+    "invocations_max_per_job": 2,
+    "max_campaign_score_jobs": 2,
+    "max_campaign_workers": 4,
+    "native_seconds": 3600,
+    "outer_seconds": 4200,
+    "score_calls_total_per_job_across_resume": 1728,
+    "threads_per_worker": 1,
+    "workers_per_job": 2
+  },
+  "checked_at_unix": 1792332330.3283014,
+  "checks": [
+    "Original export route and checkpoint remain immutable",
+    "Fresh6h execution lease changes only scoring time authorization",
+    "The actual environment and live policy remain launch-time checks",
+    "Zero GPUs and original threads/worker limits preserved",
+    "Old expired route is not reused as a current time authorization",
+    "All1696 completed export receipts exist; no scoring tensor reloaded by reviewer"
+  ],
+  "cpu_observation": {
+    "available_cpu_count": 128,
+    "checked_at_unix": 1792332291.7449164,
+    "cpu_cgroup_quota": -1,
+    "host": "training-vlawm-tsinghua-zt-worker-0",
+    "loadavg": [
+      24.65234375,
+      20.4169921875,
+      17.14208984375
+    ],
+    "mem_available_kib": 871032924
+  },
+  "helper": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/final4096_score_lease_v1/score_with_execution_lease.py",
+    "sha256": "388a5407bf1d2f9f52e5162c3db76e43845049ce94a5a1a95e57556d9137d7d1"
+  },
+  "jobs": {
+    "C2": {
+      "complete_export": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/export/COMPLETE_rank0.json",
+        "sha256": "ea0ae038ff82c08676e19b6a31bfa23f3dc7f05e03117b97c03d3c394b66e159"
+      },
+      "lease": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C2_step004096_dev1696_seed42_v1/score_execution_lease_20261018T1405_v1.json",
+        "sha256": "7dfa38ff24b1af4da59bdcf65884fffd40ff8901934101101aadaf75cfa2110b"
+      },
+      "original_route": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C2_step004096_dev1696_seed42_v1/ROUTE.json",
+        "sha256": "2ce918f0668a0c2657d6cb4a0bb78ceaa1b699f069fca39387c38dfc49a9687c"
+      },
+      "receipt_count": 1696,
+      "score_invocations_observed": 0
+    },
+    "C3": {
+      "complete_export": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/export/COMPLETE_rank0.json",
+        "sha256": "d99888c5b2a2a012634b475de27d65e4963152d5d9405c637b2a7125522790c8"
+      },
+      "lease": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C3_step004096_dev1696_seed42_v1/score_execution_lease_20261018T1405_v1.json",
+        "sha256": "fa4779597e80bc1d9f5427170cb15aebbc71246fd8f5d18ad903884aeeb99f15"
+      },
+      "original_route": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/C3_step004096_dev1696_seed42_v1/ROUTE.json",
+        "sha256": "dacafaff012bb505fd760e1c02010bf7832de0fac0d5e59ce6ee8df27e8b9d01"
+      },
+      "receipt_count": 1696,
+      "score_invocations_observed": 0
+    }
+  },
+  "new_training_or_export_permission": false,
+  "reviewer": "/root/spatial20k_efficiency",
+  "schema": "st_fixed_dev_fresh_score_resource_review_v1",
+  "scientific_or_label_changes": false,
+  "scope": "Fresh execution lease only for the two existing complete final DEV exports",
+  "score_slot_snapshot": "Both global locks available at prior narrow read; actual launch must acquire",
+  "shared_storage_review": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/consequence4096_resource_coexistence_v1/REVIEW.json",
+    "sha256": "bac80bfda2aeaa30986b1ff3510fc6c3eb94049b8bd7ff81633a3e84a0d6d168"
+  },
+  "status": "PASS_NARROW_RESOURCE_REVIEW"
+}
