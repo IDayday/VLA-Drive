@@ -1,0 +1,241 @@
+{
+  "analysis_source": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "arms": {
+    "C1": {
+      "original_command_unchanged": {
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C1_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C1_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C1_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C1_minus_C0",
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "Both full1696 score COMPLETE receipts, exact endpoint identity and Lead analysis authorization. Diagnostic512/1024 never cause scientific early elimination.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json",
+        "sha256": "7176e78ccc287094e19ed51691d02b8dd4685866ea69bd96eb76a2e58c3d9bf4"
+      },
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COMMANDS.json",
+        "sha256": "b86ded00ad852034fedfdc4f21b44a2ef6480332d321f71f4bf0059c65e9f421"
+      }
+    },
+    "C2": {
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C2_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C2_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C2_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C2_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "BothC0andC2 atsamefixedstage complete1696 export+score; actualexactnativeidentityandLeadanalysisauthorization. C3additionallyneedsnewimmutableplanversionbindingrealapproval/launch/runtimeidentity; thisplanC3formalbindingisnull.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "6c413cf0d9f1b539243131138dfd7437735e6b42a5c870631947aa15a9b55e2f"
+      },
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C2_C3_execution_v1/COMMANDS.json",
+        "sha256": "640832d3714e8f889183950b50147bc1dcd1c2238cd637f019221a3c2cb10467"
+      }
+    },
+    "C3": {
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C3_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C3_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C3_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C3_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "C0 and C3 at the same fixed stage: exact complete native identity, full 1696 export and official score, plus Lead analysis authorization. 512/1024 remain diagnostic only.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "df7bc0cbc30a2666913945ed6e5dd6188acab4e036442a99b1de787efb83c7ed"
+      },
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_C3_execution_v1/COMMANDS.json",
+        "sha256": "c4f4c6498b29f42548b98a17c8d398e8cf2182f4ecb19c11197209774af12195"
+      }
+    },
+    "C4": {
+      "original_command_unchanged": {
+        "analysis_plan": {
+          "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+          "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+        },
+        "argv": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.st_world_policy.evaluate_campaign",
+          "--plan",
+          "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+          "--population",
+          "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+          "--control-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/official_score",
+          "--control-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C0_step004096_dev1696_seed42_v1/export",
+          "--treatment-score",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1/official_score",
+          "--treatment-export",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/C4_step004096_dev1696_seed42_v1/export",
+          "--comparison",
+          "C4_minus_C0",
+          "--stage",
+          "COMMON_ENDPOINT",
+          "--scope",
+          "FORMAL",
+          "--output",
+          "/mnt/project/st-world-policy-20261016/formal/evaluation/analyses/C4_minus_C0_COMMON_ENDPOINT_dev1696_v1"
+        ],
+        "comparison": "C4_minus_C0",
+        "current_training_binding_resolved": true,
+        "cwd": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017",
+        "env": {
+          "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+          "CUDA_VISIBLE_DEVICES": "",
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "TOKENIZERS_PARALLELISM": "false"
+        },
+        "launch_authorized": false,
+        "max_seconds": 1800,
+        "prerequisite": "C0 and C4 at the same fixed stage: exact complete native identity, full 1696 export and official score, plus Lead analysis authorization. 512/1024 remain diagnostic only.",
+        "stage": "COMMON_ENDPOINT"
+      },
+      "plan": {
+        "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/EXECUTION_PLAN.json",
+        "sha256": "dddf0077c272e1310b873321006d469fcc261f82620ef6804135067bc40fca6c"
+      },
+      "source_commands": {
+        "path": "/mnt/project/VLA-Drive-st-c4-dev-preparation-20261017/reports/st_world_policy/20261016/evaluation/full_dev_C4_execution_v1/COMMANDS.json",
+        "sha256": "334e8735f45da2f2fbf70d3b27e4e2cdabfdfa070c4549443533a3d57d125879"
+      }
+    }
+  },
+  "endpoint": 4096,
+  "four_pair_output_bytes_including_controls": 134217728,
+  "launch_authorized": false,
+  "max_invocations_per_arm": 1,
+  "per_pair_limits": {
+    "cleanup_seconds": 40,
+    "output_bytes_including_controls": 33554432,
+    "read_bytes": 1073741824,
+    "rss_bytes": 2147483648,
+    "wall_seconds": 1800
+  },
+  "schema": "st_common4096_fixed_commands_v1",
+  "source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "stage": "COMMON_ENDPOINT"
+}
