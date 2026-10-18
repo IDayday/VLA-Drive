@@ -1,0 +1,93 @@
+{
+  "schema": "st_teacher_channel_diagnostic_v2_independent_fix_review_v1",
+  "status": "PASS_CODE_CPU_ONLY",
+  "reviewer": "/root/temporal_narrow_review",
+  "reviewed_commit": "0388faff949401ceb777176bab2e64311e6f23e9",
+  "reviewed_at_utc": "2026-10-18T01:46:35.306789+00:00",
+  "scope": "v1->v2 primary-exception preservation, deterministic workspace startup, exact pins/new output namespace only",
+  "checks": [
+    "same original runtime fdf25f99/checkpoints/eight TRAIN observations/allrequestseeds/teacher/PCA/metric source",
+    "exact AST equality of prediction and mathematical execute after removing only startup preflight/runtime receipt",
+    "run_arm compute body byte-equivalent AST; only finally weakref check skips active-exception masking; success live reference still rejects",
+    "primary computation exception propagates; original main records type/message and bounded16384-character formatted traceback; failed arm exits before loading next",
+    "CUBLAS=:4096:8 set in child environment before child Python; conflicting inherited setting rejects",
+    "direct execute rejects missing/conflicting workspace and already initialized CUDA before payload/runtime model use",
+    "deterministic algorithms remain enabled; FP32/noTF32 policy unchanged; actual runtime recorded",
+    "controller monitor/cleanup/one-shot locks/1800+40s/96GiB/320GiB/15+1MiB retained; new output root preserves v1 evidence",
+    "selection bytes identical and binding changes limited to attempt/runtime declaration/newpaths"
+  ],
+  "tests": {
+    "diagnostic_cases_passed": 9,
+    "control_cases_passed": 8,
+    "total_distinct_passed": 17,
+    "combined_harness_failure_preserved": "After9 diagnostic PASS, attempting parent-only control in same Python process hit expected fdf25f99 tools-package import boundary. This independent harness error was corrected by running only8 control fixtures in fresh parent-only process, matching real parent/child isolation; no diagnostic/model rerun.",
+    "combined_harness_cost": {
+      "returncode": 1,
+      "wall_seconds": 5.074688859283924,
+      "max_child_RSS_bytes": 704491520,
+      "parent_reaped_child_rchar_bytes": 137259917,
+      "cpu_affinity": [
+        2,
+        3
+      ],
+      "GPU_used": false,
+      "model_payload_read": false,
+      "command_scope": "nine diagnostic plus eight control CPU fixtures in one process; CUDA hidden",
+      "log_sha256": "d496b8eaa41384a7c998740ec8182709b8f94eafe6aaf58cc8a3b82fb069f92f"
+    },
+    "fresh_control_cost": {
+      "returncode": 0,
+      "wall_seconds": 0.1948380321264267,
+      "max_child_RSS_bytes": 31023104,
+      "parent_reaped_child_rchar_bytes": 5080586,
+      "cpu_affinity": [
+        2,
+        3
+      ],
+      "GPU_used": false,
+      "model_payload_read": false,
+      "command_scope": "eight control CPU fixtures in fresh parent-only process",
+      "log_sha256": "f24dbf7eee19da7e5ea2483f53ab4049f72c6b8d83d74937b2781cf516ab4948"
+    }
+  },
+  "real_tiny_CUDA_evidence": "Owner FIX_AND_TESTS reports actual8x8 deterministic CUDA mm rejects unset workspace and succeeds with:4096:8; reviewed as owner evidence, not independently rerun or proof of original hidden error",
+  "actual_full_model_v2": "NOT_RUN",
+  "prior_failure": "38c9/v1 FAILED preserved; actual primary error UNKNOWN_NOT_RECORDED, not retrospectively declared cuBLAS",
+  "actual_launch_admitted": false,
+  "next": "Lead may explicitly retry once only after fresh exact-source resource/host/time admission. No mathematical re-review needed.",
+  "independent_GPU_calls": 0,
+  "SSH": false,
+  "payload_reads": false,
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/diagnose.py",
+      "sha256": "0bebc9aa89fe9485075887466c363033c7529c28c70d4bf41509a954b5a44bc1",
+      "bytes": 15985
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/control.py",
+      "sha256": "f348dd2a13c683d17c79e42728b45e946694148d0be1cefde21695c2c4f546b1",
+      "bytes": 14335
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/BINDING.json",
+      "sha256": "cca84c91a525fd98fe49f277d4dcfaa2ea199f07fbf8933c44a22a87a764fb94",
+      "bytes": 6246
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/SELECTED_SCENES.json",
+      "sha256": "77ebc29d9273c309afbbb3e596eb95ac947fbe51d96830f31f7552ca00881947",
+      "bytes": 3170
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/launch_once.sh",
+      "sha256": "ffc3e2d0da08b411187098e3ccc5d99175ed22ad4ea53b3dde5cd67d6931ff44",
+      "bytes": 177
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/FIX_AND_TESTS.json",
+      "sha256": "bd7db86167c22f40b117cfcad11c74fed7d81c301fee67bf3803d0c90e5f4180",
+      "bytes": 2182
+    }
+  ]
+}

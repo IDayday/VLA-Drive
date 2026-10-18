@@ -1,0 +1,27 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+test_actual_request_gather_and_metric (test_diagnostic.Tests) ... ok
+test_actual_small_metadata (test_diagnostic.Tests) ... ok
+test_backend_preflight_rejects_missing_conflicting_or_initialized (test_diagnostic.Tests) ... ok
+test_original_PCA_common_prefix (test_diagnostic.Tests) ... ok
+test_primary_error_is_not_masked_by_traceback_model_reference (test_diagnostic.Tests) ... ok
+test_real_readout_only_eval_and_mask (test_diagnostic.Tests) ... ok
+test_sequential_strict_load_and_release (test_diagnostic.Tests) ... ok
+test_successful_arm_still_rejects_live_model (test_diagnostic.Tests) ... ok
+test_wrong_population_and_recipe (test_diagnostic.Tests) ... ok
+ERROR
+
+======================================================================
+ERROR: setUpClass (test_control.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/test_control.py", line 24, in setUpClass
+    cls.s,cls.obs,cls.m=c.parent_helpers(cls.b)
+  File "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/control.py", line 150, in parent_helpers
+    from tools.st_world_policy import metadata_storage as metadata
+ImportError: cannot import name 'metadata_storage' from 'tools.st_world_policy' (/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/tools/st_world_policy/__init__.py)
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.251s
+
+FAILED (errors=1)
