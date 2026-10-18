@@ -1,0 +1,14 @@
+usage: st_rollout_resume_smoke_v1.py [-h]
+                                     {status,plan,compare,draft-binding,prepare,initial,resume,worker}
+                                     ...
+
+Lead-only runtime751 native4 versus native2+2 SMOKE; no automatic dispatch. An
+isolated observer hashes native logical state without changing trainer math.
+--status/plan use metadata only. Fresh independent admission is required for
+prepare/initial/resume; compare reads only this experiment's audit artifacts.
+
+positional arguments:
+  {status,plan,compare,draft-binding,prepare,initial,resume,worker}
+
+options:
+  -h, --help            show this help message and exit
