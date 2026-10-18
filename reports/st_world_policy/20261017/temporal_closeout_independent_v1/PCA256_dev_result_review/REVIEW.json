@@ -1,0 +1,134 @@
+{
+  "schema": "st_teacher_width_paired_result_review_v1",
+  "status": "PASS_RECORDED_ARITHMETIC_AND_SCOPE",
+  "reviewer": "/root/temporal_narrow_review",
+  "reviewed_at_utc": "2026-10-18T01:23:48.730289+00:00",
+  "checks": [
+    "paired CSV SHA matches actual analysis",
+    "1696 unique scenes/16 logs, requested=valid=1696, invalid=unresolved=0",
+    "all metric means and per-scene deltas independently recomputed from paired CSV",
+    "both source SCENES CSV hashes and joined values match paired CSV",
+    "actual COMPLETE receipts both1696 valid with single reference candidate",
+    "same full protocol, metric index, spec, inference contract, common Base binding and training source; different correctly tagged5000 endpoints",
+    "zero-transition and high-score>=.9-to-zero flags independently recomputed",
+    "NC/DAC/TTC forward/backward failure counts independently recomputed, full denominator1696"
+  ],
+  "comparison": "PCA256 treatment vs PCA384 SP2 control, both5000 updates, same1696 dev/16logs, one training seed",
+  "denominator_scenes": 1696,
+  "invalid": 0,
+  "unresolved": 0,
+  "PDMS_100": {
+    "PCA384": 90.66593579707695,
+    "PCA256": 91.15776380510458,
+    "delta": 0.49182800802762483,
+    "reported_paired_log_bootstrap_CI95_delta": [
+      0.037645067941569584,
+      1.34100488101721
+    ]
+  },
+  "bootstrap": {
+    "replicates": 2000,
+    "seed": 20261017,
+    "unit": "paired_log_cluster",
+    "independently_rerun": false,
+    "multiplicity": "unadjusted exploratory; no familywise or multi-seed robustness claim"
+  },
+  "zero_scores": {
+    "PCA384": 51,
+    "PCA256": 44,
+    "zero_repaired": 11,
+    "new_zero": 4,
+    "zero_persisted": 40,
+    "nonzero_persisted": 1641,
+    "high_to_zero": 3
+  },
+  "safety_failure_transitions": {
+    "NC": {
+      "definition": "failure component <1-1e-8; repair fail->full, new full->fail",
+      "denominator": 1696,
+      "control_failure": 17,
+      "treatment_failure": 16,
+      "repaired": 2,
+      "new_failure": 1,
+      "persistent_failure": 15
+    },
+    "DAC": {
+      "definition": "failure component <1-1e-8; repair fail->full, new full->fail",
+      "denominator": 1696,
+      "control_failure": 36,
+      "treatment_failure": 30,
+      "repaired": 9,
+      "new_failure": 3,
+      "persistent_failure": 27
+    },
+    "TTC": {
+      "definition": "failure component <1-1e-8; repair fail->full, new full->fail",
+      "denominator": 1696,
+      "control_failure": 67,
+      "treatment_failure": 65,
+      "repaired": 9,
+      "new_failure": 7,
+      "persistent_failure": 58
+    }
+  },
+  "protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+  "population_sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573",
+  "scope_boundaries": [
+    "Actual same-protocol development screening result; not navtest or a new formal-training approval",
+    "Positive paired mean evidence in one seed, with reported interval excluding0; not established robust advantage or universal safety improvement",
+    "New failures remain: NC1,DAC3,TTC7,4new zero including3previously>=.9; cannot claim no regression",
+    "Original mean-over-channel loss changes the common256 contribution coefficient from256/384 to1:1.5x for the common-coordinate term, not a proof of1.5x total gradient",
+    "Width comparison changes target content/readout and loss normalization; it does not independently establish pure capacity, tail interference or high-resolution causality",
+    "No model/scoring/bootstrap rerun; no teacher/cache/native checkpoint rehash; source score CSV and small protocol/receipt metadata only"
+  ],
+  "model_runs": 0,
+  "scoring_calls": 0,
+  "bootstrap_reruns": 0,
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/analysis/PCA256_minus_384_dev1696_step5000_v1/PAIRED_SCENES.csv",
+      "sha256": "fc95c429c040dcf75d3f414ccde58de57b7cc3f082edb1d2f1f9c8c6814ebabb",
+      "bytes": 837123
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/analysis/PCA256_minus_384_dev1696_step5000_v1/ANALYSIS.json",
+      "sha256": "aed6f14b2082ceda1a1976b5f002b32489dcd8a555cbd29715fd9e0295b4dda8",
+      "bytes": 52517
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/IDENTITY.json",
+      "sha256": "50f9e1a07770192729c971cb56375d7475e2c7e8d52bd2a7e49453ed7263ddb2",
+      "bytes": 2006858
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+      "sha256": "030f42220f1c66ea4030c28ef4c650dc8b81c3aa00b091ffe0a0262efb1f12f2",
+      "bytes": 7681
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/SCENES.csv",
+      "sha256": "f625926896a3a8075ce9a4d24383b313680295798bd81ae427c9e1d37e745d65",
+      "bytes": 176015
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/official_score/IDENTITY.json",
+      "sha256": "dd04a006bf0eb0aa82bacd7111bb26426ac20865ba398d1f93eea2892df464da",
+      "bytes": 2006884
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+      "sha256": "522331e6eb65baddb3d2ccb01651c976258ec13bf5a9a741d35c194bb1c14b0f",
+      "bytes": 7647
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_PCA256_step005000_dev1696_seed42_v1/official_score/SCENES.csv",
+      "sha256": "ca27492130d67cd44fed01220e9027c8d1eb9c9ee2bdb129b62925125f050a28",
+      "bytes": 176477
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/teacher_width_paired_analysis_v1/ANALYSIS_PLAN.json",
+      "sha256": "b931926fa1c757a36f55aeb3c05b0794e037d9b2f3e7260dcec35c8b4f58c933",
+      "bytes": 9291
+    }
+  ]
+}
