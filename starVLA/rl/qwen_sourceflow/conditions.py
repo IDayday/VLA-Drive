@@ -2,7 +2,7 @@
 import time
 import torch
 from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
-from starVLA.model.modules.qwen_sourceflow.cached_action_runner import expand_condition
+from starVLA.model.modules.qwen_sourceflow.cached_action_runner import expand_condition,condition_fp32
 from .contracts import QWEN_PATH,fingerprint
 
 
@@ -12,7 +12,7 @@ class FrozenConditions:
         self.provider=model.provider.eval().requires_grad_(False)
         self.data=data;self.processor=QwenObservationProcessor(QWEN_PATH)
         self.identity=dict(schema='native_frozen_full_Qwen_condition_v1',parent=parent_identity,
-            data_manifest_sha256=data.sha,precision='FP32 weights; BF16 autocast prefill/provider',
+            data_manifest_sha256=data.sha,precision='FP32 weights; BF16 prefill/provider; explicit FP32 action condition',
             layer_mapping=self.provider.layer_mapping,cache='process-local one scene; no persistent dense KV')
         self.sha=fingerprint(self.identity)
         self.cached=None;self.token=None;self.prefill_calls=0;self.prefill_seconds=0.
@@ -30,6 +30,6 @@ class FrozenConditions:
             batch=self.processor([obs]);state=torch.tensor([obs['proprio']],device=device,dtype=torch.float32)
             with torch.autocast(device.type,dtype=torch.bfloat16):
                 value=self.provider(self.qwen(batch),state)
-            self.cached=expand_condition(value,8);self.token=descriptor['token'];self.prefill_calls+=1
+            self.cached=expand_condition(condition_fp32(value),8);self.token=descriptor['token'];self.prefill_calls+=1
             torch.cuda.synchronize();self.prefill_seconds+=time.monotonic()-begin
         return self.cached

@@ -23,6 +23,8 @@ class QwenSourceFlowVLA(nn.Module):
 
     @torch.no_grad()
     def predict(self, observation_batch, proprio, initial_noise):
-        condition = self.encode_condition(observation_batch, proprio)
-        raw = self.policy.sample_ode(condition, initial_noise)
+        with torch.autocast(initial_noise.device.type,dtype=torch.bfloat16):
+            condition = self.encode_condition(observation_batch, proprio)
+        with torch.autocast(initial_noise.device.type,enabled=False):
+            raw = self.policy.sample_ode(condition, initial_noise)
         return dict(normalized_action=raw, requested_trajectory=ActionCodec.denorm_odo(raw))

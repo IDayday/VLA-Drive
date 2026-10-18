@@ -65,3 +65,14 @@ def expand_condition(condition, repeats):
     return dict(context=expand(condition['context']), context_mask=expand(condition['context_mask']),
                 visual_mask=expand(condition['visual_mask']),
                 visual_kv=[{k: expand(v) for k, v in layer.items()} for layer in condition['visual_kv']])
+
+
+def condition_fp32(condition):
+    """Explicit frozen-BF16-prefill -> FP32 action boundary, masks unchanged.
+
+    This is outside IL autocast and never recomputes or truncates Qwen tokens.
+    Casting once per scene also avoids repeated KV promotion in ten ODE steps.
+    """
+    return dict(context=condition['context'].float(),context_mask=condition['context_mask'],
+        visual_mask=condition['visual_mask'],
+        visual_kv=[{k:v.float() for k,v in layer.items()} for layer in condition['visual_kv']])

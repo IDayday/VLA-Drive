@@ -1,7 +1,7 @@
 """Native source sigma/noise-data velocity convention, in three action dimensions."""
 import torch
 from torch import nn
-from .cached_action_runner import CachedActionRunner
+from .cached_action_runner import CachedActionRunner,condition_fp32
 from .vendor.scheduler_continuous import WanContinuousFlowMatchScheduler
 from .action_codec import ActionCodec
 
@@ -43,6 +43,7 @@ class SourceFlowPolicy(nn.Module):
     def sample_ode(self, condition, initial_noise):
         if initial_noise.shape[1:] != (8, 3):
             raise ValueError('Native action prior must be 8x3')
+        condition=condition_fp32(condition)
         times, deltas = self.scheduler.build_inference_schedule(10, initial_noise.device, torch.float32)
         x = initial_noise.float()
         for t, d in zip(times, deltas):
