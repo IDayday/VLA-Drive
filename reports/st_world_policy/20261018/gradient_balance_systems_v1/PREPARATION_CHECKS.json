@@ -1,0 +1,26 @@
+{
+  "scope": "CPU fixtures and actual small immutable receipts only",
+  "real_model_or_rollout_or_image_or_GT_or_metric_cache_reads": 0,
+  "GPU_used": false,
+  "official_calls": 0,
+  "runtime": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+  "results": [
+    {
+      "case": "receipt_preflight",
+      "exit_code": 0,
+      "stdout": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n{\"status\": \"SMALL_RECEIPTS_VALIDATED\", \"execution\": \"NOT_RUN\", \"boundary\": 3584, \"GT_model_manifest_read\": false, \"registered_budget\": {\"max_output_bytes\": 8388608, \"max_read_bytes\": 206158430208, \"max_rss_bytes\": 68719476736, \"max_seconds\": 1800}}\n",
+      "wall_seconds": 3.8600130900740623,
+      "cpu_seconds": 3.53533,
+      "children_peak_rss_bytes": 655548416
+    },
+    {
+      "case": "targeted_cpu_tests",
+      "exit_code": 0,
+      "stdout": ".....................................................                    [100%]\n=============================== warnings summary ===============================\n../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61\n  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n    import pynvml  # type: ignore[import]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n53 passed, 1 warning in 6.67s\n",
+      "wall_seconds": 7.957647865638137,
+      "cpu_seconds": 7.702244999999999,
+      "children_peak_rss_bytes": 733532160
+    }
+  ],
+  "passed": true
+}
