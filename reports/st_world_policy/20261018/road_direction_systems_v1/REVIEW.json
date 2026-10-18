@@ -1,0 +1,164 @@
+{
+  "schema": "road_direction_systems_review_v1",
+  "created_utc": "2026-10-18T15:10:13.165641+00:00",
+  "reviewer": "/root/road_proxy_systems_review",
+  "author_implementation_commit": "ec9fbb32b67532bd82058533eb89ae469c4c81d1",
+  "local_equivalent_commit": "2455bfeb06b00f7678d1daa6fef411356a9c58c8",
+  "review_status": "PASS_PREPARATION_SCOPE_ONLY",
+  "real_direction_execution": "NOT_IMPLEMENTED_IN_REVIEWED_CLI",
+  "real_direction_admission": false,
+  "formal_training_approval": false,
+  "dispatch_authorized": false,
+  "policy_sha256": "b324d874d8c64036910ca80daf7d726741e2e5997c015c33d348174768f4cdc4",
+  "allowed_hosts": [
+    "training-rl-zt2",
+    "training-vla-zt",
+    "training-vlawm-tsinghua-zt",
+    "training-vlawm-tsinghua-zt2",
+    "training-vlawm-tsinghua-zt3",
+    "training-vlawm-tsinghua-zt4",
+    "training-vlawm-tsinghua-zt5",
+    "training-vlawm-tsinghua-zt6"
+  ],
+  "feature_side_hold": {
+    "status": "PAUSED_BY_USER",
+    "utc": "2026-10-18T14:56:18.349144+00:00",
+    "user_instruction": "暂停关于特征层面的开发，集中开发有关后果的研究",
+    "scope": [
+      "ST spatial feature/teacher-width development and training",
+      "ST temporal history/future/delta development, preparation, profiles and training",
+      "conditional video/geometric teacher development"
+    ],
+    "training": false,
+    "development": false,
+    "automatic_dispatch": false,
+    "automatic_resume": false,
+    "restart_requires_new_user_instruction": true,
+    "record": "/mnt/project/st-world-policy-20261016/audits/operator_pause/features_20261018/REQUEST.json",
+    "consequence_side_remains_authorized": true,
+    "unrelated_workloads_unchanged": true
+  },
+  "source_manifest": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 2081,
+      "sha256": "863a7afc8ee1e6d4092f23623abf79f8b8bd51730ffd00a48f39e411e024dfce"
+    },
+    {
+      "path": "docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md",
+      "bytes": 57235,
+      "sha256": "12127bc733d527db7934c035789effd53d3373f0196aff26e644f7e256df98b2"
+    },
+    {
+      "path": "docs/research/CODEX_MULTI_AGENT_START_20261017.md",
+      "bytes": 10018,
+      "sha256": "61de086b1afad8109c1593857b0e0f70bf02dbec8909e40d17f11578bae31cc9"
+    },
+    {
+      "path": "reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.md",
+      "bytes": 14956,
+      "sha256": "fa6c3b713b6e9bc666d00becb612bbd8a9575d6b2b1c2792e317c014b48d1fda"
+    },
+    {
+      "path": "reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.json",
+      "bytes": 63829,
+      "sha256": "1dc9da0bbde392e6296d8fee943eb1fdf6299a8eab4af5af4a866ee0c72f182a"
+    },
+    {
+      "path": "reports/st_world_policy/20261018/road_direction_implementation_v1/REPORT.md",
+      "bytes": 6570,
+      "sha256": "5a9fbcf70f02d356723c8664e50036cf602aa3669e81b84c696175dd3d8eb757"
+    },
+    {
+      "path": "reports/st_world_policy/20261018/road_direction_implementation_v1/SOURCE_BINDING.json",
+      "bytes": 3293,
+      "sha256": "1a09152b04a175b0653a62dd0f53b0f987eefafcab188504b8c5efeeac4969a3"
+    },
+    {
+      "path": "starVLA/model/modules/flow_posttraining/road_margin_proxy.py",
+      "bytes": 20882,
+      "sha256": "f3b112d62765c362c78b1ffc8c1b32b3695df7af52fd238bd1c7290ba6c07bfd"
+    },
+    {
+      "path": "tools/st_world_policy/diagnose_road_direction.py",
+      "bytes": 5756,
+      "sha256": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f"
+    },
+    {
+      "path": "starVLA/model/modules/st_world/consequence.py",
+      "bytes": 44517,
+      "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+    },
+    {
+      "path": "tests/st_world/test_road_margin_proxy.py",
+      "bytes": 11993,
+      "sha256": "02b0bb9e8f0d99523928c8e3e2e52eb2679d5ad331ae6e0f4de8599b03990ec1"
+    }
+  ],
+  "independent_cli_measurement": {
+    "status": "PASS_PREPARATION_ONLY",
+    "wall_seconds": 3.3471962697803974,
+    "cpu_user_seconds": 2.752477,
+    "cpu_system_seconds": 0.377263,
+    "peak_rss_kib": 603356,
+    "gpu_initialized": false,
+    "real_asset_reads": 0,
+    "official_calls": 0,
+    "training_updates": 0,
+    "scope": "Actual CLI prepare/help/refusal, imports permitted; no actual scene data or scoring"
+  },
+  "review_resource_accounting": {
+    "real_asset_reads": 0,
+    "gpu_calls": 0,
+    "official_calls": 0,
+    "training_updates": 0,
+    "explicit_metadata_read_upper_bound_bytes": 4435434,
+    "source_read_limit_bytes": 16777216,
+    "note": "Conservative 4MiB reserve covers repeated source/doc/policy reads. Python import IO and worktree checkout are not scene-asset reads; no physical-disk IO claim."
+  },
+  "future_run_resource_proposal": {
+    "status": "PROPOSED_NOT_ADMITTED",
+    "cpu_workers": 2,
+    "numerical_threads_per_worker": 1,
+    "gpu_count": 0,
+    "wall_seconds": 1800,
+    "aggregate_rss_bytes": 8589934592,
+    "total_output_bytes": 1073741824,
+    "logical_asset_read_bytes": 268435456,
+    "per_cache_lzma_expansion_bytes": 67108864,
+    "aggregate_asset_read_rate_bytes_per_second": 33554432,
+    "max_official_invocations_including_failures_and_retries": 128,
+    "automatic_retries": 0,
+    "unique_scenes": 32,
+    "source_logs": 31,
+    "variants_per_scene": 4,
+    "reuse_original_valid_records": true,
+    "normally_new_official_invocations": 96,
+    "notes": [
+      "Budget supplied by Lead at review; fresh approval needed; older 64MiB evidence allowance is exhausted and does not authorize further reads.",
+      "Expanded-byte cap is not a bound on deserialized Python/GEOS allocation. Aggregate RSS and deadline must be enforced externally.",
+      "No throughput estimate is inferred from geometry fixtures or preparation timing."
+    ]
+  },
+  "known_asset_sizes_from_prior_verified_receipt_only": {
+    "compressed_metric_cache_total_bytes": 11780860,
+    "maximum_compressed_single_cache_bytes": 942848,
+    "cache_count": 32,
+    "freshly_read_this_review": false
+  },
+  "unresolved_for_real_run": [
+    "An executable admitted runner and exact source/registration/software bindings.",
+    "Durable pre-call intent ledger, exclusive same-run lock, consumed call count across interrupted attempts, and no automatic retry.",
+    "Bounded verified compressed reads, bounded LZMA expansion before unpickle, per-scene schema/footprint/official parity and origin-correction checks.",
+    "RSS/wall/read/output limits over all owned children; source/sampler/model/feature jobs untouched.",
+    "Immutable directions including exact physical payload before scoring; preserve all fixed32 statuses and unexpected native exceptions.",
+    "Measured first-scene geometry work;134 objective evaluations per differentiable scene with Python polygon containment can dominate cost.",
+    "Parent-owned aggregation separates PARTIAL/UNDEFINED/COMPLETE; no completed claim from file existence."
+  ],
+  "risks": [
+    "ConsequenceEngine.load_context at619-642 does not cap decompression itself; using it unguarded is not approved.",
+    "RoadUnion checks200000segments after unary_union; this does not independently cap union or deserialization allocation.",
+    "prepare writes exclusive final JSON but not temp+fsync+atomic commit; interrupted preparation remains incomplete and needs new attempt output, not silent reuse.",
+    "score_diagnostic_variants callback interface is not durable persistence or resource enforcement by itself."
+  ]
+}

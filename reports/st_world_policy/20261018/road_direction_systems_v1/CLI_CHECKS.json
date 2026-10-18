@@ -1,0 +1,94 @@
+{
+  "status": "PASS_PREPARATION_ONLY",
+  "rows": [
+    {
+      "args": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "usage: CHECK_PREPARE.py [-h] --mode {prepare} [--evidence EVIDENCE] --output\n                        OUTPUT\n\nPrepare the fixed 32-TRAIN road direction diagnostic for independent review.\nThis entry is intentionally preparation-only: it reads the already committed\nsmall evidence document, never a rollout, metric cache, model, or score\nservice. Real execution requires a separate Lead admission and independently\nreviewed invocation. Geometry APIs are in flow_posttraining.road_margin_proxy.\n\noptions:\n  -h, --help           show this help message and exit\n  --mode {prepare}\n  --evidence EVIDENCE\n  --output OUTPUT      New immutable JSON path, at most 2MiB\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "--mode",
+        "prepare",
+        "--output",
+        "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/PREPARATION_WITNESS.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"PREPARED_NOT_EXECUTED\", \"output\": \"/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/PREPARATION_WITNESS.json\", \"sha256\": \"8237e8cf34117a416238cf60a6db0749be64d22394baaadf02a682fd4e2e08d1\", \"new_official_calls\": 0, \"dispatch_authorized\": false}\n",
+      "stderr": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n"
+    },
+    {
+      "args": [
+        "--mode",
+        "prepare",
+        "--output",
+        "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/PREPARATION_WITNESS.json"
+      ],
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "{\"status\": \"PREPARATION_FAILED\", \"error\": \"Output exists; preserve earlier preparation evidence\"}\n"
+    },
+    {
+      "args": [
+        "--mode",
+        "execute",
+        "--output",
+        "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/NEVER_EXECUTED.json"
+      ],
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "usage: CHECK_PREPARE.py [-h] --mode {prepare} [--evidence EVIDENCE] --output\n                        OUTPUT\nCHECK_PREPARE.py: error: argument --mode: invalid choice: 'execute' (choose from 'prepare')\n"
+    }
+  ],
+  "wall_seconds": 3.3471962697803974,
+  "cpu_user_seconds": 2.752477,
+  "cpu_system_seconds": 0.377263,
+  "peak_rss_kib": 603356,
+  "gpu_initialized": false,
+  "real_asset_reads": 0,
+  "official_calls": 0,
+  "training_updates": 0,
+  "source_open_paths": [
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.json",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/CHECK_PREPARE.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/road_direction_systems_v1/PREPARATION_WITNESS.json",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/__init__.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/__pycache__/__init__.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/__pycache__/__init__.cpython-310.pyc.140393263345744",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__init__.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/__init__.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/__init__.cpython-310.pyc.140389938710640",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/foresight_dataset.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/foresight_dataset.cpython-310.pyc.140389929829456",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/vlm_datasets.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/__pycache__/vlm_datasets.cpython-310.pyc.140389929350960",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/foresight_dataset.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/__pycache__/qwen_data_config.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/__pycache__/qwen_data_config.cpython-310.pyc.140389855392368",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/__pycache__/rope2d.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/__pycache__/rope2d.cpython-310.pyc.140389855393136",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/qwen_data_config.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/qwenvl_llavajson/rope2d.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/dataloader/vlm_datasets.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__init__.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/__init__.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/__init__.cpython-310.pyc.140393262579312",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/fpo_objective.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/fpo_objective.cpython-310.pyc.140393262366768",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/policy_snapshot.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/policy_snapshot.cpython-310.pyc.140389974981680",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/road_margin_proxy.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/road_margin_proxy.cpython-310.pyc.140389945741872",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/rollout_contract.cpython-310.pyc",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/__pycache__/rollout_contract.cpython-310.pyc.140389945741296",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/fpo_objective.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/policy_snapshot.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/road_margin_proxy.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/starVLA/model/modules/flow_posttraining/rollout_contract.py",
+    "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/tools/st_world_policy/diagnose_road_direction.py"
+  ],
+  "scope": "Actual CLI prepare/help/refusal, imports permitted; no actual scene data or scoring"
+}
