@@ -1,0 +1,94 @@
+{
+  "status": "COMPLETE_LOCKED_ACTION_UNIT_COMPARISON",
+  "upstream_commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "upstream_dataset_sha256": "c7e746f8fad459790a9af21a0cd7cee7411a7ca0ff38088ffcb96cad26dbd836",
+  "DDP_decoder_sha256": "2298b6fd8d4d9e8bb8dcbe41b04f9cc2e9685f57ba69d07c459317dc5872ada6",
+  "source_sha256": "43de2370d496a3aa9463a5d58a02a397a71d8d78846ff134bd6daa30ee960db5",
+  "active_source_normalization": {
+    "trajectory_mode": "absolute",
+    "normalize_action": true
+  },
+  "DDP_XY_meters_per_normalized_unit": [
+    8.805105000000001,
+    2.277741
+  ],
+  "source_XY_meters_per_normalized_unit": [
+    33.370000000000005,
+    21.0
+  ],
+  "DDP_anchor": {
+    "coefficients_before_common_beta_and_HD_denominator": [
+      0.002579650778776924,
+      0.19274863954948152
+    ],
+    "lateral_to_longitudinal_penalty_ratio": 74.71888874852603
+  },
+  "source_anchor": {
+    "coefficients_before_common_beta_and_HD_denominator": [
+      0.0001796046524429959,
+      0.0022675736961451248
+    ],
+    "lateral_to_longitudinal_penalty_ratio": 12.62536167800454
+  },
+  "random_steps": [
+    {
+      "step": 7,
+      "sigma": 0.6818181762695312,
+      "delta_sigma": -0.1262626051902771,
+      "normalized_std": 0.052015643655313165,
+      "DDP_direct_XY_innovation_std_meters": [
+        0.4580032040276163,
+        0.11847816419509666
+      ],
+      "source_direct_XY_innovation_std_meters": [
+        1.7357620287778006,
+        1.0923285167615764
+      ],
+      "mean_anchor_velocity_squared_coefficient": 0.01610206761478694
+    },
+    {
+      "step": 8,
+      "sigma": 0.5555556030273437,
+      "delta_sigma": -0.1984127163887024,
+      "normalized_std": 0.04980119909897785,
+      "DDP_direct_XY_innovation_std_meters": [
+        0.43850478719240543,
+        0.1134342330369049
+      ],
+      "source_direct_XY_innovation_std_meters": [
+        1.6618660139328911,
+        1.0458251810785348
+      ],
+      "mean_anchor_velocity_squared_coefficient": 0.03976226473003308
+    },
+    {
+      "step": 9,
+      "sigma": 0.3571428527832031,
+      "delta_sigma": -0.3571428656578064,
+      "normalized_std": 0.04454354042682547,
+      "DDP_direct_XY_innovation_std_meters": [
+        0.39221055052994314,
+        0.10145864831533787
+      ],
+      "source_direct_XY_innovation_std_meters": [
+        1.4864179440431662,
+        0.9354143489633349
+      ],
+      "mean_anchor_velocity_squared_coefficient": 0.12882973344654491
+    }
+  ],
+  "DDP_vs_source_physical_penalty_per_meter_ratio": [
+    14.362939621487087,
+    85.00215004132134
+  ],
+  "new_inference": 0,
+  "new_scoring": 0,
+  "optimizer_updates": 0,
+  "limits": [
+    "Direct Gaussian XY innovation is before existing simulation/tracking; no collision probability interpretation.",
+    "Intermediate latent mean anchor is not final ODE physical trajectory KL or safety guarantee.",
+    "DDP is more anisotropic AND stronger per meter in both XY axes; do not claim its absolute x anchor is weaker than source.",
+    "Heading angle vs sine/cosine pair is not equated by this XY-only comparison.",
+    "Unit mismatch is real, but does not alone prove the cause of RL failure."
+  ]
+}
