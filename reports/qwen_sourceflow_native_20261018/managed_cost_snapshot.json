@@ -1,0 +1,120 @@
+{
+  "schema": "native_managed_invocation_cost_subset_v1",
+  "observed_unix": 1792345220.9678283,
+  "invocations": [
+    {
+      "invocation": "RL_merge_v1",
+      "host": "training-vla-zt",
+      "GPU_count": 0,
+      "source": "d6fda61152d5139af26306dfb49415e5277f11b7",
+      "module": "scripts.analysis.qwen_sourceflow.export_policy",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 107.46568489074707,
+      "worker_device_occupancy_seconds": 0.0
+    },
+    {
+      "invocation": "RL_merged_deploy_v1",
+      "host": "training-vla-zt",
+      "GPU_count": 1,
+      "source": "d6fda61152d5139af26306dfb49415e5277f11b7",
+      "module": "scripts.analysis.qwen_sourceflow.validate_rl_deployment",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 184.89670276641846,
+      "worker_device_occupancy_seconds": 184.89670276641846
+    },
+    {
+      "invocation": "deployment_v3",
+      "host": "training-vla-zt",
+      "GPU_count": 1,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.validate_deployment",
+      "status": "FAILED",
+      "wall_seconds": 226.86537861824036,
+      "worker_device_occupancy_seconds": 226.86537861824036
+    },
+    {
+      "invocation": "deployment_v4",
+      "host": "training-vla-zt",
+      "GPU_count": 1,
+      "source": "23e49eeb6154a7eb49a972277c08135fadd22539",
+      "module": "scripts.analysis.qwen_sourceflow.validate_deployment",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 178.6593189239502,
+      "worker_device_occupancy_seconds": 178.6593189239502
+    },
+    {
+      "invocation": "evaluation_TRAIN2_v3",
+      "host": "training-rl-zt2",
+      "GPU_count": 1,
+      "source": "f28b98274f7fe6a27455b2a2425dfc11d7e103c9",
+      "module": "scripts.analysis.qwen_sourceflow.evaluate_policy",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 132.35436129570007,
+      "worker_device_occupancy_seconds": 132.35436129570007
+    },
+    {
+      "invocation": "native_failure_before_finalize",
+      "host": "training-rl-zt2",
+      "GPU_count": 2,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "UNFINISHED_NOT_YET_CHARGED"
+    },
+    {
+      "invocation": "native_rl_source_v4",
+      "host": "training-vlawm-tsinghua-zt6",
+      "GPU_count": 8,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 137.58969354629517,
+      "worker_device_occupancy_seconds": 1100.7175483703613
+    },
+    {
+      "invocation": "native_rl_v3",
+      "host": "training-vlawm-tsinghua-zt6",
+      "GPU_count": 8,
+      "source": "f28b98274f7fe6a27455b2a2425dfc11d7e103c9",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "FAILED",
+      "wall_seconds": 123.22655725479126,
+      "worker_device_occupancy_seconds": 985.8124580383301
+    },
+    {
+      "invocation": "native_rl_v4",
+      "host": "training-vlawm-tsinghua-zt6",
+      "GPU_count": 8,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 140.88447546958923,
+      "worker_device_occupancy_seconds": 1127.0758037567139
+    },
+    {
+      "invocation": "native_rl_v4_continuous",
+      "host": "training-vlawm-tsinghua-zt4",
+      "GPU_count": 8,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 143.4300355911255,
+      "worker_device_occupancy_seconds": 1147.440284729004
+    },
+    {
+      "invocation": "native_rl_v4_resume",
+      "host": "training-vlawm-tsinghua-zt6",
+      "GPU_count": 8,
+      "source": "d4d0012769540af8378e013c072d6d8053d9f275",
+      "module": "scripts.analysis.qwen_sourceflow.train_rl",
+      "status": "PROCESS_COMPLETE",
+      "wall_seconds": 130.09049344062805,
+      "worker_device_occupancy_seconds": 1040.7239475250244
+    }
+  ],
+  "completed_worker_wall_seconds": 1505.4627017974854,
+  "completed_worker_device_occupancy_seconds": 6124.545804023743,
+  "failed_worker_wall_seconds": 350.0919358730316,
+  "coverage": "Only native job_worker receipts, including failed loads/qualification. Not the total campaign cost.",
+  "excluded": "Earlier direct launch qualifications, initialization download/conversion, formal IL running, and incomplete invocations; inspect their separate original receipts/profile. Do not assume zero.",
+  "semantics": "Worker occupancy may share a GPU; not exclusive GPU compute. Summing workers is not end-to-end job wall."
+}

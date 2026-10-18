@@ -4,6 +4,10 @@ from pathlib import Path
 
 
 def invocation_cost(run, *, done, latest_wall=None, latest_invocation=None):
+    identity_path=Path(run)/'identity.json'
+    identity=json.loads(identity_path.read_text()) if identity_path.exists() else {}
+    planned=identity.get('recipe',{}).get('max_steps')
+    qualification=str(identity.get('purpose','')).startswith('qualification')
     rows=[json.loads(p.read_text()) for p in sorted((Path(run)/'invocations').glob('*/rank*.json'))]
     if not rows:
         return dict(schema=3,provenance='legacy rank summaries; no invocation ledger',
@@ -38,7 +42,9 @@ def invocation_cost(run, *, done, latest_wall=None, latest_invocation=None):
         invocation_start_update=last['start_update'],invocation_effective_updates=delta,
         invocation_updates_per_second=rate,
         rate_basis=rate_basis,rate_window_seconds=wall if rate else None,
-        linear_remaining_training_hours=(20000-done)/rate/3600 if rate and last['status']!='ABORTED' else None,
+        planned_optimizer_updates=planned,
+        linear_remaining_training_hours=max(0,planned-done)/rate/3600
+            if rate and planned is not None and not qualification and last['status']!='ABORTED' else None,
         cumulative_worker_wall_seconds=sum(elapsed(r) for r in rows),
         invocation_worker_wall_seconds=sum(worker_wall(r) for r in rows),
         preparation_worker_wall_seconds_observed=sum(r.get('preparation_seconds',0) for r in rows),
