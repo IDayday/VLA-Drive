@@ -1,0 +1,7 @@
+Resource admission supports one correctedv2 invocation at0388faff. Exact differences are new output/source pins and the deterministic cuBLAS environment set before child Python. The original4b2f monitor,320GiB sampled rchar,96GiB RSS,1800+40s,15MiB results+1MiB controls,ownership cleanup and accounting remain unchanged. Model/checkpoint/input bindings matchv1. No helper/model payload or review pipeline was rerun.
+
+Fresh01:45:07 host evidence binds tsinghua-zt2 GPU0 with the same exact UUID,81153MiB free,CPUs2/3 and sufficient host RAM. The controller repeats placement and lease checks. The retained2703GiB CP snapshot covers the full window; no new checkpoint allocation or release is made. Supporting CP/policy evidence remains independent of the controller, as before.
+
+Keep the failedv1 16MiB and89,829,602,285B read cost. Add16MiB forv2:7920/8192MiB,272MiB spare before full history. If the separate explicit10GiB amendment and2176MiB history build proceed, total10096MiB leaves144MiB. New320GiB is an explicit per-invocation ceiling; cumulative failedactual+newcap433,426,985,965B is retained.
+
+This is resource admission only. The separate independent correctness review is pinned in REVIEW.json. The old primary inference exception remains unknown; a tiny CUDA check does not prove the full corrected diagnostic. No automatic retry, source or ledger mutation, model call, GPU query,SSH or dispatch was performed by this reviewer.
