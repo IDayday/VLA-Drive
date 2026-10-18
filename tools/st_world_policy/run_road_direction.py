@@ -1,4 +1,4 @@
-"""Fixed32 CPU road-direction diagnostic. No model load, training, or retry.
+"""CPU road-direction diagnostic: original fixed32 or explicitly bound failures.
 
 Prepare emits a reviewable immutable registration. Execute requires an exact
 Lead admission plus independently authored correctness/resource approvals bound
@@ -34,15 +34,21 @@ from starVLA.model.modules.st_world.consequence import (
 
 SCHEMA = 'road_direction_execution_v1'
 FILES = ('tools/st_world_policy/run_road_direction.py',
+         'tools/st_world_policy/road_failure_selection.py',
          'tools/st_world_policy/diagnose_road_direction.py',
          'tools/st_world_policy/consequence_smoke.py',
          'starVLA/model/modules/flow_posttraining/road_margin_proxy.py',
+         'starVLA/model/modules/flow_posttraining/rollout_contract.py',
          'starVLA/model/modules/st_world/consequence.py',
          'starVLA/dataloader/foresight_dataset.py')
 LIMITS = {'wall_seconds':1800,'rss_and_address_space_bytes':8*2**30,
           'output_bytes':2**30,'asset_read_bytes':256*2**20,
           'read_rate_bytes_per_second':32*2**20,'cache_expanded_bytes':64*2**20,
           'max_official_calls':128,'workers':1,'threads':1,'scenes':32,'variants':4}
+FAILURE_LIMITS = {**LIMITS, 'max_official_calls':96}
+BINDING_LIMITS = {**LIMITS, 'wall_seconds':600, 'rss_and_address_space_bytes':2*2**30,
+                  'output_bytes':16*2**20, 'asset_read_bytes':512*2**20,
+                  'cpu_seconds':120, 'max_official_calls':0, 'workers':1, 'threads':1}
 DECODE_GATE = {'raw_dtype':'float32_exact_widening','xy':'constant_rounding_plus_half_ULP_product_and_sum_plus_float64_roundoff',
               'yaw_periodic_tolerance_rad':8*2**-23,'yaw_tolerance_is_not_gpu_error_theorem':True}
 VARIANTS = ('original','negative','positive','random')
@@ -85,11 +91,14 @@ def require_geometry_parity(audit):
 class Budget:
     def __init__(self, root, limits=LIMITS):
         self.root=Path(root);self.limits=limits;self.started=time.monotonic()
+        cpu=resource.getrusage(resource.RUSAGE_SELF);self.cpu_started=cpu.ru_utime+cpu.ru_stime
         self.read_bytes=0;self.reads=[];self.verified_stats={}
     def check(self):
         if time.monotonic()-self.started>self.limits['wall_seconds']:raise LimitError('WALL_CAP')
         if resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024>self.limits['rss_and_address_space_bytes']:
             raise LimitError('RSS_CAP')
+        cpu=resource.getrusage(resource.RUSAGE_SELF)
+        if cpu.ru_utime+cpu.ru_stime-self.cpu_started>self.limits.get('cpu_seconds',math.inf):raise LimitError('CPU_CAP')
     def read(self,path,digest,maximum=None):
         self.check();p=Path(path);before=p.stat();size=before.st_size
         if size>(maximum or self.limits['asset_read_bytes']) or self.read_bytes+size>self.limits['asset_read_bytes']:
@@ -119,7 +128,8 @@ class Budget:
         atomic_json(p,value)
     def report(self):
         return {'elapsed_seconds':time.monotonic()-self.started,'logical_asset_bytes':self.read_bytes,
-                'asset_reads':self.reads,'max_rss_bytes':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024}
+                'asset_reads':self.reads,'max_rss_bytes':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
+                'cpu_seconds':resource.getrusage(resource.RUSAGE_SELF).ru_utime+resource.getrusage(resource.RUSAGE_SELF).ru_stime-self.cpu_started}
 
 
 def bounded_unpack(compressed,maximum):
@@ -176,12 +186,27 @@ class VerifiedContextEngine(ConsequenceEngine):
         return super().load_context(request)
 
 
-def registration(evidence_path,output_root):
-    preparation=prepare_evidence(evidence_path)
-    return {'schema':SCHEMA,'status':'REGISTERED_NOT_EXECUTED','evidence':preparation['evidence'],
+def registration(evidence_path,output_root,selection_mode='fixed32_v1'):
+    if selection_mode == 'failure_cohort_v1':
+        from tools.st_world_policy.road_failure_selection import prepare, EXECUTION_SCHEMA
+        preparation=prepare(evidence_path); schema=EXECUTION_SCHEMA;limits=FAILURE_LIMITS
+    elif selection_mode == 'fixed32_v1':
+        preparation=prepare_evidence(evidence_path);schema=SCHEMA;limits=LIMITS
+    else:raise ValueError('Unsupported explicit selection mode')
+    result={'schema':schema,'status':'REGISTERED_NOT_EXECUTED','evidence':preparation['evidence'],
             'selection_hash':preparation['selection_hash'],'source_hashes':source_hashes(),'source_commit':source_commit(),
-            'limits':LIMITS,'decode_gate':DECODE_GATE,'output_root':str(Path(output_root).resolve()),
+            'limits':limits,'decode_gate':DECODE_GATE,'output_root':str(Path(output_root).resolve()),
             'fixed_original_DAC':preparation['existing_DAC'],'dispatch_authorized':False}
+    if selection_mode == 'failure_cohort_v1':
+        result.update(selection_mode=selection_mode,requested_scenes=preparation['scene_count'])
+    return result
+
+
+def execution_limits(reg):
+    from tools.st_world_policy.road_failure_selection import EXECUTION_SCHEMA
+    if reg['schema'] == SCHEMA and reg.get('selection_mode','fixed32_v1')=='fixed32_v1':return LIMITS
+    if reg['schema'] == EXECUTION_SCHEMA and reg.get('selection_mode') == 'failure_cohort_v1':return FAILURE_LIMITS
+    raise ValueError('Unknown execution schema or implicit failure selection')
 
 
 def check_admission(reg_path,admission_path,admission_hash):
@@ -189,14 +214,20 @@ def check_admission(reg_path,admission_path,admission_hash):
     if sha(admission_data)!=admission_hash:raise ValueError('Lead admission checksum mismatch')
     admission=json.loads(admission_data)
     if reg.get('source_commit')!=source_commit():raise ValueError('Execution worktree commit differs from registration')
-    if reg['schema']!=SCHEMA or reg['limits']!=LIMITS or reg['decode_gate']!=DECODE_GATE or reg['source_hashes']!=source_hashes():
+    limits=execution_limits(reg)
+    if reg['limits']!=limits or reg['decode_gate']!=DECODE_GATE or reg['source_hashes']!=source_hashes():
         raise ValueError('Registration code or constants changed')
+    if reg.get('selection_mode') == 'failure_cohort_v1':
+        from tools.st_world_policy.road_failure_selection import prepare
+        preparation=prepare(reg['evidence']['path'])
+        if (preparation['evidence']!=reg['evidence'] or preparation['selection_hash']!=reg['selection_hash']
+                or preparation['scene_count']!=reg['requested_scenes']):raise ValueError('Failure selection changed')
     reg_hash=sha(Path(reg_path).read_bytes())
     if admission.get('schema')!='road_direction_lead_admission_v1' or admission.get('status')!='APPROVED':raise ValueError('No Lead execution admission')
     if admission.get('registration_sha256')!=reg_hash or admission.get('source_hashes')!=reg['source_hashes']:raise ValueError('Admission binding mismatch')
     if admission.get('host')!=socket.gethostname() or not admission['not_before_unix']<=time.time()<admission['expires_unix']:
         raise ValueError('Admission host/window mismatch')
-    if admission['expires_unix']-time.time()<LIMITS['wall_seconds']:raise ValueError('Insufficient admitted wall window')
+    if admission['expires_unix']-time.time()<limits['wall_seconds']:raise ValueError('Insufficient admitted wall window')
     policy_path=Path(admission['dispatch_policy']['path']);policy_raw=policy_path.read_bytes()
     if sha(policy_raw)!=admission['dispatch_policy']['sha256']:raise ValueError('Dispatch policy changed')
     policy=json.loads(policy_raw)
@@ -215,6 +246,9 @@ def check_admission(reg_path,admission_path,admission_hash):
 
 
 def load_inputs(evidence,budget):
+    if evidence.get('schema') == 'road_failure_direction_selection_v1':
+        from tools.st_world_policy.road_failure_selection import load_inputs as load_failure_inputs
+        return load_failure_inputs(evidence,budget)
     import torch
     entries={r['path']:r for r in evidence['budget']['entries']}
     def read(path):
@@ -261,6 +295,27 @@ def load_inputs(evidence,budget):
             raise ValueError('Invalid original canonical labels')
         loaded.append((item,raw,request,record))
     return loaded
+
+
+def charge_official_call(root,item,identity,budget,limits,*,failure_mode=False):
+    calls=sorted((root/'calls').glob('*.json')) if (root/'calls').exists() else []
+    if len(calls)>=limits['max_official_calls']:raise LimitError('OFFICIAL_CALL_CAP')
+    if failure_mode:
+        permitted={item['candidate_id']+':road_direction_v1:'+name for name in VARIANTS[1:]}
+        saved=[small_json(path) for path in calls]
+        own=[row for row in saved if row['scene_id']==item['scene_id']]
+        if (identity['candidate_id'] not in permitted or len(own)>=3
+                or any(row['identity']['candidate_id']==identity['candidate_id'] for row in own)):
+            raise LimitError('PER_SCENE_THREE_NEW_VARIANTS_NO_RETRY_CAP')
+    budget.check()
+    budget.write(root/'calls'/f'{len(calls):03d}.json',{'identity':identity,
+        'scene_id':item['scene_id'],'charged_before_call':True,'attempted_unix':time.time()})
+
+
+def require_repairable_native_t0(record):
+    from tools.st_world_policy.road_failure_selection import native_t0
+    from starVLA.model.modules.flow_posttraining.road_margin_proxy import DiagnosticUndefined
+    if native_t0(record):raise DiagnosticUndefined('IRREPARABLE_NATIVE_ROAD_FAILURE_AT_T0')
 
 
 def command_geometry_audit(physical,initial_state,action_sampling,sampling,vehicle):
@@ -356,14 +411,17 @@ def run_worker(reg,admission):
     from starVLA.model.modules.flow_posttraining.road_margin_proxy import (
         DiagnosticUndefined,direction_variants,score_diagnostic_variants)
     torch.set_num_threads(1);torch.set_num_interop_threads(1)
-    root=Path(reg['output_root']);budget=Budget(root)
+    root=Path(reg['output_root']);limits=execution_limits(reg);budget=Budget(root,limits)
+    failure_mode=reg.get('selection_mode')=='failure_cohort_v1'
     def stop(signum,frame):raise LimitError('SIGNAL_OR_DEADLINE: '+str(signum))
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGALRM,stop)
-    signal.alarm(LIMITS['wall_seconds']-20)
-    resource.setrlimit(resource.RLIMIT_AS,(LIMITS['rss_and_address_space_bytes'],)*2)
+    signal.alarm(limits['wall_seconds']-20)
+    resource.setrlimit(resource.RLIMIT_AS,(limits['rss_and_address_space_bytes'],)*2)
     outcome={'status':'PARTIAL','error':None}
     try:
-        evidence=json.loads(budget.read(reg['evidence']['path'],reg['evidence']['sha256'],256*1024))
+        evidence=json.loads(budget.read(reg['evidence']['path'],reg['evidence']['sha256'],2*2**20 if failure_mode else 256*1024))
+        if (evidence.get('schema')=='road_failure_direction_selection_v1')!=failure_mode:
+            raise ValueError('Failure selection requires its explicit versioned execution schema')
         for source in evidence['sources']:budget.read(source['path'],source['sha256'],2*2**20)
         loaded=load_inputs(evidence,budget)
         first=loaded[0][2]
@@ -385,8 +443,10 @@ def run_worker(reg,admission):
                 'original_metrics':record['metrics'],'original_physical':record['requested_trajectory'],
                 'original_raw':raw.tolist(),'variants':{n:'PENDING' for n in VARIANTS}})
             try:
+                if failure_mode:
+                    require_repairable_native_t0(record)
                 compressed=budget.read(request.metric_cache_path,request.metric_cache_sha256,64*2**20)
-                cache=bounded_unpack(compressed,LIMITS['cache_expanded_bytes']);del compressed
+                cache=bounded_unpack(compressed,limits['cache_expanded_bytes']);del compressed
                 engine.bind(request,cache,budget.verified_stats[str(Path(request.metric_cache_path).resolve())]);budget.check()
                 obj,audit=parity_and_objective(raw,request,cache,engine);budget.check()
                 budget.write(scene/'NUMERICAL_PARITY.json',audit)
@@ -397,10 +457,7 @@ def run_worker(reg,admission):
                         for k,v in row.items()} for n,row in directions['variants'].items()}})
                 budget.write(scene/'DIRECTIONS.json',values)
                 def charge(identity):
-                    budget.check();calls=sorted((root/'calls').glob('*.json')) if (root/'calls').exists() else []
-                    if len(calls)>=LIMITS['max_official_calls']:raise LimitError('OFFICIAL_CALL_CAP')
-                    budget.write(root/'calls'/f'{len(calls):03d}.json',{'identity':identity,
-                        'scene_id':item['scene_id'],'charged_before_call':True,'attempted_unix':time.time()})
+                    charge_official_call(root,item,identity,budget,limits,failure_mode=failure_mode)
                 def save(value):
                     if value['record'].get('valid'):
                         value['tracking_and_kinematics']=tracking_diagnostics(
@@ -446,22 +503,58 @@ def summarize(root,evidence,supervisor):
         rows.append(row)
     complete=[r for r in rows if r['status']=='COMPLETE']
     calls=len(list((root/'calls').glob('*.json'))) if (root/'calls').exists() else 0
-    result={'schema':SCHEMA,'requested_scenes':32,'complete_scenes':len(complete),
-            'unresolved_or_undefined_scenes':32-len(complete),'charged_official_calls':calls,
-            'status':'COMPLETE_DIAGNOSTIC_NOT_SCIENTIFIC_PASS' if len(complete)==32 else 'PARTIAL_OR_UNDEFINED',
-            'all_original_DAC_equal_1':True,'road_repair_denominator':0,
-            'selection_hash':evidence['selection_sha256_before_scores'],'supervisor':supervisor,'scenes':rows}
+    failure_mode=evidence.get('schema')=='road_failure_direction_selection_v1'
+    from tools.st_world_policy.road_failure_selection import EXECUTION_SCHEMA
+    requested=len(evidence['selected'])
+    originals={item['scene_id']:item['failed']['metrics'] for item in evidence['selected']} if failure_mode else {
+        row['scene_id']:row['original_metrics'] for row in rows if 'original_metrics' in row}
+    # Legacy fixture metadata can omit labels. Unknown originals are explicitly
+    # distinct from zero failures; real legacy preparation still binds DAC=1.
+    original_dac=[value['drivable_area_compliance'] for value in originals.values()]
+    failed=sum(value<1.0 for value in original_dac)
+    result={'schema':EXECUTION_SCHEMA if failure_mode else SCHEMA,
+            'requested_scenes':requested,'complete_scenes':len(complete),
+            'unresolved_or_undefined_scenes':requested-len(complete),'charged_official_calls':calls,
+            'status':'COMPLETE_DIAGNOSTIC_NOT_SCIENTIFIC_PASS' if len(complete)==requested else 'PARTIAL_OR_UNDEFINED',
+            'all_original_DAC_equal_1':len(original_dac)==requested and all(v==1. for v in original_dac),
+            'original_DAC_labels_known':len(original_dac),'road_repair_denominator':failed,
+            'selection_hash':evidence['selection_sha256_before_proxy'] if failure_mode else evidence['selection_sha256_before_scores'],
+            'supervisor':supervisor,'scenes':rows}
+    if failure_mode:
+        for row in rows:
+            if 'original_metrics' in row and row['original_metrics']!=originals[row['scene_id']]:
+                raise ValueError('Summary original labels differ from frozen selection')
+        result.update(original_DAC_failure_scenes=failed,
+            eligible_original_DAC_failures=sum(not item['failed']['native_t0'] for item in evidence['selected']),
+            original_t0_failure_scenes=sum(item['failed']['native_t0'] for item in evidence['selected']),
+            population_summary_complete=len(complete)==requested,
+            requested_original_compliant_denominators={metric:sum(row[metric]==1. for row in originals.values())
+                for metric in ('no_at_fault_collisions','drivable_area_compliance',
+                               'time_to_collision_within_bound','comfort')})
+        repair={}
+        for name in VARIANTS:
+            valid=[row for row in complete if originals[row['scene_id']]['drivable_area_compliance']<1]
+            repaired=sum(row['variants'][name]['metrics']['drivable_area_compliance']==1 for row in valid)
+            repair[name]={'requested_original_failure_denominator':failed,
+                'common_valid_original_failure_denominator':len(valid), 'repaired_DAC_scenes':repaired,
+                'unresolved_original_failures':failed-len(valid),
+                'repair_rate_valid_subset':repaired/len(valid) if valid else None,
+                'known_repairs_over_requested_lower_bound':repaired/failed if failed else None}
+        result['DAC_repair']=repair
     if complete:
         contrast={}
         for comparator in ('positive','random'):
             diffs=[r['variants']['negative']['geometry']['custom_executed_cost_m']-
                    r['variants'][comparator]['geometry']['custom_executed_cost_m'] for r in complete]
             contrast['negative_minus_'+comparator]={'mean_custom_executed_cost_difference_m':sum(diffs)/len(diffs),
-                                                   'common_valid_scenes':len(diffs)}
+                'common_valid_scenes':len(diffs),'negative_lower_cost_scenes':sum(v<0 for v in diffs),
+                'equal_cost_scenes':sum(v==0 for v in diffs),'negative_higher_cost_scenes':sum(v>0 for v in diffs)}
         result['valid_subset_only_direction_contrasts']=contrast
         risk={}
         for name in VARIANTS:
             risk[name]={'valid_scenes':len(complete),'mean_official_score_valid_subset':sum(r['variants'][name]['metrics']['score'] for r in complete)/len(complete),
+                'original_compliant_denominators_valid_subset':{metric:sum(r['original_metrics'][metric]==1. for r in complete)
+                    for metric in ('no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound','comfort')},
                 'new_DAC_failures':sum(r['variants'][name]['metrics']['drivable_area_compliance']<1 and r['original_metrics']['drivable_area_compliance']==1 for r in complete),
                 'new_NC_failures':sum(r['variants'][name]['metrics']['no_at_fault_collisions']<1 and r['original_metrics']['no_at_fault_collisions']==1 for r in complete),
                 'high_to_zero':sum(r['original_metrics']['score']>=.8 and r['variants'][name]['metrics']['score']<=1e-8 for r in complete),
@@ -482,6 +575,7 @@ def _child_entry(reg_path,admission_path,admission_hash,log_path):
 def supervise(reg_path,admission_path,admission_hash,resume):
     import multiprocessing
     reg,admission=check_admission(reg_path,admission_path,admission_hash)
+    limits=execution_limits(reg) if 'schema' in reg else LIMITS
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='' or any(os.environ.get(k)!='1' for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS')):
         raise ValueError('CPU-only CUDA hidden and all numerical threads=1 required')
     root=Path(reg['output_root']);root.mkdir(parents=True,exist_ok=True)
@@ -498,6 +592,8 @@ def supervise(reg_path,admission_path,admission_hash,resume):
         raw=Path(reg['evidence']['path']).read_bytes()
         if sha(raw)!=reg['evidence']['sha256']:raise ValueError('Evidence changed')
         evidence=json.loads(raw)
+        if (evidence.get('schema')=='road_failure_direction_selection_v1')!=(reg.get('selection_mode')=='failure_cohort_v1'):
+            raise ValueError('Failure selection requires its explicit versioned execution schema')
         start=time.monotonic();why=None;peak=0
         log_path=root/('WORKER_'+str(admission['attempt_id'])+'.log')
         child=multiprocessing.get_context('spawn').Process(target=_child_entry,
@@ -522,9 +618,9 @@ def supervise(reg_path,admission_path,admission_hash,resume):
                     except (FileNotFoundError,ProcessLookupError,StopIteration):pass
                 peak=max(peak,rss)
                 output=owned_output_bytes(root)
-                if elapsed>=LIMITS['wall_seconds']-20:why='WALL_CAP'
-                elif rss>LIMITS['rss_and_address_space_bytes']:why='AGGREGATE_RSS_CAP'
-                elif output>LIMITS['output_bytes']-2*2**20:why='OUTPUT_CAP'
+                if elapsed>=limits['wall_seconds']-20:why='WALL_CAP'
+                elif rss>limits['rss_and_address_space_bytes']:why='AGGREGATE_RSS_CAP'
+                elif output>limits['output_bytes']-2*2**20:why='OUTPUT_CAP'
                 if why:break
                 time.sleep(.2)
         except BaseException as error:
@@ -558,37 +654,99 @@ def supervise(reg_path,admission_path,admission_hash,resume):
                   'monitor_error':monitor_error,'cleanup_error':cleanup_error,'attempt_id':admission['attempt_id']}
             try:result=summarize(root,evidence,info)
             except BaseException as error:
-                result={'schema':SCHEMA,'requested_scenes':32,'complete_scenes':0,
-                    'unresolved_or_undefined_scenes':32,'status':'PARTIAL_SUMMARY_ERROR',
+                requested=len(evidence['selected'])
+                result={'schema':reg.get('schema',SCHEMA),'requested_scenes':requested,'complete_scenes':0,
+                    'unresolved_or_undefined_scenes':requested,'status':'PARTIAL_SUMMARY_ERROR',
                     'charged_official_calls':None,'supervisor':info,'summary_error':repr(error),
                     'scenes':[{'scene_id':item['scene_id'],'status':'UNRESOLVED_SUMMARY_FAILURE'} for item in evidence['selected']]}
             atomic_json(root/('RESULT_'+str(admission['attempt_id'])+'.json'),result)
             print(json.dumps({'status':result['status'],'complete_scenes':result['complete_scenes'],
                               'charged_official_calls':result['charged_official_calls'],'output_root':str(root)}))
-            return 0 if result['complete_scenes']==32 and child.exitcode==0 and exit_confirmed and why is None else 2
+            return 0 if result['complete_scenes']==len(evidence['selected']) and child.exitcode==0 and exit_confirmed and why is None else 2
         finally:
             for sig,handler in previous_handlers.items():signal.signal(sig,handler)
+
+
+def bind_failure_selection(frame_path,frame_hash,evidence_path,output):
+    """Explicit, bounded CPU preparation; never create an execution admission."""
+    if os.environ.get('CUDA_VISIBLE_DEVICES')!='' or any(os.environ.get(k)!='1' for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS')):
+        raise ValueError('Binding requires CUDA hidden and numerical threads=1')
+    output=Path(output)
+    if output.exists():raise ValueError('Selection output already exists; preserve original binding')
+    output.parent.mkdir(parents=True,exist_ok=True)
+    report_path=output.with_name(output.stem+'_BINDING_REPORT.json')
+    if report_path.exists():raise ValueError('Binding receipt already exists; use an explicit new attempt path')
+    budget=Budget(output.parent,BINDING_LIMITS)
+    allowed=sorted(os.sched_getaffinity(0));os.sched_setaffinity(0,set(allowed[:2]))
+    original_alarm=signal.getsignal(signal.SIGALRM)
+    original_cpu_handler=signal.getsignal(signal.SIGXCPU);original_cpu_limit=resource.getrlimit(resource.RLIMIT_CPU)
+    def expired(signum,frame):raise LimitError('BINDING_WALL_CAP')
+    signal.signal(signal.SIGALRM,expired);signal.alarm(BINDING_LIMITS['wall_seconds'])
+    def cpu_expired(signum,frame):raise LimitError('BINDING_CPU_CAP')
+    signal.signal(signal.SIGXCPU,cpu_expired)
+    current_cpu=resource.getrusage(resource.RUSAGE_SELF)
+    soft_cpu=math.floor(current_cpu.ru_utime+current_cpu.ru_stime+BINDING_LIMITS['cpu_seconds'])
+    if original_cpu_limit[0]!=resource.RLIM_INFINITY:soft_cpu=min(soft_cpu,original_cpu_limit[0])
+    resource.setrlimit(resource.RLIMIT_CPU,(soft_cpu,original_cpu_limit[1]))
+    result={'schema':'road_failure_selection_binding_receipt_v1','status':'FAILED_CLOSED',
+        'frame':{'path':str(Path(frame_path).resolve()),'sha256':frame_hash},
+        'limits':BINDING_LIMITS,'training_updates':0,'new_official_calls':0,'proxy_calls':0}
+    try:
+        import torch
+        from tools.st_world_policy.road_failure_selection import bind_frame,execution_read_plan
+        torch.set_num_threads(1);torch.set_num_interop_threads(1)
+        value,audit=bind_frame(frame_path,frame_hash,evidence_path,budget,decode_discrepancy_gate)
+        audit['execution_read_plan']=execution_read_plan(value)
+        if audit['execution_read_plan']['total_worker_asset_bytes']>FAILURE_LIMITS['asset_read_bytes']:
+            raise LimitError('EXECUTION_READ_PLAN_EXCEEDS_UNCHANGED_256MiB_CAP')
+        budget.write(output,value);budget.check()
+        result.update(status='BOUND_BEFORE_PROXY_NOT_EXECUTION_APPROVAL',audit=audit,
+            selection={'path':str(output.resolve()),'sha256':sha(output.read_bytes())})
+    except (ValueError,TypeError,KeyError,OSError,RuntimeError,MemoryError) as error:
+        result.update(error_type=type(error).__name__,error=str(error))
+    finally:
+        signal.alarm(0);signal.signal(signal.SIGALRM,original_alarm)
+        resource.setrlimit(resource.RLIMIT_CPU,original_cpu_limit);signal.signal(signal.SIGXCPU,original_cpu_handler)
+        result['resources']=budget.report();result['cpu_affinity']=sorted(os.sched_getaffinity(0))
+        result['population']={'requested_scene_ids':getattr(budget,'binding_requested_scene_ids',[]),
+            'bound_scene_ids':getattr(budget,'binding_bound_scene_ids',[]),
+            'last_active_scene_id':getattr(budget,'binding_active_scene_id',None),'replacement_scenes':0}
+        os.sched_setaffinity(0,set(allowed))
+        atomic_json(report_path,result)
+    print(json.dumps({'status':result['status'],'report':str(report_path),'new_official_calls':0,'proxy_calls':0}))
+    return 0 if result['status']=='BOUND_BEFORE_PROXY_NOT_EXECUTION_APPROVAL' else 2
 
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     mode=parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--prepare',action='store_true');mode.add_argument('--execute',action='store_true')
+    mode.add_argument('--bind-failure-selection',action='store_true',help='Read only the frozen original C1 TRAIN frame and bind its exact candidates; no proxy/scoring')
     parser.add_argument('--evidence',type=Path,default=EVIDENCE)
-    parser.add_argument('--registration',type=Path,required=True)
+    parser.add_argument('--registration',type=Path)
+    parser.add_argument('--selection-mode',choices=('fixed32_v1','failure_cohort_v1'),default='fixed32_v1')
+    parser.add_argument('--frame',type=Path);parser.add_argument('--frame-sha256')
+    parser.add_argument('--selection-output',type=Path,help='New immutable bound-selection JSON; binding mode only')
     parser.add_argument('--output-root',type=Path,help='Required by prepare; cannot change at execute')
     parser.add_argument('--admission',type=Path);parser.add_argument('--admission-sha256')
     parser.add_argument('--resume',action='store_true',help='Continue untouched scenes only, never retry an admitted/partial scene')
     args=parser.parse_args(argv)
     try:
+        if args.bind_failure_selection:
+            if (not args.frame or not args.frame_sha256 or not args.selection_output
+                    or args.registration or args.output_root or args.admission or args.resume):
+                raise ValueError('Binding needs frame/hash/new selection-output and no execution arguments')
+            return bind_failure_selection(args.frame,args.frame_sha256,args.evidence,args.selection_output)
+        if args.frame or args.frame_sha256 or args.selection_output:raise ValueError('Binding arguments require explicit binding mode')
+        if args.registration is None:raise ValueError('Prepare/execute requires registration')
         if args.prepare:
             if args.output_root is None or args.admission or args.resume:raise ValueError('Prepare requires output root and no admission/resume')
-            value=registration(args.evidence,args.output_root);atomic_json(args.registration,value)
+            value=registration(args.evidence,args.output_root,args.selection_mode);atomic_json(args.registration,value)
             print(json.dumps({'status':value['status'],'registration':str(args.registration),
                               'sha256':sha(args.registration.read_bytes()),'dispatch_authorized':False}));return 0
         if args.output_root or not args.admission or not args.admission_sha256:raise ValueError('Execution needs exact admission hash and registered output root')
         return supervise(args.registration,args.admission,args.admission_sha256,args.resume)
-    except (ValueError,KeyError,OSError,RuntimeError) as error:
+    except (ValueError,TypeError,KeyError,OSError,RuntimeError) as error:
         print(json.dumps({'status':'FAILED_CLOSED','error_type':type(error).__name__,'error':str(error)}),file=sys.stderr)
         return 2
 
