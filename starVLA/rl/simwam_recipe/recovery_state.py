@@ -29,8 +29,10 @@ def tensor_digest(value):
 
 
 def rollout_digest(rollout):
-    return {k: tensor_digest(rollout[k]) for k in
-            ('chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version')}
+    keys = ['chain', 'old_logp', 'advantages', 'adv_mask', 'behavior_version']
+    if rollout.get('cond_bg', {}).get('schema') == 'native_frozen_observation_v1':
+        keys.append('cond_bg')
+    return {k: tensor_digest(rollout[k]) for k in keys}
 
 
 def boundary_phase(state, max_steps):
@@ -71,7 +73,18 @@ def validate_boundary(state, rollout, identity, optimizer=None, scheduler=None, 
                     'advantages', 'adv_mask', 'global_std', 'raw_group_std', 'advantage_statistics')
         missing = set(required) - set(rollout)
         if missing: raise ValueError('Unfinalized rollout: ' + repr(sorted(missing)))
-        shapes = {'chain': (8, 11, 8, 4), 'old_logp': (8, 3), 'rewards': (1, 8),
+        action_dim = 4
+        if identity.get('schema') == 'native_qwen_sourceflow_RL_v1':
+            if cfg['action_shape'] != [8, 3]:
+                raise ValueError('Changed native 3D action contract')
+            descriptor = rollout['cond_bg']
+            if (set(descriptor) != {'schema', 'token', 'identity', 'repeats'} or
+                    descriptor['schema'] != 'native_frozen_observation_v1' or
+                    descriptor['token'] != rollout['token'] or descriptor['repeats'] != 8 or
+                    descriptor['identity'] != identity['projected_condition_identity']):
+                raise ValueError('Native frozen condition ancestry mismatch')
+            action_dim = 3
+        shapes = {'chain': (8, 11, 8, action_dim), 'old_logp': (8, 3), 'rewards': (1, 8),
                   'advantages': (8,), 'adv_mask': (8,)}
         for k, shape in shapes.items():
             t = rollout[k]

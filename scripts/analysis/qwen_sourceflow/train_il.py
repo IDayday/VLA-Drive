@@ -122,6 +122,11 @@ def main():
                     if rank==0:atomic_json(out/'progress.json',dict(state,checkpoint=last_checkpoint,stage=stage,
                         status='COMPLETE' if state['updates']==cfg['max_updates'] else 'STOPPED' if end else 'RUNNING',
                         invocation_start_update=start_update,invocation_wall_seconds=time.monotonic()-started,save_seconds=time.monotonic()-tick))
+                    error=None
+                    try:
+                        if rank==0:il_checkpoint.retain_rolling(out,identity)
+                    except Exception:error=traceback.format_exc()
+                    common.check_errors(error)
                 if end:break
         record.update(status='COMPLETE' if state['updates']==cfg['max_updates'] else 'STOPPED_AT_SAVED_BOUNDARY',
             end_update=state['updates'],checkpoint=last_checkpoint,wall_seconds=time.monotonic()-started,

@@ -38,7 +38,11 @@ def require_dispatch():
 
 def source_files():
     paths = []
-    for root in ['starVLA/model/modules/qwen_sourceflow', 'starVLA/rl/qwen_sourceflow', 'scripts/analysis/qwen_sourceflow']:
+    for root in ['starVLA/model/modules/qwen_sourceflow', 'starVLA/rl/qwen_sourceflow', 'scripts/analysis/qwen_sourceflow',
+                 'starVLA/rl/simwam_recipe', 'starVLA/rl/fm_transfer']:
         paths.extend(Path(root).rglob('*.py'))
-    paths.append(Path('starVLA/model/framework/qwen_sourceflow.py'))
-    return {str(p): file_sha(p) for p in sorted(paths)}
+    paths += [Path(p) for p in ['starVLA/model/framework/qwen_sourceflow.py',
+        'scripts/analysis/simwam_recipe/train.py', 'starVLA/rl/flow_grpo/transactions.py',
+        'starVLA/rl/flow_grpo/reproducibility.py','starVLA/rl/safe_flow_improvement/v1_reward.py',
+        'scripts/analysis/constrained_flow_noise/batched_canonical_score.py']]
+    return {str(p): file_sha(p) for p in sorted(set(paths))}

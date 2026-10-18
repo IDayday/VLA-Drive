@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "checks": [
+    {
+      "scope": "zero_LoRA",
+      "sampling_recompute_mean_std": "exact",
+      "four_inner_ratio_errors": [
+        0.0,
+        0.0035129785537719727,
+        0.006893634796142578,
+        0.008613944053649902
+      ],
+      "changed_parameters": 48,
+      "frozen_reference_and_base": true
+    },
+    {
+      "scope": "nonzero_LoRA",
+      "sampling_recompute_mean_std": "exact",
+      "four_inner_ratio_errors": [
+        0.0,
+        0.0020841360092163086,
+        0.004036545753479004,
+        0.005885124206542969
+      ],
+      "changed_parameters": 48,
+      "frozen_reference_and_base": true
+    }
+  ],
+  "merged_velocity": "PASS",
+  "config_diff": "reward_and_name_only",
+  "anchor": [
+    0.2,
+    1.0,
+    1.0
+  ]
+}

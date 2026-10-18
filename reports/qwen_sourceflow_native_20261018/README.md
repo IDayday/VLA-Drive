@@ -33,3 +33,52 @@ IL：完整TRAIN，seed42，global32，FM repeat1，接口1000计入100k上限�
 RL：共同选定IL，公开SimWAM hard list与TRAIN交集，G8/K10，末三步SDE，LoRA16/32，源概率裁剪/共同std/x-anchor50/三维权重[.2,1,1]、inner4、AdamW5e-5、有效clip0。CANONICAL为5:5:2主线，SOURCE仅改变为10:5:2；各50k终点，不新增seed/课程/噪声头/replay。
 
 主评价固定seed2101、single-candidate shift5 ODE、canonical NAVSIM v1.1；IL/RL使用相同入口。92是研究目标，不是已实现事实。
+
+### 2026-10-18 second implementation checkpoint (not a training result)
+
+Native 3D runtime now connects to the existing source GRPO loop through one
+explicit collection hook. Legacy 8x4 contracts remain strict; a separately named
+native identity admits only 8x3 and checks the frozen-observation descriptor.
+Source sampler, advantage, PPO, mean anchor, AdamW and inner transactions are
+shared. Native observation descriptors reconstruct the same frozen Qwen/provider
+condition on resume; dense 30-layer visual KV is not serialized per behavior.
+
+The two complete native RL configs differ only in variant/reward: canonical
+5:5:2 versus source 10:5:2. Both retain 50k optimizer updates, four inner updates,
+G8/K10/last3, source probability clamps, native anchor [0.2,1,1], seed42 and
+single-candidate shift5 evaluation seed2101. They are not running yet; their
+formal parent must be selected from all five registered IL DEV milestones.
+
+Executed finite checks:
+
+- `qualification_native_rl_math.json`: zero and nonzero LoRA actual sampling
+  mean/std equal recomputation; four real tiny-model AdamW updates; all native
+  A/B tensors change after the expected initialization stage; reference/base
+  stay frozen; merged velocity agrees. This is synthetic arithmetic evidence.
+- `qualification_recovery_shared.json`: two-rank CPU/Gloo real checkpoint fault
+  injection remains PASS after the native hook (12 cases, including unfinished
+  collection, publication failure, inner1/2/3 resume and journal rollback).
+- `qualification_native_transaction_contract.json`: native 3D pending boundary,
+  cross-rank advantages and rejection of a changed frozen-condition identity.
+- `qualification_observation.json`: full generic Qwen, real TRAIN images,
+  camera permutation and navigation dependencies, no future-label dependence,
+  explicit absent-camera masking. FP32 padded batch versus individual hidden
+  relative RMS errors are 2.45e-6 to 1.69e-5; largest absolute element difference
+  is 0.0134. An initial elementwise 3e-4 threshold failed and its private log is
+  retained. The revised test records the whole-feature relative error and does
+  **not** claim bitwise equivalence. Formal prefill remains batch1, as registered.
+
+All 12146 Navtest raw records are now prepared, solely for later locked evaluation.
+No Navtest model score has been computed or used for design. Raw timestamp gaps
+remain explicitly recorded (TRAIN678/DEV2/Navtest36); labels follow the official
+Scene indexed future convention rather than silently interpolating/filtering.
+
+New IL storage policy: retain every registered milestone and two complete rolling
+recovery points. Only superseded new-run model/optimizer payloads may retire;
+small manifests, hashes, RNG/cursors and retirement receipts remain. All previous
+experiments, failed attempts, and qualification checkpoints are preserved.
+This bounds storage instead of producing roughly 100 full optimizer snapshots.
+
+Full Wan initialization, full-model/multicard optimizer and exact recovery
+qualification, formal IL, both formal RL lines and driving evaluation are still
+pending. No positive driving or 92-point claim is made.

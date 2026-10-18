@@ -233,7 +233,35 @@ def main() -> None:
             "eps": float(action_cfg["eps"]),
         },
     }
-    torch.save(payload, str(output_path))
+    # Engineering-only publication metadata; tensor conversion above is source.
+    # Keep every resized axis and its actual alpha for an auditable generic init.
+    import os
+    import json
+    from starVLA.rl.qwen_sourceflow.contracts import ROOT, ACTION_CONFIG, file_sha
+    from starVLA.rl.flow_grpo.transactions import atomic_json
+    if output_path.exists():
+        raise FileExistsError('Never overwrite an initialization: ' + str(output_path))
+    temporary = output_path.with_name(output_path.name + '.incomplete')
+    if temporary.exists():
+        raise FileExistsError('Previous incomplete conversion retained: ' + str(temporary))
+    torch.save(payload, str(temporary))
+    os.rename(temporary, output_path)
+    rows = {key: dict(source_shape=list(video_state[key].shape),
+        target_shape=list(action_state[key].shape),
+        resized_axes=[i for i, (x, y) in enumerate(zip(video_state[key].shape, action_state[key].shape)) if x != y],
+        alpha=(float(video_state[key].shape[-1]) / float(action_state[key].shape[-1])) ** .5
+            if apply_alpha_scaling and video_state[key].ndim >= 2 and video_state[key].shape[-1] != action_state[key].shape[-1] else 1.)
+        for key in sorted(backbone_keys)}
+    wan_identity = json.loads((ROOT / 'assets/wan_identity.json').read_text())
+    atomic_json(output_path.with_suffix('.identity.json'), dict(
+        source='generic_Wan2.2-TI2V-5B_official_conversion',
+        upstream_commit='1433ee7e06a62bd8b89da74455df0d82bda7b726',
+        wan_revision=wan_identity['revision'], wan_identity=wan_identity,
+        action_config=ACTION_CONFIG, payload_sha256=file_sha(output_path),
+        converter_sha256=file_sha(__file__), config_sha256=file_sha(model_config_path),
+        tensor_conversion=rows, policy=payload['policy'],
+        copied=copied, interpolated=interpolated,
+        random_kept=sorted(set(action_state) - backbone_keys)))
 
     skipped = len(action_state) - len(backbone_keys)
     print(

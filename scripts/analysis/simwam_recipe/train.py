@@ -197,8 +197,12 @@ def main(runtime=None):
                 try:
                     fault('before_collect')
                     version=dict(run=identity['sha256'],update=state['updates'],adapter_sha256=parameter_hash(actor,trainable=True))
-                    rollout=collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
-                                    act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version,progress=invocation.event)
+                    if runtime is not None and hasattr(runtime,'collect'):
+                        rollout=runtime.collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
+                                                variant=cfg['variant'],version=version,progress=invocation.event)
+                    else:
+                        rollout=collect(actor,conditions.get(token,device),token,stream.logs[token],service,generator,
+                                        act_norm=int(sft.datasets.vla_data.act_norm),variant=cfg['variant'],version=version,progress=invocation.event)
                     rollout['stream_position']=position
                     fault('after_collect')
                 except Exception:

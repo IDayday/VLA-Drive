@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "qualification_only": true,
+  "host": "training-vlawm-tsinghua-zt3",
+  "precision": "FP32 no autocast",
+  "scope": "full generic Qwen observation; no driving policy score",
+  "batch_single_max_errors": [
+    {
+      "max_abs": 0.00090789794921875,
+      "relative_rms": 7.223555257951375e-06
+    },
+    {
+      "max_abs": 0.0003662109375,
+      "relative_rms": 2.4494461285939906e-06
+    },
+    {
+      "max_abs": 0.013399124145507812,
+      "relative_rms": 1.6912314094952308e-05
+    },
+    {
+      "max_abs": 0.0007216930389404297,
+      "relative_rms": 2.839564558598795e-06
+    }
+  ],
+  "image_swap_mean_hidden_delta": 1.3618481159210205,
+  "navigation_mean_visual_delta": 0.18222561478614807,
+  "missing_camera_mask": "explicit; no image tokens for absent right view",
+  "future_labels_ignored": true,
+  "actual_visual_counts": [
+    693,
+    462
+  ],
+  "wall_seconds": 2.209422955289483
+}

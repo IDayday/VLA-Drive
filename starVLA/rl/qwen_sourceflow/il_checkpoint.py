@@ -58,6 +58,34 @@ def save(root,model,optimizer,scheduler,state,identity):
     return str(final)
 
 
+def retain_rolling(root, identity):
+    """Only NEW native IL rolling payloads expire; all milestone/failure data stay.
+
+    Called after latest is atomically published. Small manifests, hashes, rank
+    RNG/cursors and an explicit retirement receipt survive payload retirement.
+    Qualification states and every pre-existing experiment are excluded.
+    """
+    if identity['qualification']:return
+    root=Path(root).resolve();cfg=identity['config']
+    latest=Path(json.loads((root/'latest.json').read_text())['path']).resolve()
+    eligible=[]
+    for path in (root/'checkpoints').glob('update*'):
+        if path.is_symlink() or '.incomplete' in path.name or not (path/'COMPLETE').is_file():continue
+        seal=json.loads((path/'COMPLETE').read_text())
+        if seal['schema']!='native_qwen_flow_IL_READY_v1' or seal['updates'] in cfg['milestones']:continue
+        if json.loads((path/'identity.json').read_text())!=identity:raise ValueError('Foreign checkpoint in native run')
+        eligible.append((seal['updates'],path))
+    eligible.sort()
+    for _,path in eligible[:-cfg['rolling_recovery_keep']]:
+        if path.resolve()==latest:raise ValueError('Cannot retire current latest')
+        sizes={n:(path/n).stat().st_size for n in ['model.pt','optimizer.pt']}
+        atomic_json(path/'RETIRED.json',dict(reason='pre-registered native IL rolling retention',
+            retain_complete_rolling=cfg['rolling_recovery_keep'],replacement=str(latest),
+            identity=identity['sha256'],payloads=sizes,files_sha256=file_sha(path/'files.json')))
+        os.rename(path/'COMPLETE',path/'RETIRED_COMPLETE')
+        for name in sizes:(path/name).unlink()
+
+
 def restore(path,model,optimizer,scheduler,identity):
     path=Path(path);rank=dist.get_rank() if dist.is_initialized() else 0
     world=dist.get_world_size() if dist.is_initialized() else 1
@@ -74,6 +102,11 @@ def restore(path,model,optimizer,scheduler,identity):
     optimizer.load_state_dict(payload['optimizer']);scheduler.load_state_dict(payload['scheduler'])
     own=torch.load(path/f'rank{rank}.pt',map_location='cpu',weights_only=False)
     if own['identity']!=identity['sha256']:raise ValueError('Changed rank ancestry')
+    if (own['state']['updates']!=seal['updates'] or own['state']['cursor']!=seal['cursor'] or
+            own['state']['phase']!=seal['phase']):
+        raise ValueError('Rank state differs from the published IL boundary')
+    if any(v!=own['state'] for v in common.gather(own['state'])):
+        raise ValueError('IL recovery ranks disagree')
     validate_optimizer(model,optimizer,scheduler,own['state'],identity['config'])
     rng=own['rng'];random.setstate(rng['python']);np.random.set_state(rng['numpy']);torch.set_rng_state(rng['torch']);torch.cuda.set_rng_state(rng['cuda'])
     return own['state']
