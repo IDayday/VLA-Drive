@@ -1,0 +1,41 @@
+{
+  "automatic_retry": false,
+  "bounds_note": "GNU timeout is the wall guard. Native immutable migration and original ledger limits remain. Read/RSS figures are resource admission and measured process accounting, not newly invented hard polling guards. Lead binds fresh CPU placement/CP/quiescence/ledger and captures bounded controls.",
+  "bridge": {
+    "implementation": "unchanged reviewed history32.install_current_w_compatibility",
+    "source_bytes_read": 899076,
+    "source_only_check_max_rss_kib": 21460,
+    "source_only_check_rchar": 2346296,
+    "source_only_check_wall_seconds": 1.3696312811225653
+  },
+  "builder_launched": false,
+  "files": {
+    "migrate_v3.py": "e9eaef1db528a76cbdaf10b4b8d634fb93dc8306bd23f9e67606a4ceaee677f7",
+    "storage_binding.py": "0e2038299e62b00190ea740914f5d83eed35436d1a1746fb6d32c9a9d17117e6"
+  },
+  "ledger_read_or_written": false,
+  "native_api": "tools.st_world_policy.metadata_storage.migrate_policy",
+  "outer_command_prefix": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "60s",
+    "/usr/bin/taskset",
+    "-c",
+    "2,3",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/migrate_v3.py",
+    "--execute"
+  ],
+  "requested_resource_evidence": {
+    "cleanup_seconds": 10,
+    "cpu_count": 2,
+    "max_seconds": 60,
+    "read_budget_bytes": 268435456,
+    "rss_budget_bytes": 1073741824,
+    "separate_control_bytes": 1048576
+  },
+  "runtime": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "runtime_commit": "eae8922d72b3881c0c162e96b8dd67e7c15a41c7",
+  "status": "PREPARATION_ONLY_NOT_EXECUTED"
+}
