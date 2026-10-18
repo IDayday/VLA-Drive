@@ -1,0 +1,93 @@
+{
+  "actual_model_or_gpu_execution": "NOT_RUN_BY_REVIEWER",
+  "actual_small_metadata_preflight": "PASS in six-test run; original frozen runtime/source/config/native-COMPLETE pins and shared dependencies checked.",
+  "assertions": {
+    "cost_boundary": "One actual run only, max8scenes/batch1/2sequential endpoints, no new cache or teacher network. Child output15MiB + separate controls1MiB. Proposed1GPU/2CPU/96GiBRSS/320GiBlogicalread/1800s+180cleanup require external admitted supervisor; wrapper itself does not pretend to enforce wall/RSS/IO.",
+    "dtype": "Canonical evalFP32/TF32off, not the original BF16 training-loss execution. Original base.amp honors inference_fp32. No precision or originalBase path migration.",
+    "endpoint_pair": "Strictly bound two5000-update/159992-exposure formal endpoints from own SP2/PCA256 and SP2/PCA384 runs. Common config checked apart from width/transform identity/output.",
+    "error_metric": "Original channel_errors computes same first256 MSE/SSE/energy and384-only tail128, per-component and per-scene. No planning or convergence conclusion inferred.",
+    "information_boundary": "STObservationDataset produces only current ModelInputs, no teacher/GT/future labels into encode_inputs. Cached teacher targets are read separately for offline diagnostics only; no dev/navtest scores.",
+    "mask": "Original valid current map gathered by same request indices; invalid targets zeroed after PCA; one Boolean mask and common384 target used for both arms. Metric rejects mismatched IDs;256 tail marked NOT_PREDICTED, never treated as zero error.",
+    "model_path": "Original load_world_checkpoint(strip=False) reconstructs FP32 masters and strict-loads one endpoint at a time. Only encode_inputs then sparse_readout run; SpaceTimeStudent.forward/planner/action/FM are not called. No native source modifications.",
+    "population": "Eight hash-selected TRAIN rows from prior fixed64 source; independent of new scores. Full registered train membership deliberately checked only during actual bounded execution. Not representative population estimate.",
+    "readonly": "Model requires_gradFalse/eval, torch.no_grad; FP32 W and prediction finite checks, parameter/buffer storage+version checks, no optimizer/backward/checkpoint writes. RNG identities recorded.",
+    "requests": "Original sample_requests once over8 scenes,3views,18x24grid,K96/view,seed4242; original slices reused both arms; explicit token/view/patch IDs passed to metric.",
+    "sequential_memory": "First model weakref must clear after deletion/GC/empty_cache before next strict load. Counts and peaks recorded by wrapper; real memory/IO is still unmeasured.",
+    "target_basis": "Both dimensions load original frozen train-only PCA with same mean/std/centering/components and explicit channel_scope. No refit or whitening. Original256 transform must equal full384 prefix on every coordinate, not just valid subset; actual mismatch writesTARGET_PREFIX_CHECK then fails."
+  },
+  "dispatch_performed": false,
+  "formal_training_approved": false,
+  "gpu_or_ssh_used": false,
+  "ledger_access": false,
+  "negative_evidence": [
+    "Wrong max scenes, changed recipe, wrong selection checksum rejected.",
+    "Mismatched scene/view/patch request rejected.",
+    "Train-mode model rejected; full/FM forward fixture raises if called.",
+    "Sequential loader receives stripFalse and cannot overlap live models."
+  ],
+  "payloads_opened": false,
+  "remaining_actual_checks": [
+    "Original reader full train membership and raw teacher identity on execute, including~315MB one-time reader metadata; not repeated by this review.",
+    "Actual original PCA256 vs384 prefix equality on all8 real maps.",
+    "Actual strict-trained-checkpoint reconstruction, real image encode/readout outputs and unchanged runtime/RNG evidence.",
+    "Lead must bind fixed source/BINDING and actual resources to existing external supervisor; no direct unbounded execute."
+  ],
+  "reviewed_artifacts": {
+    "BINDING.json": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/BINDING.json",
+      "sha256": "5dbc27344a531ea3a8c4eeb25bb17e4c349e209d29db856e2804bd95e1f70710"
+    },
+    "DESIGN_AND_COST.md": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/DESIGN_AND_COST.md",
+      "sha256": "7fd02157f5030d2c37157485a0e17b77df3b9b3215532f658f9b0606cae1ab54"
+    },
+    "RUNBOOK.md": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/RUNBOOK.md",
+      "sha256": "f202f63e2103cd582905811ab93ddebdc129348367bb33f04af78ae2d6203278"
+    },
+    "SELECTED_SCENES.json": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/SELECTED_SCENES.json",
+      "sha256": "77ebc29d9273c309afbbb3e596eb95ac947fbe51d96830f31f7552ca00881947"
+    },
+    "diagnose.py": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/diagnose.py",
+      "sha256": "3a7d5a45cbe5cddf64880f5e230228a6d6e6c3e23b5a51363698440ad77fb918"
+    },
+    "test_diagnostic.py": {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/test_diagnostic.py",
+      "sha256": "dc1a3df75e3ffcddfa2e53a717691e5450ea223bb06a948b986dc5ae38108737"
+    }
+  },
+  "reviewed_commit": "71011454aef5f8a03219b2412a37c75196697a34",
+  "reviewer_agent": "/root/temporal_narrow_review",
+  "runtime_commit": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "schema": "st_independent_teacher_channel_prediction_diagnostic_review_v1",
+  "scientific_effect": "UNTESTED",
+  "scope": "Fixed8 training-scene diagnostic wrapper and original loader/observation/PCA/request/readout seams only; no new model, training or general provider review.",
+  "status": "PASS",
+  "test_log": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261017/temporal_closeout_independent_v1/teacher_channel_prediction_review/CPU_TESTS.log",
+    "sha256": "a9f9b1a45d5f027622181ae9d7c46226b8eb524cddbf2d6bcc6942b2f3b92505"
+  },
+  "tests": {
+    "charged_rchar": 136976903,
+    "children_peak_rss_bytes": 700739584,
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=5s",
+      "90s",
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-B",
+      "/mnt/project/VLA-Drive-st-teacher-channel-prediction-diagnostic-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v1/test_diagnostic.py"
+    ],
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "gpu_visible": false,
+    "returncode": 0,
+    "wall_seconds": 4.495533591136336
+  },
+  "unresolved_code_findings": []
+}
