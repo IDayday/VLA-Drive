@@ -1,0 +1,90 @@
+{
+  "schema": "st_temporal_common_recipe_lead_decision_v1",
+  "decided_at_utc": "2026-10-18T02:02:33.099044+00:00",
+  "status": "RECIPE_SELECTED_NOT_FORMAL_DISPATCH",
+  "decision_owner": "Lead",
+  "spatial_parent": "S-P2",
+  "teacher_image_hw": [
+    288,
+    384
+  ],
+  "teacher_grid_hw": [
+    18,
+    24
+  ],
+  "teacher_channels": 384,
+  "world_queries_per_view": 48,
+  "sampled_positions_per_view": 96,
+  "original_trajectory_deployment": "single_original_DiT_Flow_10_Euler",
+  "teacher_compression": "same frozen train-fitted nonwhitened PCA384; no refit",
+  "weights": {
+    "current": 1.0,
+    "future": 0.9954445849209375,
+    "delta": 1.6396291934956382
+  },
+  "rationale": [
+    "Keep original registered temporal composition and its actually measured scales across all T cells.",
+    "Spatial winning contrast is SP3 minus SP2; its 5k CI crosses zero and does not establish W96 as an optimal default.",
+    "PCA256 remains a separate width-mechanism study; do not silently change temporal width using its development result."
+  ],
+  "T0_reuse": "Only if full configuration/runtime/initialization/exposure and endpoint identities match; existing SP2 5k is candidate, not unconditional equivalence.",
+  "matrix": {
+    "T0": {
+      "history": false,
+      "future": false,
+      "delta": false
+    },
+    "T1": {
+      "history": true,
+      "future": false,
+      "delta": false
+    },
+    "T2": {
+      "history": false,
+      "future": true,
+      "delta": false
+    },
+    "T3": {
+      "history": true,
+      "future": true,
+      "delta": false
+    },
+    "T4": {
+      "history": true,
+      "future": true,
+      "delta": true
+    }
+  },
+  "temporal_budget": "Original uniform 5k screen on common 20k scheduler; no changed budget or dispatch in this record.",
+  "not_a_new_gate": "Original contract does not explicitly require all temporal preparation/training to await completion of spatial20k.",
+  "dependencies_remaining": [
+    "Complete full causal train/dev metadata for history cells.",
+    "Bind complete current/future index, measured bounded provider, unchanged Base/data/PCA/runtime and actual full topology.",
+    "Independent affected-part correctness and resource admission of actual registration."
+  ],
+  "calibration_limitations": [
+    "Only four fixed training scenes; adjacent pairs 0.5/1 and 1/2 observed,2/4 absent.",
+    "Gradient subset last language block and W queries, not whole VLM.",
+    "Weighted delta gradient/current ratio about0.00728; not equalized entire-model gradients.",
+    "Original measurement succeeded but outer lifecycle failed; cleanup completed. Keep both facts, do not repeat good measurements solely for wrapper failure.",
+    "Weights are fixed diagnostic initialization choices, not proven optimal."
+  ],
+  "evidence": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/spatial_shortlist_application_v1/REVIEW.json",
+      "sha256": "7932378f47ec85ff4159d29c9cbb30ef19bf872e03105992d3c96e1e03bc13cd"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_scale_real4_actual_review_v1/ACTUAL_REVIEW.json",
+      "sha256": "b2b80d66357a4e7657b6292b2e1443111f7b5caa44188045fb6abb7ce872f2b1"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/loss_scale_calibration_real4_v2/result/MEASUREMENT.json",
+      "sha256": "4c3c6ec4b8ea1c934623623cedd76be6880c66afdd36b591efbfa15f7d734874"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md",
+      "sha256": "12127bc733d527db7934c035789effd53d3373f0196aff26e644f7e256df98b2"
+    }
+  ]
+}
