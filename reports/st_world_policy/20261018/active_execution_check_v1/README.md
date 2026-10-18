@@ -8,3 +8,7 @@ This is a timestamped observation, not a final scientific result. Source at obse
 - The source mismatch is now assigned to the implementation owner and an independent reviewer. The fix must describe the actual reader transition and retain all other source checks. A new reviewed attempt is required; existing evidence is not relabeled as success.
 
 This observation changed no running training recipe, teacher precision, deployment identity, checkpoint, dataset, or scientific budget. No held IQE/MOPD jobs were restarted. No push was performed.
+
+## Follow-up: actual v2 preparation complete
+
+The explicitly reviewed packed-history migration was integrated without changing the old runtime. The separately admitted v2 attempt completed in7.95s, peak RSS684,961,792bytes, charged read1,610,906,263bytes, with zero owned children remaining. All7 generated metadata artifact checksums were verified. No teacher tensors, GPU work, training or ledger updates occurred. `T3_PREPARATION_V2_COMPLETE.json` records exact pins. The failed v1 evidence and its full8MiB reservation remain. The next four-update PROFILE has not run and requires its concrete resource/run binding.
