@@ -1,0 +1,28 @@
+{
+  "schema": "road_proxy_independent_cpu_review_v1",
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/st_world/test_road_margin_proxy.py::test_official_interpolation_and_rear_axle_parity",
+    "tests/st_world/test_road_margin_proxy.py::test_epoch_multiplication_matches_actual_official_knots",
+    "tests/st_world/test_run_road_direction.py::test_geometry_error_retains_diagnostics_without_relaxing_gate",
+    "tests/st_world/test_run_road_direction.py::test_epoch_time_only_replay_explains_synthetic_failure",
+    "tests/st_world/test_run_road_direction.py::test_geometry_replay_no_admission_refuses_before_reads",
+    "/mnt/project/VLA-Drive-st-road-time-parity-correctness-20261018/reports/st_world_policy/20261018/road_direction_correctness_v1/test_time_parity_independent.py"
+  ],
+  "implementation_commit": "0d0d19dd5ce2d2fd583d2cc265289e47649ca594",
+  "exit_code": 0,
+  "violation": null,
+  "wall_seconds": 6.6198319382965565,
+  "child_cpu_seconds": 6.0854230000000005,
+  "sampled_peak_rss_bytes": 845815808,
+  "rusage_maxrss_bytes": 877584384,
+  "real_scene_reads": 0,
+  "metric_cache_reads": 0,
+  "official_scoring_calls": 0,
+  "model_loads": 0,
+  "gpu_calls": 0,
+  "bounded_source_read_budget_bytes": 16777216
+}

@@ -1,0 +1,13 @@
+# Independent timestamp and fixed-nine geometry probe review
+
+Approved for the single registered geometry-only replay, conditional on Lead admission and independent resource controls. Exact runtime `0d0d19dd5ce2d2fd583d2cc265289e47649ca594`; plan SHA256 `a82a805375ba3d10a6ac0a6efafc8e91eb07fbc40c1d423b2a0eaecad928e43c`. No formal training or direction-scoring run is approved here.
+
+The change matches official `TimePoint.time_s`: integer microseconds multiplied by1e-6. Prior division by1e6 is algebraically equivalent but can differ by one epoch-scale float64 ULP; truncating derived seconds to integer microseconds can shift interpolation knots. The fix changes only this arithmetic order. It does not increase the unchanged1e-9 geometry tolerance, change physical requests, modify raw decoding or claim official simulator derivatives.
+
+Thirty affected/independent CPU tests passed (22 author cases,8 independent cases),6.620seconds wall /6.085seconds CPU, peak process RSS877584384bytes. Independent checks cover131 timestamp grids against official TimePoint, invalid timestamp contracts, physical-path finite differences, fixed-nine metadata preparation with nonexistent cache files, original-evidence write refusal and absent CUDA. Real official geometry functions are exercised on synthetic inputs; these are not actual scene results.
+
+The immutable plan was exactly reproduced on the frozen runtime using metadata-only prepare. All19 source hashes and42 small receipt hashes verified; one-pass source/plan/receipt volume346009bytes. It selects the original9 parity failures within the original32 denominator. No real cache/model/image/GT payload/GPU/scoring was accessed.
+
+The new probe compares legacy and corrected time grids against the same original physical request and cache ego geometry. It does not instantiate a simulator/scorer or run LQR. Detailed41 poses, four corners, source/target timestamps and worst errors are retained. The original32 results remain untouched. Actual9 geometry replay is NOT_RUN; synthetic evidence alone does not establish that timestamp rounding explains every real failure.
+
+A zero exit means all requested comparisons were collected, not that corrected parity passed. Each `corrected_parity_pass` must be inspected; no result can be substituted into the prior direction experiment or called scientific benefit. The invocation must receive an external total120second wall bound including imports/setup/finalization, since its internal alarm starts after imports. Other registered limits remain32MiB reads,64MiB cache expansion,8GiB AS/RSS,4MiB output and one CPU thread. No automatic score calls or follow-up retries are approved.
