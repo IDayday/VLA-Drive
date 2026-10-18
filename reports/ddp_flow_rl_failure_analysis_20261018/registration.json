@@ -1,0 +1,155 @@
+{
+  "schema": "bounded_flow_RL_failure_diagnostics_v1",
+  "registered_unix": 1792287837.58626,
+  "baseline_source": "b7162de9ad33440e80c2431525daf80daa9ba391",
+  "population_sha256": "925f996346ee986657f4058f6e6e64b9da842abfa554e2ac70bd82268190f9e9",
+  "diagnostic_manifest_sha256": "c84f858e3bbecb1c62d3b8d3e83f0b8e537a2363d220dab8c806456ef92b15d4",
+  "tokens_sha256": "349f76809a38c7bdffd34316b7c0ccf33e87cfcff33b458e17825451a871ebb2",
+  "scene_selection": "64 smallest SHA256(selection_seed42,token,task) in fixed 512 TRAIN diagnostic; not outcome-based",
+  "models": [
+    "SFT_endpoint",
+    "RL20k"
+  ],
+  "samplers": [
+    "E_NATIVE",
+    "E_SHIFT5",
+    "SOURCE_SDE"
+  ],
+  "G": 8,
+  "K": 10,
+  "seed": 2101,
+  "max_new_candidates_per_route": 3072,
+  "max_new_candidates_total": 6144,
+  "optimizer_updates": 0,
+  "runs": {
+    "A_DDP_TIME": {
+      "path": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_R_SOURCE_seed42_v1",
+      "identity_sha256": "78f81211d3da81bc86acf27d509b4cc7b6e58b849a13ed92fc1f5ceae80e72eb",
+      "SFT": {
+        "checkpoint": "/mnt/project/fm-transfer-20261016/runs/A_DDP_TIME_SFT_seed42_v1/checkpoints/update020000",
+        "model_sha256": "ac52e9346080ce0e6bf27441935ac9aa6acbff239330b316bee36b560486579a",
+        "identity_sha256": "5018b5ccfae3cd7280475428720d4de06ea9bf6a5586008fb79076ddb7f82ae3",
+        "config": {
+          "schema": "fm_transfer_SFT_v1",
+          "variant": "A_DDP_TIME",
+          "architecture": "ddp",
+          "initialization": "original_F_SFT_step100000",
+          "max_updates": 20000,
+          "learning_rate": 1e-05,
+          "milestones": [
+            0,
+            5000,
+            10000,
+            20000
+          ],
+          "seed": 42,
+          "evaluation_seed": 2101,
+          "global_batch": 32,
+          "per_rank_batch": 4,
+          "world": 8,
+          "FM_repeats": 8,
+          "time_sampling": "source continuous uniform quantile shifted5",
+          "objective": "source time-weighted velocity MSE",
+          "train_shift": 5.0,
+          "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "weight_decay": 0.01,
+          "gradient_clip": 1.0,
+          "warmup_fraction": 0.03,
+          "scheduler": "warmup_cosine_min0.1",
+          "parameter_storage": "float32",
+          "operator_autocast": "bfloat16",
+          "loss_statistics": "float32",
+          "optimizer_states": "float32",
+          "upstream_frozen": true,
+          "condition_boundary": "before qwen_proj",
+          "save_every": 2000,
+          "inference_grids": [
+            "native_uniform10",
+            "shift5_10"
+          ],
+          "ddp": {
+            "find_unused_parameters": true,
+            "static_graph": false,
+            "bucket_cap_mb": 25,
+            "broadcast_buffers": false
+          }
+        },
+        "updates": 20000,
+        "qualification": false
+      }
+    },
+    "B_SOURCE_ACTION_DIT": {
+      "path": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_R_SOURCE_seed42_v1",
+      "identity_sha256": "471f3a53c0ea91e21ac842ca2ef4c3164dbc2155ec1be9ec1e804fff7dbae86f",
+      "SFT": {
+        "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+        "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+        "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+        "config": {
+          "schema": "fm_transfer_SFT_v1",
+          "variant": "B_SOURCE_ACTION_DIT",
+          "architecture": "source_action_dit",
+          "initialization": "source_random_initialization_seed42",
+          "max_updates": 100000,
+          "learning_rate": 0.0001,
+          "milestones": [
+            0,
+            10000,
+            25000,
+            50000,
+            75000,
+            100000
+          ],
+          "seed": 42,
+          "evaluation_seed": 2101,
+          "global_batch": 32,
+          "per_rank_batch": 4,
+          "world": 8,
+          "FM_repeats": 8,
+          "time_sampling": "source continuous uniform quantile shifted5",
+          "objective": "source time-weighted velocity MSE",
+          "train_shift": 5.0,
+          "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "weight_decay": 0.01,
+          "gradient_clip": 1.0,
+          "warmup_fraction": 0.03,
+          "scheduler": "warmup_cosine_min0.1",
+          "parameter_storage": "float32",
+          "operator_autocast": "bfloat16",
+          "loss_statistics": "float32",
+          "optimizer_states": "float32",
+          "upstream_frozen": true,
+          "condition_boundary": "before qwen_proj",
+          "save_every": 2000,
+          "inference_grids": [
+            "native_uniform10",
+            "shift5_10"
+          ],
+          "ddp": {
+            "find_unused_parameters": true,
+            "static_graph": false,
+            "bucket_cap_mb": 25,
+            "broadcast_buffers": false
+          }
+        },
+        "updates": 100000,
+        "qualification": false
+      }
+    }
+  },
+  "saved_reward_selection": "collections 1,11,...,4991, each original full global batch; 4000 scenes per route",
+  "navtest": "saved trajectories only; descriptive failure attribution; no checkpoint/hyperparameter selection",
+  "scientific_changes": [],
+  "new_training_matrix": false,
+  "private_registration_sha256": "a64d0268e06eec995e2c66ebb002f8d785053de7d9af781931dcd28f005c5951"
+}
