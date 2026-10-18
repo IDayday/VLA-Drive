@@ -1,0 +1,32 @@
+usage: temporal_formal.py [-h] --full-profile-descriptor
+                          FULL_PROFILE_DESCRIPTOR --source-migration
+                          SOURCE_MIGRATION --decision DECISION
+                          --pca-fit-cache-root PCA_FIT_CACHE_ROOT
+                          --pca-fit-cache-index PCA_FIT_CACHE_INDEX --output
+                          OUTPUT --training-output-root TRAINING_OUTPUT_ROOT
+                          [--history-complete HISTORY_COMPLETE] --scope
+                          {FORMAL,PROFILE} --world-size {1,2,4,8}
+                          --micro-batch {1,2,4} [--profile-mode {none,timing}]
+                          --cell {T0,T1,T2,T3,T4} [--max-seconds 1..28800]
+
+Fixed full-population T1--T4 metadata preparation, never a launch approval.
+Reuses the original indexed provider, PCA, history reader and native trainer.
+The separate FORMAL descriptor does not promote or relax a PROFILE descriptor.
+Actual dispatch still requires the unchanged independent formal launch gate.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --full-profile-descriptor FULL_PROFILE_DESCRIPTOR
+  --source-migration SOURCE_MIGRATION
+  --decision DECISION
+  --pca-fit-cache-root PCA_FIT_CACHE_ROOT
+  --pca-fit-cache-index PCA_FIT_CACHE_INDEX
+  --output OUTPUT
+  --training-output-root TRAINING_OUTPUT_ROOT
+  --history-complete HISTORY_COMPLETE
+  --scope {FORMAL,PROFILE}
+  --world-size {1,2,4,8}
+  --micro-batch {1,2,4}
+  --profile-mode {none,timing}
+  --cell {T0,T1,T2,T3,T4}
+  --max-seconds 1..28800

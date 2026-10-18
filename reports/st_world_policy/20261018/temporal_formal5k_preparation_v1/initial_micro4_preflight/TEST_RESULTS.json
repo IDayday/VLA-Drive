@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 20.994218356907368,
+  "maxrss_kib": 802324,
+  "self_rchar_delta": 438033432,
+  "tests": 138,
+  "command": "taskset -c 10,11 timeout 120s env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=.:tests/st_world python -m pytest -q tests/st_world/test_temporal_formal.py tests/st_world/test_provider_profile_upgrade.py tests/st_world/test_provider_full_index_profile.py tests/st_world/test_temporal_composition.py"
+}

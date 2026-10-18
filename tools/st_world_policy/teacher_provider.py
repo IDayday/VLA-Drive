@@ -66,21 +66,34 @@ def validate_option(option, *, loader_workers, teacher_root, pca_path, scope, co
         raise ValueError('PCA scope without PCA basis')
     if teacher_root is not None or loader_workers != 0:
         raise ValueError('On-demand provider requires teacher_root=null and synchronous loader_workers=0')
-    if scope == 'PROFILE' and config is not None:
+    if scope == 'FORMAL' and config is not None:
+        from tools.st_world_policy.temporal_formal import validate_recipe
+        try: d = pinned(option['descriptor'])
+        except OSError as e: raise ValueError('FORMAL requires an existing explicit descriptor') from e
+        if 'formal_admission' not in d or 'profile_admission' in d:
+            raise ValueError('FORMAL needs its own explicit full-population admission')
+        validate_recipe(d['formal_admission'], config)
+    elif scope == 'PROFILE' and config is not None:
         try: d = pinned(option['descriptor'])
         except OSError as e: raise ValueError('SMOKE-only without an existing explicit PROFILE descriptor') from e
-        if 'profile_admission' not in d:
-            raise ValueError('SMOKE-only descriptor cannot be promoted by a PROFILE flag')
-        validate_profile_recipe(d['profile_admission'], config)
+        if 'temporal_profile_admission' in d:
+            from tools.st_world_policy.temporal_formal import validate_recipe
+            validate_recipe(d['temporal_profile_admission'], config)
+        else:
+            if 'profile_admission' not in d:
+                raise ValueError('SMOKE-only descriptor cannot be promoted by a PROFILE flag')
+            validate_profile_recipe(d['profile_admission'], config)
     elif scope != 'SMOKE':
         raise ValueError('Initial provider wiring is SMOKE-only without explicit bounded PROFILE admission')
-    elif Path(option['descriptor']['path']).is_file() and 'profile_admission' in pinned(option['descriptor']):
+    elif Path(option['descriptor']['path']).is_file() and any(
+            key in pinned(option['descriptor']) for key in ('profile_admission', 'formal_admission', 'temporal_profile_admission')):
         raise ValueError('PROFILE descriptor cannot be relabeled as SMOKE')
 
 
 def validate_training_manifest(option, manifest_pin):
     d=pinned(option['descriptor'])
-    if 'profile_admission' in d and d['profile_admission']['data_manifest']!=manifest_pin:
+    a = d.get('formal_admission', d.get('temporal_profile_admission', d.get('profile_admission')))
+    if a is not None and a['data_manifest'] != manifest_pin:
         raise ValueError('Registered PROFILE dataset path/SHA differs from the admitted fixed population')
 
 
@@ -283,7 +296,7 @@ def full_profile_consumption(cfg):
             'formal_global32_throughput_qualified': False}
 
 
-def _validate_full_population(d, request, source):
+def _validate_full_population(d, request, source, *, admission=None):
     """Stream original selected rows against both immutable indices in order.
 
     Only one selected/current/future row is resident. Do not parse requests.json
@@ -291,7 +304,8 @@ def _validate_full_population(d, request, source):
     The unchanged student dataset still performs its own source/record checks.
     """
     from starVLA.dataloader.st_world_metadata_index import _atomic_rows, version, checked_sha, canonical
-    a = d['profile_admission']; population = a['population']
+    a = d['profile_admission'] if admission is None else admission
+    population = a['population']
     if (not isinstance(population, dict) or set(population) !=
             {'current_registration', 'current_complete', 'future_complete'}):
         raise ValueError('Full PROFILE needs original current and completed full-future population receipts')
@@ -428,11 +442,10 @@ def validate_profile_recipe(admission, cfg):
     return reference
 
 
-def _qualified_profile_execution(d, manifest, scene_count):
+def _qualified_parent_execution(d, a):
     from tools.st_world_policy.qualify_indexed_provider import validate_receipt
-    a=d['profile_admission']; recipe=validate_profile_recipe(a,pinned(a['recipe']))
     parent=pinned(a['parent_descriptor']); migration=pinned(a['source_migration'])
-    if (parent.get('schema')!=INDEXED_SCHEMA or 'profile_admission' in parent
+    if (parent.get('schema')!=INDEXED_SCHEMA or 'profile_admission' in parent or 'formal_admission' in parent or 'temporal_profile_admission' in parent
             or parent.get('identity')!=identity_hash({k:v for k,v in parent.items() if k!='identity'})
             or migration['parent_descriptor']!=a['parent_descriptor']):
         raise ValueError('PROFILE must derive from one original exact32 indexed descriptor')
@@ -443,6 +456,12 @@ def _qualified_profile_execution(d, manifest, scene_count):
             or d['teacher_config']!=parent['teacher_config'] or d['limits']!=parent['limits']
             or d['provider']['contract']!=parent['provider']['contract']):
         raise ValueError('PROFILE changed qualified source/numerical/teacher/LRU contract')
+    return parent, plan
+
+
+def _qualified_profile_execution(d, manifest, scene_count):
+    a=d['profile_admission']; recipe=validate_profile_recipe(a,pinned(a['recipe']))
+    parent, plan = _qualified_parent_execution(d, a)
     original=pinned(parent['request_index']['complete'])['manifest_header']
     for key in ('split','source_student_identity','source_index_sha256','partition_sha256','times_s','view_names'):
         if manifest.get(key)!=original.get(key):
@@ -463,6 +482,9 @@ def _qualified_profile_execution(d, manifest, scene_count):
 
 def _qualified_execution(d, manifest, scene_count):
     """Old exact admission is unchanged; PROFILE has its own source/population binding."""
+    if "formal_admission" in d or "temporal_profile_admission" in d:
+        from tools.st_world_policy.temporal_formal import qualified_execution
+        return qualified_execution(d, manifest, scene_count)
     if "profile_admission" in d:
         if d.get("schema") != INDEXED_SCHEMA:
             raise ValueError("PROFILE requires the indexed provider")
@@ -567,6 +589,10 @@ def _validate_indexed_descriptor(d, *, existing=None):
     fields = {'schema', 'requests', 'request_index', 'sources', 'teacher_config', 'qualification',
               'qualification_plan', 'execution', 'limits', 'provider', 'identity'}
     if 'profile_admission' in d: fields.add('profile_admission')
+    if 'formal_admission' in d: fields.add('formal_admission')
+    if 'temporal_profile_admission' in d: fields.add('temporal_profile_admission')
+    if sum(key in d for key in ('profile_admission','formal_admission','temporal_profile_admission')) > 1:
+        raise ValueError('Provider cannot combine PROFILE and FORMAL admissions')
     if (set(d) != fields or d['identity'] != identity_hash({k:v for k,v in d.items() if k != 'identity'})):
         raise ValueError('Indexed provider descriptor identity/schema changed')
     _validate_limits(d)
@@ -608,6 +634,9 @@ def _validate_indexed_descriptor(d, *, existing=None):
                 expected_contract=contract))
         if is_full_profile(d.get('profile_admission')):
             _validate_full_population(d, index, source_index)
+        if 'formal_admission' in d or 'temporal_profile_admission' in d:
+            _validate_full_population(d, index, source_index,
+                admission=d.get('formal_admission', d.get('temporal_profile_admission')))
         placeholder = SimpleNamespace(contract_identity=contract.identity, execution_identity=identity_hash(d['execution']))
         provider = IndexedBoundedTeacherProvider(index, contract, sources, executor=placeholder,
             execution_identity=placeholder.execution_identity, **d['limits'])
@@ -616,6 +645,8 @@ def _validate_indexed_descriptor(d, *, existing=None):
         if existing is not None and existing.identity != provider.identity:
             raise ValueError('Owned indexed provider identity differs from its descriptor')
         composition = d.get('profile_admission', {}).get('temporal_composition')
+        if 'formal_admission' in d or 'temporal_profile_admission' in d:
+            composition = d.get('formal_admission', d.get('temporal_profile_admission'))['history']
         if existing is not None and getattr(existing, 'temporal_composition', None) != composition:
             raise ValueError('Owned provider temporal input dependency changed')
         if composition is not None:

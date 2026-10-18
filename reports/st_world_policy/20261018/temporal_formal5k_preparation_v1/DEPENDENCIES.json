@@ -1,0 +1,88 @@
+{
+  "schema": "st_temporal_formal5k_dependencies_v1",
+  "source_base": "cf516259c8efc24503727f14b9e330ed32231293",
+  "decision": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+    "sha256": "6aab4626386b17dc666f2452413e14007a1e50d90e06052161cb5819fc931081",
+    "bytes": 3723
+  },
+  "base_binding": {
+    "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+    "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+    "bytes": 19978
+  },
+  "full_profile_descriptor": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+    "sha256": "257735c2567bd113635afcd47c728cf57cbdc5bdf5b2a44bf12321da47574163",
+    "bytes": 17374
+  },
+  "reused_sealed_population_pins": {
+    "current_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/COMPLETE.json",
+      "sha256": "0c1c913e72733191fc47cf1969b2fb8462b1081ae8c893b656b7aba5d022ad3f"
+    },
+    "current_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1/COMPLETE.json",
+      "sha256": "8c44a8994e38a481ffcb1d06d77615e77328686c370f32e9954354358ecd4b02"
+    },
+    "current_registration": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/REGISTRATION.json",
+      "sha256": "f7bad022b4aae85c5925b0a1afa143077aa0764efc1849d80f622d092beebbec"
+    },
+    "future_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1/FINALIZATION_COMPLETE.json",
+      "sha256": "16c47d6603144dcabe0c764f85c23c231bb0edfaf347d869f93c34d79bdc5438"
+    },
+    "pca_fit_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1/COMPLETE.json",
+      "sha256": "952333bf289508a904b3b3c726ad840bc0557828fdb4b08f5f0b3bf508c6ab56"
+    },
+    "pca_receipt": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/PCA.json",
+      "sha256": "f4a0845dd0244da29a30dec9f482f4ef801dfdbc80cbd34ad3ebb508b0885067"
+    },
+    "reference_config": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_training2_v1/CONFIG.json",
+      "sha256": "2ec8df5c996c51ef0b7b40707c0e66179643bcc5cac317ec4d53d31d0d85b13f"
+    },
+    "train_index_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/COMPLETE.json",
+      "sha256": "07cdbbd00d7c9be219c23c75bf75aee4651cad6c93b136a0f2b19b4bdca4a148"
+    }
+  },
+  "data_manifest": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+    "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+    "verified_by": "original_teacher_provider_full_population_validator"
+  },
+  "history": {
+    "train": {
+      "expected_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train/COMPLETE.json",
+      "status": "MISSING_COMPLETE"
+    },
+    "dev": {
+      "expected_path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev/COMPLETE.json",
+      "status": "COMPLETE_METADATA_PRESENT",
+      "receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev/COMPLETE.json",
+        "sha256": "dd2e999fc66f386335a3bb71bf342bf3bd83a029dee49cd4a8dc791bab3fdecb",
+        "bytes": 505
+      },
+      "summary": {
+        "history_identity": "683f7dcef267cbd75f148921cba7f43f660a98f5655982857a675aa2d34ba5c2",
+        "history_manifest_sha256": "64bf0056770fa40505abdcb8831d180fbe7404159542bbad6562a2dc577d0bec",
+        "logs": 16,
+        "mode": "registered",
+        "original_gt_or_scores_read": false,
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "teacher_requests_identity": "31201571e6f565a2c21f5bf3276b274b029267649cbe19f78409eaf6c6d79826",
+        "teacher_requests_sha256": "21ecd476aba5b07ef68a3fed2712ae59b93451c2c30c8c01c7de665abdc4e266"
+      }
+    }
+  },
+  "initialization": "same original BASE_BINDING, fresh native initialization; never PROFILE checkpoint",
+  "formal_approval": false,
+  "formal_checkpoint_reservation_issued": false,
+  "topology": "provisional world4/micro1/global32/accum8; qualification pending"
+}
