@@ -426,11 +426,12 @@ def stop_owned(jobs):
         for sig,value in previous.items():signal.signal(sig,value)
 
 
-def monitor(jobs,phase,route,*,pending,launch):
+def monitor(jobs,phase,route,*,pending,launch,check_stop=lambda:None):
     """At most two heavy loaders; finish this invocation once, never auto retry."""
     peak=0;seen={};start=time.monotonic();last_sample=0.;last_output_scan=0.;last_GPU_scan=0.;why=None;gpu={}
     try:
         while pending or any(job['child'].poll() is None for job in jobs):
+            check_stop()
             for job in jobs:
                 if job['child'].poll() is not None:
                     remaining=session_members(job['child'].pid,job.get('start_ticks'))
@@ -455,8 +456,10 @@ def monitor(jobs,phase,route,*,pending,launch):
                 gpu=gpu_monitor(route,seen);last_GPU_scan=time.monotonic()
             loading=sum(not job['loaded'] for job in live)
             while pending and (phase!='export' or loading<LIMITS['loaders']):
+                check_stop()
                 rank=pending.pop(0);job=launch(rank)
                 if job not in jobs:jobs.append(job)
+                check_stop()
                 loading+=1
                 if phase!='export':break
             if time.monotonic()-last_sample>=5:
@@ -466,6 +469,7 @@ def monitor(jobs,phase,route,*,pending,launch):
                 with (OUTPUT/'control/RESOURCE_SAMPLES.jsonl').open('a') as stream:stream.write(json.dumps(sample)+'\n')
                 last_sample=time.monotonic()
             time.sleep(.25)
+        check_stop()
         if owned_output_bytes()>LIMITS['output_bytes']:raise ValueError('Endpoint output cap')
         if any(job['child'].returncode!=0 for job in jobs):why='CHILD_PARTIAL_OR_FAILED_NO_AUTO_RETRY'
     except BaseException as error:
@@ -569,10 +573,17 @@ def execute(phase,receipt,binding,documents,*,resume):
             return job
         before=resource.getrusage(resource.RUSAGE_CHILDREN)
         previous={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
-        def interrupted(signum,frame):raise RuntimeError('OPERATOR_SIGNAL_'+str(signum))
+        stop_request=[]
+        def interrupted(signum,frame):
+            # Do not raise between fork/Popen and receiving/registering the
+            # owned child handle. Defer to a monitor boundary after ownership
+            # transfer, without blocking signals in this or the child process.
+            if not stop_request:stop_request.append(signum)
+        def check_stop():
+            if stop_request:raise RuntimeError('OPERATOR_SIGNAL_'+str(stop_request[0]))
         try:
             for sig in previous:signal.signal(sig,interrupted)
-            result=monitor(jobs,phase,route,pending=pending,launch=launch)
+            result=monitor(jobs,phase,route,pending=pending,launch=launch,check_stop=check_stop)
         finally:
             for sig,value in previous.items():signal.signal(sig,value)
         after=resource.getrusage(resource.RUSAGE_CHILDREN)

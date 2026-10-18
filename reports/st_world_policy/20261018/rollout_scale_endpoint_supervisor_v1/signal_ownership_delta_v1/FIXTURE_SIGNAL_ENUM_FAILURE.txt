@@ -1,0 +1,116 @@
+......FF                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup[Popen_SIGTERM] _
+
+isolated = PosixPath('/tmp/pytest-of-root/pytest-811/test_log_and_post_Popen_receip3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8a4a1e0970>
+fault = 'Popen_SIGTERM'
+
+    @pytest.mark.parametrize('fault',['launch_receipt','log_open','log_close','Popen_SIGTERM','Popen_SIGINT'])
+    def test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup(isolated,monkeypatch,fault):
+        binding,documents,_=endpoint_fixture(isolated/'source',monkeypatch)
+        route={'gpus':[0,1,2,3],'gpu_uuids':['fixture0','fixture1','fixture2','fixture3']}
+        helpers={'check_route_time_v3':lambda *args:None,'fresh_gpu_v3':lambda *args:None}
+        monkeypatch.setattr(s,'mature_helpers',lambda:helpers)
+        monkeypatch.setattr(s,'route_checks',lambda *args:route)
+        monkeypatch.setattr(s,'gpu_monitor',lambda *args:{})
+        monkeypatch.setattr(s,'argv_for',lambda *args:[sys_executable(),'-c','import time;time.sleep(60)'])
+        original=s.subprocess.Popen;spawned=[]
+        previous_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+        def popen(*args,**kwargs):
+            child=original(*args,**kwargs);spawned.append(child)
+            if fault.startswith('Popen_SIG'):
+                os.kill(os.getpid(),signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT)
+            return child
+        monkeypatch.setattr(s.subprocess,'Popen',popen)
+        def fail_launch(path,value):
+            if fault=='launch_receipt' and Path(path).name=='LAUNCH.json':raise OSError('fixture publication failure after Popen')
+            immutable(path,value)
+        monkeypatch.setattr(s,'immutable',fail_launch)
+        original_open=Path.open
+        class CloseFault:
+            def __init__(self,stream):self.stream=stream
+            def fileno(self):return self.stream.fileno()
+            def close(self):self.stream.close();raise OSError('fixture close failure after Popen')
+        def log_fault(path,*args,**kwargs):
+            if path.name=='OUTPUT.log':
+                if fault=='log_open':raise OSError('fixture log open failure before Popen')
+                stream=original_open(path,*args,**kwargs)
+                return CloseFault(stream) if fault=='log_close' else stream
+            return original_open(path,*args,**kwargs)
+        monkeypatch.setattr(Path,'open',log_fault)
+        try:
+            result=s.execute('export',{'fixture':'lead'},binding,documents,resume=False)
+            count=0 if fault=='log_open' else 1
+            assert result['status']=='PARTIAL_OR_FAILED' and result['invocations_started']==count
+            assert len(spawned)==count and all(child.poll() is not None for child in spawned)
+            if fault.startswith('Popen_SIG'):
+                signum=signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT
+>               assert result['stop_reason']=='RuntimeError: OPERATOR_SIGNAL_'+str(signum)
+E               AssertionError: assert 'RuntimeError...TOR_SIGNAL_15' == 'RuntimeError...gnals.SIGTERM'
+E
+E                 - RuntimeError: OPERATOR_SIGNAL_Signals.SIGTERM
+E                 ?                               ^^^^^^^^^^^^^^^
+E                 + RuntimeError: OPERATOR_SIGNAL_15
+E                 ?                               ^^
+
+tests/st_world/test_endpoint_supervisor.py:423: AssertionError
+_ test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup[Popen_SIGINT] _
+
+isolated = PosixPath('/tmp/pytest-of-root/pytest-811/test_log_and_post_Popen_receip4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8a4a16ba00>
+fault = 'Popen_SIGINT'
+
+    @pytest.mark.parametrize('fault',['launch_receipt','log_open','log_close','Popen_SIGTERM','Popen_SIGINT'])
+    def test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup(isolated,monkeypatch,fault):
+        binding,documents,_=endpoint_fixture(isolated/'source',monkeypatch)
+        route={'gpus':[0,1,2,3],'gpu_uuids':['fixture0','fixture1','fixture2','fixture3']}
+        helpers={'check_route_time_v3':lambda *args:None,'fresh_gpu_v3':lambda *args:None}
+        monkeypatch.setattr(s,'mature_helpers',lambda:helpers)
+        monkeypatch.setattr(s,'route_checks',lambda *args:route)
+        monkeypatch.setattr(s,'gpu_monitor',lambda *args:{})
+        monkeypatch.setattr(s,'argv_for',lambda *args:[sys_executable(),'-c','import time;time.sleep(60)'])
+        original=s.subprocess.Popen;spawned=[]
+        previous_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+        def popen(*args,**kwargs):
+            child=original(*args,**kwargs);spawned.append(child)
+            if fault.startswith('Popen_SIG'):
+                os.kill(os.getpid(),signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT)
+            return child
+        monkeypatch.setattr(s.subprocess,'Popen',popen)
+        def fail_launch(path,value):
+            if fault=='launch_receipt' and Path(path).name=='LAUNCH.json':raise OSError('fixture publication failure after Popen')
+            immutable(path,value)
+        monkeypatch.setattr(s,'immutable',fail_launch)
+        original_open=Path.open
+        class CloseFault:
+            def __init__(self,stream):self.stream=stream
+            def fileno(self):return self.stream.fileno()
+            def close(self):self.stream.close();raise OSError('fixture close failure after Popen')
+        def log_fault(path,*args,**kwargs):
+            if path.name=='OUTPUT.log':
+                if fault=='log_open':raise OSError('fixture log open failure before Popen')
+                stream=original_open(path,*args,**kwargs)
+                return CloseFault(stream) if fault=='log_close' else stream
+            return original_open(path,*args,**kwargs)
+        monkeypatch.setattr(Path,'open',log_fault)
+        try:
+            result=s.execute('export',{'fixture':'lead'},binding,documents,resume=False)
+            count=0 if fault=='log_open' else 1
+            assert result['status']=='PARTIAL_OR_FAILED' and result['invocations_started']==count
+            assert len(spawned)==count and all(child.poll() is not None for child in spawned)
+            if fault.startswith('Popen_SIG'):
+                signum=signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT
+>               assert result['stop_reason']=='RuntimeError: OPERATOR_SIGNAL_'+str(signum)
+E               AssertionError: assert 'RuntimeError...ATOR_SIGNAL_2' == 'RuntimeError...ignals.SIGINT'
+E
+E                 - RuntimeError: OPERATOR_SIGNAL_Signals.SIGINT
+E                 ?                               ^^^^^^^^^^^^^^
+E                 + RuntimeError: OPERATOR_SIGNAL_2
+E                 ?                               ^
+
+tests/st_world/test_endpoint_supervisor.py:423: AssertionError
+=========================== short test summary info ============================
+FAILED tests/st_world/test_endpoint_supervisor.py::test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup[Popen_SIGTERM]
+FAILED tests/st_world/test_endpoint_supervisor.py::test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup[Popen_SIGINT]
+2 failed, 6 passed, 41 deselected in 0.37s

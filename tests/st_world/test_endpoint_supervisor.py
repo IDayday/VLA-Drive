@@ -380,7 +380,7 @@ def test_complete_owned_session_cleanup_handles_thread_and_root_exit(isolated,ca
             if row and row['state']!='Z':os.kill(descendant,signal.SIGKILL)
         except ProcessLookupError:pass
 
-@pytest.mark.parametrize('fault',['launch_receipt','log_open','log_close'])
+@pytest.mark.parametrize('fault',['launch_receipt','log_open','log_close','Popen_SIGTERM','Popen_SIGINT'])
 def test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup(isolated,monkeypatch,fault):
     binding,documents,_=endpoint_fixture(isolated/'source',monkeypatch)
     route={'gpus':[0,1,2,3],'gpu_uuids':['fixture0','fixture1','fixture2','fixture3']}
@@ -390,8 +390,12 @@ def test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup(isol
     monkeypatch.setattr(s,'gpu_monitor',lambda *args:{})
     monkeypatch.setattr(s,'argv_for',lambda *args:[sys_executable(),'-c','import time;time.sleep(60)'])
     original=s.subprocess.Popen;spawned=[]
+    previous_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
     def popen(*args,**kwargs):
-        child=original(*args,**kwargs);spawned.append(child);return child
+        child=original(*args,**kwargs);spawned.append(child)
+        if fault.startswith('Popen_SIG'):
+            os.kill(os.getpid(),signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT)
+        return child
     monkeypatch.setattr(s.subprocess,'Popen',popen)
     def fail_launch(path,value):
         if fault=='launch_receipt' and Path(path).name=='LAUNCH.json':raise OSError('fixture publication failure after Popen')
@@ -414,6 +418,10 @@ def test_log_and_post_Popen_receipt_failure_preserves_admission_and_cleanup(isol
         count=0 if fault=='log_open' else 1
         assert result['status']=='PARTIAL_OR_FAILED' and result['invocations_started']==count
         assert len(spawned)==count and all(child.poll() is not None for child in spawned)
+        if fault.startswith('Popen_SIG'):
+            signum=signal.SIGTERM if fault=='Popen_SIGTERM' else signal.SIGINT
+            assert result['stop_reason']=='RuntimeError: OPERATOR_SIGNAL_'+str(int(signum))
+            assert all(signal.getsignal(sig)==handler for sig,handler in previous_handlers.items())
         assert len(list((s.OUTPUT/'control/invocations/export_rank0').glob('*/ADMISSION.json')))==1
         exited=list((s.OUTPUT/'control/invocations/export_rank0').glob('*/EXIT.json'))
         assert len(exited)==1 and json.loads(exited[0].read_text())['owned_cleanup_complete']

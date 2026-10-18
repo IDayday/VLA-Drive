@@ -1,11 +1,15 @@
 # CPU regression and lifecycle evidence
 
-Final current source: **47 passed**, one existing pynvml deprecation warning,
+Original sealed source380c8f54: **47 passed**, one existing pynvml deprecation warning,
 pytest3.72s. The enclosing bounded runner measured wall4.949350s, waited child
 CPU4.708766s and sampled aggregate peak RSS643,301,376bytes. Exit0; no budget
 guard was hit. Source SHA256 is in SOURCE_PINS.json; complete stdout and actual
 execution record are TEST_OUTPUT.txt and TEST_EXECUTION.json. CLI --help and
 --status were executed and captured separately.
+
+The subsequent narrow SIGTERM/SIGINT ownership patch has separate affected-only
+results in signal_ownership_delta_v1/README.md; these47 results are not relabeled
+as a full rerun of that later source.
 
 Executed command:
 
