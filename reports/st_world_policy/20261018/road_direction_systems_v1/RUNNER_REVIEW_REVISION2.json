@@ -1,0 +1,198 @@
+{
+  "schema": "road_direction_resource_execution_review_v2",
+  "status": "APPROVE_ROAD_DIRECTION_EXECUTION",
+  "review_kind": "resources",
+  "reviewer": "/root/road_proxy_systems_review",
+  "created_utc": "2026-10-18T15:30:10.644637+00:00",
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_direction_fixed32_v2_controls/REGISTRATION.json",
+  "registration_sha256": "d6ad347867b77a274de976d62e07a0ab9c142eb46336c7e7de9e0198185c4152",
+  "source_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "source_hashes": {
+    "starVLA/dataloader/foresight_dataset.py": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "f3b112d62765c362c78b1ffc8c1b32b3695df7af52fd238bd1c7290ba6c07bfd",
+    "starVLA/model/modules/st_world/consequence.py": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+    "tools/st_world_policy/consequence_smoke.py": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+    "tools/st_world_policy/run_road_direction.py": "d867fc1a4383e0f270568cbc58132a991ba65ab5de7fb240367ec2051167a89f"
+  },
+  "frozen_runtime": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+  "author_runner_commit": "55721af755637636b1e769a17e175dabd8bcc033",
+  "author_cleanup_fix_commit": "17c3e92caa912d87555763e62b50b395e79e2be9",
+  "scope": "One fixed32 TRAIN command-direction CPU diagnostic only; exact v2 output namespace, no model/GPU/update/navtest/feature work. Lead must issue independent execution admission.",
+  "limits": {
+    "asset_read_bytes": 268435456,
+    "cache_expanded_bytes": 67108864,
+    "max_official_calls": 128,
+    "output_bytes": 1073741824,
+    "read_rate_bytes_per_second": 33554432,
+    "rss_and_address_space_bytes": 8589934592,
+    "scenes": 32,
+    "threads": 1,
+    "variants": 4,
+    "wall_seconds": 1800,
+    "workers": 1
+  },
+  "approved_host": "training-vla-zt-worker-0",
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "b324d874d8c64036910ca80daf7d726741e2e5997c015c33d348174768f4cdc4"
+  },
+  "fresh_read_only_capacity": {
+    "cpu_count": 128,
+    "load_1_5_15": [
+      15.00390625,
+      15.40625,
+      15.0048828125
+    ],
+    "mem_available_bytes": 917152636928,
+    "shared_storage_available_bytes": 4133197455360,
+    "new_disk_requirement_bytes": 1073741824,
+    "note": "Current capacity snapshot, not a grant over unrelated jobs or a reservation for future training."
+  },
+  "independent_actual_checks": {
+    "original_monitor_orphan_regression": {
+      "target_author_commit": "17c3e92caa912d87555763e62b50b395e79e2be9",
+      "integrated_target": "PENDING_LEAD_REBIND",
+      "status": "PASS_NATIVE_EXIT_AND_MONITOR_CLEANUP",
+      "rows": [
+        {
+          "mode": "native_exit",
+          "return_code": 2,
+          "error": null,
+          "child_alive_after_supervise": [
+            false
+          ],
+          "fixture_cleanup_remaining": 0,
+          "summary_exists": true,
+          "summary_complete_scenes": 0,
+          "summary_requested_scenes": 32,
+          "child_exitcodes": [
+            23
+          ],
+          "wall_seconds": 3.4103368278592825
+        },
+        {
+          "mode": "monitor_error",
+          "return_code": 2,
+          "error": null,
+          "child_alive_after_supervise": [
+            false
+          ],
+          "fixture_cleanup_remaining": 0,
+          "summary_exists": true,
+          "summary_complete_scenes": 0,
+          "summary_requested_scenes": 32,
+          "child_exitcodes": [
+            -15
+          ],
+          "wall_seconds": 0.002261226996779442
+        }
+      ],
+      "official_calls": 0,
+      "real_asset_reads": 0,
+      "gpu_calls": 0,
+      "wall_seconds": 3.413559863343835,
+      "parent_cpu_seconds": 0.009178999999999826,
+      "child_cpu_seconds": 3.1922550000000003,
+      "peak_rss_parent_kib": 599944,
+      "peak_rss_child_kib": 600768
+    },
+    "runner_fixture_suite": {
+      "scope": "independent CPU fixture rerun only",
+      "exit_code": 0,
+      "stdout_stderr": "....................                                                     [100%]\n20 passed in 6.83s\n",
+      "wall_seconds": 7.532940937206149,
+      "parent_cpu_seconds": 2.9544159999999997,
+      "child_cpu_seconds": 4.185142,
+      "peak_parent_rss_kib": 640900,
+      "peak_child_rss_kib": 640588,
+      "cuda_initialized": false,
+      "real_asset_reads": 0,
+      "official_calls": 0
+    },
+    "source_identity": {
+      "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_direction_fixed32_v2_controls/REGISTRATION.json",
+      "registration_sha256": "d6ad347867b77a274de976d62e07a0ab9c142eb46336c7e7de9e0198185c4152",
+      "source_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+      "frozen_runtime": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+      "files": [
+        {
+          "path": "starVLA/dataloader/foresight_dataset.py",
+          "bytes": 7030,
+          "sha256": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        },
+        {
+          "path": "starVLA/model/modules/flow_posttraining/road_margin_proxy.py",
+          "bytes": 20882,
+          "sha256": "f3b112d62765c362c78b1ffc8c1b32b3695df7af52fd238bd1c7290ba6c07bfd",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        },
+        {
+          "path": "starVLA/model/modules/st_world/consequence.py",
+          "bytes": 44517,
+          "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        },
+        {
+          "path": "tools/st_world_policy/consequence_smoke.py",
+          "bytes": 21690,
+          "sha256": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        },
+        {
+          "path": "tools/st_world_policy/diagnose_road_direction.py",
+          "bytes": 5756,
+          "sha256": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        },
+        {
+          "path": "tools/st_world_policy/run_road_direction.py",
+          "bytes": 36333,
+          "sha256": "d867fc1a4383e0f270568cbc58132a991ba65ab5de7fb240367ec2051167a89f",
+          "matches_registration": true,
+          "matches_reviewed_source": true
+        }
+      ]
+    }
+  },
+  "fixed_findings": [
+    "Parent monitor error and TERM/INT now run finally cleanup before run lock release; owned worker exit confirmed and32-row attempt summary retained.",
+    "Output scan uses one lstat and only ignores disappeared files; other monitor errors produce failure and cleanup.",
+    "Bounded read reserves capped probe bytes before IO and charges actual returned bytes; post-stat source growth cannot trigger unbounded read.",
+    "Known CPython resource_tracker is included in aggregate RSS; no broad process signalling."
+  ],
+  "retained_boundaries": [
+    "No actual metric-cache load or official call in this review; real map/runtime throughput is not yet measured.",
+    "Single CPU worker, one numerical thread; bound is1800s, not a guarantee all32finish.",
+    "Only process-crash/graceful-signal recovery was tested; no host-power-loss durability claim, and no authorization to SIGKILL the parent.",
+    "Original32allDAC1; direction experiment cannot establish violation repair, policy gain or canonical-score differentiability.",
+    "Geometry/numerical correctness requires the separate independent correctness review, including the anchored decoder.",
+    "External task changes or source/config mutation require new Lead admission; no automatic retry or hidden budget reset."
+  ],
+  "approval_excludes": [
+    "formal policy training",
+    "feature-side work",
+    "new candidate/scene selection",
+    "new reward or gradient method",
+    "GPU experiment",
+    "any autonomous dispatch by this reviewer"
+  ],
+  "actual_review_cost": {
+    "source_and_receipt_read_upper_bound_bytes": 8388608,
+    "read_limit_bytes": 16777216,
+    "real_asset_reads": 0,
+    "official_calls": 0,
+    "optimizer_updates": 0,
+    "gpu_initialized": false,
+    "fixture_cpu_seconds": 10.340992,
+    "fixture_peak_parent_plus_child_upper_kib": 1301488
+  },
+  "formal_training_approved": false,
+  "reviewer_dispatched": false
+}
