@@ -1,0 +1,73 @@
+{
+  "automatic_retry": false,
+  "binding": {
+    "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/BINDING.json",
+    "sha256": "cca84c91a525fd98fe49f277d4dcfaa2ea199f07fbf8933c44a22a87a764fb94"
+  },
+  "control_bytes": 1048576,
+  "control_root": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2_controls",
+  "controller_sources": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/control.py",
+      "sha256": "f348dd2a13c683d17c79e42728b45e946694148d0be1cefde21695c2c4f546b1"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/launch_once.sh",
+      "sha256": "ffc3e2d0da08b411187098e3ccc5d99175ed22ad4ea53b3dde5cd67d6931ff44"
+    }
+  ],
+  "cpu_affinity": [
+    2,
+    3
+  ],
+  "diagnostic": {
+    "path": "/mnt/project/VLA-Drive-st-teacher-channel-diagnostic-fix-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_diagnostic_v2/diagnose.py",
+    "sha256": "0bebc9aa89fe9485075887466c363033c7529c28c70d4bf41509a954b5a44bc1"
+  },
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "29ce8b89aec0e20d0b429d6a026634ec59e6ddee5933106d2ce9e378fa322d55"
+  },
+  "failed_attempt_preserved": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v1_controls/RESULT.json",
+  "gpu_index": 0,
+  "gpu_uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+  "host_snapshot": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/teacher_channel_prediction_actual_v2/HOST_SNAPSHOT.json",
+    "sha256": "0f0b4569062965b92bb9147910d61a4af1f5ec3379591669028a0b810afb9b5c"
+  },
+  "hostname": "training-vlawm-tsinghua-zt2-worker-0",
+  "issued_at_unix": 1792287907.2571616,
+  "latest_start_unix": 1792288807.2571623,
+  "ledger_writes": false,
+  "limits": {
+    "cleanup_seconds": 40,
+    "read_bytes": 343597383680,
+    "rss_bytes": 103079215104,
+    "wall_seconds": 1800
+  },
+  "minimum_gpu_free_bytes": 73014444032,
+  "new_checkpoint_reservation": false,
+  "output_bytes": 15728640,
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/teacher_channel_prediction_diagnostic_v2",
+  "resource_authorization": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+    "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+  },
+  "reviewer": null,
+  "schema": "st_teacher_channel_diagnostic_admission_v1",
+  "scope": "One explicitly corrected v2 attempt, no automatic retry, same8TRAIN requests and two real endpoints",
+  "status": "PROPOSAL_NOT_AUTHORIZED",
+  "supporting_resource_evidence": {
+    "HOST_SNAPSHOT.json": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/teacher_channel_prediction_actual_v2/HOST_SNAPSHOT.json",
+      "sha256": "0f0b4569062965b92bb9147910d61a4af1f5ec3379591669028a0b810afb9b5c"
+    },
+    "RETAINED_CHECKPOINT_COMMITMENTS.json": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/teacher_channel_prediction_actual_v1/RETAINED_CHECKPOINT_COMMITMENTS.json",
+      "sha256": "a03e314ce58adabfdb230c53e268d61016d969d0e26c3310c0362db0ab465447"
+    }
+  },
+  "supporting_resource_evidence_consumed_by_controller": false,
+  "training": false,
+  "valid_until_unix": 1792290907.2571628
+}
