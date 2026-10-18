@@ -1,3 +1,13 @@
+## ST feature-side research paused (2026-10-18)
+
+Latest user: "暂停关于特征层面的开发，集中开发有关后果的研究".
+Pause this campaign's spatial/teacher-width and temporal history/future/delta
+development, preparation, profiles, training and automatic continuation. Preserve
+all existing artifacts and native training states. Do not restart without new
+explicit user instruction. The ST consequence/Flow-policy research remains
+active; unrelated Base/SimWAM work and other user projects are untouched.
+Scope and native pause receipts: `/mnt/project/st-world-policy-20261016/audits/operator_pause/features_20261018/`.
+
 # ST world / consequence campaign
 
 Read the original contracts in `docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md`
