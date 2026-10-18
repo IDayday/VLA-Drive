@@ -1,0 +1,67 @@
+{
+  "schema": "feedback_scale_correctness_review_v1",
+  "status": "APPROVE_DERIVED_FEEDBACK_SCALE_ANALYSIS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "reviewed_at_utc": "2026-10-18T17:10:40.906561+00:00",
+  "author_commit": "8b00af4175a943d4d8a3862683335b8c00cc5c99",
+  "integrated_lead_commit": "5751d4d08bc65bb0d9a3c634084717e0424fd091",
+  "source_hashes": {
+    "tools/st_world_policy/analyze_feedback_scale.py": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e",
+    "tools/st_world_policy/analyze_full_feedback_support.py": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+    "tests/st_world/test_feedback_scale.py": "f01f977e7463c4a07cd20fa998e1940c2fc83cb29ec975d5fe1f62bfdcef65ad"
+  },
+  "fixed_inputs": {
+    "primary_plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+    "primary_plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+    "primary_RESULT_sha256": "0a6a84d3652122aeb69760b5237a56c71fec269c16b4066e78a0ddb05876d8cc",
+    "primary_RESULT_pin_source": "Lead supplied completed result hash; reviewer did not open actual result",
+    "proposal_markdown_sha256": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c"
+  },
+  "test_results": {
+    "author_tests_passed": 10,
+    "independent_tests_passed": 7,
+    "total_passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "child_cpu_seconds": 1.9726839999999999,
+    "peak_child_rss_bytes": 96370688,
+    "actual_primary_input_read": false,
+    "real_compact_input_read": false
+  },
+  "blocking_correctness_findings": [],
+  "resolved_during_WIP": [
+    "Per-stratum/window sums and ratio_of_sums distinguish pooled energy weighting from equal-update mean fractions",
+    "Actual imported primary helper bytes are hash-checked before compile/exec and included in execution identity",
+    "Production primary COMPLETE RESULT hash pinned, retaining plan/shard/compact join checks"
+  ],
+  "verified_semantics": [
+    "Exact stored FP32 A values, FP64 two-pass central M2, actual complete G4 count, correction1 and additive std epsilon1e-10",
+    "Allzero gain/null and zero-energy ratios/null; tiny std, constant nonzero groups and unresolved energy bounds explicitly recorded",
+    "All/nonzero/allzero/EP-only/event/discriminative strata and fixed four version windows; repeated exposures distinct from unique scene/log",
+    "Exact per-update pooled quantiles and additive energy totals; bound comparisons are not causal gradient attribution",
+    "Fixed source/plan/result/shards/inventory and complete boundary coverage; resealed duplicate version is rejected",
+    "Outside-primary once-only output namespace, no reset of primary budgets/deadline, errors retained and no retry/overwrite"
+  ],
+  "execution_conditions": [
+    "Only this fixed source/helper and fixed completed primary analysis inputs",
+    "One new output namespace outside original run and primary tree; no model/payload/PT/image/GT/metric-cache access",
+    "At most60 wall/CPU seconds,2GiB sampled RSS,64MiB logical derived reads,2MiB output and one assigned CPU",
+    "Existing primary lifecycle locks idle; primary plus complete derived allowance remains within32GiB logical overall budget",
+    "Systems/resource approval is separate; Lead dispatches once, no automatic retry or input changes"
+  ],
+  "authority": {
+    "derived_read_only_analysis_only": true,
+    "profile_or_training_approved": false,
+    "resource_coapproval": false,
+    "GPU_or_scoring_approved": false,
+    "dispatch_performed": false
+  },
+  "review_artifacts": {
+    "REVIEW.md": "86155bd74238d5a634603fd525d5b5c5f0e929a3950b6d3224a8fb486a5b0021",
+    "CPU_TEST_EXECUTION.json": "11ebbe0800a5efc704dfd057e28e8ef5518f8f38d6faa3bd8644a560d353ca3a",
+    "CPU_TEST_LOG.txt": "41c3aee667fd6fd4d97f0094c8388df337b2aa54bc6c58df49c00c10289a7a65",
+    "test_independent_scale.py": "b757abfd902fb171cb4dbcd2e502646da1987dfc087c2ab8531a3a54abb796b1",
+    "PRETEST_BINDING_REFUSAL.json": "ca878bfb819b66c54e8e8722d4c6e7dc4cc72c128ba7c2000afa9264fd79e860"
+  }
+}
