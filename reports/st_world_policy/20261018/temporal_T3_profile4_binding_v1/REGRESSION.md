@@ -1,0 +1,7 @@
+# Focused implementation verification
+
+Factory:6 tests passed in2.539s (TEST.log). Controller:7 tests passed in1.164s (CONTROLLER_TEST.log). These are code/fixture results, not GPU training acceptance. CONTROLLER_TEST_INITIAL_FAILURE.log preserves the initial fixture failures; fixes add the selected runtime import path and replace the inherited two-UUID cardinality with one.
+
+Coverage includes real canonical CPU-completion receipts and original registration validation; incomplete/missing/changed/symlinked metadata; exact four-step schedule and one-rank command; foreign GPU UUID and insufficient free memory; shared busy GPU permitted only with admitted external identities; rejection when those identities change; no duplicate80GiB accounting; wrong run assignment/additional reservation; original monitor error/cleanup path when sampled reads exceed budget; leaf-to-root order; recycled PID exclusion; unreadable owned counters; real cross-SID owned stdlib reader and reap, with monotone observed reads and no remaining fixture processes.
+
+Commands used CUDA_VISIBLE_DEVICES='' and taskset -c2,3 with OMP/BLAS/MKL thread limits2, PYTHONDONTWRITEBYTECODE=1, timeout60s and the existing ddp Python. The only payload fixture is1MiB read eight times by our own subprocess. Neither actual admission nor actual run registration was created. The final source adds a strict hash of binding_factory.py before importing it; FINAL_TEST.log records rechecking the frozen delivery plus CLI --help.

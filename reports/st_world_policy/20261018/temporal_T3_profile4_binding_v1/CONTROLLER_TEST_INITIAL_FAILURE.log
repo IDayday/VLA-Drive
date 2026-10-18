@@ -1,0 +1,37 @@
+test_aggregate_hold_not_double_reserved (__main__.Control) ... ok
+test_fixed_real_inputs_command_and_schedule (__main__.Control) ... ok
+test_original_monitor_read_limit_uses_original_cleanup (__main__.Control) ... ok
+test_real_cross_sid_read_and_reap (__main__.Control) ... ERROR
+test_source_transform_rejects_unreviewed_donor (__main__.Control) ... ok
+test_wrong_uuid_or_busy_rejected (__main__.Control) ... ERROR
+
+======================================================================
+ERROR: test_real_cross_sid_read_and_reap (__main__.Control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/test_controller.py", line 66, in test_real_cross_sid_read_and_reap
+    mon,_=c.monitor_helpers()
+  File "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/controller.py", line 113, in monitor_helpers
+    m,rss=original_helpers();c.IO_LEGACY=m;return m,rss
+  File "/mnt/project/VLA-Drive-st-temporal-combination-20261017/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py", line 281, in monitor_helpers
+    from tools.st_world_policy import metadata_storage
+ModuleNotFoundError: No module named 'tools'
+
+======================================================================
+ERROR: test_wrong_uuid_or_busy_rejected (__main__.Control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/test_controller.py", line 18, in test_wrong_uuid_or_busy_rejected
+    self.assertEqual(c.gpu_record(True)[0]['uuid'],w.b.GPU_UUID)
+  File "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/controller.py", line 107, in gpu_record
+    rows=original_gpu(idle)
+  File "/mnt/project/VLA-Drive-st-temporal-combination-20261017/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py", line 124, in gpu_record
+    require(len({x['uuid'] for x in result})==2,'Duplicate physical GPU UUID')
+  File "/mnt/project/VLA-Drive-st-temporal-combination-20261017/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py", line 62, in require
+    if not value: raise RuntimeError(message)
+RuntimeError: Duplicate physical GPU UUID
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.025s
+
+FAILED (errors=2)

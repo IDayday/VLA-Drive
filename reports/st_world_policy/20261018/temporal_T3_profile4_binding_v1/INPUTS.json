@@ -1,0 +1,106 @@
+{
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 4,
+    "world_size": 1
+  },
+  "factory_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/controls/RESULT.json",
+    "sha256": "443e6ad1c0fceadcc160cdbc95e2a1a004b1c91b0f9aa1e55dba6cb81cdfb102"
+  },
+  "gpu": "0",
+  "gpu_uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+  "host": "training-vlawm-tsinghua-zt2-worker-0",
+  "native_argv_for_existing_supervisor": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nnodes=1",
+    "--nproc_per_node=1",
+    "-m",
+    "tools.st_world_policy.train_world",
+    "--registration",
+    "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/REGISTRATION.json"
+  ],
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2",
+  "outputs": {
+    "SOURCE_MIGRATION.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/SOURCE_MIGRATION.json",
+      "sha256": "166212c15e8ca4c5b18f204074314a2dae44cc362e73f542c068eb43a1ec7d81"
+    },
+    "configured/PREPARATION_COMPLETE.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/PREPARATION_COMPLETE.json",
+      "sha256": "610075abff2d0dec8e7b8af36c314ee9e593d25273556a2d0f99b0c24645d3ea"
+    },
+    "configured/PROVIDER.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/PROVIDER.json",
+      "sha256": "db9c750aec698048d9b8cfca52ff39bdc7b62fa80750464c1a01bd6d1863ea50"
+    },
+    "configured/PROVIDER_CHANNEL_SCOPE.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/PROVIDER_CHANNEL_SCOPE.json",
+      "sha256": "7f6416d7e91565bc5cc85b7af4f48249aff2628d12b3f852f47154b4e6f517c8"
+    },
+    "configured/T2_REFERENCE.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/T2_REFERENCE.json",
+      "sha256": "ac1f16ac41756c22d22f9628dae613ba7dd0f4a5774418dbe4f28580551678a2"
+    },
+    "configured/T3_RECIPE.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/T3_RECIPE.json",
+      "sha256": "0cd59c8a94b6b73d37829724868dc401788490e4135a51f5144d304fead68d40"
+    },
+    "configured/training_config.json": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/training_config.json",
+      "sha256": "5fd3da85fe1a9561124b652d78126aaab0be8e013ff8f9400124863ae8babfac"
+    }
+  },
+  "pins": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/training_config.json",
+      "sha256": "5fd3da85fe1a9561124b652d78126aaab0be8e013ff8f9400124863ae8babfac"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/indexed_composition_preparation_v1/SELECTED_SCENES.json",
+      "sha256": "7c78c58c40456649a93d152f9925ea5e1faa7e08bb65e98cd6c4af3b0c52b9b8"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/PROVIDER.json",
+      "sha256": "db9c750aec698048d9b8cfca52ff39bdc7b62fa80750464c1a01bd6d1863ea50"
+    }
+  },
+  "proposed_budget": {
+    "checkpoint_output_bytes": 85899345920,
+    "cleanup_seconds": 180,
+    "cpu_threads": 2,
+    "cumulative_scene_exposures": 8,
+    "cumulative_updates": 4,
+    "gpu_capacity_bytes": 85899345920,
+    "gpu_devices": 1,
+    "loader_workers": 0,
+    "logical_read_proposed_bytes": 274877906944,
+    "native_seconds": 1800,
+    "new_teacher_tensor_disk_bytes": 0,
+    "outer_seconds": 1920,
+    "rss_bytes": 68719476736
+  },
+  "registration_created": false,
+  "resource_admission_created": false,
+  "run_id": "temporal_T3_indexed32_updates4_v2",
+  "runtime": "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018",
+  "schema": "st_T3_profile4_binding_v1",
+  "source_sha": "cf516259c8efc24503727f14b9e330ed32231293",
+  "status": "ACTUAL_FACTORY_PINNED_NOT_DISPATCHED",
+  "training_started": false,
+  "weights_usable_for_formal_init": false
+}

@@ -1,0 +1,70 @@
+{
+  "additional_checkpoint_reservation_bytes": 0,
+  "approval_issued": false,
+  "assignment_fixed_path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/CHECKPOINT_HOLD80_ASSIGNMENT.json",
+  "binding_factory": {
+    "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/binding_factory.py",
+    "sha256": "78495993e59efa4edf9395d6f13743414c227948b5e47398be040d2ad87753af"
+  },
+  "checkpoint_commitments": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/CHECKPOINT_COMMITMENTS_2703G.json",
+    "sha256": "015e7f6dddf7b1cab6823f88310db4297ed9ffd83653e9b6fab8cc666cc82856"
+  },
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/controller.py",
+    "sha256": "1993f4b7afb601e375efe701f9bf25d1a209b4943bbfea8911b7f97abfa1443d"
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 2,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 32,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 4,
+    "world_size": 1
+  },
+  "gpu_uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+  "host": "training-vlawm-tsinghua-zt2-worker-0",
+  "inputs": {
+    "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/INPUTS.json",
+    "sha256": "c7123ff5b49da9c6a493263a48070b172b6ec80dbda443014f13f7b70576f66e"
+  },
+  "limits": {
+    "checkpoint_output_bytes": 85899345920,
+    "cleanup_seconds": 180,
+    "cpu_threads": 2,
+    "cumulative_scene_exposures": 8,
+    "cumulative_updates": 4,
+    "gpu_capacity_bytes": 85899345920,
+    "gpu_devices": 1,
+    "loader_workers": 0,
+    "logical_read_proposed_bytes": 274877906944,
+    "native_seconds": 1800,
+    "new_teacher_tensor_disk_bytes": 0,
+    "outer_seconds": 1920,
+    "rss_bytes": 68719476736
+  },
+  "logical_read_semantics": "sampled conservative leaf-to-root threshold; not hard OS quota; postwait supervisor+waited descendants charged separately",
+  "no_resume": true,
+  "no_retry": true,
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2",
+  "own80_GiB_is_existing_hold": true,
+  "run_id": "temporal_T3_indexed32_updates4_v2",
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018",
+    "source_sha": "cf516259c8efc24503727f14b9e330ed32231293"
+  },
+  "schema": "st_T3_profile4_control_plan_v1",
+  "shared_placement": {
+    "exclusive_performance_claim": false,
+    "fresh_protected_external_processes_required": true,
+    "minimum_free_gpu_bytes": 73014444032,
+    "shared_gpu": true
+  },
+  "status": "PREPARED_FOR_INDEPENDENT_REVIEW_NOT_ADMITTED",
+  "training_started": false,
+  "weights_usable_for_formal_init": false
+}
