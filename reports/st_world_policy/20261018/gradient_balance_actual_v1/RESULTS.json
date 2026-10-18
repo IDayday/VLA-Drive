@@ -1,0 +1,40 @@
+{
+  "status": "DIAGNOSTIC_REJECTED",
+  "failure_stage": "first frozen encoder forward after strict original parent/native loading",
+  "error": {
+    "message": "Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility",
+    "type": "RuntimeError"
+  },
+  "optimizer_steps": 0,
+  "new_official_calls": 0,
+  "scientific_gradient_balance": "NOT_MEASURED",
+  "source_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "wrapper_sha256": "ecb122a09b67ebc266c949bc5f7f7771c12b3b0cbee5712b57fcb7d10a722b20",
+  "runtime_environment_omission": "CUBLAS_WORKSPACE_CONFIG not explicitly set",
+  "resources": {
+    "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+    "charged_read_bytes": 73834874003,
+    "exit_code": 1,
+    "known_nominal_read_bytes": 73834874003,
+    "live_owned_remaining": 0,
+    "no_RLIMIT_AS": true,
+    "observed_physical_read_bytes": 29192282112,
+    "observed_rchar_bytes": 26225084147,
+    "optimizer_steps": 0,
+    "output_bytes_before_receipt": 14518,
+    "peak_observed_RSS_bytes": 26140655616,
+    "real_scoring_calls": 0,
+    "reason": "OWNED_DESCENDANTS_AFTER_LEADER_EXIT",
+    "status": "STOPPED_NO_AUTO_RETRY",
+    "wall_seconds": 362.4220611024648
+  },
+  "original_result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1/RESULT.json",
+    "sha256": "e4cfb07131dd2ffe462a90e821e314ef3b6c2e55fa3e597b4aca20114cbfcdbf"
+  },
+  "supervisor_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/RUNTIME_ATTEMPT/SUPERVISOR_RESULT.json",
+    "sha256": "3a5e30488701c21d9ebeb320c54b3a7f432d7e180359e33e61d863736aac3e3a"
+  },
+  "next_attempt_policy": "Explicit one-time reviewed v2 environment repair; same mathematical source, checkpoint, batch and limits; no automatic retries, original failure retained"
+}
