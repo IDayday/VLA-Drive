@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "940s",
+    "/usr/bin/taskset",
+    "-c",
+    "10,11",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "/mnt/project/VLA-Drive-st-full-history-controller-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/run_full_history_once.py",
+    "--role",
+    "dev",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_dev_actual_resource_v1/ACTUAL_ADMISSION.json",
+    "--admission-sha256",
+    "50d0784b2e17047d34fb7a7488a71018820aa7170630d75451c776ce253310e2"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "native_cleanup_seconds": 40,
+  "native_work_seconds": 900,
+  "no_automatic_train_or_retry": true,
+  "outer_fallback_kill_after_seconds": 40,
+  "outer_fallback_term_seconds": 940,
+  "prelaunch_failure_observation": "Lead records actual exit code; no uncharged outer logfile. Native result and cleanup evidence remain in the registered roots after supervisor entry.",
+  "role": "dev",
+  "run_by_reviewer": false,
+  "schema": "st_reviewed_single_command_v1",
+  "stderr": "/dev/null",
+  "stdin": "/dev/null",
+  "stdout": "/dev/null"
+}
