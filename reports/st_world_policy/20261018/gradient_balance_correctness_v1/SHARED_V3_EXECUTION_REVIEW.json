@@ -1,0 +1,108 @@
+{
+  "actual_execution": "NOT_RUN_BY_REVIEWER",
+  "budget": {
+    "max_output_bytes": 8388608,
+    "max_read_bytes": 206158430208,
+    "max_rss_bytes": 68719476736,
+    "max_seconds": 1800
+  },
+  "conditions": [
+    "Only exact wrapper8afa0e9a and registration6a48f942 with unchanged runtime83679937 and exact GPU_ADMISSION dictionary in fresh Lead/correctness/resources records",
+    "Run only on training-vlawm-tsinghua-zt2-worker-0 GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897 with measured free memory>=61440MiB at parent and child admission; sharing with existing workloads is authorized",
+    "Protect every existing GPU process; no signaling,eviction or stopping another workload if headroom changes",
+    "Headroom is an admission snapshot,not a reservation or OOM/throughput guarantee; contention or diagnostic failure must preserve existing jobs and the diagnostic failure receipt",
+    "CUBLAS_WORKSPACE_CONFIG=:4096:8 must be set before Python/PyTorch; strict source,environment,condition and MC50 checks remain fail-closed",
+    "Only original C1 boundary3584,next32 scenes,four-rank ordering,saved RNG; zero optimizer updates and zero new score calls",
+    "One immutable v3 attempt/output namespace with no automatic retry; preserve prior failure evidence and costs",
+    "Keep original1800second/64GiB RSS/192GiB read/8MiB output observation limits and owned process cleanup; no feature workflow or training approval",
+    "Fresh independent resource approval and Lead dispatch required; this reviewer did not query live remote GPU or dispatch"
+  ],
+  "created_utc": "2026-10-18T16:20:36.454547+00:00",
+  "feature_research": "PAUSED_UNTOUCHED",
+  "formal_training_approved": false,
+  "gpu_admission": {
+    "minimum_free_memory_mib": 61440,
+    "mode": "shared_spare_capacity",
+    "protect_all_existing_processes": true
+  },
+  "helper_sha256": {
+    "prepare_bindings.py": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84",
+    "supervise_once.py": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+  },
+  "narrow_ast_check": {
+    "added_constant": "GPU_ADMISSION",
+    "all_other_AST_unchanged": true,
+    "changed_functions": [
+      "validate_admission"
+    ],
+    "new_wrapper_matches_commit": true,
+    "registration_unchanged": true
+  },
+  "prior_math_env_cleanup_review": {
+    "commit": "9fd587f2",
+    "inherited_scope": "Only unchanged math/env/runtime/cleanup; prior exclusive GPU admission is superseded",
+    "path": "reports/st_world_policy/20261018/gradient_balance_correctness_v1/REMOTE_V3_EXECUTION_REVIEW.json",
+    "sha256": "d228f111b14d6d7b83ff9e1fa7f29fd8d2257d16a661ac16991b0f58b0b1316a"
+  },
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/REGISTRATION.json",
+  "registration_sha256": "6a48f942e8b57f568d74be0bd92cab389daa6140d0a0307896acd40da3358770",
+  "resource": {
+    "cpu_threads": 2,
+    "gpu_uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+    "host": "training-vlawm-tsinghua-zt2-worker-0"
+  },
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "runtime": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "schema": "gradient_balance_shared_v3_correctness_review_v1",
+  "scope": {
+    "automatic_retry": false,
+    "boundary": 3584,
+    "feature_workflows": false,
+    "formal_training": false,
+    "new_attempts_authorized": 1,
+    "new_score_calls": 0,
+    "next_global_scenes": 32,
+    "optimizer_updates": 0,
+    "original_world_size": 4
+  },
+  "source_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "source_hashes": {
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+    "starVLA/model/modules/flow_posttraining/policy_snapshot.py": "afd19462f677e788b40621764838ff2d1e6fab415084ebda182b95b2e4de36cc",
+    "starVLA/model/modules/flow_posttraining/rollout_contract.py": "522ab3164ff5e859b411934f15bc9953460a8f3e0a31cc31986df412ac63af9d",
+    "tests/st_world/test_audit_flow_gradient_balance.py": "441ff3c838a27bc540cb481f5e834ab154feac9f9b082cba72bac8d96954fd21",
+    "tools/foresight/student_state.py": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+    "tools/st_world_policy/audit_flow_gradient.py": "2f74a2a33258fdd28d795633debc70efa00b3c242caf651b55969e0ef8a8a830",
+    "tools/st_world_policy/audit_flow_gradient_balance.py": "a8c376a5c9cb35becebf9e2ec942cf7df176d0e6f156fd457e423f3f2b54a6e2",
+    "tools/st_world_policy/flow_checkpoints.py": "ec40cb7a9f7459affa6f245124f4a7c1d45674ced7ee3a16805514f6e2d3b328",
+    "tools/st_world_policy/train_flow_policy.py": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96"
+  },
+  "source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "status": "APPROVE_GRADIENT_BALANCE_EXECUTION",
+  "tests": {
+    "GPU_compute": 0,
+    "GPU_queries": 0,
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q reports/st_world_policy/20261018/gradient_balance_correctness_v1/test_shared_v3_independent.py",
+    "failed": 0,
+    "passed": 10,
+    "path": "reports/st_world_policy/20261018/gradient_balance_correctness_v1/test_shared_v3_independent.py",
+    "real_model_or_cache_reads": 0,
+    "sha256": "f79dfe8c6c3e1b552c6726ed8f0cf6f43a269b560b3fb702896b1a43368a90e4",
+    "skipped": 0,
+    "wall_seconds_pytest_reported": 0.11
+  },
+  "verified": [
+    "Exact shared admission dictionary required in Lead and both independently authored hash-bound reviews",
+    "Exact queried UUID must match registration and measured free memory must be>=61440MiB",
+    "Existing processes are allowed and not enumerated or signaled by admission; owned-child-only supervision remains unchanged",
+    "Missing shared permission,insufficient free memory,wrong UUID,unparseable/negative/extra-field reply fail before work",
+    "No changes to mathematics,original data/RNG/env,budgets,read admission or owned cleanup"
+  ],
+  "wrapper_path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/gradient_balance_remote_v3/supervise_gradient_once.py",
+  "wrapper_sha256": "8afa0e9a9a0cdfe7b974081dd11fc5c264474fd5a081d7376781903567a6b579",
+  "wrapper_source_sha": "679d14c4b3cf057bc89d1278672b246415da3b04"
+}
