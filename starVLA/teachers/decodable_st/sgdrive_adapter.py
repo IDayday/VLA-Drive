@@ -1,11 +1,55 @@
 """Stage1-only extraction. Current/future heads have distinct strict receipts."""
 import json
+import sys
+from pathlib import Path
 import torch
 from starVLA.model.modules.decodable_st.contracts import TemporalContract
 from starVLA.model.modules.decodable_st.frozen_decoders import FrozenSGDriveDecoder
 from .source_registry import load_exact_subset
 
 SGDRIVE_SOURCE = "fcda385371f8f40af5b8969ca5090be06f421358"
+
+
+def load_native_stage1(source_root,weight_dir,device="cuda",dtype=torch.float32):
+    from .source_registry import verify_source
+    verify_source(source_root,SGDRIVE_SOURCE)
+    sys.path.insert(0,str(Path(source_root)/"internvl_chat"))
+    from internvl.model.internvl_chat.configuration_internvl_chat_wm import InternVLChatConfig_WM
+    from internvl.model.internvl_chat.modeling_internvl_chat_wm import InternVLChatModel_WM
+    from transformers import AutoTokenizer
+    from safetensors.torch import load_file
+    config=InternVLChatConfig_WM.from_pretrained(str(weight_dir),local_files_only=True)
+    config.llm_config._attn_implementation="sdpa"
+    config.llm_config._attn_implementation_internal="sdpa"
+    model=InternVLChatModel_WM(config,use_flash_attn=False)
+    receipt=model.load_state_dict(load_file(str(Path(weight_dir)/"model.safetensors")),strict=True)
+    model.to(device=device,dtype=dtype).eval().requires_grad_(False)
+    tokenizer=AutoTokenizer.from_pretrained(str(weight_dir),use_fast=False,trust_remote_code=False,local_files_only=True)
+    for field,token in (("world_token_id","<WORLD TOKEN>"),("dream_token_id","<DREAM TOKEN>"),("img_context_token_id","<IMG_CONTEXT>")):
+        index=tokenizer.convert_tokens_to_ids(token)
+        if index==tokenizer.unk_token_id:raise ValueError(f"Missing native special token {token}")
+        setattr(model,field,index)
+    return model,tokenizer,{"missing":list(receipt.missing_keys),"unexpected":list(receipt.unexpected_keys),
+                           "parameter_dtype":str(dtype),"attention":"native sdpa"}
+
+
+def current_prefix(model,tokenizer,*,navigation,num_patches,history_text=""):
+    """No answer slots, sample IDs, future QA, future trajectory or future states."""
+    from internvl.conversation import get_conv_template
+    question="".join("<image>" for _ in num_patches)+"\nCurrent front camera observations. Navigation: "+navigation
+    if history_text:question+="\nPermitted ego history: "+history_text
+    question+="\n"+"<world>"*model.NUM_WORLD_TOKEN+"\n"+"<dream>"*(model.occ_token_number+model.agent_token_number)
+    template=get_conv_template(model.template)
+    template.system_message=model.system_message
+    template.append_message(template.roles[0],question);template.append_message(template.roles[1],None)
+    query=template.get_prompt()
+    for count in num_patches:
+        query=query.replace("<image>","<img>"+"<IMG_CONTEXT>"*(model.num_image_token*count)+"</img>",1)
+    query=query.replace("<world>"*model.NUM_WORLD_TOKEN,"<world>"+"<WORLD TOKEN>"*model.NUM_WORLD_TOKEN+"</world>",1)
+    n=model.occ_token_number+model.agent_token_number
+    query=query.replace("<dream>"*n,"<dream>"+"<DREAM TOKEN>"*n+"</dream>",1)
+    encoded=tokenizer(query,return_tensors="pt")
+    return encoded,query
 
 
 def load_sgdrive_decoder(weights, config, *, future):
