@@ -27,6 +27,7 @@ SOURCE='83679937fe9702be39f0184154fdf9ebdc4eb98a'
 REGISTRATION=Path('/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/REGISTRATION.json')
 REG_SHA='6a48f942e8b57f568d74be0bd92cab389daa6140d0a0307896acd40da3358770'
 RUNTIME_ENVIRONMENT={'CUBLAS_WORKSPACE_CONFIG':':4096:8'}
+GPU_ADMISSION={'mode':'shared_spare_capacity','minimum_free_memory_mib':61440,'protect_all_existing_processes':True}
 POLICY=Path('/mnt/project/server_dispatch_policy.json')
 GPU_LOCK=Path('/mnt/project/st-world-policy-20261016/resources/locks/GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897.lock')
 ATTEMPT=REGISTRATION.parent/'RUNTIME_ATTEMPT'
@@ -286,6 +287,7 @@ def validate_admission(path):
     if (a.get('status')!='APPROVED' or a.get('registration_sha256')!=REG_SHA
         or a.get('source_sha')!=SOURCE or a.get('wrapper_sha256')!=self_hash
         or a.get('helper_sha256')!=helper_hashes or a.get('runtime_environment')!=RUNTIME_ENVIRONMENT
+        or a.get('gpu_admission')!=GPU_ADMISSION
         or a.get('host')!=socket.gethostname()
         or a.get('host')!=r['resource']['host'] or a.get('gpu_uuid')!=r['resource']['gpu_uuid']
         or a.get('valid_until_unix',0)<time.time()+WALL):raise ValueError('Exact unexpired Lead admission required')
@@ -294,7 +296,8 @@ def validate_admission(path):
         if (review.get('status')!='APPROVE_GRADIENT_BALANCE_EXECUTION' or review.get('review_kind')!=kind
             or review.get('reviewer') in (None,'','/root/road_proxy_systems_review')
             or review.get('source_sha')!=SOURCE or review.get('registration_sha256')!=REG_SHA
-            or review.get('wrapper_sha256')!=self_hash or review.get('runtime_environment')!=RUNTIME_ENVIRONMENT):
+            or review.get('wrapper_sha256')!=self_hash or review.get('runtime_environment')!=RUNTIME_ENVIRONMENT
+            or review.get('gpu_admission')!=GPU_ADMISSION):
             raise ValueError('Independent exact '+kind+' review required')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=RUNTIME,text=True,timeout=10).strip()!=SOURCE:
         raise ValueError('Frozen runtime changed')
@@ -302,10 +305,14 @@ def validate_admission(path):
     cpus=a.get('cpu_affinity')
     if not isinstance(cpus,list) or len(cpus)!=2 or len(set(cpus))!=2 or not set(cpus)<=os.sched_getaffinity(0):
         raise ValueError('Two available CPU IDs required')
-    # Lead, not this wrapper, frees positively identified pressure workers.
-    apps=subprocess.check_output(['nvidia-smi','-i',a['gpu_uuid'],'--query-compute-apps=pid','--format=csv,noheader'],text=True,timeout=10).strip()
-    memory=int(subprocess.check_output(['nvidia-smi','-i',a['gpu_uuid'],'--query-gpu=memory.used','--format=csv,noheader,nounits'],text=True,timeout=10).strip())
-    if apps or memory>128:raise ValueError('Registered GPU is not empty; never preempt real/unknown tasks')
+    # The user authorizes shared GPUs. Use only measured spare memory; the
+    # wrapper never sends signals to any existing GPU process. This is an
+    # admission snapshot, not an exclusive reservation or OOM guarantee.
+    memory=subprocess.check_output(['nvidia-smi','-i',a['gpu_uuid'],
+        '--query-gpu=uuid,memory.free','--format=csv,noheader,nounits'],text=True,timeout=10).strip().split(',')
+    if (len(memory)!=2 or memory[0].strip()!=a['gpu_uuid']
+        or int(memory[1].strip())<GPU_ADMISSION['minimum_free_memory_mib']):
+        raise ValueError('Registered GPU lacks admitted spare memory; preserve all other jobs')
     return r,a
 
 
