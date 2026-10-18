@@ -1,0 +1,110 @@
+{
+  "anchoring_review": {
+    "mathematical_adaptation": "saved physical origin plus unchanged float64 decode local delta; constant offset does not change local derivative",
+    "not_claimed": [
+      "GPU/CPU bitwise decoding equality",
+      "derivative of LQR/bicycle or official DAC/PDMS"
+    ],
+    "required_before_real_execution": [
+      "Exact widening of saved FP32 raw values",
+      "Per-coordinate FP32 constant/multiply/add roundoff envelope for XY, fixed before asset reads",
+      "Fixed yaw periodic discrepancy limit 8*float32_eps radians; numerical admission tolerance, not a GPU atan2 error theorem",
+      "Record full offsets and refuse out-of-envelope scenes without replacement"
+    ]
+  },
+  "bounded_real_diagnostic_readiness": "BLOCKED_EXECUTION_RUNNER_AND_ADMISSION",
+  "created_utc": "2026-10-18T15:14:21.424643+00:00",
+  "formal_training_approval": false,
+  "geometry_status": "VERIFIED_CPU_FIXTURES",
+  "implementation_commit": "ec9fbb32b67532bd82058533eb89ae469c4c81d1",
+  "inspected_source_size_bytes": 182396,
+  "known_scope_limits": [
+    "All32 originals DAC=1; no road repair denominator",
+    "Actual offset values unread",
+    "Only synthetic geometry fixtures execute installed official interpolation/coordinate helpers",
+    "No actual score calls, simulation, model load, real trajectory/cache reads, or GPU use",
+    "Feature research remains paused"
+  ],
+  "preparation_status": "VERIFIED_PREPARED_NOT_EXECUTED",
+  "read_budget_scope": "Direct source/evidence inspections; Python import/test dependency IO is not counted as scene/asset IO",
+  "real_direction_status": "NOT_RUN",
+  "remaining_prerequisites": [
+    "Review exact thin execution runner source SHA and complete identity checking",
+    "Lead resource/read/call admission (32 fixed TRAIN scenes, maximum128 backend invocations including retries)",
+    "Every actual cache schema, scorer/simulator vehicle equality, official interpolation and footprint parity before scoring",
+    "Durably preserve all32 statuses including undefined directions and unexpected failure receipts",
+    "Single reference context and exact original record hash; no deployment or policy update"
+  ],
+  "reviewed_paths": {
+    "navsim_v1.1/navsim/navsim/evaluate/pdm_score.py": {
+      "bytes": 5560,
+      "sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8"
+    },
+    "navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/utils/pdm_array_representation.py": {
+      "bytes": 7873,
+      "sha256": "e5102697bf941d2f01ff5fc172416c435f639004884b6959741eea5524614dd3"
+    },
+    "reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.json": {
+      "bytes": 63829,
+      "sha256": "1dc9da0bbde392e6296d8fee943eb1fdf6299a8eab4af5af4a866ee0c72f182a"
+    },
+    "reports/st_world_policy/20261018/consequence_proxy_evidence_v1/NEXT_DIRECTION_DIAGNOSTIC.md": {
+      "bytes": 14956,
+      "sha256": "fa6c3b713b6e9bc666d00becb612bbd8a9575d6b2b1c2792e317c014b48d1fda"
+    },
+    "starVLA/dataloader/foresight_dataset.py": {
+      "bytes": 7030,
+      "sha256": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235"
+    },
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": {
+      "bytes": 20882,
+      "sha256": "f3b112d62765c362c78b1ffc8c1b32b3695df7af52fd238bd1c7290ba6c07bfd"
+    },
+    "starVLA/model/modules/st_world/consequence.py": {
+      "bytes": 44517,
+      "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+    },
+    "tests/st_world/test_road_margin_proxy.py": {
+      "bytes": 11993,
+      "sha256": "02b0bb9e8f0d99523928c8e3e2e52eb2679d5ad331ae6e0f4de8599b03990ec1"
+    },
+    "tools/st_world_policy/diagnose_road_direction.py": {
+      "bytes": 5756,
+      "sha256": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f"
+    }
+  },
+  "reviewer_agent": "/root/road_proxy_correctness_review",
+  "schema": "road_direction_independent_correctness_v1",
+  "test_execution": {
+    "bounded_source_read_budget_bytes": 16777216,
+    "child_cpu_seconds": 9.330791999999997,
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/st_world/test_road_margin_proxy.py",
+      "/mnt/project/VLA-Drive-st-road-proxy-correctness-20261018/reports/st_world_policy/20261018/road_direction_correctness_v1/test_independent.py"
+    ],
+    "exit_code": 0,
+    "gpu_calls": 0,
+    "implementation_commit": "ec9fbb32b67532bd82058533eb89ae469c4c81d1",
+    "metric_cache_reads": 0,
+    "model_loads": 0,
+    "official_scoring_calls": 0,
+    "real_scene_reads": 0,
+    "rusage_maxrss_bytes": 885190656,
+    "sampled_peak_rss_bytes": 853803008,
+    "schema": "road_proxy_independent_cpu_review_v1",
+    "violation": null,
+    "wall_seconds": 9.874787501990795
+  },
+  "tests": {
+    "author_tests": 30,
+    "failed": 0,
+    "independent_tests": 9,
+    "passed": 39,
+    "total": 39,
+    "warnings": 1
+  }
+}
