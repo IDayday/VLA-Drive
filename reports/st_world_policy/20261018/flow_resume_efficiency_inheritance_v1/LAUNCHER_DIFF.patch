@@ -1,0 +1,31 @@
+--- /mnt/project/st-world-policy-20261016/resources/launch_reviewed_flow_v1.py
++++ /mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/flow_resume_policy_refresh_v1/launch.py
+@@ -23,0 +24 @@
++p.add_argument('--approval', required=True)
+@@ -41,15 +42,6 @@
+-reviews = {}
+-for role in ('evidence', 'correctness', 'efficiency'):
+-    path = regpath.parent/'reviews'/(role.upper()+'.json')
+-    review = json.loads(path.read_text())
+-    assert review['fingerprint'] == fingerprint and review['status'] == 'PASS'
+-    reviews[role] = {'path':str(path), 'sha256':file_hash(path)}
+-approval = regpath.parent/'RUN_APPROVAL.json'
+-proposal = {'schema':'st_world_approval_v1','fingerprint':fingerprint,
+-    'reviews':reviews,'formal_launch_allowed':True}
+-# Validate independent reviewer identity, evidence and exact artifacts BEFORE
+-# publishing the immutable approval. A rejected proposal cannot poison this path.
+-with tempfile.TemporaryDirectory(prefix='st-flow-approval-') as temporary:
+-    proposed_path = Path(temporary)/'PROPOSED_APPROVAL.json'
+-    atomic_json(proposed_path, proposal, immutable=True)
+-    gate = check_formal_approval(regpath, proposed_path, repo=REPO)
++# Resume only. Preserve original reviews and RUN_APPROVAL.json; an independent
++# policy refresh binds the same scientific fingerprint and immutable evidence.
++assert a.resume, 'Policy-refresh launcher only resumes the existing lineage'
++approval = Path(a.approval).resolve()
++assert approval.is_relative_to(regpath.parent/'policy_refresh'), 'Use versioned local approval'
++gate = check_formal_approval(regpath, approval, repo=REPO)
+@@ -111 +102,0 @@
+-atomic_json(approval, proposal, immutable=True)
+@@ -137 +128 @@
+-record = {'schema':'st_reviewed_formal_flow_launch_v1','pid':child.pid,'host':host,
++record = {'schema':'st_reviewed_formal_flow_policy_refresh_launch_v1','pid':child.pid,'host':host,
