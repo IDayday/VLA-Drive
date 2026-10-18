@@ -1,0 +1,37 @@
+{
+  "Lead_dispatch_only": true,
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/history_train_attempt3_actual_resource_v1/ACTUAL_ADMISSION.json",
+    "sha256": "aeab51f1d21bd53b11c815e6881400bbc73e329e3ac198ed6b2f34ad84e8a3c6"
+  },
+  "argv": [
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "OMP_NUM_THREADS=2",
+    "MKL_NUM_THREADS=2",
+    "OPENBLAS_NUM_THREADS=2",
+    "PYTHONPATH=/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+    "taskset",
+    "-c",
+    "10,11",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=40s",
+    "14440s",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-B",
+    "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/run_resume_once.py",
+    "--role",
+    "train",
+    "--admission",
+    "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/history_train_attempt3_actual_resource_v1/ACTUAL_ADMISSION.json",
+    "--admission-sha256",
+    "aeab51f1d21bd53b11c815e6881400bbc73e329e3ac198ed6b2f34ad84e8a3c6"
+  ],
+  "cwd": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+  "dispatch_performed": false,
+  "host": "training-vla-zt-worker-0",
+  "schema": "st_history_attempt3_resolved_command_v1",
+  "shell_command": "env CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 PYTHONPATH=/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018 taskset -c 10,11 timeout --signal=TERM --kill-after=40s 14440s /root/miniconda3/envs/ddp/bin/python -B /mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/full_history_train_resume_preparation_v1/run_resume_once.py --role train --admission /mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/history_train_attempt3_actual_resource_v1/ACTUAL_ADMISSION.json --admission-sha256 aeab51f1d21bd53b11c815e6881400bbc73e329e3ac198ed6b2f34ad84e8a3c6"
+}
