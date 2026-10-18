@@ -47,6 +47,13 @@ def means(rows):
                 feasible=bool(safe.any()),any_zero=bool((v[:,0]==0).any()),all_zero=bool((v[:,0]==0).all()))
 
 
+def probe_generators(token):
+    # The locked upstream _randn explicitly generates on CPU before transfer.
+    # Keep separate generators; root consumption never shifts innovations.
+    return (torch.Generator(device='cpu').manual_seed(seed_for('failure_probe_root',2101,token)),
+            torch.Generator(device='cpu').manual_seed(seed_for('failure_probe_innovation',2101,token)))
+
+
 @torch.no_grad()
 def run_probe(run,output,registration):
     host=require_dispatch();configure_numerics();torch.set_num_threads(1)
@@ -89,12 +96,12 @@ def run_probe(run,output,registration):
             for index,token in enumerate(tokens):
                 raw=conditions.raw.get(token).to(actor.device,dtype=torch.float32)
                 context=conditions.get(token,actor.device).expand(8,-1,-1).contiguous()
-                root_rng=torch.Generator(device=actor.device).manual_seed(seed_for('failure_probe_root',2101,token))
-                root=torch.randn((8,8,4),device=actor.device,generator=root_rng)
+                root_rng,_=probe_generators(token)
+                root=torch.randn((8,8,4),device='cpu',generator=root_rng).to(actor.device)
                 modes={}
                 for mode in ('E_NATIVE','E_SHIFT5','SOURCE_SDE'):
                     actor._noise_audit=[]
-                    generator=torch.Generator(device=actor.device).manual_seed(seed_for('failure_probe_innovation',2101,token))
+                    _,generator=probe_generators(token)
                     if mode=='E_NATIVE':
                         actions=policy.sample_ode(raw.expand(8,-1,-1).contiguous(),root,grid='native')
                         chain=None;indices=[]

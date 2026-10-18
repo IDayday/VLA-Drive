@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import torch
 from scripts.analysis.fm_transfer.analyze_saved_reward_counterfactual import compare_rewards
-from scripts.analysis.fm_transfer.probe_sampler_transfer import probe_tokens,means
+from scripts.analysis.fm_transfer.probe_sampler_transfer import probe_tokens,means,probe_generators
 
 
 def rewards(metrics):
@@ -55,3 +55,15 @@ def test_probe_rejects_partial_or_invalid_candidate_groups():
     out=means([dict(status='OK',metrics=m)]*8)
     assert out['all_zero'] and not out['feasible'] and out['finite_best_safe'] is None
     with pytest.raises(ValueError):means([dict(status='CACHE_MISSING',metrics=m)]*8)
+
+
+def test_probe_RNG_matches_source_CPU_generator_contract():
+    from starVLA.rl.simwam_recipe.vendor.action_math import ActionGRPOMixin
+    root,innovation=probe_generators('0123456789abcdef')
+    assert root.device==innovation.device==torch.device('cpu')
+    state=innovation.get_state().clone()
+    torch.randn((8,8,4),generator=root)
+    assert torch.equal(innovation.get_state(),state)
+    value=ActionGRPOMixin._randn(None,(8,8,4),torch.device('cpu'),torch.float32,innovation)
+    _,same=probe_generators('0123456789abcdef')
+    assert torch.equal(value,torch.randn((8,8,4),generator=same))

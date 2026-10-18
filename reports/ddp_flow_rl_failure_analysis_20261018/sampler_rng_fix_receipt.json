@@ -1,0 +1,25 @@
+{
+  "schema": "diagnostic_only_rng_interface_failure_v1",
+  "observed_unix": 1792288130.9541016,
+  "failed_source": "98583c58a7b38187f0e4ccd5276c827dd49fcbcb",
+  "scope": "new matched-sampler diagnostic; no formal training/evaluation change",
+  "error": "Expected a cpu device type for generator but found cuda",
+  "cause": "Diagnostic wrapper supplied CUDA generator; locked upstream _randn requires CPU generator and transfers output.",
+  "fix": "Use two separate scene-bound CPU generators for root and innovation, retaining source _randn unchanged.",
+  "completed_probe_scenes": 0,
+  "completed_scoring_calls_before_failure_inferred_from_exception_path": 32,
+  "optimizer_updates": 0,
+  "preserved_attempts": {
+    "A_DDP_TIME": {
+      "log_sha256": "8d5984b4da4dea2cf2445ec21fbcacb75bc1ad00ad0d82792536684cafd249d1",
+      "output": "/mnt/project/fm-rl-failure-analysis-20261018/probe_A_DDP_TIME_v1",
+      "registered_candidates": 3072
+    },
+    "B_SOURCE_ACTION_DIT": {
+      "log_sha256": "270a6d3416acbc22defa3198742e8edd92419e47c8c7a19e89235bd5e8debf19",
+      "output": "/mnt/project/fm-rl-failure-analysis-20261018/probe_B_SOURCE_ACTION_DIT_v1",
+      "registered_candidates": 3072
+    }
+  },
+  "test": "test_probe_RNG_matches_source_CPU_generator_contract"
+}
