@@ -1,0 +1,26 @@
+{
+  "schema": "st_consequence_next_primary_source_pins_v1",
+  "agent": "/root/consequence_next_hypothesis",
+  "status": "METHOD_AND_PINNED_SOURCE_READ_NOT_FORMAL_APPROVAL",
+  "inspection": {
+    "FPO_sections": ["3.1-3.5 Eq2-20", "Algorithm1", "Appendix A.1.1-A.1.4 Eq21-32"],
+    "DFQL_sections": ["3.1-3.3 Eq10-21", "Appendix A.1 Eq22-27", "Appendix A.2 Eq28-39"],
+    "web_primary_pages_opened": ["https://arxiv.org/html/2507.21053v2", "https://proceedings.mlr.press/v306/cao26f.html"],
+    "github_tree_web_tool_errors": "Both pinned tree opens returned Internal Error; exact raw source bytes were subsequently retrieved successfully with bounded urllib reads.",
+    "external_reference_execution_this_agent": false,
+    "existing_reference_results_inspected": ["reports/st_world_policy/20261016/evidence/FPO_REFERENCE_CPU.json", "reports/st_world_policy/20261018/consequence_proxy_reference_correctness_v1/REVIEW.json"],
+    "new_real_policy_training": false,
+    "approval": false
+  },
+  "papers": [
+    {"path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/fpo.pdf", "bytes": 9780063, "sha256": "4d0119ce0100b3c863be0081a1185e834af8fc7d19360490a2224790b0be569c"},
+    {"path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/fpo.txt", "bytes": 84352, "sha256": "5c7091544edf236ad1620e039f6503f46f36dd797784646c4df1eda5d5a30f0b"},
+    {"path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dfql.pdf", "bytes": 2890560, "sha256": "3e6cfbca11f6c79e685bb558569d8e8cc895bbc45925b427c3a519500ef3cd54"},
+    {"path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dfql.txt", "bytes": 141069, "sha256": "eb3a852aeb37ae75809e234635377c632b81b081341742af1779d5ba74d4684a"}
+  ],
+  "official_code": [
+    {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/models/fpo.py", "symbols": ["FPO.learn"], "bytes": 12231, "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
+    {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/models/diffusion_policy.py", "symbols": ["DiffusionPolicy.sample_action_with_info", "DiffusionPolicy.compute_cfm_loss"], "bytes": 5317, "sha256": "40ce20a54cf8323b4dbb742780f3bd4956e01398e1a15ec517a10ef48c2685cf", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
+    {"repo": "https://github.com/2012060/Direct-Flow-Q-Learning", "commit": "8b6b15803cc1e5605ad1524553a2c95e103b0bad", "file": "agents/dfql.py", "symbols": ["DFQLAgent.actor_loss"], "bytes": 11904, "sha256": "c893151303f507bd77fdb918b8a956d92a582c9f2f6aa7cb9acbcc132c4ecc21", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true}
+  ]
+}
