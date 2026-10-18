@@ -1,0 +1,114 @@
+{
+  "schema": "endpoint_static_systems_advice_v1",
+  "status": "STATIC_PLAN_ONLY_NOT_EXECUTION_APPROVAL",
+  "reviewer": "/root/full_feedback_systems_review",
+  "created_utc": "2026-10-18T18:25:16.548307+00:00",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "lead_preparation_commit": "611127df",
+  "evidence": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_endpoint_evaluation_plan_v1/BUDGET.json",
+      "bytes": 2606,
+      "sha256": "444feba1c3c458b0881acb0c9e79b3ed50aad8b348acd48d8dcf61bf56b33ded"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_endpoint_evaluation_plan_v1/COMMANDS.json",
+      "bytes": 12423,
+      "sha256": "213cb24ca991c970b9cbc39436ab315afeb88363ef35bd94fe21b17dc6be5c41"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_endpoint_evaluation_plan_v1/ANALYSIS_PLAN_DRAFT.json",
+      "bytes": 7710,
+      "sha256": "45ab6bb27f0439868934be7bac53809b2bb7d8d285d4c0ac23a1806a310129cf"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_endpoint_evaluation_plan_v1/SOURCE_PINS.json",
+      "bytes": 3371,
+      "sha256": "bc6e6721c515f9722bfc2ab1524e5abd60c081ed08d2a0f3a04eb1d8334e26d8"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/export_world.py",
+      "bytes": 11888,
+      "sha256": "6d1e22635a8772bac44ecd69ef94f8b40f53a7bc93d7df1dad8125a16cc52ec2"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018/tools/st_world_policy/flow_checkpoints.py",
+      "bytes": 22333,
+      "sha256": "9a2289a99a3292a0f27bf71d43f1555be1957e6e3f26a63e00e35e3bee7c3055"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-evaluation-agent-20261016/reports/st_world_policy/20261016/evaluation/full_dev_execution_v1/COST_BASIS.json",
+      "bytes": 7110,
+      "sha256": "413180d4a7a314ae2c39c2d634e77fde442976c4de061cca9399c9161e473b2a"
+    }
+  ],
+  "proposed_topology": {
+    "export_world_size": 4,
+    "independent_batch1_single_GPU_processes": true,
+    "scenes_per_rank": 424,
+    "model_copies": 4,
+    "new_accepted_trajectories": 1696,
+    "score_coordinators": 1,
+    "score_workers_global": 4,
+    "score_admissions_max": 1728,
+    "analysis_CPU_threads": 2,
+    "proposal_host": "training-vlawm-tsinghua-zt6",
+    "actual_GPU_UUIDs": null,
+    "checkpoint_tag": null
+  },
+  "recommended_execution_limits": {
+    "export_CPU_affinity_groups": [
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        6,
+        7
+      ]
+    ],
+    "torch_threads_per_rank": 2,
+    "BLAS_threads_per_process": 1,
+    "max_simultaneous_heavy_loaders": 2,
+    "total_owned_export_RSS_limit_GiB": 384,
+    "per_export_process_tree_RSS_limit_GiB": 96,
+    "fresh_host_MemAvailable_min_GiB": 512,
+    "per_selected_GPU_driver_usage_limit_GiB": 32,
+    "output_limit_GiB": 1,
+    "export_internal_seconds_per_rank": 7200,
+    "export_outer_seconds_per_rank": 7800,
+    "export_kill_grace_seconds": 60,
+    "max_invocations_per_export_rank": 2,
+    "aggregate_export_GPU_seconds_ceiling": 62880,
+    "scoring_CPU_affinity": "8-11",
+    "score_GPU_visible_devices": "",
+    "score_RSS_limit_GiB": 64,
+    "analysis_RSS_limit_GiB": 8
+  },
+  "limitations": [
+    "RAM/GPU limits are proposed conservative ceilings, not new measured four-process peaks.",
+    "The exporter repeats identity/native verification and full parent+master reconstruction independently per rank. Native payload hash passes occur in initial identity, loader identity and immediately before native consumption, in addition to load reads. Four-rank logical IO exceeds four times one payload.",
+    "No numeric physical IO/bandwidth estimate without actual endpoint file sizes and measured access; do not drop checksum validation or clone checkpoint bytes to hide it.",
+    "Use two loader slots until existing LOAD_AUDIT.json proves reconstruction finished, then admit the next pending rank. Inference may overlap another rank loading. No algorithm changes or new platform needed.",
+    "The outer per-rank timeout must start before initial checkpoint identity/hash work; the internal max_seconds begins later and cannot bound pre-load checks alone.",
+    "Historical 16-scene single-process GPU reserve13,285,457,920B/load319.57s are reference only; no measured4x speedup or full-dev time claim.",
+    "No actual checkpoint/UUID binding, no dispatch, no model/DEV-score read, no extra export or scoring in this static review."
+  ],
+  "conditions": [
+    "Independent correctness approval of rank-strided deterministic tokens and immutable shared output.",
+    "Final complete4096 native checksum/identity binding and exact lease/fresh host admission before any launch.",
+    "Preserve existing tsinghua-zt training and tsinghua-zt5 PROFILE/formal tasks. Empty snapshot is not a reservation.",
+    "Read-only bounded observer records per-rank loading, image/inference timings, all child CPU, total RSS, actual occupied GPU seconds and errors.",
+    "Wait all four complete exports, then release GPUs and run one CPU score coordinator; total1728 remains across workers/restarts, never per rank.",
+    "Same output/identity/world4 resume only; no rerun of historical C1.",
+    "At execution refresh shared free floor+other-active commitments plus1GiB own outputs; already occupied native bytes are not future writes."
+  ]
+}
