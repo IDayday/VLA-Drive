@@ -1,0 +1,15 @@
+usage: train_world.py [-h] --registration REGISTRATION [--approval APPROVAL]
+                      [--resume] [--acknowledge-stop]
+
+Registered original-DiT ST training using the existing DeepSpeed optimizer
+path. Invoke with torchrun. New experiments strictly load the common S0, then
+start fresh matched optimizers. Resume restores this run's native complete
+state. No teacher model, scoring worker or evaluation data is loaded by this
+trainer.
+
+options:
+  -h, --help            show this help message and exit
+  --registration REGISTRATION
+  --approval APPROVAL
+  --resume
+  --acknowledge-stop

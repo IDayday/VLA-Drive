@@ -1,0 +1,97 @@
+{
+  "status": "PREPARATION_ONLY_NOT_APPROVED_NOT_LAUNCHED",
+  "source_tree": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016",
+  "source_sha": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "source_pins": {
+    "tools/st_world_policy/budget_extension.py": "ca9e02555c1bbdb4dbdd3cb0f52d7ec36a7b56561826c3cae637e79197035e08",
+    "tools/st_world_policy/train_world.py": "69d63da3f354ae6a05af13cea5d3b296bb49affc10fb152c24f626e648979418",
+    "tools/st_world_policy/training_config.py": "a575e55c74fec2dc60d04d3686f22392e7a13b5a36f1b23a2641a61bb2530d2a"
+  },
+  "shortlist_review_sha256": "7932378f47ec85ff4159d29c9cbb30ef19bf872e03105992d3c96e1e03bc13cd",
+  "arms": {
+    "SP2": {
+      "proposed_run_id": "SP2_fulltrain_seed42_official_20k_v1",
+      "config": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261018/spatial20k_native_continuation_preparation_v1/SP2_CONFIG_PROPOSAL.json",
+        "sha256": "908bd8e96505f718a895740a0c1efbb977d30be65ad5472387e11ca01136734a"
+      },
+      "parent_registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+      },
+      "parent_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792222283615035511/COMPLETE.json",
+        "sha256": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183"
+      },
+      "parent_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 17693835264,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "4a2a36978a1e41170ce00b482d281ffb25c883bf6d501e64958775807f960156",
+        "offset": 1825,
+        "tag": "step_005000_1792222283615035511",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "new_output_if_registered": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_20k_v1",
+      "additional_updates_ceiling": 15000,
+      "one_native_checkpoint_bytes": 37366035746,
+      "regular_new_periodic_checkpoint_count": 15,
+      "extra_boundary_checkpoints": "Count separately per actual bounded invocation; no deletion authorized.",
+      "same_recipe_except": [
+        "execution.stop_after:5000->20000",
+        "add exact continuation parent"
+      ],
+      "fresh_registration_and_approval_exist": false
+    },
+    "SP3": {
+      "proposed_run_id": "SP3_fulltrain_seed42_official_20k_v1",
+      "config": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-closeout-independent-20261017/reports/st_world_policy/20261018/spatial20k_native_continuation_preparation_v1/SP3_CONFIG_PROPOSAL.json",
+        "sha256": "4067eae0094aa84dcae9be2af156637d166dfb1e63c8438fb61a15434e628d42"
+      },
+      "parent_registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be"
+      },
+      "parent_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792224403643960209/COMPLETE.json",
+        "sha256": "d4f5225f84f6d2410f91ed79357258cff68c0a0e84e93f7d696520ac9ee5db93"
+      },
+      "parent_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 17693835264,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "bc0680b480dc4913d56effb366a9429ee3668f506dc5e1ab62e0991debaa1127",
+        "offset": 1825,
+        "tag": "step_005000_1792224403643960209",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "new_output_if_registered": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_20k_v1",
+      "additional_updates_ceiling": 15000,
+      "one_native_checkpoint_bytes": 37371024866,
+      "regular_new_periodic_checkpoint_count": 15,
+      "extra_boundary_checkpoints": "Count separately per actual bounded invocation; no deletion authorized.",
+      "same_recipe_except": [
+        "execution.stop_after:5000->20000",
+        "add exact continuation parent"
+      ],
+      "fresh_registration_and_approval_exist": false
+    }
+  },
+  "next_step": "Lead binds each proposal to a new immutable registration, current-policy evidence and actual four-GPU lease; native continuation first invocation without --resume. Subsequent same-new-run restarts use --resume.",
+  "guardrails": [
+    "No stale5k approval or lease is repurposed as20k authorization.",
+    "No --stop-after CLI exists. Config must be registered and approved before actual run.",
+    "No original config/run/checkpoint change. No native large payload rehash or loading in preparation.",
+    "Keep original28800-second invocation cap and original20000-step schedule/warmup1000. A wall pause resumes from the new lineage; never repeat parent5k initialization.",
+    "All old mathematical/correctness evidence inherited; actual placement, runtime policy, duplicate-run lock and remaining resource/storage budget require fresh binding only."
+  ]
+}
