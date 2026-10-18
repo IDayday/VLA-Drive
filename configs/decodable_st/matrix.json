@@ -1,0 +1,18 @@
+{
+  "schema": "decodable_st_matrix_v1",
+  "shared_baseline": "user-confirmed original-GT S0 common100k",
+  "new_seed": 42,
+  "formal_status": "BLOCKED",
+  "arms": {
+    "R0": {"spatial": false, "temporal": false, "DINO": true, "pilot_run": "NOT_RUN"},
+    "Rcap": {"teacher_supervision": false, "extra_capacity": true, "pilot_run": "NOT_RUN", "implementation": "planner reader exists; capacity-only P2 rejects absence of active gradients"},
+    "RS": {"spatial": true, "temporal": false, "tiny_run": "RS_gradient_v1"},
+    "RT": {"spatial": false, "temporal": true, "pilot_run": "BLOCKED_TEMPORAL_TEACHER"},
+    "RST": {"spatial": true, "temporal": true, "pilot_run": "BLOCKED_TEMPORAL_TEACHER"},
+    "Rjoint": {"schedule": "joint", "pilot_run": "NOT_RUN", "implementation": "explicitly unsupported; no silent RS substitution"},
+    "Rfrozen": {"Qwen_LoRA": false, "queries_trainable": true, "tiny_run": "Rfrozen_tiny64_v1"},
+    "Rdecode": {"feature_loss": false, "pretrained_decoder": true, "pilot_run": "NOT_RUN"},
+    "Rgt": {"pretrained_decoder": false, "teacher_features": false, "pilot_run": "BLOCKED_RELIABLE_GT", "implementation": "explicitly unsupported; no Rdecode substitution"}
+  },
+  "limits": "This inventory records real implementation gaps; it is not a completed formal matrix. Resolve local assets with tools.decodable_st.configure_local."
+}

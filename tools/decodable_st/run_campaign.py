@@ -38,11 +38,13 @@ def job_result(job,root,*,execute,resume,device,seed,max_updates,max_exposures):
     receipt=Path(job["receipt"])
     if receipt.is_file():
         result=json.loads(receipt.read_text())
+        status=result.get("status")
+        if status=="IDENTITY_VERIFIED" and job.get("id")=="baseline_identity":status="PASS"
         if job.get("reuse_sha256") and sha256(receipt)!=job["reuse_sha256"]:
             raise ValueError("Frozen receipt changed: "+str(receipt))
-        if result.get("status") in STATES and not job.get("force_execute",False):
+        if status in STATES and not job.get("force_execute",False):
             # A numerical/ability FAIL is preserved, never retried by relaunching.
-            return {"status":result["status"],"receipt":str(receipt),"sha256":sha256(receipt),"reused":True}
+            return {"status":status,"receipt":str(receipt),"sha256":sha256(receipt),"reused":True}
     if not execute:return {"status":"NOT_RUN","reason":"dry-run"}
     if job.get("blocked_reason"):return {"status":"BLOCKED","reason":job["blocked_reason"]}
     module=job["module"]
@@ -95,7 +97,7 @@ def gates(cfg):
               "status":"PASS" if m["occupied_iou"]>=cfg["acceptance_criteria"]["compression_min_teacher_iou"] and
                  m["false_free"]<=cfg["acceptance_criteria"]["compression_max_false_free"] else "FAIL"}
     result["compression_acceptance"]=capacity
-    export=root/"engineering_export_v1/DEPLOYMENT_REPORT.json"
+    export=root/"engineering_export_v2/DEPLOYMENT_REPORT.json"
     if export.exists():result["teacher_free_export_verified"]=json.loads(export.read_text())["status"]
     # Capability records must bind the baseline, teacher lock and raw evidence.
     # Missing records remain unresolved; a YAML switch cannot synthesize a PASS.
