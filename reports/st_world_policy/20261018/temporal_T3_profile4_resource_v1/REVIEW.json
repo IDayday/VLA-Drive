@@ -1,0 +1,358 @@
+{
+  "actual_admission_status": "Exact proposal resources verified; actual admission is maintained separately by the independent correctness reviewer. This supporting receipt is not an issued admission.",
+  "administrative_metadata": {
+    "T3_v2_extra_MiB": 8,
+    "actual_attempts": {
+      "v1": {
+        "charged_rchar_bytes": 155131761,
+        "elapsed_seconds": 5.964478114619851,
+        "live_owned_remaining": 0,
+        "peak_rss_bytes": 652754944,
+        "reservation_bytes": 8388608,
+        "returncode": 2,
+        "status": "FAILED_NO_AUTO_RETRY"
+      },
+      "v2": {
+        "charged_rchar_bytes": 1610906263,
+        "elapsed_seconds": 7.950803633779287,
+        "live_owned_remaining": 0,
+        "peak_rss_bytes": 684961792,
+        "reservation_bytes": 8388608,
+        "returncode": 0,
+        "status": "PREPARATION_COMPLETE"
+      }
+    },
+    "combined_actual_preparation_rchar_bytes": 1766038024,
+    "envelope_MiB": 8192,
+    "no_unused_read_budget_transfer": true,
+    "prior_before_T3_v2_MiB": 7880,
+    "remaining_MiB": 304,
+    "total_MiB": 7888,
+    "v1_failure_8MiB_retained": true
+  },
+  "checkpoint_accounting": {
+    "PCA256_GiB_retained": 240,
+    "T3_checkpoint_size_measured": false,
+    "actual_assignment_exists_at_check": true,
+    "actual_assignment_issued_by": "Lead /root; this reviewer did not write it",
+    "actual_assignment_issued_by_this_review": false,
+    "actual_assignment_verified": true,
+    "additional_GiB": 0,
+    "aggregate_GiB": 2703,
+    "assignment_requires": "Actual canonical slot650799ac is verified for this run; it must remain immutable, with no reassignment or parallel reuse.",
+    "canonical_assignment_path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/CHECKPOINT_HOLD80_ASSIGNMENT.json",
+    "checkpoint_payloads_rehashed": false,
+    "fallback_if_unique_assignment_unavailable": "Not needed for the verified current assignment. If this assignment ceases to match, reject; do not silently allocate a replacement or reduce prior commitments.",
+    "historic_one_rank_checkpoint_receipt_bytes": 37365928667,
+    "latest_start_for_2100s_window_unix": 1792285751.0280988,
+    "other_GiB": 2623,
+    "own_assigned_GiB": 80,
+    "parent_expires_unix": 1792287851.0280988,
+    "prior_GiB_retained": 2383,
+    "remainder_after_two_reference_checkpoints_bytes": 11167488586,
+    "save_semantics": "Actual config save_every=4/stop_after=4; train_world reuses a just-saved boundary on BUDGET_PAUSED. Fresh normal run expects one checkpoint; early/failed/partial outputs remain charged. Entire80 GiB root includes partial/staging/log/control; no automatic retry/resume/eviction.",
+    "two_reference_checkpoints_bytes": 74731857334
+  },
+  "disk_snapshot": {
+    "checked_at_unix": 1792284915.5480714,
+    "formula": "CP2703 + separate floor1024 + full cache cap768 + metadata envelope8 GiB; last term deliberately conservative even if nested. Controller own-root check is sampled and advisory, not a filesystem quota.",
+    "free_bytes_statvfs": 6039542587392,
+    "fresh_actual_check_required": true,
+    "required_conservative_bytes": 4835059433472,
+    "surplus_bytes": 1204483153920
+  },
+  "enforcement_scope": {
+    "RSS": "Original process-tree RSS sampling,64 GiB stop threshold,1s interval.",
+    "automatic_retry": false,
+    "ownership": "Inherited PPID/start identity/pidfd cleanup; no external PID becomes owned by GPU sharing.",
+    "reads": "256 GiB sampled conservative leaf-to-root witnessed-owned-process threshold; final supervisor plus waited-descendant rchar charged. Conservative double counting can stop early; not a hard OS quota.",
+    "resume_authorized": false,
+    "storage": "Original unique owned-root census,80 GiB total including partial files;10s sampling; separate disk floor and other CP commitments retained.",
+    "teacher_tensor_disk_bytes": 0,
+    "time": "Original native1800s + outer1920s + cleanup180s; CP/admission/lease must cover full2100s at actual launch."
+  },
+  "limits": {
+    "checkpoint_output_bytes": 85899345920,
+    "cleanup_seconds": 180,
+    "cpu_threads": 2,
+    "cumulative_scene_exposures": 8,
+    "cumulative_updates": 4,
+    "gpu_capacity_bytes": 85899345920,
+    "gpu_devices": 1,
+    "loader_workers": 0,
+    "logical_read_proposed_bytes": 274877906944,
+    "native_seconds": 1800,
+    "new_teacher_tensor_disk_bytes": 0,
+    "outer_seconds": 1920,
+    "rss_bytes": 68719476736
+  },
+  "not_performed": {
+    "GPU_or_SSH": true,
+    "actual_assignment_or_admission_issue": true,
+    "dispatch": true,
+    "formal_approval": true,
+    "ledger_or_policy_mutation": true,
+    "model_image_teacher_checkpoint_tensor_or_DB_payload_read": true
+  },
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2",
+  "reviewed_owner_commit": "94be68568b75be2f5f3ecdab020acd593235c44b",
+  "reviewer": "/root/st_cache_budget",
+  "run_id": "temporal_T3_indexed32_updates4_v2",
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018",
+    "source_sha": "cf516259c8efc24503727f14b9e330ed32231293"
+  },
+  "schema": "st_T3_profile4_resource_support_v1",
+  "scope": "Read-only resource support for one fresh, bounded T3 exact32 four-update PROFILE; not a scientific/formal gate or an actual launch admission.",
+  "shared_GPU": {
+    "T3_peak_memory_measured": false,
+    "device": "0",
+    "exclusive_performance_claim": false,
+    "historical_peak_reserved_bytes": 60131639296,
+    "host": "training-vlawm-tsinghua-zt2-worker-0",
+    "hypothetical_free_on_exact80GiB_bytes": 77148979200,
+    "latest_actual_snapshot": {
+      "free_MiB": 81153,
+      "observation_origin": "Lead actual host query; this reviewer verified the small pinned record and did not query the GPU.",
+      "observed_unix": 1792284729.791285,
+      "pin": {
+        "path": "/mnt/project/st-world-policy-20261016/resources/T3_profile4_actual_20261018T0053/HOST_SNAPSHOT.json",
+        "sha256": "935ff9c37e0130298481426471b22688361f438ee8467148d0ba849b21b31d90"
+      },
+      "prior_PID1605835": "Lead reports natural completion; no signals sent.",
+      "protected_external_processes": [],
+      "reference_headroom_bytes": 24963448832,
+      "total_MiB": 81920,
+      "used_MiB": 0,
+      "utilization_percent": 0
+    },
+    "lead_reported_external_PID": 1605835,
+    "lead_reported_job": "A_DDP_TIME_RL_final_NAVTEST",
+    "lead_reported_started_UTC": "2026-10-18 00:31:48",
+    "lead_reported_used_MiB": 8345,
+    "minimum_fresh_free_bytes": 73014444032,
+    "physical_uuid": "GPU-cdd3d7ed-6094-0ef4-282c-2de8dbf86e00",
+    "reference_headroom_bytes": 12882804736,
+    "reference_limit": "Historical peak is PyTorch reserved memory on a different profile; T3 history path and concurrent workload can change pressure. This is admission headroom, not guaranteed T3 fit or an exclusive throughput measurement.",
+    "required_actual_identity": "Controller must recheck actual free>=68GiB, exact UUID, and admitted protected identities[] before prepare/run. A new/different process set fails this exact admission; no external process may be signalled.",
+    "this_review_queried_GPU": false
+  },
+  "source_pins": {
+    "actual_admission_proposal": {
+      "bytes": 2604,
+      "path": "/mnt/project/st-world-policy-20261016/resources/T3_profile4_actual_20261018T0053/RESOURCE_ADMISSION_PROPOSAL.json",
+      "sha256": "57c8a1a59331ea160466213dcbe67bc9ddef6e248ec9235964d5fa269956073e"
+    },
+    "actual_config": {
+      "bytes": 3633,
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/.configured.staging-3i2tziwi/training_config.json",
+      "sha256": "5fd3da85fe1a9561124b652d78126aaab0be8e013ff8f9400124863ae8babfac"
+    },
+    "actual_hold80_assignment": {
+      "bytes": 1528,
+      "path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/CHECKPOINT_HOLD80_ASSIGNMENT.json",
+      "sha256": "650799ac436d69b547cfe2629facd7d29d5758933ee50e6800e08526d040a1c0"
+    },
+    "actual_host_snapshot": {
+      "bytes": 1438,
+      "path": "/mnt/project/st-world-policy-20261016/resources/T3_profile4_actual_20261018T0053/HOST_SNAPSHOT.json",
+      "sha256": "935ff9c37e0130298481426471b22688361f438ee8467148d0ba849b21b31d90"
+    },
+    "admission_proposal": {
+      "bytes": 1900,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/RESOURCE_ADMISSION_PROPOSAL.json",
+      "sha256": "815be344aae4c2290a76c0fa5a328c8a25e525e47a04d9e3eb934cc52882fffe"
+    },
+    "assignment_proposal": {
+      "bytes": 1463,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/HOLD80_ASSIGNMENT_PROPOSAL.json",
+      "sha256": "7d82934eb37a9917cc5659176fa660598587ca5ffb67303204e01012bee0a94f"
+    },
+    "cache_ledger": {
+      "bytes": 61254,
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+      "sha256": "fef4ff7b309117e6137ca40ae771a07c08bdf3fea12d215d0a065ec86560afdb"
+    },
+    "checkpoint_commitments": {
+      "bytes": 1654,
+      "path": "/mnt/project/st-world-policy-20261016/resources/history32_actual_20261017T2345/CHECKPOINT_COMMITMENTS_2703G.json",
+      "sha256": "015e7f6dddf7b1cab6823f88310db4297ed9ffd83653e9b6fab8cc666cc82856"
+    },
+    "controller": {
+      "bytes": 13277,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/controller.py",
+      "sha256": "1993f4b7afb601e375efe701f9bf25d1a209b4943bbfea8911b7f97abfa1443d"
+    },
+    "cpu_preparation_v1": {
+      "bytes": 4175,
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v1/controls/RESULT.json",
+      "sha256": "a4d40e6432b73eec830aaff9724ae78960744c75934cc0fb0493554c29ad8620"
+    },
+    "cpu_preparation_v2": {
+      "bytes": 10270,
+      "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v2/controls/RESULT.json",
+      "sha256": "443e6ad1c0fceadcc160cdbc95e2a1a004b1c91b0f9aa1e55dba6cb81cdfb102"
+    },
+    "dispatch_policy": {
+      "bytes": 127919,
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "29ce8b89aec0e20d0b429d6a026634ec59e6ddee5933106d2ce9e378fa322d55"
+    },
+    "donor_controller": {
+      "bytes": 30254,
+      "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/reports/st_world_policy/20261017/full_population_profile_launch_v1/controller.py",
+      "sha256": "bd802d47f187e494c2dde72ab8c04c670cb529d2b32b187ca06dfad3f3cc6bd1"
+    },
+    "factory": {
+      "bytes": 10409,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/binding_factory.py",
+      "sha256": "78495993e59efa4edf9395d6f13743414c227948b5e47398be040d2ad87753af"
+    },
+    "historic_checkpoint_receipt": {
+      "bytes": 1201,
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1/runs/indexed_provider_profile32_updates64_v1/checkpoints/step_000064_1792226247328387018/COMPLETE.json",
+      "sha256": "5f5dcc3288c8542ba8b8c33343d72526b53a01c348685dc9c2cc9d3ec1a65d7d"
+    },
+    "historic_steps": {
+      "bytes": 47411,
+      "path": "/mnt/project/st-world-policy-20261016/profile/world_indexed_provider_profile32_updates64_v1/runs/indexed_provider_profile32_updates64_v1/steps.jsonl",
+      "sha256": "cdc62fff04232432c87c5880822c0612fb1b23a516706e7efe6870da81fd9dcc"
+    },
+    "inputs": {
+      "bytes": 4885,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/INPUTS.json",
+      "sha256": "c7123ff5b49da9c6a493263a48070b172b6ec80dbda443014f13f7b70576f66e"
+    },
+    "old80_proposal_source": {
+      "bytes": 2916,
+      "path": "/mnt/project/VLA-Drive-st-index-sequential-resource-review-20261017/reports/st_world_policy/20261017/full_topology240_resource_static_hold_v1/REVIEW.json",
+      "sha256": "986f89795fc47cfdd50ab65f2eca67cabd6554e240ec3c0e7f76e70b7269f626"
+    },
+    "owned_io_source": {
+      "bytes": 23793,
+      "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+      "sha256": "4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2"
+    },
+    "owner_controller_test_log": {
+      "bytes": 582,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/CONTROLLER_TEST.log",
+      "sha256": "62b3cfc1f3af10dfe2717183f2bbd329f559e1da4ceb7a325e58029142aeb301"
+    },
+    "owner_factory_test_log": {
+      "bytes": 511,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/TEST.log",
+      "sha256": "8803ce262ab963762825474922e6399fc54d7ea1f40ff129287c0a25218131bc"
+    },
+    "plan": {
+      "bytes": 3002,
+      "path": "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1/PLAN.json",
+      "sha256": "e8438c8361ea7a3c5965e8acdb7a07ff7b0488945bcfab0c17e2458be5f59143"
+    },
+    "train_world_source": {
+      "bytes": 34353,
+      "path": "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018/tools/st_world_policy/train_world.py",
+      "sha256": "83c9bdbfeac76ec44ad9e13164eb83ed0d1aebd67bc62f02f6b78eac44a5b689"
+    },
+    "training_state_source": {
+      "bytes": 8482,
+      "path": "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018/tools/st_world_policy/training_state.py",
+      "sha256": "8af70592caa5c3d1ac97d20b116543b6c7736a544120641b3b984de9e2f008c3"
+    }
+  },
+  "status": "RESOURCE_SUPPORTED_FOR_EXACT_ASSIGNMENT_AND_ACTUAL_PROPOSAL",
+  "validation": {
+    "actual_binding_metadata_bytes_read": 7224,
+    "checks": [
+      "plan_small",
+      "plan_pin",
+      "inputs_small",
+      "inputs_pin",
+      "controller_small",
+      "controller_pin",
+      "factory_small",
+      "factory_pin",
+      "assignment_proposal_small",
+      "assignment_proposal_pin",
+      "admission_proposal_small",
+      "admission_proposal_pin",
+      "owner_factory_test_log_small",
+      "owner_factory_test_log_pin",
+      "owner_controller_test_log_small",
+      "owner_controller_test_log_pin",
+      "actual_config_small",
+      "actual_config_pin",
+      "checkpoint_commitments_small",
+      "checkpoint_commitments_pin",
+      "old80_proposal_source_small",
+      "old80_proposal_source_pin",
+      "cache_ledger_small",
+      "cache_ledger_pin",
+      "dispatch_policy_small",
+      "dispatch_policy_pin",
+      "cpu_preparation_v1_small",
+      "cpu_preparation_v1_pin",
+      "cpu_preparation_v2_small",
+      "cpu_preparation_v2_pin",
+      "preparation_complete_and_failure_preserved",
+      "train_world_source_small",
+      "train_world_source_pin",
+      "training_state_source_small",
+      "training_state_source_pin",
+      "donor_controller_small",
+      "donor_controller_pin",
+      "owned_io_source_small",
+      "owned_io_source_pin",
+      "historic_checkpoint_receipt_small",
+      "historic_checkpoint_receipt_pin",
+      "historic_steps_small",
+      "historic_steps_pin",
+      "exact_limits",
+      "exact_recipe",
+      "checkpoint_cadence",
+      "unchanged_CP_aggregate",
+      "assignment_conservation",
+      "assignment_exact_run",
+      "one_canonical_assignment",
+      "proposals_not_issued",
+      "admission_exact_envelope",
+      "shared_capacity_bound",
+      "history_reference_exact",
+      "no_retry_or_formal_weights",
+      "source_parses",
+      "owner_frozen_commit",
+      "fresh_disk_floor_with_full_caps",
+      "CP_covers_full_window_at_review",
+      "actual_hold80_assignment_small_and_pin",
+      "actual_admission_proposal_small_and_pin",
+      "actual_host_snapshot_small_and_pin",
+      "checkpoint_commitments_small_and_pin",
+      "actual_assignment_status_issuer",
+      "actual_assignment_conserves_every_prior_commitment",
+      "actual_assignment_exact_binding",
+      "actual_assignment_expiry_within_parent",
+      "actual_proposal_pins_match",
+      "actual_proposal_bounds_match",
+      "actual_proposal_not_admitted",
+      "actual_snapshot_matches_physical_gpu",
+      "actual_snapshot_capacity",
+      "actual_snapshot_no_external_process_and_cpus_available",
+      "actual_review_CP_and_proposal_cover_2100s",
+      "fresh_disk_floor_final"
+    ],
+    "collector_schema_correction": "An earlier read-only summary attempted a nonexistent top-level peak_reserved field and stopped; corrected to per_rank_profile with the profile_fields index. No payload or model access occurred.",
+    "independent_algorithm_test_or_profile_rerun": false,
+    "metadata_and_source_bytes_read_final_validation": 393344,
+    "owner_test_logs_inherited_only": {
+      "controller_passed": 7,
+      "factory_passed": 6
+    },
+    "review_command_limits": {
+      "CPU_affinity": [
+        2
+      ],
+      "timeout_seconds": 90,
+      "virtual_memory_bytes": 1073741824
+    },
+    "static_assertions_passed": 75
+  }
+}
