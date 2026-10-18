@@ -1,5 +1,7 @@
 # NAVSIM v1.0 / v1.1 full Navtest evaluation addendum
 
+**Completed 2026-10-18:** all four current fixed endpoints and both single-candidate grids have complete 12,146-scene / 136-log results under both official versions. See the [sealed numeric tables](final_navtest_20261018/README.md) and [matched interpretation and safety analysis](final_navtest_results_20261018.md). Historical F-SFT and R_SOURCE/R_CANONICAL rescoring is also complete. The earlier execution notes below are preserved snapshots, not outstanding work. No additional inference seed, checkpoint selection or training change was introduced.
+
 The user requested both versions on 2026-10-17. This is an additional evaluation
 protocol, not a change to either registered training run. Canonical v1.1 remains
 the primary metric. A version, grid or inference seed must never be chosen by its
