@@ -1,0 +1,102 @@
+{
+  "schema": "feedback_scale_systems_review_v1",
+  "status": "PASS_BOUNDED_DERIVED_ANALYSIS",
+  "reviewer_agent": "/root/full_feedback_systems_review",
+  "independent_of_implementation": true,
+  "reviewed_utc": "2026-10-18T17:12:20.068945+00:00",
+  "implementation_commits": [
+    "e5393993",
+    "8b00af4175a943d4d8a3862683335b8c00cc5c99"
+  ],
+  "integrated_source_commit": "5751d4d08bc65bb0d9a3c634084717e0424fd091",
+  "source_sha256": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e",
+  "helper_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+  "primary_plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+  "primary_RESULT_sha256": "0a6a84d3652122aeb69760b5237a56c71fec269c16b4066e78a0ddb05876d8cc",
+  "primary_RESULT_pin_source": "Lead completion message, not reopened by this reviewer; production verifies this exact hash before accepting root.",
+  "policy_sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8",
+  "scope": {
+    "original_payload_reads": 0,
+    "real_compact_reads_by_reviewer": 0,
+    "model_loads": 0,
+    "new_scores": 0,
+    "optimizer_updates": 0,
+    "new_rewards": 0,
+    "training_approval": false,
+    "remote_dispatch_by_reviewer": false,
+    "expected_ledgers": 4096,
+    "expected_scene_presentations": 131064,
+    "expected_candidates": 524256
+  },
+  "approved_limits": {
+    "actual_input_read_plus_source_reserve_bytes": 67108864,
+    "CPU_seconds": 60,
+    "wall_seconds": 60,
+    "RSS_sampled_bytes": 2147483648,
+    "output_bytes": 2097152,
+    "CPU_affinity_count": 1,
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "automatic_retry": false,
+    "resume": false
+  },
+  "input_graph": "Pinned primary plan and RESULT \u2192 eight pinned SHARD_COMPLETE receipts \u2192 all 4096 pinned compact ledger JSON. Original RESULTS.pt, rank rollout .pt, models, metric caches, DEV and NAVTEST remain unopened.",
+  "budget_relationship": {
+    "formula": "primary_plan_metadata_read_bytes + sum(all eight shard final logical_read_bytes and merge final logical_read_bytes) + 64 MiB < original 32 GiB",
+    "original_total_limit_bytes": 34359738368,
+    "derived_full_reservation_bytes": 67108864,
+    "primary_deadline_reset": false,
+    "primary_counters_mutated": false,
+    "primary_reported_budget_sum_by_Lead_bytes": 29148722313,
+    "primary_plan_metadata_bytes": 1422212,
+    "reported_primary_plus_metadata_plus_full_derived_reserve_bytes": 29217253389,
+    "reported_margin_to_original_32GiB_bytes": 5142484979,
+    "interpretation": "This is an independent once-only 60-second derived call within the remaining original aggregate read allowance, not an extension to 32 GiB + 64 MiB and not a retry of the primary job."
+  },
+  "fixed_findings": [
+    {
+      "problem": "Imported helper was not checked against frozen source before execution.",
+      "fix": "Read and SHA256-check exact helper bytes before compile/exec; include helper hash in call and result.",
+      "test": "Independent changed helper cannot execute even with --help; runtime fails before import."
+    },
+    {
+      "problem": "Unsafe output namespace was rejected only after mkdir/control writes.",
+      "fix": "Verify fixed and plan-derived primary/original-run namespace isolation before any output creation. Bootstrap plan is read once and charged.",
+      "test": "Independent primary-child and original-run-child paths rejected with no created files; primary snapshot byte-identical."
+    },
+    {
+      "problem": "Per-read atomic budget fsync could repeat primary merge metadata bottleneck.",
+      "fix": "Hard per-read memory precharge remains; persist full 64 MiB reservation at initialization, flush every 64 reads, on failure and before completion. No resume/retry/overwrite.",
+      "test": "Independent interruption after completed read 64 but before atomic replacement retains full reservation; hard memory read cap rejects next open."
+    }
+  ],
+  "completion_and_lifecycle": [
+    "Lead has reported all eight primary workers exit0 and primary merge COMPLETE exit0. Reader additionally holds all nine primary lifecycle locks throughout compact verification.",
+    "Source and both primary root pins are exact; all intermediate content hashes, inventories, policy versions and exposure counts are checked.",
+    "Independent output directory and call ID; old primary EXECUTION and BUDGET files are opened read-only and never refreshed.",
+    "After abrupt kill the saved counter can lag by at most 64 completed/in-flight reads, but the full admitted 64 MiB remains reserved and no completed result may be claimed.",
+    "Current CPU, host authorization and detached source contents must be verified by Lead before the single dispatch."
+  ],
+  "validation": {
+    "source_regression": {
+      "count": 10,
+      "status": "PASS",
+      "wall_seconds": 1.25,
+      "source_at_test": "e5393993",
+      "inherited_after": "8b00af41 changes only conservative counter-lag metadata 63\u219264; the new independent fault injection covers that change."
+    },
+    "independent_control_tests": {
+      "count": 5,
+      "status": "PASS",
+      "wall_seconds": 0.050924401730298996,
+      "source_sha256": "026f49fb34f22307439fc6c2672e0323758b8d65710c836ffbbff0b3017ff72e"
+    }
+  },
+  "limitations": [
+    "No actual full compact population was reopened by this reviewer; derived runtime and throughput remain NOT_MEASURED until Lead dispatch.",
+    "The prior primary merge took 82.18 seconds for roughly 39 MiB according to Lead; that motivated removing per-read budget fsync. It is not a derived-run timing result.",
+    "RSS is sampled at checks, not an instantaneous kernel ceiling. Keep the external owned-process wall timeout; no unrelated process signals.",
+    "The review approves descriptive scale evidence only, not a policy coefficient, reward change, safety claim or next training launch."
+  ],
+  "blocking_findings": []
+}
