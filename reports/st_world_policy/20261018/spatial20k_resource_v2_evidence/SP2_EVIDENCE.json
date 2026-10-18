@@ -1,0 +1,71 @@
+{
+  "schema": "st_world_review_v1",
+  "role": "evidence",
+  "status": "PASS",
+  "reviewer_agent": "/root/spatial20k_evidence",
+  "created_utc": "2026-10-18T02:37:38.377717+00:00",
+  "fingerprint": {
+    "registration_sha256": "f344cafa2352f1824a7a0d865aa8aaf2f5d680e2e328eefd4826834ffa0953f6",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "d4a4980d9b643f08aa6c6e71ac5e8c0557f99cc55fe069cd1d5f93043a852440",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "6c6a37029a057d8988e6c7ed302ae55b8901a978b364a7e636863b3358875dbf",
+      "target_contract": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 20000,
+      "world_size": 4
+    },
+    "run_id": "SP2_fulltrain_seed42_official_20k_v1"
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/spatial20k_resource_v2_evidence/REVIEW.md",
+      "sha256": "c14c1de4c9b80c144ae7b4046a1f1635fbd2d22c7aa29c28d8a1aba58b39e622"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/spatial20k_resource_v2_evidence/ACTUAL_CHECKS.json",
+      "sha256": "c23392e2abf7e4a46caec7505039ada7f3f686fb02c6a813b5f7521aedbee452"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/spatial20k_resource_v2_evidence/verify_inheritance.py",
+      "sha256": "59c2f33e82666c2a0e88e0958f1a3a3a8fcbafd5245ea5fc10d809c020f8c976"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_20k_v1_resource_v2/REGISTRATION.json",
+      "sha256": "f344cafa2352f1824a7a0d865aa8aaf2f5d680e2e328eefd4826834ffa0953f6"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_20k_v1/REGISTRATION.json",
+      "sha256": "d128c7e1f1dfaa878d50f9644779a5283a32a9acdc02ac6373919496ac6d5b30"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/spatial20k_actual_evidence_v1/SP2_EVIDENCE.json",
+      "sha256": "8225a0e9cd69c6b85b8642fd2f20734ef9b96d61de0ab2f5f2f15e79b9f4ff2a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/checkpoint_remaining_reconciliation_v1/SP2_RESOURCE_LEASE_V2_PROPOSAL.json",
+      "sha256": "6c6a37029a057d8988e6c7ed302ae55b8901a978b364a7e636863b3358875dbf"
+    }
+  ],
+  "scope": "Resource-v2 rebinding only for SP2_fulltrain_seed42_official_20k_v1; same native5k parent to original20k endpoint, same science and max15000 additional updates.",
+  "conclusion": "Native actual fingerprint verified; only resource_lease changed. Original independent scientific evidence and fixed shortlist remain valid without another model or CSV experiment.",
+  "limitations": [
+    "Evidence role only; independent v2 correctness/efficiency and fresh native resource admission required.",
+    "Inherited5k result is exploratory with interval crossing zero and safety tradeoffs.",
+    "No cross-process bitwise FA2 training claim and no model/checkpoint payload revalidation performed here."
+  ],
+  "launch_action": "No task dispatched. Old v1 remains unlaunched and preserved. Lead alone may assemble all independent v2 roles and dispatch under the native gate."
+}
