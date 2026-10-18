@@ -1,0 +1,120 @@
+{
+  "schema": "independent_rollout_scale_runtime_correctness_v1",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "reviewed_at_utc": "2026-10-18T17:36:17.670595+00:00",
+  "status": "PASS_CPU_GLOO_IMPLEMENTATION_CORRECTNESS",
+  "next_stage": "READY_FOR_BOUNDED_SMOKE_PROFILE_SUBJECT_TO_SEPARATE_RESOURCE_AND_RUN_BINDING",
+  "implementation_commit": "39e18192877fc9c30b8ea3635fd1f45be026798b",
+  "source_worktree": "/mnt/project/VLA-Drive-st-rollout-scale-correctness-runtime-20261018",
+  "source_clean": true,
+  "source_hashes": {
+    "starVLA/model/modules/flow_posttraining/advantage_scale.py": "3d721c3699ee9c5c6d070556262415dddea65140c3f7dad7a427e43fcc2e2a63",
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "af73f28313d8ddfe2d3b0e90a11a907d77b2568eb759368677ce1bbffe842260",
+    "tools/st_world_policy/flow_training_config.py": "33b1e28e2310cffdf30ae9e09e2cd25c05472b7f9f09eb597a34ea5dd04aa56d",
+    "tools/st_world_policy/train_flow_policy.py": "be3ef51850fbbaa23387b3f66fdec93dfe129aae5bf4869af2386c9ef9480d16",
+    "tools/st_world_policy/flow_checkpoints.py": "9a2289a99a3292a0f27bf71d43f1555be1957e6e3f26a63e00e35e3bee7c3055",
+    "tests/st_world/test_advantage_scale.py": "7f5e0338888358c6678742ddd764bc191d367f9c3ba142a10f4cd714fb99e741",
+    "tests/st_world/test_flow_rollout_scale_integration.py": "e641cafb5b2a1f696cbec6b749e9ea1d6cfa1fa275daff269af25817a71e00a3"
+  },
+  "module_author_final_commit": "9cbd5ae6fb28894039f4b937384b2f8eb6ee8a6f",
+  "proposal_commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+  "evidence_decision_integrated_commit": "5c9be603",
+  "test_result": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "warning": "Installed pynvml deprecation only",
+    "pytest_seconds": 6.5,
+    "execution": {
+      "source_commit": "39e18192877fc9c30b8ea3635fd1f45be026798b",
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/st_world/test_advantage_scale.py",
+        "tests/st_world/test_flow_rollout_scale_integration.py",
+        "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/test_independent_runtime.py"
+      ],
+      "python": "/root/miniconda3/envs/ddp/bin/python",
+      "cwd": "/mnt/project/VLA-Drive-st-rollout-scale-correctness-runtime-20261018",
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "CUDA_VISIBLE_DEVICES": "",
+        "PYTHONPATH": "/mnt/project/VLA-Drive-st-rollout-scale-correctness-runtime-20261018:/mnt/project/VLA-Drive-st-rollout-scale-correctness-runtime-20261018/tests/st_world",
+        "LEGACY_REVIEW_SOURCE": "/tmp/iqe-review-6714-d_rns0og"
+      },
+      "exit_code": 0,
+      "wall_seconds": 7.88065068051219,
+      "child_cpu_seconds": 10.481897,
+      "max_child_rss_kib": 699408,
+      "cpu_limit_seconds_per_process": 90,
+      "wall_limit_seconds": 105,
+      "measurement_scope": "subprocess resource counters include direct children; synthetic CPU and Gloo only",
+      "real_models_loaded": false,
+      "real_data_read": false,
+      "gpu_used": false,
+      "new_scores": 0,
+      "training_dispatch": false
+    },
+    "composition": "29 module cases (including one actual two-rank Gloo test with 14 scenarios), 4 integrated cases, 4 independently authored cases."
+  },
+  "prior_attempt": {
+    "status": "ENVIRONMENT_MISMATCH_BEFORE_TESTS",
+    "python": "/root/miniconda3/envs/navsim/bin/python",
+    "cause": "Inherited Python 3.9 cannot evaluate existing torch.Tensor | None annotation in fp32_master_init; switched to the already documented ddp Python 3.10. No implementation changes.",
+    "retained_files": [
+      "ENVIRONMENT_MISMATCH_OUTPUT.txt",
+      "ENVIRONMENT_MISMATCH_EXECUTION.json"
+    ]
+  },
+  "checks": {
+    "math": "PASS: exact original FP32 scene centering; FP64 two-pass centered M2/(N-1); eps after sqrt; numerator not globally re-centered; output detached FP32.",
+    "zeros": "PASS: original exact zero entries/groups remain zero; all-zero gain is null and reciprocal denominator is recorded separately. BC/CFM path is not skipped.",
+    "population": "PASS: complete G4, actual 128/96 candidate normal/tail counts, zero groups included; one rollout before microbatch. Empty local shards tested only for helper, not claimed supported by original training backward.",
+    "distributed": "PASS_CPU_GLOO: 2-rank uneven, tail and empty-local moments; common identity agreement; ten single-rank invalid-input scenarios fail collectively before dependent statistics. Hardware/transport failure remains process-group timeout responsibility.",
+    "rng": "PASS_CPU: no helper RNG consumption; native receipt verification occurs before saved RNG restoration; no new random operation in scale path.",
+    "feedback_binding": "PASS: final writer binds rollout, official feedback/context digest, old policy, score protocol, all-rank common receipt, local reward/mask/normalized output hashes and exact local record.",
+    "resume": "PASS_CPU_AND_SOURCE: actual tiny DiT/Adam interrupted continuation aligns loss/gradient/weights/RNG and independent streams; native resume validates last consumed normalization receipt before restore_rng; terminal predicate/source guard returns before optimizer loop.",
+    "checkpoint_reader": "PASS_SYNTHETIC: explicit normalization numeric identity accepted; legacy v1 relabel rejected. No real checkpoint loaded here.",
+    "legacy": "PASS: historical 6714 C1 arithmetic/default/config/target and feedback-v1 semantics preserved under independent comparisons."
+  },
+  "review_found_issue": {
+    "stage": "pre-seal draft",
+    "issue": "Normalization receipt could be paired with different same-shape feedback under the same old policy.",
+    "resolution": "Final writer verifies actual feedback/local identity, reward/mask hashes, local record, and normalized output tensor hash; independent review requested this fix; integrated negative tests reject swaps.",
+    "status": "FIXED_BEFORE_FINAL_SOURCE"
+  },
+  "legacy_control_binding": "LEGACY_CONTROL_BINDING.json",
+  "conditions": [
+    "Only explicit C1 scene_center_rollout_std_v1 with original BC=1 and policy=1; this is a changed training definition, not lossless execution.",
+    "Keep frozen proposal scale/epsilon and complete-population definition. No per-scene std or global numerator re-centering.",
+    "Any actual SMOKE/PROFILE must have independent resource approval and fixed run registration against this exact source and observed environment. This report does not dispatch or authorize formal training.",
+    "CUDA/NCCL/ZeRO2 native save-load, real-image integration, real-score calls, resource use, updated gradient magnitude and planning benefit are NOT_RUN by this review.",
+    "Historical C1 reuse requires matched Base/data/seed/recipe and evaluation as described in LEGACY_CONTROL_BINDING.json; no forced duplicate control solely due to the added explicit branch."
+  ],
+  "scientific_limits": [
+    "Rollout-dependent scaling changes policy-to-BC weight and relative weighting across updates.",
+    "Scaling does not rotate a single-batch policy gradient toward BC or guarantee safety/heldout gain.",
+    "Sparse feedback counts do not imply full TRAIN gradient dominance by EP. Reuse1 and ratio approximately one do not provide a post-update trust-region guarantee."
+  ],
+  "execution_performed": {
+    "synthetic_cpu_tests": true,
+    "actual_gloo_processes": 2,
+    "real_model_checkpoint_load": false,
+    "real_data_or_metric_cache_read": false,
+    "gpu_compute": false,
+    "official_score_calls": 0,
+    "training_dispatched": false,
+    "formal_training_approved": false
+  },
+  "evidence_files": {
+    "TEST_OUTPUT.txt": "12f8922584be83ac0718410227ad7077357345ae6d4764f8efb8a9fce8f3f977",
+    "TEST_EXECUTION.json": "0c6f2d8cda5292f07ab4f488ee7521d4f24d88ae2beaca53f9a5c8312ece3d9e",
+    "test_independent_runtime.py": "742893bbd1c1092023f9ffa22807369a35de6a1b6bd91677e0795aa679945dd1",
+    "LEGACY_CONTROL_BINDING.json": "66cc9b955724e1d81a3c2829e7c297c20a5ace6528262a1af7ff63a76c859d16"
+  }
+}

@@ -1,0 +1,27 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting VLA-Drive-st-rollout-scale-correctness-runtime-20261018/tests/st_world/test_flow_rollout_scale_integration.py _
+tests/st_world/test_flow_rollout_scale_integration.py:11: in <module>
+    from tools.st_world_policy.train_flow_policy import (
+tools/st_world_policy/train_flow_policy.py:45: in <module>
+    from tools.st_world_policy.fp32_master_init import (
+tools/st_world_policy/fp32_master_init.py:105: in <module>
+    class GroupSnapshot:
+tools/st_world_policy/fp32_master_init.py:112: in GroupSnapshot
+    values: torch.Tensor | None = field(repr=False)
+E   TypeError: unsupported operand type(s) for |: 'torch._C._TensorMeta' and 'NoneType'
+_ ERROR collecting VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/test_independent_runtime.py _
+../VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/test_independent_runtime.py:15: in <module>
+    from tools.st_world_policy import train_flow_policy as trainer
+tools/st_world_policy/train_flow_policy.py:45: in <module>
+    from tools.st_world_policy.fp32_master_init import (
+tools/st_world_policy/fp32_master_init.py:105: in <module>
+    class GroupSnapshot:
+tools/st_world_policy/fp32_master_init.py:112: in GroupSnapshot
+    values: torch.Tensor | None = field(repr=False)
+E   TypeError: unsupported operand type(s) for |: 'torch._C._TensorMeta' and 'NoneType'
+=========================== short test summary info ============================
+ERROR tests/st_world/test_flow_rollout_scale_integration.py - TypeError: unsu...
+ERROR ../VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/test_independent_runtime.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 4.32s

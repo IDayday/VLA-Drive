@@ -1,0 +1,40 @@
+{
+  "source_commit": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+  "read_scope": "Only three existing small JSON metadata files, 11291 bytes total; no checkpoint tensors, images, targets or scoring payloads.",
+  "metadata_sha256": {
+    "identity.json": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930",
+    "resolved_config.json": "f1c4cc851d2e055cc7e2cb10c08e032574c424e4aa8b8f27d46007774a6bba0e",
+    "RESULT.json": "cc7b9333eda086b330dc87fbda7dc4c8da404b34e54368916aadaad8c3ef08e2"
+  },
+  "status": "COMPLETE",
+  "termination_reason": "MAX_STEPS",
+  "completed_optimizer_updates": 4096,
+  "unique_scene_count_not_rederived_here": 101592,
+  "scene_presentations": 131064,
+  "actual_rollout_candidates": 524256,
+  "bc_repeat_presentations": 1048512,
+  "mc_points": 26212800,
+  "seed": 42,
+  "global_batch": 32,
+  "microbatch": 4,
+  "world_size": 4,
+  "base_binding_sha256": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+  "data_identity_sha256": "7255bb2db29fd0bf2748215edb8abbeed0352f8bfe7f841e1fabd9682b4f6797",
+  "numeric_execution_sha256": "f8c10d8a1b0c0aae8a67adab92573a0222530f8dfbf2112921d5dd70b84ab0bf",
+  "score_protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+  "scientific_result_in_training_receipt": "NOT_EVALUATED",
+  "decision": "REUSABLE_AS_LEGACY_CONTROL_IF_BASE_DATA_SEED_RECIPE_AND_EVALUATION_MATCH",
+  "conditions": [
+    "Use the existing completed C1 artifacts as the old-method arm, not as a normalized run or a new-source exact resume.",
+    "New formal comparison must retain the same Base, TRAIN manifest/order, seed, 4-rank/global32 topology, 4096 schedule, G4, MC50, original BC/dropout/repeat8, optimizer, precision and score protocol apart from the explicitly registered advantage normalization.",
+    "Compare on the same separately locked evaluation protocol; this review does not attest planning quality.",
+    "Source fingerprint is necessarily different. Arithmetic/config compatibility does not make historical and new source hashes identical."
+  ],
+  "evidence": [
+    "Independent AST equality of all original FPO functions and default FPO config.",
+    "Fixed FP32 loss and gradient comparison to original code is bitwise equal.",
+    "Legacy C0-C4 numeric_execution, target_contract and validated config outputs match original functions.",
+    "Old and current legacy feedback writers produce identical semantic payload and identity with unchanged RNG; serialized file bytes are not asserted identical."
+  ]
+}
