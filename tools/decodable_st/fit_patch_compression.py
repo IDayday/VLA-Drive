@@ -17,7 +17,8 @@ from .runtime import numerical_policy,source_sha,write_identity,parameter_digest
 from .train_compression import evaluate
 
 
-def run(config,output,device="cuda"):
+def run(config,output,device="cuda",whiten=False):
+    if not device.startswith("cuda"):raise ValueError("This registered finite PCA probe requires CUDA")
     numerical_policy(42,device,.75);start=time.monotonic();output=Path(output)
     if output.exists():raise FileExistsError("PCA experiment requires a new output identity")
     root=Path(config["native_context_root"]);receipt=json.loads((root/"ROUNDTRIP.json").read_text())
@@ -33,7 +34,8 @@ def run(config,output,device="cuda"):
     identity=write_identity(output,{"schema":"existing_patch_capacity_PCA_v1","source_sha":source_sha(),"config":config,
         "source_receipt_sha256":sha256(root/"ROUNDTRIP.json"),"grid":[32,32],"hidden":2048,"seed":42,
         "fit_tokens":[r["token"] for r in receipt["records"][:48]],"held_tokens":[r["token"] for r in receipt["records"]][48:],
-        "algorithm":"torch.pca_lowrank centered rank2048 niter2 FP32","same_architecture_as":"compression32_patch_frozen_v2",
+        "algorithm":"torch.pca_lowrank centered rank2048 niter2 FP32","latent_whitening":whiten,
+        "same_architecture_as":"compression32_patch_frozen_v2",
         "teacher_GT_quality":"NOT_ESTABLISHED"})
     atomic_json(output/"state.json",{"status":"RUNNING","stage":"building_training_patch_matrix"})
     patches=torch.cat([F.unfold(r["context"],kernel_size=(8,8),stride=(8,8)).transpose(1,2).reshape(-1,16384) for r in rows[:48]],0).to(device)
@@ -42,11 +44,13 @@ def run(config,output,device="cuda"):
     atomic_json(output/"state.json",{"status":"RUNNING","stage":"PCA","matrix_shape":list(patches.shape)})
     with torch.no_grad():
         _,s,v=torch.pca_lowrank(patches,q=2048,center=False,niter=2)
-        model.encode.weight.copy_(v.T);model.encode.bias.copy_(-mu@v)
-        model.readout.project.weight.copy_(v);model.readout.project.bias.copy_(mu)
+        scale=(s/(len(patches)-1)**.5).clamp_min(1e-4) if whiten else torch.ones_like(s)
+        model.encode.weight.copy_(v.T/scale[:,None]);model.encode.bias.copy_((-mu@v)/scale)
+        model.readout.project.weight.copy_(v*scale);model.readout.project.bias.copy_(mu)
     torch.cuda.synchronize();pca_seconds=time.monotonic()-pca_start
     total_energy=patches.square().sum().item();explained=s.square().sum().item()/total_energy
-    del patches,v,s;torch.cuda.empty_cache()
+    save_file({"latent_scale":scale.cpu(),"patch_mean":mu.cpu()},str(output/"train_statistics.safetensors"))
+    del patches,v,s,scale;torch.cuda.empty_cache()
     train_mean=sum(r["context"] for r in rows[:48])/48
     metrics=evaluate(model,decoder,rows[48:],train_mean,device)
     atomic_json(output/"METRICS.json",metrics)
@@ -65,4 +69,5 @@ def run(config,output,device="cuda"):
 
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("--config",required=True);p.add_argument("--output",required=True)
-    p.add_argument("--device",default="cuda");a=p.parse_args();run(json.loads(Path(a.config).read_text()),a.output,a.device)
+    p.add_argument("--device",default="cuda");p.add_argument("--whiten",action="store_true")
+    a=p.parse_args();run(json.loads(Path(a.config).read_text()),a.output,a.device,a.whiten)

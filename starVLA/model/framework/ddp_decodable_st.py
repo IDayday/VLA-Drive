@@ -12,7 +12,7 @@ from starVLA.model.modules.foresight.tokens import replace_query_embeddings
 from starVLA.model.modules.decodable_st.contracts import AllowedObservation, StudentRepresentation
 from starVLA.model.modules.decodable_st.attention_masks import world_attention_mask,append_mrope_positions
 from starVLA.model.modules.decodable_st.student_queries import QueryBank
-from starVLA.model.modules.decodable_st.vigt_readout import SpatialReadout
+from starVLA.model.modules.decodable_st.vigt_readout import SpatialReadout,PatchSpatialReadout
 from starVLA.model.modules.decodable_st.sgdrive_readout import TemporalProjector
 from starVLA.model.modules.decodable_st.world_to_action_bridge import WorldToActionBridge
 
@@ -20,7 +20,7 @@ from starVLA.model.modules.decodable_st.world_to_action_bridge import WorldToAct
 class DDPDecodableST(nn.Module):
     def __init__(self,baseline,*,spatial_contract=None,temporal_contract=None,
                  spatial_grid=(16,16),cameras=("CAM_F0","CAM_L0","CAM_R0"),seed=42,
-                 query_execution="prefix_cached_v1"):
+                 query_execution="prefix_cached_v1",spatial_readout_kind="bilinear"):
         super().__init__()
         self.baseline=baseline
         self.cameras=tuple(cameras)
@@ -31,8 +31,11 @@ class DDPDecodableST(nn.Module):
         self.query_execution=query_execution
         hidden=int(baseline.qwen_vl_interface.model.config.hidden_size)
         if spatial_contract:
+            if spatial_readout_kind not in ("bilinear","patch"):
+                raise ValueError("Unknown spatial readout; no implicit fallback")
             self.spatial_queries=QueryBank(hidden,spatial_grid,seed+100)
-            self.spatial_readout=SpatialReadout(hidden,spatial_contract,spatial_grid,seed+101)
+            cls=SpatialReadout if spatial_readout_kind=="bilinear" else PatchSpatialReadout
+            self.spatial_readout=cls(hidden,spatial_contract,spatial_grid,seed+101)
         if temporal_contract:
             side=int(temporal_contract.num_queries**.5)
             if side*side!=temporal_contract.num_queries:raise ValueError("Native temporal query grid")

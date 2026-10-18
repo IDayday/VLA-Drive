@@ -32,7 +32,14 @@ def load_model(config,device,arm,seed):
         temporal=TemporalContract(**t)
         if t["task_version"].startswith("T-driving"):temporal.require_driving()
     model=DDPDecodableST(base,spatial_contract=spatial,temporal_contract=temporal,
-                         spatial_grid=(config.get("spatial_grid",16),)*2,seed=seed).to(device)
+                         spatial_grid=(config.get("spatial_grid",16),)*2,seed=seed,
+                         spatial_readout_kind=config.get("spatial_readout_kind","bilinear")).to(device)
+    if config.get("spatial_readout_initialization"):
+        init=config["spatial_readout_initialization"]
+        if spatial is None or config.get("spatial_readout_kind")!="patch":raise ValueError("Registered patch initialization requires spatial patch readout")
+        if sha256(init["weights"])!=init["sha256"]:raise ValueError("Compression initialization changed")
+        values=load_file(init["weights"])
+        model.spatial_readout.load_state_dict({k[len("readout."):]:v for k,v in values.items() if k.startswith("readout.")},strict=True)
     model.bridge.requires_grad_(False)
     names=[]
     if arm!="Rfrozen":
