@@ -23,6 +23,7 @@ def put(path,value):
 def isolated(tmp_path,monkeypatch):
     monkeypatch.setattr(s,'ROOT',tmp_path/'owned_smoke');monkeypatch.setattr(s,'write',put)
     monkeypatch.setattr(s,'PRIOR_ROOT',tmp_path/'synthetic_prior')
+    monkeypatch.setattr(s,'OLDER_ROOT',tmp_path/'synthetic_older')
     put(s.PRIOR_ROOT/'control/initial_RESULT.json',{'stats':{'sampled_rchar':16348730,'sampled_read_bytes':24576}})
     return tmp_path
 
@@ -192,8 +193,8 @@ def test_real_owned_child_fault_has_one_charged_attempt_no_residual(isolated,mon
 
 def test_resource_and_scientific_budgets_are_finite_and_no_implicit_retry():
     assert s.LIMITS['total_new_updates']==8 and s.LIMITS['global_calls']==1024
-    assert s.LIMITS['retry_calls']==0 and s.LIMITS['max_invocations']==4
-    assert s.LIMITS['prior_invocations']==1 and s.LIMITS['new_invocations']==3
+    assert s.LIMITS['retry_calls']==0 and s.LIMITS['max_invocations']==5
+    assert s.LIMITS['prior_invocations']==2 and s.LIMITS['new_invocations']==3
     assert s.LIMITS['prior_wall_seconds']+s.LIMITS['wall_seconds']+120+180==3900
     assert s.LIMITS['max_updates']==4096 and s.LIMITS['stop_after']==4
     assert s.LIMITS['output_bytes']==104*2**30 and s.LIMITS['aggregate_RSS_bytes']==512*2**30
@@ -331,19 +332,80 @@ def test_ddp_ownership_group_ready_uses_cross_session_live_rank(tmp_path,monkeyp
     with pytest.raises(ValueError,match='owned invocation'):s.group_ready(run,{'started_unix':1})
 
 
-def test_ddp_ownership_prior_launch_pins_and_io_are_not_reset(isolated):
-    prior=s.PRIOR_ROOT;attempt=prior/'control/invocations/initial_continuous/1'
-    result={'stats':{'sampled_rchar':16348730,'sampled_read_bytes':24576},'invocations_started':1,
-        'status':'PARTIAL_OR_FAILED','stop_reason':'Unknown/foreign process on endpoint GPU'}
-    (prior/'control/initial_RESULT.json').write_text(json.dumps(result))
-    for name,value in [('ADMISSION.json',{'fixture':'charged'}),('LAUNCH.json',{'fixture':'actual Popen'}),
-                       ('EXIT.json',{'owned_cleanup_complete':True})]:put(attempt/name,value)
+def test_ds_fragment_prior_two_failed_launch_pins_and_io_are_not_reset(isolated):
+    stats={'sampled_rchar':88476004008,'sampled_read_bytes':31084855296}
+    for root in (s.OLDER_ROOT,s.PRIOR_ROOT):
+        attempt=root/'control/invocations/initial_continuous/1'
+        result={'stats':stats,'invocations_started':1,'status':'PARTIAL_OR_FAILED',
+            'stop_reason':'Unknown/foreign process on endpoint GPU' if root==s.OLDER_ROOT else 'secondary heavy gate failure'}
+        (root/'control').mkdir(parents=True,exist_ok=True)
+        (root/'control/initial_RESULT.json').write_text(json.dumps(result))
+        for name,value in [('ADMISSION.json',{'fixture':'charged'}),('LAUNCH.json',{'fixture':'actual Popen'}),
+                           ('EXIT.json',{'owned_cleanup_complete':True})]:put(attempt/name,value)
+    run=s.PRIOR_ROOT/'continuous/runs/fixture'
+    put(run/'FAILURE.json',{'status':'FAILED','error':'Unknown deepspeed.utils.tensor_fragment.fragment_address'})
+    put(run/'status.json',{'completed':0,'exposure':0,'counts':{},'pending_feedback':None,'pending_old_policy':None})
     record=s.prior_failed_launch()
-    assert record['consumed_trainer_invocations']==1 and record['consumed_optimizer_updates']==0
-    assert record['wall_seconds_reserved']==60
-    assert s.pinned(record['initial_result'])['stats']==result['stats']
-    (prior/'continuous/runs/unknown_actual_state').mkdir(parents=True)
-    with pytest.raises(ValueError,match='real run state'):s.prior_failed_launch()
+    assert record['consumed_trainer_invocations']==2 and record['consumed_optimizer_updates']==0
+    assert record['wall_seconds_reserved']==300 and len(record['history'])==2
+    assert s.pinned(record['initial_result'])['stats']==stats # Already cumulative; no double counting.
+    put(run/'checkpoints/step_0/COMPLETE.json',{'fixture':'unexpected commit'})
+    with pytest.raises(ValueError,match='nonzero or ambiguous'):s.prior_failed_launch()
+
+
+def test_ds_fragment_output_guard_includes_old_partial_namespaces(isolated):
+    paths=[s.OLDER_ROOT/'old.pt',s.PRIOR_ROOT/'continuous/runs/fixture/checkpoints/step_0/partial.pt',s.ROOT/'new.pt']
+    sizes=[]
+    for i,path in enumerate(paths):
+        path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(bytes(i+1));sizes.append(i+1)
+    # Existing tiny control fixture must also count, alongside old partial data.
+    expected=sum(p.stat().st_size for root in (s.OLDER_ROOT,s.PRIOR_ROOT,s.ROOT) for p in root.rglob('*') if p.is_file())
+    total,native_dirs=s.smoke_output_usage()
+    assert total==expected and native_dirs==[paths[1].parent]
+
+
+def test_ds_fragment_actual_installed_public_state_dict_is_fully_auditable():
+    from collections import OrderedDict
+    from deepspeed.runtime.zero.stage_1_and_2 import DeepSpeedZeroOptimizer
+    from deepspeed.runtime.fp16.loss_scaler import LossScaler
+    from deepspeed.utils.tensor_fragment import fragment_address
+    # Real DS public state_dict implementation; a tiny CPU-only state carrier
+    # avoids creating an engine/process group/CUDA allocator.
+    zero=object.__new__(DeepSpeedZeroOptimizer)
+    param=torch.nn.Parameter(torch.arange(4,dtype=torch.float32));zero.optimizer=torch.optim.AdamW([param],lr=1e-4)
+    zero.optimizer.state[param]={'step':torch.tensor(2.),'exp_avg':torch.full_like(param,.2),'exp_avg_sq':torch.full_like(param,.3)}
+    zero.loss_scaler=LossScaler(scale=1);zero.dynamic_loss_scale=False;zero.overflow=False;zero.clip_grad=1.
+    zero.elastic_checkpoint=False;zero.single_partition_of_fp32_groups=[param.detach()];zero.groups_padding=[0]
+    zero.partition_gradients=True;zero.partition_count=[4]
+    zero._param_slice_mappings=[OrderedDict([('tiny.weight',fragment_address(numel=4,start=0))])]
+    value=zero.state_dict();rng=torch.get_rng_state().clone();before=copy.deepcopy(value)
+    result=s.logical_state(value)
+    assert result==s.logical_state(copy.deepcopy(value)) and torch.equal(rng,torch.get_rng_state())
+    assert vars(value['param_slice_mappings'][0]['tiny.weight'])==vars(before['param_slice_mappings'][0]['tiny.weight'])
+    assert s.logical_state(value['param_slice_mappings'][0]['tiny.weight'])=={
+        'kind':'deepspeed_fragment_address_v1','type':'deepspeed.utils.tensor_fragment.fragment_address','numel':4,'start':0}
+    value['param_slice_mappings'][0]['tiny.weight'].start=1
+    assert s.logical_state(value)!=result
+    value['param_slice_mappings'][0]['tiny.weight'].start=0
+    value['base_optimizer_state']['state'][0]['exp_avg'][0]+=1e-5
+    assert s.logical_state(value)!=result # Moments remain fully compared, not dropped.
+
+
+@pytest.mark.parametrize('bad',['negative_start','negative_numel','bool','float','missing','extra','subclass','unknown'])
+def test_ds_fragment_actual_class_invalid_or_unknown_schema_refused(bad):
+    from deepspeed.utils.tensor_fragment import fragment_address
+    value=fragment_address(numel=4,start=0)
+    if bad=='negative_start':value.start=-1
+    elif bad=='negative_numel':value.numel=-1
+    elif bad=='bool':value.start=True
+    elif bad=='float':value.numel=4.
+    elif bad=='missing':del value.start
+    elif bad=='extra':value.opaque_state='not allowed'
+    elif bad=='subclass':
+        class Subclass(fragment_address):pass
+        Subclass.__module__='deepspeed.utils.tensor_fragment';value=Subclass(numel=4,start=0)
+    else:value=object()
+    with pytest.raises(ValueError,match='Unknown|Invalid'):s.logical_state(value)
 
 
 @pytest.mark.parametrize('bad',['valid','observer','runtime','rank','snapshot','native_pin','RNG','foreign_save'])

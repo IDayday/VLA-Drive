@@ -24,8 +24,9 @@ from types import SimpleNamespace
 CAMPAIGN=Path('/mnt/project/st-world-policy-20261016')
 RUNTIME=Path('/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018')
 SOURCE='751fcfa2b41549ae16f7b3204aef8dd18b912016'
-ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v3'
-PRIOR_ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v2'
+ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v4'
+PRIOR_ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v3'
+OLDER_ROOT=CAMPAIGN/'smoke/rollout_scale_native_resume_v2'
 OWNERSHIP_MONITOR=CAMPAIGN/'resources/monitor_rollout_scale_formal_v1.py'
 OWNERSHIP_MONITOR_SHA='3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38'
 _MATURE_STAT=None
@@ -40,8 +41,8 @@ PYTHON='/root/miniconda3/envs/ddp/bin/python'
 PAUSE_MARKER='owned observer control after engine native2 save, before COMPLETE and next optimizer\n'
 LIMITS={'scope':'SMOKE','world':4,'global_batch':32,'micro_batch':4,'accumulation':2,
     'max_updates':4096,'warmup':100,'stop_after':4,'total_new_updates':8,'primary_calls':1024,
-    'retry_calls':0,'global_calls':1024,'arm_calls':512,'max_invocations':4,'prior_invocations':1,'new_invocations':3,
-    'wall_seconds':3540,'prior_wall_seconds':60,'grace_seconds':60,'group_RSS_bytes':256*2**30,
+    'retry_calls':0,'global_calls':1024,'arm_calls':512,'max_invocations':5,'prior_invocations':2,'new_invocations':3,
+    'wall_seconds':3300,'prior_wall_seconds':300,'grace_seconds':60,'group_RSS_bytes':256*2**30,
     'aggregate_RSS_bytes':512*2**30,'GPU_driver_bytes':48*2**30,
     'fresh_RAM_bytes':640*2**30,'output_bytes':104*2**30,'native_directories':8,
     'native_directory_bytes':12*2**30,'monitor_read_bytes':1024*2**30,
@@ -177,18 +178,39 @@ def monitor_smoke_gpu(ep,route,jobs,currently_owned):
 
 
 def prior_failed_launch():
-    records=list(PRIOR_ROOT.glob('control/invocations/*/*/ADMISSION.json'))
-    result=read(PRIOR_ROOT/'control/initial_RESULT.json')
-    if (len(records)!=1 or result['invocations_started']!=1 or result['status']!='PARTIAL_OR_FAILED'
-            or 'Unknown/foreign process' not in result['stop_reason']):raise ValueError('Prior failed launch accounting changed')
-    path=records[0];exited=read(path.with_name('EXIT.json'))
-    if not exited['owned_cleanup_complete']:raise ValueError('Prior source did not confirm owned cleanup; Lead must inspect')
-    if any(PRIOR_ROOT.glob('*/runs/*')):raise ValueError('Prior failed launch has real run state; never assume zero updates/calls')
-    prior_exited(PRIOR_ROOT/'control')
-    return {'consumed_trainer_invocations':1,'consumed_optimizer_updates':0,'consumed_official_calls':0,
-        'wall_seconds_reserved':60,'initial_result':pin(PRIOR_ROOT/'control/initial_RESULT.json'),
-        'admission':pin(path),'launch':pin(path.with_name('LAUNCH.json')),'exit':pin(path.with_name('EXIT.json')),
-        'prior_IO_is_SID_sampled_lower_bound':True}
+    history=[]
+    for root in (OLDER_ROOT,PRIOR_ROOT):
+        records=list(root.glob('control/invocations/*/*/ADMISSION.json'));result=read(root/'control/initial_RESULT.json')
+        if len(records)!=1 or result['invocations_started']!=1 or result['status']!='PARTIAL_OR_FAILED':
+            raise ValueError('Prior failed launch accounting changed')
+        path=records[0];exited=read(path.with_name('EXIT.json'))
+        if not exited['owned_cleanup_complete']:raise ValueError('Prior owned cleanup unconfirmed')
+        prior_exited(root/'control')
+        row={'initial_result':pin(root/'control/initial_RESULT.json'),'admission':pin(path),
+            'launch':pin(path.with_name('LAUNCH.json')),'exit':pin(path.with_name('EXIT.json'))}
+        runs=list(root.glob('*/runs/*'))
+        if root==OLDER_ROOT:
+            if 'Unknown/foreign process' not in result['stop_reason'] or runs:raise ValueError('Older failed launch is not the zero-update preflight')
+        else:
+            if len(runs)!=1:raise ValueError('Expected one actual serializer-failed arm')
+            run=runs[0];failure=read(run/'FAILURE.json');status=read(run/'status.json')
+            if ('deepspeed.utils.tensor_fragment.fragment_address' not in failure['error']
+                    or failure['status']!='FAILED' or status['completed']!=0 or status['exposure']!=0
+                    or status['counts'] or status['pending_feedback'] is not None or status['pending_old_policy'] is not None
+                    or any(run.glob('official_feedback/*/attempt_*/ADMITTED.json'))
+                    or any(run.glob('checkpoints/*/COMPLETE.json'))):raise ValueError('Prior observer failure has nonzero or ambiguous progress')
+            row.update(failure=pin(run/'FAILURE.json'),status=pin(run/'status.json'))
+        history.append(row)
+    return {'consumed_trainer_invocations':2,'consumed_optimizer_updates':0,'consumed_official_calls':0,
+        'wall_seconds_reserved':300,'history':history,'initial_result':history[-1]['initial_result'],
+        'prior_IO_is_cumulative_sampled_lower_bound':True}
+
+
+def smoke_output_usage():
+    roots=(OLDER_ROOT,PRIOR_ROOT,ROOT)
+    files=[p for root in roots for p in root.rglob('*') if p.is_file()]
+    native_dirs=[p for root in roots for p in root.glob('*/runs/*/checkpoints/step_*') if p.is_dir()]
+    return sum(p.stat().st_size for p in files),native_dirs
 
 
 def claim_smoke_invocation(control,unit,*,binding_sha,argv):
@@ -349,7 +371,7 @@ def prepare(binding):
     write(ROOT/'BUDGET.json',{'limits':LIMITS,'weights_usable_for_formal_init':False,'source_sha':SOURCE,
         'audit_worker_sha256':sha(__file__),'original_trainer_modified':False,
         'prior_failed_launch':binding['prior_failed_launch'],'maximum_new_trainer_invocations':3,
-        'total_wall_accounting_seconds':60+3540+120+180})
+        'total_wall_accounting_seconds':300+3300+120+180})
     for arm in ('continuous','interrupted'):
         folder=ROOT/arm;folder.mkdir();cfg=json.loads(json.dumps(base))
         cfg['execution'].update(scope='SMOKE',sample_limit=32,stop_after=4)
@@ -544,9 +566,8 @@ def execute(phase,receipt,binding):
             if time.monotonic()-last_GPU>=5:
                 ep.LIMITS['GPU_driver_bytes']=LIMITS['GPU_driver_bytes'];monitor_smoke_gpu(ep,route,jobs,currently_owned);last_GPU=time.monotonic()
             if time.monotonic()-last_IO>=10:
-                files=[p for p in ROOT.rglob('*') if p.is_file()]
-                if sum(p.stat().st_size for p in files)>LIMITS['output_bytes']:raise ValueError('SMOKE output cap')
-                native_dirs=[p for arm in ('continuous','interrupted') for p in (run_path(arm)/'checkpoints').glob('step_*')]
+                written,native_dirs=smoke_output_usage()
+                if written>LIMITS['output_bytes']:raise ValueError('SMOKE output cap includes all preserved failed namespaces')
                 if len(native_dirs)>8:raise ValueError('SMOKE native directory cap includes partial')
                 if any(sum(p.stat().st_size for p in folder.glob('*') if p.is_file())>LIMITS['native_directory_bytes'] for folder in native_dirs):raise ValueError('SMOKE single native cap')
                 import shutil
@@ -582,7 +603,7 @@ def execute(phase,receipt,binding):
     result={'status':'EXECUTION_COMPLETE_PENDING_COMPARISON' if reason is None else 'PARTIAL_OR_FAILED',
         'phase':phase,'stop_reason':reason,'stats':stats,'results':results,'invocations_started':len(jobs),
         'weights_usable_for_formal_init':False,'new_formal_updates':0,
-        'prior_consumed_trainer_invocations':1,'total_trainer_invocation_cap':4}
+        'prior_consumed_trainer_invocations':2,'total_trainer_invocation_cap':5}
     write(control/(phase+'_RESULT.json'),result);return result
 
 
@@ -608,6 +629,14 @@ def logical_state(value):
     if isinstance(value,dict):return {'kind':'mapping','items':[[str(type(key)),str(key),logical_state(item)] for key,item in value.items()]}
     if isinstance(value,(list,tuple)):return {'kind':'sequence','type':type(value).__name__,'items':[logical_state(item) for item in value]}
     if value is None or isinstance(value,(str,int,float,bool)):return {'kind':'scalar','type':type(value).__name__,'value':value}
+    if type(value).__module__=='deepspeed.utils.tensor_fragment':
+        from deepspeed.utils.tensor_fragment import fragment_address
+        if type(value) is not fragment_address or set(vars(value))!={'numel','start'}:
+            raise ValueError('Unknown or changed DeepSpeed fragment_address schema')
+        if any(type(getattr(value,key)) is not int or getattr(value,key)<0 for key in ('numel','start')):
+            raise ValueError('Invalid DeepSpeed fragment_address integer range')
+        return {'kind':'deepspeed_fragment_address_v1','type':'deepspeed.utils.tensor_fragment.fragment_address',
+            'numel':value.numel,'start':value.start}
     if type(value).__module__=='deepspeed.runtime.fp16.loss_scaler':return {'kind':'loss_scaler','type':type(value).__name__,'state':logical_state(vars(value))}
     raise ValueError('Unknown logical state type, not silently omitted: '+str(type(value)))
 

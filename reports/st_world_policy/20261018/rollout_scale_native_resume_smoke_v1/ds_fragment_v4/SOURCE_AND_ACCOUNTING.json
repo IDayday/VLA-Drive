@@ -1,0 +1,113 @@
+{
+  "base_commit": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v4-20261018/resources/st_rollout_resume_smoke_v1.py",
+    "sha256": "468fe8f1ed20ef3abb2b2407413f92fb078f6b1d05f6cbfb2ed4e4b6e69f9692"
+  },
+  "frozen_runtime": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "endpoint_helper": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v4-20261018/resources/st_endpoint_supervisor_v1.py",
+    "sha256": "a2e24537b9749258417e390be705d4d5d4e6f775986ca479a1c67c4330759a3e"
+  },
+  "DS_fragment_source": {
+    "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/utils/tensor_fragment.py",
+    "sha256": "f16c87328e43dc15fc496169c1271584dae22a8003a2961cba7d40a8d02b08a2"
+  },
+  "DS_public_state_source": {
+    "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/runtime/zero/stage_1_and_2.py",
+    "sha256": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6"
+  },
+  "prior_failed_launches": {
+    "consumed_trainer_invocations": 2,
+    "consumed_optimizer_updates": 0,
+    "consumed_official_calls": 0,
+    "wall_seconds_reserved": 300,
+    "history": [
+      {
+        "initial_result": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/initial_RESULT.json",
+          "sha256": "715ab6be3eceb384a13272f050f8664992d8a6349f64fa6b1240ebe4fbb4729b"
+        },
+        "admission": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/ADMISSION.json",
+          "sha256": "4e850b6e2af367774c131d5d12d2e5d5ae2a35171fed5a8c840ea4ed602d1858"
+        },
+        "launch": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/LAUNCH.json",
+          "sha256": "7dcdba630833a6c8bde130e633daec056d789bfe0a65024444aaf566aab95fef"
+        },
+        "exit": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/EXIT.json",
+          "sha256": "ae81fac224457cbb4414aa7ad293aad449c53f2585ccc3024338ca5d060c403e"
+        }
+      },
+      {
+        "initial_result": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/control/initial_RESULT.json",
+          "sha256": "0078611fe9c7159d22b5147851abf13a5c64ec5bd427c5ded6c004c22f414a05"
+        },
+        "admission": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/control/invocations/initial_continuous/1792356519494781292/ADMISSION.json",
+          "sha256": "6af26edc9c7426026549a84803b77271e6e3ac97131f21de8152b0e6839cdad8"
+        },
+        "launch": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/control/invocations/initial_continuous/1792356519494781292/LAUNCH.json",
+          "sha256": "f2849ba8f40683997d263e01834dbf83957bcd02dd21983666883c18a2fd69a4"
+        },
+        "exit": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/control/invocations/initial_continuous/1792356519494781292/EXIT.json",
+          "sha256": "12271b7a09b4173ed585b24167ff01b2b5f4235304e2a39fc694d68885a22d8d"
+        },
+        "failure": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/continuous/runs/C1_rollout_std_native_continuous_v1/FAILURE.json",
+          "sha256": "fbe4be706d95b422cd0d23b250aeeb31607c041e8b90c29d920cc9369227ffaf"
+        },
+        "status": {
+          "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/continuous/runs/C1_rollout_std_native_continuous_v1/status.json",
+          "sha256": "1f7fb7229bd32a9d60fe8f67bdab5841670d87ca66e542c09e84d3db1fdac2fe"
+        }
+      }
+    ],
+    "initial_result": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3/control/initial_RESULT.json",
+      "sha256": "0078611fe9c7159d22b5147851abf13a5c64ec5bd427c5ded6c004c22f414a05"
+    },
+    "prior_IO_is_cumulative_sampled_lower_bound": true
+  },
+  "limits": {
+    "scope": "SMOKE",
+    "world": 4,
+    "global_batch": 32,
+    "micro_batch": 4,
+    "accumulation": 2,
+    "max_updates": 4096,
+    "warmup": 100,
+    "stop_after": 4,
+    "total_new_updates": 8,
+    "primary_calls": 1024,
+    "retry_calls": 0,
+    "global_calls": 1024,
+    "arm_calls": 512,
+    "max_invocations": 5,
+    "prior_invocations": 2,
+    "new_invocations": 3,
+    "wall_seconds": 3300,
+    "prior_wall_seconds": 300,
+    "grace_seconds": 60,
+    "group_RSS_bytes": 274877906944,
+    "aggregate_RSS_bytes": 549755813888,
+    "GPU_driver_bytes": 51539607552,
+    "fresh_RAM_bytes": 687194767360,
+    "output_bytes": 111669149696,
+    "native_directories": 8,
+    "native_directory_bytes": 12884901888,
+    "monitor_read_bytes": 1099511627776,
+    "launch_shared_free_bytes": 1754494140416,
+    "runtime_shared_free_bytes": 1642824990720
+  },
+  "new_root": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v4",
+  "actual_GPU_calls": 0,
+  "actual_model_payload_read_bytes": 0,
+  "actual_official_calls": 0,
+  "state": "WAITING_TWO_REVIEWS_AND_FRESH_REAL_BINDING"
+}

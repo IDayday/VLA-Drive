@@ -1,0 +1,33 @@
+{
+  "scope": "Actual isolated full installed DS import/CPU Adam construction; no engine/CUDA/model/checkpoint/scoring",
+  "stop_reason": "AGGREGATE_RSS_CAP",
+  "wall_seconds": 5.736626220867038,
+  "aggregate_peak_RSS_bytes": 3200798720,
+  "main_python_RSS_bytes": 666685440,
+  "observed_compiler_processes_at_peak": 8,
+  "compiler_command_class": "torch/_inductor/compile_worker/__main__.py --workers=32",
+  "compiler_RSS_bytes_at_peak": [
+    488861696,
+    292114432,
+    292118528,
+    292122624,
+    292253696,
+    292126720,
+    292257792,
+    292257792
+  ],
+  "owned_cleanup_complete": true,
+  "raw_own_PID_command_inventory_not_committed": true,
+  "diagnostic_CPU_seconds": "NOT_CAPTURED",
+  "source_explanation": {
+    "async_compile": {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/_inductor/async_compile.py",
+      "sha256": "6ebe939543c2dd9bc0b34540f6cdf39b7b9afc72ea55bb91e1460f6a0c2ea0a1"
+    },
+    "config": {
+      "path": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/_inductor/config.py",
+      "sha256": "71ffb08b5f91ab22c843af2b1139b9011f2efcb7f7d8c6825d00f39bb691fe0a"
+    }
+  },
+  "test_only_resolution": "TORCHINDUCTOR_COMPILE_THREADS=1; no production execution setting change"
+}
