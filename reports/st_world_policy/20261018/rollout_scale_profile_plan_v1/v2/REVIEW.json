@@ -1,0 +1,128 @@
+{
+  "allowed_scope": {
+    "CPU_affinity": "0-15",
+    "GPU_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "automatic_resume": false,
+    "automatic_retry": false,
+    "host": "training-vlawm-tsinghua-zt5-worker-0",
+    "maximum_admissions_including_retry": 640,
+    "maximum_invocations": 1,
+    "new_output_study_reservation_GiB": 96,
+    "owned_KILL_grace_seconds": 180,
+    "owned_TERM_seconds": 1200,
+    "primary_feedback": 512,
+    "runtime_seconds": 900,
+    "save_every": 2,
+    "scene_presentations": 128,
+    "scenes": 32,
+    "stage": "SMOKE",
+    "updates": 4,
+    "world_size": 4
+  },
+  "binding": {
+    "launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v1.py",
+      "sha256": "ae0c45f2d95e8ee9a249cdfdbcc7ea447f625637c150bc05a0a35e4e3bc0d00e"
+    },
+    "registration": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/REGISTRATION.json",
+      "sha256": "c38c4275d0cc15574cf433619cc5abbd41044e3f7dc55b1c9b990cef1fd3f468"
+    },
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016"
+  },
+  "conditions": [
+    "Exact independent correctness review for same binding and Lead admission; this role does not approve mathematics",
+    "Fresh selected-device no-app/idle, allowed host/source/UUID/RAM/disk/lease and after-lock checks",
+    "Lead live supervision for this four-step job: no foreign selected-device tasks and driver PIDs map to owned tree",
+    "Keep original preparation BUDGET; final EXECUTION_BINDING pins current launcher/monitor migration",
+    "No diagnostic weight may initialize formal work; no automatic PROFILE/FORMAL/DEV or retry"
+  ],
+  "created_utc": "2026-10-18T17:42:05.707588+00:00",
+  "experiments_dispatched_by_reviewer": false,
+  "formal_training_approved": false,
+  "host_amendment": {
+    "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v2/HOST_AMENDMENT.json",
+    "sha256": "2f68edf5f3edb941e6cb30178cf8ea6fc9dd01d2570e1887634472118bde2c9f"
+  },
+  "independent_tests": {
+    "GPU_model_remote_or_scoring_executed": false,
+    "failed": 0,
+    "passed": 7,
+    "post_fix": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v2/POST_FIX_TEST.log",
+      "sha256": "ad714266aa25b186c8b36dc3ffaa0d5fadbec25b128a9a58140bf5ab6439dfa6"
+    },
+    "pre_fix": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v2/PRE_FIX_TEST.log",
+      "sha256": "e820f5db1d7c833423d1184beb230ddecaf783f740957c71f1a4716937212118"
+    },
+    "seconds": 0.017,
+    "test_source": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v2/test_launcher_resources.py",
+      "sha256": "3800ac761d61bbd0b343f1b686d80fd057a53963ff993e8ea051a7b991d87ce5"
+    }
+  },
+  "large_parent_manifest_or_checkpoint_payload_read": false,
+  "monitor": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_owned_run_v1.py",
+    "sha256": "da667402805a3f9a96a9ce9704bcda485b88ca67dd6833334b13a2c6fbc19978"
+  },
+  "profile_approved": false,
+  "real_metadata_gate": {
+    "exit_code": 0,
+    "formal_launch_allowed": false,
+    "identity": "fbf2ca497ad9f1407c22c2621008adeeb349e9255735ad2d2eb01b9a9afa07b7",
+    "status": "DIAGNOSTIC_ONLY",
+    "weights_usable_for_formal_init": false
+  },
+  "retained_limits": [
+    "5-second sampled RSS/owned driver GPU use, not instantaneous hard quotas",
+    "Filesystem quota/hidden cgroup limits not established by snapshot; no unlimited-resource claim",
+    "Monitor output is per-stage; current scope is SMOKE only",
+    "Unmapped/foreign GPU PIDs are not counted by current monitor; live Lead supervision required, future PROFILE must explicitly record and safe-stop unknowns",
+    "PROFILE requires separate review of two-stage aggregate96GiB/six-native accounting and real four-rank SMOKE completion",
+    "10800-second lease is an admission window only; one invocation retains900/1200+180 bounds",
+    "Historical zt4 speed is reservation reference only, not zt5 measured throughput or pure-normalizer causal comparison"
+  ],
+  "reviewer_agent": "/root/full_feedback_systems_review",
+  "role": "systems",
+  "runtime": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018",
+  "runtime_clean": true,
+  "schema": "st_rollout_scale_smoke_systems_review_v2",
+  "source_config_artifacts": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/CONFIG.json",
+      "sha256": "2aaa646f18850782595e512c071fe77538921390a830d97dddba93cde702cebf"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/TRAINING_MANIFEST.json",
+      "sha256": "4412bf64a576c3e62741ecf0438db31f662274b2abd584bd9ac1ee6505bb6eff"
+    },
+    "environment": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/ENVIRONMENT.json",
+      "sha256": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f"
+    },
+    "resource_lease": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/RESOURCE_LEASE.json",
+      "sha256": "8d5bfedc68b51d94b579b3fa0308affe984be554015a6d7db61a1df27131d1a4"
+    },
+    "target_contract": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/scene_center_rollout_std_v1_4update/TARGET_CONTRACT.json",
+      "sha256": "06b38004e7bc43d199b538558a74c21361d05c8ffc06d4feee954e25a5ca06f1"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/NO_TEACHER.json",
+      "sha256": "211f1d4177be892089e496dc90ba514c90e7610aefe8b2cc26faa9e2149ce020"
+    }
+  },
+  "status": "PASS_BOUNDED_FOUR_RANK_SMOKE_ONLY"
+}

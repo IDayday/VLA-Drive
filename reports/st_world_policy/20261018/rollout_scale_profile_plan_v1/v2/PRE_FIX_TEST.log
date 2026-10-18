@@ -1,0 +1,21 @@
+{"launcher": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v1.py", "sha256": "662664ad06c78ac5c456d79aaca409a5f22e7f2867d5e2738797055986c489ef", "scope": "synthetic AST controls, no real subprocess/GPU/model/data access"}
+test_busy_gpu_rejected (__main__.FreshHostControls) ... ok
+test_dirty_runtime_rejected (__main__.FreshHostControls) ... ok
+test_foreign_host_rejected (__main__.FreshHostControls) ... ok
+test_healthy_metadata (__main__.FreshHostControls) ... ok
+test_low_disk_rejected (__main__.FreshHostControls) ... ok
+test_low_memory_rejected (__main__.FreshHostControls) ... ok
+test_zero_usage_real_gpu_process_rejected (__main__.FreshHostControls) ... FAIL
+
+======================================================================
+FAIL: test_zero_usage_real_gpu_process_rejected (__main__.FreshHostControls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v2/test_launcher_resources.py", line 104, in test_zero_usage_real_gpu_process_rejected
+    with self.assertRaises((AssertionError, ValueError)):
+AssertionError: (<class 'AssertionError'>, <class 'ValueError'>) not raised
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.015s
+
+FAILED (failures=1)
