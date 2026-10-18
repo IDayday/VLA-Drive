@@ -1,0 +1,852 @@
+{
+  "status": "COMPLETE_SCREENING_COMPARISON",
+  "science": "POSITIVE_SINGLE_SEED_EXPLORATORY_SIGNAL_WITH_SCENE_REGRESSIONS",
+  "comparison": "SP2_PCA256_minus_SP2",
+  "scope": "FORMAL",
+  "stage": "SCREENING",
+  "scenes": 1696,
+  "logs": 16,
+  "validity": {
+    "invalid": 0,
+    "paired_valid": 1696,
+    "requested": 1696,
+    "unresolved": 0
+  },
+  "training_steps_each": 5000,
+  "teacher_image_hw": [
+    288,
+    384
+  ],
+  "teacher_grid_hw": [
+    18,
+    24
+  ],
+  "world_queries_per_view": 48,
+  "sampled_positions_per_view": 96,
+  "control_channels": 384,
+  "treatment_channels": 256,
+  "statistics_definition": {
+    "all_metrics_required": true,
+    "bootstrap_replicates": 2000,
+    "bootstrap_rng": "numpy.PCG64",
+    "bootstrap_seed": 20261017,
+    "bootstrap_unit": "paired_log_cluster",
+    "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+    "ep_drop_threshold": 0.05,
+    "estimand": "scene_weighted_mean_treatment_minus_control",
+    "high_drop_threshold": 0.05,
+    "high_score_threshold": 0.9,
+    "interval": "percentile_2.5_97.5_linear_quantile",
+    "low_progress_m": 1.0,
+    "moving_reference_m": 5.0,
+    "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+    "near_stop_speed_mps": 0.5,
+    "zero_epsilon": 1e-08
+  },
+  "metrics": {
+    "ade_m": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.6628249745558358,
+          0.8433057265569799
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.7447202533888336,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          -0.022404960671975893,
+          0.0007739751229489032
+        ],
+        "denominator_scenes": 1696,
+        "mean": -0.008271011054099154,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": -0.005233389665179933,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.6553244642673107,
+          0.8289160815773081
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.7364492423347344,
+        "represented_logs": 16
+      }
+    },
+    "comfort": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 1.0,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.0,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 1.0,
+        "represented_logs": 16
+      }
+    },
+    "drivable_area_compliance": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9505500261917234,
+          0.9932084427209749
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9787735849056604,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          -0.0005306752666602647,
+          0.011728256695161489
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.003537735849056604,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.006077016237501979,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9608927426201006,
+          0.9939761506386399
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9823113207547169,
+        "represented_logs": 16
+      }
+    },
+    "driving_direction_compliance": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9807247188693544,
+          0.9972674047749226
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9876179245283019,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          -0.0006023520510275476,
+          0.003969583812077102
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.000884433962264151,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.003269491348759641,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9819296074464186,
+          0.9976824293375575
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.988502358490566,
+        "represented_logs": 16
+      }
+    },
+    "ego_progress": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.7768721690940094,
+          0.8827440465793713
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.8463834025260731,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0012806299484744035,
+          0.011931746554736418
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0048463250228516766,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.009331228123311823,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.7880298013594851,
+          0.885993398493873
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.8512297275489249,
+        "represented_logs": 16
+      }
+    },
+    "fde_m": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          1.362857950895774,
+          1.7567618968234398
+        ],
+        "denominator_scenes": 1696,
+        "mean": 1.5278568197981428,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          -0.06165371567683245,
+          -0.004230789962814673
+        ],
+        "denominator_scenes": 1696,
+        "mean": -0.026161194306413324,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": -0.03147691483514138,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          1.349230392068698,
+          1.7166192141163639
+        ],
+        "denominator_scenes": 1696,
+        "mean": 1.5016956254917295,
+        "represented_logs": 16
+      }
+    },
+    "mean_executed_speed_mps": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          4.101071457790838,
+          5.132850876373336
+        ],
+        "denominator_scenes": 1696,
+        "mean": 4.5323551817641,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0024583550315818046,
+          0.020620034096634758
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.012183180874578838,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.017619214429522884,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          4.11585892411531,
+          5.143701715088116
+        ],
+        "denominator_scenes": 1696,
+        "mean": 4.544538362638678,
+        "represented_logs": 16
+      }
+    },
+    "no_at_fault_collisions": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9836520068296788,
+          0.9992006713862749
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9905660377358491,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0025753290969380387
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0005896226415094339,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.001524390243902439,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9841653709121445,
+          1.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9911556603773585,
+        "represented_logs": 16
+      }
+    },
+    "raw_progress_m": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          16.607461170823083,
+          21.33735470986245
+        ],
+        "denominator_scenes": 1696,
+        "mean": 18.482310705808953,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.009733579814590759,
+          0.07584715254846625
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.045107592105397866,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.06621621070307995,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          16.650712896870115,
+          21.367172561489408
+        ],
+        "denominator_scenes": 1696,
+        "mean": 18.527418297914352,
+        "represented_logs": 16
+      }
+    },
+    "reference_progress_m": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          18.166265453610926,
+          24.710165038919655
+        ],
+        "denominator_scenes": 1696,
+        "mean": 20.572292637091778,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.0,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          18.166265453610926,
+          24.710165038919655
+        ],
+        "denominator_scenes": 1696,
+        "mean": 20.572292637091778,
+        "represented_logs": 16
+      }
+    },
+    "score": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.8661640462541689,
+          0.9270377150241377
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9066593579707696,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.00037645067941569587,
+          0.013410048810172099
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.004918280080276248,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.00925409213247409,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.8789087053103233,
+          0.9312498255553157
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9115776380510457,
+        "represented_logs": 16
+      }
+    },
+    "time_to_collision_within_bound": {
+      "control": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9473155241670823,
+          0.9743000793510845
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9604952830188679,
+        "represented_logs": 16
+      },
+      "delta": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          -0.002309585335852184,
+          0.007067207203706222
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0011792452830188679,
+        "represented_logs": 16
+      },
+      "equal_log_delta_sensitivity": 0.00298940922629064,
+      "treatment": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9497991967871486,
+          0.9760989524263133
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9616745283018868,
+        "represented_logs": 16
+      }
+    }
+  },
+  "events": {
+    "ep_drop": {
+      "count": 18,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.005612540729721592,
+          0.014246851470211876
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.01061320754716981,
+        "represented_logs": 16
+      }
+    },
+    "high_any_drop": {
+      "conditional_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.22116829252198203,
+          0.34963234720328484
+        ],
+        "denominator_scenes": 1214,
+        "mean": 0.2677100494233937,
+        "represented_logs": 16
+      },
+      "count": 325,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.14732739043487103,
+          0.2413793103448276
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.19162735849056603,
+        "represented_logs": 16
+      }
+    },
+    "high_large_drop": {
+      "conditional_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.002565865884222752,
+          0.01065104522475748
+        ],
+        "denominator_scenes": 1214,
+        "mean": 0.007413509060955519,
+        "represented_logs": 16
+      },
+      "count": 9,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0017431164438548815,
+          0.00771380701499128
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.005306603773584905,
+        "represented_logs": 16
+      }
+    },
+    "high_to_zero": {
+      "conditional_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.005219274816441999
+        ],
+        "denominator_scenes": 1214,
+        "mean": 0.002471169686985173,
+        "represented_logs": 16
+      },
+      "count": 3,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.003527570768950078
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.001768867924528302,
+        "represented_logs": 16
+      }
+    },
+    "net_zero_repair_rate": {
+      "bootstrap_defined": 2000,
+      "bootstrap_undefined": 0,
+      "ci95": [
+        0.0,
+        0.012595386451014181
+      ],
+      "denominator_scenes": 1696,
+      "mean": 0.004127358490566038,
+      "represented_logs": 16
+    },
+    "new_zero": {
+      "conditional_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.003952715851151837
+        ],
+        "denominator_scenes": 1645,
+        "mean": 0.0024316109422492403,
+        "represented_logs": 16
+      },
+      "count": 4,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0038637416451591557
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0023584905660377358,
+        "represented_logs": 16
+      }
+    },
+    "nonzero_persisted": {
+      "count": 1641,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.9432465811957473,
+          0.9847280374625418
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.9675707547169812,
+        "represented_logs": 16
+      }
+    },
+    "safety_gain_with_ep_drop": {
+      "count": 0,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0,
+        "represented_logs": 16
+      }
+    },
+    "zero_persisted": {
+      "count": 40,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.008467932153745415,
+          0.04237362999341199
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.02358490566037736,
+        "represented_logs": 16
+      }
+    },
+    "zero_repaired": {
+      "conditional_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.13043478260869565,
+          0.4166666666666667
+        ],
+        "denominator_scenes": 51,
+        "mean": 0.21568627450980393,
+        "represented_logs": 9
+      },
+      "count": 11,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.00278322309692569,
+          0.013681757561999885
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.006485849056603774,
+        "represented_logs": 16
+      }
+    }
+  },
+  "safety_transitions": {
+    "no_at_fault_collisions": {
+      "control_below_full": 17,
+      "treatment_below_full": 16,
+      "new_below_full": 1,
+      "repaired_to_full": 2,
+      "full_threshold": 0.99999999,
+      "denominator": 1696
+    },
+    "drivable_area_compliance": {
+      "control_below_full": 36,
+      "treatment_below_full": 30,
+      "new_below_full": 3,
+      "repaired_to_full": 9,
+      "full_threshold": 0.99999999,
+      "denominator": 1696
+    },
+    "time_to_collision_within_bound": {
+      "control_below_full": 67,
+      "treatment_below_full": 65,
+      "new_below_full": 7,
+      "repaired_to_full": 9,
+      "full_threshold": 0.99999999,
+      "denominator": 1696
+    },
+    "driving_direction_compliance": {
+      "control_below_full": 27,
+      "treatment_below_full": 25,
+      "new_below_full": 1,
+      "repaired_to_full": 3,
+      "full_threshold": 0.99999999,
+      "denominator": 1696
+    }
+  },
+  "stopping_proxy": {
+    "control": {
+      "count": 0,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0,
+        "represented_logs": 16
+      },
+      "moving_reference_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1590,
+        "mean": 0.0,
+        "represented_logs": 16
+      }
+    },
+    "delta_full_population_rate": {
+      "bootstrap_defined": 2000,
+      "bootstrap_undefined": 0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "denominator_scenes": 1696,
+      "mean": 0.0,
+      "represented_logs": 16
+    },
+    "new_stop_count": 0,
+    "treatment": {
+      "count": 0,
+      "full_population_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1696,
+        "mean": 0.0,
+        "represented_logs": 16
+      },
+      "moving_reference_rate": {
+        "bootstrap_defined": 2000,
+        "bootstrap_undefined": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator_scenes": 1590,
+        "mean": 0.0,
+        "represented_logs": 16
+      }
+    }
+  },
+  "by_log_score_delta": {
+    "2021.06.09.12.06.35_veh-35_01164_01494": {
+      "scenes": 115,
+      "score_delta": -0.004249091339784606
+    },
+    "2021.06.09.12.51.31_veh-35_01729_02626": {
+      "scenes": 176,
+      "score_delta": 0.010583470075214946
+    },
+    "2021.06.09.14.50.36_veh-26_02826_02955": {
+      "scenes": 25,
+      "score_delta": 0.0010497173998305742
+    },
+    "2021.06.09.17.23.18_veh-38_01598_01750": {
+      "scenes": 36,
+      "score_delta": 0.0016158759408907337
+    },
+    "2021.06.09.20.26.11_veh-35_00970_01216": {
+      "scenes": 68,
+      "score_delta": 0.001003782254810518
+    },
+    "2021.06.23.17.31.36_veh-16_00016_00377": {
+      "scenes": 95,
+      "score_delta": 0.005507943576572765
+    },
+    "2021.07.09.15.53.28_veh-38_00184_02293": {
+      "scenes": 556,
+      "score_delta": -0.002257619719805776
+    },
+    "2021.07.09.20.26.06_veh-35_02793_03289": {
+      "scenes": 161,
+      "score_delta": -0.003329285883878058
+    },
+    "2021.07.16.22.40.23_veh-38_00204_00360": {
+      "scenes": 15,
+      "score_delta": 0.002827535754277514
+    },
+    "2021.08.31.11.47.30_veh-40_00919_01000": {
+      "scenes": 27,
+      "score_delta": 0.006408320113550941
+    },
+    "2021.08.31.14.01.15_veh-40_01576_01714": {
+      "scenes": 41,
+      "score_delta": 0.03371106235019071
+    },
+    "2021.10.01.17.52.06_veh-28_01141_01264": {
+      "scenes": 28,
+      "score_delta": 0.03705886435542159
+    },
+    "2021.10.05.07.49.39_veh-52_00770_00905": {
+      "scenes": 81,
+      "score_delta": -0.0006803402035095201
+    },
+    "2021.10.05.08.11.15_veh-50_00437_00585": {
+      "scenes": 74,
+      "score_delta": 0.013422134868234594
+    },
+    "2021.10.11.02.57.41_veh-50_01028_01289": {
+      "scenes": 81,
+      "score_delta": 0.02226888945825919
+    },
+    "2021.10.11.02.57.41_veh-50_02155_02265": {
+      "scenes": 117,
+      "score_delta": 0.023124215119309326
+    }
+  },
+  "formal_continuation_started": false,
+  "locked_recipe_changed": false,
+  "target_common_coordinate_loss_coefficient_ratio": 1.5,
+  "pure_capacity_causal_effect_identified": false,
+  "inputs": {
+    "ANALYSIS.json": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/analysis/PCA256_minus_384_dev1696_step5000_v1/ANALYSIS.json",
+      "sha256": "aed6f14b2082ceda1a1976b5f002b32489dcd8a555cbd29715fd9e0295b4dda8"
+    },
+    "PAIRED_SCENES.csv": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/analysis/PCA256_minus_384_dev1696_step5000_v1/PAIRED_SCENES.csv",
+      "sha256": "fc95c429c040dcf75d3f414ccde58de57b7cc3f082edb1d2f1f9c8c6814ebabb"
+    }
+  }
+}
