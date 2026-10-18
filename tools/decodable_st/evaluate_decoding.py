@@ -7,11 +7,11 @@ import time
 import torch
 from safetensors.torch import load_file,save_file
 from .train_representation import load_model,load_data,observation
-from .runtime import numerical_policy
+from .runtime import numerical_policy,source_sha
 from starVLA.model.modules.decodable_st.training_state import TrainableDelta
 from starVLA.model.modules.decodable_st.metrics import occupancy_counts,summarize_counts
 from starVLA.teachers.decodable_st.vigt_adapter import load_vigt_decoder
-from starVLA.teachers.decodable_st.source_registry import atomic_json
+from starVLA.teachers.decodable_st.source_registry import atomic_json,sha256
 
 
 @torch.no_grad()
@@ -45,6 +45,8 @@ def run(run_root,output,device="cuda",evaluation_config=None,required_update=Non
         data_config.update(evaluation_config)
     data,rows,lookup=load_data(data_config);model.eval();outputs=[];counts=torch.zeros(5,dtype=torch.long)
     pairs=[];mean_context=None;fixed_xyz=None;action_drift=[]
+    regions={name:torch.zeros(5,dtype=torch.long) for name in
+             ("near_0_15m","far_15_40m","teacher_boundary")}
     x=torch.linspace(.5,39.5,64,device=device);y=torch.linspace(-20,20,64,device=device)
     xx,yy=torch.meshgrid(x,y,indexing="ij")
     slices=torch.stack([torch.stack((xx,yy,torch.full_like(xx,z)),-1) for z in (.5,1.5)]).reshape(1,-1,3)
@@ -61,6 +63,11 @@ def run(run_root,output,device="cuda",evaluation_config=None,required_update=Non
         if not evaluation_config:
             mean_context=teacher["context"].clone()/len(rows) if mean_context is None else mean_context+teacher["context"]/len(rows)
         c=occupancy_counts(logits>=0,teacher["logits"]>=0,torch.ones_like(logits,dtype=torch.bool));counts+=c
+        masks={"near_0_15m":teacher["xyz"][...,0:1]<15,
+               "far_15_40m":teacher["xyz"][...,0:1]>=15,
+               "teacher_boundary":teacher["logits"].abs()<2.}
+        for name,mask in masks.items():
+            regions[name]+=occupancy_counts(logits>=0,teacher["logits"]>=0,mask)
         dino,_=masked_regression(model.dino_prediction(representation),labels["current_dino"][None].to(device),labels["current_dino_valid"][None,:,None].to(device))
         outputs.append({**row,"native_teacher_agreement":summarize_counts(c),"DINO_MSE":dino.item(),
              "feature_rmse":(representation.predicted_spatial_context.cpu()-teacher["context"]).square().mean().sqrt().item()})
@@ -93,8 +100,12 @@ def run(run_root,output,device="cuda",evaluation_config=None,required_update=Non
         for key,value in [("scene_shuffled_student",pairs[(i+1)%len(pairs)][0]),("mean_training_teacher_context",mean_logits),("zero_context",constant_logits)]:
             controls[key]+=occupancy_counts(value>=0,target>=0,torch.ones_like(target,dtype=torch.bool))
     result={"status":"INCONCLUSIVE","arm":identity["arm"],"run_identity":identity["identity"],"progress":checkpoint["progress"],
+        "evaluation_source_sha":source_sha(),"training_source_sha":identity["source_sha"],
+        "selection_sha256":sha256(data_config["selection"]),"baseline_identity":identity["baseline_identity"],
         "population":"fixed independent development logs; teacher agreement only" if evaluation_config else "same 64 training scenes used for tiny fit; NOT a held-out ability claim","scenes":len(rows),
         "native_teacher_agreement":summarize_counts(counts),"mean_DINO_MSE":sum(x["DINO_MSE"] for x in outputs)/len(outputs),
+        "regions_native_teacher_agreement":{k:summarize_counts(v) for k,v in regions.items()},
+        "region_definition":"Same fixed xyz as native compression audit; boundary means abs(native teacher logit)<2, not an independent physical boundary label",
         "negative_controls":{k:summarize_counts(v) for k,v in controls.items()},
         "same_noise_no_reader_action_drift_train8":action_drift,
         "per_scene":outputs,"seconds":time.monotonic()-start,"gpu_hours":(time.monotonic()-start)/3600,
