@@ -1,0 +1,178 @@
+{
+  "schema": "st_T0_metadata_independent_efficiency_review_v1",
+  "status": "PASS_CPU_METADATA_ONLY",
+  "reviewer": "/root/spatial20k_efficiency",
+  "issued_at_unix": 1792292358.0561461,
+  "owner_commit": "c48f3faf601d66cd28f033c41273ca15192bebe0",
+  "runtime_commit": "38f86a15a92171e583bb5019cce89a63fb7a1d43",
+  "admission": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/temporal_T0_cpu_independent_efficiency_v1/ACTUAL_ADMISSION.json",
+    "sha256": "d448deb4f171dd668328a49daf80cccc25e306983e868b2a45df002851c999d9"
+  },
+  "command": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/temporal_T0_cpu_independent_efficiency_v1/COMMAND.json",
+    "sha256": "1c430e31d685f450b03a3159d129e53d4f447341227e4df76958a84b36229525"
+  },
+  "pure_admission_negative_cases": [
+    "gpu",
+    "cpu_affinity",
+    "max_output_bytes",
+    "automatic_retry",
+    "checkpoint_reservation_created",
+    "reviewer",
+    "output_root",
+    "limits.read_bytes",
+    "limits.rss_bytes",
+    "limits.wall_seconds",
+    "limits.cleanup_seconds"
+  ],
+  "original_cli_commands": [
+    [
+      "tools.st_world_policy.qualify_indexed_provider",
+      [
+        "prepare-profile-migration",
+        "--parent-descriptor",
+        "/mnt/project/st-world-policy-20261016/smoke/world_indexed_provider_native2_v1/PROVIDER.json",
+        "--parent-runtime",
+        "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/SOURCE_MIGRATION.json"
+      ]
+    ],
+    [
+      "tools.st_world_policy.temporal_formal",
+      [
+        "--full-profile-descriptor",
+        "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/PROVIDER.json",
+        "--source-migration",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/SOURCE_MIGRATION.json",
+        "--decision",
+        "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018/reports/st_world_policy/20261018/temporal_common_recipe_decision_v1/DECISION.json",
+        "--pca-fit-cache-root",
+        "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+        "--pca-fit-cache-index",
+        "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+        "--world-size",
+        "4",
+        "--micro-batch",
+        "1",
+        "--scope",
+        "PROFILE",
+        "--max-seconds",
+        "3600",
+        "--cell",
+        "T0",
+        "--profile-mode",
+        "none",
+        "--output",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/configured",
+        "--training-output-root",
+        "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/training_control/runs"
+      ]
+    ]
+  ],
+  "original_full_population_observation": {
+    "result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/controls/RESULT.json",
+      "sha256": "40d0914e608632ca9f43e30adf5fabf34abe5c331d207eb3d465413fddf9eeda"
+    },
+    "logical_read_bytes": 9664517081,
+    "wall_seconds": 178.6231238860637,
+    "peak_aggregate_rss_bytes": 707788800
+  },
+  "resource_check": {
+    "hostname": "training-vla-zt-worker-0",
+    "cpu_affinity": [
+      12,
+      13
+    ],
+    "shared_not_exclusive": true,
+    "cpu_three_second_busy_fraction": {
+      "cpu12": 0.013333333333333308,
+      "cpu13": 0.01655629139072845
+    },
+    "machine_load": [
+      14.90234375,
+      16.24072265625,
+      16.22021484375
+    ],
+    "metadata_total_MiB": 10106,
+    "metadata_limit_MiB": 10240,
+    "metadata_remaining_MiB": 134,
+    "disk_free_bytes": 5883994607616,
+    "required_free_bytes": 5636049483160,
+    "disk_headroom_bytes": 247945124456,
+    "native_disk_check": "PASS_WITH_EXISTING_TYPED_CLAIMS",
+    "full_cache_768GiB_retained": true,
+    "future_checkpoint_remaining_bytes": 3701166716312,
+    "shared_metadata_lock": "AVAILABLE_AT_REVIEW"
+  },
+  "actions": {
+    "dispatch": false,
+    "GPU_context": false,
+    "large_payload_read": false,
+    "source_mutation": false,
+    "ledger_mutation": false,
+    "checkpoint_allocation": false,
+    "model_tests_repeated": false
+  },
+  "boundaries": [
+    "Only one CPU metadata preparation; no automatic retry or T4 dispatch.",
+    "Full population source migration and T0 descriptor only; native observer enforces read/RSS/wall/8MiB limits.",
+    "T0 output PROFILE4 configuration is not GPU capacity permission or formal-training approval.",
+    "No history build dependency for T0; no teacher tensor/checkpoint generation in this invocation.",
+    "Native full legacy-cache reserve remains conservative; occupied checkpoint credit is inherited from independently audited evidence.",
+    "CPU 12/13 are shared, not exclusive; history 10/11 remains untouched.",
+    "Future capacity/timing and T1/T3/T4 need their own actual resource and source approvals."
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/CPU_PLAN.json",
+      "sha256": "9217f72273de0eeb80c2d872e061f69944a404fe1ff066a8f96e62ee0d79fbcc"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/prepare_once.py",
+      "sha256": "81b2caf5c70d21c3f10a6cfceb212a6766ba4c65d6a648a79711b110680e665f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/launch_once.sh",
+      "sha256": "e5b83e2400a247841b4d41668a61fc085f52704fe6845b8b20dd2a29e3a4e573"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_profile_actual_preparation_v1/CPU_ADMISSION_TEMPLATE.json",
+      "sha256": "fae2b37b6586dca341921b3d0e29685067418ac4a169463334679872be8f3737"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_train_attempt2_preparation_v1/FULL_ROLE_PLAN.json",
+      "sha256": "a6ea02aa66ff98a51284272f024136d51867e1e999a04a78f9f03ecee4219ed3"
+    },
+    {
+      "path": "/mnt/project/server_dispatch_policy.json",
+      "sha256": "29ce8b89aec0e20d0b429d6a026634ec59e6ddee5933106d2ce9e378fa322d55"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/AUTHORIZATION_20261016T203442.json",
+      "sha256": "d384426e65d8fa23ed64ec0040f565633d5a7bf17629b0729793394403ac0b68"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/checkpoint_remaining_reconciliation_v1/CHECKPOINT_COMMITMENTS_REMAINING_V2.json",
+      "sha256": "7b88fcbf0a4b4505aa251fdbf2e146c6b94dd3fcb15cef8269cee4d1989fa60c"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/cache_storage_ledger_v1/CLAIMS.json",
+      "sha256": "45122a2eac6e7d8ea8d4ed81984b911c4384e0dac906c065edc7fd461b8bfbbc"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/full_population_provider_preparation_v1/controls/RESULT.json",
+      "sha256": "40d0914e608632ca9f43e30adf5fabf34abe5c331d207eb3d465413fddf9eeda"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/temporal_T0_cpu_independent_efficiency_v1/ACTUAL_ADMISSION.json",
+      "sha256": "d448deb4f171dd668328a49daf80cccc25e306983e868b2a45df002851c999d9"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-efficiency-20261018/reports/st_world_policy/20261018/temporal_T0_cpu_independent_efficiency_v1/COMMAND.json",
+      "sha256": "1c430e31d685f450b03a3159d129e53d4f447341227e4df76958a84b36229525"
+    }
+  ]
+}
