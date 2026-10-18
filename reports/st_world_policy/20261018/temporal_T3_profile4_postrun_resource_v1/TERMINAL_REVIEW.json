@@ -1,0 +1,151 @@
+{
+  "checked_at_unix": 1792285870.1276183,
+  "checkpoint_accounting": {
+    "COMPLETE_receipt_bytes": 1189,
+    "campaign_CP2703GiB_commitment_not_reduced": true,
+    "checkpoint_plus_receipt_bytes": 37494905961,
+    "original80GiB_assignment_remains_owned_by_this_run": true,
+    "payload_bytes_from_COMPLETE": 37494904772,
+    "payload_rehashed": false,
+    "unused_reserve_not_released": true,
+    "whole_owned_output_at_last_monitor_census_bytes": 37496037963
+  },
+  "diagnostic_sequencing": "T3 terminal scope now has0 live owned children and no monitor/cleanup error; its checkpoint I/O stage is complete. Any separate diagnostic still needs fresh actual host/GPU/RSS/I/O admission.",
+  "formal_or_multirank_qualification_claim": false,
+  "measured_logged_GPU": {
+    "peak_allocated_bytes": 56780368384,
+    "peak_reserved_bytes": 63149441024,
+    "source": "Maximum of four native per_rank_profile rows; PyTorch allocator, not whole-device exclusive measurement",
+    "whole_device_queried_by_reviewer": false
+  },
+  "monitor": {
+    "cleanup_error": null,
+    "io_scope": "supervisor self plus waited descendants after reap; rank telemetry is not added again; incomplete if cleanup fails",
+    "live_owned_remaining": 0,
+    "monitor_error": null,
+    "proc_supervisor_after_wait_delta": {
+      "cancelled_write_bytes": 77824,
+      "rchar": 96499264235,
+      "read_bytes": 39707201536,
+      "syscr": 328803,
+      "syscw": 3184,
+      "wchar": 37499555390,
+      "write_bytes": 37496344576
+    },
+    "rank_telemetry": {
+      "0": {
+        "batches": 7,
+        "computed_images": 27,
+        "counter_scope": "this_process_invocation_not_checkpoint_progress",
+        "evictions": 112,
+        "executor_output_limit_bytes": 14159232,
+        "failures": 0,
+        "fixed_compute": {
+          "calls": 7,
+          "compute_image_slots": 56,
+          "padding_image_slots": 29,
+          "requested_images": 27
+        },
+        "immutable_hits": 93,
+        "limit_scope": "tensor payloads only; metadata, teacher weights/activations, pixels and caller batches separate",
+        "metadata_cache_budget_bytes": 33554432,
+        "metadata_connections": 2,
+        "metadata_population_materialized": false,
+        "peak_resident_bytes": 14159232,
+        "provider_identity": "4e20806444638cf8ed18a767eabd75f69e8de406a96faa4925b23088223ba360",
+        "ram_hits": 0,
+        "rank": 0,
+        "resident_bytes": 14159232,
+        "resident_limit_bytes": 14159232,
+        "scene_limit_bytes": 67108864,
+        "tensor_disk_bytes": 0
+      }
+    },
+    "read_conservative_high_water_bytes": 96499258005,
+    "reason": null,
+    "rss_interval_seconds": 1.0,
+    "rss_limit_bytes": 68719476736,
+    "rss_peak_bytes": 26880626688,
+    "sampled_conservative_read_stop_bytes": 274877906944,
+    "sampling_boundary": "1s RSS including cleanup,10s output/free-space; scheduler/filesystem delay means trigger limits, not hard OS quotas",
+    "storage": {
+      "actual_free_bytes": 5997441990656,
+      "additional_free_floor_bytes": 1099511627776,
+      "automatic_cleanup": false,
+      "checked_at_unix": 1792285567.9523802,
+      "existing_task_bytes": 37496037963,
+      "ledger_mutated": false,
+      "minimum_free_bytes": 3964339740085,
+      "new_teacher_tensor_bytes": 0,
+      "other_registered_commitments_bytes": 2816424804352,
+      "quota_verified": false,
+      "remaining_reserved_bytes": 48403307957,
+      "reservation_kind": "externally_admitted_advisory_not_quota",
+      "reserved_bytes": 85899345920,
+      "schema": "st_indexed_profile64_storage_check_v1"
+    },
+    "storage_interval_seconds": 10.0,
+    "verified_owned_processes": 13,
+    "wall_seconds": 635.9094966556877
+  },
+  "native_terminal": {
+    "completed": 4,
+    "exposure": 8,
+    "formal_launch_approval": false,
+    "pause_reason": "BUDGET_PAUSED",
+    "scientific_result": "NOT_EVALUATED",
+    "source_sha": "cf516259c8efc24503727f14b9e330ed32231293",
+    "status": "PAUSED"
+  },
+  "reported_IO_scope": "rchar=96,499,264,235 B and read_bytes=39,707,201,536 B are original supervisor plus waited-descendant counters after reap, not an independent payload read or mmap-complete accounting. Rank telemetry is not added twice.",
+  "reviewer": "/root/st_cache_budget",
+  "run_id": "temporal_T3_indexed32_updates4_v2",
+  "schema": "st_T3_profile4_terminal_resource_review_v1",
+  "source_pins": {
+    "checkpoint_complete": {
+      "bytes": 1189,
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/checkpoints/step_000004_1792285491842182876/COMPLETE.json",
+      "sha256": "98866a35758e4cb5e70695f8a90d66fbd6eafef08b5e033d19385a1c930dd4d4"
+    },
+    "exit": {
+      "bytes": 4734,
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/EXIT_initial.json",
+      "sha256": "20933b53c6b1d7f5c96c38effa2c8247649f44fb09d135769c40e4e4d98490ab"
+    },
+    "four_step_rows": {
+      "bytes": 2928,
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/steps.jsonl",
+      "sha256": "9667592332e0e237bf203566c92997b5afc47702f71c8b19384f7ff3f164af33"
+    },
+    "monitor": {
+      "bytes": 2542,
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/MONITOR_RESULT_initial.json",
+      "sha256": "f064c824b21eb960f2bf70c8a381d6cd94119ea3f1ec3f441279e9758f5b8802"
+    },
+    "native_result": {
+      "bytes": 1833,
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/RESULT.json",
+      "sha256": "fbaf0385cc39ead799add159267efa5ae798cbec83e39ba2d322638a6c734a85"
+    }
+  },
+  "status": "TERMINAL_BOUNDED_PROFILE_METADATA_VERIFIED",
+  "training_launch_GPU_SSH_ledger_or_payload_actions_by_reviewer": false,
+  "validation": {
+    "checks": [
+      "clean_terminal_owned_scope",
+      "native_success_exact_bounded_pause",
+      "no_formal_result",
+      "exact_steps",
+      "finite_logged_values",
+      "native_master_update_checks",
+      "RSS_read_and_output_within_bounds",
+      "time_within_bound",
+      "no_teacher_disk_or_materialized_population",
+      "checkpoint_control_matches_result"
+    ],
+    "initialization_snapshot_preserved": true,
+    "small_metadata_bytes_read": 13226,
+    "static_checks_passed": 10,
+    "terminal_snapshot_count": 1
+  }
+}

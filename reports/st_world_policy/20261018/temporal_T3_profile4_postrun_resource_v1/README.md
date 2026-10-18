@@ -1,0 +1,7 @@
+T3 completed its authorized4-update/8-exposure PROFILE and paused at the budget boundary. The original monitor reports635.9095 s,26,880,626,688 B process-tree RSS peak,96,499,264,235 B logical rchar and39,707,201,536 B reported physical read_bytes,with no stop reason or monitor/cleanup error and0 live owned children. All are original counters verified from small terminal JSONs.
+
+The four native step rows log finite losses/gradients and successful FP32-master update checks. Maximum logged PyTorch allocated/reserved memory was56,780,368,384 /63,149,441,024 B. This is allocator telemetry for the bounded diagnostic,not exclusive whole-device performance or formal/multi-rank qualification.
+
+The native COMPLETE receipt accounts for37,494,904,772 B of checkpoint payload plus1,189 B receipt; no tensor hash was repeated. Final monitor census charged37,496,037,963 B to the entire80 GiB output root. The original80 GiB assignment and aggregate2703 GiB commitment remain retained; unused space is not released here. Teacher-provider tensor_disk_bytes remained0 and metadata_population_materialized was false.
+
+[TERMINAL_REVIEW.json](TERMINAL_REVIEW.json) pins the final monitor,exit,native result,4-row log and checkpoint receipt. The earlier single [initialization snapshot](INITIALIZATION_SNAPSHOT.json) is preserved. This review used no polling loop,GPU,SSH,model invocation,payload rehash,ledger write or dispatch.
