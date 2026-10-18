@@ -40,12 +40,18 @@ def main():
     p.add_argument('--data',default=str(ROOT/'data/TRAIN_v3'));p.add_argument('--resume')
     p.add_argument('--qualification',action='store_true');p.add_argument('--stop-after',type=int)
     p.add_argument('--qualification-interface-updates',type=int)
+    p.add_argument('--qualification-save-every',type=int)
+    p.add_argument('--qualification-accumulation',type=int)
     a=p.parse_args();host=require_dispatch();cfg=yaml.safe_load(Path(a.config).read_text());configure_native_numerics()
     world=int(os.environ.get('WORLD_SIZE',1));rank=int(os.environ.get('RANK',0));local=int(os.environ.get('LOCAL_RANK',0))
     if not a.qualification and world!=8:raise ValueError('Formal native IL requires one authorized eight-GPU host')
     if a.qualification_interface_updates is not None:
         if not a.qualification:raise ValueError('No formal stage override')
         cfg['interface_updates']=a.qualification_interface_updates
+    for value,key in [(a.qualification_save_every,'save_every'),(a.qualification_accumulation,'qualification_accumulation')]:
+        if value is not None:
+            if not a.qualification or value<1:raise ValueError('Only positive qualification execution overrides')
+            cfg[key]=value
     if a.qualification:cfg['global_batch']=world*cfg['qualification_accumulation']
     if cfg['global_batch']%world:raise ValueError('Nonintegral gradient accumulation')
     accumulation=cfg['global_batch']//world

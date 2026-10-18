@@ -65,7 +65,7 @@ def configure_native_numerics():
     """Same qualified FP32 accumulation/reproducibility switches as source RL."""
     import os
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG',':4096:8')
-    if os.environ['CUBLAS_WORKSPACE_CONFIG'] not in (':4096:8',':16:8'):
+    if os.environ['CUBLAS_WORKSPACE_CONFIG'] != ':4096:8':
         raise ValueError('Unregistered cuBLAS reproducibility workspace')
     from starVLA.rl.flow_grpo.reproducibility import configure_numerics
     configure_numerics()
