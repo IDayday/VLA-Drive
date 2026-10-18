@@ -1,0 +1,88 @@
+{
+  "actual": {
+    "actual_checkpoint_file_bytes_from_receipt": 37494904772,
+    "all_four_fp32_master_updates_verified": true,
+    "all_four_steps_finite_loss_and_gradient": true,
+    "allocation_wall_seconds": 628.0245178136975,
+    "checkpoint_payload_checksum_reverified_by_this_reader": false,
+    "cleanup_error": null,
+    "completed_updates": 4,
+    "counts": {
+      "current": 884736,
+      "ego_scenes": 8,
+      "future_a": 884736,
+      "future_b": 884736
+    },
+    "exposure": 8,
+    "metadata_population_materialized": false,
+    "monitor_error": null,
+    "monitor_reason": null,
+    "monitor_wall_seconds": 635.9094966556877,
+    "monitored_rss_peak_bytes": 26880626688,
+    "new_teacher_tensor_disk_bytes": 0,
+    "new_updates": 4,
+    "pause_reason": "BUDGET_PAUSED",
+    "peak_allocated_bytes": 56780368384,
+    "peak_reserved_GiB": 58.8125,
+    "peak_reserved_bytes": 63149441024,
+    "postwait_charged_rchar": 96499264235,
+    "provider_failures": 0,
+    "read_trigger_limit": 274877906944,
+    "remaining_owned_processes_from_receipt": 0,
+    "sampled_read_high_water": 96499258005,
+    "source_sha": "cf516259c8efc24503727f14b9e330ed32231293",
+    "status": "PAUSED",
+    "steady_state_throughput_claim": false,
+    "teacher_images_computed": 27,
+    "teacher_immutable_hits": 93,
+    "timing_sample_count": 4,
+    "update_seconds": [
+      11.356352930888534,
+      5.729889741167426,
+      5.310399258509278,
+      4.397685764357448
+    ]
+  },
+  "conclusions": [
+    "The exact32 indexed-history T3 current+future pathway actually completed four optimizer updates/eight exposures, with finite losses/gradients and verified FP32 master changes.",
+    "Native boundary checkpoint COMPLETE agrees with RESULT on identity,tag,completed4,exposure8,epoch0 and consumed offset4. The periodic boundary retains RUNNING_CHECKPOINT while RESULT says budget PAUSED; this is not20k completion or a new resume authorization.",
+    "Monitor and cleanup report success with zero owned residual processes; no provider failures or new tensor disk cache.",
+    "Four update timings11.356/5.730/5.310/4.398s include startup effects and are not a production throughput estimate. Whole monitored635.91s includes loading/setup/save/cleanup.",
+    "Actual observed58.8125GiB reserved exceeds prior56.00GiB reference; it remains below the68GiB admission floor in this small run, not a full-population worst-case guarantee."
+  ],
+  "evidence": {
+    "checkpoint_complete": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/checkpoints/step_000004_1792285491842182876/COMPLETE.json",
+      "sha256": "98866a35758e4cb5e70695f8a90d66fbd6eafef08b5e033d19385a1c930dd4d4"
+    },
+    "monitor": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/MONITOR_RESULT_initial.json",
+      "sha256": "f064c824b21eb960f2bf70c8a381d6cd94119ea3f1ec3f441279e9758f5b8802"
+    },
+    "result": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/RESULT.json",
+      "sha256": "fbaf0385cc39ead799add159267efa5ae798cbec83e39ba2d322638a6c734a85"
+    },
+    "steps": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_T3_indexed32_updates4_v2/runs/temporal_T3_indexed32_updates4_v2/steps.jsonl",
+      "sha256": "9667592332e0e237bf203566c92997b5afc47702f71c8b19384f7ff3f164af33"
+    }
+  },
+  "formal_T3_readiness": {
+    "full_history_population_coverage": "NOT_VERIFIED_HERE; onlyfixed32wasused",
+    "no_new_algorithm_or_broad_reaudit_requested": true,
+    "remaining_binding_requirements": [
+      "Bind/reuse the existing approved temporal-loss calibration and selected recipe for the intended formal run; profile weight1 does not itself establish a calibrated scientific recipe.",
+      "Bind actual complete formal-population history/index/provider/PCA identities and coverage. This receipt does not certify unavailable scenes.",
+      "Use the intended formal topology, resource lease, checkpoint reservation and existing independent correctness/efficiency review requirements; this world1/global2/4-step run does not qualify formal global32 throughput."
+    ],
+    "science": "NOT_EVALUATED",
+    "status": "NOT_ESTABLISHED_BY_THIS_BOUNDED_PROFILE",
+    "weights_usable_for_formal_initialization": false
+  },
+  "formal_dispatch_approved": false,
+  "read_scope": "Only final RESULT,steps,COMPLETE metadata and MONITOR_RESULT; no model files, model inference, GPU query, SSH or broader data audit.",
+  "reviewer_agent": "/root/temporal_narrow_review",
+  "schema": "st_independent_actual_T3_profile4_receipt_review_v1",
+  "status": "PASS_ACTUAL_PROFILE4_RECEIPTS"
+}
