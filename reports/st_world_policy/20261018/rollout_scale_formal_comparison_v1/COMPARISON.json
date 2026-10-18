@@ -1,0 +1,392 @@
+{
+  "schema": "rollout_scale_formal_comparison_preregistration_v1",
+  "status": "PREREGISTERED_SCIENTIFIC_DESIGN_NOT_APPROVED",
+  "author": "/root/consequence_next_hypothesis",
+  "research_question": "At the matched C1 4096-update endpoint, does one complete-rollout std adaptation change single-trajectory planning, and what safety/progress tradeoff accompanies it?",
+  "authority": {
+    "scientific_design_only": true,
+    "implementation_correctness_PASS_signed_by_author": false,
+    "systems_PASS_signed_by_author": false,
+    "resource_dispatch": false,
+    "training_launch_authorized": false,
+    "evaluation_launch_authorized": false,
+    "formal_run_approval_issued": false
+  },
+  "conditional_recommendation": "One new formal candidate only if actual registered SMOKE4 and PROFILE240 and independent correctness/systems reviews pass, then Lead binds a separate exact RUN_APPROVAL. This artifact supplies scientific design, not those approvals.",
+  "method_proposal_commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+  "evidence_decision_commit": "f6ef463a66cc5b378b426430e02a7b5b5babb870",
+  "reference_implementation_commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "final_formal_source_sha": null,
+  "arms": {
+    "control": {
+      "label": "L",
+      "method": "within_scene_center_only",
+      "design_alias": "legacy_scene_center_v1",
+      "run": "C1_fulltrain_seed42_official_4096_v1",
+      "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+      "completed": 4096,
+      "new_training_updates": 0,
+      "reuse": "Completed historical C1; independently justified only under matched Base/data/order/seed/recipe/evaluation. Never relabel source or resume as a normalized run.",
+      "native_tag": "step_004096_1792295346368343264",
+      "native_receipt_sha256": "96fff4a62a41d727e32bc9bd0c76b07a5d3baa7cdc3964d229289fc9ad2cf22a",
+      "native_receipt_identity": "a8d0ac994367bee38a94d94b54039e6d06982b9353d396dcf9cbc3141233695b",
+      "native_checkpoint_sha256_from_existing_receipt": "51132dbc81d08f40d437cc5c5a20222a90a58855206b1848e394a6aeeb9f28aa",
+      "score_identity": "82992f77f75b2c52a006e9bf6ea63c49414daacfa5590454c55b293367c67742",
+      "score_csv_sha256": "7c611333a2b4d3b53ac363008843bf78190a3b80c501e34afcbaa579fdcd468d"
+    },
+    "candidate": {
+      "label": "N",
+      "method": "scene_center_rollout_std_v1",
+      "proposed_run_label": "C1_rollout_scale_seed42_official_4096_v1",
+      "run_registration_not_created": true,
+      "new_training_updates": 4096,
+      "training_seed": 42,
+      "start_from": "Common original S0 learned FP32 masters; fresh optimizer, never C1 endpoint or diagnostic weights.",
+      "new_on_policy_feedback_required": true
+    }
+  },
+  "candidate_count": 1,
+  "total_update_methods_compared": 2,
+  "new_training_seeds": [
+    42
+  ],
+  "normalizer": {
+    "reward": "C1 canonical PDMS",
+    "raw_advantage": "Original FP32 per-scene G4 reward minus FP32 scene mean",
+    "population": "All complete valid G4 candidates across all ranks at one old-policy optimizer boundary, including zero groups; before microbatch slicing",
+    "std": "FP64 two-pass centered M2/(N-1), sqrt",
+    "correction": 1,
+    "epsilon": 1e-10,
+    "epsilon_location": "outside sqrt",
+    "numerator_global_recenter": false,
+    "output": "detach FP32(raw_A/(std64+epsilon))",
+    "per_scene_std": false,
+    "cap": null,
+    "fixed_multiplier": null,
+    "automatic_retuning": false
+  },
+  "matched_training": {
+    "base_binding_identity": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "base_binding_file_sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+    "S0_run": "/mnt/project/action-video-foresight-artifacts/20261002/students/formal_S0_seed42_full100k_v2",
+    "S0_tag": "milestone_100000",
+    "S0_checkpoint_sha256_from_binding": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+    "parent_has_seen_TRAIN": true,
+    "TRAIN_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/TRAINING_MANIFEST.json",
+      "sha256": "b810cafbdaa42afd8554c08be443779e7d66edce56292c0c30940e728c0ed656"
+    },
+    "TRAIN_population": 101592,
+    "TRAIN_logs": 1176,
+    "TRAIN_identity": "7255bb2db29fd0bf2748215edb8abbeed0352f8bfe7f841e1fabd9682b4f6797",
+    "TRAIN_order_and_sampler": "Original unchanged manifest order and tools.ddpolicy_vehicle.training_state.epoch_batches, seed42",
+    "sample_limit": 0,
+    "global_scene_batch": 32,
+    "world_size": 4,
+    "micro_batch": 4,
+    "nominal_accumulation": 2,
+    "tail_scenes": 24,
+    "normalization_candidate_N": {
+      "128": 4095,
+      "96": 1
+    },
+    "max_updates_and_LR_horizon": 4096,
+    "stop_after": 4096,
+    "save_every": 512,
+    "training_seed": 42,
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "clip": 1.0,
+      "eps": 1e-08,
+      "lr": 1e-05,
+      "minimum_lr": 5e-07,
+      "warmup": 100,
+      "weight_decay": 0.001
+    },
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "environment": {
+      "cuda_runtime": "12.4",
+      "cudnn": 90100,
+      "packages": {
+        "deepspeed": "0.16.9",
+        "numpy": "1.26.4",
+        "safetensors": "0.6.2",
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "transformers": "4.57.0"
+      },
+      "python": "3.10.20",
+      "schema": "st_training_environment_v1"
+    },
+    "loss_weights": {
+      "bc_weight": 1.0,
+      "policy_weight": 1.0
+    },
+    "BC": {
+      "beta": [
+        1.5,
+        1.0
+      ],
+      "mode": "train_original_dropout",
+      "noise_s": 0.999,
+      "repeat": 8,
+      "source": "original_ego_labels_v1",
+      "time_transform": "(.999 - U**(1/1.5))/.999_no_added_clamp",
+      "weight": 1.0
+    },
+    "rollouts_per_scene": 4,
+    "Euler_steps": 10,
+    "policy_MC_samples": 50,
+    "mc_chunk": 5,
+    "old_refresh_updates": 1,
+    "maximum_reuse": 1,
+    "fpo_unchanged_except_advantage": {
+      "coordinate_reduction": "mean",
+      "interpolation_time": "uniform_0_1",
+      "log_ratio_clip": 3.0,
+      "mc_samples": 50,
+      "policy_loss_mode": "eval_with_grad",
+      "ratio_clip": 0.2
+    },
+    "frozen": "Original Qwen; original trainable action-head/DiT/projection range and GT/input contract unchanged",
+    "deterministic": true,
+    "gradient_checkpointing": false,
+    "checkpoint_velocity": true,
+    "loader_workers_per_rank": 2,
+    "score_workers_global": 4,
+    "score_protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+    "feedback_max_calls_inherited": 532448,
+    "retry_attempts_inherited": 1,
+    "expected_completed_counts": {
+      "BC_repeat8_presentations": 1048512,
+      "actual_rollouts": 524256,
+      "original_GT_scenes": 131064,
+      "policy_MC_points_per_old_and_current": 26212800
+    },
+    "unique_scene_repeated_twice": 29472,
+    "on_policy_membership": "Each arm refreshes its own old policy and feedback; historical control ledger is not new-arm training data.",
+    "cell": "C1"
+  },
+  "evaluation": {
+    "primary_contrast": "N@4096 minus L@4096",
+    "other_primary_comparisons": [],
+    "fixed_development_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/dev/SELECTED_SCENES.json",
+      "sha256": "4ce40893281f3cf246989cbbac6bbd80c40c06ec937a4405a5a7c353c6dd0573"
+    },
+    "requested_scenes": 1696,
+    "logs": 16,
+    "full_population_only": true,
+    "inference_seed": 42,
+    "scene_seed_protocol": "foresight-action-v1",
+    "candidates_per_scene": 1,
+    "flow_steps": 10,
+    "inference_contract": {
+      "dt_seconds": 0.5,
+      "flow_steps": 10,
+      "frame": "ego_t0_rear_axle",
+      "physical": "8x3_xy_yaw",
+      "precision": "FP32_master_eval_TF32_off",
+      "raw": "8x4_xy_sin_cos",
+      "scene_seed_protocol": "foresight-action-v1"
+    },
+    "export_world_size": 1,
+    "current_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+    "history_root": null,
+    "teacher_cache": null,
+    "selection_by_scorer": false,
+    "score_protocol_sha256": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+    "metric_index": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/efficiency_official_flow_runtime_6714b1e9/full_dev_preparation_v1/DEV_METRIC_INDEX_PINNED_v1.json",
+      "sha256": "60fc773ab05c442db33ab1f2237c9ee8cf57a0de7464a2b76232444325b65266"
+    },
+    "official_reference": "Unchanged official single-candidate reference, common campaign_id; exact input/reference identity verified across both arms.",
+    "cache_payload_not_read_by_this_design": true,
+    "primary_estimand": "100 * scene-weighted mean_i(PDMS_N_i - PDMS_L_i), in percentage points",
+    "statistics": {
+      "all_metrics_required": true,
+      "bootstrap_replicates": 2000,
+      "bootstrap_rng": "numpy.PCG64",
+      "bootstrap_seed": 20261017,
+      "bootstrap_unit": "paired_log_cluster",
+      "empty_stratum": "null_estimate_and_interval_with_explicit_zero_denominator",
+      "ep_drop_threshold": 0.05,
+      "estimand": "scene_weighted_mean_treatment_minus_control",
+      "high_drop_threshold": 0.05,
+      "high_score_threshold": 0.9,
+      "interval": "percentile_2.5_97.5_linear_quantile",
+      "low_progress_m": 1.0,
+      "moving_reference_m": 5.0,
+      "multiplicity": "unadjusted_exploratory_intervals_no_familywise_claim",
+      "near_stop_speed_mps": 0.5,
+      "zero_epsilon": 1e-08
+    },
+    "log_resampling": "Draw16 paired logs with replacement per replicate, retain all scenes within every drawn log, compute scene-weighted mean; report by-log and equal-log sensitivity.",
+    "metric_units": {
+      "scores": "fraction in artifacts; delta displayed as percentage points",
+      "ADE_FDE": "meters",
+      "raw_progress": "meters",
+      "mean_speed": "meters_per_second"
+    },
+    "required_metrics": [
+      "PDMS",
+      "NC",
+      "DAC",
+      "TTC",
+      "EP",
+      "Comfort",
+      "DDC",
+      "ADE",
+      "FDE",
+      "raw_progress",
+      "mean_executed_speed"
+    ],
+    "missing_policy": "Keep requested population and report failures; no valid zero deletion, no missing fill or complete-case promotion. Primary full-population result INCOMPLETE until all paired records valid.",
+    "empty_strata": "null estimate and interval, explicit zero denominator and undefined bootstrap counts",
+    "model_selection": "Only fixed4096 endpoint; no best epoch/seed/trajectory, extra early evaluation, or outcome-dependent extension.",
+    "navtest": false
+  },
+  "bidirectional_safety_and_progress": {
+    "zero_score": "All four zero/nonzero transition cells, full and conditional denominators, net repair; zero means score <=1e-8",
+    "NC_DAC_TTC": "Separate canonical value transitions; improved iff N-L>1e-8, worsened iff L-N>1e-8, otherwise tied. Report scene/log counts and retain NC 0/0.5/1 semantics; no safety-only denominator replacing full population.",
+    "high_score": "Original control-defined >=0.9 group: any drop >1e-8, large drop >0.05, high-to-zero; original zero/middle/high strata retained.",
+    "EP": "Original EP drop >0.05 and safety_gain_with_ep_drop; opposite exchange is EP_N-EP_L>0.05 AND any canonical NC/DAC/TTC decrease >1e-8. No new threshold search.",
+    "stop_proxy": {
+      "reference_progress_min_m": 5.0,
+      "executed_progress_max_m": 1.0,
+      "mean_executed_speed_max_mps": 0.5,
+      "report": [
+        "both_arm_counts",
+        "full_population_rates",
+        "moving_reference_denominator_and_rates",
+        "new_stops",
+        "resolved_stops",
+        "net_change"
+      ]
+    },
+    "interpretation": "PDMS gain with worse canonical safety is a tradeoff, not a safety improvement. Null or rare-event evidence does not establish equivalence/noninferiority. No numeric quality PASS margin introduced."
+  },
+  "TRAIN_risk_evidence": {
+    "source": "Sealed evidence decision; no full reanalysis",
+    "updates": 4096,
+    "nonzero_groups": 80933,
+    "safe_EP_only_updates": 2406,
+    "safe_EP_only_scale_median": 1072.290276907454,
+    "DCT_discriminative_updates": 1119,
+    "DCT_discriminative_scale_median": 13.68894080792931,
+    "ratio_of_marginal_medians": 78.33259650639519,
+    "interpretation": "Cross-update reweighting risk, not a paired gradient/safety effect. Same-batch relative gaps do not preserve absolute full-training error costs.",
+    "numeric_flags": 0,
+    "maximum_rounding_energy_bound_fraction": 5.067594008227943e-08,
+    "value_covariance_not_gradient_fractions": {
+      "EP": 0.3579864480934907,
+      "TTC": 0.4842602301902908,
+      "Comfort": 0.15775331809983403
+    },
+    "boundary3584_gradient_ratio_policy_to_BC_percent": 0.0613169436,
+    "single_batch_gradient_limit": "Not a multiplier selection or global gradient conclusion."
+  },
+  "existing_training_telemetry": {
+    "windows": [
+      [
+        0,
+        1024
+      ],
+      [
+        1024,
+        2048
+      ],
+      [
+        2048,
+        3072
+      ],
+      [
+        3072,
+        4096
+      ]
+    ],
+    "quantiles": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      0.9,
+      0.99,
+      1
+    ],
+    "retain": [
+      "raw_A",
+      "std_and_scale",
+      "zero_and_nonzero_groups",
+      "D_C_T_events_and_discriminative_support",
+      "safe_EP_only_and_safety_update_strata",
+      "numeric_flags",
+      "loss_and_gradient_clipping",
+      "actual_cost"
+    ],
+    "no_additional_expensive_gradient_diagnostic_authorized": true,
+    "strata_limit": "Each arm uses treatment-dependent on-policy strata; not fixed paired causal subgroups. Count actual safety scenes/logs separately from all batch members.",
+    "clip_limit": "old/current ratio~1 before sole reuse1 update; clip0.2 does not bound post-optimizer change."
+  },
+  "stopping_and_nonexpansion": {
+    "stop_at_updates": 4096,
+    "identity_data_numeric_resource_failure": "Follow original stop contract, retain last complete native state; no automatic modified-config retry.",
+    "no_search": [
+      "scale",
+      "cap",
+      "epsilon",
+      "weight",
+      "batch",
+      "G",
+      "MC",
+      "precision",
+      "seed",
+      "reward",
+      "epoch",
+      "checkpoint"
+    ],
+    "no_new_families": [
+      "C5",
+      "G8",
+      "process_reward",
+      "DFQL",
+      "Navtest",
+      "paused_feature_history_teacher"
+    ],
+    "diagnostic_weights_discarded": true
+  },
+  "future_admission_required": [
+    "Actual registered SMOKE4 and PROFILE240 complete receipts, independent correctness and efficiency/resource interpretation bound to exact source/config.",
+    "Lead final FORMAL registration, updated method identities, same common initialization/data/order/seed/recipe, fresh resource lease and RUN_APPROVAL.",
+    "At exact4096, immutable native/checkpoint/export/score and original DEV/metric/reference identities, independent evaluation compatibility checks and authorized endpoint analysis."
+  ],
+  "not_claimed": [
+    "planning_gain",
+    "safety_noninferiority",
+    "unbiased_policy_gradient_fix",
+    "full_official_FPO_reproduction",
+    "multiple_training_seed_confirmation",
+    "blind_test",
+    "formal_approval"
+  ],
+  "this_task_execution": {
+    "reports_only": true,
+    "implementation_changes": false,
+    "tests_reexecuted": false,
+    "new_SMOKE_PROFILE_results_read": false,
+    "model_loads": 0,
+    "new_trajectories": 0,
+    "score_calls": 0,
+    "optimizer_updates": 0,
+    "bootstrap_runs": 0,
+    "full_ledger_reruns": 0,
+    "DEV_per_scene_rows_read": 0,
+    "Navtest_reads": 0,
+    "resource_dispatches": 0
+  },
+  "source_pins_file": "SOURCE_PINS.json",
+  "comparison_markdown_sha256": "582e9c77cd48c8ed5364a461bebd35957e25daab082617fa5460ccdb0b533580"
+}
