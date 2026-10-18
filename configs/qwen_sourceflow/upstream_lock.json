@@ -1,0 +1,94 @@
+{
+  "schema": "qwen_sourceflow_upstream_v1",
+  "SimWAM": {
+    "repository": "https://github.com/H-EmbodVis/SimWAM",
+    "commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+    "files": {
+      "src/simwam/models/wan22/action_dit.py": {
+        "upstream_sha256": "23c75e386d8b3bbc2fbe7675034b12a4cddad72f97890627dc71d1f34674de41",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/action_dit.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/wan_video_dit.py": {
+        "upstream_sha256": "aa71cc998c9896e9db2a500d6c8eee41cf785138e8ce2565f0d2327a5dd26190",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/wan_video_dit.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/mot.py": {
+        "upstream_sha256": "9860f83bff92e772a4ed15867a7c36419a715eb5afa27fffad95315da5f2c2d0",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/mot.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/lora.py": {
+        "upstream_sha256": "22ec50bc327c45b9a5fab543293b39186bf572dd8d269ceb8acdf1dfe1e5b04d",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/lora.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/finetune.py": {
+        "upstream_sha256": "37d0b1f0fbfcce162dd25edd477f1df217b082017b44d26c4e933f691e722604",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/finetune.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/helpers/gradient.py": {
+        "upstream_sha256": "2653b2fd6310faaec6b4f7ba743e975c996a8ef0dc84788479b0111b5c309abf",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/helpers/gradient.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/schedulers/scheduler_continuous.py": {
+        "upstream_sha256": "67eb410317eeadd965af5f241572655344941a48b3569fd3a09cd81ea7a565f7",
+        "local": "starVLA/model/modules/qwen_sourceflow/vendor/scheduler_continuous.py",
+        "adaptation": "Only logger import and package-relative location; executable bodies unchanged."
+      },
+      "src/simwam/models/wan22/simwam.py": {
+        "upstream_sha256": "47cb20aefc910e156e43de46c43d53427db7ef9467eecb183ac24d80b4f0caee"
+      },
+      "src/simwam/models/wan22/simwam_grpo.py": {
+        "upstream_sha256": "bf8c9d02dfa58d061dc6443bacef1e16ac7fb3c32b0c84556e7ce67d37ccd645"
+      },
+      "src/simwam/trainer_grpo.py": {
+        "upstream_sha256": "5f6a7cb9ae7920a28f78fad05111d4891653d3115d2a98fc63c3a56d9c0ad62c"
+      },
+      "scripts/preprocess_action_dit_backbone.py": {
+        "upstream_sha256": "20f08e9fb6a28dbec1437c9d75072d8e559eab193b4a1ff6309048ddc5d74653"
+      },
+      "src/simwam/datasets/navsim/navsim_dataset.py": {
+        "upstream_sha256": "c7e746f8fad459790a9af21a0cd7cee7411a7ca0ff38088ffcb96cad26dbd836"
+      },
+      "configs/model/simwam_navsim.yaml": {
+        "upstream_sha256": "86e4c6a050a2b8e68a5fd525cf18466e715dd18eab7108a36806ffb59a6f06de"
+      },
+      "configs/task/navsim_uncond_front_384x672_1e-4.yaml": {
+        "upstream_sha256": "88f3f9e9751bf24f22a8de255101de8fe223918374c0128ae72d5c784f52adc5"
+      },
+      "configs/task/navsim_grpo_action_pdm_384x672_flowgrpo_lora.yaml": {
+        "upstream_sha256": "1ec0e1b28f5b4d215f0bf3da2e86b04cb475b8d5dba6e1e0e2d84a5633de9af8"
+      },
+      "configs/train_grpo.yaml": {
+        "upstream_sha256": "4dfbd720c357e8dd88b706f3012d1ea52d56f99a3a65ccb62c1449057ba9b487"
+      },
+      "scripts/ds_configs/ds_zero1_config.json": {
+        "upstream_sha256": "bcbbe9dfab9e1356e396bb5ce822ea1ecc901fc2ded2d0473b37c186d94a27bd"
+      },
+      "scripts/train_navsim_zero1_torchrun.sh": {
+        "upstream_sha256": "1986aa01632de6e2e96b708c3f25f6fae5b0267ec7b8b1ddbbb7421886c11f5b"
+      },
+      "scripts/train_navsim_grpo_zero1_torchrun.sh": {
+        "upstream_sha256": "749b7ad4a2b92e545306c9547a69c741793683ee3e6540c399dedacc688a9217"
+      },
+      "LICENSE": {
+        "upstream_sha256": "f40411b8b2691648c72ac603ea142c064902997081101d19cbb8886827790097"
+      }
+    }
+  },
+  "Qwen": {
+    "repository": "https://github.com/QwenLM/Qwen3-VL",
+    "commit": "96588727e44c78b25ba03ea03b8e12f7e64fd0da",
+    "weights": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+  },
+  "Wan": {
+    "weights": "Wan-AI/Wan2.2-TI2V-5B",
+    "revision": "921dbaf3f1674a56f47e83fb80a34bac8a8f203e"
+  },
+  "scope": "Source action strategy with Qwen replacing observation expert, not video-action SimWAM reproduction"
+}

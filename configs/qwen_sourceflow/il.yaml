@@ -1,0 +1,29 @@
+model: QwenSourceFlowVLA
+seed: 42
+evaluation_seed: 2101
+max_updates: 100000
+interface_updates: 1000
+global_batch: 32
+qualification_accumulation: 1
+FM_repeat: 1
+learning_rates:
+  qwen_language_merger: 0.00001
+  qwen_vision: 0.000001
+  action_interfaces: 0.0001
+betas: [0.9, 0.95]
+eps: 0.00000001
+weight_decay: 0.01
+warmup_fraction: 0.03
+scheduler: cosine
+gradient_clip: 1.0
+save_every: 1000
+milestones: [20000, 40000, 60000, 80000, 100000]
+parent_selection: highest_complete_DEV_PDMS_among_registered_milestones
+metric: canonical_NAVSIM_v1.1
+inference: single_candidate_source_shift5_ODE_K10
+precision:
+  parameter_storage: float32
+  optimizer_state: float32
+  forward_autocast: bfloat16
+  action_latent_and_timestep: float32
+  loss: float32

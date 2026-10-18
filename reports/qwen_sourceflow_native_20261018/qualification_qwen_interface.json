@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "host": "training-rl-zt2",
+  "qualification_only": true,
+  "formal_initialization_eligible": false,
+  "action_scope": "tiny_action_interface_only",
+  "loss": 0.022021720185875893,
+  "gradients": {
+    "qwen": {
+      "tensors": 625,
+      "positive": 625,
+      "norm": 0.14835447072982788,
+      "first_names": [
+        "model.visual.patch_embed.proj.weight",
+        "model.visual.patch_embed.proj.bias",
+        "model.visual.pos_embed.weight",
+        "model.visual.blocks.0.norm1.weight",
+        "model.visual.blocks.0.norm1.bias",
+        "model.visual.blocks.0.norm2.weight"
+      ]
+    },
+    "provider": {
+      "tensors": 21,
+      "positive": 21,
+      "norm": 0.022669672966003418,
+      "first_names": [
+        "visual_bridge.weight",
+        "visual_bridge.bias",
+        "text_bridge.weight",
+        "text_bridge.bias",
+        "proprio_encoder.weight",
+        "proprio_encoder.bias"
+      ]
+    },
+    "action": {
+      "tensors": 95,
+      "positive": 95,
+      "norm": 0.054427213966846466,
+      "first_names": [
+        "runner.mixtures.action.action_encoder.weight",
+        "runner.mixtures.action.action_encoder.bias",
+        "runner.mixtures.action.text_embedding.0.weight",
+        "runner.mixtures.action.text_embedding.0.bias",
+        "runner.mixtures.action.text_embedding.2.weight",
+        "runner.mixtures.action.text_embedding.2.bias"
+      ]
+    }
+  },
+  "images": [
+    [
+      1,
+      22,
+      42
+    ],
+    [
+      1,
+      22,
+      42
+    ],
+    [
+      1,
+      22,
+      42
+    ]
+  ],
+  "visual_tokens": [
+    693
+  ],
+  "text_tokens": [
+    109
+  ],
+  "hidden_count": 29,
+  "hidden_zero_is_embedding": true,
+  "layer_mapping": [
+    1,
+    14,
+    28
+  ],
+  "condition_bytes": 299376,
+  "peak_GPU_bytes": 17309270528,
+  "wall_seconds": 32.71254918165505
+}
