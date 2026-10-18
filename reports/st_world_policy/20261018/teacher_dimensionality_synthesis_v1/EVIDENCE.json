@@ -1,0 +1,334 @@
+{
+  "schema": "st_teacher_dimensionality_synthesis_evidence_v1",
+  "status": "READ_ONLY_ANALYSIS_NOT_A_GATE",
+  "author_agent": "/root/st_cache_budget",
+  "observed_utc": "2026-10-18T00:30:28.749348+00:00",
+  "lead_head_at_first_read": "c73cb00e10f92a8c18c8294511a759efdfd45acd",
+  "runtime": "fdf25f99b702754787904215bf1c2a2b7515ea75",
+  "formal_launch_allowed": false,
+  "new_experiments": 0,
+  "matched_training_observation": {
+    "pin": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_channel256_actual_v1/MATCHED_TRAINING_OBSERVATION.json",
+      "sha256": "c0bc2cd79968424f0602bc732727f2abed6fa46570ea0a5e078d4c65bfa165b3",
+      "bytes": 1657
+    },
+    "reported_values": {
+      "schema": "st_teacher_channel_matched_training_observation_v1",
+      "reviewer": "/root/teacher_method_synthesis",
+      "recorded_utc": "2026-10-17T23:56:05.395613+00:00",
+      "window_inclusive": [
+        4501,
+        5000
+      ],
+      "logs": {
+        "384": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/steps.jsonl",
+          "sha256": "cbecb518e4ea3b7d2b429960c16e7582d81b2e2e4e3ffd727a7c80f332847828"
+        },
+        "256": {
+          "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/steps.jsonl",
+          "sha256": "0ce7bbb31570faf3cdd680c3b25ccd2f38434ca92dce3b5cae42c60b3aaba0f6"
+        }
+      },
+      "PCA384": {
+        "FM_mean": 0.0112415,
+        "FM_median": 0.01111009,
+        "aux_current_channel_mean_MSE": 1.186932,
+        "global_gradient_norm_mean": 1.53911,
+        "slowest_rank_update_seconds_mean": 4.08164
+      },
+      "PCA256": {
+        "FM_mean": 0.01031342,
+        "FM_median": 0.01015649,
+        "aux_current_channel_mean_MSE": 1.519482,
+        "global_gradient_norm_mean": 2.05795,
+        "slowest_rank_update_seconds_mean": 3.91683
+      },
+      "completed_updates_each": 5000,
+      "scene_exposures_each": 159992,
+      "all_per_update_sample_IDs_LR_cursors_match": true,
+      "nonfinite_loss_or_gradient_records": 0,
+      "interpretation": "Training proxy observation only; heldout planning gain remains UNTESTED. Auxiliary channel means have different denominators; common256/tail128 errors are not present in logs. Timing is not a controlled speed comparison across the two allocations. Total gradient norm cannot identify FM/aux conflict.",
+      "new_training_launched": false
+    },
+    "raw_logs_rehashed_by_this_synthesis": false,
+    "FM_percent_change_256_vs_384": -8.255837744073292,
+    "total_gradient_norm_percent_change_256_vs_384": 33.710391070163915
+  },
+  "actual_config_pins": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/CONFIG.json",
+      "sha256": "16f8716ef14a2a9a57bca234be16357decc346e8919cc35f781fcc6f69e7abdd",
+      "bytes": 2711
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_PCA256_fulltrain_seed42_official_5k_v1/CONFIG.json",
+      "sha256": "f71f1cc013701e1f271aad5dffc399f4162c46fabdd1ee896691e4a0f2bcd35e",
+      "bytes": 2730
+    }
+  ],
+  "only_config_changes": [
+    {
+      "path": "/runtime/output_root",
+      "arm384": "/mnt/project/st-world-policy-20261016/formal/spatial/runs",
+      "arm256": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs"
+    },
+    {
+      "path": "/space_time/teacher/channels",
+      "arm384": 384,
+      "arm256": 256
+    },
+    {
+      "path": "/space_time/teacher/transform_identity",
+      "arm384": "105c8e8ef00f4e1a574314e8fdb8fb804298e4dfff0a4e1e4d8d3c9ec59f5c22",
+      "arm256": "1d75028d6ddb89bdf68ca1e6ab3fbaa00a8cb112c8053ee532de8d43c1ad815d"
+    }
+  ],
+  "PCA_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1/PCA.json",
+    "sha256": "f4a0845dd0244da29a30dec9f482f4ef801dfdbc80cbd34ad3ebb508b0885067",
+    "bytes": 1446
+  },
+  "PCA_identity": "268723c8da3151492fd20a81b0f6f541f348a1187222132b055f4e4a528bfd46",
+  "PCA_fit_patches": 32768,
+  "reconstruction_probe": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1/RECONSTRUCTION_PROBES.json",
+    "sha256": "2e00e4d609df7a21ef907fdea00fd00d2ba9f9046952cff060550880dbf37a0d",
+    "bytes": 1217
+  },
+  "historical_dimension_selection": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1/DIMENSION_SELECTION.json",
+    "sha256": "820f4a33e1ccace8fa7bbd1b557a10debfbeba556ebff069033f136e368ac275",
+    "bytes": 2113
+  },
+  "tiny_teacher_probe": {
+    "pin": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/spatial_probes_train64_dev16_v1/PROBE_RESULTS.json",
+      "sha256": "ee5c4889bb94640efc5c64ea4e8b34b5ee8a6a00e3880b917b2ea3f046684f14",
+      "bytes": 40380
+    },
+    "summary": {
+      "depth": {
+        "256": {
+          "parameters": 257,
+          "dev": {
+            "AbsRel": 0.4153992533683777,
+            "MAE_m": 5.332821846008301,
+            "RMSE_m": 10.336442947387695,
+            "valid_patches": 15922
+          }
+        },
+        "384": {
+          "parameters": 385,
+          "dev": {
+            "AbsRel": 0.4097263813018799,
+            "MAE_m": 5.197709560394287,
+            "RMSE_m": 10.148163795471191,
+            "valid_patches": 15922
+          }
+        }
+      },
+      "small": {
+        "256": {
+          "parameters": 257,
+          "dev": {
+            "PR_AUC": 0.9160088680525079,
+            "ROC_AUC": 0.9936174956938673,
+            "balanced_accuracy_at_logit0": 0.9484892744496805,
+            "negative_patches": 6889,
+            "positive_patches": 291
+          }
+        },
+        "384": {
+          "parameters": 385,
+          "dev": {
+            "PR_AUC": 0.9146959579078133,
+            "ROC_AUC": 0.9928797290765348,
+            "balanced_accuracy_at_logit0": 0.9529418132098634,
+            "negative_patches": 6889,
+            "positive_patches": 291
+          }
+        }
+      }
+    },
+    "limits": "64 train / 16 dev diagnostic; 257 vs 385 fitted probe parameters. Dev16 was already used for the historical channel decision. No statistical equivalence or lossless-safety-information conclusion."
+  },
+  "PCA384_dev": {
+    "pin": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+      "sha256": "030f42220f1c66ea4030c28ef4c650dc8b81c3aa00b091ffe0a0262efb1f12f2",
+      "bytes": 7681
+    },
+    "aggregate": {
+      "metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.9787735849056604,
+        "driving_direction_compliance": 0.9876179245283019,
+        "ego_progress": 0.8463834025260731,
+        "no_at_fault_collisions": 0.9905660377358491,
+        "score": 0.9066593579707695,
+        "time_to_collision_within_bound": 0.9604952830188679
+      },
+      "scenes": 1696,
+      "zero_count": 51
+    },
+    "valid_scored": 1696,
+    "invalid": 0
+  },
+  "PCA256_dev": {
+    "observed_utc": "2026-10-18T00:30:28.749348+00:00",
+    "waiter": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/registrations/SP2_PCA256_step005000_dev1696_seed42_v1/WAIT_EVALUATE.json",
+      "sha256": "26750df2c037206e24c80700b8ed83e76c1a235f7448329d8c661485d9b69006",
+      "bytes": 812
+    },
+    "waiter_status": "EXPORT_RUNNING",
+    "official_score_complete_exists": false
+  },
+  "original_source_manifest": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_alignment_evidence_v1/SOURCE_MANIFEST.json",
+    "sha256": "8131b80d4e7063780f6ec1c446d3f7f599ca76c49126ac325d3240dafd68ead8",
+    "bytes": 5749
+  },
+  "fresh_official_code_pins": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dino_foresight/pca.py",
+      "sha256": "f89498986b21936a901be7d06046ee8af5969242b07b355bb1031ae8c0e3a8bd",
+      "bytes": 7494,
+      "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/pca.py"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dino_foresight/src/dino_f.py",
+      "sha256": "3d418b1488a4eff0ed1da1c6f13f12f50dcb6c36b4301addd8dfbfa0ad1a272f",
+      "bytes": 37633,
+      "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/src/dino_f.py"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dino_foresight/train.py",
+      "sha256": "e981b5368bcd8decd8b50541e5ccfb98522756473dfad9b88aee9b9bb8fb7502",
+      "bytes": 12663,
+      "url": "https://github.com/Sta8is/DINO-Foresight/blob/d98f765d2b743ec90fb38bc657a39c07c7ca4ab0/train.py"
+    }
+  ],
+  "primary_papers_reread": [
+    {
+      "url": "https://arxiv.org/html/2412.11673v2",
+      "sections": [
+        "3.1",
+        "3.2",
+        "Appendix A.1 Table 5",
+        "Appendix A.5 Table 10"
+      ],
+      "verified_claim": "PCA and SmoothL1 precedent; MSE/SmoothL1 are comparable in this paper, not a universal robust-loss win."
+    },
+    {
+      "url": "https://arxiv.org/html/2303.11098v3",
+      "sections": [
+        "projector architecture discussion",
+        "Figure 2"
+      ],
+      "verified_claim": "Larger projectors can decorrelate input/output and need not improve student performance; motivates measuring representations before the head, not a blanket ban."
+    },
+    {
+      "url": "https://arxiv.org/html/1812.02224v2",
+      "sections": [
+        "Section 3 Equations 3-6",
+        "Algorithm 1",
+        "Section 6",
+        "Appendices E/F"
+      ],
+      "verified_claim": "Main/aux gradient similarity is a local shared-parameter diagnostic; small-step result is not an Adam/ZeRO or safety guarantee."
+    }
+  ],
+  "fresh_local_source_pins": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/tools/st_world_policy/teacher_pca.py",
+      "sha256": "18d7263acdc99777ce0894217034bfd4bb46b203d32a8d92a1e01548abc710b8",
+      "bytes": 27878
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/modules/st_world/sparse_readout.py",
+      "sha256": "e0fe8b047e2e0c7836ad221984ff526b8be7a379197deeebcee4036c8ce938ee",
+      "bytes": 4381
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/modules/st_world/losses.py",
+      "sha256": "5566b79c551717d18429e5e6278993a8bcb726922f36d107025c0b80161306f6",
+      "bytes": 10160
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/modules/foresight/future_latent_head.py",
+      "sha256": "0866b0ab16261c064c4cb26fbc2d77c514e754008eeecea1bd428f779f1a38fe",
+      "bytes": 2381
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/tools/st_world_policy/train_world.py",
+      "sha256": "69d63da3f354ae6a05af13cea5d3b296bb49affc10fb152c24f626e648979418",
+      "bytes": 31782
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/tools/st_world_policy/calibration_measurement.py",
+      "sha256": "49d04f0dd2f00db1d08b16a9066f820699cadb8724bb8afd5b8d38009bf8fef0",
+      "bytes": 10693
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/tools/st_world_policy/calibrate_temporal_scale.py",
+      "sha256": "f2de950a36ac39f76b96e9fb22a5cc1c7fab8facda9d1e01d217dfa31fd6a1e4",
+      "bytes": 21086
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/teacher_channel_control_v1/channel_errors.py",
+      "sha256": "832ea6834b7863413d5226dc1fb821a6525b527a7beb2db7768dc7050bed2a7d",
+      "bytes": 2945
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/framework/st_world_model.py",
+      "sha256": "b16adfda88d800f1b9e9fb887c3f92bd1979db85c01956c546e4b013ffe09007",
+      "bytes": 9015
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/framework/DDPForesight.py",
+      "sha256": "06327a7a4bc4d81e1cf46e02b3b194eee4ed82ec75cd931b55718a8e58452752",
+      "bytes": 14282
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-official-runtime-v2-20261016/starVLA/model/modules/st_world/config.py",
+      "sha256": "adc70652fabdf379df9039fc1b8d17b1ec6ed41dc4be85882861154d4b52b6cb",
+      "bytes": 6713
+    }
+  ],
+  "pca_source_version_boundary": {
+    "evidence_snapshot_whole_file_sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758",
+    "actual_runtime_whole_file_sha256": "18d7263acdc99777ce0894217034bfd4bb46b203d32a8d92a1e01548abc710b8",
+    "whole_file_hashes_equal": false,
+    "AST_identical_math_methods": [
+      "StreamingCovariance.basis",
+      "TeacherPCA._values",
+      "TeacherPCA.transform",
+      "TeacherPCA.inverse"
+    ],
+    "whole_runtime_source_fingerprint_recomputed": false
+  },
+  "existing_diagnostic_boundary": {
+    "paired_channel_errors": "Implemented exact request-ID join check, common256/tail128, zero-target-energy baseline; no real paired predictions were read or produced here.",
+    "calibration_measurement": "Existing single-process clean-copy measurement; declared last-language-block/W-query subset, not whole LLM; exact four ego/current/future/delta objectives required. It is not a drop-in common256/tail128 or ZeRO2 calibration command."
+  },
+  "verification": {
+    "model_or_teacher_payloads_read": false,
+    "training_logs_reread": false,
+    "GPU_or_SSH_used": false,
+    "live_approval_ledger_or_training_changes": false,
+    "new_tests_or_diagnostics_run": false,
+    "unique_metadata_source_bytes_in_final_collection": 265602
+  },
+  "cost_boundary": {
+    "target_prediction_elements_change_for_same_requests": -0.3333333333333333,
+    "readout_width": 512,
+    "removed_final_linear_parameters": 65664,
+    "VLM_backbone_reduced": false,
+    "raw_teacher_cache_channels": 1024,
+    "existing_teacher_cache_disk_reduced_by_training_projection": false,
+    "training_throughput_controlled_comparison": false
+  }
+}
