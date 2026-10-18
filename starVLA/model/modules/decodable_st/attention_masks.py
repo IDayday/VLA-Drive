@@ -14,9 +14,10 @@ def world_attention_mask(valid_prefix, action_positions, spatial_count, temporal
     diag = torch.arange(total, device=valid_prefix.device)
     allowed[:, diag, diag] |= ~valid
     if total > n:
-        rows = torch.arange(b, device=valid_prefix.device)[:, None]
-        for q in range(n, total):
-            allowed[rows, q, action_positions] = False
+        # Also mask the original post-action suffix: otherwise its causal hidden
+        # state could relay action information even with action columns blocked.
+        prefix_before_action = torch.arange(n,device=valid_prefix.device)[None] < action_positions.amin(-1)[:,None]
+        allowed[:, n:, :n] &= prefix_before_action[:,None,:]
     additive = torch.zeros(b, 1, total, total, dtype=dtype, device=valid_prefix.device)
     return additive.masked_fill(~allowed[:, None], torch.finfo(dtype).min)
 

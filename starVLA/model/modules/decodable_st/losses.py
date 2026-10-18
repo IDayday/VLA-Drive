@@ -28,7 +28,10 @@ def feature_loss(prediction,target,valid,mean,std,global_valid_scenes=None,cosin
     target=target.detach().float()
     std=torch.as_tensor(std,device=prediction.device,dtype=torch.float32).clamp_min(1e-6)
     mean=torch.as_tensor(mean,device=prediction.device,dtype=torch.float32)
-    p,t=(prediction.float()-mean)/std,(target-mean)/std
+    full_valid=torch.broadcast_to(valid,prediction.shape).bool()
+    # Mask before arithmetic, not only after: 0 * NaN in backward is still NaN.
+    p=(torch.where(full_valid,prediction.float(),mean)-mean)/std
+    t=(torch.where(full_valid,target,mean)-mean)/std
     mse,count=scene_mean((p-t).square(),valid,global_valid_scenes)
     # Feature-channel-last contract for this loss, including sampled BEV features.
     mask=torch.broadcast_to(valid,p.shape).all(-1)
