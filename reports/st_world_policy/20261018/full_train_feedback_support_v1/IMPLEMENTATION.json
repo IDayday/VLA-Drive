@@ -1,0 +1,82 @@
+{
+  "allowed_real_validation_payload_reads": 1,
+  "author": "consequence_runtime_resource_review",
+  "full_workers_dispatched": 0,
+  "independent_approvals": {
+    "correctness": "PENDING",
+    "resources": "PENDING"
+  },
+  "limits": {
+    "control_logical_read_bytes": 268435456,
+    "shard_logical_read_bytes": 4261412864,
+    "shard_output_bytes": 12582912,
+    "shards": 8,
+    "total_logical_read_bytes": 34359738368,
+    "total_output_bytes": 134217728,
+    "wall_seconds": 1200,
+    "worker_actual_read_burst_bytes": 8388608,
+    "worker_actual_read_bytes_per_second": 4194304,
+    "worker_cpus": 1,
+    "worker_threads": 1
+  },
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+  "plan_sha256": "2d50faf1c690bd8ebc487504a32ecae9637432e4742c561a9ea5f6442a995b06",
+  "population": {
+    "candidate_presentations": 524256,
+    "ledgers": 4096,
+    "scene_presentations": 131064
+  },
+  "review_kind": "implementation_not_approval",
+  "shards": [
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761124672,
+      "shard": 0
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761123712,
+      "shard": 1
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761119424,
+      "shard": 2
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761120768,
+      "shard": 3
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1760285248,
+      "shard": 4
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761120640,
+      "shard": 5
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761124672,
+      "shard": 6
+    },
+    {
+      "ledgers": 512,
+      "payload_bytes": 1761123840,
+      "shard": 7
+    }
+  ],
+  "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+  "status": "AUTHOR_IMPLEMENTATION_READY_FOR_INDEPENDENT_REVIEW",
+  "tests": {
+    "command": "timeout 120s /root/miniconda3/envs/ddp/bin/python -m unittest discover -s tests/st_world -p test_full_feedback_support.py -v",
+    "count": 10,
+    "result": "PASS",
+    "wall_seconds_reported_by_unittest": 1.85
+  }
+}
