@@ -1,0 +1,103 @@
+{
+  "consumption": {
+    "cumulative_optimizer_updates": 240,
+    "cumulative_scene_exposures": 7680,
+    "diagnostic_weights_allowed": false,
+    "global_batch": 32,
+    "gradient_accumulation_steps": 8,
+    "initial_completed_updates": 0,
+    "initial_epoch": 0,
+    "initial_offset": 0,
+    "micro_batch": 1,
+    "per_rank_scene_exposures": [
+      1920,
+      1920,
+      1920,
+      1920
+    ],
+    "population": 101592,
+    "resume_budget": "fresh_complete_windows_no_resume",
+    "schema": "st_temporal_formal5k_consumption_v1",
+    "world_size": 4
+  },
+  "execution": {
+    "family": "temporal",
+    "global_batch": 32,
+    "max_updates": 20000,
+    "micro_batch": 1,
+    "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+    "sample_limit": 101592,
+    "scope": "PROFILE",
+    "seed": 42,
+    "stop_after": 240,
+    "world_size": 4
+  },
+  "formal_launch_allowed": false,
+  "key": "T0_timing240",
+  "native_argv": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nnodes=1",
+    "--nproc_per_node=4",
+    "-m",
+    "tools.st_world_policy.train_world",
+    "--registration",
+    "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control/REGISTRATION.json"
+  ],
+  "native_preparation": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/.configured.staging-llcp6hch/PREPARATION_COMPLETE.json",
+    "sha256": "0239af137bec828287c21b5d5b3e8e97f5dd89403d99bd06eaa48a3491d46b13"
+  },
+  "native_preparation_is_not_resource_admission": true,
+  "next_required": [
+    "independent correctness review of exact pins",
+    "fresh independent resource admission including live concurrent storage holds",
+    "Lead-only prepare and single run; no resume or retry"
+  ],
+  "output_root": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_timing240/training_control",
+  "parent_capacity_inputs": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/INPUTS.json",
+    "sha256": "940f30904a84277dff8e27b4813100758bd114f27600676ce4cc3b1d2ef79d51"
+  },
+  "pins": {
+    "base_binding": {
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "config": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-t0-timing240-20261018/reports/st_world_policy/20261018/temporal_T0_timing240_preparation_v1/prepared_inputs/training_config.json",
+      "sha256": "4f3311a69abbb1cba3571a29092f37c961ca33f22877449a51ebad2483205d80"
+    },
+    "data_manifest": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_population_v1/train/SELECTED_SCENES.json",
+      "sha256": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea"
+    },
+    "provider_pca_scope": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-t0-timing240-20261018/reports/st_world_policy/20261018/temporal_T0_timing240_preparation_v1/prepared_inputs/PROVIDER_CHANNEL_SCOPE.json",
+      "sha256": "8034c8579a83506ef13d523fba2e76c4abb7bc3bb410e6fe445eb3ceff02a513"
+    },
+    "target_contract": {
+      "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/.configured.staging-llcp6hch/TARGET_CONTRACT.json",
+      "sha256": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da"
+    },
+    "teacher_manifest": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-t0-timing240-20261018/reports/st_world_policy/20261018/temporal_T0_timing240_preparation_v1/prepared_inputs/PROVIDER.json",
+      "sha256": "1229076a8c6bd2021020f1c93ab07750efb5b5125014060f0d79a7142ad0caab"
+    }
+  },
+  "run_id": "T0_fulltrain_seed42_profile240_world4_micro1_global32_v1",
+  "runtime": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+  "schema": "st_temporal_global32_profile_prepared_binding_v1",
+  "source_sha": "38f86a15a92171e583bb5019cce89a63fb7a1d43",
+  "status": "TIMING_METADATA_BOUND_NOT_ADMITTED",
+  "timing_plan": {
+    "steady": 100,
+    "updates": 240,
+    "warmup": 20,
+    "windows": 2
+  },
+  "training_started": false,
+  "weights_usable_for_formal_init": false
+}
