@@ -35,6 +35,6 @@
 | `st_world/consequence.py::observe_canonical` / `road_summary` / `collision_summary` / `ttc_summary` | 41原生时点、右闭8段、0.5碰撞严重性、TTC state/offset分离 | 先检归约与空事件分母，再判断信息支持 |
 | 同文件 `ConsequenceEngine.score` / `_reference_evidence` | 每次[固定PDM参考,单候选]、完整原始进度、input/output身份分离 | 不重算候选池EP，不读metriccache |
 | `navsim_v1.1/.../scoring/pdm_scorer.py::PDMScorer._aggregate_scores` | multiplier与5/5/2加权项、原EP分支 | 仅重建保存分数，未调用scorer |
-| `tools/st_world_policy/audit_flow_gradient_balance.py::derived_statistics` | BC与policy范数/内积的一阶目标诊断 | 同batch结果待Lead；不冒充精确ZeRO2/Adam更新 |
+| `tools/st_world_policy/audit_flow_gradient_balance.py::derived_statistics` | BC与policy范数/内积的一阶目标诊断 | 同batch数学结果已见补充；不冒充精确ZeRO2/Adam更新，监督退出异常另审 |
 
 新适配的明确反例/验收：同终局异时、空事件、先0.5后0、TTC预测offset、分箱边界、float32量化tie、协方差负份额/大于1、物理时间非一一对应均有合成数值控制。真实账本全量保留原32/128分母、hash和原排序。当前执行通过只表示该只读分析可运行，独立审阅和训练审批仍未签署。

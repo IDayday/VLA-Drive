@@ -3,7 +3,7 @@
   "agent": "/root/consequence_next_hypothesis",
   "status": "METHOD_AND_PINNED_SOURCE_READ_NOT_FORMAL_APPROVAL",
   "inspection": {
-    "FPO_sections": ["3.1-3.5 Eq2-20", "Algorithm1", "Appendix A.1.1-A.1.4 Eq21-32"],
+    "FPO_sections": ["3.1-3.5 Eq2-20", "Algorithm1", "Appendix A.1.1-A.1.4 Eq21-32", "Appendix A.3-A.4 and Tables A.2-A.3 advantage normalization"],
     "DFQL_sections": ["3.1-3.3 Eq10-21", "Appendix A.1 Eq22-27", "Appendix A.2 Eq28-39"],
     "web_primary_pages_opened": ["https://arxiv.org/html/2507.21053v2", "https://proceedings.mlr.press/v306/cao26f.html"],
     "github_tree_web_tool_errors": "Both pinned tree opens returned Internal Error; exact raw source bytes were subsequently retrieved successfully with bounded urllib reads.",
@@ -19,8 +19,25 @@
     {"path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/dfql.txt", "bytes": 141069, "sha256": "eb3a852aeb37ae75809e234635377c632b81b081341742af1779d5ba74d4684a"}
   ],
   "official_code": [
-    {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/models/fpo.py", "symbols": ["FPO.learn"], "bytes": 12231, "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
+    {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/models/fpo.py", "symbols": ["FPO.__init__", "FPO.learn"], "bytes": 12231, "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
+    {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/main.py", "symbols": ["main"], "bytes": 7531, "sha256": "f4376a3339a94440d3b47cc1837db8ac7cc98329f0abea7692298e644e6be3ad", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
     {"repo": "https://github.com/akanazawa/fpo", "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f", "file": "gridworld/models/diffusion_policy.py", "symbols": ["DiffusionPolicy.sample_action_with_info", "DiffusionPolicy.compute_cfm_loss"], "bytes": 5317, "sha256": "40ce20a54cf8323b4dbb742780f3bd4956e01398e1a15ec517a10ef48c2685cf", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true},
     {"repo": "https://github.com/2012060/Direct-Flow-Q-Learning", "commit": "8b6b15803cc1e5605ad1524553a2c95e103b0bad", "file": "agents/dfql.py", "symbols": ["DFQLAgent.actor_loss"], "bytes": 11904, "sha256": "c893151303f507bd77fdb918b8a956d92a582c9f2f6aa7cb9acbcc132c4ecc21", "local_equals_pinned_git_object": true, "local_equals_official_raw_bytes": true}
-  ]
+  ],
+  "local_training_scale_sources": {
+    "training_source_commit": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+    "analysis_base_commit": "336e41cda741b58d1a82f798ccd0902d17e88d94",
+    "file_bytes_identical_between_both_commits": true,
+    "hash_kind": "raw full file bytes, not semantic runtime fingerprints",
+    "files": [
+      {"file": "starVLA/model/modules/flow_posttraining/fpo_objective.py", "bytes": 9379, "sha256": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d"},
+      {"file": "starVLA/model/modules/flow_posttraining/policy_snapshot.py", "bytes": 12106, "sha256": "afd19462f677e788b40621764838ff2d1e6fab415084ebda182b95b2e4de36cc"},
+      {"file": "starVLA/model/modules/action_model/GR00T_ActionHeader.py", "bytes": 28858, "sha256": "b67edc82a2ad110ef9feec68b5a457ea2371784f54b5ba75e2b32a18dce42999"},
+      {"file": "tools/st_world_policy/train_flow_policy.py", "bytes": 64408, "sha256": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96"},
+      {"file": "tools/st_world_policy/flow_training_config.py", "bytes": 7733, "sha256": "a6c5ce22d47123a25208ca90d897ae9bb3487147cf9aafbd0b085aaca2b17eb3"}
+    ],
+    "run_identity_file": {"path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/identity.json", "sha256": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930"},
+    "existing_gradient_receipt": {"path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3/RESULT.json", "bytes": 298025, "sha256": "7ffd159b3dda244b40dec03ad09c3142f47bc50c395d1be70bda9127c8203a2b", "math_status": "DIAGNOSTIC_COMPLETE", "runtime_supervision_status_reported_by_lead": "STOPPED_NO_AUTO_RETRY", "new_gradient_execution_this_agent": false},
+    "capacity_report": {"commit": "c8819df8", "file": "reports/st_world_policy/20261018/full_train_feedback_capacity_v1/CAPACITY_REPORT.json", "sha256": "473927f99e96bb30922425465c3214209ebd65e65dbedcab9aeb85bf7adfc3cc", "payload_bytes_read_by_resource_agent": 0}
+  }
 }

@@ -24,7 +24,7 @@
 
 官方分数按原权重精确重建：`R = NC*DAC*(5*EP+5*TTC+2*Comfort)/12`。执行原float32 reward中心化，另将三个带门控的float64分项中心化并保留舍入残差；完整数值见 `RESULTS.json.advantage_value_decomposition`。这个分解刻画奖励值的来源，不是参数梯度份额，也不是实际Adam更新。仅在NC/DAC/TTC/Comfort全部不随候选变化的本批次，才能明确说C1优势仅由进度区分。
 
-这能与正在独立执行的同一C1 boundary3584梯度分解配对解释：其policy项在本批次接受的是进度区分信号。梯度结果尚未由Lead交付，不能据此声称BC强于policy、存在冲突或需要改变权重。道路方向诊断来自boundary4095的另一批32scene，不能混作同一人口。
+本分析完成后，同一C1 boundary3584的真实梯度数学结果已交付：policy/BC范数比0.0613169%，全参数cosine−0.0130164；DiT的cosine为正。这与本批次EP-only事实可配对解释，但不能推导Adam更新或全程权重。官方FPO默认整批GAE除std、本适配明确center-only的源码差异，以及数学完成但外部监督退出竞态的状态边界，详见 `GRADIENT_AND_SCALE_ADDENDUM.md`。原 `RESULTS.json` 的等待梯度字段保留原执行时状态。道路方向诊断来自boundary4095的另一批32scene，不能混作同一人口。
 
 数据身份完整核验：`REQUESTS.json`128项与结果逐项匹配；四rank rollout_id/slot/candidate顺序、版本3584、policy参数hash、原numeric执行hash、固定参考input、轨迹hash、保存float32 reward均匹配。128个原记录全部保留41点道路flags、8段D/C/T归约、碰撞/TTC原事件、raw与参考进度。原账本3,441,888 bytes，SHA256 `8019dd29b17efa79c1fd1a7211bdf09a0b5be93931db75cd4db95ad9a3fb122f`。
 
