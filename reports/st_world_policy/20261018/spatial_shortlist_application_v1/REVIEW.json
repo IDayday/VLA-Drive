@@ -1,0 +1,490 @@
+{
+  "schema": "st_spatial_shortlist_application_v1",
+  "reviewer": "/root/temporal_narrow_review",
+  "status": "LOCKED_RULE_APPLIED_TO_EXISTING_COMPLETE_RESULTS",
+  "rule": {
+    "stage": "spatial_SCREENING",
+    "maximum_primary_contrasts": 1,
+    "ranking": "descending full_dev paired mean PDMS delta; exact ties SP1_minus_SP0,SP2_minus_SP1,SP3_minus_SP2",
+    "retain": "both arms of the one retained contrast; no union expansion; continue same optimizer/RNG/data position and 20k LR clock",
+    "invalid_pair": "not rankable; retain FAILED/BLOCKED record; no valid-only subset ranking",
+    "nonpositive_delta": "may retain one contrast for the finite common endpoint; not evidence of improvement",
+    "full_reporting": "all four 5k arms; all selected 20k pairs; no cross-step or best-epoch comparison",
+    "maximum_20k_arms": 2,
+    "source_clause": "Plan section 12.2: 共同S0起点，计划20k更新，5k阶段暂停；仅入围对继续至共同20k；不得把5k当从头充分训练",
+    "interpretation": "Conservative proposal: at most one primary contrast/two arms at 20k; lock with Lead/Evidence before formal results."
+  },
+  "selected_contrast": "SP3_minus_SP2",
+  "retained_arms": [
+    "SP2",
+    "SP3"
+  ],
+  "maximum_additional_updates_per_arm": 15000,
+  "common_endpoint": 20000,
+  "excluded": [
+    "PCA256_minus_384 (new exploratory comparison)",
+    "SP2_minus_SP0 (descriptive only)",
+    "all consequence contrasts"
+  ],
+  "ranked_contrasts": [
+    {
+      "comparison": "SP3_minus_SP2",
+      "control": "SP2",
+      "treatment": "SP3",
+      "control_points": 90.66593579707695,
+      "treatment_points": 90.89495017519124,
+      "delta_points": 0.22901437811428815,
+      "ci95_points_existing": [
+        -0.3413461761872365,
+        1.0263493645869208
+      ],
+      "equal_log_delta_points": 0.3002515001327712,
+      "events": {
+        "ep_drop": 23,
+        "high_any_drop": 169,
+        "high_large_drop": 17,
+        "high_to_zero": 4,
+        "new_zero": 8,
+        "nonzero_persisted": 1637,
+        "safety_gain_with_ep_drop": 0,
+        "zero_persisted": 41,
+        "zero_repaired": 10
+      },
+      "safety_metric_improved_degraded_not_failure_threshold_counts": {
+        "comfort": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "drivable_area_compliance": {
+          "degraded": 4,
+          "equal": 1685,
+          "improved": 7
+        },
+        "driving_direction_compliance": {
+          "degraded": 3,
+          "equal": 1692,
+          "improved": 1
+        },
+        "no_at_fault_collisions": {
+          "degraded": 5,
+          "equal": 1688,
+          "improved": 3
+        },
+        "time_to_collision_within_bound": {
+          "degraded": 15,
+          "equal": 1675,
+          "improved": 6
+        }
+      },
+      "full_population": 1696,
+      "logs": 16,
+      "source_result": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C4_512_SP3_5000_v1/RESULTS.json",
+      "verification_boundary": "CSV_METADATA_VERIFIED_PAYLOAD_REVALIDATION_NOT_RUN"
+    },
+    {
+      "comparison": "SP1_minus_SP0",
+      "control": "SP0",
+      "treatment": "SP1",
+      "control_points": 90.79917427019018,
+      "treatment_points": 90.81935366665836,
+      "delta_points": 0.020179396468184414,
+      "ci95_points_existing": [
+        -0.46746676367568063,
+        0.5997527936976862
+      ],
+      "equal_log_delta_points": -0.08551233349685167,
+      "events": {
+        "ep_drop": 34,
+        "high_any_drop": 464,
+        "high_large_drop": 9,
+        "high_to_zero": 4,
+        "new_zero": 9,
+        "nonzero_persisted": 1639,
+        "safety_gain_with_ep_drop": 1,
+        "zero_persisted": 39,
+        "zero_repaired": 9
+      },
+      "safety_metric_improved_degraded_not_failure_threshold_counts": {
+        "comfort": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "drivable_area_compliance": {
+          "degraded": 6,
+          "equal": 1685,
+          "improved": 5
+        },
+        "driving_direction_compliance": {
+          "degraded": 4,
+          "equal": 1692,
+          "improved": 0
+        },
+        "no_at_fault_collisions": {
+          "degraded": 3,
+          "equal": 1689,
+          "improved": 4
+        },
+        "time_to_collision_within_bound": {
+          "degraded": 4,
+          "equal": 1682,
+          "improved": 10
+        }
+      },
+      "full_population": 1696,
+      "logs": 16,
+      "source_result": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C3_512_SP1_5000_v1/RESULTS.json",
+      "verification_boundary": "CSV_METADATA_VERIFIED_PAYLOAD_REVALIDATION_NOT_RUN"
+    },
+    {
+      "comparison": "SP2_minus_SP1",
+      "control": "SP1",
+      "treatment": "SP2",
+      "control_points": 90.81935366665836,
+      "treatment_points": 90.66593579707695,
+      "delta_points": -0.15341786958139908,
+      "ci95_points_existing": [
+        -1.260601367670922,
+        0.3927656172806754
+      ],
+      "equal_log_delta_points": -0.35813444126279587,
+      "events": {
+        "ep_drop": 23,
+        "high_any_drop": 424,
+        "high_large_drop": 9,
+        "high_to_zero": 6,
+        "new_zero": 9,
+        "nonzero_persisted": 1639,
+        "safety_gain_with_ep_drop": 0,
+        "zero_persisted": 42,
+        "zero_repaired": 6
+      },
+      "safety_metric_improved_degraded_not_failure_threshold_counts": {
+        "comfort": {
+          "degraded": 0,
+          "equal": 1696,
+          "improved": 0
+        },
+        "drivable_area_compliance": {
+          "degraded": 8,
+          "equal": 1684,
+          "improved": 4
+        },
+        "driving_direction_compliance": {
+          "degraded": 1,
+          "equal": 1694,
+          "improved": 1
+        },
+        "no_at_fault_collisions": {
+          "degraded": 1,
+          "equal": 1693,
+          "improved": 2
+        },
+        "time_to_collision_within_bound": {
+          "degraded": 4,
+          "equal": 1684,
+          "improved": 8
+        }
+      },
+      "full_population": 1696,
+      "logs": 16,
+      "source_result": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C1_1024_SP2_5000_v2/RESULTS.json",
+      "verification_boundary": "CSV_METADATA_VERIFIED_PAYLOAD_REVALIDATION_NOT_RUN"
+    }
+  ],
+  "all_four_arms": {
+    "SP0": {
+      "score_points": 90.79917427019018,
+      "zero_count": 48,
+      "score_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP0_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "d998519cf05c067d0bc270f08d688c5b43121d4fc9a99bdc32e80c9b8672976a"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792217229597178910/COMPLETE.json",
+        "sha256": "1583c98960120ad2cde5859919507386b27259c4b3524a82b40de6ce0f1299fe"
+      },
+      "native_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 8846917632,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "703ac3d75f4651a29688ed226de7ebf0593c12df359cc13086aa47106b442789",
+        "offset": 1825,
+        "tag": "step_005000_1792217229597178910",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "file_sizes_verified_not_hashed": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": 7658046102,
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": 7658049238,
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": 7658051734,
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": 7658058006,
+        "mp_rank_00_model_states.pt": 6733728866,
+        "rng_rank0.pt": 25402,
+        "rng_rank1.pt": 25466,
+        "rng_rank2.pt": 25466,
+        "rng_rank3.pt": 25466
+      },
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "85624cb410dab8a531edc3a793ddc052ed1f905c488174289638f55bcf489738"
+      },
+      "execution": {
+        "family": "spatial",
+        "global_batch": 32,
+        "max_updates": 20000,
+        "micro_batch": 4,
+        "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+        "sample_limit": 0,
+        "scope": "FORMAL",
+        "seed": 42,
+        "stop_after": 5000,
+        "world_size": 4
+      },
+      "config": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/CONFIG.json",
+        "sha256": "29d97d52e667a877b1ca5d40789ea26d81fb2e867519ccd1c63dc9ad425ff4ae"
+      }
+    },
+    "SP1": {
+      "score_points": 90.81935366665836,
+      "zero_count": 48,
+      "score_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP1_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "c2ef5bbd673c6c5aaa1e752507a4a7d7918df74614317bdd62ea0676b098fa95"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792219550866622410/COMPLETE.json",
+        "sha256": "4bef7684343c4197427272c1274bde3271b5e8f640f5cff8a001a689f487b275"
+      },
+      "native_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 8846917632,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "df7eb9ed951262e4117209a8305330a721278d285eaa2c0b6aa4237161d8ef36",
+        "offset": 1825,
+        "tag": "step_005000_1792219550866622410",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "file_sizes_verified_not_hashed": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": 7658046102,
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": 7658049238,
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": 7658051734,
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": 7658058006,
+        "mp_rank_00_model_states.pt": 6733728866,
+        "rng_rank0.pt": 25402,
+        "rng_rank1.pt": 25466,
+        "rng_rank2.pt": 25466,
+        "rng_rank3.pt": 25466
+      },
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "41c5ada8232b51a7387b8a2ab267c8a3c84e7efb87b8cde3753a8d3bf5b2df5a"
+      },
+      "execution": {
+        "family": "spatial",
+        "global_batch": 32,
+        "max_updates": 20000,
+        "micro_batch": 4,
+        "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+        "sample_limit": 0,
+        "scope": "FORMAL",
+        "seed": 42,
+        "stop_after": 5000,
+        "world_size": 4
+      },
+      "config": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/CONFIG.json",
+        "sha256": "169753fb058bef7b8d355c524a41c9a58efc5a6274c67034b7eb074f5b89cafd"
+      }
+    },
+    "SP2": {
+      "score_points": 90.66593579707695,
+      "zero_count": 51,
+      "score_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "030f42220f1c66ea4030c28ef4c650dc8b81c3aa00b091ffe0a0262efb1f12f2"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792222283615035511/COMPLETE.json",
+        "sha256": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183"
+      },
+      "native_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 17693835264,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "4a2a36978a1e41170ce00b482d281ffb25c883bf6d501e64958775807f960156",
+        "offset": 1825,
+        "tag": "step_005000_1792222283615035511",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "file_sizes_verified_not_hashed": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": 7658046102,
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": 7658049238,
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": 7658051734,
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": 7658058006,
+        "mp_rank_00_model_states.pt": 6733728866,
+        "rng_rank0.pt": 25402,
+        "rng_rank1.pt": 25466,
+        "rng_rank2.pt": 25466,
+        "rng_rank3.pt": 25466
+      },
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690"
+      },
+      "execution": {
+        "family": "spatial",
+        "global_batch": 32,
+        "max_updates": 20000,
+        "micro_batch": 4,
+        "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+        "sample_limit": 0,
+        "scope": "FORMAL",
+        "seed": 42,
+        "stop_after": 5000,
+        "world_size": 4
+      },
+      "config": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/CONFIG.json",
+        "sha256": "16f8716ef14a2a9a57bca234be16357decc346e8919cc35f781fcc6f69e7abdd"
+      }
+    },
+    "SP3": {
+      "score_points": 90.89495017519124,
+      "zero_count": 49,
+      "score_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP3_step005000_dev1696_seed42_v1/official_score/COMPLETE.json",
+        "sha256": "aa0282100f528e224daf9aaa4610b9b23d0eb64ee3ed78c2ad8c9c374e4f9df2"
+      },
+      "native_receipt": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792224403643960209/COMPLETE.json",
+        "sha256": "d4f5225f84f6d2410f91ed79357258cff68c0a0e84e93f7d696520ac9ee5db93"
+      },
+      "native_state": {
+        "completed": 5000,
+        "counts": {
+          "current": 17693835264,
+          "ego_scenes": 159992
+        },
+        "epoch": 1,
+        "exposure": 159992,
+        "identity": "bc0680b480dc4913d56effb366a9429ee3668f506dc5e1ab62e0991debaa1127",
+        "offset": 1825,
+        "tag": "step_005000_1792224403643960209",
+        "termination_reason": "RUNNING_CHECKPOINT"
+      },
+      "file_sizes_verified_not_hashed": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": 7659115158,
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": 7659118294,
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": 7659120790,
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": 7659127062,
+        "mp_rank_00_model_states.pt": 6734441762,
+        "rng_rank0.pt": 25402,
+        "rng_rank1.pt": 25466,
+        "rng_rank2.pt": 25466,
+        "rng_rank3.pt": 25466
+      },
+      "registration": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json",
+        "sha256": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be"
+      },
+      "execution": {
+        "family": "spatial",
+        "global_batch": 32,
+        "max_updates": 20000,
+        "micro_batch": 4,
+        "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+        "sample_limit": 0,
+        "scope": "FORMAL",
+        "seed": 42,
+        "stop_after": 5000,
+        "world_size": 4
+      },
+      "config": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/CONFIG.json",
+        "sha256": "7df752e6040afe1d11d13cf416f19c4f82f052a1f92fd2621175ca040f8f8728"
+      }
+    }
+  },
+  "evidence_pins": {
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/PREREGISTRATION_EXECUTION_v4.json": "7176e78ccc287094e19ed51691d02b8dd4685866ea69bd96eb76a2e58c3d9bf4",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md": "12127bc733d527db7934c035789effd53d3373f0196aff26e644f7e256df98b2",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C3_512_SP1_5000_v1/RESULTS.json": "c7b0cff03d12b86dc5e5ec3331cbbf17bdf2ff35ab208afd563678678b4c5be0",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C3_512_SP1_5000_v1/REPORT.md": "f5dca28f91c4f226e1b2d1a04ecac5a63b428acde0b8479fc85a98edbdeb33a1",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP0_step005000_dev1696_seed42_v1/official_score/COMPLETE.json": "d998519cf05c067d0bc270f08d688c5b43121d4fc9a99bdc32e80c9b8672976a",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP0_step005000_dev1696_seed42_v1/official_score/SCENES.csv": "6450a4fff25fc2da8e6e7b82c7275c82016b1c2d10babdbf65431a04e6a26aa3",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792217229597178910/COMPLETE.json": "1583c98960120ad2cde5859919507386b27259c4b3524a82b40de6ce0f1299fe",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/REGISTRATION.json": "85624cb410dab8a531edc3a793ddc052ed1f905c488174289638f55bcf489738",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP0_fulltrain_seed42_official_5k_v1/CONFIG.json": "29d97d52e667a877b1ca5d40789ea26d81fb2e867519ccd1c63dc9ad425ff4ae",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP1_step005000_dev1696_seed42_v1/official_score/COMPLETE.json": "c2ef5bbd673c6c5aaa1e752507a4a7d7918df74614317bdd62ea0676b098fa95",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP1_step005000_dev1696_seed42_v1/official_score/SCENES.csv": "2e951882a2fa7ccd9c6e82fa1f316e216c6b1b7e1bfd41ed16e269eac5ed6302",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792219550866622410/COMPLETE.json": "4bef7684343c4197427272c1274bde3271b5e8f640f5cff8a001a689f487b275",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/REGISTRATION.json": "41c5ada8232b51a7387b8a2ab267c8a3c84e7efb87b8cde3753a8d3bf5b2df5a",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP1_fulltrain_seed42_official_5k_v1/CONFIG.json": "169753fb058bef7b8d355c524a41c9a58efc5a6274c67034b7eb074f5b89cafd",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C1_1024_SP2_5000_v2/RESULTS.json": "e637d7b3b0ccaba51c3850c64b62024f21adfe0994c672b8e032121d7a546166",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C1_1024_SP2_5000_v2/REPORT.md": "2a6bc778634027970e7d85456c78c220fdf35df3632ba87a1b0bde21b61b767a",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/COMPLETE.json": "030f42220f1c66ea4030c28ef4c650dc8b81c3aa00b091ffe0a0262efb1f12f2",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP2_step005000_dev1696_seed42_v1/official_score/SCENES.csv": "f625926896a3a8075ce9a4d24383b313680295798bd81ae427c9e1d37e745d65",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792222283615035511/COMPLETE.json": "9e8b7694996130c1c6148519c27c9d562df106b46553357b4218e68245637183",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/REGISTRATION.json": "86aa23add97a0b463bec1f74d9dbb2fc8b70a4282c9578b40f637c617bdb9690",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP2_fulltrain_seed42_official_5k_v1/CONFIG.json": "16f8716ef14a2a9a57bca234be16357decc346e8919cc35f781fcc6f69e7abdd",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C4_512_SP3_5000_v1/RESULTS.json": "8afe2dcd934655bcd94ab4f31fd1aec59e23e9f0116cdadc9f6f43a1f150315f",
+    "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261016/evaluation/FIXED_PAIRS_C4_512_SP3_5000_v1/REPORT.md": "58ce78e0e3f149031333d587db67dc834c676ba0720ee296ff8e1ed0efbd8eae",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP3_step005000_dev1696_seed42_v1/official_score/COMPLETE.json": "aa0282100f528e224daf9aaa4610b9b23d0eb64ee3ed78c2ad8c9c374e4f9df2",
+    "/mnt/project/st-world-policy-20261016/formal/evaluation/jobs/SP3_step005000_dev1696_seed42_v1/official_score/SCENES.csv": "9c62a75587edac987592f343ffc3a42c4b814fd0db60d678b8b39d5edfcec156",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/checkpoints/step_005000_1792224403643960209/COMPLETE.json": "d4f5225f84f6d2410f91ed79357258cff68c0a0e84e93f7d696520ac9ee5db93",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/REGISTRATION.json": "8fa60401f13c503465349fcd09c8813c94d3efdf5f7c086b576cca28c2a473be",
+    "/mnt/project/st-world-policy-20261016/formal/spatial/registrations/SP3_fulltrain_seed42_official_5k_v1/CONFIG.json": "7df752e6040afe1d11d13cf416f19c4f82f052a1f92fd2621175ca040f8f8728"
+  },
+  "score_protocol_sha256_inherited": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143",
+  "metadata_bytes_read": 1195362,
+  "native_payloads_read": 0,
+  "new_bootstrap_or_scoring_or_model_calls": 0,
+  "launch_approval": false,
+  "temporal_recipe_selected_by_this_review": false,
+  "lead_provisional_temporal_decision": {
+    "source": "Lead explicit message received during this review, 2026-10-18 UTC; pending formal registration.",
+    "recipe": "Original SP2: teacher384x288, native grid width24/height18, W48 per view, PCA384, K96.",
+    "fixed_across": [
+      "T0",
+      "T1",
+      "T2",
+      "T3",
+      "T4"
+    ],
+    "loss_scales": {
+      "current": 1.0,
+      "future_when_enabled": 0.9954445849209375,
+      "delta_T4_only": 1.6396291934956382
+    },
+    "reason": "Preserve registered temporal composition and existing real4 calibration; do not silently replace PCA384 with new dev-selected256, or W48 with96 based on a screening contrast.",
+    "claim": "Provisional shared controlled recipe, not independently proved optimal spatial representation.",
+    "remaining_execution_dependencies": [
+      "full history/provider bindings",
+      "actual formal registration",
+      "matching topology and fresh resource admission"
+    ],
+    "PCA256": "Separate exploratory mechanism study; not an original shortlist candidate."
+  },
+  "temporal_dependency_interpretation": {
+    "literal_requirement": "Plan 6.2: 在空间筛选固定一套目标/W后运行。",
+    "common_endpoint_requirement": "Plan12.2 and locked shortlist retain both selected spatial arms to the common20k endpoint.",
+    "explicit_wait_for_20k_before_any_temporal_work": false,
+    "boundary": "Neither clause explicitly makes all temporal preparation or an explicitly frozen provisional common recipe wait for spatial20k. However this shortlist is a contrast selection, not a scientifically established W96 winner or permission to silently change the shared temporal recipe. Lead must record any common target/W decision; reuse T0 only with strictly matching recipe. No new gate is invented."
+  },
+  "continuation": "Use each same native run/checkpoint, FP32 masters, optimizer/moments, scheduler20k clock, rank RNG and consumed cursor; preserve global32/world4/micro4, data and target identities. Do not warm-start from exported inference weights or reset time. Actual native load and fresh resource/lease/policy checks remain Lead execution prerequisites, not performed by this metadata review.",
+  "risk": "Single seed42,16logs,dev selection and three exploratory unadjusted contrasts. All intervals cross0. SP3 has improved mean/zero count but NC/TTC declines and new zeros. Rank order is not significance, convergence, no-regression or a final temporal recipe verdict."
+}
