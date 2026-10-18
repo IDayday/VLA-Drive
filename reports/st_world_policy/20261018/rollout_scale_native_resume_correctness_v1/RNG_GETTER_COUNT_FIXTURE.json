@@ -1,0 +1,22 @@
+{
+  "schema": "native_observer_rng_getter_count_fixture_v1",
+  "runtime_controller_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+  "scope": "One tiny CPU SAVE/LOAD/RESTORE cycle with explicit fixture; not a real GPU invocation count",
+  "measured_original_calls": {
+    "capture": 5,
+    "restore": 1,
+    "save_checkpoint": 1,
+    "load_checkpoint": 1
+  },
+  "getter_call_sites_per_native_save_cycle": {
+    "observed_capture_read_before_after": 2,
+    "observed_save_read_after_hash": 1,
+    "observed_restore_read_actual_after": 2
+  },
+  "actual_GPU_call_counts": null,
+  "GPU_calls_by_this_review": 0,
+  "training_RNG_draws": 0,
+  "wall_seconds_excluding_imports": 0.00985664688050747,
+  "self_CPU_user_seconds_process": 0.9778469999999999,
+  "production_count_rule": "Per actual native save cycle5 getter reads. Direct resume restore adds2 reads. Per rank expected completed A3save=15,B2save=10,Bresume1save+1loadrestore=7, only after actual complete receipts verify these call paths."
+}

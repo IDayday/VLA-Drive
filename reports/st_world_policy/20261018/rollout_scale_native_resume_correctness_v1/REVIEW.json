@@ -1,0 +1,170 @@
+{
+  "schema": "native_resume_correctness_source_review_v1",
+  "status": "PASS_STATIC_SOURCE_CONTRACT_WAITING_BINDING",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "recorded_utc": "2026-10-18T20:16:54.614406+00:00",
+  "implementation": {
+    "commit": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+    "worktree": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018",
+    "clean_before_and_after_tests": true,
+    "controller": {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018/resources/st_rollout_resume_smoke_v1.py",
+      "sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+      "bytes": 54162
+    },
+    "implementation_tests": {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018/tests/st_world/test_rollout_resume_smoke.py",
+      "sha256": "cac7427bacc2d5fe53422ee6e1315363f62250db44696b80a281b65342140685",
+      "bytes": 19518
+    }
+  },
+  "runtime": {
+    "commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "path": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018",
+    "clean": true,
+    "changed_by_this_review": false,
+    "separate_instrumented_worker_identity": true,
+    "source_training_math_or_forward_changed": false
+  },
+  "source_contract_approved_for_bounded_smoke": true,
+  "execution_approval": false,
+  "formal_training_approved": false,
+  "binding_sha256": null,
+  "actual_route_UUIDs_leases": null,
+  "actual_GPU_native_resume_result": "NOT_EXECUTED_BY_REVIEWER",
+  "bounded_scope": {
+    "optimizer_updates_campaign_max": 8,
+    "arms": "continuous4 versus own complete2+new process2",
+    "original_schedule_max_updates": 4096,
+    "warmup": 100,
+    "global_batch": 32,
+    "world_per_arm": 4,
+    "micro_batch": 4,
+    "caller_accumulation": 2,
+    "fixed_TRAIN_scenes": 32,
+    "rollout_G": 4,
+    "MC": 50,
+    "Euler": 10,
+    "BC_repeat": 8,
+    "primary_official_calls_max": 1024,
+    "retry_attempts": 0,
+    "weights_usable_for_formal_init": false,
+    "no_navtest": true,
+    "no_formal_or_ACTIVE_update": true
+  },
+  "resolved_findings": {
+    "OBS1": "Every fallible signature/strictness/client-state preflight and RNG audit is within mature all-rank ordinary-exception vote. Independent real CPU/Gloo two-rank failure exits both before original native save.",
+    "OBS2": "Full logical module/master/moment/group state hashes are exact. Original sampled master-update evidence is retained. Full FP64 update delta/cosine explicitly NOT_COMPUTED; nonbitwise independent A/A remains inconclusive without posthoc tolerance.",
+    "OBS3": "LOAD/RESTORE current worker/runtime/rank, selected native2 COMPLETE pin, exact SAVE pin, snapshot digest and saved RNG chain are revalidated before comparison.",
+    "OBS4": "Resume accepts only own bound exact step2 marker and native identity, then immutable acknowledgement receipt.",
+    "OBS5": "External controller archives and rechecks own marker, rejects replacement while preserving both archived and newly arrived STOP. Worker always passes acknowledge_stop=False; later operator STOP remains protected by original751."
+  },
+  "observer_contract": {
+    "original_engine_save_calls_per_wrapped_call": 1,
+    "original_engine_load_calls_per_wrapped_call": 1,
+    "original_restore_rng_calls_per_wrapped_call": 1,
+    "RNG_getter_reads": "Additional read-only capture_rng getter snapshots for before/after checks; no random draws. This is explicitly instrumented execution, not an unmodified751 claim.",
+    "original_return_identity_preserved": true,
+    "read_only_grad_mode_RNG_counterexamples": "PASS",
+    "complete_FP32_master_and_Adam_content": "Compared as logical dtype/shape/byte hashes, including ordered native groups and persistent counters",
+    "nonpersisted_micro_steps": "Not claimed restored; process-local counter",
+    "scheduler": "No object in751; compare consumed completed count, optimizer group LR and original4096 functional schedule",
+    "BC_noise_time": "NOT_DIRECTLY_OBSERVED; only saved task RNG plus later losses/state provide indirect evidence",
+    "no_BC_DiT_CFM_or_encoder_forward_hooks": true
+  },
+  "test_result": {
+    "total_passed": 51,
+    "owner_tests": 38,
+    "independent_tests": 13,
+    "warnings": 1,
+    "failures": 0,
+    "cost": {
+      "schema": "independent_native_observer_narrow_test_v1",
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018/tests/st_world/test_rollout_resume_smoke.py",
+        "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/test_observer_contract.py"
+      ],
+      "controller_commit": "19a5a244cca2a07600339ba9be7c3a150ef61285",
+      "controller_sha256": "693d9307033efeca90da059ce4b6a75a35537f99ddf90dac092f96e356cf618e",
+      "exit_code": 0,
+      "wall_seconds": 8.712877286598086,
+      "child_user_CPU_seconds": 7.958366000000001,
+      "child_system_CPU_seconds": 1.190466,
+      "peak_owned_tree_RSS_bytes_sampled_50ms": 1890631680,
+      "stop_reason": null,
+      "GPU_calls": 0,
+      "official_score_calls": 0,
+      "real_native_or_image_payload_loads": 0,
+      "test_data": "explicitly synthetic tiny CPU tensors; Gloo ordinary-exception vote only",
+      "not_real_native_resume_evidence": true
+    },
+    "scope": "Tiny explicit CPU fixtures plus actual two-rank Gloo ordinary-exception vote; not a real ZeRO/GPU checkpoint qualification"
+  },
+  "remaining_real_evidence": [
+    "Fresh exact actual binding and distinct Systems review for this source/route/UUIDs/leases",
+    "Real all-rank own SAVE2 to strict LOAD2 full native logical bytes and RNG match",
+    "Actual next scene IDs, original LR, normalization receipts, stored generation/CFM draws, losses and no-extra-update/call accounting",
+    "Report independent fresh prefix A/A before interpreting continuous-versus-resumed suffix"
+  ],
+  "asset_access": {
+    "real_model_or_native_tensor_bytes_loaded": 0,
+    "image_GT_context_payload_reads": 0,
+    "GPU_calls": 0,
+    "official_score_calls": 0,
+    "source_and_small_control_inspection_budget_bytes": 8388608,
+    "source_and_small_control_inspection": "Below8MiB; source/receipts only. Python library imports are software execution, not scientific asset access."
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/CONTRACT.json",
+      "sha256": "763c75b24b8ca04f7edf693a425cbb3d9fef5ace04cb6241b325de83a480b687",
+      "bytes": 6148
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/BUDGET_RESOLUTION.json",
+      "sha256": "2bbe616d446cb5bf483c9647a64a1fb13161a6defef3253789019c91b7701d5e",
+      "bytes": 1006
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ENGINE_COUNTER_SCOPE.json",
+      "sha256": "9b70ca7a8099913c04336408ccafde6272fe0b1f9390bd07fc14c5f76064f759",
+      "bytes": 1113
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/SMOKE_REVIEW_SCOPE.json",
+      "sha256": "4a6eac31156a0e340ebda86da1879a160cbca0f9a80acdd468f919e8730a3e31",
+      "bytes": 811
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/DRAFT_FINDINGS.json",
+      "sha256": "4660e3ecb8cc1475d2d788e1909ab0f3f4c67e1db7a7b78ad87748366c0b3af0",
+      "bytes": 2824
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/NARROW_TEST.log",
+      "sha256": "927a192030bb930ee23c30c7d1cf417a9a050092de14d782a62231ec32f3871b",
+      "bytes": 689
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/NARROW_TEST_COST.json",
+      "sha256": "31c48ae72149b3d17730e65dc7245587ad06bdf0084661defb331bb8c5945bf0",
+      "bytes": 1053
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/test_observer_contract.py",
+      "sha256": "d606a1430655d3e11a15a2785ce4240fd7569493321db890cd2f1e5bd05c9353",
+      "bytes": 11742
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/run_narrow_review.py",
+      "sha256": "6706132e41b65ad6f88db32b26a24ad184d7dc494feca2663c8f96bb5fc8ad42",
+      "bytes": 3264
+    }
+  ],
+  "next_action": "Lead may generate metadata-only actual binding for this exact source. A fresh immutable binding review is still required; this source-only review is deliberately not accepted as an execution-admission PASS."
+}

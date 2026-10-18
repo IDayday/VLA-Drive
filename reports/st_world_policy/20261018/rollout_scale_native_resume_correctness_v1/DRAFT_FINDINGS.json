@@ -1,0 +1,43 @@
+{
+  "schema": "native_resume_draft_findings_v1",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "recorded_utc": "2026-10-18T20:04:57.117480+00:00",
+  "implementation_worktree": "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-20261018",
+  "scope": "External observer only; no changes to frozen runtime751",
+  "findings": [
+    {
+      "id": "OBS1",
+      "problem": "Save JSON/signature and load signature/strictness preflight could throw before all-rank vote, allowing another rank to enter original native collective",
+      "requested_fix": "Perform every fallible preflight inside existing collective_call before original save/load",
+      "draft_owner_response": "Resolved in draft; source freeze and independent Gloo counterexample still pending"
+    },
+    {
+      "id": "OBS2",
+      "problem": "Hash/loss comparisons alone must not be represented as full FP64 parameter-update delta/cosine analysis",
+      "requested_fix": "Reference original sampled actual-master-update evidence and explicitly mark full delta/cosine as NOT_COMPUTED without prepaid large-state read",
+      "draft_owner_response": "Resolved in draft; preserves strict actual save-to-load hashes and independent A/A exactness boundary"
+    },
+    {
+      "id": "OBS3",
+      "problem": "Comparison originally accepted LOAD/RESTORE kind strings without revalidating worker/runtime/rank identity and their native/SAVE pins",
+      "requested_fix": "Revalidate small witness provenance, exact selected native2/save record checksums and full snapshot/RNG relationship before publishing strict-load result",
+      "draft_owner_response": "Requested before final freeze; no large native payload read required"
+    },
+    {
+      "id": "OBS4",
+      "problem": "A generic OPERATOR_PAUSED result alone cannot authorize acknowledging an arbitrary STOP_REQUESTED file",
+      "requested_fix": "Both controller and resume-worker must verify exact own step2 pause marker bytes and immutable controller/run/registration/native2 binding before mature trainer acknowledgement",
+      "draft_owner_response": "Lead requested final narrowly scoped negative case; implementation owner notified; frozen751 unchanged"
+    },
+    {
+      "id": "OBS5",
+      "problem": "A worker precheck followed by acknowledge_stop=True can still acknowledge a newly replaced operator marker during trainer startup",
+      "requested_fix": "Subject to Lead decision, archive only the validated controller marker before worker launch, bind acknowledgement receipt, then run mature751 with acknowledge_stop=False so any new operator marker remains protected",
+      "draft_owner_response": "Raised to Lead; no formal/source modification"
+    }
+  ],
+  "GPU_calls": 0,
+  "official_score_calls": 0,
+  "native_large_tensor_reads": 0,
+  "execution_approval": false
+}
