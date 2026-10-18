@@ -147,3 +147,79 @@ def test_tracking_diagnostics_explicit_undefined_curvature():
     assert result['command_curvature_max_abs_per_m_moving_only'] is None
     assert result['command_curvature_undefined_zero_distance_intervals']==40
     assert result['tracking_max_xy_error_m']==0
+
+
+def test_bounded_read_growth_cannot_exceed_reserved_probe(tmp_path,monkeypatch):
+    p=tmp_path/'asset';p.write_bytes(b'abc');original_open=Path.open
+    def growing_open(self,*args,**kwargs):
+        if self==p and args and args[0]=='rb':
+            with original_open(self,'wb') as f:f.write(b'a'*10000)
+        return original_open(self,*args,**kwargs)
+    monkeypatch.setattr(Path,'open',growing_open)
+    budget=r.Budget(tmp_path/'out',{**r.LIMITS,'asset_read_bytes':5})
+    with pytest.raises(ValueError,match='ASSET_CHANGED'):budget.read(p,r.sha(b'abc'))
+    assert budget.read_bytes==4
+    assert budget.reads[0]['bytes']==4
+
+
+def test_output_scan_ignores_only_vanished_file(tmp_path,monkeypatch):
+    (tmp_path/'good').write_bytes(b'abc');vanished=tmp_path/'tmpfile';vanished.write_bytes(b'x')
+    real=Path.lstat
+    def race(self,*args,**kwargs):
+        if self==vanished:raise FileNotFoundError('atomic temporary unlinked')
+        return real(self,*args,**kwargs)
+    monkeypatch.setattr(Path,'lstat',race)
+    assert r.owned_output_bytes(tmp_path)==3
+    def denied(self,*args,**kwargs):raise PermissionError('real monitor error')
+    monkeypatch.setattr(Path,'lstat',denied)
+    with pytest.raises(PermissionError):r.owned_output_bytes(tmp_path)
+
+
+def _fault_worker(*args):
+    import os,time
+    if os.environ['ROAD_UNIT_FAULT_MODE']=='native_exit':os._exit(23)
+    time.sleep(60)
+
+
+@pytest.mark.parametrize('mode',['native_exit','monitor_error','sigterm','sigint','timeout'])
+def test_real_spawn_cleanup_and_full_denominator(tmp_path,monkeypatch,mode):
+    import multiprocessing,os,signal
+    owned=[];context=multiprocessing.get_context('spawn')
+    class Context:
+        def Process(self,*args,**kwargs):
+            process=context.Process(*args,**kwargs);owned.append(process);return process
+    evidence={'selected':[{'scene_id':f'fixture{i}'} for i in range(32)],'selection_sha256_before_scores':'fixture'}
+    ep=tmp_path/'evidence.json';ep.write_text(json.dumps(evidence));rp=tmp_path/'reg.json';rp.write_text('{}')
+    out=tmp_path/'out'
+    reg={'output_root':str(out),'source_hashes':{'fixture':'only'},
+         'evidence':{'path':str(ep),'sha256':r.sha(ep.read_bytes())}}
+    monkeypatch.setattr(r,'check_admission',lambda *args:(reg,{'attempt_id':mode}))
+    monkeypatch.setattr(r,'_child_entry',_fault_worker)
+    monkeypatch.setattr(multiprocessing,'get_context',lambda kind:Context())
+    monkeypatch.setenv('ROAD_UNIT_FAULT_MODE',mode)
+    if mode=='timeout':monkeypatch.setattr(r,'LIMITS',{**r.LIMITS,'wall_seconds':21})
+    for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS'):monkeypatch.setenv(key,'1')
+    monkeypatch.setenv('CUDA_VISIBLE_DEVICES','')
+    original_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+    original_scan=r.owned_output_bytes
+    def scan(root):
+        if mode=='monitor_error':raise FileNotFoundError('fixture monitor exception')
+        if mode=='sigterm':os.kill(os.getpid(),signal.SIGTERM)
+        if mode=='sigint':os.kill(os.getpid(),signal.SIGINT)
+        return original_scan(root)
+    monkeypatch.setattr(r,'owned_output_bytes',scan)
+    try:
+        assert r.supervise(rp,tmp_path/'notread','fixture',False)==2
+        assert owned and not any(c.is_alive() for c in owned)
+        result=json.loads((out/f'RESULT_{mode}.json').read_text())
+        assert result['requested_scenes']==32 and len(result['scenes'])==32
+        assert result['supervisor']['owned_worker_exit_confirmed']
+        assert result['supervisor']['resource_tracker_pid'] is not None
+        if mode=='native_exit':assert result['supervisor']['worker_exit_code']==23
+        elif mode=='monitor_error':assert result['supervisor']['stop_reason']=='MONITOR_ERROR'
+        elif mode=='timeout':assert result['supervisor']['stop_reason']=='WALL_CAP'
+        else:assert result['supervisor']['stop_reason']=='SUPERVISOR_INTERRUPTED'
+        for sig,handler in original_handlers.items():assert signal.getsignal(sig)==handler
+    finally:
+        for child in owned:
+            if child.is_alive():child.kill();child.join(timeout=3)

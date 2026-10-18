@@ -19,6 +19,7 @@ import pickle
 import resource
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import time
@@ -52,8 +53,19 @@ def source_commit(): return subprocess.check_output(['git','rev-parse','HEAD'],c
 def source_hashes(): return {p:sha((ROOT/p).read_bytes()) for p in FILES}
 def small_json(path):
     path=Path(path)
-    if path.stat().st_size>2*2**20: raise ValueError('Oversized control JSON')
-    return json.loads(path.read_bytes())
+    with path.open('rb') as stream: raw=stream.read(2*2**20+1)
+    if len(raw)>2*2**20: raise ValueError('Oversized control JSON')
+    return json.loads(raw)
+
+
+def owned_output_bytes(root):
+    """One stat per entry; committed temp unlink races are not monitor failures."""
+    total=0
+    for path in Path(root).rglob('*'):
+        try: value=path.lstat()
+        except FileNotFoundError: continue
+        if stat.S_ISREG(value.st_mode): total+=value.st_size
+    return total
 
 
 class LimitError(RuntimeError): pass
@@ -71,8 +83,13 @@ class Budget:
         self.check();p=Path(path);before=p.stat();size=before.st_size
         if size>(maximum or self.limits['asset_read_bytes']) or self.read_bytes+size>self.limits['asset_read_bytes']:
             raise LimitError('ASSET_READ_CAP: '+str(p))
-        self.read_bytes+=size
-        raw=p.read_bytes();after=p.stat()
+        # Reserve the bounded probe before IO. A failed read retains its upper
+        # bound charge; a returned read is charged by actual returned bytes.
+        read_limit=min(size+1,self.limits['asset_read_bytes']-self.read_bytes)
+        self.read_bytes+=read_limit
+        with p.open('rb') as stream: raw=stream.read(read_limit)
+        self.read_bytes-=read_limit-len(raw)
+        after=p.stat()
         stamp=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
         actual=sha(raw)
         self.reads.append({'path':str(p),'bytes':len(raw),'sha256':actual})
@@ -86,7 +103,7 @@ class Budget:
         self.check();p=Path(path)
         if not p.resolve().is_relative_to(self.root.resolve()):raise ValueError('OUTPUT_ESCAPE')
         payload=(json.dumps(json_ready(value),indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
-        existing=sum(f.stat().st_size for f in self.root.rglob('*') if f.is_file())
+        existing=owned_output_bytes(self.root)
         if existing+2*len(payload)>self.limits['output_bytes']-2*2**20:raise LimitError('OUTPUT_CAP')
         atomic_json(p,value)
     def report(self):
@@ -437,33 +454,72 @@ def supervise(reg_path,admission_path,admission_hash,resume):
         log_path=root/('WORKER_'+str(admission['attempt_id'])+'.log')
         child=multiprocessing.get_context('spawn').Process(target=_child_entry,
             args=(str(reg_path),str(admission_path),admission_hash,str(log_path)))
-        child.start()
-        while child.is_alive():
-            elapsed=time.monotonic()-start
-            rss=0
-            for pid in (os.getpid(),child.pid):
-                try:
-                    fields=Path(f'/proc/{pid}/status').read_text().splitlines()
-                    rss+=next(int(s.split()[1])*1024 for s in fields if s.startswith('VmRSS:'))
-                except (OSError,StopIteration):pass
-            peak=max(peak,rss)
-            output=sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
-            if elapsed>=LIMITS['wall_seconds']-20:why='WALL_CAP'
-            elif rss>LIMITS['rss_and_address_space_bytes']:why='AGGREGATE_RSS_CAP'
-            elif output>LIMITS['output_bytes']-2*2**20:why='OUTPUT_CAP'
-            if why:
-                child.terminate();child.join(timeout=min(15,max(1,LIMITS['wall_seconds']-elapsed)))
-                if child.is_alive():child.kill();child.join(timeout=3)
-                break
-            time.sleep(.2)
-        child.join(timeout=1)
-        info={'worker_exit_code':child.exitcode,'stop_reason':why,'elapsed_seconds':time.monotonic()-start,
-              'parent_and_child_peak_rss_bytes':peak,'attempt_id':admission['attempt_id']}
-        result=summarize(root,evidence,info)
-        atomic_json(root/('RESULT_'+str(admission['attempt_id'])+'.json'),result)
-        print(json.dumps({'status':result['status'],'complete_scenes':result['complete_scenes'],
-                          'charged_official_calls':result['charged_official_calls'],'output_root':str(root)}))
-        return 0 if result['complete_scenes']==32 and child.exitcode==0 else 2
+        previous_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+        tracker_pid=None;monitor_error=None;cleanup_error=None;exit_confirmed=False
+        def interrupted(signum,frame):
+            raise LimitError('SUPERVISOR_SIGNAL_'+str(signum))
+        try:
+            for sig in previous_handlers:signal.signal(sig,interrupted)
+            child.start()
+            # CPython spawn's known owned helper, not broad process discovery.
+            from multiprocessing import resource_tracker
+            tracker_pid=resource_tracker._resource_tracker._pid
+            while child.is_alive():
+                elapsed=time.monotonic()-start
+                rss=0
+                for pid in {os.getpid(),child.pid,tracker_pid}-{None}:
+                    try:
+                        fields=Path(f'/proc/{pid}/status').read_text().splitlines()
+                        rss+=next(int(line.split()[1])*1024 for line in fields if line.startswith('VmRSS:'))
+                    except (FileNotFoundError,ProcessLookupError,StopIteration):pass
+                peak=max(peak,rss)
+                output=owned_output_bytes(root)
+                if elapsed>=LIMITS['wall_seconds']-20:why='WALL_CAP'
+                elif rss>LIMITS['rss_and_address_space_bytes']:why='AGGREGATE_RSS_CAP'
+                elif output>LIMITS['output_bytes']-2*2**20:why='OUTPUT_CAP'
+                if why:break
+                time.sleep(.2)
+        except BaseException as error:
+            why='SUPERVISOR_INTERRUPTED' if isinstance(error,(KeyboardInterrupt,LimitError)) else 'MONITOR_ERROR'
+            monitor_error={'type':type(error).__name__,'message':str(error)}
+        finally:
+            # Keep the run lock until the only owned worker has exited. Repeated
+            # operator signals cannot interrupt the bounded TERM/KILL cleanup.
+            for sig in previous_handlers:signal.signal(sig,signal.SIG_IGN)
+            try:
+                if child.pid is not None:
+                    if child.is_alive():child.terminate()
+                    child.join(timeout=15)
+                    if child.is_alive():child.kill();child.join(timeout=3)
+                    exit_confirmed=not child.is_alive()
+                else:exit_confirmed=True
+            except BaseException as error:
+                cleanup_error={'type':type(error).__name__,'message':str(error)}
+                # Still make one explicit owned-child kill attempt if TERM/join
+                # itself failed; never target other jobs or process groups.
+                if child.pid is not None:
+                    try:
+                        if child.is_alive():child.kill()
+                        child.join(timeout=3);exit_confirmed=not child.is_alive()
+                    except BaseException as second:
+                        cleanup_error['final_error']=repr(second)
+        try:
+            info={'worker_exit_code':child.exitcode,'stop_reason':why,'elapsed_seconds':time.monotonic()-start,
+                  'parent_child_tracker_peak_rss_bytes':peak,'resource_tracker_pid':tracker_pid,
+                  'owned_worker_pid':child.pid,'owned_worker_exit_confirmed':exit_confirmed,
+                  'monitor_error':monitor_error,'cleanup_error':cleanup_error,'attempt_id':admission['attempt_id']}
+            try:result=summarize(root,evidence,info)
+            except BaseException as error:
+                result={'schema':SCHEMA,'requested_scenes':32,'complete_scenes':0,
+                    'unresolved_or_undefined_scenes':32,'status':'PARTIAL_SUMMARY_ERROR',
+                    'charged_official_calls':None,'supervisor':info,'summary_error':repr(error),
+                    'scenes':[{'scene_id':item['scene_id'],'status':'UNRESOLVED_SUMMARY_FAILURE'} for item in evidence['selected']]}
+            atomic_json(root/('RESULT_'+str(admission['attempt_id'])+'.json'),result)
+            print(json.dumps({'status':result['status'],'complete_scenes':result['complete_scenes'],
+                              'charged_official_calls':result['charged_official_calls'],'output_root':str(root)}))
+            return 0 if result['complete_scenes']==32 and child.exitcode==0 and exit_confirmed and why is None else 2
+        finally:
+            for sig,handler in previous_handlers.items():signal.signal(sig,handler)
 
 
 def main(argv=None):

@@ -1,0 +1,69 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+...............F...                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_real_spawn_cleanup_and_full_denominator[native_exit] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-764/test_real_spawn_cleanup_and_fu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f9d32d92200>
+mode = 'native_exit'
+
+    @pytest.mark.parametrize('mode',['native_exit','monitor_error','sigterm','sigint'])
+    def test_real_spawn_cleanup_and_full_denominator(tmp_path,monkeypatch,mode):
+        import multiprocessing,os,signal
+        owned=[];context=multiprocessing.get_context('spawn')
+        class Context:
+            def Process(self,*args,**kwargs):
+                process=context.Process(*args,**kwargs);owned.append(process);return process
+        evidence={'selected':[{'scene_id':f'fixture{i}'} for i in range(32)],'selection_sha256_before_scores':'fixture'}
+        ep=tmp_path/'evidence.json';ep.write_text(json.dumps(evidence));rp=tmp_path/'reg.json';rp.write_text('{}')
+        out=tmp_path/'out'
+        reg={'output_root':str(out),'source_hashes':{'fixture':'only'},
+             'evidence':{'path':str(ep),'sha256':r.sha(ep.read_bytes())}}
+        monkeypatch.setattr(r,'check_admission',lambda *args:(reg,{'attempt_id':mode}))
+        monkeypatch.setattr(r,'_child_entry',_fault_worker)
+        monkeypatch.setattr(multiprocessing,'get_context',lambda kind:Context())
+        monkeypatch.setenv('ROAD_UNIT_FAULT_MODE',mode)
+        for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS'):monkeypatch.setenv(key,'1')
+        monkeypatch.setenv('CUDA_VISIBLE_DEVICES','')
+        original_handlers={sig:signal.getsignal(sig) for sig in (signal.SIGTERM,signal.SIGINT)}
+        original_scan=r.owned_output_bytes
+        def scan(root):
+            if mode=='monitor_error':raise FileNotFoundError('fixture monitor exception')
+            if mode=='sigterm':os.kill(os.getpid(),signal.SIGTERM)
+            if mode=='sigint':os.kill(os.getpid(),signal.SIGINT)
+            return original_scan(root)
+        monkeypatch.setattr(r,'owned_output_bytes',scan)
+        try:
+            assert r.supervise(rp,tmp_path/'notread','fixture',False)==2
+            assert owned and not any(c.is_alive() for c in owned)
+            result=json.loads((out/f'RESULT_{mode}.json').read_text())
+            assert result['requested_scenes']==32 and len(result['scenes'])==32
+            assert result['supervisor']['owned_worker_exit_confirmed']
+            assert result['supervisor']['resource_tracker_pid'] is not None
+>           if mode=='native_exit':assert result['supervisor']['worker_exit_code']==23
+E           assert 1 == 23
+
+tests/st_world/test_run_road_direction.py:217: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"status": "PARTIAL_OR_UNDEFINED", "complete_scenes": 0, "charged_official_calls": 0, "output_root": "/tmp/pytest-of-root/pytest-764/test_real_spawn_cleanup_and_fu0/out"}
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/root/miniconda3/envs/ddp/lib/python3.10/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/multiprocessing/spawn.py", line 125, in _main
+    prepare(preparation_data)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/multiprocessing/spawn.py", line 236, in prepare
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "/root/miniconda3/envs/ddp/lib/python3.10/multiprocessing/spawn.py", line 287, in _fixup_main_from_path
+    main_content = runpy.run_path(main_path,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 288, in run_path
+    code, fname = _get_code_from_file(run_name, path_name)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 252, in _get_code_from_file
+    with io.open_code(decoded_path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/project/VLA-Drive-st-consequence-road-proxy-20261018/<stdin>'
+=========================== short test summary info ============================
+FAILED tests/st_world/test_run_road_direction.py::test_real_spawn_cleanup_and_full_denominator[native_exit]
+1 failed, 18 passed in 2.46s
+{"exit_code": 1, "wall_seconds": 3.2369876448065042, "peak_rss_kib": 642000, "child_peak_rss_kib": 642000, "cuda_initialized": false, "real_score_calls": 0, "real_asset_reads": 0}
