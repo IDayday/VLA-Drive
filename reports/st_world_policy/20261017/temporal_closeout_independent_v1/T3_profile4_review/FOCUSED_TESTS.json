@@ -1,0 +1,27 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "90s",
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/mnt/project/VLA-Drive-st-teacher-channel-control-20261017/reports/st_world_policy/20261018/temporal_T3_profile4_binding_v1",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "returncode": 0,
+  "wall_seconds": 3.2283033300191164,
+  "children_peak_rss_bytes": 30879744,
+  "charged_rchar": 16513078,
+  "cpu_affinity": [
+    2,
+    3
+  ],
+  "gpu_visible": false
+}
