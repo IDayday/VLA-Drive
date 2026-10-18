@@ -15,12 +15,24 @@ from starVLA.teachers.decodable_st.source_registry import atomic_json
 
 
 @torch.no_grad()
-def run(run_root,output,device="cuda",evaluation_config=None):
+def run(run_root,output,device="cuda",evaluation_config=None,required_update=None,wait_seconds=0):
     numerical_policy(42,device,.60);start=time.monotonic();run_root=Path(run_root);output=Path(output);output.mkdir(parents=True,exist_ok=True)
     identity=json.loads((run_root/"identity.json").read_text());config=identity["config"]
     model,_,_=load_model(config,device,identity["arm"],identity["seed"])
+    # A finite evaluation worker can overlap baseline loading with the final
+    # training segment. It never evaluates an earlier/best checkpoint and never
+    # dispatches or resumes training. Only the atomic endpoint receipt is read.
+    deadline=time.monotonic()+wait_seconds
+    if required_update is not None:
+        while True:
+            receipt=run_root/"RESULT.json"
+            completed=json.loads(receipt.read_text()) if receipt.exists() else {}
+            if completed.get("update")==required_update:break
+            if time.monotonic()>=deadline:raise TimeoutError("Registered common endpoint not available")
+            time.sleep(min(10,max(0,deadline-time.monotonic())))
     checkpoint=torch.load(run_root/"latest.pt",map_location="cpu",weights_only=False)
     if checkpoint["identity"]!=identity["identity"]:raise ValueError("Evaluation checkpoint identity mismatch")
+    if required_update is not None and checkpoint["progress"]["update"]!=required_update:raise ValueError("Endpoint changed after receipt")
     TrainableDelta(model,[r["name"] for r in identity["trainable_inventory"]]).load_state_dict(checkpoint["model"],strict=True)
     decoder,_=load_vigt_decoder(config["vigt_weights"],json.loads(Path(config["vigt_config"]).read_text()));decoder.to(device)
     data_config=dict(config)
@@ -93,4 +105,7 @@ def run(run_root,output,device="cuda",evaluation_config=None):
 if __name__=="__main__":
     p=argparse.ArgumentParser();p.add_argument("--run-root",required=True);p.add_argument("--output",required=True);p.add_argument("--device",default="cuda")
     p.add_argument("--evaluation-config")
-    a=p.parse_args();run(a.run_root,a.output,a.device,json.loads(Path(a.evaluation_config).read_text()) if a.evaluation_config else None)
+    p.add_argument("--required-update",type=int);p.add_argument("--wait-seconds",type=float,default=0)
+    a=p.parse_args()
+    if not 0<=a.wait_seconds<=1800:raise ValueError("Evaluation wait is finite and capped at 30 minutes")
+    run(a.run_root,a.output,a.device,json.loads(Path(a.evaluation_config).read_text()) if a.evaluation_config else None,a.required_update,a.wait_seconds)
