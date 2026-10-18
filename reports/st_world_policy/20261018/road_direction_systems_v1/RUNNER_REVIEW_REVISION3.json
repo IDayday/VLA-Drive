@@ -1,0 +1,121 @@
+{
+  "schema": "road_direction_resource_execution_review_v3",
+  "status": "APPROVE_ROAD_DIRECTION_EXECUTION",
+  "review_kind": "resources",
+  "reviewer": "/root/road_proxy_systems_review",
+  "created_utc": "2026-10-18T15:58:24.763923+00:00",
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_direction_fixed32_v3_controls/REGISTRATION.json",
+  "registration_sha256": "3bb6805165186638ac69e01c43e94655a4ee412955a761ab9844c8657366a3a8",
+  "source_commit": "0d0d19dd5ce2d2fd583d2cc265289e47649ca594",
+  "source_hashes": {
+    "starVLA/dataloader/foresight_dataset.py": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235",
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": "baa33371d2b000ccefa9d507289001ee67f7ee123c90ee32f6bdba105cb59a7a",
+    "starVLA/model/modules/st_world/consequence.py": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c",
+    "tools/st_world_policy/consequence_smoke.py": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c",
+    "tools/st_world_policy/diagnose_road_direction.py": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f",
+    "tools/st_world_policy/run_road_direction.py": "2ef0d04c0ba16bedd338ce23681d56b4dbdfa5f5478c60fb8c73b7aac1139c94"
+  },
+  "frozen_runtime": "/mnt/project/VLA-Drive-st-road-time-parity-runtime-20261018",
+  "scope": "Exactly one independently admitted v3 fixed32 TRAIN road-direction CPU diagnostic; no GPU/model/training/feature work. Lead alone dispatches.",
+  "limits": {
+    "asset_read_bytes": 268435456,
+    "cache_expanded_bytes": 67108864,
+    "max_official_calls": 128,
+    "output_bytes": 1073741824,
+    "read_rate_bytes_per_second": 33554432,
+    "rss_and_address_space_bytes": 8589934592,
+    "scenes": 32,
+    "threads": 1,
+    "variants": 4,
+    "wall_seconds": 1800,
+    "workers": 1
+  },
+  "approved_host": "training-vla-zt-worker-0",
+  "output_root": "/mnt/project/st-world-policy-20261016/audits/consequence/road_direction_fixed32_v3",
+  "output_absent_at_review": true,
+  "dispatch_policy": {
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8",
+    "host_currently_allowed": true,
+    "new_old_simwam_hold_respected": true,
+    "ST_consequence_scope_unaffected": true
+  },
+  "capacity": {
+    "cpu_count": 128,
+    "load_1_5_15": [
+      12.36083984375,
+      13.15771484375,
+      14.53076171875
+    ],
+    "mem_available_bytes": 897919107072,
+    "shared_disk_available_bytes": 4099945975808,
+    "requested_CPU_worker_threads": 1,
+    "requested_GPU_devices": 0,
+    "concurrent_gradient_diagnostic": "Lead-reported GPU7 task remains protected; no signals sent"
+  },
+  "delta_review": {
+    "unchanged_AST": {
+      "Budget": true,
+      "bounded_unpack": true,
+      "owned_output_bytes": true,
+      "check_admission": true,
+      "load_inputs": true,
+      "VerifiedContextEngine": true,
+      "supervise": true,
+      "summarize": true,
+      "_child_entry": true
+    },
+    "same_selection_limits_decode_gate": true,
+    "new_geometry_output": "Fixed source9/target41 timestamps, 41x3 poses and 41x4x2 corners, two copies (proxy/official); no unbounded input-derived tensor serialization. Normal and exception writes retain Budget.write cap and terminal reserve.",
+    "new_geometry_output_size_estimate": "Conservative metadata allowance <128KiB per audit; even three copies x32 <12MiB, below unchanged1GiB ceiling. Estimate, not measured real v3 output.",
+    "time_grid_change": "Official initial_time_us*1e-6 replaces division; no resource topology or iteration-count change. Correctness is independently reviewed.",
+    "prior_fault_fix_inherited": "finally owned-child TERM15s/KILL3s and confirmed exit before lock release, full32 denominator; no changed cleanup AST."
+  },
+  "prior_review": {
+    "path": "reports/st_world_policy/20261018/road_direction_systems_v1/RUNNER_REVIEW_REVISION2.json",
+    "sha256": "e1f7cc564da37c3910846f78b79d9c67a5595227fd581547c5399d3e0eac81de",
+    "status": "APPROVE_ROAD_DIRECTION_EXECUTION"
+  },
+  "existing_real_parity_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/road_time_parity_fixed9_v1/RESULT.json",
+    "sha256": "7a82eb0a05e8d104ae9e760a9903bb8b9b51a6e508fd858746176b4289fab815",
+    "bytes": 22562,
+    "requested_failed_scenes": 9,
+    "passing_scenes": 9,
+    "official_score_calls": 0,
+    "cuda_initialized": false,
+    "old_evidence_modified": false,
+    "receipt_read_only_not_reexecuted_by_reviewer": true
+  },
+  "independent_fixture_evidence": {
+    "path": "reports/st_world_policy/20261018/road_direction_systems_v1/RUNNER_TESTS_REVISION3_CORRECTED.json",
+    "sha256": "5d5ae841205532876b2205b275d2f45b0caa8e68bcb03c2aafc0ed9697129279",
+    "result": "23 passed",
+    "wall_seconds": 10.41061151959002,
+    "CPU_seconds": 10.060451,
+    "peak_child_RSS_bytes": 898605056,
+    "initial_harness_attempt": "Preserved RUNNER_TESTS_REVISION3.json:22 passed/1 rejected solely by overly broad source-open guard matching metric_cache.pyc; frozen .py/.pyc only allowed in corrected harness. No asset access admitted."
+  },
+  "score_budget": "Original candidate scores reused; <=3 new calls/scene => <=96 this fixed32 run, including errors. Previous v2 had12 calls and remains preserved, so <=108 across v2+v3. Existing128 ledger cap unchanged; no automatic retry.",
+  "remaining_boundaries": [
+    "Source/code/admission or current host-policy changes require renewed Lead binding.",
+    "No resource promise guarantees all32 have defined direction or pass scientific checks.",
+    "Geometry assertions/correctness require separate independent review.",
+    "CPU metric cache files may be read only by admitted real worker; reviewer did not read caches.",
+    "Prior scientific denominator32 and all-original-DAC1 interpretation retained.",
+    "Only process-crash/graceful-signal durability tested, not host power loss."
+  ],
+  "actual_review": {
+    "real_asset_reads": 0,
+    "official_calls": 0,
+    "GPU_used": false,
+    "optimizer_updates": 0,
+    "reviewer_dispatched": false,
+    "source_and_small_receipts_read_upper_bound_bytes": 2097152,
+    "CPU_fixture_seconds_including_harness_attempt": 20.875424,
+    "allowed_read_bytes": 16777216,
+    "allowed_CPU_seconds": 120
+  },
+  "formal_training_approved": false,
+  "reviewer_dispatched": false
+}

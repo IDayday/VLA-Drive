@@ -1,0 +1,50 @@
+{
+  "registration_sha256": "3bb6805165186638ac69e01c43e94655a4ee412955a761ab9844c8657366a3a8",
+  "source_commit": "0d0d19dd5ce2d2fd583d2cc265289e47649ca594",
+  "unchanged_resource_and_cleanup_AST": {
+    "Budget": true,
+    "bounded_unpack": true,
+    "owned_output_bytes": true,
+    "check_admission": true,
+    "load_inputs": true,
+    "VerifiedContextEngine": true,
+    "supervise": true,
+    "summarize": true,
+    "_child_entry": true
+  },
+  "source_verification": {
+    "starVLA/dataloader/foresight_dataset.py": {
+      "bytes": 7030,
+      "sha256": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235"
+    },
+    "starVLA/model/modules/flow_posttraining/road_margin_proxy.py": {
+      "bytes": 21452,
+      "sha256": "baa33371d2b000ccefa9d507289001ee67f7ee123c90ee32f6bdba105cb59a7a"
+    },
+    "starVLA/model/modules/st_world/consequence.py": {
+      "bytes": 44517,
+      "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+    },
+    "tools/st_world_policy/consequence_smoke.py": {
+      "bytes": 21690,
+      "sha256": "a55ec9e9856b950aa01fb8beafced42ee8fcf627ef78feb5a34c672c32f77c2c"
+    },
+    "tools/st_world_policy/diagnose_road_direction.py": {
+      "bytes": 5756,
+      "sha256": "7cfe29d3f5fd0f030f6199706447920ba31e9045db375eaa5d564b0f54b7da5f"
+    },
+    "tools/st_world_policy/run_road_direction.py": {
+      "bytes": 39025,
+      "sha256": "2ef0d04c0ba16bedd338ce23681d56b4dbdfa5f5478c60fb8c73b7aac1139c94"
+    }
+  },
+  "fixture_exit_code": 1,
+  "fixture_stdout_stderr": "..F....................                                                  [100%]\n=================================== FAILURES ===================================\n____________ test_epoch_time_only_replay_explains_synthetic_failure ____________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd48224d780>\n\n    def test_epoch_time_only_replay_explains_synthetic_failure(monkeypatch):\n        import sys\n        from starVLA.model.modules.flow_posttraining import road_margin_proxy as proxy\n        from tools.st_world_policy.diagnose_road_time_parity import legacy_time_grid\n        sys.path.insert(0,str(r.ROOT/'navsim_v1.1/navsim'))\n        from nuplan.common.actor_state.ego_state import EgoState\n        from nuplan.common.actor_state.state_representation import StateSE2,StateVector2D,TimePoint\n        from nuplan.common.actor_state.vehicle_parameters import get_pacifica_parameters\n        from nuplan.planning.simulation.trajectory.trajectory_sampling import TrajectorySampling\n        vehicle=get_pacifica_parameters()\n        state=EgoState.build_from_rear_axle(StateSE2(500000.,4200000.,.37),StateVector2D(4.,.2),\n            StateVector2D(.1,.3),.01,TimePoint(1630000000000003),vehicle)\n        physical=decode_ego(fixture_raw()).double().numpy()\n        args=(physical,state,TrajectorySampling(num_poses=8,interval_length=.5),\n            TrajectorySampling(num_poses=40,interval_length=.1),vehicle)\n>       corrected=r.command_geometry_audit(*args)\n\ntests/st_world/test_run_road_direction.py:59: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntools/st_world_policy/run_road_direction.py:273: in command_geometry_audit\n    from navsim.evaluate.pdm_score import transform_trajectory,get_trajectory_as_array\nnavsim_v1.1/navsim/navsim/evaluate/pdm_score.py:21: in <module>\n    from navsim.planning.metric_caching.metric_cache import MetricCache\n<frozen importlib._bootstrap>:1027: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1006: in _find_and_load_unlocked\n    ???\n<frozen importlib._bootstrap>:688: in _load_unlocked\n    ???\n<frozen importlib._bootstrap_external>:879: in exec_module\n    ???\n<frozen importlib._bootstrap_external>:975: in get_code\n    ???\n<frozen importlib._bootstrap_external>:1073: in get_data\n    ???\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nevent = 'open'\nargs = ('/mnt/project/VLA-Drive-st-road-time-parity-runtime-20261018/navsim_v1.1/navsim/navsim/planning/metric_caching/__pycache__/metric_cache.cpython-310.pyc', 'r', 524288)\n\n>   ???\nE   RuntimeError: Real asset access forbidden during resource fixtures\n\n<string>:7: RuntimeError\n=============================== warnings summary ===============================\n../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61\n  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n    import pynvml  # type: ignore[import]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/st_world/test_run_road_direction.py::test_epoch_time_only_replay_explains_synthetic_failure\n1 failed, 22 passed, 1 warning in 9.46s\n",
+  "fixture_wall_seconds": 11.403019832447171,
+  "fixture_cpu_seconds": 10.814972999999998,
+  "fixture_peak_child_rss_bytes": 895516672,
+  "real_asset_reads": 0,
+  "official_calls": 0,
+  "GPU_used": false,
+  "reviewer_dispatched": false
+}
