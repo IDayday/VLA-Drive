@@ -1,0 +1,92 @@
+{
+  "status": "READ_ONLY_RESOURCE_PLANNING_NO_DISPATCH",
+  "allowed_hosts_verified_before_probe": true,
+  "rows": [
+    {
+      "requested_host": "training-vlawm-tsinghua-zt6-worker-0",
+      "status": "REMOTE_READ_UNAVAILABLE",
+      "wall_seconds": 0.028162842616438866,
+      "exit_code": 255,
+      "error": "ssh: Could not resolve hostname training-vlawm-tsinghua-zt6-worker-0: Name or service not known\n"
+    },
+    {
+      "requested_host": "training-vlawm-tsinghua-zt3-worker-0",
+      "status": "REMOTE_READ_UNAVAILABLE",
+      "wall_seconds": 0.03174624778330326,
+      "exit_code": 255,
+      "error": "ssh: Could not resolve hostname training-vlawm-tsinghua-zt3-worker-0: Name or service not known\n"
+    }
+  ],
+  "inference_or_scoring_started": false,
+  "gpu_context_created": false,
+  "future_checkpoint_time_admission_still_required": true,
+  "connection_alias_correction_from_lead": {
+    "training-vlawm-tsinghua-zt6-worker-0": "training-vlawm-tsinghua-zt6",
+    "training-vlawm-tsinghua-zt3-worker-0": "training-vlawm-tsinghua-zt3"
+  },
+  "interpretation": "Initial worker DNS failures only identify incorrect aliases, not unavailable hosts. The completed independent Systems metadata snapshot below supplies planning evidence. No additional live inventory or GPU admission was performed by this agent.",
+  "current_GPU_availability_verified_by_this_agent": false,
+  "independent_systems_snapshot": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_formal_systems_plan_v1/active_writers_v1/ACTIVE_WRITERS.json",
+    "bytes": 9885,
+    "sha256": "4fd0abb12861cdd8d10b817ecacd85d765e876e30b647eae3e7dbcbe8d518eb2",
+    "agent_commit": "479c8fcd",
+    "lead_integration_commit": "211dbcac",
+    "reviewed_utc": "2026-10-18T18:13:44.460946+00:00",
+    "status": "PASS_METADATA_INVENTORY_ONLY_NOT_FORMAL_APPROVAL",
+    "reviewer": "full_feedback_systems_review",
+    "raw_process_inventories_read_or_copied_by_this_preparation": false
+  },
+  "proposed_route": {
+    "ssh_alias": "training-vlawm-tsinghua-zt6",
+    "gpu_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "actual_gpu_UUIDs": null,
+    "lease": null,
+    "source_host_observation": "training-vlawm-tsinghua-zt6-worker-0",
+    "observation_utc": "2026-10-18T18:08:19.370765+00:00",
+    "observed_memory_MiB": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "observed_utilization_percent": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "observed_compute_process_count": 0,
+    "is_reservation": false,
+    "launch_requires_fresh_policy_resource_environment_and_independent_topology_admission": true
+  },
+  "other_snapshot_observations": {
+    "empty_eight_GPU_hosts": [
+      "training-vlawm-tsinghua-zt2",
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-tsinghua-zt4",
+      "training-rl-zt2",
+      "training-vla-zt (local inspected)"
+    ],
+    "protected_active_hosts": [
+      "training-vlawm-tsinghua-zt (8 GPU separate authorized training)",
+      "training-vlawm-tsinghua-zt5 GPUs0-3 (PROFILE240)"
+    ],
+    "local_idle_controller": "Leave the historical G2 controller and lock untouched.",
+    "shared_project_device": 3789794614,
+    "disk_space_is_shared_not_additive_across_hosts": true
+  }
+}

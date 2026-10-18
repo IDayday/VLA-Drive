@@ -1,0 +1,71 @@
+{
+  "schema": "rollout_scale_endpoint_budget_proposal_v1",
+  "status": "PROPOSED_NOT_APPROVED",
+  "new_scientific_endpoints": 1,
+  "new_scientific_arms": 1,
+  "control_new_export_or_score_calls": 0,
+  "new_accepted_trajectories": 1696,
+  "unique_scenes": 1696,
+  "logs": 16,
+  "inference_seed": 42,
+  "deployment_candidates_per_scene": 1,
+  "Euler_steps": 10,
+  "total_model_calls_if_all1696_new_once": {
+    "visual": 1696,
+    "language": 1696,
+    "DiT": 16960
+  },
+  "export": {
+    "world_size": 4,
+    "scenes_per_rank": 424,
+    "torch_threads_per_rank": 2,
+    "all_BLAS_threads": 1,
+    "minimum_rank_CPU_affinity_count": 2,
+    "total_export_rank_CPU_threads": 8,
+    "internal_max_seconds_per_invocation": 7200,
+    "outer_timeout_seconds_per_invocation": 7800,
+    "kill_grace_seconds": 60,
+    "max_invocations_per_rank": 2,
+    "maximum_reserved_GPU_seconds_if_all_bounds_exhausted": 62880,
+    "maximum_reserved_GPU_hours_if_all_bounds_exhausted": 17.466666666666665,
+    "GPU_memory_cost_basis": "Historical same Flow FP32 exporter peak reserved13,285,457,920B in16scene engineering record; not a guarantee on concurrent4rank cost. Actual admission/RSS limits to be set by Systems.",
+    "no_model_native_or_teacher_copies": true
+  },
+  "score": {
+    "primary_admissions": 1696,
+    "hard_total_admission_cap_all_workers_all_invocations": 1728,
+    "completion_headroom_total": 32,
+    "retry_attempts": 1,
+    "workers": 4,
+    "coordinators": 1,
+    "max_invocations_total": 2,
+    "internal_seconds_per_invocation": 3600,
+    "outer_seconds_per_invocation": 4200,
+    "kill_grace_seconds": 60,
+    "ledger_scope": "One immutable output root; all attempts including interrupted/unknown ADMITTED charged against1728, never reset perrank/worker/retry."
+  },
+  "analysis": {
+    "threads": 2,
+    "GPU": 0,
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20261017,
+    "outer_seconds_per_invocation": 1800,
+    "maximum_invocations": 2
+  },
+  "new_output_reservation_bytes": 1073741824,
+  "new_cache_payload_bytes": 0,
+  "training_updates": 0,
+  "budget_basis": "Inherited one-checkpoint old execution maxima; multiplied export bound for proposed4rank only, not an expected latency measurement. Lead/Systems may approve a tighter resource ceiling before first invocation without changing science.",
+  "prep_limits": {
+    "CPU_affinity_max": 2,
+    "RSS_max_bytes": 2147483648,
+    "CPU_seconds_max": 120,
+    "no_GPU": true
+  },
+  "not_claimed": [
+    "measured_four_rank_wall_or_RSS",
+    "current_free_GPU_admission",
+    "speedup_factor",
+    "formal_evaluation_approval"
+  ]
+}

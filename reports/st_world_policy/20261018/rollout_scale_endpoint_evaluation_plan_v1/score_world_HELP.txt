@@ -1,0 +1,27 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: score_world.py [-h] --predictions PREDICTIONS --metric-index
+                      METRIC_INDEX --navsim-root NAVSIM_ROOT --maps-root
+                      MAPS_ROOT --run-id RUN_ID --output OUTPUT --cache-root
+                      CACHE_ROOT --workers WORKERS --max-calls MAX_CALLS
+                      [--retry-attempts RETRY_ATTEMPTS] --max-seconds
+                      MAX_SECONDS
+
+Bounded canonical train/dev scoring for immutable single-trajectory exports.
+All metrics come from the existing ConsequenceService. No metric formula or
+candidate selection is implemented here. The shared admitted-call ledger keeps
+completed feedback and failure attempts across interruptions.
+
+options:
+  -h, --help            show this help message and exit
+  --predictions PREDICTIONS
+  --metric-index METRIC_INDEX
+  --navsim-root NAVSIM_ROOT
+  --maps-root MAPS_ROOT
+  --run-id RUN_ID
+  --output OUTPUT
+  --cache-root CACHE_ROOT
+  --workers WORKERS
+  --max-calls MAX_CALLS
+  --retry-attempts RETRY_ATTEMPTS
+  --max-seconds MAX_SECONDS

@@ -1,0 +1,29 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+usage: export_world.py [-h] --registration REGISTRATION --checkpoint-tag
+                       CHECKPOINT_TAG --current-root CURRENT_ROOT --manifest
+                       MANIFEST --output OUTPUT --device DEVICE
+                       [--history-root HISTORY_ROOT] --seed SEED --max-scenes
+                       MAX_SCENES --max-seconds MAX_SECONDS [--rank RANK]
+                       [--world-size WORLD_SIZE]
+
+Export one original ten-step Flow trajectory from a complete ST/Flow
+checkpoint. Only fixed train/dev observations are admitted. No teacher, future
+label, metric cache, optimizer or scorer is read by the inference loop. Shards
+are resumable only under their original checkpoint, observation and runtime
+identities.
+
+options:
+  -h, --help            show this help message and exit
+  --registration REGISTRATION
+  --checkpoint-tag CHECKPOINT_TAG
+  --current-root CURRENT_ROOT
+  --manifest MANIFEST
+  --output OUTPUT
+  --device DEVICE
+  --history-root HISTORY_ROOT
+  --seed SEED
+  --max-scenes MAX_SCENES
+  --max-seconds MAX_SECONDS
+  --rank RANK
+  --world-size WORLD_SIZE
