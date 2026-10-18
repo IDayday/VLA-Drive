@@ -26,7 +26,7 @@ def run(root,output,python):
                                     ("SGDrive","sgdrive_train64_native_v1/ROUNDTRIP.json","sgdrive_job.json",None)]:
         job("teacher",name,"audit_teacher" if name=="ViGT" else "audit_sgdrive_native",receipt,[],
             blocked_reason="Frozen native audit receipt missing; use recorded isolated native command, not a generic fallback")
-    for name in ("compression16_v1","compression32_v1","compression32_patch_v1"):
+    for name in ("compression16_v1","compression32_v1","compression32_patch_v1","compression32_patch_frozen_v2"):
         job("tiny",name,"train_compression",f"runs/{name}/RESULT.json",[],blocked_reason="Capacity receipt missing; exact variant must be independently registered")
     for arm,name in [("RS","RS_gradient_v1"),("Rfrozen","Rfrozen_tiny64_v1")]:
         job("tiny",arm,"train_representation",f"runs/{name}/RESULT.json",

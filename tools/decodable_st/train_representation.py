@@ -65,8 +65,8 @@ def observation(example):
 def run(config,output,*,arm="RS",seed=42,device="cuda",max_updates=1000,resume=False,stop_after=None):
     if arm not in ("R0","RS","Rfrozen","Rcap","Rdecode","RT","RST","Rjoint","Rgt"):
         raise ValueError("Unknown experiment arm")
-    if config.get("scope")!="tiny" and not config.get("formal_acceptance"):
-        raise ValueError("Formal representation training needs independent signed identity-bound acceptance")
+    if config.get("scope")!="tiny":
+        raise ValueError("BLOCKED_FORMAL_POPULATION: current implementation is the audited bounded tiny trainer; a config boolean cannot admit full-population P2")
     if arm in ("Rgt","Rjoint"):
         raise ValueError("NOT_IMPLEMENTED_FORMAL_ARM: GT-only/joint not silently approximated by RS")
     if max_updates>1000 and config.get("scope")=="tiny":raise ValueError("Tiny pilot update cap")

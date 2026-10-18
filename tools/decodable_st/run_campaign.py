@@ -89,7 +89,7 @@ def gates(cfg):
     parity=root/"audits/S0_PREFIX_CACHED_PARITY.json"
     if parity.exists():result["baseline_parity"]=json.loads(parity.read_text())["status"]
     capacity={}
-    for name in ("compression16_v1","compression32_v1","compression32_patch_v1"):
+    for name in ("compression16_v1","compression32_v1","compression32_patch_v1","compression32_patch_frozen_v2"):
         path=root/"runs"/name/"metrics_001000.json"
         if path.exists():
             m=json.loads(path.read_text())["teacher_agreement"]["reconstructed"]
@@ -97,6 +97,7 @@ def gates(cfg):
               "status":"PASS" if m["occupied_iou"]>=cfg["acceptance_criteria"]["compression_min_teacher_iou"] and
                  m["false_free"]<=cfg["acceptance_criteria"]["compression_max_false_free"] else "FAIL"}
     result["compression_acceptance"]=capacity
+    result["compression_measurement_scope"]="Strict native teacher-prediction agreement proxy; true GT-relative protection is not measurable yet"
     export=root/"engineering_export_v2/DEPLOYMENT_REPORT.json"
     if export.exists():result["teacher_free_export_verified"]=json.loads(export.read_text())["status"]
     # Capability records must bind the baseline, teacher lock and raw evidence.
