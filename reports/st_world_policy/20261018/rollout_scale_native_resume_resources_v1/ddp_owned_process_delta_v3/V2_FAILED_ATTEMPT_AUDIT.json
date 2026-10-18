@@ -1,0 +1,139 @@
+{
+  "GPU_queries_by_reviewer": 0,
+  "actual_official_calls": 0,
+  "actual_optimizer_updates": 0,
+  "actual_trainer_invocations": 1,
+  "admission": {
+    "admitted_unix": 1792355468.2284412,
+    "argv": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=60s",
+      "3539s",
+      "taskset",
+      "-c",
+      "0-15",
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nnodes=1",
+      "--nproc_per_node=4",
+      "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v2-20261018/resources/st_rollout_resume_smoke_v1.py",
+      "worker",
+      "--registration",
+      "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/continuous/REGISTRATION.json",
+      "--audit-output",
+      "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/continuous/observer"
+    ],
+    "binding_sha256": "396accfd1ea8691ded34c2d1969e653e294f69fd90340c08478ba64e0e6a351b",
+    "maximum_invocations": 2,
+    "ordinal": 1,
+    "status": "ADMITTED_BEFORE_POPEN_OUTCOME_UNKNOWN",
+    "unit": "initial_continuous"
+  },
+  "checks": {
+    "arm_run_directories": [],
+    "launcher_receipts": 1,
+    "native_COMPLETE": [],
+    "official_ADMITTED": [],
+    "trainer_admissions": 1
+  },
+  "exit": {
+    "owned_IDs": {
+      "573016": 1379408076,
+      "573017": 1379408076
+    },
+    "owned_cleanup_complete": true,
+    "returncode": 1,
+    "stop_reason": "ValueError('Unknown/foreign process on endpoint GPU; stopping owned work only')"
+  },
+  "initial_result": {
+    "invocations_started": 1,
+    "new_formal_updates": 0,
+    "phase": "initial",
+    "results": {},
+    "stats": {
+      "IO_scope": "Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota",
+      "peak_aggregate_RSS": 405000192,
+      "sampled_rchar": 16348730,
+      "sampled_read_bytes": 24576
+    },
+    "status": "PARTIAL_OR_FAILED",
+    "stop_reason": "ValueError('Unknown/foreign process on endpoint GPU; stopping owned work only')",
+    "weights_usable_for_formal_init": false
+  },
+  "large_payload_reads": 0,
+  "launch": {
+    "admission_sha256": "00dabb95281f6c0a9e24553523733765ba9d4d02e653436664708bec9c92de5e",
+    "argv": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=60s",
+      "3539s",
+      "taskset",
+      "-c",
+      "0-15",
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nnodes=1",
+      "--nproc_per_node=4",
+      "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v2-20261018/resources/st_rollout_resume_smoke_v1.py",
+      "worker",
+      "--registration",
+      "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/continuous/REGISTRATION.json",
+      "--audit-output",
+      "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/continuous/observer"
+    ],
+    "audit_worker_sha256": "763aa49047179040ecb130ec5a843272b656dab25a089a47cf937063d811f137",
+    "cwd": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018",
+    "pid": 573016,
+    "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "started_unix": 1792355468.9092932
+  },
+  "live_cleanup_boundary": "Root reports actual fresh ps/NVML clear and outer572983/inner573016 exited; this independent audit reads retained artifacts only, not a remote process table/GPU query. SID-only cleanup receipt cannot itself prove multi-session DDP workers exited.",
+  "logs": {
+    "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/OUTPUT.log": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n[2026-10-18 20:31:12,383] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cuda (auto detect)\n[2026-10-18 20:31:12,426] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cuda (auto detect)\n[2026-10-18 20:31:12,428] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cuda (auto detect)\n[2026-10-18 20:31:12,429] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cuda (auto detect)\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\nW1018 20:31:19.531000 573017 site-packages/torch/distributed/elastic/agent/server/api.py:704] Received Signals.SIGTERM death signal, shutting down workers\nW1018 20:31:19.531000 573017 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 573024 closing signal SIGTERM\nW1018 20:31:19.532000 573017 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 573025 closing signal SIGTERM\nW1018 20:31:19.532000 573017 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 573026 closing signal SIGTERM\nW1018 20:31:19.532000 573017 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 573027 closing signal SIGTERM\nTraceback (most recent call last):\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/runpy.py\", line 196, in _run_module_as_main\n    return _run_code(code, main_globals, None,\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/runpy.py\", line 86, in _run_code\n    exec(code, run_globals)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py\", line 923, in <module>\n    main()\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py\", line 355, in wrapper\n    return f(*args, **kwargs)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py\", line 919, in main\n    run(args)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py\", line 910, in run\n    elastic_launch(\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py\", line 138, in __call__\n    return launch_agent(self._config, self._entrypoint, list(args))\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py\", line 260, in launch_agent\n    result = agent.run()\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py\", line 137, in wrapper\n    result = f(*args, **kwargs)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py\", line 696, in run\n    result = self._invoke_run(role)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py\", line 855, in _invoke_run\n    time.sleep(monitor_interval)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py\", line 83, in _terminate_process_handler\n    sigval = signal.Signals(signum)\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/enum.py\", line 359, in __call__\n    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1):\n  File \"/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py\", line 84, in _terminate_process_handler\n    raise SignalException(f\"Process {os.getpid()} got signal: {sigval}\", sigval=sigval)\ntorch.distributed.elastic.multiprocessing.api.SignalException: Process 573017 got signal: 15\n",
+    "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2_admission/INITIAL_DRIVER.log": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.\n  import pynvml  # type: ignore[import]\n{\"status\": \"PARTIAL_OR_FAILED\", \"phase\": \"initial\", \"stop_reason\": \"ValueError('Unknown/foreign process on endpoint GPU; stopping owned work only')\", \"stats\": {\"peak_aggregate_RSS\": 405000192, \"sampled_rchar\": 16348730, \"sampled_read_bytes\": 24576, \"IO_scope\": \"Cumulative sampled /proc rchar and read_bytes; lower bounds for mmap/short-lived/unwaited descendants, not an IO quota\"}, \"results\": {}, \"invocations_started\": 1, \"weights_usable_for_formal_init\": false, \"new_formal_updates\": 0}\n"
+  },
+  "observed_unix": 1792355709.2748404,
+  "prior_wall_charge_basis": "Conservative parent-proposed whole failed attempt allowance; preserve all actual timestamps/logs, do not call this a zero-dispatch failure.",
+  "prior_wall_charge_seconds": 60,
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "root": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2",
+  "small_artifacts": [
+    {
+      "bytes": 529,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/initial_RESULT.json",
+      "sha256": "715ab6be3eceb384a13272f050f8664992d8a6349f64fa6b1240ebe4fbb4729b"
+    },
+    {
+      "bytes": 916,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/ADMISSION.json",
+      "sha256": "4e850b6e2af367774c131d5d12d2e5d5ae2a35171fed5a8c840ea4ed602d1858"
+    },
+    {
+      "bytes": 1030,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/LAUNCH.json",
+      "sha256": "7dcdba630833a6c8bde130e633daec056d789bfe0a65024444aaf566aab95fef"
+    },
+    {
+      "bytes": 229,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/EXIT.json",
+      "sha256": "ae81fac224457cbb4414aa7ad293aad449c53f2585ccc3024338ca5d060c403e"
+    },
+    {
+      "bytes": 6557,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2/control/invocations/initial_continuous/1792355468226700060/OUTPUT.log",
+      "sha256": "0b0e0e4eed224a5a140c821bc194496841354bc9439e236cef68158aa01f0b23"
+    },
+    {
+      "bytes": 823,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v2_admission/INITIAL_DRIVER.log",
+      "sha256": "eeb21044cd299dab7a7d9d57551fed3edb2fb721afa69c90edc597fd6b26648c"
+    }
+  ],
+  "status": "ONE_ACTUAL_TRAINER_INVOCATION_BEFORE_UPDATES_AND_SCORE"
+}

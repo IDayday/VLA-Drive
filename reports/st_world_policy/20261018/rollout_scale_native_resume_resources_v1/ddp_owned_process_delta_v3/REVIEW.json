@@ -1,0 +1,80 @@
+{
+  "actual_GPU_queries_by_reviewer": 0,
+  "actual_model_calls_by_reviewer": 0,
+  "actual_official_calls_by_reviewer": 0,
+  "approved_total_official_calls_all_namespaces": 1024,
+  "approved_total_optimizer_updates_all_namespaces": 8,
+  "approved_unix": 1792356441.5782845,
+  "binding_file": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3_admission/BINDING_DRAFT.json",
+    "sha256": "f4c57bcf93be1d2a5a3712322b87385c725d68e5c698a3dcd6611d87751db46a"
+  },
+  "binding_sha256": "4be799d83fff2f896a61a9dea65f9a0f88af76580e0e7886f92b012797c65805",
+  "comparison_seconds": 120,
+  "conditions": [
+    "Exact source/binding pins unchanged",
+    "Distinct Correctness PASS required before Lead-only dispatch",
+    "Fresh GPU/RAM/storage/software/mount/policy/lease checks must pass",
+    "Unknown/foreign processes remain errors; only reverified owned processes may be signalled",
+    "No formal/runtime751/endpoint source modification or new formal approval",
+    "SMOKE weights cannot initialize formal training"
+  ],
+  "controller_commit": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+  "controller_sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228",
+  "correctness_result": "NOT_ASSERTED_INDEPENDENT_CORRECTNESS_REQUIRED",
+  "dispatch_started": false,
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/README.md",
+      "sha256": "a26f59738dc5a2b9da451e6661bf2e5b73ab977a21f0290adc658a64598847f3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/V2_FAILED_ATTEMPT_AUDIT.json",
+      "sha256": "fbb097888afbb9545b08d28a59bb7f185ce33e58bae49c9cc444bf6a53a0407f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/SETSID_REVIEW_RESULTS.json",
+      "sha256": "639af1b44743a258e8afde33d8565bf96a9282b2515c05d1bf39b9d4cfde1e52"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/setsid_resource_review.py",
+      "sha256": "5261cfdf03bf415cf8a9fd18f8a02a426c08bf148559206dc8388b2a13b7c7b9"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/MONITOR_REFRESH_FIXTURE.json",
+      "sha256": "739cee59c6a51accd9e0106b1f6dd19edace6e263bd0a7fcd19fa47d7e90ec87"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-native-resume-resources-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/ddp_owned_process_delta_v3/BINDING_AUDIT.json",
+      "sha256": "16e3cc6cc90a84979d0c5d24e5bb209640adc8f00659cd316949fd408bca5245"
+    }
+  ],
+  "large_payload_reads_by_reviewer": 0,
+  "mature_ownership_stat_sha256": "3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38",
+  "new_controller_wall_seconds": 3540,
+  "new_output_bytes": 111669149696,
+  "new_planned_trainer_invocations": 3,
+  "owned_cleanup_seconds": 180,
+  "prior_actual_official_calls": 0,
+  "prior_actual_optimizer_updates": 0,
+  "prior_actual_trainer_invocations": 1,
+  "prior_stats": "SID-only lower bounds retained; incomplete whole-job cost/peak data, not zero",
+  "prior_wall_seconds": 60,
+  "retries": 0,
+  "review_kind": "resources",
+  "reviewer": "/root/road_failure_resources_review_v1",
+  "runtime_source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "schema": "st_native_resume_independent_resources_review_v3",
+  "scope": "Only finite native resume SMOKE resources and DDP process ownership; separate Correctness still required.",
+  "status": "PASS",
+  "tests": {
+    "CPU_seconds_affected_lifecycle": 0.208816,
+    "monitor_refresh_fixture_cases": 3,
+    "negative_identity_fixture_case": 1,
+    "old_four_case_suite_rerun": false,
+    "real_cross_setsid_and_observed_orphan_cases": 2,
+    "source_profile_rerun": false
+  },
+  "total_envelope_seconds": 3900,
+  "total_trainer_invocation_cap": 4
+}
