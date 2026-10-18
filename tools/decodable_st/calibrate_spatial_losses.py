@@ -44,7 +44,7 @@ def run(config,output,device="cuda"):
         cos={k:float(F.cosine_similarity(vectors["DINO"],v,dim=0)) for k,v in vectors.items() if k!="DINO"}
         results.append({"token":row["token"],"raw_losses":{k:float(v.detach()) for k,v in values.items()},"shared_raw_gradient_norms":norms,"cosine_to_DINO":cos})
         atomic_json(output/"progress.json",{"completed":len(results),"requested":8})
-        del rep,values,vectors,gradients
+        del rep,values,vectors,gradients,dino,value
     median={k:statistics.median(r["shared_raw_gradient_norms"][k] for r in results) for k in ("DINO","spatial_feature","spatial_decode")}
     if median["DINO"]<=0:raise ValueError("Zero shared DINO gradient; calibration cannot synthesize a scale")
     weights={"DINO":1.,**{k:min(.1,.5*median["DINO"]/max(median[k],1e-30)) for k in ("spatial_feature","spatial_decode")}}
