@@ -1,0 +1,105 @@
+{
+  "completeness_meaning": "Small COMPLETE.json parsed, declared payload identity well-formed, expected regular RESULTS.pt exists and was statted. Payload bytes and hashes were not read or validated.",
+  "cpu_affinity": [
+    0,
+    1
+  ],
+  "duration_seconds": 17.684348883107305,
+  "errors": [],
+  "facts": {
+    "attempts_total": 4096,
+    "complete_attempts": 4096,
+    "duplicate_completed_ledgers": 0,
+    "explicit_failed_attempts": 0,
+    "extra_attempts_after_first": 0,
+    "incomplete_attempts_without_complete_or_failure_marker": 0,
+    "invalid_complete_receipts": 0,
+    "largest_payload_bytes": 3477984,
+    "ledger_directories_enumerated": 4096,
+    "ledgers_without_unique_completion": 0,
+    "other_root_entries": [
+      "IDENTITY.json"
+    ],
+    "repeated_declared_payload_hashes": 0,
+    "smallest_payload_bytes": 2578336,
+    "unique_complete_ledgers": 4096,
+    "unique_complete_payload_total_bytes": 14088142976
+  },
+  "metadata_limit_bytes": 67108864,
+  "metadata_read_bytes": 1687552,
+  "observed_unix": 1792340659.9685025,
+  "only_enumerated_root": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/official_feedback",
+  "payload_hashes_verified": false,
+  "payload_read_bytes": 0,
+  "prohibitions": {
+    "GPU_computation": 0,
+    "models_read": 0,
+    "new_scores": 0,
+    "other_runs_or_dev_enumerated": false
+  },
+  "proposed_plan": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "dispatch_performed": false,
+    "hosts": 4,
+    "max_total_logical_read_bytes": 34359738368,
+    "max_total_output_bytes": 134217728,
+    "max_total_wall_seconds": 1200,
+    "minimum_aggregate_payload_rate_bytes_per_second_for_two_passes_in_20min": 23481644.586666666,
+    "one_hash_plus_one_nominal_load_total_bytes": 28177973504,
+    "output_budget_assessment": "128 MiB is adequate only for bounded aggregate statistics and compact per-ledger summaries; no payload tensor copies.",
+    "read_budget_sufficient_by_metadata": true,
+    "read_reserve_bytes": 268435456,
+    "recommendation": "Use deterministic disjoint ledger shards balanced by statted payload bytes, 8 CPU-only single-thread workers across 4 currently allowed hosts. Bind every ledger/receipt/payload declared hash once; precharge full-file verification plus nominal torch.load, use a shared aggregate read/output/deadline budget, stop without retry on mismatch/overrun. Do not add new scoring or GPU work.",
+    "threads_per_worker": 1,
+    "total_workers": 8,
+    "wall_budget_assessment": "Metadata establishes finite bytes, not measured deserialization/analysis throughput. 20 minutes is a proposed stop limit; the prior 32-ledger 1.11-second reference is not a full-run measurement.",
+    "weighted_eight_worker_shard_estimates": [
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761124672,
+        "worker": 0
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761123712,
+        "worker": 1
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761119424,
+        "worker": 2
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761120768,
+        "worker": 3
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1760285248,
+        "worker": 4
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761120640,
+        "worker": 5
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761124672,
+        "worker": 6
+      },
+      {
+        "ledgers": 512,
+        "payload_bytes": 1761123840,
+        "worker": 7
+      }
+    ],
+    "workers_per_host": 2
+  },
+  "reviewer": "/root/consequence_runtime_resource_review",
+  "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+  "schema": "C1_full_train_feedback_capacity_v1",
+  "status": "COMPLETE_METADATA_ENUMERATION",
+  "stop_reason": null
+}
