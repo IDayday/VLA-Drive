@@ -154,7 +154,7 @@ wall time or measured exclusive CPU-core time. No model inference was required.
 Runtime boundary: both upstream releases request Python3.9 / numpy1.23.4 and
 nuPlan's v1.2 tag in their original installation files. This project evaluates
 both unmodified NAVSIM source releases in its already-qualified common runtime
-(Python3.10, numpy1.26.4, scipy1.13.1, shapely2.0.7, installed nuplan-devkit1.2.2).
+(Python3.10, numpy1.26.4, scipy1.11.4, shapely2.1.2, installed nuplan-devkit1.2.2).
 This explicit runtime adaptation is shared by both versions; no claim is made
 that an original paper's entire historical environment has been reconstructed.
 The new v1.1 real-cache oracle matched the existing canonical runtime exactly on
@@ -198,3 +198,13 @@ reached their finite waiting deadlines; new invocation identities now process
 only the four never-started current banks and eight pending summaries. The three
 completed historical scorings and five analyses are reused unchanged. See
 [the dispatch recovery record](final_navtest_dispatch_recovery_20261017.md).
+
+
+Runtime documentation correction, 2026-10-18: the earlier prose incorrectly
+listed scipy1.13.1/shapely2.0.7 from another installed conda environment. The
+actual locked worker interpreter imports scipy1.11.4/shapely2.1.2, matching all
+existing protocol manifests and the original canonical `2dee107a...` identity.
+Both v1.0 scoring and v1.1 scoring use this recorded runtime.
+[The module/version evidence](PDMS_runtime_documentation_correction.json) was
+checked directly without scoring new trajectories. No environment, source,
+cache, prediction or score was changed, and previous results remain valid.
