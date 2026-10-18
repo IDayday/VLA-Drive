@@ -1,0 +1,98 @@
+{
+  "schema": "st_metadata_v3_independent_source_review_v1",
+  "status": "PASS_CODE_AND_TEMPORARY_LEDGER_FIXTURES_ONLY",
+  "reviewer": "/root/temporal_narrow_review",
+  "source_commit": "eae8922d72b3881c0c162e96b8dd67e7c15a41c7",
+  "reviewed_at_utc": "2026-10-18T01:48:48.514974+00:00",
+  "scope": "exact8to10GiB metadata envelope only, inherited builder/history/reader math not re-reviewed",
+  "checks": [
+    "only production source changed is metadata_storage.py29line diff; builder/reader/PCA/model/sampler unchanged",
+    "v1 remains<=4GiB and exact4to8v2 transition tests unchanged",
+    "v3 exact integer10GiB only; full previous v2 digest and original v1 digest both verified",
+    "original_package(v3) equals original_package(v2), preserving frozen-W original package identity",
+    "actual package-only proposal has no changes beyond metadata_package; all claims/source pins/allowedroots/legacy/campaign/floor/budgets remain identical",
+    "real migrate_policy temporary-ledger tests preserve old claims/reservations/frozen-W and exercise pending/snapshot/state/receipt interruption recovery",
+    "skipv2,unknownversion,wrongv1/v2hash,rewrittenbaseline,removedclaim/reservation,campaigncap/floor changes rejected without ledger mutation",
+    "aggregate10GiB enforced including byte-overflow; perrun4GiB disk/RSS and14400seconds unchanged"
+  ],
+  "package_semantics": {
+    "old_metadata_envelope_GiB": 8,
+    "new_metadata_envelope_GiB": 10,
+    "campaign_cache_cap_GiB": 768,
+    "checkpoint_commitment_changed": false,
+    "free_floor_GiB": 1024,
+    "new_claims_in_package_proposal": 0
+  },
+  "conservative_planning_MiB": {
+    "retained_including_failed_diagnostic": 7904,
+    "corrected_diagnostic_separate": 16,
+    "train_including_control": 2048,
+    "dev_including_control": 128,
+    "total": 10096,
+    "v3_maximum": 10240,
+    "remaining": 144,
+    "interpretation": "administrative allocation arithmetic; independent resource receipts inherited, not a live ledger reconciliation by this review"
+  },
+  "tests": {
+    "returncode": 0,
+    "wall_seconds": 1.716185076162219,
+    "RSS_bytes": 68366336,
+    "parent_reaped_child_rchar_delta": 18063474,
+    "cpu_affinity": [
+      2,
+      3
+    ],
+    "address_space_limit": 2147483648,
+    "GPU": false,
+    "real_ledger_accessed": false,
+    "log_sha256": "28637b05d9dd89671607f762d8ae6da5f9f953a4184d9fc9f9085875bb4a3637"
+  },
+  "fullrole_controller_review": "PENDING_SEPARATE_FROZEN_HANDOFF",
+  "actual_policy_migration_admitted": false,
+  "remaining_concrete_bindings": [
+    "fullrole controller with exact train101592/dev1696 root/selection/hash/builder budget and original4b2f monitor",
+    "new immutable metadata65644 source pin plus already reviewed SP0/SP1 common-source bridge",
+    "Lead exact current policy/ledger/quiescence and fresh CP/free-space/time cover; no automatic old-output resume/retry"
+  ],
+  "GPU": false,
+  "SSH": false,
+  "actual_ledger_read_or_write": false,
+  "actual_builder_run": false,
+  "input_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/metadata_storage.py",
+      "sha256": "65644ac00b6a395bf2e1eb498e9f221a3cdebee63a027857513b1f50118151a6",
+      "bytes": 46576
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/metadata_v3/IMPLEMENTATION.json",
+      "sha256": "70fd37b35e3bb2bd8115e618485ec687b421a698753c044d3af22a22d7b73595",
+      "bytes": 2476
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/metadata_v3/PACKAGE_ONLY_POLICY_PROPOSAL.json",
+      "sha256": "744666144432007438c1030ca8144369de38df521bf34fbe2d4a092913d97b0e",
+      "bytes": 55785
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261017/temporal_history32_preparation_v1/actual_preparation/PROPOSED_POLICY.json",
+      "sha256": "c77dca4739f3026940b8a56821cfd4bd222c643cdf9e4e07e5b9efba21a82163",
+      "bytes": 55682
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-full-causal-history-preparation-20261018/reports/st_world_policy/20261018/full_causal_history_build_preparation_v1/PREPARATION_PLAN.json",
+      "sha256": "cf2ca70906592baba626ed03282466919dd6c58277467ccbd9b5745054dfac3a",
+      "bytes": 14278
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/full_causal_history_storage_allocation_v1/REVIEW.json",
+      "sha256": "8c89dc59cebd22436f3ab69eaeec598ae7b73d2d7dea058d36f54141ec049568",
+      "bytes": 25817
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/teacher_channel_prediction_failed_attempt_resource_v1/REVIEW.json",
+      "sha256": "bdd81fa7baa1df92ebf8c1098b7aad22e3efe5acfb416470099e3f11d6343ba7",
+      "bytes": 13827
+    }
+  ]
+}
