@@ -181,11 +181,11 @@ def publish(path, record):
     return value
 
 
-def main():
+def main(runtime=None):
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--lock',default=str(ROOT/'final_navtest/LOCK.json'))
     parser.add_argument('--source',default=str(EVALUATION_SOURCE))
-    parser.add_argument('--model',choices=MODELS,required=True)
+    parser.add_argument('--model',choices=MODELS if runtime is None else runtime.models,required=True)
     parser.add_argument('--shards',type=int,required=True)
     parser.add_argument('--ranks',required=True,help='Global comma-separated shard indices')
     parser.add_argument('--gpus',required=True,help='Same-length local physical GPU indices')
@@ -195,7 +195,8 @@ def main():
     mapping = partition(args.shards,[int(x) for x in args.ranks.split(',')],[int(x) for x in args.gpus.split(',')])
     with (queue/'owner.lock').open('a') as guard:
         fcntl.flock(guard,fcntl.LOCK_EX | fcntl.LOCK_NB)
-        selection, model = validate_selection(lock_path,args.model,args.source)
+        validator=validate_selection if runtime is None else runtime.validate_selection
+        selection, model = validator(lock_path,args.model,args.source)
         output = queue.parent/'evaluations'/(args.model+'_final_NAVTEST')
         output.mkdir(parents=True,exist_ok=True)
         contract = dict(schema='fm_transfer_final_shards_v1',final_lock=selection['sha256'],model=args.model,

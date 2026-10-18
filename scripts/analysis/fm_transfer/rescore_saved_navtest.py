@@ -37,7 +37,11 @@ def validate_input_manifest(manifest, population):
             manifest['population_identity'] != population['identity_sha256']):
         raise ValueError('Only complete-population fixed-seed single-candidate Navtest input is allowed')
     lock = manifest['final_lock']
-    if (lock['status'] != 'LOCKED_BEFORE_FINAL_NAVTEST' or not lock['formal_budget_complete'] or
+    fixed_stage = (lock.get('schema') == 'source_process_fixed_milestone_navtest_v1' and
+        lock.get('observed_update') in (20000, 170000) and lock.get('evaluation_budget_complete') is True and
+        lock['formal_budget_complete'] == (lock['observed_update'] == 170000) and
+        lock.get('Navtest_scores_read_for_selection') is False)
+    if (lock['status'] != 'LOCKED_BEFORE_FINAL_NAVTEST' or not (lock['formal_budget_complete'] or fixed_stage) or
             manifest['weight_sha256'] not in lock['weight_sha256']):
         raise ValueError('Input model was not locked before final evaluation')
 

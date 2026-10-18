@@ -1,0 +1,90 @@
+{
+  "UPSTREAM_DATA": {
+    "status": "PASS",
+    "source": "/mnt/project/simwam-source-process-20261018/source/339e9609d9a051908bb5030e5333aebcc8b38bcd",
+    "world": 8,
+    "host": "training-rl-zt2",
+    "wall_seconds": 291.10811281204224,
+    "receipt_sha256": "29236dec2d85da8f757a1e5c39749786ca875b31a7b03c9d8d01d11ea5e33ad1",
+    "continuous_resume": {
+      "full_adapter_Adam_scheduler_RNG_equal": true,
+      "actual_chains_probabilities_advantages_scores_equal": true,
+      "four_optimizer_updates_per_fresh_collection": true,
+      "physical_qualification_candidates": 128
+    },
+    "merge": {
+      "status": "PASS",
+      "host": "training-rl-zt2",
+      "architecture": "source_action_dit",
+      "checkpoint": "/mnt/project/simwam-source-process-20261018/qualification/UPSTREAM_DATA_v1/continuous/checkpoints/update000004_inner0",
+      "updates": 4,
+      "checks": [
+        {
+          "grid": "native",
+          "max_abs": 2.384185791015625e-07
+        },
+        {
+          "grid": "shift5",
+          "max_abs": 2.384185791015625e-07
+        },
+        {
+          "grid": "native",
+          "max_abs": 5.960464477539063e-08
+        },
+        {
+          "grid": "shift5",
+          "max_abs": 1.1920928955078125e-07
+        }
+      ],
+      "scope": "actual nonzero real-reward LoRA, complete ODE before/after merge",
+      "uses_training_only_conditions": true,
+      "qualification_only": true,
+      "driving_effect_claim": false
+    },
+    "raw_deployment_status": "QUALIFICATION_COMPLETE"
+  },
+  "OWN_DATA_CONTROL": {
+    "status": "PASS",
+    "source": "/mnt/project/simwam-source-process-20261018/source/339e9609d9a051908bb5030e5333aebcc8b38bcd",
+    "world": 8,
+    "host": "training-vlawm-tsinghua-zt",
+    "wall_seconds": 303.4301519393921,
+    "receipt_sha256": "e21b7d3d800b5cc007a26073757da0431a9951868ce3189d80a5323d5264c521",
+    "continuous_resume": {
+      "full_adapter_Adam_scheduler_RNG_equal": true,
+      "actual_chains_probabilities_advantages_scores_equal": true,
+      "four_optimizer_updates_per_fresh_collection": true,
+      "physical_qualification_candidates": 128
+    },
+    "merge": {
+      "status": "PASS",
+      "host": "training-vlawm-tsinghua-zt",
+      "architecture": "source_action_dit",
+      "checkpoint": "/mnt/project/simwam-source-process-20261018/qualification/OWN_DATA_CONTROL_v1/continuous/checkpoints/update000004_inner0",
+      "updates": 4,
+      "checks": [
+        {
+          "grid": "native",
+          "max_abs": 2.384185791015625e-07
+        },
+        {
+          "grid": "shift5",
+          "max_abs": 2.384185791015625e-07
+        },
+        {
+          "grid": "native",
+          "max_abs": 1.1920928955078125e-07
+        },
+        {
+          "grid": "shift5",
+          "max_abs": 2.384185791015625e-07
+        }
+      ],
+      "scope": "actual nonzero real-reward LoRA, complete ODE before/after merge",
+      "uses_training_only_conditions": true,
+      "qualification_only": true,
+      "driving_effect_claim": false
+    },
+    "raw_deployment_status": "QUALIFICATION_COMPLETE"
+  }
+}

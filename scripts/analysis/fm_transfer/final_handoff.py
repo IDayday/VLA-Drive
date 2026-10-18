@@ -56,10 +56,11 @@ def configuration(root, control_source, hosts):
     return value
 
 
-def stage(control, name, command, *, host=None):
+def stage(control, name, command, *, host=None, source=None):
     """Durable one-attempt commands; a lost response never authorizes replay."""
+    source=SOURCE if source is None else Path(source)
     directory = Path(control) / 'stages' / name
-    intent = dict(command=list(command), host=host, source=str(SOURCE))
+    intent = dict(command=list(command), host=host, source=str(source))
     if directory.exists():
         old = read(directory / 'intent.json')
         result = read(directory / 'result.json') if (directory / 'result.json').exists() else None
@@ -72,9 +73,9 @@ def stage(control, name, command, *, host=None):
         worker_allowed(host)
     directory.mkdir(parents=True, exist_ok=False)
     atomic_json(directory / 'intent.json', intent)
-    env = dict(os.environ, CUDA_VISIBLE_DEVICES='', PYTHONPATH=str(SOURCE),
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES='', PYTHONPATH=str(source),
                OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
-    invocation = ['env', 'CUDA_VISIBLE_DEVICES=', 'PYTHONPATH=' + str(SOURCE),
+    invocation = ['env', 'CUDA_VISIBLE_DEVICES=', 'PYTHONPATH=' + str(source),
                   'OMP_NUM_THREADS=1', 'OPENBLAS_NUM_THREADS=1', 'MKL_NUM_THREADS=1', *command]
     local = host is None or host == socket.gethostname().removesuffix('-worker-0')
     actual = command if local else ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
@@ -83,7 +84,7 @@ def stage(control, name, command, *, host=None):
     atomic_json(directory / 'result.json', result)
     try:
         with (directory / 'command.log').open('xb') as log:
-            child = subprocess.Popen(actual, cwd=SOURCE, env=env, stdin=subprocess.DEVNULL,
+            child = subprocess.Popen(actual, cwd=source, env=env, stdin=subprocess.DEVNULL,
                                      stdout=log, stderr=subprocess.STDOUT)
             result['child'] = dict(pid=child.pid,
                 start_ticks=int(Path(f'/proc/{child.pid}/stat').read_text().split()[21]))
@@ -174,7 +175,8 @@ def allocate(models, devices):
     return plans
 
 
-def model_state(root, model, plan, is_live=dispatch.live):
+def model_state(root, model, plan, is_live=dispatch.live, *, evaluation_source=None):
+    evaluation_source=EVALUATION_SOURCE if evaluation_source is None else Path(evaluation_source)
     output = Path(root) / 'evaluations' / (model + '_final_NAVTEST')
     receipts = [authenticated(p) for p in sorted(output.glob('dispatches/*.json'))]
     if not receipts:
@@ -187,7 +189,7 @@ def model_state(root, model, plan, is_live=dispatch.live):
     for item in plan['assignments']:
         row = by_rank[item['rank']]
         if (any(row[k] != item[k] for k in ('host', 'gpu', 'GPU_uuid', 'rank')) or
-                row['shards'] != plan['shards'] or row['source'] != str(EVALUATION_SOURCE) or
+                row['shards'] != plan['shards'] or row['source'] != str(evaluation_source) or
                 row['output'] != str(output) or row['model'] != model):
             raise ValueError('Final worker differs from its reserved route')
         alive = is_live(row)

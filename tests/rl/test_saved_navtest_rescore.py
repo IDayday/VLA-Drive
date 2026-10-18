@@ -29,3 +29,26 @@ def test_wrong_input_refused(key, value):
 def test_endpoint_not_complete_refused():
     manifest, pop = example(); manifest['final_lock']['formal_budget_complete'] = False
     with pytest.raises(ValueError): validate_input_manifest(manifest, pop)
+
+
+def test_preregistered_20k_observation_does_not_claim_170k_complete():
+    manifest,pop=example()
+    manifest['final_lock'].update(schema='source_process_fixed_milestone_navtest_v1',
+        observed_update=20000,evaluation_budget_complete=True,formal_budget_complete=False,
+        Navtest_scores_read_for_selection=False)
+    validate_input_manifest(manifest,pop)
+    assert not manifest['final_lock']['formal_budget_complete']
+
+
+@pytest.mark.parametrize('changed',[
+    {'observed_update':5000},{'observed_update':19999},{'evaluation_budget_complete':False},
+    {'schema':'arbitrary_intermediate'},{'Navtest_scores_read_for_selection':True},
+    {'observed_update':170000},
+])
+def test_unregistered_or_unfinished_stage_rejected(changed):
+    manifest,pop=example()
+    manifest['final_lock'].update(schema='source_process_fixed_milestone_navtest_v1',
+        observed_update=20000,evaluation_budget_complete=True,formal_budget_complete=False,
+        Navtest_scores_read_for_selection=False)
+    manifest['final_lock'].update(changed)
+    with pytest.raises(ValueError):validate_input_manifest(manifest,pop)
