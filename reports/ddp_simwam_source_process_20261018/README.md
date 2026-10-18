@@ -1,5 +1,7 @@
 # SimWAM source-data and published-command process replication
 
+实际启动状态、资源和首100步成本：[中文进展](launch_status_zh.md)。
+
 This is a new, registered experiment requested on 2026-10-18. It keeps the
 qualified B source ActionDiT and copies the locked SimWAM RL process as closely
 as the retained DDP observation/action interfaces permit. It does not add a

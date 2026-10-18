@@ -1,0 +1,290 @@
+{
+  "observed_unix": 1792294196.3688262,
+  "new_deployment_effect_result_available": false,
+  "training": {
+    "UPSTREAM_DATA": {
+      "status": "RUNNING",
+      "run_identity": "f8df1cb9870b4e9c8f6e29ece7ef9281f4c212d8f5e7c24478305f389130e3c2",
+      "source_commit": "339e9609d9a051908bb5030e5333aebcc8b38bcd",
+      "source": "/mnt/project/simwam-source-process-20261018/source/339e9609d9a051908bb5030e5333aebcc8b38bcd",
+      "host": "training-rl-zt2",
+      "GPUs": 8,
+      "process_pid": 1332388,
+      "process_start_ticks": 1365151540,
+      "start_unix": 1792293830.182366,
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "--module",
+        "scripts.analysis.fm_transfer.train_source_process",
+        "--config",
+        "configs/flow_rl/simwam_upstream_data_long.yaml",
+        "--manifest",
+        "/mnt/project/simwam-source-process-20261018/source_manifest.json",
+        "--sft-checkpoint",
+        "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+        "--output",
+        "/mnt/project/simwam-source-process-20261018/runs/UPSTREAM_DATA_seed42_v1"
+      ],
+      "qualification_sha256": "29236dec2d85da8f757a1e5c39749786ca875b31a7b03c9d8d01d11ea5e33ad1",
+      "sft_initialization": {
+        "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+        "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+        "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+        "config": {
+          "schema": "fm_transfer_SFT_v1",
+          "variant": "B_SOURCE_ACTION_DIT",
+          "architecture": "source_action_dit",
+          "initialization": "source_random_initialization_seed42",
+          "max_updates": 100000,
+          "learning_rate": 0.0001,
+          "milestones": [
+            0,
+            10000,
+            25000,
+            50000,
+            75000,
+            100000
+          ],
+          "seed": 42,
+          "evaluation_seed": 2101,
+          "global_batch": 32,
+          "per_rank_batch": 4,
+          "world": 8,
+          "FM_repeats": 8,
+          "time_sampling": "source continuous uniform quantile shifted5",
+          "objective": "source time-weighted velocity MSE",
+          "train_shift": 5.0,
+          "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "weight_decay": 0.01,
+          "gradient_clip": 1.0,
+          "warmup_fraction": 0.03,
+          "scheduler": "warmup_cosine_min0.1",
+          "parameter_storage": "float32",
+          "operator_autocast": "bfloat16",
+          "loss_statistics": "float32",
+          "optimizer_states": "float32",
+          "upstream_frozen": true,
+          "condition_boundary": "before qwen_proj",
+          "save_every": 2000,
+          "inference_grids": [
+            "native_uniform10",
+            "shift5_10"
+          ],
+          "ddp": {
+            "find_unused_parameters": true,
+            "static_graph": false,
+            "bucket_cap_mb": 25,
+            "broadcast_buffers": false
+          }
+        },
+        "updates": 100000,
+        "qualification": false
+      },
+      "checkpoint": "/mnt/project/simwam-source-process-20261018/runs/UPSTREAM_DATA_seed42_v1/checkpoints/update000100_inner0",
+      "checkpoint_files_sha256": "01f6e84033aa218b84be00f59d1fe6eb580d9c097fd219a529a589a7c9ce85f8",
+      "all8ranks_boundary_verified": true,
+      "checkpoint_state": {
+        "updates": 100,
+        "collections": 25,
+        "raw_scene_exposures": 200,
+        "new_candidates": 1600,
+        "next_inner": 0,
+        "phase": "READY",
+        "RL_updates_local": 100,
+        "anchor_only_updates_local": 0,
+        "scene_cursor": 200
+      },
+      "optimizer_parameter_states": 480,
+      "optimizer_steps": [
+        100.0
+      ],
+      "initial_complete_window": {
+        "updates": 100,
+        "seconds": 181.0,
+        "updates_per_second": 0.5524861878453039,
+        "includes_collection_update_IO_and_checkpoint": true,
+        "excludes_initial_model_load": true,
+        "ETA_20k_hours": 10.005277777777778,
+        "ETA_170k_hours": 85.42194444444445,
+        "short_window_not_completion_guarantee": true
+      },
+      "rank0_compute_seconds": {
+        "seconds_rollout": 29.49247662909329,
+        "seconds_scoring_wait": 5.710463751107454,
+        "seconds_scoring_cpu": 1.4809687156230211,
+        "seconds_old_probability": 9.104138454422355,
+        "seconds_update": 125.06089790910482
+      }
+    },
+    "OWN_DATA_CONTROL": {
+      "status": "RUNNING",
+      "run_identity": "71922e05c11a8ee31e1b8829ebc6af2fdc0b844ce8db35a31afeb7464eccfdb2",
+      "source_commit": "339e9609d9a051908bb5030e5333aebcc8b38bcd",
+      "source": "/mnt/project/simwam-source-process-20261018/source/339e9609d9a051908bb5030e5333aebcc8b38bcd",
+      "host": "training-vlawm-tsinghua-zt",
+      "GPUs": 8,
+      "process_pid": 1588190,
+      "process_start_ticks": 1373269391,
+      "start_unix": 1792293903.5053177,
+      "command": [
+        "/mnt/project/flow-safe-improvement-20261013/venv/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--standalone",
+        "--nproc_per_node=8",
+        "--module",
+        "scripts.analysis.fm_transfer.train_source_process",
+        "--config",
+        "configs/flow_rl/simwam_own_data_long.yaml",
+        "--manifest",
+        "/mnt/project/fm-transfer-20261016/hard_manifests/B_SOURCE_ACTION_DIT_SFT_update100000.json",
+        "--sft-checkpoint",
+        "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+        "--output",
+        "/mnt/project/simwam-source-process-20261018/runs/OWN_DATA_CONTROL_seed42_v1"
+      ],
+      "qualification_sha256": "e21b7d3d800b5cc007a26073757da0431a9951868ce3189d80a5323d5264c521",
+      "sft_initialization": {
+        "checkpoint": "/mnt/project/fm-transfer-20261016/runs/B_SOURCE_ACTION_DIT_SFT_seed42_v1/checkpoints/update100000",
+        "model_sha256": "4e71b1fcf963d38456174de1f8d17762a9a4ccf1597c22b7cec262026d9201b7",
+        "identity_sha256": "63b2da609f3ab3b225f056a5399050fc217989d25b937876a5a5051a29575af7",
+        "config": {
+          "schema": "fm_transfer_SFT_v1",
+          "variant": "B_SOURCE_ACTION_DIT",
+          "architecture": "source_action_dit",
+          "initialization": "source_random_initialization_seed42",
+          "max_updates": 100000,
+          "learning_rate": 0.0001,
+          "milestones": [
+            0,
+            10000,
+            25000,
+            50000,
+            75000,
+            100000
+          ],
+          "seed": 42,
+          "evaluation_seed": 2101,
+          "global_batch": 32,
+          "per_rank_batch": 4,
+          "world": 8,
+          "FM_repeats": 8,
+          "time_sampling": "source continuous uniform quantile shifted5",
+          "objective": "source time-weighted velocity MSE",
+          "train_shift": 5.0,
+          "action_encoding": "unchanged DDP eight-by-four XY standardized plus sin/cos",
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "weight_decay": 0.01,
+          "gradient_clip": 1.0,
+          "warmup_fraction": 0.03,
+          "scheduler": "warmup_cosine_min0.1",
+          "parameter_storage": "float32",
+          "operator_autocast": "bfloat16",
+          "loss_statistics": "float32",
+          "optimizer_states": "float32",
+          "upstream_frozen": true,
+          "condition_boundary": "before qwen_proj",
+          "save_every": 2000,
+          "inference_grids": [
+            "native_uniform10",
+            "shift5_10"
+          ],
+          "ddp": {
+            "find_unused_parameters": true,
+            "static_graph": false,
+            "bucket_cap_mb": 25,
+            "broadcast_buffers": false
+          }
+        },
+        "updates": 100000,
+        "qualification": false
+      },
+      "checkpoint": "/mnt/project/simwam-source-process-20261018/runs/OWN_DATA_CONTROL_seed42_v1/checkpoints/update000100_inner0",
+      "checkpoint_files_sha256": "dec51ffebe87d1dc6317ce69e78ef495f3a704b5dd032809b65fb1d9ed151aca",
+      "all8ranks_boundary_verified": true,
+      "checkpoint_state": {
+        "updates": 100,
+        "collections": 25,
+        "raw_scene_exposures": 200,
+        "new_candidates": 1600,
+        "next_inner": 0,
+        "phase": "READY",
+        "RL_updates_local": 100,
+        "anchor_only_updates_local": 0,
+        "scene_cursor": 200
+      },
+      "optimizer_parameter_states": 480,
+      "optimizer_steps": [
+        100.0
+      ],
+      "initial_complete_window": {
+        "updates": 100,
+        "seconds": 190.0,
+        "updates_per_second": 0.5263157894736842,
+        "includes_collection_update_IO_and_checkpoint": true,
+        "excludes_initial_model_load": true,
+        "ETA_20k_hours": 10.502777777777778,
+        "ETA_170k_hours": 89.66944444444445,
+        "short_window_not_completion_guarantee": true
+      },
+      "rank0_compute_seconds": {
+        "seconds_rollout": 30.647472275421023,
+        "seconds_scoring_wait": 5.922175295650959,
+        "seconds_scoring_cpu": 1.7133759018033743,
+        "seconds_old_probability": 9.472642237320542,
+        "seconds_update": 132.10372737422585
+      }
+    }
+  },
+  "controllers": {
+    "milestone_controller": {
+      "status": "WAITING_FOR_SEALED_REGISTERED_MILESTONE",
+      "owner": {
+        "start_unix": 1792294055.8785841,
+        "pid": 799750,
+        "start_ticks": 1373266693
+      },
+      "hosts": [
+        "training-vlawm-tsinghua-zt2",
+        "training-vlawm-tsinghua-zt4"
+      ],
+      "identity_sha256": "ef8e4010385fefd578cc72d73b9df946913113e8b0e8413ec5ae2448aead4fa2"
+    },
+    "navtest_controller": {
+      "status": "WAITING",
+      "owner": {
+        "pid": 799797,
+        "start_ticks": 1373269549,
+        "unix": 1792294083.5657403
+      },
+      "hosts": [
+        "training-rl-zt2",
+        "training-vla-zt",
+        "training-vlawm-tsinghua-zt",
+        "training-vlawm-tsinghua-zt3",
+        "training-vlawm-tsinghua-zt5",
+        "training-vlawm-tsinghua-zt6"
+      ],
+      "identity_sha256": "bf6efba86effba2fd161d2bce39dd307b0b889a407f37e940e111a05913d37e5"
+    }
+  },
+  "same_formal_initial_LoRA_verified": {
+    "status": "EXACT",
+    "tensors": 480,
+    "tensor_digest": "a0c066608219993b4d6dd880f8b1b83cb9063b4373a9004ba63997806e87e400",
+    "weights_from_qualification": false
+  }
+}
