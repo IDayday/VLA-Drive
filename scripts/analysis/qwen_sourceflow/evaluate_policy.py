@@ -46,6 +46,8 @@ def main():
     if a.rl_export:
         from starVLA.rl.qwen_sourceflow.export import load_export
         export_identity=load_export(a.rl_export,model,parent)
+        if not a.qualification and export_identity['qualification']:
+            raise ValueError('Qualification RL weights cannot become a formal result')
     model.requires_grad_(False).eval();loaded=time.monotonic()-start
     processor=QwenObservationProcessor(QWEN_PATH)
     service=RewardService(Path.cwd(),workers=1,cache_roots=[

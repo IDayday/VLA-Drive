@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "host": "training-vlawm-tsinghua-zt3",
+  "qualification_only": true,
+  "formal_initialization_eligible": false,
+  "action_scope": "full_generic_initialized_source",
+  "loss": 0.5654440522193909,
+  "gradients": {
+    "qwen": {
+      "tensors": 625,
+      "positive": 625,
+      "norm": 195.5499725341797,
+      "first_names": [
+        "model.visual.patch_embed.proj.weight",
+        "model.visual.patch_embed.proj.bias",
+        "model.visual.pos_embed.weight",
+        "model.visual.blocks.0.norm1.weight",
+        "model.visual.blocks.0.norm1.bias",
+        "model.visual.blocks.0.norm2.weight"
+      ]
+    },
+    "provider": {
+      "tensors": 156,
+      "positive": 156,
+      "norm": 76.1148452758789,
+      "first_names": [
+        "visual_bridge.weight",
+        "visual_bridge.bias",
+        "text_bridge.weight",
+        "text_bridge.bias",
+        "proprio_encoder.weight",
+        "proprio_encoder.bias"
+      ]
+    },
+    "action": {
+      "tensors": 824,
+      "positive": 824,
+      "norm": 84.7952651977539,
+      "first_names": [
+        "runner.mixtures.action.action_encoder.weight",
+        "runner.mixtures.action.action_encoder.bias",
+        "runner.mixtures.action.text_embedding.0.weight",
+        "runner.mixtures.action.text_embedding.0.bias",
+        "runner.mixtures.action.text_embedding.2.weight",
+        "runner.mixtures.action.text_embedding.2.bias"
+      ]
+    }
+  },
+  "images": [
+    [
+      1,
+      22,
+      42
+    ],
+    [
+      1,
+      22,
+      42
+    ],
+    [
+      1,
+      22,
+      42
+    ]
+  ],
+  "visual_tokens": [
+    693
+  ],
+  "text_tokens": [
+    109
+  ],
+  "hidden_count": 29,
+  "hidden_zero_is_embedding": true,
+  "layer_mapping": [
+    1,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "condition_bytes": 383201280,
+  "peak_GPU_bytes": 27393522688,
+  "wall_seconds": 70.550313802436
+}

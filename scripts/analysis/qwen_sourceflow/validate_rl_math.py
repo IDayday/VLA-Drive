@@ -43,13 +43,18 @@ def main():
             old_logp=old,advantages=stats['advantages'],adv_mask=stats['adv_mask'])
         old_copy=old.clone();chain_copy=chain.clone();adapters={n:p.clone() for n,p in actor.named_parameters() if p.requires_grad}
         frozen={n:p.clone() for n,p in actor.named_parameters() if not p.requires_grad}
-        ratios=[]
+        ratios=[];gradient_counts=[]
         for inner in range(4):
             optimizer.zero_grad(set_to_none=True);loss,metrics=actor(rollout)
             ratios.append(float((actor._probability_audit['current']['source_clamped_logprob'].mean((-1,-2))-old).exp().sub(1).abs().max()))
             loss.backward()
             if any(p.grad is None or not torch.isfinite(p.grad).all() for p in actor.parameters() if p.requires_grad):
                 raise AssertionError('Missing native action LoRA gradient')
+            counts={suffix:sum(p.grad is not None and bool(torch.count_nonzero(p.grad))
+                for n,p in actor.named_parameters() if n.endswith(suffix)) for suffix in ['lora_A','lora_B']}
+            if inner>0 and any(v!=len(actor.closure['adapters']) for v in counts.values()):
+                raise AssertionError('A/B task gradients remain zero after the first inner update')
+            gradient_counts.append(counts)
             optimizer.step()
         if ratios[0]!=0 or max(ratios[1:])<=0:raise AssertionError('Fresh/updated policy ratios')
         for n,p in actor.named_parameters():
@@ -58,7 +63,7 @@ def main():
         if not all(changed.values()):raise AssertionError('Native A/B did not update')
         torch.testing.assert_close(old,old_copy,atol=0,rtol=0);torch.testing.assert_close(chain,chain_copy,atol=0,rtol=0)
         checks.append(dict(scope=label,sampling_recompute_mean_std='exact',four_inner_ratio_errors=ratios,
-            changed_parameters=len(changed),frozen_reference_and_base=True))
+            changed_parameters=len(changed),nonzero_task_gradients=gradient_counts,frozen_reference_and_base=True))
     merged=ActionDiT(**args).eval();merged.load_state_dict(merged_state_dict(actor.action_expert),strict=True)
     torch.testing.assert_close(actor.action_velocity(x,t,condition),CachedActionRunner(merged)(x,t,condition),atol=2e-6,rtol=2e-5)
     s=expected_recipe('R_SOURCE');c=expected_recipe('R_CANONICAL')

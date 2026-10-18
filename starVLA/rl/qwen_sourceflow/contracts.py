@@ -46,3 +46,16 @@ def source_files():
         'starVLA/rl/flow_grpo/reproducibility.py','starVLA/rl/safe_flow_improvement/v1_reward.py',
         'scripts/analysis/constrained_flow_noise/batched_canonical_score.py']]
     return {str(p): file_sha(p) for p in sorted(set(paths))}
+
+
+def runtime_identity():
+    import importlib
+    import torch
+    import transformers
+    record=json.loads(Path('configs/qwen_sourceflow/runtime_lock.json').read_text())
+    if record['torch']!=torch.__version__ or record['transformers']!=transformers.__version__:
+        raise ValueError('Unqualified native numerical/runtime package version')
+    for name, expected in record['native_Qwen_runtime'].items():
+        if file_sha(importlib.import_module(name).__file__)!=expected['sha256']:
+            raise ValueError('Native Qwen/processor implementation changed: '+name)
+    return record

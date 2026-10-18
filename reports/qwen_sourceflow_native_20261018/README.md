@@ -82,3 +82,34 @@ This bounds storage instead of producing roughly 100 full optimizer snapshots.
 Full Wan initialization, full-model/multicard optimizer and exact recovery
 qualification, formal IL, both formal RL lines and driving evaluation are still
 pending. No positive driving or 92-point claim is made.
+
+### Generic initialization and complete-model qualification
+
+The original official Wan download completed and verified all three shard SHA256
+values. The duplicate HTTP transport was stopped once that verification finished;
+its partial files and failed remote-network attempt remain recorded privately.
+The conversion strictly loads all 825 Wan state entries and emits 820 action
+backbone entries: 300 copied, 520 interpolated, 4 action-encoder/head tensors kept
+random by the source policy. `generic_action_initialization.json` records every
+axis, alpha, source identity and the actual 3.9GiB payload hash.
+
+`qualification_full_model.json` uses real TRAIN images and the complete generic
+initialized 30-layer 8x3 action expert. Action-loss gradients reach 625 Qwen,
+156 provider and 824 action tensors; all are finite and nonzero. Peak GPU memory
+is 27,393,522,688 bytes for this one-batch forward/backward qualification (no
+Adam/DDP state). Dense visual condition is 383,201,280 bytes per scene, hence a
+full persistent TRAIN KV cache would be about 39TB and is not constructed.
+
+A two-rank launch uncovered an import side effect before any model update:
+the legacy framework registry eagerly imports unrelated modules which initialize
+NCCL under torchrun. Native train/load now import the exact same model class from
+its independent module; the optional framework file only reexports it. No legacy
+registry, Wan online backbone, or early distributed group is imported by the
+native entries. Two-rank import qualification passes. The failed pre-training
+attempts remain intact; they created no trained initialization/checkpoint.
+
+The full TRAIN raw 3D codec round trip has maximum absolute errors
+[5.722e-6m, 2.861e-6m, 1.788e-7rad], without label clipping. LoRA arithmetic
+qualification additionally proves A has the expected zero task-gradient at
+zero-B initialization and positive gradients in every projection after the first
+inner update; B has task-gradients throughout. These are not reward improvements.

@@ -1,0 +1,10084 @@
+{
+  "source": "generic_Wan2.2-TI2V-5B_official_conversion",
+  "upstream_commit": "1433ee7e06a62bd8b89da74455df0d82bda7b726",
+  "wan_revision": "921dbaf3f1674a56f47e83fb80a34bac8a8f203e",
+  "wan_identity": {
+    "repository": "Wan-AI/Wan2.2-TI2V-5B",
+    "revision": "921dbaf3f1674a56f47e83fb80a34bac8a8f203e",
+    "files": {
+      "README.md": "e357cb3ac077f8739755b0fb38fe8424c76534b19b4a84f6138856abb00abf69",
+      "config.json": "d1fea36899d00c2501b836c13ad65af56e2f9529ba622e50886d3f5c3e6c02bc",
+      "diffusion_pytorch_model-00001-of-00003.safetensors": "720b06c4ade5e87c1246bba8ac95b664c638749cd9b102cf84d823bb44c026a1",
+      "diffusion_pytorch_model-00002-of-00003.safetensors": "09ec5ef720d8396f6cfa51fbdcbdb2327e37722afd6e89fd38f1e7e5e782c283",
+      "diffusion_pytorch_model-00003-of-00003.safetensors": "6306f7894c345de9093ad588771c2abfaeb668a81f7a6d9a918bd26ba3568e49",
+      "diffusion_pytorch_model.safetensors.index.json": "bfa2337f1163e195d24151a72298daf34a620543898109be47e414c8daa5b3fe"
+    },
+    "official_weight_sha_verified": true
+  },
+  "action_config": {
+    "action_dim": 3,
+    "hidden_dim": 1024,
+    "ffn_dim": 4096,
+    "num_heads": 24,
+    "attn_head_dim": 128,
+    "num_layers": 30,
+    "text_dim": 4096,
+    "freq_dim": 256,
+    "eps": 1e-06,
+    "use_gradient_checkpointing": true
+  },
+  "payload_sha256": "1e7807aacbfeb7d4bd7bb70fabb536080bae10512267589e60a5c2f319da9c3b",
+  "converter_sha256": "1941c9e4936893068ada84466cf9d1d3a62e38299b08a1bc7cf4869dc35aa109",
+  "config_sha256": "b0b0e698be3c3702d0e43a5f24b62fa685f9e9343d93c1fd8a983767ba3322b2",
+  "tensor_conversion": {
+    "blocks.0.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.0.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.0.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.0.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.1.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.1.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.1.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.10.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.10.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.10.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.11.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.11.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.11.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.12.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.12.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.12.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.13.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.13.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.13.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.14.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.14.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.14.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.15.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.15.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.15.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.16.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.16.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.16.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.17.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.17.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.17.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.18.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.18.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.18.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.19.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.19.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.19.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.2.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.2.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.2.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.20.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.20.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.20.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.21.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.21.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.21.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.22.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.22.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.22.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.23.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.23.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.23.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.24.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.24.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.24.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.25.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.25.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.25.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.26.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.26.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.26.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.27.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.27.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.27.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.28.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.28.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.28.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.29.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.29.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.29.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.3.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.3.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.3.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.4.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.4.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.4.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.5.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.5.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.5.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.6.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.6.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.6.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.7.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.7.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.7.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.8.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.8.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.8.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.cross_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.cross_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.cross_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.cross_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.ffn.0.bias": {
+      "source_shape": [
+        14336
+      ],
+      "target_shape": [
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.ffn.0.weight": {
+      "source_shape": [
+        14336,
+        3072
+      ],
+      "target_shape": [
+        4096,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.ffn.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.ffn.2.weight": {
+      "source_shape": [
+        3072,
+        14336
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.8708286933869707
+    },
+    "blocks.9.modulation": {
+      "source_shape": [
+        1,
+        6,
+        3072
+      ],
+      "target_shape": [
+        1,
+        6,
+        1024
+      ],
+      "resized_axes": [
+        2
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.norm3.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.norm3.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.k.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.k.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.self_attn.norm_k.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.norm_q.weight": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.o.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.o.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        3072
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.q.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.q.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "blocks.9.self_attn.v.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        3072
+      ],
+      "resized_axes": [],
+      "alpha": 1.0
+    },
+    "blocks.9.self_attn.v.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        3072,
+        1024
+      ],
+      "resized_axes": [
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "text_embedding.0.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "text_embedding.0.weight": {
+      "source_shape": [
+        3072,
+        4096
+      ],
+      "target_shape": [
+        1024,
+        4096
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "text_embedding.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "text_embedding.2.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "time_embedding.0.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "time_embedding.0.weight": {
+      "source_shape": [
+        3072,
+        256
+      ],
+      "target_shape": [
+        1024,
+        256
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "time_embedding.2.bias": {
+      "source_shape": [
+        3072
+      ],
+      "target_shape": [
+        1024
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "time_embedding.2.weight": {
+      "source_shape": [
+        3072,
+        3072
+      ],
+      "target_shape": [
+        1024,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    },
+    "time_projection.1.bias": {
+      "source_shape": [
+        18432
+      ],
+      "target_shape": [
+        6144
+      ],
+      "resized_axes": [
+        0
+      ],
+      "alpha": 1.0
+    },
+    "time_projection.1.weight": {
+      "source_shape": [
+        18432,
+        3072
+      ],
+      "target_shape": [
+        6144,
+        1024
+      ],
+      "resized_axes": [
+        0,
+        1
+      ],
+      "alpha": 1.7320508075688772
+    }
+  },
+  "policy": {
+    "skip_prefixes": [
+      "action_encoder.",
+      "head."
+    ],
+    "alpha_scaling": true,
+    "interpolation": "sequential_1d_linear_align_corners_true"
+  },
+  "copied": 300,
+  "interpolated": 520,
+  "random_kept": [
+    "action_encoder.bias",
+    "action_encoder.weight",
+    "head.bias",
+    "head.weight"
+  ]
+}

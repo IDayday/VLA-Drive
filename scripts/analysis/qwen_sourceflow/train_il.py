@@ -17,13 +17,13 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import yaml
-from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files
+from starVLA.rl.qwen_sourceflow.contracts import ROOT,QWEN_PATH,require_dispatch,file_sha,fingerprint,source_files,runtime_identity
 from starVLA.rl.qwen_sourceflow.data import RawSceneData
 from starVLA.rl.qwen_sourceflow.il_optimization import parameter_groups,set_stage,lr_scale
 from starVLA.rl.qwen_sourceflow import il_checkpoint
 from starVLA.rl.simwam_recipe import checkpoint as common
 from starVLA.rl.flow_grpo.transactions import atomic_json
-from starVLA.model.framework.qwen_sourceflow import QwenSourceFlowVLA
+from starVLA.model.modules.qwen_sourceflow.model import QwenSourceFlowVLA
 from starVLA.model.modules.qwen_sourceflow.qwen_encoder import QwenObservationProcessor
 from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
 from starVLA.model.modules.qwen_sourceflow.source_initialization import load_action_initialization
@@ -64,7 +64,7 @@ def main():
     optimizer=torch.optim.AdamW(parameter_groups(model,cfg),betas=tuple(cfg['betas']),eps=cfg['eps'],
         weight_decay=cfg['weight_decay'],foreach=False,fused=False)
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda step:lr_scale(step,cfg))
-    identity=dict(schema='native_qwen_sourceflow_IL_v1',config=cfg,qualification=a.qualification,world=world,
+    identity=dict(schema='native_qwen_sourceflow_IL_v1',config=cfg,qualification=a.qualification,world=world,runtime=runtime_identity(),
         data_identity=data.sha,initialization_identity=json.loads(Path(a.initialization).with_suffix('.identity.json').read_text()),
         qwen_identity=json.loads((ROOT/'assets/qwen_identity.json').read_text()),source_files=source_files())
     identity['sha256']=fingerprint(identity)

@@ -2,9 +2,9 @@
 import json
 from pathlib import Path
 import torch
-from starVLA.model.framework.qwen_sourceflow import QwenSourceFlowVLA
+from starVLA.model.modules.qwen_sourceflow.model import QwenSourceFlowVLA
 from starVLA.model.modules.qwen_sourceflow.vendor.action_dit import ActionDiT
-from .contracts import QWEN_PATH, ACTION_CONFIG, file_sha
+from .contracts import QWEN_PATH, ACTION_CONFIG, file_sha, runtime_identity
 
 
 def inspect_il(path, *, qualification=False):
@@ -23,6 +23,8 @@ def inspect_il(path, *, qualification=False):
 
 def load_il(path, *, device='cpu', qualification=False, verify=True):
     info=inspect_il(path,qualification=qualification);path=Path(path)
+    if info['identity'].get('runtime')!=runtime_identity():
+        raise ValueError('IL deployment/runtime differs from its qualified execution')
     if verify and file_sha(path/'model.pt')!=info['files']['model.pt']:
         raise ValueError('Native IL model content changed')
     # Every tensor is overwritten by the strictly loaded full trained model;
