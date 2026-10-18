@@ -87,6 +87,8 @@ def test_all_zero_still_allows_original_bc_and_rng_unchanged():
     output, receipt = normalize(rewards)
     assert not output.any() and receipt["common"]["all_zero"]
     assert receipt["common"]["std"] == 0
+    assert receipt["common"]["gain"] is None
+    assert receipt["common"]["denominator_reciprocal"] == 1e10
     parameter = torch.tensor(2., requires_grad=True)
     old = torch.zeros(rewards.numel(), 2)
     policy, _ = fpo_surrogate(old, old + parameter, output.flatten(),
