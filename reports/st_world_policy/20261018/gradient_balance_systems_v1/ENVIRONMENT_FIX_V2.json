@@ -1,0 +1,110 @@
+{
+  "status": "IMPLEMENTED_AUTHOR_TESTS_PASS_PENDING_INDEPENDENT_APPROVAL",
+  "author": "/root/road_proxy_systems_review",
+  "source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "wrapper_sha256": "29556ded05f532cabc7f4fa8255668f7ab232341f7ce34a6f5fa5fa5650f76ae",
+  "registration_sha256": "fb55ca585688cd2ca19ea55af55628c60c91554c00f68ef4a6ae1821d22b06ec",
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "evidence": {
+    "original_commands": {
+      "path": "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261017/C1_C4_final4096_readiness_v1/EXISTING_COMMANDS.json",
+      "sha256": "11d8b634fe236f988762014be9d0b845629705ef8105788e1eba075ddb4d6909",
+      "bytes": 32136
+    },
+    "original_launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_reviewed_flow_v1.py",
+      "sha256": "6a03442b26eb01a5de9e2ea5e3e1f508ca69d2959ba18cf37903e73295ce3db2",
+      "bytes": 9220
+    },
+    "original_training_source": {
+      "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/train_flow_policy.py",
+      "sha256": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96",
+      "bytes": 64408
+    },
+    "original_launch_receipt": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_fulltrain_seed42_official_4096_v1/invocations/1792205106721054236/LAUNCH.json",
+      "sha256": "bfa33bac61d34d998818f46097c55175bf6ad9912218cb051b9780f11fe45e09",
+      "bytes": 2334
+    },
+    "original_run_identity": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/identity.json",
+      "sha256": "15535618f98c13c9b5a5929607a67012fbc5bc88f394ab353f70ebec37655930",
+      "bytes": 7049
+    },
+    "failed_v1_result": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1/RESULT.json",
+      "sha256": "e4cfb07131dd2ffe462a90e821e314ef3b6c2e55fa3e597b4aca20114cbfcdbf",
+      "bytes": 3750
+    },
+    "failed_v1_supervisor": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/RUNTIME_ATTEMPT/SUPERVISOR_RESULT.json",
+      "sha256": "3a5e30488701c21d9ebeb320c54b3a7f432d7e180359e33e61d863736aac3e3a",
+      "bytes": 624
+    },
+    "v2_registration": {
+      "path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v2_controls/REGISTRATION.json",
+      "sha256": "fb55ca585688cd2ca19ea55af55628c60c91554c00f68ef4a6ae1821d22b06ec",
+      "bytes": 2354
+    }
+  },
+  "v1_preserved": true,
+  "real_v2_started": false,
+  "self_approved": false,
+  "tests": {
+    "status": "AUTHOR_ENVIRONMENT_FIXTURES_PASS_NOT_APPROVAL",
+    "cases": [
+      {
+        "case": "missing",
+        "exit_code": 1,
+        "rejected_before_registration_or_admission_read": true
+      },
+      {
+        "case": "wrong_workspace",
+        "exit_code": 1,
+        "rejected_before_registration_or_admission_read": true
+      },
+      {
+        "case": "wrong_text",
+        "exit_code": 1,
+        "rejected_before_registration_or_admission_read": true
+      },
+      {
+        "case": "actual_child_path_before_torch_import",
+        "exit_code": 0,
+        "stdout": "PASS_CHILD_ENV_CONFIRMED_BEFORE_TORCH_IMPORT\n",
+        "torch_import_intercepted": true
+      },
+      {
+        "case": "late_after_torch_rejected",
+        "exit_code": 0,
+        "stdout": "PASS_LATE_ENVIRONMENT_REJECTED\n"
+      }
+    ],
+    "unchanged_AST": {
+      "ReadAdmission": true,
+      "process_sample": true,
+      "supervise": true,
+      "ownership_helpers": true,
+      "directory_bytes": true
+    },
+    "registration_changes": [
+      "output"
+    ],
+    "runtime_environment": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+    },
+    "wrapper_sha256": "29556ded05f532cabc7f4fa8255668f7ab232341f7ce34a6f5fa5fa5650f76ae",
+    "registration_sha256": "fb55ca585688cd2ca19ea55af55628c60c91554c00f68ef4a6ae1821d22b06ec",
+    "wall_seconds": 0.24011565186083317,
+    "CPU_seconds": 0.192309,
+    "peak_child_RSS_bytes": 18493440,
+    "GPU_used": false,
+    "torch_imported_in_fixture": false,
+    "real_model_reads": 0,
+    "new_scores": 0,
+    "optimizer_updates": 0,
+    "formal_training_approved": false
+  }
+}

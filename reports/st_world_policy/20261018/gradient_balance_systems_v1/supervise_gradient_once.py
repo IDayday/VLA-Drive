@@ -24,8 +24,9 @@ import time
 
 RUNTIME=Path('/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018')
 SOURCE='83679937fe9702be39f0184154fdf9ebdc4eb98a'
-REGISTRATION=Path('/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/REGISTRATION.json')
-REG_SHA='715ccad8839c9486f5a0b40f934da23ff4036247c8c448516788e77c7e490aab'
+REGISTRATION=Path('/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v2_controls/REGISTRATION.json')
+REG_SHA='fb55ca585688cd2ca19ea55af55628c60c91554c00f68ef4a6ae1821d22b06ec'
+RUNTIME_ENVIRONMENT={'CUBLAS_WORKSPACE_CONFIG':':4096:8'}
 POLICY=Path('/mnt/project/server_dispatch_policy.json')
 GPU_LOCK=Path('/mnt/project/st-world-policy-20261016/resources/locks/GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900.lock')
 ATTEMPT=REGISTRATION.parent/'RUNTIME_ATTEMPT'
@@ -101,7 +102,25 @@ def replace_aliases(original,wrapped):
             if value is original:setattr(module,key,wrapped)
 
 
+def validate_runtime_environment(environ=None,*,before_torch=True):
+    env=os.environ if environ is None else environ
+    if any(env.get(k)!=v for k,v in RUNTIME_ENVIRONMENT.items()):
+        raise ValueError('C1 deterministic runtime requires explicit CUBLAS_WORKSPACE_CONFIG=:4096:8')
+    if before_torch and 'torch' in sys.modules:
+        raise ValueError('Runtime environment must be checked before importing torch')
+    return dict(RUNTIME_ENVIRONMENT)
+
+
+def child_environment(parent,admission,lock_fd):
+    validate_runtime_environment(parent)
+    return dict(parent,CUDA_VISIBLE_DEVICES=admission['gpu_uuid'],OMP_NUM_THREADS='2',
+        OPENBLAS_NUM_THREADS='2',MKL_NUM_THREADS='2',NUMEXPR_NUM_THREADS='2',
+        PYTHONDONTWRITEBYTECODE='1',ST_GRADIENT_LOCK_FD=str(lock_fd),
+        HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',**RUNTIME_ENVIRONMENT)
+
+
 def child_main():
+    runtime_environment=validate_runtime_environment()
     # Internal fixed child entry. The parent's inherited lock FD proves this is
     # its single active invocation; merely setting an environment variable fails.
     fd=int(os.environ['ST_GRADIENT_LOCK_FD']);os.fstat(fd)
@@ -109,6 +128,9 @@ def child_main():
     if (os.fstat(fd).st_dev,os.fstat(fd).st_ino)!=(lock_stat.st_dev,lock_stat.st_ino):
         raise RuntimeError('Foreign lock descriptor')
     validate_admission(ATTEMPT/'ADMISSION.json')
+    write_json(ATTEMPT/'RUNTIME_ENVIRONMENT.json',{
+        'runtime_environment':runtime_environment,'torch_imported':False,
+        'checked_before_import':True,'original_C1_determinism_preserved':True},True)
     os.chdir(RUNTIME);sys.path.insert(0,str(RUNTIME))
     counters=ReadAdmission(ATTEMPT/'COUNTERS.json')
     import torch
@@ -254,6 +276,7 @@ def supervise(argv,*,attempt,output,env,pass_fds=(),wall=WALL,rss_limit=RSS_LIMI
 
 
 def validate_admission(path):
+    validate_runtime_environment()
     r=small_json(REGISTRATION,REG_SHA);a=small_json(path)
     policy=small_json(POLICY,a.get('dispatch_policy_sha256'))
     if not a.get('dispatch_policy_sha256') or socket.gethostname() not in policy['allowed_aliases']:
@@ -262,7 +285,8 @@ def validate_admission(path):
     helper_hashes={n:hashlib.sha256((HELPERS/n).read_bytes()).hexdigest() for n in ('supervise_once.py','prepare_bindings.py')}
     if (a.get('status')!='APPROVED' or a.get('registration_sha256')!=REG_SHA
         or a.get('source_sha')!=SOURCE or a.get('wrapper_sha256')!=self_hash
-        or a.get('helper_sha256')!=helper_hashes or a.get('host')!=socket.gethostname()
+        or a.get('helper_sha256')!=helper_hashes or a.get('runtime_environment')!=RUNTIME_ENVIRONMENT
+        or a.get('host')!=socket.gethostname()
         or a.get('host')!=r['resource']['host'] or a.get('gpu_uuid')!=r['resource']['gpu_uuid']
         or a.get('valid_until_unix',0)<time.time()+WALL):raise ValueError('Exact unexpired Lead admission required')
     for kind in ('correctness','resources'):
@@ -270,7 +294,7 @@ def validate_admission(path):
         if (review.get('status')!='APPROVE_GRADIENT_BALANCE_EXECUTION' or review.get('review_kind')!=kind
             or review.get('reviewer') in (None,'','/root/road_proxy_systems_review')
             or review.get('source_sha')!=SOURCE or review.get('registration_sha256')!=REG_SHA
-            or review.get('wrapper_sha256')!=self_hash):
+            or review.get('wrapper_sha256')!=self_hash or review.get('runtime_environment')!=RUNTIME_ENVIRONMENT):
             raise ValueError('Independent exact '+kind+' review required')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=RUNTIME,text=True,timeout=10).strip()!=SOURCE:
         raise ValueError('Frozen runtime changed')
@@ -292,7 +316,8 @@ def main():
     if args.fixed_child:return child_main()
     if not args.execute:
         print(json.dumps({'status':'NOT_RUN','registration':str(REGISTRATION),'registration_sha256':REG_SHA,
-            'independent_reviews_required':True,'wrapper_author':'/root/road_proxy_systems_review'}));return 0
+            'independent_reviews_required':True,'runtime_environment':RUNTIME_ENVIRONMENT,
+            'wrapper_author':'/root/road_proxy_systems_review'}));return 0
     if not args.admission:raise ValueError('Explicit independently reviewed Lead admission required')
     # All preflight waits count toward the same 1800-second allocation. Native
     # git/nvidia helpers have separate 10-second subprocess timeouts.
@@ -310,9 +335,7 @@ def main():
         if Path(r['output']).exists():raise ValueError('Diagnostic output already exists; no retry')
         ATTEMPT.mkdir(exist_ok=False)
         write_json(ATTEMPT/'ADMISSION.json',a,True)
-        env=dict(os.environ,CUDA_VISIBLE_DEVICES=a['gpu_uuid'],OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='2',
-            MKL_NUM_THREADS='2',NUMEXPR_NUM_THREADS='2',PYTHONDONTWRITEBYTECODE='1',
-            ST_GRADIENT_LOCK_FD=str(lock.fileno()),HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1')
+        env=child_environment(os.environ,a,lock.fileno())
         argv=['taskset','-c',','.join(map(str,a['cpu_affinity'])),PYTHON,str(Path(__file__).resolve()),'--fixed-child']
         remaining=WALL-(time.monotonic()-started)
         if remaining<40:raise TimeoutError('No diagnostic/cleanup budget remains')

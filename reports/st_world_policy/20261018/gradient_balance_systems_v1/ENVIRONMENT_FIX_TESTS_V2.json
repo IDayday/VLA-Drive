@@ -1,0 +1,55 @@
+{
+  "status": "AUTHOR_ENVIRONMENT_FIXTURES_PASS_NOT_APPROVAL",
+  "cases": [
+    {
+      "case": "missing",
+      "exit_code": 1,
+      "rejected_before_registration_or_admission_read": true
+    },
+    {
+      "case": "wrong_workspace",
+      "exit_code": 1,
+      "rejected_before_registration_or_admission_read": true
+    },
+    {
+      "case": "wrong_text",
+      "exit_code": 1,
+      "rejected_before_registration_or_admission_read": true
+    },
+    {
+      "case": "actual_child_path_before_torch_import",
+      "exit_code": 0,
+      "stdout": "PASS_CHILD_ENV_CONFIRMED_BEFORE_TORCH_IMPORT\n",
+      "torch_import_intercepted": true
+    },
+    {
+      "case": "late_after_torch_rejected",
+      "exit_code": 0,
+      "stdout": "PASS_LATE_ENVIRONMENT_REJECTED\n"
+    }
+  ],
+  "unchanged_AST": {
+    "ReadAdmission": true,
+    "process_sample": true,
+    "supervise": true,
+    "ownership_helpers": true,
+    "directory_bytes": true
+  },
+  "registration_changes": [
+    "output"
+  ],
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "wrapper_sha256": "29556ded05f532cabc7f4fa8255668f7ab232341f7ce34a6f5fa5fa5650f76ae",
+  "registration_sha256": "fb55ca585688cd2ca19ea55af55628c60c91554c00f68ef4a6ae1821d22b06ec",
+  "wall_seconds": 0.24011565186083317,
+  "CPU_seconds": 0.192309,
+  "peak_child_RSS_bytes": 18493440,
+  "GPU_used": false,
+  "torch_imported_in_fixture": false,
+  "real_model_reads": 0,
+  "new_scores": 0,
+  "optimizer_updates": 0,
+  "formal_training_approved": false
+}
