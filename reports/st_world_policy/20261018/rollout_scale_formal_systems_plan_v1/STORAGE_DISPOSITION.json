@@ -1,0 +1,816 @@
+{
+  "schema": "rollout_scale_formal_storage_disposition_draft_v1",
+  "status": "READ_ONLY_DRAFT_NOT_APPROVED",
+  "created_utc": "2026-10-18T18:01:46.523812+00:00",
+  "shared_free_bytes_snapshot": 3547551748096,
+  "free_space_is_not_quota_confirmation": true,
+  "old_guard": {
+    "source": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_reviewed_flow_v1.py",
+      "sha256": "6a03442b26eb01a5de9e2ea5e3e1f508ca69d2959ba18cf37903e73295ce3db2",
+      "bytes": 9220
+    },
+    "total_free_threshold_GiB": 3130,
+    "terms_GiB": {
+      "shared_floor": 1024,
+      "old_cache_headroom": 123,
+      "four_spatial_future_plans": 960,
+      "C0_future": 187,
+      "four_other_C_future": 836
+    }
+  },
+  "accounting_rule": "Current df.free already excludes retained files. Reserve only new run future writes plus still-active/unresolved unmaterialized claims and 1TiB floor. Do not edit the original cache policy/ledger or delete files.",
+  "run_dispositions": [
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1",
+      "family": "consequence",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C0_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "sha256": "0af2b4ad9741161f5e03a8e78520df5e80e8d1e21f7127a8a00c65b4fb0a7a4d",
+        "bytes": 1611
+      },
+      "status": "COMPLETE",
+      "completed": 4096,
+      "termination_reason": "MAX_STEPS",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "COMPLETED_RETAINED_NO_FUTURE_WRITES",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1",
+      "family": "consequence",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "sha256": "cc7b9333eda086b330dc87fbda7dc4c8da404b34e54368916aadaad8c3ef08e2",
+        "bytes": 1868
+      },
+      "status": "COMPLETE",
+      "completed": 4096,
+      "termination_reason": "MAX_STEPS",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "COMPLETED_RETAINED_NO_FUTURE_WRITES",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1",
+      "family": "consequence",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C2_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "sha256": "e2127859b6c0f96c19a32f0246bbe8e02e541d9701649c3bd2253b3d12df9fb4",
+        "bytes": 1859
+      },
+      "status": "COMPLETE",
+      "completed": 4096,
+      "termination_reason": "MAX_STEPS",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "COMPLETED_RETAINED_NO_FUTURE_WRITES",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1",
+      "family": "consequence",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C3_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "sha256": "5514cc593ccca13af3130bb7b8bbed22272c3f092418fc5e9b6ff1d0125fdefb",
+        "bytes": 1859
+      },
+      "status": "COMPLETE",
+      "completed": 4096,
+      "termination_reason": "MAX_STEPS",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "COMPLETED_RETAINED_NO_FUTURE_WRITES",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1",
+      "family": "consequence",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C4_fulltrain_seed42_official_4096_v1/RESULT.json",
+        "sha256": "d44aae1e4e4cc5d36b47b698c881595ad1c0cf60c86e46dbc471a68a78831286",
+        "bytes": 1869
+      },
+      "status": "COMPLETE",
+      "completed": 4096,
+      "termination_reason": "MAX_STEPS",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "COMPLETED_RETAINED_NO_FUTURE_WRITES",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP0_fulltrain_seed42_official_5k_v1/RESULT.json",
+        "sha256": "7d1c9bf5e7ef847513215acd195ac49e1a2f9ef73e4b9ec5daa21912cc0c89a3",
+        "bytes": 687
+      },
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP1_fulltrain_seed42_official_5k_v1/RESULT.json",
+        "sha256": "ae085f75691406f3d647eaadbdda39ad309a70c693c65938b1377a30a4ff86d4",
+        "bytes": 698
+      },
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_20k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_20k_v1/RESULT.json",
+        "sha256": "8c6aaeabc9eac0d31de93baeee9516453511098f5b2345460f2d4dc4c532825e",
+        "bytes": 757
+      },
+      "status": "PAUSED",
+      "completed": 11762,
+      "termination_reason": "BUDGET_PAUSED",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP2_fulltrain_seed42_official_5k_v1/RESULT.json",
+        "sha256": "eb06fd877ca1f32c7412303e439a1464ee728b56841808e4863178c3e6dca5da",
+        "bytes": 688
+      },
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_20k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_20k_v1/RESULT.json",
+        "sha256": "26fc9fe549d3a3ef518ddf236bdaca73cf4f5fdf8d222c2fbb430e26a25619ac",
+        "bytes": 760
+      },
+      "status": "PAUSED",
+      "completed": 12071,
+      "termination_reason": "OPERATOR_PAUSED",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1",
+      "family": "spatial",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/spatial/runs/SP3_fulltrain_seed42_official_5k_v1/RESULT.json",
+        "sha256": "b5280cea09613835973b5ef15d72169c8066b7d0c13b7ec20cf0577de4dccfba",
+        "bytes": 699
+      },
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "future_growth_for_this_consequence_plan_bytes": 0,
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "live_process_claim": "Metadata status only; no assertion about a remote process from historical PID"
+    },
+    {
+      "run": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1",
+      "family": "feature_control",
+      "result": {
+        "path": "/mnt/project/st-world-policy-20261016/formal/teacher_channel_control_v1/runs/SP2_PCA256_fulltrain_seed42_official_5k_v1/RESULT.json",
+        "sha256": "5122471cc9d96c1b70c4acc4dba88e68b7966023107e8a87d729ec69ebbf06d0",
+        "bytes": 687
+      },
+      "status": "PAUSED",
+      "completed": 5000,
+      "termination_reason": "RUNNING_CHECKPOINT",
+      "disposition": "FEATURE_PAUSED_RETAINED_NO_AUTOMATIC_RESUME",
+      "future_growth_for_this_consequence_plan_bytes": 0
+    }
+  ],
+  "legacy_cache_dispositions": [
+    {
+      "claim_id": "legacy-current-train-three-variants",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train",
+      "historical_reserved_bytes": 654982512640,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/FULL_CACHE_STAGE_PLAN.json",
+        "sha256": "1b2f9a2f0e3eeaf8d562a3093a14a102255fe438fab9ad0dba9ea5dec48fcd29",
+        "bytes": 16875
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "ALL_THREE_TRAIN_CACHES_COMPLETE_RETAINED",
+      "completions": [
+        {
+          "variant": "native384",
+          "receipt": {
+            "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/native384/COMPLETE.json",
+            "sha256": "7dd3401dc3dadb32846c4df8eaf25bc453fdc72998906bd372323448979368ef",
+            "bytes": 1189892
+          },
+          "status": "COMPLETE",
+          "declared_payload_bytes": 539427538104,
+          "scenes": 101592
+        },
+        {
+          "variant": "pool3",
+          "receipt": {
+            "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/pool3/COMPLETE.json",
+            "sha256": "4dad9699728a93530be69ad03cd5e18caa412bb3947d82dc762c01e1dc008712",
+            "bytes": 1189891
+          },
+          "status": "COMPLETE",
+          "declared_payload_bytes": 59939229456,
+          "scenes": 101592
+        },
+        {
+          "variant": "legacy_c1",
+          "receipt": {
+            "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_current_teacher_train_stage_plan_v3/cache/train/legacy_c1/COMPLETE.json",
+            "sha256": "4780ddd9eff05a1970152a732fd86064fef79030a2fdbbe2c268dd98eff2d052",
+            "bytes": 1189891
+          },
+          "status": "COMPLETE",
+          "declared_payload_bytes": 29978529544,
+          "scenes": 101592
+        }
+      ],
+      "declared_payload_bytes": 629345297104,
+      "note": "The original plan still says CACHE_NOT_STARTED; later immutable COMPLETE receipts supersede that historical status. No shard payloads were opened."
+    },
+    {
+      "claim_id": "legacy-full-dev-native",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev",
+      "historical_reserved_bytes": 12884901888,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_current_native384_v1/dev/COMPLETE.json",
+        "sha256": "2d5f46f9b334c55da4ee17cc780ababde6024f595510236d7dcf5ba6a6e4137d",
+        "bytes": 19977
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 9005326248
+    },
+    {
+      "claim_id": "legacy-full-dev-pooled",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev",
+      "historical_reserved_bytes": 2147483648,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_current_pooled384_v1/dev/COMPLETE.json",
+        "sha256": "1a511396ff631bc26b631450233e7618cb97d242998c87caada8164eecf1f8a3",
+        "bytes": 19977
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 1000639152
+    },
+    {
+      "claim_id": "legacy-full-dev-c1",
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev",
+      "historical_reserved_bytes": 1073741824,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_current_legacyC1_v1/dev/COMPLETE.json",
+        "sha256": "458dcff0523b8d78941007a4522d400b4bbbff53cc55778759bcc3dbcdf9862b",
+        "bytes": 19976
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 500468400
+    },
+    {
+      "claim_id": "legacy-diagnostic-legacy_c1_dev16_current_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1",
+      "historical_reserved_bytes": 1073741824,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_dev16_current_v1/COMPLETE.json",
+        "sha256": "06c9ddae05b6900c96089c3754245269956af89b295fe24925b24e594c83865e",
+        "bytes": 608
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 4721568
+    },
+    {
+      "claim_id": "legacy-diagnostic-legacy_c1_train64_current_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1",
+      "historical_reserved_bytes": 1073741824,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/legacy_c1_train64_current_v1/COMPLETE.json",
+        "sha256": "7363bc237b9e7da0677ec64262c9e040965bbffbf5447a4407e47986c25dedfb",
+        "bytes": 1098
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 18885600
+    },
+    {
+      "claim_id": "legacy-diagnostic-native384_dev16_cost_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1",
+      "historical_reserved_bytes": 2147483648,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_dev16_cost_v1/COMPLETE.json",
+        "sha256": "e79e8e6a5e943bb56ce54c55b9fc1b1d82f1b1d6fec35c6cc82f11aa21532853",
+        "bytes": 1343
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 424779712
+    },
+    {
+      "claim_id": "legacy-diagnostic-native384_train64_cost_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1",
+      "historical_reserved_bytes": 8589934592,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/native384_train64_cost_v1/COMPLETE.json",
+        "sha256": "94b63b092655f8a2491c9cd23a279568a995f9c72c23e55c83e545d36c25afd0",
+        "bytes": 4048
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 1693808448
+    },
+    {
+      "claim_id": "legacy-diagnostic-pooled384_dev16_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1",
+      "historical_reserved_bytes": 1073741824,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_dev16_v1/COMPLETE.json",
+        "sha256": "11aca35f3d9c8c7932a8fc198c68669c7f1a48eab3d80add14779538d34274d0",
+        "bytes": 1342
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 47200128
+    },
+    {
+      "claim_id": "legacy-diagnostic-pooled384_train64_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1",
+      "historical_reserved_bytes": 2147483648,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pooled384_train64_v1/COMPLETE.json",
+        "sha256": "864383cbb5b483d607cf7ca4f1828a5f8843a98dd3a73817196190aabd3388eb",
+        "bytes": 4047
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 188209872
+    },
+    {
+      "claim_id": "legacy-diagnostic-train256_current_cost_v1-native384",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384",
+      "historical_reserved_bytes": 4294967296,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/train256_current_cost_v1/native384/COMPLETE.json",
+        "sha256": "d4dd474c38554e0ca16fa35077b8528c6860170eb952cb708fc8b4ed6fa612a4",
+        "bytes": 3311
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": 1359294528
+    },
+    {
+      "claim_id": "legacy-diagnostic-pca_fixed384_full_SP0_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1",
+      "historical_reserved_bytes": 536870912,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_SP0_v1/COMPLETE.json",
+        "sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "bytes": 345
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": null
+    },
+    {
+      "claim_id": "legacy-diagnostic-pca_train64_256_384_v1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1",
+      "historical_reserved_bytes": 536870912,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_train64_256_384_v1/COMPLETE.json",
+        "sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "bytes": 345
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "COMPLETE_RETAINED_NO_FUTURE_WRITES",
+      "declared_payload_bytes": null
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-0",
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v1",
+      "historical_reserved_bytes": 3145728,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-1",
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v2",
+      "historical_reserved_bytes": 3145728,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-2",
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v5",
+      "historical_reserved_bytes": 2097152,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-3",
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v3",
+      "historical_reserved_bytes": 3145728,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-4",
+      "root": "/mnt/project/st-world-policy-20261016/audits/teacher_metadata_index_pilot_v4",
+      "historical_reserved_bytes": 2097152,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-5",
+      "root": "/mnt/project/st-world-policy-20261016/audits/correctness/metadata_index_review_v1",
+      "historical_reserved_bytes": 2097152,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    },
+    {
+      "claim_id": "adopted-metadata-pilot-6",
+      "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v1",
+      "historical_reserved_bytes": 1048576,
+      "source": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/metadata_migration_preparation_v1/PILOT_INVENTORY_1792214632551166587.json",
+        "sha256": "e05bcc80f5c27c08725e93713968e9f670c8e354791de881eadfc97c7261f151",
+        "bytes": 26803
+      },
+      "future_growth_for_this_plan_bytes": 0,
+      "modification_or_release_performed": false,
+      "disposition": "RETAINED_METADATA_NO_LIVE_WRITER_PER_POLICY",
+      "note": "immutable retained metadata pilot; no live writer permitted"
+    }
+  ],
+  "guarded_claim_dispositions": [
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2",
+      "claim_id": "history64-packed-cost-pilot-v1",
+      "declared_total_cap_bytes": 32505856,
+      "ledger_observed_bytes": 1290240,
+      "ledger_charged_bytes": 32505856,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/causal_history_cost64_v2/COMPLETE.json",
+        "sha256": "59e2ba4d8513755ea624f130b6672bd38be04d80361fc8c43705bf246b8b5950",
+        "bytes": 503
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev",
+      "claim_id": "full-causal-history-dev-v1",
+      "declared_total_cap_bytes": 133169152,
+      "ledger_observed_bytes": 29466624,
+      "ledger_charged_bytes": 133169152,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/dev/COMPLETE.json",
+        "sha256": "dd2e999fc66f386335a3bb71bf342bf3bd83a029dee49cd4a8dc791bab3fdecb",
+        "bytes": 505
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/full_causal_population_v1/train",
+      "claim_id": "full-causal-history-train-v1",
+      "declared_total_cap_bytes": 2146435072,
+      "ledger_observed_bytes": 1212461056,
+      "ledger_charged_bytes": 2146435072,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "disposition": "NO_CANONICAL_COMPLETION_FOUND_FEATURE_PAUSED",
+      "potential_future_write_reserve_bytes": 933974016,
+      "note": "No writer restarted. Preserve only unmaterialized declared headroom conservatively until Lead confirms no active writer; do not reserve occupied bytes twice."
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1",
+      "claim_id": "fixed_pca_full_current_namespace_v1",
+      "declared_total_cap_bytes": 75497472,
+      "ledger_observed_bytes": 0,
+      "ledger_charged_bytes": 33554432,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v1/COMPLETE.json",
+        "sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "bytes": 345
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2",
+      "claim_id": "fixed_pca_full_current_namespace_v2",
+      "declared_total_cap_bytes": 75497472,
+      "ledger_observed_bytes": 0,
+      "ledger_charged_bytes": 33554432,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/pca_fixed384_full_current_v2/COMPLETE.json",
+        "sha256": "cc6de46be1d865a871273755c0bf88dbdb9dac57b6fad9f77c7b6a126f4faace",
+        "bytes": 345
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/audits/history_data/temporal_composition32_history_v1",
+      "claim_id": "temporal-composition-exact32-causal-history-v1",
+      "declared_total_cap_bytes": 32505856,
+      "ledger_observed_bytes": 598016,
+      "ledger_charged_bytes": 32505856,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/audits/history_data/temporal_composition32_history_v1/COMPLETE.json",
+        "sha256": "7ee10c3ffc8e9a6bf6be5a9f8ed7a1ef2e449d761e7e39e31be58d492767a6dc",
+        "bytes": 502
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1",
+      "claim_id": "bounded-metadata-current-index-v1",
+      "declared_total_cap_bytes": 1073741824,
+      "ledger_observed_bytes": 381927424,
+      "ledger_charged_bytes": 1073741824,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_current_metadata_index_v1/COMPLETE.json",
+        "sha256": "8c44a8994e38a481ffcb1d06d77615e77328686c370f32e9954354358ecd4b02",
+        "bytes": 6704
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1",
+      "claim_id": "full-future-dev-preparation-v1",
+      "declared_total_cap_bytes": 134217728,
+      "ledger_observed_bytes": 30228480,
+      "ledger_charged_bytes": 134217728,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_dev_v1/COMPLETE.json",
+        "sha256": "5418ed85260c449bee5df626b14e123064b883488816c6103bf4904a4e365180",
+        "bytes": 7749
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_finalized_v1",
+      "claim_id": "full-future-train-finalization-v1",
+      "declared_total_cap_bytes": 2147483648,
+      "ledger_observed_bytes": 773218304,
+      "ledger_charged_bytes": 2147483648,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "disposition": "NO_CANONICAL_COMPLETION_FOUND_FEATURE_PAUSED",
+      "potential_future_write_reserve_bytes": 1374265344,
+      "note": "No writer restarted. Preserve only unmaterialized declared headroom conservatively until Lead confirms no active writer; do not reserve occupied bytes twice."
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_metadata_train_v1",
+      "claim_id": "full-future-train-preparation-v1",
+      "declared_total_cap_bytes": 2147483648,
+      "ledger_observed_bytes": 988409856,
+      "ledger_charged_bytes": 2147483648,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "disposition": "NO_CANONICAL_COMPLETION_FOUND_FEATURE_PAUSED",
+      "potential_future_write_reserve_bytes": 1159073792,
+      "note": "No writer restarted. Preserve only unmaterialized declared headroom conservatively until Lead confirms no active writer; do not reserve occupied bytes twice."
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_dev_v1",
+      "claim_id": "full-future-dev-index-v1",
+      "declared_total_cap_bytes": 134217728,
+      "ledger_observed_bytes": 8605696,
+      "ledger_charged_bytes": 134217728,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_dev_v1/COMPLETE.json",
+        "sha256": "339efa75e1cb41499c84b90783e09c375bd4ffd5b7a69a512c66c0207136f811",
+        "bytes": 3569
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1",
+      "claim_id": "full-future-train-index-v1",
+      "declared_total_cap_bytes": 2147483648,
+      "ledger_observed_bytes": 515760128,
+      "ledger_charged_bytes": 2147483648,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/full_future_request_index_train_v1/COMPLETE.json",
+        "sha256": "07cdbbd00d7c9be219c23c75bf75aee4651cad6c93b136a0f2b19b4bdca4a148",
+        "bytes": 3614
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1",
+      "claim_id": "bounded-request-index-v1",
+      "declared_total_cap_bytes": 33554432,
+      "ledger_observed_bytes": 266240,
+      "ledger_charged_bytes": 33554432,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/future32_request_metadata_index_v1/COMPLETE.json",
+        "sha256": "6de27b645905f93568ffad39224449db9301cec47ad035404d67908c471b8827",
+        "bytes": 3587
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v2",
+      "claim_id": "bounded-metadata-future32-v1",
+      "declared_total_cap_bytes": 33554432,
+      "ledger_observed_bytes": 651264,
+      "ledger_charged_bytes": 33554432,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/future_metadata_qualification32_v2/COMPLETE.json",
+        "sha256": "597903c13d346751ee60a54c7f2ca385d5760452e241690bebacd6f3e155d25e",
+        "bytes": 2760
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/dev",
+      "claim_id": "SP0-frozen-W-dev16-native5000-v1",
+      "declared_total_cap_bytes": 26085776,
+      "ledger_observed_bytes": 0,
+      "ledger_charged_bytes": 19182556,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/dev/COMPLETE.json",
+        "sha256": "82fe8df47a082f1bce402827a524c327391e315ccc7fa0402f0ae815751d2fb2",
+        "bytes": 177
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/train",
+      "claim_id": "SP0-frozen-W-train64-native5000-v1",
+      "declared_total_cap_bytes": 86254736,
+      "ledger_observed_bytes": 0,
+      "ledger_charged_bytes": 76660500,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP0_5000_v1/train/COMPLETE.json",
+        "sha256": "17a8e9dd09447a2f2166a1dc8b216ada72e87b3525cfb3228d940dbd64a3d350",
+        "bytes": 177
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/learned_w_probe_SP1_5000_v1/dev",
+      "claim_id": "SP1-frozen-W-dev16-native5000-v1",
+      "declared_total_cap_bytes": 26085776,
+      "ledger_observed_bytes": 0,
+      "ledger_charged_bytes": 31419,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "disposition": "NO_CANONICAL_COMPLETION_FOUND_FEATURE_PAUSED",
+      "potential_future_write_reserve_bytes": 26085776,
+      "note": "No writer restarted. Preserve only unmaterialized declared headroom conservatively until Lead confirms no active writer; do not reserve occupied bytes twice."
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1",
+      "claim_id": "bounded-fit-index-v1",
+      "declared_total_cap_bytes": 33554432,
+      "ledger_observed_bytes": 1196032,
+      "ledger_charged_bytes": 33554432,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/original_pca_fit64_metadata_index_v1/COMPLETE.json",
+        "sha256": "952333bf289508a904b3b3c726ad840bc0557828fdb4b08f5f0b3bf508c6ab56",
+        "bytes": 23293
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    },
+    {
+      "root": "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache",
+      "claim_id": "real256_cpu_guarded_qualification",
+      "declared_total_cap_bytes": 173949798,
+      "ledger_observed_bytes": 152285184,
+      "ledger_charged_bytes": 154243786,
+      "ledger_observation_is_not_fresh_disk_census": true,
+      "completion": {
+        "path": "/mnt/project/st-world-policy-20261016/caches/storage_budget_real256_v1/cache/COMPLETE.json",
+        "sha256": "b8f8cf8733703dacae424eef13e917a83fd0bbf0fa0915255f7629bc8681640e",
+        "bytes": 3310
+      },
+      "disposition": "COMPLETE_RETAINED",
+      "potential_future_write_reserve_bytes": 0
+    }
+  ],
+  "unknown_unmaterialized_claim_upper_bound_bytes": 3493398928,
+  "rounded_unresolved_metadata_contingency_bytes": 4294967296,
+  "new_formal_single_run_reservation": {
+    "native_directory_limit": 15,
+    "per_directory_cap_bytes": 12884901888,
+    "native_reserve_bytes": 193273528320,
+    "actual_initial_native_payload_bytes": 4917269512,
+    "actual_mature_native_payload_bytes": 11473306504,
+    "fifteen_mature_payload_estimate_bytes": 172099597560,
+    "actual_initial_plus_fourteen_mature_estimate_bytes": 165543560568,
+    "feedback_rollouts_reserve_bytes": 25769803776,
+    "control_logs_observers_reserve_bytes": 5368709120,
+    "total_bytes": 224412041216,
+    "formal_output_existing_bytes": 0,
+    "output_created_by_reviewer": false
+  },
+  "profile_overlap_rule": "Do not launch FORMAL until the approved240 PROFILE exits. Completed diagnostic bytes remain occupied in df.free and receive zero future-write reservation. A still-active PROFILE retains its unconsumed96GiB study allowance and prevents overlap on selected GPUs.",
+  "provisional_minimum_free_for_new_formal_bytes": 1328218636288,
+  "other_live_unmaterialized_claims": "Add actual still-authorized other-job future reservations at launch; no claim that remote process inventory was verified by this reviewer.",
+  "cache_cap_bytes_unchanged": 824633720832,
+  "cache_ledger_modified": false,
+  "feature_jobs_resumed": false,
+  "checkpoint_or_cache_deleted": false
+}

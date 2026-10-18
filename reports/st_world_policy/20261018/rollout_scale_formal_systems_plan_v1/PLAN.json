@@ -1,0 +1,123 @@
+{
+  "schema": "rollout_scale_formal_systems_plan_draft_v1",
+  "status": "NOT_APPROVED_WAITING_PROFILE240",
+  "created_utc": "2026-10-18T18:01:46.528099+00:00",
+  "reviewer_agent": "/root/full_feedback_systems_review",
+  "registration": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+    "sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f",
+    "bytes": 2532
+  },
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "source_fingerprint_from_registration": "569a6a69374bd0cd25bbafd91489c5f07c78de9f9201b7268a391bbd3d68a9db",
+  "science_comparison": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_formal_comparison_v1/COMPARISON.json",
+    "sha256": "2b978dc4e1e3d1ed1b47a84294bba123dbcf7f85e03626990522d76efc394055",
+    "bytes": 15808
+  },
+  "host": "training-vlawm-tsinghua-zt5-worker-0",
+  "gpu_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "cpu_affinity": "0-15",
+  "world_size": 4,
+  "micro_batch": 4,
+  "caller_accumulation": 2,
+  "native_gradient_accumulation_steps": 1,
+  "global_batch": 32,
+  "max_updates": 4096,
+  "lr_horizon": 4096,
+  "warmup": 100,
+  "original_S0_init": true,
+  "diagnostic_weights_allowed": false,
+  "save_every": 512,
+  "max_invocations": 6,
+  "seconds_per_invocation": 28800,
+  "max_runtime_budget_seconds": 172800,
+  "per_invocation_outer_term_seconds": 29400,
+  "per_invocation_kill_delay_seconds": 180,
+  "per_invocation_save_cleanup_grace_seconds": 780,
+  "lease_seconds": 259200,
+  "native_directory_limit": 15,
+  "checkpoint_budget_includes_partial_and_pause_states": true,
+  "scene_population": 101592,
+  "log_population": 1176,
+  "scene_exposures": 131064,
+  "rollouts": 524256,
+  "official_admission_cap": 532448,
+  "BC_repeat8_presentations": 1048512,
+  "MC_points_per_old_and_current": 26212800,
+  "global_score_workers": 4,
+  "loader_workers_per_rank": 2,
+  "all_BLAS_threads": 1,
+  "resource_guards": {
+    "fresh_available_RAM_minimum_bytes": 549755813888,
+    "sampled_tree_RSS_target_limit_bytes": 274877906944,
+    "selected_gpu_used_limit_bytes": 51539607552,
+    "shared_free_floor_bytes": 1099511627776,
+    "new_output_reserve_bytes": 224412041216,
+    "unresolved_metadata_growth_contingency_bytes": 4294967296
+  },
+  "launch_reuse": {
+    "source_launcher": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_reviewed_flow_v1.py",
+      "sha256": "6a03442b26eb01a5de9e2ea5e3e1f508ca69d2959ba18cf37903e73295ce3db2",
+      "bytes": 9220
+    },
+    "source_observer": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/observe_formal_flow_cpu_v1.py",
+      "sha256": "67cb7eb1d0ab95512132e69b6f2eaaaa23f3841d9b6022dbd1245b95be08c5ff",
+      "bytes": 4095
+    },
+    "final_launcher": "WAITING_LEAD_PINNED_VERSION",
+    "required_narrow_adaptations": [
+      "Bind751 runtime and this exact one-run registration/source fingerprint",
+      "Replace stale3130GiB multi-wave freeguard with immutable current-disposition remaining-write admission, preserving1TiB floor",
+      "Apply CPU0-15 to the four-rank tree and bounded observer; BLAS/OMP/NUMEXPR single-thread",
+      "Preserve dispatch/perGPUlocks, exact UUID lease, full compute-app rejection even at0MiB/0util, RAM/maps/free checks",
+      "Preserve8h timeout/native boundary save, six-invocation cap,15-directory remaining-write calculation and verified latest native resume",
+      "Pin final launcher and observer in efficiency evidence before any invocation; preserve the old launcher unchanged"
+    ]
+  },
+  "resume_protocol": [
+    "Use same exact FORMAL registration, output and source; --resume resolves latest complete compatible native state",
+    "Use --acknowledge-stop only when the operator has authorized that exact stopped run to continue; never remove stop markers manually",
+    "Verify no original live process retains this run/GPU locks before resuming; preserve consumed sampler, RNG, Adam/master and4096 scheduler",
+    "No implicit resume from old C1 endpoint or SMOKE/PROFILE; no automatic restart or automatic seventh invocation",
+    "Native limit exhaustion or corrupt progress rejects admission and preserves artifacts; no automatic deletion"
+  ],
+  "profile_measurement_requirements": {
+    "required_updates": 240,
+    "windows": [
+      {
+        "warmup": 20,
+        "steady": 100
+      },
+      {
+        "warmup": 20,
+        "steady": 100
+      }
+    ],
+    "normal_update_mean_p50_p95": "WAITING_PROFILE_COMPLETE",
+    "normalizer_cost_per_rank": "WAITING_PROFILE_COMPLETE",
+    "slowest_rank_and_checkpoint_amortized_cost": "WAITING_PROFILE_COMPLETE",
+    "full_population_IO_RAM_CPU_feedback_cost": "WAITING_PROFILE_COMPLETE",
+    "formal_runtime_estimate": "WAITING_PROFILE_COMPLETE; derive from complete measured windows, not4stepSMOKE",
+    "no_pure_causal_speed_claim_from_old_zt4_control": true
+  },
+  "formal_output_path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_rollout_std_fulltrain_seed42_official_4096_v1",
+  "read_boundaries": {
+    "no_model_payload_read": true,
+    "no_training_ledger_payload_read": true,
+    "no_large_manifest_body_read": true,
+    "no_DEV_scene_scores_read": true,
+    "no_remote_inspection_or_dispatch": true,
+    "small_metadata_bytes_this_materialization": 4015747
+  },
+  "formal_launch_allowed": false,
+  "evaluation_dispatch_allowed": false,
+  "source_or_active_run_modified": false
+}
