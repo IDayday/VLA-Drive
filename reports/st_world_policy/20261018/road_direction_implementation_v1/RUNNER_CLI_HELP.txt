@@ -1,0 +1,24 @@
+usage: run_road_direction.py [-h] (--prepare | --execute)
+                             [--evidence EVIDENCE] --registration REGISTRATION
+                             [--output-root OUTPUT_ROOT]
+                             [--admission ADMISSION]
+                             [--admission-sha256 ADMISSION_SHA256] [--resume]
+
+Fixed32 CPU road-direction diagnostic. No model load, training, or retry.
+Prepare emits a reviewable immutable registration. Execute requires an exact
+Lead admission plus independently authored correctness/resource approvals
+bound to that registration and these source hashes. Existing calls are never
+repeated.
+
+options:
+  -h, --help            show this help message and exit
+  --prepare
+  --execute
+  --evidence EVIDENCE
+  --registration REGISTRATION
+  --output-root OUTPUT_ROOT
+                        Required by prepare; cannot change at execute
+  --admission ADMISSION
+  --admission-sha256 ADMISSION_SHA256
+  --resume              Continue untouched scenes only, never retry an
+                        admitted/partial scene
