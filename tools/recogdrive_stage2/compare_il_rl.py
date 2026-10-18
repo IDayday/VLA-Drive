@@ -191,7 +191,7 @@ def worker(args):
     assigned = rows[args.rank::args.world_size]; targets = read(root/'targets.json')['targets']
     for name in models: (root/name/'predictions').mkdir(parents=True, exist_ok=True)
     (root/'relations').mkdir(exist_ok=True)
-    begin = time.time(); completed = 0
+    begin = time.time(); completed = 0; resumed = 0; parity_scene_token = None
     for row in assigned:
         if time.time()-begin > args.max_seconds: raise TimeoutError('Finite evaluation window exhausted')
         token = row['token']; record = root/'relations'/f'{token}.json'
@@ -201,7 +201,7 @@ def worker(args):
             for name in models:
                 p = root/name/'predictions'/f'{token}.npz'
                 if digest(p) != read(p.with_suffix('.json'))['proposal_sha256']: raise ValueError('Changed prediction')
-            completed += 1; continue
+            completed += 1; resumed += 1; continue
         started = time.time(); current = make_agent_input(row)
         with torch.inference_mode():
             features = builder.compute_features(current)
@@ -218,6 +218,7 @@ def worker(args):
                     expected = model.compute_trajectory(current).poses
                     if isinstance(expected, torch.Tensor): expected = expected.numpy()
                     np.testing.assert_allclose(proposals[name], expected, atol=1e-6, rtol=0)
+                    parity_scene_token = token
             gt = np.array(targets[token], dtype=np.float32)
             loss_seed = int.from_bytes(hashlib.sha256(f'il-loss:42:{token}'.encode()).digest()[:8], 'big') % 2**31
             losses = {name: original_il_loss(model, features, gt, identity['draws'], loss_seed)
@@ -249,7 +250,8 @@ def worker(args):
             requested=len(assigned), identity_sha256=ident))
     atomic_json(root/f'worker_{args.rank}.json', dict(status='COMPLETE', completed=completed,
         seconds=time.time()-begin, peak_memory=torch.cuda.max_memory_allocated(), optimizer_updates=0,
-        parity_first_scene=True, pid=os.getpid()))
+        parity_first_scene=parity_scene_token is not None, parity_scene_token=parity_scene_token,
+        resumed_scenes=resumed, newly_computed_scenes=completed-resumed, pid=os.getpid()))
 
 
 def launch(args):

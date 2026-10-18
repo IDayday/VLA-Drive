@@ -18,7 +18,7 @@ def summarize(root, replicates=5000):
         raise ValueError('Unexpected full test population')
     ident = signature(identity); rows=[]; per_time={k:[] for k in ['IL','RL']}
     bins={str(i):dict(count=0,IL_sum=0.,RL_sum=0.) for i in range(10)}
-    score_names=['score','no_at_fault_collisions','drivable_area_compliance','time_to_collision',
+    score_names=['score','no_at_fault_collisions','drivable_area_compliance','time_to_collision_within_bound',
                  'ego_progress','comfort','driving_direction_compliance']
     for item in manifest:
         d=read(root/'relations'/f"{item['token']}.json")
