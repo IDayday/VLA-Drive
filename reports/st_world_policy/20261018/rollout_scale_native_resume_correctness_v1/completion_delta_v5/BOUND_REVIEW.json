@@ -1,0 +1,83 @@
+{
+  "schema": "st_native_resume_completion_v5_correctness_review",
+  "status": "PASS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "recorded_utc": "2026-10-18T23:39:21.484507+00:00",
+  "binding_sha256": "8b0d3b8f997d514e76b322ff9a5afb06fd60f55e0775fad30a13af4f7013a313",
+  "controller_commit": "8787b62bd4f897b991ef92a8882b146b9ff42082",
+  "coordinator_sha256": "85713b7a2b1ad855e2c24b2dbd8beda71c215859a3dc99a77450878264ede4cb",
+  "original_observer_sha256": "468fe8f1ed20ef3abb2b2407413f92fb078f6b1d05f6cbfb2ed4e4b6e69f9692",
+  "runtime_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "scope": "Only completion_v5 finite SMOKE scheduling/output adapter, completed v4 A read-only reference, B-only fresh+resume, verified-completion orphan drain and cumulative accounting. No formal-run approval.",
+  "findings": {
+    "normal_exit": "Requires rc0, original RESULT/native validation and all four source/registration/rank/step-bound observer completions before successful drain. Known descendants use unchanged PPID/start ownership cleanup; foreign GPU protection is unchanged.",
+    "math_and_observer": "Original v4 observer is imported only under its exact SHA; only output ROOT is adapted. Runtime751 save/load/RNG/scientific hooks are unchanged. New wrapper identity is separately recorded and only new B registration/output is accepted.",
+    "A_reference": "Actual old A4/512 plus native0/2/4 receipts/stat and four observer completions verified. No native tensor content read/copy, no A launch. Compare retains original prefix A/A criterion and suffix divergence verdict without expanded tolerance.",
+    "old_B_and_failures": "Old v4 B retains exactly three startup files; no archive, modification or reuse. Old failed initial_RESULT and four prior startup attempts remain bound.",
+    "admission": "Expired v4 route is disclosed and not reused. Fresh v5 actual lease/binding requires distinct independent correctness/resources reviewers; final fresh physical resource checks and sole dispatch belong to Lead.",
+    "budget": "Prior4+new2 invocations; done4+remaining4 updates; done512+remaining512 official calls; zero retries. Prior660+new2940+compare120+cleanup180=3900 active seconds. Combined old/new104GiB output and cumulative sampled1TiB IO guards retained. Calendar gap is disclosed, not counted as active execution."
+  },
+  "test_result": {
+    "schema": "independent_completion_v5_lifecycle_test",
+    "source_commit": "8787b62bd4f897b991ef92a8882b146b9ff42082",
+    "controller_sha256": "85713b7a2b1ad855e2c24b2dbd8beda71c215859a3dc99a77450878264ede4cb",
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/test_completion_lifecycle.py"
+    ],
+    "exit_code": 0,
+    "stop_reason": null,
+    "wall_seconds": 0.9614248629659414,
+    "waited_child_CPU_seconds": 0.511515,
+    "sampled_20ms_aggregate_RSS_bytes": 52584448,
+    "own_test_processes_reaped": true,
+    "GPU_calls": 0,
+    "official_score_calls": 0,
+    "model_native_tensor_reads": 0,
+    "test_scope": "One CPU process lifecycle, failure exit, missing rank receipt, proven nested-setsid orphan drain, unrelated-process preservation. Fixture receipts are not actual native/GPU evidence.",
+    "old_DS_DDP_profile_tests_rerun": false
+  },
+  "metadata_verification": {
+    "unique_bytes_read": 291639,
+    "native_tensor_content_bytes_read": 0,
+    "actual_binding_file_sha256": "49683f242b213ee16efd8c6d49251549f96e4cfe509bdfec4d5d6f300bc8c9dd"
+  },
+  "actual_GPU_resume_result": "PENDING_B_EXECUTION_AND_ORIGINAL_COMPARISON",
+  "formal_training_approval": false,
+  "weights_usable_for_formal_init": false,
+  "no_new_GPU_or_scoring_by_reviewer": true,
+  "required_before_dispatch": [
+    "Matching independent resources review bound to this exact fresh binding",
+    "Lead final live route/UUID/RAM/storage/time/ownership checks and sole dispatch"
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/TEST_RESULT.json",
+      "sha256": "14187b2bc6c17d3731e55081555b0b3cc149dd44bd19f69e484312145a58eb6d"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/TEST_OUTPUT.txt",
+      "sha256": "b7b3aa92344a38bedb2ba74f765049f69319b8af87f14816cc3a4df38eeb870a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/test_completion_lifecycle.py",
+      "sha256": "9c97dfd1f1dab6ca843b65c1e0495d5be14e031f8ba0755c9a6447f3ca328361"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/run_review.py",
+      "sha256": "4aa6a0f5dd39a8cd5db49c4522bccc4be3f8582a87abdce7ca3f48c72867c5f3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/completion_delta_v5/BINDING_VERIFICATION.json",
+      "sha256": "29cb19b6b52b8cb6dd93cb091c12d9eb017e9523056e3cd8a6118ef65e4a3cd6"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/fragment_schema_delta_v4/BOUND_REVIEW.json",
+      "sha256": "3722609473443b57763f6db10b041dfbcbe8244b1046616f49a0a3c96ddce51e"
+    }
+  ]
+}
