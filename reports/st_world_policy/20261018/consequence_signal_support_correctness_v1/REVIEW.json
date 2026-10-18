@@ -1,0 +1,100 @@
+{
+  "schema": "independent_consequence_signal_support_review_v1",
+  "status": "PASS_BOUNDED_READ_ONLY_ANALYSIS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "created_utc": "2026-10-18T16:30:29.192706+00:00",
+  "author_commit": "cafc25a6096703b78a83b1b0d803a480545111af",
+  "integrated_commit": "08ecd377a01d536a409d52e9b9a0c38325fff658",
+  "source_hashes": {
+    "analyze_existing.py": "81871e4e4a09323c0bdbe3238f8f72e0236f1426d8fb8c56f903fcd1ff6f6b1d",
+    "PLAN.md": "7f983434b2c783b54f6abc3a91f09f12b2faf9c25f39d184d6714b4a072d4241",
+    "RESULTS.json": "f1e54540107e6f76d2b9ccd3d5eb9c4d53207b1dae8e49e1a3f245557bbbe986",
+    "REPORT.md": "aa8880170297845aa32f53ee6d4d8593d7c6d7cad83e1af45be66f72d4f474cd",
+    "RUNBOOK.md": "df348940c72929d3d01e2e9faac371e96282e51c3caa4491858413dc3087546f"
+  },
+  "math_source_hashes": {
+    "starVLA/model/modules/flow_posttraining/fpo_objective.py": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+    "tools/st_world_policy/train_flow_policy.py": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96",
+    "navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211"
+  },
+  "real_result_sha256": "8019dd29b17efa79c1fd1a7211bdf09a0b5be93931db75cd4db95ad9a3fb122f",
+  "independent_checker_sha256": "a77386a41c4febdc6f9ac01c41df2d7350318d63c31aa651746df0d5848c9045",
+  "independent_replay_sha256": "e42e9fd623fbc764f652e4c3df2ba9161276fb73982a23242076f90e1635e50c",
+  "review_markdown_sha256": "f808575247115cfa7bea6e556bd68509b5e3a450f0c27e055f3a3272226516ee",
+  "findings": {
+    "blocking_errors": [],
+    "real_population_recomputed": true,
+    "full128_record_identity_and_inclusion": true,
+    "original_float32_FPO_CPU_center_matches": true,
+    "official_formula_and_gated_products_match": true,
+    "signed_rounding_residual_retained": true,
+    "all192_pairs_accounted": true,
+    "zero_event_denominator_undefined": true,
+    "per_scene_statistics_match": true,
+    "C2_C3_C4_scope": "counterfactual rewards on same C1 candidates; not other trained policies",
+    "physical_time_flow_counterexample": "valid universal-mapping counterexample only; not actual NAVSIM Jacobian"
+  },
+  "execution": {
+    "logical_read_bytes": 3836606,
+    "real_ledger_reads": 1,
+    "wall_seconds": 1.1696009989827871,
+    "cpu_seconds": 1.1734809999999998,
+    "peak_rss_bytes": 425603072,
+    "torch_threads": 1,
+    "cuda_initialized": false,
+    "new_score_calls": 0,
+    "model_loads": 0,
+    "optimizer_updates": 0,
+    "full_manifest_reads": 0,
+    "DEV_Navtest_reads": 0,
+    "metric_cache_reads": 0
+  },
+  "recomputed": {
+    "C1_nonzero_scenes": 16,
+    "C1_nonzero_candidates": 64,
+    "EP_only_scenes": 16,
+    "C2_C3_C4_nonzero_scenes": [
+      0,
+      0,
+      0
+    ],
+    "D_C_T_event_candidates": [
+      0,
+      0,
+      0
+    ],
+    "pair_denominator": 192,
+    "float32_and_float64_tie_pairs": 96,
+    "safety_tie_pairs": 192,
+    "conditional_process_difference": null,
+    "advantage_squared_sum": 5.9478613771091204e-05,
+    "signed_covariance_numerators": [
+      5.9478681211245895e-05,
+      0.0,
+      0.0,
+      -6.74401546876263e-11
+    ],
+    "signed_covariance_fractions": [
+      1.0000011338555224,
+      0.0,
+      0.0,
+      -1.1338555223760897e-06
+    ],
+    "rounding_residual_max": 7.5120938303197e-08,
+    "official_reconstruction_max_error": 0.0
+  },
+  "limitations": [
+    "Only this fixed C1 TRAIN boundary3584 ledger; no full-TRAIN or heldout generalization claim",
+    "TRAIN provenance bound to small original receipts; full training manifest deliberately not opened",
+    "CPU replay of the original float32 center arithmetic; no new CUDA bitwise-center or parameter-gradient claim",
+    "C2/C3/C4 here are counterfactual reward definitions on C1 candidates, not results of their trained policies",
+    "No event-positive pair exists; conditional temporal information comparison is undefined, not evidence of temporal uselessness",
+    "Signed reward-value covariance is not causal contribution, gradient norm, or optimizer update",
+    "Toy analytic counterexample disproves a universal one-to-one time mapping, not an actual NAVSIM Jacobian"
+  ],
+  "formal_training_approved": false,
+  "new_experiment_dispatch_approved": false,
+  "full_train_ledger_expansion_approved": false,
+  "feature_research": "PAUSED_UNTOUCHED"
+}
