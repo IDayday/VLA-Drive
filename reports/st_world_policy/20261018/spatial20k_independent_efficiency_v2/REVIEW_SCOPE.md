@@ -1,0 +1,21 @@
+# Independent affected-scope efficiency review
+
+Reviewer: `/root/spatial20k_efficiency`; base `055e5c6d76cf7a86a2112afe806694a1daa4f425`. The reviewer did not implement the trainer, budget extension, launch helper, metadata builder or resource receipt. This review does not launch jobs or alter resource ledgers.
+
+The unchanged `fdf25f99b702754787904215bf1c2a2b7515ea75` native runtime already has full-model, 240-update official-backend profiles. The two recorded steady windows and final checkpoint are relevant to the current continuation. They are not replaced by the older activation-recomputation profiles. The official profile supports world 4, microbatch 4, global batch 32, caller accumulation 2, native DeepSpeed GAS 1, BF16 execution/native gradient accumulation, FP32 master/moments, TorchAdamW, ZeRO2, FlashAttention2 and no activation checkpointing. Its same-host 2×4 throughput was actually measured, not estimated by multiplying a solo result. The original loss-stream erratum remains in force.
+
+SP2 and SP3 preserve each parent's complete mathematical recipe, teacher, train population, precision and original 20k cosine/warmup clock. Only the registered invocation endpoint, output identity, parent receipt and resource lease change. An 8-hour invocation is a bounded continuation attempt, not a claim that 15,000 further updates will fit in 8 hours. No automatic retry or second invocation is authorized here. Parent loading and new-process memory/startup are not covered by steady-update timings.
+
+Both proposed Tsinghua hosts were read-only inspected in this review. Each has A800 SXM4 80GB with NV8, 128 visible CPU-affinity slots, sufficient visible available RAM, matching inherited software, and idle selected GPUs at observation. Hidden ancestor limits and per-project disk quota remain unverified. Dispatch must recheck exact GPUs under retained exclusive locks. These observations do not themselves reserve GPUs or establish new exact-node timing.
+
+## Rejected storage reasoning
+
+The earlier 4,143 GiB record treated the entire retained checkpoint envelope as future writes and the launcher used cache-cap minus known current-cache bytes. That formula was not the actual native metadata guard. The unchanged native guard reserves **all legacy cache bounds**, plus unobserved typed claims and ledger space, in addition to the 1 TiB free floor and remaining checkpoint obligation. With old 4,143 GiB, an independent read-only invocation of that guard fails at roughly 5.93 TB free. No PASS from the earlier resource packet carries forward.
+
+An acceptable correction must preserve the original retained upper envelope, all checkpoints and save cadence. It may subtract only independently identified complete existing checkpoints that are demonstrably already included in the original 2,703 GiB envelope. Stat-verified occupied bytes count at most once by `(device,inode)`, and at most `min(receipt logical bytes, allocated bytes)`. It must not credit planned, unallocated, unrelated, duplicate, partial or missing payloads. Native cache guard code and legacy cache bounds remain unchanged. Final PASS requires the corrected immutable resource receipt, exact new registrations and a fresh evaluation of the native formula.
+
+## Full TRAIN causal metadata
+
+The DEV metadata build completed the fixed 1,696 scenes / 16 logs, within its reviewed CPU/read/RSS bound, with zero owned children after cleanup. TRAIN's first controller failed before source processing because the native storage check rejected the earlier bound. That failure and its controls must remain. Its conservative 512 GiB exception charge is **not a measurement of actual 512 GiB reads**.
+
+A new TRAIN attempt may use the same fixed 101,592 scenes / 1,176 logs and existing typed claim, a distinct bounded control directory, the same one CPU-only worker, CPUs 10/11, 32 MiB/s source pacing, 448 GiB source cap, 512 GiB logical-read cap, 4 GiB RSS and 4-hour wall bound. The old control allowance remains accounted. It writes causal history/index metadata only, no image/teacher payload and no training labels or scores. The completed DEV result supports this bounded implementation path, not a promise that the full TRAIN build finishes within four hours.
