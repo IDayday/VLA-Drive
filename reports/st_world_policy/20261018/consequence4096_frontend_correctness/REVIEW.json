@@ -1,0 +1,94 @@
+{
+  "schema": "st_common4096_frontend_independent_correctness_v1",
+  "reviewer": "/root/spatial20k_correctness",
+  "reviewed_at_utc": "2026-10-18T02:58:58.621126+00:00",
+  "status": "PASS_CORRECTED_FRONTEND_ONLY_WAITING_ACTUAL_INPUTS",
+  "rejected_original": {
+    "path": "/mnt/project/VLA-Drive-st-spatial20k-evidence-20261018/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py",
+    "sha256": "13ddeb7e51b40297c9349eac9cc7580b35d641a7559df3647976dde225ea3736"
+  },
+  "approved_corrected_source": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/run_common_once.py",
+    "sha256": "3cccc594f984cb293f7bd68b74696e0db30379370d81b439baf9cf6610feff1c"
+  },
+  "fixed_commands": {
+    "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/consequence4096_bounded_preparation_v1/FIXED_COMMANDS.json",
+    "sha256": "4da48038c29d6473fe2b5a09f3e7629293a577e0aeafb19ae10449c1a5c34673"
+  },
+  "retained_monitor": {
+    "path": "/mnt/project/VLA-Drive-st-c4-cpu6-execution-20261017/reports/st_world_policy/20261017/full_future_metadata_preparation_v1/run_build_once.py",
+    "sha256": "8674aea1f2a3df894bb3c451287e6a14b5c20d59b01efe4883158f73a3690644"
+  },
+  "analyzer_unchanged": {
+    "path": "/mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/tools/st_world_policy/evaluate_campaign.py",
+    "sha256": "3ff851dcabd131d94fc22dc700802a68b4a6efd6fa0f345850ed2d9a8b8628a3"
+  },
+  "runtime_source": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "finding": {
+    "id": "SERIAL_LOCK_NOT_INHERITED",
+    "original_impact": "Parent loss could release cross-arm SERIAL while its child retains only the per-arm lock.",
+    "fix": "Pass serial to original run_pair; retain both parent locks; original monitor forwards this FD to the child.",
+    "delta": "Exactly one run_pair argument lock -> serial, plus explanatory comments; original monitor/analyzer unchanged."
+  },
+  "tests": {
+    "actual_corrected_frontend_metadata_fixtures": 9,
+    "actual_FD_boundary_tests": 2,
+    "failures": 0,
+    "skips": 0,
+    "metadata_log": {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence4096_frontend_correctness/ACTUAL_FRONTEND_TEST_RESULTS.txt",
+      "sha256": "ca7068ab8fe0db5f9ede99b74eae64aa2b9a33f722d66b68417117a21e668821"
+    },
+    "fd_log": {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/consequence4096_frontend_correctness/LOCK_TEST_RESULTS.txt",
+      "sha256": "1a85308961d41ee8c4c426e9a439e7b312757a0213c5ee448af97511af9b8daf"
+    },
+    "scope": "CPU source/metadata and temporary file-descriptor counterexample only"
+  },
+  "checks": {
+    "all_four_original_argv_env_cwd_limits_preserved": true,
+    "only4096_complete_inputs": true,
+    "old1024_and_partial_inputs_rejected": true,
+    "unchanged_native_completion_payload_verifier": true,
+    "one_GiB_read_including_binding": true,
+    "two_GiB_aggregate_RSS": true,
+    "thirtytwo_MiB_total_output": true,
+    "wall1800_cleanup40": true,
+    "no_automatic_retry": true,
+    "per_arm_and_shared_lock": true,
+    "shared_lock_retained_in_child": true,
+    "new_COMMON4096_control_namespace": true
+  },
+  "current_presence_only_not_scientific_verification": {
+    "C0": {
+      "official_score_COMPLETE_present": true,
+      "analysis_output_exists": null
+    },
+    "C1": {
+      "official_score_COMPLETE_present": false,
+      "analysis_output_exists": false
+    },
+    "C2": {
+      "official_score_COMPLETE_present": false,
+      "analysis_output_exists": false
+    },
+    "C3": {
+      "official_score_COMPLETE_present": false,
+      "analysis_output_exists": false
+    },
+    "C4": {
+      "official_score_COMPLETE_present": false,
+      "analysis_output_exists": false
+    }
+  },
+  "execution_boundary": {
+    "actual_analysis_run": false,
+    "payloads_read": false,
+    "large_population_read": false,
+    "CSV_or_bootstrap_executed": false,
+    "models_loaded": false,
+    "bind_called": false,
+    "dispatch": false
+  },
+  "remaining": "Lead must bind actual complete score/export identities and check live resources. This is not a completed COMMON4096 analysis or launch admission."
+}
