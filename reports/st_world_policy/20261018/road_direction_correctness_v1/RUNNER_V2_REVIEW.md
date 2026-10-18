@@ -1,0 +1,11 @@
+# Independent road diagnostic v2 correctness review
+
+Approved only for the registered bounded direction diagnostic, not policy training. Exact source: `83679937fe9702be39f0184154fdf9ebdc4eb98a`. Registration SHA256: `d6ad347867b77a274de976d62e07a0ab9c142eb46336c7e7de9e0198185c4152`.
+
+The earlier runner approval and subsequent systems FAIL evidence remain intact. The earlier review explicitly did not certify native supervision. The narrow author fix `17c3e92caa912d87555763e62b50b395e79e2be9` now places process startup/monitoring in cleanup coverage, handles parent interruption, holds the run lock through owned-worker cleanup, preserves all 32 requested scenes on failure and records child exit confirmation. It limits growing-file reads and removes the output-scan temporary-file race. It does not alter road geometry, anchored decode, perturbations or scoring definitions.
+
+Current CPU tests: **25 passed** (20 implementation runner tests plus 5 retained independent tests), 9.071 seconds wall / 8.436 seconds CPU. Five native spawn fault modes cover child exit, monitor error, SIGTERM, SIGINT and timeout. All assert no owned child remains and all 32 scene outcomes are retained. This review read only source, registration/evidence metadata and synthetic fixture records; no actual model, rollout, GT, image, metric cache, scoring or CUDA execution occurred. The resource reviewer separately owns aggregate process-tree limits and host admission.
+
+All six registered source hashes and the evidence hash match; only the runner differs from the earlier reviewed sources. The geometry review remains applicable. The real 32-scene offsets, geometry regimes, simulator response and direction outcome remain **NOT_RUN**. All originals have DAC=1; this cannot demonstrate road-failure repair. The proxy is command-space geometry, not an LQR/DAC/PDMS derivative. Undefined gradients and failures stay in the fixed denominator. Do not change gates, population or budget after results.
+
+Execution remains conditional on independent resources approval and Lead admission with matching source/registration/host/time policy. Limits remain 32 scenes, 4 variants, at most 128 charged official calls, one CPU worker/thread, 1800 seconds, 8 GiB, 256 MiB assets and 1 GiB output. This reviewer does not dispatch.
