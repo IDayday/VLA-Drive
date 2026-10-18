@@ -1,0 +1,23 @@
+{
+  "reviewed_author_commit": "1cedf89786bfd52c4a903164c06c9d66a80a73f8",
+  "reviewed_resume_records_sha256": "4f4f6d0116ba54ea339ebd83d48d8711808b6a0d2ca85ed3384efb757eb81614",
+  "scope": "Tiny generated image fixtures only; no actual source dataset reads",
+  "status": "CHANGE_REQUIRED",
+  "cases": [
+    {
+      "case": "previously_missing_image_appears",
+      "reuse_accepted": true,
+      "reused_valid": false,
+      "native_fresh_valid": true,
+      "record_bytes_equal": false
+    },
+    {
+      "case": "higher_priority_root_now_has_image",
+      "reuse_accepted": true,
+      "reused_root": "fixture/images",
+      "native_fresh_root": "fixture/primary",
+      "record_bytes_equal": false
+    }
+  ],
+  "required_fix": "Recompute only original causal frame/path resolution, including absent views and sensor-root order; reject changed resolution before reuse. Retain original writer and hash verification."
+}
