@@ -1,0 +1,13 @@
+# PROFILE resource-control pre-review
+
+The frozen v2 launcher and monitor pass the narrow resource-control review. This is **not launch approval**: the actual four-rank SMOKE result and the exact PROFILE registration are still required. The source remains `751fcfa2b41549ae16f7b3204aef8dd18b912016`.
+
+The prior SMOKE launcher/monitor remain unchanged. The new launcher accepts only PROFILE and pins the new monitor before starting its child. The monitor totals both known SMOKE and PROFILE output trees, including retained failures, and requests this run's existing safe stop if combined output exceeds 96 GiB or native directories exceed six. A selected-GPU driver PID absent from the owned process subtree is recorded and also requests only this run's safe stop. No monitor path signals a foreign process.
+
+Fifteen synthetic tests passed in 0.042 seconds. These execute the actual resource functions with synthetic processes, disk sizes and driver rows. They include aggregate limits, the exact six-directory boundary, unmapped PIDs, monitoring failure, preserving an existing operator stop marker, and previously verified fresh-host protections. No actual GPU command, model load, remote dispatch or training-data read was performed by the reviewer.
+
+The proposed run is one 240-update PROFILE on zt5 GPUs 0–3, world4 / micro4 / accumulation2 / global32. The original 4096-update LR clock and warmup100 remain. The two windows are each 20 warmup plus 100 steady updates. Input is the original full population in original sampler order, with metadata-only PROFILE scope derivation; this is not a repeated 64-scene speed loop. Expected official calls are 30,720, capped at 31,744 including retries. Runtime is capped at 7,200 seconds, with an owned 7,500-second TERM and 180-second KILL backstop. The 10,800-second lease does not expand that invocation budget.
+
+Resource limits remain CPU 0–15, four global CPU scorers, 256 GiB sampled process-tree RSS, 48 GiB sampled driver memory per selected GPU, and a separate 1 TiB shared-free floor. Limits are sampled every five seconds and request optimizer-boundary saving. They are not hard instantaneous allocation quotas. Namespace-unmapped GPU PIDs fail closed. The live Lead must confirm that any such report is handled without touching another job.
+
+No PROFILE or formal run is approved by this pre-review. After SMOKE exits, pin its completion evidence and the actual PROFILE registration into a separate final review, then repeat fresh host checks under allocation locks. PROFILE weights cannot initialize a formal run. No automatic resume, topology search or additional candidate is authorized here.

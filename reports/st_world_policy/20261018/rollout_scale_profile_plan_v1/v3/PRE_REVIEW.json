@@ -1,0 +1,107 @@
+{
+  "schema": "rollout_scale_profile_systems_pre_review_v1",
+  "status": "RESOURCE_DELTA_PASS_PENDING_SMOKE_AND_PROFILE_BINDING",
+  "reviewed_utc": "2026-10-18T17:47:40.966422+00:00",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "launcher": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v2.py",
+    "sha256": "1f2828ffed12d1f27bd78b143fb97ee65000c79f90a7742a9e593fb5564c9e30"
+  },
+  "monitor": {
+    "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_owned_run_v2.py",
+    "sha256": "b24a26a27e79cd71919ae2e769061e5b6b033d5993c9fde8260f0065098b2ce2"
+  },
+  "preserved_smoke_controls": {
+    "launch_rollout_scale_diagnostic_v1.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_rollout_scale_diagnostic_v1.py",
+      "sha256": "ae0c45f2d95e8ee9a249cdfdbcc7ea447f625637c150bc05a0a35e4e3bc0d00e"
+    },
+    "monitor_rollout_scale_owned_run_v1.py": {
+      "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_owned_run_v1.py",
+      "sha256": "da667402805a3f9a96a9ce9704bcda485b88ca67dd6833334b13a2c6fbc19978"
+    }
+  },
+  "tests": {
+    "type": "independent synthetic control tests",
+    "passed": 15,
+    "failed": 0,
+    "duration_seconds": 0.042,
+    "source": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/test_profile_resource_delta.py",
+      "sha256": "fadf095373fa67d8258bd5a6f392cf180f4dcfb538c55b8633b224b7d31d9409"
+    },
+    "log": {
+      "path": "/mnt/project/VLA-Drive-st-full-feedback-systems-20261018/reports/st_world_policy/20261018/rollout_scale_profile_plan_v1/v3/SYNTHETIC_TEST.log",
+      "sha256": "629dd6ee540cf6862202ce1c6e129400896a4e5b23f0a025862ca05cfc576659"
+    }
+  },
+  "bounded_profile": {
+    "host": "training-vlawm-tsinghua-zt5-worker-0",
+    "gpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "world_size": 4,
+    "microbatch_per_rank": 4,
+    "accumulation_steps": 2,
+    "global_batch": 32,
+    "max_new_updates": 240,
+    "timing_windows": [
+      {
+        "warmup_updates": 20,
+        "steady_updates": 100
+      },
+      {
+        "warmup_updates": 20,
+        "steady_updates": 100
+      }
+    ],
+    "training_clock_updates": 4096,
+    "lr_warmup_updates": 100,
+    "primary_official_score_calls": 30720,
+    "max_official_score_calls_including_retry": 31744,
+    "train_max_seconds": 7200,
+    "outer_term_seconds": 7500,
+    "outer_kill_delay_seconds": 180,
+    "lease_seconds": 10800,
+    "cpu_affinity": "0-15",
+    "global_cpu_scorers": 4,
+    "sampled_owned_tree_rss_limit_bytes": 274877906944,
+    "sampled_owned_gpu_used_limit_bytes_per_gpu": 51539607552,
+    "aggregate_smoke_and_profile_output_limit_bytes": 103079215104,
+    "aggregate_native_directory_limit": 6,
+    "minimum_shared_free_bytes": 1099511627776,
+    "automatic_resume": false,
+    "weights_usable_for_formal_init": false
+  },
+  "findings": {
+    "only_profile_cli": true,
+    "monitor_pinned_before_launch": true,
+    "aggregate_stage_bytes": true,
+    "aggregate_native_directory_count": true,
+    "unknown_selected_gpu_process_recorded": true,
+    "unknown_selected_gpu_requests_owned_safe_stop": true,
+    "other_gpu_not_stopped": true,
+    "operator_stop_reason_not_overwritten": true,
+    "foreign_pid_signals": false
+  },
+  "remaining_admission_inputs": [
+    "real same-source four-rank SMOKE completion and resource evidence",
+    "immutable PROFILE registration, config, manifest identity and resource lease",
+    "exact independent correctness and systems binding for that PROFILE registration",
+    "fresh host check after SMOKE exits, before and after allocation locks"
+  ],
+  "limitations": [
+    "5-second sampled limits with safe optimizer-boundary save; not instantaneous allocation quotas",
+    "RSS sum is an upper bound and driver memory is used memory, not CUDA reserved telemetry",
+    "unknown namespace GPU PIDs intentionally fail closed, even if potentially owned",
+    "zt4 historical timing is a hardware-reference observation, not a causal same-host normalizer control",
+    "input-output equivalence and mathematical approval belong to independent correctness review"
+  ],
+  "execution_approved": false,
+  "formal_training_approved": false,
+  "dispatched_by_reviewer": false,
+  "weights_or_raw_training_payload_read": false
+}
