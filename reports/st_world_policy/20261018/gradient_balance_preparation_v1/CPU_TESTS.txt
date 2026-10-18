@@ -1,0 +1,20 @@
+
+==================================== ERRORS ====================================
+_____ ERROR collecting tests/st_world/test_audit_flow_gradient_balance.py ______
+tests/st_world/test_audit_flow_gradient_balance.py:9: in <module>
+    from tools.st_world_policy import audit_flow_gradient_balance as audit
+tools/st_world_policy/audit_flow_gradient_balance.py:26: in <module>
+    from tools.st_world_policy import audit_flow_gradient as replay
+tools/st_world_policy/audit_flow_gradient.py:35: in <module>
+    from tools.st_world_policy.flow_checkpoints import flow_checkpoint_identity, ACTION_PREFIX
+tools/st_world_policy/flow_checkpoints.py:27: in <module>
+    from tools.st_world_policy.fp32_master_init import SCHEMA as MASTER_INIT_SCHEMA
+tools/st_world_policy/fp32_master_init.py:105: in <module>
+    class GroupSnapshot:
+tools/st_world_policy/fp32_master_init.py:112: in GroupSnapshot
+    values: torch.Tensor | None = field(repr=False)
+E   TypeError: unsupported operand type(s) for |: 'torch._C._TensorMeta' and 'NoneType'
+=========================== short test summary info ============================
+ERROR tests/st_world/test_audit_flow_gradient_balance.py - TypeError: unsuppo...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 3.47s

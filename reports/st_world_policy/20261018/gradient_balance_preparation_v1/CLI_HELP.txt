@@ -1,0 +1,18 @@
+usage: audit_flow_gradient_balance.py [-h] --registration REGISTRATION
+                                      [--execute]
+
+Read-only four-rank C1 BC/FPO gradient decomposition at a saved boundary. No
+optimizer, new scoring, model save, changed reward or changed BC definition. A
+single allocated GPU sequentially reconstructs four original rank batches.
+BF16 per-microbatch execution gradients are accumulated in FP32 on CPU: this
+is an objective diagnostic, NOT a bit-exact reproduction of joint ZeRO2
+backward. Only --execute consumes models, original train images/GT and saved
+feedback.
+
+options:
+  -h, --help            show this help message and exit
+  --registration REGISTRATION
+                        Immutable Lead registration binding source, native
+                        boundary, four receipts and resource limits
+  --execute             Read real images/GT/models and run bounded gradient
+                        diagnostic; never train or score

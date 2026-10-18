@@ -1,0 +1,110 @@
+{
+  "status": "IMPLEMENTED_REAL_EXECUTION_NOT_RUN",
+  "audit_base_sha": "e035bab3cfd19abb177b71f9de02e8f6dad65ca4",
+  "training_registration": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+    "bytes": 2430,
+    "sha256": "b84d65ed8e47bc8b6c33feff18a5d1c61a160d8950380868a3bec32352d7471b"
+  },
+  "training_source_sha": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345",
+  "checkpoint_receipt": {
+    "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/checkpoints/step_003584_1792287137286076754/COMPLETE.json",
+    "bytes": 2928,
+    "sha256": "e80e3f1f54a4e5b8fe225fbf3b7ccfc5d1aa754587feeea77e5f92362259b45a"
+  },
+  "checkpoint_tag": "step_003584_1792287137286076754",
+  "native_checkpoint_payload_bytes_declared": 11473306440,
+  "native_weights_hashed_or_loaded_this_preparation": false,
+  "checkpoint_state": {
+    "completed": 3584,
+    "counts": {
+      "BC_repeat8_presentations": 917440,
+      "actual_rollouts": 458720,
+      "original_GT_scenes": 114680,
+      "policy_MC_points_per_old_and_current": 22936000
+    },
+    "epoch": 1,
+    "exposure": 114680,
+    "frozen_encoder_hash": "084b12cb97c69845dba6a3ebc0b92f3e675390bcbfb4e78e7671628e96d608ca",
+    "identity": "9c279380654e586896608fc66be9dbcc45181d953b40271d6374dba5fc0847df",
+    "last_completed_policy": {
+      "base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+      "optimizer_step": 3583,
+      "role": "old",
+      "state_hash": "0f77c3485a94b1fa77650c8803135f7db98a25339916e3e3cdba22da0d3dc7ab",
+      "version": 3583
+    },
+    "offset": 409,
+    "old_snapshot_lifecycle": "fresh_each_update_discard_only_at_completed_boundary",
+    "pending_feedback": null,
+    "pending_old_policy": null,
+    "policy_version": 3584,
+    "reuse_guard": {
+      "consumed": {},
+      "limits": {
+        "max_records": 1,
+        "max_reuses": 1,
+        "max_update_age": 1,
+        "score_protocol_hash": "db383e17b887e08beb358b282fbeab223c80c558164bead81d52a45b1b798143"
+      },
+      "retired_before": 3584,
+      "schema": "fpo_reuse_v1"
+    },
+    "rng_stream_base_seed": 42,
+    "tag": "step_003584_1792287137286076754",
+    "termination_reason": "RUNNING_CHECKPOINT"
+  },
+  "rollout_receipts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_0_COMPLETE.json",
+      "bytes": 3305,
+      "sha256": "117920445b50b18d0018273aaf459982dd1cce8ac84de6155a85436bfd61f5cb"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_1_COMPLETE.json",
+      "bytes": 3250,
+      "sha256": "dd26a76eb5d3bb7baa7c32253e51dcdff6865c58ab3c8d6b1c3b118d19994d67"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_2_COMPLETE.json",
+      "bytes": 3367,
+      "sha256": "f7c7d4b1c9e242eabde0caee4330ee7beef802e03017772d46d6d8d6b0048528"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_fulltrain_seed42_official_4096_v1/rollouts/boundary_003584/rank_3_COMPLETE.json",
+      "bytes": 3306,
+      "sha256": "94ff1cb1381e32e4b1570a94ce3e45cb9ff1c3ff41317ef7472147b4f3b1acd6"
+    }
+  ],
+  "metadata_native_policy_hashes": [
+    "7adaf1eb25fa0f180fd85f4d9358c02e1d6e914fe7043e8cea78e7fe3ddb756e",
+    "7adaf1eb25fa0f180fd85f4d9358c02e1d6e914fe7043e8cea78e7fe3ddb756e",
+    "7adaf1eb25fa0f180fd85f4d9358c02e1d6e914fe7043e8cea78e7fe3ddb756e",
+    "7adaf1eb25fa0f180fd85f4d9358c02e1d6e914fe7043e8cea78e7fe3ddb756e"
+  ],
+  "preparation_input_scope": "source and small receipts only; no full TRAINING_MANIFEST, model, images, GT, metric caches or rollout tensor payload loads",
+  "execution_budget_proposal": {
+    "max_seconds": 1800,
+    "max_read_bytes": 206158430208,
+    "max_rss_bytes": 68719476736,
+    "max_output_bytes": 8388608,
+    "GPUs": 1,
+    "minimum_device_capacity_GiB": 80,
+    "cpu_threads": 2,
+    "original_scenes": 32,
+    "optimizer_steps": 0,
+    "new_score_calls": 0
+  },
+  "dependencies_not_yet_validated": [
+    "full training manifest bytes and fixed next IDs",
+    "original complete model payload checksums and strict BF16 load",
+    "parent model and exact environment on admitted GPU",
+    "all four saved RNG payloads",
+    "condition, Euler and CFM bit-exact replay",
+    "saved original global official-feedback ledger lookup",
+    "full gradient vectors and actual cost"
+  ],
+  "independent_correctness_review": "PENDING",
+  "independent_resources_review": "PENDING",
+  "lead_dispatch": "NOT_ADMITTED"
+}
