@@ -1,0 +1,278 @@
+{
+  "actual_failure": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v1/controls/RESULT.json",
+    "sha256": "a4d40e6432b73eec830aaff9724ae78960744c75934cc0fb0493554c29ad8620"
+  },
+  "actual_preparation_retried": false,
+  "actual_read_bytes": 155131761,
+  "failure_stage": "First native prepare-profile-migration; second temporal_composition CLI not reached",
+  "gpu_or_ssh_access": false,
+  "ledger_read_or_write": false,
+  "only_math_path_delta": {
+    "equal": false,
+    "group": "MATH_PATHS",
+    "new": {
+      "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+    },
+    "old": {
+      "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_history.py",
+      "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+    },
+    "relative": "starVLA/dataloader/st_world_history.py"
+  },
+  "remaining_owned_processes": 0,
+  "required_bounded_fix": [
+    "Preserve the failed output/receipt and one-shot identity; no implicit retry or overwritten evidence.",
+    "Add an explicit, narrow migration proof for this exact already-reviewed legacy-to-packed history storage transition. Preserve all other MATH_PATHS byte equality and existing parent-plan source checks.",
+    "Do not delete history from protected math/reader list or accept arbitrary hashes/control relocation; bind exact old/new source and independent packed compatibility evidence.",
+    "Test actual validate_control_migration on actual small metadata/in-memory migration, with negative changed history semantics and unrelated math source; do not mock away the contract validator.",
+    "Any subsequent preparation needs its own reviewed output namespace/current resource admission. No GPU/model or teacher tensor work is authorized here."
+  ],
+  "reviewer": "/root/temporal_narrow_review",
+  "reviewer_coverage_gap": "Independent narrow re-run and pin review inherited those mocks and did not inspect MATH_PATHS pair equality before actual admission. This is an acknowledged review omission, not evidence that source hashes should be bypassed.",
+  "semantic_source_comparison": {
+    "added_features": "packed_log_v1 bounded byte-range storage plus safe no-follow reader; no target equations/teacher/PCA/sampler delta",
+    "legacy_read_operations_and_following_record_semantic_checks_AST_identical": true,
+    "unchanged_HistoryReader_methods_except_read": true,
+    "unchanged_all_original_top_level_functions_except_HistoryReader": true
+  },
+  "source_inventory": [
+    {
+      "equal": false,
+      "group": "CONTROL_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/teacher_provider.py",
+        "sha256": "5c274196e336bd6395f9efd8bf10e0a2eded369b83d96beb29290cbb002befa6"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/teacher_provider.py",
+        "sha256": "83410555d7e879407b09039f6a094fa6daac1259d0df7379cd6a220c2954b6bf"
+      },
+      "relative": "tools/st_world_policy/teacher_provider.py"
+    },
+    {
+      "equal": false,
+      "group": "CONTROL_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/qualify_indexed_provider.py",
+        "sha256": "6fd0a7b9d3317f78aa139906f20ff81b97a7bb7bee3a397a038a3553aaa5fc08"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_indexed_provider.py",
+        "sha256": "d072f46ac3b1da4fffb42dec2439f35382e793b4a9de1cd4317eb60872a46bbb"
+      },
+      "relative": "tools/st_world_policy/qualify_indexed_provider.py"
+    },
+    {
+      "equal": false,
+      "group": "CONTROL_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/training_config.py",
+        "sha256": "87cb75dc7c948a8c37911fd2037794a48a50a5aae6d8153b867eaf0dc32ced97"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/training_config.py",
+        "sha256": "5dc97238d9a10c408b0b033058f45a7bcdcfc2375694f52e40f5419c97973062"
+      },
+      "relative": "tools/st_world_policy/training_config.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/fixed_batch_teacher.py",
+        "sha256": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/fixed_batch_teacher.py",
+        "sha256": "6373bf9aa46e8c52b07b095af866c40e2b03969d8c34b4794ca090519760d8a8"
+      },
+      "relative": "tools/st_world_policy/fixed_batch_teacher.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/ondemand_teacher.py",
+        "sha256": "9a5a142892ada2ccb780b6fdae6b098e7863c3842abbb6ee7db0a3b59392f3c7"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/ondemand_teacher.py",
+        "sha256": "9a5a142892ada2ccb780b6fdae6b098e7863c3842abbb6ee7db0a3b59392f3c7"
+      },
+      "relative": "tools/st_world_policy/ondemand_teacher.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py",
+        "sha256": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_fixed_batch_teacher.py",
+        "sha256": "0ce6d2f6de6053ac9cda22b421d7dfc0bcf2a60b7484d4635c1541b51361803f"
+      },
+      "relative": "tools/st_world_policy/qualify_fixed_batch_teacher.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/qualify_ondemand_teacher.py",
+        "sha256": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/qualify_ondemand_teacher.py",
+        "sha256": "6861e97b3f04fa0b8abac57a29f32d4c9699ea0be462c111bb69ae43f7efda32"
+      },
+      "relative": "tools/st_world_policy/qualify_ondemand_teacher.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/provider_pca.py",
+        "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/provider_pca.py",
+        "sha256": "06b80899a4e5559bf3ca01571d7dae33ccae2f5c9be7cbb86c54db8929ddb223"
+      },
+      "relative": "tools/st_world_policy/provider_pca.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/teacher_pca.py",
+        "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/teacher_pca.py",
+        "sha256": "3909263223263ab42a50738b04381c42b6556eff79b510723222a8e5589d5758"
+      },
+      "relative": "tools/st_world_policy/teacher_pca.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/tools/st_world_policy/cache_teacher.py",
+        "sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/tools/st_world_policy/cache_teacher.py",
+        "sha256": "2356f4c9314b379c590ff596d9ad1dfee56f0a451be600bf6a6d9fd79829c877"
+      },
+      "relative": "tools/st_world_policy/cache_teacher.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py",
+        "sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/model/modules/foresight/dinov3_target_encoder.py",
+        "sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8"
+      },
+      "relative": "starVLA/model/modules/foresight/dinov3_target_encoder.py"
+    },
+    {
+      "equal": false,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_history.py",
+        "sha256": "bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_history.py",
+        "sha256": "ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d"
+      },
+      "relative": "starVLA/dataloader/st_world_history.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_indexed_provider.py",
+        "sha256": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_indexed_provider.py",
+        "sha256": "95a011b022542a38009e572d149bb4eb40263c1cd283877ff27f580a9c126f85"
+      },
+      "relative": "starVLA/dataloader/st_world_indexed_provider.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_metadata_index.py",
+        "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_metadata_index.py",
+        "sha256": "ea8fe604c747d3a227f927c81c60851289b17c7f6fa1bfd36a95a8f9897d545f"
+      },
+      "relative": "starVLA/dataloader/st_world_metadata_index.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_ondemand.py",
+        "sha256": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_ondemand.py",
+        "sha256": "b194b2003285a4836eb60fae2cfdec7bfefcfab3b24f53b53b2bfa315c8fc658"
+      },
+      "relative": "starVLA/dataloader/st_world_ondemand.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_targets.py",
+        "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_targets.py",
+        "sha256": "af56bf23d750e7465788669a466400aa852969d45ba2f3279f58aec9fd1d918e"
+      },
+      "relative": "starVLA/dataloader/st_world_targets.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/dataloader/st_world_schema.py",
+        "sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/dataloader/st_world_schema.py",
+        "sha256": "8e61e7bc9158b370c34abb25b6280664480fc5bace97677e461fbb17fed477dc"
+      },
+      "relative": "starVLA/dataloader/st_world_schema.py"
+    },
+    {
+      "equal": true,
+      "group": "MATH_PATHS",
+      "new": {
+        "path": "/mnt/project/VLA-Drive-st-temporal-combination-20261017/starVLA/model/modules/st_world/requests.py",
+        "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+      },
+      "old": {
+        "path": "/mnt/project/VLA-Drive-st-indexed-qualified-runtime-v1-20261017/starVLA/model/modules/st_world/requests.py",
+        "sha256": "64c37c593e3602ab424ad5adb5c32513eddda487af860776bdf05337d6f48fb7"
+      },
+      "relative": "starVLA/model/modules/st_world/requests.py"
+    }
+  ],
+  "status": "CHANGES_REQUESTED",
+  "why_nine_tests_missed_it": "The two-CLI fixture mocked runpy.run_module and only asserted command ordering/SystemExit/logging. It never executed prepare_control_migration or validate_control_migration against the real archived/current source pair. Current pin/HEAD checks did not prove archived/current protected-path equality."
+}
