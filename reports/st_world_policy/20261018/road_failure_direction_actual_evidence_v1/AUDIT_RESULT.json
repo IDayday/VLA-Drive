@@ -1,0 +1,938 @@
+{
+  "schema": "independent_road_failure_actual_evidence_v1",
+  "status": "SAVED_EVIDENCE_CONSISTENT_LOCAL_ONLY_NOT_NEXT_STAGE_APPROVAL",
+  "source_commit": "864619b0130fb3b220b577dd34b993ffeac97e27",
+  "selection_sha256": "23cca9e7af152ebc3dede70e9d7d06e79ae68b8d60ae78e923c96b3bb85fc1a2",
+  "requested": 32,
+  "eligible_original_DAC_failures": 32,
+  "original_t0_false": 32,
+  "same_context_DAC1_siblings": 32,
+  "common_valid": 2,
+  "undefined": 30,
+  "defined_fraction": 0.0625,
+  "undefined_reason": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+  "boundary_vs_tie_breakdown_available": false,
+  "new_official_calls": 6,
+  "repairs": {
+    "original": 0,
+    "negative": 2,
+    "positive": 0,
+    "random": 1
+  },
+  "negative_known_repairs_over_requested_lower_bound": 0.0625,
+  "requested_original_compliant_denominators": {
+    "comfort": 32,
+    "no_at_fault_collisions": 31,
+    "time_to_collision_within_bound": 30,
+    "drivable_area_compliance": 0
+  },
+  "actual_parity_max_errors": {
+    "command_xy_error_m": 0,
+    "command_yaw_error_rad": 8.881784197001252e-16,
+    "corner_max_error_m": 0
+  },
+  "complete_cases": [
+    {
+      "scene_id": "a8757b9d85935d3f",
+      "source_log": "2021.06.09.14.50.36_veh-26_00598_00665",
+      "boundary": 3936,
+      "failed_candidate": 0,
+      "safe_sibling_candidate": 2,
+      "safe_sibling_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.7913624704205914,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.9130676960085798,
+        "time_to_collision_within_bound": 1.0
+      },
+      "gradient_norm": 0.29523351803933884,
+      "finite_difference": [
+        {
+          "absolute_max": 8.038075859041413e-08,
+          "passed": true,
+          "relative_l2": 6.712367360611214e-07,
+          "stable_discrete_regime": true,
+          "step": 0.0001
+        },
+        {
+          "absolute_max": 7.935502507327996e-07,
+          "passed": true,
+          "relative_l2": 6.322038357835883e-06,
+          "stable_discrete_regime": true,
+          "step": 1e-05
+        }
+      ],
+      "variants": {
+        "original": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.0,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.0,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.05777157477284677,
+            "minimum_signed_corner_distance_m": -9.908333349146791e-05,
+            "outside_corner_times": 2,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.05184603615157038,
+            "max_corner_shift_m": 0.0,
+            "max_yaw_shift_rad": 0.0,
+            "min_signed_corner_distance_m": 0.007466142179287698,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.0,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [
+            19,
+            20
+          ],
+          "native_D_times_seconds": [
+            1.9000000000000001,
+            2.0
+          ],
+          "progress": {
+            "effective_candidate_meters": 0.0,
+            "effective_reference_meters": 19.171042597018527,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 19.171042597018527,
+            "raw_meters": 15.065804635658132,
+            "reference_raw_meters": 19.171042597018527
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.006815614792278248,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 8.357672301056018,
+            "command_max_speed_mps": 5.567229213985846,
+            "executed_max_acceleration_mps2": 1.4802789709736202,
+            "executed_max_speed_mps": 5.703863687922405,
+            "tracking_max_xy_error_m": 0.40623360663953056,
+            "tracking_max_yaw_error_rad": 0.0034563368480116092
+          },
+          "raw_progress_delta_vs_original_m": 0.0
+        },
+        "negative": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 1.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.785876048622331,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.9107816869259713,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.05537750920595824,
+            "minimum_signed_corner_distance_m": 0.00973416449902295,
+            "outside_corner_times": 0,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.05038491075526505,
+            "max_corner_shift_m": 0.008228344322671485,
+            "max_yaw_shift_rad": 0.0010828980409800515,
+            "min_signed_corner_distance_m": 0.015508787630212649,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.004999999999999997,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [],
+          "native_D_times_seconds": [],
+          "progress": {
+            "effective_candidate_meters": 15.06606320411531,
+            "effective_reference_meters": 19.171042597018527,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 19.171042597018527,
+            "raw_meters": 15.06606320411531,
+            "reference_raw_meters": 19.171042597018527
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.0066808452004963395,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 8.357219274269632,
+            "command_max_speed_mps": 5.566366623577475,
+            "executed_max_acceleration_mps2": 1.4801121466045968,
+            "executed_max_speed_mps": 5.703863687922405,
+            "tracking_max_xy_error_m": 0.40587035101358726,
+            "tracking_max_yaw_error_rad": 0.003412532565803428
+          },
+          "raw_progress_delta_vs_original_m": 0.0002585684571769775
+        },
+        "positive": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.0,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.0,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.06024227458102049,
+            "minimum_signed_corner_distance_m": -0.011781598684298521,
+            "outside_corner_times": 32,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.05333699438591647,
+            "max_corner_shift_m": 0.008228665958854462,
+            "max_yaw_shift_rad": 0.0010828980409800515,
+            "min_signed_corner_distance_m": -0.0005751347671986483,
+            "outside_corner_times": 1,
+            "raw_l2_offset": 0.004999999999999997,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40
+          ],
+          "native_D_times_seconds": [
+            1.3,
+            1.4000000000000001,
+            1.5,
+            1.6,
+            1.7000000000000002,
+            1.8,
+            1.9000000000000001,
+            2.0,
+            2.1,
+            2.2,
+            2.3000000000000003,
+            2.4000000000000004,
+            2.5,
+            2.6,
+            2.7,
+            2.8000000000000003,
+            2.9000000000000004,
+            3.0,
+            3.1,
+            3.2,
+            3.3000000000000003,
+            3.4000000000000004,
+            3.5,
+            3.6,
+            3.7,
+            3.8000000000000003,
+            3.9000000000000004,
+            4.0
+          ],
+          "progress": {
+            "effective_candidate_meters": 0.0,
+            "effective_reference_meters": 19.171042597018527,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 19.171042597018527,
+            "raw_meters": 15.065520999277844,
+            "reference_raw_meters": 19.171042597018527
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.006950390801177,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 8.358126242459454,
+            "command_max_speed_mps": 5.568099329267187,
+            "executed_max_acceleration_mps2": 1.4804464086044442,
+            "executed_max_speed_mps": 5.703863687922405,
+            "tracking_max_xy_error_m": 0.4068068242721642,
+            "tracking_max_yaw_error_rad": 0.0035001794634133
+          },
+          "raw_progress_delta_vs_original_m": -0.0002836363802884989
+        },
+        "random": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.0,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.0,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.0582735092614077,
+            "minimum_signed_corner_distance_m": -0.0027571666963333375,
+            "outside_corner_times": 10,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.05181790132470783,
+            "max_corner_shift_m": 0.014806075176346998,
+            "max_yaw_shift_rad": 0.0016647983333837324,
+            "min_signed_corner_distance_m": 0.005360794626658488,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.004999999999999995,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "native_D_times_seconds": [
+            1.6,
+            1.7000000000000002,
+            1.8,
+            1.9000000000000001,
+            2.0,
+            2.1,
+            2.2,
+            2.3000000000000003,
+            2.4000000000000004,
+            2.5
+          ],
+          "progress": {
+            "effective_candidate_meters": 0.0,
+            "effective_reference_meters": 19.171042597018527,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 19.171042597018527,
+            "raw_meters": 15.048902140670059,
+            "reference_raw_meters": 19.171042597018527
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.007438257231548094,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 8.448785167251462,
+            "command_max_speed_mps": 5.540095745572451,
+            "executed_max_acceleration_mps2": 1.4983666351400053,
+            "executed_max_speed_mps": 5.703863687922405,
+            "tracking_max_xy_error_m": 0.40247174165869887,
+            "tracking_max_yaw_error_rad": 0.004335103128430885
+          },
+          "raw_progress_delta_vs_original_m": -0.016902494988073613
+        }
+      }
+    },
+    {
+      "scene_id": "2b5ac45dfc6f5273",
+      "source_log": "2021.10.11.08.31.07_veh-50_00791_00954",
+      "boundary": 2001,
+      "failed_candidate": 1,
+      "safe_sibling_candidate": 3,
+      "safe_sibling_metrics": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.8121229823740571,
+        "no_at_fault_collisions": 1.0,
+        "score": 0.9217179093225237,
+        "time_to_collision_within_bound": 1.0
+      },
+      "gradient_norm": 0.12717860119425808,
+      "finite_difference": [
+        {
+          "absolute_max": 1.5344930090477327e-08,
+          "passed": true,
+          "relative_l2": 2.3794939966532286e-07,
+          "stable_discrete_regime": true,
+          "step": 0.0001
+        },
+        {
+          "absolute_max": 3.7942330284590486e-08,
+          "passed": true,
+          "relative_l2": 6.095534746438011e-07,
+          "stable_discrete_regime": true,
+          "step": 1e-05
+        }
+      ],
+      "variants": {
+        "original": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.0,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.0,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.0313481447163347,
+            "minimum_signed_corner_distance_m": -0.001577844643367361,
+            "outside_corner_times": 1,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.014633613796997085,
+            "max_corner_shift_m": 0.0,
+            "max_yaw_shift_rad": 0.0,
+            "min_signed_corner_distance_m": 0.11746001338948962,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.0,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [
+            10
+          ],
+          "native_D_times_seconds": [
+            1.0
+          ],
+          "progress": {
+            "effective_candidate_meters": 0.0,
+            "effective_reference_meters": 35.400826008959974,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 35.400826008959974,
+            "raw_meters": 28.78257090297665,
+            "reference_raw_meters": 35.400826008959974
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.007271657145790395,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 4.442380186460911,
+            "command_max_speed_mps": 7.875433132704857,
+            "executed_max_acceleration_mps2": 0.4906905974098554,
+            "executed_max_speed_mps": 7.7919747621634805,
+            "tracking_max_xy_error_m": 0.28927063549591014,
+            "tracking_max_yaw_error_rad": 0.015387183463294596
+          },
+          "raw_progress_delta_vs_original_m": 0.0
+        },
+        "negative": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 1.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.813132866978562,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.9221386945744009,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.02950480164465971,
+            "minimum_signed_corner_distance_m": 0.004600659130495001,
+            "outside_corner_times": 0,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.01401323503807058,
+            "max_corner_shift_m": 0.012124512658808205,
+            "max_yaw_shift_rad": 0.0017467886980389036,
+            "min_signed_corner_distance_m": 0.1289239151468599,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.004999999999999992,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [],
+          "native_D_times_seconds": [],
+          "progress": {
+            "effective_candidate_meters": 28.78557514607487,
+            "effective_reference_meters": 35.400826008959974,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 35.400826008959974,
+            "raw_meters": 28.78557514607487,
+            "reference_raw_meters": 35.400826008959974
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.007187502210450422,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 4.4369641296472,
+            "command_max_speed_mps": 7.876665761026261,
+            "executed_max_acceleration_mps2": 0.4893346789001488,
+            "executed_max_speed_mps": 7.793228571616095,
+            "tracking_max_xy_error_m": 0.28808739930812877,
+            "tracking_max_yaw_error_rad": 0.015130726712418774
+          },
+          "raw_progress_delta_vs_original_m": 0.003004243098217785
+        },
+        "positive": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 0.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.0,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.0,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.03332612765364991,
+            "minimum_signed_corner_distance_m": -0.0077522757439829,
+            "outside_corner_times": 7,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.015285233540792881,
+            "max_corner_shift_m": 0.012123811723922883,
+            "max_yaw_shift_rad": 0.0017467886980389036,
+            "min_signed_corner_distance_m": 0.10599987424850224,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.004999999999999993,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [
+            9,
+            10,
+            11,
+            12,
+            15,
+            16,
+            17
+          ],
+          "native_D_times_seconds": [
+            0.9,
+            1.0,
+            1.1,
+            1.2000000000000002,
+            1.5,
+            1.6,
+            1.7000000000000002
+          ],
+          "progress": {
+            "effective_candidate_meters": 0.0,
+            "effective_reference_meters": 35.400826008959974,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 35.400826008959974,
+            "raw_meters": 28.779509492059,
+            "reference_raw_meters": 35.400826008959974
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.007355820181764982,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 4.447796701164557,
+            "command_max_speed_mps": 7.874200678502623,
+            "executed_max_acceleration_mps2": 0.49203649874322136,
+            "executed_max_speed_mps": 7.790719954194769,
+            "tracking_max_xy_error_m": 0.290902245771222,
+            "tracking_max_yaw_error_rad": 0.01611515902064431
+          },
+          "raw_progress_delta_vs_original_m": -0.0030614109176525517
+        },
+        "random": {
+          "metrics": {
+            "comfort": 1.0,
+            "drivable_area_compliance": 1.0,
+            "driving_direction_compliance": 1.0,
+            "ego_progress": 0.8131741787365456,
+            "no_at_fault_collisions": 1.0,
+            "score": 0.922155907806894,
+            "time_to_collision_within_bound": 1.0
+          },
+          "executed_geometry": {
+            "custom_executed_cost_m": 0.030028873287029502,
+            "minimum_signed_corner_distance_m": 0.0027774544368485833,
+            "outside_corner_times": 0,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "command_geometry": {
+            "command_cost_m": 0.01440310325713975,
+            "max_corner_shift_m": 0.024227165854485238,
+            "max_yaw_shift_rad": 0.0015451564790245342,
+            "min_signed_corner_distance_m": 0.12441725860528347,
+            "outside_corner_times": 0,
+            "raw_l2_offset": 0.0049999999999999845,
+            "union_vs_any_polygon_contains_count": 0
+          },
+          "native_D_time_indices": [],
+          "native_D_times_seconds": [],
+          "progress": {
+            "effective_candidate_meters": 28.78703761643137,
+            "effective_reference_meters": 35.400826008959974,
+            "ep_branch": "normalize",
+            "ep_denominator_meters": 35.400826008959974,
+            "raw_meters": 28.78703761643137,
+            "reference_raw_meters": 35.400826008959974
+          },
+          "tracking": {
+            "command_curvature_max_abs_per_m_moving_only": 0.007097176202186423,
+            "command_curvature_undefined_zero_distance_intervals": 0,
+            "command_finite_difference_dt_seconds": 0.1,
+            "command_max_acceleration_mps2": 4.964350410813022,
+            "command_max_speed_mps": 7.865589515894249,
+            "executed_max_acceleration_mps2": 0.4893128823687081,
+            "executed_max_speed_mps": 7.7859450659720855,
+            "tracking_max_xy_error_m": 0.2901797405521283,
+            "tracking_max_yaw_error_rad": 0.014813749156338929
+          },
+          "raw_progress_delta_vs_original_m": 0.004466713454718274
+        }
+      }
+    }
+  ],
+  "fixed_population_statuses": [
+    {
+      "scene_id": "b7d63556b5035482",
+      "boundary": 1431,
+      "source_log": "2021.06.14.13.27.42_veh-35_00842_00940",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "332cfca2e8735845",
+      "boundary": 1431,
+      "source_log": "2021.06.08.12.54.54_veh-26_02994_03970",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "ea5cfd7d1d4855bd",
+      "boundary": 342,
+      "source_log": "2021.05.12.22.28.35_veh-35_02138_02481",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "8be1ca37bb3c58c6",
+      "boundary": 3146,
+      "source_log": "2021.07.16.18.06.21_veh-38_02197_03220",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "272eaf251cd455f0",
+      "boundary": 1345,
+      "source_log": "2021.10.11.05.34.05_veh-50_00838_00947",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "21e4d39cf246521a",
+      "boundary": 3945,
+      "source_log": "2021.06.09.12.39.51_veh-26_04543_05321",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "3de80a41d5fe5a5c",
+      "boundary": 1912,
+      "source_log": "2021.10.05.07.38.12_veh-50_01477_01565",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "88403fe4fc4d5a04",
+      "boundary": 1587,
+      "source_log": "2021.09.15.14.27.22_veh-39_00868_01125",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "2d26144814d257aa",
+      "boundary": 2440,
+      "source_log": "2021.10.01.19.16.42_veh-28_00392_00906",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "3e553b8686f5592e",
+      "boundary": 290,
+      "source_log": "2021.07.09.20.26.06_veh-35_01768_02782",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "c8aa24587f415e2e",
+      "boundary": 935,
+      "source_log": "2021.09.15.14.50.05_veh-28_01511_01690",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "3656038ff04758ba",
+      "boundary": 635,
+      "source_log": "2021.10.05.07.38.12_veh-50_00245_00433",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "e0d602f69525530e",
+      "boundary": 1382,
+      "source_log": "2021.10.05.06.57.40_veh-50_01493_01624",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "a47f8102a19858c7",
+      "boundary": 1200,
+      "source_log": "2021.08.17.14.32.33_veh-08_01576_01919",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "095eafbb5c8f5b02",
+      "boundary": 1643,
+      "source_log": "2021.10.01.13.28.54_veh-28_00995_01087",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "514617125cb1538b",
+      "boundary": 1424,
+      "source_log": "2021.06.23.18.23.38_veh-26_00069_00642",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "dc09d32dbd875efc",
+      "boundary": 1260,
+      "source_log": "2021.09.14.18.43.41_veh-45_02503_03013",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "ab474b12c76b536e",
+      "boundary": 1920,
+      "source_log": "2021.07.09.17.06.37_veh-35_02609_05015",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "fa4f1892b13d5669",
+      "boundary": 691,
+      "source_log": "2021.07.09.23.23.48_veh-26_00054_01295",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "854ddb255f1e5a0a",
+      "boundary": 514,
+      "source_log": "2021.10.11.07.12.18_veh-50_01571_01823",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "a8757b9d85935d3f",
+      "boundary": 3936,
+      "source_log": "2021.06.09.14.50.36_veh-26_00598_00665",
+      "status": "COMPLETE",
+      "error": null,
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "08ef5394165354a7",
+      "boundary": 1071,
+      "source_log": "2021.07.16.18.06.21_veh-38_03733_04300",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "0f2d8e1ad7f85c16",
+      "boundary": 2754,
+      "source_log": "2021.06.14.11.44.56_veh-35_01983_02053",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "a85d2ddae7f15ecc",
+      "boundary": 1667,
+      "source_log": "2021.08.17.16.48.45_veh-43_02070_02652",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "80214e2f95295ed7",
+      "boundary": 3516,
+      "source_log": "2021.06.23.14.54.32_veh-16_01187_03336",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "cb4a65a6ded25853",
+      "boundary": 1425,
+      "source_log": "2021.09.15.15.02.19_veh-39_00214_00558",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "9e338e2bafac57a9",
+      "boundary": 3180,
+      "source_log": "2021.10.01.19.16.42_veh-28_03887_04040",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "2b5ac45dfc6f5273",
+      "boundary": 2001,
+      "source_log": "2021.10.11.08.31.07_veh-50_00791_00954",
+      "status": "COMPLETE",
+      "error": null,
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "1b4399251c8652f0",
+      "boundary": 932,
+      "source_log": "2021.10.05.04.38.41_veh-50_00014_00429",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "0d01ae798cae5cda",
+      "boundary": 1962,
+      "source_log": "2021.08.31.11.47.30_veh-40_00393_00847",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "ec24982bcf065ee1",
+      "boundary": 4086,
+      "source_log": "2021.07.16.16.01.30_veh-38_03893_05253",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    },
+    {
+      "scene_id": "52ce4f90b2405466",
+      "boundary": 909,
+      "source_log": "2021.10.05.04.38.41_veh-50_00014_00429",
+      "status": "UNDEFINED_DIRECTION",
+      "error": "MOVING_CORNER_BOUNDARY_OR_NEAREST_TIE",
+      "original_DAC": 0.0,
+      "sibling_DAC": 1.0,
+      "original_t0": false
+    }
+  ],
+  "execution_resources": {
+    "supervisor": {
+      "attempt_id": "failure32_initial_v1",
+      "cleanup_error": null,
+      "elapsed_seconds": 19.39426522515714,
+      "monitor_error": null,
+      "owned_worker_exit_confirmed": true,
+      "parent_child_tracker_peak_rss_bytes": 1712340992,
+      "stop_reason": null,
+      "worker_exit_code": 0
+    },
+    "worker": {
+      "cpu_seconds": 10.599207,
+      "elapsed_seconds": 14.957922279834747,
+      "logical_asset_bytes": 139626807,
+      "max_rss_bytes": 1062301696
+    }
+  },
+  "next_stage": "NO_TRAINING_OR_NEW_PROXY_METHOD_APPROVAL",
+  "scope": "Two historical TRAIN commands under their fixed contexts; not a trained-policy improvement or population effect."
+}
