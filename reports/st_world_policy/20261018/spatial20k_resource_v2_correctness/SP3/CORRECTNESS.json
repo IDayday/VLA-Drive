@@ -1,0 +1,69 @@
+{
+  "schema": "st_world_review_v1",
+  "status": "PASS",
+  "role": "correctness",
+  "reviewer_agent": "/root/spatial20k_correctness",
+  "reviewed_at_utc": "2026-10-18T02:36:35.189196+00:00",
+  "fingerprint": {
+    "registration_sha256": "ab7a0ae39d5f7d6662d6b9f2b8f01b6738f4b53d6ae20048f56e3ffff5a847b8",
+    "source_fingerprint": "bfde9af74eb615f8236d44196776f043f6293df1a85a0c01c8735ff664adcaec",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "12d8ceaa7684dbb4a2e01b05fb893b1dd7123e932c70f50758d1f9cfdd94e6a5",
+      "data_manifest": "58dffa070d434d15cb9adf6382010520aff57f4aa624aa081412b70e6f28b7ea",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "a3fce6e0b199c525d3033fc4435b1a73b69b3793b2cdbee12fde43d8b744c060",
+      "target_contract": "9301d6df1e723e39eddfadcd2e115ea959273bf94c2aedba92189c0f204516da",
+      "teacher_manifest": "bf9e434cfae3a54391e1edd1508235869272843b44cd4daf27a9fd5fc6a74c64"
+    },
+    "execution": {
+      "family": "spatial",
+      "global_batch": 32,
+      "max_updates": 20000,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 20000,
+      "world_size": 4
+    },
+    "run_id": "SP3_fulltrain_seed42_official_20k_v1"
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_resource_v2_correctness/DELTA_REVIEW.json",
+      "sha256": "272464e5034306705deb8437b3f0134bd44c7bce3063e7c7236f246338474092"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_resource_v2_correctness/review.py",
+      "sha256": "48e47fb2ba059c14012541b5ce33a51dceeeac555483a565ac38e548eeec7ab3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/spatial20k_actual_preparation_v1/launch20k_once_v2.py",
+      "sha256": "8bf6b61023bc00d72e11861155b783bc771791102ca89836c153316eddedde77"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/SP3/CORRECTNESS.json",
+      "sha256": "338aa71bf631c1778ec29d32f2d33daa734f31b80632e9372e8572b907c4313b"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-spatial20k-correctness-20261018/reports/st_world_policy/20261018/spatial20k_independent_correctness_v1/SP3/AUDIT.json",
+      "sha256": "676c4bb51e51b22fed2ebde64c11db1e013b3493be2c23afe670d4a460fff796"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/checkpoint_remaining_reconciliation_v1/CHECKPOINT_COMMITMENTS_REMAINING_V2.json",
+      "sha256": "7b88fcbf0a4b4505aa251fdbf2e146c6b94dd3fcb15cef8269cee4d1989fa60c"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-flow-resume-efficiency-inheritance-20261018/reports/st_world_policy/20261018/checkpoint_remaining_reconciliation_v1/CONSUMED_REMAINING_SNAPSHOT.json",
+      "sha256": "86dfb91df58672f3af483f57a08dd505f93a0eef2e0a83ae14119f169c3da0c7"
+    }
+  ],
+  "decision_scope": "Only SP3 first native20k continuation with resource-v2 registration; old mathematical and native-resume evidence inherited unchanged.",
+  "limits": [
+    "Independent evidence/efficiency role and fresh actual launch GPU/free-space checks remain required.",
+    "Resource credit uses actual metadata/stat snapshot, not new tensor verification; unchanged native trainer verifies payload on load.",
+    "No automatic resume, storage deletion, new model tests, or claim of scientific gain."
+  ]
+}
