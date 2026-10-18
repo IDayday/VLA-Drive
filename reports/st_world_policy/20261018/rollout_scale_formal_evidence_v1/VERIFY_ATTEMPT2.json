@@ -1,0 +1,17 @@
+{
+  "status": "FAILED_VERIFICATION_ENVIRONMENT_NOT_REGISTRATION",
+  "call": "verify_registration",
+  "address_space_limit_bytes": 268435456,
+  "git_config_process_local": {
+    "core.preloadIndex": "false"
+  },
+  "stderr": "fatal: packfile pack-090f6f6e13b04e2fb760f1ce325fc9bfb23546bd.pack cannot be mapped: Cannot allocate memory",
+  "exception": "subprocess.CalledProcessError: git ls-tree -r -z 751fcfa2b41549ae16f7b3204aef8dd18b912016 returned128",
+  "failure_location": "check_formal_approval.py line154/source_fingerprint, after artifact hashes and clean-source validation",
+  "cause_assessment": "Reviewer-imposed 256MiB virtual address limit is incompatible with Git pack mmap; it is not a registration mismatch.",
+  "artifact_hash_bytes_before_failure": 176464626,
+  "fingerprint_produced": false,
+  "PASS_produced": false,
+  "recovery": "Remove self-imposed virtual-address ceiling; keep30CPU/60wall and process-local preloadIndex=false. No verifier/source/registration/data changes.",
+  "actual_elapsed_CPU_or_RSS": "Not captured by interrupted receipt writer; not invented."
+}

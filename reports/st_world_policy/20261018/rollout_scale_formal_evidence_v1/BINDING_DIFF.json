@@ -1,0 +1,43 @@
+{
+  "schema": "rollout_scale_formal_evidence_binding_diff_v1",
+  "status": "MATCHES_SEALED_SINGLE_CANDIDATE",
+  "control_run": "C1_fulltrain_seed42_official_4096_v1",
+  "candidate_run": "C1_rollout_std_fulltrain_seed42_official_4096_v1",
+  "config_diff": [
+    {
+      "path": "/fpo/advantage",
+      "old": "within_scene_center_only",
+      "new": "scene_center_rollout_std_v1"
+    },
+    {
+      "path": "/runtime/official_execution/adaptation_reason",
+      "old": "Matched C0-C4 common original S0, complete 101592-scene population, G32 micro4 accumulation2 world4, original4096 clock/warm100. No profile weights. C0 has no simulation; C1 has four Euler10 rollouts, MC50. 512/1024 diagnostics do not shorten the4096 endpoint.",
+      "new": "One preregistered C1 rollout-scale variant against completed C1. Same original S0/GT/101592 scenes/seed42/4096 horizon/warm100/world4/global32/micro4/G4/MC50/BC1/policy1. Fresh matched optimizer; no diagnostic weights."
+    }
+  ],
+  "target_diff": [
+    {
+      "path": "/policy/fpo/advantage",
+      "old": "within_scene_center_only",
+      "new": "scene_center_rollout_std_v1"
+    }
+  ],
+  "execution_exactly_equal": true,
+  "common_artifact_hashes": {
+    "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+    "data_manifest": "b810cafbdaa42afd8554c08be443779e7d66edce56292c0c30940e728c0ed656",
+    "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+    "teacher_manifest": "211f1d4177be892089e496dc90ba514c90e7610aefe8b2cc26faa9e2149ce020"
+  },
+  "normalization_source_commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "run_label_change": "Draft C1_rollout_scale_seed42_official_4096_v1 -> actual C1_rollout_std_fulltrain_seed42_official_4096_v1; naming only, no new arm.",
+  "resource_scope": "8h per invocation, at most6 invocations, one cumulative4096 endpoint with original scheduler/native continuation. Six-invocation bound is stated in purpose text; enforcement and current host/cost admission belong to independent efficiency/resource review.",
+  "not_signed": [
+    "correctness",
+    "efficiency",
+    "resource_lease_admission",
+    "RUN_APPROVAL",
+    "evaluation_launch"
+  ],
+  "method_selection_from_profile_quality": false
+}

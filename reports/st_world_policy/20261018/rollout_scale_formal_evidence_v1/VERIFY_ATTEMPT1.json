@@ -1,0 +1,16 @@
+{
+  "status": "FAILED_VERIFICATION_ENVIRONMENT_NOT_REGISTRATION",
+  "call": "verify_registration",
+  "runtime_repo": "/mnt/project/VLA-Drive-st-rollout-scale-runtime-v2-20261018",
+  "runtime_source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "address_space_limit_bytes": 268435456,
+  "stderr": "fatal: unable to create threaded lstat: Resource temporarily unavailable",
+  "exception": "subprocess.CalledProcessError: git status --porcelain returned non-zero exit status 128",
+  "failure_location": "check_formal_approval.py line149, after artifact hashes and config validation, before source fingerprint completion",
+  "cause_assessment": "Git threaded index preload hit the bounded verification environment; exact OS resource cause not separately proven.",
+  "artifact_hash_bytes_before_failure": 176464626,
+  "fingerprint_produced": false,
+  "PASS_produced": false,
+  "recovery": "One bounded verification retry with process-local core.preloadIndex=false; preserve original verifier, source, registration and data.",
+  "actual_elapsed_CPU_or_RSS": "Not captured by interrupted receipt writer; not invented."
+}
