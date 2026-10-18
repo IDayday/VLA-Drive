@@ -42,6 +42,12 @@ def load_standalone(path, *, device='cpu'):
     cfg=json.loads((path/'processor/config.json').read_text())
     model=QwenSourceFlowVLA(None,ActionDiT(**ACTION_CONFIG),checkpoint_config=cfg)
     state=torch.load(path/'model.pt',map_location='cpu',mmap=False,weights_only=True)
+    # strict=True checks keys/shapes, not silent dtype conversion. A deployment
+    # constructor must preserve every stored trained tensor before inference.
+    target=model.state_dict()
+    for name,value in state.items():
+        if name in target and target[name].dtype!=value.dtype:
+            raise ValueError('Standalone load would convert trained dtype: '+name)
     model.load_state_dict(state,strict=True)
     return model.to(device).eval().requires_grad_(False),QwenObservationProcessor(path/'processor'),info
 

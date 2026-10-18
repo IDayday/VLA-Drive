@@ -72,6 +72,14 @@ class QwenEncoder(nn.Module):
             # every tensor with the full trained export before returning it.
             # Generic IL initialization never takes this path.
             cfg = Qwen3VLConfig.from_dict(checkpoint_config)
+            # _from_config does not propagate the top-level dtype override to
+            # nested Qwen configs. The published text_config says BF16; leaving
+            # it intact silently rounds our FP32 trained tensors on strict load.
+            # from_pretrained(dtype=...) already applies this override on the
+            # normal training path. Match that storage contract for deployment.
+            cfg.dtype = dtype
+            cfg.text_config.dtype = dtype
+            cfg.vision_config.dtype = dtype
             self.model = Qwen3VLModel._from_config(cfg,dtype=dtype,attn_implementation=attention)
         cfg = self.model.config
         if cfg.model_type != 'qwen3_vl' or cfg.text_config.hidden_size != 2048 or cfg.text_config.num_hidden_layers != 28:
