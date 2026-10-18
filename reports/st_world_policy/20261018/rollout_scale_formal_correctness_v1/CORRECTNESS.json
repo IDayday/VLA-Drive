@@ -1,0 +1,96 @@
+{
+  "schema": "st_world_review_v1",
+  "role": "correctness",
+  "status": "PASS",
+  "reviewer_agent": "/root/road_proxy_correctness_review",
+  "reviewed_at_utc": "2026-10-18T18:01:36.637600+00:00",
+  "fingerprint": {
+    "registration_sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f",
+    "source_fingerprint": "569a6a69374bd0cd25bbafd91489c5f07c78de9f9201b7268a391bbd3d68a9db",
+    "artifacts": {
+      "base_binding": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+      "config": "70d3f75d261bd4beb91136c5cd472920326cf5998d4ab568b1e4edb841faa516",
+      "data_manifest": "b810cafbdaa42afd8554c08be443779e7d66edce56292c0c30940e728c0ed656",
+      "environment": "6ddcbaa965d4002b42274cd2dce52bf7b2dbb9769b663bf622f00ce96326af2f",
+      "resource_lease": "b67fb17ec705bdf28d34fef624f1fd3e7a053130993ca64628f4fc4b9da58637",
+      "target_contract": "06b38004e7bc43d199b538558a74c21361d05c8ffc06d4feee954e25a5ca06f1",
+      "teacher_manifest": "211f1d4177be892089e496dc90ba514c90e7610aefe8b2cc26faa9e2149ce020"
+    },
+    "execution": {
+      "family": "consequence",
+      "global_batch": 32,
+      "max_updates": 4096,
+      "micro_batch": 4,
+      "precision_policy": "S0_BF16_execution_FP32_master_Adam_ZeRO2_TF32_off",
+      "sample_limit": 0,
+      "scope": "FORMAL",
+      "seed": 42,
+      "stop_after": 4096,
+      "world_size": 4
+    },
+    "run_id": "C1_rollout_std_fulltrain_seed42_official_4096_v1"
+  },
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_correctness_v1/REGISTRATION_VERIFICATION.json",
+      "sha256": "db4bffc534520d7d1af91fb6644ec20c8fc3289a4335c5e8c47740e587de0c83"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_correctness_v1/MATCHED_CONFIG_DIFF.json",
+      "sha256": "979e5f885908eafa5932f5daa9d12fb5718fe532a4ef9b2e31660f2de375aaf0"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_correctness_v1/CONTROL_REGISTRATION_MATCH.json",
+      "sha256": "33daaaa638beecdafe4fb9bc10649d907b291f4521b7f3b6a3cb4cb7e129377a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_formal_correctness_v1/REVIEW.md",
+      "sha256": "50ca54e847284f1bfbd82f8d4c28e4c0605f43a1bf1892156e90aba4f71147c4"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v1/REVIEW.json",
+      "sha256": "658f67ea129d286ef32db1dbd2bb995f46ea1cee34bf69553bf6264bdfd23a37"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_runtime_correctness_v2/REVIEW.json",
+      "sha256": "8c343b6d3917f5045b912859ce5e72158ba23ce062d29959fb21efffea932a47"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/REVIEW.json",
+      "sha256": "bebecdae2a58b1822110afbc8137611ab0b59187ba0733c9ac83c0afda65a6bb"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/ACTUAL_AUDIT.json",
+      "sha256": "70b8ca73048c8f2e62b8e4ba05c98fee3015fced542c1e8990310306e99c906c"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-diagnostics-final-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_real_smoke_correctness_v1/NATIVE_CHECKPOINT_VERIFICATION.json",
+      "sha256": "5cf492e6e4205deef2f47074d97a7158f5d77c4b22b99428425c76666eace791"
+    }
+  ],
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "independent_role_only": true,
+  "formal_launch_authorized_by_this_document": false,
+  "checks": {
+    "registration": "PASS_REAL_MATURE_VERIFIER",
+    "source": "UNCHANGED_751_AFTER_REVIEWED_TIMING_DELTA",
+    "init": "ORIGINAL_S0_AND_NEW_MATCHED_OPTIMIZER",
+    "diagnostic_weight_isolation": "SMOKE_PROFILE_NOT_USED_FOR_FORMAL_INITIALIZATION",
+    "legacy_control": "PASS_MATCHED_BASE_DATA_ENV_EXECUTION_CONFIG_EXCEPT_DECLARED_SCALE",
+    "restore_guard": "PASS_ACTUAL_NATIVE_CHECKSUM_AND_4RANK_CPU_CONSUMED_NORMALIZATION_GUARD",
+    "actual_gpu_resume": "NOT_RUN_IN_THIS_NEW_DIAGNOSTIC",
+    "real_smoke": "PASS_REAL_FOUR_RANK_SMOKE"
+  },
+  "conditions": [
+    "Launch remains blocked until independent evidence and efficiency approvals are bound to this exact fingerprint and the complete240update PROFILE/resource review is accepted.",
+    "One4096update endpoint only; keep original registered Base/data/sampler/precision/optimizer/LR/time axis and fixedofficial protocol.",
+    "Noinitialization from SMOKE/PROFILE weights, noautomaticextraexperiments orfeature-side restart.",
+    "Resumeonly the registered run own complete native boundary, preserving optimizer/RNG/cursor and matching consumednormalization hash; never relabel an oldrun or diagnostic checkpoint."
+  ],
+  "limitations": [
+    "No newactualGPU/ZeRO resume test is claimed.",
+    "Scientificgain/safety remain untested; correctness is separate from evidence and efficiency roles.",
+    "Resource lease metadata was checksum verified; this role did not approve resource headroom or supervision."
+  ],
+  "new_tests_or_jobs_run": false
+}
