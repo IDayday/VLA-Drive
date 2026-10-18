@@ -1,0 +1,1022 @@
+{
+  "status": "COMPLETE",
+  "runtime_commit": "dd413aea5c848f5b92e0fb6225e2a8e20a9e5741",
+  "result": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1/RESULT.json",
+    "sha256": "0a6a84d3652122aeb69760b5237a56c71fec269c16b4066e78a0ddb05876d8cc",
+    "bytes": 327728
+  },
+  "plan_id": "4f52f393a2be7ebb69128e8bad401007500b7ae5a6ba0f23e0e58b176506b50d",
+  "source_sha256": "30bb3237019a463e68bb5c0686d902521d814ee99bec228a94de7b537f92f4ca",
+  "control_root": "/mnt/project/st-world-policy-20261016/audits/consequence/full_train_feedback_support_v1_controls",
+  "admission_sha256": "3e3030ab7ffc5af089ebf8beae6f8124c47be2cdcbf909c5bd6847d9edc39f68",
+  "independent_review_files": [
+    "reports/st_world_policy/20261018/full_train_feedback_correctness_v1/REVIEW.json",
+    "reports/st_world_policy/20261018/full_train_feedback_systems_v1/REVIEW.json"
+  ],
+  "shard_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "merge_exit_code": 0,
+  "counts": {
+    "C1_nonzero_candidate_presentations": 323724,
+    "EP_only_scene_presentations": 79586,
+    "candidate_pair_presentations": 786384,
+    "candidate_presentations": 524256,
+    "event_candidate_counts_D_C_T": [
+      3639,
+      125,
+      2398
+    ],
+    "ledgers": 4096,
+    "nonzero_advantage_scene_presentations": {
+      "C": 38,
+      "C1": 80933,
+      "D": 791,
+      "T": 520
+    },
+    "scene_presentations": 131064
+  },
+  "unique_scenes": 101592,
+  "unique_logs": 1176,
+  "support_unique_population": {
+    "C": {
+      "scene_presentations": 38,
+      "unique_logs": 31,
+      "unique_scenes": 37
+    },
+    "C1": {
+      "scene_presentations": 80933,
+      "unique_logs": 1148,
+      "unique_scenes": 62860
+    },
+    "D": {
+      "scene_presentations": 791,
+      "unique_logs": 395,
+      "unique_scenes": 764
+    },
+    "EP_only": {
+      "scene_presentations": 79586,
+      "unique_logs": 1148,
+      "unique_scenes": 61745
+    },
+    "T": {
+      "scene_presentations": 520,
+      "unique_logs": 294,
+      "unique_scenes": 485
+    },
+    "nonempty_time_or_severity_diff_C1_float32_tie": {
+      "scene_presentations": 1031,
+      "unique_logs": 431,
+      "unique_scenes": 963
+    },
+    "nonempty_time_or_severity_diff_C1_float64_tie": {
+      "scene_presentations": 1031,
+      "unique_logs": 431,
+      "unique_scenes": 963
+    },
+    "nonempty_time_or_severity_diff_C_terminal_tie": {
+      "scene_presentations": 21,
+      "unique_logs": 14,
+      "unique_scenes": 19
+    },
+    "nonempty_time_or_severity_diff_D_terminal_tie": {
+      "scene_presentations": 788,
+      "unique_logs": 364,
+      "unique_scenes": 741
+    },
+    "nonempty_time_or_severity_diff_T_terminal_tie": {
+      "scene_presentations": 355,
+      "unique_logs": 208,
+      "unique_scenes": 331
+    },
+    "nonempty_time_or_severity_diff_safety_vector_tie": {
+      "scene_presentations": 1114,
+      "unique_logs": 450,
+      "unique_scenes": 1042
+    }
+  },
+  "centered_advantage_amplitude": {
+    "all_scene_presentations": {
+      "abs_A_per_candidate": {
+        "RMS": 0.035854726727711186,
+        "count": 524256,
+        "mean": 0.003613683133535185,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.0002162456512451172,
+          "0.75": 0.0008138418197631836,
+          "0.9": 0.0016427040100097656,
+          "0.99": 0.08333331346511841,
+          "1.0": 0.75
+        }
+      },
+      "groups": 131064,
+      "within_group_A_range": {
+        "RMS": 0.07948547790002349,
+        "count": 131064,
+        "mean": 0.00915146115179308,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.001170516014099121,
+          "0.75": 0.002538815140724182,
+          "0.9": 0.004391711950302124,
+          "0.99": 0.1666666865348816,
+          "1.0": 1.0
+        }
+      }
+    },
+    "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+    "nonzero_advantage_scene_presentations": {
+      "abs_A_per_candidate": {
+        "RMS": 0.04562735634665671,
+        "count": 323732,
+        "mean": 0.005852047572852304,
+        "quantiles": {
+          "0.0": 0.0,
+          "0.25": 0.000287473201751709,
+          "0.5": 0.000638127326965332,
+          "0.75": 0.001230001449584961,
+          "0.9": 0.0021625757217407227,
+          "0.99": 0.2298359733819962,
+          "1.0": 0.75
+        }
+      },
+      "groups": 80933,
+      "within_group_A_range": {
+        "RMS": 0.10115018452297075,
+        "count": 80933,
+        "mean": 0.014820000548584733,
+        "quantiles": {
+          "0.0": 2.0265579223632812e-06,
+          "0.25": 0.001345992088317871,
+          "0.5": 0.0021480321884155273,
+          "0.75": 0.0034742355346679688,
+          "0.9": 0.005501699447631837,
+          "0.99": 0.5833333134651184,
+          "1.0": 1.0
+        }
+      }
+    }
+  },
+  "reward_value_decomposition": {
+    "advantage_squared_sum": 673.9632923744268,
+    "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+    "max_absolute_rounding_residual": 1.1545905365117903e-07,
+    "signed_covariance_fractions": {
+      "float32_rounding": 3.616386537985868e-09,
+      "gated_Comfort": 0.15775331809983403,
+      "gated_EP": 0.3579864480934907,
+      "gated_TTC": 0.4842602301902908
+    },
+    "signed_covariance_numerators": {
+      "float32_rounding": 2.437311777639511e-06,
+      "gated_Comfort": 106.3199456495544,
+      "gated_EP": 241.26972518251583,
+      "gated_TTC": 326.3736191050462
+    }
+  },
+  "terminal_ties_over_scene_presentations": {
+    "C1_float32_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.5916107382550335,
+      "eligible_pairs": 304768,
+      "eligible_scenes": 51943,
+      "empty_event_pairs": 298808,
+      "nonempty_event_pairs": 5960,
+      "per_component_nonempty_pairs": [
+        4164,
+        104,
+        1959
+      ],
+      "per_component_time_diff_pairs": [
+        2729,
+        49,
+        880
+      ],
+      "physical_time_or_severity_diff_pairs": 3526,
+      "physical_time_or_severity_diff_scenes": 1031,
+      "segment_diff_pairs": 1190,
+      "ttc_projection_diff_pairs": 943
+    },
+    "C1_float64_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.5916107382550335,
+      "eligible_pairs": 304757,
+      "eligible_scenes": 51932,
+      "empty_event_pairs": 298797,
+      "nonempty_event_pairs": 5960,
+      "per_component_nonempty_pairs": [
+        4164,
+        104,
+        1959
+      ],
+      "per_component_time_diff_pairs": [
+        2729,
+        49,
+        880
+      ],
+      "physical_time_or_severity_diff_pairs": 3526,
+      "physical_time_or_severity_diff_scenes": 1031,
+      "segment_diff_pairs": 1190,
+      "ttc_projection_diff_pairs": 943
+    },
+    "C_terminal_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.44,
+      "eligible_pairs": 786259,
+      "eligible_scenes": 131064,
+      "empty_event_pairs": 786134,
+      "nonempty_event_pairs": 125,
+      "per_component_nonempty_pairs": [
+        0,
+        125,
+        0
+      ],
+      "per_component_time_diff_pairs": [
+        0,
+        55,
+        0
+      ],
+      "physical_time_or_severity_diff_pairs": 55,
+      "physical_time_or_severity_diff_scenes": 21,
+      "segment_diff_pairs": 8,
+      "ttc_projection_diff_pairs": 0
+    },
+    "D_terminal_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.6553794428434198,
+      "eligible_pairs": 783795,
+      "eligible_scenes": 131064,
+      "empty_event_pairs": 779631,
+      "nonempty_event_pairs": 4164,
+      "per_component_nonempty_pairs": [
+        4164,
+        0,
+        0
+      ],
+      "per_component_time_diff_pairs": [
+        2729,
+        0,
+        0
+      ],
+      "physical_time_or_severity_diff_pairs": 2729,
+      "physical_time_or_severity_diff_scenes": 788,
+      "segment_diff_pairs": 952,
+      "ttc_projection_diff_pairs": 0
+    },
+    "T_terminal_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.43163636363636365,
+      "eligible_pairs": 784690,
+      "eligible_scenes": 131064,
+      "empty_event_pairs": 781940,
+      "nonempty_event_pairs": 2750,
+      "per_component_nonempty_pairs": [
+        0,
+        0,
+        2750
+      ],
+      "per_component_time_diff_pairs": [
+        0,
+        0,
+        1187
+      ],
+      "physical_time_or_severity_diff_pairs": 1187,
+      "physical_time_or_severity_diff_scenes": 355,
+      "segment_diff_pairs": 328,
+      "ttc_projection_diff_pairs": 1278
+    },
+    "safety_vector_tie": {
+      "conditional_time_difference_fraction_given_nonempty": 0.563905236155123,
+      "eligible_pairs": 782043,
+      "eligible_scenes": 131064,
+      "empty_event_pairs": 775416,
+      "nonempty_event_pairs": 6627,
+      "per_component_nonempty_pairs": [
+        4106,
+        116,
+        2626
+      ],
+      "per_component_time_diff_pairs": [
+        2684,
+        46,
+        1089
+      ],
+      "physical_time_or_severity_diff_pairs": 3737,
+      "physical_time_or_severity_diff_scenes": 1114,
+      "segment_diff_pairs": 1208,
+      "ttc_projection_diff_pairs": 1170
+    }
+  },
+  "scene_exposure_distribution": {
+    "fraction_presentations_after_first_occurrence": 0.22486724043215528,
+    "fraction_unique_scenes_seen_multiple_times": 0.29010158280179543,
+    "histogram_scene_count_by_presentations": {
+      "1": 72120,
+      "2": 29472
+    },
+    "presentations_per_unique_scene": {
+      "RMS": 1.3675908556309473,
+      "count": 101592,
+      "mean": 1.2901015828017954,
+      "quantiles": {
+        "0.0": 1.0,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 2.0,
+        "0.9": 2.0,
+        "0.99": 2.0,
+        "1.0": 2.0
+      }
+    }
+  },
+  "windows": {
+    "[0,1024)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 80671,
+        "EP_only_scene_presentations": 19734,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          1224,
+          68,
+          745
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 14,
+          "C1": 20168,
+          "D": 269,
+          "T": 163
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1151,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 14,
+          "unique_logs": 14,
+          "unique_scenes": 14
+        },
+        "C1": {
+          "scene_presentations": 20168,
+          "unique_logs": 1110,
+          "unique_scenes": 20168
+        },
+        "D": {
+          "scene_presentations": 269,
+          "unique_logs": 201,
+          "unique_scenes": 269
+        },
+        "EP_only": {
+          "scene_presentations": 19734,
+          "unique_logs": 1108,
+          "unique_scenes": 19734
+        },
+        "T": {
+          "scene_presentations": 163,
+          "unique_logs": 136,
+          "unique_scenes": 163
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 356,
+          "unique_logs": 249,
+          "unique_scenes": 356
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 356,
+          "unique_logs": 249,
+          "unique_scenes": 356
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 14,
+          "unique_logs": 11,
+          "unique_scenes": 14
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 278,
+          "unique_logs": 198,
+          "unique_scenes": 278
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 120,
+          "unique_logs": 100,
+          "unique_scenes": 120
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 382,
+          "unique_logs": 261,
+          "unique_scenes": 382
+        }
+      },
+      "centered_advantage_amplitude": {
+        "all_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.04141884670319498,
+            "count": 131072,
+            "mean": 0.0046960258679291655,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.00027048587799072266,
+              "0.75": 0.001020193099975586,
+              "0.9": 0.0020049035549163834,
+              "0.99": 0.2083333134651184,
+              "1.0": 0.75
+            }
+          },
+          "groups": 32768,
+          "within_group_A_range": {
+            "RMS": 0.09213201412526112,
+            "count": 32768,
+            "mean": 0.011910075491869065,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.0014870166778564453,
+              "0.75": 0.0031387358903884888,
+              "0.9": 0.005253899097442625,
+              "0.99": 0.4166666865348816,
+              "1.0": 1.0
+            }
+          }
+        },
+        "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+        "nonzero_advantage_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.052794849118834905,
+            "count": 80672,
+            "mean": 0.00762987780842438,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.00036571919918060303,
+              "0.5": 0.0008043646812438965,
+              "0.75": 0.0015248805284500122,
+              "0.9": 0.0026294529438018804,
+              "0.99": 0.25,
+              "1.0": 0.75
+            }
+          },
+          "groups": 20168,
+          "within_group_A_range": {
+            "RMS": 0.11743677508969169,
+            "count": 20168,
+            "mean": 0.019350919958229153,
+            "quantiles": {
+              "0.0": 2.0265579223632812e-06,
+              "0.25": 0.0017296969890594482,
+              "0.5": 0.002679198980331421,
+              "0.75": 0.004232749342918396,
+              "0.9": 0.0066568017005920405,
+              "0.99": 0.9289748561382292,
+              "1.0": 1.0
+            }
+          }
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 224.85675045326235,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1545905365117903e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.561682454390396e-09,
+          "gated_Comfort": 0.15966315718128346,
+          "gated_EP": 0.3617181863176553,
+          "gated_TTC": 0.4786186529393786
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 8.008683428406243e-07,
+          "gated_Comfort": 35.901338690891855,
+          "gated_EP": 81.33477595523567,
+          "gated_TTC": 107.62063500626644
+        }
+      }
+    },
+    "[1024,2048)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 81243,
+        "EP_only_scene_presentations": 19902,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          1036,
+          25,
+          642
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 10,
+          "C1": 20311,
+          "D": 245,
+          "T": 149
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1160,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 10,
+          "unique_logs": 9,
+          "unique_scenes": 10
+        },
+        "C1": {
+          "scene_presentations": 20311,
+          "unique_logs": 1114,
+          "unique_scenes": 20311
+        },
+        "D": {
+          "scene_presentations": 245,
+          "unique_logs": 188,
+          "unique_scenes": 245
+        },
+        "EP_only": {
+          "scene_presentations": 19902,
+          "unique_logs": 1112,
+          "unique_scenes": 19902
+        },
+        "T": {
+          "scene_presentations": 149,
+          "unique_logs": 122,
+          "unique_scenes": 149
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 295,
+          "unique_logs": 208,
+          "unique_scenes": 295
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 295,
+          "unique_logs": 208,
+          "unique_scenes": 295
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 1,
+          "unique_logs": 1,
+          "unique_scenes": 1
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 235,
+          "unique_logs": 169,
+          "unique_scenes": 235
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 95,
+          "unique_logs": 85,
+          "unique_scenes": 95
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 323,
+          "unique_logs": 228,
+          "unique_scenes": 323
+        }
+      },
+      "centered_advantage_amplitude": {
+        "all_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.039814787682929474,
+            "count": 131072,
+            "mean": 0.00439345245149525,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.00026291608810424805,
+              "0.75": 0.0009668469429016113,
+              "0.9": 0.0018930256366729752,
+              "0.99": 0.10427816033363334,
+              "1.0": 0.75
+            }
+          },
+          "groups": 32768,
+          "within_group_A_range": {
+            "RMS": 0.08787138636422633,
+            "count": 32768,
+            "mean": 0.011036186629098665,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.0014371275901794434,
+              "0.75": 0.002969294786453247,
+              "0.9": 0.004961943626403809,
+              "0.99": 0.4166666865348816,
+              "1.0": 1.0
+            }
+          }
+        },
+        "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+        "nonzero_advantage_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.05057125350004971,
+            "count": 81244,
+            "mean": 0.0070880138806851635,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0003432035446166992,
+              "0.5": 0.0007550716400146484,
+              "0.75": 0.0014335662126541138,
+              "0.9": 0.0024573028087615965,
+              "0.99": 0.24712515234947152,
+              "1.0": 0.75
+            }
+          },
+          "groups": 20311,
+          "within_group_A_range": {
+            "RMS": 0.11161094693294969,
+            "count": 20311,
+            "mean": 0.017804823172778546,
+            "quantiles": {
+              "0.0": 4.5299530029296875e-06,
+              "0.25": 0.001637101173400879,
+              "0.5": 0.0025306344032287598,
+              "0.75": 0.0039664506912231445,
+              "0.9": 0.006197154521942139,
+              "0.99": 0.9070558309555121,
+              "1.0": 1.0
+            }
+          }
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 207.77760433592755,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1179874703781678e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.301475664965625e-09,
+          "gated_Comfort": 0.15914543421840457,
+          "gated_EP": 0.3574700953347531,
+          "gated_TTC": 0.48338446714536726
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 6.859727044399209e-07,
+          "gated_Comfort": 33.06685706290105,
+          "gated_EP": 74.27428003039063,
+          "gated_TTC": 100.43646655666329
+        }
+      }
+    },
+    "[2048,3072)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 80732,
+        "EP_only_scene_presentations": 19901,
+        "candidate_pair_presentations": 196608,
+        "candidate_presentations": 131072,
+        "event_candidate_counts_D_C_T": [
+          800,
+          16,
+          521
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 5,
+          "C1": 20184,
+          "D": 158,
+          "T": 115
+        },
+        "scene_presentations": 32768
+      },
+      "unique_scenes": 32768,
+      "unique_logs": 1161,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 5,
+          "unique_logs": 4,
+          "unique_scenes": 5
+        },
+        "C1": {
+          "scene_presentations": 20184,
+          "unique_logs": 1118,
+          "unique_scenes": 20184
+        },
+        "D": {
+          "scene_presentations": 158,
+          "unique_logs": 129,
+          "unique_scenes": 158
+        },
+        "EP_only": {
+          "scene_presentations": 19901,
+          "unique_logs": 1118,
+          "unique_scenes": 19901
+        },
+        "T": {
+          "scene_presentations": 115,
+          "unique_logs": 95,
+          "unique_scenes": 115
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 222,
+          "unique_logs": 175,
+          "unique_scenes": 222
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 222,
+          "unique_logs": 175,
+          "unique_scenes": 222
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 4,
+          "unique_logs": 4,
+          "unique_scenes": 4
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 167,
+          "unique_logs": 139,
+          "unique_scenes": 167
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 79,
+          "unique_logs": 66,
+          "unique_scenes": 79
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 243,
+          "unique_logs": 187,
+          "unique_scenes": 243
+        }
+      },
+      "centered_advantage_amplitude": {
+        "all_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.03225291464710273,
+            "count": 131072,
+            "mean": 0.0029999503967701457,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.00019663572311401367,
+              "0.75": 0.0007393360137939453,
+              "0.9": 0.0014491677284240723,
+              "0.99": 0.006115528941154444,
+              "1.0": 0.75
+            }
+          },
+          "groups": 32768,
+          "within_group_A_range": {
+            "RMS": 0.07152216342043911,
+            "count": 32768,
+            "mean": 0.007635280986960424,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.001091599464416504,
+              "0.75": 0.0022681355476379395,
+              "0.9": 0.003897702693939208,
+              "0.99": 0.013617273569107042,
+              "1.0": 1.0
+            }
+          }
+        },
+        "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+        "nonzero_advantage_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.04109512596668643,
+            "count": 80736,
+            "mean": 0.00487031186094749,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.00026530027389526367,
+              "0.5": 0.0005846023559570312,
+              "0.75": 0.0010975003242492676,
+              "0.9": 0.001903831958770752,
+              "0.99": 0.2053328126668889,
+              "1.0": 0.75
+            }
+          },
+          "groups": 20184,
+          "within_group_A_range": {
+            "RMS": 0.09113013032566053,
+            "count": 20184,
+            "mean": 0.01239560480483151,
+            "quantiles": {
+              "0.0": 3.55839729309082e-05,
+              "0.25": 0.0012565851211547852,
+              "0.5": 0.0019358396530151367,
+              "0.75": 0.0030748844146728516,
+              "0.9": 0.004893493652343751,
+              "0.99": 0.4166666865348816,
+              "1.0": 1.0
+            }
+          }
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 136.34771395979422,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1175373343386141e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 3.5707083902794514e-09,
+          "gated_Comfort": 0.1551983975232515,
+          "gated_EP": 0.35492083103997346,
+          "gated_TTC": 0.4898807678660669
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 4.868579262316599e-07,
+          "gated_Comfort": 21.160946712518733,
+          "gated_EP": 48.392643949010754,
+          "gated_TTC": 66.79412281140684
+        }
+      }
+    },
+    "[3072,4096)": {
+      "counts": {
+        "C1_nonzero_candidate_presentations": 81078,
+        "EP_only_scene_presentations": 20049,
+        "candidate_pair_presentations": 196560,
+        "candidate_presentations": 131040,
+        "event_candidate_counts_D_C_T": [
+          579,
+          16,
+          490
+        ],
+        "ledgers": 1024,
+        "nonzero_advantage_scene_presentations": {
+          "C": 9,
+          "C1": 20270,
+          "D": 119,
+          "T": 93
+        },
+        "scene_presentations": 32760
+      },
+      "unique_scenes": 31825,
+      "unique_logs": 1157,
+      "support_unique_population": {
+        "C": {
+          "scene_presentations": 9,
+          "unique_logs": 9,
+          "unique_scenes": 9
+        },
+        "C1": {
+          "scene_presentations": 20270,
+          "unique_logs": 1112,
+          "unique_scenes": 19699
+        },
+        "D": {
+          "scene_presentations": 119,
+          "unique_logs": 101,
+          "unique_scenes": 118
+        },
+        "EP_only": {
+          "scene_presentations": 20049,
+          "unique_logs": 1111,
+          "unique_scenes": 19488
+        },
+        "T": {
+          "scene_presentations": 93,
+          "unique_logs": 80,
+          "unique_scenes": 91
+        },
+        "nonempty_time_or_severity_diff_C1_float32_tie": {
+          "scene_presentations": 158,
+          "unique_logs": 132,
+          "unique_scenes": 158
+        },
+        "nonempty_time_or_severity_diff_C1_float64_tie": {
+          "scene_presentations": 158,
+          "unique_logs": 132,
+          "unique_scenes": 158
+        },
+        "nonempty_time_or_severity_diff_C_terminal_tie": {
+          "scene_presentations": 2,
+          "unique_logs": 2,
+          "unique_scenes": 2
+        },
+        "nonempty_time_or_severity_diff_D_terminal_tie": {
+          "scene_presentations": 108,
+          "unique_logs": 92,
+          "unique_scenes": 108
+        },
+        "nonempty_time_or_severity_diff_T_terminal_tie": {
+          "scene_presentations": 61,
+          "unique_logs": 55,
+          "unique_scenes": 61
+        },
+        "nonempty_time_or_severity_diff_safety_vector_tie": {
+          "scene_presentations": 166,
+          "unique_logs": 138,
+          "unique_scenes": 166
+        }
+      },
+      "centered_advantage_amplitude": {
+        "all_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.028304394781207203,
+            "count": 131040,
+            "mean": 0.0023649989634124567,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.00016689300537109375,
+              "0.75": 0.0006104856729507446,
+              "0.9": 0.0011854171752929688,
+              "0.99": 0.004274247884750367,
+              "1.0": 0.75
+            }
+          },
+          "groups": 32760,
+          "within_group_A_range": {
+            "RMS": 0.06281781030054769,
+            "count": 32760,
+            "mean": 0.006023537846093358,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.0,
+              "0.5": 0.0009258687496185303,
+              "0.75": 0.001863822340965271,
+              "0.9": 0.003187751770019532,
+              "0.99": 0.009829814434051511,
+              "1.0": 1.0
+            }
+          }
+        },
+        "definition": "A is original float32 reward minus torch float32 group mean; range is float32 max(A)-min(A). Nonzero selects groups with any A != 0 and retains all four candidates. Quantiles pool original values with linear interpolation at q*(n-1); never average shard quantiles.",
+        "nonzero_advantage_scene_presentations": {
+          "abs_A_per_candidate": {
+            "RMS": 0.03598313061037051,
+            "count": 81080,
+            "mean": 0.0038222676882778534,
+            "quantiles": {
+              "0.0": 0.0,
+              "0.25": 0.00022089481353759766,
+              "0.5": 0.00048097968101501465,
+              "0.75": 0.0008986592292785645,
+              "0.9": 0.0015568971633911147,
+              "0.99": 0.10416662693023682,
+              "1.0": 0.75
+            }
+          },
+          "groups": 20270,
+          "within_group_A_range": {
+            "RMS": 0.07985973521690962,
+            "count": 20270,
+            "mean": 0.00973513072708527,
+            "quantiles": {
+              "0.0": 2.2470951080322266e-05,
+              "0.25": 0.0010517537593841553,
+              "0.5": 0.0015938878059387207,
+              "0.75": 0.0025075823068618774,
+              "0.9": 0.0040152490139007575,
+              "0.99": 0.41642484843730937,
+              "1.0": 1.0
+            }
+          }
+        }
+      },
+      "reward_value_decomposition": {
+        "advantage_squared_sum": 104.98122362544345,
+        "canonical_score_reconstruction_max_error": 1.1102230246251565e-16,
+        "max_absolute_rounding_residual": 1.1342750511067479e-07,
+        "signed_covariance_fractions": {
+          "float32_rounding": 4.416149746752826e-09,
+          "gated_Comfort": 0.1542257045984616,
+          "gated_EP": 0.354997055291001,
+          "gated_TTC": 0.49077723569438775
+        },
+        "signed_covariance_numerators": {
+          "float32_rounding": 4.636128041273038e-07,
+          "gated_Comfort": 16.19080318324268,
+          "gated_EP": 37.26802524787849,
+          "gated_TTC": 51.522394730709486
+        }
+      }
+    }
+  },
+  "costs": {
+    "actual_read_bytes": 15048317287,
+    "logical_read_bytes": 29148722313,
+    "nominal_load_bytes": 14088142976,
+    "output_reserved_bytes": 39659697,
+    "failed_attempts": 0
+  },
+  "execution": {
+    "worker_hosts": [
+      "training-vlawm-tsinghua-zt3",
+      "training-vlawm-tsinghua-zt4",
+      "training-vlawm-tsinghua-zt5",
+      "training-vlawm-tsinghua-zt6"
+    ],
+    "workers_per_host": 2,
+    "cpus_per_host": [
+      112,
+      113
+    ],
+    "gpu_tasks": 0,
+    "new_score_calls": 0,
+    "optimizer_updates": 0,
+    "model_loads": 0,
+    "per_worker_read_limit_MiB_s": 4,
+    "aggregate_read_limit_MiB_s": 32,
+    "common_deadline_utc": "2026-10-18T17:12:09.525215Z",
+    "merge_start_unix": 1792342960.8802931,
+    "merge_end_unix": 1792343043.064709,
+    "merge_elapsed_seconds": 82.18441581726074,
+    "lifetime_CPU_time": "NOT_MEASURED; mid-run /proc samples retained only",
+    "lifetime_peak_RSS": "NOT_MEASURED; checkpoint RSS bound 2GiB, mid-run observed ~420-432MiB per worker; not OS hard RSS"
+  },
+  "scope": "Saved C1 TRAIN 4096-boundary descriptive analysis; D/C/T recomputed on C1 trajectories, not a rerun of independent C2/C3/C4 policies. No DEV/navtest/model/new scores.",
+  "next": "Per-update scale summary from compact evidence, then decide one preregistered normalization adaptation. No training launch granted by this result."
+}
