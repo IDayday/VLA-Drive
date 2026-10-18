@@ -1,0 +1,117 @@
+{
+  "constraints": {
+    "attempt_namespace": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/RUNTIME_ATTEMPT",
+    "attempts_authorized": 1,
+    "automatic_retry": false,
+    "cell": "C1",
+    "checkpoint": 3584,
+    "cpu_affinity_count": 2,
+    "cpu_threads": 2,
+    "environment": "CUBLAS_WORKSPACE_CONFIG=:4096:8 exported in launching shell and bound by admission/reviews before torch import",
+    "gpu_count": 1,
+    "gpu_index": 1,
+    "gpu_lock": "/mnt/project/st-world-policy-20261016/resources/locks/GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897.lock",
+    "gpu_uuid": "GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897",
+    "host": "training-vlawm-tsinghua-zt2-worker-0",
+    "interpretation": "Separate BF16 objective backward and FP32 gradient sum; not an actual ZeRO-2 optimizer update",
+    "lead_dispatch_only": true,
+    "max_output_and_log_bytes": 8388608,
+    "max_read_bytes": 206158430208,
+    "max_rss_bytes": 68719476736,
+    "max_seconds_including_preflight_and_cleanup": 1800,
+    "new_score_calls": 0,
+    "next_global_scenes": 32,
+    "no_RLIMIT_AS": true,
+    "observed_limit_semantics": "0.2-second select interval plus metadata/filesystem/scheduling latency, 40-second cleanup reserve; no OS hard-ceiling claim",
+    "optimizer_steps": 0,
+    "original_world_size": 4,
+    "output_namespace": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3",
+    "read_accounting": "max(full-file hash + torch.load + safetensors nominal admissions, observed child-tree rchar); mmap charged before loader entry"
+  },
+  "delta_checks": {
+    "all_functions_classes_and_other_constants_unchanged": true,
+    "helper_hashes_match_v1_v2": true,
+    "prior_attempts_not_modified": true,
+    "registration_changed_fields": [
+      "output",
+      "resource"
+    ],
+    "resource_changed_fields": [
+      "host",
+      "gpu_uuid"
+    ],
+    "runtime_source_verified_on_target": true,
+    "status": "PASS",
+    "unchanged_registration_fields": "source, checkpoint, training registration, rollout receipts, diagnostic, budgets, CPU threads",
+    "v2_attempt_directory_exists": false,
+    "v3_attempt_directory_exists": false,
+    "wrapper_changed_ast_nodes": [
+      "REGISTRATION",
+      "REG_SHA",
+      "GPU_LOCK"
+    ]
+  },
+  "inherits": {
+    "v1_nine_cpu_fixtures": "Inherited unchanged resource functions and helpers; no repeated fixture load needed",
+    "v2_env_checks": "Inherited exact :4096:8 environment before torch import and immutable environment receipt",
+    "v2_report_commit": "59a23d864703a24670493dfb96fff36cb74bb840",
+    "v2_review_path": "../gradient_balance_independent_resources_v2/RESOURCE_REVIEW.json",
+    "v2_review_sha256": "b6a663f79979784f11ce99855748d00ce776bee9f1b533d4fb4f9926aa47635b"
+  },
+  "preservation": [
+    "Local 8 GPUs occupied by real extraction work are protected; no local processes were inspected or signalled in this delta review.",
+    "v1 evidence and the unexecuted v2 registration remain preserved; no output is overwritten or cleaned.",
+    "An empty target snapshot is not a reservation. Lead must satisfy the unchanged fresh-admission and cooperative-lock checks immediately before dispatch."
+  ],
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v3_controls/REGISTRATION.json",
+  "registration_sha256": "6a48f942e8b57f568d74be0bd92cab389daa6140d0a0307896acd40da3358770",
+  "review_budget": {
+    "GPU_computation": false,
+    "conservative_metadata_upper_bound_bytes": 2097152,
+    "dispatches": 0,
+    "elapsed_seconds_at_report": 71.68568134307861,
+    "hosts_probed": 1,
+    "max_metadata_bytes": 8388608,
+    "max_seconds": 90,
+    "model_or_GT_or_image_or_metric_assets_read": false,
+    "process_signals": 0,
+    "scoring_calls": 0
+  },
+  "review_kind": "resources",
+  "review_scope": "Resource migration delta only. Author and independent resource reviewer are different agents. Exactly one v3 attempt on the named target host/GPU; Lead dispatch only.",
+  "reviewed_at_utc": "2026-10-18T16:16:07.685080+00:00",
+  "reviewer": "/root/consequence_runtime_resource_review",
+  "runtime_environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "schema": "gradient_balance_independent_resources_review_v3",
+  "source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "status": "APPROVE_GRADIENT_BALANCE_EXECUTION",
+  "target_check": {
+    "MemAvailable_bytes": 1010799394816,
+    "artifact": "TARGET_RESOURCE_SNAPSHOT.json",
+    "compute_processes_empty": true,
+    "cpu_affinity_count": 128,
+    "cpu_quota_us": "-1",
+    "elapsed_seconds": 0.39705297723412514,
+    "gpu": "1, GPU-c0a3d651-8691-b507-5df6-6c7f0cc6c897, NVIDIA A800-SXM4-80GB, 81920, 4, 0",
+    "host_currently_allowed": true,
+    "package_versions": {
+      "deepspeed": "0.16.9",
+      "flash-attn": "2.7.4.post1",
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0"
+    },
+    "packages_checked_by_metadata_without_importing_torch": true,
+    "policy_sha256": "f494747d8c24439a2a914b65b6cb4a469ed7f7ff866c9caa67de581b1304a4f8",
+    "sha256": "b38e4a38fa6c06039c4595632bdf678c1b809bb2f865a7aa3f275f8a6c8a506c",
+    "shared_disk_available_bytes": 3999115927552,
+    "single_existing_ssh_alias": "training-vlawm-tsinghua-zt2",
+    "timeout_seconds": 15
+  },
+  "unresolved_blockers": [],
+  "wrapper_author": "/root (Lead)",
+  "wrapper_path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/gradient_balance_remote_v3/supervise_gradient_once.py",
+  "wrapper_sha256": "763c753ef28f8959d0f99b0e2693a50dfe25f9f421c469519e74f682a4912e11",
+  "wrapper_source_sha": "0792bc2853c7a01914627ad7232b27fcf01299d9"
+}
