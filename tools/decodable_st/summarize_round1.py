@@ -61,6 +61,8 @@ def run(root,output):
                  "minimum_cosine":min((r["cosine"] for r in rows),default=1)}
     for name in ("continuous","resumed","repeated_continuous"):
         read(f"runs/resume_boundary_v1/{name}/RESULT.json","recovery")
+    distributed_recovery=read("audits/DISTRIBUTED_RECOVERY.json","recovery")
+    if distributed_recovery:atomic_json(out/"DISTRIBUTED_RECOVERY.json",distributed_recovery)
     deploy=read("engineering_export_v2/DEPLOYMENT_REPORT.json")
     export=read("engineering_export_v2/manifest.json")
     if deploy:
@@ -92,6 +94,7 @@ def run(root,output):
             "teacher_native_interface":{k:{"status":v["status"],"scenes":len(v.get("records",v.get("rows",[]))),"seconds":v["seconds"]} for k,v in native.items()},
             "data":{k:data[k] for k in ("train_scenes","train_logs","dev_scenes","dev_logs","log_overlap","token_overlap","independent_occupancy_quality")},
             "capacity":capacity,"learners":learners,"operator_checks":probes,"recovery":recovery,"deployment":deploy,
+            "distributed_recovery":None if distributed_recovery is None else {k:v for k,v in distributed_recovery.items() if k not in ("pairs","receipts")},
             "representation_1000_export":final_deploy,"paired_deployment_latency":paired_latency,"sparse_cache":cache,
             "heldout_teacher_interface":None if not native_dev else {"status":native_dev["status"],"seconds":native_dev["seconds"],
                 "scenes":len(native_dev.get("records",native_dev.get("rows",[])))},
@@ -109,7 +112,7 @@ def run(root,output):
             "missing":["independent occupancy/free/unknown and native height-frame audit","SGDrive physical horizon/target-domain adaptation/persistence capability",
                 "accepted compression/representation and training-scale loss calibration","formal P2/P3 full-population implementation and runs",
                 "R0/RT/RST/Rcap/Rdecode/Rjoint/Rgt matched formal experiments","three independent new training seeds",
-                "full model multirank checkpoint/resume and post-LoRA resume characterization","full development/Navtest benefit, cluster bootstrap and safety transitions"]}
+                "long-run/staged multirank resume characterization","full development/Navtest benefit, cluster bootstrap and safety transitions"]}
     atomic_json(out/"RESULTS.json",result);atomic_json(out/"EVIDENCE_SHA256.json",evidence);atomic_json(out/"external_sources.lock.json",sources)
     return result
 
