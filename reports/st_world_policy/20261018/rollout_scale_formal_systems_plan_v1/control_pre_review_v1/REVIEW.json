@@ -1,0 +1,76 @@
+{
+  "schema": "independent_formal_control_pre_review_v1",
+  "utc": "2026-10-18T18:16:08.090983+00:00",
+  "status": "PASS_CONTROL_CHECKS_PENDING_PROFILE240_NOT_LAUNCH_APPROVAL",
+  "reviewer": "full_feedback_systems_review",
+  "source_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "source_fingerprint": "569a6a69374bd0cd25bbafd91489c5f07c78de9f9201b7268a391bbd3d68a9db",
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/launch_reviewed_rollout_scale_formal_v1.py",
+      "bytes": 13732,
+      "sha256": "ff8ad61230594458438c15d7451b5a9519b96cfe9b773804e190adf138386e29"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/monitor_rollout_scale_formal_v1.py",
+      "bytes": 6989,
+      "sha256": "3d01323f9b6bfa970bdd4abde5d4b6a37925d5eacd0813d4d996368010fecc38"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/resources/observe_formal_flow_cpu_v1.py",
+      "bytes": 4095,
+      "sha256": "67cb7eb1d0ab95512132e69b6f2eaaaa23f3841d9b6022dbd1245b95be08c5ff"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/FORMAL_STORAGE_RESERVES.json",
+      "bytes": 1287,
+      "sha256": "5aa27a68d383793ff13b43cf9084da3416609ab25badbdb8bdc913d8b2c230c2"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/registrations/C1_rollout_std_fulltrain_seed42_official_4096_v1/REGISTRATION.json",
+      "bytes": 2532,
+      "sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f"
+    }
+  ],
+  "tests": {
+    "count": 10,
+    "kind": "CPU synthetic; exact pure function ASTs and monitor stop-file helper",
+    "log_sha256": "263043f7e744997947a6266fb7be3319cb6feae6050f8220b5f08958759782bd"
+  },
+  "resource_findings": {
+    "admission_free_GiB": 1529,
+    "runtime_protected_free_GiB": 1320,
+    "own_run_GiB": 209,
+    "max_native_directories": 15,
+    "max_invocations": 6,
+    "invocation_train_seconds": 28800,
+    "owned_timeout_TERM_seconds": 29400,
+    "owned_timeout_KILL_grace_seconds": 180,
+    "selected_GPUs": "zt5 0-3",
+    "CPU_affinity": "0-15",
+    "global_CPU_scorers": 4,
+    "RSS_GiB": 256,
+    "GPU_GiB": 48,
+    "fast_resource_sample_seconds": 5,
+    "full_output_inventory_seconds": 300,
+    "monitor_log_max_MiB": 16,
+    "CPU_observer_log_max_MiB": 256
+  },
+  "manual_checks": [
+    "Exact launcher, monitor, CPU observer and reserve file must all appear in independent efficiency evidence; existence of an approval alone is insufficient.",
+    "Fresh admission rejects any compute-app on selected UUIDs, including zero memory/utilization startup. Other GPUs and other projects are untouched.",
+    "Native resolver is invoked only for explicit resume and validates current identity/world4; terminal state is refused before GPU launch.",
+    "Every dispatch counts partial invocation directories toward six-attempt ceiling; existing native directories include partials toward fifteen cap.",
+    "Runtime guard preserves 1024+4+292GiB and only requests owned optimizer-boundary stop on error/excess/foreign selected GPU.",
+    "Full recursive file stats are first/300s/final; GPU/RSS/free/native remain 5s. This is sampled enforcement, not hard instantaneous quotas.",
+    "No auto retry, no automatic stop acknowledgement, no diagnostic weights as formal initialization."
+  ],
+  "remaining": [
+    "Complete actual PROFILE240 and both steady windows with no unhandled resource/numerical/score failure.",
+    "Finalize exact current controls, independent correctness/evidence and lease/fresh resource identity.",
+    "Owned output-size detection may lag up to 300s plus scan time; one native save can be in progress, and graceful shutdown may save another. Native budget and large free floor absorb transient occupancy; report observed peak, never claim instantaneous209GiB quota."
+  ],
+  "dispatch_performed": false,
+  "signals_sent": false,
+  "formal_approval": false
+}
