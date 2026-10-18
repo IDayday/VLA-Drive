@@ -1,0 +1,28 @@
+ERROR
+
+======================================================================
+ERROR: setUpClass (__main__.Migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 129, in _get_module_details
+    spec = importlib.util.find_spec(mod_name)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/importlib/util.py", line 94, in find_spec
+    parent = __import__(parent_name, fromlist=['__path__'])
+ModuleNotFoundError: No module named 'tools'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/project/VLA-Drive-st-temporal-packed-migration-fix-20261018/reports/st_world_policy/20261018/temporal_packed_history_migration_v1/test_migration.py", line 27, in setUpClass
+    try:runpy.run_module('tools.st_world_policy.qualify_indexed_provider',run_name='__main__')
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 220, in run_module
+    mod_name, mod_spec, code = _get_module_details(mod_name)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 138, in _get_module_details
+    raise error(msg.format(mod_name, type(ex).__name__, ex)) from ex
+ImportError: Error while finding module specification for 'tools.st_world_policy.qualify_indexed_provider' (ModuleNotFoundError: No module named 'tools')
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.001s
+
+FAILED (errors=1)
+{"author_tests": 0, "failures": 0, "errors": 1, "wall_seconds": 0.002008870244026184, "peak_rss_bytes": 15286272, "self_rchar_bytes": 30834, "payload_open_attempts": [], "actual_source_migration_cli": true, "actual_T3_preparation": false, "ledger_written": false, "GPU_used": false, "independent_approval": false}

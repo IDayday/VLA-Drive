@@ -171,18 +171,56 @@ MATH_PATHS = ('tools/st_world_policy/fixed_batch_teacher.py',
     'starVLA/dataloader/st_world_targets.py', 'starVLA/dataloader/st_world_schema.py',
     'starVLA/model/modules/st_world/requests.py')
 
+PACKED_HISTORY_PATH = 'starVLA/dataloader/st_world_history.py'
+PACKED_HISTORY_HASHES = ('ab35c5df8f72b8ebff90887515c18af1755919a761ab7c0adf3d09c0a6d61a7d',
+                         'bdb33b97f820e251913d6c99cb782791d977e01599c75da620d244bd831fb97c')
+PACKED_REVIEW_ROOT = Path('/mnt/project/VLA-Drive-st-history-scale-independent-v2-20261017/reports/st_world_policy/20261017/history_metadata_scale_independent_v2')
+PACKED_REVIEW = {'path': str(PACKED_REVIEW_ROOT / 'REVIEW.json'),
+                'sha256': '5bad2b2136ce5823975b5f0918c6965a184e5b397ad32a3cde8340f1f2c273ac'}
+PACKED_SOURCE_BINDING = {'path': str(PACKED_REVIEW_ROOT / 'SOURCE_BINDING.json'),
+                         'sha256': '311ca1c5f264c96c0f677cef600adf7b5dd4dca1533397317e0298e8518cadfd'}
+
+
+def packed_history_compatibility(mathematics):
+    """One reviewed storage-reader transition; all other protected bytes match."""
+    changed = [r for r in mathematics if r['old']['sha256'] != r['new']['sha256']]
+    if not changed:
+        return None  # Preserve the original byte-identical migration schema.
+    if (len(changed) != 1 or changed[0]['relative'] != PACKED_HISTORY_PATH or
+            tuple(changed[0][side]['sha256'] for side in ('old', 'new')) != PACKED_HISTORY_HASHES):
+        raise ValueError('PROFILE migration changed protected mathematical/reader/PCA/sampler source')
+    review = tp.pinned(PACKED_REVIEW)
+    binding = tp.pinned(PACKED_SOURCE_BINDING)
+    if (review.get('status') != 'PASS_CODE_SYNTHETIC_BOUNDARIES' or
+            review.get('evidence_sha256', {}).get('SOURCE_BINDING.json') != PACKED_SOURCE_BINDING['sha256'] or
+            review.get('reviewed_commit') != binding.get('reviewed_commit') or
+            binding.get('source_sha256', {}).get(PACKED_HISTORY_PATH) != PACKED_HISTORY_HASHES[1] or
+            binding.get('unchanged_history_semantic_functions') != {
+                name: True for name in ('causal_frames', 'build_history_record', 'validate_history_record',
+                                       'crop_resize_affine', 'load_history_images', 'collate_history_inputs')}):
+        raise ValueError('Reviewed packed-history compatibility evidence changed')
+    return {'schema': 'st_exact_packed_history_source_compatibility_v1',
+            'relative': PACKED_HISTORY_PATH, 'old_sha256': PACKED_HISTORY_HASHES[0],
+            'new_sha256': PACKED_HISTORY_HASHES[1], 'review': dict(PACKED_REVIEW),
+            'source_binding': dict(PACKED_SOURCE_BINDING),
+            'scope': 'packed_log_v1 metadata IO only; unchanged history semantics and other protected sources',
+            'new_population_tensor_qualified': False, 'formal_approved': False}
+
 
 def validate_control_migration(plan, migration):
     """An explicit archived-code boundary, never a skip-source-check switch.
 
     Historical controls are checked in place. Only three named control modules
-    may differ; every enumerated numerical/reader/PCA/sampler file must match.
+    may differ. Protected sources must match, except the explicitly pinned,
+    independently reviewed packed-history storage-reader transition.
     New control code remains subject to new independent review/registration.
     """
     import subprocess
     fields = {'schema','identity','parent_runtime','parent_commit','parent_descriptor',
               'parent_plan','parent_result','controls','mathematics','scope',
               'new_population_tensor_qualified','formal_approved'}
+    if 'mathematics_compatibility' in migration:
+        fields.add('mathematics_compatibility')
     if (set(migration)!=fields or migration['schema']!=CONTROL_MIGRATION_SCHEMA or not _signed(migration)
             or migration['scope']!='PROFILE' or migration['new_population_tensor_qualified'] is not False
             or migration['formal_approved'] is not False):
@@ -207,8 +245,10 @@ def validate_control_migration(plan, migration):
         committed=subprocess.check_output(['git','show',commit+':'+row['relative']],cwd=old)
         if hashlib.sha256(committed).hexdigest()!=row['old']['sha256']:
             raise ValueError('Archived runtime source differs from its actual commit')
-    if any(r['old']['sha256']!=r['new']['sha256'] for r in expected_math):
-        raise ValueError('PROFILE migration changed protected mathematical/reader/PCA/sampler source')
+    compatibility = packed_history_compatibility(expected_math)
+    if (migration.get('mathematics_compatibility') != compatibility or
+            (compatibility is None and 'mathematics_compatibility' in migration)):
+        raise ValueError('PROFILE migration requires its exact reviewed packed-history compatibility record')
     expected_files=[]
     for pin in _source_files():
         rel=Path(pin['path']).relative_to(current)
@@ -230,6 +270,9 @@ def prepare_control_migration(parent_descriptor, parent_runtime, output):
         'controls':[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in CONTROL_PATHS],
         'mathematics':[{'relative':r,'old':tp.pin(old/r),'new':tp.pin(current/r)} for r in MATH_PATHS],
         'new_population_tensor_qualified':False,'formal_approved':False}
+    compatibility = packed_history_compatibility(migration['mathematics'])
+    if compatibility is not None:
+        migration['mathematics_compatibility'] = compatibility
     migration['identity']=identity_hash(migration)
     plan=tp.pinned(parent['qualification_plan']); report=tp.pinned(parent['qualification'])
     validate_receipt(plan,report,parent,control_migration=migration)
