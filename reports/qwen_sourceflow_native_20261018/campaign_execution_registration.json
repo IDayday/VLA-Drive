@@ -1,0 +1,36 @@
+{
+  "schema": "native_finite_campaign_owner_v1",
+  "training": {
+    "path": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/native_verified_startup",
+    "sha": "d4d0012769540af8378e013c072d6d8053d9f275"
+  },
+  "analysis": {
+    "path": "/mnt/project/qwen-sourceflow-native-20261018/snapshots/campaign_v2",
+    "sha": "b784e8230600e39c73e2fd913f42d5524ec24832"
+  },
+  "root": "/mnt/project/qwen-sourceflow-native-20261018",
+  "data": {
+    "DEV": "/mnt/project/qwen-sourceflow-native-20261018/data/DEV_v2",
+    "NAVTEST": "/mnt/project/qwen-sourceflow-native-20261018/data/NAVTEST"
+  },
+  "qualification_updates": 16,
+  "formal_updates": 50000,
+  "variants": [
+    "canonical",
+    "source"
+  ],
+  "milestones": [
+    5000,
+    10000,
+    20000,
+    35000,
+    50000
+  ],
+  "best_DEV_rule": "highest canonical PDMS among trained milestones; exact tie later update",
+  "no_automatic_retry": true,
+  "no_recipe_changes": true,
+  "current_phase": "WAITING_FOR_FULL_IL_AND_FIVE_DEV",
+  "owner_source": "b784e82",
+  "new_formal_RL_started": false,
+  "existing_formal_IL_unchanged": true
+}

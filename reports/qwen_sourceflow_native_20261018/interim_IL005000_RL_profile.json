@@ -1,0 +1,392 @@
+{
+  "canonical": {
+    "qualification_only": true,
+    "parent_optimizer_updates": 5000,
+    "optimizer_updates": 16,
+    "fresh_global_rollouts": 4,
+    "scenes": 32,
+    "candidates": 256,
+    "PG_group_fraction": 0.96875,
+    "slowest_rank_seconds_per_collection": 8.676675728522241,
+    "projected_50k_phase_hours": 30.127346279591116,
+    "peak_GPU_bytes": 38284106240,
+    "cumulative": {
+      "first_optimizer_update": 1,
+      "last_optimizer_update": 16,
+      "actual_global_optimizer_updates": 16,
+      "fresh_global_rollouts": 4,
+      "scene_exposures": 32,
+      "new_candidates": 256,
+      "global_RL_updates": 16,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 31,
+      "local_PG_group_fraction": 0.96875,
+      "full_score_groups": 0,
+      "zero_score_groups": 1,
+      "other_tied_groups": 0,
+      "canonical_tied_groups": 1,
+      "zero_final_PG_groups": 1,
+      "progress_only_groups": 0,
+      "safety_differing_groups": 28,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.552310458235431,
+        "train_reward_mean": 0.552310454659164,
+        "NC": 0.931640625,
+        "DAC": 0.80859375,
+        "TTC": 0.75,
+        "EP": 0.5091388497650343,
+        "safe_fraction": 0.62109375
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.8868987460185588,
+        "defined_groups": 31,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 140,
+        "positive_still_unsafe": 10,
+        "positive_unsafe_with_safe_alternative": 10
+      },
+      "global_raw_reward_std": {
+        "mean": 0.3390878439568259,
+        "min": 0.291169965595491,
+        "max": 0.3749699248845649
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": -2.5223320480882716e-09,
+        "beta50_anchor_loss_rank_mean": 7.457599605215082e-08,
+        "mean_gradient_norm": 0.018317630048841238
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -2.5223320480882716e-09,
+          "beta50_anchor_loss_rank_mean": 7.457599605215082e-08,
+          "mean_gradient_norm": 0.018317630048841238
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.00030231475830078125,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -1.062225771408798e-05,
+          "beta50_anchor_loss_rank_mean": 1.0324968180018719e-07,
+          "mean_gradient_norm": 0.01832097815349698
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.0007222294807434082,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -2.7870798009033138e-05,
+          "beta50_anchor_loss_rank_mean": 1.4209503006786667e-07,
+          "mean_gradient_norm": 0.01832510018721223
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.001250922679901123,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -5.127982417452159e-05,
+          "beta50_anchor_loss_rank_mean": 1.9496263782559087e-07,
+          "mean_gradient_norm": 0.018323632422834635
+        }
+      },
+      "mean_update_seconds_per_rank": 1.2910303680837387,
+      "source_relative_clamp_hit_rate": 0.0002441406268189894
+    },
+    "cost": {
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/qualification/RL_IL005000_canonical_profile16/checkpoints/update000016_inner0",
+      "checkpoint_updates": 16,
+      "cumulative_rank_wall_seconds_by_phase": {
+        "rollout": 51.55749454535544,
+        "old_probability": 12.539906019344926,
+        "update": 165.25188711471856,
+        "scoring_wait": 46.34362184815109,
+        "scoring_cpu": 2.123074335977435
+      },
+      "max_rank_wall_seconds_by_phase": {
+        "rollout": 6.608376313000917,
+        "old_probability": 1.634358135983348,
+        "update": 20.66131441667676,
+        "scoring_wait": 5.979916241019964,
+        "scoring_cpu": 0.3769850954413414
+      },
+      "all_rank_phase_seconds": {
+        "rollout": [
+          6.488484190776944,
+          6.608376313000917,
+          6.2694564294070005,
+          6.489140521734953,
+          6.29595279879868,
+          6.417581140995026,
+          6.4992190562188625,
+          6.489284094423056
+        ],
+        "old_probability": [
+          1.561703184619546,
+          1.5740993320941925,
+          1.54169144295156,
+          1.5715240091085434,
+          1.5284455139189959,
+          1.634358135983348,
+          1.5773887299001217,
+          1.5506956707686186
+        ],
+        "update": [
+          20.653746739029884,
+          20.66050958633423,
+          20.654861161485314,
+          20.66131441667676,
+          20.65136108547449,
+          20.65653633698821,
+          20.658423118293285,
+          20.655134670436382
+        ],
+        "scoring_wait": [
+          5.868209969252348,
+          5.863717682659626,
+          5.67241021618247,
+          5.670827820897102,
+          5.979916241019964,
+          5.612649405375123,
+          5.864085763692856,
+          5.811804749071598
+        ],
+        "scoring_cpu": [
+          0.25301244482398033,
+          0.3769850954413414,
+          0.23309203796088696,
+          0.24546190910041332,
+          0.25351850502192974,
+          0.23892422765493393,
+          0.2791633140295744,
+          0.24291680194437504
+        ]
+      },
+      "invocation_ledger": {
+        "schema": 3,
+        "provenance": "per-invocation records; RUNNING records are unclosed observations",
+        "cumulative_logical_updates": 16,
+        "invocation_start_update": 0,
+        "invocation_effective_updates": 16,
+        "invocation_updates_per_second": 0.2398945509025107,
+        "rate_basis": "finished invocation end-start updates / invocation wall",
+        "rate_window_seconds": 66.69597095809877,
+        "planned_optimizer_updates": 50000,
+        "linear_remaining_training_hours": null,
+        "cumulative_worker_wall_seconds": 1186.450867952779,
+        "invocation_worker_wall_seconds": 535.4317301716655,
+        "preparation_worker_wall_seconds_observed": 651.0191377811134,
+        "workers_missing_preparation_seconds": 0,
+        "aborted_invocation_worker_wall_seconds": 0,
+        "unclosed_invocation_worker_wall_seconds": 0,
+        "rollback_overhead_seconds": null,
+        "save_worker_wall_seconds": 44.95951932668686,
+        "physical_generated_candidates": 256,
+        "physical_scored_candidates": 256,
+        "worker_records": 8,
+        "incomplete_invocations": 0,
+        "missing": [
+          "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+          "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+        ],
+        "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+      },
+      "linear_remaining_training_hours": null,
+      "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+    }
+  },
+  "source": {
+    "qualification_only": true,
+    "parent_optimizer_updates": 5000,
+    "optimizer_updates": 16,
+    "fresh_global_rollouts": 4,
+    "scenes": 32,
+    "candidates": 256,
+    "PG_group_fraction": 0.96875,
+    "slowest_rank_seconds_per_collection": 8.925749450456351,
+    "projected_50k_phase_hours": 30.99218559186233,
+    "peak_GPU_bytes": 38285482496,
+    "cumulative": {
+      "first_optimizer_update": 1,
+      "last_optimizer_update": 16,
+      "actual_global_optimizer_updates": 16,
+      "fresh_global_rollouts": 4,
+      "scene_exposures": 32,
+      "new_candidates": 256,
+      "global_RL_updates": 16,
+      "global_anchor_only_updates": 0,
+      "local_PG_groups": 31,
+      "local_PG_group_fraction": 0.96875,
+      "full_score_groups": 0,
+      "zero_score_groups": 1,
+      "other_tied_groups": 0,
+      "canonical_tied_groups": 1,
+      "zero_final_PG_groups": 1,
+      "progress_only_groups": 0,
+      "safety_differing_groups": 28,
+      "stochastic_policy_mean": {
+        "canonical_random_mean": 0.55231160245254,
+        "train_reward_mean": 0.5396145414561033,
+        "NC": 0.931640625,
+        "DAC": 0.80859375,
+        "TTC": 0.75,
+        "EP": 0.5091415958860958,
+        "safe_fraction": 0.62109375
+      },
+      "finite_best_safe": {
+        "mean_among_groups_with_safe_candidate": 0.886901314674115,
+        "defined_groups": 31,
+        "interpretation": "Finite G8 candidate opportunity, never deployment performance"
+      },
+      "positive_candidate_counts": {
+        "positive_safe": 135,
+        "positive_still_unsafe": 16,
+        "positive_unsafe_with_safe_alternative": 16
+      },
+      "global_raw_reward_std": {
+        "mean": 0.31882778941428513,
+        "min": 0.26525237243466043,
+        "max": 0.3596608542136225
+      },
+      "first_inner": {
+        "ratio_max_abs_from_one": 0.0,
+        "mean_PPO_clip_fraction": 0.0,
+        "policy_loss_rank_mean": 2.289501341984357e-09,
+        "beta50_anchor_loss_rank_mean": 8.38464964611485e-08,
+        "mean_gradient_norm": 0.01944362325593829
+      },
+      "inner_updates": {
+        "1": {
+          "ratio_max_abs_from_one": 0.0,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": 2.289501341984357e-09,
+          "beta50_anchor_loss_rank_mean": 8.38464964611485e-08,
+          "mean_gradient_norm": 0.01944362325593829
+        },
+        "2": {
+          "ratio_max_abs_from_one": 0.0003230571746826172,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -1.0736829970658945e-05,
+          "beta50_anchor_loss_rank_mean": 1.1549592660183537e-07,
+          "mean_gradient_norm": 0.01944751711562276
+        },
+        "3": {
+          "ratio_max_abs_from_one": 0.0007523298263549805,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -2.8124932534012714e-05,
+          "beta50_anchor_loss_rank_mean": 1.5780167692252406e-07,
+          "mean_gradient_norm": 0.019452870823442936
+        },
+        "4": {
+          "ratio_max_abs_from_one": 0.001308143138885498,
+          "mean_PPO_clip_fraction": 0.0,
+          "policy_loss_rank_mean": -5.169779375080452e-05,
+          "beta50_anchor_loss_rank_mean": 2.1449136488466136e-07,
+          "mean_gradient_norm": 0.019453846849501133
+        }
+      },
+      "mean_update_seconds_per_rank": 1.324457543596509,
+      "source_relative_clamp_hit_rate": 0.0002441406268189894
+    },
+    "cost": {
+      "checkpoint": "/mnt/project/qwen-sourceflow-native-20261018/qualification/RL_IL005000_source_profile16/checkpoints/update000016_inner0",
+      "checkpoint_updates": 16,
+      "cumulative_rank_wall_seconds_by_phase": {
+        "rollout": 52.44764461182058,
+        "old_probability": 12.732074052095413,
+        "update": 169.53056558035314,
+        "scoring_wait": 47.5386022310704,
+        "scoring_cpu": 2.1806326135993004
+      },
+      "max_rank_wall_seconds_by_phase": {
+        "rollout": 6.888460697606206,
+        "old_probability": 1.663670364767313,
+        "update": 21.21600466221571,
+        "scoring_wait": 6.1192343439906836,
+        "scoring_cpu": 0.4093104209750891
+      },
+      "all_rank_phase_seconds": {
+        "rollout": [
+          6.3839390352368355,
+          6.591993669047952,
+          6.398823099210858,
+          6.378536866977811,
+          6.888460697606206,
+          6.5757765006273985,
+          6.807474449276924,
+          6.422640293836594
+        ],
+        "old_probability": [
+          1.5503541696816683,
+          1.5895780622959137,
+          1.58224630728364,
+          1.663670364767313,
+          1.6541593875735998,
+          1.5552820898592472,
+          1.5882475227117538,
+          1.5485361479222775
+        ],
+        "update": [
+          21.177928069606423,
+          21.18624723702669,
+          21.179591102525592,
+          21.18142842128873,
+          21.195890868082643,
+          21.21600466221571,
+          21.21064018458128,
+          21.182835035026073
+        ],
+        "scoring_wait": [
+          6.082680199295282,
+          6.021543679758906,
+          5.949477152898908,
+          5.765668418258429,
+          5.964486848562956,
+          5.5772118996828794,
+          6.0582996886223555,
+          6.1192343439906836
+        ],
+        "scoring_cpu": [
+          0.24346375279128551,
+          0.4093104209750891,
+          0.23742934502661228,
+          0.24193906225264072,
+          0.25739721581339836,
+          0.23692362755537033,
+          0.29819336347281933,
+          0.25597582571208477
+        ]
+      },
+      "invocation_ledger": {
+        "schema": 3,
+        "provenance": "per-invocation records; RUNNING records are unclosed observations",
+        "cumulative_logical_updates": 16,
+        "invocation_start_update": 0,
+        "invocation_effective_updates": 16,
+        "invocation_updates_per_second": 0.23722937786307133,
+        "rate_basis": "finished invocation end-start updates / invocation wall",
+        "rate_window_seconds": 67.44527235254645,
+        "planned_optimizer_updates": 50000,
+        "linear_remaining_training_hours": null,
+        "cumulative_worker_wall_seconds": 1260.2578588351607,
+        "invocation_worker_wall_seconds": 531.971937244758,
+        "preparation_worker_wall_seconds_observed": 728.2859215904027,
+        "workers_missing_preparation_seconds": 0,
+        "aborted_invocation_worker_wall_seconds": 0,
+        "unclosed_invocation_worker_wall_seconds": 0,
+        "rollback_overhead_seconds": null,
+        "save_worker_wall_seconds": 25.47215062007308,
+        "physical_generated_candidates": 256,
+        "physical_scored_candidates": 256,
+        "worker_records": 8,
+        "incomplete_invocations": 0,
+        "missing": [
+          "unobserved tail after a hard process kill; counters are lower bounds for unclosed records",
+          "exact rollback-only wall inside an aborted invocation; its total wall may include committed work"
+        ],
+        "note": "RUNNING means unclosed, not aborted and not proof of a live process. Rate extrapolates a measured window, not a guaranteed wall-clock completion. Shared worker wall includes observed preparation; it is not exclusive GPU compute. Failed-attempt wall is retained, but may include committed work."
+      },
+      "linear_remaining_training_hours": null,
+      "note": "Phase timers are overlapping rank wall times, not exclusive CPU/GPU compute. scoring_cpu is scorer elapsed, not CPU-core time. Missing legacy attempt/save costs are not fabricated."
+    }
+  }
+}

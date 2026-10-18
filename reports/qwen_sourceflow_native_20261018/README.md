@@ -1,6 +1,8 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
-**2026-10-18 执行状态：正式8卡 IL 已开始实际 optimizer 更新；完整模型 IL 恢复、真实8卡 GRPO 中断恢复、独立原始图像部署验收通过。完整 IL、两组正式 RL、DEV/Navtest 成绩仍未完成。没有达到92或已有RL净收益的结论。**
+**2026-10-18 执行状态：正式8卡 IL 已超过5000步，进入完整Qwen/provider/action训练；5000步父模型上的两组16步真实GRPO资格完成，各31/32组有PG，全部480个LoRA任务动量非零。完整IL、两组正式RL及DEV/Navtest成绩仍未完成。没有达到92或已有RL净收益的结论。**
+
+最新中期结果、费用与后续两组50k/锁定Navtest的实际执行链见 [interim_IL005000.md](interim_IL005000.md)。[完整训练阶段快照](formal_IL_full_stage_snapshot.json) 与初始770步之前的启动快照分开保留。
 
 本任务分支为 `feature/qwen-sourceflow-native-vla-20261018`。资产及实际运行收据位于 `/mnt/project/qwen-sourceflow-native-20261018`。报告只提交代码、身份及小型证据，不包含权重、原始数据、特征缓存或私有场景图。
 
@@ -110,5 +112,7 @@ RL固定作者公开hard list与TRAIN交集17037，排除352个DEV重叠；成�
 `milestone_queue_v2` 已以单CPU owner运行：每个登记IL检查点完成后，使用当时授权、可用且UUID去重的GPU分片跑完整1696 DEV；每scene噪声绑定seed2101，布局不影响候选数；缺失/异常不从分母消失。等待里程碑时每5分钟检查一次，不高频轮询训练日志。所有五次DEV后才封存IL父模型。
 
 正式RL尚需在选定父模型上完成费用确认，再分别启动两台8卡的CANONICAL/SOURCE各50k；不能提前用欠拟合资格模型冒充正式父模型。RL每组12500份fresh全局rollout、100000 scene曝光、800000候选，四次inner不重复计新候选。最终锁定权重、按同一主入口完成IL和RL的12146全Navtest，报告RL−自身IL、G+/G−、NC/DAC/TTC转移和log-cluster bootstrap。
+
+后续CPU owner `campaign_v2` 已部署为独立单一owner，每5分钟查看前置边界；从五个完整IL DEV选择、共同父模型资格，到两组正式50k、完整DEV、逐导出ODE合并验收、锁定后的Navtest和配对分析，均调用现有训练/评价入口。它不热修改正式IL、没有提前启动正式RL、不会自动重试失败变体。固定50k主结果与DEV选择结果分开报告；RL DEV选择仅用已训练的5k/10k/20k/35k/50k，最高canonical PDMS、精确同分取较晚。规则在正式RL结果出现前登记。
 
 可执行入口与恢复边界见 [execution.md](execution.md)。本报告证明已实现、验收并启动新的训练链路；**尚不回答新模型RL能否获得净PDMS提升**，该判断必须等待充分IL及两条正式RL的固定单候选结果。

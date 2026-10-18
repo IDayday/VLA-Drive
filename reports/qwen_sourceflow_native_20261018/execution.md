@@ -138,3 +138,29 @@ CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.milestone_
 同一入口 `--once` 已实际执行，之后单一owner持续等待。不同shard使用scene绑定的同一seed2101；分配前重新读取live授权，检查两次显存/真实owner和物理UUID，未完成的scene必须补齐才可汇总。每次invocation分开记录new/reused、forward、评分等待、加载和worker wall；worker wall不是独占GPU compute。
 
 队列完成全部五个DEV后实际调用 `freeze_il`，锁定父模型；输出 `READY_FOR_RL.json`。这只表示IL选择前置完成，不表示两组RL或Navtest已经执行。正式RL成本profile、两组50k和最终Navtest仍需后续任务收据证明。
+
+## 已部署的后续训练与评价owner
+
+当前 `campaign_v2` 的实际源码是不可变 `b784e82`，训练与评价源码仍固定为 `d4d0012`。CLI `--once` 已实际执行，随后单一CPU owner后台运行；重复启动被owner lock拒绝。当前等待完整IL和五个DEV，没有任何提前派发的正式RL子任务。
+
+```bash
+QSF_CAMPAIGN_SOURCE=$QSF_ROOT/snapshots/campaign_v2
+cd "$QSF_CAMPAIGN_SOURCE"
+CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.campaign \
+  --training-source "$QSF_IL_SOURCE" --analysis-source "$QSF_CAMPAIGN_SOURCE" \
+  --control-dir "$QSF_ROOT/campaign_v2"
+```
+
+上述命令是当前owner的记录；不要再启动一份。只读状态为 `campaign_v2/status.json`、`identity.json`、`controller_launch.json`。源变更收据在 `SOURCE_MIGRATION.json`：早期仅等待的owner在没有子任务时被替换，原目录与不可变源码保留；正式IL没有中断。
+
+它复用 `train_rl`、`export_policy`、`validate_rl_deployment`、`evaluate_policy`、`summarize_results` 和 `analyze_paired`。正式50k必须核对八rank完整边界、真实Adam/scheduler=50000、12500份fresh rollout/100000场景曝光/800000候选，以及两组实际场景流hash。每个RL导出需先完成raw-image 10步ODE的未合并/合并数值验收，才能进入DEV或Navtest。CPU导出一次一个，GPU加载前即预留物理UUID。
+
+12项CPU调度测试已执行：
+
+```bash
+cd "$QSF_CAMPAIGN_SOURCE"
+CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.validate_campaign \
+  --output "$QSF_ROOT/validation/campaign_v4.json"
+```
+
+正式RL中断时，owner会停止新派发并保留失败/恢复边界，不自动生成新链或重置Adam。实际恢复仍使用前面已验收的同run `train_rl --resume` 入口；需要先核对COMPLETE/阶段、未合并LoRA、旧链/优势、source identity和原worker退出状态。
