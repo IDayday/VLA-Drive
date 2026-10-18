@@ -1,0 +1,110 @@
+{
+  "schema": "st_spatial20k_startup_observation_summary_v1",
+  "reviewer": "/root/spatial20k_efficiency",
+  "decision": "KEEP_RUNNING; actual native restore completed and optimizer updates progressed, not a demonstrated startup hang.",
+  "proc_read_samples_per_host": 2,
+  "interval_target_seconds": 10,
+  "host_summaries": [
+    {
+      "host": "training-vlawm-tsinghua-zt6-worker-0",
+      "start_utc": "2026-10-18T02:47:57.687521+00:00",
+      "end_utc": "2026-10-18T02:48:08.030916+00:00",
+      "interval_seconds": 10.343395948410034,
+      "main_worker_count": 4,
+      "main_worker_cpu_seconds": 48.39,
+      "main_worker_logical_read_delta": 10619125174,
+      "main_worker_storage_read_counter_delta": 11834839040,
+      "main_worker_rss_kib_range": [
+        9291532,
+        9415220
+      ],
+      "descendant_count_including_controllers": 138,
+      "other_descendant_cpu_seconds": 0.01,
+      "gpu_memory_utilization_snapshot": "0, 47307, 75\n1, 47607, 72\n2, 47811, 91\n3, 46659, 72"
+    },
+    {
+      "host": "training-vlawm-tsinghua-zt2-worker-0",
+      "start_utc": "2026-10-18T02:47:57.693013+00:00",
+      "end_utc": "2026-10-18T02:48:08.033784+00:00",
+      "interval_seconds": 10.340770959854126,
+      "main_worker_count": 4,
+      "main_worker_cpu_seconds": 48.73,
+      "main_worker_logical_read_delta": 8446791048,
+      "main_worker_storage_read_counter_delta": 9334583296,
+      "main_worker_rss_kib_range": [
+        7976764,
+        9454796
+      ],
+      "descendant_count_including_controllers": 138,
+      "other_descendant_cpu_seconds": 0.01,
+      "gpu_memory_utilization_snapshot": "0, 48937, 0\n1, 49233, 0\n2, 49437, 0\n3, 48285, 0"
+    },
+    {
+      "host": "training-vla-zt-worker-0",
+      "start_utc": "2026-10-18T02:47:57.486566+00:00",
+      "end_utc": "2026-10-18T02:48:07.834938+00:00",
+      "interval_seconds": 10.348372459411621,
+      "main_worker_count": 1,
+      "main_worker_cpu_seconds": 3.18,
+      "main_worker_logical_read_delta": 14330478,
+      "main_worker_storage_read_counter_delta": 22204416,
+      "main_worker_rss_kib_range": [
+        732684,
+        732684
+      ],
+      "descendant_count_including_controllers": 3,
+      "other_descendant_cpu_seconds": 0.09,
+      "gpu_memory_utilization_snapshot": null
+    }
+  ],
+  "native_progress_observed_after_proc_window": {
+    "SP2": {
+      "completed": 5011,
+      "exposure": 160344,
+      "epoch": 1,
+      "offset": 1836,
+      "restored_rank_receipts": 4,
+      "state": "RUNNING",
+      "current_loss": 1.1850268840789795,
+      "ego_fm_loss": 0.008924645371735096
+    },
+    "SP3": {
+      "completed": 5007,
+      "exposure": 160216,
+      "epoch": 1,
+      "offset": 1832,
+      "restored_rank_receipts": 4,
+      "state": "RUNNING",
+      "current_loss": 1.1534771919250488,
+      "ego_fm_loss": 0.013603485189378262
+    }
+  },
+  "history": {
+    "controller_pid": 786421,
+    "actual_worker_pid": 786489,
+    "output_identity": "full_causal_population_v1/train",
+    "control_identity": "train_controls_attempt2",
+    "started_receipt": true,
+    "metadata_admission": true,
+    "complete": false,
+    "decision": "KEEP_RUNNING within existing four-hour/read/RSS limits; actual child has CPU and IO progress, low observed rate is not a completion prediction."
+  },
+  "raw_inventory_uncommitted": {
+    "path": "/tmp/st_spatial20k_startup_observation_20261018.json",
+    "sha256": "f297a3175c399231fc340755e8f550babf3849d0d8609161aa4e360d36678bd0"
+  },
+  "actions": {
+    "new_jobs": false,
+    "signals": false,
+    "payload_opens_or_rehash": false,
+    "source_changes": false,
+    "new_approval": false
+  },
+  "limits": [
+    "No throughput claim from a10-second startup/first-update window.",
+    "Process IO logical/storage counters do not establish shared-storage physical wire throughput.",
+    "RSS is per-process and may include shared mappings; descendant sums are not unique resident memory.",
+    "SP3 instantaneous zero utilization was followed by confirmed optimizer progress; instantaneous GPU utilization is not a hang test.",
+    "Idle inherited helper descendants were observed; no active CPU oversubscription inferred or source changes proposed."
+  ]
+}
