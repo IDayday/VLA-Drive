@@ -1,0 +1,79 @@
+{
+  "accumulation": 8,
+  "actual_cpu_preparation_complete": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/.configured.staging-llcp6hch/PREPARATION_COMPLETE.json",
+    "sha256": "0239af137bec828287c21b5d5b3e8e97f5dd89403d99bd06eaa48a3491d46b13"
+  },
+  "actual_cpu_result": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/metadata/controls/RESULT.json",
+    "sha256": "ac9c921c1608064ead2507290fa75d89d685fba445ec13252994773b233fa430"
+  },
+  "actual_inputs": {
+    "path": "/mnt/project/st-world-policy-20261016/profile/temporal_global32_qualification_v1/T0_capacity4/INPUTS.json",
+    "sha256": "940f30904a84277dff8e27b4813100758bd114f27600676ce4cc3b1d2ef79d51"
+  },
+  "cleanup_seconds": 180,
+  "command_receipt_placeholders_are_unresolved": true,
+  "commands": {
+    "prepare": [
+      "bash",
+      "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_T0_profile4_actual_binding_v1/launch_once.sh",
+      "--action",
+      "prepare",
+      "--resource-admission",
+      "ACTUAL_OWNER_RECEIPT_REQUIRED",
+      "--resource-admission-sha256",
+      "ACTUAL_OWNER_SHA_REQUIRED"
+    ],
+    "run": [
+      "bash",
+      "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_T0_profile4_actual_binding_v1/launch_once.sh",
+      "--action",
+      "run",
+      "--resource-admission",
+      "ACTUAL_OWNER_RECEIPT_REQUIRED",
+      "--resource-admission-sha256",
+      "ACTUAL_OWNER_SHA_REQUIRED"
+    ]
+  },
+  "controller": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_T0_profile4_actual_binding_v1/controller.py",
+    "sha256": "e2e6fd89c9c18ef12a3c067a1c3366c1868acafb72e8be6b07f7980ced3790b9"
+  },
+  "controller_sources_reused": [
+    "full_population_profile_launch_v1/controller.py",
+    "temporal_T3_profile4_binding_v1/controller.py::OwnedReadGuard",
+    "full_future_metadata_preparation_v1/run_build_once.py::owned_proc_io"
+  ],
+  "exact_cell": "T0",
+  "exposures": 128,
+  "formal_permission": false,
+  "global_batch": 32,
+  "launcher": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-prepare-20261018/reports/st_world_policy/20261018/temporal_T0_profile4_actual_binding_v1/launch_once.sh",
+    "sha256": "c5b998c3b35584aff1912cad20234e5dde3f80b3d75f457906823aad0c5a6be8"
+  },
+  "max_native_seconds": 3600,
+  "max_native_timeout_seconds": 3720,
+  "micro_batch": 1,
+  "no_automatic_retry": true,
+  "no_profile_resume": true,
+  "outer_bootstrap_timeout_seconds": 3900,
+  "outer_kill_grace_seconds": 180,
+  "output_cap_bytes": 85899345920,
+  "own_output_before": false,
+  "read_cap_bytes": 1099511627776,
+  "rss_cap_bytes": 206158430208,
+  "runtime": {
+    "path": "/mnt/project/VLA-Drive-st-temporal-profile-runtime-v1-20261018",
+    "source_sha": "38f86a15a92171e583bb5019cce89a63fb7a1d43"
+  },
+  "sampled_limits_not_hard_kernel_quotas": true,
+  "scheduler_max_updates": 20000,
+  "scheduler_warmup": 1000,
+  "schema": "st_T0_capacity4_actual_binding_handoff_v1",
+  "source_or_model_modified": false,
+  "status": "IMPLEMENTED_NOT_ADMITTED_NOT_DISPATCHED",
+  "updates": 4,
+  "world_size": 4
+}
