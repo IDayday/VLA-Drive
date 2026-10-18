@@ -28,6 +28,8 @@ class NativeRecipeActor(RecipeActor):
         self.infer_action_scheduler=WanContinuousFlowMatchScheduler(1000,shift=5.)
         self._velocity_calls=self._reference_calls=0
         self._noise_audit=[];self._probability_audit={}
+        self.record_sampling_terms=False
+        self.sampling_terms=[]
         self._loss=SourceLoss(cfg)
         paths=attention_paths(head)
         with torch.random.fork_rng(devices=[self.device.index or 0] if self.device.type=='cuda' else []):
@@ -77,4 +79,13 @@ class NativeRecipeActor(RecipeActor):
         return super().action_chain_logprobs(self.materialize(cond),*args,**kwargs)
 
     def sample_action_chain(self, cond, *args, **kwargs):
-        return super().sample_action_chain(self.materialize(cond),*args,**kwargs)
+        if not self.record_sampling_terms:
+            return super().sample_action_chain(self.materialize(cond),*args,**kwargs)
+        self.sampling_terms=[];original=self._sde_mean_std
+        def recorded(*values,**options):
+            mean,std=original(*values,**options)
+            self.sampling_terms.append((mean.detach().clone(),std))
+            return mean,std
+        self._sde_mean_std=recorded
+        try:return super().sample_action_chain(self.materialize(cond),*args,**kwargs)
+        finally:del self._sde_mean_std

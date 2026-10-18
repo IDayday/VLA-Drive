@@ -10,6 +10,7 @@ from .conditions import FrozenConditions
 from .actor import NativeRecipeActor
 from .collection import collect
 from starVLA.rl.fm_transfer.source_process import SourceTokenStream
+from scripts.analysis.simwam_recipe.train import parameter_hash
 
 
 class NativeRuntime:
@@ -43,6 +44,9 @@ class NativeRuntime:
         data=RawSceneData(args.data,cohort='TRAIN')
         self.conditions=FrozenConditions(model,data,self.parent['files']['model.pt'])
         actor=NativeRecipeActor(model.policy.action_expert,cfg,self.conditions)
+        if args.qualification:
+            actor.record_sampling_terms=True
+            self.observation_before={k:parameter_hash(getattr(self.conditions,k),trainable=False) for k in ['qwen','provider']}
         return actor,None,None
 
     def make_conditions(self,actor):
@@ -60,3 +64,10 @@ class NativeRuntime:
             hard_manifest_sha256=file_sha(args.manifest),projected_condition_identity=condition_sha,
             policy_ratio='source relative-clamped dimension-mean stochastic-transition surrogate',
             deployment='native Qwen full tokens, source 8x3, single candidate shift5 ODE10')
+
+    def finish_qualification(self,result):
+        after={k:parameter_hash(getattr(self.conditions,k),trainable=False) for k in ['qwen','provider']}
+        if after!=self.observation_before:raise ValueError('Frozen native Qwen/provider changed during source RL')
+        result.update(frozen_observation_before=self.observation_before,frozen_observation_after=after,
+            prefill_calls_this_invocation=self.conditions.prefill_calls,prefill_seconds_this_invocation=self.conditions.prefill_seconds,
+            prefill_cost_included_in_rollout=True)

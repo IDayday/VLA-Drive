@@ -55,6 +55,7 @@ def main():
         result['safety_transitions'][key]=dict(new_violation=int((~old&new).sum()),recovery=int((old&~new).sum()),mean_delta=float((value[:,i]-base[:,i]).mean()))
     result['motion']={k:dict(mean=float(np.mean(v)) if v else None,defined_scenes=len(v)) for k in moves[0] for v in [[m[k] for m in moves if m[k] is not None]]}
     if Path(a.output).exists():raise FileExistsError(a.output)
+    Path(a.output).parent.mkdir(parents=True,exist_ok=True)
     result['sha256']=fingerprint(result);atomic_json(a.output,result)
     print(json.dumps({k:result[k] for k in ['status','scenes','own_IL_PDMS','RL_PDMS','RL_minus_own_IL_PDMS_points','reached92']}))
 

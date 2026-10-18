@@ -289,6 +289,8 @@ def main(runtime=None):
             if after!=frozen_before:raise ValueError('Frozen SFT/reference state changed')
             changed={n:bool(torch.count_nonzero(p.detach().cpu()-first_adapters[n])) for n,p in actor.named_parameters() if p.requires_grad}
             result.update(frozen_SHA_before=frozen_before,frozen_SHA_after=after,changed_adapters=changed)
+            if runtime is not None and hasattr(runtime,'finish_qualification'):
+                runtime.finish_qualification(result)
         atomic_json(root/f'result_rank{rank}.json',result)
         invocation.finish(state,result['status'])
     except BaseException:

@@ -43,6 +43,7 @@ def main():
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     if a.limit and not a.qualification:raise ValueError('No partial population in formal evaluation')
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
+    (root/'scenes').mkdir(exist_ok=True);(root/'invocations').mkdir(exist_ok=True)
     lock=(root/f'rank{a.rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     start=time.monotonic();inv=uuid.uuid4().hex;device=torch.device('cuda',0)
     data=RawSceneData(a.data,cohort=a.cohort);tokens=data.tokens[:a.limit] if a.limit else data.tokens

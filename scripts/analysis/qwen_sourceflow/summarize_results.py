@@ -40,6 +40,7 @@ def main():
         scoring_wait_worker_seconds=sum(v['scoring_wait_seconds'] for v in inv),
         GPU_cost_semantics='Worker occupancy on authorized GPUs, possibly shared; not exclusive GPU compute seconds')
     if Path(a.output).exists():raise FileExistsError('Keep previous cost/report schema; use a new output')
+    Path(a.output).parent.mkdir(parents=True,exist_ok=True)
     result['sha256']=fingerprint(result);atomic_json(a.output,result);print(json.dumps(result))
 
 
