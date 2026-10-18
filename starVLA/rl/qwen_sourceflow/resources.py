@@ -32,7 +32,11 @@ rows=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free,u
 gpus=[dict(index=int(i),uuid=u.strip(),free_MiB=int(f),utilization=int(v)) for i,u,f,v in (x.split(',') for x in rows.splitlines())]
 rows=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid,gpu_uuid','--format=csv,noheader,nounits'],text=True)
 owners=[dict(pid=int(p),uuid=u.strip(),visible=(Path('/proc')/p.strip()/'cmdline').is_file()) for p,u in (x.split(',') for x in rows.splitlines())]
-print(json.dumps(dict(gpus=gpus,owners=owners,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0])))"""
+memory={line.split(':')[0]:int(line.split()[1])*1024 for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')}
+free=memory['MemAvailable']
+limit=Path('/sys/fs/cgroup/memory.max');current=Path('/sys/fs/cgroup/memory.current')
+if limit.exists() and current.exists() and limit.read_text().strip()!='max':free=min(free,max(0,int(limit.read_text())-int(current.read_text())))
+print(json.dumps(dict(gpus=gpus,owners=owners,CPU_affinity=len(os.sched_getaffinity(0)),load1=os.getloadavg()[0],available_memory_bytes=free)))"""
     return json.loads(remote(host,[OPERATOR,'-c',program]))
 
 
