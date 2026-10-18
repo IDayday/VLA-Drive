@@ -1,0 +1,43 @@
+{
+  "schema": "independent_ddp_ownership_delta_v3_test",
+  "source": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+  "controller_sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228",
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v3-20261018/tests/st_world/test_rollout_resume_smoke.py",
+    "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/test_ddp_ownership.py",
+    "-k",
+    "ddp_ownership"
+  ],
+  "exit_code": 0,
+  "stop_reason": null,
+  "wall_seconds": 2.6462519243359566,
+  "waited_child_CPU_seconds": 2.0818800000000004,
+  "sampled_50ms_owned_tree_peak_RSS_bytes": 451178496,
+  "scientific_native_pause_functions_AST_unchanged": [
+    "logical_state",
+    "engine_snapshot",
+    "install_observer",
+    "worker",
+    "consumed_receipt",
+    "verify_load_witness",
+    "compare",
+    "validate_pause_marker",
+    "archive_owned_pause",
+    "validate_pause_ack",
+    "inspect_native",
+    "selected_native",
+    "validate_result",
+    "run_path"
+  ],
+  "frozen_endpoint_helper_unchanged": true,
+  "old51_or_cold_metadata_tests_rerun": false,
+  "GPU_calls": 0,
+  "official_score_calls": 0,
+  "trainer_calls": 0,
+  "model_native_image_GT_payload_loads": 0,
+  "NVML": "Explicit synthetic output supplied only to original strict monitor; actual Linux process identities used"
+}

@@ -1,0 +1,147 @@
+{
+  "schema": "st_rollout_resume_smoke_correctness_ddp_ownership_v3_review",
+  "status": "PASS",
+  "review_kind": "correctness",
+  "reviewer": "/root/road_failure_selection_correctness_v1",
+  "recorded_utc": "2026-10-18T20:46:37.062843+00:00",
+  "binding_sha256": "4be799d83fff2f896a61a9dea65f9a0f88af76580e0e7886f92b012797c65805",
+  "binding_artifact": {
+    "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_v3_admission/BINDING_DRAFT.json",
+    "sha256": "f4c57bcf93be1d2a5a3712322b87385c725d68e5c698a3dcd6611d87751db46a"
+  },
+  "controller_commit": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+  "controller_sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228",
+  "runtime_sha": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "parent_review_historical": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/BOUND_REVIEW.json",
+    "sha256": "56758b09575ab84fbfc0928ddfbd0d32c6ca31ceaddc651349edcf3f7e4e1be8"
+  },
+  "scope": "Only DDP process ownership/lifecycle, strict foreign protection, historical failed-launch budget and fresh v3 metadata binding; not algorithm re-review.",
+  "real_failure": "v2 SID-only endpoint helper omitted real Torch Elastic new-session ranks. Actual supervision failed before any arm run, optimizer update or score; one actual trainer-launch attempt is retained and charged.",
+  "old_coverage_gap": "Prior endpoint-style fixtures did not prove nested Torch Elastic session ownership. The failure and older review artifacts remain unchanged.",
+  "correctness_findings": {
+    "owned_discovery": "Authenticated root PID/start plus PPID descendants across setsid. Retained PID/start and child sessions require a current matching leader or currently verified live member; stale PID/SID integers alone cannot seed ownership.",
+    "root_stamp": "An exited Popen without an already captured start stamp cannot adopt a recycled PID.",
+    "heavy_load_gate": "Checks rank0 through owned_processes; accepts a proven live rank outside launcher SID.",
+    "GPU_monitor": "Original strict helper remains exact a2e24537 hash. At most one fresh PPID/start discovery refresh addresses fork-to-NVML snapshot race; no NVML PID, command, UUID or UID seeds ownership. A still-foreign PID is rejected.",
+    "cleanup": "Signals individually reverified owned PID/start only, including known orphan descendants across sessions. Independent real foreign CPU process remained alive during owned cleanup.",
+    "accounting": "Total launch cap4 = preserved failed1 + at most3new invocations, including partial intent directories. Prior source reports zero optimizer updates/scores and no arm run directory exists; prior failure receipts are immutable binding dependencies.",
+    "math_preservation": "14 scientific/native/pause functions AST unchanged from01d8; original runtime751 and endpoint helper are unchanged."
+  },
+  "affected_tests": {
+    "passed": 10,
+    "deselected": 40,
+    "warnings": 1,
+    "failure": 0,
+    "owner_ownership_cases": 7,
+    "independent_cases": 3,
+    "old51_rerun": false,
+    "cold_import_tests_rerun": false,
+    "real_CPU_nested_setsid_and_known_orphan": true,
+    "NVML": "Synthetic outputs only; actual Linux process birth/session/PPID and cleanup exercised",
+    "cost": {
+      "schema": "independent_ddp_ownership_delta_v3_test",
+      "source": "e631600f13f3a54f9f7bc43f9989a089314b7f9e",
+      "controller_sha256": "dcaf2c3e66113b20ac9349b147537f210745664f8fc0a1eed6a67b7ff3166228",
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/mnt/project/VLA-Drive-st-rollout-native-resume-smoke-v3-20261018/tests/st_world/test_rollout_resume_smoke.py",
+        "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/test_ddp_ownership.py",
+        "-k",
+        "ddp_ownership"
+      ],
+      "exit_code": 0,
+      "stop_reason": null,
+      "wall_seconds": 2.6462519243359566,
+      "waited_child_CPU_seconds": 2.0818800000000004,
+      "sampled_50ms_owned_tree_peak_RSS_bytes": 451178496,
+      "scientific_native_pause_functions_AST_unchanged": [
+        "logical_state",
+        "engine_snapshot",
+        "install_observer",
+        "worker",
+        "consumed_receipt",
+        "verify_load_witness",
+        "compare",
+        "validate_pause_marker",
+        "archive_owned_pause",
+        "validate_pause_ack",
+        "inspect_native",
+        "selected_native",
+        "validate_result",
+        "run_path"
+      ],
+      "frozen_endpoint_helper_unchanged": true,
+      "old51_or_cold_metadata_tests_rerun": false,
+      "GPU_calls": 0,
+      "official_score_calls": 0,
+      "trainer_calls": 0,
+      "model_native_image_GT_payload_loads": 0,
+      "NVML": "Explicit synthetic output supplied only to original strict monitor; actual Linux process identities used"
+    }
+  },
+  "budget": {
+    "scope": "SMOKE",
+    "total_optimizer_updates": 8,
+    "primary_official_calls_max": 1024,
+    "retry_attempts": 0,
+    "prior_invocations": 1,
+    "maximum_new_invocations": 3,
+    "total_invocation_cap": 4,
+    "prior_wall_seconds_reserved": 60,
+    "new_execution_seconds": 3540,
+    "comparison_seconds": 120,
+    "cleanup_seconds": 180,
+    "planned_campaign_wall_seconds": 3900,
+    "weights_usable_for_formal_init": false
+  },
+  "bound_small_metadata": {
+    "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/BINDING_VERIFICATION.json",
+    "sha256": "56ef0a360f837e1f31c84d64a671ff9fe1ca2cc5fa5c9a19612c0b031c71f7e4"
+  },
+  "formal_training_approval": false,
+  "actual_GPU_native_resume_result": "PENDING_REAL_EXECUTION",
+  "required_before_dispatch": [
+    "Matching independent Systems review and enforcement of3900s resource plan",
+    "Lead sole dispatcher",
+    "Fresh actual host/UUID/RAM/disk/ownership checks; prior live GPU cleanup is not inferred solely from old SID receipt"
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/TEST_OUTPUT.txt",
+      "sha256": "dfe9f116a6ab81cf478bd86badf781a734576b35d851ddd6204e6b1fd84e52f0"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/TEST_RESULT.json",
+      "sha256": "6ab9e05fda192f9fed2b3131dbb4a829342beafba39cbb36a4de215bb0051d0c"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/BINDING_VERIFICATION.json",
+      "sha256": "56ef0a360f837e1f31c84d64a671ff9fe1ca2cc5fa5c9a19612c0b031c71f7e4"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/test_ddp_ownership.py",
+      "sha256": "ba93678ad80be2db8c78a1bfa9fe0f73eef0cfce82d3758da92bbaa093c3ceff"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/ddp_ownership_delta_v3/run_v3_review.py",
+      "sha256": "67bd06169f5b53ef529caa0a8ed3208a9a32e818252c0ef69b5b4ca56521aacb"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/REVIEW.json",
+      "sha256": "9f8549d73fd743161bae0b1a59c58a0b5c96d3bef27adb3b326772dad85ee24a"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-st-rollout-native-resume-correctness-20261018/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/cold_import_delta_v2/BOUND_REVIEW.json",
+      "sha256": "56758b09575ab84fbfc0928ddfbd0d32c6ca31ceaddc651349edcf3f7e4e1be8"
+    }
+  ],
+  "reviewer_GPU_calls": 0,
+  "reviewer_official_score_calls": 0,
+  "reviewer_model_native_image_GT_context_payload_reads": 0,
+  "prior_logs_receipts_and_failed_attempt_preserved": true,
+  "formal_run_modified": false
+}
