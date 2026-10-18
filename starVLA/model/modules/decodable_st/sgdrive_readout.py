@@ -7,7 +7,7 @@ class TemporalProjector(nn.Module):
         super().__init__()
         self.contract = contract
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.project = nn.Linear(hidden_size, contract.hidden_size)
 
     def forward(self, hidden):

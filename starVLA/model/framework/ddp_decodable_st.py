@@ -19,12 +19,16 @@ from starVLA.model.modules.decodable_st.world_to_action_bridge import WorldToAct
 
 class DDPDecodableST(nn.Module):
     def __init__(self,baseline,*,spatial_contract=None,temporal_contract=None,
-                 spatial_grid=(16,16),cameras=("CAM_F0","CAM_L0","CAM_R0"),seed=42):
+                 spatial_grid=(16,16),cameras=("CAM_F0","CAM_L0","CAM_R0"),seed=42,
+                 query_execution="prefix_cached_v1"):
         super().__init__()
         self.baseline=baseline
         self.cameras=tuple(cameras)
         self.spatial_contract,self.temporal_contract=spatial_contract,temporal_contract
         self.reader_enabled=False
+        if query_execution not in ("prefix_cached_v1", "appended_v1"):
+            raise ValueError("Unknown Qwen query execution")
+        self.query_execution=query_execution
         hidden=int(baseline.qwen_vl_interface.model.config.hidden_size)
         if spatial_contract:
             self.spatial_queries=QueryBank(hidden,spatial_grid,seed+100)
@@ -65,12 +69,18 @@ class DDPDecodableST(nn.Module):
                 s=self.spatial_queries();ns=len(s);tail.append(s)
             if self.temporal_contract:
                 t=self.temporal_queries();nt=len(t);tail.append(t)
-            embeddings=torch.cat((embeddings,torch.cat(tail,0).to(embeddings.dtype)[None].expand(b,-1,-1)),1)
-            pad=int(base.qwen_vl_interface.processor.tokenizer.pad_token_id)
-            ids=torch.cat((ids,ids.new_full((b,ns+nt),pad)),-1)
+            tail=torch.cat(tail,0).to(embeddings.dtype)[None].expand(b,-1,-1)
             mask=world_attention_mask(attention,slots["action"],ns,nt,embeddings.dtype)
-            positions=append_mrope_positions(positions,attention,ns+nt)
-            hidden=base._qwen_language_forward(ids,embeddings,mask,positions,visual,deepstack)
+            full_positions=append_mrope_positions(positions,attention,ns+nt)
+            if self.query_execution=="prefix_cached_v1":
+                from starVLA.model.modules.decodable_st.qwen_tail import prefix_cached_forward
+                hidden=prefix_cached_forward(base,ids,embeddings,attention,positions,visual,deepstack,
+                                              tail,full_positions[:,:,n:],mask[:,:,n:,:])
+            else:
+                embeddings=torch.cat((embeddings,tail),1)
+                pad=int(base.qwen_vl_interface.processor.tokenizer.pad_token_id)
+                ids=torch.cat((ids,ids.new_full((b,ns+nt),pad)),-1)
+                hidden=base._qwen_language_forward(ids,embeddings,mask,full_positions,visual,deepstack)
         rows=torch.arange(b,device=device)[:,None]
         representation=StudentRepresentation(hidden[rows,slots["action"]],hidden[rows,slots["foresight"]])
         if ns:

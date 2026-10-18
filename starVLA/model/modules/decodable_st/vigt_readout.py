@@ -9,7 +9,7 @@ class SpatialReadout(nn.Module):
         super().__init__()
         self.contract, self.grid_hw = contract.validate(), tuple(grid_hw)
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.project = nn.Linear(hidden_size, contract.channels)
             self.refine = nn.Sequential(nn.Conv2d(contract.channels, contract.channels, 3, padding=1),
                                         nn.GELU(), nn.Conv2d(contract.channels, contract.channels, 1))

@@ -27,7 +27,7 @@ class WorldToActionBridge(nn.Module):
         super().__init__()
         self.spatial_contract, self.temporal_contract = spatial_contract, temporal_contract
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             if spatial_contract:
                 self.spatial_reader = WorldReader(action_dim, spatial_contract.channels)
             if temporal_contract:
