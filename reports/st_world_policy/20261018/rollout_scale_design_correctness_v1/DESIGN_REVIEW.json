@@ -1,0 +1,96 @@
+{
+  "schema": "rollout_scale_design_correctness_review_v1",
+  "status": "PASS_DESIGN_MATH_EVIDENCE_PENDING",
+  "review_kind": "independent_mathematical_design",
+  "reviewer": "/root/road_proxy_correctness_review",
+  "reviewed_at_utc": "2026-10-18T16:59:40.811730+00:00",
+  "proposal_commit": "b1a8cf49b98a718e1b509dc7000c7db3e3c8fb94",
+  "proposal_artifacts": {
+    "ROLLOUT_SCALE_PROPOSAL.md": "a32d9e405316bdc257ce283343e23b6fb05d3ed54086d42a0e2243dcce82d69c",
+    "ROLLOUT_SCALE_PROPOSAL.json": "c8294fed768a040b1de43a4153f68e753acd6f5539c7a5a11d63f640129884e9"
+  },
+  "method": "scene_center_rollout_std_v1",
+  "existing_runtime_commit": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "existing_source_hashes": [
+    {
+      "path": "starVLA/model/modules/flow_posttraining/fpo_objective.py",
+      "sha256": "c23afecd3508c135456ab879d31c37440822d38bf89ff58f8450d4514b73e78d",
+      "bytes": 9379,
+      "same_as_frozen_runtime836": true
+    },
+    {
+      "path": "tools/st_world_policy/train_flow_policy.py",
+      "sha256": "792dbca6459d3ae63562b6ef39b7b6c95a75595f8e4b9e0cdfc06f3064848c96",
+      "bytes": 64408,
+      "same_as_frozen_runtime836": true
+    },
+    {
+      "path": "tools/foresight/student_state.py",
+      "sha256": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+      "bytes": 4742,
+      "same_as_frozen_runtime836": true
+    },
+    {
+      "path": "tools/st_world_policy/flow_training_config.py",
+      "sha256": "a6c5ce22d47123a25208ca90d897ae9bb3487147cf9aafbd0b085aaca2b17eb3",
+      "bytes": 7733,
+      "same_as_frozen_runtime836": true
+    }
+  ],
+  "upstream_local_source": {
+    "path": "/mnt/project/st-world-policy-20261016/audits/evidence/public_sources/fpo/gridworld/models/fpo.py",
+    "commit": "418c2554f7cd22d52e14c07d951280929d73bf2f",
+    "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd",
+    "scope": "whole rollout normalization placement and epsilon; no claim navigation adaptation reproduces GAE"
+  },
+  "executed_checks": {
+    "synthetic_cpu_tests_passed": 8,
+    "failures": 0,
+    "skips": 0,
+    "exit_code": 0,
+    "wall_seconds": 2.102221444249153,
+    "child_cpu_seconds": 2.04363,
+    "peak_child_rss_bytes": 481619968,
+    "scope": "synthetic CPU design mathematics only; no collectives/model/data/GPU",
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "reports/st_world_policy/20261018/rollout_scale_design_correctness_v1/test_design_math.py"
+    ],
+    "actual_distributed_collectives_executed": false,
+    "real_training_data_read": false,
+    "model_or_gpu_executed": false
+  },
+  "blocking_design_bugs": [],
+  "findings": [
+    "FP32 scene centering retained; denominator is complete rollout centered-A std correction1 in FP64, plus1e-10 outside sqrt; no second numerator centering",
+    "Exact-zero G4 groups preserved, global all-zero valid rollout retains BC; invalid/empty feedback fails collectively",
+    "Full/tail and microbatch/rank partition arithmetic is consistent when the common scalar and actual N are fixed before slicing",
+    "Same-update positive scalar preserves surrogate clipping branch/sign/relative gaps, but not cross-update relative weights or original BC-policy balance",
+    "Zero-group inclusion may increase active candidate coefficients; complete-N reduction means total sparse-batch gradient amplification is not guaranteed",
+    "Single-reuse initial ratio near1 does not provide a post-update clipping guarantee",
+    "Common validation failure vote must precede all statistics collectives; mathematics tests are not runtime failure/collective certification"
+  ],
+  "pending_before_implementation_or_profile": [
+    "Complete independently checked TRAIN analysis and separate per-update std/scale, four windows, roundoff, EP-only and safety support strata",
+    "New explicit variant identity; preserve legacy default and original zero/constant-group, BC, RNG, MC and sampler behavior",
+    "Independent implementation and distributed error/reduction/resume checks; frozen tolerances justified by numeric reference",
+    "Separate bounded profile, systems/resource approval and Lead admission"
+  ],
+  "authority": {
+    "implementation_approved_by_this_review": false,
+    "profile_approved": false,
+    "formal_training_approved": false,
+    "resource_review": false,
+    "dispatch_performed": false
+  },
+  "review_artifacts": {
+    "DESIGN_REVIEW.md": "46487c5ab05953656161824e7002273618449bf2f23287dfa1eb366540cc7cc1",
+    "test_design_math.py": "53735a12a2280f479cd2ebaced592b4f239f77b23ec2ab82cecc362a86cbb2d3",
+    "CPU_TEST_LOG.txt": "5842ce9ec3aa53661b679097a283513ad1bbe8679d6c25183608101a1c8b4e7e",
+    "CPU_TEST_EXECUTION.json": "7c7faa56311fa850cc65a935b12f0f8ab0f2dd0ec2ba8e001afd86b1aa2e080a",
+    "CURRENT_SOURCE_BINDING.json": "f59154b49e6c848fc8ef0c5281a9c2cae18fe1d093bd5a8314b4ae259085bdee"
+  }
+}
