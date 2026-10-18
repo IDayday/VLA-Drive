@@ -1,0 +1,137 @@
+{
+  "dimensions": {
+    "batch": 3,
+    "euler_steps": 10,
+    "raw_coordinates": 32
+  },
+  "elapsed_seconds": 4.357993153855205,
+  "environment": {
+    "cpu_affinity": [
+      0
+    ],
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "dtype": "float64",
+    "jax": "0.4.35",
+    "numpy": "1.26.4",
+    "python": "3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0]",
+    "torch": "2.5.1+cu124"
+  },
+  "executed_upstream_symbol": "DFQLAgent.actor_loss (unchanged AST; toy network only)",
+  "formal_launch_allowed": false,
+  "limits": [
+    "Toy CPU arithmetic only, not real DiT or navigation",
+    "Official actor_loss executed; full Flax agent/training loop not instantiated",
+    "No real imagery, official simulator, actual-road proxy, optimizer update, DDP or resume",
+    "No inference-time guidance/refiner/selection added",
+    "No formal scientific or implementation approval"
+  ],
+  "schema": "dfql_cpu_formula_reference_v1",
+  "status": "REFERENCE_EXECUTED",
+  "test_count": 10,
+  "tests": [
+    {
+      "bc": 4.440892098500626e-16,
+      "gradient": 2.7755575615628914e-17,
+      "loss": 4.440892098500626e-16,
+      "name": "unchanged_official_actor_vs_torch_mean_normalize_False",
+      "q": 0.0,
+      "result": "PASS"
+    },
+    {
+      "bc": 4.440892098500626e-16,
+      "gradient": 2.7755575615628914e-17,
+      "loss": 4.440892098500626e-16,
+      "name": "unchanged_official_actor_vs_torch_mean_normalize_True",
+      "q": 1.0842021724855044e-19,
+      "result": "PASS"
+    },
+    {
+      "bc": 4.440892098500626e-16,
+      "gradient": 2.7755575615628914e-17,
+      "loss": 4.440892098500626e-16,
+      "name": "unchanged_official_actor_vs_torch_min_normalize_False",
+      "q": 1.3010426069826053e-18,
+      "result": "PASS"
+    },
+    {
+      "bc": 4.440892098500626e-16,
+      "gradient": 2.7755575615628914e-17,
+      "loss": 4.440892098500626e-16,
+      "name": "unchanged_official_actor_vs_torch_min_normalize_True",
+      "q": 1.0842021724855044e-19,
+      "result": "PASS"
+    },
+    {
+      "gradient_max_abs_error": 1.0408340855860843e-17,
+      "losses_are_not_identical": true,
+      "name": "paper_shifted_MSE_and_linear_gradient_equivalence",
+      "result": "PASS"
+    },
+    {
+      "expected": 0.00625,
+      "name": "paper_sum_vs_source_mean_scale",
+      "paper_BC_to_source_BC_factor": 320,
+      "result": "PASS",
+      "source_to_alpha_paper_RL_ratio": 0.006250000000000001,
+      "within_source_vs_paper_RL_to_BC_ratio_factor": 2
+    },
+    {
+      "analytic": 1.3826146196287101,
+      "analytic_error": 4.440892098500626e-16,
+      "autograd": 1.3826146196287097,
+      "finite_difference": 1.3826146196826983,
+      "finite_difference_error": 5.398859137528689e-11,
+      "name": "full_BPTT_matches_Euler_sensitivity_and_finite_difference",
+      "result": "PASS"
+    },
+    {
+      "D": 32,
+      "K": 10,
+      "claim_refuted": "DFQL always shares BPTT direction at K=10 even without exploding Jacobians",
+      "loss_gradient_BPTT": -0.08,
+      "loss_gradient_DFQL_paper": 0.010000000000000002,
+      "name": "shared_parameter_finite_K_opposite_direction_counterexample",
+      "result": "PASS",
+      "reward_delta_BPTT": 6.400000000000001e-05,
+      "reward_delta_DFQL": -8.000000000000001e-06,
+      "state_Jacobian_norm": 0.0
+    },
+    {
+      "max_abs_error": 4.440892098500626e-16,
+      "name": "actual_navigation_decoder_raw_chain_rule",
+      "no_navigation_clipping_used": true,
+      "physical_shape": [
+        1,
+        8,
+        3
+      ],
+      "raw_shape": [
+        1,
+        8,
+        4
+      ],
+      "result": "PASS",
+      "robot_clipping_xy_box_m": [
+        [
+          1.3673790000000015,
+          18.977589000000002
+        ],
+        [
+          -1.9169789999999998,
+          2.638503
+        ]
+      ]
+    },
+    {
+      "equal": true,
+      "gradient_after": 0.4,
+      "gradient_before": 0.4,
+      "name": "constant_true_score_does_not_create_policy_gradient",
+      "result": "PASS"
+    }
+  ],
+  "upstream_actor_source_sha256": "c893151303f507bd77fdb918b8a956d92a582c9f2f6aa7cb9acbcc132c4ecc21",
+  "upstream_commit": "8b6b15803cc1e5605ad1524553a2c95e103b0bad"
+}

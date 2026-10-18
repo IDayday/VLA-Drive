@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "name": "help",
+      "exit_code": 0,
+      "expected_error": null,
+      "result": "PASS"
+    },
+    {
+      "name": "wrong_upstream_hash",
+      "exit_code": 1,
+      "expected_error": "Official actor source hash mismatch",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable_result",
+      "exit_code": 1,
+      "expected_error": "Evidence output is immutable",
+      "result": "PASS"
+    }
+  ],
+  "formal_launch_allowed": false
+}

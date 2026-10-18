@@ -1,0 +1,85 @@
+{
+  "design_id": "C-PROXY-DFQL-REFERENCE-20261018",
+  "question": "What terminal-gradient injection is actually defined by pinned DFQL and what differs from full Euler BPTT under the navigation raw contract?",
+  "claim_type": [
+    "literature",
+    "executed_mathematical_reference",
+    "new_navigation_adaptation_not_run"
+  ],
+  "paper": {
+    "title": "Direct Flow Q-Learning",
+    "url": "https://proceedings.mlr.press/v306/cao26f.html",
+    "section_or_equation": [
+      "3.1 Eq11-12",
+      "3.2 Eq13-18",
+      "3.3 Eq19-21",
+      "Appendix A.1 Eq22-27",
+      "Appendix A.2 Eq28-39",
+      "Appendix B/C"
+    ],
+    "read_depth": "paper_and_code"
+  },
+  "code": {
+    "repository": "https://github.com/2012060/Direct-Flow-Q-Learning",
+    "commit": "8b6b15803cc1e5605ad1524553a2c95e103b0bad",
+    "path_and_symbol": [
+      "agents/dfql.py::DFQLAgent.actor_loss",
+      "agents/dfql.py::DFQLAgent.critic_loss",
+      "agents/dfql.py::DFQLAgent.compute_flow_actions",
+      "utils/networks.py::ActorVectorField"
+    ],
+    "status": "reference_executed",
+    "execution_scope": "Unmodified SHA-pinned actor_loss AST; explicit toy actor/critic functions; not whole Flax agent"
+  },
+  "mapping": {
+    "K": 10,
+    "raw_action_shape": [
+      8,
+      4
+    ],
+    "raw_channels": [
+      "normalized_x",
+      "normalized_y",
+      "sin_yaw",
+      "cos_yaw"
+    ],
+    "physical_shape": [
+      8,
+      3
+    ],
+    "physical_dt_seconds": 0.5,
+    "full_BPTT": "Differentiate actual Euler states and raw decoder through a fixed differentiable surrogate",
+    "DFQL_style": "Stop trajectory state sensitivity, inject frozen terminal surrogate gradient into original local velocities"
+  },
+  "new_adaptation": [
+    "No Bellman or learned critic: one fixed-context complete-trajectory outcome",
+    "Keep original navigation FM Beta/repeat8 instead of upstream dense-BC replacement",
+    "No robot clipping or new velocity activation bound",
+    "Road command-space proxy is a separate unverified geometry adaptation"
+  ],
+  "risks": [
+    "Paper/source sum-mean/2x RL-vs-BC convention",
+    "Terminal action derivative must include raw normalizer and atan2",
+    "Finite-K shared-parameter injection can oppose exact BPTT direction",
+    "A smooth command-space improvement can worsen executed tracker dynamics",
+    "Upstream local velocity graphs still cost memory",
+    "No current evidence of navigation proxy or DFQL benefit"
+  ],
+  "control": [
+    "Pinned original JAX actor versus PyTorch arithmetic",
+    "Eq14/15 shifted-MSE local gradient identity",
+    "Full BPTT analytic recurrence and finite difference",
+    "K10 D32 opposite-direction counterexample",
+    "Actual decoder chain rule",
+    "Subsequent 32-scene/128-score-call command-space versus real-execution directional diagnostic only after independent review"
+  ],
+  "acceptance_evidence": {
+    "CPU": "CPU_REFERENCE.json",
+    "real_proxy_direction": "NOT_RUN",
+    "real_DiT_port": "NOT_RUN",
+    "formal_training": "NOT_RUN"
+  },
+  "independent_correctness_review": "PENDING",
+  "independent_efficiency_review": "PENDING",
+  "formal_launch_allowed": false
+}
