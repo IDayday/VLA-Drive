@@ -1,7 +1,7 @@
 """Official Qwen3-VL forward and processor, exposing all current image tokens."""
 import torch
 from torch import nn
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
+from transformers import AutoProcessor, Qwen3VLConfig, Qwen3VLModel, Qwen3VLForConditionalGeneration
 
 CAMERAS = ('cam_l0', 'cam_f0', 'cam_r0')
 IMAGE_HEIGHT, IMAGE_WIDTH = 384, 672
@@ -58,14 +58,21 @@ class QwenObservationProcessor:
 
 
 class QwenEncoder(nn.Module):
-    def __init__(self, model_path, *, dtype=torch.float32, attention='sdpa'):
+    def __init__(self, model_path, *, dtype=torch.float32, attention='sdpa', checkpoint_config=None):
         super().__init__()
-        full, info = Qwen3VLForConditionalGeneration.from_pretrained(model_path,
-            dtype=dtype, attn_implementation=attention, local_files_only=True,
-            output_loading_info=True)
-        if info['missing_keys'] or info['unexpected_keys'] or info.get('mismatched_keys'):
-            raise ValueError('Generic Qwen weights did not load exactly: ' + repr(info))
-        self.model = full.model  # no vocabulary output head / no language CE
+        if checkpoint_config is None:
+            full, info = Qwen3VLForConditionalGeneration.from_pretrained(model_path,
+                dtype=dtype, attn_implementation=attention, local_files_only=True,
+                output_loading_info=True)
+            if info['missing_keys'] or info['unexpected_keys'] or info.get('mismatched_keys'):
+                raise ValueError('Generic Qwen weights did not load exactly: ' + repr(info))
+            self.model = full.model  # no vocabulary output head / no language CE
+        else:
+            # Deployment construction ONLY: the sealed loader must overwrite
+            # every tensor with the full trained export before returning it.
+            # Generic IL initialization never takes this path.
+            cfg = Qwen3VLConfig.from_dict(checkpoint_config)
+            self.model = Qwen3VLModel._from_config(cfg,dtype=dtype,attn_implementation=attention)
         cfg = self.model.config
         if cfg.model_type != 'qwen3_vl' or cfg.text_config.hidden_size != 2048 or cfg.text_config.num_hidden_layers != 28:
             raise ValueError('The registered generic backbone is Qwen3-VL-2B-Instruct')

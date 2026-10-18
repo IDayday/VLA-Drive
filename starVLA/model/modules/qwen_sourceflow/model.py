@@ -8,9 +8,9 @@ from starVLA.model.modules.qwen_sourceflow.action_codec import ActionCodec
 
 
 class QwenSourceFlowVLA(nn.Module):
-    def __init__(self, qwen_path, action_expert):
+    def __init__(self, qwen_path, action_expert, *, checkpoint_config=None):
         super().__init__()
-        self.qwen = QwenEncoder(qwen_path)
+        self.qwen = QwenEncoder(qwen_path, checkpoint_config=checkpoint_config)
         self.provider = QwenConditionProvider(action_expert, self.qwen.hidden_dim, self.qwen.num_layers)
         self.policy = SourceFlowPolicy(action_expert)
 

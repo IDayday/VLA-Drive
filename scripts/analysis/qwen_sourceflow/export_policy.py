@@ -4,7 +4,8 @@ import json
 import os
 from pathlib import Path
 import torch
-from starVLA.rl.qwen_sourceflow.contracts import file_sha,require_dispatch
+from starVLA.rl.qwen_sourceflow.contracts import file_sha,require_dispatch,ACTION_CONFIG,runtime_identity
+from starVLA.rl.qwen_sourceflow.export import package_processor
 from starVLA.rl.qwen_sourceflow.loading import load_il
 from starVLA.rl.qwen_sourceflow.actor import NativeRecipeActor
 from starVLA.rl.simwam_recipe.lora_adapter import restore_adapters,merged_state_dict
@@ -35,10 +36,12 @@ def main():
     if out.exists():raise FileExistsError(out)
     attempt=out.with_name(out.name+'.incomplete');attempt.mkdir(parents=True,exist_ok=False)
     atomic_torch(attempt/'model.pt',state)
+    processor_files=package_processor(attempt/'processor')
     record=dict(schema='native_Qwen_sourceflow_merged_deployment_v1',checkpoint=str(path.resolve()),
         run_identity=info['sha256'],parent_model_sha256=parent['files']['model.pt'],updates=seal['updates'],
         model_sha256=file_sha(attempt/'model.pt'),qualification=qualification,
         inference='single_candidate_source_shift5_ODE_K10',action_shape=[8,3],
+        action_config=ACTION_CONFIG,runtime=runtime_identity(),processor_files=processor_files,
         no_training_cache_teacher_scorer_dependency=True,not_resume_use_native_unmerged_checkpoint=True,
         merge='FP32 B@A, frozen original base plus delta; full Qwen/provider included')
     atomic_json(attempt/'export.json',record);atomic_json(attempt/'COMPLETE',dict(export_sha256=file_sha(attempt/'export.json')))
