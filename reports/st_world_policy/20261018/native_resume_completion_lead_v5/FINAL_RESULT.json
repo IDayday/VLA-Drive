@@ -1,0 +1,124 @@
+{
+  "recorded_utc": "2026-10-18T23:58:42.604938+00:00",
+  "schema": "st_native_resume_real_qualification_final_v5",
+  "scope": "Finite real4-GPU native resume SMOKE; unchanged formal training continues separately.",
+  "status": "ENGINEERING_VERIFIED",
+  "exact_replay": "EXACT_REPLAY",
+  "scientific_gain": "UNTESTED_BY_THIS_DIAGNOSTIC",
+  "runtime_source_commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+  "observer_sha256": "468fe8f1ed20ef3abb2b2407413f92fb078f6b1d05f6cbfb2ed4e4b6e69f9692",
+  "completion_coordinator_commit": "8787b62bd4f897b991ef92a8882b146b9ff42082",
+  "completion_coordinator_sha256": "85713b7a2b1ad855e2c24b2dbd8beda71c215859a3dc99a77450878264ede4cb",
+  "checks": {
+    "prefix_A_B_first2_bitwise": true,
+    "resumed_steps3_4_bitwise": true,
+    "strict_native_load_and_RNG_match": true,
+    "four_rank_module_buffers_FP32master_Adam_client_engine_hashes": true,
+    "sample_ID_LR_loss_raw_rollout_MC_reward_advantage_audits": true,
+    "independent_correctness_review": "PASS",
+    "independent_resource_record_review": "PASS",
+    "fresh_owned_cleanup": "PASS"
+  },
+  "actual_budget": {
+    "A_continuous_updates": 4,
+    "new_B_before_pause_updates": 2,
+    "new_B_after_new_process_resume_updates": 2,
+    "total_optimizer_updates": 8,
+    "unique_TRAIN_scenes": 32,
+    "total_scene_exposures": 256,
+    "official_primary_calls": 1024,
+    "retry_calls": 0,
+    "actual_trainer_invocations_including_preserved_failures": 6,
+    "native_directories": 6,
+    "output_bytes_stat_including_history_and_admission": 55773576699,
+    "output_cap_bytes": 111669149696
+  },
+  "history_preserved": {
+    "v1_prelaunch_import_failure": true,
+    "v2_DDP_ownership_preupdate_failure": true,
+    "v3_DS_fragment_serialization_presave_failure": true,
+    "v4_A_completed4_then_orphan_drain_failure_and_B_cold_start_failure": true,
+    "old_B_three_metadata_files_unmodified": true,
+    "A_rerun": false,
+    "old_expired_lease_reused": false
+  },
+  "cost_scope": {
+    "comparison_wall_seconds": 4.732234477996826,
+    "comparison_waited_child_CPU_seconds": 4.81684,
+    "comparison_waited_child_max_RSS_bytes": 665030656,
+    "new_B_sampled_peak_RSS_bytes": 139283886080,
+    "cumulative_sampled_rchar": 535633866814,
+    "cumulative_sampled_read_bytes": 159566266368,
+    "IO_measurement": "Sampled lower bounds; inherited prior counters once. Not an exact physical-IO quota.",
+    "exact_full_campaign_GPU_and_training_CPU_cost": "NOT_MEASURED"
+  },
+  "limitations": [
+    "BC noise/time not stored by original runtime; no direct per-tensor claim.",
+    "Full FP64 master-update delta/cosine NOT_COMPUTED; no post-hoc tolerance.",
+    "Native DeepSpeed global_samples/GAS1 metadata describes batch16; actual global32 consumption verified from four rank sample IDs.",
+    "Functional original LR uses4096 horizon/warm100; no fictitious scheduler object.",
+    "Diagnostic pause at4 is not formal MAX_STEPS4096 completion.",
+    "Diagnostic weights never enter formal initialization."
+  ],
+  "artifacts": {
+    "comparison": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_completion_v5/COMPARISON.json",
+      "sha256": "4894507742bafd73ab951af0eab8a7203a63e7cf2b8c3dd99fa3271cc227fe89"
+    },
+    "comparison_execution": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_completion_v5_admission/COMPARE_EXECUTION.json",
+      "sha256": "c85b19d1b841b691e68a4f8ac921d5a8f2fa381aa33c13c4fcc59bb6b1c27dec"
+    },
+    "initial_B2": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_completion_v5/control_v5/initial_RESULT.json",
+      "sha256": "6b9c27028ceae27d434f5f0ee27f4df1fba797f5c5c4a28fceb7f3d9c84ea139"
+    },
+    "resumed_B4": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_completion_v5/control_v5/resume_RESULT.json",
+      "sha256": "4382936d62220b5bcd3c15b5eec48807bf44a7fa4015d099f3a20fdf03a3354e"
+    },
+    "independent_correctness": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_native_resume_correctness_v1/actual_acceptance_v5/ACTUAL_ACCEPTANCE.json",
+      "sha256": "6c7aaaa644985aed8bf9b5b6236e3c4bb1ea2978a38fa39b00651d6c1c4a0ab6"
+    },
+    "independent_resources": {
+      "path": "/mnt/project/VLA-Drive-st-world-policy-20261016/reports/st_world_policy/20261018/rollout_scale_native_resume_resources_v1/completion_only_delta_v5/ACTUAL_RESOURCE_CLOSEOUT.json",
+      "sha256": "0b5cef83436f443db235f5a360f4211c5bd0abcfb29088f81a1f72b5ace8c505"
+    },
+    "Root_final_current_owned_cleanup": {
+      "path": "/mnt/project/st-world-policy-20261016/smoke/rollout_scale_native_resume_completion_v5_admission/FINAL_OWNED_CLEANUP.json",
+      "sha256": "dedb54753ae33d5b01fbe7396c56d5281a61a9cb91a054c469b0c57a53bcf111"
+    }
+  },
+  "main_formal_observation": {
+    "run_id": "C1_rollout_std_fulltrain_seed42_official_4096_v1",
+    "step": 1113,
+    "endpoint_steps": 4096,
+    "complete_line_sha256": "dc15109a7ecc4bf5f33fe9bccb1b700122b369ea391cbb6b8ae282aad4396b96",
+    "official_admitted_calls": 142464,
+    "losses": {
+      "bc": 0.007976165041327477,
+      "policy": 6.720074452459812e-08,
+      "total": 0.007976232096552849
+    },
+    "gradient_norm": 0.5693017840385437,
+    "sampled_FP32_master_update_verified": true,
+    "latest_complete_native_step": 1024,
+    "last100_logged_slowest_rank_normal_update": {
+      "count": 100,
+      "mean_seconds": 15.426208011755953,
+      "p50_seconds": 15.33862681046594,
+      "p95_seconds": 16.819646636926336,
+      "scope": "excludes startup/checkpoint/outer-driver; not exact total wall"
+    },
+    "STOP_exists": false,
+    "model_training_semantics_changed": false,
+    "heldout_DEV_evaluated_for_this_new_run": false
+  },
+  "next_decision": "Continue original reviewed4096 formal run. At actual native pause verify owned exit and latest COMPLETE before same-run resume; fixed DEV1696 only at4096 after actual endpoint binding/reviews.",
+  "feature_research_resumed": false,
+  "new_unapproved_formal_jobs": false,
+  "navtest_started": false,
+  "formal_ACTIVE_updated": false,
+  "pushed": false
+}
