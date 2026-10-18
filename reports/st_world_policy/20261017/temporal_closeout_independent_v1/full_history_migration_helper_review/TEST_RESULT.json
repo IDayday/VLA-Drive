@@ -1,0 +1,39 @@
+{
+  "actual_migration_called": false,
+  "bridge_receipt": {
+    "actual_source_shas_preserved": [
+      "581399eb309677c20fe7464791b4f18685e947a6",
+      "2a1e140a64d2817247ceb6214f7f2affa20d56c6"
+    ],
+    "common_compute_blob_sha256": "f67197120299c4309a49489e13f65f677aa5849d66cc090f4383d4881af51318",
+    "current_runtime": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018",
+    "dependencies": {
+      "adapter": {
+        "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/compat.py",
+        "sha256": "776ec07ac8fc150eddd7cf685db602abe27dc94a9050628bef3a1ebbdc717e32"
+      },
+      "current_validator": {
+        "path": "/mnt/project/VLA-Drive-st-full-history-v3-runtime-20261018/tools/st_world_policy/spatial_w_storage.py",
+        "sha256": "0d2c16be1e7ef98bf5b1c9ab6abc10f6b4fdd23ff722d8e0e41f0b280f957987"
+      },
+      "proof": {
+        "path": "/mnt/project/VLA-Drive-st-w-storage-source-compat-20261017/reports/st_world_policy/20261017/w_storage_source_compat_v1/COMPATIBILITY.json",
+        "sha256": "bd899455f1b3af2efe41570bd21a0e1b59109c671d38339022ccb1323f24609f"
+      }
+    },
+    "policy_or_ledger_written": false,
+    "source_metadata_bytes": 899076
+  },
+  "checks": [
+    "exact_source_storage_binding.py",
+    "exact_source_migrate_v3.py",
+    "original_bridge_retains_exact_v3_runtime_and_current_budget",
+    "unchanged_adapter_proof_and_W_pins",
+    "fixed_new_package_policy_pin",
+    "four_invalid_requests_reject_before_native_call",
+    "one_explicit_exact_request_forwards_unmodified_to_stub_native_API"
+  ],
+  "elapsed_seconds": 1.4861687161028385,
+  "ledger_read_or_written": false,
+  "status": "PASS_SOURCE_ONLY"
+}
