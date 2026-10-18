@@ -1,0 +1,11 @@
+# Same-run bounded spatial continuation
+
+SP3 resource admission passes for one eight-hour continuation from its own complete update 11,582 checkpoint, on Tsinghua-zt2 GPUs 0–3. The source, scientific configuration, native registration, original resource lease, optimizer schedule, global batch 32 and world size 4 remain unchanged. The native resume verifies full checkpoint payload integrity and restores training state. This reviewer read only small receipts and file statistics. The independent correctness review of the new one-shot launcher remains a separate dispatch prerequisite.
+
+SP2 is **BLOCKED_DEVICE_BUSY**. Its update 11,762 checkpoint is complete, but a fresh check found real SimWAM NAVTEST work on Tsinghua-zt6 GPUs 0–3. A free advisory lock does not imply a free GPU. The blocked receipt cannot be passed to the launcher successfully. Protected work was neither signalled nor migrated. A new actual observation and admission are required when those devices become available.
+
+Existing model/runtime efficiency evidence is inherited because the source, precision, backend and topology have not changed. The previous invocation completed thousands of finite updates; its latest ordinary update times were approximately 3.92 s for SP2 and 4.10 s for SP3. Those individual values are health observations, not a new throughput benchmark. No repeated profile was run.
+
+The storage review retains the full 768 GiB potential cache allocation, 10 GiB metadata allowance and 1 TiB free floor. It also explicitly accounts for one concurrent T0 80 GiB capacity run. It uses the V3 remaining checkpoint receipt, which credits only already-occupied, originally-budgeted COMPLETE payloads. The combined headroom is narrow: approximately 21–23 GB during this review. Fresh launch guards remain mandatory; no further large output reservation is included.
+
+`SP3_COMMAND.json` is fully resolved for Lead dispatch after correctness approval. `SP2_COMMAND.json` is explicitly blocked and is not a recommendation to execute it. Every admission is single-use and forbids automatic follow-up. The original retention cap and finite extra-save slots remain in force; a later pause needs a fresh same-run review rather than an unlimited retry loop.
