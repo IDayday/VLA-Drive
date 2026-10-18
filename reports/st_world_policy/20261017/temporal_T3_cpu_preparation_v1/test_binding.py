@@ -1,8 +1,8 @@
 """CPU control fixtures only: no composition CLI, DB, teacher or ledger access."""
-import copy,hashlib,importlib.util,io,json,os,resource,socket,sys,tempfile,time,unittest
+import copy,hashlib,importlib.util,io,json,os,resource,socket,sys,tempfile,time,types,unittest
 from contextlib import redirect_stdout,redirect_stderr
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock,patch
 START=time.monotonic()
 HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('t3_binding',HERE/'prepare_once.py');w=importlib.util.module_from_spec(spec);spec.loader.exec_module(w)
@@ -28,6 +28,8 @@ class Binding(unittest.TestCase):
         self.assertIn('lock=s.acquire(s.LOCK,stack)',src);self.assertIn("if ROOT.exists():raise ValueError",src)
         self.assertEqual(self.c.LIMITS,dict(wall_seconds=300,cleanup_seconds=40,read_bytes=4<<30,rss_bytes=2<<30))
         self.assertEqual(self.c.OUTPUT_LIMIT,8<<20)
+        self.assertEqual(self.c.COMMIT, '676e3e88d48d9444ab2cb928242d196381631b26')
+        self.assertEqual(PLAN['runtime']['source_sha'], self.c.COMMIT)
         self.assertEqual(self.c.bootstrap().CORE_SHA,'4b2f0fccfd4bf3d655198f61179c88f6b2a51840731465c720b8addb6169b1a2')
     def test_only_T3_two_commands_and_same_order(self):
         calls=self.c.commands(self.plan)
@@ -83,6 +85,19 @@ class Binding(unittest.TestCase):
                 if kind=='foreign_link':(root/'extra').symlink_to('real')
                 else:os.link(p,root/'extra')
                 with self.subTest(kind=kind),self.assertRaises(Exception):w.composition_inventory(self.metadata(),root)
+    def test_child_mount_escape_rejected_before_delegated_inventory(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);child=root/'mounted';child.mkdir()
+            original=Path.lstat
+            def lstat(path):
+                result=original(path)
+                if path==child:
+                    fields=list(result);fields[2]+=1;return os.stat_result(fields)
+                return result
+            metadata=types.SimpleNamespace(tree_inventory=Mock())
+            with patch.object(Path,'lstat',lstat),self.assertRaisesRegex(ValueError,'mount escape'):
+                w.composition_inventory(metadata,root)
+            metadata.tree_inventory.assert_not_called()
     def test_no_admission_or_real_dispatch_created(self):
         self.assertFalse(PLAN['training_started']);self.assertFalse(PLAN['T4_automatic'])
         launch=(HERE/'launch_once.sh').read_text()

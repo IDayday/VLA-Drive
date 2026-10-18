@@ -16,7 +16,7 @@ ORIGINAL = Path('/mnt/project/VLA-Drive-st-full-population-provider-preparation-
 ORIGINAL_SHA = '9ef4b038705613d38fee96a26ff5798d21ad7c4daa50009243685bd6a940ce24'
 RUNTIME = Path('/mnt/project/VLA-Drive-st-temporal-combination-20261017')
 ROOT = Path('/mnt/project/st-world-policy-20261016/audits/temporal_T3_indexed32_preparation_v1')
-PLAN_SHA = '83ca35fd1a51e759f896aba90e8f89afd66c4f84a531c89fb84273a571a108a7'
+PLAN_SHA = 'f699cc48d009791349a65788c9a07c057364fd2edd1e3c085233b7151b91d72d'
 LIMITS = dict(wall_seconds=300, cleanup_seconds=40, read_bytes=4<<30, rss_bytes=2<<30)
 OUTPUT_LIMIT = 8<<20
 OUTPUTS = ('SOURCE_MIGRATION.json', 'configured/T2_REFERENCE.json', 'configured/T3_RECIPE.json',
@@ -63,6 +63,8 @@ def composition_inventory(metadata, root):
     children=list(root.iterdir())
     if len(children)>64: raise ValueError('Composition control entry bound')
     for child in children:
+        if child.lstat().st_dev != info.st_dev:
+            raise ValueError('Composition metadata mount escape')
         if child.name=='configured' and target is not None:
             s=child.lstat(); amount+=max(s.st_size,s.st_blocks*512); entries+=1
         else:
@@ -122,7 +124,7 @@ def controller():
     module=types.ModuleType('reviewed_T3_metadata_preparation');module.__file__=str(HERE/'prepare_once.py')
     exec(compile(bind_source(original_bytes()),str(ORIGINAL),'exec'),module.__dict__)
     module.__dict__.update(START=START, BOOT_IO=BOOT_IO, ROOT=ROOT, CONTROL=ROOT/'controls', RUNTIME=RUNTIME,
-        COMMIT='a8f8cb879a806ea674ed7be9b1ff7d82483e8b2d', PLAN_SHA=PLAN_SHA, LIMITS=LIMITS,
+        COMMIT='676e3e88d48d9444ab2cb928242d196381631b26', PLAN_SHA=PLAN_SHA, LIMITS=LIMITS,
         OUTPUT_LIMIT=OUTPUT_LIMIT, OUTPUTS=OUTPUTS, commands=commands,
         REVIEWED_HOME=ORIGINAL.parent, BOOTSTRAP=ORIGINAL.parent.parent/'future_index_sequential_control_v1/prepare_once.py',
         composition_inventory=composition_inventory, output_path=output_path)
