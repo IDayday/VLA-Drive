@@ -1,0 +1,130 @@
+{
+  "constraints": {
+    "RLIMIT_AS": "No RLIMIT_AS or virtual-address-space cap is installed by the wrapper",
+    "cleanup_reserve_seconds": 40,
+    "cpu_affinity_count": 2,
+    "cpu_threads": 2,
+    "final_receipt_reserve_bytes": 262144,
+    "fresh_admission_required": "Exact independent reviews, wrapper/helper/runtime/registration hashes, current dispatch-policy hash, registered host/UUID, two CPUs, sufficient unexpired admission, empty GPU; preserve real and unknown jobs",
+    "gpu_count": 1,
+    "gpu_index": 7,
+    "gpu_lock": "/mnt/project/st-world-policy-20261016/resources/locks/GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900.lock",
+    "gpu_lock_semantics": "Cooperative flock; Lead must honor it in its own dispatch and ensure owned pressure automation cannot race. It does not reserve hardware against unrelated schedulers.",
+    "gpu_uuid": "GPU-621b6ab5-d5ba-4219-b7ca-8b9f84479900",
+    "host": "training-vla-zt-worker-0",
+    "lead_dispatch_only": true,
+    "limit_semantics": "RSS/rchar/output are sampled observation limits; select interval 0.2 seconds plus metadata/filesystem/scheduling and cleanup latency. These are not OS hard ceilings. Full-file known loader/hash admissions reject before exceeding the nominal limit.",
+    "max_output_and_log_bytes": 8388608,
+    "max_read_bytes": 206158430208,
+    "max_rss_bytes": 68719476736,
+    "max_wall_seconds_including_preflight_and_cleanup": 1800,
+    "preflight_seconds": 60,
+    "preflight_subprocess_timeout_seconds": 10,
+    "read_accounting": "max(sum(full-file hash + torch.load + safetensors nominal admissions), observed child-tree rchar); repeated loads charged repeatedly; mmap charged before loader entry",
+    "repeat_attempt_policy": "ATTEMPT mkdir(exist_ok=False) and output-existence guard refuse automatic retry; no output cleanup/retry is authorized by this review",
+    "run_lock": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/RUN.lock",
+    "stdout_log_bytes": 2097152
+  },
+  "helper_sha256": {
+    "prepare_bindings.py": "31d2d302d5dd441df9251762e34cd9d1762afc3463cdabfe8dbf5b1f12577c84",
+    "supervise_once.py": "d829cf48764b23b5fce08cdd6ea45c6d3e61e633763ad2cb876e5ab8d96d8902"
+  },
+  "independent_from_wrapper_author": true,
+  "limitations": [
+    "Resource approval applies only to the fixed single diagnostic and exact hashes above; no throughput, GPU-memory fit, training-quality or formal effect claim is made.",
+    "Sampling may overshoot between observations; cooperative locks cannot block unrelated schedulers.",
+    "Lead alone may create the exact admission and dispatch. No experiment was dispatched by this reviewer."
+  ],
+  "policy_review_snapshot": {
+    "lead_must_bind_fresh_policy_at_dispatch": true,
+    "path": "/mnt/project/server_dispatch_policy.json",
+    "registered_host_currently_allowed": true,
+    "sha256": "b324d874d8c64036910ca80daf7d726741e2e5997c015c33d348174768f4cdc4"
+  },
+  "registration_path": "/mnt/project/st-world-policy-20261016/audits/consequence/gradient_balance_boundary3584_v1_controls/REGISTRATION.json",
+  "registration_sha256": "715ccad8839c9486f5a0b40f934da23ff4036247c8c448516788e77c7e490aab",
+  "resolved_during_review": [
+    "Added fresh policy binding, bounded preflight and cooperative GPU lock.",
+    "Added independent review source_sha binding.",
+    "Retained final unreaped-leader I/O sample to close fast-exit rchar gap."
+  ],
+  "review_findings": [
+    {
+      "check": "read admissions",
+      "evidence": "Wrapper ReadAdmission persists precharge before the original callable; wraps torch.load, safetensors.safe_open and initialization.file_sha256 including loaded aliases. mmap receives full file charge.",
+      "result": "PASS"
+    },
+    {
+      "check": "process lifetime",
+      "evidence": "Reuses fixed OwnedSession/pidfd/subreaper helpers; fresh session only; exact process identities; TERM/KILL cleanup and zero live-owned receipt. Does not execute imported feature main.",
+      "result": "PASS"
+    },
+    {
+      "check": "bounded supervision",
+      "evidence": "Preflight is bounded and deducted from 1800 seconds; monitoring includes supervisor RSS; 40-second cleanup reserve; output and final nominal accounting checked again after child exit.",
+      "result": "PASS"
+    },
+    {
+      "check": "terminal rchar",
+      "evidence": "Known unreaped leader is sampled while zombie before reaping. Independent fast-exit fixture observed 824722 bytes and refused its 131072-byte test budget.",
+      "result": "PASS"
+    },
+    {
+      "check": "host GPU and review gates",
+      "evidence": "Current policy hash and allowed alias checked; host and UUID match immutable registration; cooperative GPU and attempt locks; child revalidates admission before torch import; source and wrapper hashes checked for each independent review.",
+      "result": "PASS"
+    },
+    {
+      "check": "no retry and no CUDA virtual-memory cap",
+      "evidence": "One fixed command; immutable attempt directory; all stop paths STOPPED_NO_AUTO_RETRY; no RLIMIT_AS calls.",
+      "result": "PASS"
+    }
+  ],
+  "review_kind": "resources",
+  "reviewed_at_utc": "2026-10-18T15:44:56.641917+00:00",
+  "reviewer": "/root/consequence_runtime_resource_review",
+  "runtime": "/mnt/project/VLA-Drive-st-consequence-diagnostics-runtime-v2-20261018",
+  "schema": "gradient_balance_independent_resources_review_v1",
+  "scope": {
+    "attempts": 1,
+    "automatic_retry": false,
+    "cell": "C1",
+    "checkpoint": 3584,
+    "feature_workflows": false,
+    "formal_training_approval": false,
+    "interpretation": "Separate BF16 objective backward passes with FP32 aggregation; not the actual ZeRO-2 update",
+    "mathematical_correctness": "Inherited separate independent review; not re-audited here",
+    "new_score_calls": 0,
+    "next_global_scenes": 32,
+    "optimizer_steps": 0,
+    "original_world_size": 4
+  },
+  "source_sha": "83679937fe9702be39f0184154fdf9ebdc4eb98a",
+  "status": "APPROVE_GRADIENT_BALANCE_EXECUTION",
+  "unresolved_blockers": [],
+  "validation": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 timeout 105s python reports/st_world_policy/20261018/gradient_balance_independent_resources_v1/check_resources.py <exact wrapper path> --output reports/st_world_policy/20261018/gradient_balance_independent_resources_v1/FIXTURE_RESULTS.json",
+    "dispatch_performed": false,
+    "fixture_file": "FIXTURE_RESULTS.json",
+    "fixture_script": "check_resources.py",
+    "fixture_script_sha256": "c1a3e94869f8d13a0c7ad3c5d8bfcd13dca713eb9d13b3552276ebd51da56897",
+    "fixture_sha256": "22a29b0631224222cf150043b8aa80a4fe9c26411b9e96d3e0b76cd2c83e3457",
+    "gpu_calls": 0,
+    "max_fixture_observed_supervisor_plus_child_rss_bytes": 37191680,
+    "observed_invocation_wall_seconds": 4.976962366,
+    "preparation_budget": {
+      "conservative_cumulative_source_and_small_receipts_upper_bound_bytes": 4194304,
+      "cpu_fixture_rss_limit_bytes": 2147483648,
+      "cpu_fixture_wall_limit_seconds": 120,
+      "source_and_small_receipts_limit_bytes": 16777216
+    },
+    "real_model_GT_images_fullmanifest_metriccache_read": false,
+    "score_calls": 0,
+    "tests_passed": 9,
+    "total_fixture_invocation_wall_seconds": 9.929777138
+  },
+  "wrapper_author": "/root/road_proxy_systems_review",
+  "wrapper_path": "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/gradient_balance_systems_v1/supervise_gradient_once.py",
+  "wrapper_sha256": "ecb122a09b67ebc266c949bc5f7f7771c12b3b0cbee5712b57fcb7d10a722b20",
+  "wrapper_source_sha": "b74c1ae0bba51236fffd5fcee2ab732dce118e19"
+}

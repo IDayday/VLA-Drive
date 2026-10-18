@@ -1,0 +1,189 @@
+{
+  "cpu_only": true,
+  "fixtures": [
+    {
+      "detail": {
+        "admitted_bytes": 16,
+        "mmap_calls": 2,
+        "rejection_before_loader": true
+      },
+      "name": "mmap_and_repeated_load_precharge",
+      "status": "PASS",
+      "wall_seconds": 0.0008790362626314163
+    },
+    {
+      "detail": {
+        "loader_called": false
+      },
+      "name": "unknown_input_rejected_before_loader",
+      "status": "PASS",
+      "wall_seconds": 0.0001339949667453766
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": 0,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 265,
+        "peak_observed_RSS_bytes": 23023616,
+        "real_scoring_calls": 0,
+        "reason": null,
+        "status": "EXITED",
+        "wall_seconds": 0.0202275849878788
+      },
+      "name": "success_and_owned_cleanup",
+      "status": "PASS",
+      "wall_seconds": 0.03319193050265312
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": 23,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 267,
+        "peak_observed_RSS_bytes": 23363584,
+        "real_scoring_calls": 0,
+        "reason": null,
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 0.017067324370145798
+      },
+      "name": "native_failure_no_retry",
+      "status": "PASS",
+      "wall_seconds": 0.022848963737487793
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": -15,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 274,
+        "peak_observed_RSS_bytes": 30511104,
+        "real_scoring_calls": 0,
+        "reason": "RSS_LIMIT",
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 0.21206239238381386
+      },
+      "name": "rss_stop_and_cleanup",
+      "status": "PASS",
+      "wall_seconds": 0.21765653602778912
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": -15,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 274,
+        "peak_observed_RSS_bytes": 30617600,
+        "real_scoring_calls": 0,
+        "reason": "WALL_LIMIT",
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 4.094269430264831
+      },
+      "name": "wall_stop_and_cleanup",
+      "status": "PASS",
+      "wall_seconds": 4.100130926817656
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": -15,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 2097464,
+        "peak_observed_RSS_bytes": 37191680,
+        "real_scoring_calls": 0,
+        "reason": "STDOUT_LIMIT",
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 0.12953947111964226
+      },
+      "name": "stdout_stop_and_cleanup",
+      "status": "PASS",
+      "wall_seconds": 0.13517308421432972
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 824722,
+        "exit_code": 0,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 824722,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 347,
+        "peak_observed_RSS_bytes": 23605248,
+        "real_scoring_calls": 0,
+        "reason": "READ_LIMIT",
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 0.1261703558266163
+      },
+      "name": "exited_leader_rchar_accounted_before_reap",
+      "status": "PASS",
+      "wall_seconds": 0.13176657259464264
+    },
+    {
+      "detail": {
+        "accounting": "max(full-file hash + torch.load + safetensors admissions, child-tree rchar); mmap charged at load admission",
+        "charged_read_bytes": 176537,
+        "exit_code": 0,
+        "known_nominal_read_bytes": 0,
+        "live_owned_remaining": 0,
+        "no_RLIMIT_AS": true,
+        "observed_physical_read_bytes": 0,
+        "observed_rchar_bytes": 176537,
+        "optimizer_steps": 0,
+        "output_bytes_before_receipt": 320,
+        "peak_observed_RSS_bytes": 33271808,
+        "real_scoring_calls": 0,
+        "reason": "OWNED_DESCENDANTS_AFTER_LEADER_EXIT",
+        "status": "STOPPED_NO_AUTO_RETRY",
+        "wall_seconds": 0.41774024814367294
+      },
+      "name": "owned_descendant_cleanup",
+      "status": "PASS",
+      "wall_seconds": 0.42306242138147354
+    }
+  ],
+  "gpu_or_scoring_calls": 0,
+  "real_model_GT_images_manifest_metric_cache_read": false,
+  "reviewer": "/root/consequence_runtime_resource_review",
+  "schema": "gradient_balance_independent_resources_fixture_v1",
+  "self_rusage": {
+    "max_rss_bytes": 23646208,
+    "system_cpu_seconds": 0.117202,
+    "user_cpu_seconds": 0.238451
+  },
+  "status": "PASS",
+  "wrapper_path": "/mnt/project/VLA-Drive-st-road-direction-systems-20261018/reports/st_world_policy/20261018/gradient_balance_systems_v1/supervise_gradient_once.py",
+  "wrapper_sha256": "ecb122a09b67ebc266c949bc5f7f7771c12b3b0cbee5712b57fcb7d10a722b20"
+}
