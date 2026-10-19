@@ -1,0 +1,77 @@
+{
+  "schema": "st_consequence_publication_snapshot_v1",
+  "snapshot_utc": "2026-10-19T00:23:41.561042+00:00",
+  "summary_source_commit": "42de66814e8e33f8fbaf03a42d67801fbbca54e8",
+  "branch": "research/st-world-consequence-flow-20261016",
+  "completed_C0_C4": {
+    "status": "FORMAL_COMPLETE",
+    "common_optimizer_updates": 4096,
+    "TRAIN_unique_scenes": 101592,
+    "TRAIN_logs": 1176,
+    "scene_presentations_per_arm": 131064,
+    "DEV_requested_per_arm": 1696,
+    "DEV_valid_per_arm": 1696,
+    "DEV_logs": 16,
+    "main_training_seed": 42,
+    "score_unit": "percent_0_100",
+    "delta_unit": "percentage_points",
+    "bootstrap": {
+      "unit": "paired_log_cluster",
+      "repetitions": 2000,
+      "seed": 20261017
+    },
+    "scientific_conclusion": "PRACTICAL_HELDOUT_GAIN_NOT_ESTABLISHED",
+    "results_file": "COMPLETED_C0_C4_RESULTS.csv",
+    "actual_training_source_commit": "6714b1e9fb2e0c8059b90b8b4d48cd40796fe345"
+  },
+  "rollout_std_formal": {
+    "status": "RUNNING_AT_SNAPSHOT",
+    "run_id": "C1_rollout_std_fulltrain_seed42_official_4096_v1",
+    "registration_sha256": "928b9788404c4dcb9316b8457dc1a627010f892b85308f52aacf07b2cbb0783f",
+    "actual_training_source_commit": "751fcfa2b41549ae16f7b3204aef8dd18b912016",
+    "optimizer_step": 1210,
+    "optimizer_update_endpoint": 4096,
+    "scene_presentations": 38720,
+    "official_admitted_calls": 154880,
+    "last_complete_row_sha256": "b89e683bcedf00556b2060e51a84935a5aedda04d010e89e01934f78fb879a78",
+    "latest_complete_native_step": 1024,
+    "latest_complete_native_receipt": {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs/C1_rollout_std_fulltrain_seed42_official_4096_v1/checkpoints/step_001024_1792366537398448909/COMPLETE.json",
+      "sha256": "d4d9330eec5e9a954f2284b54deacce1bbeb21678d34b8ec9a91693a427e75be"
+    },
+    "losses": {
+      "bc": 0.010480750352144241,
+      "policy": -6.871414370834827e-08,
+      "total": 0.01048068143427372
+    },
+    "gradient_norm": 0.5735107660293579,
+    "last100_losses_gradients_finite": true,
+    "last100_sampled_FP32_master_updates_verified": true,
+    "last100_logged_slowest_rank_normal_update_seconds": {
+      "count": 100,
+      "mean": 15.401160944465083,
+      "p50": 15.327233588963281,
+      "p95": 16.440941622067477,
+      "scope": "startup/checkpoint/driver excluded"
+    },
+    "STOP_exists": false,
+    "formal_endpoint_complete": false,
+    "DEV_evaluation_status": "WAITING_CHECKPOINT4096",
+    "scientific_gain": "UNTESTED"
+  },
+  "native_resume": {
+    "status": "EXACT_REPLAY",
+    "total_real_updates": 8,
+    "primary_official_calls": 1024,
+    "retry_calls": 0,
+    "actual_trainer_invocations_including_failures": 6,
+    "diagnostic_weights_used_for_formal_init": false,
+    "full_FP64_update_delta_cosine": "NOT_COMPUTED",
+    "BC_noise_time": "NOT_STORED_BY_RUNTIME751"
+  },
+  "feature_research": "PAUSED_BY_USER",
+  "new_navtest_started_for_this_publication": false,
+  "ACTIVE_changed": false,
+  "training_mutated_by_this_publication": false,
+  "interpretation": "Immutable dated snapshot; RUNNING does not describe a future live state. Read actual run/receipts before dispatch. Scientific gains remain separate from code/profile/resume verification."
+}
