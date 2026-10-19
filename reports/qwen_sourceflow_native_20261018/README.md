@@ -4,6 +4,8 @@
 
 最新中期结果、费用与后续两组50k/锁定Navtest的实际执行链见 [interim_IL005000.md](interim_IL005000.md)。[完整训练阶段快照](formal_IL_full_stage_snapshot.json) 与初始770步之前的启动快照分开保留。
 
+2026-10-19新增[当前架构与训练、部署效率评估](architecture_and_efficiency_20261019.md)：实际33.48亿参数、正式500步窗口约4.64秒/更新；隔离真实场景计时区分Qwen/provider/action/反传/Adam，另测完整十步ODE部署。该评估没有修改运行中的IL，也不代表已获得规划分数提升。
+
 本任务分支为 `feature/qwen-sourceflow-native-vla-20261018`。资产及实际运行收据位于 `/mnt/project/qwen-sourceflow-native-20261018`。报告只提交代码、身份及小型证据，不包含权重、原始数据、特征缓存或私有场景图。
 
 旧 DDP C/N、SimWAM recipe、A/B、source-process 170k 已按用户指示停止；后两条170k停在25416和25109，后者保留inner1和旧链。原权重、恢复状态、失败证据不覆盖。见 [停止收据](old_experiment_stop.json)。其他项目不在本次停止范围。
