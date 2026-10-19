@@ -1,0 +1,55 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>11组GRPO正式入口</title><style>body{max-width:1000px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#203040}pre{background:#f3f5f7;padding:16px;overflow:auto;font-size:13px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:center}th:last-child,td:last-child{text-align:left}details{margin:20px 0}.note{border-left:4px solid #cb9229;background:#fff9eb;padding:12px}</style>
+<h1>11组GRPO正式入口与验收</h1><p>此目录是新增实现，原DLC保活/预检入口保持不变。代码、单卡验收、多卡验收及正式结果分开记录。最新验收见 ACCEPTANCE.json；正式训练尚未启动。</p>
+<p class="note">正式运行默认关闭：TRAINING.template.json 的 epochs、training_seeds、wall_seconds 尚未锁定，formal_protocol_locked=false。prepared_v1 严格F匹配覆盖1383/1405，22个训练案例不满足精确token等长；全部141测试案例匹配成功。未确认修订前不得删样本、降低冲突标准或启动完整11组实验。</p>
+<h2>保持的实验定义</h2><p>联合A/B/C/F/E；仅VLM的A/C/E；仅DiT的A/C/E，共11组。每副本独立单卡，G8、每4场景更新一次、每epoch316更新。VLM学习率2e-7，动作/history1e-6；NAVSIM v1.1 PDMS奖励，KL β=0.01，10步SDE η=0.1，clip=0.2；单次on-policy更新，不加BC/SFT。冻结动作头时仍保留条件梯度。历史编码仅在联合组更新。</p>
+<p>1264/141失败案例来自固定划分，覆盖131/17个源驾驶记录；139/23属于包含正常场景的完整分区。推理输入中的失败轨迹/guidance始终属于冻结Base。评价中E允许事后反馈和GT对齐，是特权上限。未评价正常场景能力保持。</p>
+<h2>1. 资产与输入准备</h2><p>本地任务已有 assets.local.json 与 assets.dlc.json。Git迁移包提供 assets.example.json：先复制为 assets.local.json，按目标平台填写真实路径；模型/权重/数据接口与上级 RUN_GUIDE.html 一致。不要直接采用原机器的绝对路径。</p><pre># DSW目录；DLC改为/mnt/yehr_workspace/DriveExpert
+cd /mnt/workspace/DriveExpert/20261019-privileged-grpo-full/trainer_v1
+# assets.local.json用于当前DSW；assets.dlc.json用于原挂载DLC。
+# 其他平台按迁移指南配置checkpoint/model_config/source_root/tokenizer_root、
+# train_pairs/test_pairs/raw_meta_root/navsim_root和path_prefix_map。
+# 新prepared目录只允许创建一次；不覆盖旧清单。
+PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false python prepare.py \
+  --assets assets.local.json --out prepared_new \
+  --monitor-source MONITOR_SOURCE.json</pre>
+<p>prepare.py只读资产，固定A/B/C/F/E文本、训练供体、分区和64训练监测面板；不运行模型或查看新评分。PREPARATION.json列出完整覆盖与文件哈希；F缺匹配时退出2并保留全部缺失记录。真实模型对F还核验多模态总token数和history/action插入位置。</p>
+<h2>2. 单卡工程冒烟</h2><pre>CUDA_VISIBLE_DEVICES=0 PYTHONDONTWRITEBYTECODE=1 python run.py \
+  --assets assets.local.json --training TRAINING.template.json --prepared prepared_v1 \
+  --out runs/smoke_new --arm E_VLM --seed 20261019 --mode smoke \
+  --smoke-updates 1 --smoke-wall-seconds 1800</pre>
+<p>smoke最多2次更新、30分钟；只使用训练案例，不使用141测试。可选择A（联合）、E_VLM（仅VLM）、C_DiT（仅DiT）。检查官方Base评分回放、同输入在三冻结范围的初始轨迹精确相等、非零有限梯度和实际参数更新、冻结参数/buffer与参考模型完整哈希保持。每更新保存32候选及小分、有效奖励组、K=1/2/4/8探索和几何多样性。完整可恢复快照包含模型、优化器、RNG、累计更新和累计时间；不是仅权重。</p>
+<h2>3. 锁定正式配置后分阶段启动</h2><p>复制TRAINING.template.json为TRAINING.locked.json，依据已确认方案填写共同epochs、明确training_seeds、每副本wall_seconds及formal_protocol_locked=true。不能把3epoch/三个种子示例当已批准值。所有组用同一个配置；正式前测不得用于选择训练长度。还需F准备PASS及目标多卡验收。</p>
+<pre># 下列DEVICE_IDS、PHASE_CAP_SECONDS和目录由已分配资源/预算明确设置。
+# 先plan-only核对队列，不启动GPU。OUT必须是新目录。
+bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+  --prepared prepared_accepted --phase initial --devices "$DEVICE_IDS" \
+  --out runs/initial_plan --scheduler-wall-seconds "$PHASE_CAP_SECONDS" --plan-only
+
+# 前测：五种独特输入，141×3×8候选/输入。
+bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+  --prepared prepared_accepted --phase initial --devices "$DEVICE_IDS" \
+  --out runs/initial --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
+
+# 正式训练：前一阶段必须完整验收，最多15个训练设备可留一张用于检查。
+bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+  --prepared prepared_accepted --phase train --devices "$TRAIN_DEVICE_IDS" \
+  --previous runs/initial --out runs/train --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
+
+# 固定最终checkpoint后测：各模型仍141×3×8。
+bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+  --prepared prepared_accepted --phase final --devices "$DEVICE_IDS" \
+  --previous runs/train --out runs/final --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
+
+python analyze.py --initial runs/initial --final runs/final \
+  --prepared prepared_accepted --out runs/analysis.json</pre>
+<p>devices为当前主机物理序号的逗号列表，不能重复；每子进程只看到一张卡。调度器按固定队列领取任务，默认间隔20秒加载以降低I/O峰值，不跨模型同步梯度。33副本由11组×3种子产生，种子数量未锁定前不会默认启动。每分钟写调度STATUS；子进程异常时停止派发，向本任务已登记PID发SIGTERM，不管理其他进程。单卡成功不等于16卡已经验收。</p>
+<h2>4. 断点恢复与预算</h2><pre># 恢复到新目录；相同配置、arm、seed、代码、prompt和资产身份。
+CUDA_VISIBLE_DEVICES=0 python run.py --assets assets.local.json \
+  --training TRAINING.locked.json --prepared prepared_accepted \
+  --mode train --arm E_VLM --seed "$TRAIN_SEED" \
+  --resume /path/to/old/checkpoints/update_000316.pt \
+  --out runs/E_VLM_resumed</pre>
+<p>完整检查sidecar SHA256、优化器、Python/NumPy/torch/设备RNG和累计更新；按seed/epoch重建同一顺序，不重复计数。累计时间继承旧运行，不通过恢复重置预算。快照先写.partial再原子发布，缺少sidecar不作为可验收快照。epoch末或固定更新间隔保存；中断在安全更新边界保存。意外崩溃从最后完整快照恢复，旧目录保留，旧快照后的未提交工作不能与重跑结果重复计数。</p>
+<p>独立run支持手工恢复；训练phase可使用 --recover-from runs/train_incomplete 在新目录重建队列：复用已完成副本，未完成副本选择最后完整checkpoint，拒绝旧任务仍在运行或身份变化。需仍提供 --previous runs/initial。所有副本完成且完整汇总后才能进入后测；不得修改RESULT伪装完成。每个副本的累计预算不重置，恢复phase的调度上限需显式指定。</p>
+<h2>5. 验收范围</h2><p>CPU测试使用小型连续动作模型，验证计算图、冻结范围、KL、整数索引、累计预算和恢复协议，不代表真实规划成绩。真实单卡结果见runs/*/RESULT.json与ACCEPTANCE.json。DLC排队时无法进行目标16卡分片/汇总、并发I/O与恢复测试，不标记为通过。完整正式训练预算及F匹配修订未确认前不启动正式训练或测试。</p>
+<details><summary>主要代码</summary><table><tr><th>文件</th><th>职责</th></tr><tr><td>engine.py</td><td>参数分组、分模块AdamW、10步GRPO反传、冻结校验、公共噪声和探索统计。</td></tr><tr><td>run.py</td><td>真实模型加载、单副本训练/评测、完整checkpoint、范围回放与错误记录。</td></tr><tr><td>prepare.py / diagnose_f.py</td><td>全量静态提示词、供体锁定、覆盖和缺失诊断。</td></tr><tr><td>schedule.py</td><td>有界独立副本调度、阶段验收和故障传播。</td></tr><tr><td>analyze.py</td><td>按场景/噪声配对的前后差、学习增量差；17源记录聚类bootstrap，seed单列。</td></tr><tr><td>vendor/</td><td>保留原已验收采样/输入/评分辅助函数，不修改共享模型代码。</td></tr></table></details></html>

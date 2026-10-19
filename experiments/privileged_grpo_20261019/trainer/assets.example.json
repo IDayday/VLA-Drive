@@ -1,0 +1,21 @@
+{
+  "checkpoint": "/assets/base/pytorch_model.pt",
+  "checkpoint_sha256": "075ed30723bdac61cd05e3eacec94267631e4a8ff342f189fc6e82649bdb38b2",
+  "model_config": "../model_config.yaml",
+  "source_root": "../model_code",
+  "tokenizer_root": "../tokenizer",
+  "navsim_root": "/assets/navsim_v1.1/navsim",
+  "train_pairs": "/assets/pairs/train/TRAINING_PAIRS.jsonl",
+  "test_pairs": "/assets/pairs/test/TRAINING_PAIRS.jsonl",
+  "raw_meta_root": "/assets/meta/train",
+  "output_root": "/outputs/privileged-grpo",
+  "sampling": {
+    "num_poses": 40,
+    "interval_length": 0.1
+  },
+  "path_prefix_map": {
+    "/mnt/workspace/ReCogDrive/ReCogDrive/recogdrive/navsim/exp/metric_cache_train": "/assets/metric_cache_train",
+    "/mnt/data/navsim/trainval_sensor_blobs/trainval": "/assets/trainval_sensor_blobs/trainval",
+    "/mnt/data/navsim/trainval_all/trainval_sensor_blobs/trainval": "/assets/trainval_sensor_blobs/trainval"
+  }
+}

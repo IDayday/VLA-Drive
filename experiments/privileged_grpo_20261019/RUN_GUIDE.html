@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>特权反馈 GRPO：跨平台迁移与启动指南</title>
 <style>body{max-width:1080px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui;color:#17232d}h1{font-size:27px}h2{font-size:21px;margin-top:32px}pre{background:#f3f5f7;padding:16px;overflow:auto;font-size:13px}code{font-family:monospace}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #cbd5df;padding:8px;text-align:center}td:first-child,th:first-child,td:last-child,th:last-child{text-align:left}.note{border-left:4px solid #bd871c;padding:12px 18px;background:#fff8e8}details{margin:15px 0}summary{cursor:pointer;font-weight:bold}</style>
 <h1>特权反馈 GRPO：跨平台迁移与启动指南</h1><p>版本：2026-10-19。目标仓库：<a href="https://github.com/IDayday/VLA-Drive">IDayday/VLA-Drive</a>。发布分支：<code>feature/privileged-grpo-migration-20261019</code>。</p>
-<div class="note"><b>运行状态：</b>训练集挖掘、1264/141 划分、历史短程 GRPO 与 32 场景机制实验已完成。新 11 组全量 GRPO <b>尚无完整训练执行器，也没有启动训练</b>。DLC 入口仅预检并待命。本指南提供可执行的资产校验、权重恢复及单场景推理迁移入口；不能据此声称已支持全量训练。新入口已做本机 CPU 全量资产核验，尚未在目标平台验收 GPU 推理。</div>
+<div class="note"><b>运行状态：</b>训练集挖掘、1264/141 划分、历史短程 GRPO 与 32 场景机制实验已完成。新 11 组全量 GRPO <b>已有 trainer/run.py、trainer/schedule.py 执行入口，三种更新范围通过真实单PPU冒烟；正式训练尚未启动</b>。DLC 入口仅预检并待命。本指南提供可执行的资产校验、权重恢复及单场景推理迁移入口；正式训练与恢复命令见 trainer/README.html；完整F规则、正式预算和目标16卡验收仍待完成。新入口已做本机 CPU 全量资产核验，尚未在目标平台验收 GPU 推理。</div>
 <h2>1. 获取代码与恢复权重</h2>
 <p>以下远端获取命令在发布完成后可用；发布状态以远端分支、Release及发布回执为准。PORTABILITY_FINDINGS.json记录打包时状态。</p>
 <pre>git clone --branch feature/privileged-grpo-migration-20261019 https://github.com/IDayday/VLA-Drive.git
@@ -64,9 +64,9 @@ CUDA_VISIBLE_DEVICES=0 python tools/portable.py --config config/assets.local.jso
 <p>A=原SFT输入；B=A+修正请求；C=B+真实失败轨迹；F=B+强语义冲突完整donor轨迹；E=C+完整guidance。C就是“E无guidance”。F需跨源记录、合理运动学、保持token数量与插入位置，且只从训练侧选择donor。不能把历史32场景映射直接用于全量1405场景。</p>
 <p>候选G=8、每4场景梯度积累、VLM学习率2e-7、动作/历史1e-6；PDMS奖励、KL系数0.01、10步SDE、eta=0.1、clip=0.2。KL是正则项，不是额外驾驶奖励；GRPO是更新范式，不是奖励名称。无额外BC/SFT项。每场景按组相对优势更新，零方差组及无效轨迹需保留计数。现有单次on-policy更新不足以验证多轮PPO复用。</p>
 <p><b>尚未锁定：</b>正式epochs与预算、训练侧长度预实验、全量F映射、分模块反传和冻结验收、恢复语义及16卡分片/汇总。316更新/epoch来自ceil(1264/4)；948只是3epoch成本示例，不能当收敛证据。不能通过增加卡数静默改变有效batch或更新预算。</p>
-<pre># 明确防误启动：此命令返回非零，说明未实现，不消耗训练算力。
+<pre># 明确防误启动：此旧入口返回非零并指向 trainer/，不自动启动训练。
 python tools/portable.py --config config/assets.local.json train-full</pre>
-<p>当前建议是每卡独立模型副本，最多15卡训练+1卡评测，不是已验收的16卡DDP。若3训练种子则11×3=33副本，至少3波；训练前只需A/B/C/F/E五种独特输入，各冻结范围先验证初始函数一致，再复用前测。评价按同场景、相同8候选噪声配对，记录mean、Oracle@1/2/4/8、有效探索/全零组、安全与进度、小分及多样性；测试不参与选训练长度。</p>
+<p>当前 trainer/schedule.py 按每卡独立模型副本实现，推荐最多15卡训练+1卡评测；目标16卡并发尚未验收。若3训练种子则11×3=33副本，至少3波；训练前只需A/B/C/F/E五种独特输入，各冻结范围先验证初始函数一致，再复用前测。评价按同场景、相同8候选噪声配对，记录mean、Oracle@1/2/4/8、有效探索/全零组、安全与进度、小分及多样性；测试不参与选训练长度。</p>
 <h2>6. 当前DLC状态与发布操作</h2><p>已提交的新DLC为dlclk5n9nxdt2fou（本次独立作业）。保留当前DSW镜像及/mnt/yehr_workspace、/mnt/data、/mnt/LLM_weight挂载。入口为 /mnt/yehr_workspace/DriveExpert/20261019-privileged-grpo-full/dlc_launch_v1/launch.sh，只预检后待命。此云端路径是当前作业入口，不是跨平台训练入口。不要重启它来假装启动GRPO；源平台最新状态见同目录STATUS.json。</p>
 <details><summary>发布者使用的命令与验收要求</summary><pre># 在隔离仓库完成本地提交后，推送新分支（不强推main）：
 git push --set-upstream origin feature/privileged-grpo-migration-20261019

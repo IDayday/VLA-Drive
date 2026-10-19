@@ -1,0 +1,269 @@
+{
+  "status": "IMPLEMENTED_SINGLE_PPU_SCOPES_ACCEPTED_FORMAL_GATES_PENDING",
+  "updated_utc": "2026-10-19T09:56:02.782523+00:00",
+  "arms_implemented": 11,
+  "real_smoke": [
+    {
+      "run": "smoke_dit_attempt01",
+      "arm": "C_DiT",
+      "updates": 1,
+      "scenes": 4,
+      "scored_candidates": 32,
+      "elapsed_s": 143.3446166840149,
+      "peak_memory_gib": 31.36312198638916,
+      "gradient_norms": {
+        "vlm": 0.0,
+        "action": 53.179595947265625,
+        "history": 0.0
+      },
+      "parameter_changes": {
+        "vlm": 0.0,
+        "action": 1.0132789611816406e-06,
+        "history": 0.0
+      },
+      "frozen_parameters_buffers_exact": true,
+      "reference_exact": true,
+      "checkpoint_bytes": 18363435373,
+      "checkpoint_sha256": "d1c8faa938f45e0f2a5d45cc052aaa27b0bd0363a2c2dcd11325b105bb5ab824",
+      "runtime_code_hashes": {
+        "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+        "engine.py": "f60c1a2e69827bc16357124a202eb1635267d7c74ef37d4656c06ec2daf301e8",
+        "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+        "run.py": "a86247ce13e067fcb85c7077921b3a738c516ced05858aea4269f222085a9206",
+        "test_engine.py": "10bcc35a0cbdf1aa2f5058c2b7822b2b56aeb22b6b0551aa85669d7f55ded189",
+        "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
+        "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
+        "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+        "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
+        "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
+        "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+      },
+      "scope_replay": {
+        "status": "PASS",
+        "input": "C",
+        "three_scopes_exact": true,
+        "noise_sha256": "a21b41c0b604a426a0eab5f7ee6009beeb04ce66001b66b65d06799737f1e27a"
+      }
+    },
+    {
+      "run": "smoke_vlm_attempt02",
+      "arm": "E_VLM",
+      "updates": 1,
+      "scenes": 4,
+      "scored_candidates": 32,
+      "elapsed_s": 177.1031078969827,
+      "peak_memory_gib": 50.88399362564087,
+      "gradient_norms": {
+        "vlm": 151.77578735351562,
+        "action": 0.0,
+        "history": 0.0
+      },
+      "parameter_changes": {
+        "vlm": 2.384185791015625e-07,
+        "action": 0.0,
+        "history": 0.0
+      },
+      "frozen_parameters_buffers_exact": true,
+      "reference_exact": true,
+      "checkpoint_bytes": 28831077751,
+      "checkpoint_sha256": "7bc51ca7faf393047952ee404131b2e44f0423c2b91a1a2b31b21ec50bbc3b13",
+      "runtime_code_hashes": {
+        "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
+        "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+        "diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
+        "engine.py": "e5b5c4170aba0966d7626651dbd61bc5a55e25f561099831b008c0b9c6456668",
+        "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+        "run.py": "a86247ce13e067fcb85c7077921b3a738c516ced05858aea4269f222085a9206",
+        "schedule.py": "f11ed3a23a063d7447261c27e3232ae469759df115a6bf1f21b30c37712cabc6",
+        "test_contracts.py": "c6573a4ddd68c13841558ad48b13f62540f8afe6bbbaf86b8e11a932316d3990",
+        "test_engine.py": "651293e33ecd637339a1f78e4d6788e48857adb00605fd2adc83d446961e5419",
+        "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
+        "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
+        "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+        "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
+        "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
+        "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+      },
+      "scope_replay": {
+        "status": "PASS",
+        "input": "E",
+        "three_scopes_exact": true,
+        "noise_sha256": "a21b41c0b604a426a0eab5f7ee6009beeb04ce66001b66b65d06799737f1e27a"
+      }
+    },
+    {
+      "run": "smoke_joint_attempt01",
+      "arm": "A",
+      "updates": 1,
+      "scenes": 4,
+      "scored_candidates": 32,
+      "elapsed_s": 203.03796911798418,
+      "peak_memory_gib": 55.083839416503906,
+      "gradient_norms": {
+        "vlm": 168.59376525878906,
+        "action": 60.808570861816406,
+        "history": 26.64669418334961
+      },
+      "parameter_changes": {
+        "vlm": 2.384185791015625e-07,
+        "action": 1.0132789611816406e-06,
+        "history": 1.0132789611816406e-06
+      },
+      "frozen_parameters_buffers_exact": true,
+      "reference_exact": true,
+      "checkpoint_bytes": 35421087688,
+      "checkpoint_sha256": "e999d95f7aa1eb3d5a6ab350f9d32fc6a8c7850aede2714e94ff850d03678e98",
+      "runtime_code_hashes": {
+        "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
+        "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+        "diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
+        "engine.py": "e5b5c4170aba0966d7626651dbd61bc5a55e25f561099831b008c0b9c6456668",
+        "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+        "run.py": "ea65be52537536a54f86a068cb979b24d4780d6ff812b0a04ca2bc2414da8626",
+        "schedule.py": "b9f4c621d1c39adbeb9e8dba2d877b23eec6ebd5a421812c59f81b0cfbb21843",
+        "test_contracts.py": "7b2dfe5447892b08879dfce1886e7be3408d8ed0e609418a33a5e10cd980dce8",
+        "test_engine.py": "651293e33ecd637339a1f78e4d6788e48857adb00605fd2adc83d446961e5419",
+        "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
+        "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
+        "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+        "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
+        "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
+        "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+      },
+      "scope_replay": {
+        "status": "PASS",
+        "input": "A",
+        "three_scopes_exact": true,
+        "noise_sha256": "a21b41c0b604a426a0eab5f7ee6009beeb04ce66001b66b65d06799737f1e27a"
+      }
+    }
+  ],
+  "real_training_updates": 3,
+  "real_scored_training_candidates": 96,
+  "shared_training_tokens": [
+    "3d1c606df74c5140",
+    "999c63d42d2c5fe3",
+    "1cffe14421265092",
+    "94ec44a9b2675601"
+  ],
+  "paired_noise_hashes_equal": true,
+  "base_forward_max_abs_error": 0.0,
+  "cpu_tests": {
+    "flow_and_scopes": 5,
+    "contracts_and_resume": 6,
+    "status": "PASS",
+    "note": "CPU small-model tests; no claim of real-model exact resume or multi-card acceptance"
+  },
+  "action_query_audit": {
+    "smoke_dit_attempt01": {
+      "arm": "C_DiT",
+      "action_query_token_ids": [
+        151798,
+        151799,
+        151800,
+        151801,
+        151802,
+        151803,
+        151804,
+        151805
+      ],
+      "max_abs_change": {
+        "query": 0.0,
+        "visual": 0.0,
+        "language": 0.0
+      }
+    },
+    "smoke_vlm_attempt02": {
+      "arm": "E_VLM",
+      "action_query_token_ids": [
+        151798,
+        151799,
+        151800,
+        151801,
+        151802,
+        151803,
+        151804,
+        151805
+      ],
+      "max_abs_change": {
+        "query": 2.0116567611694336e-07,
+        "visual": 2.0116567611694336e-07,
+        "language": 2.086162567138672e-07
+      }
+    },
+    "smoke_joint_attempt01": {
+      "arm": "A",
+      "action_query_token_ids": [
+        151798,
+        151799,
+        151800,
+        151801,
+        151802,
+        151803,
+        151804,
+        151805
+      ],
+      "max_abs_change": {
+        "query": 2.0116567611694336e-07,
+        "visual": 2.0116567611694336e-07,
+        "language": 2.086162567138672e-07
+      }
+    }
+  },
+  "failed_runs": [
+    {
+      "run": "smoke_vlm_attempt01",
+      "stage": "diagnostic sampling before optimizer update",
+      "cause": "float32 linspace index rounded beyond large embedding boundary",
+      "fix": "integer-exact index sampling; boundary regression passed"
+    }
+  ],
+  "formal_training_started": false,
+  "test_rollouts_started": false,
+  "full_F_preparation": {
+    "status": "INCOMPLETE_F_COVERAGE",
+    "scenes": 1405,
+    "matched_F": 1383,
+    "missing_F": 22,
+    "unique_donors": 97,
+    "max_donor_reuse": 74,
+    "drives": {
+      "train": 131,
+      "test": 17
+    },
+    "source_manifest_hashes": {
+      "train": "f8caf60cf254980600287e579f3d88988e114163b729447afba481ebc3c1a58c",
+      "test": "530ba81ed26b6040a44838bee037e05b2657605f6f7de14ebe7d96c5cb7caa52"
+    },
+    "code_sha256": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+    "files": {
+      "PROMPTS.json": "e075b7f8773073bed4b1a01235efcf45e4bc24425230320135872de28e2fc15f",
+      "DONORS.json": "31e065f03e73d19c6f081a13734fa87e8de90d03648ceb12a661f668ca5a62d7",
+      "SPLITS.json": "dc4ddbd4281959b9553a79abae883c17a97748655261c8034fd34ee73fda342c"
+    }
+  },
+  "pending": [
+    "F匹配22个训练样本的±2 token修订待确认，未实施",
+    "共同正式epochs、训练seed与预算未锁定",
+    "DLC仍排队，目标16卡并发及故障恢复未验收",
+    "真实大模型跨进程恢复的一致性尚未单独实测；完整恢复逻辑已通过CPU测试"
+  ],
+  "code_hashes": {
+    "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
+    "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+    "audit_checkpoints.py": "736a58f35ab70927294a299f6c4139a9968101edccd73c24d5455ded5c65d2f2",
+    "diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
+    "engine.py": "e5b5c4170aba0966d7626651dbd61bc5a55e25f561099831b008c0b9c6456668",
+    "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+    "run.py": "7c663423b1bd5feeeec3dc68684a4dc42ee84354d5b47b0467ce5c3401df8b3e",
+    "schedule.py": "961c10056315b9cbf0394b8e4ae0b39191a0707bed766a5a3e8eee1765d10064",
+    "test_contracts.py": "7b2dfe5447892b08879dfce1886e7be3408d8ed0e609418a33a5e10cd980dce8",
+    "test_engine.py": "651293e33ecd637339a1f78e4d6788e48857adb00605fd2adc83d446961e5419",
+    "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
+    "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
+    "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+    "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
+    "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
+    "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+  }
+}

@@ -126,7 +126,7 @@ def main():
     a=s.add_parser('infer-smoke');a.add_argument('--arm',choices=['A','B','C','E'],default='A');a.add_argument('--scene-index',type=int,default=0);a.add_argument('--run-name',required=True)
     s.add_parser('train-full')
     args=p.parse_args()
-    if args.command=='train-full':p.error('11-arm full training is not implemented; epochs/budget and full F donors are not locked. No job started.')
+    if args.command=='train-full':p.error('Use trainer/run.py or trainer/launch.sh. Formal epochs/budget, full F coverage and target multi-card acceptance remain pending. No job started.')
     c=config(args.config);result=validate(c,args.full_hash,args.deep) if args.command=='validate' else infer(c,args)
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if result['status']!='PASS':sys.exit(1)
