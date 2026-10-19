@@ -1,0 +1,362 @@
+{
+  "status": "DLC16_SUBMITTED_ENVIRONMENT_PREFLIGHT_PROTOCOL_PENDING",
+  "created_utc": "2026-10-19T07:47:44.380566+00:00",
+  "confirmed_scope": {
+    "arms": [
+      "A",
+      "B",
+      "C",
+      "F",
+      "E",
+      "A_VLM",
+      "C_VLM",
+      "E_VLM",
+      "A_DiT",
+      "C_DiT",
+      "E_DiT"
+    ],
+    "evaluation_population": "all 141 held-out failure cases; NOT all 10329 test-partition scenes",
+    "authorization": "用户要求先完成方案并确认，确认前不启动新推理或训练",
+    "execution_environment": "用户已授权并提交新DLC16任务dlclk5n9nxdt2fou，保持当前DSW镜像及三个挂载原有路径/权限，不接管旧作业",
+    "input_conditions": [
+      "A",
+      "B",
+      "C",
+      "F",
+      "E"
+    ],
+    "module_ablation": "用户要求A/C/E三种输入均做仅VLM、仅DiT；与A/C/E联合训练组成3输入×3更新范围，加B/F联合训练共11组"
+  },
+  "question": "比较A/B/C/F/E输入对GRPO规划和有效探索的影响；A/C/E各具联合、仅VLM、仅DiT更新，区分完整特权条件总收益、guidance增量及额外训练收益与更新范围的关系",
+  "base": {
+    "checkpoint": "/mnt/workspace/VLA-Drive/navsim_exp/0804_16-action-only-lr1e5-16g-bz_2-ga_1-train/final_model/pytorch_model.pt",
+    "sha256": "075ed30723bdac61cd05e3eacec94267631e4a8ff342f189fc6e82649bdb38b2",
+    "initialization": "每组重新从同一原始Base初始化，不续用旧16步权重"
+  },
+  "arms": {
+    "A": "原始图像、历史状态、导航及SFT固定token",
+    "B": "A + mechanism_screen_v1固定修正请求",
+    "C": "B + 当前场景原始冻结Base失败轨迹",
+    "F": "B + 其他训练驾驶记录的强语义冲突完整Base轨迹",
+    "E": "C + 原四段完整guidance，包括PDMS分项、安全诊断及GT对齐建议",
+    "C_VLM": "C输入（真实失败轨迹，无guidance），仅训练VLM",
+    "E_VLM": "E输入（真实失败轨迹+完整guidance），仅训练VLM",
+    "C_DiT": "C输入（真实失败轨迹，无guidance），仅训练完整DiT动作头",
+    "E_DiT": "E输入（真实失败轨迹+完整guidance），仅训练完整DiT动作头",
+    "A_VLM": "A原始SFT输入，仅训练VLM；无修正请求、无失败轨迹、无guidance",
+    "A_DiT": "A原始SFT输入，仅训练完整DiT动作头；无修正请求、无失败轨迹、无guidance"
+  },
+  "contrasts": {
+    "primary": "E-C 的训练增量差与最终表现差；主要PDMS检验一个对比，其余探索指标提供区间",
+    "secondary": [
+      "B-A: 修正请求",
+      "C-B: 真实失败示例",
+      "C-F: 场景对应内容/负例差别"
+    ],
+    "increment_definition": "(post_left-pre_left)-(post_right-pre_right)，按同场景/同生成种子配对",
+    "not_identified": [
+      "E中PDMS、诊断、GT建议各成分不能单独归因",
+      "不证明是否完全不利用语义",
+      "不证明正常场景保留或无反馈部署",
+      "E未与C匹配文本长度，只能解释为完整输入条件整体作用"
+    ],
+    "module_family": {
+      "within_scope": {
+        "joint": {
+          "total_privileged_condition": "E-A",
+          "repair_request_plus_failure_example": "C-A",
+          "guidance_increment": "E-C"
+        },
+        "vlm_only": {
+          "total_privileged_condition": "E_VLM-A_VLM",
+          "repair_request_plus_failure_example": "C_VLM-A_VLM",
+          "guidance_increment": "E_VLM-C_VLM"
+        },
+        "dit_only": {
+          "total_privileged_condition": "E_DiT-A_DiT",
+          "repair_request_plus_failure_example": "C_DiT-A_DiT",
+          "guidance_increment": "E_DiT-C_DiT"
+        }
+      },
+      "estimates": "每个对比同时报告训练前条件差、固定终点训练后条件差、两组训练增量差；例如总特权额外学习收益=(post(E_scope)-pre(E))-(post(A_scope)-pre(A))。探索指标同样比较。",
+      "scope_comparisons": [
+        "A vs A_VLM vs A_DiT",
+        "C vs C_VLM vs C_DiT",
+        "E vs E_VLM vs E_DiT"
+      ],
+      "interaction": "配对比较不同scope下上述条件效应和额外学习增量，不将初始条件优势算作训练收益",
+      "statistical_role": "模块比较和交互为预设辅助比较，报告未校正区间并注明多重比较；原主PDMS对比仍为联合E-C",
+      "limits": [
+        "C-A同时加入修正请求与失败轨迹",
+        "仅联合范围保留B/F；不声称完整输入条件×更新范围全因子",
+        "原联合范围更新history，单模块范围冻结history；跨scope差不全部归为VLM-DiT协同"
+      ]
+    }
+  },
+  "data": {
+    "train_source": "/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/train/TRAINING_PAIRS.jsonl",
+    "train_sha256": "f8caf60cf254980600287e579f3d88988e114163b729447afba481ebc3c1a58c",
+    "train_scenes": 1264,
+    "train_drive_groups": 139,
+    "test_source": "/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/test/TRAINING_PAIRS.jsonl",
+    "test_sha256": "530ba81ed26b6040a44838bee037e05b2657605f6f7de14ebe7d96c5cb7caa52",
+    "test_scenes": 141,
+    "test_drive_groups": 23,
+    "test_primary_reasons": {
+      "NC": 2,
+      "DAC": 67,
+      "TTC": 41,
+      "DDC": 2,
+      "EP": 29
+    },
+    "GT_policy": "全部保留，不设GT质量门槛；无GT拟合损失",
+    "old_internal_32": "本轮并回1264训练总体；旧32不再称为本轮未见验证",
+    "monitor": "沿用旧64训练清单，全部属于本轮更新数据，固定顺序，仅监测，不选checkpoint",
+    "leakage": "训练与测试完整驾驶记录不共享；Base曾见原总体；只对专家后训练留出",
+    "test_use": "先锁定协议后运行initial测试；不得按测试成绩调prompt、超参、步数或筛场景；仅final固定checkpoint作一次后测"
+  },
+  "prompts": {
+    "canonical_request": "Refine the driving plan. Output the complete corrected future trajectory in the original ego frame.",
+    "format": "沿用mechanism_screen_v1的8路点x/y/yaw文本，history/action字段位置规则不变",
+    "static_feedback": "输入失败轨迹、评分与guidance始终属于冻结Base，不随当前策略更新；不得把这些分项冒充当前采样候选的评分",
+    "privilege": "训练及评测均允许对应场景事后反馈及GT对齐特权信息，属于有反馈上限实验",
+    "F_pool": "仅1264训练失败中的其他完整驾驶记录；测试场景绝不作为供体；无接收场景GT或新输出择优",
+    "F_matching": "沿用末航向差>=30度或路程差>=8m且加1m路程比>=4；输入ADE>=3m；原速度/加速度/连续航向筛选；C/F总token及special位置严格匹配",
+    "F_reuse": "全量规模允许不同接收场景复用供体；记录频次，训练接收场景不能用本驾驶记录供体；每接收场景供体固定跨epoch/前后评测",
+    "F_coverage_gate": "正式运行前验证全部1405接收场景。无可行匹配则保存缺失清单并提交明确规则修订，不静默降低冲突标准、不删样本"
+  },
+  "proposed_training": {
+    "epochs": null,
+    "training_seed_replicates": 3,
+    "scenes_per_epoch": 1264,
+    "group_size": 8,
+    "accumulation_scenes": 4,
+    "updates_per_epoch": 316,
+    "updates_per_arm": null,
+    "training_candidates_per_arm": null,
+    "trainable": "原A/B/C/F/E按joint更新；A/C/E各两个冻结组合按vlm_only或dit_only清单更新",
+    "optimizer": "AdamW",
+    "vlm_lr": 2e-07,
+    "action_history_lr": 1e-06,
+    "query_embedding_lr": 2e-07,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "gradient_clip": 1,
+    "schedule": "常数学习率，沿用已验收短程配置，不另加warmup或调度因素",
+    "reward": "官方NAVSIM v1.1 PDMS，NC*DAC*(5EP+5TTC+2CF)/12；每候选独立reference+candidate评分",
+    "GRPO": "场景内8奖励标准化，四场景等权积累；10步flow-SDE eta=.1；epsilon=.2；冻结原始Base同输入条件的高斯KL beta=.01",
+    "zero_variance": "策略优势置零，仍保留KL；区分全零、全一、其他常数",
+    "policy_reuse": "每32候选只做一次on-policy更新，不增加inner epochs；更新前ratio≈1，不能声称验证了多轮PPO裁剪收益",
+    "exclusions": [
+      "不加SFT/BC",
+      "不加额外奖励整形",
+      "不补采样",
+      "不按奖励或GT质量筛场景",
+      "不增加独立scorer或候选选择器"
+    ],
+    "ordering": "同训练种子下11组同epoch顺序与噪声；每模型每更新仍积累4场景，跨副本不共享梯度",
+    "completion": "训练长度先用训练侧按原始驾驶记录留出的开发曲线确定，再锁定各组相同正式更新预算；3epoch/948更新仅保留作成本示例，尚未批准",
+    "training_candidates_all_arms": null
+  },
+  "evaluation": {
+    "stages": [
+      "before training: five unique frozen-Base inputs; six scope aliases checked by exact replay",
+      "after training: eleven arms × proposed three training seeds"
+    ],
+    "test_candidates_per_scene_per_arm_per_stage": "3 independent paired seed batches × 8 candidates",
+    "test_candidates_total": 128592,
+    "noise": "所有组及训练前后复用同一完整噪声序列/哈希；评测seed与训练独立",
+    "monitor_stages": null,
+    "monitor_scenes": 64,
+    "monitor_candidates_per_scene": 8,
+    "monitor_candidates_total": null,
+    "checkpoint_selection": "只用预先固定final；训练监测曲线不挑checkpoint",
+    "error_policy": "记录每token、seed、candidate、全部分项，缺失/非有限/评分错误单列；完整覆盖才验收",
+    "test_initial_candidates": 16920,
+    "test_final_candidates": 111672,
+    "count_assumption": "三个训练种子仍待批准；前测五输入只跑一次，各冻结组精确重放后复用A/C/E，额外重放另计"
+  },
+  "metrics": {
+    "planning": [
+      "全候选mean PDMS（主指标）",
+      "固定first候选PDMS",
+      "逐批Oracle@8",
+      "通过率PDMS>=.8且NC/DAC/TTC=1",
+      "NC/DAC/TTC/EP/CF/DDC",
+      "训练前后增量、对照差中之差",
+      "相对共同A初始候选及本组初始候选的改善/新增损失"
+    ],
+    "exploration": [
+      "K=1/2/4/8的平均best-of-K曲线及至少1条通过的概率：对8候选子集精确组合平均",
+      "有效奖励组比例与奖励std；全零/全一/其他常数分列",
+      "每组安全且PDMS>该场景冻结Base原预测PDMS的候选比例与至少一条概率",
+      "Oracle@8-mean PDMS余量及其训练变化，结合绝对Oracle解释",
+      "28对轨迹ADE/FDE、末航向差，仅作几何多样性辅助",
+      "固定64训练面板随epoch的上述指标；在线训练也按epoch汇总，避免不同难度场景均值混比",
+      "KL、梯度范数、有效组数、更新/样本/秒成本"
+    ],
+    "interpretation": "平均分提高不等于探索改善；方差下降可能来自全部成功，也可能来自全部失败；几何更分散不等于探索更有效；缺乏收益中介识别时只报告候选分布与学习增量的关系"
+  },
+  "statistics": {
+    "pairing": "同token/replicate/candidate；先在场景内平均3×8",
+    "CI": "按23个测试原始驾驶记录聚类bootstrap5000次；保留scene-weighted总体均值，重采样完整记录簇，绝不把141场景或3384候选当独立样本",
+    "primary_comparison": "E-C 的PDMS学习增量差；其他比较和探索指标注明辅助/未校正",
+    "slices": "安全主因分层仅描述；NC/DDC各2例不作稳定类结论",
+    "seed_limit": "建议三个配对训练种子，每种子下11组相同数据顺序与噪声；与评测三批采样seed分开报告，重复数和预算仍待批准",
+    "additional_seeds": "建议首轮正式三训练种子，待用户确认；不再默认单种子后追加"
+  },
+  "budget": {
+    "resource": "已提交单节点16卡DLC，当前DSW精确镜像及挂载；训练预算仍待确认",
+    "wall_time_estimate_hours": null,
+    "proposed_hard_cap_hours": null,
+    "candidate_total": null,
+    "single_ppu_draft": "drafts/single_ppu_v1/；原24小时单卡方案不再作为现行预算",
+    "conditional_3epoch_example": {
+      "note": "仅为11组×三个训练种子×3epoch的候选数量示例，绝非批准长度或预算",
+      "training_candidates": 1001088,
+      "initial_test_candidates": 16920,
+      "final_test_candidates": 111672,
+      "train_monitor_candidates": 53248,
+      "candidate_total": 1182928,
+      "monitor_accounting": "五独特输入初始化共享一次2560；33训练副本×3epoch×64场景×8候选=50688",
+      "pure_training_wall_hours_ideal": null,
+      "end_to_end_provisional_hours": null,
+      "conditions": "33副本在最多15训练并发下至少三波；必须按三种scope实测耗时与显存，不能沿用旧15副本墙钟估计",
+      "storage": "若按3epoch示例保存共99个epoch快照；按scope的模型/优化器保存策略与实际参数计量，旧稿63快照数字已由公式替代",
+      "training_replicas": 33,
+      "epoch_snapshots": 99
+    }
+  },
+  "execution": {
+    "approval_gate": "用户明确授权提交并启动DLC环境，已提交；GRPO训练长度及预算仍未锁定，因此入口仅环境预检后待命，不自动运行训练或正式测试",
+    "sequence": [
+      "核查新建资源池额度、当前DSW镜像身份、最小读写挂载；提交前锁定作业配置和已批准预算",
+      "确认独立副本并行方案及训练侧预实验协议与预算",
+      "获批准后验证目标并行配置、Base重放、输入覆盖、更新与恢复",
+      "先做训练侧长度预实验并锁定正式共同预算，不能看141测试来定长度",
+      "141测试五条件无训练前测，共用一次原始Base结果",
+      "11组×三个训练种子，共33独立副本分波运行；每模型G8/四场景每更新，冻结范围按显式参数清单验收",
+      "固定最终checkpoint对141测试作三批配对后测",
+      "验收、统计与同任务报告；只结束本任务计算，不停止共享DLC作业"
+    ],
+    "monitoring": "长任务每分钟轻量轮询；启动5–10分钟检查实际候选/评分/更新；不自动改设定或扩预算",
+    "checkpoint": "各epoch末完整可恢复快照，含模型/优化器/RNG/采样epoch与顺序/累计更新/配置哈希；必要预算停止另存interrupt快照，恢复记录旧预算累计用量",
+    "stop": "非有限梯度/输出、持续评分异常、协议或泄漏错误、设备不足、总预算上限；先存诊断，只管理本任务进程，不将异常停止当最终成绩"
+  },
+  "outputs": [
+    "PLAN.json",
+    "方案确认.html",
+    "批准后的冻结CONFIG/DATA/PROMPTS/DONORS/SEEDS",
+    "独立运行目录与每epoch完整checkpoint",
+    "训练/评测rollouts及分项、group多样性、updates日志",
+    "验证与耗时证据",
+    "同任务正式HTML结果报告"
+  ],
+  "updated_utc": "2026-10-19T09:12:53.035370+00:00",
+  "dlc_parallelism": {
+    "recommended": "11组×三个训练种子=33独立副本；单DLC16卡最多15训练并发+1评测/预检，至少三波排队，不将33副本同时塞入16卡",
+    "per_replica": "每场景8候选，每次更新4场景；无需跨模型梯度同步；若单卡无法容纳则另行设计模型/优化器分片并复核等价性",
+    "DDP_alternative": "16卡每卡1场景时global scenes/update=16，1264/16=79更新每epoch，3epoch=237更新；不同于旧948更新。为凑948更新需12epoch，样本预算4倍，不能当等价加速",
+    "evaluation": "初始五条件按场景分片分发空闲卡，检测重复/遗漏；所有训练结束后按模型分配后测。不是固定将全部评测串行压到第16卡",
+    "startup": "分批加载权重，CPU评分线程总量按作业配额控制，进程/日志/缓存按模型和种子隔离；避免共享文件系统读写峰值",
+    "acceptance": "逐副本Base一致性、噪声哈希、有效全局场景平均、清单覆盖、文件竞争、失败传播/恢复和参数更新验证；单卡验证不能替代目标并行验证",
+    "scheduling": "优先把同训练seed、同scope的A/C/E三组作为成套对照调度；空闲卡按固定队列领取下一副本，各组固定相同步数，不因完成更快自动多训练。B/F联合对照保留。"
+  },
+  "training_length_status": {
+    "fixed_now": false,
+    "proposal": "训练侧按原始驾驶记录留开发集，长度预实验覆盖A/C/E×联合/仅VLM/仅DiT，以避免只按某种输入或更新范围决定训练充分；清单、预实验预算上限和共同正式终点规则仍需确认",
+    "limits": "尚未批准开发划分或长度预实验；不偷用141测试，也不把3epoch当收敛依据",
+    "formal_data": "确定共同长度后从原始Base重置，使用全部1264正式训练；不续用长度预实验权重"
+  },
+  "local_discovery": {
+    "asset_index": "doc/团队已有资产索引.md 在当前工作区不存在；只检查导航指向的已知DLC任务，没有扫描共享目录",
+    "historical_only": "20261015-failure-partition-query/dlc_20261015/resume_v1/DLC_PREFLIGHT.json 记录8张PPU-ZW810E，不能据此认定用户当前16卡作业卡型",
+    "job_id": "dlclk5n9nxdt2fou",
+    "submission_performed": true,
+    "prior_handoff_cancelled": "dlcqdtslnqnytsc7"
+  },
+  "new_dlc": "dlc_launch_v1/REQUEST.json; SUBMITTED.json; STATUS.json; PREFLIGHT.json",
+  "current_dsw_image": "dlc_new_v1/DSW_IMAGE.json",
+  "module_ablation": {
+    "input_mapping": {
+      "C_VLM": "C",
+      "E_VLM": "E",
+      "C_DiT": "C",
+      "E_DiT": "E",
+      "A_VLM": "A",
+      "A_DiT": "A"
+    },
+    "scope_mapping": {
+      "A": "joint",
+      "B": "joint",
+      "C": "joint",
+      "F": "joint",
+      "E": "joint",
+      "C_VLM": "vlm_only",
+      "E_VLM": "vlm_only",
+      "C_DiT": "dit_only",
+      "E_DiT": "dit_only",
+      "A_VLM": "vlm_only",
+      "A_DiT": "dit_only"
+    },
+    "parameter_contract": {
+      "joint": {
+        "train_prefixes": [
+          "qwen_vl_interface.",
+          "action_model.",
+          "action_input_model."
+        ],
+        "description": "原五组保持联合训练，包含历史状态编码器"
+      },
+      "vlm_only": {
+        "train_prefixes": [
+          "qwen_vl_interface."
+        ],
+        "freeze_prefixes": [
+          "action_model.",
+          "action_input_model."
+        ],
+        "description": "仅视觉/语言/共享embedding（含action-query行）更新；整个动作头及历史编码固定",
+        "lr": 2e-07
+      },
+      "dit_only": {
+        "train_prefixes": [
+          "action_model."
+        ],
+        "freeze_prefixes": [
+          "qwen_vl_interface.",
+          "action_input_model."
+        ],
+        "description": "完整动作头：qwen_proj、DiT、动作编码/解码、时间/位置相关参数；VLM含action query及历史编码固定",
+        "lr": 1e-06
+      }
+    },
+    "scope_note": "DiT-only在本方案指完整action_model动作头，不是仅Transformer blocks；历史状态编码器在两种单模块组均冻结。原联合组仍更新history，因此联合与单模块差异不单独证明VLM-DiT协同；不称完备2x2参数因子实验。",
+    "initial_identity": "同一Base、输入与噪声下，A/A_VLM/A_DiT、C/C_VLM/C_DiT、E/E_VLM/E_DiT各自训练前原始轨迹和评分须精确重放；冻结标记不改变初始函数。验收后复用A/C/E前测，仍只有五种独特输入。",
+    "autograd_vlm_only": "冻结动作头参数但保留其对条件输入的计算图，不能在GRPO重算时把动作头包在no_grad中，否则VLM梯度被截断",
+    "autograd_dit_only": "VLM及history可no_grad；qwen_proj可训练，须每次更新重新投影；若缓存仅缓存冻结VLM的query，不缓存可训练投影后的context",
+    "acceptance": [
+      "运行时named_parameters去重逐名记录trainable/frozen，优化器只包含可训练参数",
+      "三种范围前向/采样原始输出一致性验证",
+      "可训练组非零有限梯度且实际参数更新，冻结组参数/可变buffer哈希保持一致",
+      "eval模式固定dropout与归一化状态；冻结参考模型全部固定",
+      "旧梯度检查强制visual/language/DiT都非零的逻辑必须按scope改写，不能沿用误判",
+      "所有组同数据、训练步数、候选数、seed、奖励与KL，学习率沿用对应模块原值；另报显存和卡时"
+    ],
+    "identification_limit": "在A/C/E每种输入下保持相同参数冻结范围，可以比较完整特权条件总收益和guidance额外收益如何随更新范围变化；C-A包含修正请求和真实失败轨迹，不单独识别轨迹效应。单模块范围无B/F对照，不外推其修正请求或负例机制。冻结VLM仍可包含已有语义表征，不以更新侧定位语义理解。"
+  },
+  "allocation": {
+    "job_id": "dlclk5n9nxdt2fou",
+    "launch_directory": "dlc_launch_v1",
+    "provider_max_running_minutes": 4320,
+    "lifetime_note": "服务端返回72小时运行上限，不是已批准GRPO训练预算；实际运行起点和结束时间以provider为准",
+    "mode": "preflight_then_standby",
+    "same_image_and_mounts_as_current_DSW": true,
+    "write_scope": "挂载权限按用户要求保持；程序仅写本任务目录，不写其他共享资产",
+    "monitor": "每分钟只读轮询已启动，状态存STATUS.json；没有外部通知或自动唤醒机制"
+  }
+}

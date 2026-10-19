@@ -1,0 +1,9 @@
+{
+  "request": "Refine the driving plan. Output the complete corrected future trajectory in the original ego frame.",
+  "format": "w{i}: x={x:+.4f}m, y={y:+.4f}m, yaw={yaw:+.5f}rad",
+  "separator": "; ",
+  "B": "A + newline + request",
+  "C": "B + newline + Initial trajectory: + true failed trajectory",
+  "E": "C + newline + guidance.guidance_text",
+  "F": "C with trajectory replaced by locked, token-matched semantic-conflict donor; full 1405 donor mapping NOT YET BUILT"
+}

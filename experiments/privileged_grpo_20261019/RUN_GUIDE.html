@@ -1,0 +1,76 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>特权反馈 GRPO：跨平台迁移与启动指南</title>
+<style>body{max-width:1080px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui;color:#17232d}h1{font-size:27px}h2{font-size:21px;margin-top:32px}pre{background:#f3f5f7;padding:16px;overflow:auto;font-size:13px}code{font-family:monospace}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #cbd5df;padding:8px;text-align:center}td:first-child,th:first-child,td:last-child,th:last-child{text-align:left}.note{border-left:4px solid #bd871c;padding:12px 18px;background:#fff8e8}details{margin:15px 0}summary{cursor:pointer;font-weight:bold}</style>
+<h1>特权反馈 GRPO：跨平台迁移与启动指南</h1><p>版本：2026-10-19。目标仓库：<a href="https://github.com/IDayday/VLA-Drive">IDayday/VLA-Drive</a>。发布分支：<code>feature/privileged-grpo-migration-20261019</code>。</p>
+<div class="note"><b>运行状态：</b>训练集挖掘、1264/141 划分、历史短程 GRPO 与 32 场景机制实验已完成。新 11 组全量 GRPO <b>尚无完整训练执行器，也没有启动训练</b>。DLC 入口仅预检并待命。本指南提供可执行的资产校验、权重恢复及单场景推理迁移入口；不能据此声称已支持全量训练。新入口已做本机 CPU 全量资产核验，尚未在目标平台验收 GPU 推理。</div>
+<h2>1. 获取代码与恢复权重</h2>
+<p>以下远端获取命令在发布完成后可用；发布状态以远端分支、Release及发布回执为准。PORTABILITY_FINDINGS.json记录打包时状态。</p>
+<pre>git clone --branch feature/privileged-grpo-migration-20261019 https://github.com/IDayday/VLA-Drive.git
+cd VLA-Drive/experiments/privileged_grpo_20261019
+mkdir -p /assets/release /assets/base
+# 下载 Release privileged-grpo-base-20261019 的全部附件至 /assets/release
+# 若目标平台安装了 GitHub CLI：
+gh release download privileged-grpo-base-20261019 --repo IDayday/VLA-Drive --dir /assets/release
+python tools/weights.py restore /assets/release/pytorch_model.pt.manifest.json /assets/base/pytorch_model.pt
+python tools/weights.py restore /assets/release/model.safetensors.manifest.json tokenizer/model.safetensors</pre>
+<p>不依赖 Git LFS。主 checkpoint 分为四片，初始化权重分为三片，每片小于 2 GiB；恢复工具逐片验证 SHA256，再核对完整文件，并拒绝覆盖已有文件。使用 <a href="https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases">GitHub Release 附件</a>，而非将大权重放进 Git 历史。</p>
+<table><tr><th>权重</th><th>字节数</th><th>SHA256 / 用途</th></tr>
+<tr><td>pytorch_model.pt</td><td>6,526,753,218</td><td><code>075ed30723bdac61cd05e3eacec94267631e4a8ff342f189fc6e82649bdb38b2</code><br>当前 action query + DiT 冻结 Base；不是训练后的专家。</td></tr>
+<tr><td>model.safetensors</td><td>4,255,934,936</td><td><code>59a477727ee19b359b9f904abb55921267f0359c88960d1008413402ed2d00ea</code><br>Qwen3-VL-2B-WorldAction 构造器初始化所需，随后完整 strict-load Base。</td></tr></table>
+<details><summary>本次源权重与模型代码</summary><pre>/mnt/workspace/VLA-Drive/navsim_exp/0804_16-action-only-lr1e5-16g-bz_2-ga_1-train/final_model/pytorch_model.pt
+/mnt/workspace/VLA-Drive/navsim_exp/0804_16-action-only-lr1e5-16g-bz_2-ga_1-train/code
+/mnt/workspace/VLA-Drive/weights/derived/Qwen3-VL-2B-WorldAction</pre><p>DLC 对应前缀为 /mnt/yehr_workspace。迁移包中 model_code/ 是该训练运行的源码快照，不能用仓库当前的另一种 Query Decoder 代码替代。model_config.yaml 为原配置；加载时覆盖 base_vlm 路径并使用 sdpa。模型类 Qwenvl_OFT(..., infer_not_load_wan=1)，必须 strict=True 加载。训练运行 config 中的历史 wandb/输出路径不用于本迁移入口。</p></details>
+<h2>2. 软件环境</h2><p>本次 DSW/DLC 镜像：<code>acr-df-registry-vpc.cn-wulanchabu.cr.aliyuncs.com/ppu/df-test2:yhr-drivedreamerpolicy</code>。原镜像面向 PPU，其他平台需匹配其设备驱动与 PyTorch；同版本号不代表 PPU 定制包与 CUDA 包完全相同。不要在 NVIDIA 平台直接覆盖系统驱动。优先使用平台已配置环境，确需安装依赖时创建独立虚拟环境。</p>
+<pre># 仅在确需独立环境时；不会修改系统 Python
+python -m venv --system-site-packages /outputs/venvs/privileged-grpo
+source /outputs/venvs/privileged-grpo/bin/activate
+python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.device_count())"</pre>
+<p>已验证的关键版本：torch 2.4.0、transformers 4.57.0、numpy 1.26.4、scipy 1.11.4、accelerate 1.5.2、omegaconf 2.3.0、Pillow 10.1.0、shapely 2.1.2。还需原模型导入链依赖、NAVSIM v1.1 与 nuPlan；environment/validated_versions.json 不是完整可安装 lockfile。不能只执行一个简化 pip 列表就声称环境等价。</p>
+<h2>3. 数据接口与路径映射</h2><p>本次使用 1264 条训练失败案例和 141 条测试失败案例，所有 GT 均保留，不要求 GT PDMS&gt;0.9。失败定义：Base PDMS&lt;0.8，或 NC/DAC/TTC 任一小于 1。测试集来自 Base 的训练分区，仅对后训练留出；不是 Base 未见集。</p>
+<p><b>驾驶记录口径修正：</b>完整分区有139/23个源记录，但失败子集实际覆盖131/17个（短日志476/52）。141条修复测试的统计重采样按实际17个源记录进行。旧方案中的23不可直接作为失败子集的有效聚类数。划分文件未改变。</p>
+<table><tr><th>配置项</th><th>接口类型</th><th>内容</th></tr>
+<tr><td>checkpoint</td><td>文件</td><td>恢复的完整 Base .pt，SHA256 固定。</td></tr>
+<tr><td>model_config / source_root / tokenizer_root</td><td>文件 / 目录</td><td>原运行配置、model_code/、含初始化权重的 tokenizer/。</td></tr>
+<tr><td>train_pairs / test_pairs</td><td>JSONL</td><td>原 TRAINING_PAIRS.jsonl；1264/141行，保持原始字节，不直接改写其中路径。</td></tr>
+<tr><td>raw_meta_root</td><td>目录</td><td>每场景 &lt;token&gt;.pkl，包含图像路径、全局状态与导航。</td></tr>
+<tr><td>path_prefix_map</td><td>字典</td><td>旧评分缓存和图像根路径→目标平台根路径；最长前缀优先，同时作用于 pickle 内的图像路径。</td></tr>
+<tr><td>navsim_root</td><td>Python包父目录</td><td>其下必须有 navsim/evaluate/pdm_score.py；需与记录的 scorer 源码哈希一致。</td></tr>
+<tr><td>output_root</td><td>可写目录</td><td>新日志、结果和缓存；共享源资产保持只读。</td></tr></table>
+<pre>cp config/assets.example.json config/assets.local.json
+# 编辑 assets.local.json：将 /assets 与 /outputs 指向目标平台真实位置。
+# 相对路径以该 JSON 所在目录为基准；绝对路径保持不变。
+export PYTHONDONTWRITEBYTECODE=1
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+python tools/portable.py --config config/assets.local.json validate --full-hash --deep</pre>
+<p>该命令检查完整 checkpoint 哈希、1264/141清单哈希、源驾驶记录隔离、轨迹形状/航向、原始 metadata 与评分缓存哈希、GT坐标复算及全部图像存在性。不会修改原始数据。元数据和缓存为项目可信 pickle，不接受未知来源文件。</p>
+<details><summary>需从原平台搬运的数据与字段定义</summary>
+<pre>/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/train/TRAINING_PAIRS.jsonl
+/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/test/TRAINING_PAIRS.jsonl
+/mnt/workspace/VLA-Drive/navsim_dataset/meta/train
+/mnt/workspace/ReCogDrive/ReCogDrive/recogdrive/navsim/exp/metric_cache_train
+/mnt/data/navsim/trainval_all/trainval_sensor_blobs/trainval
+/mnt/workspace/VLA-Drive/navsim_v1.1/navsim</pre>
+<p>以上原始数据未上传 GitHub。迁移最小集应覆盖清单列出的 metadata、metric cache 和三相机图像。Git 中仅保存 token/log 身份与清单 SHA256。JSONL 核心字段：token、log、source_paths、input_trajectory、gt_trajectory、base_score、gt_score、guidance、checkpoint_sha256、score_protocol_sha256、training_ready。guidance 内含 metric_summary、planning_diagnosis、expert_alignment、refinement_directive、guidance_text。</p>
+<p>每条轨迹为8×3：[x前向米，y左向米，yaw逆时针弧度]，以当前 ego rear axle 为原点，每0.5秒一点，覆盖4秒。yaw是航向角，不是方向盘转角。状态由4历史+8未来的global_poses以索引3为原点转换；history取最后两帧相对位移，归一化xy并编码sin/cos航向。三相机cam_f0/l0/r0取image_paths[3]，中心裁剪16:9后缩放1024×576。导航来自commands[3]。代码入口scene()/common.raw_scene()保留原约定。</p>
+<p>模型动作8×4为归一化xy和sin/cos航向；xy均值[10.172484,0.360762]，标准差[8.805105,2.277741]，yaw=atan2(sin,cos)。官方评分使用NAVSIM v1.1 PDMS，模拟40步×0.1秒，每候选单独与参考轨迹评分，PDMS=NC×DAC×(5EP+5TTC+2CF)/12，DDC单独报告、权重0。不能换成v2 EPDMS混报。</p></details>
+<h2>4. 已提供的启动命令：迁移推理冒烟</h2>
+<pre># 单卡、训练侧一个固定场景、G=8；先验证目标平台能正确加载和评分。
+CUDA_VISIBLE_DEVICES=0 python tools/portable.py --config config/assets.local.json infer-smoke --arm A --run-name smoke_A_001
+# 可用输入 A/B/C/E；相同场景使用相同种子。不同运行名避免覆盖。
+CUDA_VISIBLE_DEVICES=0 python tools/portable.py --config config/assets.local.json infer-smoke --arm E --run-name smoke_E_001</pre>
+<p>输出 RESULT.json 含8条轨迹和PDMS全部小分；运行前重放原失败轨迹评分，要求精确匹配。该入口不更新参数，采用新迁移冒烟种子，不声称精确重现历史随机轨迹。原始权重FP32执行、VLM内部BF16 autocast、动作头FP32；不同硬件仍需数值回放验收。F尚无全量donor清单，不在新冒烟入口开放。</p>
+<h2>5. 11组正式实验契约与待完成项</h2>
+<table><tr><th>更新范围</th><th>输入组</th><th>参数</th></tr><tr><td>联合训练</td><td>A/B/C/F/E</td><td>VLM、完整action_model及history encoder。</td></tr><tr><td>仅VLM</td><td>A/C/E</td><td>qwen_vl_interface；动作头及history冻结，但保留向VLM反传的计算图。</td></tr><tr><td>仅DiT</td><td>A/C/E</td><td>完整action_model含qwen_proj；VLM、action query embedding及history冻结。</td></tr></table>
+<p>A=原SFT输入；B=A+修正请求；C=B+真实失败轨迹；F=B+强语义冲突完整donor轨迹；E=C+完整guidance。C就是“E无guidance”。F需跨源记录、合理运动学、保持token数量与插入位置，且只从训练侧选择donor。不能把历史32场景映射直接用于全量1405场景。</p>
+<p>候选G=8、每4场景梯度积累、VLM学习率2e-7、动作/历史1e-6；PDMS奖励、KL系数0.01、10步SDE、eta=0.1、clip=0.2。KL是正则项，不是额外驾驶奖励；GRPO是更新范式，不是奖励名称。无额外BC/SFT项。每场景按组相对优势更新，零方差组及无效轨迹需保留计数。现有单次on-policy更新不足以验证多轮PPO复用。</p>
+<p><b>尚未锁定：</b>正式epochs与预算、训练侧长度预实验、全量F映射、分模块反传和冻结验收、恢复语义及16卡分片/汇总。316更新/epoch来自ceil(1264/4)；948只是3epoch成本示例，不能当收敛证据。不能通过增加卡数静默改变有效batch或更新预算。</p>
+<pre># 明确防误启动：此命令返回非零，说明未实现，不消耗训练算力。
+python tools/portable.py --config config/assets.local.json train-full</pre>
+<p>当前建议是每卡独立模型副本，最多15卡训练+1卡评测，不是已验收的16卡DDP。若3训练种子则11×3=33副本，至少3波；训练前只需A/B/C/F/E五种独特输入，各冻结范围先验证初始函数一致，再复用前测。评价按同场景、相同8候选噪声配对，记录mean、Oracle@1/2/4/8、有效探索/全零组、安全与进度、小分及多样性；测试不参与选训练长度。</p>
+<h2>6. 当前DLC状态与发布操作</h2><p>已提交的新DLC为dlclk5n9nxdt2fou（本次独立作业）。保留当前DSW镜像及/mnt/yehr_workspace、/mnt/data、/mnt/LLM_weight挂载。入口为 /mnt/yehr_workspace/DriveExpert/20261019-privileged-grpo-full/dlc_launch_v1/launch.sh，只预检后待命。此云端路径是当前作业入口，不是跨平台训练入口。不要重启它来假装启动GRPO；源平台最新状态见同目录STATUS.json。</p>
+<details><summary>发布者使用的命令与验收要求</summary><pre># 在隔离仓库完成本地提交后，推送新分支（不强推main）：
+git push --set-upstream origin feature/privileged-grpo-migration-20261019
+# 使用已配置的Git凭据助手上传分片；不要将token写入命令、配置或聊天。
+python experiments/privileged_grpo_20261019/tools/github_release.py   --repository "$PWD" --assets /path/to/release_assets   --commit "$(git rev-parse HEAD)" --receipt /outputs/github_release_receipt.json</pre>
+<p>上传工具先创建draft，逐个上传并核对GitHub返回的SHA256，再发布；遇到同名异内容附件拒绝覆盖。上传中断保留draft，可在凭据有效时重跑。完成后以远端branch SHA、公开Release地址、全部9个附件（7分片+2清单）的大小/哈希验收，不能仅凭本地commit声称上传成功。</p></details>
+<h2>7. 本地交付验收</h2><p>本机1405条清单全量CPU深校验通过，权重完整SHA256与既有身份一致；两个实际大权重已完整恢复并验证SHA256；另已验证小文件损坏检测和防覆盖。源码快照与原始文件逐项核验。新推理包装器只做语法与资产侧验收，目标GPU执行、多卡、正式训练和真实GitHub上传需分别记录状态。reference/为历史证据，保留旧路径及产出依赖，不是可直接迁移执行的全量训练脚本。</p></html>
