@@ -42,7 +42,8 @@ def job_result(job,root,*,execute,resume,device,seed,max_updates,max_exposures):
         if status=="IDENTITY_VERIFIED" and job.get("id")=="baseline_identity":status="PASS"
         if job.get("reuse_sha256") and sha256(receipt)!=job["reuse_sha256"]:
             raise ValueError("Frozen receipt changed: "+str(receipt))
-        if status in STATES and not job.get("force_execute",False):
+        incomplete_training=(job.get("train",False) and result.get("training_complete") is False)
+        if status in STATES and not job.get("force_execute",False) and not (resume and incomplete_training):
             # A numerical/ability FAIL is preserved, never retried by relaunching.
             return {"status":status,"receipt":str(receipt),"sha256":sha256(receipt),"reused":True}
     if not execute:return {"status":"NOT_RUN","reason":"dry-run"}
@@ -100,6 +101,18 @@ def gates(cfg):
               "status":"PASS" if m["occupied_iou"]>=cfg["acceptance_criteria"]["compression_min_teacher_iou"] and
                  m["false_free"]<=cfg["acceptance_criteria"]["compression_max_false_free"] else "FAIL"}
     result["compression_acceptance"]=capacity
+    # A completed same-capacity optimization is separate from the original Adam
+    # failures. Keep every old result; do not silently relabel the failed runs.
+    pca=root/"continuation_v2/compression_patch_PCA_whitened_v1/RESULT.json"
+    if pca.exists():
+        row=json.loads(pca.read_text())
+        if row.get("fit_complete") and row.get("decoder_unchanged"):
+            m=row["native_agreement"]
+            capacity["compression32_patch_PCA_whitened_v1"]={
+                "occupied_iou":m["occupied_iou"],"false_free":m["false_free"],
+                "receipt_sha256":sha256(pca),
+                "status":"PASS" if m["occupied_iou"]>=cfg["acceptance_criteria"]["compression_min_teacher_iou"] and
+                    m["false_free"]<=cfg["acceptance_criteria"]["compression_max_false_free"] else "FAIL"}
     result["compression_measurement_scope"]="Strict native teacher-prediction agreement proxy; true GT-relative protection is not measurable yet"
     export=root/"engineering_export_v2/DEPLOYMENT_REPORT.json"
     if export.exists():result["teacher_free_export_verified"]=json.loads(export.read_text())["status"]
@@ -122,9 +135,21 @@ def gates(cfg):
                              "R0":spatial or temporal,"Rcap":spatial or temporal,"Rdecode":spatial,"Rfrozen":spatial,
                              "Rjoint":False,"Rgt":False}
     result["formal_representation_admitted"]=any(result["admitted_arms"].values())
-    result["formal_blockers"]=[] if result["formal_representation_admitted"] else ["Independent teacher occupancy quality cannot be accepted from hit-only labels",
-                              "SGDrive native physical horizon and ego compensation are unverified",
-                              "Tested compression mappings have not met the fixed native decode protection"]
+    blockers=[]
+    if result["teacher_spatial_verified"]!="PASS":
+        blockers.append("Spatial teacher target-domain quality is unresolved: hit-only labels cannot verify precision/observed-free/unknown")
+    if not any(v["status"]=="PASS" for v in capacity.values()):
+        blockers.append("No tested compression has met the fixed native-decode agreement proxy")
+    if not temporal:
+        blockers.append("Temporal driving teacher quality/ego compensation remains unverified; published default horizon evidence does not validate a future predictor")
+    result["formal_blockers"]=blockers
+    horizon=root/"continuation_v2/published_horizon_v1/HORIZON_AUDIT.json"
+    if horizon.exists():
+        h=json.loads(horizon.read_text())
+        result["published_temporal_protocol"]={
+            "default_horizon_seconds":h["verified_default_protocol_horizon_seconds"],
+            "checkpoint_exact_horizon_verified":h["native_checkpoint_exact_horizon_verified"],
+            "receipt_sha256":sha256(horizon)}
     return result
 
 
