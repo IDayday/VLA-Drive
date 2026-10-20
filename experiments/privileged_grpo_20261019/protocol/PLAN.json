@@ -395,5 +395,24 @@
     "real_joint_smoke": "PENDING_ACCELERATOR_AVAILABLE",
     "historical_smoke_preserved": true
   },
-  "input_protocol_version": "action-only-suffix-v3"
+  "input_protocol_version": "action-only-suffix-v3",
+  "input_protocol_decision": {
+    "confirmed_utc": "2026-10-20T00:45:52.019796+00:00",
+    "user_instruction": "后续grpo训练也不要添加后缀",
+    "input_protocol_version": "action-only-suffix-v3",
+    "scope": "all 11 GRPO arms; training, frozen reference, initial and final evaluation",
+    "remove": [
+      "RGB query tokens",
+      "GS query tokens",
+      "reward query tokens"
+    ],
+    "retain": [
+      "image inputs",
+      "history state token",
+      "8 action queries"
+    ],
+    "decision": "Continue clean protocol despite observed frozen-policy score drops; do not restore legacy auxiliary suffix automatically.",
+    "comparison": "Recompute initial baseline under clean protocol; archived legacy scores/checkpoints are not interchangeable.",
+    "budget_note": "This confirms input protocol only; formal training length/resource and F coverage gates remain unchanged."
+  }
 }
