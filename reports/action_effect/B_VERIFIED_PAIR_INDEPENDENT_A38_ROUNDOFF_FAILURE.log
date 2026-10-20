@@ -1,0 +1,64 @@
+........F.                                                               [100%]
+=================================== FAILURES ===================================
+_ test_repeated_fp32_direction_mass_roundoff_is_not_invalid_global_denominator _
+
+    def test_repeated_fp32_direction_mass_roundoff_is_not_invalid_global_denominator():
+        # Original scene sum times repeat8 is mathematically the same denominator as
+        # the repeated population sum, but FP32 reduction orders differ by two ulps.
+        delta=torch.tensor([[.2569085359573364,.0517691969871521,.3522474765777588,
+            .027882516384124756,.6525750756263733,.5727039575576782,.664831280708313,
+            .37794923782348633,.7857222557067871,.21219444274902344,.9239256978034973]])
+        valid=torch.tensor([[True]*10+[False]]);weight=delta.abs()*valid
+        denominator=float(weight.sum())*8
+        expanded_delta=delta.repeat(8,1);expanded_valid=valid.repeat(8,1)
+        assert float(weight.repeat(8,1).sum())>denominator
+        prediction=torch.zeros_like(expanded_delta,requires_grad=True)
+        kwargs=dict(true_delta=expanded_delta,teacher_embedding=torch.zeros(8,16),
+            effect_valid=expanded_valid,repair_valid=torch.ones(8,dtype=torch.bool),effect_scales=[1.]*11,
+            global_denominator=int(valid.sum())*8,representation_global_denominator=128)
+>       result=verified_pair_effect_loss(prediction,torch.zeros(8,16),
+            direction_global_denominator=denominator,**kwargs)
+
+tests/action_effect/test_verified_pair_independent.py:213: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+student_delta = tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0...0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]], requires_grad=True)
+student_embedding = tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0.,...0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
+
+    def verified_pair_effect_loss(student_delta,student_embedding,*,true_delta,teacher_embedding,
+            effect_valid,repair_valid,effect_scales,global_denominator=None,direction_global_denominator=None,
+            representation_global_denominator=None,world_size=1,direction_temperature=.1):
+        """Native-delta supervision and frozen verified-pair representation targets.
+    
+    No learned teacher query occurs here, and targets never enter the student
+    forward. This is auxiliary representation distillation, not a velocity gradient
+    from a simulator and not a query at an unsupported eps+v endpoint.
+        """
+        if (student_delta.ndim!=2 or student_delta.shape!=true_delta.shape or effect_valid.shape!=true_delta.shape
+                or effect_valid.dtype!=torch.bool or repair_valid.shape!=(len(student_delta),) or repair_valid.dtype!=torch.bool
+                or student_embedding.ndim!=2 or student_embedding.shape!=teacher_embedding.shape
+                or len(student_embedding)!=len(student_delta) or direction_temperature<=0):
+            raise ValueError('Verified effect/representation target shapes or masks differ')
+        if not all(torch.isfinite(x).all() for x in (student_delta,student_embedding,true_delta,teacher_embedding)):
+            raise FloatingPointError('Nonfinite verified effect target or student prediction')
+        scales=torch.as_tensor(effect_scales,device=student_delta.device,dtype=torch.float32)
+        if scales.shape!=(student_delta.shape[1],) or not torch.isfinite(scales).all() or (scales<=0).any():
+            raise ValueError('Declared positive native physical scales required')
+        valid=effect_valid & repair_valid[:,None]
+        target=true_delta.detach().float()/scales;prediction=student_delta.float()/scales
+        consistency=masked_mean((prediction-target).square(),valid,global_denominator=global_denominator,world_size=world_size)
+        weight=target.abs()*valid*(target.abs()>1e-6);local_weight=float(weight.sum().detach())
+        if world_size!=1 and direction_global_denominator is None:raise ValueError('DDP direction requires a global weight sum')
+        denom=local_weight if direction_global_denominator is None else float(direction_global_denominator)
+>       if not math.isfinite(denom) or denom<local_weight:raise ValueError('Invalid verified direction denominator')
+E       ValueError: Invalid verified direction denominator
+
+../VLA-Drive-effect-verified-pair-20261020/starVLA/model/modules/action_effect/effect_distillation.py:169: ValueError
+=========================== short test summary info ============================
+FAILED tests/action_effect/test_verified_pair_independent.py::test_repeated_fp32_direction_mass_roundoff_is_not_invalid_global_denominator
+1 failed, 9 passed in 4.00s

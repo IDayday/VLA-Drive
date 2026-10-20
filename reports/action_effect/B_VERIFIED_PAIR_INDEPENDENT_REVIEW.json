@@ -1,0 +1,51 @@
+{
+  "schema": "action_effect_independent_verified_pair_review_v1",
+  "status": "PASS",
+  "scope": "CPU source/math/gradient/export/resume only",
+  "candidate_before_correction": "a38f86f353622912df3abc8e386c7060a2dfaf5c",
+  "candidate_after_correction": "c8de753c531a1297e3f6c5f1bad2729d0db6e444",
+  "prospective_method_commit": "5852c47b",
+  "candidate_worktree": "/mnt/project/VLA-Drive-effect-verified-pair-20261020",
+  "source_sha256": {
+    "starVLA/model/modules/action_effect/effect_flow_adapter.py": "ce5c9408bfe636fa55a1fe05359a0eff42e06df0f31f23d6ad7bebbce31e1b6b",
+    "starVLA/model/modules/action_effect/effect_distillation.py": "a83b166f764a76b44c66bc9318bc0bc729b93aabf4ab83b0a0b34779cc74f836",
+    "starVLA/model/framework/effect_internalized_flow.py": "3039ae5e4c3c1b25610c16781365bfba1792a1accb886fcf2d928649ce4d7a22",
+    "tools/action_effect/train_effect_flow.py": "b04ef2d6b5586602d5cd4b28b97f27c7ee3d8fc8136e4cabd37e4d9e6da4ce31",
+    "tools/action_effect/export_models.py": "ba6646706f2013d7aab5437b562486a4b6e624fc9ecfad7ecb11ae14a8143d8f",
+    "starVLA/model/modules/action_effect/effect_model.py": "e19dad84a00411339f0ab601839a1722ef9341117c1dd34ae1321cfb69268705",
+    "tools/action_effect/verified_data.py": "32104806c0413202549a939501ac6660eb0a7d34f7d0fe7a0a96942a4693e06f",
+    "tools/action_effect/training.py": "ce1e654b14631a3182aa403dca73a3fd59abd043c3641264dedf44ce40afa0db",
+    "reports/action_effect/VERIFIED_PAIR_INTERNALIZATION_PREREG.md": "476c2b53a8ac41ed680f7f3bad0f398eaa7ad57d78909eca111620085ff5323b"
+  },
+  "independent_test": {
+    "path": "tests/action_effect/test_verified_pair_independent.py",
+    "sha256": "47d184633e1438b91656bd11e5f4e3431d0508ec059e93479496a357de8f7290",
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "log": "reports/action_effect/B_VERIFIED_PAIR_INDEPENDENT_CPU_TEST.log",
+    "log_sha256": "3e31c18deda8f354d3546b4090d07deabb475e591a40d5e3f8aa899d05151546"
+  },
+  "environment": {
+    "python": "3.9.25",
+    "torch": "2.5.1+cu124",
+    "device": "cpu",
+    "CUDA_VISIBLE_DEVICES": ""
+  },
+  "counterexample": {
+    "problem": "FP32 repeated direction mass validator rejected valid optimizer-global denominator",
+    "global_denominator": 31.63827133178711,
+    "local_repeated_mass": 31.638273239135742,
+    "fix": "8*FP32 epsilon relative validation allowance only; objective uses original provided denominator",
+    "pre_fix_test_result": "9 passed, 1 failed",
+    "failure_log": "reports/action_effect/B_VERIFIED_PAIR_INDEPENDENT_A38_ROUNDOFF_FAILURE.log"
+  },
+  "actual_cuda": "NOT_RUN",
+  "actual_ddp_nccl": "NOT_RUN",
+  "real_s0_integration": "NOT_RUN",
+  "native_navsim_scoring": "NOT_RUN",
+  "g1_teacher_learned": "UNTESTED",
+  "heldout_planning_gain": "UNTESTED",
+  "base_modified": false,
+  "gpu_training_started": false
+}
