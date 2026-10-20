@@ -1,0 +1,79 @@
+{
+  "baseline_binding_content_sha256": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+  "cache_budget": {
+    "W_A_fp32_payload_bytes_per_scene": 1245184,
+    "W_A_fp32_values_per_scene": 311296,
+    "note": "tensor value calculation only; exclude serializer/index/metadata/ego/state and not a measured cache result; no multiTB vision cache required",
+    "pilot64_W_A_values_bytes": 79691776,
+    "scene_state_fp32_bytes": 16
+  },
+  "next_action": "Lead fixes hash-selected TRAIN64 (or historical32 for direct replay), one bound strict FP32 load; online A/W and raw/physical values compared to historical32; extract new compact per-scene context only after identity review. Full feedback adapter owned separately.",
+  "not_found_in_audited_roots": {
+    "complete_original_s0_train101592_single_trajectory_bank": true,
+    "note": "Bounded path/metadata discovery in known originalS0/ST/Flow roots; not a proof no file anywhere exists.",
+    "original_s0_complete_train_W_A_condition_cache": true
+  },
+  "rejected_lookalikes": [
+    {
+      "path": "/mnt/project/action-video-foresight-artifacts/20261002/C1_100k_representations_v1",
+      "reason": "checkpoint5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a / DDPFullForesight / source d1d40854299b9599b2accc382bcfc4b676dd7623 differs from bound78f870 S0"
+    },
+    {
+      "path": "/mnt/project/flow-safe-improvement-20261013/reference_samples/SFT_4seed",
+      "reason": "SFT9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4; BF16 root; fourseed ODE bank not bound FP32 S0"
+    },
+    {
+      "path": "/mnt/project/st-world-policy-20261016/formal/consequence/runs",
+      "reason": "C0/C1 endpoints are posttraining continuations; changing Base is forbidden; online rollout banks are changing policies and noise, not originalS0 singletrajectory bank"
+    },
+    {
+      "path": "/mnt/project/DriveVLA-M0-iqe-*",
+      "reason": "Query architecture and distinct checkpoints/normalizers/runtime; not originalDiT S0"
+    }
+  ],
+  "schema": "action_effect_asset_index_v1",
+  "usable_locations": {
+    "original_dev_current": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+    "original_train_current": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+    "s0_dev_predictions": "/mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S0_seed42_full100k_v2_dev100000_seed42/predictions",
+    "s0_dev_scores": "/mnt/project/action-video-foresight-artifacts/20261002/scores_reconciled_development_v1/formal_S0_seed42_full100k_v2_dev100000_seed42",
+    "s0_train32_tensors": "/mnt/project/st-world-policy-20261016/smoke/s0_input32_v2"
+  },
+  "usable_prior_pins": {
+    "full_train_metric_cache_receipt": {
+      "bytes": 37590904,
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/CACHE_RECEIPT.json",
+      "sha256": "8a3286bc39b3dac35f20a1118806526157b4c92e0972c9ae86d33ab7ffc914b3"
+    },
+    "full_train_metric_context_manifest": {
+      "bytes": 176439631,
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/TRAINING_MANIFEST.json",
+      "sha256": "b810cafbdaa42afd8554c08be443779e7d66edce56292c0c30940e728c0ed656"
+    },
+    "real_image_replay_train32_complete": {
+      "bytes": 18130,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/s0_input32_v2/COMPLETE.json",
+      "sha256": "27768d1d46ee30c0368b63e851f05b56d2ff3e47582454c1afbfc7eaca0942e7"
+    },
+    "real_image_replay_train32_manifest": {
+      "bytes": 1401,
+      "path": "/mnt/project/st-world-policy-20261016/smoke/s0_input32_manifest.json",
+      "sha256": "c45e16a6c5bea8899e2a85b3ca16b8d75caf545d8d2b3c4e53e25c1162ab5bca"
+    },
+    "s0_dev_official_summary": {
+      "bytes": 5733,
+      "path": "/mnt/project/action-video-foresight-artifacts/20261002/scores_reconciled_development_v1/formal_S0_seed42_full100k_v2_dev100000_seed42/summary.json",
+      "sha256": "7ba0ea74c4777b4f2e7fe4d486b5bef7ab25cfa0733d4b058815ded736937643"
+    },
+    "s0_dev_prediction_identity": {
+      "bytes": 3640,
+      "path": "/mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S0_seed42_full100k_v2_dev100000_seed42/identity.json",
+      "sha256": "83cacf3b45fccf0c8967ddec59e1b7fa2d553ffdefeb7eaf2114ae140ce420ab"
+    },
+    "score_protocol": {
+      "bytes": 13348,
+      "path": "/mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/SCORE_PROTOCOL.json",
+      "sha256": "6dcc0bdad4897b3f49af2ee1bf66f1cd040b6cd88c444a04aa9c8de5614bdc8c"
+    }
+  }
+}
