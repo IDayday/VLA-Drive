@@ -195,7 +195,7 @@ CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.validate_c
 
 2026-10-20按用户要求的20k中期全量Navtest已完成，结果和实际48-rank命令见[报告](interim_NAVTEST_IL020000_20261020.md)。它不伪造冻结IL选择文件，不加入qualification标签，也不影响已登记的五个DEV父模型选择。
 
-确认旧CPU owner仍在等待且没有子任务后，仅向经PID/start身份核对的旧CPU owner发送终止信号。实际执行新的`--once`并后台运行：
+确认旧CPU owner仍在等待且没有子任务后，核对PID与完整命令中的module/控制目录，并用pidfd仅向该旧CPU owner发送终止信号。实际执行新的`--once`并后台运行：
 
 ```bash
 cd "$QSF_ROOT/snapshots/post_IL_evaluation_fix_20261020"
