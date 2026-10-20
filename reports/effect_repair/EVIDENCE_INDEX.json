@@ -1,0 +1,1534 @@
+{
+  "ACTIVE_changed": false,
+  "CPU_regression": {
+    "current_source_full_suite": {
+      "executed_by": "Lead; no rerun by documentation agent",
+      "failed": 0,
+      "log": {
+        "bytes": 1091,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_CURRENT_B1A5438F.log",
+        "sha256": "95214b098dedea5b9dddd2fc7a00306a79b72461841d2f7ccbb836d99aec159d"
+      },
+      "passed": 374,
+      "repo_copy": "reports/effect_repair/current_regression_b1a5438f/REGRESSION_CURRENT_B1A5438F.log",
+      "seconds": 44.01,
+      "skipped": 0,
+      "source_commit": "b1a5438f",
+      "warnings": 1
+    },
+    "independent_controls": {
+      "failed": 0,
+      "log": {
+        "bytes": 689,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/INDEPENDENT_CONTROL_CPU.log",
+        "sha256": "704d4d08702edb1bde07ecba38290ed8bafdc876d50c734d3058b73f79e27068"
+      },
+      "passed": 16,
+      "repo_copy": "reports/effect_repair/current_regression_b1a5438f/INDEPENDENT_CONTROL_CPU.log",
+      "scope": "affected controls source/CPU only; no new scoring",
+      "seconds": 4.36
+    },
+    "later_affected_scope": {
+      "log": {
+        "bytes": 1200,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_T0_ONLINE_2ba24432.log",
+        "sha256": "4bd060246f1bc4e22af8a294aa095f8479d13a0b0b16dfbad1cb8cdce1afd964"
+      },
+      "passed": 19,
+      "seconds": 4.6,
+      "source": "2ba24432"
+    },
+    "overlapping_test_groups_are_not_summed": true,
+    "primary": {
+      "current_source_entire_suite": "NOT_RERUN",
+      "log": {
+        "bytes": 2881,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_091d617a.log",
+        "sha256": "ca2c1326d0c122e94db775bfcaa690d5b93b150b2b2f25d45d7f152abcba6491"
+      },
+      "passed": 253,
+      "receipt": {
+        "bytes": 324,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_091d617a_RECEIPT.json",
+        "sha256": "50dd12cedd7b8342dfef9ff624b789165efabf83a39f250878a8a0587b905edd"
+      },
+      "seconds": 24.61,
+      "skipped": 0,
+      "source": "091d617a"
+    }
+  },
+  "DEV_context": {
+    "completion": {
+      "bytes": 377,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation_contexts/dev1696_seed42_v1/COMPLETE.json",
+      "sha256": "49868b358c3ad31fbdd899115925ddb847f4fbe3d86d1bccfdf5d68983c3bd90"
+    },
+    "for_training": false,
+    "logs": 16,
+    "manifest": {
+      "bytes": 1359487,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation_contexts/dev1696_seed42_v1/EVAL_CONTEXT_MANIFEST.json",
+      "sha256": "781072cb6ed2d8eb22d7aac9c287953e82e5602f3e380c5c5cd455f2921ed479"
+    },
+    "new_action_head_bytes": 0,
+    "new_scores": "not established by context completion",
+    "payload_bytes": 2226901212,
+    "registration": {
+      "bytes": 3995018,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation_contexts/dev1696_seed42_v1/EVAL_REGISTRATION.json",
+      "sha256": "130d7c038f540f9e89b9b4e4d5998fefa443d6635f24c865d9bfd735014b2c81"
+    },
+    "scenes": 1696,
+    "status": "COMPLETE"
+  },
+  "G1_actual_eligible_comparison": {
+    "durable_copy_bytes_equal": true,
+    "full_report": {
+      "bytes": 12391751,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/derived_eligible_comparison/c0bea1284e2b7f26b2c15f9cfcb346827a2ce6c8b3f3e0d10fd5883b6c229f0e/DERIVED_COMPARISON.json",
+      "sha256": "87ed59c12d1b314f7b05cd775a4c093903f6a2ff5a975f997f6700b214e243a7"
+    },
+    "new_forward_or_simulation_calls": 0,
+    "original_233_scene_evidence_unchanged": true,
+    "population": {
+      "admission_rule": "source-defined all held-out native pairs, never a common intersection of model outputs",
+      "complete_native_validation_pairs": 4615,
+      "eligible_metrics_denominator": "all eligible native-pair validation scenes; not the original complete requested policy population",
+      "eligible_native_pair_logs": 114,
+      "eligible_native_pair_scenes": 225,
+      "eligible_pair_ids_hash": "487cdfc6568e677167cbeb67d1cd0e850064d43e489e5b1e365605bd1510db35",
+      "original_requested_logs": 116,
+      "original_requested_scenes": 233,
+      "structural_no_available_intervention_scenes": 8
+    },
+    "public_summary_repo_path": "reports/action_effect/G1_ACTUAL_ELIGIBLE_RESULTS.json",
+    "scientific_interpretation": "No paired-delta superiority supported at registered budget; all six selected intervention increments negative"
+  },
+  "actual_DEV_untrained_controls": {
+    "absolute_score_unit": "0..1",
+    "comparison": {
+      "bytes": 5185,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/comparisons/g2_untrained_controls_v1/COMPARISON.json",
+      "sha256": "24053ffa9f2ed96d4578d89c134b0deb6660cbad58efe873e5903d37adfa297e"
+    },
+    "no_NAVTEST": true,
+    "no_model_or_threshold_selection": true,
+    "paired_results": {
+      "FixedLateBrake": {
+        "DDC_weight": 0,
+        "base_mean": 0.9138836301424386,
+        "bootstrap_repetitions": 2000,
+        "bootstrap_seed": 42,
+        "changed_score_scenes": 1036,
+        "common_valid_scenes": 1696,
+        "components": {
+          "comfort": {
+            "base_mean": 1.0,
+            "method_mean": 1.0
+          },
+          "drivable_area_compliance": {
+            "base_mean": 0.9834905660377359,
+            "method_mean": 0.9846698113207547
+          },
+          "driving_direction_compliance": {
+            "base_mean": 0.9873231132075472,
+            "method_mean": 0.9876179245283019
+          },
+          "ego_progress": {
+            "base_mean": 0.8543107168672595,
+            "method_mean": 0.8415034872846754
+          },
+          "no_at_fault_collisions": {
+            "base_mean": 0.9911556603773585,
+            "method_mean": 0.9911556603773585
+          },
+          "score": {
+            "base_mean": 0.9138836301424386,
+            "method_mean": 0.9124335649890143
+          },
+          "time_to_collision_within_bound": {
+            "base_mean": 0.9640330188679245,
+            "method_mean": 0.9722877358490566
+          }
+        },
+        "delta_ci95": [
+          -0.0040528392708329445,
+          0.0007820800702280981
+        ],
+        "full_population_score_claim": true,
+        "high_to_zero": 1,
+        "invalid_or_unresolved": 0,
+        "mean_delta": -0.0014500651534240466,
+        "mean_trajectory_change_m": 0.1416015625,
+        "method_mean": 0.9124335649890143,
+        "method_zero": 40,
+        "negative_cost": 0.0064315644916928235,
+        "new_DAC_failures": 1,
+        "new_NC_failures": 0,
+        "new_TTC_failures": 1,
+        "nonzero_to_zero": 1,
+        "original_high": 1608,
+        "original_zero": 42,
+        "positive_gain": 0.004981499338268777,
+        "repaired_DAC_failures": 3,
+        "repaired_NC_failures": 0,
+        "repaired_TTC_failures": 15,
+        "requested_scenes": 1696,
+        "score_units": "0..1",
+        "source_logs": 16,
+        "zero_repaired": 3
+      },
+      "RandomLocal": {
+        "DDC_weight": 0,
+        "base_mean": 0.9138836301424386,
+        "bootstrap_repetitions": 2000,
+        "bootstrap_seed": 42,
+        "changed_score_scenes": 1021,
+        "common_valid_scenes": 1696,
+        "components": {
+          "comfort": {
+            "base_mean": 1.0,
+            "method_mean": 1.0
+          },
+          "drivable_area_compliance": {
+            "base_mean": 0.9834905660377359,
+            "method_mean": 0.9752358490566038
+          },
+          "driving_direction_compliance": {
+            "base_mean": 0.9873231132075472,
+            "method_mean": 0.9876179245283019
+          },
+          "ego_progress": {
+            "base_mean": 0.8543107168672595,
+            "method_mean": 0.8453004527211502
+          },
+          "no_at_fault_collisions": {
+            "base_mean": 0.9911556603773585,
+            "method_mean": 0.9896816037735849
+          },
+          "score": {
+            "base_mean": 0.9138836301424386,
+            "method_mean": 0.9048519282022242
+          },
+          "time_to_collision_within_bound": {
+            "base_mean": 0.9640330188679245,
+            "method_mean": 0.9640330188679245
+          }
+        },
+        "delta_ci95": [
+          -0.014490170257174948,
+          -0.0002724453112199255
+        ],
+        "full_population_score_claim": true,
+        "high_to_zero": 17,
+        "invalid_or_unresolved": 0,
+        "mean_delta": -0.009031701940214387,
+        "mean_trajectory_change_m": 0.16229915978773585,
+        "method_mean": 0.9048519282022242,
+        "method_zero": 58,
+        "negative_cost": 0.013327673709226216,
+        "new_DAC_failures": 18,
+        "new_NC_failures": 4,
+        "new_TTC_failures": 6,
+        "nonzero_to_zero": 21,
+        "original_high": 1608,
+        "original_zero": 42,
+        "positive_gain": 0.004295971769011828,
+        "repaired_DAC_failures": 4,
+        "repaired_NC_failures": 1,
+        "repaired_TTC_failures": 6,
+        "requested_scenes": 1696,
+        "score_units": "0..1",
+        "source_logs": 16,
+        "zero_repaired": 5
+      }
+    },
+    "population_logs": 16,
+    "population_scenes": 1696,
+    "results": {
+      "FixedLateBrake": {
+        "complete": {
+          "bytes": 465073,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/COMPLETE.json",
+          "sha256": "f6bce2eaf2b2236b7c3d32ef88f5935ae26763f8bf1f01ebf84a93f328275a24"
+        },
+        "registration": {
+          "bytes": 900,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+          "sha256": "947912f8eb83634fc8940da7f04eea4c675ac6617bcf81f3710e7b29ea805735"
+        },
+        "result": {
+          "bytes": 4344368,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/RESULT.json",
+          "sha256": "75b88128acc8ec91009d31275183891e94b9b7b576d59e60bc184c4a9b353110"
+        },
+        "summary": {
+          "PDMS": 0.9124335649890144,
+          "PDMS_valid_subset": 0.9124335649890144,
+          "invalid_predictions_or_contexts": 0,
+          "paired_PDMS_delta": null,
+          "requested_scenes": 1696,
+          "transient_failures": 0,
+          "unprocessed_scenes": 0,
+          "valid_paired_scenes": 0,
+          "valid_refined_scenes": 1696
+        }
+      },
+      "RandomLocal": {
+        "complete": {
+          "bytes": 459982,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/COMPLETE.json",
+          "sha256": "97f0bf394778a76c70b881518c349d386032e7ab4367e21e810b5463d1ca1d50"
+        },
+        "registration": {
+          "bytes": 897,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+          "sha256": "c995b392b7a49eb89e740e0bf243804eedd27b708a5e0e42d2ff3569cac8e2b7"
+        },
+        "result": {
+          "bytes": 4330895,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/RESULT.json",
+          "sha256": "0fa8aac6fe6c6ef62aa462400996b6b8d13d8481c9bd04fba743911e28b477a4"
+        },
+        "summary": {
+          "PDMS": 0.9048519282022242,
+          "PDMS_valid_subset": 0.9048519282022242,
+          "invalid_predictions_or_contexts": 0,
+          "paired_PDMS_delta": null,
+          "requested_scenes": 1696,
+          "transient_failures": 0,
+          "unprocessed_scenes": 0,
+          "valid_paired_scenes": 0,
+          "valid_refined_scenes": 1696
+        }
+      },
+      "S0": {
+        "complete": {
+          "bytes": 444709,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/COMPLETE.json",
+          "sha256": "881578ddc3427c7a8000fe7ed353bfd2b7b132bb04fe5e226c23e4ecddcfcf70"
+        },
+        "registration": {
+          "bytes": 888,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+          "sha256": "5d20aa1e3d336a562216b46be5b847a1dfa62acb76a6269c962b44f0cc8e46a4"
+        },
+        "result": {
+          "bytes": 4280624,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/RESULT.json",
+          "sha256": "ecfb3209d954836e75feb83eb87d43771fab1db52def27c854ebe42f5f6fbf2c"
+        },
+        "summary": {
+          "PDMS": 0.9138836301424383,
+          "PDMS_valid_subset": 0.9138836301424383,
+          "invalid_predictions_or_contexts": 0,
+          "paired_PDMS_delta": null,
+          "requested_scenes": 1696,
+          "transient_failures": 0,
+          "unprocessed_scenes": 0,
+          "valid_paired_scenes": 0,
+          "valid_refined_scenes": 1696
+        }
+      }
+    },
+    "statistical_unit": "paired full source-log resampling; scene-weighted mean within each draw"
+  },
+  "actual_dense_temporal_ablation": {
+    "full_derived_report": {
+      "bytes": 4163548,
+      "path": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_temporal_independent/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/DERIVED_COMPARISON.json",
+      "sha256": "345cfc9a68474367df6641da1747ce86fbea5ea70aaf0bbb8acd595470dc9c08"
+    },
+    "independent_report_repo_path": "reports/effect_repair/ELIGIBLE_REPORT_INDEPENDENT_ACTUAL_TEMPORAL.json",
+    "original_evaluations_unchanged": true,
+    "paired_intervals": {
+      "full_minus_no_temporal": {
+        "ci95_percentile": [
+          -0.02109283902542677,
+          0.003280345302721563
+        ],
+        "independent_groups": 114,
+        "iterations": 2000,
+        "mean_difference": -0.007599710376810363,
+        "metric": "actual_selected_delta",
+        "scenes": 225,
+        "seed": 42,
+        "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+      }
+    },
+    "policy_temporal_credit": "NOT_ESTABLISHED",
+    "population": {
+      "admission_rule": "source-defined all held-out native pairs, never a common intersection of model outputs",
+      "complete_native_validation_pairs": 4615,
+      "eligible_metrics_denominator": "all eligible native-pair validation scenes; not the original complete requested policy population",
+      "eligible_native_pair_logs": 114,
+      "eligible_native_pair_scenes": 225,
+      "eligible_pair_ids_hash": "487cdfc6568e677167cbeb67d1cd0e850064d43e489e5b1e365605bd1510db35",
+      "eligible_scene_inventory_hash": "2938d161d348d6b567977e9989b90bf62398166133607a735f59ac5d22ede220",
+      "eligible_scene_inventory_in_full_pinned_report": true,
+      "original_requested_logs": 116,
+      "original_requested_scenes": 233,
+      "structural_no_available_intervention_scenes": 8,
+      "structural_scene_inventory": [
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "582b949725dc50d8",
+          "source_log": "2021.07.24.22.52.16_veh-35_03236_04096"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "ceae8073e383507e",
+          "source_log": "2021.07.16.00.51.05_veh-17_01352_01901"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "adca70e93cdd59c1",
+          "source_log": "2021.07.09.23.23.48_veh-26_02228_04624"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "6bbd8ebc5e3c5d94",
+          "source_log": "2021.06.14.16.32.09_veh-35_03231_03426"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "717bfbcab08a5279",
+          "source_log": "2021.09.15.11.49.23_veh-28_00280_00506"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "0f042bdafe7e5429",
+          "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "809cd503eb61563d",
+          "source_log": "2021.06.09.12.06.35_veh-35_00422_01112"
+        },
+        {
+          "reason": "zero valid native intervention pairs in the complete locked bank",
+          "repair_status": "NO_CHANGE_REQUIRED",
+          "role": "validation",
+          "scene_id": "169fee365403521e",
+          "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+        }
+      ]
+    },
+    "rows": [
+      {
+        "arm": "full",
+        "direction_accuracy_scene_weighted": 0.9005162963275986,
+        "eligible_high_score_to_zero_count": 4,
+        "eligible_introduced_collision_count": 1,
+        "eligible_introduced_road_count": 3,
+        "eligible_introduced_ttc_count": 6,
+        "eligible_native_pair_scenes": 225,
+        "eligible_native_regret": 0.03307578859987595,
+        "eligible_native_selected_delta": -0.007787160165539444,
+        "forced_identity_extended_increment_only": -0.0075197898594264985,
+        "native_validation_pairs": 4615,
+        "original_full_population_PDMS": null,
+        "original_requested_scenes": 233,
+        "score_delta_scene_rmse": 0.21399521434879357,
+        "structural_no_available_intervention_scenes": 8
+      },
+      {
+        "arm": "no_temporal",
+        "direction_accuracy_scene_weighted": 0.8928481218054913,
+        "eligible_high_score_to_zero_count": 2,
+        "eligible_introduced_collision_count": 1,
+        "eligible_introduced_road_count": 1,
+        "eligible_introduced_ttc_count": 7,
+        "eligible_native_pair_scenes": 225,
+        "eligible_native_regret": 0.02547607822306559,
+        "eligible_native_selected_delta": -0.00018744978872908258,
+        "forced_identity_extended_increment_only": -0.0001810137444808723,
+        "native_validation_pairs": 4615,
+        "original_full_population_PDMS": null,
+        "original_requested_scenes": 233,
+        "score_delta_scene_rmse": 0.21617367628066536,
+        "structural_no_available_intervention_scenes": 8
+      }
+    ],
+    "scientific_observation": "Dense temporal-grid supervision does not establish selection benefit: both point estimates are negative, full has lower selected native increment and a confidence interval crossing zero relative to no_temporal. This is a single-seed held-out TRAIN bank comparison, not Route A/B policy gain or proof against all temporal feedback."
+  },
+  "base": {
+    "base_binding": {
+      "bytes": 19978,
+      "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+      "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38"
+    },
+    "binding_identity": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "checkpoint_inventory_identity": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+    "large_native_checkpoint_payloads": "not reloaded or rehashed by documentation audit; strict original FP32-master replay evidence separately pinned",
+    "mature_original_S0_step": 100000,
+    "source": "1493deda247107efe076b9294863a6753391298a"
+  },
+  "campaign": {
+    "base_seen_TRAIN_population": true,
+    "binding": {
+      "bytes": 12648,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/CAMPAIGN_BINDING.json",
+      "sha256": "05f7f4c2caeade3465ee2f0b80b31873c829608d15e63afe98250f2eb319f10e"
+    },
+    "cohort": {
+      "bytes": 1809474,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/COHORT.json",
+      "sha256": "835816e5a435b92f7077349e83ecb346732865d82d152e37867f0a78dfd294e0"
+    },
+    "formal_plan": {
+      "bytes": 4057,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/FORMAL_EXPERIMENT_PLAN.json",
+      "sha256": "43b7fb877f1f334d12dac30f10b97ced156c6751a9924db1aeab12946e0c0e21"
+    },
+    "original_training_population": 101592
+  },
+  "captured_at_utc": "2026-10-20T03:23:09.475379+00:00",
+  "documentation_start_commit": "792b287e",
+  "formal_model_artifact_snapshot": [
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "absolute_feedback",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5634,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_feedback/seed_42/IDENTITY.json",
+        "sha256": "ba48aa773423939f472d4a9e1bbfe67351566bfc6ef6e7a237a575f863b77580"
+      },
+      "latest_complete_receipt": {
+        "bytes": 480,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_feedback/seed_42/step_001000.COMPLETE.json",
+        "sha256": "ef214294aeb806a4544baadb456c6249e34ec454cb7d44f8dff93202b7f09094"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 300335104,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 955,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_feedback/seed_42/RESULT.json",
+        "sha256": "39a90297e6a75d0c62e0d737cbc19dc2c3604c5b5f4eee95539b16e760ec8e67"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 819.782683134079,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "absolute_score",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5628,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_score/seed_42/IDENTITY.json",
+        "sha256": "33cc505efd71d49d53fde077acdcd081cd20d67b4108d555708f3a6093edcbad"
+      },
+      "latest_complete_receipt": {
+        "bytes": 477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_score/seed_42/step_001000.COMPLETE.json",
+        "sha256": "0be69ee14124c04b796a1407fafaf36896dad546ab3d0d3badb3d127b1724671"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 300296704,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 953,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/absolute_score/seed_42/RESULT.json",
+        "sha256": "32e7731f986279337472a71bca05de72ca95b0ad43c93ec119dbe94180cf7358"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 814.2841727938503,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "delta_feedback",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5628,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/delta_feedback/seed_42/IDENTITY.json",
+        "sha256": "ef2af301b499afa93e2585b85c2d55d7b9fcada4b48f1a9fc6d7ea91af557141"
+      },
+      "latest_complete_receipt": {
+        "bytes": 477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/delta_feedback/seed_42/step_001000.COMPLETE.json",
+        "sha256": "fa987ccf6483966a14c9419cd265a553e557624168648a803b7e5dc29b0a82e6"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 300327936,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 953,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/delta_feedback/seed_42/RESULT.json",
+        "sha256": "ddc0879867a172cee8149fc548379c5b17817f7183660b622a1d6e70220251b0"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 814.2840963248163,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "shuffled_context",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5632,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/shuffled_context/seed_42/IDENTITY.json",
+        "sha256": "cdb862a96839e8c6196516b732c13dd1ff27f30abee78afda8bc7dc6212559f1"
+      },
+      "latest_complete_receipt": {
+        "bytes": 479,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/shuffled_context/seed_42/step_001000.COMPLETE.json",
+        "sha256": "15997ef96094e4353a2b97ac867089aab411be49c2bd8548d4c04f501ce13369"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 301787136,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 954,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/shuffled_context/seed_42/RESULT.json",
+        "sha256": "4a13cb62959f45d3293e86c857a50d6e68167ea88b8b3f58c80f88f2c9c314c9"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 819.738556008786,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "terminal_pdms",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5626,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/terminal_pdms/seed_42/IDENTITY.json",
+        "sha256": "c3d2f81f48aa93fb90cc44fa83551a2c0989b1086cbb4843721152bd0a94ac91"
+      },
+      "latest_complete_receipt": {
+        "bytes": 476,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/terminal_pdms/seed_42/step_001000.COMPLETE.json",
+        "sha256": "cd047a2d531e022d2403222423b0fa8ba685f481fed70ef50d4606e83b411178"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 300296704,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 952,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/terminal_pdms/seed_42/RESULT.json",
+        "sha256": "85db9c6f6d31a0f56350538fa978e93e4c329196dcce67ac2458353d2b5f60b2"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 823.0120798554271,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "trajectory_only",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 758,
+      "declared_horizon": 1000,
+      "family": "g1",
+      "identity_artifact": {
+        "bytes": 5630,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/trajectory_only/seed_42/IDENTITY.json",
+        "sha256": "65b839b390be79e3f5a421472fa8bf133f812d1ce4c60621e3f13991a3e21d7b"
+      },
+      "latest_complete_receipt": {
+        "bytes": 478,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/trajectory_only/seed_42/step_001000.COMPLETE.json",
+        "sha256": "e87487f58e5bacc4ee5991eb7a89524a810a16cdc728e316087517f7e5250940"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 301786624,
+      "peak_cuda_reserved_bytes": 325058560,
+      "private_parameters": 2749603,
+      "result_artifact": {
+        "bytes": 954,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/g1/trajectory_only/seed_42/RESULT.json",
+        "sha256": "fbc0c5f1d50ef8faf04182ff26ba6f920453a1606df80b1cac6f1858d51f7ccf"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 819.7829626370221,
+      "training_source_commit": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 44326,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_42/IDENTITY.json",
+        "sha256": "c0408d078548547cefc46477eb8aa39e6b1a68fd717a0edc328d99afd499e3d7"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_42/step_001000.COMPLETE.json",
+        "sha256": "57f0d4e7de0b09ac39a6c09c73fdc1b69da7960bef04504b8a41924434ab77dd"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 166050304,
+      "peak_cuda_reserved_bytes": 180355072,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_42/RESULT.json",
+        "sha256": "fecae29fea3f8b8b913434b50f2dc3bbd660afca65f667604cc6c877876e8afc"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 486.7723903339356,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 44326,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_43/IDENTITY.json",
+        "sha256": "b559f32014b78299fc2ab67e4ce98d15ca187befce0471b4bf9143bc6acba966"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_43/step_001000.COMPLETE.json",
+        "sha256": "7573feb0ee24ea69644768370d8df1cc28e1ea44d13f1c92e29f7c20601159e9"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 166050304,
+      "peak_cuda_reserved_bytes": 180355072,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_43/RESULT.json",
+        "sha256": "2f545ab800b8e14b20b99e38b6969f53c300970fa12a19ffa9dc09f9e83354dd"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 43,
+      "training_segment_seconds": 499.2256876435131,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 44326,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_44/IDENTITY.json",
+        "sha256": "f44c18f0e5d5f4dde6adab745eac5560d87e2c6d514db36fbb26b8770a7851f7"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_44/step_001000.COMPLETE.json",
+        "sha256": "4074b9cb857b741ddf6cfe8db047d7d7666d4ca5931ffc51b20fca5816b0828a"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 166050304,
+      "peak_cuda_reserved_bytes": 180355072,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A0/seed_44/RESULT.json",
+        "sha256": "7091f1ba47bf961939ae25ae9365014c90827ff199fcd35b5d95ff4928671f4b"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 44,
+      "training_segment_seconds": 473.3866803795099,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A1",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 45930,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_42/IDENTITY.json",
+        "sha256": "41fe691d4c0f7b1c326c9b294680f99fec19838f4c84b988c6d756d2f10c971f"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_42/step_001000.COMPLETE.json",
+        "sha256": "5bf3be8aecca69fe11aee570d1a44c8acc00f06ea2deead5f56efadaef92e4d1"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 198190080,
+      "peak_cuda_reserved_bytes": 213909504,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_42/RESULT.json",
+        "sha256": "a8f5e5bccf8ee368e5c167574382b8e8ffbcd8c3e7b945a519cf7be5214f0c39"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 523.4193807620322,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A1",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 45930,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_43/IDENTITY.json",
+        "sha256": "f23a469a02640a3114c135de16bd95c31e31ed64d85ce12a6506352fbc13b8df"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_43/step_001000.COMPLETE.json",
+        "sha256": "09cc41f7ae4ef1964bf614289223f3e2796216d81a110bbb3ed4ac5be76a63c7"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 198190080,
+      "peak_cuda_reserved_bytes": 213909504,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_43/RESULT.json",
+        "sha256": "337bf615f8f4bb8241a21e7a7050cb71828147ecc1acd2554ae0acde5944712f"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 43,
+      "training_segment_seconds": 524.3821973640006,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "A1",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 45930,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_44/IDENTITY.json",
+        "sha256": "2405e1d1c69c077391e43e0e22b66364ed345757d57e45a290cb390581aa1348"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_44/step_001000.COMPLETE.json",
+        "sha256": "91e40ecc6bfd149325ba90c7f7a4211583606ee59aaf7db0a4f71860ee9831b8"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 198190080,
+      "peak_cuda_reserved_bytes": 213909504,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 946,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/A1/seed_44/RESULT.json",
+        "sha256": "f81ffa0d80b35746d85ade83af98567ffdb60257f3294cacd4a36a4509e2fe02"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 44,
+      "training_segment_seconds": 500.2702168440446,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "ScoreRefiner",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_a",
+      "identity_artifact": {
+        "bytes": 45940,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/ScoreRefiner/seed_42/IDENTITY.json",
+        "sha256": "7c116601c5933b1b1abb3c923436d34ae64bdb58c372b066adf319de58bde2fb"
+      },
+      "latest_complete_receipt": {
+        "bytes": 480,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/ScoreRefiner/seed_42/step_001000.COMPLETE.json",
+        "sha256": "fdf1479583e2364ea9f6ed7bdb19549894a1f4836b8af88ab97e1f0d5c6cf79e"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 198191104,
+      "peak_cuda_reserved_bytes": 213909504,
+      "private_parameters": 2711824,
+      "result_artifact": {
+        "bytes": 956,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_a/ScoreRefiner/seed_42/RESULT.json",
+        "sha256": "5d6360f6af800b430a42d74fdd59298c6fd2106b22ca1d14830dfe196481325e"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 518.2373813659651,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6828,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_42/IDENTITY.json",
+        "sha256": "e22d9d762b7522916d16d232aadd7f762207529145c0c1f84b4c3f67d6bb5c53"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_42/step_001000.COMPLETE.json",
+        "sha256": "fedf03000abfe67acf037d4d09ebdf16f2ef9967999520c0cfc1371f72629527"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521255424,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 948,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_42/RESULT.json",
+        "sha256": "4ee4f50ea697ab7a51e19204d9474c164da06daa114b481331d50598be9f6a89"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 685.3087111022323,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6828,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_43/IDENTITY.json",
+        "sha256": "967cea6d75e4cb09412d6d771e82054021cacaebb839609f12c378118a5c9596"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_43/step_001000.COMPLETE.json",
+        "sha256": "fcb51cc76c173b7299cd19ae329e7479eb05f1652c6b8cf22ecefe39f8658f82"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521255424,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 948,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_43/RESULT.json",
+        "sha256": "d390aebe28058873e0e7a7223f647027f0770826a3b621f1d1c305008bdf34ea"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 43,
+      "training_segment_seconds": 685.7552080079913,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B0",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6828,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_44/IDENTITY.json",
+        "sha256": "9ebdcee6d538c207f6048b32dd8d659cc056f2d5cb90065da22e8853f8d18742"
+      },
+      "latest_complete_receipt": {
+        "bytes": 470,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_44/step_001000.COMPLETE.json",
+        "sha256": "5d9cd259a28d1a4ce7970a350380dd3d3bf6808278bba462c484deb4a1dca25b"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521255424,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 948,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B0/seed_44/RESULT.json",
+        "sha256": "3d9dbd8ed7f66ffcb9ddc084831d08311b4ca1cef30ff88612a627954ae2b064"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 44,
+      "training_segment_seconds": 663.2035415880382,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-effect",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 8439,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_42/IDENTITY.json",
+        "sha256": "364d966b6b6246023f81def2dbcef573dbfab2b580be9a1eda43788d5b933458"
+      },
+      "latest_complete_receipt": {
+        "bytes": 477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_42/step_001000.COMPLETE.json",
+        "sha256": "c256905e0d3e3cb7df37471b99b5a70e7dde30043f9970611148a0f7073e70f0"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3563462144,
+      "peak_cuda_reserved_bytes": 3951034368,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 955,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_42/RESULT.json",
+        "sha256": "d0e554f87ba9f17c73c4d6dcd15b15aa40728261d314914222cb4ec749bfa364"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 684.1328430339927,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-effect",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 8439,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_43/IDENTITY.json",
+        "sha256": "c3fc7f952238a3e34ebcfd00796031c46fdfafcd5ee80e09fc57bcde5d769ba7"
+      },
+      "latest_complete_receipt": {
+        "bytes": 477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_43/step_001000.COMPLETE.json",
+        "sha256": "51c3186224a9a8957f263dba63bbaf80dfb6104483cbd506df4b6c99cc9969ea"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3565036032,
+      "peak_cuda_reserved_bytes": 4137680896,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 955,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_43/RESULT.json",
+        "sha256": "0fd02666e9972c3f361593cdc99c99391a0775ac90b8b0228da143a3cdcac3ee"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 43,
+      "training_segment_seconds": 687.0966439549811,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-effect",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 8439,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_44/IDENTITY.json",
+        "sha256": "f0f90e84cf52e501bc9bc374cfee1e9e1163a8597de00d78d9466478e7f4a8a8"
+      },
+      "latest_complete_receipt": {
+        "bytes": 477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_44/step_001000.COMPLETE.json",
+        "sha256": "834771e8dccdfd17a4c58deceef025138ad6c02951fd70aa17569f1dffe758c9"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3563462144,
+      "peak_cuda_reserved_bytes": 3944742912,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 955,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-effect/seed_44/RESULT.json",
+        "sha256": "1e623bcfd0f925c7d0c5925afd2266ae6cf87abe306a81592068dea6345a6deb"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 44,
+      "training_segment_seconds": 672.5637844169978,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-trajectory",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6839,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_42/IDENTITY.json",
+        "sha256": "20322565ef2e0658efa5c0d6ce66abefaa6cc23f823ad4686caac67a92f571e7"
+      },
+      "latest_complete_receipt": {
+        "bytes": 481,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_42/step_001000.COMPLETE.json",
+        "sha256": "ed5561f65962f97609365e613d5b717e5c303603da8e9381a40a75c7c9f9c349"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521263616,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 959,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_42/RESULT.json",
+        "sha256": "796d0d7faeaf4dcceb01e421af303df0c04b1c3361316628a75262cadedc218e"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 42,
+      "training_segment_seconds": 691.4175159204751,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-trajectory",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6839,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_43/IDENTITY.json",
+        "sha256": "30e8d3e010fe3fabfaf5b54e05b35dfbf8ed35b607e96bae049cbacf16f82399"
+      },
+      "latest_complete_receipt": {
+        "bytes": 481,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_43/step_001000.COMPLETE.json",
+        "sha256": "dbae37ca90082a3b177781758da6f86cd0f897178bae8aef2d0ebb3f99f0ef71"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521263616,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 958,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_43/RESULT.json",
+        "sha256": "04b94a04cdebeff71cc9a6b1fa75f683986186d1c7feabb7c85910bb19a90a26"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 43,
+      "training_segment_seconds": 697.587778808549,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    },
+    {
+      "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
+      "arm": "B1-trajectory",
+      "consumed_scene_presentations": 32000,
+      "dataset_size": 9420,
+      "declared_horizon": 1000,
+      "family": "route_b",
+      "identity_artifact": {
+        "bytes": 6839,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_44/IDENTITY.json",
+        "sha256": "23819c69bb22d17b2b899d77481917f5607d8e83a306ef4ef648547d2ae092d2"
+      },
+      "latest_complete_receipt": {
+        "bytes": 481,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_44/step_001000.COMPLETE.json",
+        "sha256": "016ec586e6635f62e3e4f40940ed4e101e41ead9a36493bad4fca4903fb3a0dd"
+      },
+      "latest_complete_step_observed": 1000,
+      "observed_optimizer_step": 1000,
+      "observed_training_status": "COMPLETE",
+      "peak_cuda_allocated_bytes": 3521263616,
+      "peak_cuda_reserved_bytes": 3661627392,
+      "private_parameters": 2775567,
+      "result_artifact": {
+        "bytes": 959,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/models/population_001024/route_b/B1-trajectory/seed_44/RESULT.json",
+        "sha256": "31b029dda90692e20dcc37818a2854997da45afa0c404129915e073af27b227a"
+      },
+      "scientific_gain": "UNTESTED",
+      "seed": 44,
+      "training_segment_seconds": 648.2064129119972,
+      "training_source_commit": "c845d6e9ca7c39a9e5d7f05cb3d234a756010142"
+    }
+  ],
+  "fresh_S0_replay": {
+    "images": 24,
+    "optimizer_updates": 0,
+    "raw_physical_historical_equal": true,
+    "receipt": {
+      "bytes": 4956,
+      "path": "/mnt/project/action-effect-repair-20261020/audit/s0_replay8_v1/COMPLETE.json",
+      "sha256": "de10e0471f6a4149d3e8a5d47f20e968df55c3664da3f2913bb3182b6758aab2"
+    },
+    "registered_summary": {
+      "bytes": 984,
+      "path": "/mnt/project/VLA-Drive-effect-evidence-rollup-20261020/reports/effect_repair/S0_FRESH_REPLAY.json",
+      "sha256": "cce9a684b78a50617cc3285d89205e966e7f2b0fe33744a903990bbe0c5671e7"
+    },
+    "scenes": 8,
+    "simulator_calls": 0,
+    "status": "PASS"
+  },
+  "full_TRAIN_1024": {
+    "context_identity": "84b96ac9e82e8d42820edd0ade5cb3b8c2576a11dae08f824c6be958188adbc9",
+    "context_manifest": {
+      "bytes": 753228,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/contexts/MANIFEST_001024.json",
+      "sha256": "a670570d83d7ca54c047d85d2476fd58508609163fca3bd098fd5275e9e1eb80"
+    },
+    "invalid_scene_evidence": 0,
+    "native_call_ledger": {
+      "reserved_calls": 11757,
+      "reserved_retries": 0
+    },
+    "native_call_ledger_artifact": {
+      "bytes": 55,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/calls/COUNTER.json",
+      "sha256": "2482c7bde0140e3f9c71880d1b35be7c485ebd2889d60401695a36e6d84a4cc0"
+    },
+    "native_completion": {
+      "bytes": 250996,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/COMPLETE.json",
+      "sha256": "7328590aea1e4b860744745fa0c7c34c0c7eb6608805c44e4617503c7aa7bdc9"
+    },
+    "native_registration": {
+      "bytes": 2684882,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/REGISTRATION.json",
+      "sha256": "d574bc7a6b62054a975f9c3af2da86dd9596434dabbc76be64fecdcb56b3abbc"
+    },
+    "pair_dataset": {
+      "bytes": 277368132,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/PAIR_DATASET.json",
+      "sha256": "ac3b8fac9aa3297058c50f3d1485828b61f1233d20e308ed7f45f86df9b4c06f"
+    },
+    "pair_metadata_stream_admission": {
+      "fitting_non_joint_scenes": 758,
+      "metadata_stream_parse_seconds": 1.3126270342618227,
+      "native_or_simulator_calls": 0,
+      "pair_scenes_by_role": {
+        "fit": 758,
+        "validation": 225
+      },
+      "pairs_by_role": {
+        "fit": 16063,
+        "validation": 4615
+      }
+    },
+    "pair_payload_verification": "full native source validation inherited from pinned strict build; no repeated 277MB scan by docs",
+    "pair_scenes": 983,
+    "pairs": 20678,
+    "physical_opportunity_full_artifact": {
+      "bytes": 46360978,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/physical_analysis/8c33c50a05b7a203de81e12d8cad03141340d579c61824ac27006f115e574b30/G0_PHYSICAL_ANALYSIS.json",
+      "sha256": "3f0a92a9b52564f36b1ae18a5b53dded534b5e8e681f1152227bbd2f17561400"
+    },
+    "physical_opportunity_public_summary": {
+      "bytes": 58541,
+      "repo_path": "reports/effect_repair/G0_PHYSICAL_ANALYSIS_FULL1024.json",
+      "sha256": "9d5cbff72d60b2ebb6045b56819558da02c2ec93e5ff5185c838a4a60d48363b"
+    },
+    "repair_dataset": {
+      "bytes": 7516932,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/REPAIR_DATASET.json",
+      "sha256": "5c3697801b4da2501b26df712a3fa3ae3773ea30d9e05b6e4ba1b85f2896ad2d"
+    },
+    "repair_or_identity_trainable_counts": [
+      {
+        "role": "fit",
+        "scenes": 785,
+        "target_kind": "identity_preservation"
+      },
+      {
+        "role": "fit",
+        "scenes": 6,
+        "target_kind": "verified_local_repair"
+      },
+      {
+        "role": "validation",
+        "scenes": 232,
+        "target_kind": "identity_preservation"
+      },
+      {
+        "role": "validation",
+        "scenes": 1,
+        "target_kind": "verified_local_repair"
+      }
+    ],
+    "requested_scenes": 1024,
+    "role_logs": {
+      "fit": 405,
+      "validation": 116
+    },
+    "role_scenes": {
+      "fit": 791,
+      "validation": 233
+    },
+    "scientific_generalization": "UNTESTED",
+    "status": "COMPLETE",
+    "strict_build": {
+      "pair_dataset": {
+        "bytes": 277368132,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/PAIR_DATASET.json",
+        "sha256": "ac3b8fac9aa3297058c50f3d1485828b61f1233d20e308ed7f45f86df9b4c06f"
+      },
+      "pair_scenes": 983,
+      "pairs": 20678,
+      "repair_dataset": {
+        "bytes": 7516932,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/REPAIR_DATASET.json",
+        "sha256": "5c3697801b4da2501b26df712a3fa3ae3773ea30d9e05b6e4ba1b85f2896ad2d"
+      },
+      "requested_scenes": 1024,
+      "reused": false,
+      "status": "COMPLETE",
+      "trainable_repairs_and_keeps": 1024,
+      "validation": {
+        "pair": {
+          "inventory_files": 96992,
+          "receipt": {
+            "bytes": 39234069,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/validation_receipts/3a4fa1d027b192528424457f4ae095fb388f8da5a7bb2874cc9496b29ea0366a/5d31d4e7aa3c3d7195e603a8dfbe7c94a22c9d65240647a6e31ee1ee42237261.json",
+            "sha256": "47f4f0f5ce3ed6edba3aeb3baa295430b5c38de0227e3a2b626530859ad5176b"
+          },
+          "reused": false,
+          "seconds": 614.8375150300562
+        },
+        "repair": {
+          "inventory_files": 96992,
+          "receipt": {
+            "bytes": 39234071,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/validation_receipts/d66aa6917c659d7c6fbf1317ed65d5e51ae12ed83be4fe27cd898e3b3ba968da/ed8a4d8a07d428e6dc96e7eac8f6811549c3f3d9f31651e3ab3e0f0351e98d62.json",
+            "sha256": "e4cdb5609d3520af059f5b91d487a0b7d5605f5b1bfd6258d32fdd27aa4abbfe"
+          },
+          "reused": false,
+          "seconds": 614.8375150300562
+        }
+      }
+    },
+    "strict_build_exit": {
+      "bytes": 280,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/BUILD_VALIDATED_1024.EXIT.json",
+      "sha256": "639a52714761ac9a0c2aa87377759b140090454753bc010ac5adadcf282e9b3c"
+    },
+    "strict_build_log": {
+      "bytes": 3123,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/BUILD_VALIDATED_1024.log",
+      "sha256": "41537086445753be68ff5642c7de5da59a072c980b16b8ca08d65c7e6239d239"
+    },
+    "train_validation_log_overlap": 0
+  },
+  "last_augmented_at_utc": "2026-10-20T03:52:52.781933+00:00",
+  "model_snapshot_at_utc": "2026-10-20T03:38:32.671306+00:00",
+  "new_GPU_calls_by_documentation_audit": 0,
+  "new_native_simulation_calls_by_documentation_audit": 0,
+  "new_optimizer_updates_by_documentation_audit": 0,
+  "no_NAVTEST_access_by_documentation_audit": true,
+  "real_qualifications": {
+    "CUDA_exact_resume": {
+      "actual_executed_source": "57dbe933776c86935e60368e9c493d86a844c8a4",
+      "actual_total_optimizer_updates": 32,
+      "final_update16_exact": true,
+      "first_next_update9_exact": true,
+      "independent_receipt": {
+        "bytes": 16281,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/g1_real_resume16_v1/INDEPENDENT_CPU_AUDIT_v2.json",
+        "sha256": "ccf325983ad410ba087e8b13b2ad9bb7644b0ef84a5122d9f740ff64b8a046cd"
+      },
+      "next_batch_ids_digest": "cafaf366c276ef4fc33ca75a86f8ed1c0719dc0038f4993a87fe0fdb9b59a279",
+      "original_result": {
+        "bytes": 22192,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/g1_real_resume16_v1/RESULT.json",
+        "sha256": "e15a095510893facc426cab3368305da67641b2dfd8ccef943eeda035e85c3f7"
+      },
+      "runtime": {
+        "autocast": "disabled",
+        "cuda": "12.4",
+        "cudnn_benchmark": false,
+        "cudnn_tf32": false,
+        "deterministic": true,
+        "device": "cuda:0",
+        "gpu_name": "NVIDIA A800-SXM4-80GB",
+        "matmul_tf32": false,
+        "torch": "2.5.1+cu124",
+        "trainable_dtype": "float32"
+      },
+      "scientific_gain": "UNTESTED",
+      "status": "PASS"
+    },
+    "NCCL": {
+      "cases": [
+        "all_valid",
+        "empty_rank"
+      ],
+      "declared_tolerance": {
+        "atol": 2e-06,
+        "rtol": 0.0002
+      },
+      "optimizer_updates": 0,
+      "production_DDP_trainer_qualified": false,
+      "ranks": 2,
+      "receipt": {
+        "bytes": 2147,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/nccl_real64_v1/RESULT.json",
+        "sha256": "03f1722e19ab33c466aa83595f3490565445163ed5081da1af931b0c3d6b928d"
+      },
+      "scope": "NCCL real-pair effect loss/gradient component only",
+      "status": "PASS"
+    },
+    "independent_process_action_head_roundtrips": [
+      {
+        "Qwen_calls": 0,
+        "optimizer_updates": 0,
+        "receipt": {
+          "bytes": 2855,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/head_roundtrip_ts2_v1/COMPLETE.json",
+          "sha256": "88a9ed0fd5fd514337d859df234ba6eef7213b0651618da2b41481cdc92e97c9"
+        },
+        "scenes": 1,
+        "status": "PASS"
+      },
+      {
+        "Qwen_calls": 0,
+        "optimizer_updates": 0,
+        "receipt": {
+          "bytes": 2855,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/head_roundtrip_ts5_v1/COMPLETE.json",
+          "sha256": "89e33a8e590d693f057eb3bd4dc15b06655f69fba5e63be43d75b6be19ac2084"
+        },
+        "scenes": 1,
+        "status": "PASS"
+      }
+    ]
+  },
+  "schema": "action_effect_research_evidence_rollup_v1",
+  "scientific_conclusion": "INCONCLUSIVE_PENDING_MATCHED_LEARNING_AND_POLICY_RESULTS",
+  "scope": "read-only existing artifact and source-report aggregation; no native recompute, GPU experiment or whole-suite rerun",
+  "source_report_index": {
+    "BASELINE_ASSET_INDEX.json": {
+      "bytes": 4612,
+      "repo_path": "reports/effect_repair/BASELINE_ASSET_INDEX.json",
+      "sha256": "dbec201b13f2b9035bc84bab997b341565d264bfd6351ed5171984a4adf5b4b9"
+    },
+    "BASELINE_AUDIT.json": {
+      "bytes": 14809,
+      "repo_path": "reports/effect_repair/BASELINE_AUDIT.json",
+      "sha256": "124265a8810cf6a799b6e07f339e4008856cec9ae08bff89f92183b17ec9c209"
+    },
+    "BASELINE_AUDIT.md": {
+      "bytes": 13639,
+      "repo_path": "reports/effect_repair/BASELINE_AUDIT.md",
+      "sha256": "5292724089dbc1122929ee8a8c462a8f90abd8cadcc13f2e81bfcb9f5cd294e8"
+    },
+    "G1_REAL_RESUME_INDEPENDENT_AUDIT.json": {
+      "bytes": 16281,
+      "repo_path": "reports/effect_repair/G1_REAL_RESUME_INDEPENDENT_AUDIT.json",
+      "sha256": "ccf325983ad410ba087e8b13b2ad9bb7644b0ef84a5122d9f740ff64b8a046cd"
+    },
+    "G1_TRAINING_CORRECTNESS.json": {
+      "bytes": 1849,
+      "repo_path": "reports/effect_repair/G1_TRAINING_CORRECTNESS.json",
+      "sha256": "cd8c41284f5b61a388af696b5d37819bc186d0d904df593a459a55e00b5b90b9"
+    },
+    "NAVSIM_FEEDBACK_AUDIT.md": {
+      "bytes": 15411,
+      "repo_path": "reports/effect_repair/NAVSIM_FEEDBACK_AUDIT.md",
+      "sha256": "153e1442bb439001965176ef01807866b9447cac06b025c53fd3c31c4d886fba"
+    },
+    "PRIMARY_SOURCE_EVIDENCE.json": {
+      "bytes": 27993,
+      "repo_path": "reports/effect_repair/PRIMARY_SOURCE_EVIDENCE.json",
+      "sha256": "353c8f9b6b19b5e6aca5f9f8f53cf8ef2a2397157848f289a3b204e7c2f3cb34"
+    },
+    "RELATED_WORK_AND_REUSE.md": {
+      "bytes": 24010,
+      "repo_path": "reports/effect_repair/RELATED_WORK_AND_REUSE.md",
+      "sha256": "5b4ce07e384804f76d14e8b116438be94a2903d3ce12e2de17b1f1357ef53587"
+    },
+    "S0_FRESH_REPLAY.json": {
+      "bytes": 984,
+      "repo_path": "reports/effect_repair/S0_FRESH_REPLAY.json",
+      "sha256": "cce9a684b78a50617cc3285d89205e966e7f2b0fe33744a903990bbe0c5671e7"
+    },
+    "T0_AND_ONLINE_INDEPENDENT_REVIEW.json": {
+      "bytes": 1768,
+      "repo_path": "reports/effect_repair/T0_AND_ONLINE_INDEPENDENT_REVIEW.json",
+      "sha256": "cd4cf67774d6f58ba124e1371ca78582999bcf88259f3f699b08d96cc1854d1a"
+    }
+  }
+}

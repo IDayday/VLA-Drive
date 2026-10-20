@@ -1,0 +1,4830 @@
+{
+  "actual_checkpoint_sampling_proofs": {
+    "absolute_feedback": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "absolute_score": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "delta_feedback": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "shuffled_context": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "terminal_pdms": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "trajectory_only": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    }
+  },
+  "checkpoint_selection": "explicit same predeclared endpoint; no DEV/navtest model or threshold selection",
+  "comparison": "six",
+  "completion": "COMPLETE_DESCRIPTIVE",
+  "delta_selection": {
+    "PDMS_on_complete_requested_population": 0.9279073558576162,
+    "base_PDMS_valid_subset": 0.9356945160231556,
+    "base_nonzero_to_zero_count": 4,
+    "coverage_complete": true,
+    "harmful_switch_count": 11,
+    "high_score_to_zero_count": 4,
+    "improving_switch_count": 87,
+    "introduced_events": {
+      "collision": 1,
+      "road": 3,
+      "ttc": 6
+    },
+    "oracle_delta": 0.025288628434336508,
+    "random_intervention_delta": -0.03329796290319438,
+    "random_with_identity_delta": -0.03150744926446705,
+    "regret": 0.03307578859987595,
+    "requested_scenes": 225,
+    "selected_PDMS_valid_subset": 0.9279073558576162,
+    "selected_component_deltas": {
+      "comfort": 0.0,
+      "drivable_area_compliance": -0.008888888888888889,
+      "driving_direction_compliance": -0.008888888888888889,
+      "ego_progress": 0.022199704491594214,
+      "first_at_fault_time_seconds": null,
+      "first_road_time_seconds": null,
+      "first_ttc_state_time_seconds": null,
+      "no_at_fault_collisions": -0.0044444444444444444,
+      "progress_raw_meters": 0.928824130098789,
+      "score": -0.007787160165539444,
+      "time_to_collision_within_bound": -0.02666666666666667
+    },
+    "selected_delta": -0.007787160165539444,
+    "switch_count": 224,
+    "topk_definition": "offline best true gain among k top-predicted interventions plus identity; not deployed oracle",
+    "topk_oracle_true_delta": {
+      "1": 0.019033785712689946,
+      "3": 0.022961984836508218,
+      "5": 0.024336894095710992
+    },
+    "valid_scored_scenes": 225
+  },
+  "durable_copy_bytes_equal": true,
+  "fixed_optimizer_step": 1000,
+  "full_derived_report": {
+    "bytes": 12391751,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/derived_eligible_comparison/c0bea1284e2b7f26b2c15f9cfcb346827a2ce6c8b3f3e0d10fd5883b6c229f0e/DERIVED_COMPARISON.json",
+    "sha256": "87ed59c12d1b314f7b05cd775a4c093903f6a2ff5a975f997f6700b214e243a7"
+  },
+  "full_task_diagnostics": {
+    "absolute_feedback": {
+      "direction_accuracy_pair_weighted": 0.9338014042126379,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.999133261105092,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4611,
+              0
+            ],
+            [
+              0,
+              4,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.000866738894907909,
+                "lower": 0.0,
+                "mean_probability": 0.0012795150775930574,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.0008676654792757022,
+            "count": 4615,
+            "ece": 0.0004127761826851484,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0017446590840854038,
+          "precision": [
+            null,
+            0.999133261105092,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "road": {
+          "accuracy": 0.9670639219934994,
+          "balanced_accuracy_present_classes": 0.3333333333333333,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              9,
+              0
+            ],
+            [
+              0,
+              4463,
+              0
+            ],
+            [
+              0,
+              143,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4582,
+                "frequency": 0.029026625927542557,
+                "lower": 0.0,
+                "mean_probability": 0.010518677122551511,
+                "upper": 0.1
+              },
+              {
+                "count": 19,
+                "frequency": 0.3684210526315789,
+                "lower": 0.1,
+                "mean_probability": 0.15745585686282107,
+                "upper": 0.2
+              },
+              {
+                "count": 14,
+                "frequency": 0.21428571428571427,
+                "lower": 0.2,
+                "mean_probability": 0.23475089349917003,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.02966952224842574,
+            "count": 4615,
+            "ece": 0.01930623459438001,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.06334749158859095,
+          "precision": [
+            null,
+            0.9670639219934994,
+            null
+          ],
+          "recall": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "ttc": {
+          "accuracy": 0.9856988082340195,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4549,
+              0
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.014301191765980499,
+                "lower": 0.0,
+                "mean_probability": 0.006065263891217268,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.014148622787651438,
+            "count": 4615,
+            "ece": 0.008235927874763231,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.028273261231966693,
+          "precision": [
+            null,
+            0.9856988082340195,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.7965116279069767,
+          "scenes": 203,
+          "selected_delta": 0.0031372912400459032
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.9279569892473118,
+          "scenes": 199,
+          "selected_delta": -0.011043895313849458
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.8333333333333333,
+          "scenes": 222,
+          "selected_delta": -0.009730300835966604
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.9323551125876707,
+          "scenes": 221,
+          "selected_delta": -0.013559954736330298
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.03975889634677174,
+          "pair_weighted_rmse": 0.04207174846524139,
+          "scene_weighted_bias": 0.0017312115278001262,
+          "scene_weighted_mae": 0.003800901068422012,
+          "scene_weighted_rmse": 0.03975889634677174,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9982665222101842,
+            "coverage_1sigma_pair_weighted": 0.9967497291440953,
+            "mean_standardized_absolute_error": 0.11756083229799573,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.17667224638524862,
+          "pair_weighted_rmse": 0.17666826223370294,
+          "scene_weighted_bias": 0.02698884454963493,
+          "scene_weighted_mae": 0.03595422893899224,
+          "scene_weighted_rmse": 0.17667224638524862,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9690140845070423,
+            "coverage_1sigma_pair_weighted": 0.9674972914409534,
+            "mean_standardized_absolute_error": 0.27262955909794845,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.046873129546978184,
+          "pair_weighted_rmse": 0.046068321464825465,
+          "scene_weighted_bias": 0.0005681434185104124,
+          "scene_weighted_mae": 0.006606062063296192,
+          "scene_weighted_rmse": 0.046873129546978184,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9915492957746479,
+            "coverage_1sigma_pair_weighted": 0.990032502708559,
+            "mean_standardized_absolute_error": 0.1997887109229945,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15400846196601897,
+          "pair_weighted_rmse": 0.1537615409051852,
+          "scene_weighted_bias": 0.021773611475144738,
+          "scene_weighted_mae": 0.04152872517644972,
+          "scene_weighted_rmse": 0.15400846196601897,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9687973997833152,
+            "coverage_1sigma_pair_weighted": 0.9603466955579631,
+            "mean_standardized_absolute_error": 0.32786974492434856,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.05601438862820554,
+          "pair_weighted_rmse": 0.22405755451282217,
+          "scene_weighted_bias": 0.11627145835331484,
+          "scene_weighted_mae": 0.19929161412375299,
+          "scene_weighted_rmse": 0.22405755451282217,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.17646467627480716,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.02642906830842991,
+          "pair_weighted_rmse": 0.027304426131589562,
+          "scene_weighted_bias": 0.0006072404658664442,
+          "scene_weighted_mae": 0.0036254787244514616,
+          "scene_weighted_rmse": 0.02642906830842991,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.999133261105092,
+            "coverage_1sigma_pair_weighted": 0.9958829902491875,
+            "mean_standardized_absolute_error": 0.09072440412345585,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.023126198656871856,
+          "pair_weighted_rmse": 0.4810320656353514,
+          "scene_weighted_bias": -0.020923070983503517,
+          "scene_weighted_mae": 0.27404434441099285,
+          "scene_weighted_rmse": 0.46252397313743715,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9514626218851571,
+            "coverage_1sigma_pair_weighted": 0.8628385698808234,
+            "mean_standardized_absolute_error": 0.493759222505418,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.2232825571571563,
+          "pair_weighted_rmse": 0.21976417022392555,
+          "scene_weighted_bias": 0.0074060712619245,
+          "scene_weighted_mae": 0.1117648777169659,
+          "scene_weighted_rmse": 0.2232825571571563,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9404117009750813,
+            "coverage_1sigma_pair_weighted": 0.8673889490790899,
+            "mean_standardized_absolute_error": 0.5727244863157112,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11508639936695639,
+          "pair_weighted_rmse": 0.11999426709258562,
+          "scene_weighted_bias": 0.01282609210175722,
+          "scene_weighted_mae": 0.01700623019913541,
+          "scene_weighted_rmse": 0.11508639936695639,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9856988082340195,
+            "coverage_1sigma_pair_weighted": 0.9854821235102925,
+            "mean_standardized_absolute_error": 0.16056377410391,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 1,
+            "frequency": 0.0,
+            "lower": 0.0,
+            "mean_probability": 0.06319007277488708,
+            "upper": 0.1
+          },
+          {
+            "count": 43,
+            "frequency": 0.046511627906976744,
+            "lower": 0.1,
+            "mean_probability": 0.16249127789985301,
+            "upper": 0.2
+          },
+          {
+            "count": 87,
+            "frequency": 0.26436781609195403,
+            "lower": 0.2,
+            "mean_probability": 0.2571662433188537,
+            "upper": 0.3
+          },
+          {
+            "count": 289,
+            "frequency": 0.8131487889273357,
+            "lower": 0.3,
+            "mean_probability": 0.3561088565517874,
+            "upper": 0.4
+          },
+          {
+            "count": 1445,
+            "frequency": 0.9190311418685121,
+            "lower": 0.4,
+            "mean_probability": 0.4633395774760461,
+            "upper": 0.5
+          },
+          {
+            "count": 2057,
+            "frequency": 0.9591638308215849,
+            "lower": 0.5,
+            "mean_probability": 0.5362666604237238,
+            "upper": 0.6
+          },
+          {
+            "count": 487,
+            "frequency": 0.971252566735113,
+            "lower": 0.6,
+            "mean_probability": 0.6439466945199751,
+            "upper": 0.7
+          },
+          {
+            "count": 144,
+            "frequency": 0.9652777777777778,
+            "lower": 0.7,
+            "mean_probability": 0.7422778155240748,
+            "upper": 0.8
+          },
+          {
+            "count": 57,
+            "frequency": 0.9298245614035088,
+            "lower": 0.8,
+            "mean_probability": 0.8365026545106319,
+            "upper": 0.9
+          },
+          {
+            "count": 5,
+            "frequency": 1.0,
+            "lower": 0.9,
+            "mean_probability": 0.9131862401962281,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.23016051953587985,
+        "count": 4615,
+        "ece": 0.4037700009081242,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": true,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.008668839898942732,
+      "temporal_supervised_in_this_arm": true
+    },
+    "absolute_score": {
+      "direction_accuracy_pair_weighted": 0.925777331995988,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.018418201516793065,
+          "balanced_accuracy_present_classes": 0.13410865322055954,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              2436,
+              84,
+              2091
+            ],
+            [
+              3,
+              0,
+              1
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 4615,
+                "frequency": 0.000866738894907909,
+                "lower": 0.3,
+                "mean_probability": 0.3612360973205752,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.13085402149227085,
+            "count": 4615,
+            "ece": 0.3603693584256673,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.7849129411426491,
+          "precision": [
+            0.0,
+            1.0,
+            0.0004780114722753346
+          ],
+          "recall": [
+            null,
+            0.018217306441119064,
+            0.25
+          ],
+          "supervised_in_this_arm": false
+        },
+        "road": {
+          "accuracy": 0.050920910075839654,
+          "balanced_accuracy_present_classes": 0.6142016173385207,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              9,
+              0,
+              0
+            ],
+            [
+              2091,
+              109,
+              2263
+            ],
+            [
+              25,
+              1,
+              117
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 4588,
+                "frequency": 0.03051438535309503,
+                "lower": 0.3,
+                "mean_probability": 0.35854607769844316,
+                "upper": 0.4
+              },
+              {
+                "count": 27,
+                "frequency": 0.1111111111111111,
+                "lower": 0.4,
+                "mean_probability": 0.404891734873807,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.13715134364376538,
+            "count": 4615,
+            "ece": 0.3278313068953521,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.7661245947732274,
+          "precision": [
+            0.0042352941176470585,
+            0.990909090909091,
+            0.04915966386554622
+          ],
+          "recall": [
+            1.0,
+            0.02442303383374412,
+            0.8181818181818182
+          ],
+          "supervised_in_this_arm": false
+        },
+        "ttc": {
+          "accuracy": 0.9503791982665222,
+          "balanced_accuracy_present_classes": 0.4820839744998901,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              77,
+              4386,
+              86
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 3985,
+                "frequency": 0.01631116687578419,
+                "lower": 0.2,
+                "mean_probability": 0.2721129196126907,
+                "upper": 0.3
+              },
+              {
+                "count": 630,
+                "frequency": 0.0015873015873015873,
+                "lower": 0.3,
+                "mean_probability": 0.3215767822568379,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.08456597472744158,
+            "count": 4615,
+            "ece": 0.2645641077959654,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.47253942410732047,
+          "precision": [
+            0.0,
+            0.9851752021563343,
+            0.0
+          ],
+          "recall": [
+            null,
+            0.9641679489997802,
+            0.0
+          ],
+          "supervised_in_this_arm": false
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.75,
+          "scenes": 203,
+          "selected_delta": -0.003463956201672132
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.9215053763440861,
+          "scenes": 199,
+          "selected_delta": -0.010663354613384475
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.8282312925170067,
+          "scenes": 222,
+          "selected_delta": -0.01946018203651394
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.929125138427464,
+          "scenes": 221,
+          "selected_delta": -0.015352383885230442
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.03944947322696929,
+          "pair_weighted_rmse": 0.04176481218211164,
+          "scene_weighted_bias": 0.00146736870760932,
+          "scene_weighted_mae": 0.003010826523189378,
+          "scene_weighted_rmse": 0.03944947322696929,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9982665222101842,
+            "coverage_1sigma_pair_weighted": 0.9978331527627302,
+            "mean_standardized_absolute_error": 0.09210222743209996,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.177314735063532,
+          "pair_weighted_rmse": 0.17751026247231871,
+          "scene_weighted_bias": 0.027441974549345993,
+          "scene_weighted_mae": 0.03549163035283117,
+          "scene_weighted_rmse": 0.177314735063532,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9677139761646804,
+            "coverage_1sigma_pair_weighted": 0.9670639219934994,
+            "mean_standardized_absolute_error": 0.25999329844928654,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.04680241196060752,
+          "pair_weighted_rmse": 0.04594609937335019,
+          "scene_weighted_bias": 0.0007289132073060806,
+          "scene_weighted_mae": 0.005865589349415352,
+          "scene_weighted_rmse": 0.04680241196060752,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9915492957746479,
+            "coverage_1sigma_pair_weighted": 0.990465872156013,
+            "mean_standardized_absolute_error": 0.17451185304076614,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15420086193039806,
+          "pair_weighted_rmse": 0.15415538355043992,
+          "scene_weighted_bias": 0.021469132561746925,
+          "scene_weighted_mae": 0.04220616676456296,
+          "scene_weighted_rmse": 0.15420086193039806,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9674972914409534,
+            "coverage_1sigma_pair_weighted": 0.9601300108342362,
+            "mean_standardized_absolute_error": 0.3223570390453275,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.0570549845602442,
+          "pair_weighted_rmse": 0.2282199382409768,
+          "scene_weighted_bias": 0.11807930554662407,
+          "scene_weighted_mae": 0.20296288132667525,
+          "scene_weighted_rmse": 0.2282199382409768,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.027189550676060714,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.025704446705174386,
+          "pair_weighted_rmse": 0.026591033014045428,
+          "scene_weighted_bias": 0.0005451065518671796,
+          "scene_weighted_mae": 0.0026349377166834326,
+          "scene_weighted_rmse": 0.025704446705174386,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.999133261105092,
+            "coverage_1sigma_pair_weighted": 0.9978331527627302,
+            "mean_standardized_absolute_error": 0.07485646238055157,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.0294932612624496,
+          "pair_weighted_rmse": 0.6012007298327446,
+          "scene_weighted_bias": -0.012452197327232507,
+          "scene_weighted_mae": 0.370982266352052,
+          "scene_weighted_rmse": 0.589865225248992,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.014732138830745561,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.20221496631156474,
+          "pair_weighted_rmse": 0.19821344760969803,
+          "scene_weighted_bias": 0.009441341969688202,
+          "scene_weighted_mae": 0.10325625100171774,
+          "scene_weighted_rmse": 0.20221496631156474,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9458288190682557,
+            "coverage_1sigma_pair_weighted": 0.8715059588299024,
+            "mean_standardized_absolute_error": 0.5439186231806332,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11481053210211149,
+          "pair_weighted_rmse": 0.11972253831496744,
+          "scene_weighted_bias": 0.012920711158865575,
+          "scene_weighted_mae": 0.01571401224429196,
+          "scene_weighted_rmse": 0.11481053210211149,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9856988082340195,
+            "coverage_1sigma_pair_weighted": 0.9854821235102925,
+            "mean_standardized_absolute_error": 0.1535675856900685,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.0,
+            "mean_probability": null,
+            "upper": 0.1
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.1,
+            "mean_probability": null,
+            "upper": 0.2
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.2,
+            "mean_probability": null,
+            "upper": 0.3
+          },
+          {
+            "count": 5,
+            "frequency": 0.0,
+            "lower": 0.3,
+            "mean_probability": 0.3833889663219452,
+            "upper": 0.4
+          },
+          {
+            "count": 4178,
+            "frequency": 0.9123982766874102,
+            "lower": 0.4,
+            "mean_probability": 0.4911919915544867,
+            "upper": 0.5
+          },
+          {
+            "count": 432,
+            "frequency": 0.9699074074074074,
+            "lower": 0.5,
+            "mean_probability": 0.5053754324714342,
+            "upper": 0.6
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.6,
+            "mean_probability": null,
+            "upper": 0.7
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.7,
+            "mean_probability": null,
+            "upper": 0.8
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.8,
+            "mean_probability": null,
+            "upper": 0.9
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.9,
+            "mean_probability": null,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.2548444572684649,
+        "count": 4615,
+        "ece": 0.4252209354906403,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": false,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.016618935094694882,
+      "temporal_supervised_in_this_arm": false
+    },
+    "delta_feedback": {
+      "direction_accuracy_pair_weighted": 0.9037111334002006,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.999133261105092,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4611,
+              0
+            ],
+            [
+              0,
+              4,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.000866738894907909,
+                "lower": 0.0,
+                "mean_probability": 0.0016998324988466381,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.0008676414650032524,
+            "count": 4615,
+            "ece": 0.0008330936039387291,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0017460188688277875,
+          "precision": [
+            null,
+            0.999133261105092,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "road": {
+          "accuracy": 0.9670639219934994,
+          "balanced_accuracy_present_classes": 0.3333333333333333,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              9,
+              0
+            ],
+            [
+              0,
+              4463,
+              0
+            ],
+            [
+              0,
+              143,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4609,
+                "frequency": 0.030375352571056627,
+                "lower": 0.0,
+                "mean_probability": 0.011004194191593961,
+                "upper": 0.1
+              },
+              {
+                "count": 6,
+                "frequency": 0.5,
+                "lower": 0.1,
+                "mean_probability": 0.1025779905418555,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.029660126902967907,
+            "count": 4615,
+            "ece": 0.019862665444787063,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.06281661577037449,
+          "precision": [
+            null,
+            0.9670639219934994,
+            null
+          ],
+          "recall": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "ttc": {
+          "accuracy": 0.9856988082340195,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4549,
+              0
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.014301191765980499,
+                "lower": 0.0,
+                "mean_probability": 0.006905039978634368,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.014027334006037178,
+            "count": 4615,
+            "ece": 0.007396151787346131,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0279849006336236,
+          "precision": [
+            null,
+            0.9856988082340195,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.7945736434108527,
+          "scenes": 203,
+          "selected_delta": -0.003186834197908486
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.8795698924731183,
+          "scenes": 199,
+          "selected_delta": -0.005134732176423701
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.8571428571428571,
+          "scenes": 222,
+          "selected_delta": -0.020334960639486758
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.9078073089700996,
+          "scenes": 221,
+          "selected_delta": -0.007752023877002618
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.039454337224582484,
+          "pair_weighted_rmse": 0.041770474267994115,
+          "scene_weighted_bias": 0.0015145461447760853,
+          "scene_weighted_mae": 0.0031906126462559153,
+          "scene_weighted_rmse": 0.039454337224582484,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9982665222101842,
+            "coverage_1sigma_pair_weighted": 0.9982665222101842,
+            "mean_standardized_absolute_error": 0.12008512199661789,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.17669513303702356,
+          "pair_weighted_rmse": 0.1769973378838331,
+          "scene_weighted_bias": 0.028605858299918994,
+          "scene_weighted_mae": 0.039626315225754445,
+          "scene_weighted_rmse": 0.17669513303702356,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9670639219934994,
+            "coverage_1sigma_pair_weighted": 0.9668472372697725,
+            "mean_standardized_absolute_error": 0.34115571393028,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.046920789309753665,
+          "pair_weighted_rmse": 0.045992232377213095,
+          "scene_weighted_bias": 0.0009602823163722589,
+          "scene_weighted_mae": 0.005869716738991373,
+          "scene_weighted_rmse": 0.046920789309753665,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9915492957746479,
+            "coverage_1sigma_pair_weighted": 0.9915492957746479,
+            "mean_standardized_absolute_error": 0.22420711686197253,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15482058924721162,
+          "pair_weighted_rmse": 0.1552565588395739,
+          "scene_weighted_bias": 0.02467132692427194,
+          "scene_weighted_mae": 0.04267127755905333,
+          "scene_weighted_rmse": 0.15482058924721162,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9661971830985916,
+            "coverage_1sigma_pair_weighted": 0.9599133261105092,
+            "mean_standardized_absolute_error": 0.3495399898930411,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.05661948977953523,
+          "pair_weighted_rmse": 0.22647795911814092,
+          "scene_weighted_bias": 0.11790245005062625,
+          "scene_weighted_mae": 0.19736582636833175,
+          "scene_weighted_rmse": 0.22647795911814092,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.18966836579672666,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.025985243555589472,
+          "pair_weighted_rmse": 0.026875270247395264,
+          "scene_weighted_bias": 0.0005275917754042384,
+          "scene_weighted_mae": 0.0032778000209279607,
+          "scene_weighted_rmse": 0.025985243555589472,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.999133261105092,
+            "coverage_1sigma_pair_weighted": 0.9980498374864573,
+            "mean_standardized_absolute_error": 0.1272595491747981,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.012109953838069745,
+          "pair_weighted_rmse": 0.24705265137387983,
+          "scene_weighted_bias": 0.002100339808165878,
+          "scene_weighted_mae": 0.17577728352810001,
+          "scene_weighted_rmse": 0.2421990767613949,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9880823401950163,
+            "coverage_1sigma_pair_weighted": 0.8847237269772481,
+            "mean_standardized_absolute_error": 0.4677085843124619,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.21399521434879357,
+          "pair_weighted_rmse": 0.20931719721843473,
+          "scene_weighted_bias": 0.03279988588382524,
+          "scene_weighted_mae": 0.1354115802257575,
+          "scene_weighted_rmse": 0.21399521434879357,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9529794149512459,
+            "coverage_1sigma_pair_weighted": 0.8270855904658722,
+            "mean_standardized_absolute_error": 0.6645305247186364,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11466001968872319,
+          "pair_weighted_rmse": 0.11956117309469491,
+          "scene_weighted_bias": 0.013047647917993746,
+          "scene_weighted_mae": 0.01628808228628249,
+          "scene_weighted_rmse": 0.11466001968872319,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9856988082340195,
+            "coverage_1sigma_pair_weighted": 0.9856988082340195,
+            "mean_standardized_absolute_error": 0.19972110062334583,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.0,
+            "mean_probability": null,
+            "upper": 0.1
+          },
+          {
+            "count": 7,
+            "frequency": 0.0,
+            "lower": 0.1,
+            "mean_probability": 0.16677901787417276,
+            "upper": 0.2
+          },
+          {
+            "count": 104,
+            "frequency": 0.27884615384615385,
+            "lower": 0.2,
+            "mean_probability": 0.2615025659593252,
+            "upper": 0.3
+          },
+          {
+            "count": 385,
+            "frequency": 0.7688311688311689,
+            "lower": 0.3,
+            "mean_probability": 0.3629649330269207,
+            "upper": 0.4
+          },
+          {
+            "count": 1624,
+            "frequency": 0.9174876847290641,
+            "lower": 0.4,
+            "mean_probability": 0.4563217382749607,
+            "upper": 0.5
+          },
+          {
+            "count": 1816,
+            "frequency": 0.9691629955947136,
+            "lower": 0.5,
+            "mean_probability": 0.5487771594511255,
+            "upper": 0.6
+          },
+          {
+            "count": 557,
+            "frequency": 0.9694793536804309,
+            "lower": 0.6,
+            "mean_probability": 0.6361471481982425,
+            "upper": 0.7
+          },
+          {
+            "count": 114,
+            "frequency": 0.9649122807017544,
+            "lower": 0.7,
+            "mean_probability": 0.7354986547378072,
+            "upper": 0.8
+          },
+          {
+            "count": 8,
+            "frequency": 0.75,
+            "lower": 0.8,
+            "mean_probability": 0.8267649784684181,
+            "upper": 0.9
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.9,
+            "mean_probability": null,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.23507991170870196,
+        "count": 4615,
+        "ece": 0.4082377408817814,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": true,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.007914523231386647,
+      "temporal_supervised_in_this_arm": true
+    },
+    "shuffled_context": {
+      "direction_accuracy_pair_weighted": 0.8716148445336008,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.999133261105092,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4611,
+              0
+            ],
+            [
+              0,
+              4,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.000866738894907909,
+                "lower": 0.0,
+                "mean_probability": 0.0015456783138129775,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.0008669995344817821,
+            "count": 4615,
+            "ece": 0.0006789394189050686,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0017418778446548079,
+          "precision": [
+            null,
+            0.999133261105092,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "road": {
+          "accuracy": 0.9670639219934994,
+          "balanced_accuracy_present_classes": 0.3333333333333333,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              9,
+              0
+            ],
+            [
+              0,
+              4463,
+              0
+            ],
+            [
+              0,
+              143,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.030985915492957747,
+                "lower": 0.0,
+                "mean_probability": 0.010579725491530781,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.030333967361750404,
+            "count": 4615,
+            "ece": 0.020406190001426967,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.06409346710971814,
+          "precision": [
+            null,
+            0.9670639219934994,
+            null
+          ],
+          "recall": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "ttc": {
+          "accuracy": 0.9856988082340195,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4549,
+              0
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.014301191765980499,
+                "lower": 0.0,
+                "mean_probability": 0.006926893762223027,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.014169265229850911,
+            "count": 4615,
+            "ece": 0.007374298003757472,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.02835861965132626,
+          "precision": [
+            null,
+            0.9856988082340195,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.6317829457364341,
+          "scenes": 203,
+          "selected_delta": -0.05138738489267586
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.9096774193548387,
+          "scenes": 199,
+          "selected_delta": -0.011190824243246954
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.42176870748299317,
+          "scenes": 222,
+          "selected_delta": -0.09944531833688587
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.9323551125876707,
+          "scenes": 221,
+          "selected_delta": -0.016622281009696552
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.03928182526810565,
+          "pair_weighted_rmse": 0.04159240205271782,
+          "scene_weighted_bias": 0.001630863480107136,
+          "scene_weighted_mae": 0.0026243144762462035,
+          "scene_weighted_rmse": 0.03928182526810565,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9982665222101842,
+            "coverage_1sigma_pair_weighted": 0.9980498374864573,
+            "mean_standardized_absolute_error": 0.10299123993468945,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.18037479231808512,
+          "pair_weighted_rmse": 0.18074900947982567,
+          "scene_weighted_bias": 0.02783205582476821,
+          "scene_weighted_mae": 0.03719415744107065,
+          "scene_weighted_rmse": 0.18037479231808512,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9670639219934994,
+            "coverage_1sigma_pair_weighted": 0.9670639219934994,
+            "mean_standardized_absolute_error": 0.2607894718844893,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.04676536077406459,
+          "pair_weighted_rmse": 0.04589396584244016,
+          "scene_weighted_bias": 0.000836853824736837,
+          "scene_weighted_mae": 0.005833699497478075,
+          "scene_weighted_rmse": 0.04676536077406459,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9915492957746479,
+            "coverage_1sigma_pair_weighted": 0.9911159263271939,
+            "mean_standardized_absolute_error": 0.2142192781533013,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15857315237706113,
+          "pair_weighted_rmse": 0.15886908696432836,
+          "scene_weighted_bias": 0.023737659899967033,
+          "scene_weighted_mae": 0.04128889256507976,
+          "scene_weighted_rmse": 0.15857315237706113,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9659804983748645,
+            "coverage_1sigma_pair_weighted": 0.9635969664138678,
+            "mean_standardized_absolute_error": 0.3150349417788442,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.05642483530947406,
+          "pair_weighted_rmse": 0.22569934123789623,
+          "scene_weighted_bias": 0.11749028818947904,
+          "scene_weighted_mae": 0.1954105470861706,
+          "scene_weighted_rmse": 0.22569934123789623,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.2260597215643294,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.025636395711001295,
+          "pair_weighted_rmse": 0.02650435830104154,
+          "scene_weighted_bias": 0.0003723471183498909,
+          "scene_weighted_mae": 0.0024838364714887006,
+          "scene_weighted_rmse": 0.025636395711001295,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.999133261105092,
+            "coverage_1sigma_pair_weighted": 0.9986998916576382,
+            "mean_standardized_absolute_error": 0.08902241635859282,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.011666812842089338,
+          "pair_weighted_rmse": 0.23206446654303356,
+          "scene_weighted_bias": 0.0005705847459413185,
+          "scene_weighted_mae": 0.1559174199735664,
+          "scene_weighted_rmse": 0.23333625684178674,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9835319609967498,
+            "coverage_1sigma_pair_weighted": 0.9063921993499459,
+            "mean_standardized_absolute_error": 0.4131766160310185,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.20742425305613146,
+          "pair_weighted_rmse": 0.2062541820862514,
+          "scene_weighted_bias": 0.020669932151981683,
+          "scene_weighted_mae": 0.10543399085607622,
+          "scene_weighted_rmse": 0.20742425305613146,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9414951245937161,
+            "coverage_1sigma_pair_weighted": 0.8500541711809317,
+            "mean_standardized_absolute_error": 0.5850793964809128,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11458830161423994,
+          "pair_weighted_rmse": 0.11950975308465699,
+          "scene_weighted_bias": 0.01236371215046175,
+          "scene_weighted_mae": 0.016327319606174676,
+          "scene_weighted_rmse": 0.11458830161423994,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9856988082340195,
+            "coverage_1sigma_pair_weighted": 0.9856988082340195,
+            "mean_standardized_absolute_error": 0.16649834860790627,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.0,
+            "mean_probability": null,
+            "upper": 0.1
+          },
+          {
+            "count": 2,
+            "frequency": 0.0,
+            "lower": 0.1,
+            "mean_probability": 0.1671714037656784,
+            "upper": 0.2
+          },
+          {
+            "count": 53,
+            "frequency": 0.32075471698113206,
+            "lower": 0.2,
+            "mean_probability": 0.2715098301194749,
+            "upper": 0.3
+          },
+          {
+            "count": 243,
+            "frequency": 0.7078189300411523,
+            "lower": 0.3,
+            "mean_probability": 0.36014254863370104,
+            "upper": 0.4
+          },
+          {
+            "count": 1552,
+            "frequency": 0.9213917525773195,
+            "lower": 0.4,
+            "mean_probability": 0.4628235414124948,
+            "upper": 0.5
+          },
+          {
+            "count": 2317,
+            "frequency": 0.9425981873111783,
+            "lower": 0.5,
+            "mean_probability": 0.5378551205325137,
+            "upper": 0.6
+          },
+          {
+            "count": 373,
+            "frequency": 0.9624664879356568,
+            "lower": 0.6,
+            "mean_probability": 0.6338185473038108,
+            "upper": 0.7
+          },
+          {
+            "count": 70,
+            "frequency": 0.9428571428571428,
+            "lower": 0.7,
+            "mean_probability": 0.7249475513185774,
+            "upper": 0.8
+          },
+          {
+            "count": 5,
+            "frequency": 0.6,
+            "lower": 0.8,
+            "mean_probability": 0.8318105816841126,
+            "upper": 0.9
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.9,
+            "mean_probability": null,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.23788919661614305,
+        "count": 4615,
+        "ece": 0.40648226178092794,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": true,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.006444062013809853,
+      "temporal_supervised_in_this_arm": true
+    },
+    "terminal_pdms": {
+      "direction_accuracy_pair_weighted": 0.8826479438314945,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.8771397616468039,
+          "balanced_accuracy_present_classes": 0.43895033615267837,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              301,
+              4048,
+              262
+            ],
+            [
+              0,
+              4,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 28,
+                "frequency": 0.0,
+                "lower": 0.2,
+                "mean_probability": 0.29869688621589113,
+                "upper": 0.3
+              },
+              {
+                "count": 4587,
+                "frequency": 0.0008720296490080662,
+                "lower": 0.3,
+                "mean_probability": 0.3222883510997619,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.1041681946392678,
+            "count": 4615,
+            "ece": 0.321278478723435,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.6233967689888485,
+          "precision": [
+            0.0,
+            0.9990128331688055,
+            0.0
+          ],
+          "recall": [
+            null,
+            0.8779006723053567,
+            0.0
+          ],
+          "supervised_in_this_arm": false
+        },
+        "road": {
+          "accuracy": 0.22903575297941495,
+          "balanced_accuracy_present_classes": 0.4081612531085979,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              5,
+              0,
+              4
+            ],
+            [
+              1818,
+              988,
+              1657
+            ],
+            [
+              63,
+              16,
+              64
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 4615,
+                "frequency": 0.030985915492957747,
+                "lower": 0.3,
+                "mean_probability": 0.3446047906885943,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.1282095354397149,
+            "count": 4615,
+            "ece": 0.3136188751956365,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.710297196333795,
+          "precision": [
+            0.002651113467656416,
+            0.9840637450199203,
+            0.03710144927536232
+          ],
+          "recall": [
+            0.5555555555555556,
+            0.22137575621779074,
+            0.44755244755244755
+          ],
+          "supervised_in_this_arm": false
+        },
+        "ttc": {
+          "accuracy": 0.9856988082340195,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4549,
+              0
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.0,
+                "mean_probability": null,
+                "upper": 0.1
+              },
+              {
+                "count": 140,
+                "frequency": 0.0,
+                "lower": 0.1,
+                "mean_probability": 0.19209974152701242,
+                "upper": 0.2
+              },
+              {
+                "count": 4475,
+                "frequency": 0.014748603351955308,
+                "lower": 0.2,
+                "mean_probability": 0.22668002676697416,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.05898538297612739,
+            "count": 4615,
+            "ece": 0.2113298122634867,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.3158007687000689,
+          "precision": [
+            null,
+            0.9856988082340195,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": false
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.7034883720930233,
+          "scenes": 203,
+          "selected_delta": -0.048597530359045356
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.9225806451612903,
+          "scenes": 199,
+          "selected_delta": -0.01061127485150898
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.4115646258503401,
+          "scenes": 222,
+          "selected_delta": -0.11380668546663969
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.9323551125876707,
+          "scenes": 221,
+          "selected_delta": -0.017478397288713483
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.03976587009722871,
+          "pair_weighted_rmse": 0.04205458334490106,
+          "scene_weighted_bias": 0.0022054741638434768,
+          "scene_weighted_mae": 0.00502596035687984,
+          "scene_weighted_rmse": 0.03976587009722871,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.003798339054470029,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.1807542920941822,
+          "pair_weighted_rmse": 0.18145086621211381,
+          "scene_weighted_bias": 0.02882811786856367,
+          "scene_weighted_mae": 0.03696194813448641,
+          "scene_weighted_rmse": 0.1807542920941822,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.028290235929127914,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.04791013243352022,
+          "pair_weighted_rmse": 0.04698011779997071,
+          "scene_weighted_bias": 0.0023546693196736636,
+          "scene_weighted_mae": 0.009092362574263418,
+          "scene_weighted_rmse": 0.04791013243352022,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.006327415750708987,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15894822724117905,
+          "pair_weighted_rmse": 0.1598081452928214,
+          "scene_weighted_bias": 0.024287536925377905,
+          "scene_weighted_mae": 0.04194397955227422,
+          "scene_weighted_rmse": 0.15894822724117905,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 0.999566630552546,
+            "mean_standardized_absolute_error": 0.03861568170626464,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.0590482983385703,
+          "pair_weighted_rmse": 0.2361931933542812,
+          "scene_weighted_bias": 0.12207879849842593,
+          "scene_weighted_mae": 0.20919295889990655,
+          "scene_weighted_rmse": 0.2361931933542812,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.02295031578823459,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.027645057844079356,
+          "pair_weighted_rmse": 0.028427001812396428,
+          "scene_weighted_bias": 0.0010281929089197102,
+          "scene_weighted_mae": 0.008443327566919132,
+          "scene_weighted_rmse": 0.027645057844079356,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.006489602551565701,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.029623750531898686,
+          "pair_weighted_rmse": 0.6035715355590895,
+          "scene_weighted_bias": -0.014829484214996155,
+          "scene_weighted_mae": 0.3689735334216415,
+          "scene_weighted_rmse": 0.5924750106379737,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.014528130389039174,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.17810185151649893,
+          "pair_weighted_rmse": 0.17886426776589934,
+          "scene_weighted_bias": 0.03084667436970149,
+          "scene_weighted_mae": 0.050171303495479894,
+          "scene_weighted_rmse": 0.17810185151649893,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9503791982665222,
+            "coverage_1sigma_pair_weighted": 0.9328277356446371,
+            "mean_standardized_absolute_error": 0.5290759351731206,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11489405028807913,
+          "pair_weighted_rmse": 0.11978232654594394,
+          "scene_weighted_bias": 0.014047794033305028,
+          "scene_weighted_mae": 0.020622203876694625,
+          "scene_weighted_rmse": 0.11489405028807913,
+          "supervised_in_this_arm": false,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.014664293817842212,
+            "supervised_in_this_arm": false,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.0,
+            "mean_probability": null,
+            "upper": 0.1
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.1,
+            "mean_probability": null,
+            "upper": 0.2
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.2,
+            "mean_probability": null,
+            "upper": 0.3
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.3,
+            "mean_probability": null,
+            "upper": 0.4
+          },
+          {
+            "count": 4578,
+            "frequency": 0.9169943206640454,
+            "lower": 0.4,
+            "mean_probability": 0.4936383210086781,
+            "upper": 0.5
+          },
+          {
+            "count": 37,
+            "frequency": 0.8918918918918919,
+            "lower": 0.5,
+            "mean_probability": 0.5027583966384063,
+            "upper": 0.6
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.6,
+            "mean_probability": null,
+            "upper": 0.7
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.7,
+            "mean_probability": null,
+            "upper": 0.8
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.8,
+            "mean_probability": null,
+            "upper": 0.9
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.9,
+            "mean_probability": null,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.25507860452454717,
+        "count": 4615,
+        "ece": 0.42308162638063934,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": false,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.008519640462330521,
+      "temporal_supervised_in_this_arm": false
+    },
+    "trajectory_only": {
+      "direction_accuracy_pair_weighted": 0.876629889669007,
+      "direction_non_tie_pairs": 997,
+      "event_transitions": {
+        "collision": {
+          "accuracy": 0.999133261105092,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4611,
+            4
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4611,
+              0
+            ],
+            [
+              0,
+              4,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.000866738894907909,
+                "lower": 0.0,
+                "mean_probability": 0.001513822930224264,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.0008666600288933929,
+            "count": 4615,
+            "ece": 0.0006470840353163551,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0017401573744030875,
+          "precision": [
+            null,
+            0.999133261105092,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "road": {
+          "accuracy": 0.9670639219934994,
+          "balanced_accuracy_present_classes": 0.3333333333333333,
+          "class_counts": [
+            9,
+            4463,
+            143
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              9,
+              0
+            ],
+            [
+              0,
+              4463,
+              0
+            ],
+            [
+              0,
+              143,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.030985915492957747,
+                "lower": 0.0,
+                "mean_probability": 0.012097049248732731,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.03025158021443861,
+            "count": 4615,
+            "ece": 0.018888866244225016,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 3,
+          "multiclass_brier": 0.06388358690175348,
+          "precision": [
+            null,
+            0.9670639219934994,
+            null
+          ],
+          "recall": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        },
+        "ttc": {
+          "accuracy": 0.9856988082340195,
+          "balanced_accuracy_present_classes": 0.5,
+          "class_counts": [
+            0,
+            4549,
+            66
+          ],
+          "class_order": [
+            "repaired",
+            "unchanged",
+            "introduced"
+          ],
+          "confusion_true_by_predicted": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              4549,
+              0
+            ],
+            [
+              0,
+              66,
+              0
+            ]
+          ],
+          "count": 4615,
+          "introduced_event_calibration": {
+            "bins": [
+              {
+                "count": 4615,
+                "frequency": 0.014301191765980499,
+                "lower": 0.0,
+                "mean_probability": 0.006550431133571806,
+                "upper": 0.1
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.1,
+                "mean_probability": null,
+                "upper": 0.2
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.2,
+                "mean_probability": null,
+                "upper": 0.3
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.3,
+                "mean_probability": null,
+                "upper": 0.4
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.4,
+                "mean_probability": null,
+                "upper": 0.5
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.5,
+                "mean_probability": null,
+                "upper": 0.6
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.6,
+                "mean_probability": null,
+                "upper": 0.7
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.7,
+                "mean_probability": null,
+                "upper": 0.8
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.8,
+                "mean_probability": null,
+                "upper": 0.9
+              },
+              {
+                "count": 0,
+                "frequency": null,
+                "lower": 0.9,
+                "mean_probability": null,
+                "upper": 1.0
+              }
+            ],
+            "brier": 0.014176060059412635,
+            "count": 4615,
+            "ece": 0.007750760632408693,
+            "interpretation": "descriptive fixed bins; probabilities are not declared calibrated"
+          },
+          "macro_recall_support": 2,
+          "multiclass_brier": 0.0283613843118227,
+          "precision": [
+            null,
+            0.9856988082340195,
+            null
+          ],
+          "recall": [
+            null,
+            1.0,
+            0.0
+          ],
+          "supervised_in_this_arm": true
+        }
+      },
+      "intervention_subsets": {
+        "joint": {
+          "generalization": "withheld joint combination",
+          "oracle_delta": 0.008658647065790448,
+          "pairs": 787,
+          "scene_weighted_direction_accuracy": 0.6802325581395349,
+          "scenes": 203,
+          "selected_delta": -0.0488787783903274
+        },
+        "larger_support": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.025191697231087017,
+          "pairs": 578,
+          "scene_weighted_direction_accuracy": 0.9129032258064517,
+          "scenes": 199,
+          "selected_delta": -0.011198542666833712
+        },
+        "lateral": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.004757229188087721,
+          "pairs": 1609,
+          "scene_weighted_direction_accuracy": 0.45578231292517,
+          "scenes": 222,
+          "selected_delta": -0.09762410230005908
+        },
+        "longitudinal": {
+          "generalization": "held-out log, represented intervention family",
+          "oracle_delta": 0.018005378369532067,
+          "pairs": 1641,
+          "scene_weighted_direction_accuracy": 0.9284791435954226,
+          "scenes": 221,
+          "selected_delta": -0.016569410594114046
+        }
+      },
+      "label_metrics": {
+        "comfort": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.03936168806876299,
+          "pair_weighted_rmse": 0.041677853894655226,
+          "scene_weighted_bias": 0.0016444172348598644,
+          "scene_weighted_mae": 0.0024655412259999786,
+          "scene_weighted_rmse": 0.03936168806876299,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9982665222101842,
+            "coverage_1sigma_pair_weighted": 0.9982665222101842,
+            "mean_standardized_absolute_error": 0.14281298187856525,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "drivable_area_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.18024602680583085,
+          "pair_weighted_rmse": 0.18068162187982148,
+          "scene_weighted_bias": 0.02799418342410669,
+          "scene_weighted_mae": 0.03647224704124425,
+          "scene_weighted_rmse": 0.18024602680583085,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9670639219934994,
+            "coverage_1sigma_pair_weighted": 0.9670639219934994,
+            "mean_standardized_absolute_error": 0.23337959379418566,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "driving_direction_compliance": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.046578757721201854,
+          "pair_weighted_rmse": 0.045718782190961205,
+          "scene_weighted_bias": 0.0008059467670517921,
+          "scene_weighted_mae": 0.005743979746765512,
+          "scene_weighted_rmse": 0.046578757721201854,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9915492957746479,
+            "coverage_1sigma_pair_weighted": 0.9915492957746479,
+            "mean_standardized_absolute_error": 0.18994929075492312,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "ego_progress": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.15862940866560732,
+          "pair_weighted_rmse": 0.15899521443620634,
+          "scene_weighted_bias": 0.024229447926096263,
+          "scene_weighted_mae": 0.04096784668583607,
+          "scene_weighted_rmse": 0.15862940866560732,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9661971830985916,
+            "coverage_1sigma_pair_weighted": 0.9651137594799567,
+            "mean_standardized_absolute_error": 0.2852037038197649,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "first_at_fault_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 4,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4611
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "first_road_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 143,
+            "before_only": 9,
+            "both_observed": 14,
+            "neither_observed": 4449
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": 0.056546063474185324,
+          "pair_weighted_rmse": 0.2261842538967413,
+          "scene_weighted_bias": 0.11758618141923607,
+          "scene_weighted_mae": 0.19458747719015376,
+          "scene_weighted_rmse": 0.2261842538967413,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 1.0,
+            "coverage_1sigma_pair_weighted": 1.0,
+            "mean_standardized_absolute_error": 0.21490501841120394,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 14
+          },
+          "unit": "s",
+          "valid_pairs": 14,
+          "valid_scenes": 1
+        },
+        "first_ttc_state_time_seconds": {
+          "censored_time_regression": {
+            "reason": "Absent event times are masked native observations; zero is a placeholder, not an event time. No censored likelihood was trained.",
+            "status": "UNAVAILABLE"
+          },
+          "event_observation_patterns": {
+            "after_only": 66,
+            "before_only": 0,
+            "both_observed": 0,
+            "neither_observed": 4549
+          },
+          "normalization_scale": 4.0,
+          "normalized_scene_rmse": null,
+          "pair_weighted_rmse": null,
+          "scene_weighted_bias": null,
+          "scene_weighted_mae": null,
+          "scene_weighted_rmse": null,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": null,
+            "coverage_1sigma_pair_weighted": null,
+            "mean_standardized_absolute_error": null,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 0
+          },
+          "unit": "s",
+          "valid_pairs": 0,
+          "valid_scenes": 0
+        },
+        "no_at_fault_collisions": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.025585040760605703,
+          "pair_weighted_rmse": 0.026470365560613444,
+          "scene_weighted_bias": 0.00026784958008469216,
+          "scene_weighted_mae": 0.002285264953098442,
+          "scene_weighted_rmse": 0.025585040760605703,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.999133261105092,
+            "coverage_1sigma_pair_weighted": 0.999133261105092,
+            "mean_standardized_absolute_error": 0.06423206983211112,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "progress_raw_meters": {
+          "normalization_scale": 20.0,
+          "normalized_scene_rmse": 0.010627448305211649,
+          "pair_weighted_rmse": 0.21382878564462052,
+          "scene_weighted_bias": -0.005773758605288341,
+          "scene_weighted_mae": 0.14575068770095237,
+          "scene_weighted_rmse": 0.212548966104233,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9926327193932828,
+            "coverage_1sigma_pair_weighted": 0.9146262188515709,
+            "mean_standardized_absolute_error": 0.393588817545073,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "m",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "score": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.19845081389859734,
+          "pair_weighted_rmse": 0.19778274388613418,
+          "scene_weighted_bias": 0.02254128085224969,
+          "scene_weighted_mae": 0.09691673553193095,
+          "scene_weighted_rmse": 0.19845081389859734,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9462621885157096,
+            "coverage_1sigma_pair_weighted": 0.8715059588299024,
+            "mean_standardized_absolute_error": 0.5508248309586582,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        },
+        "time_to_collision_within_bound": {
+          "normalization_scale": 1.0,
+          "normalized_scene_rmse": 0.11451976709513911,
+          "pair_weighted_rmse": 0.11946228008717238,
+          "scene_weighted_bias": 0.012447238063407806,
+          "scene_weighted_mae": 0.016137039040002757,
+          "scene_weighted_rmse": 0.11451976709513911,
+          "supervised_in_this_arm": true,
+          "uncertainty_diagnostic": {
+            "calibrated": false,
+            "coverage_1p96sigma_pair_weighted": 0.9856988082340195,
+            "coverage_1sigma_pair_weighted": 0.9856988082340195,
+            "mean_standardized_absolute_error": 0.15455296380514666,
+            "supervised_in_this_arm": true,
+            "valid_pairs": 4615
+          },
+          "unit": "0..1",
+          "valid_pairs": 4615,
+          "valid_scenes": 225
+        }
+      },
+      "repair_eligibility_calibration": {
+        "bins": [
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.0,
+            "mean_probability": null,
+            "upper": 0.1
+          },
+          {
+            "count": 1,
+            "frequency": 0.0,
+            "lower": 0.1,
+            "mean_probability": 0.1952727884054184,
+            "upper": 0.2
+          },
+          {
+            "count": 47,
+            "frequency": 0.2127659574468085,
+            "lower": 0.2,
+            "mean_probability": 0.27897365169322236,
+            "upper": 0.3
+          },
+          {
+            "count": 254,
+            "frequency": 0.7283464566929134,
+            "lower": 0.3,
+            "mean_probability": 0.3607432758948934,
+            "upper": 0.4
+          },
+          {
+            "count": 1512,
+            "frequency": 0.9186507936507936,
+            "lower": 0.4,
+            "mean_probability": 0.46255135500714895,
+            "upper": 0.5
+          },
+          {
+            "count": 2380,
+            "frequency": 0.9445378151260504,
+            "lower": 0.5,
+            "mean_probability": 0.5352767338522342,
+            "upper": 0.6
+          },
+          {
+            "count": 348,
+            "frequency": 0.9568965517241379,
+            "lower": 0.6,
+            "mean_probability": 0.6331069500281893,
+            "upper": 0.7
+          },
+          {
+            "count": 70,
+            "frequency": 0.9285714285714286,
+            "lower": 0.7,
+            "mean_probability": 0.7197354733943939,
+            "upper": 0.8
+          },
+          {
+            "count": 3,
+            "frequency": 0.3333333333333333,
+            "lower": 0.8,
+            "mean_probability": 0.8109799226125082,
+            "upper": 0.9
+          },
+          {
+            "count": 0,
+            "frequency": null,
+            "lower": 0.9,
+            "mean_probability": null,
+            "upper": 1.0
+          }
+        ],
+        "brier": 0.23868914765505625,
+        "count": 4615,
+        "ece": 0.4093330888454989,
+        "interpretation": "descriptive fixed bins; probabilities are not declared calibrated",
+        "supervised_in_this_arm": true,
+        "target": "native eligible_repair, not necessarily strictly positive score delta"
+      },
+      "temporal_event_mae_pair_mean": 0.005853478049016161,
+      "temporal_supervised_in_this_arm": true
+    }
+  },
+  "independent_review_original_output": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_independent/c0bea1284e2b7f26b2c15f9cfcb346827a2ce6c8b3f3e0d10fd5883b6c229f0e/DERIVED_COMPARISON.json",
+  "new_model_forwards": 0,
+  "new_optimizer_updates": 0,
+  "new_simulator_calls": 0,
+  "not_full_original_population_PDMS": true,
+  "note": "Original report scientific_conclusion UNTESTED is a reporting safeguard; actual matched observations here do not support paired-delta superiority. No policy/DEV result is inferred.",
+  "original_evaluations_modified": false,
+  "paired_log_intervals_on_complete_eligible_population": {
+    "delta_feedback_minus_absolute_feedback": {
+      "ci95_percentile": [
+        -0.020033491642948088,
+        0.017459962363975876
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": -0.0014685692262126507,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    },
+    "delta_feedback_minus_absolute_score": {
+      "ci95_percentile": [
+        -0.019112684310631792,
+        0.018407913880711422
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": -0.00027616195941465804,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    },
+    "delta_feedback_minus_shuffled_context": {
+      "ci95_percentile": [
+        -0.007099395976244802,
+        0.03314310916973047
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": 0.011754209941554069,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    },
+    "delta_feedback_minus_terminal_pdms": {
+      "ci95_percentile": [
+        -0.015022094323114164,
+        0.0277534909641438
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": 0.006318666087230945,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    },
+    "delta_feedback_minus_trajectory_only": {
+      "ci95_percentile": [
+        -0.016119547640697604,
+        0.024071639904140716
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": 0.003885990224637659,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    }
+  },
+  "population_admission": {
+    "admission_rule": "source-defined all held-out native pairs, never a common intersection of model outputs",
+    "complete_native_validation_pairs": 4615,
+    "eligible_metrics_denominator": "all eligible native-pair validation scenes; not the original complete requested policy population",
+    "eligible_native_pair_logs": 114,
+    "eligible_native_pair_scenes": 225,
+    "eligible_pair_ids_hash": "487cdfc6568e677167cbeb67d1cd0e850064d43e489e5b1e365605bd1510db35",
+    "original_requested_logs": 116,
+    "original_requested_scenes": 233,
+    "structural_no_available_intervention_scenes": 8
+  },
+  "rows": [
+    {
+      "arm": "absolute_score",
+      "direction_accuracy_scene_weighted": 0.925379578378587,
+      "eligible_high_score_to_zero_count": 4,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 3,
+      "eligible_introduced_ttc_count": 8,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.032799626640461294,
+      "eligible_native_selected_delta": -0.007510998206124787,
+      "forced_identity_extended_increment_only": -0.0072531098556999,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.20221496631156474,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "terminal_pdms",
+      "direction_accuracy_scene_weighted": 0.8771081043139868,
+      "eligible_high_score_to_zero_count": 5,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 4,
+      "eligible_introduced_ttc_count": 8,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.0393944546871069,
+      "eligible_native_selected_delta": -0.01410582625277039,
+      "forced_identity_extended_increment_only": -0.013621506038082994,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.17810185151649893,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "absolute_feedback",
+      "direction_accuracy_scene_weighted": 0.9355611103297817,
+      "eligible_high_score_to_zero_count": 4,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 3,
+      "eligible_introduced_ttc_count": 8,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.0316072193736633,
+      "eligible_native_selected_delta": -0.006318590939326794,
+      "forced_identity_extended_increment_only": -0.006101643610937888,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.2232825571571563,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "delta_feedback",
+      "direction_accuracy_scene_weighted": 0.9005162963275986,
+      "eligible_high_score_to_zero_count": 4,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 3,
+      "eligible_introduced_ttc_count": 6,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.03307578859987595,
+      "eligible_native_selected_delta": -0.007787160165539444,
+      "forced_identity_extended_increment_only": -0.0075197898594264985,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.21399521434879357,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "trajectory_only",
+      "direction_accuracy_scene_weighted": 0.8690838765772673,
+      "eligible_high_score_to_zero_count": 4,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 3,
+      "eligible_introduced_ttc_count": 8,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.03696177882451362,
+      "eligible_native_selected_delta": -0.011673150390177103,
+      "forced_identity_extended_increment_only": -0.011272355526995056,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.19845081389859734,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "shuffled_context",
+      "direction_accuracy_scene_weighted": 0.8726751043257984,
+      "eligible_high_score_to_zero_count": 6,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 5,
+      "eligible_introduced_ttc_count": 8,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.04482999854143003,
+      "eligible_native_selected_delta": -0.01954137010709351,
+      "forced_identity_extended_increment_only": -0.018870421777236215,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.20742425305613146,
+      "structural_no_available_intervention_scenes": 8
+    }
+  ],
+  "schema": "action_effect_g1_eligible_public_summary_v1",
+  "scientific_conclusion": "UNTESTED",
+  "source_commit": "69ee9f7df612bbdceeb453d8b200ce91dd3348f3",
+  "status": "COMPLETE",
+  "structural_scene_inventory": [
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "582b949725dc50d8",
+      "source_log": "2021.07.24.22.52.16_veh-35_03236_04096"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "ceae8073e383507e",
+      "source_log": "2021.07.16.00.51.05_veh-17_01352_01901"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "adca70e93cdd59c1",
+      "source_log": "2021.07.09.23.23.48_veh-26_02228_04624"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "6bbd8ebc5e3c5d94",
+      "source_log": "2021.06.14.16.32.09_veh-35_03231_03426"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "717bfbcab08a5279",
+      "source_log": "2021.09.15.11.49.23_veh-28_00280_00506"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "0f042bdafe7e5429",
+      "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "809cd503eb61563d",
+      "source_log": "2021.06.09.12.06.35_veh-35_00422_01112"
+    },
+    {
+      "reason": "zero valid native intervention pairs in the complete locked bank",
+      "repair_status": "NO_CHANGE_REQUIRED",
+      "role": "validation",
+      "scene_id": "169fee365403521e",
+      "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+    }
+  ],
+  "superiority_verdict": "NOT_SUPPORTED_AT_REGISTERED_BUDGET",
+  "training_sources": {
+    "absolute_feedback": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b",
+    "absolute_score": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b",
+    "delta_feedback": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b",
+    "shuffled_context": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b",
+    "terminal_pdms": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b",
+    "trajectory_only": "b7cc81fbcd6308d67e001e29d2dbe62585fba66b"
+  }
+}

@@ -1,5 +1,13 @@
 # Physical action-effect campaign: executable runbook
 
+> The original preparation snapshot and its dated WAITING rows below are retained
+> as history. Current executed evidence is in
+> [EVIDENCE_STATUS.md](../effect_repair/EVIDENCE_STATUS.md),
+> [EVIDENCE_INDEX.json](../effect_repair/EVIDENCE_INDEX.json) and the five canonical
+> G0/G1/G2/G3/final reports. Do not relaunch completed collectors/models from an
+> old readiness row or duplicate a live job. No command here is an automatic
+> dispatch instruction.
+
 This is a preparation/runbook delivery, not evidence that the following commands
 were executed. Lead alone dispatches on currently authorized resources. Preserve
 the active Base, other studies and the existing TRAIN/DEV collectors. Check their
@@ -282,3 +290,72 @@ exhaustion, zero-update completed resume and simulation-call accumulation
 across prefix populations/other arms/seeds. These are orchestration tests, not
 new real training or simulator evidence. No GPU, simulation or training was
 dispatched to develop this runbook/change.
+
+
+## Executed full campaign addendum (2026-10-20, after initial preparation)
+
+Actual code progression is disclosed by each run's immutable IDENTITY. The six
+main G1 models execute sourceb7cc81fb with their original `.2` temporal loss.
+Later reviewed reporting/controls/ablation source is not hot-written into those
+runtime snapshots. Six G1 and16 A/B models now each have1000-step COMPLETE
+receipts. The formal fleet is **not** the smaller default6000-update dispatcher
+plan above: its pre-registered full plan has22 main models /22000updates.
+`FORMAL_PLAN_AMENDMENT_01.json` adds exactly one independent1000-step no-temporal
+G1 arm (23000 total ceiling) and3424 native-call allowance for two nonlearned DEV
+controls. Qualification updates are separately recorded, not disguised as models.
+The original plan remains immutable and no DEV result tunes these recipes.
+
+- TRAIN1024 context and strict pair/repair datasets are COMPLETE:20678pairs,
+  983pair scenes,758fit-pair scenes and225heldout-pair scenes. Full role requests
+  remain791fit/233validation. Eight validation scenes have no native valid
+  interventions; they are not missing model predictions or automatically scored0.
+- DEV1696/16log context is fully sealed;2,226,901,212B payload,0new action-head bytes.
+- S0/RandomLocal/FixedLateBrake complete current-protocol means are
+  91.388363/90.485193/91.243356. Their official RESULT paths are
+  `evaluation/ARM/seed_42/dev_report/score/RESULT.json` (the actual fleet path,
+  rather than the optional generic dispatcher's additional population component).
+- Fitting results use `evaluation/ARM/seed_42/fit/score/RESULT.json`; validation
+  uses the corresponding `validation` role. Do not confuse the TRAIN holdout
+  population with independent DEV, or fit evidence with generalization.
+
+Existing fully verified data should be consumed, not rebuilt. The new independent
+G1 comparison is reporting-only and reads each existing final CPU COMPLETE:
+
+```bash
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+python -m tools.action_effect.compare_eligible_effect_models \
+  --comparison six \
+  --evaluations-json reports/action_effect/G1_ORIGINAL_EVALUATION_PATHS.json \
+  --step 1000 --bootstrap 2000 --seed 42 \
+  --output /mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/derived_eligible_comparison
+```
+
+This explicit versioned report preserves the original233-scene COMPLETE/METRICS,
+verifies every native validation pair before admitting the complete225-scene pair
+task, and refuses genuinely missing predictions. It does not run forward, simulate
+or train. A structural forced-identity extension defines only incremental0 for
+8no-pair scenes, never fabricated absolute full-population PDMS. For temporal
+ablation, use `--comparison temporal` and a JSON mapping `full`/`no_temporal` to
+their two actual original evaluation COMPLETE receipts; the same source admission
+and strict actual weight/sampler/backend matching apply.
+
+The optional extra no-temporal run must use the separately reviewed source and
+namespace, preserving main loss/data/seed/horizon. It is not another default
+teacher or automatic six-arm search. Resume uses exactly its own output+identity:
+
+```bash
+python -m tools.action_effect.train_effect_model \
+  --config configs/action_effect/shared_budget_v2.yaml \
+  --context-manifest /mnt/project/action-effect-repair-20261020-budget-v2/contexts/MANIFEST_001024.json \
+  --pair-dataset /mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/PAIR_DATASET.json \
+  --arm delta_feedback --temporal-loss-weight 0 \
+  --device cuda:0 --seed 42 --max-updates 1000 \
+  --output /mnt/project/action-effect-repair-20261020-budget-v2/g1_ablation/no_temporal/seed_42
+```
+
+Add `--resume` only for its already existing stopped run. These commands are
+reproducibility/resumption entries, not a request to duplicate the registered
+fleet or to consume an occupied GPU. For already terminal1000 checkpoints, the
+common resume entry adds zero updates. Do not lower the horizon or reset warmup.
+All new actual endpoints/bundles keep explicit Base/checkpoint/data/runtime pins;
+no Base is restarted or changed and no NAVTEST or ACTIVE is invoked.

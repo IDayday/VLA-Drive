@@ -1,0 +1,156 @@
+{
+  "baseline": {
+    "bytes": 4280624,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/RESULT.json",
+    "sha256": "ecfb3209d954836e75feb83eb87d43771fab1db52def27c854ebe42f5f6fbf2c"
+  },
+  "identity": "d3f1201be23cd3b7a5bb522151498bfd16f6ac25712174c4f60eb114b9b390d6",
+  "methods": {
+    "FixedLateBrake": {
+      "bytes": 4344368,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/RESULT.json",
+      "sha256": "75b88128acc8ec91009d31275183891e94b9b7b576d59e60bc184c4a9b353110"
+    },
+    "RandomLocal": {
+      "bytes": 4330895,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/RESULT.json",
+      "sha256": "0fa8aac6fe6c6ef62aa462400996b6b8d13d8481c9bd04fba743911e28b477a4"
+    }
+  },
+  "navtest_accessed": false,
+  "results": {
+    "FixedLateBrake": {
+      "DDC_weight": 0,
+      "base_mean": 0.9138836301424386,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 42,
+      "changed_score_scenes": 1036,
+      "common_valid_scenes": 1696,
+      "components": {
+        "comfort": {
+          "base_mean": 1.0,
+          "method_mean": 1.0
+        },
+        "drivable_area_compliance": {
+          "base_mean": 0.9834905660377359,
+          "method_mean": 0.9846698113207547
+        },
+        "driving_direction_compliance": {
+          "base_mean": 0.9873231132075472,
+          "method_mean": 0.9876179245283019
+        },
+        "ego_progress": {
+          "base_mean": 0.8543107168672595,
+          "method_mean": 0.8415034872846754
+        },
+        "no_at_fault_collisions": {
+          "base_mean": 0.9911556603773585,
+          "method_mean": 0.9911556603773585
+        },
+        "score": {
+          "base_mean": 0.9138836301424386,
+          "method_mean": 0.9124335649890143
+        },
+        "time_to_collision_within_bound": {
+          "base_mean": 0.9640330188679245,
+          "method_mean": 0.9722877358490566
+        }
+      },
+      "delta_ci95": [
+        -0.0040528392708329445,
+        0.0007820800702280981
+      ],
+      "full_population_score_claim": true,
+      "high_to_zero": 1,
+      "invalid_or_unresolved": 0,
+      "mean_delta": -0.0014500651534240466,
+      "mean_trajectory_change_m": 0.1416015625,
+      "method_mean": 0.9124335649890143,
+      "method_zero": 40,
+      "negative_cost": 0.0064315644916928235,
+      "new_DAC_failures": 1,
+      "new_NC_failures": 0,
+      "new_TTC_failures": 1,
+      "nonzero_to_zero": 1,
+      "original_high": 1608,
+      "original_zero": 42,
+      "positive_gain": 0.004981499338268777,
+      "repaired_DAC_failures": 3,
+      "repaired_NC_failures": 0,
+      "repaired_TTC_failures": 15,
+      "requested_scenes": 1696,
+      "score_units": "0..1",
+      "source_logs": 16,
+      "zero_repaired": 3
+    },
+    "RandomLocal": {
+      "DDC_weight": 0,
+      "base_mean": 0.9138836301424386,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 42,
+      "changed_score_scenes": 1021,
+      "common_valid_scenes": 1696,
+      "components": {
+        "comfort": {
+          "base_mean": 1.0,
+          "method_mean": 1.0
+        },
+        "drivable_area_compliance": {
+          "base_mean": 0.9834905660377359,
+          "method_mean": 0.9752358490566038
+        },
+        "driving_direction_compliance": {
+          "base_mean": 0.9873231132075472,
+          "method_mean": 0.9876179245283019
+        },
+        "ego_progress": {
+          "base_mean": 0.8543107168672595,
+          "method_mean": 0.8453004527211502
+        },
+        "no_at_fault_collisions": {
+          "base_mean": 0.9911556603773585,
+          "method_mean": 0.9896816037735849
+        },
+        "score": {
+          "base_mean": 0.9138836301424386,
+          "method_mean": 0.9048519282022242
+        },
+        "time_to_collision_within_bound": {
+          "base_mean": 0.9640330188679245,
+          "method_mean": 0.9640330188679245
+        }
+      },
+      "delta_ci95": [
+        -0.014490170257174948,
+        -0.0002724453112199255
+      ],
+      "full_population_score_claim": true,
+      "high_to_zero": 17,
+      "invalid_or_unresolved": 0,
+      "mean_delta": -0.009031701940214387,
+      "mean_trajectory_change_m": 0.16229915978773585,
+      "method_mean": 0.9048519282022242,
+      "method_zero": 58,
+      "negative_cost": 0.013327673709226216,
+      "new_DAC_failures": 18,
+      "new_NC_failures": 4,
+      "new_TTC_failures": 6,
+      "nonzero_to_zero": 21,
+      "original_high": 1608,
+      "original_zero": 42,
+      "positive_gain": 0.004295971769011828,
+      "repaired_DAC_failures": 4,
+      "repaired_NC_failures": 1,
+      "repaired_TTC_failures": 6,
+      "requested_scenes": 1696,
+      "score_units": "0..1",
+      "source_logs": 16,
+      "zero_repaired": 5
+    }
+  },
+  "schema": "action_effect_matched_comparison_v1",
+  "scientific_conclusion": "must assess matched controls, independent seeds and severe regressions together",
+  "selection_performed": false,
+  "statistical_unit": "paired full source-log resampling; scene-weighted mean within each draw",
+  "status": "COMPLETE"
+}
