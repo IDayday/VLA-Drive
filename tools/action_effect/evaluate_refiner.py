@@ -55,21 +55,37 @@ def load_refiner(checkpoint, *, expected_base_binding_hash, expected_data_artifa
 
 def predict(cfg, *, dataset_path, context_manifest, checkpoint, output, role, max_samples,
             device, campaign_binding=None, resume=False):
-    if role not in ("fit", "validation") or type(max_samples) is not int or not 1 <= max_samples <= cfg["cohort_size"]:
+    dev = role == "dev_report"
+    cap = 1696 if dev else cfg["cohort_size"]
+    if role not in ("fit", "validation", "dev_report") or type(max_samples) is not int or not 1 <= max_samples <= cap:
         raise ValueError("Explicit bounded fit/validation prediction population required")
-    dataset = prepare_dataset(cfg, dataset_path, context_manifest, campaign_binding)
-    selected = [r for r in dataset.entries if r["role"] == role][:max_samples]
+    if dev:
+        from .evaluation_context_data import EvaluationContextReader, FULL_SCENES
+        if max_samples != FULL_SCENES:
+            raise ValueError("Final DEV evaluation uses the fixed complete1696 population, not an outcome-selected subset")
+        reader = EvaluationContextReader(context_manifest)
+        selected = reader.binding["population"]
+        source_registration = reader.manifest["registration"]
+    else:
+        dataset = prepare_dataset(cfg, dataset_path, context_manifest, campaign_binding)
+        reader = dataset.reader
+        selected = [r for r in dataset.entries if r["role"] == role][:max_samples]
+        source_registration = dataset.manifest["registration"]
     if not selected: raise ValueError("Requested role has no registered scenes")
-    model = load_refiner(checkpoint, expected_base_binding_hash=dataset.reader.binding["base_checkpoint_binding_hash"],
-                         expected_data_artifact=artifact(dataset_path)).to(device)
+    model = load_refiner(checkpoint, expected_base_binding_hash=reader.binding["base_checkpoint_binding_hash"],
+                         expected_data_artifact=None if dev else artifact(dataset_path)).to(device)
     identity = {"schema": "action_effect_refiner_prediction_registration_v1", "arm": model.provenance["arm"],
         "checkpoint": model.provenance["checkpoint"], "model_provenance": model.provenance,
-        "repair_dataset": artifact(dataset_path), "context_manifest": artifact(context_manifest),
-        "campaign_binding": dataset.reader.binding["identity"], "g0_registration": dataset.manifest["registration"],
+        "context_manifest": artifact(context_manifest),
+        "campaign_binding": reader.binding["identity"], "g0_registration": source_registration,
         "role": role, "requested_max_samples": max_samples, "scene_ids": [r["scene_id"] for r in selected],
-        "base_checkpoint": dataset.manifest["base_checkpoint"], "score_protocol_hash": dataset.manifest["score_protocol_hash"],
-        "numeric_runtime_hash": dataset.manifest["numeric_runtime_hash"], "effect_teacher_deployed": False,
-        "baseline_definition": "same immutable S0 physical trajectory and same reference context as G0"}
+        "base_checkpoint": reader.binding["base_checkpoint"], "score_protocol_hash": reader.binding["score_protocol_hash"] if dev else dataset.manifest["score_protocol_hash"],
+        "numeric_runtime_hash": reader.binding["numeric_runtime_hash"] if dev else dataset.manifest["numeric_runtime_hash"], "effect_teacher_deployed": False,
+        "baseline_definition": "same immutable S0 physical trajectory and same locked population/reference context"}
+    if dev:
+        identity.update(population_artifact=artifact(context_manifest), population_artifact_kind="DEV_context_only_no_repairs")
+    else:
+        identity["repair_dataset"] = artifact(dataset_path)
     identity["identity"] = digest(identity)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     with lock(output / "PREDICT.lock"):
@@ -79,21 +95,21 @@ def predict(cfg, *, dataset_path, context_manifest, checkpoint, output, role, ma
         rows, started = [], time.perf_counter()
         with torch.no_grad():
             for row in selected:
-                current = dataset.reader[row["scene_id"]]
+                current = reader[row["scene_id"]]
                 context = batch_context([current], device)
                 base = current["physical"][None].to(device).float()
                 proposal = model.deploy(context, base)
                 physical = proposal["trajectory"][0].cpu().double().numpy()
                 proposed = reconstruct_torch(base, proposal["coefficients"].to(base.dtype), model.refiner.config.basis)[0].cpu().double().numpy()
                 record = {"scene_id": row["scene_id"], "source_log": row["source_log"], "role": row["role"],
-                    "observation_hash": row["observation_hash"], "base_physical": row["base_physical"],
+                    "observation_hash": row["observation_hash"], "base_physical": current["physical"].double().tolist(),
                     "physical": physical.tolist(), "proposed_physical": proposed.tolist(),
                     "coefficients": proposal["coefficients"][0].cpu().double().tolist(),
                     "geometry_accepted": bool(proposal["geometry_accepted"][0]),
                     "geometry_screen": proposal["geometry_screen"][0],
-                    "base_metrics": row["base_metrics"], "base_feedback": row["base_feedback"],
-                    "base_canonical_receipt": row["base_canonical_receipt"],
-                    "target_kind": row["target_kind"], "repair_status": row["repair_status"],
+                    "base_metrics": row.get("base_metrics"), "base_feedback": row.get("base_feedback"),
+                    "base_canonical_receipt": row.get("base_canonical_receipt"),
+                    "target_kind": row.get("target_kind"), "repair_status": row.get("repair_status"),
                     "teacher_forward_calls": 0, "real_feedback_used_for_prediction": False}
                 record["identity"] = digest(record); rows.append(record)
         result = {"schema": "action_effect_refiner_predictions_v1", "status": "COMPLETE", "registration": artifact(output/"PREDICTION_REGISTRATION.json"),
@@ -246,7 +262,7 @@ def main(argv=None):
     p.add_argument("--config", required=True); p.add_argument("--phase", required=True, choices=("predict", "score"))
     p.add_argument("--repair-dataset"); p.add_argument("--context-manifest"); p.add_argument("--campaign-binding")
     p.add_argument("--checkpoint"); p.add_argument("--predictions"); p.add_argument("--output", required=True)
-    p.add_argument("--role", choices=("fit", "validation"), default="validation"); p.add_argument("--max-samples", type=int)
+    p.add_argument("--role", choices=("fit", "validation", "dev_report"), default="validation"); p.add_argument("--max-samples", type=int)
     p.add_argument("--max-simulation-budget", type=int); p.add_argument("--max-seconds", type=float, default=3600.)
     p.add_argument("--device", default="cuda:0"); p.add_argument("--resume", action="store_true"); p.add_argument("--dry-run", action="store_true")
     a = p.parse_args(argv)
@@ -255,7 +271,7 @@ def main(argv=None):
         if a.dry_run:
             print(json.dumps({"status": "NOT_RUN", "phase": a.phase, "config_hash": digest(cfg), "simulation_calls": 0})); return 0
         if a.phase == "predict":
-            if not all((a.repair_dataset,a.context_manifest,a.checkpoint,a.max_samples)):
+            if not all((a.context_manifest,a.checkpoint,a.max_samples)) or (a.role != "dev_report" and not a.repair_dataset):
                 raise ValueError("Prediction needs explicit dataset/context/checkpoint/sample budget")
             result = predict(cfg, dataset_path=a.repair_dataset, context_manifest=a.context_manifest,
                 checkpoint=a.checkpoint, output=a.output, role=a.role, max_samples=a.max_samples,

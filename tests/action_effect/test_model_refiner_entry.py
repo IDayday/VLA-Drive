@@ -237,3 +237,51 @@ def test_scoring_budget_exhaustion_remains_partial_without_valid_zero(tmp_path, 
                    output=tmp_path/"score",max_simulation_budget=1,max_seconds=30)
     assert result["status"] == "PARTIAL" and result["summary"]["PDMS"] is None
     assert result["summary"]["valid_refined_scenes"] == 0 and not (tmp_path/"score"/"COMPLETE.json").exists()
+
+
+def test_dev_prediction_does_not_open_training_repairs_or_require_matching_training_context(tmp_path, monkeypatch):
+    from tools.action_effect import evaluate_refiner as evaluation
+    from tools.action_effect import evaluation_context_data
+    from torch import nn
+    context,base,_=batch(1)
+    checkpoint=tmp_path/'marked_synthetic_model.pt';checkpoint.write_text('synthetic, not actual trained weights')
+    manifest=tmp_path/'marked_synthetic_dev_manifest.json';write_json(manifest,{'test':'not a real DEV cache'})
+    registration=tmp_path/'marked_synthetic_eval_registration.json';write_json(registration,{'test':'synthetic'})
+    population=[{'scene_id':f'scene{i:04d}','source_log':f'log{i%16}','role':'dev_report','split':'dev','observation_hash':'a'*64}
+                for i in range(1696)]
+    class FixtureReader:
+        def __init__(self,path):
+            assert path==manifest
+            self.binding={'identity':'d'*64,'base_checkpoint_binding_hash':'b'*64,'base_checkpoint':{'sha256':'c'*64},
+                          'numeric_runtime_hash':'e'*64,'score_protocol_hash':'f'*64,'population':population}
+            self.manifest={'registration':artifact(registration)}
+        def __getitem__(self,sid):
+            return {'physical':base[0],'memory':context['memory'][0],'ego':context['ego'][0]}
+    class FixtureModel(nn.Module):
+        def __init__(self):
+            super().__init__();self.provenance={'arm':'A0','checkpoint':artifact(checkpoint)}
+            self.refiner=SimpleNamespace(config=SimpleNamespace(basis=BasisSpec()));self.calls=0
+        def deploy(self,context,trajectory):
+            self.calls+=1
+            return {'trajectory':trajectory,'coefficients':torch.zeros(1,8),'delta':torch.zeros_like(trajectory),
+                    'geometry_accepted':torch.ones(1,dtype=torch.bool),'geometry_screen':[{'test':'synthetic screen'}]}
+    model=FixtureModel()
+    def fixture_load(path,**kwargs):
+        assert path==checkpoint and kwargs['expected_data_artifact'] is None
+        assert kwargs['expected_base_binding_hash']=='b'*64
+        return model
+    monkeypatch.setattr(evaluation_context_data,'EvaluationContextReader',FixtureReader)
+    monkeypatch.setattr(evaluation,'load_refiner',fixture_load)
+    def forbidden(*a,**kw):raise AssertionError('DEV prediction must not access TRAIN repair data/targets')
+    monkeypatch.setattr(evaluation,'prepare_dataset',forbidden)
+    with pytest.raises(ValueError,match='complete1696'):
+        evaluation.predict({'cohort_size':1024},dataset_path='/forbidden/GT',context_manifest=manifest,checkpoint=checkpoint,
+            output=tmp_path/'partial',role='dev_report',max_samples=32,device='cpu')
+    result=evaluation.predict({'cohort_size':1024},dataset_path='/forbidden/GT',context_manifest=manifest,checkpoint=checkpoint,
+        output=tmp_path/'full',role='dev_report',max_samples=1696,device='cpu')
+    prediction=json.loads((tmp_path/'full'/'PREDICTIONS.json').read_text())
+    reg=json.loads((tmp_path/'full'/'PREDICTION_REGISTRATION.json').read_text())
+    assert result['requested_scenes']==1696 and model.calls==1696
+    assert [r['scene_id'] for r in prediction['entries']]==[r['scene_id'] for r in population]
+    assert reg['population_artifact']==artifact(manifest) and 'repair_dataset' not in reg
+    assert all(r['base_metrics'] is r['base_feedback'] is r['target_kind'] is None for r in prediction['entries'])
