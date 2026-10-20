@@ -57,7 +57,10 @@ class PairData:
             if self.names is None:self.names=signature
             if signature!=self.names:raise ValueError('Inconsistent effect label channels')
             groups[r['role']].add(r['source_log'])
-            if r['role']=='fit':self.by_scene.setdefault(r['scene_id'],[]).append(r)
+            if r['role']=='fit':
+                # Joint longitudinal+lateral combinations are held out in G1.
+                # G0 still simulates/retains them for supervised evaluation.
+                if r['kind']!='joint':self.by_scene.setdefault(r['scene_id'],[]).append(r)
             else:self.validation.append(r)
         if groups['fit']&groups['validation']:raise ValueError('Log leakage across effect fit/validation')
         if not self.by_scene or not self.validation:raise ValueError('Need real fit AND held-out TRAIN logs')
@@ -102,14 +105,14 @@ class PairData:
 
 
 def evaluate(model,data,device,microbatch=8):
-    score=data.spec.names.index('score');pred=[];true=[];scenes=[];variances=[];events=[];event_true=[]
+    score=data.spec.names.index('score');pred=[];true=[];scenes=[];variances=[];events=[];event_true=[];kinds=[]
     squared=np.zeros(len(data.spec.names));counts=np.zeros_like(squared);time_absolute=[];temporal_error=[]
     for at in range(0,len(data.validation),microbatch):
         rows=data.validation[at:at+microbatch];p=data.predict(model,rows,device);t=data.targets(rows,device)
         d=t['after']-t['before'];valid=t['after_valid']&t['before_valid'];error=(p['mean_delta']-d).detach().cpu().numpy()
         v=valid.cpu().numpy();squared+=(np.where(v,error,0.)**2).sum(0);counts+=v.sum(0)
         pred.extend(p['mean_delta'][:,score].cpu().tolist());true.extend(d[:,score].cpu().tolist())
-        scenes.extend(r['scene_id'] for r in rows);variances.extend(p['logvar_delta'][:,score].exp().cpu().tolist())
+        scenes.extend(r['scene_id'] for r in rows);kinds.extend(r['kind'] for r in rows);variances.extend(p['logvar_delta'][:,score].exp().cpu().tolist())
         events.extend(p['event_logits'].argmax(-1).cpu().tolist());event_true.extend(t['event_targets'].cpu().tolist())
         tv=t['temporal_valid'];te=(p['temporal_delta']-t['temporal_targets']).abs();temporal_error.extend(te[tv].cpu().tolist())
     pred=np.array(pred);true=np.array(true);valid=abs(true)>.01
@@ -120,6 +123,10 @@ def evaluate(model,data,device,microbatch=8):
         random.append(float(x[:,1].mean()));oracle.append(float(max(0.,x[:,1].max())))
     return {'heldout_pairs':len(true),'heldout_scenes':len(by),'non_tie_pairs':int(valid.sum()),
         'direction_accuracy':float(np.mean(np.sign(pred[valid])==np.sign(true[valid]))) if valid.any() else None,
+        'intervention_subsets':{k:{'pairs':int((np.array(kinds)==k).sum()),
+            'non_tie_pairs':int(((np.array(kinds)==k)&valid).sum()),
+            'direction_accuracy':float(np.mean(np.sign(pred[(np.array(kinds)==k)&valid])==np.sign(true[(np.array(kinds)==k)&valid])))
+                if ((np.array(kinds)==k)&valid).any() else None} for k in sorted(set(kinds))},
         'score_delta_rmse':float(np.sqrt(np.mean((pred-true)**2))),
         'label_rmse':{n:float(np.sqrt(squared[i]/counts[i])) if counts[i] else None for i,n in enumerate(data.spec.names)},
         'label_valid_counts':dict(zip(data.spec.names,counts.astype(int).tolist())),
@@ -138,7 +145,8 @@ def train(cfg,*,context_manifest,pair_dataset,arm,device,seed,max_updates,stop_a
     identity={'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'arm':arm,
         'model_config':asdict(mc),'label_spec':asdict(data.spec),'base_binding_hash':reader.binding['base_checkpoint_binding_hash'],
         'data_artifact':artifact(pair_dataset),'context_artifact':artifact(context_manifest),'loss_weights':WEIGHTS,
-        'scene_shuffle_map_hash':digest(data.shuffle_map),'sampling':'uniform fit scene then uniform valid pair'}
+        'scene_shuffle_map_hash':digest(data.shuffle_map),'withheld_training_interventions':['joint'],
+        'sampling':'uniform fit scene then uniform valid pair'}
     def step_fn(model,indices,step):
         rows=[]
         for i in indices:
