@@ -8,6 +8,8 @@ import numpy as np
 import torch
 from asset_adapter import config,rows,scene,mapped,validate,digest
 import engine
+from contracts import validate_training, validate_prepared
+from cf_contract import validate_cf_batches
 sys.path.insert(0,str(ROOT/'vendor/grpo_smoke_v1'))
 import smoke as core
 from input_protocol import validate_protocol, native_clean_suffix
@@ -28,6 +30,7 @@ def read(path):return json.loads(Path(path).read_text())
 def identity(cfg,c,prepared):
     source=Path(c['source_root']);return {'training':cfg,'checkpoint':c['checkpoint_sha256'],'train':digest(c['train_pairs']),'test':digest(c['test_pairs']),'prepared':digest(prepared/'PREPARATION.json'),'code':{str(p.relative_to(ROOT)):digest(p) for p in sorted(list(ROOT.glob('*.py'))+list((ROOT/'vendor').rglob('*.py'))) if '__pycache__' not in p.parts},'model_source':{str(p.relative_to(source)):digest(p) for p in sorted((source/'starVLA').rglob('*.py'))},'model_config':digest(c['model_config']),'tokenizer':{p.name:digest(p) for p in sorted(Path(c['tokenizer_root']).glob('*.json'))}}
 def validate_plan(cfg,prepared,mode):
+    validate_training(cfg,formal=mode!='smoke')
     validate_protocol(cfg)
     expected_arms={'A','B','C','F','E','A_VLM','C_VLM','E_VLM','A_DiT','C_DiT','E_DiT'}
     if set(cfg['arms'])!=expected_arms or len(cfg['arms'])!=11 or cfg['evaluation_replicates']!=3:raise ValueError('Expected all 11 arms and three paired evaluation replicates')
@@ -40,6 +43,7 @@ def validate_plan(cfg,prepared,mode):
         if not cfg.get('formal_protocol_locked') or not isinstance(cfg.get('epochs'),int) or cfg['epochs']<=0 or not cfg.get('training_seeds') or not cfg.get('wall_seconds'):raise ValueError('Formal epochs, seeds, wall budget and protocol lock required')
         if cfg['wall_seconds']<=0 or len(set(cfg['training_seeds']))!=len(cfg['training_seeds']) or not all(isinstance(s,int) for s in cfg['training_seeds']):raise ValueError('Invalid budget or duplicate/noninteger training seeds')
         if p['status']!='PASS':raise ValueError('Full F coverage not accepted: '+p['status'])
+        validate_prepared(prepared,cfg,complete=True)
 
 def load_model(c):
     if not torch.cuda.is_available() or torch.cuda.device_count()!=1:raise RuntimeError('Each replica requires exactly one visible accelerator')
@@ -78,6 +82,8 @@ def main(a):
         if mode=='smoke' and (not 1<=a.smoke_updates<=2 or not 0<a.smoke_wall_seconds<=1800):raise ValueError('Smoke is limited to <=2 updates and <=1800 seconds')
         status('asset_validation');validation=validate(c,full_hash=True)
         if validation['status']!='PASS':raise ValueError(json.dumps(validation))
+        random.seed(a.seed);np.random.seed(a.seed%2**32);torch.manual_seed(a.seed)
+        if torch.cuda.is_available():torch.cuda.manual_seed_all(a.seed)
         ident=identity(cfg,c,prepared);save_json(out/'IDENTITY.json',ident)
         for name,h in ident['code'].items():
             src=ROOT/name;dst=out/'code'/name;dst.parent.mkdir(parents=True,exist_ok=True);data_bytes=src.read_bytes()
@@ -86,14 +92,16 @@ def main(a):
         save_json(out/'INVOCATION.json',vars(a));splits=read(prepared/'SPLITS.json');prompts={r['token']:r for r in read(prepared/'PROMPTS.json')['scenes']};data={r['token']:r for s in ['train','test'] for r in rows(c,s)}
         status('loading_model');model=load_model(c);model.requires_grad_(False);frozen_base_hash=engine.state_hash(model,'all')
         input_arm=engine.input_arm(a.arm);device='cuda:0';completed=0;carry=0.;parent=str(Path(a.resume).resolve()) if a.resume else None
+        f_assignments={r['token']:r for r in read(prepared/'DONORS.json')['assignments']}
+        f_policy=read(prepared/'PREPARATION.json').get('f_policy',{'max_token_delta':0,'exception_tokens':[]})
+        if cfg.get('f_max_token_delta',0)!=f_policy['max_token_delta']:raise ValueError('Training and prepared F policies differ')
+        f_exceptions=set(f_policy['exception_tokens'])
         def batch_for(token):
             row=data[token];sc=scene(row,c);images=load_images(sc);prompt=prompts[token]['arms'][input_arm]['text'];batch=core.build_inputs(model,sc,prompt,images)
             # Text-only matching is insufficient; check actual multimodal IDs/special positions.
             if input_arm=='F':
                 other=core.build_inputs(model,sc,prompts[token]['arms']['C']['text'],images)
-                if batch['input_ids'].shape!=other['input_ids'].shape:raise ValueError('C/F multimodal token length mismatch')
-                for kind in ['history','action']:
-                    if not torch.equal(model._find_token_positions(batch['input_ids'],model._special_token_ids[kind]),model._find_token_positions(other['input_ids'],model._special_token_ids[kind])):raise ValueError('C/F insertion positions mismatch')
+                validate_cf_batches(model,other,batch,f_assignments[token],f_policy['max_token_delta'] if token in f_exceptions else 0)
             return sc,batch
         def scored(token,raw,role,rep,noise):
             r=data[token];trajectories=[];metrics=[];candidates=[]
@@ -102,7 +110,7 @@ def main(a):
                 except Exception as exc:
                     save_json(out/'FAILED_CANDIDATE.json',{'token':token,'candidate':i,'role':role,'replicate':rep,'seed':noise,'type':type(exc).__name__,'message':str(exc)});raise
                 trajectories.append(p);metrics.append(s['metrics']);candidates.append({'candidate':i,'trajectory':p.tolist(),'metrics':s['metrics']})
-            return [m['PDMS'] for m in metrics],{'token':token,'log':r['log'],'drive':r['log'].rsplit('_',2)[0],'arm':a.arm,'input':input_arm,'role':role,'replicate':rep,'candidates':candidates,'seed':noise,'base_pdms':r['base_score']['metrics']['PDMS'],'exploration':engine.exploration(trajectories,metrics,r['base_score']['metrics']['PDMS'])}
+            return [m['PDMS'] for m in metrics],{'token':token,'log':r['log'],'drive':r['log'].rsplit('_',2)[0],'arm':a.arm,'input':input_arm,'f_match_kind':'exception' if token in f_exceptions else 'strict','f_token_delta':f_assignments.get(token,{}).get('token_delta',0),'role':role,'replicate':rep,'candidates':candidates,'seed':noise,'base_pdms':r['base_score']['metrics']['PDMS'],'exploration':engine.exploration(trajectories,metrics,r['base_score']['metrics']['PDMS'])}
         def evaluate(tokens,stage,reps=1):
             directory=out/'evaluation'/stage;directory.mkdir(parents=True,exist_ok=False);expected=[]
             for token in tokens:
@@ -137,6 +145,17 @@ def main(a):
             save_json(out/'BASE_FORWARD_REPLAY.json',{'status':'PASS','max_abs_error':error,'token':replay_token,'input_protocol_version':core.INPUT_PROTOCOL_VERSION,'comparison':'native and training paths both use clean suffix; not legacy-output equality'})
             del original,local,q,base_batch,base_images
         budget=a.smoke_wall_seconds if mode=='smoke' else cfg['wall_seconds']
+        if mode in ['initial','final']:budget=cfg.get('evaluation_wall_seconds') or cfg['wall_seconds']
+        if mode=='inputs':
+            if a.arm!='F':raise ValueError('Full input audit requires arm F')
+            checked=[]
+            for token in splits['train']+splits['test']:
+                if STOP or time.monotonic()-started>=budget:raise InterruptedError('Input audit incomplete')
+                sc,batch=batch_for(token)
+                checked.append({'token':token,'token_delta':f_assignments[token].get('token_delta',0)})
+                if len(checked)%100==0:status('input_audit',checked=len(checked),expected=1405)
+            save_json(out/'INPUT_ACCEPTANCE.json',{'status':'PASS','scenes':len(checked),'strict':sum(x['token_delta']==0 for x in checked),'exceptions':sum(x['token_delta']!=0 for x in checked),'records':checked})
+            save_json(out/'RESULT.json',{'status':'COMPLETE','mode':mode,'arm':a.arm,'seed':a.seed,'elapsed_s':time.monotonic()-started});return 0
         if mode in ['initial','final']:
             if mode=='initial' and a.arm not in ['A','B','C','F','E']:raise ValueError('Only five unique initial inputs')
             if mode=='final':
@@ -146,7 +165,7 @@ def main(a):
                 state=torch.load(cp,map_location='cpu',weights_only=False)
                 if state['identity']!=ident or state['arm']!=a.arm or state['seed']!=a.seed or state['completed_updates']!=cfg['epochs']*316:raise ValueError('Final checkpoint not at fixed approved endpoint')
                 model.load_state_dict(state['model'],strict=True);del state
-            evaluate(splits['test'],mode,cfg['evaluation_replicates']);save_json(out/'RESULT.json',{'status':'COMPLETE','mode':mode,'arm':a.arm,'checkpoint':a.resume,'elapsed_s':time.monotonic()-started});return
+            evaluate(splits['test'],mode,cfg['evaluation_replicates']);save_json(out/'RESULT.json',{'status':'COMPLETE','mode':mode,'arm':a.arm,'seed':a.seed,'checkpoint':a.resume,'elapsed_s':time.monotonic()-started});return
         reference=copy.deepcopy(model).eval().requires_grad_(False)
         inventory=engine.scope(model,engine.arm_scope(a.arm));save_json(out/'PARAMETERS.json',inventory);frozen_hash=engine.state_hash(model);opt=engine.optimizer(model,cfg)
         if a.resume:completed,carry=restore(Path(a.resume),model,opt,ident,a.arm,a.seed)
@@ -164,17 +183,17 @@ def main(a):
         def interrupted(reason,pending_monitor=None):
             snapshot(ckpts/f'update_{completed:06d}_interrupt.pt',model,opt,ident,a.arm,a.seed,completed,time.monotonic()-started+carry,parent,pending_monitor)
             save_json(out/'RESULT.json',{'status':'INTERRUPTED','completed_updates':completed,'reason':reason,'formal_final':False})
-        if mode!='smoke' and completed==0:
+            return 2
+        if mode!='smoke' and completed==0 and not a.resume:
             try:evaluate(splits['monitor'],'monitor_initial')
-            except (TimeoutError,InterruptedError) as exc:interrupted(str(exc),'monitor_initial');return
+            except (TimeoutError,InterruptedError) as exc:return interrupted(str(exc),'monitor_initial')
         if a.resume and read(Path(a.resume).with_suffix('.json')).get('pending_monitor'):
             pending=read(Path(a.resume).with_suffix('.json'))['pending_monitor']
             try:evaluate(splits['monitor'],pending)
-            except (TimeoutError,InterruptedError) as exc:interrupted(str(exc),pending);return
+            except (TimeoutError,InterruptedError) as exc:return interrupted(str(exc),pending)
         while completed<total:
             if STOP or time.monotonic()-started+carry>=budget:
-                snapshot(ckpts/f'update_{completed:06d}_interrupt.pt',model,opt,ident,a.arm,a.seed,completed,time.monotonic()-started+carry,parent)
-                save_json(out/'RESULT.json',{'status':'INTERRUPTED','completed_updates':completed,'reason':'signal' if STOP else 'cumulative_budget','formal_final':False});return
+                return interrupted('signal' if STOP else 'cumulative_budget')
             epoch=completed//316;window=completed%316;tokens=engine.order(splits['train'],a.seed,epoch)[window*4:(window+1)*4]
             if len(tokens)!=4:raise ValueError('Incomplete accumulation window')
             opt.zero_grad(set_to_none=True);records=[];before=engine.witnesses(model)
@@ -189,7 +208,7 @@ def main(a):
             save_json(out/'updates'/f'{completed:06d}.json',update);all_updates.append({'update':completed,**stats,'changes':update['parameters']})
             if mode!='smoke' and completed%316==0:
                 try:evaluate(splits['monitor'],f'monitor_epoch_{completed//316}')
-                except (TimeoutError,InterruptedError) as exc:interrupted(str(exc),f'monitor_epoch_{completed//316}');return
+                except (TimeoutError,InterruptedError) as exc:return interrupted(str(exc),f'monitor_epoch_{completed//316}')
             save_every=cfg['checkpoint_every_updates']
             if completed==total or completed%316==0 or (save_every and completed%save_every==0):
                 status('checkpoint_validation',completed_updates=completed)
@@ -207,7 +226,9 @@ def main(a):
         save_json(out/'RESULT.json',{'status':'COMPLETE','mode':mode,'arm':a.arm,'seed':a.seed,'completed_updates':completed,'checkpoint':str(ckpts/f'update_{completed:06d}.pt'),'frozen_parameters_buffers_exact':True,'reference_exact':True,'parameter_changes':changed,'elapsed_s':time.monotonic()-started+carry,'formal_training':mode=='train'})
         status('complete',completed_updates=completed)
     except BaseException as exc:
-        save_json(out/'ERROR.json',{'type':type(exc).__name__,'message':str(exc),'traceback':traceback.format_exc()});status('failed');raise
+        save_json(out/'ERROR.json',{'type':type(exc).__name__,'message':str(exc),'traceback':traceback.format_exc()})
+        save_json(out/'RESULT.json',{'status':'FAILED','mode':mode,'arm':a.arm,'seed':a.seed,'error_type':type(exc).__name__,'message':str(exc)})
+        status('failed');raise
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--assets',required=True);p.add_argument('--training',required=True);p.add_argument('--prepared',required=True);p.add_argument('--out',required=True);p.add_argument('--arm',required=True);p.add_argument('--seed',type=int,default=20261019);p.add_argument('--mode',choices=['smoke','initial','train','final'],required=True);p.add_argument('--resume');p.add_argument('--smoke-updates',type=int,default=2);p.add_argument('--smoke-wall-seconds',type=int,default=1800);main(p.parse_args())
+    p=argparse.ArgumentParser();p.add_argument('--assets',required=True);p.add_argument('--training',required=True);p.add_argument('--prepared',required=True);p.add_argument('--out',required=True);p.add_argument('--arm',required=True);p.add_argument('--seed',type=int,default=20261019);p.add_argument('--mode',choices=['smoke','inputs','initial','train','final'],required=True);p.add_argument('--resume');p.add_argument('--smoke-updates',type=int,default=2);p.add_argument('--smoke-wall-seconds',type=int,default=1800);raise SystemExit(main(p.parse_args()))

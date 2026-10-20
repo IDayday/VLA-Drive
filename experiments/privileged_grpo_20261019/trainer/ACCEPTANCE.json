@@ -1,6 +1,6 @@
 {
-  "status": "ACTION_ONLY_SUFFIX_V3_CPU_ACCEPTED_REAL_SCOPES_PENDING",
-  "updated_utc": "2026-10-20T00:31:45.231999+00:00",
+  "status": "CPU_ASSETS_INPUTS_PASS_ACCELERATOR_PENDING",
+  "updated_utc": "2026-10-20T01:25:33.057612+00:00",
   "arms_implemented": 11,
   "real_smoke": [
     {
@@ -221,12 +221,12 @@
   "formal_training_started": false,
   "test_rollouts_started": false,
   "full_F_preparation": {
-    "status": "INCOMPLETE_F_COVERAGE",
+    "status": "PASS",
     "scenes": 1405,
-    "matched_F": 1383,
-    "missing_F": 22,
-    "unique_donors": 97,
-    "max_donor_reuse": 74,
+    "matched_F": 1405,
+    "missing_F": 0,
+    "unique_donors": 98,
+    "max_donor_reuse": 75,
     "drives": {
       "train": 131,
       "test": 17
@@ -235,20 +235,52 @@
       "train": "f8caf60cf254980600287e579f3d88988e114163b729447afba481ebc3c1a58c",
       "test": "530ba81ed26b6040a44838bee037e05b2657605f6f7de14ebe7d96c5cb7caa52"
     },
-    "code_sha256": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+    "code_sha256": "029887a1196270d30080a27567177331eefe9529888d8e3a58b27694a72a1b0b",
     "files": {
-      "PROMPTS.json": "e075b7f8773073bed4b1a01235efcf45e4bc24425230320135872de28e2fc15f",
-      "DONORS.json": "31e065f03e73d19c6f081a13734fa87e8de90d03648ceb12a661f668ca5a62d7",
+      "PROMPTS.json": "7f5eb5b1661dda196e4b27f266b4dc2a122b40124c0460bd0bd5e380dec88f97",
+      "DONORS.json": "a027611c031483e5047042a46429e98497bb12b5950bcc38385817d498cfcfa8",
       "SPLITS.json": "dc4ddbd4281959b9553a79abae883c17a97748655261c8034fd34ee73fda342c"
-    }
+    },
+    "f_policy": {
+      "schema": "strict-plus-explicit-train-exceptions-v1",
+      "confirmed": true,
+      "confirmed_date": "2026-10-20",
+      "max_token_delta": 2,
+      "exception_tokens": [
+        "070770ed5966553f",
+        "1e51a01b7caf5609",
+        "20647dc1a8795491",
+        "263ff934525a5fbc",
+        "4c2c91926f0d5a13",
+        "7db689cbec395f18",
+        "86b2e9c7363d543e",
+        "8a0474e5797056fb",
+        "91f7c8c63c9858a7",
+        "9ec46b5365ff5116",
+        "9f3d666ccca55fb2",
+        "a13600a66b1c57bf",
+        "a86288fa80df5b84",
+        "b58794867d355647",
+        "ba9d26718c0a5004",
+        "cc413dc23df159af",
+        "d996748528025030",
+        "dd1ba74cb2e55826",
+        "e2afca1c69785d4b",
+        "e9207471c45d51ac",
+        "ed2db59d29f454d1",
+        "ffafd9aef85b51c6"
+      ],
+      "confirmation": "用户同意22例最多±2 token；1383严格子集保留并单列",
+      "source_preparation": "prepared_v1/PREPARATION.json"
+    },
+    "strict_F": 1383,
+    "exception_F": 22
   },
   "pending": [
-    "F匹配22个训练样本的±2 token修订待确认，未实施",
-    "共同正式epochs、训练seed与预算未锁定",
-    "DLC仍排队，目标16卡并发及故障恢复未验收",
-    "真实大模型跨进程恢复的一致性尚未单独实测；完整恢复逻辑已通过CPU测试",
-    "history-frozen-v2联合组真实PPU复验待空闲；旧joint历史参数更新结果不可充作新范围验收",
-    "action-only-suffix-v3三种更新范围真实设备冒烟与新配对前测；旧分数不可复用"
+    "真实设备三范围冒烟",
+    "1405例真实多模态输入位置验收",
+    "目标设备并发与资源实测",
+    "真实大模型跨进程恢复等价验收"
   ],
   "historical_code_hashes": {
     "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
@@ -326,5 +358,138 @@
       "prepared_text_sha256": "e075b7f8773073bed4b1a01235efcf45e4bc24425230320135872de28e2fc15f",
       "scope": "Real tokenizer on all existing prepared text. Actual multimodal inputs and GPU outputs still require new smoke validation."
     }
-  }
+  },
+  "runnable_v4": {
+    "status": "CPU_ASSETS_INPUTS_PASS_ACCELERATOR_PENDING",
+    "version": "runnable-v4",
+    "updated_utc": "2026-10-20T01:25:33.057612+00:00",
+    "confirmed_training": {
+      "schema": "full-grpo-v1",
+      "arms": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "E",
+        "A_VLM",
+        "C_VLM",
+        "E_VLM",
+        "A_DiT",
+        "C_DiT",
+        "E_DiT"
+      ],
+      "epochs": 3,
+      "training_seeds": [
+        20261020,
+        20261021,
+        20261022
+      ],
+      "wall_seconds": 86400,
+      "group_size": 8,
+      "accumulation_scenes": 4,
+      "steps": 10,
+      "eta": 0.1,
+      "beta": 0.01,
+      "clip": 0.2,
+      "vlm_lr": 2e-07,
+      "action_lr": 1e-06,
+      "gradient_clip": 1.0,
+      "checkpoint_every_updates": 0,
+      "evaluation_replicates": 3,
+      "score_workers_per_replica": 1,
+      "formal_protocol_locked": true,
+      "parameter_scope_version": "history-frozen-v2",
+      "input_protocol_version": "action-only-suffix-v3",
+      "evaluation_wall_seconds": 86400,
+      "total_wall_seconds": 86400,
+      "f_max_token_delta": 2,
+      "confirmation": {
+        "date": "2026-10-20",
+        "user": "3epoch，种子由智能体决定并记录，允许24小时，不指定设备和DLC；固定设置沿用；F22例允许±2 token",
+        "budget_interpretation": "整个pipeline前测/训练/监测/后测累计墙钟24小时，不是每副本独立24小时额度；恢复继承已用时间",
+        "seed_choice": "3个配对训练seed；评测3批噪声仍独立按token/rep生成"
+      }
+    },
+    "prepared": {
+      "path": "trainer_v1/prepared_v4",
+      "sha256": "5bf77b5027da4728f519f27892440ec13168fd07dad0de45519ad48ddf5e0e62",
+      "scenes": 1405,
+      "strict_F": 1383,
+      "exception_F": 22
+    },
+    "cpu_tests": {
+      "status": "PASS",
+      "tests": 28,
+      "log_sha256": "17d9bb0a541df6507ce11351e3d4b729fb7467d865f40a24a076b6825cfad13a"
+    },
+    "asset_deep_validation": {
+      "status": "PASS",
+      "counts": {
+        "train": 1264,
+        "test": 141
+      },
+      "drive_counts": {
+        "train": 131,
+        "test": 17
+      },
+      "checkpoint_hashed": true,
+      "raw_assets_hashed_and_images_checked": true,
+      "errors": []
+    },
+    "tokenizer_audit": {
+      "status": "PASS",
+      "scenes": 1405,
+      "text_counts": {
+        "A": 1405,
+        "B": 1405,
+        "C": 1405,
+        "E": 1405,
+        "F": 1405
+      },
+      "token_delta_counts": {
+        "0": 1383,
+        "1": 9,
+        "-1": 10,
+        "-2": 3
+      },
+      "existing_7003_texts_unchanged": true,
+      "strict_pairs": 1383,
+      "exceptions": 22,
+      "tokenizer_sha256": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+      "prompts_sha256": "7f5eb5b1661dda196e4b27f266b4dc2a122b40124c0460bd0bd5e380dec88f97",
+      "scope": "Real tokenizer and special positions, no image tokens or model forward; full multimodal audit remains a real-device gate"
+    },
+    "source_hashes": {
+      "trainer_v1/F_POLICY.confirmed.json": "700b89d05f2274d29d1ae1d7b874e7991c60252d53be878bc329b1c4c62b780c",
+      "trainer_v1/TRAINING.confirmed.json": "7350eef9d949a840cf97422b5362f6a14b014bee1e140e7a2c1d01e3d21283b9",
+      "trainer_v1/analyze.py": "200ca52d9dd9fdf1574efcc4b7e27fefce4ed08f6826bce0297ed3a3ca3da87f",
+      "trainer_v1/asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+      "trainer_v1/audit_checkpoints.py": "736a58f35ab70927294a299f6c4139a9968101edccd73c24d5455ded5c65d2f2",
+      "trainer_v1/cf_contract.py": "90e397801714060fb0968c57462f46d887e57875c4ef41728bb5f4af8b49085d",
+      "trainer_v1/contracts.py": "6dd31d7275b62c89ec7f93a15a98fab22cf5e76510383f27bce39c663276c6f0",
+      "trainer_v1/diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
+      "trainer_v1/engine.py": "c949d6e3c38e17ba86156e6cffb8c017d22fa6ddaf4edc5287fe25f26863b362",
+      "trainer_v1/entry.py": "992e76dd4f7d9d4ad3de86cf1b3660ac4a84e72cbe915d9f90b7c31344aa8a20",
+      "trainer_v1/launch.sh": "3f86630560ff48cb9a38216934107f5aa4c3a13cd03c65800a4cef8ec77bc890",
+      "trainer_v1/prepare.py": "029887a1196270d30080a27567177331eefe9529888d8e3a58b27694a72a1b0b",
+      "trainer_v1/run.py": "df17613a92330fea079e13047b9e083d35ff50d0eb7a1a0a793c399fc4ecf5e4",
+      "trainer_v1/schedule.py": "056a19473223efd93ed4a2a7952165d728a4a2b597b394782e78b7b2dc39e860",
+      "trainer_v1/test_contracts.py": "07eadc1b28e984cb254ee02963d62a661d4e8d4670026cb3932540586fffc0a0",
+      "trainer_v1/test_engine.py": "77ee37f6ffdfad5a274c447a89810904c5b2c6428b08a397986859a21017a12c",
+      "trainer_v1/test_entry.py": "e1f3511a4cdee5a125feb272ae25f00d55f710a79257532d1caa6978861d41f8",
+      "trainer_v1/test_input_protocol.py": "db42a9e5f75b44bcb52ded2a85c141acbdb3b2936637239cd7c0ffa98b57f36f",
+      "trainer_v1/verify_resume.py": "329b11647c21d918398be1a989bf7e3b289e481ff74b6c590653997574f75862"
+    },
+    "formal_training_started": false,
+    "formal_test_started": false,
+    "pending": [
+      "真实设备三范围冒烟",
+      "1405例真实多模态输入位置验收",
+      "目标设备并发与资源实测",
+      "真实大模型跨进程恢复等价验收"
+    ],
+    "blocker": "当前工具执行环境torch CUDA不可用、device_count=0；未修改系统或提交云作业",
+    "pipeline": "run自动验证门槛并运行；总24h期限覆盖冒烟/前测/训练/监测/后测/分析；恢复不重置；不保证24h内完成33副本"
+  },
+  "historical_smoke_note": "real_smoke字段均为旧协议历史证据；runnable-v4尚无真实设备验收，不能沿用历史通过状态"
 }

@@ -1,0 +1,47 @@
+{
+  "schema": "full-grpo-v1",
+  "arms": [
+    "A",
+    "B",
+    "C",
+    "F",
+    "E",
+    "A_VLM",
+    "C_VLM",
+    "E_VLM",
+    "A_DiT",
+    "C_DiT",
+    "E_DiT"
+  ],
+  "epochs": 3,
+  "training_seeds": [
+    20261020,
+    20261021,
+    20261022
+  ],
+  "wall_seconds": 86400,
+  "group_size": 8,
+  "accumulation_scenes": 4,
+  "steps": 10,
+  "eta": 0.1,
+  "beta": 0.01,
+  "clip": 0.2,
+  "vlm_lr": 2e-07,
+  "action_lr": 1e-06,
+  "gradient_clip": 1.0,
+  "checkpoint_every_updates": 0,
+  "evaluation_replicates": 3,
+  "score_workers_per_replica": 1,
+  "formal_protocol_locked": true,
+  "parameter_scope_version": "history-frozen-v2",
+  "input_protocol_version": "action-only-suffix-v3",
+  "evaluation_wall_seconds": 86400,
+  "total_wall_seconds": 86400,
+  "f_max_token_delta": 2,
+  "confirmation": {
+    "date": "2026-10-20",
+    "user": "3epoch，种子由智能体决定并记录，允许24小时，不指定设备和DLC；固定设置沿用；F22例允许±2 token",
+    "budget_interpretation": "整个pipeline前测/训练/监测/后测累计墙钟24小时，不是每副本独立24小时额度；恢复继承已用时间",
+    "seed_choice": "3个配对训练seed；评测3批噪声仍独立按token/rep生成"
+  }
+}

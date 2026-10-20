@@ -39,8 +39,10 @@ class Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);cfg={'epochs':1};ident={'code':'x'}
             for name,value in [('TRAINING.json',cfg),('PHASE_IDENTITY.json',ident),('QUEUE.json',{'phase':'train'})]:(root/name).write_text(json.dumps(value))
-            complete=root/'A_seed1';complete.mkdir();(complete/'RESULT.json').write_text(json.dumps({'status':'COMPLETE','completed_updates':316}))
-            ck=root/'C_seed1/checkpoints';ck.mkdir(parents=True);(ck/'update_000004.pt').write_bytes(b'fake checkpoint for queue test');(ck/'update_000004.json').write_text(json.dumps({'completed_updates':4}))
+            complete=root/'A_seed1';complete.mkdir();cp=complete/'final.pt';cp.write_bytes(b'queue metadata fixture')
+            cp.with_suffix('.json').write_text(json.dumps({'completed_updates':316,'arm':'A','seed':1}))
+            (complete/'RESULT.json').write_text(json.dumps({'status':'COMPLETE','mode':'train','arm':'A','seed':1,'completed_updates':316,'checkpoint':str(cp)}))
+            ck=root/'C_seed1/checkpoints';ck.mkdir(parents=True);(ck/'update_000004.pt').write_bytes(b'fake checkpoint for queue test');(ck/'update_000004.json').write_text(json.dumps({'completed_updates':4,'arm':'C','seed':1}))
             pending=[{'arm':'A','seed':1},{'arm':'C','seed':1},{'arm':'E','seed':1}];queue,reused=recover_queue(root,pending,cfg,ident);self.assertEqual(len(reused),1);self.assertEqual(len(queue),2);self.assertTrue(queue[0]['resume'].endswith('update_000004.pt'));self.assertNotIn('resume',queue[1])
 
     def test_cluster_bootstrap_uses_drives(self):

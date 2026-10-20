@@ -1,35 +1,16 @@
-Privileged-feedback Action-only DiT GRPO experiment migration
+Privileged GRPO: runnable-v4 (2026-10-20)
+Training entry: trainer/README.html and trainer/RUN_GUIDE.html.
+Confirmed: 11 arms x 3 epochs x seeds 20261020,20261021,20261022.
+Total pipeline deadline: 24h, preserved on recovery. This is a cap, not a throughput guarantee.
+History frozen; clean history + 8 action-query suffix; explicit 22 F exceptions <=2 tokens.
+28 portable CPU tests pass; real accelerator/multicard/resume acceptance pending.
+No formal training or evaluation was started during entry preparation.
 
-Read RUN_GUIDE.html first. Commands assume this directory is the current directory.
-
-Ready: frozen source snapshot, tokenizer metadata, original model configuration,
-1264/141 split identities, historical research implementation references,
-portable CPU asset validation, a NEW training-side 8-candidate inference smoke,
-and byte-exact weight split/restore and GitHub Release upload tools.
-
-Implemented: trainer/run.py and trainer/schedule.py for 11 arms, scope-specific
-updates, paired evaluation and full resume. All 11 arms freeze the history encoder (history-frozen-v2).
-12 CPU tests passed; the revised joint scope still needs real-PPU revalidation.
-Historical single-PPU smokes are preserved with their original scope definitions.
-Still gated: 22 unmatched strict F training donors, training-length pilot,
-approved formal budget, and multi-card acceptance.
-The DLC launcher currently preflights and waits; it does not train.
-Do not interpret archived short probes as completed full experiments.
-
-Data and weight blobs are external; config/assets.example.json defines interfaces.
-Raw images, metadata, metric caches, and failure/GT manifests are not published here.
-Token/log split identities are preserved for exact reconstruction and validation.
-The original constructor also needs tokenizer/model.safetensors, supplied separately
-from the complete Base checkpoint in the planned GitHub Release.
-
-reference/ preserves historical scripts as evidence. They retain their original
-paths and dependencies on old run artifacts. Do not run them as portable launchers.
-tools/portable.py is the new migration entrypoint. Its GPU smoke still requires
-execution and acceptance on the destination accelerator before formal computation.
-
-See trainer/README.html and trainer/ACCEPTANCE.json for the new formal entry.
-
-Current input protocol: action-only-suffix-v3. All arms keep history + 8 action
-queries only; RGB/GS/reward query tokens are removed. 16 CPU tests passed.
-Prior GPU scores/smokes use the legacy suffix; new GPU acceptance and initial
-evaluation are required. Do not resume legacy runs under this protocol.
+From trainer/: copy assets.example.json to assets.local.json and configure external assets.
+Generate new prepared_v4 with prepare.py --assets assets.local.json --out prepared_v4
+  --monitor-source MONITOR_SOURCE.json --f-policy F_POLICY.confirmed.json.
+Then bash launch.sh plan; bash launch.sh check --deep; bash launch.sh run.
+Model weights, failure-pair manifests, raw metadata, images, metric caches and prepared
+scene text are external. No data or weights are included by this code synchronization.
+Legacy reference/ scripts and tools/portable.py are separate historical/asset interfaces.
+The original DLC standby launcher is unchanged. No automatic cloud allocation or upload.

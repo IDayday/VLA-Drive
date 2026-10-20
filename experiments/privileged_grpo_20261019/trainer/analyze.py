@@ -10,6 +10,7 @@ def load_phase(root,phase,expected_tokens):
     result={}
     for job in receipt['jobs']:
         arm=job['job']['arm'];seed=job['job']['seed'];folder=Path(job['output'])/'evaluation'/phase;accepted=read(folder/'ACCEPTANCE.json');groups={}
+        if (arm,seed) in result:raise ValueError('Duplicate arm/seed evaluation job')
         for name in accepted['files']:
             row=read(folder/name);key=(row['token'],row['replicate'])
             if key in groups or [r['candidate'] for r in row['candidates']]!=list(range(8)):raise ValueError('Duplicate or missing candidates')
@@ -27,6 +28,10 @@ def cluster_ci(values,drives,reps=5000):
 
 def main(a):
     splits=read(Path(a.prepared)/'SPLITS.json');tokens=sorted(splits['test']);before=load_phase(Path(a.initial),'initial',tokens);after=load_phase(Path(a.final),'final',tokens);cfg=read(Path(a.final)/'TRAINING.json');seeds=cfg['training_seeds'];results={};groups={};drives=[]
+    if read(Path(a.initial)/'TRAINING.json')!=cfg or read(Path(a.initial)/'PHASE_IDENTITY.json')!=read(Path(a.final)/'PHASE_IDENTITY.json'):raise ValueError('Pre/post experiment identities differ')
+    if set(before)!={(arm,0) for arm in ['A','B','C','F','E']} or set(after)!={(arm,seed) for arm in cfg['arms'] for seed in seeds}:raise ValueError('Evaluation job coverage differs')
+    f_policy=read(Path(a.prepared)/'PREPARATION.json').get('f_policy',{'exception_tokens':[]})
+    exception_tokens=set(f_policy['exception_tokens'])
     for token in tokens:drives.append(before['A',0][token,0]['drive'])
     for arm in cfg['arms']:
         base_arm=arm.split('_')[0];initial=before[base_arm,0];pre=[];post=[]
@@ -38,6 +43,9 @@ def main(a):
                     if initial[token,rep]['noise_sha256']!=after[arm,seed][token,rep]['noise_sha256']:raise ValueError('Pre/post random numbers not paired')
         pre=np.array(pre);post=np.array(post);groups[arm]=(pre,post)
         results[arm]={'pre':cluster_ci(pre,drives),'post_seed_mean':cluster_ci(post,drives),'gain':cluster_ci(post-pre,drives),'per_seed_post':{str(seed):float(np.mean([c['metrics']['PDMS'] for r in after[arm,seed].values() for c in r['candidates']])) for seed in seeds},'exploration':{stage:{name:float(np.mean([r['exploration'][name] for r in collection])) for name in ['pdms_mean','pdms_std','oracle8','all_zero','all_one','constant_other','effective_group','repair_fraction','pairwise_ADE_m','pairwise_FDE_m']} for stage,collection in [('pre',list(initial.values())),('post',[r for seed in seeds for r in after[arm,seed].values()])]}}
+        results[arm]['f_sensitivity']={}
+        for name,mask in [('strict',np.array([t not in exception_tokens for t in tokens])),('exception',np.array([t in exception_tokens for t in tokens]))]:
+            results[arm]['f_sensitivity'][name]={'scenes':int(mask.sum()),'gain':cluster_ci((post-pre)[mask],np.array(drives)[mask].tolist()) if mask.any() else None}
     contrasts={}
     for left,right in [('E','C'),('B','A'),('C','B'),('C','F'),('E_VLM','C_VLM'),('E_DiT','C_DiT'),('E','A'),('E_VLM','A_VLM'),('E_DiT','A_DiT')]:
         lp,lq=groups[left];rp,rq=groups[right];contrasts[left+'-'+right]={'pre':cluster_ci(lp-rp,drives),'post':cluster_ci(lq-rq,drives),'difference_in_gain':cluster_ci((lq-lp)-(rq-rp),drives)}
