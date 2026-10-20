@@ -1,0 +1,61 @@
+{
+  "actual_execution": {
+    "NAVSIM_calls": 0,
+    "cpu_behavior_tests": true,
+    "gpu_dispatched": false,
+    "pretrained_S0_loaded": false,
+    "production_export": "NOT_RUN",
+    "production_resume": "NOT_RUN",
+    "real_training_updates": 0,
+    "scientific_gain": "NOT_RUN"
+  },
+  "adapter_config": {
+    "action_dim": 4,
+    "alpha_cap": 1.0,
+    "alpha_schedule": "fixed_cap",
+    "condition_dim": 2048,
+    "dropout": 0.0,
+    "external_weights_loaded": false,
+    "heads": 4,
+    "hidden_dim": 256,
+    "horizon": 8,
+    "init_seed": 42,
+    "initialization": "random_body_zero_final_layer",
+    "input": "frozen_F_plan,x_raw,u",
+    "layers": 2,
+    "schema": "effect_flow_adapter_v1"
+  },
+  "adapter_parameters": 2706948,
+  "base_parameters_trained": 0,
+  "cpu_test_result": {
+    "failed": 0,
+    "log_path": "reports/action_effect/FLOW_CPU_TEST_OUTPUT.txt",
+    "log_sha256": "5e95403bd34a9e36b1b70911b77cde6419f8123eb47c64e4409869694a6e7061",
+    "passed": 13,
+    "pytest_elapsed_seconds": 6.13,
+    "scope": "real reduced-width production DiT plus explicit analytical/synthetic fixtures; not pretrained S0 integration",
+    "warning": "pynvml deprecation"
+  },
+  "created_utc": "2026-10-20T01:05:02.991520+00:00",
+  "deployment": "original fixed Euler10, one complete generation; no teacher/simulator/refiner input",
+  "design_evidence": {
+    "path": "/mnt/project/VLA-Drive-action-effect-evidence-20261020/reports/effect_repair/RELATED_WORK_AND_REUSE.md",
+    "sha256": "5b4ce07e384804f76d14e8b116438be94a2903d3ce12e2de17b1f1357ef53587"
+  },
+  "external_effect_weights_loaded": false,
+  "implementation_start": "385d4c53e49a52b89e7845352d69230e4e6503c1",
+  "mathematics": {
+    "B0": "x_plus -> a_plus-eps",
+    "B1_effect": "B1 plus frozen effect teacher at clean proxy eps+v_new, physical delta and signed globally gap-weighted auxiliary; no terminal exactness claim",
+    "B1_trajectory": "x_minus -> a_plus-eps; residual=(a_plus-eps)-stopgrad(v_base)"
+  },
+  "route_a_parameters_loaded": false,
+  "schema": "action_effect_ieg_implementation_v1",
+  "source_files": {
+    "starVLA/model/framework/effect_internalized_flow.py": "cd4017868b510285897bde981205d1994b8429b954ff7e46ebb2b163c9b5b90b",
+    "starVLA/model/modules/action_effect/effect_distillation.py": "0465a78a11467f001de753ecf901415cbae0306915429277afd9c568e4f993fd",
+    "starVLA/model/modules/action_effect/effect_flow_adapter.py": "8d46457345700c4c55de5a361c1ea11172b4e4351366e4c98b64d74097966ea0",
+    "starVLA/model/modules/action_effect/preservation.py": "d8ede85c4d16014049d97a908b4f14a40ada1fd180bbcffc88d8ec3f814e3c60",
+    "tests/action_effect/test_flow_internalization.py": "70797b6d19ab1f8fdf767a6e2e85f2b3ab1abea4c373145bde76011a644b4b1a"
+  }
+}
