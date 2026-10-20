@@ -11,7 +11,51 @@ import os
 from importlib.metadata import version
 
 from .common import (artifact,verify_artifact,digest,sha256,read_json,write_json,
-                     atomic_bytes,load_config,check_space,lock)
+                     atomic_bytes,load_config,check_space,lock,verify_identity)
+
+
+def validate_shard(done,binding,expected_entries):
+    verify_identity(done)
+    if (done.get('schema')!='action_effect_context_shard_v1' or
+        done.get('binding_identity')!=binding['identity'] or
+        done.get('base_binding_hash')!=binding['base_checkpoint_binding_hash'] or
+        done.get('single_encoder_per_scene') is not True):raise ValueError('Foreign/incomplete shard receipt')
+    verify_artifact(done['shard'])
+    actual=done['entries']
+    if len(actual)!=len(expected_entries):raise ValueError('Wrong shard coverage')
+    for i,(row,expected) in enumerate(zip(actual,expected_entries)):
+        if (row['scene_id']!=expected['scene_id'] or row['source_log']!=expected['source_log'] or
+            row['role']!=expected['effect_role'] or row['observation_hash']!=expected['observation_hash'] or
+            row['shard_offset']!=i or row['shard']!=done['shard']):raise ValueError('Shard row identity/order mismatch')
+    tag=digest([binding['identity'],[r['scene_id'] for r in expected_entries]])
+    if Path(done['shard']['path']).name!=tag+'.pt':raise ValueError('Shard naming/content mismatch')
+    return done
+
+
+def validate_context_manifest(m,binding,expected_entries):
+    verify_identity(m)
+    if (m.get('schema')!='action_effect_context_manifest_v1' or m.get('status')!='COMPLETE' or
+        m.get('binding_identity')!=binding['identity'] or m.get('dtype')!='float32' or
+        m.get('max_samples')!=len(expected_entries) or m.get('single_encoder_per_scene') is not True or
+        m.get('cohort')!=binding['cohort']):raise ValueError('Incomplete/foreign context manifest')
+    if len(m['entries'])!=len(expected_entries) or len({r['scene_id'] for r in m['entries']})!=len(expected_entries):
+        raise ValueError('Context population missing/duplicated')
+    actual=[]
+    for a in m['shards']:
+        receipt=read_json(Path(a['path']).with_suffix('.COMPLETE.json'))
+        subset=[r for r in expected_entries if r['scene_id'] in {x['scene_id'] for x in receipt['entries']}]
+        validate_shard(receipt,binding,subset)
+        if receipt['shard']!=a:raise ValueError('Manifest/shard artifact mismatch')
+        actual.extend(receipt['entries'])
+    if {r['scene_id']:r for r in actual}!={r['scene_id']:r for r in m['entries']} or len(actual)!=len(expected_entries):
+        raise ValueError('Manifest inventory differs from complete shards')
+    for row,expected in zip(m['entries'],expected_entries):
+        if row['scene_id']!=expected['scene_id']:raise ValueError('Manifest changes original consumption order')
+    h=read_json(verify_artifact(m['head_receipt']))
+    if h.get('schema')!='action_effect_original_action_head_v1' or h.get('base_binding_hash')!=binding['base_checkpoint_binding_hash'] or h.get('strict_original_master') is not True:
+        raise ValueError('Foreign action-head identity')
+    verify_artifact(h['artifact'])
+    return m
 
 
 def prepare(cfg):
@@ -29,14 +73,17 @@ def prepare(cfg):
         'scene_noise':'foresight-action-v1','shape_source':'actual_bound_model'}
     path=root/'CAMPAIGN_BINDING.json'
     if path.exists():
-        binding=read_json(path)
+        binding=verify_identity(read_json(path))
         if binding['config_hash']!=digest(cfg):raise ValueError('Use new campaign for changed configuration')
         if binding['extraction_contract']!=extraction_contract:raise ValueError('Context extraction code/runtime changed')
         verify_artifact(binding['base_binding']);verify_artifact(binding['train_manifest'])
+        verify_identity(read_json(verify_artifact(binding['cohort'])))
         return binding
     base=read_binding(cfg['base_binding']);m=read_json(cfg['train_manifest'])
-    if (m.get('split')!='train' or m['base_binding_hash']!=base['binding_sha256'] or
+    verify_identity(m)
+    if (m.get('schema')!='st_flow_training_manifest_v1' or m.get('split')!='train' or m['base_binding_hash']!=base['binding_sha256'] or
         m['data_identity']!=base['parent_identity']['data']):raise ValueError('Foreign S0/population')
+    if len({r['scene_id'] for r in m['entries']})!=len(m['entries']):raise ValueError('Duplicated source scene IDs')
     rows=sorted(m['entries'],key=lambda r:(digest(['effect_cohort_v1',cfg['seed'],r['scene_id']]),r['scene_id']))[:cfg['cohort_size']]
     if not rows:raise ValueError('No legal training observations')
     entries=[]
@@ -53,6 +100,7 @@ def prepare(cfg):
            'source_start_commit':'36493208ba4d8c25bedfcc43935a4ce4527131cc',
            'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
            'config_hash':digest(cfg),'base_binding':artifact(cfg['base_binding']),
+           'base_checkpoint_binding_hash':base['binding_sha256'],
            'extraction_contract':extraction_contract,
            'train_manifest':artifact(cfg['train_manifest']),'cohort':artifact(root/'COHORT.json'),
            'base_checkpoint':base['checkpoint'],'base_inference_contract':base['inference_contract']}
@@ -67,14 +115,12 @@ def collect(cfg, *, max_samples, device):
     from tools.st_world_policy.base_binding import read_binding
     from tools.foresight.checkpoints import load_student,scene_noise
     from starVLA.model.modules.flow_posttraining.policy_snapshot import tensor_hash
-    binding=prepare(cfg);root=Path(cfg['artifact_root']);cohort=read_json(verify_artifact(binding['cohort']))
+    binding=prepare(cfg);root=Path(cfg['artifact_root']);cohort=verify_identity(read_json(verify_artifact(binding['cohort'])))
     if not 1<=max_samples<=len(cohort['entries']):raise ValueError('Explicit valid extraction budget required')
     entries=cohort['entries'][:max_samples];out=root/'contexts';out.mkdir(exist_ok=True)
     manifest=out/f'MANIFEST_{max_samples:06d}.json'
     if manifest.exists():
-        m=read_json(manifest)
-        if m['binding_identity']!=binding['identity']:raise ValueError('Foreign context cache')
-        for a in m['shards']:verify_artifact(a)
+        m=validate_context_manifest(read_json(manifest),binding,entries)
         return {'status':'PASS','reused':True,'manifest':str(manifest),'scenes':max_samples}
     if not device.startswith('cuda') or not torch.cuda.is_available():raise ValueError('Real allocated GPU required')
     torch.set_num_threads(2);torch.cuda.set_device(device);torch.use_deterministic_algorithms(True)
@@ -89,7 +135,7 @@ def collect(cfg, *, max_samples, device):
             tag=digest([binding['identity'],[r['scene_id'] for r in chunk]])
             receipt=out/(tag+'.COMPLETE.json')
             if receipt.exists():
-                done=read_json(receipt);verify_artifact(done['shard']);rows.extend(done['entries']);shards.append(done['shard'])
+                done=validate_shard(read_json(receipt),binding,chunk);rows.extend(done['entries']);shards.append(done['shard'])
             else:pending.append((tag,chunk))
         if pending:
             model=load_student(base['run'],base['tag'],base['parent_identity'],device=device,precision='fp32')
@@ -140,8 +186,9 @@ def collect(cfg, *, max_samples, device):
                         path=out/(tag+'.pt');buf=io.BytesIO();torch.save(values,buf);atomic_bytes(path,buf.getvalue())
                         a=artifact(path)
                         for r in small:r['shard']=a
-                        done={'schema':'action_effect_context_shard_v1','entries':small,'shard':a,
+                        done={'schema':'action_effect_context_shard_v1','entries':small,'shard':a,'binding_identity':binding['identity'],
                               'base_binding_hash':base['binding_sha256'],'single_encoder_per_scene':True}
+                        done['identity']=digest(done)
                         write_json(out/(tag+'.COMPLETE.json'),done);rows.extend(small);shards.append(a)
                         print(json.dumps({'status':'CONTEXT_SHARD_COMPLETE','scenes':len(rows),'requested':max_samples}),flush=True)
             finally:
@@ -154,7 +201,7 @@ def collect(cfg, *, max_samples, device):
            'entries':rows,'shards':shards,'head_receipt':artifact(out/'S0_ACTION_HEAD.COMPLETE.json'),
            'max_samples':max_samples,'dtype':'float32','single_encoder_per_scene':True,
            'elapsed_seconds':time.perf_counter()-started,'load_seconds':load_seconds,'status':'COMPLETE'}
-        m['identity']=digest(m);write_json(manifest,m)
+        m['identity']=digest(m);validate_context_manifest(m,binding,entries);write_json(manifest,m)
     return {'status':'PASS','reused':False,'manifest':str(manifest),'scenes':max_samples}
 
 

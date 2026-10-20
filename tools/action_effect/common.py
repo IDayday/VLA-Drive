@@ -7,6 +7,7 @@ import json
 import os
 import tempfile
 import fcntl
+import math
 
 
 def sha256(path):
@@ -82,7 +83,46 @@ def load_config(path):
     if cfg['pilot_scenes']>cfg['cohort_size']:raise ValueError('Pilot exceeds locked population')
     for k in ('base_binding','train_manifest','artifact_root'):
         if not Path(cfg[k]).is_absolute():raise ValueError('Actual absolute preflight path required: '+k)
+    if type(cfg['seed']) is not int or cfg['seed']<0:raise ValueError('Invalid seed')
+    if not isinstance(cfg['campaign_id'],str) or not cfg['campaign_id'] or any(x in cfg['campaign_id'] for x in ('/','\\','..')):
+        raise ValueError('Invalid campaign identity')
+    groups={
+        'g0':{'workers','max_simulation_budget','retry_budget','candidate_count','fixed_grid',
+              'safe_score','minimum_progress_fraction','navsim_root','maps_root'},
+        'resources':{'artifact_cap_bytes','minimum_free_bytes'},
+        'training':{'hidden','layers','heads','batch_scenes','microbatch_scenes','max_updates',
+            'warmup_updates','learning_rate','weight_decay','gradient_clip','validation_every',
+            'training_seeds','finalist_seeds'}}
+    for k,keys in groups.items():
+        if not isinstance(cfg[k],dict) or set(cfg[k])!=keys:raise ValueError('Unknown/missing '+k+' configuration')
+    def integer(value,low,high):
+        if type(value) is not int or not low<=value<=high:raise ValueError('Integer budget out of range')
+    def number(value,low,high):
+        if type(value) not in (float,int) or not math.isfinite(value) or not low<=value<=high:
+            raise ValueError('Numeric recipe value out of range')
+    g=cfg['g0'];t=cfg['training'];r=cfg['resources']
+    integer(g['workers'],1,32);integer(g['max_simulation_budget'],1,1000000)
+    integer(g['retry_budget'],0,g['max_simulation_budget']);integer(g['candidate_count'],26,26)
+    if g['fixed_grid']!='action_effect_quintic_intervention_v1':raise ValueError('Unsupported intervention schema')
+    number(g['safe_score'],0,1);number(g['minimum_progress_fraction'],0,1)
+    for k in ('navsim_root','maps_root'):
+        if not isinstance(g[k],str) or not Path(g[k]).is_absolute():raise ValueError('Actual NAVSIM/maps path required')
+    for k in r:integer(r[k],1,2**63-1)
+    for k in ('hidden','layers','heads','batch_scenes','microbatch_scenes','max_updates','warmup_updates','validation_every'):
+        integer(t[k],1,1000000)
+    if t['hidden']%t['heads'] or t['microbatch_scenes']>t['batch_scenes'] or t['warmup_updates']>t['max_updates']:
+        raise ValueError('Inconsistent training dimensions/budget')
+    number(t['learning_rate'],1e-12,1);number(t['weight_decay'],0,1);number(t['gradient_clip'],1e-12,1e6)
+    for k in ('training_seeds','finalist_seeds'):
+        if not isinstance(t[k],list) or not t[k] or len(set(t[k]))!=len(t[k]):raise ValueError('Invalid seed population')
+        for value in t[k]:integer(value,0,2**63-1)
     return cfg
+
+
+def verify_identity(value):
+    if not isinstance(value,dict) or value.get('identity')!=digest({k:v for k,v in value.items() if k!='identity'}):
+        raise ValueError('Artifact content identity mismatch')
+    return value
 
 
 def check_space(cfg):
