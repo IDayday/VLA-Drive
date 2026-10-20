@@ -28,6 +28,18 @@ class CampaignTests(unittest.TestCase):
             self.assertEqual(self.queue.tick()['status'],'WAITING_FOR_FULL_IL_AND_FIVE_DEV')
             launch.assert_not_called()
 
+    def test_evaluation_source_is_separate_from_training(self):
+        evaluation=dict(path='/qualified-evaluation',sha='eval')
+        self.queue.evaluation=evaluation
+        routes=[dict(host='allowed',gpu=0,uuid='GPU-eval')]
+        with patch.object(module,'available',return_value=(routes,{})),patch.object(self.queue,'submit') as submit:
+            self.queue.ensure_evaluation('intermediate',dict(path='parent'),'NAVTEST')
+            self.assertEqual(submit.call_args.args[-1],evaluation)
+            self.assertEqual(self.queue.training,self.source)
+
+    def test_default_evaluation_source_preserves_old_execution(self):
+        self.assertEqual(self.queue.evaluation,self.source)
+
     def test_unfinished_qualification_blocks_formal(self):
         parent=self.parent()
         with patch.object(module,'inspect_il',return_value=parent),patch.object(module,'validate_selection'),\

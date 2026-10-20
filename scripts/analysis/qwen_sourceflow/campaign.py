@@ -82,9 +82,10 @@ def scene_stream_hash(run):
 
 
 class Campaign:
-    def __init__(self,root,control,training_source,analysis_source):
+    def __init__(self,root,control,training_source,analysis_source,evaluation_source=None):
         self.root=Path(root);self.control=Path(control)
         self.training=training_source;self.analysis=analysis_source
+        self.evaluation=evaluation_source or training_source
         (self.control/'jobs').mkdir(parents=True,exist_ok=True)
         self.selection=self.root/'frozen_IL_parent.json'
 
@@ -237,7 +238,7 @@ class Campaign:
         args=['--checkpoint',parent['path'],'--output',str(output),'--cohort',cohort,'--data',str(data)]
         if cohort=='NAVTEST':args+=['--parent-selection',str(self.selection)]
         if export is not None:args+=['--rl-export',str(export)]
-        self.submit(name,'scripts.analysis.qwen_sourceflow.evaluate_policy',args,routes,self.training)
+        self.submit(name,'scripts.analysis.qwen_sourceflow.evaluate_policy',args,routes,self.evaluation)
         return None
 
     def qualification(self,variant):
@@ -269,7 +270,7 @@ class Campaign:
         validate_selection(self.selection,parent)
         registration=self.control/'registration.json'
         body=dict(schema='native_two_RL_formal_campaign_v1',IL_parent=parent['path'],IL_model_sha256=parent['files']['model.pt'],
-            IL_selection_sha256=file_sha(self.selection),training=self.training,analysis=self.analysis,
+            IL_selection_sha256=file_sha(self.selection),training=self.training,analysis=self.analysis,evaluation=self.evaluation,
             training_seed=42,inference_seed=2101,group_size=8,denoising_steps=10,
             variants={v:dict(optimizer_updates=50000,fresh_global_rollouts=12500,scene_exposures=100000,candidates=800000,
                 config_sha256=file_sha(Path(self.training['path'])/f'configs/qwen_sourceflow/rl_{v}.yaml')) for v in VARIANTS},
@@ -343,21 +344,23 @@ class Campaign:
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('--root',default=str(ROOT));p.add_argument('--control-dir',required=True)
     p.add_argument('--training-source',required=True);p.add_argument('--analysis-source',required=True)
+    p.add_argument('--evaluation-source',help='Explicit qualified inference/scoring entry; training snapshot stays fixed')
     p.add_argument('--once',action='store_true');a=p.parse_args();require_dispatch()
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Campaign owner must be CPU-only')
     control=Path(a.control_dir);control.mkdir(parents=True,exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     train=immutable_source(a.training_source);analysis=immutable_source(a.analysis_source);root=Path(a.root)
+    evaluation=immutable_source(a.evaluation_source) if a.evaluation_source else train
     nav=[d for d in (root/'data').iterdir() if d.is_dir() and 'NAVTEST' in d.name.upper()]
     if len(nav)!=1:raise ValueError('Require one concrete locked Navtest data directory')
-    identity=dict(schema='native_finite_campaign_owner_v1',training=train,analysis=analysis,
+    identity=dict(schema='native_finite_campaign_owner_v2',training=train,analysis=analysis,evaluation=evaluation,
         root=str(root.resolve()),data=dict(DEV=str(root/'data/DEV_v2'),NAVTEST=str(nav[0])),
         qualification_updates=16,formal_updates=50000,variants=list(VARIANTS),milestones=list(MILESTONES),
         best_DEV_rule='highest canonical PDMS among trained milestones; exact tie later update',
         no_automatic_retry=True,no_recipe_changes=True)
     if (control/'identity.json').exists() and read(control/'identity.json')!=identity:raise ValueError('Campaign owner identity changed')
     atomic_json(control/'identity.json',identity);atomic_json(control/'owner.json',dict(pid=os.getpid(),start_unix=time.time()))
-    queue=Campaign(root,control,train,analysis)
+    queue=Campaign(root,control,train,analysis,evaluation)
     try:
         while True:
             value=queue.tick();atomic_json(control/'status.json',dict(observed_unix=time.time(),**value))
