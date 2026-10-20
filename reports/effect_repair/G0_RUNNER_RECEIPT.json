@@ -1,0 +1,66 @@
+{
+  "schema": "action_effect_g0_runner_owner_receipt_v1",
+  "recorded_at_utc": "2026-10-20T01:22:26.579955+00:00",
+  "starting_commit": "4ff98740",
+  "inherited_context_source": "42970881",
+  "owner": "/root/effect_navsim_feedback",
+  "status": "IMPLEMENTED_OWNER_TESTED_INDEPENDENT_REVIEW_PENDING",
+  "tests": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 1,
+    "pytest_wall_seconds": 5.04,
+    "scope": "synthetic canonical records and fault injection only"
+  },
+  "test_command": "env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_g0_pipeline.py",
+  "source_files": [
+    {
+      "path": "tools/action_effect/simulate_interventions.py",
+      "sha256": "684f341f0a58945816767d442067e171b2d76357fda53fd2543f3fd9c8b22756",
+      "bytes": 28153
+    },
+    {
+      "path": "tools/action_effect/build_effect_pairs.py",
+      "sha256": "62f9760bd490c82a2fe354fd029459bfd77e745036f31d11154b1e4845ba46dd",
+      "bytes": 10114
+    },
+    {
+      "path": "tools/action_effect/analyze_repair_opportunities.py",
+      "sha256": "05903a568ba1ae6a12d01d0d23790fd5ad12c4e9449e32f5fac77ac8bab89d4f",
+      "bytes": 9746
+    },
+    {
+      "path": "tests/action_effect/test_g0_pipeline.py",
+      "sha256": "cfda9efb6b3db5378fe1f63fd4616c70123f4cf81682f34fd48c9b85d058d4be",
+      "bytes": 15849
+    }
+  ],
+  "test_output": {
+    "path": "reports/effect_repair/G0_RUNNER_TEST_OUTPUT.txt",
+    "sha256": "d79c8cbb8a83b7ffe85c9c8b3d706a3630f3882b2d6e037c09c84cf0db9de23d",
+    "bytes": 689
+  },
+  "cli_help": [
+    {
+      "module": "simulate_interventions",
+      "exit_code": 0,
+      "stdout": "usage: simulate_interventions.py [-h] --config CONFIG --max-samples\n                                 MAX_SAMPLES --max-simulation-budget\n                                 MAX_SIMULATION_BUDGET --workers WORKERS\n                                 [--context-manifest CONTEXT_MANIFEST]\n                                 [--navsim-root NAVSIM_ROOT]\n                                 [--maps-root MAPS_ROOT]\n                                 [--max-seconds MAX_SECONDS] [--resume]\n                                 [--dry-run]\n\nBounded TRAIN-only G0 simulation with durable per-call and scene receipts.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --max-samples MAX_SAMPLES\n  --max-simulation-budget MAX_SIMULATION_BUDGET\n  --workers WORKERS\n  --context-manifest CONTEXT_MANIFEST\n  --navsim-root NAVSIM_ROOT\n  --maps-root MAPS_ROOT\n  --max-seconds MAX_SECONDS\n  --resume\n  --dry-run\n"
+    },
+    {
+      "module": "build_effect_pairs",
+      "exit_code": 0,
+      "stdout": "usage: build_effect_pairs.py [-h] --config CONFIG --max-samples MAX_SAMPLES\n                             [--g0-root G0_ROOT] [--resume] [--dry-run]\n\nBuild immutable compact effect/repair datasets from completed G0 receipts.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --max-samples MAX_SAMPLES\n  --g0-root G0_ROOT\n  --resume\n  --dry-run\n"
+    },
+    {
+      "module": "analyze_repair_opportunities",
+      "exit_code": 0,
+      "stdout": "usage: analyze_repair_opportunities.py [-h] --config CONFIG --max-samples\n                                       MAX_SAMPLES [--g0-root G0_ROOT]\n                                       [--resume] [--dry-run]\n\nReport complete G0 denominators, local/support opportunity and new failures.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --max-samples MAX_SAMPLES\n  --g0-root G0_ROOT\n  --resume\n  --dry-run\n"
+    }
+  ],
+  "real_simulation_calls": 0,
+  "gpu_calls": 0,
+  "real_pilot": "NOT_RUN_LEAD_DISPATCH_REQUIRED",
+  "shared_collector_config_official_scorer_modified": false,
+  "scientific_repair_gain": "UNTESTED"
+}
