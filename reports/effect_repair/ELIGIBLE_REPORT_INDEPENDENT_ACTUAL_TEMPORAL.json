@@ -1,0 +1,229 @@
+{
+  "GPU_used": false,
+  "actual_command": "env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python /tmp/action_effect_eligible_temporal_independent.py > /tmp/action_effect_eligible_actual_temporal_review.log 2>&1",
+  "actual_sampling_proofs": {
+    "full": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    },
+    "no_temporal": {
+      "consumed_scene_presentations": 32000,
+      "optimizer_step": 1000,
+      "pair_rng_sha256": "925e6791c35e13287637ca37fb30e092bd233af447d015cd86b4a67a2f214bbf",
+      "scene_sampler_sha256": "eed3a5d8f11d7ef6ec25d40c4b80902faf6f66d8079804f7720cea2ac8ef53e4",
+      "stateful_names": [
+        "pair_rng"
+      ]
+    }
+  },
+  "dense_temporal_grid_diagnostics": {
+    "full": {
+      "MAE": 0.007914523231386647,
+      "supervised": true
+    },
+    "no_temporal": {
+      "MAE": 0.02251987526000094,
+      "status": "UNTRAINED_HEAD_DIAGNOSTIC_ONLY",
+      "supervised": false
+    }
+  },
+  "execution_artifacts": {
+    "read_only_derivation.log": {
+      "bytes": 9073,
+      "path": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_temporal_independent/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/independent_execution/read_only_derivation.log",
+      "sha256": "41c7c05dc9ed680283fabd9577f4ff709d0514e6df792b75e0adc9ec9180e9f3"
+    },
+    "read_only_derivation.py": {
+      "bytes": 3021,
+      "path": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_temporal_independent/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/independent_execution/read_only_derivation.py",
+      "sha256": "67ce4f83f2b18a84ae665ec73e3485d735b73bb6936d3049a4d788846a431690"
+    }
+  },
+  "forced_identity_extensions": {
+    "full": {
+      "absolute_Base_PDMS": null,
+      "absolute_selected_PDMS": null,
+      "forced_identity_delta": 0.0,
+      "forced_identity_structural_scenes": 8,
+      "interpretation": "structural scenes receive a defined identity increment zero; no absolute score, repair success or model decision is fabricated",
+      "mean_increment_over_original_requested_scenes": -0.0075197898594264985,
+      "original_requested_scenes": 233,
+      "status": "DEFINED_INCREMENT_ONLY_NOT_MODEL_RECOMMENDATION_SUCCESS"
+    },
+    "no_temporal": {
+      "absolute_Base_PDMS": null,
+      "absolute_selected_PDMS": null,
+      "forced_identity_delta": 0.0,
+      "forced_identity_structural_scenes": 8,
+      "interpretation": "structural scenes receive a defined identity increment zero; no absolute score, repair success or model decision is fabricated",
+      "mean_increment_over_original_requested_scenes": -0.0001810137444808723,
+      "original_requested_scenes": 233,
+      "status": "DEFINED_INCREMENT_ONLY_NOT_MODEL_RECOMMENDATION_SUCCESS"
+    }
+  },
+  "full_DEV_and_NAVTEST_policy_gain": "UNTESTED",
+  "matching": "same native pairs / Base / endpoint / seed / capacity / initialization / actual samplers / exposure / optimizer recipe / numerical runtime; only dense temporal-grid loss weight .2 vs 0 differs",
+  "new_model_forwards": 0,
+  "new_optimizer_updates": 0,
+  "new_simulator_calls": 0,
+  "no_forward_native_build_or_score_guard": true,
+  "original_artifact_count": 10,
+  "original_artifacts_unchanged": true,
+  "original_evaluation_pins": {
+    "full": {
+      "source_evaluation": {
+        "bytes": 1909,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/delta_feedback/seed_42_step1000/COMPLETE.json",
+        "sha256": "eedeb072a4e582d408d49f42a88a7cae63301f1cf76d2e73fbbc755e8ef3eb3d"
+      },
+      "status": "COMPLETE"
+    },
+    "no_temporal": {
+      "source_evaluation": {
+        "bytes": 1900,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/no_temporal/seed_42_step1000/COMPLETE.json",
+        "sha256": "778d048547fc8f4e701acc6ee8457b839b3c01321ddf8df25dd4d6f32c0010c1"
+      },
+      "status": "COMPLETE"
+    }
+  },
+  "paired_intervals": {
+    "full_minus_no_temporal": {
+      "ci95_percentile": [
+        -0.02109283902542677,
+        0.003280345302721563
+      ],
+      "independent_groups": 114,
+      "iterations": 2000,
+      "mean_difference": -0.007599710376810363,
+      "metric": "actual_selected_delta",
+      "scenes": 225,
+      "seed": 42,
+      "single_seed_limit": "within-run held-out sampling interval, not training-seed stability"
+    }
+  },
+  "policy_temporal_credit": "NOT_ESTABLISHED",
+  "population": {
+    "admission_rule": "source-defined all held-out native pairs, never a common intersection of model outputs",
+    "complete_native_validation_pairs": 4615,
+    "eligible_metrics_denominator": "all eligible native-pair validation scenes; not the original complete requested policy population",
+    "eligible_native_pair_logs": 114,
+    "eligible_native_pair_scenes": 225,
+    "eligible_pair_ids_hash": "487cdfc6568e677167cbeb67d1cd0e850064d43e489e5b1e365605bd1510db35",
+    "eligible_scene_inventory_hash": "2938d161d348d6b567977e9989b90bf62398166133607a735f59ac5d22ede220",
+    "eligible_scene_inventory_in_full_pinned_report": true,
+    "original_requested_logs": 116,
+    "original_requested_scenes": 233,
+    "structural_no_available_intervention_scenes": 8,
+    "structural_scene_inventory": [
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "582b949725dc50d8",
+        "source_log": "2021.07.24.22.52.16_veh-35_03236_04096"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "ceae8073e383507e",
+        "source_log": "2021.07.16.00.51.05_veh-17_01352_01901"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "adca70e93cdd59c1",
+        "source_log": "2021.07.09.23.23.48_veh-26_02228_04624"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "6bbd8ebc5e3c5d94",
+        "source_log": "2021.06.14.16.32.09_veh-35_03231_03426"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "717bfbcab08a5279",
+        "source_log": "2021.09.15.11.49.23_veh-28_00280_00506"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "0f042bdafe7e5429",
+        "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "809cd503eb61563d",
+        "source_log": "2021.06.09.12.06.35_veh-35_00422_01112"
+      },
+      {
+        "reason": "zero valid native intervention pairs in the complete locked bank",
+        "repair_status": "NO_CHANGE_REQUIRED",
+        "role": "validation",
+        "scene_id": "169fee365403521e",
+        "source_log": "2021.07.16.16.27.22_veh-26_03836_05047"
+      }
+    ]
+  },
+  "report": {
+    "bytes": 4163548,
+    "path": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_temporal_independent/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/DERIVED_COMPARISON.json",
+    "sha256": "345cfc9a68474367df6641da1747ce86fbea5ea70aaf0bbb8acd595470dc9c08"
+  },
+  "rows": [
+    {
+      "arm": "full",
+      "direction_accuracy_scene_weighted": 0.9005162963275986,
+      "eligible_high_score_to_zero_count": 4,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 3,
+      "eligible_introduced_ttc_count": 6,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.03307578859987595,
+      "eligible_native_selected_delta": -0.007787160165539444,
+      "forced_identity_extended_increment_only": -0.0075197898594264985,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.21399521434879357,
+      "structural_no_available_intervention_scenes": 8
+    },
+    {
+      "arm": "no_temporal",
+      "direction_accuracy_scene_weighted": 0.8928481218054913,
+      "eligible_high_score_to_zero_count": 2,
+      "eligible_introduced_collision_count": 1,
+      "eligible_introduced_road_count": 1,
+      "eligible_introduced_ttc_count": 7,
+      "eligible_native_pair_scenes": 225,
+      "eligible_native_regret": 0.02547607822306559,
+      "eligible_native_selected_delta": -0.00018744978872908258,
+      "forced_identity_extended_increment_only": -0.0001810137444808723,
+      "native_validation_pairs": 4615,
+      "original_full_population_PDMS": null,
+      "original_requested_scenes": 233,
+      "score_delta_scene_rmse": 0.21617367628066536,
+      "structural_no_available_intervention_scenes": 8
+    }
+  ],
+  "schema": "action_effect_independent_actual_temporal_eligible_review_v1",
+  "scientific_observation": "Dense temporal-grid supervision does not establish selection benefit: both point estimates are negative, full has lower selected native increment and a confidence interval crossing zero relative to no_temporal. This is a single-seed held-out TRAIN bank comparison, not Route A/B policy gain or proof against all temporal feedback.",
+  "scope": "read-only eligible held-out TRAIN bank comparison, no policy inference",
+  "source_review_commit": "cd6a02fc9cd90af05eb6f8bf264b223bd10137c5",
+  "status": "COMPLETE",
+  "wall_seconds": 30.95265701971948
+}
