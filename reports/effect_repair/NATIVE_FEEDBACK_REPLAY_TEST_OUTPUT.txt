@@ -1,0 +1,14 @@
+Command:
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_feedback_replay_audit.py
+
+...........                                                              [100%]
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+11 passed, 1 warning in 3.53s
+
+Real input dry-run output:
+{"status": "NOT_RUN", "scenes": ["fc90fd5b50ae59fe", "3d41f95debf352a9", "13b2b15448c15fc9", "2e3748d48c5f5139"], "planned_native_calls": 8, "simulation_calls": 0}
