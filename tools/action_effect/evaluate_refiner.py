@@ -173,9 +173,16 @@ def score(cfg, *, predictions_path, output, max_simulation_budget, max_seconds=3
             or [r["scene_id"] for r in predictions["entries"]] != reg["scene_ids"]
             or predictions["requested_scenes"] != len(reg["scene_ids"])):
         raise ValueError("Incomplete or mismatched prediction population")
-    for pin in (reg["checkpoint"], reg["repair_dataset"], reg["context_manifest"]): verify_artifact(pin)
+    population_pin = reg.get("population_artifact", reg.get("repair_dataset"))
+    if population_pin is None: raise ValueError("Missing registered evaluation population artifact")
+    for pin in (reg["checkpoint"], population_pin, reg["context_manifest"]): verify_artifact(pin)
     source = verify_identity(read_json(verify_artifact(reg["g0_registration"])))
-    population = {item["context"]["scene_id"]: item for item in source["population"]}
+    if source.get("schema") == "action_effect_evaluation_registration_v1":
+        if source.get("split") != "dev" or source.get("for_training") is not False:
+            raise ValueError("Independent DEV scoring registration must prohibit training")
+        population = {item["scene_id"]: {"context": item, "observation": item} for item in source["population"]}
+    else:
+        population = {item["context"]["scene_id"]: item for item in source["population"]}
     if (reg["base_checkpoint"] != source["base_checkpoint"] or reg["score_protocol_hash"] != source["spec"]["score_protocol_hash"]
             or reg["numeric_runtime_hash"] != source["numeric_runtime_hash"]):
         raise ValueError("Prediction/G0 simulation identity mismatch")

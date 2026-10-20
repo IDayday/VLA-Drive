@@ -3,6 +3,7 @@ from dataclasses import asdict
 from pathlib import Path
 from types import SimpleNamespace
 import json
+import sys
 import torch
 import pytest
 
@@ -109,3 +110,41 @@ def test_private_B_input_boundary_no_second_rollout_or_feedback():
     assert torch.equal(predict_bundle(Model(),inputs,'B','cpu'),inputs['initial_noise']) and len(calls)==1
     with pytest.raises(ValueError,match='Only current condition'):
         predict_bundle(Model(),{**inputs,'real_feedback':torch.ones(1)},'B','cpu')
+
+
+def test_DEV_B_prediction_uses_separate_reader_no_repair_targets(tmp_path,monkeypatch):
+    from tools.action_effect import evaluate_effect_flow as module
+    context=tmp_path/'DEV_CONTEXT.json';context.write_text('{}')
+    reg=tmp_path/'DEV_REG.json';reg.write_text('{}')
+    checkpoint=tmp_path/'step_000001.pt';checkpoint.write_bytes(b'explicit unit fixture')
+    raw=torch.zeros(8,4);raw[:,3]=1.
+    from starVLA.dataloader.foresight_dataset import decode_ego
+    record={'scene_id':'devscene','source_log':'devlog','role':'dev_report','observation_hash':'observation',
+        'condition':torch.ones(8,12),'noise':raw.clone(),'physical':decode_ego(raw)}
+    class Reader:
+        binding={'schema':'action_effect_evaluation_registration_v1','split':'dev','for_training':False,
+            'identity':'evalbinding','base_checkpoint_binding_hash':'base','base_checkpoint':{'sha256':'ownBase'},
+            'score_protocol_hash':'protocol','numeric_runtime_hash':'numeric','base_binding':artifact(reg)}
+        manifest={'registration':artifact(reg)};rows={'devscene':{k:record[k] for k in ('scene_id','source_log','role','observation_hash')}}
+        def __init__(self,*args,**kwargs):pass
+        def __getitem__(self,scene_id):return record
+    monkeypatch.setitem(sys.modules,'tools.action_effect.evaluation_context_data',SimpleNamespace(EvaluationContextReader=Reader))
+    calls=[]
+    def load(*args,**kwargs):
+        assert kwargs['expected_context_artifact'] is None and kwargs['expected_repair_artifact'] is None
+        def predict(condition,*,initial_noise):calls.append((condition,initial_noise));return initial_noise
+        return SimpleNamespace(provenance={'arm':'B0','checkpoint':artifact(checkpoint)},predict_action=predict)
+    monkeypatch.setattr(module,'load_flow_policy',load)
+    result=module.predict({'cohort_size':1,'base_binding':'fixture'},dataset_path=None,context_manifest=context,
+        checkpoint=checkpoint,output=tmp_path/'out',role='dev_report',max_samples=1,device='cpu')
+    assert result['status']=='COMPLETE' and len(calls)==1
+    prediction=json.loads((tmp_path/'out/PREDICTIONS.json').read_text());row=prediction['entries'][0]
+    registration=json.loads((tmp_path/'out/PREDICTION_REGISTRATION.json').read_text())
+    assert row['base_metrics'] is None and row['base_feedback'] is None and row['teacher_forward_calls']==0
+    assert 'repair_dataset' not in registration and registration['population_artifact_kind']=='DEV_context_only_no_repairs'
+    assert registration['evaluation_split']=='dev' and row['complete_generations']==1
+    baseline=module.predict_baseline({'cohort_size':1},context_manifest=context,output=tmp_path/'S0',
+        role='dev_report',max_samples=1)
+    assert baseline['model_forward_calls']==0 and len(calls)==1
+    baseline_rows=json.loads((tmp_path/'S0/PREDICTIONS.json').read_text())['entries']
+    assert baseline_rows[0]['physical']==record['physical'].double().tolist()

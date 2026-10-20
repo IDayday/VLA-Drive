@@ -69,9 +69,11 @@ class Dispatcher:
         self.g0=self.root/'g0'/f'population_{args.max_samples:06d}'
         self.pairs=self.g0/'PAIR_DATASET.json';self.repairs=self.g0/'REPAIR_DATASET.json'
         self.seed=args.seed;self.counter=0;self.invocation=time.time_ns()
-        self.eval_arms=([args.arm] if args.arm in ('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect')
-                        else ['A1','B1-effect'])
-        self.evaluations=[self.root/'evaluation'/arm/f'seed_{self.seed}'/f'population_{args.max_samples:06d}'/'score' for arm in self.eval_arms]
+        self.eval_arms=(['S0'] if args.arm=='S0' else ['S0',args.arm]
+            if args.arm in ('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect') else ['S0','A1','B1-effect'])
+        eval_count=args.evaluation_max_samples or args.max_samples
+        self.evaluations=[self.root/'evaluation'/arm/f'seed_{self.seed}'/args.evaluation_role/
+            f'population_{eval_count:06d}'/'score' for arm in self.eval_arms]
     def call(self,module,options,*,cpu=False):
         cmd=[sys.executable,'-m',module,'--config',self.a.config]+[str(x) for x in options]
         self.counter+=1;stem=self.folder/f'{self.invocation}_{self.counter:02d}_{module.rsplit(".",1)[-1]}'
@@ -158,21 +160,27 @@ class Dispatcher:
         if phase=='route-b':return self.train_arm(a.arm if a.arm in ('B0','B1-trajectory','B1-effect') else 'B1-effect')
         if phase=='evaluation':
             results=[]
+            context=(require(a.evaluation_context_manifest) if a.evaluation_role=='dev_report' else require(self.context))
+            evaluation_count=a.evaluation_max_samples or a.max_samples
             for arm,score_output in zip(self.eval_arms,self.evaluations):
                 family='route_a' if arm.startswith('A') or arm=='ScoreRefiner' else 'route_b'
-                checkpoint=Path(a.checkpoint) if a.checkpoint else latest_complete(self.model_run(family,arm))
+                checkpoint=(None if arm=='S0' else Path(a.checkpoint) if a.checkpoint else latest_complete(self.model_run(family,arm)))
                 module='tools.action_effect.evaluate_refiner' if family=='route_a' else 'tools.action_effect.evaluate_effect_flow'
                 output=score_output.parent/'prediction'
-                self.call(module,['--phase','predict','--checkpoint',require(checkpoint),'--repair-dataset',require(self.repairs),
-                    '--context-manifest',require(self.context),'--output',output,'--role','validation',
-                    '--max-samples',a.max_samples,'--device',a.device]+self.resume(output))
+                options=['--phase','predict',
+                    '--context-manifest',context,'--output',output,'--role',a.evaluation_role,
+                    '--max-samples',evaluation_count,'--device',a.device]
+                options+=['--baseline-only'] if arm=='S0' else ['--checkpoint',require(checkpoint)]
+                if a.evaluation_role!='dev_report':options+=['--repair-dataset',require(self.repairs)]
+                if a.evaluation_binding:options+=['--campaign-binding',a.evaluation_binding]
+                self.call(module,options+self.resume(output))
                 self.call(module,['--phase','score','--predictions',require(output/'PREDICTIONS.json'),'--output',score_output,
                     '--max-simulation-budget',self.budget(score_output),'--max-seconds',a.max_seconds]+self.resume(score_output),cpu=True)
                 result=read_json(require(score_output/'RESULT.json'))
                 results.append({'arm':arm,'evaluation':artifact(score_output/'RESULT.json'),'status':result['status'],
                     'summary':result['summary']})
             return {'status':'PASS' if all(x['status']=='COMPLETE' for x in results) else 'INCONCLUSIVE',
-                'scope':'complete fixed TRAIN validation results, not NAVTEST or full DEV','results':results,
+                'scope':'fixed '+a.evaluation_role+' population; never NAVTEST','results':results,
                 'scientific_conclusion':'requires paired same-budget controls and independent log statistics'}
         raise ValueError('Unknown phase')
 
@@ -185,6 +193,8 @@ def main(argv=None):
     p.add_argument('--max-simulation-budget',type=int);p.add_argument('--max-seconds',type=float,default=3600.)
     p.add_argument('--artifact-root');p.add_argument('--device',default='cpu');p.add_argument('--arm')
     p.add_argument('--max-samples',type=int);p.add_argument('--context-manifest');p.add_argument('--effect-checkpoint');p.add_argument('--checkpoint')
+    p.add_argument('--evaluation-role',choices=('validation','dev_report'),default='validation')
+    p.add_argument('--evaluation-context-manifest');p.add_argument('--evaluation-binding');p.add_argument('--evaluation-max-samples',type=int)
     p.add_argument('--replay-evidence',default=str(Path(__file__).resolve().parents[2]/'reports/effect_repair/S0_FRESH_REPLAY.json'))
     p.add_argument('--execute-ready-stages',action='store_true');p.add_argument('--continue-independent-on-failure',action='store_true')
     a=p.parse_args(argv)
@@ -200,10 +210,14 @@ def main(argv=None):
                 not 1<=a.max_updates<=cfg['training']['max_updates'] or not 1<=a.max_samples<=cfg['cohort_size'] or
                 not 1<=a.max_simulation_budget<=cfg['g0']['max_simulation_budget'] or
                 not 0<a.max_seconds<=14400):raise ValueError('Unregistered seed or out-of-range bounded resource budget')
-        if a.arm is not None and a.arm not in G1_ARMS+('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect'):
+        if a.arm is not None and a.arm not in G1_ARMS+('S0','A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect'):
             raise ValueError('Unknown research arm')
         if a.checkpoint and a.arm not in ('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect'):
             raise ValueError('An explicit evaluation checkpoint also requires its explicit route arm')
+        if a.evaluation_role=='dev_report' and not a.evaluation_context_manifest:
+            raise ValueError('DEV evaluation needs its separate complete registered context manifest')
+        if a.evaluation_max_samples is not None and not 1<=a.evaluation_max_samples<=100000:
+            raise ValueError('Explicit bounded evaluation sample count required')
         if a.phase=='all' and not a.execute_ready_stages and not a.dry_run:
             raise ValueError('--phase all requires explicit --execute-ready-stages')
         phases=list(PHASES[:-1]) if a.phase=='all' else [a.phase]
@@ -211,11 +225,13 @@ def main(argv=None):
             print(json.dumps({'status':'NOT_RUN','phases':phases,'arm':a.arm,'max_samples':a.max_samples,
                 'max_updates':a.max_updates,'aggregate_simulation_ceiling':a.max_simulation_budget,
                 'resume_requested':a.resume,'no_jobs_launched':True}));return 0
-        folder=Path(cfg['artifact_root'])/'runner'/a.phase/(a.arm or 'default')/f'seed_{a.seed}'/f'population_{a.max_samples:06d}'
+        folder=Path(cfg['artifact_root'])/'runner'/a.phase/(a.arm or 'default')/f'seed_{a.seed}'/f'population_{a.max_samples:06d}'/a.evaluation_role
         folder.mkdir(parents=True,exist_ok=True)
         with lock(folder/'RUN.lock'):
             identity={'schema':'action_effect_campaign_dispatch_v1','config':artifact(a.config),'phase':a.phase,'arm':a.arm,
                 'seed':a.seed,'max_samples':a.max_samples,'max_updates':a.max_updates,
+                'evaluation_role':a.evaluation_role,'evaluation_context_manifest':a.evaluation_context_manifest,
+                'evaluation_max_samples':a.evaluation_max_samples,
                 'max_simulation_budget':a.max_simulation_budget,'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
             write_json(folder/'IDENTITY.json',identity)
             dispatcher=Dispatcher(cfg,a,folder);rows=[]

@@ -32,10 +32,21 @@ autocast explicitly. Official evaluation calls the shared
 `evaluate_refiner.score` in a separate bounded CPU invocation; no scoring
 algorithm or feedback extractor is copied.
 
-The current prediction path uses registered TRAIN fit/validation roles. It does
+The prediction path supports TRAIN fit/validation and a distinct dev_report
+path through the separate EvaluationContextReader. It does
 not pretend that the 64-scene qualification cohort is the complete independent
 1696-scene DEV population. The separate DEV collector/reader is owned by the
 other agent; its actual complete artifact is a prerequisite for that result.
+DEV prediction reads no training repair dataset: the generic population pin
+references the actual DEV context, not fabricated repair supervision.
+
+`evaluate_effect_flow --phase predict --baseline-only` registers exact cached
+original S0 physical trajectories with zero new head/VLM calls or noise draws.
+Its separate official score uses the identical DEV context as adapted policies.
+The original Base binding is explicitly identified, not called an adapter.
+The dispatcher scores S0 alongside the requested policies. Historical 91.388
+is never subtracted to claim a new paired gain; final comparisons must match
+the complete scene/log/context population.
 
 `tools.action_effect.export_models` exports only the private adapter/refiner
 state, pure configs and immutable original Base/head references. It strips
@@ -55,7 +66,7 @@ or proof of full online VLA integration.
 
 ## Current CPU evidence
 
-Seven new CPU behavior tests passed in **3.50 seconds**. They cover bounded dry
+The first seven CPU behavior tests passed in **3.50 seconds**. They cover bounded dry
 run with zero jobs, explicit all-stage opt-in, latest complete checkpoint within
 the named run, corrupt/foreign rejection, aggregate reserved-call budgeting,
 population namespaces, canonical inference flags, source dependency closure,
@@ -67,6 +78,8 @@ source-only directory containing the computed 224-file / 3,125,133-byte closure
 successfully imported both deployment routes with the runtime deny-list active;
 it executed no model or simulator. Actual trained bundle roundtrips await Lead
 resource admission and model artifacts.
+An additional DEV-only fixture test checks the separate reader, absence of
+repair/feedback inputs, exact cached S0 baseline and zero extra model calls.
 
 Examples use real existing config/context/data locations; checkpoint/output
 arguments must identify the selected run, not an untrained placeholder:
