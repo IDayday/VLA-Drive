@@ -1,0 +1,55 @@
+{
+  "schema": "action_effect_temporal_ablation_source_tests_v1",
+  "start_commit": "b7cc81fb",
+  "scope": "CPU implementation and loss isolation; no real fitting or policy gain",
+  "cpu_tests": {
+    "command": "python -m pytest -q tests/action_effect/test_temporal_ablation.py tests/action_effect/test_model_effect.py tests/action_effect/test_g1_comparison.py tests/action_effect/test_small_training.py",
+    "passed": 64,
+    "failed": 0,
+    "seconds": 11.44
+  },
+  "cli_help": "PASS",
+  "cli_zero_dry_run": {
+    "status": "NOT_RUN",
+    "loss_weights": {
+      "value": 1.0,
+      "ranking": 0.2,
+      "events": 0.2,
+      "temporal": 0.0,
+      "uncertainty": 0.05,
+      "repair": 0.2
+    },
+    "automatic_namespace": "g1_ablation/no_temporal/seed_42"
+  },
+  "environment": {
+    "python": "3.9.25",
+    "torch": "2.5.1+cu124",
+    "test_device": "cpu"
+  },
+  "new_training_started": false,
+  "simulator_calls": 0,
+  "live_runtime_changed": false,
+  "scientific_conclusion": "UNTESTED",
+  "policy_temporal_credit": "NOT_ESTABLISHED",
+  "independent_review_scopes": [
+    {
+      "source": "e1795aece89e4f54cfd07f5fb54788e8a9f0f093",
+      "passed": 14,
+      "seconds": 4.9,
+      "scope": "CPU dispatcher/export control behavior only"
+    },
+    {
+      "source": "629fffd8d227316e2a1c73502fe2325598c3d950",
+      "passed": 18,
+      "seconds": 4.94,
+      "scope": "CPU dependency guard/export behavior only"
+    }
+  ],
+  "final_focused_recheck": {
+    "command": "python -m pytest -q tests/action_effect/test_temporal_ablation.py",
+    "passed": 8,
+    "failed": 0,
+    "seconds": 3.78,
+    "last_change": "legacy empty output fallback remains unchanged"
+  }
+}

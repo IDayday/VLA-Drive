@@ -15,6 +15,27 @@ from starVLA.model.modules.action_effect.effect_losses import effect_loss_contri
 WEIGHTS={'value':1.,'ranking':.2,'events':.2,'temporal':.2,'uncertainty':.05,'repair':.2}
 
 
+def loss_weights(temporal_loss_weight=.2, *, arm='delta_feedback'):
+    """One registered ablation, never mutate the default six-control recipe.
+
+    Zero disables only the dense temporal-grid auxiliary objective. First-event
+    timestamps in the eleven-channel physical value target remain supervised.
+    The allocated model, masks, pair stream and optimizer recipe are unchanged.
+    """
+    if type(temporal_loss_weight) not in (int,float) or temporal_loss_weight not in (0.,.2):
+        raise ValueError('temporal-loss-weight must be exactly 0 or 0.2')
+    if temporal_loss_weight==0. and arm!='delta_feedback':
+        raise ValueError('The no-temporal ablation is registered only for delta_feedback')
+    return {**WEIGHTS,'temporal':float(temporal_loss_weight)}
+
+
+def training_output(cfg,arm,seed,output,weights):
+    if output:return Path(output)
+    if weights['temporal']==0.:
+        return Path(cfg['artifact_root'])/'g1_ablation'/'no_temporal'/f'seed_{seed}'
+    return Path(cfg['artifact_root'])/'g1'/arm/f'seed_{seed}'
+
+
 def _effect_training_origin(identity, expected_registration_identity):
     """Verify the own G1 TRAIN pair-bank registration, without resimulation."""
     if not isinstance(expected_registration_identity,str) or len(expected_registration_identity)!=64:
@@ -178,13 +199,15 @@ def evaluate(model,data,device,microbatch=8):
         'uncertainty_1sigma_coverage':float(np.mean(abs(pred-true)<=np.sqrt(np.array(variances))))}
 
 
-def train(cfg,*,context_manifest,pair_dataset,arm,device,seed,max_updates,stop_after=None,resume=False,output=None):
+def train(cfg,*,context_manifest,pair_dataset,arm,device,seed,max_updates,stop_after=None,resume=False,output=None,
+          temporal_loss_weight=.2):
+    weights=loss_weights(temporal_loss_weight,arm=arm)
     reader=ContextReader(context_manifest,Path(cfg['artifact_root'])/'CAMPAIGN_BINDING.json');data=PairData(pair_dataset,reader)
     t=cfg['training'];mc=EffectModelConfig(mode=arm,hidden_dim=t['hidden'],layers=t['layers'],heads=t['heads'],init_seed=seed)
     model=ActionEffectModel(mc,data.spec).to(device);pair_rng=torch.Generator().manual_seed(seed+202)
     identity={'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'arm':arm,
         'model_config':asdict(mc),'label_spec':asdict(data.spec),'base_binding_hash':reader.binding['base_checkpoint_binding_hash'],
-        'data_artifact':artifact(pair_dataset),'context_artifact':artifact(context_manifest),'loss_weights':WEIGHTS,
+        'data_artifact':artifact(pair_dataset),'context_artifact':artifact(context_manifest),'loss_weights':weights,
         'scene_shuffle_map_hash':digest(data.shuffle_map),'withheld_training_interventions':['joint'],
         'sampling':'uniform fit scene then uniform valid pair'}
     def step_fn(model,indices,step):
@@ -195,10 +218,10 @@ def train(cfg,*,context_manifest,pair_dataset,arm,device,seed,max_updates,stop_a
         for at in range(0,len(rows),t['microbatch_scenes']):
             r=rows[at:at+t['microbatch_scenes']];p=data.predict(model,r,device)
             contributions.append(effect_loss_contributions(p,mode=arm,**data.targets(r,device)))
-        loss=reduce_contributions(combine_contributions(contributions),WEIGHTS);loss.total.backward()
+        loss=reduce_contributions(combine_contributions(contributions),weights);loss.total.backward()
         return {**{k:float(v.detach()) for k,v in loss.terms.items()},**loss.statistics}
     def validate_fn(model,step):return evaluate(model,data,device,t['microbatch_scenes'])
-    return run_training(model,output=output or Path(cfg['artifact_root'])/'g1'/arm/f'seed_{seed}',identity=identity,
+    return run_training(model,output=training_output(cfg,arm,seed,output,weights),identity=identity,
         dataset_size=len(data.scenes),step_fn=step_fn,validation_fn=validate_fn,cfg=cfg,device=device,seed=seed,
         max_updates=max_updates,stop_after=stop_after,resume=resume,stateful={'pair_rng':pair_rng})
 
@@ -209,10 +232,15 @@ def main():
     p.add_argument('--arm',choices=MODES,required=True);p.add_argument('--device',required=True);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--max-updates',type=int,required=True);p.add_argument('--stop-after',type=int);p.add_argument('--output')
     p.add_argument('--resume',action='store_true');p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--temporal-loss-weight',type=float,choices=(0.,.2),default=.2,
+        help='Registered delta_feedback ablation only: dense temporal-grid weight 0 or original 0.2; eleven mean channels unchanged')
     a=p.parse_args();cfg=load_config(a.config)
-    if a.dry_run:print(json.dumps({'status':'NOT_RUN','arm':a.arm,'max_updates':a.max_updates}));return
+    weights=loss_weights(a.temporal_loss_weight,arm=a.arm)
+    if a.dry_run:print(json.dumps({'status':'NOT_RUN','arm':a.arm,'max_updates':a.max_updates,
+        'loss_weights':weights,'output':str(training_output(cfg,a.arm,a.seed,a.output,weights))}));return
     print(json.dumps(train(cfg,context_manifest=a.context_manifest,pair_dataset=a.pair_dataset,arm=a.arm,device=a.device,
-        seed=a.seed,max_updates=a.max_updates,stop_after=a.stop_after,resume=a.resume,output=a.output)))
+        seed=a.seed,max_updates=a.max_updates,stop_after=a.stop_after,resume=a.resume,output=a.output,
+        temporal_loss_weight=a.temporal_loss_weight)))
 
 
 if __name__=='__main__':main()

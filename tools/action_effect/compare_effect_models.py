@@ -28,6 +28,14 @@ def _source():
     return subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
 
 
+def require_primary_loss_recipe(identity):
+    # Legacy reporting fixtures may lack this historical field. Every current
+    # real G1 identity binds it; the new ablation must not replace a primary arm.
+    from .train_effect_model import loss_weights
+    if 'loss_weights' in identity and identity['loss_weights']!=loss_weights():
+        raise ValueError('Six primary controls require their unchanged loss recipe; compare the temporal ablation separately')
+
+
 def checkpoint_state(checkpoint):
     path=Path(checkpoint);identity=read_json(path.parent/'IDENTITY.json')
     receipt=read_json(path.with_suffix('.COMPLETE.json'));ih=digest(identity)
@@ -131,7 +139,8 @@ def evaluate(checkpoint,*,context_manifest,pair_dataset,campaign_binding,output,
                     'temporal_valid':row['temporal_event_valid']})
     forward_wall=time.perf_counter()-forward_started;forward_cpu=time.process_time()-forward_cpu
     metrics=summarize_records(records,names=data.spec.names,units=data.spec.units,scales=data.spec.scales,
-        requested_scenes=requested,mode=identity['arm'])
+        requested_scenes=requested,mode=identity['arm'],
+        temporal_supervised=False if identity.get('loss_weights',{}).get('temporal')==0. else None)
     snapshot=training_summary(identity,state,Path(checkpoint).parent/'RESULT.json')
     predictions={'schema':'action_effect_g1_predictions_v1','evaluation_identity':declared['identity'],'entries':records}
     metrics={'schema':'action_effect_g1_metrics_v1','evaluation_identity':declared['identity'],**metrics}
@@ -189,7 +198,8 @@ def _load_evaluation(path):
     # Recompute reporting metrics from immutable per-pair outputs, never accept
     # a self-hashed summary that silently excludes a failed scene.
     spec=identity['label_spec'];recomputed=summarize_records(predictions['entries'],**spec,
-        requested_scenes=identity['requested_scenes'],mode=identity['arm'])
+        requested_scenes=identity['requested_scenes'],mode=identity['arm'],
+        temporal_supervised=False if original_identity.get('loss_weights',{}).get('temporal')==0. else None)
     if digest(recomputed)!=digest({k:v for k,v in metrics.items() if k not in ('schema','evaluation_identity')}):
         raise ValueError('Stored G1 metrics do not match their full pair predictions')
     if [r['pair_identity'] for r in predictions['entries']]!=identity['heldout_pair_identities']:
@@ -218,6 +228,7 @@ def compare(evaluations,*,output,step,bootstrap=2000,seed=42):
     for arm in MODES:
         if arm not in loaded:rows.append({'arm':arm,'completion':'PENDING','optimizer_step':step});continue
         x=loaded[arm];ti=read_json(verify_artifact(x['identity']['checkpoint_identity']));metrics=x['metrics'];training=x['training']
+        require_primary_loss_recipe(ti)
         cfg={k:v for k,v in ti['model_config'].items() if k!='mode'}
         matched_counts.add(training['private_parameters']);matched_cfg.add(digest(cfg));matched_recipe.add(digest(ti['recipe']))
         matched_seeds.add(ti['seed'])

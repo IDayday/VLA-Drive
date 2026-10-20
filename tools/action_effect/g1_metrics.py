@@ -81,7 +81,7 @@ def _selection(rows, names, *, identity=True):
     return out
 
 
-def summarize_records(records, *, names, units, scales, requested_scenes, mode):
+def summarize_records(records, *, names, units, scales, requested_scenes, mode,temporal_supervised=None):
     if len(names)!=len(units) or len(scales)!=len(names) or len(set(names))!=len(names) or 'score' not in names:
         raise ValueError('Actual named physical label schema required')
     if not records:raise ValueError('No held-out predictions; do not manufacture a zero score')
@@ -106,6 +106,8 @@ def summarize_records(records, *, names, units, scales, requested_scenes, mode):
     supervised=([u=='0..1' for u in units] if mode=='absolute_score' else
         [n=='score' for n in names] if mode=='terminal_pdms' else [True]*d)
     full_feedback=mode not in ('absolute_score','terminal_pdms')
+    if temporal_supervised is not None and type(temporal_supervised) is not bool:
+        raise ValueError('Explicit temporal supervision flag must be boolean')
     labels={};scene_metrics=[];event_conf={e:np.zeros((3,3),dtype=np.int64) for e in EVENTS}
     event_prob={e:[] for e in EVENTS};event_target={e:[] for e in EVENTS}
     repair_p=[];repair_y=[];temporal=[]
@@ -206,7 +208,8 @@ def summarize_records(records, *, names, units, scales, requested_scenes, mode):
         'direction_accuracy_pair_weighted':average(all_directions),'direction_non_tie_pairs':len(all_directions),
         'event_transitions':event_summary,'repair_eligibility_calibration':{**calibration(repair_p,repair_y),
             'supervised_in_this_arm':full_feedback,'target':'native eligible_repair, not necessarily strictly positive score delta'},
-        'temporal_event_mae_pair_mean':average(temporal),'temporal_supervised_in_this_arm':full_feedback,
+        'temporal_event_mae_pair_mean':average(temporal),'temporal_supervised_in_this_arm':
+            full_feedback if temporal_supervised is None else full_feedback and temporal_supervised,
         'selection':selection_summary,'intervention_subsets':subsets,'scenes':scene_metrics,
         'population':'held-out TRAIN logs, not untouched DEV or NAVTEST','scientific_conclusion':'UNTESTED'}
 
