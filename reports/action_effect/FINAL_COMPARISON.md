@@ -80,3 +80,30 @@ not establish a dense-grid benefit, despite better dense-head error, nor does it
 show all timing information is useless: first-event means and event transitions
 remain trained in both arms. The zero-weight control is itself unsafe in some
 cases and is not substituted as a new post-hoc teacher or deployment rule.
+## Later scoring snapshot, before the complete paired policy matrix
+
+[The03:57:06 UTC snapshot](ROUTE_DEV_SCORING_SNAPSHOT.json) admits14 of16 route
+DEV score results by exact COMPLETE/RESULT pins, registration agreement, score
+protocol and identical1696 scene/log IDs. All admitted entries are valid and
+finite; the recorded means are recomputed from their existing metrics. No native
+simulation or model forward is added, and this is not the unified native/risk
+comparison.
+
+Complete A1 seed42/43/44 means are91.235007/91.235403/91.202189, below the matching
+A0 means and current S0. Complete B0 means are91.402832/91.432876/91.389449: small
+positive differences that still require paired uncertainty and safety analysis.
+B1-effect's two available means91.407752/91.356723 have mixed signs. B1-trajectory
+seed43 and B1-effect seed44 remain WAITING_INPUTS at this snapshot. There is no
+current mean-level evidence justifying an effect-supervision superiority claim;
+no seed, teacher or policy recipe is changed based on these DEV observations.
+### Classification is better than a majority baseline, but not safe selection
+
+The pure read-only [sign audit](G1_DIRECTION_IMBALANCE_AUDIT.md) finds390 positive
+and607 negative meaningful score changes among997 correlated intervention pairs
+(178 scenes/99 logs). Always predicting deterioration reaches60.883% pair or
+65.710% scene-macro accuracy, below the delta model's90.371%/90.052%. Delta's
+balanced accuracy91.267% therefore is not simply a class-imbalance artifact.
+Absolute-score/full-feedback controls reach93.538%/94.426%, however; positive
+direction classification is not an advantage unique to paired-effect learning.
+The native recommendation and safety failures remain the decisive negative
+utility evidence, with no change to the fixed teacher or policy from this audit.

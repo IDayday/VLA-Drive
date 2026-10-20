@@ -87,3 +87,24 @@ respectively. Their tiny mixed directions are not stable generalization evidence
 or a reason to pick the best seed. The single predeclared H_val case is not yet
 admitted here; its result must be shown as n=1, without broad-confidence claims.
 Final A1/absolute-guided paired policy and severe-risk comparisons remain pending.
+## Later immutable DEV scoring snapshot
+
+At 2026-10-20T03:57:06 UTC, all seven trained routeA DEV scoring results have
+COMPLETE receipts over the same1696 scenes/16 logs and current score protocol.
+[The snapshot](ROUTE_DEV_SCORING_SNAPSHOT.json) validates the exact RESULT pins,
+registration agreement, complete scene/log population, valid counts and reported
+means; it does not repeat native-receipt validation or replace the required
+paired safety comparison.
+
+| Arm | Seed42 PDMS/100 | Seed43 | Seed44 |
+|---|---:|---:|---:|
+| Current fixed S0 | 91.388363 | same fixed policy | same fixed policy |
+| A0 ordinary refiner | 91.394335 | 91.397026 | 91.376070 |
+| A1 effect-guided refiner | 91.235007 | 91.235403 | 91.202189 |
+| Absolute-score refiner | 91.257100 | not budgeted | not budgeted |
+
+A1's complete-population mean is below A0 in each matched training seed. These
+actual means do not support an effect-guidance advantage at this endpoint. The
+paired new-zero/NC/DAC/TTC counts, source-log intervals, training-holdout repair
+analysis and actual deployment latency remain separate required evidence; no
+seed is selected from this DEV table and no safer-policy claim is made.

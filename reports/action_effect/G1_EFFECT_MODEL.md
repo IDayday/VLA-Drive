@@ -164,3 +164,17 @@ and [pinned JSON](../effect_repair/ELIGIBLE_REPORT_INDEPENDENT_ACTUAL_TEMPORAL.j
 preserve the complete4,163,548B report, exact sampler proofs and execution logs.
 All10 original artifact hashes remain unchanged; the derivation used no forward,
 GPU, optimizer step or new simulation. No primary teacher or policy pool is changed.
+## Signed-change imbalance diagnostic
+
+[The original-prediction audit](G1_DIRECTION_IMBALANCE_AUDIT.md) checks all six
+unchanged4615-pair files. Its997 meaningful score changes comprise390 improvements
+and607 deteriorations across178 scenes/99 logs. Always-negative direction accuracy
+is60.883% per pair and65.710% scene-macro, compared with delta's90.371%/90.052%.
+Delta's positive recall95.385%, positive precision82.667%, negative recall87.150%
+and balanced accuracy91.267% rule out the simple majority-class explanation.
+
+They do not establish a causal/context or selection advantage. Absolute-score and
+full-feedback balanced accuracies are93.538% and94.426%; trajectory-only/shuffled
+controls remain strong. The same delta model's actual recommendation gain remains
+negative. The997 interventions are not independent scenes, and classification on
+all meaningful changes is distinct from safely selecting a scene's best action.

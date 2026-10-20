@@ -66,3 +66,19 @@ increment−.759971points,95% paired-log interval[−2.109284,+.328035]. It does
 support added utility of that dense auxiliary loss; it does not negate all timing
 information. Zero still has2 high→zero and other new hard failures. No teacher or
 policy rule is replaced after seeing these data.
+## Later scoring and class-balance evidence
+
+The03:57:06 UTC [DEV scoring snapshot](../action_effect/ROUTE_DEV_SCORING_SNAPSHOT.json)
+admits14/16 route results through exact COMPLETE pins and the identical1696-scene/
+16-log population, with the full native paired-risk comparison still pending.
+All three A1 means are below the corresponding A0 means; B0's three means improve
+only slightly, and the available B1-effect means have mixed signs. These are
+descriptive observations, with no DEV-based seed/model or rule selection.
+
+The subsequent [original G1 sign audit](../action_effect/G1_DIRECTION_IMBALANCE_AUDIT.md)
+uses997 meaningful changes (390 positive/607 negative) spanning178 scenes/99 logs.
+Delta's91.267% balanced accuracy is above the simple always-negative baseline,
+but below absolute-score/full-feedback controls. Classification is not the same
+as safe recommendation: the already reported negative selection gain remains.
+Both new derivations make0 forward/simulation/training calls and leave source
+artifacts unchanged.

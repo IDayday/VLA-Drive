@@ -91,3 +91,20 @@ zero Qwen calls, zero simulation and zero updates. Their COMPLETE receipts are
 `qualification/head_roundtrip_ts2_v1/COMPLETE.json` and the corresponding ts5
 path. This is cached-head portability, not real-image latency or a learned policy
 improvement. Final A/B image-to-final deployment still needs the actual bundles.
+## Independent routeB0 CUDA resume admission
+
+The actual bounded B0 CUDA qualification is now independently audited in
+[B0_CUDA_RESUME_INDEPENDENT_AUDIT.md](../effect_repair/B0_CUDA_RESUME_INDEPENDENT_AUDIT.md),
+source1ae4d3dc and independent audit79f50c77. Existing continuous16 versus8+8
+checkpoint bytes prove exact private model, named Adam states, scheduler, CUDA/
+CPU/Python/NumPy RNG, sampler/cursor and recorded history at updates9 and16 on
+the original A800/FP32 single-CUDA backend. The auditor reconstructs all16 batches
+and the first resumed batch9 from the fixed88 repair/identity references, checks
+49 active named Adam parameters and4 dormant unchanged auxiliary tensors, and
+leaves all31 original artifacts unchanged. It performs0 new GPU/forward/update/
+simulation calls; its6 small CPU adversarial tests pass in1.20s.
+
+This is an engineering continuation result for B0, not B1-effect auxiliary-gradient,
+production DDP, cross-device or scientific qualification. The saved step16 is an
+operator pause under the original1000-update schedule; terminal zero-update CUDA
+resume was not tested and is not claimed.

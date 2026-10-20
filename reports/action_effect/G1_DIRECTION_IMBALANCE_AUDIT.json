@@ -1,0 +1,365 @@
+{
+  "captured_at_utc": "2026-10-20T03:59:29.285348+00:00",
+  "cpu_process_seconds": 4.343764478,
+  "cpu_wall_seconds": 4.626653391867876,
+  "formulae": {
+    "always_negative_pair_accuracy": "N/(P+N)",
+    "balanced_accuracy": "0.5*(positive_recall+negative_recall)",
+    "negative_class": "native after.score-before.score<-0.01",
+    "positive_class": "native after.score-before.score>0.01",
+    "precision_positive": "TP/(TP+FP), NA if no predicted positive",
+    "predicted_sign": "sign(mean_delta[score]); zero is an incorrect prediction for either eligible class",
+    "recall_negative": "TN/(TN+FP+predicted_zero_on_negative)",
+    "recall_positive": "TP/(TP+FN+predicted_zero_on_positive)",
+    "scene_macro_accuracy": "mean of within-scene non-tie direction accuracies, excluding scenes without any non-tie pair; not the pooled pair accuracy"
+  },
+  "new_model_forwards": 0,
+  "new_native_simulator_calls": 0,
+  "new_optimizer_updates": 0,
+  "original_source_artifact_count": 18,
+  "original_source_artifacts_unchanged": true,
+  "population": {
+    "nontie_filter": "score valid AND abs(after.score-before.score)>0.01",
+    "nontie_pairs": 997,
+    "nontie_unique_logs": 99,
+    "nontie_unique_scenes": 178,
+    "original_requested_validation_scenes": 233,
+    "source_eligible_pair_scenes": 225,
+    "structural_no_available_native_pair_scenes": 8,
+    "total_native_pairs": 4615,
+    "true_negative_pairs": 607,
+    "true_positive_pairs": 390
+  },
+  "rows": [
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "absolute_score",
+      "balanced_accuracy_pair_weighted": 0.9353778566299159,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.925777331995988,
+      "direction_accuracy_scene_weighted": 0.9253795783785866,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.8912685337726524,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 8,
+        "false_positive": 66,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 541,
+        "true_positive": 382
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.8526785714285714,
+      "positive_recall_pair_weighted": 0.9794871794871794,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    },
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "terminal_pdms",
+      "balanced_accuracy_pair_weighted": 0.9008744138892409,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.8826479438314945,
+      "direction_accuracy_scene_weighted": 0.8771081043139866,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.8171334431630972,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 6,
+        "false_positive": 111,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 496,
+        "true_positive": 384
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.7757575757575758,
+      "positive_recall_pair_weighted": 0.9846153846153847,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    },
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "absolute_feedback",
+      "balanced_accuracy_pair_weighted": 0.9442592827271575,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.9338014042126379,
+      "direction_accuracy_scene_weighted": 0.9355611103297817,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.8962108731466227,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 3,
+        "false_positive": 63,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 544,
+        "true_positive": 387
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.86,
+      "positive_recall_pair_weighted": 0.9923076923076923,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    },
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "delta_feedback",
+      "balanced_accuracy_pair_weighted": 0.9126726650614625,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.9037111334002006,
+      "direction_accuracy_scene_weighted": 0.9005162963275982,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.871499176276771,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 18,
+        "false_positive": 78,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 529,
+        "true_positive": 372
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.8266666666666667,
+      "positive_recall_pair_weighted": 0.9538461538461539,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    },
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "trajectory_only",
+      "balanced_accuracy_pair_weighted": 0.8945570903561019,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.876629889669007,
+      "direction_accuracy_scene_weighted": 0.8690838765772672,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.8121911037891268,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 9,
+        "false_positive": 114,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 493,
+        "true_positive": 381
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.7696969696969697,
+      "positive_recall_pair_weighted": 0.9769230769230769,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    },
+    {
+      "always_negative_direction_accuracy_pair_weighted": 0.6088264794383149,
+      "always_negative_direction_accuracy_scene_weighted": 0.6570982406739181,
+      "arm": "shuffled_context",
+      "balanced_accuracy_pair_weighted": 0.889063490051958,
+      "both_sign_support_scenes": 131,
+      "classification_threshold_predicted_delta": 0.0,
+      "direction_accuracy_pair_weighted": 0.8716148445336008,
+      "direction_accuracy_scene_weighted": 0.8726751043257982,
+      "excluded_tie_or_small_gap_pairs": 3618,
+      "negative_pair_fraction": 0.6088264794383149,
+      "negative_pairs": 607,
+      "negative_recall_pair_weighted": 0.8088962108731467,
+      "negative_support_scenes": 177,
+      "nontie_unique_logs": 99,
+      "nontie_unique_scenes": 178,
+      "pair_counts_not_independent_scenes": true,
+      "pooled_pair_confusion": {
+        "false_negative": 12,
+        "false_positive": 116,
+        "predicted_zero_on_true_negative": 0,
+        "predicted_zero_on_true_positive": 0,
+        "true_negative": 491,
+        "true_positive": 378
+      },
+      "positive_pair_fraction": 0.39117352056168503,
+      "positive_pairs": 390,
+      "positive_precision_pair_weighted": 0.7651821862348178,
+      "positive_recall_pair_weighted": 0.9692307692307692,
+      "positive_support_scenes": 132,
+      "prediction_zero_is_wrong_for_either_nonzero_class": true,
+      "source_eligible_pair_logs": 114,
+      "source_eligible_pair_scenes": 225,
+      "total_native_validation_pairs": 4615,
+      "valid_nontie_pairs_abs_gap_gt_0_01": 997
+    }
+  ],
+  "same_full_native_pair_identities_and_truth_across_six": true,
+  "scene_weighted_accuracy_matches_existing_derived_reports": true,
+  "schema": "action_effect_original_g1_direction_class_imbalance_v1",
+  "scientific_limit": "Multiple interventions in a scene are dependent. Classification rates use the explicitly stated pair or scene denominators and do not establish independent scene generalization, action selection utility, safety, or policy improvement.",
+  "scope": "Pure read-only classification of already complete six-arm PAIR_PREDICTIONS; no model calls or native re-simulation; labels and full native-pair IDs must match across all arms. Existing native admission is referenced, not reconstructed.",
+  "source_native_admission": {
+    "bytes": 12391751,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/derived_eligible_comparison/c0bea1284e2b7f26b2c15f9cfcb346827a2ce6c8b3f3e0d10fd5883b6c229f0e/DERIVED_COMPARISON.json",
+    "sha256": "87ed59c12d1b314f7b05cd775a4c093903f6a2ff5a975f997f6700b214e243a7"
+  },
+  "source_original_artifacts": {
+    "absolute_feedback": {
+      "completion": {
+        "bytes": 1931,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_feedback/seed_42_step1000/COMPLETE.json",
+        "sha256": "9bc407b5da72cb55d43078ba47646339f7e521fc004526cd055702dd41d97eea"
+      },
+      "identity": {
+        "bytes": 378025,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_feedback/seed_42_step1000/IDENTITY.json",
+        "sha256": "471c125bb211386200450687a9e41a2b90f5a0b8bfa28e312ad39c358332d08b"
+      },
+      "predictions": {
+        "bytes": 61422239,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_feedback/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "2ac2ac9fe57043794082d4e197b92371421740bcd6f2b92b69c8f60ae7f3e784"
+      }
+    },
+    "absolute_score": {
+      "completion": {
+        "bytes": 1914,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_score/seed_42_step1000/COMPLETE.json",
+        "sha256": "20fa4d0997781a11a4594b51140b855a41bab2c27a9e386ac79542ca3f3a3805"
+      },
+      "identity": {
+        "bytes": 378016,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_score/seed_42_step1000/IDENTITY.json",
+        "sha256": "1dfc77e199a45405ad9f0585a8ac8931b9cac4756876e5a283436816ae566c3d"
+      },
+      "predictions": {
+        "bytes": 61153411,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/absolute_score/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "39e9e224433245d0dc46d2a082703f30445e7242cebdc266382b3d00df68ac9f"
+      }
+    },
+    "delta_feedback": {
+      "completion": {
+        "bytes": 1909,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/delta_feedback/seed_42_step1000/COMPLETE.json",
+        "sha256": "eedeb072a4e582d408d49f42a88a7cae63301f1cf76d2e73fbbc755e8ef3eb3d"
+      },
+      "identity": {
+        "bytes": 378016,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/delta_feedback/seed_42_step1000/IDENTITY.json",
+        "sha256": "020811d53078d5272d9a6119ca01530a1c24511d64c60beb68d79674d83c401d"
+      },
+      "predictions": {
+        "bytes": 61286648,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/delta_feedback/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "c79e90e94820c3bc2b112ccb1cca62f481a4864d895aaa3f1220715754e155b7"
+      }
+    },
+    "shuffled_context": {
+      "completion": {
+        "bytes": 1918,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/shuffled_context/seed_42_step1000/COMPLETE.json",
+        "sha256": "10550cd2c58088a4d77539cd3e2f512c467ed3389c728d5d2029e660df2ffba5"
+      },
+      "identity": {
+        "bytes": 378022,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/shuffled_context/seed_42_step1000/IDENTITY.json",
+        "sha256": "fc3bbe224dd542993e706727c4eea5dc6e2218b08447927f9727b3263e444cf7"
+      },
+      "predictions": {
+        "bytes": 61457686,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/shuffled_context/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "b72dfbdda71cd0177bb05ca2db705841c3c99631e015451a365f406b095d53a5"
+      }
+    },
+    "terminal_pdms": {
+      "completion": {
+        "bytes": 1915,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/terminal_pdms/seed_42_step1000/COMPLETE.json",
+        "sha256": "d378317b149a76a58504f7aede242f825525c32bf38c6767ae597f902c5e11df"
+      },
+      "identity": {
+        "bytes": 378013,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/terminal_pdms/seed_42_step1000/IDENTITY.json",
+        "sha256": "e3556893e401656d77685a4ecb92dc84cd95fd55980515ea41afeff822404f27"
+      },
+      "predictions": {
+        "bytes": 61410009,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/terminal_pdms/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "4cab02f31a30efe1d1418c1baa26d3518b4f24633a3bed1c5ab521929876d143"
+      }
+    },
+    "trajectory_only": {
+      "completion": {
+        "bytes": 1918,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/trajectory_only/seed_42_step1000/COMPLETE.json",
+        "sha256": "2c2eab4df303894ba45fa231c6d1c00534f994776b5b7f8dbbb6c4e42fa72fa0"
+      },
+      "identity": {
+        "bytes": 378019,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/trajectory_only/seed_42_step1000/IDENTITY.json",
+        "sha256": "90be8cbddd752710b4de470782865f4ebff99f7b16d1127e9aff453bfb02d403"
+      },
+      "predictions": {
+        "bytes": 61505735,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/population_001024/trajectory_only/seed_42_step1000/PAIR_PREDICTIONS.json",
+        "sha256": "2ebadcda7cb49857278d4fafe79ce5e5e866e98effe859a2ff6271cdf952c93d"
+      }
+    }
+  }
+}

@@ -104,6 +104,26 @@
     "public_summary_repo_path": "reports/action_effect/G1_ACTUAL_ELIGIBLE_RESULTS.json",
     "scientific_interpretation": "No paired-delta superiority supported at registered budget; all six selected intervention increments negative"
   },
+  "G1_direction_imbalance_audit": {
+    "always_negative_pair_accuracy": 0.6088264794383149,
+    "always_negative_scene_macro_accuracy": 0.6570982406739181,
+    "delta_balanced_accuracy": 0.9126726650614625,
+    "delta_negative_recall": 0.871499176276771,
+    "delta_positive_precision": 0.8266666666666667,
+    "delta_positive_recall": 0.9538461538461539,
+    "interpretation": "Majority-negative baseline does not explain high direction accuracy, but absolute controls perform better and actual recommendation gain remains negative. Correlated pairs are not independent scenes.",
+    "negative_pairs": 607,
+    "non_tie_pairs": 997,
+    "positive_pairs": 390,
+    "report": {
+      "bytes": 17372,
+      "repo_path": "reports/action_effect/G1_DIRECTION_IMBALANCE_AUDIT.json",
+      "sha256": "3eef120344a8af162bd1aa85525e9a299997957e1d2b6bfe0f1ae2f6fb3362d7"
+    },
+    "status": "COMPLETE_READ_ONLY_DIAGNOSTIC",
+    "unique_logs": 99,
+    "unique_scenes": 178
+  },
   "actual_DEV_untrained_controls": {
     "absolute_score_unit": "0..1",
     "comparison": {
@@ -465,6 +485,16 @@
       }
     ],
     "scientific_observation": "Dense temporal-grid supervision does not establish selection benefit: both point estimates are negative, full has lower selected native increment and a confidence interval crossing zero relative to no_temporal. This is a single-seed held-out TRAIN bank comparison, not Route A/B policy gain or proof against all temporal feedback."
+  },
+  "actual_route_DEV_scoring_snapshot": {
+    "complete_of_planned_route_scores": "14/16 at immutable snapshot time",
+    "interpretation": "Existing scoring envelopes and complete identical1696 scene/log population checked. No new simulation/forward or claim of safe/significant superiority.",
+    "report": {
+      "bytes": 24950,
+      "repo_path": "reports/action_effect/ROUTE_DEV_SCORING_SNAPSHOT.json",
+      "sha256": "cd41e2850151d7a793031fcddae15a1233025f9cf74383db44401ef553645bab"
+    },
+    "status": "PARTIAL_SCORING_COMPLETE_NATIVE_PAIRED_MATRIX_PENDING"
   },
   "base": {
     "base_binding": {
@@ -1393,13 +1423,36 @@
     },
     "train_validation_log_overlap": 0
   },
-  "last_augmented_at_utc": "2026-10-20T03:52:52.781933+00:00",
+  "last_augmented_at_utc": "2026-10-20T04:00:42.683531+00:00",
   "model_snapshot_at_utc": "2026-10-20T03:38:32.671306+00:00",
   "new_GPU_calls_by_documentation_audit": 0,
   "new_native_simulation_calls_by_documentation_audit": 0,
   "new_optimizer_updates_by_documentation_audit": 0,
   "no_NAVTEST_access_by_documentation_audit": true,
   "real_qualifications": {
+    "B0_independent_CUDA_resume": {
+      "active_Adam_names": 49,
+      "dormant_aux_parameter_tensors_unchanged": 4,
+      "full_private_model_Adam_scheduler_RNG_sampler_cursor_update9_and16_exact": true,
+      "independent_review_commit": "79f50c770b18fccac0245bdbebb645094566ac34",
+      "limits": [
+        "Full per-parameter gradients were not saved; exact recorded gradient norms and updates were checked.",
+        "CUDA RNG bytes were checked, not advanced on a new GPU.",
+        "Base 3.3GB frozen head hash is inherited from the checked original-head receipt; no new full-head scan.",
+        "Checkpoint16 is OPERATOR_PAUSED under original1000 axis; terminal zero-update CUDA resume NOT_RUN.",
+        "Does not qualify B1-effect auxiliary gradients, production DDP, cross-device continuation or scientific gain."
+      ],
+      "new_updates_by_this_documentation": 0,
+      "qualification_root": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1",
+      "report": {
+        "bytes": 24859,
+        "repo_path": "reports/effect_repair/B0_CUDA_RESUME_INDEPENDENT_AUDIT.json",
+        "sha256": "ecd4faef2010508d9498907cd93d92d6e821313287291e127985a2bfaa423322"
+      },
+      "scope": "B0 single-CUDA private velocity adapter numerical continuation only",
+      "source_commit": "1ae4d3dcf84cecd0313548d597456298d5633ab6",
+      "status": "PASS"
+    },
     "CUDA_exact_resume": {
       "actual_executed_source": "57dbe933776c86935e60368e9c493d86a844c8a4",
       "actual_total_optimizer_updates": 32,

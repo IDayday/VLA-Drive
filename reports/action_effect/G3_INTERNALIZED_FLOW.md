@@ -66,3 +66,22 @@ own step1000 teacher is fixed; no external scorer/routeA initialization is loade
 The current index captures actual training segment time and memory. Complete
 Euler10 policy results, safety decomposition and endpoint-image qualification are
 still required before judging effect supervision versus ordinary correction FM.
+## Later immutable DEV scoring snapshot
+
+[The fixed03:57:06 UTC snapshot](ROUTE_DEV_SCORING_SNAPSHOT.json) records completed
+scoring receipts over1696 scenes/16 logs, matching the current fixed S0 protocol
+and scene/log population. This is an existing-result envelope check, with no new
+model forward, simulation or native-receipt reconstruction.
+
+| Arm | Seed42 PDMS/100 | Seed43 | Seed44 |
+|---|---:|---:|---:|
+| Current fixed S0 | 91.388363 | same fixed policy | same fixed policy |
+| B0 correction-trajectory FM | 91.402832 | 91.432876 | 91.389449 |
+| B1 trajectory direction | 91.342493 | WAITING_INPUTS | 91.388426 |
+| B1 verified-pair effect | 91.407752 | 91.356723 | WAITING_INPUTS |
+
+B0's three mean differences are positive but small. B1-effect has mixed signs in
+the two available seeds and has not established an advantage over ordinary B0.
+Missing results stay missing. This partial table is not a checkpoint-selection
+rule or a proof of reliable policy benefit: complete paired safety/risk intervals,
+the last two scoring results and endpoint online qualification are still required.
