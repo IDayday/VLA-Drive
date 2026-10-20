@@ -1,34 +1,39 @@
-## ST feature-side research paused (2026-10-18)
+# Action-effect EGR / IEG campaign (2026-10-20)
 
-Latest user: "暂停关于特征层面的开发，集中开发有关后果的研究".
-Pause this campaign's spatial/teacher-width and temporal history/future/delta
-development, preparation, profiles, training and automatic continuation. Preserve
-all existing artifacts and native training states. Do not restart without new
-explicit user instruction. The ST consequence/Flow-policy research remains
-active; unrelated Base/SimWAM work and other user projects are untouched.
-Scope and native pause receipts: `/mnt/project/st-world-policy-20261016/audits/operator_pause/features_20261018/`.
+This worktree belongs to the user's new physical-intervention research task.
+User explicitly authorizes EGR explicit refinement and IEG one-generation Flow
+internalization here, overriding the earlier ST deployment prohibition for this
+new campaign only. Old ST feature research, IQE experts/scorers and unrelated
+held studies remain held; preserve old weights, reports and ongoing workloads.
 
-# ST world / consequence campaign
+Base is the mature original S0: formal_S0_seed42_full100k_v2/milestone_100000,
+original training source1493deda, bound once; do not select a new favorable Base.
+Audit true current input/W/DINO/planner and raw8x4->physical8x3. Replay fixed
+real TRAIN inputs against historical S0 predictions before model changes.
 
-Read the original contracts in `docs/research/WMVLA_ST_CONSEQUENCE_MULTI_AGENT_PLAN_20261017.md`
-and `docs/research/CODEX_MULTI_AGENT_START_20261017.md`. This branch is isolated
-from all earlier experiments. Source base: 1493deda247107efe076b9294863a6753391298a.
+Lead alone dispatches experiments; read /mnt/project/server_dispatch_policy.json
+first. Only vla-zt, rl-zt2 and explicitly allowed Tsinghua hosts. User permits
+releasing positively identified owned pressure workers, preserving restoration
+identity; unknown and genuine jobs are protected. Never reset GPUs.
 
-The lead alone dispatches experiments and integrates shared framework/trainer
-files. Each implementation agent uses a separate worktree and explicit owned
-paths. Evidence, correctness and efficiency reviews are independent; neither
-implementation nor a successful smoke grants formal launch permission.
+Use isolated branches/worktrees with explicit owned paths. Shared FeedbackRecord,
+EffectPair and immutable manifests are locked by Lead. Prefer mature simulator,
+loader, action head, checkpoint and evaluation components. Official NAVSIM code
+and scores stay unchanged. Version-v2 is unsupported until actually verified.
 
-Before dispatch, read `/mnt/project/server_dispatch_policy.json` and this
-campaign's resource authorization. The latest user permits releasing positively
-identified owned pressure fillers on currently allowed servers. This supersedes
-the original plan's pressure-filler prohibition only; real/unknown jobs and
-withdrawn hosts remain protected. Do not revive held experiments.
+Read primary papers and official code before adopting nontrivial methods. Formal
+training follows independent affected-scope correctness and measured efficiency
+review; bounded audit/SMOKE may precede it, never scientific-result PASS.
+G0 real intervention opportunity precedes G1 fitting; B0/B1-trajectory can develop
+in parallel; B1-effect training waits for valid G1/repair data. RouteA/B models,
+optimizers, seeds/checkpoints are separate. No source hot edits to live runtimes.
 
-Smoke/profile budgets and weights remain separate from formal experiments.
-Preserve original GT, DiT/Flow, ten-step single-trajectory deployment, precision,
-camera identity, and current/label information boundaries unless an explicitly
-registered comparison changes the relevant input/architecture.
+Training labels, GT, future actors, metric cache and native physical feedback are
+supervision only; deployment takes current legal observations/noise and model
+weights. A shares one VLM call; B runs only original Euler10 with internal adapter.
+No mock counts as real integration. No failed simulation becomes valid zero.
+No DEV/navtest-based intervention tuning, no automatic ACTIVE update.
 
-Do not commit model weights, private images, caches, credentials or raw resource
-process inventories. Reports must identify evidence and unfinished work honestly.
+Do not commit weights, images, caches, credentials or raw process inventories.
+Artifacts: /mnt/project/action-effect-repair-20261020. Source/report/config only
+in Git. Final user authorized push only this research branch, no merge/force push.
