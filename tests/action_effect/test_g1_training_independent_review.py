@@ -221,14 +221,14 @@ def test_compact_content_gate_rejects_rehashed_labels_before_training(tmp_path, 
     """Synthetic checksum-gate test; native replay is checked separately on real data."""
     from types import SimpleNamespace
     from tools.action_effect.train_effect_model import PairData
-    import tools.action_effect.build_effect_pairs as builder
+    import tools.action_effect.verified_data as validation
     parent = {"binding_identity": "frozen-binding", "base_checkpoint": {"sha256": "base"}}
     parent["identity"] = digest(parent)
     write_json(tmp_path / "REGISTRATION.json", parent)
     write_json(tmp_path / "COMPLETE.json", {"registration_identity": parent["identity"]})
     row = {"modified_labels": {"values": [.2]}}
     row["identity"] = digest(row)
-    manifest = {"schema": "action_effect_pair_dataset_v1", "status": "COMPLETE", "split": "train",
+    manifest = {"schema": "action_effect_pair_dataset_v1", "status": "COMPLETE", "split": "train", "deployment_inputs":False,
         "registration": artifact(tmp_path / "REGISTRATION.json"),
         "population_completion": artifact(tmp_path / "COMPLETE.json"),
         "registration_identity": parent["identity"], "entries": [row]}
@@ -241,7 +241,8 @@ def test_compact_content_gate_rejects_rehashed_labels_before_training(tmp_path, 
     write_json(tmp_path / "altered.json", altered)
     # Pure reconstruction is independently validated by the real 64-scene load.
     # Isolate here that matching self-hashes cannot bypass the expected source hash.
-    monkeypatch.setattr(builder, "build", lambda _: {"pair_dataset": artifact(tmp_path / "original.json")})
+    monkeypatch.setattr(validation, "build_and_validate_datasets",
+        lambda _: {"pair_dataset": artifact(tmp_path / "original.json")})
     reader = SimpleNamespace(binding={"identity": "frozen-binding", "base_checkpoint": {"sha256": "base"}})
     with pytest.raises(ValueError, match="Compact (pair )?rows differ"):
         PairData(tmp_path / "altered.json", reader)

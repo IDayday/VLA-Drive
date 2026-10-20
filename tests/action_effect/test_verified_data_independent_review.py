@@ -20,21 +20,32 @@ def fixture_bank(tmp_path, monkeypatch, module=validation):
     canonical = save("attempt/NATIVE.json", {"fixture": "canonical"})
     receipt = save("attempt/COMPLETE.json", {"canonical": canonical, "admission_sha256": admitted["sha256"]})
     feedback = save("FEEDBACK.json", {"fixture": "feedback"})
-    scene = {"candidates": [{"feedback": feedback, "canonical_receipt": receipt}]}
+    entry={"scene_id":"synthetic_scene","source_log":"synthetic_log","role":"fit"}
+    reg={"split":"train","max_samples":1,"population":[{"context":entry}]}
+    reg["identity"]=digest(reg)
+    scene = {**entry,"context_entry":entry,"registration_identity":reg["identity"],
+             "candidates": [{"feedback": feedback, "canonical_receipt": receipt}]}
     scenepin = save("SCENE.json", scene)
-    scenecomplete = save("SCENE_COMPLETE.json", {"scene_record": scenepin})
-    registration = save("REGISTRATION.json", {"fixture": "registration"})
-    completion = save("COMPLETE.json", {"scenes": [scenecomplete]})
+    scenecomplete = save("SCENE_COMPLETE.json", {"scene_record": scenepin,"registration_identity":reg["identity"]})
+    registration = save("REGISTRATION.json", reg)
+    completion = save("COMPLETE.json", {"scenes": [scenecomplete],"registration_identity":reg["identity"]})
     manifest = {"schema": "action_effect_pair_dataset_v1", "status": "COMPLETE",
-                "registration": registration, "population_completion": completion}
+                "registration": registration, "population_completion": completion,
+                "registration_identity":reg["identity"],"split":"train","deployment_inputs":False}
     manifest["identity"] = digest(manifest)
     pair = save("PAIR_DATASET.json", manifest)
-    repair = save("REPAIR_DATASET.json", {"fixture": "repair"})
+    repair_manifest={k:v for k,v in manifest.items() if k!="identity"}
+    repair_manifest["schema"]="action_effect_repair_dataset_v1"
+    repair_manifest["identity"]=digest(repair_manifest)
+    repair = save("REPAIR_DATASET.json", repair_manifest)
     pins = [admitted, canonical, receipt, feedback, scenepin, scenecomplete, registration, completion, pair, repair]
     calls = []
-    def rebuild(_):
+    def rebuild(_, **kwargs):
         calls.append("full-validation")
-        for pin in pins: verify_artifact(pin)
+        for pin in pins:
+            if pin not in (pair,repair) and kwargs.get('_dependency_observer'):
+                kwargs['_dependency_observer'](pin)
+            verify_artifact(pin)
         return {"pair_dataset": pair, "repair_dataset": repair}
     monkeypatch.setattr(builder, "build", rebuild)
     monkeypatch.setattr(builder, "read_population", lambda _: ({}, [scene]))

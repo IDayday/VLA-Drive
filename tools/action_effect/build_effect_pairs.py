@@ -13,19 +13,27 @@ from .navsim_feedback_adapter import make_effect_pair
 from .simulate_interventions import verified_feedback
 
 
-def read_population(root):
+def read_population(root, *, _on_verified_scene=None, _dependency_observer=None):
     root = Path(root)
+    def observe(pin):
+        if _dependency_observer is not None: _dependency_observer(pin)
+    observe(artifact(root / "REGISTRATION.json"))
     registration = read_json(root / "REGISTRATION.json")
     if registration.get("split") != "train" or registration["identity"] != digest({k: v for k, v in registration.items() if k != "identity"}):
         raise ValueError("Only registered immutable TRAIN feedback is admitted")
+    observe(artifact(root / "COMPLETE.json"))
     completion = read_json(root / "COMPLETE.json")
-    if completion["registration_identity"] != registration["identity"] or len(completion["scenes"]) != registration["max_samples"]:
+    if (completion["registration_identity"] != registration["identity"]
+            or len(registration["population"]) != registration["max_samples"]
+            or len(completion["scenes"]) != registration["max_samples"]):
         raise ValueError("Partial/foreign G0 cannot become a complete training dataset")
     output = []
     for item, pin in zip(registration["population"], completion["scenes"]):
+        observe(pin)
         receipt = read_json(verify_artifact(pin))
         if receipt["registration_identity"] != registration["identity"]:
             raise ValueError("Scene completion belongs to another registration")
+        observe(receipt["scene_record"])
         scene = read_json(verify_artifact(receipt["scene_record"]))
         entry = item["context"]
         if any(scene[k] != entry[k] for k in ("scene_id", "source_log", "role")) or scene["context_entry"] != entry:
@@ -34,9 +42,21 @@ def read_population(root):
         if (len(rows) != 26 or len({r["candidate_id"] for r in rows}) != 26
                 or rows[0]["kind"] != "identity" or scene["registration_identity"] != registration["identity"]):
             raise ValueError("Incomplete/foreign intervention population")
+        feedbacks = {} if _on_verified_scene is not None else None
         for row in rows:
             if "feedback" in row:
-                verified_feedback(row)
+                observe(row["feedback"]);observe(row["canonical_receipt"])
+                if _dependency_observer is not None:
+                    native = read_json(verify_artifact(row["canonical_receipt"]))
+                    observe(native["canonical"])
+                    admitted = Path(row["canonical_receipt"]["path"]).parent / "ADMITTED.json"
+                    observe({"path": str(admitted), "sha256": native["admission_sha256"]})
+                checked = verified_feedback(row)
+                if feedbacks is not None: feedbacks[row["candidate_id"]] = checked
+        # Internal streaming consumer: validation is NEVER optional. Retain only
+        # one scene's checked wrappers so the compact builder does not decode
+        # the same native files again or cache the whole bank in RAM.
+        if _on_verified_scene is not None: _on_verified_scene(scene, feedbacks)
         output.append(scene)
     if len({s["scene_id"] for s in output}) != len(output):
         raise ValueError("Duplicate scene in G0 population")
@@ -49,11 +69,10 @@ def compact_labels(feedback):
             "values": labels["values"].tolist(), "valid": labels["valid"].tolist()}
 
 
-def build(root):
+def build(root, *, _dependency_observer=None):
     root = Path(root)
-    reg, scenes = read_population(root)
     rows, repairs, scene_index, invalid = [], [], [], []
-    for scene in scenes:
+    def consume(scene, feedbacks):
         base_row = scene["candidates"][0]
         scene_index.append({"scene_id": scene["scene_id"], "source_log": scene["source_log"],
                             "role": scene["role"], "repair_status": scene["repair"]["status"]})
@@ -65,14 +84,14 @@ def build(root):
                 "base_labels": None, "selected_labels": None, "base_feedback": base_row.get("feedback"),
                 "selected_feedback": None, "base_canonical_receipt": base_row.get("canonical_receipt"),
                 "selected_canonical_receipt": None, "distance_m": None, "trainable": False, "target_kind": "unavailable"})
-            continue
-        base = verified_feedback(base_row)
+            return
+        base = feedbacks[base_row["candidate_id"]]
         base_labels = compact_labels(base)
         by_id = {r["candidate_id"]: r for r in scene["candidates"]}
         for row in scene["candidates"][1:]:
             if row["status"] != "VALID_SCORED" or row["kind"] == "policy_resample":
                 continue  # Policy support is analysed separately, not a controlled local intervention.
-            other = verified_feedback(row)
+            other = feedbacks[row["candidate_id"]]
             begin = min((interval[0] for interval in row["active_intervals_seconds"]), default=0.)
             end = max((interval[1] for interval in row["active_intervals_seconds"]), default=0.)
             pair = make_effect_pair(base, other, basis_id=row["basis_sha256"], coefficients=row["coefficients"],
@@ -102,7 +121,7 @@ def build(root):
         selected = scene["repair"].get("selected")
         chosen = by_id.get(selected)
         trainable = chosen is not None and scene["repair"]["status"] in ("NO_CHANGE_REQUIRED", "VERIFIED_LOCAL_REPAIR")
-        selected_labels = compact_labels(verified_feedback(chosen)) if trainable else None
+        selected_labels = compact_labels(feedbacks[chosen["candidate_id"]]) if trainable else None
         repairs.append({**scene_index[-1], "context_entry": scene["context_entry"],
             "observation_hash": scene["observation_hash"], "base_physical": base_row["physical"],
             "target_physical": chosen["physical"] if trainable else None,
@@ -115,6 +134,8 @@ def build(root):
             "distance_m": chosen["distance_m"] if trainable else None, "trainable": trainable,
             "target_kind": ("identity_preservation" if scene["repair"]["status"] == "NO_CHANGE_REQUIRED"
                             else "verified_local_repair") if trainable else "unavailable"})
+    reg, scenes = read_population(root, _on_verified_scene=consume,
+        _dependency_observer=_dependency_observer)
     common = {"registration": artifact(root / "REGISTRATION.json"), "population_completion": artifact(root / "COMPLETE.json"),
         "registration_identity": reg["identity"], "requested_scenes": len(scenes), "scene_index": scene_index,
         "base_checkpoint": reg["base_checkpoint"], "score_protocol_hash": reg["spec"]["score_protocol_hash"],
@@ -142,7 +163,8 @@ def main(argv=None):
         if not 1 <= args.max_samples <= cfg["cohort_size"]: raise ValueError("Invalid scene budget")
         root = Path(args.g0_root) if args.g0_root else Path(cfg["artifact_root"]) / "g0" / f"population_{args.max_samples:06d}"
         if args.dry_run: print(json.dumps({"status": "NOT_RUN", "simulation_calls": 0})); return 0
-        print(json.dumps(build(root))); return 0
+        from .verified_data import build_and_validate_datasets
+        print(json.dumps(build_and_validate_datasets(root))); return 0
     except Exception as exc:
         print(json.dumps({"status": "FAIL", "error_type": type(exc).__name__, "error": str(exc)})); return 1
 
