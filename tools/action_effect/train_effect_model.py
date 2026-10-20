@@ -15,7 +15,35 @@ from starVLA.model.modules.action_effect.effect_losses import effect_loss_contri
 WEIGHTS={'value':1.,'ranking':.2,'events':.2,'temporal':.2,'uncertainty':.05,'repair':.2}
 
 
-def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path=None, allowed_modes=("delta_feedback",)):
+def _effect_training_origin(identity, expected_registration_identity):
+    """Verify the own G1 TRAIN pair-bank registration, without resimulation."""
+    if not isinstance(expected_registration_identity,str) or len(expected_registration_identity)!=64:
+        raise ValueError('Explicit own G0 registration identity required')
+    if identity.get('schema')!='action_effect_small_training_v1' or 'data_artifact' not in identity:
+        raise ValueError('Effect teacher requires its pinned own G1 training identity/data artifact')
+    data_path=verify_artifact(identity['data_artifact']);data=verify_identity(read_json(data_path))
+    if (data.get('schema')!='action_effect_pair_dataset_v1' or data.get('status')!='COMPLETE'
+            or data.get('split')!='train' or data.get('deployment_inputs') is not False
+            or data.get('registration_identity')!=expected_registration_identity):
+        raise ValueError('Effect teacher training pairs are incomplete or from another campaign registration')
+    registration_path=verify_artifact(data['registration'])
+    registration=verify_identity(read_json(registration_path))
+    completion_path=verify_artifact(data['population_completion']);completion=read_json(completion_path)
+    if (registration.get('schema')!='action_effect_g0_registration_v1' or registration.get('split')!='train'
+            or registration['identity']!=expected_registration_identity
+            or completion.get('registration_identity')!=expected_registration_identity
+            or len(completion.get('scenes',[]))!=registration['max_samples']
+            or data.get('requested_scenes')!=registration['max_samples']
+            or data.get('base_checkpoint')!=registration['base_checkpoint']
+            or data.get('numeric_runtime_hash')!=registration['numeric_runtime_hash']
+            or data.get('score_protocol_hash')!=registration['spec']['score_protocol_hash']):
+        raise ValueError('Effect teacher training-data registration/completion/numeric identity mismatch')
+    return {'registration_identity':expected_registration_identity,'pair_dataset':artifact(data_path),
+            'registration':artifact(registration_path),'population_completion':artifact(completion_path)}
+
+
+def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path=None, allowed_modes=("delta_feedback",),
+                        expected_registration_identity=None):
     p=Path(checkpoint);identity=read_json(identity_path or p.parent/'IDENTITY.json')
     receipt=read_json(p.with_suffix('.COMPLETE.json'))
     if verify_artifact(receipt['checkpoint']).resolve()!=p.resolve():raise ValueError('Wrong effect checkpoint receipt')
@@ -24,6 +52,10 @@ def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path
         raise ValueError('Effect teacher Base/run identity mismatch')
     if identity.get('arm') not in allowed_modes or any(m not in MODES for m in allowed_modes):
         raise ValueError('Effect guidance requires its explicitly declared own trained teacher mode')
+    if identity.get('model_config',{}).get('mode')!=identity.get('arm'):
+        raise ValueError('Effect teacher module mode differs from its training arm')
+    origin=(_effect_training_origin(identity,expected_registration_identity)
+            if expected_registration_identity is not None else None)
     c=torch.load(p,map_location='cpu',weights_only=False)
     if c['run_identity']!=ih or c['optimizer_step']!=receipt['optimizer_step'] or c['optimizer_step']<1:
         raise ValueError('No compatible real trained effect checkpoint')
@@ -32,6 +64,7 @@ def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path
     load_private(model,c['model']);model.requires_grad_(False).eval()
     model.provenance={'checkpoint':artifact(p),'identity':artifact(identity_path or p.parent/'IDENTITY.json'),
                       'optimizer_step':c['optimizer_step'],'external_weights_loaded':False,'base_binding_hash':expected_base_binding_hash}
+    if origin is not None:model.provenance['verified_training_origin']=origin
     return model
 
 

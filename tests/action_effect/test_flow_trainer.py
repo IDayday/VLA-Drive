@@ -174,6 +174,7 @@ def test_actual_g0_adapter_role_join_raw_keep_and_missing_class(tmp_path,monkeyp
         data.pop('identity',None);data['identity']=digest(data);p=tmp_path/'DATA.json';p.write_text(json.dumps(data));return p
     loaded,report=load_flow_examples(save(),Reader())
     assert checked and checked[0][1]=='repair'
+    assert report['registration_identity']==reg['identity']
     assert report['counts']['repairs']==2 and report['counts']['preserve']==2
     for ex in loaded:
         if ex['is_preserve']:assert torch.equal(ex['target_raw'],records[ex['scene_id']]['raw'])

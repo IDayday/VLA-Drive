@@ -251,7 +251,8 @@ def load_flow_examples(repair_dataset,reader):
         counts['preserve' if preserve else 'repairs']+=1
     if not counts['repairs']:raise ValueError('BLOCKED_NO_REPAIR: no verified local repair fit scenes')
     if not counts['preserve']:raise ValueError('BLOCKED_NO_KEEP: no valid high-quality replay')
-    return examples,{'dataset':artifact(repair_dataset),'native_verification':'full native-to-compact chain; immutable inventory reuse allowed','counts':counts,'label_spec':label_spec,
+    return examples,{'dataset':artifact(repair_dataset),'native_verification':'full native-to-compact chain; immutable inventory reuse allowed',
+                     'registration_identity':registration['identity'],'counts':counts,'label_spec':label_spec,
                      'repair_log_count':len({r['source_log'] for r in examples if r['is_repair']})}
 
 
@@ -409,7 +410,8 @@ def train(cfg,*,context_manifest,repair_dataset,arm,device,seed,max_updates,
     if arm=='B1-effect':
         from .train_effect_model import load_effect_teacher
         g1=load_effect_teacher(effect_checkpoint,
-            expected_base_binding_hash=reader.binding['base_checkpoint_binding_hash']).to(device)
+            expected_base_binding_hash=reader.binding['base_checkpoint_binding_hash'],
+            expected_registration_identity=data_identity['registration_identity']).to(device)
         if (list(g1.label_spec.names)!=data_identity['label_spec']['names'] or
                 list(g1.label_spec.units)!=data_identity['label_spec']['units']):
             raise ValueError('G1 physical delta schema differs from G0 repair labels')
