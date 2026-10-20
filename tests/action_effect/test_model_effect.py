@@ -117,6 +117,21 @@ def test_repair_head_observes_both_trajectories_with_direction(mode):
     torch.testing.assert_close(first + reverse, 2 * identity, rtol=1e-5, atol=1e-7)
 
 
+@pytest.mark.parametrize("mode", ["delta_feedback", "absolute_feedback"])
+def test_readonly_effect_embedding_zero_swap_and_linear_mean_projection(mode):
+    model = ActionEffectModel(cfg(mode), spec())
+    context, a, b = batch()
+    initial = state_hash(model)
+    ab, ba, aa = model(context,a,b), model(context,b,a), model(context,a,a)
+    assert ab["effect_embedding"].shape == (len(a), model.config.hidden_dim)
+    assert torch.equal(aa["effect_embedding"], torch.zeros_like(aa["effect_embedding"]))
+    torch.testing.assert_close(ab["effect_embedding"], -ba["effect_embedding"], rtol=0, atol=0)
+    projection = torch.nn.functional.linear(ab["effect_embedding"], model.mean_head.weight, bias=None)
+    # The two equivalent linear expressions have different FP32 reduction order.
+    torch.testing.assert_close(projection, ab["mean_delta"], rtol=1e-5, atol=2e-7)
+    assert state_hash(model) == initial
+
+
 def test_padding_and_candidate_batch_permutation_are_invariant():
     model = ActionEffectModel(cfg(), spec())
     context, a, b = batch()

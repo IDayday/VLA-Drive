@@ -230,7 +230,8 @@ class ActionEffectModel(nn.Module):
         repair_features = (features[b:] - features[:b]) if absolute else .5 * (features[:b] - features[b:])
         return {"mean_delta": delta, "absolute_before": absolute_before, "absolute_after": absolute_after,
                 "logvar_delta": delta_logvar, "event_logits": events,
-                "temporal_delta": temporal, "repair_logit": self.repair_head(repair_features).squeeze(-1)}
+                "temporal_delta": temporal, "repair_logit": self.repair_head(repair_features).squeeze(-1),
+                "effect_embedding": repair_features}
 
 
 # Short alias for thin campaign trainers; no architecture selection at runtime.
