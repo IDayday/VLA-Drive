@@ -18,6 +18,31 @@ from starVLA.rl.qwen_sourceflow.loading import inspect_il
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+def worker_finished(item):
+    """A dead owner may have published its receipt during the liveness probe.
+
+    A finite visibility grace only rereads completion evidence. It never
+    relaunches a worker, drops a shard, or turns an absent receipt into success.
+    """
+    receipt=Path(item['receipt_dir']);result=receipt/'result.json'
+    def read_complete():
+        try:record=json.loads(result.read_text())
+        except FileNotFoundError:return False
+        if record['status']!='PROCESS_COMPLETE' or record.get('exit_code')!=0:
+            raise RuntimeError('Worker failed; inspect '+str(result))
+        return True
+    if read_complete():return True
+    operator=receipt/'operator.json'
+    alive=operator.exists() and operator_alive(item,json.loads(operator.read_text()))
+    # Recheck even when alive: completion can race either outcome of the probe.
+    if read_complete():return True
+    if alive:return False
+    for _ in range(20):
+        time.sleep(.1)
+        if read_complete():return True
+    raise RuntimeError('Partial dispatch or lost worker without completion receipt: '+str(receipt))
+
+
 def jobs(root,il_run):
     for update in (20000,40000,60000,80000,100000):
         yield dict(name=f'IL_update{update:06d}_DEV',update=update,
@@ -27,13 +52,21 @@ def jobs(root,il_run):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--root',default=str(ROOT));p.add_argument('--il-run',required=True);p.add_argument('--control-dir',required=True);p.add_argument('--once',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser(__doc__);p.add_argument('--source',required=True);p.add_argument('--analysis-source');p.add_argument('--root',default=str(ROOT));p.add_argument('--il-run',required=True);p.add_argument('--control-dir',required=True);p.add_argument('--once',action='store_true');a=p.parse_args()
     require_dispatch();source=Path(a.source).resolve();root=Path(a.root);control=Path(a.control_dir);control.mkdir(parents=True,exist_ok=True)
     lock=(control/'owner.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if os.environ.get('CUDA_VISIBLE_DEVICES')!='':raise ValueError('Queue owner must be CPU-only')
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip()
     if subprocess.check_output(['git','status','--porcelain'],cwd=source,text=True).strip():raise ValueError('Evaluation snapshot must be immutable')
-    identity=dict(schema='native_IL_five_DEV_queue_v1',source=str(source),source_sha=sha,jobs=list(jobs(root,Path(a.il_run))))
+    analysis=Path(a.analysis_source or a.source).resolve()
+    controller=Path(__file__).resolve().parents[3]
+    identities={}
+    for name,path in [('analysis',analysis),('controller',controller)]:
+        if subprocess.check_output(['git','status','--porcelain'],cwd=path,text=True).strip():raise ValueError(name+' snapshot must be immutable')
+        identities[name+'_source']=str(path)
+        identities[name+'_sha']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=path,text=True).strip()
+    identity=dict(schema='native_IL_five_DEV_queue_v2',source=str(source),source_sha=sha,
+        **identities,jobs=list(jobs(root,Path(a.il_run))))
     if (control/'identity.json').exists() and json.loads((control/'identity.json').read_text())!=identity:raise ValueError('Changed queue identity')
     atomic_json(control/'identity.json',identity)
     atomic_json(control/'owner.json',dict(pid=os.getpid(),start_unix=time.time()))
@@ -49,15 +82,10 @@ def main():
                 if statefile.exists():
                     state=json.loads(statefile.read_text());done=True
                     for item in state['workers']:
-                        result=Path(item['receipt_dir'])/'result.json'
-                        if not result.exists():
-                            operator=Path(item['receipt_dir'])/'operator.json'
-                            if not operator.exists() or not operator_alive(item,json.loads(operator.read_text())):
-                                raise RuntimeError('Partial dispatch or lost worker: '+str(item['receipt_dir']))
+                        if not worker_finished(item):
                             done=False;used.update(item['gpu_uuids']);continue
-                        if json.loads(result.read_text())['status']!='PROCESS_COMPLETE':raise RuntimeError('Worker failed; inspect '+str(result))
                     if done:
-                        subprocess.run([MODEL_PYTHON,'-m','scripts.analysis.qwen_sourceflow.summarize_results','--evaluation',job['output'],'--output',job['summary']],cwd=source,check=True)
+                        subprocess.run([MODEL_PYTHON,'-m','scripts.analysis.qwen_sourceflow.summarize_results','--evaluation',job['output'],'--output',job['summary']],cwd=analysis,check=True)
                         complete.append(job)
                     else:active.append(job)
                     continue
@@ -92,7 +120,7 @@ def main():
             if len(complete)==5:
                 selection=root/'frozen_IL_parent.json'
                 if not selection.exists():
-                    subprocess.run([MODEL_PYTHON,'-m','scripts.analysis.qwen_sourceflow.freeze_il','--summaries',*[job['summary'] for job in identity['jobs']],'--output',str(selection)],cwd=source,check=True)
+                    subprocess.run([MODEL_PYTHON,'-m','scripts.analysis.qwen_sourceflow.freeze_il','--summaries',*[job['summary'] for job in identity['jobs']],'--output',str(selection)],cwd=analysis,check=True)
                 atomic_json(control/'READY_FOR_RL.json',dict(selection=str(selection),selection_sha256=file_sha(selection),
                     next='Run selected-parent actual source-GRPO qualification/profile, then the two registered 50k lines; qualification weights excluded'))
                 break
