@@ -1,6 +1,6 @@
 {
-  "status": "IMPLEMENTED_SINGLE_PPU_SCOPES_ACCEPTED_FORMAL_GATES_PENDING",
-  "updated_utc": "2026-10-19T09:56:02.782523+00:00",
+  "status": "HISTORY_FROZEN_V2_CPU_ACCEPTED_REAL_JOINT_PENDING",
+  "updated_utc": "2026-10-19T12:30:43.789253+00:00",
   "arms_implemented": 11,
   "real_smoke": [
     {
@@ -246,9 +246,10 @@
     "F匹配22个训练样本的±2 token修订待确认，未实施",
     "共同正式epochs、训练seed与预算未锁定",
     "DLC仍排队，目标16卡并发及故障恢复未验收",
-    "真实大模型跨进程恢复的一致性尚未单独实测；完整恢复逻辑已通过CPU测试"
+    "真实大模型跨进程恢复的一致性尚未单独实测；完整恢复逻辑已通过CPU测试",
+    "history-frozen-v2联合组真实PPU复验待空闲；旧joint历史参数更新结果不可充作新范围验收"
   ],
-  "code_hashes": {
+  "historical_code_hashes": {
     "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
     "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
     "audit_checkpoints.py": "736a58f35ab70927294a299f6c4139a9968101edccd73c24d5455ded5c65d2f2",
@@ -259,6 +260,35 @@
     "schedule.py": "961c10056315b9cbf0394b8e4ae0b39191a0707bed766a5a3e8eee1765d10064",
     "test_contracts.py": "7b2dfe5447892b08879dfce1886e7be3408d8ed0e609418a33a5e10cd980dce8",
     "test_engine.py": "651293e33ecd637339a1f78e4d6788e48857adb00605fd2adc83d446961e5419",
+    "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
+    "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
+    "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+    "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
+    "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
+    "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+  },
+  "scope_revision": {
+    "version": "history-frozen-v2",
+    "historical_real_smoke": "下列旧smoke保留原始数值；旧joint更新history，不是新joint冻结history的真实PPU验收。vlm_only/dit_only范围不变。",
+    "new_real_joint_smoke": "PENDING_ACCELERATOR_AVAILABLE",
+    "cpu_validation": {
+      "status": "PASS",
+      "tests": 12,
+      "log": "/mnt/workspace/DriveExpert/20261019-privileged-grpo-full/revisions/history_frozen_v2/CPU_TESTS.log",
+      "log_sha256": "938cb407ad68aef8a4e33fb4479b48833085d6560acc555b4f4a1d835df40171"
+    }
+  },
+  "code_hashes": {
+    "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
+    "asset_adapter.py": "5ce61c8218f40de030b83cf4674256b237ab84c79f2139dec79262186f0714d4",
+    "audit_checkpoints.py": "736a58f35ab70927294a299f6c4139a9968101edccd73c24d5455ded5c65d2f2",
+    "diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
+    "engine.py": "c949d6e3c38e17ba86156e6cffb8c017d22fa6ddaf4edc5287fe25f26863b362",
+    "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
+    "run.py": "b347a0b9bc9b1190597fb5d71cc1ead3740eced5cf5b76d08d4985209f299b92",
+    "schedule.py": "961c10056315b9cbf0394b8e4ae0b39191a0707bed766a5a3e8eee1765d10064",
+    "test_contracts.py": "7b2dfe5447892b08879dfce1886e7be3408d8ed0e609418a33a5e10cd980dce8",
+    "test_engine.py": "77ee37f6ffdfad5a274c447a89810904c5b2c6428b08a397986859a21017a12c",
     "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
     "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
     "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",

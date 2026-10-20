@@ -8,7 +8,9 @@ portable CPU asset validation, a NEW training-side 8-candidate inference smoke,
 and byte-exact weight split/restore and GitHub Release upload tools.
 
 Implemented: trainer/run.py and trainer/schedule.py for 11 arms, scope-specific
-updates, paired evaluation and full resume. Three single-PPU scope smokes passed.
+updates, paired evaluation and full resume. All 11 arms freeze the history encoder (history-frozen-v2).
+12 CPU tests passed; the revised joint scope still needs real-PPU revalidation.
+Historical single-PPU smokes are preserved with their original scope definitions.
 Still gated: 22 unmatched strict F training donors, training-length pilot,
 approved formal budget, and multi-card acceptance.
 The DLC launcher currently preflights and waits; it does not train.

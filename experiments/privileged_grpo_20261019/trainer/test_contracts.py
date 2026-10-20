@@ -1,4 +1,4 @@
-import copy,json,tempfile,unittest
+import copy,hashlib,json,tempfile,unittest
 from pathlib import Path
 from run import validate_plan, snapshot, restore
 from schedule import jobs, recover_queue
@@ -9,6 +9,16 @@ from test_engine import Toy,CFG,update
 import engine
 ROOT=Path(__file__).resolve().parent
 class Tests(unittest.TestCase):
+    def setUp(self):
+        # Synthetic preparation identity exercises real hash validation; no scene assets.
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.prepared = Path(self.tmp.name)
+        payload = b'{"synthetic": true}\n'
+        (self.prepared/'PROMPTS.json').write_bytes(payload)
+        (self.prepared/'PREPARATION.json').write_text(json.dumps({
+            'status': 'INCOMPLETE_F_COVERAGE',
+            'files': {'PROMPTS.json': hashlib.sha256(payload).hexdigest()}}))
     def test_real_checkpoint_contract_on_cpu(self):
         torch.manual_seed(22);m=Toy();ref=copy.deepcopy(m).requires_grad_(False);engine.scope(m,'joint');opt=engine.optimizer(m,CFG);update(m,ref,opt,0)
         with tempfile.TemporaryDirectory() as d:
@@ -19,11 +29,11 @@ class Tests(unittest.TestCase):
 
     def test_unlocked_formal_rejected(self):
         cfg=json.loads((ROOT/'TRAINING.template.json').read_text())
-        with self.assertRaises(ValueError):validate_plan(cfg,ROOT/'prepared_v1','train')
-        validate_plan(cfg,ROOT/'prepared_v1','smoke')
+        with self.assertRaises(ValueError):validate_plan(cfg,self.prepared,'train')
+        validate_plan(cfg,self.prepared,'smoke')
     def test_missing_f_not_silently_dropped(self):
         cfg=json.loads((ROOT/'TRAINING.template.json').read_text());cfg.update(formal_protocol_locked=True,epochs=1,training_seeds=[1],wall_seconds=100)
-        with self.assertRaisesRegex(ValueError,'Full F coverage'):validate_plan(cfg,ROOT/'prepared_v1','train')
+        with self.assertRaisesRegex(ValueError,'Full F coverage'):validate_plan(cfg,self.prepared,'train')
     def test_independent_jobs_not_ddp(self):
         cfg={'training_seeds':[1,2,3]};items=jobs(cfg,'train');self.assertEqual(len(items),33);self.assertEqual(len({(i['arm'],i['seed']) for i in items}),33);self.assertEqual(len(jobs(cfg,'initial')),5)
     def test_queue_reuses_completed_and_resumes_partial(self):

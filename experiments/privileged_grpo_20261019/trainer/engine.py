@@ -6,7 +6,9 @@ import torch
 from torch.utils.checkpoint import checkpoint
 sys.path.insert(0,str(Path(__file__).resolve().parent/'vendor/grpo_smoke_v1'))
 from grpo_math import transition,log_prob,advantage,objective
-SCOPES={'joint':('qwen_vl_interface.','action_model.','action_input_model.'),'vlm_only':('qwen_vl_interface.',),'dit_only':('action_model.',)}
+# History is a fixed input adapter in every experimental scope.
+MODEL_PREFIXES=('qwen_vl_interface.','action_model.','action_input_model.')
+SCOPES={'joint':('qwen_vl_interface.','action_model.'),'vlm_only':('qwen_vl_interface.',),'dit_only':('action_model.',)}
 def arm_scope(arm):return 'vlm_only' if arm.endswith('_VLM') else 'dit_only' if arm.endswith('_DiT') else 'joint'
 def input_arm(arm):return arm.split('_')[0]
 def seed(*parts):return int(hashlib.sha256(':'.join(map(str,parts)).encode()).hexdigest()[:8],16)
@@ -14,13 +16,13 @@ def order(tokens,training_seed,epoch):return sorted(tokens,key=lambda t:(seed('o
 def scope(model,name):
     inventory=[]
     for n,p in model.named_parameters():
-        if not n.startswith(SCOPES['joint']):raise ValueError('Unclassified parameter '+n)
+        if not n.startswith(MODEL_PREFIXES):raise ValueError('Unclassified parameter '+n)
         p.requires_grad_(n.startswith(SCOPES[name]));inventory.append({'name':n,'shape':list(p.shape),'numel':p.numel(),'trainable':p.requires_grad})
     model.eval();return inventory
 
 def optimizer(model,cfg):
     groups=[]
-    for label,prefix,lr in [('vlm','qwen_vl_interface.',cfg['vlm_lr']),('action','action_model.',cfg['action_lr']),('history','action_input_model.',cfg['action_lr'])]:
+    for label,prefix,lr in [('vlm','qwen_vl_interface.',cfg['vlm_lr']),('action','action_model.',cfg['action_lr'])]:
         params=[p for n,p in model.named_parameters() if n.startswith(prefix) and p.requires_grad]
         if params:groups.append({'params':params,'lr':lr,'name':label})
     assert sum(len(g['params']) for g in groups)==sum(p.requires_grad for p in model.parameters())

@@ -1,5 +1,5 @@
 {
-  "status": "DLC16_SUBMITTED_ENVIRONMENT_PREFLIGHT_PROTOCOL_PENDING",
+  "status": "HISTORY_FROZEN_V2_CPU_ACCEPTED_REAL_JOINT_PENDING",
   "created_utc": "2026-10-19T07:47:44.380566+00:00",
   "confirmed_scope": {
     "arms": [
@@ -16,7 +16,7 @@
       "E_DiT"
     ],
     "evaluation_population": "all 141 held-out failure cases; NOT all 10329 test-partition scenes",
-    "authorization": "用户要求先完成方案并确认，确认前不启动新推理或训练",
+    "authorization": "用户已授权准备11组全量GRPO入口及工程验收；正式训练长度、预算与F规则修订尚待锁定。不得自动启动正式训练/测试。",
     "execution_environment": "用户已授权并提交新DLC16任务dlclk5n9nxdt2fou，保持当前DSW镜像及三个挂载原有路径/权限，不接管旧作业",
     "input_conditions": [
       "A",
@@ -89,7 +89,7 @@
       "limits": [
         "C-A同时加入修正请求与失败轨迹",
         "仅联合范围保留B/F；不声称完整输入条件×更新范围全因子",
-        "原联合范围更新history，单模块范围冻结history；跨scope差不全部归为VLM-DiT协同"
+        "三种范围统一冻结history；联合范围为两单模块范围并集，但跨scope差异仍不直接定位语义理解发生的位置"
       ]
     }
   },
@@ -97,11 +97,11 @@
     "train_source": "/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/train/TRAINING_PAIRS.jsonl",
     "train_sha256": "f8caf60cf254980600287e579f3d88988e114163b729447afba481ebc3c1a58c",
     "train_scenes": 1264,
-    "train_drive_groups": 139,
+    "train_drive_groups": 131,
     "test_source": "/mnt/workspace/DriveExpert/20261018-privileged-feedback-expert/splits/log_reason_90_10_v1/test/TRAINING_PAIRS.jsonl",
     "test_sha256": "530ba81ed26b6040a44838bee037e05b2657605f6f7de14ebe7d96c5cb7caa52",
     "test_scenes": 141,
-    "test_drive_groups": 23,
+    "test_drive_groups": 17,
     "test_primary_reasons": {
       "NC": 2,
       "DAC": 67,
@@ -113,7 +113,11 @@
     "old_internal_32": "本轮并回1264训练总体；旧32不再称为本轮未见验证",
     "monitor": "沿用旧64训练清单，全部属于本轮更新数据，固定顺序，仅监测，不选checkpoint",
     "leakage": "训练与测试完整驾驶记录不共享；Base曾见原总体；只对专家后训练留出",
-    "test_use": "先锁定协议后运行initial测试；不得按测试成绩调prompt、超参、步数或筛场景；仅final固定checkpoint作一次后测"
+    "test_use": "先锁定协议后运行initial测试；不得按测试成绩调prompt、超参、步数或筛场景；仅final固定checkpoint作一次后测",
+    "whole_partition_drive_groups": {
+      "train": 139,
+      "test": 23
+    }
   },
   "prompts": {
     "canonical_request": "Refine the driving plan. Output the complete corrected future trajectory in the original ego frame.",
@@ -134,10 +138,9 @@
     "updates_per_epoch": 316,
     "updates_per_arm": null,
     "training_candidates_per_arm": null,
-    "trainable": "原A/B/C/F/E按joint更新；A/C/E各两个冻结组合按vlm_only或dit_only清单更新",
+    "trainable": "全部11组历史编码器固定；joint更新VLM+完整动作头，单模块范围分别更新两者之一",
     "optimizer": "AdamW",
     "vlm_lr": 2e-07,
-    "action_history_lr": 1e-06,
     "query_embedding_lr": 2e-07,
     "betas": [
       0.9,
@@ -160,7 +163,9 @@
     ],
     "ordering": "同训练种子下11组同epoch顺序与噪声；每模型每更新仍积累4场景，跨副本不共享梯度",
     "completion": "训练长度先用训练侧按原始驾驶记录留出的开发曲线确定，再锁定各组相同正式更新预算；3epoch/948更新仅保留作成本示例，尚未批准",
-    "training_candidates_all_arms": null
+    "training_candidates_all_arms": null,
+    "action_lr": 1e-06,
+    "history_encoder_trainable": false
   },
   "evaluation": {
     "stages": [
@@ -203,7 +208,7 @@
   },
   "statistics": {
     "pairing": "同token/replicate/candidate；先在场景内平均3×8",
-    "CI": "按23个测试原始驾驶记录聚类bootstrap5000次；保留scene-weighted总体均值，重采样完整记录簇，绝不把141场景或3384候选当独立样本",
+    "CI": "按17个测试原始驾驶记录聚类bootstrap5000次；保留scene-weighted总体均值，重采样完整记录簇，绝不把141场景或3384候选当独立样本",
     "primary_comparison": "E-C 的PDMS学习增量差；其他比较和探索指标注明辅助/未校正",
     "slices": "安全主因分层仅描述；NC/DDC各2例不作稳定类结论",
     "seed_limit": "建议三个配对训练种子，每种子下11组相同数据顺序与噪声；与评测三批采样seed分开报告，重复数和预算仍待批准",
@@ -256,7 +261,7 @@
     "验证与耗时证据",
     "同任务正式HTML结果报告"
   ],
-  "updated_utc": "2026-10-19T09:12:53.035370+00:00",
+  "updated_utc": "2026-10-19T12:30:43.789253+00:00",
   "dlc_parallelism": {
     "recommended": "11组×三个训练种子=33独立副本；单DLC16卡最多15训练并发+1评测/预检，至少三波排队，不将33副本同时塞入16卡",
     "per_replica": "每场景8候选，每次更新4场景；无需跨模型梯度同步；若单卡无法容纳则另行设计模型/优化器分片并复核等价性",
@@ -307,10 +312,12 @@
       "joint": {
         "train_prefixes": [
           "qwen_vl_interface.",
-          "action_model.",
-          "action_input_model."
+          "action_model."
         ],
-        "description": "原五组保持联合训练，包含历史状态编码器"
+        "description": "联合更新VLM和完整动作头；历史状态编码器与两类单模块组一样固定",
+        "freeze_prefixes": [
+          "action_input_model."
+        ]
       },
       "vlm_only": {
         "train_prefixes": [
@@ -335,7 +342,7 @@
         "lr": 1e-06
       }
     },
-    "scope_note": "DiT-only在本方案指完整action_model动作头，不是仅Transformer blocks；历史状态编码器在两种单模块组均冻结。原联合组仍更新history，因此联合与单模块差异不单独证明VLM-DiT协同；不称完备2x2参数因子实验。",
+    "scope_note": "三种范围统一冻结action_input_model历史状态编码器。joint的可训练集合是vlm_only与dit_only的并集；DiT-only指完整action_model含qwen_proj，不仅是Transformer blocks。历史信息仍输入VLM，冻结编码器不等于屏蔽历史。",
     "initial_identity": "同一Base、输入与噪声下，A/A_VLM/A_DiT、C/C_VLM/C_DiT、E/E_VLM/E_DiT各自训练前原始轨迹和评分须精确重放；冻结标记不改变初始函数。验收后复用A/C/E前测，仍只有五种独特输入。",
     "autograd_vlm_only": "冻结动作头参数但保留其对条件输入的计算图，不能在GRPO重算时把动作头包在no_grad中，否则VLM梯度被截断",
     "autograd_dit_only": "VLM及history可no_grad；qwen_proj可训练，须每次更新重新投影；若缓存仅缓存冻结VLM的query，不缓存可训练投影后的context",
@@ -345,9 +352,12 @@
       "可训练组非零有限梯度且实际参数更新，冻结组参数/可变buffer哈希保持一致",
       "eval模式固定dropout与归一化状态；冻结参考模型全部固定",
       "旧梯度检查强制visual/language/DiT都非零的逻辑必须按scope改写，不能沿用误判",
-      "所有组同数据、训练步数、候选数、seed、奖励与KL，学习率沿用对应模块原值；另报显存和卡时"
+      "所有组同数据、训练步数、候选数、seed、奖励与KL，学习率沿用对应模块原值；另报显存和卡时",
+      "三种范围history均无梯度、不进入优化器，参数和buffer保持；联合可训练集合等于两类单模块集合并集"
     ],
-    "identification_limit": "在A/C/E每种输入下保持相同参数冻结范围，可以比较完整特权条件总收益和guidance额外收益如何随更新范围变化；C-A包含修正请求和真实失败轨迹，不单独识别轨迹效应。单模块范围无B/F对照，不外推其修正请求或负例机制。冻结VLM仍可包含已有语义表征，不以更新侧定位语义理解。"
+    "identification_limit": "在A/C/E每种输入下保持相同参数冻结范围，可以比较完整特权条件总收益和guidance额外收益如何随更新范围变化；C-A包含修正请求和真实失败轨迹，不单独识别轨迹效应。单模块范围无B/F对照，不外推其修正请求或负例机制。冻结VLM仍可包含已有语义表征，不以更新侧定位语义理解。",
+    "version": "history-frozen-v2",
+    "updated_utc": "2026-10-19T12:30:11.236617+00:00"
   },
   "allocation": {
     "job_id": "dlclk5n9nxdt2fou",
@@ -358,5 +368,29 @@
     "same_image_and_mounts_as_current_DSW": true,
     "write_scope": "挂载权限按用户要求保持；程序仅写本任务目录，不写其他共享资产",
     "monitor": "每分钟只读轮询已启动，状态存STATUS.json；没有外部通知或自动唤醒机制"
+  },
+  "implementation": {
+    "directory": "trainer_v1",
+    "runner": "run.py",
+    "scheduler": "schedule.py",
+    "launch": "launch.sh",
+    "documentation": "README.html",
+    "strict_F_coverage": {
+      "matched": 1383,
+      "total": 1405,
+      "missing_train": 22,
+      "missing_test": 0
+    },
+    "single_card_acceptance": "three scopes PASS, G8, one update each",
+    "dlc_multicard_acceptance": "pending_allocation",
+    "formal_started": false,
+    "acceptance": "trainer_v1/ACCEPTANCE.json"
+  },
+  "history_scope_validation": {
+    "version": "history-frozen-v2",
+    "cpu_tests": 12,
+    "cpu_status": "PASS",
+    "real_joint_smoke": "PENDING_ACCELERATOR_AVAILABLE",
+    "historical_smoke_preserved": true
   }
 }

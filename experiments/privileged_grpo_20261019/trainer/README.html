@@ -1,11 +1,12 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>11组GRPO正式入口</title><style>body{max-width:1000px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#203040}pre{background:#f3f5f7;padding:16px;overflow:auto;font-size:13px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:center}th:last-child,td:last-child{text-align:left}details{margin:20px 0}.note{border-left:4px solid #cb9229;background:#fff9eb;padding:12px}</style>
 <h1>11组GRPO正式入口与验收</h1><p>此目录是新增实现，原DLC保活/预检入口保持不变。代码、单卡验收、多卡验收及正式结果分开记录。最新验收见 ACCEPTANCE.json；正式训练尚未启动。</p>
 <p class="note">正式运行默认关闭：TRAINING.template.json 的 epochs、training_seeds、wall_seconds 尚未锁定，formal_protocol_locked=false。prepared_v1 严格F匹配覆盖1383/1405，22个训练案例不满足精确token等长；全部141测试案例匹配成功。未确认修订前不得删样本、降低冲突标准或启动完整11组实验。</p>
-<h2>保持的实验定义</h2><p>联合A/B/C/F/E；仅VLM的A/C/E；仅DiT的A/C/E，共11组。每副本独立单卡，G8、每4场景更新一次、每epoch316更新。VLM学习率2e-7，动作/history1e-6；NAVSIM v1.1 PDMS奖励，KL β=0.01，10步SDE η=0.1，clip=0.2；单次on-policy更新，不加BC/SFT。冻结动作头时仍保留条件梯度。历史编码仅在联合组更新。</p>
+<h2>保持的实验定义</h2><p>联合A/B/C/F/E；仅VLM的A/C/E；仅DiT的A/C/E，共11组。每副本独立单卡，G8、每4场景更新一次、每epoch316更新。VLM学习率2e-7，动作头1e-6；NAVSIM v1.1 PDMS奖励，KL β=0.01，10步SDE η=0.1，clip=0.2；单次on-policy更新，不加BC/SFT。冻结动作头时仍保留条件梯度。三种设置统一冻结历史编码器，joint仅更新VLM与完整动作头。旧joint真实冒烟属于history可训练版本；新joint真实PPU复验待空闲，历史产出保留。</p>
 <p>1264/141失败案例来自固定划分，覆盖131/17个源驾驶记录；139/23属于包含正常场景的完整分区。推理输入中的失败轨迹/guidance始终属于冻结Base。评价中E允许事后反馈和GT对齐，是特权上限。未评价正常场景能力保持。</p>
-<h2>1. 资产与输入准备</h2><p>本地任务已有 assets.local.json 与 assets.dlc.json。Git迁移包提供 assets.example.json：先复制为 assets.local.json，按目标平台填写真实路径；模型/权重/数据接口与上级 RUN_GUIDE.html 一致。不要直接采用原机器的绝对路径。</p><pre># DSW目录；DLC改为/mnt/yehr_workspace/DriveExpert
-cd /mnt/workspace/DriveExpert/20261019-privileged-grpo-full/trainer_v1
-# assets.local.json用于当前DSW；assets.dlc.json用于原挂载DLC。
+<p>141测试分区已在冻结Base机制实验中查看；如据此选方法，不再称为未查看最终确认集。</p><h2>1. 资产与输入准备</h2><p>Git迁移包不包含原机器的本地配置，提供 assets.example.json：先复制为 assets.local.json，按目标平台填写真实路径；模型/权重/数据接口与上级 RUN_GUIDE.html 一致。不要直接采用原机器的绝对路径。</p><pre># 从仓库根目录开始；配置路径相对于JSON所在目录解析。
+cd experiments/privileged_grpo_20261019/trainer
+cp assets.example.json assets.local.json
+# 编辑 assets.local.json，填写目标平台的资产路径。
 # 其他平台按迁移指南配置checkpoint/model_config/source_root/tokenizer_root、
 # train_pairs/test_pairs/raw_meta_root/navsim_root和path_prefix_map。
 # 新prepared目录只允许创建一次；不覆盖旧清单。
@@ -13,30 +14,31 @@ PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false python prepare.py \
   --assets assets.local.json --out prepared_new \
   --monitor-source MONITOR_SOURCE.json</pre>
 <p>prepare.py只读资产，固定A/B/C/F/E文本、训练供体、分区和64训练监测面板；不运行模型或查看新评分。PREPARATION.json列出完整覆盖与文件哈希；F缺匹配时退出2并保留全部缺失记录。真实模型对F还核验多模态总token数和history/action插入位置。</p>
-<h2>2. 单卡工程冒烟</h2><pre>CUDA_VISIBLE_DEVICES=0 PYTHONDONTWRITEBYTECODE=1 python run.py \
-  --assets assets.local.json --training TRAINING.template.json --prepared prepared_v1 \
+<h2>2. 单卡工程冒烟</h2><pre># 无需真实数据或加速卡的CPU契约测试
+PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python -m unittest -v test_engine test_contracts</pre><pre>CUDA_VISIBLE_DEVICES=0 PYTHONDONTWRITEBYTECODE=1 python run.py \
+  --assets assets.local.json --training TRAINING.template.json --prepared prepared_new \
   --out runs/smoke_new --arm E_VLM --seed 20261019 --mode smoke \
   --smoke-updates 1 --smoke-wall-seconds 1800</pre>
 <p>smoke最多2次更新、30分钟；只使用训练案例，不使用141测试。可选择A（联合）、E_VLM（仅VLM）、C_DiT（仅DiT）。检查官方Base评分回放、同输入在三冻结范围的初始轨迹精确相等、非零有限梯度和实际参数更新、冻结参数/buffer与参考模型完整哈希保持。每更新保存32候选及小分、有效奖励组、K=1/2/4/8探索和几何多样性。完整可恢复快照包含模型、优化器、RNG、累计更新和累计时间；不是仅权重。</p>
 <h2>3. 锁定正式配置后分阶段启动</h2><p>复制TRAINING.template.json为TRAINING.locked.json，依据已确认方案填写共同epochs、明确training_seeds、每副本wall_seconds及formal_protocol_locked=true。不能把3epoch/三个种子示例当已批准值。所有组用同一个配置；正式前测不得用于选择训练长度。还需F准备PASS及目标多卡验收。</p>
 <pre># 下列DEVICE_IDS、PHASE_CAP_SECONDS和目录由已分配资源/预算明确设置。
 # 先plan-only核对队列，不启动GPU。OUT必须是新目录。
-bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+bash launch.sh --assets assets.local.json --training TRAINING.locked.json \
   --prepared prepared_accepted --phase initial --devices "$DEVICE_IDS" \
   --out runs/initial_plan --scheduler-wall-seconds "$PHASE_CAP_SECONDS" --plan-only
 
 # 前测：五种独特输入，141×3×8候选/输入。
-bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+bash launch.sh --assets assets.local.json --training TRAINING.locked.json \
   --prepared prepared_accepted --phase initial --devices "$DEVICE_IDS" \
   --out runs/initial --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
 
 # 正式训练：前一阶段必须完整验收，最多15个训练设备可留一张用于检查。
-bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+bash launch.sh --assets assets.local.json --training TRAINING.locked.json \
   --prepared prepared_accepted --phase train --devices "$TRAIN_DEVICE_IDS" \
   --previous runs/initial --out runs/train --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
 
 # 固定最终checkpoint后测：各模型仍141×3×8。
-bash launch.sh --assets assets.dlc.json --training TRAINING.locked.json \
+bash launch.sh --assets assets.local.json --training TRAINING.locked.json \
   --prepared prepared_accepted --phase final --devices "$DEVICE_IDS" \
   --previous runs/train --out runs/final --scheduler-wall-seconds "$PHASE_CAP_SECONDS"
 

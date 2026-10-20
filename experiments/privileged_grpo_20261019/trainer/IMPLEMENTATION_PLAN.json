@@ -1,10 +1,41 @@
 {
   "authorization": "2026-10-19 用户要求开始准备11组全量GRPO正式训练入口；包含实现与小规模工程验收，不自动决定正式训练长度",
-  "scope": ["A/B/C/F/E联合训练", "A/C/E仅VLM", "A/C/E仅DiT", "静态特权prompt与F全量覆盖", "共同随机数配对评测", "G8/四场景积累/分模块学习率", "完整恢复与独立单卡副本调度"],
-  "fixed": {"train":1264,"test":141,"failure_train_drives":131,"failure_test_drives":17,"G":8,"accumulation":4,"reward":"official NAVSIM v1.1 PDMS","kl_beta":0.01,"eta":0.1,"steps":10,"vlm_lr":2e-7,"action_lr":1e-6},
+  "scope": [
+    "A/B/C/F/E联合训练",
+    "A/C/E仅VLM",
+    "A/C/E仅DiT",
+    "静态特权prompt与F全量覆盖",
+    "共同随机数配对评测",
+    "G8/四场景积累/分模块学习率",
+    "完整恢复与独立单卡副本调度"
+  ],
+  "fixed": {
+    "train": 1264,
+    "test": 141,
+    "failure_train_drives": 131,
+    "failure_test_drives": 17,
+    "G": 8,
+    "accumulation": 4,
+    "reward": "official NAVSIM v1.1 PDMS",
+    "kl_beta": 0.01,
+    "eta": 0.1,
+    "steps": 10,
+    "vlm_lr": 2e-07,
+    "action_lr": 1e-06,
+    "history_encoder_trainable": false
+  },
   "formal_epochs": null,
   "formal_wall_seconds": null,
-  "acceptance": ["CPU tests use toy continuous-flow models and never count as real model evidence", "strict real Base load and score replay", "freeze scope gradient and parameter/buffer hash audit", "paired output/noise reproducibility", "resume reproduces uninterrupted update", "full F coverage gate; no silent relaxation", "target multi-card execution separately verified"],
+  "acceptance": [
+    "CPU tests use toy continuous-flow models and never count as real model evidence",
+    "strict real Base load and score replay",
+    "freeze scope gradient and parameter/buffer hash audit",
+    "paired output/noise reproducibility",
+    "resume reproduces uninterrupted update",
+    "full F coverage gate; no silent relaxation",
+    "target multi-card execution separately verified"
+  ],
   "runtime_gate": "正式运行要求显式已锁定epochs、种子和墙钟预算；代码默认拒绝空预算。DLC原standby不修改，不自动抢占或启动正式训练。",
-  "outputs": "trainer_v1/代码配置、准备清单、测试及验收记录；新增运行目录，不改历史产出"
+  "outputs": "trainer_v1/代码配置、准备清单、测试及验收记录；新增运行目录，不改历史产出",
+  "parameter_scope_version": "history-frozen-v2"
 }

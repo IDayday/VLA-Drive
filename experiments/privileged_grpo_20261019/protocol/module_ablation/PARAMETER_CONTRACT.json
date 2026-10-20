@@ -24,10 +24,12 @@
     "joint": {
       "train_prefixes": [
         "qwen_vl_interface.",
-        "action_model.",
-        "action_input_model."
+        "action_model."
       ],
-      "description": "原五组保持联合训练，包含历史状态编码器"
+      "description": "联合更新VLM和完整动作头；历史状态编码器与两类单模块组一样固定",
+      "freeze_prefixes": [
+        "action_input_model."
+      ]
     },
     "vlm_only": {
       "train_prefixes": [
@@ -52,7 +54,7 @@
       "lr": 1e-06
     }
   },
-  "scope_note": "DiT-only在本方案指完整action_model动作头，不是仅Transformer blocks；历史状态编码器在两种单模块组均冻结。原联合组仍更新history，因此联合与单模块差异不单独证明VLM-DiT协同；不称完备2x2参数因子实验。",
+  "scope_note": "三种范围统一冻结action_input_model历史状态编码器。joint的可训练集合是vlm_only与dit_only的并集；DiT-only指完整action_model含qwen_proj，不仅是Transformer blocks。历史信息仍输入VLM，冻结编码器不等于屏蔽历史。",
   "initial_identity": "同一Base、输入与噪声下，A/A_VLM/A_DiT、C/C_VLM/C_DiT、E/E_VLM/E_DiT各自训练前原始轨迹和评分须精确重放；冻结标记不改变初始函数。验收后复用A/C/E前测，仍只有五种独特输入。",
   "autograd_vlm_only": "冻结动作头参数但保留其对条件输入的计算图，不能在GRPO重算时把动作头包在no_grad中，否则VLM梯度被截断",
   "autograd_dit_only": "VLM及history可no_grad；qwen_proj可训练，须每次更新重新投影；若缓存仅缓存冻结VLM的query，不缓存可训练投影后的context",
@@ -62,7 +64,10 @@
     "可训练组非零有限梯度且实际参数更新，冻结组参数/可变buffer哈希保持一致",
     "eval模式固定dropout与归一化状态；冻结参考模型全部固定",
     "旧梯度检查强制visual/language/DiT都非零的逻辑必须按scope改写，不能沿用误判",
-    "所有组同数据、训练步数、候选数、seed、奖励与KL，学习率沿用对应模块原值；另报显存和卡时"
+    "所有组同数据、训练步数、候选数、seed、奖励与KL，学习率沿用对应模块原值；另报显存和卡时",
+    "三种范围history均无梯度、不进入优化器，参数和buffer保持；联合可训练集合等于两类单模块集合并集"
   ],
-  "identification_limit": "在A/C/E每种输入下保持相同参数冻结范围，可以比较完整特权条件总收益和guidance额外收益如何随更新范围变化；C-A包含修正请求和真实失败轨迹，不单独识别轨迹效应。单模块范围无B/F对照，不外推其修正请求或负例机制。冻结VLM仍可包含已有语义表征，不以更新侧定位语义理解。"
+  "identification_limit": "在A/C/E每种输入下保持相同参数冻结范围，可以比较完整特权条件总收益和guidance额外收益如何随更新范围变化；C-A包含修正请求和真实失败轨迹，不单独识别轨迹效应。单模块范围无B/F对照，不外推其修正请求或负例机制。冻结VLM仍可包含已有语义表征，不以更新侧定位语义理解。",
+  "version": "history-frozen-v2",
+  "updated_utc": "2026-10-19T12:30:11.236617+00:00"
 }

@@ -25,9 +25,20 @@ class Tests(unittest.TestCase):
     def test_all_scopes_and_frozen_reference(self):
         for scope in engine.SCOPES:
             torch.manual_seed(19);m=Toy();ref=copy.deepcopy(m).requires_grad_(False);h=engine.state_hash(ref,'all');engine.scope(m,scope);frozen=engine.state_hash(m);before=engine.witnesses(m);opt=engine.optimizer(m,CFG);stats=update(m,ref,opt,0);change=engine.changes(before,engine.witnesses(m))
-            required={'joint':['vlm','action','history'],'vlm_only':['vlm'],'dit_only':['action']}[scope]
+            required={'joint':['vlm','action'],'vlm_only':['vlm'],'dit_only':['action']}[scope]
+            self.assertEqual(stats['gradient_norms']['history'],0.)
+            self.assertTrue(all(not p.requires_grad and p.grad is None for p in m.action_input_model.parameters()))
+            optimizer_ids={id(p) for group in opt.param_groups for p in group['params']}
+            self.assertTrue(all(id(p) not in optimizer_ids for p in m.action_input_model.parameters()))
             for key in required:self.assertGreater(stats['gradient_norms'][key],0);self.assertGreater(change[key],0)
             self.assertEqual(engine.state_hash(m),frozen);self.assertEqual(engine.state_hash(ref,'all'),h)
+    def test_scope_union_and_forward_identity(self):
+        torch.manual_seed(23);m=Toy();x=torch.ones(5);original=m.condition(x).detach();names={}
+        for scope in engine.SCOPES:
+            inventory=engine.scope(m,scope);names[scope]={p['name'] for p in inventory if p['trainable']}
+            self.assertTrue(torch.equal(original,m.condition(x).detach()))
+        self.assertEqual(names['joint'],names['vlm_only']|names['dit_only'])
+        self.assertFalse(names['vlm_only']&names['dit_only'])
     def test_checkpoint_resume_next_update(self):
         torch.manual_seed(20);base=Toy();ref=copy.deepcopy(base).requires_grad_(False);a=copy.deepcopy(base);engine.scope(a,'joint');oa=engine.optimizer(a,CFG);update(a,ref,oa,0)
         with tempfile.TemporaryDirectory() as d:

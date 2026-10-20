@@ -199,7 +199,7 @@ def main(a):
             snapshot(ckpts/f'update_{completed:06d}.pt',model,opt,ident,a.arm,a.seed,completed,time.monotonic()-started+carry,parent)
         changed=engine.changes(initial,engine.witnesses(model))
         if mode=='smoke':
-            required={'joint':['vlm','action','history'],'vlm_only':['vlm'],'dit_only':['action']}[engine.arm_scope(a.arm)]
+            required={'joint':['vlm','action'],'vlm_only':['vlm'],'dit_only':['action']}[engine.arm_scope(a.arm)]
             if not all(changed[k]>0 and any(u['gradient_norms'][k]>0 for u in all_updates) for k in required):raise RuntimeError('Smoke did not demonstrate updates in every trainable group')
         save_json(out/'RESULT.json',{'status':'COMPLETE','mode':mode,'arm':a.arm,'seed':a.seed,'completed_updates':completed,'checkpoint':str(ckpts/f'update_{completed:06d}.pt'),'frozen_parameters_buffers_exact':True,'reference_exact':True,'parameter_changes':changed,'elapsed_s':time.monotonic()-started+carry,'formal_training':mode=='train'})
         status('complete',completed_updates=completed)

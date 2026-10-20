@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>特权反馈 GRPO：跨平台迁移与启动指南</title>
 <style>body{max-width:1080px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui;color:#17232d}h1{font-size:27px}h2{font-size:21px;margin-top:32px}pre{background:#f3f5f7;padding:16px;overflow:auto;font-size:13px}code{font-family:monospace}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #cbd5df;padding:8px;text-align:center}td:first-child,th:first-child,td:last-child,th:last-child{text-align:left}.note{border-left:4px solid #bd871c;padding:12px 18px;background:#fff8e8}details{margin:15px 0}summary{cursor:pointer;font-weight:bold}</style>
-<h1>特权反馈 GRPO：跨平台迁移与启动指南</h1><p>版本：2026-10-19。目标仓库：<a href="https://github.com/IDayday/VLA-Drive">IDayday/VLA-Drive</a>。发布分支：<code>feature/privileged-grpo-migration-20261019</code>。</p>
-<div class="note"><b>运行状态：</b>训练集挖掘、1264/141 划分、历史短程 GRPO 与 32 场景机制实验已完成。新 11 组全量 GRPO <b>已有 trainer/run.py、trainer/schedule.py 执行入口，三种更新范围通过真实单PPU冒烟；正式训练尚未启动</b>。DLC 入口仅预检并待命。本指南提供可执行的资产校验、权重恢复及单场景推理迁移入口；正式训练与恢复命令见 trainer/README.html；完整F规则、正式预算和目标16卡验收仍待完成。新入口已做本机 CPU 全量资产核验，尚未在目标平台验收 GPU 推理。</div>
+<h1>特权反馈 GRPO：跨平台迁移与启动指南</h1><p>版本：2026-10-20（history-frozen-v2）。目标仓库：<a href="https://github.com/IDayday/VLA-Drive">IDayday/VLA-Drive</a>。发布分支：<code>feature/privileged-grpo-migration-20261019</code>。</p>
+<div class="note"><b>运行状态：</b>训练集挖掘、1264/141 划分、历史短程 GRPO 与 32 场景机制实验已完成。新 11 组全量 GRPO <b>已有 trainer/run.py、trainer/schedule.py 执行入口，全部11组统一冻结历史编码器；12项CPU测试通过，新联合范围真实PPU复验待完成；正式训练尚未启动</b>。DLC 入口仅预检并待命。本指南提供可执行的资产校验、权重恢复及单场景推理迁移入口；正式训练与恢复命令见 trainer/README.html；完整F规则、正式预算和目标16卡验收仍待完成。新入口已做本机 CPU 全量资产核验，尚未在目标平台验收 GPU 推理。</div>
 <h2>1. 获取代码与恢复权重</h2>
 <p>以下远端获取命令在发布完成后可用；发布状态以远端分支、Release及发布回执为准。PORTABILITY_FINDINGS.json记录打包时状态。</p>
 <pre>git clone --branch feature/privileged-grpo-migration-20261019 https://github.com/IDayday/VLA-Drive.git
@@ -25,7 +25,7 @@ python -m venv --system-site-packages /outputs/venvs/privileged-grpo
 source /outputs/venvs/privileged-grpo/bin/activate
 python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.device_count())"</pre>
 <p>已验证的关键版本：torch 2.4.0、transformers 4.57.0、numpy 1.26.4、scipy 1.11.4、accelerate 1.5.2、omegaconf 2.3.0、Pillow 10.1.0、shapely 2.1.2。还需原模型导入链依赖、NAVSIM v1.1 与 nuPlan；environment/validated_versions.json 不是完整可安装 lockfile。不能只执行一个简化 pip 列表就声称环境等价。</p>
-<h2>3. 数据接口与路径映射</h2><p>本次使用 1264 条训练失败案例和 141 条测试失败案例，所有 GT 均保留，不要求 GT PDMS&gt;0.9。失败定义：Base PDMS&lt;0.8，或 NC/DAC/TTC 任一小于 1。测试集来自 Base 的训练分区，仅对后训练留出；不是 Base 未见集。</p>
+<h2>3. 数据接口与路径映射</h2><p>本次使用 1264 条训练失败案例和 141 条测试失败案例，所有 GT 均保留，不要求 GT PDMS&gt;0.9。失败定义：Base PDMS&lt;0.8，或 NC/DAC/TTC 任一小于 1。测试集来自 Base 的训练分区，仅对后训练留出；不是 Base 未见集。141条已在冻结Base机制实验中查看，如据此选择方法，不再称为未查看最终确认集。</p>
 <p><b>驾驶记录口径修正：</b>完整分区有139/23个源记录，但失败子集实际覆盖131/17个（短日志476/52）。141条修复测试的统计重采样按实际17个源记录进行。旧方案中的23不可直接作为失败子集的有效聚类数。划分文件未改变。</p>
 <table><tr><th>配置项</th><th>接口类型</th><th>内容</th></tr>
 <tr><td>checkpoint</td><td>文件</td><td>恢复的完整 Base .pt，SHA256 固定。</td></tr>
@@ -58,12 +58,12 @@ python tools/portable.py --config config/assets.local.json validate --full-hash 
 CUDA_VISIBLE_DEVICES=0 python tools/portable.py --config config/assets.local.json infer-smoke --arm A --run-name smoke_A_001
 # 可用输入 A/B/C/E；相同场景使用相同种子。不同运行名避免覆盖。
 CUDA_VISIBLE_DEVICES=0 python tools/portable.py --config config/assets.local.json infer-smoke --arm E --run-name smoke_E_001</pre>
-<p>输出 RESULT.json 含8条轨迹和PDMS全部小分；运行前重放原失败轨迹评分，要求精确匹配。该入口不更新参数，采用新迁移冒烟种子，不声称精确重现历史随机轨迹。原始权重FP32执行、VLM内部BF16 autocast、动作头FP32；不同硬件仍需数值回放验收。F尚无全量donor清单，不在新冒烟入口开放。</p>
-<h2>5. 11组正式实验契约与待完成项</h2>
-<table><tr><th>更新范围</th><th>输入组</th><th>参数</th></tr><tr><td>联合训练</td><td>A/B/C/F/E</td><td>VLM、完整action_model及history encoder。</td></tr><tr><td>仅VLM</td><td>A/C/E</td><td>qwen_vl_interface；动作头及history冻结，但保留向VLM反传的计算图。</td></tr><tr><td>仅DiT</td><td>A/C/E</td><td>完整action_model含qwen_proj；VLM、action query embedding及history冻结。</td></tr></table>
+<p>输出 RESULT.json 含8条轨迹和PDMS全部小分；运行前重放原失败轨迹评分，要求精确匹配。该入口不更新参数，采用新迁移冒烟种子，不声称精确重现历史随机轨迹。原始权重FP32执行、VLM内部BF16 autocast、动作头FP32；不同硬件仍需数值回放验收。该迁移推理冒烟入口仅支持A/B/C/E；trainer/prepare.py另行生成F供体清单并报告覆盖缺口。</p>
+<h2>5. 11组正式实验契约与待完成项</h2><p>实际训练、前后测和恢复命令见 <a href="trainer/README.html">trainer/README.html</a>；使用trainer/assets.example.json配置接口。旧三范围真实冒烟保留在ACCEPTANCE.json，其中旧joint允许history更新，不作为新joint验收。</p>
+<table><tr><th>更新范围</th><th>输入组</th><th>参数</th></tr><tr><td>联合训练</td><td>A/B/C/F/E</td><td>VLM与完整action_model；history encoder统一冻结。</td></tr><tr><td>仅VLM</td><td>A/C/E</td><td>qwen_vl_interface；动作头及history冻结，但保留向VLM反传的计算图。</td></tr><tr><td>仅DiT</td><td>A/C/E</td><td>完整action_model含qwen_proj；VLM、action query embedding及history冻结。</td></tr></table>
 <p>A=原SFT输入；B=A+修正请求；C=B+真实失败轨迹；F=B+强语义冲突完整donor轨迹；E=C+完整guidance。C就是“E无guidance”。F需跨源记录、合理运动学、保持token数量与插入位置，且只从训练侧选择donor。不能把历史32场景映射直接用于全量1405场景。</p>
-<p>候选G=8、每4场景梯度积累、VLM学习率2e-7、动作/历史1e-6；PDMS奖励、KL系数0.01、10步SDE、eta=0.1、clip=0.2。KL是正则项，不是额外驾驶奖励；GRPO是更新范式，不是奖励名称。无额外BC/SFT项。每场景按组相对优势更新，零方差组及无效轨迹需保留计数。现有单次on-policy更新不足以验证多轮PPO复用。</p>
-<p><b>尚未锁定：</b>正式epochs与预算、训练侧长度预实验、全量F映射、分模块反传和冻结验收、恢复语义及16卡分片/汇总。316更新/epoch来自ceil(1264/4)；948只是3epoch成本示例，不能当收敛证据。不能通过增加卡数静默改变有效batch或更新预算。</p>
+<p>候选G=8、每4场景梯度积累、VLM学习率2e-7、动作头1e-6；历史编码器不进入优化器；PDMS奖励、KL系数0.01、10步SDE、eta=0.1、clip=0.2。KL是正则项，不是额外驾驶奖励；GRPO是更新范式，不是奖励名称。无额外BC/SFT项。每场景按组相对优势更新，零方差组及无效轨迹需保留计数。现有单次on-policy更新不足以验证多轮PPO复用。</p>
+<p><b>尚未锁定：</b>正式epochs与预算、训练侧长度预实验、正式GRPO的F供体规则、新joint真实PPU复验、真实大模型跨进程恢复及16卡并发/汇总。当前严格F覆盖1383/1405（22个缺口均在训练侧），141测试全部严格匹配；独立冻结ACFE已获准放宽22个至±2 token，该修订尚未接入本11组正式入口。316更新/epoch来自ceil(1264/4)；948只是3epoch成本示例，不能当收敛证据。不能通过增加卡数静默改变有效batch或更新预算。</p>
 <pre># 明确防误启动：此旧入口返回非零并指向 trainer/，不自动启动训练。
 python tools/portable.py --config config/assets.local.json train-full</pre>
 <p>当前 trainer/schedule.py 按每卡独立模型副本实现，推荐最多15卡训练+1卡评测；目标16卡并发尚未验收。若3训练种子则11×3=33副本，至少3波；训练前只需A/B/C/F/E五种独特输入，各冻结范围先验证初始函数一致，再复用前测。评价按同场景、相同8候选噪声配对，记录mean、Oracle@1/2/4/8、有效探索/全零组、安全与进度、小分及多样性；测试不参与选训练长度。</p>
