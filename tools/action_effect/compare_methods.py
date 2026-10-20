@@ -36,6 +36,11 @@ def load(path):
         pin=artifact(path.parent/'scenes'/sid/'RESULT.json')
         if pins.get(pin['path'])!=pin or row['prediction_identity']!=prediction[sid]['identity']:
             raise ValueError('Native result/prediction/scene receipt changed')
+        from .simulate_interventions import verified_feedback
+        from .feedback_schema import canonical_record
+        native=canonical_record(verified_feedback(row))
+        if native['status']!=row['status'] or native['metrics']!=row['metrics']:
+            raise ValueError('Reported metrics differ from their independent native receipt')
     return result,rows,population
 
 
