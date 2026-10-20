@@ -1,0 +1,223 @@
+{
+  "schema": "action_effect_final_research_verdict_v1",
+  "status": "INCONCLUSIVE",
+  "start_commit": "36493208ba4d8c25bedfcc43935a4ce4527131cc",
+  "branch": "research/action-effect-repair-20261020",
+  "implementation_source_parent_at_seal": "a9dc559cdd5898ab422691569bb9f3367a0265a4",
+  "source_identity_rule": "Each training checkpoint, inference/export, derived audit and test log binds its own actual immutable executed source; final Git report commit does not replace those identities.",
+  "S0": {
+    "source_commit": "1493deda247107efe076b9294863a6753391298a",
+    "trained_step": 100000,
+    "binding_identity": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "model": "original Qwen3-VL DDPActionVideoForesight, learned DINO/W, DiT/Flow, Euler10, 8points",
+    "query_base_used": false,
+    "modified_existing_base_weights": false
+  },
+  "IMPLEMENTATION": {
+    "status": "PASS",
+    "evidence": "Real native feedback/interventions/pairs, six G1 controls, A0/A1/ScoreRefiner, B0/B1-trajectory/B1-effect, checkpoint/export/online/cache paths implemented and exercised.",
+    "boundary": "Bounded first campaign, not every requested upper-bound/alternate NAVSIM version qualified."
+  },
+  "S0_REPLAY": {
+    "status": "PASS",
+    "evidence": "Historical raw/physical replay exact for tested inputs; full DEV1696 cached physical outputs exact; original protected S0 source unmodified."
+  },
+  "G0_REPAIR_OPPORTUNITY": {
+    "status": "PASS",
+    "evidence": "TRAIN1024/521logs, 20678 valid intervention pairs, 7 verified minimal repairs:6fit/1val.",
+    "boundary": "Only7original failures; four DAC zeros, one TTC, two progress cases; no original collision positive. Not broad repairability evidence."
+  },
+  "G1_LEARNED_SIGN_INFORMATION": {
+    "status": "PASS",
+    "evidence": "Unseen post-training logs:997 meaningful pairs,178scenes/99logs; delta pair accuracy90.371%, balanced91.267%; always-negative60.883% pair accuracy.",
+    "boundary": "All pairs correlated within scenes; frozen S0 saw the original TRAIN population. Prediction sign accuracy is not reliable correction choice."
+  },
+  "G1_DELTA_ADVANTAGE_OVER_ABSOLUTE": {
+    "status": "INCONCLUSIVE",
+    "evidence": "On225eligible scenes/4615pairs, delta recommendation gain -0.778716points and absolute-score -0.751100points; paired difference CI includes0.",
+    "boundary": "Original233requested,8structural no-pair scenes kept explicit. All six recommendations lose score; no independent effect-model utility established."
+  },
+  "TEMPORAL_GRID_INDEPENDENT_VALUE": {
+    "status": "INCONCLUSIVE",
+    "evidence": "Matched full-minus-zero-grid recommendation gain -0.759971points,95%paired-logCI[-2.109284,+0.328035].",
+    "boundary": "Only dense41x3 weight removed; first-event mean/event transitions retained. No causal temporal-credit benefit proven."
+  },
+  "ROUTE_A_TRAIN_FITTING": {
+    "status": "PASS",
+    "evidence": "A0 direct H_fit6 mean gain54.763715PDMSpoints; original Base frozen.",
+    "boundary": "One unique H_validation scene remains zero for all six seed42 learned arms. No held-out rare-repair generalization established."
+  },
+  "ROUTE_A_EFFECT_GUIDANCE": {
+    "status": "FAIL",
+    "evidence": "A1 mean91.224200 versus A0 mean91.389143; each A1 seed introduces4high-to-zero and4newDAC relative to S0.",
+    "boundary": "Negative observed safety/point estimates under this protocol; paired log intervals do not establish universal harm for every future method."
+  },
+  "ROUTE_B_ONE_GENERATION": {
+    "status": "PASS",
+    "evidence": "Actual final B1-effect export, current three-image input, one VLM, original Euler10 with10adaptercalls; no final refiner/simulator/teacher."
+  },
+  "ROUTE_B_EFFECT_BEATS_SFT": {
+    "status": "INCONCLUSIVE",
+    "evidence": "Three-seed means: B0 repaired-endpoint FM SFT91.408385; B1-trajectory91.357387; B1-effect91.400210; S091.388363.",
+    "boundary": "B1-effect below B0 mean, variable individual-seed differences, newTTC1perseed vs S0. Physical feedback contribution beyond ordinary SFT not established."
+  },
+  "MINIMUM_EDIT_VS_UNCONSTRAINED_SEARCH": {
+    "status": "INCONCLUSIVE",
+    "evidence": "Minimal verified G0 repair distance measured with constrained safety/progress hierarchy.",
+    "boundary": "No matched learned unconstrained-max-score search comparison; do not claim superiority."
+  },
+  "SAME_BACKEND_EXACT_RESUME": {
+    "status": "PASS",
+    "evidence": "Independent real CUDA G1 and B0 continuous16 vs8+8: full private state, named Adam/scheduler/RNG/cursor, next sample IDs and updates exact.",
+    "boundary": "Only those singleGPU/runtime boundaries. B1-effect CUDA auxiliary exact-resume, production full-trainer DDP and terminal0extraCUDA not run."
+  },
+  "DDP_COMPONENT": {
+    "status": "PASS",
+    "evidence": "Real twoGPU NCCL loss/gradient allvalid/emptyrank;62gradtensors under predeclared atol/rtol.",
+    "boundary": "Not bitwise nor full production trainer DDP qualification."
+  },
+  "NATIVE_CROSS_HOST_BITWISE": {
+    "status": "INCONCLUSIVE",
+    "evidence": "Metrics/events identical; one executed-state difference2.77555756156e-16.",
+    "boundary": "No retroactive tolerance relaxation or bitwise cross-device claim."
+  },
+  "DEPLOYMENT_EXPORT_AND_LABEL_INDEPENDENCE": {
+    "status": "PASS",
+    "evidence": "Actual fresh full-S0+A1+B1-effect online loads; one vision/language/planner pass each, forbidden-data guard and label-poison tests, exact one-scene cached/online predictions.",
+    "boundary": "One real scene and8measured repeats per mode; not whole-population latency or cached-online equivalence qualification."
+  },
+  "NAVSIM_V2": {
+    "status": "BLOCKED",
+    "evidence": "No verified v2 native feedback adapter/runtime available; explicit rejection."
+  },
+  "PRIVILEGED_G1_UPPER_BOUND": {
+    "status": "BLOCKED",
+    "evidence": "No registered legal privileged representation asset."
+  },
+  "MATCHED_RL_CONTROL": {
+    "status": "BLOCKED",
+    "evidence": "No sameBase/data/compute/endpoint RL control available; historical different RL scores not substituted."
+  },
+  "VIGT_OCC_ABLATION": {
+    "status": "NOT_RUN",
+    "evidence": "Optional later interface; not a prerequisite for this original-S0 first campaign."
+  },
+  "REGRESSION": {
+    "status": "PASS",
+    "evidence": "487passed,0failed,0skipped,1pynvmlwarning,46.05s; full current CPU source and actual prior CUDA/NCCL evidence scoped separately."
+  },
+  "training": {
+    "formal_runs": 23,
+    "formal_updates": 23000,
+    "scene_presentations_per_run": 32000,
+    "training_segment_gpu_hours": 4.235378704690892,
+    "training_seeds": [
+      42,
+      43,
+      44
+    ],
+    "G1_teacher_seed": 42,
+    "full_independent_teacher_seeds": 1,
+    "cost_limit": "Training segments exclude data extraction, strict loading, bootstrapping, native scoring and reporting; fixed update budget does not mean equal compute."
+  },
+  "evaluation": {
+    "DEV_scenes": 1696,
+    "DEV_logs": 16,
+    "official_stages": 31,
+    "official_DEV_policies_including_S0": 19,
+    "unresolved": 0,
+    "invalid": 0,
+    "checkpoint_selection": "Fixed1000, no DEV arm/threshold/teacher/seed selection",
+    "bootstrap_repetitions": 2000,
+    "bootstrap_seed": 42,
+    "bootstrap_unit": "paired source_log; do not treat3x1696 as independent scenes",
+    "navtest_started": false,
+    "ACTIVE_updated": false
+  },
+  "online_latency": {
+    "units": "seconds",
+    "batch": 1,
+    "measured": 8,
+    "warmup": 2,
+    "scenes": 1,
+    "S0": {
+      "mean": 1.32976223994046,
+      "p50": 1.32924230303615,
+      "p95": 1.33265993492678
+    },
+    "A1": {
+      "mean": 1.33631481602788,
+      "p50": 1.33578840829432,
+      "p95": 1.34240307435393
+    },
+    "B1-effect": {
+      "mean": 1.36600957298651,
+      "p50": 1.36594582069665,
+      "p95": 1.36823026072234
+    },
+    "boundary": "A80080GB, warm file cache, sequential modes; all requested heads resident, not wholepopulation throughput."
+  },
+  "SCIENTIFIC_CONCLUSION": {
+    "status": "INCONCLUSIVE",
+    "evidence": "Local physical intervention opportunity and real train fitting are supported; the proposed independent advantages of delta guidance, dense temporal credit and effect-driven FM over simple repaired endpoint SFT are not supported.",
+    "boundary": "Do not present engineering completion, rare fit repair, sign accuracy or tiny mean gains as a demonstrated new planning method."
+  },
+  "NEXT_EVIDENCE_BACKED_DIRECTION": "In a separately preregistered legal TRAIN campaign, increase cross-log/risk-type verified repair support, then test within-support effect ranking/calibration and learned input-gradient proposals against A0/B0. Do not tune on current DEV or launch automatically.",
+  "evidence": {
+    "campaign": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/CAMPAIGN_BINDING.json",
+      "sha256": "05f7f4c2caeade3465ee2f0b80b31873c829608d15e63afe98250f2eb319f10e",
+      "bytes": 12648
+    },
+    "formal_plan": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/FORMAL_EXPERIMENT_PLAN.json",
+      "sha256": "43b7fb877f1f334d12dac30f10b97ced156c6751a9924db1aeab12946e0c0e21",
+      "bytes": 4057
+    },
+    "formal_amendment": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/FORMAL_PLAN_AMENDMENT_01.json",
+      "sha256": "14c568c8f6522c0f131af71e6e8a738eec171b9e74a1fc1e91c66f234d05a3de",
+      "bytes": 1263
+    },
+    "native_comparison": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/comparisons/final_dev1696_all_seeds_v1/COMPARISON.json",
+      "sha256": "8ed42603b817d3ed183bb027c4aad733a8dafb9e21d4577e265338e823710b4c",
+      "bytes": 40992
+    },
+    "native_comparison_exit": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/FINAL_DEV_COMPARISON_EXIT.json",
+      "sha256": "466de6eb8bd81ead67bf520d6a12449c5337d44226660680fb4f056ee1a90032",
+      "bytes": 89
+    },
+    "online_completion": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/online_S0_A1_B1effect_final1000_seed42_v2/online/COMPLETE.json",
+      "sha256": "38e5ac3214ce70e7d45b91bfc97c84b68fd4b58e0077fc4bda34436dc2352145",
+      "bytes": 1316
+    },
+    "operator_and_cache_audit": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/cpu_operator_cost_cache_v1/COMPLETE.json",
+      "sha256": "b548b58cba0ab868a8f12ae55be3c1ffbbfc293f2be69710ab5e244b27ad2195",
+      "bytes": 336
+    },
+    "training_matrix": {
+      "path": "/mnt/project/VLA-Drive-action-effect-repair-20261020/reports/action_effect/TRAINING_EXECUTION_MATRIX.csv",
+      "sha256": "ef44a8fbcb7d6bc711f963733feec2315b02215695b0f1f95f98fb49a67d17ca",
+      "bytes": 10494
+    },
+    "native_cost_summary": {
+      "path": "/mnt/project/VLA-Drive-action-effect-repair-20261020/reports/action_effect/NATIVE_EVALUATION_COST_SUMMARY.json",
+      "sha256": "584445f14d67ca0eff6f4b774aff019e54ca31b3fd7d0e5655a43277099d5693",
+      "bytes": 13712
+    },
+    "current_regression": {
+      "path": "/mnt/project/VLA-Drive-action-effect-repair-20261020/reports/action_effect/final_regression/RESULT.json",
+      "sha256": "945ace072684f986be51ae648b6d6b3d31519dcd899adb59b5cbd297e1702ea1",
+      "bytes": 1776
+    },
+    "B0_independent_archive": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/INDEPENDENT_FINAL_ARCHIVE/ARCHIVE.json",
+      "sha256": "d65ca4ca50a64b3eb18ae64b05bb0970854378c799996aa11e1cc2b99a666a6b",
+      "bytes": 485
+    }
+  }
+}
