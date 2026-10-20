@@ -1,0 +1,43 @@
+{
+  "schema": "action_effect_EGR_entry_evidence_v1",
+  "integrated_base": "f43eca75",
+  "model_commit": "d43f1fa6",
+  "rank_mass_fix": "374d8e44",
+  "g0_runner_commit": "fa27c32ea6a4f6e75212b2ba02785f2b72dfd059",
+  "tests": {
+    "passed": 125,
+    "warnings": 1,
+    "seconds": 14.48,
+    "full_log": "A_ENTRY_INTEGRATED_CPU_TEST.log",
+    "log_sha256": "6a78e868a0e29b667211fee2d7a1afb5097867dae80ca693e411a0797d2d24be"
+  },
+  "actual_S0_training": "NOT_RUN_BY_MODULE_AGENT",
+  "official_NAVSIM_learned_refiner_score": "NOT_RUN_BY_MODULE_AGENT",
+  "GPU": "NOT_RUN_BY_MODULE_AGENT",
+  "scientific_gain": "UNTESTED",
+  "no_external_scorer_weights": true,
+  "teacher_deployment_default": false,
+  "ego_contract": "normalized previous-current relative XY and sin/cos relative yaw; NOT velocity/acceleration",
+  "source_files": {
+    "tools/action_effect/train_refiner.py": {
+      "sha256": "bdb1c5766875e0f99470ec44dd7e21c0255cc57b0df8af6206ac44e68bd2705f",
+      "bytes": 18041
+    },
+    "tools/action_effect/evaluate_refiner.py": {
+      "sha256": "a7a8c864222fcf87544b5dc7273666244104e07631bd83f371769ea6a7d0ae6f",
+      "bytes": 20188
+    },
+    "tests/action_effect/test_model_refiner_entry.py": {
+      "sha256": "62b37b19ef005a3f9f70d2580ac0cfde61e804df42b3f9d551ef474dec7a4cbc",
+      "bytes": 14667
+    },
+    "starVLA/model/framework/effect_guided_refiner.py": {
+      "sha256": "e09a1b35804c9b258bb3c0806e2f9e18ac358337f83b678c9897f21a04778851",
+      "bytes": 6858
+    },
+    "tests/action_effect/test_model_refinement.py": {
+      "sha256": "0be33263c8cbf794cb5bac1adce95758198a3201e75ace63912cf438f8fd3596",
+      "bytes": 9267
+    }
+  }
+}

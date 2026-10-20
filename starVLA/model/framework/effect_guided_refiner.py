@@ -72,6 +72,10 @@ class EffectGuidedRefiner(nn.Module):
         if self.training:
             raise ValueError("Deployment requires eval mode")
         prediction = self(context, base_physical)
+        # ego4 is normalized HISTORY delta-pose (dx,dy,sin dyaw,cos dyaw),
+        # not vx/vy/ax/ay. Never reinterpret it as an observed initial velocity.
+        # This preliminary screen omits that boundary; official offline replay
+        # separately records native initial velocity and controller tracking.
         outcomes = [geometric_screen(p.detach().cpu().double().numpy(), self.refiner.config.basis,
                                       self.constraint_spec) for p in prediction["trajectory"]]
         accepted = torch.tensor([o["geometrically_admissible"] for o in outcomes],

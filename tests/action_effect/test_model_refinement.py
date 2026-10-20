@@ -130,6 +130,7 @@ def test_geometry_rejection_falls_back_without_fabricating_safety_score():
     out = model.deploy(context, a)
     assert not out["geometry_accepted"].any() and torch.equal(out["trajectory"], a)
     assert all(not row["is_safety_label"] for row in out["geometry_screen"])
+    assert all(not row["initial_velocity_observed"] for row in out["geometry_screen"])
     with pytest.raises(ValueError, match="verified frozen"):
         model.training_loss(context, a, use_effect_guidance=True)
 
