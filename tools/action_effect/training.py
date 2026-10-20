@@ -73,6 +73,11 @@ def run_training(model, *, output, identity, dataset_size, step_fn, validation_f
     if type(dataset_size) is not int or dataset_size<1:raise ValueError('No valid training scenes')
     if not 1<=max_updates<=cfg['training']['max_updates']:raise ValueError('Explicit bounded training updates required')
     if stop_after is not None and not 1<=stop_after<=max_updates:raise ValueError('Invalid bounded stop_after')
+    # This campaign uses one declared FP32 research backend. Keep input/output
+    # precision and small-head resume comparisons independent of process defaults.
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
+    torch.backends.cudnn.benchmark=False
     output=Path(output);output.mkdir(parents=True,exist_ok=True);t=cfg['training'];stateful=stateful or {}
     if 'source_commit' not in identity:raise ValueError('Source snapshot identity required')
     identity={**identity,'schema':'action_effect_small_training_v1','seed':seed,'dataset_size':dataset_size,
@@ -166,5 +171,7 @@ def run_training(model, *, output, identity, dataset_size, step_fn, validation_f
             'status':'COMPLETE' if terminal in ('MAX_UPDATES','EARLY_STOPPED') else 'PAUSED',
             'termination_reason':terminal,'segment_updates':segment_updates,'consumed_scenes':consumed,
             'elapsed_seconds':time.perf_counter()-started,'private_parameters':sum(p.numel() for p in params),
+            'peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated(device) if str(device).startswith('cuda') else 0,
+            'peak_cuda_reserved_bytes':torch.cuda.max_memory_reserved(device) if str(device).startswith('cuda') else 0,
             'checkpoint':saved[-1] if saved else c['_resolved_artifact']}
         write_json(output/'RESULT.json',result,immutable=False);return result

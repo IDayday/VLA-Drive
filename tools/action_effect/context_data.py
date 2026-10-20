@@ -22,7 +22,7 @@ class ContextReader:
             verify_artifact(r['shard']);self.checked[str(p)]=stamp;self.cache.pop(str(p),None)
         key=str(p)
         if key not in self.cache:
-            self.cache[key]=torch.load(p,map_location='cpu',weights_only=False);self.loads+=1
+            self.cache[key]=torch.load(p,map_location='cpu',weights_only=False,mmap=True);self.loads+=1
             while len(self.cache)>self.max_shards:self.cache.popitem(last=False)
         self.cache.move_to_end(key);x=self.cache[key][r['shard_offset']]
         if any(x[k]!=r[k] for k in ('scene_id','source_log','role','observation_hash','raw_hash','physical_hash')):
