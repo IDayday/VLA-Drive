@@ -1,0 +1,1961 @@
+{
+  "actual_simulation_budget": {
+    "charged_completed_admissions": 11757,
+    "historical_completed_admissions_reused": 11978,
+    "mutable_counter_snapshot": {
+      "reserved_calls": 11757,
+      "reserved_retries": 0
+    },
+    "note": "Only unique completed admissions referenced by this population; COUNTER includes reserved/orphan slots."
+  },
+  "analysis_wall_seconds": 716.8014842364937,
+  "analyzer_source": {
+    "bytes": 18591,
+    "path": "/mnt/project/VLA-Drive-action-effect-feedback-20261020/tools/action_effect/analyze_physical_interventions.py",
+    "sha256": "e5a075d037dd82a3130bb7c582c8ace2d319d345765b397aefafd99bf5c61c63"
+  },
+  "base_and_verified_target_population_scores": {
+    "all": {
+      "base_mean": 0.9434124732277658,
+      "base_zero": 4,
+      "scenes": 1024,
+      "verified_minimal_target_mean": 0.9475983099331022,
+      "verified_target_zero": 0
+    },
+    "fit": {
+      "base_mean": 0.9450355328445286,
+      "base_zero": 3,
+      "scenes": 791,
+      "verified_minimal_target_mean": 0.9491901431937885,
+      "verified_target_zero": 0
+    },
+    "validation": {
+      "base_mean": 0.9379024296360945,
+      "base_zero": 1,
+      "scenes": 233,
+      "verified_minimal_target_mean": 0.9421942751296567,
+      "verified_target_zero": 0
+    }
+  },
+  "base_score_bins": {
+    "0.8_to_below_0.95": {
+      "fixed_failures": 0,
+      "local_repair": 0,
+      "scenes": 457,
+      "support_only": 0
+    },
+    "at_least_0.95": {
+      "fixed_failures": 0,
+      "local_repair": 0,
+      "scenes": 560,
+      "support_only": 0
+    },
+    "positive_below_0.8": {
+      "fixed_failures": 3,
+      "local_repair": 3,
+      "scenes": 3,
+      "support_only": 0
+    },
+    "zero": {
+      "fixed_failures": 4,
+      "local_repair": 4,
+      "scenes": 4,
+      "support_only": 0
+    }
+  },
+  "base_zero_scenes": 4,
+  "baseline_safety_failure_counts": {
+    "drivable_area_compliance": 4,
+    "no_at_fault_collisions": 0,
+    "time_to_collision_within_bound": 1
+  },
+  "by_kind": {
+    "joint": {
+      "eligible_repair": 3335,
+      "executable_pairs": 3514,
+      "high_light_pairs": 3495,
+      "high_light_score_worsened": 1212,
+      "high_light_to_zero": 109,
+      "high_to_zero": 109,
+      "new_DAC": 109,
+      "new_NC": 0,
+      "new_TTC": 43,
+      "original_high_pairs": 3495,
+      "progress_increase_with_comfort_loss": 6,
+      "progress_increase_with_safety_loss": 68,
+      "safety_gain_with_progress_loss": 6,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.03229368369171591,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 3518,
+        "p25": -0.0031385336604854153,
+        "p75": 0.002644612435202337
+      },
+      "score_improved": 1106,
+      "score_worsened": 1213,
+      "unique_scene_counts": {
+        "high_light_to_zero_scenes": 69,
+        "high_to_zero_scenes": 69,
+        "new_DAC_scenes": 69,
+        "new_TTC_scenes": 26,
+        "valid_pair_scenes": 906
+      },
+      "valid_pairs": 3518
+    },
+    "larger_support": {
+      "eligible_repair": 1976,
+      "executable_pairs": 2617,
+      "high_light_pairs": 849,
+      "high_light_score_worsened": 460,
+      "high_light_to_zero": 134,
+      "high_to_zero": 157,
+      "new_DAC": 141,
+      "new_NC": 23,
+      "new_TTC": 95,
+      "original_high_pairs": 2602,
+      "progress_increase_with_comfort_loss": 8,
+      "progress_increase_with_safety_loss": 108,
+      "safety_gain_with_progress_loss": 5,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.06846996747393941,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2620,
+        "p25": -0.02009653915620116,
+        "p75": 9.703522878989901e-05
+      },
+      "score_improved": 687,
+      "score_worsened": 1135,
+      "unique_scene_counts": {
+        "high_light_to_zero_scenes": 134,
+        "high_to_zero_scenes": 146,
+        "new_DAC_scenes": 130,
+        "new_NC_scenes": 23,
+        "new_TTC_scenes": 86,
+        "valid_pair_scenes": 909
+      },
+      "valid_pairs": 2620
+    },
+    "lateral": {
+      "eligible_repair": 6765,
+      "executable_pairs": 7238,
+      "high_light_pairs": 7186,
+      "high_light_score_worsened": 2691,
+      "high_light_to_zero": 331,
+      "high_to_zero": 331,
+      "new_DAC": 330,
+      "new_NC": 9,
+      "new_TTC": 111,
+      "original_high_pairs": 7186,
+      "progress_increase_with_comfort_loss": 0,
+      "progress_increase_with_safety_loss": 164,
+      "safety_gain_with_progress_loss": 4,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.04798361886523734,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 7238,
+        "p25": -5.578922945176368e-05,
+        "p75": 1.2802757054897196e-05
+      },
+      "score_improved": 2042,
+      "score_worsened": 2700,
+      "unique_scene_counts": {
+        "high_light_to_zero_scenes": 172,
+        "high_to_zero_scenes": 172,
+        "new_DAC_scenes": 170,
+        "new_NC_scenes": 7,
+        "new_TTC_scenes": 44,
+        "valid_pair_scenes": 979
+      },
+      "valid_pairs": 7238
+    },
+    "longitudinal": {
+      "eligible_repair": 6986,
+      "executable_pairs": 7297,
+      "high_light_pairs": 5495,
+      "high_light_score_worsened": 1826,
+      "high_light_to_zero": 10,
+      "high_to_zero": 28,
+      "new_DAC": 27,
+      "new_NC": 1,
+      "new_TTC": 42,
+      "original_high_pairs": 7251,
+      "progress_increase_with_comfort_loss": 11,
+      "progress_increase_with_safety_loss": 50,
+      "safety_gain_with_progress_loss": 5,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.005956827247707124,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 7302,
+        "p25": -0.005163804071808165,
+        "p75": 0.004824125593618861
+      },
+      "score_improved": 2314,
+      "score_worsened": 2420,
+      "unique_scene_counts": {
+        "high_light_to_zero_scenes": 8,
+        "high_to_zero_scenes": 19,
+        "new_DAC_scenes": 18,
+        "new_NC_scenes": 1,
+        "new_TTC_scenes": 22,
+        "valid_pair_scenes": 964
+      },
+      "valid_pairs": 7302
+    },
+    "policy_resample": {
+      "eligible_repair": 2016,
+      "executable_pairs": 2033,
+      "high_light_pairs": 2019,
+      "high_light_score_worsened": 583,
+      "high_light_to_zero": 0,
+      "high_to_zero": 0,
+      "new_DAC": 0,
+      "new_NC": 0,
+      "new_TTC": 2,
+      "original_high_pairs": 2019,
+      "progress_increase_with_comfort_loss": 0,
+      "progress_increase_with_safety_loss": 1,
+      "safety_gain_with_progress_loss": 0,
+      "score_delta": {
+        "max": 0.007469934381200916,
+        "mean": -0.00038367261967519825,
+        "median": 0.0,
+        "min": -0.41666666666666663,
+        "n": 2033,
+        "p25": -0.00014471840485263954,
+        "p75": 0.0002664697801411098
+      },
+      "score_improved": 651,
+      "score_worsened": 585,
+      "unique_scene_counts": {
+        "new_TTC_scenes": 1,
+        "valid_pair_scenes": 1024
+      },
+      "valid_pairs": 2033
+    }
+  },
+  "causal_boundary": "Native first-event time is an observation, not responsibility; support includes held tail after the quintic ramp.",
+  "continuous_road_margin": {
+    "reason": "No audited native continuous road clearance field",
+    "status": "UNAVAILABLE"
+  },
+  "distance_bins": [
+    {
+      "distance_interval_m": [
+        0,
+        0.1
+      ],
+      "introduced_safety": 165,
+      "original_high_pairs": 5640,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.022305764237435497,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 5681,
+        "p25": -2.9088550382305733e-05,
+        "p75": 5.2451033046296835e-05
+      },
+      "valid_pairs": 5681
+    },
+    {
+      "distance_interval_m": [
+        0.1,
+        0.25
+      ],
+      "introduced_safety": 279,
+      "original_high_pairs": 5423,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.041340902725851454,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 5462,
+        "p25": -0.00015032472386011797,
+        "p75": 3.8391766984391396e-06
+      },
+      "valid_pairs": 5462
+    },
+    {
+      "distance_interval_m": [
+        0.25,
+        0.5
+      ],
+      "introduced_safety": 352,
+      "original_high_pairs": 7981,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.03354262739824008,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 8036,
+        "p25": -0.0034927484720163327,
+        "p75": 0.002500218782304997
+      },
+      "valid_pairs": 8036
+    },
+    {
+      "distance_interval_m": [
+        0.5,
+        1
+      ],
+      "introduced_safety": 26,
+      "original_high_pairs": 1756,
+      "score_delta": {
+        "max": 0.382613585344066,
+        "mean": -0.011876801207943356,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 1767,
+        "p25": -0.005587257845003968,
+        "p75": 0.005309087710003435
+      },
+      "valid_pairs": 1767
+    },
+    {
+      "distance_interval_m": [
+        1,
+        2
+      ],
+      "introduced_safety": 64,
+      "original_high_pairs": 1753,
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.023526780468078122,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 1765,
+        "p25": -0.022521174422908352,
+        "p75": 0.016699022364682348
+      },
+      "valid_pairs": 1765
+    },
+    {
+      "distance_interval_m": [
+        2,
+        null
+      ],
+      "introduced_safety": 0,
+      "original_high_pairs": 0,
+      "score_delta": {
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "n": 0,
+        "p25": null,
+        "p75": null
+      },
+      "valid_pairs": 0
+    }
+  ],
+  "fixed_failure_scenes": 7,
+  "full_analysis_artifact": {
+    "bytes": 46360978,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/physical_analysis/8c33c50a05b7a203de81e12d8cad03141340d579c61824ac27006f115e574b30/G0_PHYSICAL_ANALYSIS.json",
+    "sha256": "3f0a92a9b52564f36b1ae18a5b53dded534b5e8e681f1152227bbd2f17561400"
+  },
+  "generalization_boundary": "TRAIN internal fit/validation roles only. Few failures or zero held-out repairs do not establish learned repair generalization.",
+  "identity": "8c33c50a05b7a203de81e12d8cad03141340d579c61824ac27006f115e574b30",
+  "invalid_candidate_status_counts": {
+    "INVALID_GEOMETRIC_PROPOSAL": 2889
+  },
+  "joint_score_interaction": {
+    "max": 1.0,
+    "mean": 0.0012078879005720795,
+    "median": 0.0,
+    "min": -1.0,
+    "n": 3491,
+    "p25": -2.310690805307214e-06,
+    "p75": 2.216642187247153e-06
+  },
+  "minimal_repair_distance_m": {
+    "max": 0.15625000000000006,
+    "mean": 0.12187500000000007,
+    "median": 0.12187500000000015,
+    "min": 0.046875000000000215,
+    "n": 7,
+    "p25": 0.10781250000000003,
+    "p75": 0.15624999999999994
+  },
+  "minimum_repair_kinds": {
+    "lateral": 4,
+    "longitudinal": 3
+  },
+  "no_new_native_build_or_simulation_guard": true,
+  "no_repair_meaning": "No verified repair within this registered budget; not proof of irreparability.",
+  "omitted_matched_joint_records": 3491,
+  "omitted_per_pair_temporal_records": 20678,
+  "pair_count": 20678,
+  "pair_dataset": {
+    "bytes": 277368132,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/PAIR_DATASET.json",
+    "sha256": "ac3b8fac9aa3297058c50f3d1485828b61f1233d20e308ed7f45f86df9b4c06f"
+  },
+  "pair_scene_count": 983,
+  "pair_scenes_by_role": {
+    "fit": 758,
+    "validation": 225
+  },
+  "proposal_budget_curve": [
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 0,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 1,
+      "support_success_scenes": 0
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 2,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 5,
+      "support_success_scenes": 0
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 4,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 9,
+      "support_success_scenes": 0
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 7,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 17,
+      "support_success_scenes": 0
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 7,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 21,
+      "support_success_scenes": 0
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 7,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 24,
+      "support_success_scenes": 6
+    },
+    {
+      "fixed_failure_scenes": 7,
+      "local_repair_scenes": 7,
+      "proposal_slots_including_identity_geometric_rejections_and_duplicates": 26,
+      "support_success_scenes": 7
+    }
+  ],
+  "registration": {
+    "bytes": 2684882,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/REGISTRATION.json",
+    "sha256": "d574bc7a6b62054a975f9c3af2da86dd9596434dabbc76be64fecdcb56b3abbc"
+  },
+  "repair_dataset": {
+    "bytes": 7516932,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/REPAIR_DATASET.json",
+    "sha256": "5c3697801b4da2501b26df712a3fa3ae3773ea30d9e05b6e4ba1b85f2896ad2d"
+  },
+  "requested_scenes": 1024,
+  "roles": {
+    "fit": {
+      "fixed_failures": 6,
+      "requested_scenes": 791,
+      "valid_base": 791,
+      "verified_local_repairs": 6
+    },
+    "validation": {
+      "fixed_failures": 1,
+      "requested_scenes": 233,
+      "valid_base": 233,
+      "verified_local_repairs": 1
+    }
+  },
+  "schema": "action_effect_g0_physical_analysis_v1",
+  "scope": "pilot_train_opportunity_analysis",
+  "score_units": "0..1",
+  "selected_minimal_repairs": [
+    {
+      "distance_m": 0.15625,
+      "maximum_score_eligible_candidate": "intervention_08",
+      "maximum_score_eligible_distance_m": 0.31250000000000006,
+      "maximum_score_eligible_score": 0.8309178789677522,
+      "progress_delta_m": 0.45162123049814085,
+      "role": "fit",
+      "scene_id": "8afa59bb5c6351fc",
+      "score_delta": 0.015855758733282266,
+      "selected_candidate": "intervention_06",
+      "source_log": "2021.07.09.20.26.06_veh-35_00016_01757"
+    },
+    {
+      "distance_m": 0.12187500000000001,
+      "maximum_score_eligible_candidate": "intervention_10",
+      "maximum_score_eligible_distance_m": 0.12187500000000001,
+      "maximum_score_eligible_score": 1.0,
+      "progress_delta_m": -0.0021046156043809106,
+      "role": "fit",
+      "scene_id": "17c63ff4aa80529e",
+      "score_delta": 1.0,
+      "selected_candidate": "intervention_10",
+      "source_log": "2021.06.14.11.44.56_veh-35_02983_03378"
+    },
+    {
+      "distance_m": 0.09375000000000006,
+      "maximum_score_eligible_candidate": "intervention_16",
+      "maximum_score_eligible_distance_m": 0.09375000000000006,
+      "maximum_score_eligible_score": 0.9066679488350586,
+      "progress_delta_m": 0.035979337994682226,
+      "role": "fit",
+      "scene_id": "3d1f42bd5d985690",
+      "score_delta": 0.9066679488350586,
+      "selected_candidate": "intervention_16",
+      "source_log": "2021.10.05.07.38.12_veh-50_00245_00433"
+    },
+    {
+      "distance_m": 0.046875000000000215,
+      "maximum_score_eligible_candidate": "intervention_14",
+      "maximum_score_eligible_distance_m": 0.046875000000000215,
+      "maximum_score_eligible_score": 1.0,
+      "progress_delta_m": 0.021954010108679256,
+      "role": "validation",
+      "scene_id": "9b569faced915852",
+      "score_delta": 1.0,
+      "selected_candidate": "intervention_14",
+      "source_log": "2021.07.09.17.06.37_veh-35_05026_05593"
+    },
+    {
+      "distance_m": 0.12187500000000015,
+      "maximum_score_eligible_candidate": "intervention_10",
+      "maximum_score_eligible_distance_m": 0.12187500000000015,
+      "maximum_score_eligible_score": 0.9606330522338906,
+      "progress_delta_m": -0.010577628190333144,
+      "role": "fit",
+      "scene_id": "86f4d96a6a3855b7",
+      "score_delta": 0.9606330522338906,
+      "selected_candidate": "intervention_10",
+      "source_log": "2021.08.17.13.10.50_veh-08_00122_00295"
+    },
+    {
+      "distance_m": 0.15625000000000006,
+      "maximum_score_eligible_candidate": "intervention_08",
+      "maximum_score_eligible_distance_m": 0.3125,
+      "maximum_score_eligible_score": 0.8341743950534548,
+      "progress_delta_m": 0.45154811183894594,
+      "role": "fit",
+      "scene_id": "dd27cb878ce350a0",
+      "score_delta": 0.01795519832244974,
+      "selected_candidate": "intervention_06",
+      "source_log": "2021.08.17.17.55.18_veh-43_01240_01704"
+    },
+    {
+      "distance_m": 0.15624999999999992,
+      "maximum_score_eligible_candidate": "intervention_17",
+      "maximum_score_eligible_distance_m": 0.4241374519244911,
+      "maximum_score_eligible_score": 0.920089045536649,
+      "progress_delta_m": -0.4886539373591887,
+      "role": "fit",
+      "scene_id": "387cc87877c556fe",
+      "score_delta": 0.3851848281398714,
+      "selected_candidate": "intervention_05",
+      "source_log": "2021.07.16.01.22.41_veh-14_04315_07102"
+    }
+  ],
+  "selected_repair_endpoint_audit": [
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.5180947740586171,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 6.14872812960656,
+        "score": 0.7992061558577571,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 14477,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/8afa59bb5c6351fc/intervention_00/FEEDBACK.json.gz",
+        "sha256": "30ca512c4a7cc92e437f56a2f2f39e68993ccf778ff97ebb3d8eaaf37ac0bae8"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distance_m": 0.15625,
+      "role": "fit",
+      "scene_id": "8afa59bb5c6351fc",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.5561485950184945,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 6.600349360104701,
+        "score": 0.8150619145910394,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14538,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/8afa59bb5c6351fc/intervention_06/FEEDBACK.json.gz",
+        "sha256": "4f327e531f507397f81c2bfecb5afe7241aba07c983bab7f62d7d5a615313294"
+      },
+      "source_log": "2021.07.09.20.26.06_veh-35_00016_01757"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": 1.2000000000000002,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 35.74186962998955,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 14728,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/17c63ff4aa80529e/intervention_00/FEEDBACK.json.gz",
+        "sha256": "0eebc2162ae596eeaa3ab8443cbf4c5141eeaaf1c4c2ebda78044dcf86f6ce0f"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.15,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distance_m": 0.12187500000000001,
+      "role": "fit",
+      "scene_id": "17c63ff4aa80529e",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 1.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 35.73976501438517,
+        "score": 1.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14777,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/17c63ff4aa80529e/intervention_10/FEEDBACK.json.gz",
+        "sha256": "ddad45891ae493db061d042b21d14ed616201154622216896551f4a3a6b15494"
+      },
+      "source_log": "2021.06.14.11.44.56_veh-35_02983_03378"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": 3.5,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 25.87582826932523,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 15022,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/3d1f42bd5d985690/intervention_00/FEEDBACK.json.gz",
+        "sha256": "50224ef4c95dbe87486e8a85fc84a38288678e851798f99a285ec233e57899bb"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3,
+        0.0
+      ],
+      "distance_m": 0.09375000000000006,
+      "role": "fit",
+      "scene_id": "3d1f42bd5d985690",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.7760030772041406,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 25.91180760731991,
+        "score": 0.9066679488350586,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 15090,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/3d1f42bd5d985690/intervention_16/FEEDBACK.json.gz",
+        "sha256": "b7dc3a6b13954a68d9e72ec20c1384c698986eb5a9be9c3902cc64d8b2abd16d"
+      },
+      "source_log": "2021.10.05.07.38.12_veh-50_00245_00433"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": 3.5,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 22.420020041266866,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 14791,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/9b569faced915852/intervention_00/FEEDBACK.json.gz",
+        "sha256": "64ea4c206d15b67e573009f59f03c662cfabaa1b0a96cf9415323977250f6304"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.15,
+        0.0
+      ],
+      "distance_m": 0.046875000000000215,
+      "role": "validation",
+      "scene_id": "9b569faced915852",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 1.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 22.441974051375546,
+        "score": 1.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14839,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/9b569faced915852/intervention_14/FEEDBACK.json.gz",
+        "sha256": "7b19d210975874f35b9c307ae103cd8fd0b16fb3611af50559704551a75d6a2f"
+      },
+      "source_log": "2021.07.09.17.06.37_veh-35_05026_05593"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.0,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": 1.2000000000000002,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 34.4187143352902,
+        "score": 0.0,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 14821,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/86f4d96a6a3855b7/intervention_00/FEEDBACK.json.gz",
+        "sha256": "418e2fe5f98394fc80644b4ddf7650638d8c3c715d64940b74e42c13b5342baf"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.15,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distance_m": 0.12187500000000015,
+      "role": "fit",
+      "scene_id": "86f4d96a6a3855b7",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.9055193253613376,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 34.408136707099864,
+        "score": 0.9606330522338906,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14941,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/86f4d96a6a3855b7/intervention_10/FEEDBACK.json.gz",
+        "sha256": "2f081c4116060fcd302c429ec5082dce10aef43c711bbd595529957a9210ea79"
+      },
+      "source_log": "2021.08.17.13.10.50_veh-08_00122_00295"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.5158339177470793,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 5.405208828621667,
+        "score": 0.7982641323946164,
+        "time_to_collision_within_bound": 1.0
+      },
+      "base_feedback": {
+        "bytes": 14236,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/dd27cb878ce350a0/intervention_00/FEEDBACK.json.gz",
+        "sha256": "617789ee53e3dab3e14a3436b0a5cdf7af3082bdfe6b1d60a09ae410fbc1bae2"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distance_m": 0.15625000000000006,
+      "role": "fit",
+      "scene_id": "dd27cb878ce350a0",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.5589263937209588,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 5.856756940460613,
+        "score": 0.8162193307170661,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14348,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/dd27cb878ce350a0/intervention_06/FEEDBACK.json.gz",
+        "sha256": "dfae076f73c8d5a63fc0d59a2bb126e74d37e504584a2b3879a4bb5c3867705a"
+      },
+      "source_log": "2021.08.17.17.55.18_veh-43_01240_01704"
+    },
+    {
+      "base": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.8471201113861235,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": 4.0,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 5.47866904136729,
+        "score": 0.5196333797442182,
+        "time_to_collision_within_bound": 0.0
+      },
+      "base_feedback": {
+        "bytes": 14851,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/387cc87877c556fe/intervention_00/FEEDBACK.json.gz",
+        "sha256": "3e1a2e1beb5b4442fb737afe31785b290814725e4df2263fcc1575e49b53cd70"
+      },
+      "coefficients": [
+        0.0,
+        0.0,
+        -0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "distance_m": 0.15624999999999992,
+      "role": "fit",
+      "scene_id": "387cc87877c556fe",
+      "selected": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 1.0,
+        "driving_direction_compliance": 1.0,
+        "ego_progress": 0.7715636989218152,
+        "first_at_fault_time_seconds": null,
+        "first_road_time_seconds": null,
+        "first_ttc_state_time_seconds": null,
+        "no_at_fault_collisions": 1.0,
+        "progress_raw_meters": 4.990015104008101,
+        "score": 0.9048182078840896,
+        "time_to_collision_within_bound": 1.0
+      },
+      "selected_feedback": {
+        "bytes": 14772,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/scenes/387cc87877c556fe/intervention_05/FEEDBACK.json.gz",
+        "sha256": "4a9fbe19003a56574940f1c0439ba504aa91a6f0094f6aa0181430a74fcd013a"
+      },
+      "source_log": "2021.07.16.01.22.41_veh-14_04315_07102"
+    }
+  ],
+  "source_logs": 521,
+  "status": "COMPLETE",
+  "temporal_summary_by_role_kind_onset": [
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 79,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 1.9666666666666666,
+            "median": 1.2000000000000002,
+            "min": 1.2000000000000002,
+            "n": 12,
+            "p25": 1.2000000000000002,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.20000000000000018,
+            "mean": -0.06249999999999997,
+            "median": -0.10000000000000009,
+            "min": -0.2999999999999998,
+            "n": 8,
+            "p25": -0.125,
+            "p75": 0.024999999999999967
+          },
+          "repaired_pairs": 4
+        },
+        "ttc": {
+          "introduced_pairs": 31,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 4.0,
+            "mean": 4.0,
+            "median": 4.0,
+            "min": 4.0,
+            "n": 4,
+            "p25": 4.0,
+            "p75": 4.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.19999999999999973,
+            "mean": -0.19999999999999973,
+            "median": -0.19999999999999973,
+            "min": -0.19999999999999973,
+            "n": 2,
+            "p25": -0.19999999999999973,
+            "p75": -0.19999999999999973
+          },
+          "repaired_pairs": 2
+        }
+      },
+      "kind": "joint",
+      "role": "fit",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.030184616213395493,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2731,
+        "p25": -0.0030106232918959974,
+        "p75": 0.002647656332599835
+      },
+      "unique_scenes": 703,
+      "valid_pairs": 2731
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 20,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 114,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 1.9666666666666666,
+            "median": 1.2000000000000002,
+            "min": 1.2000000000000002,
+            "n": 9,
+            "p25": 1.2000000000000002,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.30000000000000027,
+            "mean": 3.700743415417188e-17,
+            "median": -0.050000000000000044,
+            "min": -0.19999999999999973,
+            "n": 6,
+            "p25": -0.10000000000000009,
+            "p75": 0.0749999999999999
+          },
+          "repaired_pairs": 3
+        },
+        "ttc": {
+          "introduced_pairs": 79,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 4.0,
+            "mean": 4.0,
+            "median": 4.0,
+            "min": 4.0,
+            "n": 3,
+            "p25": 4.0,
+            "p75": 4.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -1.4,
+            "mean": -1.4,
+            "median": -1.4,
+            "min": -1.4,
+            "n": 1,
+            "p25": -1.4,
+            "p75": -1.4
+          },
+          "repaired_pairs": 2
+        }
+      },
+      "kind": "larger_support",
+      "role": "fit",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.07187354603012956,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2042,
+        "p25": -0.02032369271612086,
+        "p75": 0.00010289462693266471
+      },
+      "unique_scenes": 710,
+      "valid_pairs": 2042
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 6,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 164,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 1.9666666666666666,
+            "median": 1.2000000000000002,
+            "min": 1.2000000000000002,
+            "n": 12,
+            "p25": 1.2000000000000002,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.40000000000000036,
+            "mean": -0.09999999999999996,
+            "median": -0.10000000000000009,
+            "min": -0.5,
+            "n": 7,
+            "p25": -0.25,
+            "p75": 0.0
+          },
+          "repaired_pairs": 5
+        },
+        "ttc": {
+          "introduced_pairs": 46,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 4.0,
+            "mean": 4.0,
+            "median": 4.0,
+            "min": 4.0,
+            "n": 4,
+            "p25": 4.0,
+            "p75": 4.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.0,
+            "mean": -0.02499999999999991,
+            "median": 0.0,
+            "min": -0.09999999999999964,
+            "n": 4,
+            "p25": -0.02499999999999991,
+            "p75": 0.0
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "lateral",
+      "role": "fit",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.060621277126378575,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2787,
+        "p25": -0.00010344059575689846,
+        "p75": 0.0
+      },
+      "unique_scenes": 709,
+      "valid_pairs": 2787
+    },
+    {
+      "earliest_active_seconds": 2.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 2,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 85,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 1.5,
+            "mean": -0.033333333333333215,
+            "median": -0.7999999999999998,
+            "min": -0.7999999999999998,
+            "n": 12,
+            "p25": -0.7999999999999998,
+            "p75": 1.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.30000000000000027,
+            "mean": -0.009090909090909018,
+            "median": 0.0,
+            "min": -0.19999999999999973,
+            "n": 11,
+            "p25": 0.0,
+            "p75": 0.0
+          },
+          "repaired_pairs": 1
+        },
+        "ttc": {
+          "introduced_pairs": 39,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 2.0,
+            "mean": 2.0,
+            "median": 2.0,
+            "min": 2.0,
+            "n": 4,
+            "p25": 2.0,
+            "p75": 2.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.0,
+            "mean": -0.04999999999999982,
+            "median": -0.04999999999999982,
+            "min": -0.09999999999999964,
+            "n": 4,
+            "p25": -0.09999999999999964,
+            "p75": 0.0
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "lateral",
+      "role": "fit",
+      "score_delta": {
+        "max": 0.9066679488350586,
+        "mean": -0.03374598241422507,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2842,
+        "p25": -2.2729625877182524e-05,
+        "p75": 3.327081913145902e-05
+      },
+      "unique_scenes": 717,
+      "valid_pairs": 2842
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 16,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 1.9666666666666666,
+            "median": 1.2000000000000002,
+            "min": 1.2000000000000002,
+            "n": 12,
+            "p25": 1.2000000000000002,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.30000000000000027,
+            "mean": -0.016666666666666625,
+            "median": -0.04999999999999982,
+            "min": -0.19999999999999973,
+            "n": 12,
+            "p25": -0.10000000000000009,
+            "p75": 0.024999999999999967
+          },
+          "repaired_pairs": 0
+        },
+        "ttc": {
+          "introduced_pairs": 10,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 4.0,
+            "mean": 4.0,
+            "median": 4.0,
+            "min": 4.0,
+            "n": 4,
+            "p25": 4.0,
+            "p75": 4.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.19999999999999973,
+            "mean": -0.2999999999999998,
+            "median": -0.2999999999999998,
+            "min": -0.3999999999999999,
+            "n": 2,
+            "p25": -0.34999999999999987,
+            "p75": -0.24999999999999978
+          },
+          "repaired_pairs": 2
+        }
+      },
+      "kind": "longitudinal",
+      "role": "fit",
+      "score_delta": {
+        "max": 0.3995985890485543,
+        "mean": -0.0069388127688629776,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2776,
+        "p25": -0.004032732408522255,
+        "p75": 0.0038760120674870002
+      },
+      "unique_scenes": 715,
+      "valid_pairs": 2776
+    },
+    {
+      "earliest_active_seconds": 2.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 1,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 6,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 1.5,
+            "mean": -0.033333333333333215,
+            "median": -0.7999999999999998,
+            "min": -0.7999999999999998,
+            "n": 12,
+            "p25": -0.7999999999999998,
+            "p75": 1.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.10000000000000009,
+            "mean": -0.008333333333333267,
+            "median": 0.0,
+            "min": -0.09999999999999964,
+            "n": 12,
+            "p25": 0.0,
+            "p75": 0.0
+          },
+          "repaired_pairs": 0
+        },
+        "ttc": {
+          "introduced_pairs": 20,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 2.0,
+            "mean": 2.0,
+            "median": 2.0,
+            "min": 2.0,
+            "n": 4,
+            "p25": 2.0,
+            "p75": 2.0
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.5,
+            "mean": -0.6499999999999999,
+            "median": -0.6499999999999999,
+            "min": -0.7999999999999998,
+            "n": 2,
+            "p25": -0.7249999999999999,
+            "p75": -0.575
+          },
+          "repaired_pairs": 2
+        }
+      },
+      "kind": "longitudinal",
+      "role": "fit",
+      "score_delta": {
+        "max": 0.3851848281398714,
+        "mean": -0.005148452371384906,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 2885,
+        "p25": -0.007658814087758148,
+        "p75": 0.006963572260922701
+      },
+      "unique_scenes": 737,
+      "valid_pairs": 2885
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 30,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 3.5,
+            "median": 3.5,
+            "min": 3.5,
+            "n": 4,
+            "p25": 3.5,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.19999999999999973,
+            "mean": -0.24999999999999978,
+            "median": -0.24999999999999978,
+            "min": -0.2999999999999998,
+            "n": 2,
+            "p25": -0.2749999999999998,
+            "p75": -0.22499999999999976
+          },
+          "repaired_pairs": 2
+        },
+        "ttc": {
+          "introduced_pairs": 12,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "joint",
+      "role": "validation",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.0396124426285559,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 787,
+        "p25": -0.00358235218466052,
+        "p75": 0.0025744245624783058
+      },
+      "unique_scenes": 203,
+      "valid_pairs": 787
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 3,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 27,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 3.5,
+            "median": 3.5,
+            "min": 3.5,
+            "n": 3,
+            "p25": 3.5,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.19999999999999973,
+            "mean": -0.19999999999999973,
+            "median": -0.19999999999999973,
+            "min": -0.19999999999999973,
+            "n": 1,
+            "p25": -0.19999999999999973,
+            "p75": -0.19999999999999973
+          },
+          "repaired_pairs": 2
+        },
+        "ttc": {
+          "introduced_pairs": 16,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "larger_support",
+      "role": "validation",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.056445560187191456,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 578,
+        "p25": -0.019097585072275047,
+        "p75": 8.881452779957444e-05
+      },
+      "unique_scenes": 199,
+      "valid_pairs": 578
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 1,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 52,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 3.5,
+            "median": 3.5,
+            "min": 3.5,
+            "n": 4,
+            "p25": 3.5,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.2999999999999998,
+            "mean": -0.3999999999999999,
+            "median": -0.3999999999999999,
+            "min": -0.5,
+            "n": 2,
+            "p25": -0.44999999999999996,
+            "p75": -0.34999999999999987
+          },
+          "repaired_pairs": 2
+        },
+        "ttc": {
+          "introduced_pairs": 14,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "lateral",
+      "role": "validation",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.06593340241199117,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 795,
+        "p25": -9.563508879878446e-05,
+        "p75": 0.0
+      },
+      "unique_scenes": 204,
+      "valid_pairs": 795
+    },
+    {
+      "earliest_active_seconds": 2.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 29,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 1.5,
+            "mean": 1.5,
+            "median": 1.5,
+            "min": 1.5,
+            "n": 4,
+            "p25": 1.5,
+            "p75": 1.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": -0.09999999999999964,
+            "mean": -0.1499999999999997,
+            "median": -0.1499999999999997,
+            "min": -0.19999999999999973,
+            "n": 2,
+            "p25": -0.1749999999999997,
+            "p75": -0.12499999999999967
+          },
+          "repaired_pairs": 2
+        },
+        "ttc": {
+          "introduced_pairs": 12,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "lateral",
+      "role": "validation",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.036892871076916585,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 814,
+        "p25": -2.058568319682208e-05,
+        "p75": 3.021075464049172e-05
+      },
+      "unique_scenes": 206,
+      "valid_pairs": 814
+    },
+    {
+      "earliest_active_seconds": 0.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 4,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 3.5,
+            "mean": 3.5,
+            "median": 3.5,
+            "min": 3.5,
+            "n": 4,
+            "p25": 3.5,
+            "p75": 3.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.30000000000000027,
+            "mean": 0.050000000000000266,
+            "median": 2.220446049250313e-16,
+            "min": -0.09999999999999964,
+            "n": 4,
+            "p25": -0.09999999999999964,
+            "p75": 0.15000000000000013
+          },
+          "repaired_pairs": 0
+        },
+        "ttc": {
+          "introduced_pairs": 4,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "longitudinal",
+      "role": "validation",
+      "score_delta": {
+        "max": 0.03967848814987729,
+        "mean": -0.00757259218669,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 805,
+        "p25": -0.004198259895482059,
+        "p75": 0.0035678016605252827
+      },
+      "unique_scenes": 205,
+      "valid_pairs": 805
+    },
+    {
+      "earliest_active_seconds": 2.0,
+      "events": {
+        "collision": {
+          "introduced_pairs": 0,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        },
+        "road": {
+          "introduced_pairs": 1,
+          "observed_base_event_minus_onset_seconds": {
+            "max": 1.5,
+            "mean": 1.5,
+            "median": 1.5,
+            "min": 1.5,
+            "n": 4,
+            "p25": 1.5,
+            "p75": 1.5
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": 0.20000000000000018,
+            "mean": -0.03333333333333307,
+            "median": -0.09999999999999964,
+            "min": -0.19999999999999973,
+            "n": 3,
+            "p25": -0.1499999999999997,
+            "p75": 0.050000000000000266
+          },
+          "repaired_pairs": 1
+        },
+        "ttc": {
+          "introduced_pairs": 8,
+          "observed_base_event_minus_onset_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "observed_modified_minus_base_first_seconds": {
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "n": 0,
+            "p25": null,
+            "p75": null
+          },
+          "repaired_pairs": 0
+        }
+      },
+      "kind": "longitudinal",
+      "role": "validation",
+      "score_delta": {
+        "max": 1.0,
+        "mean": -0.003929888175434083,
+        "median": 0.0,
+        "min": -1.0,
+        "n": 836,
+        "p25": -0.007706183324139276,
+        "p75": 0.007213551411328095
+      },
+      "unique_scenes": 215,
+      "valid_pairs": 836
+    }
+  ],
+  "thresholds": {
+    "fixed_failure_score_below": 0.8,
+    "full_safety_tolerance": 1e-08,
+    "light_intervention_mean_xy_distance_m": 0.5,
+    "original_high_score": 0.8
+  },
+  "validation_receipts": {
+    "pair": {
+      "bytes": 39234069,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/validation_receipts/3a4fa1d027b192528424457f4ae095fb388f8da5a7bb2874cc9496b29ea0366a/5d31d4e7aa3c3d7195e603a8dfbe7c94a22c9d65240647a6e31ee1ee42237261.json",
+      "sha256": "47f4f0f5ce3ed6edba3aeb3baa295430b5c38de0227e3a2b626530859ad5176b"
+    },
+    "repair": {
+      "bytes": 39234071,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024/validation_receipts/d66aa6917c659d7c6fbf1317ed65d5e51ae12ed83be4fe27cd898e3b3ba968da/ed8a4d8a07d428e6dc96e7eac8f6811549c3f3d9f31651e3ab3e0f0351e98d62.json",
+      "sha256": "e4cdb5609d3520af059f5b91d487a0b7d5605f5b1bfd6258d32fdd27aa4abbfe"
+    }
+  }
+}
