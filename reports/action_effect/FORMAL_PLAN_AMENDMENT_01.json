@@ -1,0 +1,35 @@
+{
+  "schema": "action_effect_pre_dev_scoring_amendment_v1",
+  "registered_utc": "2026-10-20T03:20:29.681178+00:00",
+  "parent_plan": {
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/FORMAL_EXPERIMENT_PLAN.json",
+    "sha256": "43b7fb877f1f334d12dac30f10b97ced156c6751a9924db1aeab12946e0c0e21"
+  },
+  "reason": "Complete two required non-learned G2 controls and one dense temporal-grid single-factor G1 comparison; no DEV scores read, no change to main6 G1 or16 A/B runs",
+  "additional_DEV_controls": [
+    "RandomLocal",
+    "FixedLateBrake"
+  ],
+  "control_seed": 42,
+  "control_source_commit": "8759cbf9",
+  "control_inputs": [
+    "original Base physical trajectory",
+    "original fixed FP32 initial noise"
+  ],
+  "no_oracle_search": true,
+  "additional_DEV_native_call_ceiling": 3424,
+  "each_control_max_calls": 1712,
+  "additional_G1_updates_ceiling": 1000,
+  "additional_G1_run": {
+    "arm": "delta_feedback",
+    "temporal_loss_weight": 0,
+    "seed": 42,
+    "updates": 1000,
+    "other_losses_and_sampler": "unchanged",
+    "output": "g1_ablation/no_temporal/seed_42"
+  },
+  "updated_total_training_update_ceiling": 23000,
+  "updated_DEV_policy_count_including_S0": 19,
+  "no_DEV_tuning": true,
+  "original_plan_immutable": true
+}
