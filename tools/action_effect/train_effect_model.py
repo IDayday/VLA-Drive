@@ -48,10 +48,8 @@ class PairData:
             raise ValueError('Effect pair completion/registration/Base identity mismatch')
         # First-access full source chain validation; never rely on a manifest
         # existing while its native feedback or scene receipt has disappeared.
-        from .build_effect_pairs import build as rebuild_compact
-        expected=rebuild_compact(Path(m['registration']['path']).parent)
-        if expected['pair_dataset']['sha256']!=artifact(path)['sha256']:
-            raise ValueError('Compact pair rows differ from their verified native candidates')
+        from .verified_data import validate_compact_dataset
+        self.validation_receipt=validate_compact_dataset(path,kind='pair')
         self.reader=reader;self.by_scene={};self.validation=[];self.names=None;groups={'fit':set(),'validation':set()}
         for r in m['entries']:
             verify_identity(r)

@@ -185,10 +185,8 @@ def load_flow_examples(repair_dataset,reader):
             registration['binding_identity']!=reader.binding['identity'] or
             completion['registration_identity']!=registration['identity']):
         raise ValueError('Repair dataset and frozen context/Base differ')
-    from .build_effect_pairs import build as rebuild_compact
-    rebuilt=rebuild_compact(Path(dataset['registration']['path']).parent)
-    if rebuilt['repair_dataset']['sha256']!=artifact(repair_dataset)['sha256']:
-        raise ValueError('IEG compact targets differ from verified native receipt reconstruction')
+    from .verified_data import validate_compact_dataset
+    native_validation=validate_compact_dataset(repair_dataset,kind='repair')
     if len({r['scene_id'] for r in dataset['entries']})!=len(dataset['entries']):
         raise ValueError('Duplicated G0 repair scene')
     examples=[];counts={'requested':len(dataset['entries']),'excluded_validation':0,'untrainable':0,'repairs':0,'preserve':0}
@@ -225,7 +223,7 @@ def load_flow_examples(repair_dataset,reader):
         counts['preserve' if preserve else 'repairs']+=1
     if not counts['repairs']:raise ValueError('BLOCKED_NO_REPAIR: no verified local repair fit scenes')
     if not counts['preserve']:raise ValueError('BLOCKED_NO_KEEP: no valid high-quality replay')
-    return examples,{'dataset':artifact(repair_dataset),'counts':counts,'label_spec':label_spec,
+    return examples,{'dataset':artifact(repair_dataset),'native_validation':native_validation,'counts':counts,'label_spec':label_spec,
                      'repair_log_count':len({r['source_log'] for r in examples if r['is_repair']})}
 
 
