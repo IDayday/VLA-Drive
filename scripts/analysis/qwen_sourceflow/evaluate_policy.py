@@ -39,9 +39,12 @@ def main():
     p.add_argument('--rank',type=int,default=0);p.add_argument('--world',type=int,default=1)
     p.add_argument('--qualification',action='store_true');p.add_argument('--limit',type=int)
     p.add_argument('--parent-selection');p.add_argument('--rl-export',help='Sealed FP32 merged native action export')
+    p.add_argument('--interim-navtest-registration',help='Explicit user-requested, fully registered intermediate IL Navtest')
     a=p.parse_args();host=require_dispatch();configure_native_numerics();torch.set_num_threads(4);torch.cuda.set_device(0)
     torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
     if a.limit and not a.qualification:raise ValueError('No partial population in formal evaluation')
+    if a.interim_navtest_registration and (a.cohort!='NAVTEST' or a.qualification or a.limit or a.parent_selection or a.rl_export):
+        raise ValueError('Interim IL Navtest cannot use qualification/subsets/RL/parent-selection')
     root=Path(a.output);root.mkdir(parents=True,exist_ok=True)
     (root/'scenes').mkdir(exist_ok=True);(root/'invocations').mkdir(exist_ok=True)
     lock=(root/f'rank{a.rank}.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -49,7 +52,11 @@ def main():
     data=RawSceneData(a.data,cohort=a.cohort);tokens=data.tokens[:a.limit] if a.limit else data.tokens
     if not 0<=a.rank<a.world:raise ValueError('Bad evaluation shard')
     model,parent=load_il(a.checkpoint,device=device,qualification=a.qualification)
-    if not a.qualification and a.cohort=='NAVTEST':
+    interim=None
+    if a.interim_navtest_registration:
+        from starVLA.rl.qwen_sourceflow.interim_evaluation import validate_interim_registration
+        interim=validate_interim_registration(a.interim_navtest_registration,parent,data,tokens,root)
+    elif not a.qualification and a.cohort=='NAVTEST':
         from starVLA.rl.qwen_sourceflow.selection import validate_selection
         validate_selection(a.parent_selection,parent)
     export_identity=None
@@ -70,6 +77,7 @@ def main():
         metric='canonical_NAVSIM_v1.1',protocol=service.protocol,seed=2101,
         inference='single_candidate_source_shift5_ODE_K10',qualification=a.qualification,
         precision='FP32 storage/action; BF16 Qwen/provider prefill; FP32 ODE latent',source_files=source_files())
+    if interim is not None:identity['user_requested_interim_navtest']=interim
     identity['sha256']=fingerprint(identity)
     # One common file under a filesystem lock, independent of worker ordering.
     with (root/'identity.lock').open('a') as lk:
