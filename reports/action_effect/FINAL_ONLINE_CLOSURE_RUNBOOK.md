@@ -197,3 +197,34 @@ auxiliary parameters, strictly reloads against the exact same head object and
 preserves its Euler10 output. Tiny fixtures are explicit unit tests; no S0
 weight, real GPU deployment, final1000 checkpoint or scientific gain is claimed
 by these tests. Actual online closure remains `WAITING_INPUTS` until executed.
+
+## A1 effect-guidance and deployment boundary
+
+The primary A1 export removes its frozen G1 effect teacher. The deployed module
+is the small trajectory refiner plus the preliminary geometric screen; it does
+not output a validated prediction of physical improvement or calibrated repair
+confidence. `deploy(predict_effect=True)` is an optional code path requiring a
+separately retained own G1 model. That path is not used by the primary export,
+is not included in its latency/parameter claim, and has not established online
+effect-prediction or confidence-calibration qualification. No teacher is added
+to the primary deployment to fill that reporting gap.
+
+During A1 training, the frozen G1 model reads current context, Base trajectory
+and the refiner's proposed trajectory. Autograd through this learned proxy
+provides input gradients to the refiner. These are learned surrogate gradients,
+not official simulator derivatives, verified local finite-difference gradients
+or a guarantee of physical improvement. Refiner coefficient scales allow
+longitudinal2m / lateral0.6m, while typical single-axis G0 grid probes use1m /
+0.3m radii. Validity or useful gradients for arbitrary combinations and larger
+radii therefore require actual held-out simulation evidence. Existing geometric
+acceptance does not establish native safety or that the teacher interpolates
+within verified support. Bounds and thresholds will not be adjusted after
+reading DEV outcomes to manufacture a favorable result.
+
+The main B1-effect method has a different boundary: its auxiliary labels and
+teacher embeddings come from the two endpoints of an actually simulated pair.
+It does not backpropagate G1 through arbitrary `eps + velocity` endpoints. Its
+effect heads and teacher are also training-only; deployed B remains a velocity
+adapter within one original Euler10 generation. Whether either learned method
+improves physical outcomes remains a separate measured research result, and
+negative results must be retained.
