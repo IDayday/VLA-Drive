@@ -1,0 +1,577 @@
+{
+  "affected_CPU_tests": {
+    "command": "env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_flow_resume_evidence_independent.py",
+    "failed": 0,
+    "passed": 6,
+    "seconds": 1.2,
+    "skipped": 0,
+    "warnings": [
+      "existing pynvml deprecation"
+    ]
+  },
+  "all16_sample_sequences_hash": "9922668cd38201271f227b1fa6a51587f98349e19eba65008a833affc146cdfa",
+  "checkpoint_name_mapping_summary": {
+    "continuous16": {
+      "active_Adam_names": 49,
+      "consumed_scenes": 512,
+      "dormant_B0_aux_without_state": [
+        "adapter.effect_projection.weight",
+        "adapter.effect_projection.bias",
+        "adapter.effect_head.weight",
+        "adapter.effect_head.bias"
+      ],
+      "optimizer_name_order_hash": "6c604c3158fae219544ab045980d0a2cbe928bacfb4dbeaa8a0017d700fb71ee",
+      "private_parameter_count": 2775567,
+      "private_tensor_count": 53,
+      "step": 16
+    },
+    "continuous9": {
+      "active_Adam_names": 49,
+      "consumed_scenes": 288,
+      "dormant_B0_aux_without_state": [
+        "adapter.effect_projection.weight",
+        "adapter.effect_projection.bias",
+        "adapter.effect_head.weight",
+        "adapter.effect_head.bias"
+      ],
+      "optimizer_name_order_hash": "6c604c3158fae219544ab045980d0a2cbe928bacfb4dbeaa8a0017d700fb71ee",
+      "private_parameter_count": 2775567,
+      "private_tensor_count": 53,
+      "step": 9
+    },
+    "resumed16": {
+      "active_Adam_names": 49,
+      "consumed_scenes": 512,
+      "dormant_B0_aux_without_state": [
+        "adapter.effect_projection.weight",
+        "adapter.effect_projection.bias",
+        "adapter.effect_head.weight",
+        "adapter.effect_head.bias"
+      ],
+      "optimizer_name_order_hash": "6c604c3158fae219544ab045980d0a2cbe928bacfb4dbeaa8a0017d700fb71ee",
+      "private_parameter_count": 2775567,
+      "private_tensor_count": 53,
+      "step": 16
+    },
+    "resumed8": {
+      "active_Adam_names": 49,
+      "consumed_scenes": 256,
+      "dormant_B0_aux_without_state": [
+        "adapter.effect_projection.weight",
+        "adapter.effect_projection.bias",
+        "adapter.effect_head.weight",
+        "adapter.effect_head.bias"
+      ],
+      "optimizer_name_order_hash": "6c604c3158fae219544ab045980d0a2cbe928bacfb4dbeaa8a0017d700fb71ee",
+      "private_parameter_count": 2775567,
+      "private_tensor_count": 53,
+      "step": 8
+    },
+    "resumed9": {
+      "active_Adam_names": 49,
+      "consumed_scenes": 288,
+      "dormant_B0_aux_without_state": [
+        "adapter.effect_projection.weight",
+        "adapter.effect_projection.bias",
+        "adapter.effect_head.weight",
+        "adapter.effect_head.bias"
+      ],
+      "optimizer_name_order_hash": "6c604c3158fae219544ab045980d0a2cbe928bacfb4dbeaa8a0017d700fb71ee",
+      "private_parameter_count": 2775567,
+      "private_tensor_count": 53,
+      "step": 9
+    }
+  },
+  "checkpoint_state_comparisons": {
+    "16": {
+      "all_history_except_wall_seconds": {
+        "exact": true,
+        "typed_byte_sha256": "1260600e4b9be0f1bd1130e0aad68b5b7ab340c47843af0a7078affe0284fe58"
+      },
+      "consumed_scenes": {
+        "exact": true,
+        "typed_byte_sha256": "b30eb7810d173fca777d6ed55c67d29d9e791f36c66d2864e36ca23e5a2d12f7"
+      },
+      "model": {
+        "exact": true,
+        "typed_byte_sha256": "978712083056601d9eca9831d11c6c170e5c2955fcb672304b29d467ace371aa"
+      },
+      "optimizer": {
+        "exact": true,
+        "typed_byte_sha256": "a133872e21abeeb4d29cd168f93101ccda1d981107fb95c9cdf7b517c4dd569f"
+      },
+      "optimizer_step": {
+        "exact": true,
+        "typed_byte_sha256": "4a760952e8989a0b21548f11112fbbe1b67c7a9743369c60bd5a4810b82aaa4d"
+      },
+      "rng": {
+        "exact": true,
+        "typed_byte_sha256": "af7bd7d9008dd31c974d92fc8dc9d9f6cf24957dd9ad5a3dbbe35a6fdcf21ab0"
+      },
+      "run_identity": {
+        "exact": true,
+        "typed_byte_sha256": "45a42d1e37769b85c1ee618433afa8e29dea2c0dcd0df42158a52f7a5ff665e4"
+      },
+      "sampler": {
+        "exact": true,
+        "typed_byte_sha256": "cfcf0bc19f3d071c28317d997b114f5cfe3b00d4eeb67fe3d14b7bb018bd6d2a"
+      },
+      "scheduler": {
+        "exact": true,
+        "typed_byte_sha256": "d693f68e20d47ec083d8de25d5eb77b2c41285f7030c1aa7ae822748fcb71782"
+      },
+      "stateful": {
+        "exact": true,
+        "typed_byte_sha256": "2a4b4fd4292800d0ce95acf1ac7a4a0d81ce86ffe16f146c6bc410437ce44c8e"
+      },
+      "terminal": {
+        "exact": true,
+        "typed_byte_sha256": "50870ea2c0d82b5b575c8cd5d7956999f85a91f347caa4ab773de809eb0a0397"
+      },
+      "termination_reason": {
+        "exact": true,
+        "typed_byte_sha256": "b70608d9473737ea5cebbdd1ba4c9bf0095183221c97565260cba485ffa9dfc0"
+      }
+    },
+    "9": {
+      "all_history_except_wall_seconds": {
+        "exact": true,
+        "typed_byte_sha256": "9fce70d58dd48a50864e3ee3cc6a8b5fae164fcae2bdcc953d81ff420ac96c3b"
+      },
+      "consumed_scenes": {
+        "exact": true,
+        "typed_byte_sha256": "6ba06c057d72009285ab01f93d770f8e34d21ac518b88431b35ece4bc27d7cf7"
+      },
+      "model": {
+        "exact": true,
+        "typed_byte_sha256": "c3ba0e2396b3eff7e10e76ae27f81ee82f791fb5e04bd52a2c53e402b7126cad"
+      },
+      "optimizer": {
+        "exact": true,
+        "typed_byte_sha256": "855f3d2df022fc807a2be223670a442ffd117a81997569eae6e79c4b5752de2c"
+      },
+      "optimizer_step": {
+        "exact": true,
+        "typed_byte_sha256": "0d6f60e0de356255c373f2c0d5a85b5882b3976704e2566a6fdf3e0014951676"
+      },
+      "rng": {
+        "exact": true,
+        "typed_byte_sha256": "af7bd7d9008dd31c974d92fc8dc9d9f6cf24957dd9ad5a3dbbe35a6fdcf21ab0"
+      },
+      "run_identity": {
+        "exact": true,
+        "typed_byte_sha256": "45a42d1e37769b85c1ee618433afa8e29dea2c0dcd0df42158a52f7a5ff665e4"
+      },
+      "sampler": {
+        "exact": true,
+        "typed_byte_sha256": "9ee1c6b85f73512632d63aaef35c74853c43d9d354e846dfcf303c248f4a839b"
+      },
+      "scheduler": {
+        "exact": true,
+        "typed_byte_sha256": "0b7aaf2a3e1ce1ecf0646bbd3f858ef64b74f8d0c63e37a83ebd7396991e810e"
+      },
+      "stateful": {
+        "exact": true,
+        "typed_byte_sha256": "c0798ba86743a0c2ebe61a5cb498030866fb42cf8c53314170da9cfe72180154"
+      },
+      "terminal": {
+        "exact": true,
+        "typed_byte_sha256": "50870ea2c0d82b5b575c8cd5d7956999f85a91f347caa4ab773de809eb0a0397"
+      },
+      "termination_reason": {
+        "exact": true,
+        "typed_byte_sha256": "612c6795e628d083b466d043fcbac6eb8a6f39113d17430c561d435fe17c7abf"
+      }
+    }
+  },
+  "checkpoints": {
+    "continuous16": {
+      "bytes": 32839064,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000016.pt",
+      "sha256": "f01c99e00a7d927a067c3401c1eddb83a87d32deeb24490946d2208e8dd40e57"
+    },
+    "continuous9": {
+      "bytes": 32837592,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000009.pt",
+      "sha256": "a901f26b8e9d20c5be46a30912f431c6db460e744d03dcc8d467aba27a680883"
+    },
+    "resumed16": {
+      "bytes": 32839512,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000016.pt",
+      "sha256": "0cbce88cd93a31be1bdd50a192d7e1eca93c2cec4f618fc310b28192259933b0"
+    },
+    "resumed8": {
+      "bytes": 32837400,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000008.pt",
+      "sha256": "67f1604a7dc0a98cd1b535423258107e9664391787b3ef19120c60adede79c66"
+    },
+    "resumed9": {
+      "bytes": 32838040,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000009.pt",
+      "sha256": "39b42d59348a3e87d60e6129dce24a3131b55fe73d4fa1db9f3bd5a4cc4edd18"
+    }
+  },
+  "continuous8_prefix_history_exact": true,
+  "data": {
+    "Base_binding_hash": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+    "Base_head_rehashed_by_this_read_only_audit": false,
+    "context": {
+      "bytes": 47227,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+      "sha256": "87f41bba893d5359a9b6b3e77a38cef5b2609e3ed626ff4f94268a767de6a213"
+    },
+    "head_artifact_expected_pin": {
+      "bytes": 3278134372,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/S0_ACTION_HEAD.pt",
+      "sha256": "ac5cd7fc70cd07c12ab906ed21f242202875ffae93a710576487dec3da2de508"
+    },
+    "head_receipt": {
+      "bytes": 393,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/S0_ACTION_HEAD.COMPLETE.json",
+      "sha256": "67e7661a97b17d9571ebc4363397abc9a8e3942eaa0c1f9f0d6972eb416b0c46"
+    },
+    "keep_scenes": 44,
+    "repair_dataset": {
+      "bytes": 470797,
+      "path": "/mnt/project/action-effect-repair-20261020/g0/population_000064/REPAIR_DATASET.json",
+      "sha256": "198d559133160876f7e14271acc69fcbc414018f3326f99e2b0418931483f994"
+    },
+    "repair_scenes": 1,
+    "unique_fit_scenes": 45,
+    "virtual_reference_count": 88
+  },
+  "dormant_B0_aux_unchanged_across_all_boundaries": true,
+  "execution_log": {
+    "bytes": 610,
+    "path": "/mnt/project/VLA-Drive-effect-flow-resume-audit-20261020/.cache/B0_CUDA_RESUME_INDEPENDENT_FINAL.log",
+    "sha256": "4258ba54c262faf81187dab5f678870dc34d6ab37d8ab3bff64963ae5aff35b5"
+  },
+  "full_independent_report": {
+    "bytes": 41946,
+    "path": "/mnt/project/VLA-Drive-effect-flow-resume-audit-20261020/.cache/B0_CUDA_RESUME_INDEPENDENT_FINAL.json",
+    "sha256": "d6f260ec3c1a5ed6eb77495256ec0e9310f98576b5c33deb7630ec0a0c960cbc"
+  },
+  "independent_auditor_source": {
+    "bytes": 19126,
+    "path": "/mnt/project/VLA-Drive-effect-flow-resume-audit-20261020/tools/action_effect/audit_flow_resume_evidence.py",
+    "sha256": "715bfd130b3457f08b6dd8b3eea2cd10097f80f6198d1e81d1891fe621ce98b1"
+  },
+  "launches": [
+    {
+      "CUDA_allocated_bytes": 3521255424,
+      "CUDA_reserved_bytes": 3659530240,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.action_effect.train_effect_flow",
+        "--config",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/QUALIFICATION_CONFIG.json",
+        "--context-manifest",
+        "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+        "--repair-dataset",
+        "/mnt/project/action-effect-repair-20261020/g0/population_000064/REPAIR_DATASET.json",
+        "--arm",
+        "B0",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-updates",
+        "1000",
+        "--stop-after",
+        "16",
+        "--output",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16"
+      ],
+      "new_updates": 16,
+      "stderr": {
+        "bytes": 332,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16_target16_1792468177620804269.stderr.log",
+        "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+      },
+      "stdout": {
+        "bytes": 1465,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16_target16_1792468177620804269.stdout.log",
+        "sha256": "30339da696e4a3bea9621c2c69b6829bcc7e9c3657a0bfc75991771062817500"
+      },
+      "step": 16
+    },
+    {
+      "CUDA_allocated_bytes": 3521255424,
+      "CUDA_reserved_bytes": 3659530240,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.action_effect.train_effect_flow",
+        "--config",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/QUALIFICATION_CONFIG.json",
+        "--context-manifest",
+        "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+        "--repair-dataset",
+        "/mnt/project/action-effect-repair-20261020/g0/population_000064/REPAIR_DATASET.json",
+        "--arm",
+        "B0",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-updates",
+        "1000",
+        "--stop-after",
+        "8",
+        "--output",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8"
+      ],
+      "new_updates": 8,
+      "stderr": {
+        "bytes": 332,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target08_1792468207511450368.stderr.log",
+        "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+      },
+      "stdout": {
+        "bytes": 1461,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target08_1792468207511450368.stdout.log",
+        "sha256": "1d3eda938783e759a513030de107a9e48d0b0b047b593959dd5082cf8984f5b0"
+      },
+      "step": 8
+    },
+    {
+      "CUDA_allocated_bytes": 3521255424,
+      "CUDA_reserved_bytes": 3659530240,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.action_effect.train_effect_flow",
+        "--config",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/QUALIFICATION_CONFIG.json",
+        "--context-manifest",
+        "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+        "--repair-dataset",
+        "/mnt/project/action-effect-repair-20261020/g0/population_000064/REPAIR_DATASET.json",
+        "--arm",
+        "B0",
+        "--device",
+        "cuda:0",
+        "--seed",
+        "42",
+        "--max-updates",
+        "1000",
+        "--stop-after",
+        "8",
+        "--output",
+        "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8",
+        "--resume"
+      ],
+      "new_updates": 8,
+      "stderr": {
+        "bytes": 332,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target16_1792468234843282202.stderr.log",
+        "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+      },
+      "stdout": {
+        "bytes": 915,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target16_1792468234843282202.stdout.log",
+        "sha256": "3497c50ff5000de94d9b6ee0449b9498ecdf1ab1a53f17b393788e26c0ee3554"
+      },
+      "step": 16
+    }
+  ],
+  "limitations": [
+    "Full per-parameter gradients were not saved; exact recorded gradient norms and updates were checked.",
+    "CUDA RNG bytes were checked, not advanced on a new GPU.",
+    "Base 3.3GB frozen head hash is inherited from the checked original-head receipt; no new full-head scan.",
+    "Checkpoint16 is OPERATOR_PAUSED under original1000 axis; terminal zero-update CUDA resume NOT_RUN.",
+    "Does not qualify B1-effect auxiliary gradients, production DDP, cross-device continuation or scientific gain."
+  ],
+  "new_GPU_calls": 0,
+  "new_backward_or_updates": 0,
+  "new_forwards": 0,
+  "new_simulations": 0,
+  "next9_scene_ids_hash": "88b3d7a3666d33497c48e9c655b8e8966282c75613ba71935e03dc7bf0d22ee5",
+  "next9_scene_ids_in_full_report": true,
+  "original_artifact_pins": [
+    {
+      "bytes": 621,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/COMPLETE.json",
+      "sha256": "c5089a814919e7a123dd38914ef8a39095f27aa94d1b10be9af0b2574ce505c8"
+    },
+    {
+      "bytes": 39235,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/RESULT.json",
+      "sha256": "d321b8661effb688dc192115e5f75967abc38499e98b34a3b147ae413bf046d6"
+    },
+    {
+      "bytes": 1108,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/IDENTITY.json",
+      "sha256": "1ed7a71769a21e4fd296ee609109f820e9634f0b1e2553539f496d7b5ac5cf3a"
+    },
+    {
+      "bytes": 1309,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/QUALIFICATION_CONFIG.json",
+      "sha256": "489f2dfd5ebe18768da0a01018816ce580a689c1d60beda3f1091edaa510166e"
+    },
+    {
+      "bytes": 1061,
+      "path": "/mnt/project/VLA-Drive-effect-flow-resume-20261020/configs/action_effect/main.yaml",
+      "sha256": "55d2d0f44c5474b53272f8075f068162aa6e0be3235c1dd67cc6c56d9b121785"
+    },
+    {
+      "bytes": 6783,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/IDENTITY.json",
+      "sha256": "f1846d302abc5ca303551349c954e07f8ab209f2deecc7674423ba785c7ab90e"
+    },
+    {
+      "bytes": 6783,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/IDENTITY.json",
+      "sha256": "f1846d302abc5ca303551349c954e07f8ab209f2deecc7674423ba785c7ab90e"
+    },
+    {
+      "bytes": 47227,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+      "sha256": "87f41bba893d5359a9b6b3e77a38cef5b2609e3ed626ff4f94268a767de6a213"
+    },
+    {
+      "bytes": 470797,
+      "path": "/mnt/project/action-effect-repair-20261020/g0/population_000064/REPAIR_DATASET.json",
+      "sha256": "198d559133160876f7e14271acc69fcbc414018f3326f99e2b0418931483f994"
+    },
+    {
+      "bytes": 12638,
+      "path": "/mnt/project/action-effect-repair-20261020/CAMPAIGN_BINDING.json",
+      "sha256": "1c24472ec699eb9937ce9c6811cb74c276cda8c14f5cc5b27c3fd02151cf8b64"
+    },
+    {
+      "bytes": 172649,
+      "path": "/mnt/project/action-effect-repair-20261020/g0/population_000064/REGISTRATION.json",
+      "sha256": "78a603878ed360fd0e400899b8d58ee24b87ce3c6f615f771f904302aeb737be"
+    },
+    {
+      "bytes": 15156,
+      "path": "/mnt/project/action-effect-repair-20261020/g0/population_000064/COMPLETE.json",
+      "sha256": "cf2d083a76b7d144e2e41883a2a479b85d042d345c408152af4a4a8ff3bdcc5c"
+    },
+    {
+      "bytes": 393,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/S0_ACTION_HEAD.COMPLETE.json",
+      "sha256": "67e7661a97b17d9571ebc4363397abc9a8e3942eaa0c1f9f0d6972eb416b0c46"
+    },
+    {
+      "bytes": 32839064,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000016.pt",
+      "sha256": "f01c99e00a7d927a067c3401c1eddb83a87d32deeb24490946d2208e8dd40e57"
+    },
+    {
+      "bytes": 478,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000016.COMPLETE.json",
+      "sha256": "4644ab9c60e2b4fdb9ded76d1de0366bddde34eba89810312cb3b73261021881"
+    },
+    {
+      "bytes": 32837592,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000009.pt",
+      "sha256": "a901f26b8e9d20c5be46a30912f431c6db460e744d03dcc8d467aba27a680883"
+    },
+    {
+      "bytes": 480,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16/step_000009.COMPLETE.json",
+      "sha256": "7926d36f38bbc733b119a3ab95d05dc0e35a2b8142b10cad89944e97997b5282"
+    },
+    {
+      "bytes": 32839512,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000016.pt",
+      "sha256": "0cbce88cd93a31be1bdd50a192d7e1eca93c2cec4f618fc310b28192259933b0"
+    },
+    {
+      "bytes": 477,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000016.COMPLETE.json",
+      "sha256": "7eba16b29e42381bc0d362a1f086b21178512e8a7cdc5a09cdf0814ec28e4fb8"
+    },
+    {
+      "bytes": 32837400,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000008.pt",
+      "sha256": "67f1604a7dc0a98cd1b535423258107e9664391787b3ef19120c60adede79c66"
+    },
+    {
+      "bytes": 476,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000008.COMPLETE.json",
+      "sha256": "71234139bce43e551872e83c96ff66bbbbb49b793f2999dc8d04bc1cbeedad6f"
+    },
+    {
+      "bytes": 32838040,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000009.pt",
+      "sha256": "39b42d59348a3e87d60e6129dce24a3131b55fe73d4fa1db9f3bd5a4cc4edd18"
+    },
+    {
+      "bytes": 479,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/step_000009.COMPLETE.json",
+      "sha256": "0fcb690f2f34c101e74c13da40e81368f2ca6b06da06a2160f53ce29ac418929"
+    },
+    {
+      "bytes": 3194,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/DISPATCH_BUDGET.json",
+      "sha256": "12832cafb5491b1b6a253ac23b035c188bdf969e94d98efd0bd2a49a8e5bc7dc"
+    },
+    {
+      "bytes": 1465,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16_target16_1792468177620804269.stdout.log",
+      "sha256": "30339da696e4a3bea9621c2c69b6829bcc7e9c3657a0bfc75991771062817500"
+    },
+    {
+      "bytes": 332,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/continuous16_target16_1792468177620804269.stderr.log",
+      "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+    },
+    {
+      "bytes": 1461,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target08_1792468207511450368.stdout.log",
+      "sha256": "1d3eda938783e759a513030de107a9e48d0b0b047b593959dd5082cf8984f5b0"
+    },
+    {
+      "bytes": 332,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target08_1792468207511450368.stderr.log",
+      "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+    },
+    {
+      "bytes": 915,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target16_1792468234843282202.stdout.log",
+      "sha256": "3497c50ff5000de94d9b6ee0449b9498ecdf1ab1a53f17b393788e26c0ee3554"
+    },
+    {
+      "bytes": 332,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8_target16_1792468234843282202.stderr.log",
+      "sha256": "f50cc05081d949b76492731e55e5ad8af7c2ee2e6658bf518b49e0a7efb9b0cf"
+    },
+    {
+      "bytes": 306,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1/split8plus8/RESUME_RESOLUTION.json",
+      "sha256": "09186fd83efae927a9991f276a89313a231c9b43e87c10fe2dd5a0b4bf0a6193"
+    }
+  ],
+  "original_artifacts_unchanged": true,
+  "qualification_root": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/flow_real_resume16_v1",
+  "runtime": {
+    "autocast": "disabled",
+    "cuda": "12.4",
+    "cudnn_benchmark": false,
+    "cudnn_tf32": false,
+    "deterministic": true,
+    "device": "cuda:0",
+    "gpu_name": "NVIDIA A800-SXM4-80GB",
+    "matmul_tf32": false,
+    "torch": "2.5.1+cu124",
+    "trainable_dtype": "float32"
+  },
+  "schema": "action_effect_independent_B0_CUDA_resume_audit_v1",
+  "scope": "B0 single-CUDA private velocity adapter numerical continuation only",
+  "source_commit": "1ae4d3dcf84cecd0313548d597456298d5633ab6",
+  "source_file_hashes": {
+    "starVLA/model/framework/effect_internalized_flow.py": "3039ae5e4c3c1b25610c16781365bfba1792a1accb886fcf2d928649ce4d7a22",
+    "starVLA/model/modules/action_effect/effect_distillation.py": "a83b166f764a76b44c66bc9318bc0bc729b93aabf4ab83b0a0b34779cc74f836",
+    "starVLA/model/modules/action_effect/effect_flow_adapter.py": "ce5c9408bfe636fa55a1fe05359a0eff42e06df0f31f23d6ad7bebbce31e1b6b",
+    "tools/action_effect/qualify_flow_resume.py": "993e8f7e8167c268cfe5b2c15c55e6c9aae292218b46db8258c09a5d64ff2c8f",
+    "tools/action_effect/train_effect_flow.py": "a361937004a30866ff77897007e15106acb717e6f646dd1dcb1a1a55e382f5e8",
+    "tools/action_effect/training.py": "ce1e654b14631a3182aa403dca73a3fd59abd043c3641264dedf44ce40afa0db"
+  },
+  "status": "PASS",
+  "updated_parameter_count8to9": 49,
+  "wall_seconds": 1.2081050127744675
+}
