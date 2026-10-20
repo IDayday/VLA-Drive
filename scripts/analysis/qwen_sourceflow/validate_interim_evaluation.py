@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 from starVLA.rl.qwen_sourceflow.contracts import fingerprint
 from starVLA.rl.qwen_sourceflow.interim_evaluation import validate_interim_registration
 
@@ -43,6 +44,15 @@ class RegistrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):self.run_check(dict(used_for_training_or_tuning=True))
     def test_seed_fixed(self):
         with self.assertRaises(ValueError):self.run_check(dict(seed=42))
+
+    def test_navtest_cache_routing(self):
+        from scripts.analysis.qwen_sourceflow.evaluate_policy import evaluation_caches,NAVTEST_CACHE,TRAIN_DEV_CACHES
+        self.assertEqual(evaluation_caches('NAVTEST'),[NAVTEST_CACHE])
+        self.assertEqual(evaluation_caches('DEV'),TRAIN_DEV_CACHES)
+
+    def test_missing_cache_fails_preflight(self):
+        from scripts.analysis.qwen_sourceflow.evaluate_policy import preflight_caches
+        with self.assertRaises(FileNotFoundError):preflight_caches(self.data,self.tokens[:1],[self.temp.name])
 
 
 def main():

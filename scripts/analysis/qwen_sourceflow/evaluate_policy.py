@@ -23,6 +23,22 @@ from starVLA.rl.simwam_recipe.reward_readouts import RewardService
 from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
+NAVTEST_CACHE='/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/metric_cache_navtest_v1'
+TRAIN_DEV_CACHES=[
+    '/mnt/project/flow-safe-improvement-20261013/metric_cache_v1',
+    '/mnt/project/constrained-flow-noise-20261014/metric_cache_v1',
+    '/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache']
+
+
+def evaluation_caches(cohort):
+    return [NAVTEST_CACHE] if cohort=='NAVTEST' else list(TRAIN_DEV_CACHES)
+
+
+def preflight_caches(data, tokens, roots):
+    missing=[t for t in tokens if not any((Path(root)/data.records[t]['log']/'unknown'/t/'metric_cache.pkl').is_file() for root in roots)]
+    if missing:raise FileNotFoundError(f'{len(missing)} missing canonical {data.manifest["cohort"]} caches before model loading; first={missing[:3]}')
+
+
 def json_feedback(value):
     """Lossless JSON representation of official NumPy arrays/scalars."""
     if isinstance(value,np.ndarray):return value.tolist()
@@ -51,6 +67,8 @@ def main():
     start=time.monotonic();inv=uuid.uuid4().hex;device=torch.device('cuda',0)
     data=RawSceneData(a.data,cohort=a.cohort);tokens=data.tokens[:a.limit] if a.limit else data.tokens
     if not 0<=a.rank<a.world:raise ValueError('Bad evaluation shard')
+    cache_roots=evaluation_caches(a.cohort)
+    preflight_caches(data,tokens[a.rank::a.world],cache_roots)
     model,parent=load_il(a.checkpoint,device=device,qualification=a.qualification)
     interim=None
     if a.interim_navtest_registration:
@@ -67,10 +85,7 @@ def main():
             raise ValueError('Qualification RL weights cannot become a formal result')
     model.requires_grad_(False).eval();loaded=time.monotonic()-start
     processor=QwenObservationProcessor(QWEN_PATH)
-    service=RewardService(Path.cwd(),workers=1,cache_roots=[
-        '/mnt/project/flow-safe-improvement-20261013/metric_cache_v1',
-        '/mnt/project/constrained-flow-noise-20261014/metric_cache_v1',
-        '/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache'])
+    service=RewardService(Path.cwd(),workers=1,cache_roots=cache_roots)
     identity=dict(schema='native_qwen_flow_evaluation_v1',checkpoint=str(Path(a.checkpoint).resolve()),
         parent_model_sha256=parent['files']['model.pt'],rl_export=export_identity,cohort=a.cohort,
         data_sha256=data.sha,token_sha256=fingerprint(tokens),count=len(tokens),full_population=len(tokens)==len(data.tokens),
