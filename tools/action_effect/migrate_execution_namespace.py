@@ -22,7 +22,11 @@ def migrate(old_cfg,new_cfg):
         old['extraction_contract']!=new['extraction_contract'] or old['cohort']['sha256']!=new['cohort']['sha256']):
         raise ValueError('Scientific/numeric/cohort identity changed during resource fork')
     src=Path(old_cfg['artifact_root'])/'contexts';dst=Path(new_cfg['artifact_root'])/'contexts';dst.mkdir(exist_ok=True)
-    hr=read_json(src/'S0_ACTION_HEAD.COMPLETE.json');verify_artifact(hr['artifact'])
+    hr=read_json(src/'S0_ACTION_HEAD.COMPLETE.json')
+    if (hr.get('schema')!='action_effect_original_action_head_v1' or
+        hr.get('base_binding_hash')!=new['base_checkpoint_binding_hash'] or hr.get('strict_original_master') is not True):
+        raise ValueError('Foreign or unverified original action-head receipt')
+    verify_artifact(hr['artifact'])
     write_json(dst/'S0_ACTION_HEAD.COMPLETE.json',hr)
     rows=[]
     for at in range(0,len(cohort['entries']),old_cfg['feature_shard_scenes']):
