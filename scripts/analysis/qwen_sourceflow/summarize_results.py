@@ -34,6 +34,8 @@ def main():
     export=identity.get('rl_export')
     result=dict(schema='native_evaluation_summary_v2',status='COMPLETE',
         policy_type='RL_MERGED' if export else 'IL',evaluation=str(root.resolve()),
+        evaluation_role='USER_REQUESTED_INTERIM' if identity.get('user_requested_interim_navtest') else 'REGISTERED',
+        user_requested_interim_navtest=identity.get('user_requested_interim_navtest'),
         checkpoint=export['checkpoint'] if export else identity['checkpoint'],
         IL_parent_checkpoint=identity['checkpoint'],
         model_sha256=export['model_sha256'] if export else identity['parent_model_sha256'],
