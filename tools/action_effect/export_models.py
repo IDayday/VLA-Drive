@@ -67,6 +67,9 @@ def export(checkpoint,*,base_binding,output,route,device='cpu'):
         payload={'schema':'action_effect_private_deploy_v1','route':'B','arm':model.arm,
             **model.adapter.velocity_export()}
         head_receipt=identity['head']['head_receipt']
+        original_head_contract=read_json(verify_artifact(head_receipt))
+        original_head_contract={key:original_head_contract[key] for key in
+            ('schema','base_binding_hash','strict_original_master')}
         required=['current_original_planner_condition','original_initial_noise']
     elif route=='A':
         from .evaluate_refiner import load_refiner
@@ -74,7 +77,7 @@ def export(checkpoint,*,base_binding,output,route,device='cpu'):
         payload={'schema':'action_effect_private_deploy_v1','route':'A','arm':model.provenance['arm'],
             'config':asdict(model.refiner.config),'constraint_spec':asdict(model.constraint_spec),
             'state_dict':model.refiner.state_dict()}
-        head_receipt=None;required=['same_call_current_W_A_ego_context','original_Base_physical_trajectory']
+        head_receipt=None;original_head_contract=None;required=['same_call_current_W_A_ego_context','original_Base_physical_trajectory']
     else:raise ValueError('Explicit independent route A or B required')
     payload['state_dict']={k:v.detach().cpu().clone() for k,v in payload['state_dict'].items()}
     output.mkdir(parents=True)
@@ -90,7 +93,7 @@ def export(checkpoint,*,base_binding,output,route,device='cpu'):
         'private_head':artifact(output/'PRIVATE_HEAD.pt'),'source_package':artifact(output/'SOURCE.zip'),
         'source_inventory':inventory,'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         'base_binding':artifact(base_binding),'base_binding_hash':binding['binding_sha256'],
-        'original_action_head_receipt':head_receipt,'training_provenance':model.provenance,
+        'original_action_head_receipt':head_receipt,'original_action_head_contract':original_head_contract,'training_provenance':model.provenance,
         'inference_inputs':required,'external_scorer_weights_loaded':False,'effect_teacher_required':False,
         'simulator_required':False,'training_cache_required':False,'GT_required':False,'LiDAR_required':False,
         'ACTIVE_updated':False,'online_VLA_integration':'requires original same-call S0 observation encoder; not measured by head-only export'}
@@ -100,7 +103,7 @@ def export(checkpoint,*,base_binding,output,route,device='cpu'):
         'scientific_gain':'UNTESTED by export','independent_process_roundtrip':'NOT_RUN'}
 
 
-def load_bundle(path,*,device='cpu'):
+def load_bundle(path,*,device='cpu',original_action_head=None,original_base_binding_hash=None):
     """No training checkpoint, dataset, feedback, GT or metric-cache reads."""
     from .evaluate_effect_flow import canonical_inference_backend
     canonical_inference_backend()
@@ -124,11 +127,26 @@ def load_bundle(path,*,device='cpu'):
                 (tensor.dtype!=torch.float32 or not torch.isfinite(tensor).all())):
             raise ValueError('Deployment private state must contain finite canonical FP32 tensors')
     if payload['route']=='B':
-        from .train_effect_flow import load_original_action_head
         from starVLA.model.modules.action_effect.effect_flow_adapter import EffectFlowAdapter,EffectFlowAdapterConfig
         from starVLA.model.framework.effect_internalized_flow import EffectInternalizedFlow
-        head,_=load_original_action_head(verify_artifact(manifest['original_action_head_receipt']),binding_path,device=device)
+        if original_action_head is None:
+            from .train_effect_flow import load_original_action_head
+            head,_=load_original_action_head(verify_artifact(manifest['original_action_head_receipt']),binding_path,device=device)
+        else:
+            # Online integration already strictly reconstructed the complete S0
+            # from its FP32 masters. Reuse that exact object, never a second blob.
+            if original_base_binding_hash!=binding['binding_sha256']:
+                raise ValueError('Injected online action head must belong to the same verified original Base')
+            # Embed this tiny contract in the export: online deployment must not
+            # open a training-context cache directory, even for its old metadata.
+            receipt=manifest.get('original_action_head_contract') or {}
+            if (receipt.get('schema')!='action_effect_original_action_head_v1' or
+                receipt.get('base_binding_hash')!=binding['binding_sha256'] or receipt.get('strict_original_master') is not True):
+                raise ValueError('Injected online action head has a foreign canonical head receipt')
+            head=original_action_head
         adapter=EffectFlowAdapter(EffectFlowAdapterConfig(**payload['config']))
+        if adapter.config.effect_dim!=0 or any(k.startswith(('effect_head.','effect_projection.')) for k in payload['state_dict']):
+            raise ValueError('Deployment velocity adapter must strip all training-only effect heads')
         adapter.load_state_dict(payload['state_dict'],strict=True)
         model=EffectInternalizedFlow(head,adapter,arm=payload['arm'])
     else:
