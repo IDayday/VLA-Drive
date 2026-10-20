@@ -1,6 +1,8 @@
 """CPU cost bookkeeping negatives, not full-VLA scientific qualification."""
 from types import SimpleNamespace
 import os
+import subprocess
+import sys
 import pytest
 import torch
 
@@ -19,11 +21,26 @@ def test_only_reported_operator_FLOPs_are_counted():
 
 
 def test_tiny_actual_CPU_linear_profiler_agrees_with_known_matmul_count(tmp_path):
-    torch.set_num_threads(1);model=torch.nn.Linear(4,3).eval();inputs=torch.ones(2,4)
-    out=a.profile_call(lambda:model(inputs),trace=tmp_path/'trace.json')
-    assert out['operator_covered_FLOPs_lower_bound']==2*2*4*3
-    assert out['trace']==artifact(tmp_path/'trace.json')
-    assert not torch.cuda.is_initialized()
+    # Other tests may legitimately initialize CUDA. Prove this CPU tool never
+    # does so in its own fresh CPU-only process, as the actual audit is run.
+    code = '''
+import sys, torch
+from pathlib import Path
+from tools.action_effect.audit_online_cost import profile_call
+from tools.action_effect.common import artifact
+torch.set_num_threads(1)
+assert not torch.cuda.is_initialized()
+model=torch.nn.Linear(4,3).eval(); inputs=torch.ones(2,4)
+trace=Path(sys.argv[1])
+out=profile_call(lambda:model(inputs), trace=trace)
+assert out['operator_covered_FLOPs_lower_bound']==2*2*4*3
+assert out['trace']==artifact(trace)
+assert not torch.cuda.is_initialized()
+'''
+    env=dict(os.environ, CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS='1',
+             OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1')
+    subprocess.run([sys.executable, '-c', code, str(tmp_path/'trace.json')],
+                   env=env, check=True, capture_output=True, text=True)
 
 
 def test_exact_comparison_preserves_signed_zero_and_rejects_nonfinite():

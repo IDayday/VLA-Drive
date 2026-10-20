@@ -253,6 +253,11 @@ def test_actual_context_cpu_tensor_boundary_preserves_base_float_values():
 
 
 def test_old_complete_markers_do_not_override_current_validation_failure(tmp_path, monkeypatch):
+    # This test exercises receipt rejection, under the real CPU worker launch
+    # contract, independently of the invoking shell's CUDA/BLAS environment.
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+    for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+        monkeypatch.setenv(name, "1")
     root = tmp_path / "population"
     reg = {"identity": "fixture_run", "population": [{"context": {"scene_id": "one"}}, {"context": {"scene_id": "two"}}]}
     for token in ("one", "two"):

@@ -1,0 +1,66 @@
+........................................................................ [ 14%]
+........................................................................ [ 29%]
+........................................................................ [ 44%]
+.................F...................................................... [ 59%]
+..................................................F..................... [ 73%]
+........................................................................ [ 88%]
+.......................................................                  [100%]
+=================================== FAILURES ===================================
+_____ test_old_complete_markers_do_not_override_current_validation_failure _____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-972/test_old_complete_markers_do_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f0300d68640>
+
+    def test_old_complete_markers_do_not_override_current_validation_failure(tmp_path, monkeypatch):
+        root = tmp_path / "population"
+        reg = {"identity": "fixture_run", "population": [{"context": {"scene_id": "one"}}, {"context": {"scene_id": "two"}}]}
+        for token in ("one", "two"):
+            write_json(root / "scenes" / token / "COMPLETE.json", {"old": "marker_is_not_current_validation"})
+        g0.CallLedger(root / "calls", identity=reg["identity"], max_calls=2, retry_budget=0)
+        monkeypatch.setattr(g0, "prepare", lambda *args, **kwargs: (root, reg))
+        monkeypatch.setattr(g0, "ProcessPoolExecutor", lambda max_workers, **kwargs: ThreadPoolExecutor(max_workers=max_workers))
+        monkeypatch.setattr(g0, "process_scene", lambda *args: {"scene_id": args[2]["context"]["scene_id"],
+            "status": "PARTIAL", "error": "fixture checksum mismatch"})
+>       result = g0.run({}, max_samples=2, max_simulation_budget=2, workers=2, resume=True)
+
+tests/action_effect/test_g0_pipeline.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cfg = {}
+
+    def run(cfg, *, max_samples, max_simulation_budget, workers, resume=False, context_manifest=None,
+            navsim_root=None, maps_root=None, max_seconds=3600.):
+        started = time.monotonic()
+        cpu_before, child_before = resource.getrusage(resource.RUSAGE_SELF), resource.getrusage(resource.RUSAGE_CHILDREN)
+        if os.environ.get("CUDA_VISIBLE_DEVICES") != "" or any(os.environ.get(k) != "1" for k in
+                ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")):
+>           raise ValueError("CPU worker launch requires CUDA hidden and all three BLAS limits1")
+E           ValueError: CPU worker launch requires CUDA hidden and all three BLAS limits1
+
+tools/action_effect/simulate_interventions.py:401: ValueError
+_____ test_tiny_actual_CPU_linear_profiler_agrees_with_known_matmul_count ______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-972/test_tiny_actual_CPU_linear_pr0')
+
+    def test_tiny_actual_CPU_linear_profiler_agrees_with_known_matmul_count(tmp_path):
+        torch.set_num_threads(1);model=torch.nn.Linear(4,3).eval();inputs=torch.ones(2,4)
+        out=a.profile_call(lambda:model(inputs),trace=tmp_path/'trace.json')
+        assert out['operator_covered_FLOPs_lower_bound']==2*2*4*3
+        assert out['trace']==artifact(tmp_path/'trace.json')
+>       assert not torch.cuda.is_initialized()
+E       AssertionError: assert not True
+E        +  where True = <function is_initialized at 0x7f0432967910>()
+E        +    where <function is_initialized at 0x7f0432967910> = <module 'torch.cuda' from '/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py'>.is_initialized
+E        +      where <module 'torch.cuda' from '/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py'> = torch.cuda
+
+tests/action_effect/test_online_cost_audit.py:26: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/action_effect/test_g0_pipeline.py::test_old_complete_markers_do_not_override_current_validation_failure
+FAILED tests/action_effect/test_online_cost_audit.py::test_tiny_actual_CPU_linear_profiler_agrees_with_known_matmul_count
+2 failed, 485 passed, 1 warning in 45.56s

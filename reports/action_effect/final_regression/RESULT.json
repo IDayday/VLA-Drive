@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "tests": 487,
+  "failed": 0,
+  "skipped": 0,
+  "warnings": 1,
+  "wall_seconds": 46.05,
+  "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect",
+  "executed_parent_commit": "36629e67342c19a9109097d155917aaecb2efdf0",
+  "test_only_working_patch_files": {
+    "tests/action_effect/test_g0_pipeline.py": "50dd1790e34304ea443068bebceca0d4923f93cac135379c8eb7ccb5038e95a3",
+    "tests/action_effect/test_online_cost_audit.py": "f92dc9261dc6fd4d2f960edde08c8ca45d61d804bfad0e347a21636d4f5b298d"
+  },
+  "initial_run": {
+    "passed": 485,
+    "failed": 2,
+    "wall_seconds": 45.56,
+    "cause": "CPU-launch fixture did not declare required environment; CPU profiler fixture assumed suite had never initialized CUDA",
+    "production_model_or_losses_changed": false
+  },
+  "fix": "Declare fixture CPU/BLAS environment; run CPU cost check in a fresh CPU-only process",
+  "logs": [
+    {
+      "source": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_FINAL_36629E67.log",
+      "report_file": "reports/action_effect/final_regression/INITIAL_ENVIRONMENT_ISOLATION_FAILURE.log",
+      "sha256": "8a1ac0ee2723b230e704db767bef788d46b3901c7be61c0dfe91a9146f68f8f3"
+    },
+    {
+      "source": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_FINAL_TEST_ISOLATION.log",
+      "report_file": "reports/action_effect/final_regression/FINAL_CPU_SUITE.log",
+      "sha256": "dee0b8fded3ec1cddf5d86642e9eb7e4e7e4232d87f029d9e40c7869aa5d5c38"
+    }
+  ],
+  "new_training_or_simulation": false,
+  "scope": "Current tests/action_effect CPU suite; real prior CUDA/NCCL/deployment evidence separately pinned"
+}
