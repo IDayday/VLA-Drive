@@ -178,3 +178,7 @@ full-feedback balanced accuracies are93.538% and94.426%; trajectory-only/shuffle
 controls remain strong. The same delta model's actual recommendation gain remains
 negative. The997 interventions are not independent scenes, and classification on
 all meaningful changes is distinct from safely selecting a scene's best action.
+
+## Completed downstream policy check
+
+All registered downstream policies have now been evaluated on the same complete1696/16-log DEV. A1's three-seed mean91.224200 is below A0's91.389143 and it creates four new DAC/high-to-zero failures in each seed. B1-effect mean91.400210 is below simple correction FM/B0 mean91.408385; its comparison to the weaker B1-trajectory has positive point estimates but all paired-log intervals include0. No G1 teacher was changed based on these results. These actual outcomes reinforce that signed-change classification and a differentiable learned proxy are not sufficient evidence of reliable improvement guidance. [The final comparison](FINAL_COMPARISON.md) preserves every seed, risks and intervals.

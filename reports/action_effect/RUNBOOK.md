@@ -1,3 +1,163 @@
+# Physical action-effect campaign: completed-run and reproduction runbook
+
+The registered real run is complete:23 formal1000-update models (six G1 controls,
+one dense-temporal ablation, seven explicit refiners and nine Flow models),31
+complete official score stages (19 DEV policies,12 seed42 fit/validation stages),
+actual S0/A1/B1-effect image-to-final qualification, and read-only final statistics.
+This is an engineering-complete research result with unsupported method gains;
+it is not an instruction to relaunch completed training or simulations. Current
+science is in [FINAL_COMPARISON.md](FINAL_COMPARISON.md), all rows in
+[FINAL_SYSTEM_RESULTS.csv](FINAL_SYSTEM_RESULTS.csv), and per-source pins in
+[final_analysis/FINAL_POLICY_STATISTICS.json](final_analysis/FINAL_POLICY_STATISTICS.json).
+
+## Current immutable identities and completion
+
+- Original mature DiT S0 remains source1493deda/milestone100000, binding
+  `3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099`.
+  This is not a Query Base replacement. No Base/normalizer/noise/Euler10/ACTIVE change.
+- Actual configuration: `configs/action_effect/shared_budget_v2.yaml`; artifact
+  root `/mnt/project/action-effect-repair-20261020-budget-v2` (abbreviated ROOT below).
+- `ROOT/contexts/MANIFEST_001024.json`, all20,678 real effect pairs and1024 repair/
+  identity records are COMPLETE:fit791/H6,validation233/H1; source logs are disjoint.
+- `ROOT/evaluation_contexts/dev1696_seed42_v1/EVAL_CONTEXT_MANIFEST.json` is COMPLETE,
+  SHA781072cb6ed2d8eb22d7aac9c287953e82e5602f3e380c5c5cd455f2921ed479,
+  real1696/16logs; W/A/condition payload2,226,901,212B, no giant visual cache.
+- Every formal model is its fixed1000-update endpoint, not a16-step qualification,
+  resumed warmup, best DEV seed, new Base or super-pool.
+- Every DEV RESULT has1696 valid scores,0 invalid/unresolved. All12 fixed seed42
+  fit/validation results also completed. Final strict native comparison v1 exited0
+  for all18 methods plus S0 in595.908296s. The optional new8-thread reader was not
+  used for this production comparison:its controller reused the already complete
+  serial evidence without signaling/dispatching a new native-validation job.
+- Online actual mean/p50/p95: S01.329762/1.329242/1.332660s,
+  A11.336315/1.335788/1.342403s, B1-effect1.366010/1.365946/1.368230s,
+  one real TRAIN scene,2 warmups/8 repeats. Cost/poison/hooks/cache equality and
+  partial operator FLOPs are in [LATENCY_AND_PARAMETER_SUPPLEMENT.md](LATENCY_AND_PARAMETER_SUPPLEMENT.md).
+
+## Separate budgets and actual cost — do not merge with the old32768 dispatcher
+
+The old serial `run_campaign --phase all` example lower in the historical appendix
+had a6000-update/32768-call aggregate cap. It did not execute the full manual
+parallel registered matrix and is not the full study's evaluation ceiling.
+
+The formal pre-registration separately allocates17 DEV policies×1712 requests
+and6 complete TRAIN fit/validation populations×1040=35,344. The registered control
+amendment adds2 DEV policies×1712=3424, giving38,768 formal-evaluation request
+capacity. The G0 ceiling32,768 is a separate data-collection budget. The one
+extra1000-update dense-temporal arm yields23,000 formal optimizer updates.
+Every ceiling includes retries as specified by its actual ledger; none is
+silently multiplied per arm.
+
+Actual31 official stages contain38,368 scene-policy evaluations:38,180 reserved
+new fixed-reference candidate requests,188 lawful reuses,0 retries/invalid. G0 across prefix
+collections contains23,735 canonical requests:the final1024 build newly charges
+11,757 and lawfully reuses11,978 earlier-prefix requests. The scoped total is
+61,915 requests (38,180+23,735), excluding qualifications and unrelated old
+studies. One request invokes a fixed-reference/candidate protocol; it is not a
+single internal simulator rollout. Do not count reuses again as new requests.
+See [NATIVE_EVALUATION_COST_SUMMARY.json](NATIVE_EVALUATION_COST_SUMMARY.json).
+
+The23 formal training segments total4.2354 GPU-hours, excluding context extraction,
+simulation, validation, qualifications and online timing. This is measured segment
+wall cost for single-GPU runs, not total fleet reservation or complete study cost.
+[TRAINING_EXECUTION_MATRIX.csv](TRAINING_EXECUTION_MATRIX.csv) retains every source,
+arm/seed, endpoint, runtime, exposure and segment. The explicit16GiB post-training
+reservation is [POST_TRAINING_STORAGE_RESERVATION.json](POST_TRAINING_STORAGE_RESERVATION.json);
+no checkpoint/image/large cache is committed or automatically deleted.
+
+## Reproduce only the final read-only statistics
+
+The following completed command reads existing fixed results; it does not call
+`compare_methods.load`, native feedback, a model, simulator or optimizer. Choose
+a fresh output directory to preserve original evidence. It verifies the exact
+18-method final comparison and its EXIT0 before deriving statistics.
+
+```bash
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python \
+  reports/action_effect/analysis/summarize_final_results.py \
+  --comparison /mnt/project/action-effect-repair-20261020-budget-v2/comparisons/final_dev1696_all_seeds_v1/COMPARISON.json \
+  --comparison-exit /mnt/project/action-effect-repair-20261020-budget-v2/resources/FINAL_DEV_COMPARISON_EXIT.json \
+  --output-dir reports/action_effect/reproduction_final_analysis_NEW
+```
+
+Actual derivation took2.052s,0 new native reads/forwards/updates. Bootstrap uses
+only `paired_summary`,2000 source-log draws/seed42. Each policy uses the same
+1696/16logs. Training seeds42/43/44 are reported separately and summarized with
+sample SD/range;5088 repeated evaluations are never labeled independent scenes.
+Nine A1−A0/B1-effect−B0/B1-effect−B1-trajectory same-seed comparisons do not select
+a best seed or replace the registered model.
+
+## Training, recovery, fresh Base and reevaluation commands
+
+The command interfaces in the historical appendix remain real, but their old
+WAITING rows and old budget are historical. Shared inputs/23 endpoints are now
+complete. Ordinary interruption uses the exact same config/population/arm/seed
+and `--resume`; a terminal1000 endpoint must not gain another update or restart
+warmup. Actual same-backend full-state CUDA continuation is proven for G1/B0 in
+its bounded scope, not every B1-effect/DDP/cross-device combination. Examples:
+
+```bash
+EFFECT_ROOT=/mnt/project/action-effect-repair-20261020-budget-v2
+EFFECT_CFG=/mnt/project/VLA-Drive-action-effect-repair-20261020/configs/action_effect/shared_budget_v2.yaml
+
+# G1: exact original source b7cc81fb, not the current documentation/source HEAD.
+cd "$EFFECT_ROOT/runtime/formal_b7cc81fb"
+/root/miniconda3/envs/ddp/bin/python -m tools.action_effect.train_effect_model \
+  --config "$EFFECT_CFG" --context-manifest "$EFFECT_ROOT/contexts/MANIFEST_001024.json" \
+  --pair-dataset "$EFFECT_ROOT/g0/population_001024/PAIR_DATASET.json" \
+  --arm delta_feedback --seed 42 --max-updates 1000 --device cuda:0 \
+  --output "$EFFECT_ROOT/models/population_001024/g1/delta_feedback/seed_42" --resume
+
+# A/B: exact original source c845d6e9; fixed resolved recipe, dataset and own teacher.
+cd "$EFFECT_ROOT/runtime/routes_c845d6e9"
+/root/miniconda3/envs/ddp/bin/python -m tools.action_effect.train_refiner \
+  --config "$EFFECT_CFG" --context-manifest "$EFFECT_ROOT/contexts/MANIFEST_001024.json" \
+  --repair-dataset "$EFFECT_ROOT/g0/population_001024/REPAIR_DATASET.json" \
+  --arm A0 --seed 42 --max-updates 1000 --device cuda:0 \
+  --output "$EFFECT_ROOT/models/population_001024/route_a/A0/seed_42" --resume
+/root/miniconda3/envs/ddp/bin/python -m tools.action_effect.train_refiner \
+  --config "$EFFECT_CFG" --context-manifest "$EFFECT_ROOT/contexts/MANIFEST_001024.json" \
+  --repair-dataset "$EFFECT_ROOT/g0/population_001024/REPAIR_DATASET.json" \
+  --arm A1 --seed 42 --max-updates 1000 --device cuda:0 \
+  --effect-checkpoint "$EFFECT_ROOT/models/population_001024/g1/delta_feedback/seed_42/step_001000.pt" \
+  --output "$EFFECT_ROOT/models/population_001024/route_a/A1/seed_42" --resume
+/root/miniconda3/envs/ddp/bin/python -m tools.action_effect.train_effect_flow \
+  --config "$EFFECT_CFG" --context-manifest "$EFFECT_ROOT/contexts/MANIFEST_001024.json" \
+  --repair-dataset "$EFFECT_ROOT/g0/population_001024/REPAIR_DATASET.json" \
+  --arm B0 --seed 42 --max-updates 1000 --device cuda:0 \
+  --output "$EFFECT_ROOT/models/population_001024/route_b/B0/seed_42" --resume
+/root/miniconda3/envs/ddp/bin/python -m tools.action_effect.train_effect_flow \
+  --config "$EFFECT_CFG" --context-manifest "$EFFECT_ROOT/contexts/MANIFEST_001024.json" \
+  --repair-dataset "$EFFECT_ROOT/g0/population_001024/REPAIR_DATASET.json" \
+  --arm B1-effect --seed 42 --max-updates 1000 --device cuda:0 \
+  --effect-checkpoint "$EFFECT_ROOT/models/population_001024/g1/delta_feedback/seed_42/step_001000.pt" \
+  --output "$EFFECT_ROOT/models/population_001024/route_b/B1-effect/seed_42" --resume
+```
+
+These exact-source examples are operator commands, not dispatches performed by this documentation. Do not run them from a new HEAD against old outputs:source identity must reject that mismatch rather than pretending it is exact continuation. For seeds43/44 use the matching explicit seed and output only; ScoreRefiner uses its own absolute_score teacher, not delta. A fresh reproduction requires a new config/artifact namespace with its source identity registered before training; it must not replace this fixed data or existing checkpoints.
+Check current authorized resource/real process identity before using them; do not
+start another lineage copy. Original data/model identity mismatches reject resume.
+A new Base requires a new campaign/config/artifact root and binding, fresh feature/
+score/teacher identities and requalified inputs, not editing this fixed run.
+Completed native scores and strict comparison must be reused under their original
+identities, not recomputed to obtain a more favorable mean. Original online output
+and one-scene supplement are immutable; see [FINAL_ONLINE_CLOSURE_RUNBOOK.md](FINAL_ONLINE_CLOSURE_RUNBOOK.md)
+and its later actual cost report for export/independent-process commands.
+
+Final full CPU regression is487 passed,0 failed/skipped,one existing pynvml warning,
+46.05s after test-environment isolation. The initial485-pass/2-failure environment
+run is also preserved; neither is rewritten. See [REGRESSION_AND_RESUME_REPORT.md](REGRESSION_AND_RESUME_REPORT.md).
+
+## Historical preparation appendix — 02:43 UTC and later partial snapshots
+
+Everything below is the original dated preparation/runbook text and earlier
+partial evidence. It is retained for audit, not current readiness. Its missing
+artifacts now exist,14/16 snapshot is superseded, serial6000/32768 ceiling is not
+the full parallel plan, and optional old score commands do not authorize new work.
+
+---
+
 # Physical action-effect campaign: executable runbook
 
 > The original preparation snapshot and its dated WAITING rows below are retained

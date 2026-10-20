@@ -72,3 +72,7 @@ Conclusion: there is real but **small positive repair support**, including DAC/T
 and substantial harmful-intervention evidence. That justifies the finite G1 and
 A/B tests, but cannot support a universal repair/generalization claim. All learned
 conclusions require the frozen policies' actual held-out outputs and risks.
+
+## Actual subsequent learning outcome
+
+The registered learning/evaluation stages are now complete. A0/A1 fit the six fixed training repairs strongly, but all six main seed42 learned methods leave the sole held-out repair scene zero. This does not negate the target's genuinely simulated repair opportunity; it distinguishes available supervision from a learned generalizable function. The final full1696-scene/16-log development comparison, not the finite target oracle, governs policy-quality conclusions. See [FINAL_COMPARISON.md](FINAL_COMPARISON.md) and [the predeclared direct-subset audit](PREDECLARED_FIT_VALIDATION_SUBSET_RESULTS.json).

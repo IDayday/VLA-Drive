@@ -1,0 +1,181 @@
+{
+  "ACTIVE_unchanged": true,
+  "Base_unchanged": true,
+  "DRAFT_NOT_FORMAL_VERDICT": true,
+  "created_at_utc": "2026-10-20T04:18:32.421702+00:00",
+  "external_scorer_or_teacher_weights_loaded": false,
+  "final_source_commit": "PARENT_TO_BIND_AFTER_REVIEW",
+  "navtest_accessed": false,
+  "next_direction": "New pre-registered TRAIN failure/log coverage and within-support calibrated intervention/gradient validation before extra policy tuning; preserve A0/B0 and held-out rules.",
+  "official_policy_evaluations": {
+    "DEV_logs": 16,
+    "DEV_policies_including_S0": 19,
+    "TRAIN_fit_validation_stages_main_seed42": 12,
+    "invalid_or_unresolved_scenes": 0,
+    "scenes_per_DEV_policy": 1696,
+    "status": "PASS",
+    "strict_comparison": {
+      "bytes": 40992,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/comparisons/final_dev1696_all_seeds_v1/COMPARISON.json",
+      "sha256": "8ed42603b817d3ed183bb027c4aad733a8dafb9e21d4577e265338e823710b4c"
+    }
+  },
+  "reference_reports": {
+    "direct_subsets": {
+      "bytes": 42952,
+      "repo_path": "reports/action_effect/PREDECLARED_FIT_VALIDATION_SUBSET_RESULTS.json",
+      "sha256": "f1b3c3333769d5537d3321c6e4c763122deb90e4de951b547449131041cf7120"
+    },
+    "final_policy_statistics": {
+      "bytes": 79734,
+      "repo_path": "reports/action_effect/final_analysis/FINAL_POLICY_STATISTICS.json",
+      "sha256": "a8134f0a0ff052a63f5449dc962a2ee783cbb9f336dad3def183e81bb8529ce3"
+    }
+  },
+  "registered_model_training": {
+    "formal_models": 23,
+    "formal_updates_total": 23000,
+    "note": "Six main G1 + one temporal ablation + seven A + nine B. Qualified engineering runs are separate cost.",
+    "status": "PASS",
+    "updates_per_model": 1000
+  },
+  "requires_parent_review_before_formal_verdict": true,
+  "research_claims": {
+    "causal_temporal_credit_improves_policy": {
+      "evidence": "No isolated policy-level causal-credit comparison was identified. Native timing associations and G1 auxiliary ablation are insufficient.",
+      "status": "NOT_RUN"
+    },
+    "dense_temporal_feedback_additional_prediction_utility": {
+      "CI95_points": [
+        -2.109284,
+        0.328035
+      ],
+      "full_minus_zero_points": -0.759971,
+      "scope": "Only dense-grid auxiliary weight differs; mean first-event/event labels remain in both.",
+      "status": "INCONCLUSIVE"
+    },
+    "effect_flow_beats_direction_only_source_bridge": {
+      "mean_effect_minus_trajectory_points": 0.04282312531698711,
+      "note": "All three paired-log intervals include0; not a superiority or SFT-beating proof.",
+      "point_signs": [
+        "positive",
+        "positive",
+        "positive"
+      ],
+      "status": "INCONCLUSIVE"
+    },
+    "effect_flow_beats_plain_correction_FM": {
+      "effect_minus_B0_point_signs": [
+        "positive",
+        "negative",
+        "positive"
+      ],
+      "mean_effect_minus_B0_points": -0.00817568532336702,
+      "note": "Does not establish independent effect contribution; one seed interval favors B0.",
+      "status": "INCONCLUSIVE"
+    },
+    "explicit_effect_guidance_repair_without_new_failures": {
+      "mean_A1_minus_A0_points": -0.16494347652785765,
+      "note": "All paired mean intervals cross0; empirical new DAC/high-to-zero failures are still observed in every seed.",
+      "observed_new_high_to_zero_per_seed": 4,
+      "status": "FAIL"
+    },
+    "heldout_verified_repair_learned": {
+      "heldout_positive_support": 1,
+      "note": "All leave this sole original zero as zero. One scene cannot support broad generalization.",
+      "six_main_seed42_methods_repaired": 0,
+      "status": "INCONCLUSIVE"
+    },
+    "minimum_edit_beats_unconstrained_high_score_search": {
+      "evidence": "Verified finite-grid minimum targets exist, but no matched learned search-target superiority experiment.",
+      "status": "NOT_RUN"
+    },
+    "multi_seed_safety_preserving_gain": {
+      "scope": "Complete three-seed A/B data, but no method demonstrates robust physical-effect superiority without adverse outcomes.",
+      "status": "INCONCLUSIVE",
+      "training_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "paired_delta_beats_absolute": {
+      "evidence": "All six G1 recommendation gains negative; delta\u2212absolute95% paired-log intervals cross0; no superiority established.",
+      "status": "INCONCLUSIVE"
+    },
+    "real_local_repair_opportunity": {
+      "scope": "Seven fixed failures within the finite TRAIN1024 intervention budget, six fit/one held-out. No original NC failure.",
+      "status": "PASS"
+    },
+    "single_generation_deployable_without_feedback": {
+      "scope": "Actual one-image-batch S0/A1/B1effect strict online qualification; one visual/language forward, B original Euler10 with no post-refiner/teacher.",
+      "status": "PASS"
+    }
+  },
+  "schema": "action_effect_scientific_verdict_DRAFT_v1",
+  "scientific_conclusion": "INCREMENTAL_PHYSICAL_EFFECT_BENEFIT_NOT_SUPPORTED_AT_TESTED_BUDGET",
+  "seed_aggregate_scores_PDMS_100": {
+    "A0": {
+      "maximum": 91.39702633882314,
+      "mean": 91.38914348031606,
+      "minimum": 91.37606952023708,
+      "sample_sd_ddof1": 0.011402092481630138,
+      "training_seeds": 3
+    },
+    "A1": {
+      "maximum": 91.23540331624957,
+      "mean": 91.22420000378821,
+      "minimum": 91.20218938766205,
+      "sample_sd_ddof1": 0.019062781078103233,
+      "training_seeds": 3
+    },
+    "B0": {
+      "maximum": 91.4328755827414,
+      "mean": 91.40838544421716,
+      "minimum": 91.38944881195205,
+      "sample_sd_ddof1": 0.022239653304975175,
+      "training_seeds": 3
+    },
+    "B1-effect": {
+      "maximum": 91.4361540977214,
+      "mean": 91.4002097588938,
+      "minimum": 91.35672332422588,
+      "sample_sd_ddof1": 0.040248904976065,
+      "training_seeds": 3
+    },
+    "B1-trajectory": {
+      "maximum": 91.38842638184866,
+      "mean": 91.3573866335768,
+      "minimum": 91.34124087938953,
+      "sample_sd_ddof1": 0.026888495782100397,
+      "training_seeds": 3
+    },
+    "FixedLateBrake": {
+      "maximum": 91.24335649890143,
+      "mean": 91.24335649890143,
+      "minimum": 91.24335649890143,
+      "sample_sd_ddof1": null,
+      "training_seeds": 1
+    },
+    "RandomLocal": {
+      "maximum": 90.48519282022241,
+      "mean": 90.48519282022241,
+      "minimum": 90.48519282022241,
+      "sample_sd_ddof1": null,
+      "training_seeds": 1
+    },
+    "ScoreRefiner": {
+      "maximum": 91.25709953335853,
+      "mean": 91.25709953335853,
+      "minimum": 91.25709953335853,
+      "sample_sd_ddof1": null,
+      "training_seeds": 1
+    }
+  },
+  "source_start_commit": "3369f058",
+  "unavailable_controls": {
+    "NAVSIM_v2": "BLOCKED_UNVERIFIED_CONTRACT",
+    "legal_privileged_upper_bound": "BLOCKED_NO_LEGAL_ASSET",
+    "matched_same_compute_RL": "BLOCKED_NO_MATCHED_IDENTITY"
+  }
+}

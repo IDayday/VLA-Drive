@@ -1,5 +1,8 @@
 # Regression and actual interrupted-training evidence
 
+Current full CPU result: **487 passed,0 failed/skipped in46.05s**, with the initial environment-isolation failures also retained. Final actual pointers are in the last section and [final_regression/RESULT.json](final_regression/RESULT.json). Historical narrower scopes below are not additive.
+
+
 This report consolidates completed evidence; it does not request or execute another
 recovery experiment. Exact artifact hashes and original command logs are indexed
 in [EVIDENCE_INDEX.json](../effect_repair/EVIDENCE_INDEX.json).
@@ -108,3 +111,27 @@ This is an engineering continuation result for B0, not B1-effect auxiliary-gradi
 production DDP, cross-device or scientific qualification. The saved step16 is an
 operator pause under the original1000-update schedule; terminal zero-update CUDA
 resume was not tested and is not claimed.
+## Final complete CPU regression, including the initial failures
+
+The final full `tests/action_effect` suite is **487 passed,0 failed,0 skipped,one
+existing pynvml warning in46.05s**, from parent36629e67 plus the two explicitly
+pinned test-only isolation changes, committed as f7dabd0a. The actual command is:
+
+```bash
+env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect
+```
+
+The preceding full run was485 passed/2 failed in45.56s. A G0 fixture failed to
+declare the mandatory CPU-hidden/BLAS1 launch environment; the profiler fixture
+assumed earlier tests had never initialized CUDA. The correction only declares
+the fixture environment and runs its CPU cost assertion in a fresh CPU-only
+child. No production model, data, loss, inference or trained parameter changed.
+The failed log is preserved alongside the passing full log, rather than hidden.
+
+Exact parent, changed-test file hashes, execution command and both log pins are
+in [final_regression/RESULT.json](final_regression/RESULT.json); logs are
+[FINAL_CPU_SUITE.log](final_regression/FINAL_CPU_SUITE.log) and
+[INITIAL_ENVIRONMENT_ISOLATION_FAILURE.log](final_regression/INITIAL_ENVIRONMENT_ISOLATION_FAILURE.log).
+The earlier374/16-test records below remain separate dated scopes and are not
+added to487. This document executes no additional GPU, model, simulation or suite.

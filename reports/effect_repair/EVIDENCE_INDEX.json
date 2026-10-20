@@ -2,6 +2,49 @@
   "ACTIVE_changed": false,
   "CPU_regression": {
     "current_source_full_suite": {
+      "command": "env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect",
+      "executed_by": "Parent; no suite rerun by documentation agent",
+      "executed_parent_commit": "36629e67342c19a9109097d155917aaecb2efdf0",
+      "failed": 0,
+      "fix": "Declare fixture CPU/BLAS environment; run CPU cost check in a fresh CPU-only process",
+      "initial_run": {
+        "cause": "CPU-launch fixture did not declare required environment; CPU profiler fixture assumed suite had never initialized CUDA",
+        "failed": 2,
+        "passed": 485,
+        "production_model_or_losses_changed": false,
+        "wall_seconds": 45.56
+      },
+      "logs": [
+        {
+          "report_file": "reports/action_effect/final_regression/INITIAL_ENVIRONMENT_ISOLATION_FAILURE.log",
+          "sha256": "8a1ac0ee2723b230e704db767bef788d46b3901c7be61c0dfe91a9146f68f8f3",
+          "source": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_FINAL_36629E67.log"
+        },
+        {
+          "report_file": "reports/action_effect/final_regression/FINAL_CPU_SUITE.log",
+          "sha256": "dee0b8fded3ec1cddf5d86642e9eb7e4e7e4232d87f029d9e40c7869aa5d5c38",
+          "source": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/REGRESSION_FINAL_TEST_ISOLATION.log"
+        }
+      ],
+      "new_training_or_simulation": false,
+      "report": {
+        "bytes": 1776,
+        "repo_path": "reports/action_effect/final_regression/RESULT.json",
+        "sha256": "945ace072684f986be51ae648b6d6b3d31519dcd899adb59b5cbd297e1702ea1",
+        "source_commit": "f7dabd0a"
+      },
+      "scope": "Current tests/action_effect CPU suite; real prior CUDA/NCCL/deployment evidence separately pinned",
+      "skipped": 0,
+      "status": "PASS",
+      "test_only_working_patch_files": {
+        "tests/action_effect/test_g0_pipeline.py": "50dd1790e34304ea443068bebceca0d4923f93cac135379c8eb7ccb5038e95a3",
+        "tests/action_effect/test_online_cost_audit.py": "f92dc9261dc6fd4d2f960edde08c8ca45d61d804bfad0e347a21636d4f5b298d"
+      },
+      "tests": 487,
+      "wall_seconds": 46.05,
+      "warnings": 1
+    },
+    "historical_b1a5438f_full_suite": {
       "executed_by": "Lead; no rerun by documentation agent",
       "failed": 0,
       "log": {
@@ -356,7 +399,7 @@
   "actual_dense_temporal_ablation": {
     "full_derived_report": {
       "bytes": 4163548,
-      "path": "/mnt/project/VLA-Drive-effect-temporal-review-20261020/.cache/action_effect_eligible_temporal_independent/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/DERIVED_COMPARISON.json",
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/g1_evaluation/derived_eligible_temporal/15756fdd8f0508fefd9ee0e39cbf2d2e63c78d590cf500c040a47689b46a2b32/DERIVED_COMPARISON.json",
       "sha256": "345cfc9a68474367df6641da1747ce86fbea5ea70aaf0bbb8acd595470dc9c08"
     },
     "independent_report_repo_path": "reports/effect_repair/ELIGIBLE_REPORT_INDEPENDENT_ACTUAL_TEMPORAL.json",
@@ -486,6 +529,779 @@
     ],
     "scientific_observation": "Dense temporal-grid supervision does not establish selection benefit: both point estimates are negative, full has lower selected native increment and a confidence interval crossing zero relative to no_temporal. This is a single-seed held-out TRAIN bank comparison, not Route A/B policy gain or proof against all temporal feedback."
   },
+  "actual_final_policy_statistics": {
+    "DEV_methods_plus_S0": 19,
+    "DEV_population": {
+      "invalid_or_unresolved": 0,
+      "logs": 16,
+      "scenes": 1696
+    },
+    "method_or_seed_selection_performed": false,
+    "parallel_IO_optimization_used_for_this_comparison": false,
+    "read_only_statistics_seconds": 2.052369063720107,
+    "report": {
+      "bytes": 79734,
+      "repo_path": "reports/action_effect/final_analysis/FINAL_POLICY_STATISTICS.json",
+      "sha256": "a8134f0a0ff052a63f5449dc962a2ee783cbb9f336dad3def183e81bb8529ce3"
+    },
+    "seed_aggregates": {
+      "A0": {
+        "PDMS_points": {
+          "maximum": 91.39702633882314,
+          "mean": 91.38914348031606,
+          "minimum": 91.37606952023708,
+          "sample_sd_ddof1": 0.011402092481630138,
+          "training_seeds": 3
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": 0.008663324579306145,
+          "mean": 0.0007804660722228865,
+          "minimum": -0.012293494006762704,
+          "sample_sd_ddof1": 0.011402092481632717,
+          "training_seeds": 3
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42,
+          43,
+          44
+        ]
+      },
+      "A1": {
+        "PDMS_points": {
+          "maximum": 91.23540331624957,
+          "mean": 91.22420000378821,
+          "minimum": 91.20218938766205,
+          "sample_sd_ddof1": 0.019062781078103233,
+          "training_seeds": 3
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": -0.1529596979942688,
+          "mean": -0.16416301045563478,
+          "minimum": -0.1861736265818041,
+          "sample_sd_ddof1": 0.019062781078109464,
+          "training_seeds": 3
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42,
+          43,
+          44
+        ]
+      },
+      "B0": {
+        "PDMS_points": {
+          "maximum": 91.4328755827414,
+          "mean": 91.40838544421716,
+          "minimum": 91.38944881195205,
+          "sample_sd_ddof1": 0.022239653304975175,
+          "training_seeds": 3
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": 0.04451256849755972,
+          "mean": 0.02002242997331251,
+          "minimum": 0.0010857977082110934,
+          "sample_sd_ddof1": 0.02223965330497385,
+          "training_seeds": 3
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42,
+          43,
+          44
+        ]
+      },
+      "B1-effect": {
+        "PDMS_points": {
+          "maximum": 91.4361540977214,
+          "mean": 91.4002097588938,
+          "minimum": 91.35672332422588,
+          "sample_sd_ddof1": 0.040248904976065,
+          "training_seeds": 3
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": 0.04779108347755461,
+          "mean": 0.011846744649945487,
+          "minimum": -0.03163969001796914,
+          "sample_sd_ddof1": 0.040248904976068166,
+          "training_seeds": 3
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42,
+          43,
+          44
+        ]
+      },
+      "B1-trajectory": {
+        "PDMS_points": {
+          "maximum": 91.38842638184866,
+          "mean": 91.3573866335768,
+          "minimum": 91.34124087938953,
+          "sample_sd_ddof1": 0.026888495782100397,
+          "training_seeds": 3
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": 6.33676048169275e-05,
+          "mean": -0.03097638066704162,
+          "minimum": -0.04712213485430511,
+          "sample_sd_ddof1": 0.026888495782098287,
+          "training_seeds": 3
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42,
+          43,
+          44
+        ]
+      },
+      "FixedLateBrake": {
+        "PDMS_points": {
+          "maximum": 91.24335649890143,
+          "mean": 91.24335649890143,
+          "minimum": 91.24335649890143,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": -0.14500651534240466,
+          "mean": -0.14500651534240466,
+          "minimum": -0.14500651534240466,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42
+        ]
+      },
+      "RandomLocal": {
+        "PDMS_points": {
+          "maximum": 90.48519282022241,
+          "mean": 90.48519282022241,
+          "minimum": 90.48519282022241,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": -0.9031701940214387,
+          "mean": -0.9031701940214387,
+          "minimum": -0.9031701940214387,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42
+        ]
+      },
+      "ScoreRefiner": {
+        "PDMS_points": {
+          "maximum": 91.25709953335853,
+          "mean": 91.25709953335853,
+          "minimum": 91.25709953335853,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "gain_vs_fixed_S0_points": {
+          "maximum": -0.13126348088532805,
+          "mean": -0.13126348088532805,
+          "minimum": -0.13126348088532805,
+          "sample_sd_ddof1": null,
+          "training_seeds": 1
+        },
+        "independent_source_logs": 16,
+        "interpretation": "Descriptive training-seed spread; no5088-independent-scene or hierarchical CI claim.",
+        "same_scenes_across_seeds": true,
+        "scene_population_per_seed": 1696,
+        "seeds": [
+          42
+        ]
+      }
+    },
+    "source_pins": {
+      "baseline": {
+        "completion": {
+          "bytes": 444709,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/COMPLETE.json",
+          "sha256": "881578ddc3427c7a8000fe7ed353bfd2b7b132bb04fe5e226c23e4ecddcfcf70"
+        },
+        "registration": {
+          "bytes": 888,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+          "sha256": "5d20aa1e3d336a562216b46be5b847a1dfa62acb76a6269c962b44f0cc8e46a4"
+        },
+        "result": {
+          "bytes": 4280624,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/S0/seed_42/dev_report/score/RESULT.json",
+          "sha256": "ecfb3209d954836e75feb83eb87d43771fab1db52def27c854ebe42f5f6fbf2c"
+        }
+      },
+      "methods": {
+        "A0_seed42": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "04e65e3e7b76f2fde7056bca6662ad5ab557a6433b62319013b47e04a5713e8b"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "dec88184464201e044bd48c4b25e3520218b541a2202fb66eef73f100490e872"
+          },
+          "result": {
+            "bytes": 4308675,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/dev_report/score/RESULT.json",
+            "sha256": "69ee1477ccd5a4687d69f8e3e0a02d8d1c86a511a41d9416fc23f6aea96a5221"
+          }
+        },
+        "A0_seed43": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_43/dev_report/score/COMPLETE.json",
+            "sha256": "6986dfb40131ce4d92eb01e37439b6dfa5f4c03ebf1b116e288fabb4be0a9ecb"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_43/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "49f6864a1c42c8e615a01ff724bd01cf39f48fa1d1a6c4b6728f9abe54161d06"
+          },
+          "result": {
+            "bytes": 4307898,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_43/dev_report/score/RESULT.json",
+            "sha256": "a3bedd5942590694b2b03827aa90e04eccb45d98bf09bd0d9eb73ec8916fa4d6"
+          }
+        },
+        "A0_seed44": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_44/dev_report/score/COMPLETE.json",
+            "sha256": "7fd18dc66899ea9c1e0e4b1e0ff96ec1bce7aaaf1dda0bc7a5c9dfd383ba95c1"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_44/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "104e98d4a8c1958a629318d7618fb14f09a8b154f287ac97271ae420d99e76e9"
+          },
+          "result": {
+            "bytes": 4307857,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_44/dev_report/score/RESULT.json",
+            "sha256": "9027e6973df40b958d81131f43d7979eb7652460905575eba5bbae27c750e97b"
+          }
+        },
+        "A1_seed42": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "f3dc50deb9afb509fef65a5033380ee7466cc4610e01c54f2a8b14d0e3f9107c"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "624dc30cc5ba7c6c661d5b17d9cde754eb91b792b5a7a695e75290c049a6f70f"
+          },
+          "result": {
+            "bytes": 4308068,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/dev_report/score/RESULT.json",
+            "sha256": "cda66d4bded3ff2580c1e60830cfb6d36389408e6fd9a23bf453a64b42b61ba9"
+          }
+        },
+        "A1_seed43": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_43/dev_report/score/COMPLETE.json",
+            "sha256": "7f6c127bdd058e846abf4e6d3296d45272412d96caae29938315198471a53e02"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_43/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "4b26b2bdb5bf142fd110e6021a1da52e96f2f02a355cd34bba045aaaf581c820"
+          },
+          "result": {
+            "bytes": 4307707,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_43/dev_report/score/RESULT.json",
+            "sha256": "b282ab7ec82a12ab4b8451800400c80dfee91dc8ffe7a50e2827b8b6fbc491d6"
+          }
+        },
+        "A1_seed44": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_44/dev_report/score/COMPLETE.json",
+            "sha256": "2ece2f0f8eec4b8c95f7b4835a018144264aeccdd9977e7508c7b8651e81573c"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_44/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "1f57042a99f287b5d8714f04de2e2e1f7e29226acad9b5ec8b42d32dc8d7a9e4"
+          },
+          "result": {
+            "bytes": 4307368,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_44/dev_report/score/RESULT.json",
+            "sha256": "176a921eb46f0499b40471c901584d19104798c5e9f2825092b649d0a49e147a"
+          }
+        },
+        "B0_seed42": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "acb58493398ce3de07dca2a079a97aa9db3e49fb5ffb159d961178f049dd5b0a"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "950358bd383a55c8f082592ca5796df24cae90950bf69670ff772db373d286ee"
+          },
+          "result": {
+            "bytes": 4309453,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/dev_report/score/RESULT.json",
+            "sha256": "86db9b531ba07b5c21094d8e440dc4a13ddc9d7d66aafb5b5d3c7038e75a6fe7"
+          }
+        },
+        "B0_seed43": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_43/dev_report/score/COMPLETE.json",
+            "sha256": "36bbcb1bb8d0d5bdee1eb658373dde818582e9046b384215fef1ddf18055e649"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_43/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "182d86885f79745bbb99d328f989b8a006916f8bc60575c371ee6ca30f94dd5e"
+          },
+          "result": {
+            "bytes": 4309614,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_43/dev_report/score/RESULT.json",
+            "sha256": "e5f78f5e59a3bc63405b3747bdafe33c08fc74ead46f5e024068548a3d22d6a1"
+          }
+        },
+        "B0_seed44": {
+          "completion": {
+            "bytes": 444709,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_44/dev_report/score/COMPLETE.json",
+            "sha256": "1bc99e88d6ea3ebc6fa39f4f6c650bd1884b497a253248cfac2390ba90d4872a"
+          },
+          "registration": {
+            "bytes": 888,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_44/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "b79ebb9fc5bd414c8a9be21d66183fd347c17c679bb440cd301a35ecff63f8ad"
+          },
+          "result": {
+            "bytes": 4309770,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_44/dev_report/score/RESULT.json",
+            "sha256": "5a63ea91bcb57b635ac3a4917707d31951e20514c2fb081044bc084a10bfe896"
+          }
+        },
+        "B1-effect_seed42": {
+          "completion": {
+            "bytes": 456588,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "85142e866079a9a272e9caa5b2a9666119b6b1f5ba67d58da00ea41d76bf2e76"
+          },
+          "registration": {
+            "bytes": 895,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "471387088ba14790500741d3d4685c9d5b829dc057b5485832882496911d3749"
+          },
+          "result": {
+            "bytes": 4333020,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/dev_report/score/RESULT.json",
+            "sha256": "0b8c14841b77cf808528c38afcc0d830617628c11b246819f1080c6a22f0db34"
+          }
+        },
+        "B1-effect_seed43": {
+          "completion": {
+            "bytes": 456588,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_43/dev_report/score/COMPLETE.json",
+            "sha256": "cea20bc9be05193c40b6c784632706c5de26bb93ca190df181643ff4b6eb9607"
+          },
+          "registration": {
+            "bytes": 895,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_43/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "a8528f1828144853b1585ffe98725c9b472bff40b72c1f275c03768150dcbd45"
+          },
+          "result": {
+            "bytes": 4332858,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_43/dev_report/score/RESULT.json",
+            "sha256": "772f413cdfb8cc499b8571005ec62f105e166d7dde09451f0faca00e6b7ec51f"
+          }
+        },
+        "B1-effect_seed44": {
+          "completion": {
+            "bytes": 456588,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_44/dev_report/score/COMPLETE.json",
+            "sha256": "f050e86f9f93971f92a50d1e58e0d93738ac4b0ad5adb7c6735bc25d5327d1ae"
+          },
+          "registration": {
+            "bytes": 895,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_44/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "165b1efca4d5c36a04bbf2cb93f7bf7ad77531637605cd8c7f8b417d3a109c59"
+          },
+          "result": {
+            "bytes": 4333176,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_44/dev_report/score/RESULT.json",
+            "sha256": "a9db24326640f431a298631275f3fd855f1dd50916428775a3604ed8f81494fb"
+          }
+        },
+        "B1-trajectory_seed42": {
+          "completion": {
+            "bytes": 463376,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "cd6fbef8f0ce1316f9af79317c3e970de1d77029fd82b816e1f7bf5b84b89973"
+          },
+          "registration": {
+            "bytes": 899,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "f13022c561d4fe9c62faa00e55b04947254d575991beaecaf84e866b38c205a1"
+          },
+          "result": {
+            "bytes": 4347953,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/dev_report/score/RESULT.json",
+            "sha256": "f9650276747128e9ea6565a1966c7b382aa64c3e02bea27e139f7386d72c919e"
+          }
+        },
+        "B1-trajectory_seed43": {
+          "completion": {
+            "bytes": 463376,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_43/dev_report/score/COMPLETE.json",
+            "sha256": "81e942b1ca7a6ac4f8e18d9ea7d55dea91b224d267ca3c97da519b60a2b90685"
+          },
+          "registration": {
+            "bytes": 899,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_43/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "bfb84e1e43254122d40207612ee204b07ae63ccec8afaa4edf8a28db90c0a142"
+          },
+          "result": {
+            "bytes": 4347998,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_43/dev_report/score/RESULT.json",
+            "sha256": "a955aeec10472ed0a7df799008076d84c65f66c322a9e610f8053470530ebf47"
+          }
+        },
+        "B1-trajectory_seed44": {
+          "completion": {
+            "bytes": 463376,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_44/dev_report/score/COMPLETE.json",
+            "sha256": "14425d9539fe6cb20e2de784051d9ff9e95d3f7f21a3f9e1db8a4093e912b7d2"
+          },
+          "registration": {
+            "bytes": 899,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_44/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "2fad86bfd55c84db36ba03c456fcf3d39acff128395e344a8ea07dda7f8d5fcb"
+          },
+          "result": {
+            "bytes": 4347816,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_44/dev_report/score/RESULT.json",
+            "sha256": "aa7d02d6d18113518ccf273d25dcc9679eb317b0dfc4084edc983ef5afe00c51"
+          }
+        },
+        "FixedLateBrake_seed42": {
+          "completion": {
+            "bytes": 465073,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "f6bce2eaf2b2236b7c3d32ef88f5935ae26763f8bf1f01ebf84a93f328275a24"
+          },
+          "registration": {
+            "bytes": 900,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "947912f8eb83634fc8940da7f04eea4c675ac6617bcf81f3710e7b29ea805735"
+          },
+          "result": {
+            "bytes": 4344368,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/FixedLateBrake/seed_42/dev_report/score/RESULT.json",
+            "sha256": "75b88128acc8ec91009d31275183891e94b9b7b576d59e60bc184c4a9b353110"
+          }
+        },
+        "RandomLocal_seed42": {
+          "completion": {
+            "bytes": 459982,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "97f0bf394778a76c70b881518c349d386032e7ab4367e21e810b5463d1ca1d50"
+          },
+          "registration": {
+            "bytes": 897,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "c995b392b7a49eb89e740e0bf243804eedd27b708a5e0e42d2ff3569cac8e2b7"
+          },
+          "result": {
+            "bytes": 4330895,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/RandomLocal/seed_42/dev_report/score/RESULT.json",
+            "sha256": "0fa8aac6fe6c6ef62aa462400996b6b8d13d8481c9bd04fba743911e28b477a4"
+          }
+        },
+        "ScoreRefiner_seed42": {
+          "completion": {
+            "bytes": 461679,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/dev_report/score/COMPLETE.json",
+            "sha256": "128c353f6d1d243656c26c27c421fefa1b429265a3d0e6c053a28d4a88550c3c"
+          },
+          "registration": {
+            "bytes": 898,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/dev_report/score/EVALUATION_REGISTRATION.json",
+            "sha256": "bfa3fbcbb50e96e696ce62c2039f2c02998a1b8fcd8f13c7cde50506b08334b5"
+          },
+          "result": {
+            "bytes": 4341451,
+            "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/dev_report/score/RESULT.json",
+            "sha256": "31874c7d56daf0ec415fa8ea8fbd60f90baf7c973425b49f994b02bf59f46c7d"
+          }
+        }
+      }
+    },
+    "status": "COMPLETE",
+    "strict_comparison": {
+      "bytes": 40992,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/comparisons/final_dev1696_all_seeds_v1/COMPARISON.json",
+      "sha256": "8ed42603b817d3ed183bb027c4aad733a8dafb9e21d4577e265338e823710b4c"
+    },
+    "strict_comparison_identity": "08bf17b4588c7aad1bb0bbb4db06a09af97aae2a5b928aade1c808f28287f110",
+    "strict_exit": {
+      "bytes": 89,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/resources/FINAL_DEV_COMPARISON_EXIT.json",
+      "sha256": "466de6eb8bd81ead67bf520d6a12449c5337d44226660680fb4f056ee1a90032"
+    },
+    "strict_serial_seconds": 595.9082963466644
+  },
+  "actual_predeclared_fit_validation_subsets": {
+    "Htrain": 6,
+    "Hval": 1,
+    "heldout_repair_remaining_zero_all_main_seed42": true,
+    "identity_fit": 785,
+    "identity_validation": 232,
+    "labels_and_scene_log_join_exact": true,
+    "report": {
+      "bytes": 42952,
+      "repo_path": "reports/action_effect/PREDECLARED_FIT_VALIDATION_SUBSET_RESULTS.json",
+      "sha256": "f1b3c3333769d5537d3321c6e4c763122deb90e4de951b547449131041cf7120"
+    },
+    "scientific_limit": "n=1 held-out repair cannot establish broad generalization; ordinary replay is separate.",
+    "source_results": {
+      "A0/fit": {
+        "completion": {
+          "bytes": 202055,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/fit/score/COMPLETE.json",
+          "sha256": "b60c75bb4be2c94272a87b1313e804dfeaedee07e8065a912ce47ec6ab04327d"
+        },
+        "evaluation_registration": {
+          "bytes": 924,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "4e32ad996ce5f70f2cd4545eee7c82420415a6bd974e409623ec927425f5e4cd"
+        },
+        "result": {
+          "bytes": 2210537,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/fit/score/RESULT.json",
+          "sha256": "4712e840a10220aa825a2dc199d1b5f7e27d2a68580347dd32baa1e0a0388c04"
+        }
+      },
+      "A0/validation": {
+        "completion": {
+          "bytes": 61402,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/validation/score/COMPLETE.json",
+          "sha256": "ddb0fe221ec64903c3850759c151d88414650ebf10ddf929cccea9148f0507c6"
+        },
+        "evaluation_registration": {
+          "bytes": 931,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "36fcbb74e44b6e4f0fbd4561e802c7216256ead447a70755185867be5c3438b4"
+        },
+        "result": {
+          "bytes": 655261,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A0/seed_42/validation/score/RESULT.json",
+          "sha256": "9608bef0b83065691d267dd323da05e5e57bd8a1c7a2f14cf191761732b23780"
+        }
+      },
+      "A1/fit": {
+        "completion": {
+          "bytes": 202055,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/fit/score/COMPLETE.json",
+          "sha256": "ad830949ff75bdab176e15a5e82942edb2ff3efa863d14ea2927aa801bd82714"
+        },
+        "evaluation_registration": {
+          "bytes": 924,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "f40a3986f947895d76d9b009dad8b3a8fa33ae3be30c5685c18f569c3cbadb07"
+        },
+        "result": {
+          "bytes": 2210141,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/fit/score/RESULT.json",
+          "sha256": "307b8ba094004a651fd098f079a1ea141f7108cb5590bb596d7837df2fd4815f"
+        }
+      },
+      "A1/validation": {
+        "completion": {
+          "bytes": 61402,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/validation/score/COMPLETE.json",
+          "sha256": "85dbf93e5b66e66d9e41fe4dfc707ce1da38e11e2d6f4012b9969be08202d2d5"
+        },
+        "evaluation_registration": {
+          "bytes": 931,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "886f2207f0ff1b629b2db55924ea40a6fd017f5a5c57fba675ea87e352ff399e"
+        },
+        "result": {
+          "bytes": 655079,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/validation/score/RESULT.json",
+          "sha256": "672155b25bc08389051449b7d5629d35c9c6df7356057427ee500402a6ea89f2"
+        }
+      },
+      "B0/fit": {
+        "completion": {
+          "bytes": 202055,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/fit/score/COMPLETE.json",
+          "sha256": "917c53798943f481a65678808915ea0a25e54341754964a2956f587c0be0791e"
+        },
+        "evaluation_registration": {
+          "bytes": 924,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "77673e4a4f236c90c4cba393113c42511b4a695361656b3692b9a3c612318efa"
+        },
+        "result": {
+          "bytes": 2212195,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/fit/score/RESULT.json",
+          "sha256": "4dbcf37972646ec4163661a03b8fc96c9b7ff14e4e8c99d4350babfdb3533651"
+        }
+      },
+      "B0/validation": {
+        "completion": {
+          "bytes": 61402,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/validation/score/COMPLETE.json",
+          "sha256": "4a3613a810bc49b8055f3e64bda5c8c011aca210ed8482c544ba0607515177cf"
+        },
+        "evaluation_registration": {
+          "bytes": 931,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "2c223d1f3fe80892e04caf2919ec930771eae5e98ab80de2f6682cb3d5932993"
+        },
+        "result": {
+          "bytes": 656105,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B0/seed_42/validation/score/RESULT.json",
+          "sha256": "9d946ff7ffa4ea5ecc8858d48b9e3447d6b18bb4a7a5c7a02e4e4db057656104"
+        }
+      },
+      "B1-effect/fit": {
+        "completion": {
+          "bytes": 207599,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/fit/score/COMPLETE.json",
+          "sha256": "2bf180d92230a0d62327603ecedd03b45a482f6444a1ea43e88696ec45829b4c"
+        },
+        "evaluation_registration": {
+          "bytes": 931,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "e5fcb58284c01ed84557fd5918f4716c31db0be3aa398d04748865c1af3d70ec"
+        },
+        "result": {
+          "bytes": 2223086,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/fit/score/RESULT.json",
+          "sha256": "6cfb8343c3d7189532450ee1715f9dd1775372d28b2c14988cc51fcdc9e5d0d9"
+        }
+      },
+      "B1-effect/validation": {
+        "completion": {
+          "bytes": 63040,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/validation/score/COMPLETE.json",
+          "sha256": "de225e78912a0eb4a582e6fd4874a59531835603e50fab62d48c712bbb3d7362"
+        },
+        "evaluation_registration": {
+          "bytes": 938,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "98492e2ffbc865cdaa4acc6f5628c5b8f9ecf5700fb1cd4a9aad60684b110464"
+        },
+        "result": {
+          "bytes": 659415,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/validation/score/RESULT.json",
+          "sha256": "a6af8540a3f03a6eb3568d5e5da922868386f27d74340395f10ddac90c2f59ae"
+        }
+      },
+      "B1-trajectory/fit": {
+        "completion": {
+          "bytes": 210767,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/fit/score/COMPLETE.json",
+          "sha256": "01a02332e5b58d72848215d6035835edc0f31d3308c1f87db2c05b785b87c03c"
+        },
+        "evaluation_registration": {
+          "bytes": 935,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "c88eff10d55b0608472f65cb82a6e61c54c385fa6c1e1200a269a6adcb947b7c"
+        },
+        "result": {
+          "bytes": 2230156,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/fit/score/RESULT.json",
+          "sha256": "5cea65bf99919eb21fa873b1e1fbc64633340d4986e32ac20b0fe051466cbf03"
+        }
+      },
+      "B1-trajectory/validation": {
+        "completion": {
+          "bytes": 63976,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/validation/score/COMPLETE.json",
+          "sha256": "121bfbd6604dcddb7a57a8c83c1550d55c3de72754c8f5180a4d530b1a88d1af"
+        },
+        "evaluation_registration": {
+          "bytes": 942,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "f6c3bcc1503dec12d39164471dde3381f499777d0b51a6bb24af8bdbea193c38"
+        },
+        "result": {
+          "bytes": 661395,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-trajectory/seed_42/validation/score/RESULT.json",
+          "sha256": "8c598538c214946b7b368f93d0d8c01d0a406f4fbadfbfdb9a8ebaf050ede582"
+        }
+      },
+      "ScoreRefiner/fit": {
+        "completion": {
+          "bytes": 209975,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/fit/score/COMPLETE.json",
+          "sha256": "d4ac333983b736ae7d1831d64aa662212a98dcd94e1ea890e35e8bfba8ca5a5c"
+        },
+        "evaluation_registration": {
+          "bytes": 934,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/fit/score/EVALUATION_REGISTRATION.json",
+          "sha256": "bcd563f8de7400aedf6b23f115eb415eaf5467e7fe5d2c4763b5cd355b4bcae3"
+        },
+        "result": {
+          "bytes": 2224341,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/fit/score/RESULT.json",
+          "sha256": "921c93c0e124cefe7d28ce21787f41b9f76cf3016e544be7571d34c1b4d11d8a"
+        }
+      },
+      "ScoreRefiner/validation": {
+        "completion": {
+          "bytes": 63742,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/validation/score/COMPLETE.json",
+          "sha256": "6cad94d8a299f036570707a6754cd40e2fd9bcfd1c21637b8673058faf23456c"
+        },
+        "evaluation_registration": {
+          "bytes": 941,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/validation/score/EVALUATION_REGISTRATION.json",
+          "sha256": "a1205357051aa116dd28a32c5279f9b40b961fda619419e00b4324fdce14e1de"
+        },
+        "result": {
+          "bytes": 659324,
+          "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/ScoreRefiner/seed_42/validation/score/RESULT.json",
+          "sha256": "5477ea5fef3ad680e823ecb0c4c4dbcce45f67f4da6f3cfc92e9d1fe9f04dbec"
+        }
+      }
+    },
+    "status": "COMPLETE"
+  },
   "actual_route_DEV_scoring_snapshot": {
     "complete_of_planned_route_scores": "14/16 at immutable snapshot time",
     "interpretation": "Existing scoring envelopes and complete identical1696 scene/log population checked. No new simulation/forward or claim of safe/significant superiority.",
@@ -529,6 +1345,33 @@
   },
   "captured_at_utc": "2026-10-20T03:23:09.475379+00:00",
   "documentation_start_commit": "792b287e",
+  "final_native_cost_summary": {
+    "G0_all_prefix_canonical_requests": 23735,
+    "budget_scope": "formalDEV1712*19+TRAIN1040*6 separately from G032768; older serial dispatcher32768 not full matrix",
+    "invalid": 0,
+    "lawful_reuses": 188,
+    "official_score_stages": 31,
+    "report_repo_path": "reports/action_effect/NATIVE_EVALUATION_COST_SUMMARY.json",
+    "reserved_new_evaluation_requests": 38180,
+    "retries": 0,
+    "scene_policy_evaluations": 38368,
+    "scoped_requests_total": 61915,
+    "unit": "fixed-reference candidate request; not one internal rollout"
+  },
+  "final_training_segments": {
+    "GPU_hours_training_segments_only": 4.2354,
+    "formal_models": 23,
+    "matrix": {
+      "bytes": 10494,
+      "repo_path": "reports/action_effect/TRAINING_EXECUTION_MATRIX.csv",
+      "sha256": "ef44a8fbcb7d6bc711f963733feec2315b02215695b0f1f95f98fb49a67d17ca",
+      "source_commit": "f7dabd0a"
+    },
+    "optimizer_updates_per_model": 1000,
+    "scope": "Excludes context extraction, official scoring, validation, qualifications, online and fleet reservation.",
+    "status": "COMPLETE",
+    "total_formal_updates": 23000
+  },
   "formal_model_artifact_snapshot": [
     {
       "actual_live_process": "NOT_VERIFIED_BY_DOCUMENTATION_AUDIT",
@@ -1423,7 +2266,7 @@
     },
     "train_validation_log_overlap": 0
   },
-  "last_augmented_at_utc": "2026-10-20T04:00:42.683531+00:00",
+  "last_augmented_at_utc": "2026-10-20T04:18:32.421702+00:00",
   "model_snapshot_at_utc": "2026-10-20T03:38:32.671306+00:00",
   "new_GPU_calls_by_documentation_audit": 0,
   "new_native_simulation_calls_by_documentation_audit": 0,
@@ -1530,7 +2373,12 @@
     ]
   },
   "schema": "action_effect_research_evidence_rollup_v1",
-  "scientific_conclusion": "INCONCLUSIVE_PENDING_MATCHED_LEARNING_AND_POLICY_RESULTS",
+  "scientific_conclusion": "INCREMENTAL_PHYSICAL_EFFECT_BENEFIT_NOT_SUPPORTED_AT_TESTED_BUDGET",
+  "scientific_verdict_draft": {
+    "bytes": 6853,
+    "repo_path": "reports/action_effect/SCIENTIFIC_VERDICT_DRAFT.json",
+    "sha256": "c74631186349570ef9f2e03a669b2f03c26264bad05198cd568af7d19a1d79ef"
+  },
   "scope": "read-only existing artifact and source-report aggregation; no native recompute, GPU experiment or whole-suite rerun",
   "source_report_index": {
     "BASELINE_ASSET_INDEX.json": {
