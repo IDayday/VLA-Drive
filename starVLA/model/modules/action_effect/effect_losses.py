@@ -28,7 +28,10 @@ class LossContribution:
             dist.all_reduce(count)
             world = dist.get_world_size()
         # DDP averages gradients; scale local sums by world/global_count.
-        return self.numerator.float() * (world / count.clamp_min(1.))
+        # Ranking denominators are masses, not integer counts: a legitimate
+        # sum(|gap|)<1 must retain its exact scale. Only replace a zero mass.
+        denominator = torch.where(count > 0, count, torch.ones_like(count))
+        return self.numerator.float() * (world / denominator)
 
 
 @dataclass

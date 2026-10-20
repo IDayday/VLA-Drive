@@ -178,6 +178,16 @@ def test_actual_backward_and_update_all_modes(mode):
     optimizer.step(); assert previous != state_hash(model)
 
 
+def test_single_small_gap_uses_exact_distribution_mass_not_unit_clamp():
+    prediction = torch.tensor([.03], requires_grad=True)
+    loss = ranking_contribution(prediction, torch.tensor([.02]), torch.tensor([True])).mean()
+    expected = torch.nn.functional.softplus(-prediction[0] / .1)
+    torch.testing.assert_close(loss, expected, rtol=0, atol=1e-7)
+    observed_gradient, = torch.autograd.grad(loss, prediction, retain_graph=True)
+    expected_gradient, = torch.autograd.grad(expected, prediction)
+    torch.testing.assert_close(observed_gradient, expected_gradient, rtol=0, atol=1e-6)
+
+
 def test_gap_is_not_cancelled_and_gap_sampled_stream_is_not_squared():
     prediction = torch.tensor([.2, .2], requires_grad=True)
     gap = torch.tensor([.95, .02]); valid = torch.ones(2, dtype=torch.bool)
