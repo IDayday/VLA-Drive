@@ -1,0 +1,703 @@
+{
+  "schema_version": "action_effect_primary_evidence_v1",
+  "audit_time_utc": "2026-10-20T00:59:58.891015+00:00",
+  "workspace_base_commit": "36493208ba4d8c25bedfcc43935a4ce4527131cc",
+  "scope": "READ_ONLY_PRIMARY_PAPER_AND_CODE_AUDIT",
+  "papers": [
+    {
+      "id": "reflect_vla",
+      "title": "Reflect-VLA: Internalizing Reflective Guidance via Dual-Path On-Policy Self-Distillation for Autonomous Driving",
+      "version": "2610.13453v1",
+      "first_submitted_utc": "2026-10-09T11:52:17Z",
+      "read_sections": [
+        "3.1-3.4",
+        "Appendix D/E"
+      ],
+      "learning_object": "privileged feedback-conditioned token distributions and self-preservation",
+      "official_simulator_feedback": true,
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "explicit_refinement_training": true,
+      "direct_student_deployment": true,
+      "new_external_scorer_weights_used_by_this_audit": false,
+      "official_repo": "luo-yc17/Reflect-VLA",
+      "code_status": "README_AND_IMAGES_ONLY",
+      "cost": "Training rollout/evaluation and teacher forward; unguided student at deployment. Not our measured runtime."
+    },
+    {
+      "id": "elf_vla",
+      "title": "Unleashing VLA Potentials in Autonomous Driving via Explicit Learning from Failures",
+      "version": "2603.01063v1",
+      "first_submitted_utc": "2026-03-01T11:41:22Z",
+      "read_sections": [
+        "3.2-3.4",
+        "6.2",
+        "7",
+        "8.1"
+      ],
+      "learning_object": "structured feedback, refined response injection, policy shaping",
+      "official_simulator_feedback": true,
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "explicit_refinement_training": true,
+      "external_teacher_in_paper": "Qwen3-VL-32B feedback; not used in this project",
+      "official_repo": "luo-yc17/ELF-VLA",
+      "code_status": "README_LICENSE_IMAGES_ONLY",
+      "cost": "External diagnostic teacher and extra rollout/scoring during training."
+    },
+    {
+      "id": "guideflow",
+      "title": "GuideFlow: Constraint-Guided Flow Matching for Planning in End-to-End Autonomous Driving",
+      "version": "2511.18729v3",
+      "first_submitted_utc": "2025-11-24T03:45:32Z",
+      "version_date_utc": "2026-02-21T13:27:33Z",
+      "read_sections": [
+        "3",
+        "4.1-4.4",
+        "Eq14-18"
+      ],
+      "learning_object": "constraint velocity/state and energy-aware generation",
+      "official_simulator_feedback": "Reward/constraint uses; not this project simulator binding",
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "explicit_generation_correction": true,
+      "official_repo": "adept-thu/GuideFlow",
+      "code_status": "ACTUAL_CODE_READ_LICENSE_NOT_IDENTIFIED_FOR_NEW_TREE",
+      "important_actual_code_facts": [
+        "V10 forward_test reads camera_feature and lidar_feature.",
+        "gt_energy variable in audited inference path is derived from predicted bev_semantic_map, not inferred as GT from its name.",
+        "ReflowTrajectoryHead.forward_test indexes anchor by token and uses 100 steps with conditional/unconditional calls.",
+        "Not an unchanged Euler10 camera-only implementation."
+      ],
+      "old_repo": "liulin815/GuideFlow",
+      "old_repo_license_not_automatically_applied_to_new_tree": true
+    },
+    {
+      "id": "flowdpg",
+      "title": "FlowDPG: Deterministic Policy Gradient on Flow Matching Policies for Real-World Manipulation",
+      "version": "2606.22303v2",
+      "first_submitted_utc": "2026-06-21T02:10:21Z",
+      "version_date_utc": "2026-09-30T08:21:44Z",
+      "read_sections": [
+        "3.1-3.2",
+        "Eq4-11",
+        "Algorithm1",
+        "AppendixA/B"
+      ],
+      "learning_object": "critic-gradient shifted clean-action target distilled to flow velocity",
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "world_feedback": "Real robot data plus frozen SARM reward predictor in paper; no NAVSIM equivalence claim",
+      "direct_multistep_policy_deployment": true,
+      "code_status": "OFFICIAL_EXECUTABLE_CODE_NOT_IDENTIFIED",
+      "official_project_url": "https://flowdpg.github.io/",
+      "approximations": [
+        "one-step clean estimate instead of ODE endpoint",
+        "state-sensitivity approximation",
+        "single sampled time and adaptive gradient magnitude"
+      ],
+      "cost": "One extra clean-estimate forward and critic action-gradient in training; pure multistep ODE inference in paper."
+    },
+    {
+      "id": "wpt",
+      "title": "WPT: World-to-Policy Transfer via Online World Model Distillation",
+      "version": "2511.20095v2",
+      "also_read": "2511.20095v1",
+      "first_submitted_utc": "2025-11-25T09:12:06Z",
+      "version_date_utc": "2026-03-18T02:40:09Z",
+      "read_sections": [
+        "3.1-3.4",
+        "6.3",
+        "7.2"
+      ],
+      "learning_object": "world-aware reward and policy/world-reward distillation",
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "predicted_future_distinct_from_simulator_ground_truth": true,
+      "direct_student_deployment": true,
+      "code_status": "OFFICIAL_EXECUTABLE_CODE_NOT_IDENTIFIED",
+      "cost": "World rollouts, multimodal teacher, reward model at training; student can omit world model at deployment."
+    },
+    {
+      "id": "dfql",
+      "title": "Direct Flow Q-Learning",
+      "proceedings": "ICML2026 PMLR306 11182-11205",
+      "proceedings_date_range": "2026-07-06/2026-07-11",
+      "paper_url": "https://proceedings.mlr.press/v306/cao26f.html",
+      "pdf_url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/cao26f/cao26f.pdf",
+      "pdf_sha256": "3e6cfbca11f6c79e685bb558569d8e8cc895bbc45925b427c3a519500ef3cd54",
+      "pdf_bytes": 2890560,
+      "pdf_pages": 24,
+      "read_sections": [
+        "2.2",
+        "3.1-3.3",
+        "Eq5-21",
+        "AppendixA/C"
+      ],
+      "learning_object": "terminal Q-gradient projected to detached Euler-step velocity surrogate",
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "ODE_time_not_physical_waypoint_time": true,
+      "direct_multistep_policy_deployment": true,
+      "official_repo": "2012060/Direct-Flow-Q-Learning",
+      "code_status": "ACTUAL_CODE_READ",
+      "source_old_url": "https://github.com/2012060/DFQL",
+      "cost": "Multi-step generated and straight-bridge BC evaluations plus critic gradients at training; no test critic required."
+    },
+    {
+      "id": "fpo",
+      "title": "Flow Matching Policy Gradients",
+      "version": "2507.21053v2",
+      "first_submitted_utc": "2025-07-28T17:59:57Z",
+      "version_date_utc": "2025-08-01T13:04:28Z",
+      "read_sections": [
+        "3",
+        "Algorithm1",
+        "AppendixA"
+      ],
+      "learning_object": "advantage-weighted CFM-loss surrogate likelihood ratios with clipping",
+      "exact_likelihood": false,
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "official_repo": "akanazawa/fpo",
+      "code_status": "ACTUAL_CODE_READ_LICENSE_NOT_IDENTIFIED_FOR_WHOLE_REPO",
+      "cost": "Rollout/evaluator and old/new CFM Monte Carlo samples; no inference sampler restriction."
+    },
+    {
+      "id": "rfo",
+      "title": "Reparameterization Flow Policy Optimization",
+      "version": "2602.03501v1",
+      "first_submitted_utc": "2026-02-03T13:22:08Z",
+      "read_sections": [
+        "4.1-4.5",
+        "Eq11-15",
+        "AppendixB/E/F"
+      ],
+      "learning_object": "pathwise policy gradient through ODE and differentiable dynamics plus CFM regularization",
+      "requires_differentiable_dynamics_for_claimed_RPG": true,
+      "paired_intervention_delta_F": "NOT_ESTABLISHED_BY_READ_TEXT",
+      "code_status": "OFFICIAL_ALGORITHM_CODE_NOT_IDENTIFIED_SIMULATOR_LINKS_ARE_NOT_ALGORITHM_CODE"
+    },
+    {
+      "id": "awr",
+      "title": "Advantage-Weighted Regression: Simple and Scalable Off-Policy Reinforcement Learning",
+      "version": "1910.00177v3",
+      "first_submitted_utc": "2019-10-01T02:23:38Z",
+      "version_date_utc": "2019-10-07T20:23:21Z",
+      "read_sections": [
+        "3",
+        "Eq3-10",
+        "Algorithm1"
+      ],
+      "learning_object": "value regression and exponentiated-advantage weighted behavior likelihood",
+      "paired_intervention_delta_F": false,
+      "official_repo": "xbpeng/awr",
+      "code_status": "ACTUAL_CODE_READ",
+      "actual_function": "AWRAgent._calc_adv_weights"
+    },
+    {
+      "id": "dpo",
+      "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+      "version": "2305.18290v3",
+      "first_submitted_utc": "2023-05-29T17:57:46Z",
+      "version_date_utc": "2024-07-29T22:26:36Z",
+      "read_sections": [
+        "4",
+        "Eq4-7"
+      ],
+      "learning_object": "reference-relative preference log-probability difference",
+      "FM_MSE_not_automatically_log_likelihood": true,
+      "official_repo": "eric-mitchell/direct-preference-optimization",
+      "code_status": "ACTUAL_CODE_READ",
+      "actual_function": "trainers.preference_loss"
+    },
+    {
+      "id": "chomp",
+      "title": "CHOMP: Gradient Optimization Techniques for Efficient Motion Planning",
+      "version": "ICRA2009 author PDF",
+      "paper_url": "https://www.cs.cmu.edu/~mzucker/icra09-chomp.pdf",
+      "read_sections": [
+        "II-A-F",
+        "Eq1-4"
+      ],
+      "learning_object": "smooth covariant trajectory optimization",
+      "code_status": "PAPER_ONLY_NO_THIRD_PARTY_IMPLEMENTATION_IMPORTED"
+    },
+    {
+      "id": "stomp",
+      "title": "STOMP: Stochastic Trajectory Optimization for Motion Planning",
+      "version": "ICRA2011 4569-4574",
+      "doi": "10.1109/ICRA.2011.5980280",
+      "paper_url": "https://whiteoak.umd.edu/roswiki/attachments/Papers%282f%29ICRA2011_Kalakrishnan/kalakrishnan_icra2011.pdf",
+      "pdf_sha256": "ff3da3d9388d3b8623d8533d9d356c33bc8293bca45c1e42edbdf365d827ee76",
+      "pdf_bytes": 1817491,
+      "pdf_pages": 6,
+      "read_sections": [
+        "III"
+      ],
+      "learning_object": "smooth correlated perturbations and derivative-free rollout cost update",
+      "official_repo": "kalakris/stomp_motion_planner_icra2011",
+      "code_status": "ACTUAL_SOURCE_READ",
+      "actual_function": "PolicyImprovement",
+      "file_license": "BSD-3-clause text in policy_improvement.cpp; no root SPDX from API"
+    },
+    {
+      "id": "cpo",
+      "title": "Constrained Policy Optimization",
+      "version": "ICML2017 PMLR70 author PDF",
+      "arxiv": "1705.10528",
+      "first_submitted_utc": "2017-05-30T10:07:31Z",
+      "paper_url": "https://proceedings.mlr.press/v70/achiam17a/achiam17a.pdf",
+      "read_sections": [
+        "5"
+      ],
+      "claim_scope": "Expected costs under model and approximation assumptions; not per-scene hard safety guarantee."
+    },
+    {
+      "id": "coma",
+      "title": "Counterfactual Multi-Agent Policy Gradients",
+      "version": "AAAI2018 author PDF",
+      "arxiv": "1705.08926",
+      "first_submitted_utc": "2017-05-24T18:52:17Z",
+      "paper_url": "https://www.cs.ox.ac.uk/people/shimon.whiteson/pubs/foersteraaai18.pdf",
+      "read_sections": [
+        "4"
+      ],
+      "claim_scope": "Replace one action while keeping other agents fixed; not direct evidence of 8-waypoint temporal causal responsibility."
+    },
+    {
+      "id": "rails",
+      "title": "Learning To Drive From a World on Rails",
+      "arxiv": "2105.00636",
+      "first_submitted_utc": "2021-05-03T05:55:30Z",
+      "paper_url": "https://openaccess.thecvf.com/content/ICCV2021/papers/Chen_Learning_To_Drive_From_a_World_on_Rails_ICCV_2021_paper.pdf",
+      "read_sections": [
+        "3"
+      ],
+      "learning_object": "ego forward dynamics, non-reactive logged environment, dynamic-programming values and visual policy distillation"
+    },
+    {
+      "id": "navsim_v1",
+      "title": "NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking",
+      "arxiv": "2406.15349",
+      "first_submitted_utc": "2024-06-21T17:59:02Z",
+      "paper_url": "https://arxiv.org/abs/2406.15349",
+      "claim_scope": "Non-reactive environment and fixed full-plan evaluation; actual local scorer version must be bound separately."
+    },
+    {
+      "id": "navsim_v2",
+      "title": "Pseudo-Simulation for Autonomous Driving",
+      "version": "2506.04218v3",
+      "first_submitted_utc": "2025-06-04T17:57:53Z",
+      "version_date_utc": "2026-03-20T17:00:17Z",
+      "read_sections": [
+        "3.1-3.2",
+        "Eq1"
+      ],
+      "claim_scope": "Two-stage/EC context and optional reactive backgrounds; ego still submits one complete plan."
+    }
+  ],
+  "repositories": [
+    {
+      "repo": "luo-yc17/Reflect-VLA",
+      "sha": "693a45ebd91295c5eacb7c78a8908b78d914858c",
+      "date": "2026-10-08T16:25:15Z",
+      "blob_count": 3,
+      "license_spdx": null,
+      "selected_tree_entries": [
+        {
+          "path": "README.md",
+          "sha": "bc75f21c3f292f37d503dd6d56118bafe52829f7",
+          "size": 5436
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "luo-yc17/ELF-VLA",
+      "sha": "5eb04cc7484a435fa4c1e2fcd413a2766c910351",
+      "date": "2026-03-10T15:28:09Z",
+      "blob_count": 4,
+      "license_spdx": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "selected_tree_entries": [
+        {
+          "path": "LICENSE",
+          "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+          "size": 11357
+        },
+        {
+          "path": "README.md",
+          "sha": "166b29bc6099e46b044a83990cf6cbdc7637d1f0",
+          "size": 2985
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "liulin815/GuideFlow",
+      "sha": "3d2e36b85050918eade3e30f6a5aefae1dbbf109",
+      "date": "2026-02-21T13:30:51Z",
+      "blob_count": 15,
+      "license_spdx": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "selected_tree_entries": [
+        {
+          "path": "LICENSE",
+          "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+          "size": 11357
+        },
+        {
+          "path": "README.md",
+          "sha": "09b729eed34b9ca9bf5ce25e4d2228f991270561",
+          "size": 5383
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "adept-thu/GuideFlow",
+      "sha": "878b1877a84f8c5305370468c9e9fbd3c91b38a1",
+      "date": "2026-06-10T11:09:45Z",
+      "blob_count": 1247,
+      "license_spdx": null,
+      "selected_tree_entries": [
+        {
+          "path": "README.md",
+          "sha": "a80de7abf5a1d0091fa0de2c9e0dc686a82e3210",
+          "size": 6289
+        },
+        {
+          "path": "navsim_train/agents/flowdrive_unet/rectifiedflow.py",
+          "sha": "fffc9e7c08c633400987841b7b6e67daf7fcaaa0",
+          "size": 3588
+        },
+        {
+          "path": "navsim_train/agents/flowdrive_unet/transfuser_model_v10.py",
+          "sha": "1df254150c390ddc7f953b07caf537c7f1f7c582",
+          "size": 30488
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "2012060/Direct-Flow-Q-Learning",
+      "sha": "8b6b15803cc1e5605ad1524553a2c95e103b0bad",
+      "date": "2026-05-24T15:26:37Z",
+      "blob_count": 25,
+      "license_spdx": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "selected_tree_entries": [
+        {
+          "path": "LICENSE",
+          "sha": "5afd8e82eb3bb69d2301644495af50dc61e7322c",
+          "size": 1079
+        },
+        {
+          "path": "README.md",
+          "sha": "d7d387081048149890a3499e7fef5578cd3af15b",
+          "size": 9149
+        },
+        {
+          "path": "agents/dfql.py",
+          "sha": "e266620dd015e24a8f322fe3eece386d06588b41",
+          "size": 11904
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "akanazawa/fpo",
+      "sha": "418c2554f7cd22d52e14c07d951280929d73bf2f",
+      "date": "2026-01-13T00:32:09Z",
+      "blob_count": 72,
+      "license_spdx": null,
+      "selected_tree_entries": [
+        {
+          "path": "README.md",
+          "sha": "22938237f7c4cd99c35e8ec36d4c63bb6c1543e0",
+          "size": 1815
+        },
+        {
+          "path": "gridworld/models/diffusion_policy.py",
+          "sha": "8f7bf49e9ed3f9dcb89039d40406b38303a1a625",
+          "size": 5317
+        },
+        {
+          "path": "gridworld/models/fpo.py",
+          "sha": "2d1c3e2dd59834e85c1180965430adeaa7c2712f",
+          "size": 12231
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "xbpeng/awr",
+      "sha": "831442fb8d4c24bd200667cbc5e458c7657effc2",
+      "date": "2020-05-30T03:19:04Z",
+      "blob_count": 87,
+      "license_spdx": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "selected_tree_entries": [
+        {
+          "path": "LICENSE",
+          "sha": "3416f5117c4d99048a8d82fc4e98a6f960b8aebc",
+          "size": 1069
+        },
+        {
+          "path": "README.md",
+          "sha": "80f992b32f7e9024decab1ce9d997692a20f4913",
+          "size": 1929
+        },
+        {
+          "path": "learning/awr_agent.py",
+          "sha": "78b522e0559134ee7c74ddcdde60e8aaeef0f7d3",
+          "size": 15732
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "eric-mitchell/direct-preference-optimization",
+      "sha": "f8b8c0f49dc92a430bae41585f9d467d3618fe2f",
+      "date": "2023-12-14T19:47:13Z",
+      "blob_count": 17,
+      "license_spdx": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "selected_tree_entries": [
+        {
+          "path": "LICENSE",
+          "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+          "size": 11357
+        },
+        {
+          "path": "README.md",
+          "sha": "e30ca7c35929d578d422dce956206203bdb61766",
+          "size": 11880
+        },
+        {
+          "path": "trainers.py",
+          "sha": "a7ac2f69ee8a9647fae967d850db1dd573e4e169",
+          "size": 29209
+        }
+      ],
+      "direct_code_copied_into_project": false
+    },
+    {
+      "repo": "kalakris/stomp_motion_planner_icra2011",
+      "sha": "2a30860e34136e9b9b7f18270ee37a5cf7837782",
+      "date": "2011-02-11T06:02:22Z",
+      "blob_count": 79,
+      "license_spdx": null,
+      "selected_tree_entries": [
+        {
+          "path": "stomp_motion_planner/src/policy_improvement.cpp",
+          "sha": "40aba29c5953361aece2a36e5a16d76041ad2263",
+          "size": 16843
+        }
+      ],
+      "direct_code_copied_into_project": false
+    }
+  ],
+  "code_reads": [
+    {
+      "name": "GuideFlow_v10",
+      "url": "https://raw.githubusercontent.com/adept-thu/GuideFlow/878b1877a84f8c5305370468c9e9fbd3c91b38a1/navsim_train/agents/flowdrive_unet/transfuser_model_v10.py",
+      "bytes": 30488,
+      "sha256": "c6c0382acd6b92e6d433a39249df4a61766d6dfe41e98d9904de4300ec78a597"
+    },
+    {
+      "name": "GuideFlow_rectified",
+      "url": "https://raw.githubusercontent.com/adept-thu/GuideFlow/878b1877a84f8c5305370468c9e9fbd3c91b38a1/navsim_train/agents/flowdrive_unet/rectifiedflow.py",
+      "bytes": 3588,
+      "sha256": "fe5adac514cc0a314c051df5a7e5af61b0199c451f4c6e3a68c79d4fb801a808"
+    },
+    {
+      "name": "FPO_grid",
+      "url": "https://raw.githubusercontent.com/akanazawa/fpo/418c2554f7cd22d52e14c07d951280929d73bf2f/gridworld/models/fpo.py",
+      "bytes": 12231,
+      "sha256": "e984243dff2120865886c7ace0cebc460c5afc529b6bfc127a3bfb1bdbbdb6cd"
+    },
+    {
+      "name": "FPO_diffusion",
+      "url": "https://raw.githubusercontent.com/akanazawa/fpo/418c2554f7cd22d52e14c07d951280929d73bf2f/gridworld/models/diffusion_policy.py",
+      "bytes": 5317,
+      "sha256": "40ce20a54cf8323b4dbb742780f3bd4956e01398e1a15ec517a10ef48c2685cf"
+    },
+    {
+      "name": "DPO",
+      "url": "https://raw.githubusercontent.com/eric-mitchell/direct-preference-optimization/f8b8c0f49dc92a430bae41585f9d467d3618fe2f/trainers.py",
+      "bytes": 29209,
+      "sha256": "96615b95a9fa52fd7c25b3c24b5e35998906e62bb564bee08022fb7aa1ce298a"
+    },
+    {
+      "name": "DFQL",
+      "url": "https://raw.githubusercontent.com/2012060/Direct-Flow-Q-Learning/8b6b15803cc1e5605ad1524553a2c95e103b0bad/agents/dfql.py",
+      "bytes": 11904,
+      "sha256": "c893151303f507bd77fdb918b8a956d92a582c9f2f6aa7cb9acbcc132c4ecc21"
+    },
+    {
+      "name": "AWR",
+      "url": "https://raw.githubusercontent.com/xbpeng/awr/831442fb8d4c24bd200667cbc5e458c7657effc2/learning/awr_agent.py",
+      "bytes": 15732,
+      "sha256": "5e2f4069eb4541fc7c7e8d4311123c0a2df061328773bcd9be114a9b9559edb6"
+    },
+    {
+      "name": "STOMP",
+      "url": "https://raw.githubusercontent.com/kalakris/stomp_motion_planner_icra2011/2a30860e34136e9b9b7f18270ee37a5cf7837782/stomp_motion_planner/src/policy_improvement.cpp",
+      "bytes": 16843,
+      "sha256": "2d160ac6b7ae513a84cc679b38fffeb5822d5cc204441df7f9fe63d2a4d3b7d7"
+    }
+  ],
+  "external_weights_loaded": false,
+  "external_code_copied": false,
+  "training_environment_modified": false,
+  "research_results_claimed": false,
+  "new_training_updates": 0,
+  "new_simulator_calls": 0,
+  "new_gpu_jobs": 0,
+  "private_evidence_root": "/mnt/project/action-effect-literature-audit-20261020",
+  "access_failures": [
+    {
+      "url": "https://openreview.net/pdf?id=RdkOaK4q6p",
+      "reason": "browser challenge; used actual PMLR-linked PDF instead"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/cao26f/cao26f.pdf",
+      "reason": "web parser unsupported application/octet-stream; direct PDF fetch and isolated pure Python parser succeeded"
+    },
+    {
+      "url": "https://ftp.oregonstate.edu/pub/ros/ros_wiki_mirror/attachments/Papers%282f%29ICRA2011_Kalakrishnan/kalakrishnan_icra2011.pdf",
+      "reason": "TLS hostname mismatch; did not disable certificate verification; UMD mirror succeeded"
+    }
+  ],
+  "notes": [
+    "No claims of exhaustive absence of unpublished code.",
+    "Third-party WPT implementation is not official source.",
+    "Wrong guessed arXiv and similarly named unrelated products are excluded from evidence.",
+    "pypdf5.1.0 downloaded to audit-only directory as wheel; zip import only, not installed."
+  ],
+  "paper_fulltext_receipts": [
+    {
+      "version": "2610.13453v1",
+      "url": "https://arxiv.org/html/2610.13453v1",
+      "status": "READ",
+      "bytes": 347179,
+      "sha256": "da65a3eddfce75341f586dbcf7e71d3f049e978a9209ac4f760cd4dfe13babfc",
+      "title": "Reflect-VLA: Internalizing Reflective Guidance via Dual-Path On-Policy Self-Distillation for Autonomous Driving",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2603.01063v1",
+      "url": "https://arxiv.org/html/2603.01063v1",
+      "status": "READ",
+      "bytes": 351352,
+      "sha256": "cb37e5e215c2334788f385b9515ed562a108ac6ffe883cb50b4e76ce25f23590",
+      "title": "Unleashing VLA Potentials in Autonomous Driving via Explicit Learning from Failures",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2511.18729v3",
+      "url": "https://arxiv.org/html/2511.18729v3",
+      "status": "READ",
+      "bytes": 311293,
+      "sha256": "72f33a37d878145589b8a028e9d0e60b6caa90ad522674a967041f0100008fac",
+      "title": "GuideFlow: Constraint-Guided Flow Matching for Planning in End-to-End Autonomous Driving",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2606.22303v2",
+      "url": "https://arxiv.org/html/2606.22303v2",
+      "status": "READ",
+      "bytes": 289292,
+      "sha256": "bfa75d06df150d4b8abd708993b1328c95265825a7fbea847689bfbe2aae8222",
+      "title": "FlowDPG: Deterministic Policy Gradient on Flow Matching Policies for Real-World Manipulation",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2511.20095v2",
+      "url": "https://arxiv.org/html/2511.20095v2",
+      "status": "READ",
+      "bytes": 376363,
+      "sha256": "6549cd6c7596e4cce15a5daed2107b8aeb89751e643098715c06cca9368749d0",
+      "title": "WPT: World-to-Policy Transfer via Online World Model Distillation",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2602.03501v1",
+      "url": "https://arxiv.org/html/2602.03501v1",
+      "status": "READ",
+      "bytes": 324517,
+      "sha256": "5dd1611156ff5dcf68ab2e215034c531920ee222eda60bbf1a2551fd368c85b1",
+      "title": "Reparameterization Flow Policy Optimization",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2507.21053v2",
+      "url": "https://arxiv.org/html/2507.21053v2",
+      "status": "READ",
+      "bytes": 313940,
+      "sha256": "7c5579599e61d87b3a2fccf8fbe03b3332335cc3af6be2fe69366c311f55cb48",
+      "title": "Flow Matching Policy Gradients",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "1910.00177v3",
+      "url": "https://arxiv.org/html/1910.00177v3",
+      "status": "READ",
+      "bytes": 398382,
+      "sha256": "e27bf191bdf29644afe02c5421cf0da8900a2f8535f90e5e10f12495a5998efd",
+      "title": "Advantage-Weighted Regression: Simple and Scalable Off-Policy Reinforcement Learning",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2305.18290v3",
+      "url": "https://arxiv.org/html/2305.18290v3",
+      "status": "READ",
+      "bytes": 411092,
+      "sha256": "46515bc6001158063f3da04695b1412099bc40b90c53f54bf1834581aefa15d1",
+      "title": "Direct Preference Optimization:Your Language Model is Secretly a Reward Model",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    },
+    {
+      "version": "2506.04218v3",
+      "url": "https://arxiv.org/html/2506.04218v3",
+      "status": "READ",
+      "bytes": 235102,
+      "sha256": "874d19d3eba799f17ca60928ad1d2b2bf677c2b048bbf72c9591dda5d85c541a",
+      "title": "Pseudo-Simulation for Autonomous Driving",
+      "content_scope": "Full paper available; method and relevant appendix sections read; not a claim of reproducing experiments."
+    }
+  ],
+  "upstream_navsim_reference_only": {
+    "repo": "autonomousvision/navsim",
+    "sha": "0a380a9063d7162ec93d0f51e9990ebac585f720",
+    "date": "2025-10-27T21:19:43Z",
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "scope": "upstream main only; do not replace local locked version"
+  }
+}
