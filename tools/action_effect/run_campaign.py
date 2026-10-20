@@ -1,0 +1,240 @@
+"""Bounded thin dispatcher for real physical-effect research stages.
+
+This runner calls existing collection/simulation/training/evaluation entries.
+Missing inputs are BLOCKED; NOT_RUN/dry runs never become experimental PASS.
+It does not schedule servers, preempt jobs, run navtest, or update ACTIVE.
+"""
+from pathlib import Path
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+
+from .common import artifact,digest,load_config,lock,read_json,verify_artifact,verify_identity,write_json
+
+PHASES=('audit','g0','g1','route-a','route-b','evaluation','all')
+G1_ARMS=('absolute_score','terminal_pdms','absolute_feedback','delta_feedback','trajectory_only','shuffled_context','privileged_upper_bound')
+
+
+class Blocked(RuntimeError):pass
+
+
+def require(path):
+    path=Path(path)
+    if not path.is_file():raise Blocked('WAITING_INPUTS: '+str(path))
+    return path
+
+
+def latest_complete(run):
+    """Only the named arm/run, never scan arbitrary project checkpoints."""
+    import torch
+    run=Path(run);identity=read_json(require(run/'IDENTITY.json'));identity_hash=digest(identity)
+    valid=[]
+    for p in sorted(run.glob('step_*.COMPLETE.json')):
+        try:
+            r=read_json(p);cp=verify_artifact(r['checkpoint'])
+            state=torch.load(cp,map_location='cpu',weights_only=False)
+            if r['run_identity']!=identity_hash or state['run_identity']!=identity_hash or state['optimizer_step']!=r['optimizer_step']:
+                continue
+            if state['optimizer_step']>0:valid.append((state['optimizer_step'],str(cp),cp))
+        except Exception:continue  # A corrupt/partial receipt never outranks a valid complete one.
+    if not valid:raise Blocked('WAITING_INPUTS: no complete trained checkpoint in '+str(run))
+    return max(valid)[2]
+
+
+def used_calls(paths):
+    return sum(read_json(p/'calls'/'COUNTER.json')['reserved_calls'] for p in paths if (p/'calls'/'COUNTER.json').is_file())
+
+
+def audit(cfg,replay_evidence):
+    from .collect_base_trajectories import prepare
+    binding=prepare(cfg)
+    evidence=read_json(require(replay_evidence));receipt=read_json(verify_artifact(evidence['receipt']))
+    if (evidence.get('status')!='PASS' or evidence.get('fixed_historical_raw_physical_hashes_equal') is not True
+            or evidence.get('label_independence') is not True or evidence.get('strict_FP32_master_load') is not True
+            or receipt.get('strict_load') is not True or receipt.get('optimizer_updates')!=0
+            or receipt['parameter_buffer_sha256_after']!=receipt['parameter_buffer_sha256_before']):
+        raise ValueError('Existing pinned original S0 replay evidence is incomplete/incompatible')
+    return {'status':'PASS','scope':'source/binding and existing actual S0 replay evidence; no new model execution',
+        'campaign_binding':binding['identity'],'replay_evidence':artifact(replay_evidence),
+        'real_replay_receipt':evidence['receipt'],'scientific_gain':'UNTESTED'}
+
+
+class Dispatcher:
+    def __init__(self,cfg,args,folder):
+        self.cfg=cfg;self.a=args;self.folder=Path(folder);self.root=Path(cfg['artifact_root'])
+        self.context=Path(args.context_manifest or self.root/'contexts'/f'MANIFEST_{args.max_samples:06d}.json')
+        self.g0=self.root/'g0'/f'population_{args.max_samples:06d}'
+        self.pairs=self.g0/'PAIR_DATASET.json';self.repairs=self.g0/'REPAIR_DATASET.json'
+        self.seed=args.seed;self.counter=0;self.invocation=time.time_ns()
+        self.eval_arms=([args.arm] if args.arm in ('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect')
+                        else ['A1','B1-effect'])
+        self.evaluations=[self.root/'evaluation'/arm/f'seed_{self.seed}'/f'population_{args.max_samples:06d}'/'score' for arm in self.eval_arms]
+    def call(self,module,options,*,cpu=False):
+        cmd=[sys.executable,'-m',module,'--config',self.a.config]+[str(x) for x in options]
+        self.counter+=1;stem=self.folder/f'{self.invocation}_{self.counter:02d}_{module.rsplit(".",1)[-1]}'
+        env=dict(os.environ)
+        if cpu:env.update(CUDA_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
+        with stem.with_suffix('.stdout.log').open('w') as out,stem.with_suffix('.stderr.log').open('w') as err:
+            completed=subprocess.run(cmd,stdout=out,stderr=err,env=env)
+        command={'command':cmd,'returncode':completed.returncode,'stdout':artifact(stem.with_suffix('.stdout.log')),
+                 'stderr':artifact(stem.with_suffix('.stderr.log'))}
+        write_json(stem.with_suffix('.COMMAND.json'),command)
+        if completed.returncode:raise RuntimeError('Real child stage failed; see '+str(stem)+'.stdout.log/.stderr.log')
+        return command
+    def resume(self,output,*,training=False):
+        if not self.a.resume:return []
+        if training and not list(Path(output).glob('step_*.COMPLETE.json')):return []
+        return ['--resume']
+    def budget(self,output):
+        spent=used_calls([self.g0]+self.evaluations)
+        current=used_calls([Path(output)])
+        remaining=self.a.max_simulation_budget-spent
+        if remaining<=0:raise Blocked('BLOCKED_SIMULATION_BUDGET: campaign call allowance exhausted')
+        registration=Path(output)/'EVALUATION_REGISTRATION.json'
+        if registration.is_file():
+            original=verify_identity(read_json(registration))['max_calls']
+            if original-current>remaining:raise Blocked('BLOCKED_SIMULATION_BUDGET: existing evaluation ceiling exceeds remaining total allowance')
+            return original
+        return remaining
+    def teacher(self):
+        return Path(self.a.effect_checkpoint) if self.a.effect_checkpoint else latest_complete(self.model_run('g1','delta_feedback'))
+    def model_run(self,family,arm):
+        return self.root/'models'/f'population_{self.a.max_samples:06d}'/family/arm/f'seed_{self.seed}'
+    def train_arm(self,arm):
+        require(self.context);require(self.repairs)
+        family='route_a' if arm in ('A0','A1','ScoreRefiner') else 'route_b'
+        output=self.model_run(family,arm)
+        common=['--context-manifest',self.context,'--repair-dataset',self.repairs,'--arm',arm,
+            '--device',self.a.device,'--seed',self.seed,'--max-updates',self.a.max_updates,'--output',output]
+        if self.a.stop_after:common+=['--stop-after',self.a.stop_after]
+        if arm in ('A1','ScoreRefiner','B1-effect'):
+            teacher=(latest_complete(self.model_run('g1','absolute_score')) if arm=='ScoreRefiner' else self.teacher())
+            common+=['--effect-checkpoint',require(teacher)]
+        command=self.call('tools.action_effect.train_refiner' if family=='route_a' else 'tools.action_effect.train_effect_flow',
+            common+self.resume(output,training=True))
+        result=read_json(require(output/'RESULT.json'))
+        return {'status':'PASS' if result['status']=='COMPLETE' else 'INCONCLUSIVE',
+            'scope':'bounded optimizer execution only; no heldout/scientific gain claim','training_result':artifact(output/'RESULT.json'),
+            'optimizer_step':result['optimizer_step'],'command':command}
+    def run(self,phase):
+        a=self.a
+        if phase=='audit':return audit(self.cfg,a.replay_evidence)
+        if phase=='g0':
+            require(self.context)
+            if used_calls([self.g0]+self.evaluations)>a.max_simulation_budget:
+                raise Blocked('BLOCKED_SIMULATION_BUDGET: existing counted campaign calls exceed this ceiling')
+            commands=[]
+            if not (self.g0/'COMPLETE.json').exists():
+                current=used_calls([self.g0]);other=used_calls(self.evaluations)
+                budget=a.max_simulation_budget-other
+                if budget<current or budget<a.max_samples:raise Blocked('BLOCKED_SIMULATION_BUDGET')
+                existing=self.g0/'REGISTRATION.json'
+                if existing.exists() and read_json(existing)['max_calls']!=budget:
+                    raise Blocked('BLOCKED_BUDGET_REALLOCATION: immutable G0 ceiling differs; resume it explicitly')
+                commands.append(self.call('tools.action_effect.simulate_interventions',
+                    ['--max-samples',a.max_samples,'--max-simulation-budget',budget,'--workers',self.cfg['g0']['workers'],
+                     '--context-manifest',self.context,'--max-seconds',a.max_seconds]+self.resume(self.g0),cpu=True))
+            # Both tools revalidate real completion/feedback chains; a marker alone is not success.
+            for module in ('build_effect_pairs','analyze_repair_opportunities'):
+                commands.append(self.call('tools.action_effect.'+module,['--max-samples',a.max_samples,'--g0-root',self.g0],cpu=True))
+            return {'status':'PASS','scope':'real TRAIN intervention data and opportunity analysis, not generalization',
+                'pair_dataset':artifact(require(self.pairs)),'repair_dataset':artifact(require(self.repairs)),
+                'analysis':artifact(require(self.g0/'G0_RESULTS.json')),'calls_so_far':used_calls([self.g0]),'commands':commands}
+        if phase=='g1':
+            require(self.context);require(self.pairs);arm=a.arm if a.arm in G1_ARMS else 'delta_feedback'
+            if arm=='privileged_upper_bound':raise Blocked('BLOCKED_PRIVILEGED_FEATURES: no privileged artifact registered')
+            output=self.model_run('g1',arm)
+            options=['--context-manifest',self.context,'--pair-dataset',self.pairs,'--arm',arm,'--device',a.device,
+                '--seed',self.seed,'--max-updates',a.max_updates,'--output',output]+self.resume(output,training=True)
+            if a.stop_after:options+=['--stop-after',a.stop_after]
+            command=self.call('tools.action_effect.train_effect_model',options)
+            result=read_json(require(output/'RESULT.json'))
+            return {'status':'PASS' if result['status']=='COMPLETE' else 'INCONCLUSIVE','training':artifact(output/'RESULT.json'),
+                'scope':'bounded training and available validation metrics; scientific comparison not inferred','command':command}
+        if phase=='route-a':return self.train_arm(a.arm if a.arm in ('A0','A1','ScoreRefiner') else 'A1')
+        if phase=='route-b':return self.train_arm(a.arm if a.arm in ('B0','B1-trajectory','B1-effect') else 'B1-effect')
+        if phase=='evaluation':
+            results=[]
+            for arm,score_output in zip(self.eval_arms,self.evaluations):
+                family='route_a' if arm.startswith('A') or arm=='ScoreRefiner' else 'route_b'
+                checkpoint=Path(a.checkpoint) if a.checkpoint else latest_complete(self.model_run(family,arm))
+                module='tools.action_effect.evaluate_refiner' if family=='route_a' else 'tools.action_effect.evaluate_effect_flow'
+                output=score_output.parent/'prediction'
+                self.call(module,['--phase','predict','--checkpoint',require(checkpoint),'--repair-dataset',require(self.repairs),
+                    '--context-manifest',require(self.context),'--output',output,'--role','validation',
+                    '--max-samples',a.max_samples,'--device',a.device]+self.resume(output))
+                self.call(module,['--phase','score','--predictions',require(output/'PREDICTIONS.json'),'--output',score_output,
+                    '--max-simulation-budget',self.budget(score_output),'--max-seconds',a.max_seconds]+self.resume(score_output),cpu=True)
+                result=read_json(require(score_output/'RESULT.json'))
+                results.append({'arm':arm,'evaluation':artifact(score_output/'RESULT.json'),'status':result['status'],
+                    'summary':result['summary']})
+            return {'status':'PASS' if all(x['status']=='COMPLETE' for x in results) else 'INCONCLUSIVE',
+                'scope':'complete fixed TRAIN validation results, not NAVTEST or full DEV','results':results,
+                'scientific_conclusion':'requires paired same-budget controls and independent log statistics'}
+        raise ValueError('Unknown phase')
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--config',required=True);p.add_argument('--phase',required=True,choices=PHASES)
+    p.add_argument('--dry-run',action='store_true');p.add_argument('--resume',action='store_true')
+    p.add_argument('--seed',type=int);p.add_argument('--max-updates',type=int);p.add_argument('--stop-after',type=int)
+    p.add_argument('--max-simulation-budget',type=int);p.add_argument('--max-seconds',type=float,default=3600.)
+    p.add_argument('--artifact-root');p.add_argument('--device',default='cpu');p.add_argument('--arm')
+    p.add_argument('--max-samples',type=int);p.add_argument('--context-manifest');p.add_argument('--effect-checkpoint');p.add_argument('--checkpoint')
+    p.add_argument('--replay-evidence',default=str(Path(__file__).resolve().parents[2]/'reports/effect_repair/S0_FRESH_REPLAY.json'))
+    p.add_argument('--execute-ready-stages',action='store_true');p.add_argument('--continue-independent-on-failure',action='store_true')
+    a=p.parse_args(argv)
+    try:
+        cfg=load_config(a.config)
+        if a.artifact_root and Path(a.artifact_root).resolve()!=Path(cfg['artifact_root']).resolve():
+            raise ValueError('Changed artifact-root requires a new resolved configuration/campaign identity')
+        a.seed=cfg['seed'] if a.seed is None else a.seed
+        a.max_updates=cfg['training']['max_updates'] if a.max_updates is None else a.max_updates
+        a.max_samples=cfg['pilot_scenes'] if a.max_samples is None else a.max_samples
+        a.max_simulation_budget=cfg['g0']['max_simulation_budget'] if a.max_simulation_budget is None else a.max_simulation_budget
+        if (a.seed not in cfg['training']['training_seeds']+cfg['training']['finalist_seeds'] or
+                not 1<=a.max_updates<=cfg['training']['max_updates'] or not 1<=a.max_samples<=cfg['cohort_size'] or
+                not 1<=a.max_simulation_budget<=cfg['g0']['max_simulation_budget'] or
+                not 0<a.max_seconds<=14400):raise ValueError('Unregistered seed or out-of-range bounded resource budget')
+        if a.arm is not None and a.arm not in G1_ARMS+('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect'):
+            raise ValueError('Unknown research arm')
+        if a.checkpoint and a.arm not in ('A0','A1','ScoreRefiner','B0','B1-trajectory','B1-effect'):
+            raise ValueError('An explicit evaluation checkpoint also requires its explicit route arm')
+        if a.phase=='all' and not a.execute_ready_stages and not a.dry_run:
+            raise ValueError('--phase all requires explicit --execute-ready-stages')
+        phases=list(PHASES[:-1]) if a.phase=='all' else [a.phase]
+        if a.dry_run:
+            print(json.dumps({'status':'NOT_RUN','phases':phases,'arm':a.arm,'max_samples':a.max_samples,
+                'max_updates':a.max_updates,'aggregate_simulation_ceiling':a.max_simulation_budget,
+                'resume_requested':a.resume,'no_jobs_launched':True}));return 0
+        folder=Path(cfg['artifact_root'])/'runner'/a.phase/(a.arm or 'default')/f'seed_{a.seed}'/f'population_{a.max_samples:06d}'
+        folder.mkdir(parents=True,exist_ok=True)
+        with lock(folder/'RUN.lock'):
+            identity={'schema':'action_effect_campaign_dispatch_v1','config':artifact(a.config),'phase':a.phase,'arm':a.arm,
+                'seed':a.seed,'max_samples':a.max_samples,'max_updates':a.max_updates,
+                'max_simulation_budget':a.max_simulation_budget,'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+            write_json(folder/'IDENTITY.json',identity)
+            dispatcher=Dispatcher(cfg,a,folder);rows=[]
+            for phase in phases:
+                try:result=dispatcher.run(phase)
+                except Blocked as exc:result={'status':'BLOCKED','error':str(exc)}
+                except Exception as exc:result={'status':'FAIL','error_type':type(exc).__name__,'error':str(exc)}
+                rows.append({'phase':phase,**result})
+                write_json(folder/'STATUS.json',{'status':'RUNNING','stages':rows},immutable=False)
+                if result['status'] in ('FAIL','BLOCKED') and not a.continue_independent_on_failure:break
+            status='PASS' if len(rows)==len(phases) and all(r['status']=='PASS' for r in rows) else 'INCONCLUSIVE'
+            receipt={'schema':'action_effect_campaign_dispatch_result_v1','status':status,'stages':rows,
+                'scientific_conclusion':'UNTESTED unless established by actual paired evaluations; completion is not positive gain',
+                'new_navtest_started':False,'ACTIVE_updated':False}
+            write_json(folder/'STATUS.json',receipt,immutable=False)
+            write_json(folder/f'INVOCATION_{time.time_ns()}.json',receipt)
+        print(json.dumps(receipt));return 0 if status=='PASS' else 1
+    except Exception as exc:
+        print(json.dumps({'status':'FAIL','error_type':type(exc).__name__,'error':str(exc)}));return 1
+
+
+if __name__=='__main__':raise SystemExit(main())
