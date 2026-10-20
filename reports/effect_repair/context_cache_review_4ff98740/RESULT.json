@@ -1,0 +1,57 @@
+{
+  "cases": [
+    {
+      "case": "negative_g0_workers",
+      "defect_reproduced": true,
+      "observed": "invalid_config_accepted"
+    },
+    {
+      "case": "unknown_nested_training_key",
+      "defect_reproduced": true,
+      "observed": "invalid_config_accepted"
+    },
+    {
+      "case": "negative_storage_floor",
+      "defect_reproduced": true,
+      "observed": "invalid_config_accepted"
+    },
+    {
+      "case": "string_seed",
+      "defect_reproduced": true,
+      "observed": "invalid_config_accepted"
+    },
+    {
+      "case": "nonfinite_learning_rate",
+      "defect_reproduced": true,
+      "observed": "invalid_config_accepted"
+    },
+    {
+      "case": "empty_manifest_no_head_no_rows",
+      "cuda_executed": false,
+      "defect_reproduced": true,
+      "observed": {
+        "manifest": "/tmp/effect_cache_review_pjw_8tjs/contexts/MANIFEST_000001.json",
+        "reused": true,
+        "scenes": 1,
+        "status": "PASS"
+      },
+      "weights_loaded": false
+    },
+    {
+      "case": "existing_binding_wrong_identity_missing_cohort",
+      "defect_reproduced": true,
+      "observed": "prepare accepted invalid identity/missing cohort"
+    }
+  ],
+  "interpretation": "Findings reproduced; not production acceptance",
+  "model_loads": 0,
+  "new_GPU_calls": 0,
+  "schema": "action_effect_context_cache_historical_repro_v1",
+  "simulator_calls": 0,
+  "source": {
+    "configs/action_effect/main.yaml": "0676ad7fc9fb5f970d513d7808816821a28864387c90afd334206a42f0adb361",
+    "tools/action_effect/collect_base_trajectories.py": "77a40cffdee6456190ae235fb307f59096225d772204f338b111d6cfcd2b72b9",
+    "tools/action_effect/common.py": "5d17b9eaf0f6f7a2088e2693dd2ec4acbd1b8f43a10ffb79a1783914634bb0e3"
+  },
+  "target_commit": "4ff98740b85d4692a55160760e7e53f3faed4af9"
+}
