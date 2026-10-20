@@ -58,3 +58,12 @@ No pretrained policy training, G1 qualification, GPU, simulation or DEV score
 was executed by this agent. Auxiliary losses and exact code execution do not
 prove useful physical knowledge transfer. Real same-population Euler10/NAVSIM
 comparisons, safety preservation and source/log uncertainty remain required.
+
+An independent reviewer then reproduced a real FP32 boundary: the complete
+weight sum multiplied by repeat8 can be slightly smaller than summing repeated
+rows, causing a strict denominator validation failure. Validation now permits
+only an eight-epsilon FP32 relative rounding allowance. The original supplied
+global denominator is used unchanged; it is never clamped to the local sum.
+The mathematical objective, gap cost and existing passing loss values are not
+changed. The same validation helper covers legacy diagnostic and verified arms.
+Scales use explicit FP32 in both the full-batch count and loss paths.

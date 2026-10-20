@@ -87,6 +87,20 @@ def velocity_loss(prediction, target, valid_scenes, **reduction):
                        valid_scenes[:, None, None].expand_as(prediction), **reduction)
 
 
+def _direction_denominator(weight,provided,world_size):
+    local=float(weight.sum().detach())
+    if world_size!=1 and provided is None:raise ValueError('DDP effect direction needs the global weight denominator')
+    denominator=local if provided is None else float(provided)
+    # FP32 sum(original rows)*repeat and sum(repeated rows) have different
+    # reduction orders. Only validation receives this strict relative allowance;
+    # the supplied full-batch denominator is used unchanged in the objective.
+    rounding_allowance=8*torch.finfo(torch.float32).eps*max(abs(denominator),abs(local))
+    if (not math.isfinite(denominator) or denominator<0 or
+            (denominator<local and local-denominator>rounding_allowance)):
+        raise ValueError('Invalid global effect direction weight denominator')
+    return denominator
+
+
 def effect_consistency_loss(teacher, effect_context, pair, predicted_velocity, true_delta,
                             effect_valid, effect_scales, *, global_denominator=None,
                             world_size=1, direction_temperature=.1,
@@ -129,12 +143,7 @@ def effect_consistency_loss(teacher, effect_context, pair, predicted_velocity, t
     # Compare predicted effect with no intervention. Actual effect magnitude
     # remains in the global objective; never normalize it away per scene.
     weight = target.abs()*effect_valid*(target.abs() > 1e-6)
-    local_weight = float(weight.sum().detach())
-    if world_size != 1 and direction_global_denominator is None:
-        raise ValueError('DDP effect direction needs the global weight denominator')
-    denom = local_weight if direction_global_denominator is None else float(direction_global_denominator)
-    if not math.isfinite(denom) or denom < local_weight:
-        raise ValueError('Invalid global effect direction weight denominator')
+    denom=_direction_denominator(weight,direction_global_denominator,world_size)
     direction = ((F.softplus(-target.sign()*pred/direction_temperature)*weight).sum()*world_size/denom
                  if denom > 0 else pred.sum()*0)
     return {'effect_consistency': consistency, 'effect_direction': direction,
@@ -163,10 +172,8 @@ from a simulator and not a query at an unsupported eps+v endpoint.
     valid=effect_valid & repair_valid[:,None]
     target=true_delta.detach().float()/scales;prediction=student_delta.float()/scales
     consistency=masked_mean((prediction-target).square(),valid,global_denominator=global_denominator,world_size=world_size)
-    weight=target.abs()*valid*(target.abs()>1e-6);local_weight=float(weight.sum().detach())
-    if world_size!=1 and direction_global_denominator is None:raise ValueError('DDP direction requires a global weight sum')
-    denom=local_weight if direction_global_denominator is None else float(direction_global_denominator)
-    if not math.isfinite(denom) or denom<local_weight:raise ValueError('Invalid verified direction denominator')
+    weight=target.abs()*valid*(target.abs()>1e-6)
+    denom=_direction_denominator(weight,direction_global_denominator,world_size)
     direction=((F.softplus(-target.sign()*prediction/direction_temperature)*weight).sum()*world_size/denom
         if denom>0 else prediction.sum()*0)
     rep_valid=repair_valid[:,None].expand_as(student_embedding)

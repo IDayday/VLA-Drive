@@ -137,7 +137,7 @@ class FlowStep:
             effect_delta=torch.stack([torch.as_tensor(x['effect_delta'],dtype=torch.float32) for x in rows]).to(self.device)
             effect_valid=torch.stack([torch.as_tensor(x['effect_valid'],dtype=torch.bool) for x in rows]).to(self.device)&repair[:,None]
             effect_denom=int(effect_valid.sum())*repeat
-            scales=torch.as_tensor(self.effect_scales,device=self.device)
+            scales=torch.as_tensor(self.effect_scales,device=self.device,dtype=torch.float32)
             direction_denom=float((effect_delta.abs()/scales*effect_valid*(effect_delta.abs()/scales>1e-6)).sum())*repeat
             if verified:
                 if not hasattr(self.teacher,'verified_pair'):raise ValueError('Only frozen verified-pair G1 bridge is permitted')
