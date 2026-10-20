@@ -91,20 +91,20 @@ def test_budget_reserved_before_child_and_never_overspent(tmp_path,monkeypatch):
         returncode=2
     monkeypatch.setattr(q.subprocess,'run',lambda *a,**kw:Failed())
     with pytest.raises(RuntimeError,match='child failed'):
-        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=False,output=tmp_path)
+        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=False,output=tmp_path,expected_identity={})
     assert read_json(tmp_path/'DISPATCH_BUDGET.json')['scheduled_updates']==16
     with pytest.raises(RuntimeError,match='child failed'):
-        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=True,output=tmp_path)
+        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=True,output=tmp_path,expected_identity={})
     assert read_json(tmp_path/'DISPATCH_BUDGET.json')['scheduled_updates']==32
     monkeypatch.setattr(q.subprocess,'run',lambda *a,**kw:pytest.fail('must not dispatch past budget'))
     with pytest.raises(ValueError,match='budget exhausted'):
-        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=True,output=tmp_path)
+        q.run_segment(cfg,args,tmp_path/'continuous16',16,resume_requested=True,output=tmp_path,expected_identity={})
 
 
 def test_completed_target_reused_without_child_dispatch(tmp_path,monkeypatch):
     checkpoint(tmp_path/'run',step=16)
     monkeypatch.setattr(q.subprocess,'run',lambda *a,**kw:pytest.fail('must not retrain completed target'))
-    result=q.run_segment(None,None,tmp_path/'run',16,resume_requested=True,output=tmp_path)
+    result=q.run_segment(None,None,tmp_path/'run',16,resume_requested=True,output=tmp_path,expected_identity={'source':'unit fixture'})
     assert result['status']=='REUSED_COMPLETE' and result['new_updates']==0
 
 
@@ -123,6 +123,28 @@ def test_completion_reuse_preserves_result_pin_and_validates_artifacts(tmp_path)
     assert (tmp_path/'RESULT.json').read_bytes()==before
     checkpoint_file.write_bytes(b'different')
     with pytest.raises(ValueError,match='stale dependency'):q.reuse_complete(tmp_path)
+
+
+def test_foreign_completion_and_training_provenance_rejected(tmp_path,monkeypatch):
+    foreign=tmp_path/'foreign';local=tmp_path/'local';foreign.mkdir();local.mkdir()
+    write_json(foreign/'IDENTITY.json',{'id':'old'})
+    write_json(foreign/'RESULT.json',{'status':'PASS'})
+    write_json(local/'IDENTITY.json',{'id':'current'})
+    write_json(local/'RESULT.json',{'status':'PASS'})
+    write_json(local/'COMPLETE.json',{'status':'PASS','identity':artifact(foreign/'IDENTITY.json'),
+        'result':artifact(foreign/'RESULT.json')})
+    with pytest.raises(ValueError,match='this output directory'):q.reuse_complete(local)
+    checkpoint(local/'run',step=16)
+    monkeypatch.setattr(q.subprocess,'run',lambda *a,**kw:pytest.fail('foreign complete target must not dispatch'))
+    with pytest.raises(ValueError,match='provenance mismatch'):
+        q.run_segment(None,None,local/'run',16,resume_requested=True,output=local,expected_identity={'source':'different'})
+
+
+def test_json_tuple_metadata_normalization_is_exact(tmp_path):
+    write_json(tmp_path/'IDENTITY.json',{'label_spec':{'names':['score','progress']}})
+    q.validate_training_identity(tmp_path,{'label_spec':{'names':('score','progress')}})
+    with pytest.raises(ValueError,match='provenance mismatch'):
+        q.validate_training_identity(tmp_path,{'label_spec':{'names':('progress','score')}})
 
 
 def test_dry_run_keeps_horizon_and_no_subprocess_training(tmp_path,monkeypatch):

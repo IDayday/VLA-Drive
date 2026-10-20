@@ -86,7 +86,7 @@ Actual CPU verification, Python 3.9.25 / torch 2.5.1+cu124:
 
 ```text
 python -m pytest -q tests/action_effect/test_real_resume_qualification.py tests/action_effect/test_small_training.py
-13 passed in 2.60s
+15 passed in 2.45s
 python -m tools.action_effect.qualify_effect_resume --help
 exit 0
 ```
@@ -94,4 +94,13 @@ exit 0
 One initial helper-test failure was caused by a test monkeypatch intercepting
 the read-only `git rev-parse` call along with training subprocess dispatch. The
 test now explicitly stubs that source query; no training code was changed to
-accommodate the fixture. No real data or GPU qualification was claimed.
+accommodate the fixture. Independent review then identified that copying another
+qualification's completion pointer could incorrectly reuse its PASS. Completion
+and result pointers now must bind the current output's exact identity/result/
+configuration files. Before any complete checkpoint reuse, each training run's
+source, Base, data/context artifacts, model and label specifications, seed, arm,
+sampler definition, loss weights, full recipe and 1000-step horizon are checked
+against the current real dataset. Tuple metadata is normalized only by the same
+lossless JSON representation used to save identities; order and contents remain
+strict. New negative tests cover foreign completion pointers and wrong training
+provenance. No real data or GPU qualification was claimed.

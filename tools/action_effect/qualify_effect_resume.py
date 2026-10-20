@@ -7,6 +7,7 @@ VLM, common trainer or collector implementation is replaced.
 """
 from pathlib import Path
 from copy import deepcopy
+from dataclasses import asdict
 import argparse
 import hashlib
 import json
@@ -140,7 +141,18 @@ def next_batch_proof(data,split_state8,continuous_state9,resumed_state9,*,seed,b
         'actual_checkpoint_after_next_update':FIRST_RESUMED_UPDATE,'mismatches':errors}
 
 
-def run_segment(cfg_path,args,run,target,*,resume_requested,output):
+def validate_training_identity(run,expected):
+    path=Path(run)/'IDENTITY.json'
+    if not path.exists():return
+    actual=read_json(path)
+    expected=json.loads(json.dumps(expected,allow_nan=False))
+    for key,value in expected.items():
+        if key not in actual or compare_exact(value,actual[key],key):
+            raise ValueError('Qualification training provenance mismatch: '+key)
+
+
+def run_segment(cfg_path,args,run,target,*,resume_requested,output,expected_identity):
+    validate_training_identity(run,expected_identity)
     progress=checkpoints(run)
     if progress and progress[-1][0]>TOTAL_PER_RUN:raise ValueError('Qualification output has exceeded the total update budget')
     complete=[x for x in progress if x[0]==target]
@@ -178,8 +190,13 @@ def run_segment(cfg_path,args,run,target,*,resume_requested,output):
 
 def reuse_complete(output):
     """Verify completed evidence without rewriting its immutable result pin."""
-    done=read_json(Path(output)/'COMPLETE.json')
+    output=Path(output)
+    done=read_json(output/'COMPLETE.json')
+    if done['identity']!=artifact(output/'IDENTITY.json') or done['result']!=artifact(output/'RESULT.json'):
+        raise ValueError('Qualification completion must bind this output directory')
     verify_artifact(done['identity']);result=read_json(verify_artifact(done['result']))
+    if result['identity']!=artifact(output/'IDENTITY.json') or result['qualification_config']!=artifact(output/'QUALIFICATION_CONFIG.json'):
+        raise ValueError('Qualification result must bind its local identity/configuration')
     if done['status']!='PASS' or result['status']!='PASS' or not result['exact_resume_this_runtime']:
         raise ValueError('Invalid qualification completion')
     for pin in result['checkpoints'].values():verify_artifact(pin)
@@ -209,15 +226,27 @@ def qualify(args):
         qcfg=deepcopy(cfg);qcfg['training']['validation_every']=FIRST_RESUMED_UPDATE
         config=output/'QUALIFICATION_CONFIG.json';write_json(config,qcfg)
         if args.dry_run:return {'status':'NOT_RUN','identity':identity,'new_updates':0,'new_simulation_calls':0}
-        if (output/'COMPLETE.json').exists():return reuse_complete(output)
         # Real dataset contract is checked before any GPU training dispatch.
         from .context_data import ContextReader
         from .train_effect_model import PairData
         reader=ContextReader(args.context_manifest,Path(cfg['artifact_root'])/'CAMPAIGN_BINDING.json')
         data=PairData(args.pair_dataset,reader)
+        from .train_effect_model import WEIGHTS
+        from starVLA.model.modules.action_effect.effect_model import EffectModelConfig
+        t=qcfg['training']
+        expected={'source_commit':identity['source_commit'],'arm':args.arm,'seed':args.seed,
+            'max_updates':SCHEDULER_HORIZON,'recipe':t,'dataset_size':len(data.scenes),
+            'model_config':asdict(EffectModelConfig(mode=args.arm,hidden_dim=t['hidden'],layers=t['layers'],heads=t['heads'],init_seed=args.seed)),
+            'label_spec':asdict(data.spec),'base_binding_hash':reader.binding['base_checkpoint_binding_hash'],
+            'data_artifact':artifact(args.pair_dataset),'context_artifact':artifact(args.context_manifest),
+            'loss_weights':WEIGHTS,'scene_shuffle_map_hash':digest(data.shuffle_map),
+            'withheld_training_interventions':['joint'],'sampling':'uniform fit scene then uniform valid pair'}
         commands=[];full=output/'continuous16';split=output/'split8plus8'
+        if (output/'COMPLETE.json').exists():
+            validate_training_identity(full,expected);validate_training_identity(split,expected)
+            return reuse_complete(output)
         for run,target in ((full,TOTAL_PER_RUN),(split,SPLIT_AT),(split,TOTAL_PER_RUN)):
-            commands.append(run_segment(config,args,run,target,resume_requested=args.resume or bool(commands),output=output))
+            commands.append(run_segment(config,args,run,target,resume_requested=args.resume or bool(commands),output=output,expected_identity=expected))
         f9=at_step(full,FIRST_RESUMED_UPDATE);r9=at_step(split,FIRST_RESUMED_UPDATE)
         f16=at_step(full,TOTAL_PER_RUN);r16=at_step(split,TOTAL_PER_RUN);r8=at_step(split,SPLIT_AT)
         comparisons={'first_resumed_update9':compare_checkpoint(f9[3],r9[3]),'final_update16':compare_checkpoint(f16[3],r16[3])}
