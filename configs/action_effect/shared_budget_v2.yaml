@@ -1,0 +1,40 @@
+schema: action_effect_campaign_v1
+campaign_id: mature_s0_effect_v1
+base_binding: /mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json
+train_manifest: /mnt/project/st-world-policy-20261016/audits/flow_policy/full_train_contexts_v2/TRAINING_MANIFEST.json
+artifact_root: /mnt/project/action-effect-repair-20261020-budget-v2
+seed: 42
+cohort_size: 1024
+pilot_scenes: 64
+feature_shard_scenes: 16
+g0:
+  workers: 4
+  max_simulation_budget: 32768
+  retry_budget: 16
+  candidate_count: 26
+  fixed_grid: action_effect_quintic_intervention_v1
+  safe_score: 0.8
+  minimum_progress_fraction: 0.9
+  navsim_root: /mnt/project/VLA-Drive-st-flow-context-runtime-v3-20261017/navsim_v1.1/navsim
+  maps_root: /mnt/navsim/maps
+resources:
+  artifact_cap_bytes: 8589934592
+  minimum_free_bytes: 322122547200
+training:
+  hidden: 256
+  layers: 2
+  heads: 4
+  batch_scenes: 32
+  microbatch_scenes: 8
+  max_updates: 1000
+  warmup_updates: 50
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  gradient_clip: 1.0
+  validation_every: 250
+  training_seeds:
+  - 42
+  finalist_seeds:
+  - 42
+  - 43
+  - 44
