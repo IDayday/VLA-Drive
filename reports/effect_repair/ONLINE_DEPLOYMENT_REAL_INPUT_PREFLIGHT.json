@@ -1,0 +1,70 @@
+{
+  "schema": "action_effect_independent_online_input_preflight_v1",
+  "status": "PASS",
+  "scope": "real current-image loader and original source contracts only",
+  "candidate_commit": "188362f069489fe3a5cd2911fba386e5b9846c96",
+  "base_binding": {
+    "path": "/mnt/project/st-world-policy-20261016/bindings/BASE_BINDING.json",
+    "sha256": "84544c2242c0c7ecdcbe4450073b23a3c556cad4d822860d5b8652ecee9f1e38",
+    "bytes": 19978
+  },
+  "cohort": {
+    "path": "/mnt/project/action-effect-repair-20261020/COHORT.json",
+    "sha256": "835816e5a435b92f7077349e83ecb346732865d82d152e37867f0a78dfd294e0",
+    "bytes": 1809474
+  },
+  "scene_id": "fc90fd5b50ae59fe",
+  "observation_hash": "538fe184d0d76efeb39cb3233d16081237f8316e754db79dae82aac221378a75",
+  "protected_source_contracts": {
+    "starVLA/dataloader/foresight_dataset.py": true,
+    "starVLA/model/framework/DDPForesight.py": true,
+    "starVLA/model/framework/QwenOFT.py": true,
+    "starVLA/model/modules/action_model/GR00T_ActionHeader.py": true
+  },
+  "current_and_image_pins": [
+    {
+      "path": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1/current/fc90fd5b50ae59fe.json",
+      "sha256": "4ca6bb80d355d180a16bf17bfac21c612c04e98d449879a52b0c3100467615d7"
+    },
+    {
+      "path": "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.18.15.54_veh-40_01143_01496/CAM_F0/1c5d17caaeec55bd.jpg",
+      "sha256": "198be7f0b3eef89aeb341b4778743bf8152b06b5b69247b54fa29b11a45dd095"
+    },
+    {
+      "path": "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.18.15.54_veh-40_01143_01496/CAM_L0/f5507825c7e65a55.jpg",
+      "sha256": "4a04b6e158a84a989f2fdc3155fe07ba1ee27fed72323fd45fc0faf4f216cd06"
+    },
+    {
+      "path": "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval/2021.08.31.18.15.54_veh-40_01143_01496/CAM_R0/b271d1a37ee55d26.jpg",
+      "sha256": "5d77a3c1e13398737cb5d5ce23deff61278b8bf7bb6a5602f399282e83cd6697"
+    }
+  ],
+  "actual_image_sizes": [
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ]
+  ],
+  "state_shape": [
+    1,
+    4
+  ],
+  "state_dtype": "float32",
+  "state_contract": "normalized history delta-pose, not velocity",
+  "current_image_opens": 3,
+  "forbidden_data_opens": [],
+  "poisoned_extras_ignored": true,
+  "actual_VLM_or_DiT_forward": "NOT_RUN",
+  "new_GPU_calls": 0,
+  "new_training_updates": 0,
+  "new_simulator_calls": 0,
+  "scientific_gain": "UNTESTED"
+}
