@@ -1,0 +1,16 @@
+Source: audit/action-effect-g1-training-20261020 at 9f1ae2d1, with repair-head source 5ee472df loaded explicitly by test.
+Command:
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_g1_training_independent_review.py
+
+Actual output:
+......                                                                   [100%]
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 1 warning in 3.57s
+
+Actual immutable-data CPU parser output:
+{"context_shapes":{"ego":[1,1,4],"mask":[1,152],"memory":[1,152,2048]},"context_shards_loaded":1,"fit_kind_counts":{"larger_support":123,"lateral":340,"longitudinal":343},"fit_logs":44,"fit_pairs_excluding_joint":806,"fit_scenes":45,"manifest":{"bytes":18518378,"path":"/mnt/project/action-effect-repair-20261020/g0/population_000064/PAIR_DATASET.json","sha256":"d20b65bef61a0d041683ec5b0b65987a51f4b5ef669e1e87955bbcd9f40a45dc"},"scope":"real immutable CPU parser and one context record only, no simulation or training","seconds":71.14474904537201,"status":"PASS","validation_kind_counts":{"joint":71,"larger_support":51,"lateral":140,"longitudinal":143},"validation_logs":17,"validation_pairs":405,"validation_scenes":19}

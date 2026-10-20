@@ -1,0 +1,39 @@
+{
+  "schema": "action_effect_independent_g1_review_v1",
+  "reviewer": "effect_navsim_feedback",
+  "date_utc": "2026-10-20",
+  "original_g1_source": "e93abdadeef0bbb4360c43e2e9dd4ed6dfb7e277",
+  "reviewed_source": "9f1ae2d1",
+  "required_model_fix": "5ee472df5c3d7bb66d41103c61dd08917e15fe56",
+  "bounded_32_update_single_gpu_admission": "PASS_CONDITIONAL_ON_INTEGRATED_SOURCE",
+  "independent_cpu_tests": {"passed": 6, "failed": 0, "warnings": 1, "seconds": 3.57},
+  "real_cpu_parser": {
+    "status": "PASS",
+    "manifest": "/mnt/project/action-effect-repair-20261020/g0/population_000064/PAIR_DATASET.json",
+    "sha256": "d20b65bef61a0d041683ec5b0b65987a51f4b5ef669e1e87955bbcd9f40a45dc",
+    "bytes": 18518378,
+    "seconds": 71.14474904537201,
+    "fit_scenes": 45,
+    "fit_logs": 44,
+    "fit_pairs_without_joint": 806,
+    "validation_scenes": 19,
+    "validation_logs": 17,
+    "validation_pairs": 405,
+    "validation_joint_pairs": 71,
+    "memory_batch_shape": [1, 152, 2048],
+    "ego_batch_shape": [1, 1, 4],
+    "ego_semantics": "normalized_history_delta_pose"
+  },
+  "findings": [
+    {"id": "G1-R1", "problem": "same-step periodic and pause immutable conflict", "fixed_by": "8663a82c", "status": "RESOLVED"},
+    {"id": "G1-R2", "problem": "orphan payload blocks recovered save", "fixed_by": "8663a82c", "status": "RESOLVED"},
+    {"id": "G1-R3", "problem": "compact row not joined to native feedback", "fixed_by": "9f1ae2d1", "status": "RESOLVED"},
+    {"id": "G1-R4", "problem": "absolute repair target ignores modified trajectory", "fixed_by": "5ee472df", "status": "RESOLVED_IN_TESTED_SOURCE"}
+  ],
+  "simulation_calls_by_reviewer": 0,
+  "gpu_training_updates_by_reviewer": 0,
+  "scientific_generalization": "UNTESTED",
+  "cuda_exact_resume": "UNTESTED",
+  "production_ddp_trainer": "UNTESTED",
+  "full_suite_repeated": false
+}
