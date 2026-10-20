@@ -14,6 +14,8 @@ def migrate(old_cfg,new_cfg):
     scientific=lambda c:{k:v for k,v in c.items() if k not in ('artifact_root','resources')}
     if scientific(old_cfg)!=scientific(new_cfg):raise ValueError('Only explicit resource namespace changes are compatible')
     old=verify_identity(read_json(Path(old_cfg['artifact_root'])/'CAMPAIGN_BINDING.json'))
+    if old['config_hash']!=digest(old_cfg) or old_cfg['artifact_root']==new_cfg['artifact_root']:
+        raise ValueError('Source config must match its immutable binding; use a separate execution root')
     cohort=verify_identity(read_json(verify_artifact(old['cohort'])))
     new=prepare(new_cfg)
     if (old['base_checkpoint']!=new['base_checkpoint'] or old['base_checkpoint_binding_hash']!=new['base_checkpoint_binding_hash'] or
@@ -52,7 +54,7 @@ def migrate(old_cfg,new_cfg):
         'new_simulation_calls':0,'new_model_updates':0,'completed_shards_reused':len(rows),
         'scenes_reused':sum(len(x['scene_ids']) for x in rows),'payloads':rows,
         'native_cache':str(source),'native_reuse':'only exact request identities; each native receipt/checksum still verified',
-        'old_artifacts_modified':False,'note':'hardlink creates another name for immutable bytes; no old receipt or checkpoint rewritten'}
+        'old_artifact_bytes_modified':False,'note':'hardlink may update inode ctime/linkcount; immutable tensor bytes, old receipts and checkpoints are unchanged'}
     result['identity']=digest(result);write_json(Path(new_cfg['artifact_root'])/'EXECUTION_NAMESPACE_MIGRATION.json',result)
     return result
 
