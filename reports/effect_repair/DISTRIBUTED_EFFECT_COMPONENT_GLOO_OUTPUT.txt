@@ -1,0 +1,13 @@
+Command:
+CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q -s tests/action_effect/test_distributed_effect_independent_review.py
+
+Both workers emitted the environment's deprecated pynvml warning.
+Both workers emitted DDP's find_unused_parameters=True warning: no unused parameters were found in the tested forward graph.
+.
+1 passed in 2.85s
+
+Actual rank0.json:
+{"status": "PASS", "cases": [{"case": "all_valid", "gradient_tensors": 44, "max_abs_error": 6.51925802230835e-08}, {"case": "empty_rank", "gradient_tensors": 44, "max_abs_error": 1.7136335372924805e-07}]}
+
+Actual rank1.json:
+{"status": "PASS", "cases": [{"case": "all_valid", "gradient_tensors": 44, "max_abs_error": 6.51925802230835e-08}, {"case": "empty_rank", "gradient_tensors": 44, "max_abs_error": 1.7136335372924805e-07}]}
