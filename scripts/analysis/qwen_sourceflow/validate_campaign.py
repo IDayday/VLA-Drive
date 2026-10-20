@@ -31,6 +31,7 @@ class CampaignTests(unittest.TestCase):
     def test_evaluation_source_is_separate_from_training(self):
         evaluation=dict(path='/qualified-evaluation',sha='eval')
         self.queue.evaluation=evaluation
+        data=self.root/'data/NAVTEST';data.mkdir(parents=True);(data/'manifest.json').write_text('{}')
         routes=[dict(host='allowed',gpu=0,uuid='GPU-eval')]
         with patch.object(module,'available',return_value=(routes,{})),patch.object(self.queue,'submit') as submit:
             self.queue.ensure_evaluation('intermediate',dict(path='parent'),'NAVTEST')
@@ -39,6 +40,15 @@ class CampaignTests(unittest.TestCase):
 
     def test_default_evaluation_source_preserves_old_execution(self):
         self.assertEqual(self.queue.evaluation,self.source)
+
+    def test_completion_during_dead_owner_probe(self):
+        receipt=self.root/'receipt';receipt.mkdir()
+        atomic_json(receipt/'operator.json',dict(operator_pid=1,start_ticks=1))
+        atomic_json(self.queue.task_path('eval'),dict(name='eval',workers=[dict(receipt_dir=str(receipt))]))
+        def probe(*_):
+            atomic_json(receipt/'result.json',dict(status='PROCESS_COMPLETE',exit_code=0));return False
+        with patch.object(module,'operator_alive',side_effect=probe):
+            self.assertTrue(self.queue.done('eval'))
 
     def test_unfinished_qualification_blocks_formal(self):
         parent=self.parent()

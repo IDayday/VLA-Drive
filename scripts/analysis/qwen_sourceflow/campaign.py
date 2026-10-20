@@ -107,6 +107,12 @@ class Campaign:
             else:
                 operator=receipt/'operator.json'
                 if not operator.exists() or not operator_alive(spec,read(operator)):
+                    # A successful owner can publish its result and exit while
+                    # the remote liveness probe is in flight. Re-read evidence.
+                    if result.exists():
+                        if read(result)['status']!='PROCESS_COMPLETE':
+                            raise RuntimeError('No automatic retry; inspect '+str(result))
+                        continue
                     raise RuntimeError('Lost or partially dispatched invocation: '+str(receipt))
                 done=False
         return done
