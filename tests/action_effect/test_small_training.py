@@ -58,3 +58,31 @@ def test_role_or_source_change_rejects_resume(tmp_path):
     with pytest.raises(ValueError,match='Immutable'):
         run_training(m,output=tmp_path,identity={'source_commit':'different'},dataset_size=13,
             step_fn=lambda *_:None,cfg=config(),device='cpu',seed=42,max_updates=6,resume=True)
+
+
+def test_orphan_file_is_preserved_and_continuation_can_save(tmp_path):
+    m=torch.nn.Linear(1,1);r,_=fit(tmp_path,m,stop=3)
+    orphan=tmp_path/'step_000006.pt';orphan.write_bytes(b'interrupted-original-evidence')
+    r2,_=fit(tmp_path,torch.nn.Linear(1,1),resume=True)
+    assert r2['optimizer_step']==6 and orphan.read_bytes()==b'interrupted-original-evidence'
+    chosen=resolve_checkpoint(tmp_path,r['run_identity'])
+    assert chosen['terminal'] and chosen['optimizer_step']==6
+    assert '.pt' in chosen['_resolved_artifact']['path']
+
+
+def test_pause_after_periodic_checkpoint_does_not_overwrite(tmp_path,monkeypatch):
+    import tools.action_effect.training as train
+    original=train.write_json
+    def pause_after_receipt(path,value,**kw):
+        original(path,value,**kw)
+        if str(path).endswith('step_000003.COMPLETE.json'):
+            import os,signal
+            os.kill(os.getpid(),signal.SIGTERM)
+    monkeypatch.setattr(train,'write_json',pause_after_receipt)
+    m=torch.nn.Linear(1,1);r,_=fit(tmp_path,m)
+    assert r['status']=='PAUSED' and r['optimizer_step']==3
+    # RUNNING and same-step PAUSED are separate receipts, both preserved.
+    receipts=list(tmp_path.glob('step_000003*.COMPLETE.json'))
+    assert len(receipts)==2
+    selected=resolve_checkpoint(tmp_path,r['run_identity'])
+    assert selected['termination_reason']=='OPERATOR_PAUSED'

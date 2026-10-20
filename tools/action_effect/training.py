@@ -6,7 +6,7 @@ precedes RESULT; terminal recovery repairs this interruption window with no step
 """
 from __future__ import annotations
 from pathlib import Path
-import io, math, os, random, signal, time
+import io, math, os, random, signal, time, hashlib
 import numpy as np
 import torch
 from .common import digest, artifact, verify_artifact, read_json, write_json, atomic_bytes, lock
@@ -57,13 +57,14 @@ def resolve_checkpoint(output,identity_hash):
             c=torch.load(p,map_location='cpu',weights_only=False)
             if c['run_identity']!=identity_hash or c['optimizer_step']!=r['optimizer_step']:
                 raise ValueError('checkpoint/receipt identity or step')
-            valid.append((c['optimizer_step'],p,c))
+            valid.append((c['optimizer_step'],bool(c['terminal']),r.get('created_unix_ns',0),p,c))
         except Exception as e:rejected.append({'receipt':str(receipt),'reason':str(e)})
     if not valid:raise ValueError('No complete compatible checkpoint; refusing automatic restart')
-    valid.sort(key=lambda x:(x[0],str(x[1])))
-    step,path,state=valid[-1]
+    valid.sort(key=lambda x:(x[0],x[1],x[2],str(x[3])))
+    step,_,_,path,state=valid[-1]
     write_json(Path(output)/'RESUME_RESOLUTION.json',{'selected':str(path),'optimizer_step':step,
         'rejected':rejected,'run_identity':identity_hash,'exact_resume':'same-runtime required'},immutable=False)
+    state['_resolved_artifact']=artifact(path)
     return state
 
 
@@ -93,10 +94,18 @@ def run_training(model, *, output, identity, dataset_size, step_fn, validation_f
             'sampler':sampler.get_state(),'consumed_scenes':consumed,'rng':rng_state(),
             'stateful':{k:_state(v) for k,v in stateful.items()},'termination_reason':reason,
             'terminal':reason in ('MAX_UPDATES','EARLY_STOPPED'),'history':history}
-        buf=io.BytesIO();torch.save(state,buf);path=output/f'step_{step:06d}.pt'
-        atomic_bytes(path,buf.getvalue());r={'checkpoint':artifact(path),'optimizer_step':step,'run_identity':ih,
-            'termination_reason':reason,'terminal':state['terminal']}
-        write_json(path.with_suffix('.COMPLETE.json'),r);saved.append(r)
+        buf=io.BytesIO();torch.save(state,buf);payload=buf.getvalue();path=output/f'step_{step:06d}.pt'
+        # Never overwrite an orphan/partial save or a completed periodic state
+        # when a pause is requested at the same optimizer boundary.
+        if path.exists() and path.read_bytes()!=payload:
+            path=output/f'step_{step:06d}.{hashlib.sha256(payload).hexdigest()[:16]}.pt'
+        atomic_bytes(path,payload)
+        receipt_path=path.with_suffix('.COMPLETE.json')
+        if receipt_path.exists():
+            r=read_json(receipt_path);verify_artifact(r['checkpoint']);saved.append(r);return r
+        r={'checkpoint':artifact(path),'optimizer_step':step,'run_identity':ih,
+            'termination_reason':reason,'terminal':state['terminal'],'created_unix_ns':time.time_ns()}
+        write_json(receipt_path,r);saved.append(r)
         return r
     with lock(output/'RUN.lock'):
         if resume:
@@ -151,5 +160,5 @@ def run_training(model, *, output, identity, dataset_size, step_fn, validation_f
             'status':'COMPLETE' if terminal in ('MAX_UPDATES','EARLY_STOPPED') else 'PAUSED',
             'termination_reason':terminal,'segment_updates':segment_updates,'consumed_scenes':consumed,
             'elapsed_seconds':time.perf_counter()-started,'private_parameters':sum(p.numel() for p in params),
-            'checkpoint':saved[-1] if saved else artifact(output/f'step_{step:06d}.pt')}
+            'checkpoint':saved[-1] if saved else c['_resolved_artifact']}
         write_json(output/'RESULT.json',result,immutable=False);return result

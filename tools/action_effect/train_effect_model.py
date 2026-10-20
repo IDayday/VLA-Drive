@@ -42,8 +42,17 @@ class PairData:
             raise ValueError('Complete real TRAIN effect pairs required')
         reg=verify_identity(read_json(verify_artifact(m['registration'])))
         completion=read_json(verify_artifact(m['population_completion']))
-        if reg['identity']!=m['registration_identity'] or completion['registration_identity']!=reg['identity']:
-            raise ValueError('Effect pair completion/registration identity mismatch')
+        if (reg['identity']!=m['registration_identity'] or completion['registration_identity']!=reg['identity'] or
+            reg['binding_identity']!=reader.binding['identity'] or reg['base_checkpoint']!=reader.binding['base_checkpoint']):
+            raise ValueError('Effect pair completion/registration/Base identity mismatch')
+        # First-access full source chain validation; never rely on a manifest
+        # existing while its native feedback or scene receipt has disappeared.
+        from .build_effect_pairs import read_population
+        from .simulate_interventions import verified_feedback
+        _,native_scenes=read_population(Path(m['registration']['path']).parent)
+        for scene in native_scenes:
+            for row in scene['candidates']:
+                if 'feedback' in row:verified_feedback(row)
         self.reader=reader;self.by_scene={};self.validation=[];self.names=None;groups={'fit':set(),'validation':set()}
         for r in m['entries']:
             verify_identity(r)
