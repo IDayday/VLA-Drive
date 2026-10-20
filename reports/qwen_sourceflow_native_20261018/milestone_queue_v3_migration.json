@@ -1,0 +1,16 @@
+{
+  "schema": "native_milestone_controller_migration_v1",
+  "observed_unix": 1792507863.85741,
+  "old_control": "/mnt/project/qwen-sourceflow-native-20261018/milestone_queue_v2",
+  "old_owner_absent": true,
+  "old_failure_preserved": true,
+  "completed_workers": 55,
+  "completed_scenes": 1696,
+  "no_policy_rollout_repeated": true,
+  "summary_sha256": "aad5a58d03b0804703ec8c5549030e1990ba7a87a978526e3ed4c839402eddbd",
+  "old_failure_sha256": "e2071316cb83f0f06293d7f65a9e4d0d2f6e5a66d8de55a93de5fe0a1716d02a",
+  "training_and_evaluation_source_unchanged": "d4d0012769540af8378e013c072d6d8053d9f275",
+  "analysis_source": "b784e82",
+  "new_controller_source": "990e570",
+  "reason": "Completion receipt can appear during dead-owner liveness probe; consume rechecked receipt before declaring lost worker; finite visibility grace; no automatic retry"
+}

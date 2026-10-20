@@ -126,7 +126,9 @@ CUDA_VISIBLE_DEVICES=1 "$QSF_PY" -m scripts.analysis.qwen_sourceflow.evaluate_po
 
 完整评价禁用limit；数据、噪声seed、协议、人口hash及模型身份必须匹配。每个candidate独立对官方参考评分，同一仿真分项重组source和canonical读出，不把两者当相同指标。
 
-## 正在运行的里程碑队列
+## 旧里程碑队列（v2历史记录）
+
+以下v2命令为原执行记录。2026-10-20核查发现20k的55个worker全部成功，但控制器在完成receipt/liveness收尾竞争中退出；原目录与failure保留。当前实际owner为下文v3，不再启动v2。
 
 ```bash
 cd "$QSF_IL_SOURCE"
@@ -138,6 +140,28 @@ CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.milestone_
 同一入口 `--once` 已实际执行，之后单一owner持续等待。不同shard使用scene绑定的同一seed2101；分配前重新读取live授权，检查两次显存/真实owner和物理UUID，未完成的scene必须补齐才可汇总。每次invocation分开记录new/reused、forward、评分等待、加载和worker wall；worker wall不是独占GPU compute。
 
 队列完成全部五个DEV后实际调用 `freeze_il`，锁定父模型；输出 `READY_FOR_RL.json`。这只表示IL选择前置完成，不表示两组RL或Navtest已经执行。正式RL成本profile、两组50k和最终Navtest仍需后续任务收据证明。
+
+## 当前里程碑队列v3：已执行恢复
+
+实际CPU调度源码为不可变`990e570`，推理源码仍为`d4d0012`，摘要/选择源码为`b784e82`。原1696份20k结果仅补汇总，没有重新推理。实际执行`--once`后，单一owner后台运行：
+
+```bash
+cd /mnt/project/qwen-sourceflow-native-20261018/snapshots/milestone_receipt_fix_20261020
+CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.milestone_queue \
+  --source "$QSF_IL_SOURCE" \
+  --analysis-source "$QSF_ROOT/snapshots/campaign_v2" \
+  --il-run "$QSF_ROOT/runs/IL_seed42_v2" \
+  --control-dir "$QSF_ROOT/milestone_queue_v3"
+```
+
+该命令记录当前已运行任务，不要重复启动。`milestone_queue_v3/{identity,status,owner,controller_launch,SOURCE_MIGRATION}.json`保存实际身份；20k已识别COMPLETE，等待登记40k，依旧不自动重试失败worker。CPU竞争测试实际执行：
+
+```bash
+CUDA_VISIBLE_DEVICES='' "$QSF_PY" -m scripts.analysis.qwen_sourceflow.validate_milestone_receipts \
+  --output "$QSF_ROOT/validation/milestone_receipt_race_20261020.json"
+```
+
+结果7项PASS。下一轮重测须用新的输出文件名保留原证据。
 
 ## 已部署的后续训练与评价owner
 

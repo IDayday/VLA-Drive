@@ -1,6 +1,8 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
-**2026-10-18 执行状态：正式8卡 IL 已超过5000步，进入完整Qwen/provider/action训练；5000步父模型上的两组16步真实GRPO资格完成，各31/32组有PG，全部480个LoRA任务动量非零。完整IL、两组正式RL及DEV/Navtest成绩仍未完成。没有达到92或已有RL净收益的结论。**
+**2026-10-20 执行快照：正式8卡IL已到35,868步，首个20k模型完整DEV（1696场景/16 logs）canonical单候选PDMS为84.522951。20k不是最新35k权重。完整IL、两组正式RL及Navtest仍未完成，没有达到92或已有RL净收益的结论。**
+
+最新进展、分项/零分诊断及本次评价控制器收尾竞争修复见[interim_IL020000_20261020.md](interim_IL020000_20261020.md)。实际55个评价worker全部成功，旧控制器收尾退出后本次从已有完整结果补汇总；未重跑或修改轨迹。新`milestone_queue_v3`已后台运行，原IL与`campaign_v2`持续运行。
 
 最新中期结果、费用与后续两组50k/锁定Navtest的实际执行链见 [interim_IL005000.md](interim_IL005000.md)。[完整训练阶段快照](formal_IL_full_stage_snapshot.json) 与初始770步之前的启动快照分开保留。
 
