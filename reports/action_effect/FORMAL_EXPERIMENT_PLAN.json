@@ -1,0 +1,109 @@
+{
+  "schema": "action_effect_formal_bounded_plan_v1",
+  "registered_utc": "2026-10-20T02:32:09Z",
+  "source_at_registration": "66fa70989cce4dcddc7c2b05d56094170e3bb35f",
+  "base_binding_identity": "3b910a6d4245580d77f868e4e0af5faf2fc7fccc25c561c935f219ab1bf7f099",
+  "campaign_binding_identity": "899521680728a91292c4d7f302c315c1114155a09f04becad47a8f18ac4c7ab5",
+  "population": "first prelocked1024 TRAIN hash cohort; whole-source-log fit/validation roles. Original64/256/512 are prefix diagnostics.",
+  "full_context_manifest": "/mnt/project/action-effect-repair-20261020-budget-v2/contexts/MANIFEST_001024.json",
+  "full_g0": "/mnt/project/action-effect-repair-20261020-budget-v2/g0/population_001024",
+  "primary_updates": 1000,
+  "scheduler": "fixed1000, 50warmup, cosine to0.1 peak; stop_after never rescales schedule",
+  "global_batch": 32,
+  "microbatch": 8,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.01,
+  "gradient_clip": 1.0,
+  "input_precision": "same bound original S0 FP32 masters/inference, no new numeric variant",
+  "g1": {
+    "arms": [
+      "absolute_score",
+      "terminal_pdms",
+      "absolute_feedback",
+      "delta_feedback",
+      "trajectory_only",
+      "shuffled_context"
+    ],
+    "seed": 42,
+    "matched_allocation": true,
+    "joint_interventions": "withheld from fitting",
+    "teacher_for_A1_B1effect": "delta_feedback fixed step1000 seed42; never select by DEV",
+    "teacher_for_ScoreRefiner": "absolute_score fixed step1000 seed42",
+    "privileged_upper_bound": "BLOCKED_NO_REGISTERED_PRIVILEGED_REPRESENTATION"
+  },
+  "route_a": {
+    "arms": [
+      "A0",
+      "A1",
+      "ScoreRefiner"
+    ],
+    "main_seed": 42,
+    "balanced_actual_verified_repair_keep": "1:1 reference distribution, no synthetic new observations",
+    "fairness": "same refiner parameters, source data and updates; teacher arms add measured training work only"
+  },
+  "route_b": {
+    "arms": [
+      "B0",
+      "B1-trajectory",
+      "B1-effect"
+    ],
+    "main_seed": 42,
+    "same_allocated_parameters": true,
+    "repeat": 8,
+    "inference": "original Euler10 once; no refiner",
+    "B0": "plus-bridge endpoint FM",
+    "B1trajectory": "minus-bridge off-path target surrogate",
+    "B1effect": "same surrogate + real verified-pair effect representation/labels; not arbitrary teacher endpoint gradients"
+  },
+  "finalist_seeds": {
+    "A0": [
+      42,
+      43,
+      44
+    ],
+    "A1": [
+      42,
+      43,
+      44
+    ],
+    "B0": [
+      42,
+      43,
+      44
+    ],
+    "B1-trajectory": [
+      42,
+      43,
+      44
+    ],
+    "B1-effect": [
+      42,
+      43,
+      44
+    ]
+  },
+  "endpoint_selection": "fixed final1000, no DEV-based endpoint/arm/threshold or replay-ratio selection. All completed arms reported.",
+  "evaluation": {
+    "dev_scenes": 1696,
+    "dev_logs": 16,
+    "dev_registration": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation_contexts/dev1696_seed42_v1/EVAL_REGISTRATION.json",
+    "baseline": "same S0 cached trajectory re-scored by same current fixed-reference native engine, not historical aggregate subtraction",
+    "bootstrap": 2000,
+    "bootstrap_seed": 42,
+    "unit": "paired source_log",
+    "invalid_predictions": "retain requested denominator; no complete-population gain claim on valid subset only",
+    "no_navtest": true,
+    "no_ACTIVE": true,
+    "no_oracle_deployment": true
+  },
+  "call_ceilings": {
+    "G0": 32768,
+    "each_complete_DEV_arm_including_retry": 1712,
+    "planned_DEV_arms_including_S0": 17,
+    "max_full_train_main_arm_evaluations": 6,
+    "each_train_main_arm_including_retry": 1040
+  },
+  "interpretation": "Same steps do not imply equal compute. Report actual teacher, forward, native-label and GPU cost. Actual physical intervention and learned heldout benefit remain separate. Rare failure support limits statistical power.",
+  "resource_rule": "Only allowlisted owned spare GPUs/identified pressure yielding; never stop genuine Base/other jobs; original pressure monitor requalifies after jobs.",
+  "new_base_training": false
+}
