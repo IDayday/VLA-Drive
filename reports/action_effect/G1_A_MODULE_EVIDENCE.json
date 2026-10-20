@@ -1,0 +1,73 @@
+{
+  "schema": "action_effect_G1_A_module_cpu_evidence_v1",
+  "base_commit": "56e706393b15f72e0d04e3f899463892938a45d9",
+  "torch": "2.5.1+cu124",
+  "python": "3.10.20",
+  "numerics": "FP32 CPU new heads; no pretrained weights or actual S0 data loaded",
+  "models": {
+    "G1_default": {
+      "parameters": 2749603,
+      "trainable_parameters": 2749603,
+      "initial_state_sha256": "1882497e2709f48d5b94db160c04edad4dc1a4d4b054e1617950416169a05744",
+      "parameter_dtypes": [
+        "torch.float32"
+      ]
+    },
+    "A0_A1_refiner": {
+      "parameters": 2711824,
+      "trainable_parameters": 2711824,
+      "initial_state_sha256": "71debd899b05fca84d6171c3d4f734782ba9f4a001ce4be25cc5f676ade3d47f",
+      "parameter_dtypes": [
+        "torch.float32"
+      ]
+    }
+  },
+  "tests": "G1_A_CPU_TEST.log",
+  "real_S0_integration": "NOT_RUN_BY_MODULE_AGENT",
+  "GPU_forward_backward": "NOT_RUN_BY_MODULE_AGENT",
+  "official_simulation": "NOT_RUN_BY_MODULE_AGENT",
+  "scientific_gain": "UNTESTED",
+  "external_scorer_weights_loaded": false,
+  "source_files": {
+    "starVLA/model/modules/action_effect/effect_model.py": {
+      "bytes": 12621,
+      "sha256": "392080b7908e261c1b29544f392a62a9a5bcfa171b830e8a1422bc70eaddf704"
+    },
+    "starVLA/model/modules/action_effect/effect_losses.py": {
+      "bytes": 15552,
+      "sha256": "8b41f995d2f13b2b16f1309066253b3a7c3287ce8604066ea3fbb8e9d23dc495"
+    },
+    "starVLA/model/modules/action_effect/refinement_policy.py": {
+      "bytes": 5837,
+      "sha256": "63241f90c2e56f2ef056adadf963a1a598381a05e654a46ca35fdf8048c3dbfc"
+    },
+    "starVLA/model/framework/effect_guided_refiner.py": {
+      "bytes": 6545,
+      "sha256": "0fa4025cfa79b618de4f45d10f13b5bb9a730d6211d8245c8810f4a2522822bd"
+    },
+    "tests/action_effect/test_model_effect.py": {
+      "bytes": 16312,
+      "sha256": "233929af7b870f9dc594e43b4a33fa2f05e2593a825ce88e8a6f3d5473a1d195"
+    },
+    "tests/action_effect/test_model_refinement.py": {
+      "bytes": 9180,
+      "sha256": "26dadb87eccdc38b4c959323e48ac868dad0f110b320cd74cd38256d3276e802"
+    }
+  },
+  "test_result": {
+    "passed": 70,
+    "warnings": 1,
+    "seconds": 8.42,
+    "log_sha256": "5318be72b6f08e7712171c5233823285ccd46bd70afcdcdeab38adc18b6e2ef4"
+  },
+  "formal_grid_active_coefficients": [
+    true,
+    false,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true
+  ]
+}
