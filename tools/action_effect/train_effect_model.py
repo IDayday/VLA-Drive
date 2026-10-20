@@ -15,14 +15,15 @@ from starVLA.model.modules.action_effect.effect_losses import effect_loss_contri
 WEIGHTS={'value':1.,'ranking':.2,'events':.2,'temporal':.2,'uncertainty':.05,'repair':.2}
 
 
-def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path=None):
+def load_effect_teacher(checkpoint, *, expected_base_binding_hash, identity_path=None, allowed_modes=("delta_feedback",)):
     p=Path(checkpoint);identity=read_json(identity_path or p.parent/'IDENTITY.json')
     receipt=read_json(p.with_suffix('.COMPLETE.json'))
     if verify_artifact(receipt['checkpoint']).resolve()!=p.resolve():raise ValueError('Wrong effect checkpoint receipt')
     ih=digest(identity)
     if identity.get('base_binding_hash')!=expected_base_binding_hash or receipt['run_identity']!=ih:
         raise ValueError('Effect teacher Base/run identity mismatch')
-    if identity.get('arm')!='delta_feedback':raise ValueError('Effect guidance requires its own trained delta-feedback teacher')
+    if identity.get('arm') not in allowed_modes or any(m not in MODES for m in allowed_modes):
+        raise ValueError('Effect guidance requires its explicitly declared own trained teacher mode')
     c=torch.load(p,map_location='cpu',weights_only=False)
     if c['run_identity']!=ih or c['optimizer_step']!=receipt['optimizer_step'] or c['optimizer_step']<1:
         raise ValueError('No compatible real trained effect checkpoint')

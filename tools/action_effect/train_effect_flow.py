@@ -185,6 +185,10 @@ def load_flow_examples(repair_dataset,reader):
             registration['binding_identity']!=reader.binding['identity'] or
             completion['registration_identity']!=registration['identity']):
         raise ValueError('Repair dataset and frozen context/Base differ')
+    from .build_effect_pairs import build as rebuild_compact
+    rebuilt=rebuild_compact(Path(dataset['registration']['path']).parent)
+    if rebuilt['repair_dataset']['sha256']!=artifact(repair_dataset)['sha256']:
+        raise ValueError('IEG compact targets differ from verified native receipt reconstruction')
     if len({r['scene_id'] for r in dataset['entries']})!=len(dataset['entries']):
         raise ValueError('Duplicated G0 repair scene')
     examples=[];counts={'requested':len(dataset['entries']),'excluded_validation':0,'untrainable':0,'repairs':0,'preserve':0}

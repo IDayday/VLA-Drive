@@ -160,9 +160,10 @@ def build_model(cfg, dataset, *, arm, seed, device, effect_checkpoint=None, effe
     teacher = None
     if effect_checkpoint is not None:
         from .train_effect_model import load_effect_teacher
-        teacher = load_effect_teacher(effect_checkpoint,
-            expected_base_binding_hash=dataset.reader.binding["base_checkpoint_binding_hash"], identity_path=effect_identity)
         expected_mode = "delta_feedback" if arm == "A1" else "absolute_score"
+        teacher = load_effect_teacher(effect_checkpoint,
+            expected_base_binding_hash=dataset.reader.binding["base_checkpoint_binding_hash"], identity_path=effect_identity,
+            allowed_modes=(expected_mode,))
         if teacher.config.mode != expected_mode or teacher.label_spec != dataset.label_spec:
             raise ValueError("Refiner arm requires matching actually trained teacher mode and feedback schema")
     model = EffectGuidedRefiner(CoefficientRefiner(config), effect_teacher=teacher).to(device)
