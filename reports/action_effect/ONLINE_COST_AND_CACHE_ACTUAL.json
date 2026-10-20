@@ -1,0 +1,9245 @@
+{
+  "CPU_profile_runtime": {
+    "autocast": false,
+    "device": "cpu",
+    "dtype": "float32",
+    "threads": 1,
+    "torch": "2.5.1+cu124"
+  },
+  "GPU_initialized": false,
+  "actual_online_latency": {
+    "A": {
+      "hook_calls_per_prediction": {
+        "DiT": 10,
+        "language": 1,
+        "planner_projection": 1,
+        "refiner": 1,
+        "velocity_adapter": 0,
+        "visual": 1
+      },
+      "mean_seconds": 1.3363148160278797,
+      "n": 8,
+      "p50_seconds": 1.33578840829432,
+      "p95_seconds": 1.3424030743539332,
+      "peak_cuda_allocated_bytes": 12860710400,
+      "peak_cuda_reserved_bytes": 13304332288,
+      "warmup": 2
+    },
+    "B": {
+      "hook_calls_per_prediction": {
+        "DiT": 10,
+        "language": 1,
+        "planner_projection": 1,
+        "refiner": 0,
+        "velocity_adapter": 10,
+        "visual": 1
+      },
+      "mean_seconds": 1.3660095729865134,
+      "n": 8,
+      "p50_seconds": 1.365945820696652,
+      "p95_seconds": 1.368230260722339,
+      "peak_cuda_allocated_bytes": 12860709888,
+      "peak_cuda_reserved_bytes": 13304332288,
+      "warmup": 2
+    },
+    "S0": {
+      "hook_calls_per_prediction": {
+        "DiT": 10,
+        "language": 1,
+        "planner_projection": 1,
+        "refiner": 0,
+        "velocity_adapter": 0,
+        "visual": 1
+      },
+      "mean_seconds": 1.3297622399404645,
+      "n": 8,
+      "p50_seconds": 1.3292423030361533,
+      "p95_seconds": 1.332659934926778,
+      "peak_cuda_allocated_bytes": 12860709888,
+      "peak_cuda_reserved_bytes": 13304332288,
+      "warmup": 2
+    }
+  },
+  "actual_small_module_parameters": {
+    "A": 2711824,
+    "B": 2706948
+  },
+  "bundle_pins": {
+    "A": {
+      "bytes": 32441,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/online_S0_A1_B1effect_final1000_seed42_v2/exports/A1/BUNDLE.json",
+      "sha256": "2a3b30493112adfa02905f5e1a44168244317f22728da7da81084b83c6a0a287"
+    },
+    "B": {
+      "bytes": 33348,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/online_S0_A1_B1effect_final1000_seed42_v2/exports/B1-effect/BUNDLE.json",
+      "sha256": "15e220c637218d6b4ff904cf0865602020fc1c124a8987ce76f93c6a5ec3948e"
+    }
+  },
+  "campaign_binding": {
+    "bytes": 12638,
+    "path": "/mnt/project/action-effect-repair-20261020/CAMPAIGN_BINDING.json",
+    "sha256": "1c24472ec699eb9937ce9c6811cb74c276cda8c14f5cc5b27c3fd02151cf8b64"
+  },
+  "context_manifest": {
+    "bytes": 47227,
+    "path": "/mnt/project/action-effect-repair-20261020/contexts/MANIFEST_000064.json",
+    "sha256": "87f41bba893d5359a9b6b3e77a38cef5b2609e3ed626ff4f94268a767de6a213"
+  },
+  "deployment_source_commit": "64b115d2c7498d7b6c3376baf72dda5b6af29fe7",
+  "identity": "eb4c90c21fe43dfb57b123f57e40faf94443cbe6cdad0714e405d8905728e571",
+  "new_GPU_model_calls": 0,
+  "new_VLM_calls": 0,
+  "new_optimizer_updates": 0,
+  "new_simulator_calls": 0,
+  "not_claimed": "complete VLA FLOPs, full-DiT FLOPs, CPU latency as deployment latency, population throughput, calibrated confidence or scientific planning gain",
+  "observation_hash": "538fe184d0d76efeb39cb3233d16081237f8316e754db79dae82aac221378a75",
+  "online_worker": {
+    "bytes": 15370,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/online_S0_A1_B1effect_final1000_seed42_v2/online/WORKER_RESULT.json",
+    "sha256": "43ad6f6f34366317e04256fdea6a03be4da7cd6d8c566ee96406ca62721d0f3d"
+  },
+  "original_online_complete_unchanged": {
+    "bytes": 1316,
+    "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/online_S0_A1_B1effect_final1000_seed42_v2/online/COMPLETE.json",
+    "sha256": "38e5ac3214ce70e7d45b91bfc97c84b68fd4b58e0077fc4bda34436dc2352145"
+  },
+  "original_online_parameters": {
+    "A_private": 2711824,
+    "B_private_velocity": 2706948,
+    "original_action_head": 819503620,
+    "second_VLM": 0,
+    "second_action_head": 0,
+    "shared_original_S0": 2951547396,
+    "training_auxiliary_heads_deployed": 0
+  },
+  "original_online_receipt_rewritten": false,
+  "original_projection": {
+    "full_blob_checksum_read_bytes": 3278134372,
+    "head_artifact": {
+      "bytes": 3278134372,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/S0_ACTION_HEAD.pt",
+      "sha256": "ac5cd7fc70cd07c12ab906ed21f242202875ffae93a710576487dec3da2de508"
+    },
+    "mmap_projection_tensor_bytes": 22032384,
+    "original_full_head_instantiated": false,
+    "projection_tensor_sha256": {
+      "layer1.bias": "967ad4711aed311f1f1de1e130c722d45c1c18ea66f5d366a14e53f0cccfe351",
+      "layer1.weight": "cf2568953b009142eec7b37ee68bfa01da91bc31f2c8044afeae04fea78f96b5",
+      "layer2.bias": "fb302c18bbc59508fca35c05af174d0af3f5347ca0146314cb7f98356e6abc89",
+      "layer2.weight": "a4301b737560d175929b3d2927436a91b15cd50ac3e24a87271c4454418a0d85"
+    },
+    "receipt": {
+      "bytes": 393,
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/contexts/S0_ACTION_HEAD.COMPLETE.json",
+      "sha256": "67e7661a97b17d9571ebc4363397abc9a8e3942eaa0c1f9f0d6972eb416b0c46"
+    }
+  },
+  "original_projection_parameters": 5508096,
+  "profile_shape_definition": "batch1 actual frozen TRAIN context; B uses actual initial noise replayed at ten time inputs for shape-based cost, not actual ODE states",
+  "profiles": {
+    "A_refiner_once": {
+      "attention_operators": [
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            [
+              768,
+              256
+            ],
+            [
+              768
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_native_multi_head_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::_softmax",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::scaled_dot_product_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::_scaled_dot_product_flash_attention_for_cpu",
+          "reported_FLOPs": 0
+        }
+      ],
+      "counted_operators": [
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 311296
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 4
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              152,
+              2048
+            ],
+            [
+              2048,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 159383552
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              256
+            ],
+            [
+              1,
+              152,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 38912
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              4,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 2048
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [
+              256
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 256
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 72
+        },
+        {
+          "calls": 18,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 144
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              14
+            ],
+            [
+              14,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 57344
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 7340032
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 14336
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              768
+            ]
+          ],
+          "operator": "aten::mm",
+          "reported_FLOPs": 6291456
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [
+              4,
+              64,
+              8
+            ]
+          ],
+          "operator": "aten::bmm",
+          "reported_FLOPs": 65536
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ],
+            [
+              4,
+              8,
+              64
+            ],
+            [
+              4,
+              8,
+              64
+            ]
+          ],
+          "operator": "aten::bmm",
+          "reported_FLOPs": 65536
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512
+            ],
+            [
+              153,
+              256
+            ],
+            [
+              256,
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 80216064
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 8388608
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              1024
+            ],
+            [
+              1024,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 8388608
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8
+            ],
+            [
+              1,
+              256
+            ],
+            [
+              256,
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 4096
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              8
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 16
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              8
+            ],
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 64
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              8
+            ],
+            [
+              8
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 64
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 128
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 8
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              16,
+              8
+            ],
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::bmm",
+          "reported_FLOPs": 256
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [
+              1,
+              8,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 16
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 8
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              1,
+              8,
+              3
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 24
+        }
+      ],
+      "coverage": "only installed torch.profiler with_flops supported operators; zero means unreported, not zero work",
+      "not_included": "full Qwen/visual/DiT, unsupported/fused attention arithmetic, geometric NumPy screen, image IO, deployment wall time",
+      "operator_covered_FLOPs_lower_bound": 270568484,
+      "operator_covered_GFLOPs_lower_bound": 0.270568484,
+      "trace": {
+        "bytes": 589396,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/cpu_operator_cost_cache_v1/A_refiner_once.trace.json",
+        "sha256": "51f77b0952f4c0dce35d48d335e00cf1a262899b57c928eaa33e4babf2f75f60"
+      },
+      "zero_reported_operators": [
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::detach",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              4
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              1,
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 66,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 13,
+          "input_shapes": [
+            [
+              0
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 69,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 13,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::set_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              311296
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 56,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 56,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_to_copy",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 65,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 56,
+          "input_shapes": [
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::is_nonzero",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::item",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::_local_scalar_dense",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              4
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 5,
+          "input_shapes": [
+            [
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::detach",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::detach",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::zeros_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::zero_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              1
+            ],
+            [
+              1,
+              152,
+              2048
+            ],
+            [
+              1,
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::where",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              3,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              3,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 14,
+          "input_shapes": [
+            [
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 14,
+          "input_shapes": [
+            [
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 13,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::cat",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::narrow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [],
+            [
+              2048
+            ],
+            [
+              2048
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [],
+            [
+              2048
+            ],
+            [
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::native_layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              152
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              152
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            [
+              256,
+              2048
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              152,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            [
+              152,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              152,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              152,
+              2048
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              152,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [],
+            [
+              4
+            ],
+            [
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [],
+            [
+              4
+            ],
+            [
+              4
+            ],
+            []
+          ],
+          "operator": "aten::native_layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [
+              256,
+              4
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              4
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::ones",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::narrow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              24
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::arange",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::arange",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              0
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::resize_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 19,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 9,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::div",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 9,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 9,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 28,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 17,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 16,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 21,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              8,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::div",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::sin",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::cos",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [
+              1,
+              8,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              14
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              14
+            ],
+            [
+              256,
+              14
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              14
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              14
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              14
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              14
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              256,
+              14
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 21,
+          "input_shapes": [
+            [
+              8,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              14
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::gelu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 5,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              256,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              256,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              256,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              153
+            ]
+          ],
+          "operator": "aten::bitwise_not",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [
+              256
+            ],
+            [
+              256
+            ],
+            []
+          ],
+          "operator": "aten::native_layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 7,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 14,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            [
+              768,
+              256
+            ],
+            [
+              768
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_native_multi_head_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              768,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              768
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              768
+            ],
+            []
+          ],
+          "operator": "aten::_unsafe_view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              768
+            ],
+            [
+              768
+            ],
+            []
+          ],
+          "operator": "aten::_transform_bias_rescale_qkv",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              3,
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              3,
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::narrow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              64,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::_softmax",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::contiguous",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::clone",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::dropout",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::zeros_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ]
+          ],
+          "operator": "aten::zero_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            [
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::masked_fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::split_with_sizes",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              768
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::split_with_sizes",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              768
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              256
+            ],
+            [
+              512,
+              256
+            ],
+            [
+              512
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              512
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              512
+            ],
+            [
+              153,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              512
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::unflatten",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              2,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              153,
+              1,
+              2,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153,
+              1,
+              2,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153,
+              1,
+              2,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::squeeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::contiguous",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::clone",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              2,
+              153,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              4,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              153,
+              4,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              153,
+              4,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1,
+              153
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1,
+              153
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::_reshape_alias",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              4,
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              4,
+              153,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::scaled_dot_product_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::_scaled_dot_product_flash_attention_for_cpu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              4,
+              153,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              4,
+              1,
+              153
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              1752
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              0
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1024,
+              256
+            ],
+            [
+              1024
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ],
+            [
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::gelu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::dropout",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            [
+              256,
+              1024
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::mean",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            [],
+            [
+              1,
+              256
+            ]
+          ],
+          "operator": "aten::sum",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::div_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              8
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::tanh",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 25,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_to_copy",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8
+            ],
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 5,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::cos",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::sin",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::stack",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::neg",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::clamp",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 16,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::pow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 16,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::result_type",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::rsub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [],
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 8,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 15,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::einsum",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2,
+              8
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1,
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              2,
+              8,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              2,
+              8,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1,
+              8
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              1,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              1,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              16,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              16,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              2,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              2,
+              1,
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              2
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::zeros_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              2
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              2
+            ]
+          ],
+          "operator": "aten::zero_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              1,
+              9,
+              2
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::narrow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              1,
+              9,
+              2
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 6,
+          "input_shapes": [
+            [
+              1,
+              9,
+              2
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              9,
+              2
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::diff",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::linalg_vector_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::gt",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::__and__",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::bitwise_and",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::zeros_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ]
+          ],
+          "operator": "aten::zero_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::lift_fresh",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 5,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              8,
+              2
+            ],
+            [
+              1,
+              8,
+              2
+            ]
+          ],
+          "operator": "aten::where",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              16
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 4,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::atan2",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::zeros_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::zero_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          "operator": "aten::where",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              1,
+              8,
+              3
+            ]
+          ],
+          "operator": "aten::where",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              3
+            ],
+            [
+              1,
+              8,
+              3
+            ],
+            []
+          ],
+          "operator": "aten::sub",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1
+            ],
+            [
+              1,
+              8,
+              1
+            ]
+          ],
+          "operator": "aten::atan2",
+          "reported_FLOPs": 0
+        }
+      ]
+    },
+    "B_velocity_adapter_ten": {
+      "attention_operators": [
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            [
+              768,
+              256
+            ],
+            [
+              768
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_native_multi_head_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::_softmax",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::scaled_dot_product_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_scaled_dot_product_flash_attention_for_cpu",
+          "reported_FLOPs": 0
+        }
+      ],
+      "counted_operators": [
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 163840
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [
+              1,
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 320
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1
+            ],
+            [
+              1
+            ]
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 20
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 20
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              2048
+            ],
+            [
+              2048,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 83886080
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              4,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 163840
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 143360
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              4,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 20480
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              1,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 1310720
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::add",
+          "reported_FLOPs": 20480
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              768
+            ]
+          ],
+          "operator": "aten::mm",
+          "reported_FLOPs": 62914560
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [
+              4,
+              64,
+              8
+            ]
+          ],
+          "operator": "aten::bmm",
+          "reported_FLOPs": 655360
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ],
+            [
+              4,
+              8,
+              64
+            ],
+            [
+              4,
+              8,
+              64
+            ]
+          ],
+          "operator": "aten::bmm",
+          "reported_FLOPs": 655360
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 62914560
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 41943040
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 83886080
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256
+            ],
+            [
+              8,
+              1024
+            ],
+            [
+              1024,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 83886080
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4
+            ],
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 163840
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::mul",
+          "reported_FLOPs": 320
+        }
+      ],
+      "coverage": "only installed torch.profiler with_flops supported operators; zero means unreported, not zero work",
+      "not_included": "full Qwen/visual/DiT, unsupported/fused attention arithmetic, geometric NumPy screen, image IO, deployment wall time",
+      "operator_covered_FLOPs_lower_bound": 422728360,
+      "operator_covered_GFLOPs_lower_bound": 0.42272836,
+      "trace": {
+        "bytes": 2531416,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/cpu_operator_cost_cache_v1/B_velocity_adapter_ten.trace.json",
+        "sha256": "0f39d229c0e296ff046b659f64a9c4f7bdebfda66cccf7ff016d61b8a7d9b56e"
+      },
+      "zero_reported_operators": [
+        {
+          "calls": 400,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::lift_fresh",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::detach_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            [
+              0
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 90,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::set_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              16384
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_to_copy",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 80,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              1,
+              1
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::is_nonzero",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::item",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            []
+          ],
+          "operator": "aten::_local_scalar_dense",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              32
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [
+              1,
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::isfinite",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            [
+              0
+            ]
+          ],
+          "operator": "aten::abs",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::ne",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            [
+              1
+            ]
+          ],
+          "operator": "aten::eq",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::all",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view_as",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::to",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::sin",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1
+            ]
+          ],
+          "operator": "aten::cos",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::stack",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              1
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              1
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [],
+            []
+          ],
+          "operator": "aten::cat",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::detach",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [],
+            [
+              2048
+            ],
+            [
+              2048
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [],
+            [
+              2048
+            ],
+            [
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::native_layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 140,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 140,
+          "input_shapes": [
+            [
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [
+              256,
+              2048
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              256,
+              2048
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 120,
+          "input_shapes": [
+            [
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 120,
+          "input_shapes": [
+            [
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 100,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 230,
+          "input_shapes": [
+            [
+              8,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 100,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [
+              256,
+              4
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              4
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              4
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              4
+            ],
+            [
+              256,
+              4
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 30,
+          "input_shapes": [
+            [
+              1,
+              256
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              4
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              256
+            ]
+          ],
+          "operator": "aten::silu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [
+              256,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [
+              256,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [
+              256,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [
+              256
+            ],
+            [
+              256
+            ],
+            []
+          ],
+          "operator": "aten::native_layer_norm",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            [
+              768,
+              256
+            ],
+            [
+              768
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_native_multi_head_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              768,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 50,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 70,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              768
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              768
+            ],
+            []
+          ],
+          "operator": "aten::_unsafe_view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              768
+            ],
+            [
+              768
+            ],
+            []
+          ],
+          "operator": "aten::_transform_bias_rescale_qkv",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              3,
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              3,
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::narrow",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::slice",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              3,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 80,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              64,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [],
+            [],
+            [
+              1,
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::_softmax",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              4,
+              8,
+              8
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 80,
+          "input_shapes": [
+            [
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::permute",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 120,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::contiguous",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::clone",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::dropout",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              768,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::split_with_sizes",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              768
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::split_with_sizes",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              768
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 100,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [
+              512,
+              256
+            ],
+            [
+              512
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              512
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              512
+            ],
+            [
+              8,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              512
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              512
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::unflatten",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              512
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              2,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::unsqueeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              2,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1,
+              2,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1,
+              2,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::squeeze",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::contiguous",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::clone",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::select",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              2,
+              8,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              8,
+              4,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 60,
+          "input_shapes": [
+            [
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::scaled_dot_product_attention",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::_scaled_dot_product_flash_attention_for_cpu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::empty_like",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 80,
+          "input_shapes": [
+            [
+              1,
+              4,
+              8,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              592
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              0
+            ],
+            []
+          ],
+          "operator": "aten::fill_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4,
+              64
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              4,
+              64
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              256
+            ],
+            [
+              256,
+              256
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              1024,
+              256
+            ],
+            [
+              1024
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1024
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ],
+            [
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 40,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::gelu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::dropout",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            [
+              256,
+              1024
+            ],
+            [
+              256
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1024
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 20,
+          "input_shapes": [
+            [
+              256,
+              1024
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              1,
+              8,
+              256
+            ],
+            [
+              4,
+              256
+            ],
+            [
+              4
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4,
+              256
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4,
+              256
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4,
+              256
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              4
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              4
+            ],
+            [
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 10,
+          "input_shapes": [
+            [
+              8,
+              4
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        }
+      ]
+    },
+    "shared_original_qwen_projection_once": {
+      "attention_operators": [],
+      "counted_operators": [
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536
+            ],
+            [
+              8,
+              2048
+            ],
+            [
+              2048,
+              1536
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 50331648
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536
+            ],
+            [
+              8,
+              1536
+            ],
+            [
+              1536,
+              1536
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::addmm",
+          "reported_FLOPs": 37748736
+        }
+      ],
+      "coverage": "only installed torch.profiler with_flops supported operators; zero means unreported, not zero work",
+      "not_included": "full Qwen/visual/DiT, unsupported/fused attention arithmetic, geometric NumPy screen, image IO, deployment wall time",
+      "operator_covered_FLOPs_lower_bound": 88080384,
+      "operator_covered_GFLOPs_lower_bound": 0.088080384,
+      "trace": {
+        "bytes": 12687,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/cpu_operator_cost_cache_v1/original_projection_once.trace.json",
+        "sha256": "9f9302ddb927641b3a9cf2235045b905ae6ae541e24ed2ce7c32821806cffef9"
+      },
+      "zero_reported_operators": [
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            [
+              1536,
+              2048
+            ],
+            [
+              1536
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              2048
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              2048
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              2048
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              2048
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1536
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::expand",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              1536
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1536
+            ],
+            [
+              8,
+              1536
+            ],
+            []
+          ],
+          "operator": "aten::copy_",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 3,
+          "input_shapes": [
+            [
+              8,
+              1536
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              8,
+              2048
+            ]
+          ],
+          "operator": "aten::resolve_conj",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 2,
+          "input_shapes": [
+            [
+              8,
+              1536
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1536
+            ]
+          ],
+          "operator": "aten::relu",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1536
+            ],
+            []
+          ],
+          "operator": "aten::clamp_min",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1536
+            ],
+            [
+              1536,
+              1536
+            ],
+            [
+              1536
+            ]
+          ],
+          "operator": "aten::linear",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1536
+            ],
+            []
+          ],
+          "operator": "aten::reshape",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1,
+              8,
+              1536
+            ],
+            []
+          ],
+          "operator": "aten::view",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              1536
+            ]
+          ],
+          "operator": "aten::t",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              1536
+            ],
+            [],
+            []
+          ],
+          "operator": "aten::transpose",
+          "reported_FLOPs": 0
+        },
+        {
+          "calls": 1,
+          "input_shapes": [
+            [
+              1536,
+              1536
+            ],
+            [],
+            [],
+            []
+          ],
+          "operator": "aten::as_strided",
+          "reported_FLOPs": 0
+        }
+      ]
+    }
+  },
+  "scene_id": "fc90fd5b50ae59fe",
+  "schema": "action_effect_cpu_operator_cost_and_cache_audit_v1",
+  "shared_projection_accounting": "one original qwen_proj is shared S0/A/B work; B adapter.context runs inside each of ten full adapter calls, not once",
+  "source_commit": "20179f542be2952ed572923777fca076cbe07c9c",
+  "status": "PASS",
+  "supplemental_online_cache_comparisons": {
+    "A": {
+      "exact_physical": true,
+      "max_abs_error": 0.0,
+      "prediction_artifact": {
+        "bytes": 1197018,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/A1/seed_42/validation/prediction/PREDICTIONS.json",
+        "sha256": "f61b6e1d759f8db4d408a5d221b06df262ab31c90d30e36b326b44a5892936d2"
+      }
+    },
+    "B": {
+      "exact_physical": true,
+      "max_abs_error": 0.0,
+      "prediction_artifact": {
+        "bytes": 1047448,
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/evaluation/B1-effect/seed_42/validation/prediction/PREDICTIONS.json",
+        "sha256": "05ea5e0d57420dde64b0e22d49364a8dbd3caa9463ff5770d689fb02c14da6cd"
+      }
+    },
+    "S0": {
+      "physical_exact": true,
+      "raw_exact": true
+    }
+  },
+  "tool": {
+    "bytes": 13194,
+    "path": "/mnt/project/VLA-Drive-effect-cpu-cost-audit-20261020/tools/action_effect/audit_online_cost.py",
+    "sha256": "567d9cddaebbf66a7c880adfac8014522cea127fc43d12fa18ff8ad73924beb1"
+  }
+}
