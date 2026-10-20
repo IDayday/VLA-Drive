@@ -100,13 +100,28 @@ def _inventory(root,result,observed):
     return list(pins.values())
 
 
-def build_and_validate_datasets(root):
+def _capture_dependency(pin,observed,*,verified_stat=None):
+    """Capture a file before semantic use, or merge that version from a worker."""
+    p=Path(pin['path']).resolve();key=str(p);before=stamp(p)
+    if verified_stat is not None and before!=verified_stat:
+        raise ValueError('Dependency changed after worker native validation: '+key)
+    if key in observed:
+        if observed[key]['sha256']!=pin['sha256'] or observed[key]['stat']!=before:
+            raise ValueError('Dependency changed during native validation: '+key)
+        return
+    verify_artifact(pin)
+    if stamp(p)!=before:raise ValueError('Dependency changed during native validation: '+key)
+    observed[key]={'sha256':pin['sha256'],'stat':before}
+
+
+def build_and_validate_datasets(root,*,workers=1):
     """Perform one strict native reconstruction and seal BOTH compact datasets.
 
     No external result or claimed-valid flag is accepted. A valid immutable
     inventory can be reused; otherwise this entry point owns the actual build.
     The root lock prevents concurrent pair/repair parsers duplicating that work.
     """
+    if type(workers) is not int or not 1<=workers<=4:raise ValueError('CPU build workers must lie in 1..4')
     root=Path(root);directory=root/'validation_receipts';directory.mkdir(parents=True,exist_ok=True)
     with (directory/'FULL_BUILD.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
@@ -121,16 +136,8 @@ def build_and_validate_datasets(root):
         started=time.perf_counter()
         from .build_effect_pairs import build
         observed={}
-        def observe(pin):
-            p=Path(pin['path']).resolve();key=str(p);before=stamp(p)
-            if key in observed:
-                if observed[key]['sha256']!=pin['sha256'] or observed[key]['stat']!=before:
-                    raise ValueError('Dependency changed during native validation: '+key)
-                return
-            verify_artifact(pin)
-            if stamp(p)!=before:raise ValueError('Dependency changed during native validation: '+key)
-            observed[key]={'sha256':pin['sha256'],'stat':before}
-        result=build(root,_dependency_observer=observe)
+        def observe(pin,*,verified_stat=None):_capture_dependency(pin,observed,verified_stat=verified_stat)
+        result=build(root,_dependency_observer=observe,workers=workers)
         inventory=_inventory(root,result,observed)
         if source_contract()!=source:raise ValueError('Validation source changed during reconstruction')
         seconds=time.perf_counter()-started;validated={}
