@@ -1,0 +1,73 @@
+{
+  "schema": "action_effect_g0_independent_primitive_correctness_v1",
+  "reviewer": "/root/effect_navsim_feedback",
+  "recorded_at_utc": "2026-10-20T01:04:59.188178+00:00",
+  "reviewed_source_commit": "cdd33e240cfebbedcdbdae84cd824605e0858f08",
+  "original_owner_commit": "00a5b754a6d772d5184697effedbe62be1762788",
+  "owner_fix_commit": "823adecb",
+  "verdict": "PASS_FOR_REVIEWED_PRIMITIVES_ONLY",
+  "source_files": [
+    {
+      "path": "starVLA/model/modules/action_effect/intervention_basis.py",
+      "sha256": "fca997608bccab779f802716916a327220afef4924bd53eab4c047ce0c9a835c",
+      "bytes": 5694
+    },
+    {
+      "path": "starVLA/model/modules/action_effect/trajectory_constraints.py",
+      "sha256": "a853e50c0130eee05381cf1b1232c3fbbc169055d86d29f44d8f8baaad2ee01a",
+      "bytes": 4203
+    }
+  ],
+  "independent_test_source": {
+    "path": "tests/action_effect/test_interventions_independent_review.py",
+    "sha256": "ffa014080a6c4f04f2332ada2002849994bf212101c7dc818f9f137e432b69e0",
+    "bytes": 7466
+  },
+  "actual_test_output": {
+    "path": "reports/effect_repair/G0_INTERVENTION_INDEPENDENT_TESTS.txt",
+    "sha256": "5de6801217fb559ffdfab6ae4f4b5f6ff3f26bdb5e0a0fdcc568ab652244a71f",
+    "bytes": 99
+  },
+  "actual_result": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "pytest_wall_seconds": 0.17,
+    "tool_wall_seconds": 0.451525954,
+    "cpu_peak_memory": "NOT_MEASURED"
+  },
+  "command": "env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_interventions_independent_review.py",
+  "real_simulations": 0,
+  "gpu_calls": 0,
+  "native_feedback_wrapper_self_review": false,
+  "findings": [
+    {
+      "id": "G0-01",
+      "severity": "CORRECTNESS",
+      "original_problem": "active interval excludes changed hold tail after ramp window",
+      "historical_counterexample": "old early window active[0,2], submitted points2.5..4 remain displaced",
+      "current_result": "FIXED: independent test proves ramp[0,2] and actualactive[0,4] stored separately"
+    },
+    {
+      "id": "G0-02",
+      "severity": "CORRECTNESS",
+      "original_problem": "speed<=1 m/s curvature falsely set zero; turn-in-place silently passes",
+      "historical_counterexample": "radius0.1m/omega0.5rad/s passesold allbounds withcurvature0; zeroXY/yawchange0.1rad/s also passesold",
+      "current_result": "FIXED: small moving curve curvature>9 invm rejected; stationary yawchange rejected withdefined/undefinedcounts"
+    }
+  ],
+  "boundary_conditions": [
+    "initial_velocity_xy must be in the initial ego/rear-axle coordinate frame; t0 heading is0 in that frame",
+    "geometric screens use finite differences, not exact continuous vehicle safety guarantees",
+    "reconstruct preserves yaw when original tangent undefined; no explicit tangent-mask output, so runner must retain controllertracking and cannot claim geometry provesexecutability",
+    "tracking_screen transform/dt/units are verified synthetic numerical fixtures, not realcontrollerintegration",
+    "physical/legal bad candidates may remain valid lowofficial scores; malformed or failedsimulation must never bevalidzero",
+    "eventtimestamps are observations; only actual samecontext interventions can support local effectlabels"
+  ],
+  "pending_stage_checks": [
+    "actual 32scene G0 controller replay and source/context/protocol match",
+    "G0 cache/ledger admission/resume/callbudget and zero/missing/invalid denominator handling",
+    "measuredCPU/IO throughput and globalresource admission",
+    "G0 repair opportunity and scientific generalization"
+  ]
+}
