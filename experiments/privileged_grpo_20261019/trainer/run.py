@@ -10,6 +10,7 @@ from asset_adapter import config,rows,scene,mapped,validate,digest
 import engine
 sys.path.insert(0,str(ROOT/'vendor/grpo_smoke_v1'))
 import smoke as core
+from input_protocol import validate_protocol, native_clean_suffix
 from common import decode
 from pipeline import load_images
 from score_trace import score_one
@@ -27,6 +28,7 @@ def read(path):return json.loads(Path(path).read_text())
 def identity(cfg,c,prepared):
     source=Path(c['source_root']);return {'training':cfg,'checkpoint':c['checkpoint_sha256'],'train':digest(c['train_pairs']),'test':digest(c['test_pairs']),'prepared':digest(prepared/'PREPARATION.json'),'code':{str(p.relative_to(ROOT)):digest(p) for p in sorted(list(ROOT.glob('*.py'))+list((ROOT/'vendor').rglob('*.py'))) if '__pycache__' not in p.parts},'model_source':{str(p.relative_to(source)):digest(p) for p in sorted((source/'starVLA').rglob('*.py'))},'model_config':digest(c['model_config']),'tokenizer':{p.name:digest(p) for p in sorted(Path(c['tokenizer_root']).glob('*.json'))}}
 def validate_plan(cfg,prepared,mode):
+    validate_protocol(cfg)
     expected_arms={'A','B','C','F','E','A_VLM','C_VLM','E_VLM','A_DiT','C_DiT','E_DiT'}
     if set(cfg['arms'])!=expected_arms or len(cfg['arms'])!=11 or cfg['evaluation_replicates']!=3:raise ValueError('Expected all 11 arms and three paired evaluation replicates')
     if cfg['checkpoint_every_updates']<0 or min(cfg['vlm_lr'],cfg['action_lr'],cfg['gradient_clip'])<=0 or cfg['beta']<0:raise ValueError('Invalid optimizer/checkpoint bounds')
@@ -125,13 +127,14 @@ def main(a):
             model._inference_qwen_forward_mode='optimized'
             with torch.inference_mode():
                 torch.manual_seed(719);torch.cuda.manual_seed_all(719)
-                original=model.predict_action_infer_1d([dict(image=base_images,state=base_scene['state'],lang=base_scene['instruction'],token=replay_token)])['normalized_actions']
+                with native_clean_suffix(model):
+                    original=model.predict_action_infer_1d([dict(image=base_images,state=base_scene['state'],lang=base_scene['instruction'],token=replay_token)])['normalized_actions']
                 torch.manual_seed(719);torch.cuda.manual_seed_all(719)
                 q=core.queries(model,base_batch,base_scene['state'])
                 with torch.autocast('cuda',enabled=False):local=model.action_model.predict_action(q).cpu().numpy()
             error=float(np.max(np.abs(original-local)))
-            if not np.allclose(original,local,rtol=1e-5,atol=1e-5):raise ValueError('Original model forward differs from training path')
-            save_json(out/'BASE_FORWARD_REPLAY.json',{'status':'PASS','max_abs_error':error,'token':replay_token})
+            if not np.allclose(original,local,rtol=1e-5,atol=1e-5):raise ValueError('Native clean-suffix model forward differs from training path')
+            save_json(out/'BASE_FORWARD_REPLAY.json',{'status':'PASS','max_abs_error':error,'token':replay_token,'input_protocol_version':core.INPUT_PROTOCOL_VERSION,'comparison':'native and training paths both use clean suffix; not legacy-output equality'})
             del original,local,q,base_batch,base_images
         budget=a.smoke_wall_seconds if mode=='smoke' else cfg['wall_seconds']
         if mode in ['initial','final']:

@@ -1,6 +1,6 @@
 {
-  "status": "HISTORY_FROZEN_V2_CPU_ACCEPTED_REAL_JOINT_PENDING",
-  "updated_utc": "2026-10-19T12:30:43.789253+00:00",
+  "status": "ACTION_ONLY_SUFFIX_V3_CPU_ACCEPTED_REAL_SCOPES_PENDING",
+  "updated_utc": "2026-10-20T00:31:45.231999+00:00",
   "arms_implemented": 11,
   "real_smoke": [
     {
@@ -247,7 +247,8 @@
     "共同正式epochs、训练seed与预算未锁定",
     "DLC仍排队，目标16卡并发及故障恢复未验收",
     "真实大模型跨进程恢复的一致性尚未单独实测；完整恢复逻辑已通过CPU测试",
-    "history-frozen-v2联合组真实PPU复验待空闲；旧joint历史参数更新结果不可充作新范围验收"
+    "history-frozen-v2联合组真实PPU复验待空闲；旧joint历史参数更新结果不可充作新范围验收",
+    "action-only-suffix-v3三种更新范围真实设备冒烟与新配对前测；旧分数不可复用"
   ],
   "historical_code_hashes": {
     "analyze.py": "36f30b1750bbd80acd30f216417340e32b2b7691ba55e5ffcc300b468641920f",
@@ -285,15 +286,45 @@
     "diagnose_f.py": "17ba9c677fdaa52f7147af7c4d6814d4516bb0a208945e847ef057258b63e745",
     "engine.py": "c949d6e3c38e17ba86156e6cffb8c017d22fa6ddaf4edc5287fe25f26863b362",
     "prepare.py": "4fcd443e8a5ee625a6ca369c62d46ce8afda37e244dce19988812742082abb9d",
-    "run.py": "b347a0b9bc9b1190597fb5d71cc1ead3740eced5cf5b76d08d4985209f299b92",
-    "schedule.py": "961c10056315b9cbf0394b8e4ae0b39191a0707bed766a5a3e8eee1765d10064",
-    "test_contracts.py": "7b2dfe5447892b08879dfce1886e7be3408d8ed0e609418a33a5e10cd980dce8",
+    "run.py": "9f2a15c1e6abdfe946ae013c46c32da29379e061273c305e738d0db67b96e554",
+    "schedule.py": "cf0f62aff5c0f23c1732fd5b854c9d301ef7a4d67feeb57da0d0ce6781175cfe",
+    "test_contracts.py": "4a18176c9e0814fa5d7cd221612d1cd4bac8f2438768a915c56a846a2014024d",
     "test_engine.py": "77ee37f6ffdfad5a274c447a89810904c5b2c6428b08a397986859a21017a12c",
+    "test_input_protocol.py": "db42a9e5f75b44bcb52ded2a85c141acbdb3b2936637239cd7c0ffa98b57f36f",
     "vendor/grpo_probe_v2/diversity.py": "4d37a4262b97836c1d87d1584637e303d4b24d60ce6c94b57b7703d5255fc16e",
     "vendor/grpo_smoke_v1/grpo_math.py": "3ed0ba69bd292a0fe8674787c9d6eb49a6dd301b8b3ee44b56d5b20443475193",
-    "vendor/grpo_smoke_v1/smoke.py": "b033ad9afe3457ec79a627124c83eed0f90b352d7ee9bc8500dd0b2e82fa5185",
+    "vendor/grpo_smoke_v1/input_protocol.py": "51f8d111175c26ea39a9e2729c7e5a957bb017be03b3ea744f1af6f67ab5b5f7",
+    "vendor/grpo_smoke_v1/smoke.py": "ee91b71670a5239a73a7d3e1c46574c958e84bf95b14a309e604822a6d48845d",
     "vendor/mining_v3r2/common.py": "cf650d9defd1d466ddf99f49b6d0f0d1572b7fd296374f8de4a68514a47a41e4",
     "vendor/mining_v3r2/pipeline.py": "ae07598fc96b6ff1d9a8eafc5051f384631a711809d1d8ed15441cb7b7d13a71",
     "vendor/mining_v3r2/score_trace.py": "ad7e50d45a0c77d6b133226a3bdbe37e873261bc6b671096130a08eb01908c1a"
+  },
+  "input_revision": {
+    "version": "action-only-suffix-v3",
+    "cpu_tests": 16,
+    "cpu_test_log_sha256": "4199832965d33042a2f67b4280bca26fe1ed249a91cbd80a454486a1c7602fd3",
+    "real_model_validation": "PENDING; all prior GPU smoke and frozen ACFE results use legacy suffix",
+    "original_weights_and_tokenizer_unchanged": true,
+    "new_initial_evaluation_required": true,
+    "tokenizer_audit": {
+      "status": "PASS",
+      "input_protocol_version": "action-only-suffix-v3",
+      "scenes": 1405,
+      "text_counts": {
+        "A": 1405,
+        "B": 1405,
+        "C": 1405,
+        "E": 1405,
+        "F": 1383
+      },
+      "removed_token_counts": {
+        "129": 7003
+      },
+      "strict_CF_pairs_preserved": 1383,
+      "all_suffixes_clean": true,
+      "tokenizer_sha256": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+      "prepared_text_sha256": "e075b7f8773073bed4b1a01235efcf45e4bc24425230320135872de28e2fc15f",
+      "scope": "Real tokenizer on all existing prepared text. Actual multimodal inputs and GPU outputs still require new smoke validation."
+    }
   }
 }

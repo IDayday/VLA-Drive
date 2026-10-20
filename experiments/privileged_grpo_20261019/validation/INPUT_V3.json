@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "created_utc": "2026-10-20T00:32:25.588529+00:00",
+  "input_protocol_version": "action-only-suffix-v3",
+  "source_cpu_tests": 16,
+  "export_cpu_tests": 16,
+  "tokenizer_audit": {
+    "status": "PASS",
+    "input_protocol_version": "action-only-suffix-v3",
+    "scenes": 1405,
+    "text_counts": {
+      "A": 1405,
+      "B": 1405,
+      "C": 1405,
+      "E": 1405,
+      "F": 1383
+    },
+    "removed_token_counts": {
+      "129": 7003
+    },
+    "strict_CF_pairs_preserved": 1383,
+    "all_suffixes_clean": true,
+    "tokenizer_sha256": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+    "prepared_text_sha256": "e075b7f8773073bed4b1a01235efcf45e4bc24425230320135872de28e2fc15f",
+    "scope": "Real tokenizer on all existing prepared text. Actual multimodal inputs and GPU outputs still require new smoke validation."
+  },
+  "core_sha256": {
+    "run.py": "9f2a15c1e6abdfe946ae013c46c32da29379e061273c305e738d0db67b96e554",
+    "schedule.py": "cf0f62aff5c0f23c1732fd5b854c9d301ef7a4d67feeb57da0d0ce6781175cfe",
+    "engine.py": "c949d6e3c38e17ba86156e6cffb8c017d22fa6ddaf4edc5287fe25f26863b362",
+    "test_input_protocol.py": "db42a9e5f75b44bcb52ded2a85c141acbdb3b2936637239cd7c0ffa98b57f36f",
+    "vendor/grpo_smoke_v1/input_protocol.py": "51f8d111175c26ea39a9e2729c7e5a957bb017be03b3ea744f1af6f67ab5b5f7",
+    "vendor/grpo_smoke_v1/smoke.py": "ee91b71670a5239a73a7d3e1c46574c958e84bf95b14a309e604822a6d48845d",
+    "TRAINING.template.json": "6f63caa39daf316281aa5fcb8c3a679fbe7baea426c52924e3fea93b3d2bed8d"
+  },
+  "unchanged": "Base checkpoint, tokenizer vocabulary and archived model source; existing runs/results untouched",
+  "gpu_status": "NOT_RUN; new input protocol needs three-scope GPU smoke and new paired initial scores",
+  "original_failure_pool": "Still selected by legacy-input Base; old labels are provenance, not current clean-input scores"
+}

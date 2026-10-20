@@ -13,7 +13,7 @@
     "test": 23
   },
   "correction": "Historical PLAN drive counts refer to whole partitions, not failure subset. Bootstrap the 141 failure scenes by the 17 represented source drives. Historical protocol snapshots remain unchanged.",
-  "formal_executor": "11-arm trainer implemented; history-frozen-v2 CPU tests passed; revised joint real-PPU smoke, formal budget/F rule and target multi-card acceptance pending",
+  "formal_executor": "11-arm trainer implemented; clean-suffix 16 CPU tests passed; all scopes need real-device validation under new input, plus formal budget/F rule and multi-card acceptance",
   "formal_epochs": null,
   "formal_budget": null,
   "github_upload": "Publication receipt is maintained outside the package in migration_v1/PUBLISH_STATUS.json; local packaging is not proof of upload",
@@ -31,5 +31,6 @@
     "raw_assets_hashed_and_images_checked": true,
     "errors": []
   },
-  "evaluation_data_role": "141 held out from post-training; already examined in frozen-Base ACFE mechanism study; not an unseen final confirmation set if used for method selection"
+  "evaluation_data_role": "141 held out from post-training; already examined in frozen-Base ACFE mechanism study; not an unseen final confirmation set if used for method selection",
+  "input_protocol_version": "action-only-suffix-v3"
 }

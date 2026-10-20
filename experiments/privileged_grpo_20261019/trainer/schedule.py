@@ -2,6 +2,8 @@
 import argparse,collections,hashlib,json,os,signal,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
+sys.path.insert(0,str(ROOT/'vendor/grpo_smoke_v1'))
+from input_protocol import validate_protocol
 STOP=False
 def stop(signum,frame):
     global STOP
@@ -44,6 +46,7 @@ def recover_queue(root, pending, cfg, phase_identity):
 def main(a):
     global STOP
     cfg=read(a.training)
+    validate_protocol(cfg)
     if not cfg.get('formal_protocol_locked') or not cfg.get('epochs') or not cfg.get('training_seeds') or not cfg.get('wall_seconds'):raise ValueError('Formal configuration still unlocked')
     prep=read(Path(a.prepared)/'PREPARATION.json')
     if prep['status']!='PASS':raise ValueError('Full F coverage gate failed')

@@ -10,7 +10,6 @@ import engine
 ROOT=Path(__file__).resolve().parent
 class Tests(unittest.TestCase):
     def setUp(self):
-        # Synthetic preparation identity exercises real hash validation; no scene assets.
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.prepared = Path(self.tmp.name)

@@ -1,5 +1,5 @@
 {
-  "status": "HISTORY_FROZEN_V2_CPU_ACCEPTED_REAL_JOINT_PENDING",
+  "status": "ACTION_ONLY_SUFFIX_V3_CPU_ACCEPTED_REAL_SCOPES_PENDING",
   "created_utc": "2026-10-19T07:47:44.380566+00:00",
   "confirmed_scope": {
     "arms": [
@@ -121,13 +121,15 @@
   },
   "prompts": {
     "canonical_request": "Refine the driving plan. Output the complete corrected future trajectory in the original ego frame.",
-    "format": "沿用mechanism_screen_v1的8路点x/y/yaw文本，history/action字段位置规则不变",
+    "format": "保留8路点x/y/yaw正文；统一清理后缀，history/action位置相对旧版改变，C/F仍须同长度同位置",
     "static_feedback": "输入失败轨迹、评分与guidance始终属于冻结Base，不随当前策略更新；不得把这些分项冒充当前采样候选的评分",
     "privilege": "训练及评测均允许对应场景事后反馈及GT对齐特权信息，属于有反馈上限实验",
     "F_pool": "仅1264训练失败中的其他完整驾驶记录；测试场景绝不作为供体；无接收场景GT或新输出择优",
     "F_matching": "沿用末航向差>=30度或路程差>=8m且加1m路程比>=4；输入ADE>=3m；原速度/加速度/连续航向筛选；C/F总token及special位置严格匹配",
     "F_reuse": "全量规模允许不同接收场景复用供体；记录频次，训练接收场景不能用本驾驶记录供体；每接收场景供体固定跨epoch/前后评测",
-    "F_coverage_gate": "正式运行前验证全部1405接收场景。无可行匹配则保存缺失清单并提交明确规则修订，不静默降低冲突标准、不删样本"
+    "F_coverage_gate": "正式运行前验证全部1405接收场景。无可行匹配则保存缺失清单并提交明确规则修订，不静默降低冲突标准、不删样本",
+    "suffix": "All 11 arms: one history token + eight action queries; no RGB/GS/reward tokens",
+    "baseline_note": "A retains SFT sensor/history/navigation inputs with cleaned suffix; not byte-identical original SFT input. Failure pairs and guidance remain mined under legacy suffix. Rerun initial scores under v3; do not reuse old ACFE scores or checkpoints."
   },
   "proposed_training": {
     "epochs": null,
@@ -392,5 +394,6 @@
     "cpu_status": "PASS",
     "real_joint_smoke": "PENDING_ACCELERATOR_AVAILABLE",
     "historical_smoke_preserved": true
-  }
+  },
+  "input_protocol_version": "action-only-suffix-v3"
 }

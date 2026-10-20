@@ -28,3 +28,8 @@ tools/portable.py is the new migration entrypoint. Its GPU smoke still requires
 execution and acceptance on the destination accelerator before formal computation.
 
 See trainer/README.html and trainer/ACCEPTANCE.json for the new formal entry.
+
+Current input protocol: action-only-suffix-v3. All arms keep history + 8 action
+queries only; RGB/GS/reward query tokens are removed. 16 CPU tests passed.
+Prior GPU scores/smokes use the legacy suffix; new GPU acceptance and initial
+evaluation are required. Do not resume legacy runs under this protocol.

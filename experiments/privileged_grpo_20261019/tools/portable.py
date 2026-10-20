@@ -29,7 +29,7 @@ def mapped(path,c):
 def rows(c,split):return [json.loads(line) for line in Path(c[split+'_pairs']).read_text().splitlines() if line]
 
 def scene(row,c):
-    sys.path.insert(0,str(ROOT/'reference/mining_v3r2'))
+    sys.path.insert(0,str(ROOT/'trainer/vendor/mining_v3r2'))
     from common import raw_scene
     s=raw_scene({'raw_meta':str(Path(c['raw_meta_root'])/(row['token']+'.pkl'))})
     s['image_paths']=[mapped(p,c) for p in s['image_paths']]
@@ -85,7 +85,7 @@ def infer(c,args):
     os.environ['HF_HUB_OFFLINE']='1';os.environ['TRANSFORMERS_OFFLINE']='1'
     import torch
     if not torch.cuda.is_available():raise RuntimeError('CUDA-compatible accelerator unavailable')
-    sys.path.insert(0,c['source_root']);sys.path.insert(0,str(ROOT/'reference/grpo_smoke_v1'))
+    sys.path.insert(0,c['source_root']);sys.path.insert(0,str(ROOT/'trainer/vendor/grpo_smoke_v1'))
     import smoke as core
     from common import decode
     from pipeline import load_images
@@ -112,7 +112,7 @@ def infer(c,args):
     metric=mapped(row['source_paths']['metric'],c)
     replay=score_one(row['input_trajectory'],metric,c)
     if replay['metrics']!=row['base_score']['metrics']:raise RuntimeError('Frozen Base PDMS replay mismatch')
-    result={'token':row['token'],'arm':args.arm,'seed':seed,'group_size':8,'checkpoint_sha256':c['checkpoint_sha256'],'training':False,'base_score_replay_exact':True,'candidates':[]}
+    result={'token':row['token'],'arm':args.arm,'seed':seed,'group_size':8,'checkpoint_sha256':c['checkpoint_sha256'],'training':False,'input_protocol_version':core.INPUT_PROTOCOL_VERSION,'base_score_replay_exact':True,'candidates':[]}
     for i,a in enumerate(raw.cpu().numpy()):
         trajectory=decode(a);score=score_one(trajectory,metric,c)
         result['candidates'].append({'candidate':i,'trajectory':trajectory.tolist(),'metrics':score['metrics']})

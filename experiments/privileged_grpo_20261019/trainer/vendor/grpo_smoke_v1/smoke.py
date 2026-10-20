@@ -27,12 +27,7 @@ sys.path.insert(0, str(MINING))
 from common import raw_scene, decode, file_hash, read, write
 from pipeline import load_images
 from score_trace import score_one, protocol
-
-
-def suffix(model):
-    assert not model.w_depth and not model.config.datasets.video_data.load_2d_data
-    assert not model.config.datasets.gs_data.load_3d_data
-    return ' ' + model.robot_history_token + ''.join(model.rgb_query_tokens) + ''.join(model.gs_query_tokens) + ''.join(model.act_query_tokens) + ''.join(model.reward_query_tokens)
+from input_protocol import INPUT_PROTOCOL_VERSION, suffix, validate_inputs
 
 
 def prompt(scene, row):
@@ -43,7 +38,9 @@ def prompt(scene, row):
 
 
 def build_inputs(model, scene, instruction, images):
-    return model.qwen_vl_interface.build_qwenvl_inputs(images=[images], instructions=[instruction+suffix(model)])
+    batch = model.qwen_vl_interface.build_qwenvl_inputs(images=[images], instructions=[instruction+suffix(model)])
+    validate_inputs(model, batch)
+    return batch
 
 
 def queries(model, batch, state):
