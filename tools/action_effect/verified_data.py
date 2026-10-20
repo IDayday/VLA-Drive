@@ -18,7 +18,7 @@ def stamp(path):
 
 def source_contract():
     root=Path(__file__).resolve().parents[2]
-    paths=['tools/action_effect/verified_data.py','tools/action_effect/build_effect_pairs.py',
+    paths=['tools/action_effect/verified_data.py','tools/action_effect/common.py','tools/action_effect/build_effect_pairs.py',
         'tools/action_effect/simulate_interventions.py','tools/action_effect/feedback_schema.py',
         'tools/action_effect/navsim_feedback_adapter.py','starVLA/model/modules/st_world/consequence.py']
     return {p:sha256(root/p) for p in paths}
@@ -40,14 +40,19 @@ def validate_compact_dataset(path,*,kind):
         raise ValueError('Complete compact schema required')
     regpath=verify_artifact(m['registration']);root=regpath.parent
     expected={'dataset':a,'source':source_contract(),'kind':kind}
-    key=digest(expected);cache=root/'validation_receipts'/f'{key}.json'
-    cached=_cached(cache,expected)
-    if cached:return {'receipt':artifact(cache),'reused':True,'inventory_files':len(cached['inventory'])}
-    cache.parent.mkdir(parents=True,exist_ok=True)
-    with (cache.parent/(key+'.lock')).open('a') as lock:
+    key=digest(expected);versions=root/'validation_receipts'/key
+    versions.mkdir(parents=True,exist_ok=True)
+    def find_cached():
+        for cache in sorted(versions.glob('*.json'),reverse=True):
+            cached=_cached(cache,expected)
+            if cached:return {'receipt':artifact(cache),'reused':True,'inventory_files':len(cached['inventory'])}
+        return None
+    reused=find_cached()
+    if reused:return reused
+    with (versions/'BUILD.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
-        cached=_cached(cache,expected)
-        if cached:return {'receipt':artifact(cache),'reused':True,'inventory_files':len(cached['inventory'])}
+        reused=find_cached()
+        if reused:return reused
         started=time.perf_counter()
         from .build_effect_pairs import build,read_population
         result=build(root)
@@ -70,5 +75,5 @@ def validate_compact_dataset(path,*,kind):
         r={'schema':'action_effect_native_validation_receipt_v1','dependency_identity':expected,
             'inventory':list(pins.values()),'full_validation_seconds':time.perf_counter()-started,
             'semantics':'native receipt and deterministic compact reconstruction; stat-checked immutable reuse'}
-        r['identity']=digest(r);write_json(cache,r)
+        r['identity']=digest(r);cache=versions/(r['identity']+'.json');write_json(cache,r)
         return {'receipt':artifact(cache),'reused':False,'inventory_files':len(pins),'seconds':r['full_validation_seconds']}
