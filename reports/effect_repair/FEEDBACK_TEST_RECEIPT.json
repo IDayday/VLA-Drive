@@ -1,0 +1,67 @@
+{
+  "schema": "action_effect_feedback_test_receipt_v1",
+  "recorded_at_utc": "2026-10-20T01:00:16.100151+00:00",
+  "starting_commit": "36493208ba4d8c25bedfcc43935a4ce4527131cc",
+  "branch": "feature/action-effect-feedback-20261020",
+  "status": "PASS",
+  "command": "env CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -m pytest -q tests/action_effect/test_feedback_schema.py tests/st_world/test_consequence.py tests/st_world/test_review_consequence_receipt.py",
+  "actual_result": {
+    "passed": 76,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 23,
+    "pytest_wall_seconds": 9.45
+  },
+  "source_files": [
+    {
+      "path": "tools/action_effect/__init__.py",
+      "bytes": 80,
+      "sha256": "c0a968d412a027d3b114ae4e7780222acfaf38770bbff526195ffd85e2bb2c5d"
+    },
+    {
+      "path": "tools/action_effect/feedback_schema.py",
+      "bytes": 24665,
+      "sha256": "3e671b95b248af212194dfd67e96b63f3ff1ffd38a5bf71d5acd8773b9a61d51"
+    },
+    {
+      "path": "tools/action_effect/navsim_feedback_adapter.py",
+      "bytes": 6852,
+      "sha256": "02963b10a6eb9d6956d6367e19706b2c24918f58dc252b0f05bbca2b059fb4b7"
+    },
+    {
+      "path": "tools/action_effect/validate_feedback.py",
+      "bytes": 1477,
+      "sha256": "bbec3cfd20d1f6bd944be13ba8fb04dcc929fd712fe9769a70ad0185ddfe1e5d"
+    },
+    {
+      "path": "tests/action_effect/test_feedback_schema.py",
+      "bytes": 14008,
+      "sha256": "302c5fdeea680a315159cbf5e4f9dc2bb751bee5798d5f64964dd2946f345fe3"
+    }
+  ],
+  "canonical_backend": {
+    "path": "starVLA/model/modules/st_world/consequence.py",
+    "bytes": 44517,
+    "sha256": "eb96a59fa1945fef47085928d55e91e399f74d2edb457ba0808607ff0bcb837c"
+  },
+  "test_output": {
+    "path": "reports/effect_repair/FEEDBACK_TEST_OUTPUT.txt",
+    "bytes": 1264,
+    "sha256": "bfd5eca5a6321b967c78b3ff5bfc3cde03510cfa8c383c8031d987fb11910bae"
+  },
+  "new_real_simulation_calls": 0,
+  "new_gpu_work": 0,
+  "real_data_integration": "NOT_RUN_LEAD_DISPATCH_PENDING",
+  "fixture_scope": "explicit synthetic records and native synthetic geometry; not scientific repair evidence",
+  "prior_invocations": [
+    {
+      "new_contract_tests": "21 passed, 1 warning in 3.53s"
+    },
+    {
+      "broader_environment_rejection": "72 passed, 1 failed in 5.21s; OMP=2 correctly rejected by old worker guard"
+    },
+    {
+      "full_before_three_extra_guards": "73 passed, 23 warnings in 10.00s"
+    }
+  ]
+}

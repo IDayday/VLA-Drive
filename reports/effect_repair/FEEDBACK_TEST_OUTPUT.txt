@@ -1,0 +1,13 @@
+........................................................................ [ 94%]
+....                                                                     [100%]
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/st_world/test_consequence.py: 22 warnings
+  /mnt/project/VLA-Drive-action-effect-feedback-20261020/navsim_v1.1/navsim/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py:209: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+    output[i] = shapely.vectorized.contains(polygon, flattened_points[:, 0], flattened_points[:, 1])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+76 passed, 23 warnings in 9.45s
