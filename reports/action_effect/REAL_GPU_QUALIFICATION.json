@@ -1,0 +1,120 @@
+{
+  "scope": "Real S0 cached-context engineering qualification; not scientific learning/generalization",
+  "base_preserved": true,
+  "VLM_updates": 0,
+  "native_simulation_calls": 0,
+  "nccl": {
+    "status": "PASS",
+    "ranks": [
+      [
+        {
+          "case": "all_valid",
+          "global_scenes": 8,
+          "gradient_tensors": 62,
+          "local_scenes": 4,
+          "max_abs_error": 2.3096799850463867e-07,
+          "max_tensor_relative_error": 58.20766091346741,
+          "microbatch": 2
+        },
+        {
+          "case": "empty_rank",
+          "global_scenes": 8,
+          "gradient_tensors": 62,
+          "local_scenes": 4,
+          "max_abs_error": 4.824250936508179e-07,
+          "max_tensor_relative_error": 116.41532182693481,
+          "microbatch": 2
+        }
+      ],
+      [
+        {
+          "case": "all_valid",
+          "global_scenes": 8,
+          "gradient_tensors": 62,
+          "local_scenes": 4,
+          "max_abs_error": 2.3096799850463867e-07,
+          "max_tensor_relative_error": 58.20766091346741,
+          "microbatch": 2
+        },
+        {
+          "case": "empty_rank",
+          "global_scenes": 8,
+          "gradient_tensors": 62,
+          "local_scenes": 4,
+          "max_abs_error": 4.824250936508179e-07,
+          "max_tensor_relative_error": 116.41532182693481,
+          "microbatch": 2
+        }
+      ]
+    ],
+    "tolerance": {
+      "atol": 2e-06,
+      "rtol": 0.0002
+    },
+    "receipt": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/nccl_real64_v1/RESULT.json",
+      "sha256": "03f1722e19ab33c466aa83595f3490565445163ed5081da1af931b0c3d6b928d",
+      "bytes": 2147
+    },
+    "production_DDP_trainer_qualified": false,
+    "numerical_boundary": "max relative error can be large for exact-zero/cancelling biases; declared absolute+relative tensor tolerance is used, not bitwise NCCL"
+  },
+  "cuda_exact_resume": {
+    "status": "PASS",
+    "new_updates": 32,
+    "exact_state": true,
+    "first_resumed_next_batch_exact": true,
+    "scheduler_horizon": 1000,
+    "receipt": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/g1_real_resume16_v1/RESULT.json",
+      "sha256": "e15a095510893facc426cab3368305da67641b2dfd8ccef943eeda035e85c3f7",
+      "bytes": 22192
+    },
+    "independent": {
+      "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/g1_real_resume16_v1/INDEPENDENT_CPU_AUDIT_v2.json",
+      "sha256": "ccf325983ad410ba087e8b13b2ad9bb7644b0ef84a5122d9f740ff64b8a046cd",
+      "bytes": 16281
+    }
+  },
+  "head_smokes": {
+    "A0": {
+      "optimizer_updates": 16,
+      "consumed_scenes": 512,
+      "private_parameters": 2711824,
+      "training_segment_seconds": 4.535235682502389,
+      "peak_allocated": 166050304,
+      "receipt": {
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/real16_A0/RESULT.json",
+        "sha256": "f680716d834f2a04e2a42b7ffc5638696b843154fd509a165742bba7c1765659",
+        "bytes": 925
+      },
+      "status": "PAUSED_DIAGNOSTIC_NOT_FORMAL_MODEL"
+    },
+    "B0": {
+      "optimizer_updates": 16,
+      "consumed_scenes": 512,
+      "private_parameters": 2775567,
+      "training_segment_seconds": 7.721661580726504,
+      "peak_allocated": 3521255424,
+      "receipt": {
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/real16_B0/RESULT.json",
+        "sha256": "aca60317e2a3600dd682bf09075eae09bd24ec56e325657436b7a4ccd030b965",
+        "bytes": 927
+      },
+      "status": "PAUSED_DIAGNOSTIC_NOT_FORMAL_MODEL"
+    },
+    "B1-trajectory": {
+      "optimizer_updates": 16,
+      "consumed_scenes": 512,
+      "private_parameters": 2775567,
+      "training_segment_seconds": 7.73326220549643,
+      "peak_allocated": 3521263616,
+      "receipt": {
+        "path": "/mnt/project/action-effect-repair-20261020-budget-v2/qualification/real16_B1-trajectory/RESULT.json",
+        "sha256": "f6bdf5a354fbdad925b7d0dfef19c2633de6088e68859d39ed4288f217d463da",
+        "bytes": 937
+      },
+      "status": "PAUSED_DIAGNOSTIC_NOT_FORMAL_MODEL"
+    }
+  }
+}
