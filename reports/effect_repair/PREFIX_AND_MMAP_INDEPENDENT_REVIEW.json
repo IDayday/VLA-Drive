@@ -1,0 +1,45 @@
+{
+  "actual_readonly_mmap_test": {
+    "all_tensor_values_bitwise_equal": true,
+    "dtypes": [
+      "torch.float32"
+    ],
+    "metadata_equal": true,
+    "optimizer_updates": 0,
+    "records": 16,
+    "shard": {
+      "bytes": 21024978,
+      "path": "/mnt/project/action-effect-repair-20261020/contexts/eaff8942a345e5c52869bfedf3f52074af48cde0232753eb78a880669b1da704.pt",
+      "sha256": "a61494e6cf205855b156f49b6e2d94c6d4414af477a7288bea43f99089a586d2"
+    },
+    "simulator_calls": 0,
+    "status": "PASS",
+    "tensor_bytes": 20982528,
+    "tensors_compared_full": 144,
+    "visual_or_model_calls": 0
+  },
+  "created_utc": "2026-10-20T01:42:10.597839+00:00",
+  "legacy_format_negative": {
+    "error": "mmap can only be used with files saved with `torch.save(_use_new_zipfile_serialization=True), please torch.save your checkpoint with this option in order to use mmap.",
+    "status": "REJECTED_AS_REQUIRED"
+  },
+  "not_approved": [
+    "scientific improvement",
+    "training data from DEV",
+    "incomplete chunk publication",
+    "sampling order changes",
+    "new precision or frontend changes"
+  ],
+  "prefix_approval": "APPROVED_SOURCE_ONLY",
+  "prefix_findings": [
+    "missing any required COMPLETE returns BLOCKED before publication",
+    "every referenced chunk validates count/order/cohort/Base/hash/offset and immutable receipt",
+    "cohort slicing preserves sampler order; prefix population max_samples is explicit, not full1024",
+    "distinct prefix manifest atomic immutable publish; producer later shards unchanged",
+    "existing prefix path is fully revalidated; presence alone is not success"
+  ],
+  "reviewed_mmap_source": "014a9a3db525a39ff08eb4d2323b5268ec04a25f",
+  "reviewed_prefix_source": "89923d13",
+  "schema": "action_effect_prefix_mmap_review_v1",
+  "scope": "only already complete ordered locked-TRAIN shard-boundary prefixes; no GPU/training/simulation"
+}
