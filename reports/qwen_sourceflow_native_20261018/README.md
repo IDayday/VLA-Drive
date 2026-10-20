@@ -1,8 +1,10 @@
 # QwenSourceFlowVLA：原生 Qwen＋SimWAM 动作策略
 
-**2026-10-20 执行快照：正式8卡IL已到35,868步，首个20k模型完整DEV（1696场景/16 logs）canonical单候选PDMS为84.522951。20k不是最新35k权重。完整IL、两组正式RL及Navtest仍未完成，没有达到92或已有RL净收益的结论。**
+**最新：按用户要求完成20k IL中期全量Navtest，canonical v1.1单候选PDMS为80.370064（12146场景/136 logs、seed2101、shift5 ODE K10），未达到92。这不是RL成绩，不用于IL父模型选择。** 详见[全量Navtest报告](interim_NAVTEST_IL020000_20261020.md)。正式IL继续运行；后续CPU owner已迁移为`campaign_v3`，只修复评价源码/缓存路由，训练仍固定`d4d0012`。
 
-最新进展、分项/零分诊断及本次评价控制器收尾竞争修复见[interim_IL020000_20261020.md](interim_IL020000_20261020.md)。实际55个评价worker全部成功，旧控制器收尾退出后本次从已有完整结果补汇总；未重跑或修改轨迹。新`milestone_queue_v3`已后台运行，原IL与`campaign_v2`持续运行。
+**2026-10-20 14:51执行快照：正式8卡IL到35,868步，首个20k模型完整DEV（1696场景/16 logs）canonical单候选PDMS为84.522951。20k不是最新35k权重。完整IL、两组正式RL及选定父模型的最终Navtest尚未完成，没有达到92或已有RL净收益的结论。**
+
+14:51时的进展、分项/零分诊断及DEV控制器收尾竞争修复见[interim_IL020000_20261020.md](interim_IL020000_20261020.md)。实际55个评价worker全部成功，旧控制器收尾退出后从已有完整结果补汇总；未重跑或修改轨迹。`milestone_queue_v3`与原IL持续运行；后续Navtest缓存路由修复时，等待中的post-IL owner另行迁移为`campaign_v3`，见最新Navtest报告。
 
 最新中期结果、费用与后续两组50k/锁定Navtest的实际执行链见 [interim_IL005000.md](interim_IL005000.md)。[完整训练阶段快照](formal_IL_full_stage_snapshot.json) 与初始770步之前的启动快照分开保留。
 
