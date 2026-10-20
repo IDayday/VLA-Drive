@@ -29,7 +29,9 @@ def fixtures(monkeypatch,*,arm='delta_feedback',temporal=.2):
         'complete':{'metrics':{'path':'original-METRICS.json','sha256':'fixture'}}}
     monkeypatch.setattr(derived,'verify_artifact',lambda pin:Path(pin['path']))
     ti={'source_commit':'fixture','loss_weights':{'temporal':temporal}}
-    monkeypatch.setattr(derived,'checkpoint_state',lambda _:(ti,{},{}))
+    state={'sampler':torch.Generator().manual_seed(143).get_state(),
+        'stateful':{'pair_rng':torch.Generator().manual_seed(244).get_state()},'consumed_scenes':32000,'optimizer_step':1000}
+    monkeypatch.setattr(derived,'checkpoint_state',lambda _:(ti,state,{}))
     return original,dataset,records
 
 
@@ -91,6 +93,8 @@ def write_original_evaluation(root):
     ti=json.loads((root/'IDENTITY.json').read_text());ti['data_artifact']=artifact(root/'DATA.json')
     (root/'IDENTITY.json').write_text(json.dumps(ti))
     state=torch.load(root/'step_000002.pt',weights_only=False);state['run_identity']=digest(ti)
+    state.update(sampler=torch.Generator().manual_seed(143).get_state(),
+        stateful={'pair_rng':torch.Generator().manual_seed(244).get_state()})
     torch.save(state,root/'step_000002.pt')
     (root/'step_000002.COMPLETE.json').write_text(json.dumps({'checkpoint':artifact(root/'step_000002.pt'),
         'run_identity':digest(ti),'optimizer_step':2}))
@@ -151,6 +155,14 @@ def test_complete_six_uses_all_native_pair_scenes_and_rejects_different_admissio
     assert x['status']=='COMPLETE' and len(x['paired_log_intervals_on_complete_eligible_population'])==5
     assert x['population_admission']['original_requested_scenes']==3
     assert all(row['eligible_native_pair_scenes']==2 and row['original_full_population_PDMS'] is None for row in x['rows'])
+    examples['terminal_pdms']['actual_sampling_proof']['pair_rng_sha256']='wrong'
+    with pytest.raises(ValueError,match='sampler recipe'):
+        derived.compare(paths,kind='six',step=1000,output=tmp_path/'wrong_actual_sampler',bootstrap=10)
+    examples['terminal_pdms']['actual_sampling_proof']['pair_rng_sha256']=examples['delta_feedback']['actual_sampling_proof']['pair_rng_sha256']
+    examples['terminal_pdms']['actual_sampling_proof']['consumed_scene_presentations']+=32
+    with pytest.raises(ValueError,match='sampler recipe'):
+        derived.compare(paths,kind='six',step=1000,output=tmp_path/'wrong_actual_consumption',bootstrap=10)
+    examples['terminal_pdms']['actual_sampling_proof']['consumed_scene_presentations']-=32
     examples['terminal_pdms']['training_identity']['runtime']['tf32']=True
     with pytest.raises(ValueError,match='numerical runtime'):
         derived.compare(paths,kind='six',step=1000,output=tmp_path/'wrong_runtime',bootstrap=10)

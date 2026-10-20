@@ -7,14 +7,32 @@ intersecting available outputs. No forward, training or simulation is executed.
 """
 from __future__ import annotations
 import argparse
-import csv,io,json
+import csv,hashlib,io,json
 from pathlib import Path
+import torch
 from .common import artifact,atomic_bytes,digest,read_json,verify_artifact,verify_identity,write_json
 from .compare_effect_models import _load_evaluation,checkpoint_state,require_primary_loss_recipe,_source
 from .compare_temporal_ablation import _matched as matched_temporal
 from .g1_metrics import summarize_records,paired_group_bootstrap
 from .train_effect_model import loss_weights
 from starVLA.model.modules.action_effect.effect_model import MODES
+
+
+def sampling_proof(state):
+    """Small exact consumed-stream receipt, using the already loaded state."""
+    def rng_hash(value):
+        if not isinstance(value,torch.Tensor) or value.dtype!=torch.uint8 or value.ndim!=1:
+            raise ValueError('Actual uint8 sampler/RNG checkpoint state required')
+        return hashlib.sha256(value.detach().cpu().contiguous().numpy().tobytes()).hexdigest()
+    if set(state.get('stateful',{}))!={'pair_rng'}:
+        raise ValueError('Registered G1 pair-stream RNG inventory changed or is missing')
+    if (type(state.get('consumed_scenes')) is not int or state['consumed_scenes']<1
+            or type(state.get('optimizer_step')) is not int or state['optimizer_step']<1):
+        raise ValueError('Actual completed optimizer/data consumption counters required')
+    return {'scene_sampler_sha256':rng_hash(state['sampler']),
+        'pair_rng_sha256':rng_hash(state['stateful']['pair_rng']),
+        'stateful_names':sorted(state['stateful']),'consumed_scene_presentations':state['consumed_scenes'],
+        'optimizer_step':state['optimizer_step']}
 
 
 def admit_population(original,dataset,records):
@@ -58,7 +76,7 @@ def admit_population(original,dataset,records):
             or old['heldout_pairs']!=len(native) or old['missing_scene_ids']!=missing
             or missing!=sorted(r['scene_id'] for r in structural)):
         raise ValueError('Original missing/covered accounting does not equal source-defined structural no-pair scenes')
-    training_identity,_,_=checkpoint_state(verify_artifact(identity['checkpoint']))
+    training_identity,training_state,_=checkpoint_state(verify_artifact(identity['checkpoint']))
     metrics=summarize_records(records,**identity['label_spec'],requested_scenes=[r for r in requested if r['scene_id'] in eligible],
         mode=identity['arm'],temporal_supervised=False if training_identity.get('loss_weights',{}).get('temporal')==0. else None)
     if metrics['missing_scene_ids'] or not metrics['selection']['coverage_complete']:
@@ -80,7 +98,8 @@ def admit_population(original,dataset,records):
         'absolute_Base_PDMS':None,'absolute_selected_PDMS':None,
         'interpretation':'structural scenes receive a defined identity increment zero; no absolute score, repair success or model decision is fabricated'}
     return {**original,'metrics':metrics,'population_admission':population,'structural_identity_delta_extension':extension,
-            'original_metrics_artifact':original['complete']['metrics'],'training_identity':training_identity}
+            'original_metrics_artifact':original['complete']['metrics'],'training_identity':training_identity,
+            'actual_sampling_proof':sampling_proof(training_state)}
 
 
 def derive(path):
@@ -106,6 +125,7 @@ def match_controls(loaded,*,step):
         if 'device' in ti.get('runtime',{}):runtime['device_type']=ti['runtime']['device'].split(':')[0]
         fingerprints.add(digest({'model':{k:v for k,v in ti['model_config'].items() if k!='mode'},
             'recipe':ti['recipe'],'seed':ti['seed'],'capacity':x['training']['private_parameters'],'runtime':runtime,
+            'actual_sampling_proof':x['actual_sampling_proof'],
             'fit_recipe':{k:ti.get(k) for k in ('dataset_size','max_updates','sampling','scene_shuffle_map_hash','withheld_training_interventions')}}))
     if len(fingerprints)>1:raise ValueError('Unmatched model capacity, initialization, numerical runtime or optimizer/sampler recipe')
 
@@ -161,6 +181,7 @@ def compare(evaluations,*,kind,step,output,bootstrap=2000,seed=42):
         'structural_identity_delta_extension':{a:x['structural_identity_delta_extension'] for a,x in loaded.items()},
         'paired_log_intervals_on_complete_eligible_population':intervals,
         'training_sources':{a:x['training_identity']['source_commit'] for a,x in loaded.items()},
+        'actual_checkpoint_sampling_proofs':{a:x['actual_sampling_proof'] for a,x in loaded.items()},
         'scientific_conclusion':'UNTESTED','policy_temporal_credit_claim':'NOT_ESTABLISHED',
         'not_full_original_population_PDMS':True,'original_evaluations_modified':False,
         'new_model_forwards':0,'new_optimizer_updates':0,'new_simulator_calls':0,

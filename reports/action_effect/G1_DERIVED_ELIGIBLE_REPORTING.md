@@ -52,6 +52,11 @@ Base/data/context, fixed endpoint, label schema, capacity, seed and optimizer
 recipe. Main-six comparisons still reject the no-temporal recipe. The two-run
 temporal comparison uses the same admission and the existing exact weight/
 sampler/runtime checks; only its `.2→0` temporal-grid objective may differ.
+Independent review additionally required actual six-arm consumption proof,
+not merely matching declarations: the tool now fingerprints the already-loaded
+checkpoint scene sampler, pair RNG and consumed-scene count and requires exact
+equality. These small proofs are retained in the derived JSON. No extra native
+decode or model forward is needed.
 
 ## Executable read-only entry
 
@@ -83,11 +88,12 @@ new scientific control hidden inside this reporting change.
 
 `python -m pytest -q tests/action_effect/test_derived_eligible_report.py tests/action_effect/test_g1_comparison.py tests/action_effect/test_temporal_ablation.py`
 
-**42 passed in6.64s**. New cases cover source-only eligibility, missing whole-scene
+**42 passed in6.54s**. New cases cover source-only eligibility, missing whole-scene
 and within-scene predictions, duplicate/foreign pair/scene/log, omitted requested
 scenes, native invalid evidence, wrong original denominator, retained original
 bytes, forged missing prediction in the real receipt-loader chain, versioned
-PENDING output, six-model matching, and the complete temporal comparison path.
+PENDING output, six-model matching including changed actual sampler/exposure,
+and the complete temporal comparison path.
 These use small explicitly synthetic artifact/tensor fixtures and prove reporting
 behavior, not learned effectiveness. CLI `--help` and whitespace checks pass.
 
