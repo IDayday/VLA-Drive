@@ -4,9 +4,12 @@ All result paths are explicit NAME=PATH arguments. Invalid predictions remain in
 the requested denominator and prevent a full-population score/gain claim.
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import csv
+from functools import partial
 import io
 from pathlib import Path
+import subprocess
 
 import numpy as np
 
@@ -16,7 +19,33 @@ METRICS=('score','no_at_fault_collisions','drivable_area_compliance',
          'time_to_collision_within_bound','ego_progress','comfort','driving_direction_compliance')
 
 
-def load(path):
+def _verify_scene(directory,item,*,pins,prediction):
+    """Read-only independent receipt chain; safe across distinct scene threads."""
+    sid,row=item
+    verify_identity(row)
+    pin=artifact(directory/'scenes'/sid/'RESULT.json')
+    if pins.get(pin['path'])!=pin or row['prediction_identity']!=prediction[sid]['identity']:
+        raise ValueError('Native result/prediction/scene receipt changed')
+    from .simulate_interventions import verified_feedback
+    from .feedback_schema import canonical_record
+    native=canonical_record(verified_feedback(row))
+    if native['status']!=row['status'] or native['metrics']!=row['metrics']:
+        raise ValueError('Reported metrics differ from their independent native receipt')
+
+
+def _verification_source():
+    """Pin the unchanged checks and comparison implementation together."""
+    root=Path(__file__).resolve().parents[2]
+    files=('tools/action_effect/compare_methods.py','tools/action_effect/common.py',
+           'tools/action_effect/simulate_interventions.py','tools/action_effect/feedback_schema.py',
+           'tools/action_effect/navsim_feedback_adapter.py','starVLA/model/modules/st_world/consequence.py')
+    return {'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
+        'files':{name:artifact(root/name) for name in files}}
+
+
+def load(path,*,verification_workers=1):
+    if type(verification_workers) is not int or not 1<=verification_workers<=8:
+        raise ValueError('verification_workers must be an integer from1 through8')
     path=Path(path);result=read_json(path)
     completion=read_json(path.parent/'COMPLETE.json')
     if result.get('status')!='COMPLETE' or completion.get('result')!=artifact(path):
@@ -31,16 +60,14 @@ def load(path):
     rows={r['scene_id']:r for r in result['entries']};prediction={r['scene_id']:r for r in pred['entries']}
     if len(rows)!=len(result['entries']) or set(rows)!=set(prediction):raise ValueError('Duplicate/missing ID join')
     pins={p['path']:p for p in completion['scenes']}
-    for sid,row in rows.items():
-        verify_identity(row)
-        pin=artifact(path.parent/'scenes'/sid/'RESULT.json')
-        if pins.get(pin['path'])!=pin or row['prediction_identity']!=prediction[sid]['identity']:
-            raise ValueError('Native result/prediction/scene receipt changed')
-        from .simulate_interventions import verified_feedback
-        from .feedback_schema import canonical_record
-        native=canonical_record(verified_feedback(row))
-        if native['status']!=row['status'] or native['metrics']!=row['metrics']:
-            raise ValueError('Reported metrics differ from their independent native receipt')
+    verify=partial(_verify_scene,path.parent,pins=pins,prediction=prediction)
+    if verification_workers==1:
+        for item in rows.items():verify(item)
+    else:
+        # ordered.map preserves input/result order and propagates any worker
+        # failure. All workers only read immutable receipts; none writes/cache.
+        with ThreadPoolExecutor(max_workers=verification_workers) as executor:
+            for _ in executor.map(verify,rows.items()):pass
     return result,rows,population
 
 
@@ -82,18 +109,22 @@ def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--baseline',required=True)
     p.add_argument('--method',action='append',default=[],help='NAME=/actual/score/RESULT.json')
     p.add_argument('--output',required=True);p.add_argument('--bootstrap-repetitions',type=int,default=2000)
+    p.add_argument('--verification-workers',type=int,choices=range(1,9),default=1,
+                   help='Bounded read-only scene receipt verification threads; default1 retains serial behavior')
     p.add_argument('--seed',type=int,default=42);a=p.parse_args(argv)
     if not 1<=a.bootstrap_repetitions<=10000 or not a.method:raise ValueError('Bounded bootstrap and explicit methods required')
-    base,base_rows,base_reg=load(a.baseline);results={};pins={};csv_rows=[]
+    sources=_verification_source()
+    base,base_rows,base_reg=load(a.baseline,verification_workers=a.verification_workers);results={};pins={};csv_rows=[]
     for named in a.method:
         name,path=named.split('=',1)
         if not name or name in results:raise ValueError('Unique named methods required')
-        result,rows,reg=load(path)
+        result,rows,reg=load(path,verification_workers=a.verification_workers)
         for key in ('base_checkpoint','score_protocol_hash','numeric_runtime_hash','context_manifest','role','scene_ids'):
             if reg[key]!=base_reg[key]:raise ValueError('Matched evaluation contract differs: '+key)
         results[name]=paired_summary(base_rows,rows,repetitions=a.bootstrap_repetitions,seed=a.seed)
         pins[name]=artifact(path)
         csv_rows.append({'method':name,**{k:v for k,v in results[name].items() if not isinstance(v,(list,dict))}})
+    if sources!=_verification_source():raise ValueError('Verification/comparison source changed during read-only execution')
     output=Path(a.output);output.mkdir(parents=True,exist_ok=True)
     report={'schema':'action_effect_matched_comparison_v1','status':'COMPLETE','baseline':artifact(a.baseline),
         'methods':pins,'results':results,'selection_performed':False,'navtest_accessed':False,
@@ -102,6 +133,14 @@ def main(argv=None):
     report['identity']=digest(report);write_json(output/'COMPARISON.json',report)
     stream=io.StringIO();writer=csv.DictWriter(stream,fieldnames=list(csv_rows[0]));writer.writeheader();writer.writerows(csv_rows)
     atomic_bytes(output/'FINAL_SYSTEM_RESULTS.csv',stream.getvalue().encode())
+    # Execution/source provenance is separate, leaving science JSON/CSV bytes
+    # and identity identical for serial versus parallel receipt verification.
+    verification={'schema':'action_effect_comparison_verification_runtime_v1','status':'COMPLETE',
+        'verification_workers':a.verification_workers,'sources':sources,
+        'comparison':artifact(output/'COMPARISON.json'),'scene_checks':'unchanged identity + SHA + independent canonical/native metrics chain',
+        'read_only':True,'new_simulator_calls':0,'new_model_forwards':0}
+    verification['identity']=digest(verification)
+    write_json(output/'VERIFICATION_RUNTIME.json',verification)
     print(report['identity'])
 
 
