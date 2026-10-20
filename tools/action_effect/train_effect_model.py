@@ -47,18 +47,17 @@ class PairData:
             raise ValueError('Effect pair completion/registration/Base identity mismatch')
         # First-access full source chain validation; never rely on a manifest
         # existing while its native feedback or scene receipt has disappeared.
-        from .build_effect_pairs import read_population
-        from .simulate_interventions import verified_feedback
-        _,native_scenes=read_population(Path(m['registration']['path']).parent)
-        for scene in native_scenes:
-            for row in scene['candidates']:
-                if 'feedback' in row:verified_feedback(row)
+        from .build_effect_pairs import build as rebuild_compact
+        expected=rebuild_compact(Path(m['registration']['path']).parent)
+        if expected['pair_dataset']['sha256']!=artifact(path)['sha256']:
+            raise ValueError('Compact pair rows differ from their verified native candidates')
         self.reader=reader;self.by_scene={};self.validation=[];self.names=None;groups={'fit':set(),'validation':set()}
         for r in m['entries']:
             verify_identity(r)
             if r['scene_id'] not in reader.rows or r['context_entry']!=reader.rows[r['scene_id']]:
                 raise ValueError('Pair/feature observation identity mismatch')
-            if r['role'] not in groups or r['role']!=reader.rows[r['scene_id']]['role']:
+            if (r['role'] not in groups or r['role']!=reader.rows[r['scene_id']]['role'] or
+                r['source_log']!=reader.rows[r['scene_id']]['source_log']):
                 raise ValueError('Pair data role leakage')
             if r['base_labels']['names']!=r['modified_labels']['names'] or r['base_labels']['units']!=r['modified_labels']['units']:
                 raise ValueError('Pair label units/schema changed')
