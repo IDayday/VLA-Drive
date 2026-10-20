@@ -224,9 +224,13 @@ class ActionEffectModel(nn.Module):
         events = .5 * (events[:b] + events[b:].flip(-1))
         temporal = self.temporal_head(features).reshape(2 * b, self.config.temporal_steps, 3)
         temporal = (temporal[b:] - temporal[:b]) if absolute else .5 * (temporal[:b] - temporal[b:])
+        # Repair is an intervention outcome: even the absolute-feedback control
+        # must observe BOTH trajectories. Reading only (base,base) makes every
+        # modification share one impossible-to-fit repair prediction in C.
+        repair_features = (features[b:] - features[:b]) if absolute else .5 * (features[:b] - features[b:])
         return {"mean_delta": delta, "absolute_before": absolute_before, "absolute_after": absolute_after,
                 "logvar_delta": delta_logvar, "event_logits": events,
-                "temporal_delta": temporal, "repair_logit": self.repair_head(features[:b]).squeeze(-1)}
+                "temporal_delta": temporal, "repair_logit": self.repair_head(repair_features).squeeze(-1)}
 
 
 # Short alias for thin campaign trainers; no architecture selection at runtime.

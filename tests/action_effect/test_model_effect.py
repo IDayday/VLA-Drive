@@ -101,6 +101,22 @@ def test_absolute_controls_are_single_trajectory_potentials(mode):
     torch.testing.assert_close(out["absolute_before"], shuffled["absolute_after"], rtol=0, atol=0)
 
 
+@pytest.mark.parametrize("mode", ["absolute_feedback", "delta_feedback", "trajectory_only"])
+def test_repair_head_observes_both_trajectories_with_direction(mode):
+    model = ActionEffectModel(cfg(mode), spec())
+    context, a, b = batch()
+    proposed = b.clone().requires_grad_()
+    changed = b.clone(); changed[..., 1] += .7
+    first = model(context, a, proposed)["repair_logit"]
+    second = model(context, a, changed)["repair_logit"]
+    assert not torch.equal(first, second)
+    gradient, = torch.autograd.grad(first.sum(), proposed)
+    assert torch.isfinite(gradient).all() and gradient.abs().sum() > 0
+    reverse = model(context, b, a)["repair_logit"]
+    identity = model(context, a, a)["repair_logit"]
+    torch.testing.assert_close(first + reverse, 2 * identity, rtol=1e-5, atol=1e-7)
+
+
 def test_padding_and_candidate_batch_permutation_are_invariant():
     model = ActionEffectModel(cfg(), spec())
     context, a, b = batch()
