@@ -27,6 +27,21 @@ def test_late_intervention_has_no_earlier_change():
     np.testing.assert_array_equal(a[:4],b[:4]);assert b[-1,1]==pytest.approx(.3)
 
 
+def test_hold_tail_is_in_actual_intervention_support():
+    rows=intervention_grid(BasisSpec())
+    assert rows[1]['ramp_intervals_seconds']==[[0.,2.]]
+    assert rows[1]['active_intervals_seconds']==[[0.,4.]]
+
+
+def test_low_speed_turn_is_not_hidden_by_curvature_mask():
+    a=straight();a[:,:2]*=.01;a[:,2]=np.arange(1,9)*.2
+    r=geometric_screen(a,BasisSpec(),ConstraintSpec())
+    assert not r['geometrically_admissible'] and 'curvature_inv_m' in r['failures']
+    a[:,:2]=0
+    r=geometric_screen(a,BasisSpec(),ConstraintSpec())
+    assert 'yaw_change_without_translation' in r['failures']
+
+
 def test_smoothstep_support_derivatives():
     h=1e-4
     assert smoothstep(-1)==0 and smoothstep(2)==1

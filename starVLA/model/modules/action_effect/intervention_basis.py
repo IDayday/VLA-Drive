@@ -126,6 +126,8 @@ def intervention_grid(spec, *, seed=20261020):
     assert len(rows) == 24
     for i, row in enumerate(rows):
         row.update(intervention_id=f"intervention_{i:02d}", basis_sha256=spec.sha256,
-                   seed=int(seed), active_intervals_seconds=[list(spec.windows[k % 4])
+                   seed=int(seed), ramp_intervals_seconds=[list(spec.windows[k % 4])
+                   for k, value in enumerate(row["coefficients"]) if value != 0],
+                   active_intervals_seconds=[[spec.windows[k % 4][0], spec.horizon*spec.dt]
                    for k, value in enumerate(row["coefficients"]) if value != 0])
     return rows

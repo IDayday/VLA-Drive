@@ -37,12 +37,18 @@ def geometric_screen(poses, basis_spec, limits, *, initial_velocity_xy=None):
     jerk=np.diff(acceleration,axis=0)/dt
     speed=np.linalg.norm(velocity,axis=-1)
     yaw_rate=wrap_angle(np.diff(np.r_[0.,a[:,2]]))/dt
-    curvature=np.divide(np.abs(yaw_rate),speed,out=np.zeros_like(speed),where=speed>1.)
+    translating = speed > 1e-6
+    undefined_turn = (~translating) & (np.abs(yaw_rate) > 1e-6)
+    curvature=np.divide(np.abs(yaw_rate),speed,out=np.zeros_like(speed),where=translating)
     values={"speed_mps":float(speed.max()),"acceleration_mps2":float(np.linalg.norm(acceleration,axis=-1).max()),
             "jerk_mps3":float(np.linalg.norm(jerk,axis=-1).max()),"yaw_rate_rps":float(np.abs(yaw_rate).max()),
             "curvature_inv_m":float(curvature.max()),"lateral_acceleration_mps2":float((curvature*speed**2).max())}
     failures=[k for k,v in values.items() if v>getattr(limits,'max_'+k)+1e-12]
+    if undefined_turn.any():
+        failures.append("yaw_change_without_translation")
     return {"geometrically_admissible":not failures,"failures":failures,"maxima":values,
+            "curvature_defined_steps":int(translating.sum()),
+            "undefined_stationary_turn_steps":int(undefined_turn.sum()),
             "initial_velocity_observed":initial_velocity_xy is not None,
             "executable":"REQUIRES_REAL_CONTROLLER_REPLAY","is_safety_label":False}
 
