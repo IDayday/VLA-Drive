@@ -8,6 +8,7 @@ import json
 import time
 import subprocess
 import os
+from importlib.metadata import version
 
 from .common import (artifact,verify_artifact,digest,sha256,read_json,write_json,
                      atomic_bytes,load_config,check_space,lock)
@@ -16,10 +17,21 @@ from .common import (artifact,verify_artifact,digest,sha256,read_json,write_json
 def prepare(cfg):
     from tools.st_world_policy.base_binding import read_binding
     root=Path(cfg['artifact_root']);check_space(cfg)
+    repo=Path(__file__).resolve().parents[2]
+    contracts=['tools/action_effect/collect_base_trajectories.py',
+        'tools/foresight/checkpoints.py','starVLA/dataloader/foresight_dataset.py',
+        'starVLA/model/framework/DDPForesight.py','starVLA/model/framework/QwenOFT.py',
+        'starVLA/model/modules/action_model/GR00T_ActionHeader.py']
+    extraction_contract={'schema':'action_effect_s0_context_fp32_v1',
+        'code':{p:sha256(repo/p) for p in contracts},
+        'packages':{p:version(p) for p in ['torch','transformers','deepspeed']},
+        'visual_and_language_precision':'original_FP32_master_eval_TF32_off',
+        'scene_noise':'foresight-action-v1','shape_source':'actual_bound_model'}
     path=root/'CAMPAIGN_BINDING.json'
     if path.exists():
         binding=read_json(path)
         if binding['config_hash']!=digest(cfg):raise ValueError('Use new campaign for changed configuration')
+        if binding['extraction_contract']!=extraction_contract:raise ValueError('Context extraction code/runtime changed')
         verify_artifact(binding['base_binding']);verify_artifact(binding['train_manifest'])
         return binding
     base=read_binding(cfg['base_binding']);m=read_json(cfg['train_manifest'])
@@ -41,6 +53,7 @@ def prepare(cfg):
            'source_start_commit':'36493208ba4d8c25bedfcc43935a4ce4527131cc',
            'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
            'config_hash':digest(cfg),'base_binding':artifact(cfg['base_binding']),
+           'extraction_contract':extraction_contract,
            'train_manifest':artifact(cfg['train_manifest']),'cohort':artifact(root/'COHORT.json'),
            'base_checkpoint':base['checkpoint'],'base_inference_contract':base['inference_contract']}
     value['identity']=digest(value);write_json(path,value);write_json(root/'RESOLVED_CONFIG.json',cfg)
