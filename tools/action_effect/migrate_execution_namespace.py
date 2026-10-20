@@ -45,9 +45,12 @@ def migrate(old_cfg,new_cfg):
     # Immutable content-addressed candidate results already support population
     # reuse. Reuse that store explicitly; new calls remain individually receipted.
     source=(Path(old_cfg['artifact_root'])/'g0/candidate_cache').resolve();link=Path(new_cfg['artifact_root'])/'g0/candidate_cache'
+    if not source.is_dir():raise ValueError('Missing source immutable candidate cache')
     link.parent.mkdir(exist_ok=True)
-    if not link.exists():link.symlink_to(source,target_is_directory=True)
-    if link.resolve()!=source:raise ValueError('Wrong shared immutable candidate cache')
+    if os.path.lexists(link):
+        if not link.is_symlink() or link.resolve()!=source:raise ValueError('Wrong/dangling shared candidate cache link')
+    else:link.symlink_to(source,target_is_directory=True)
+    if not link.is_dir() or link.resolve()!=source:raise ValueError('Wrong shared immutable candidate cache')
     result={'schema':'action_effect_resource_namespace_migration_v1','status':'PASS',
         'old_binding':old['identity'],'new_binding':new['identity'],'old_config':old_cfg,'new_config':new_cfg,
         'original_Base_unchanged':True,'scientific_contract_unchanged':True,'new_inference_calls':0,
